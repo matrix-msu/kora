@@ -12,10 +12,10 @@
 		
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li><a href="/~anthony.donofrio/Kora3/public/articles">Articles</a></li>
+            <!-- Left justified links -->
           </ul>
 		  <ul class="nav navbar-right">
-            <li>{!! link_to_action('ArticlesController@show', $latest->title, [$latest->id]) !!}</li>
+            <!-- Right justified links -->
           </ul>
         </div><!--/.nav-collapse -->
       </div>
