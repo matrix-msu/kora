@@ -1,46 +1,45 @@
-<html>
-	<head>
-		<link href='//fonts.googleapis.com/css?family=Lato:100' rel='stylesheet' type='text/css'>
+@extends('app')
 
-		<style>
-			body {
-				margin: 0;
-				padding: 0;
-				width: 100%;
-				height: 100%;
-				color: #B0BEC5;
-				display: table;
-				font-weight: 100;
-				font-family: 'Lato';
-			}
+@section('content')
+<style>
+    .body_quote {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        color: #B0BEC5;
+        display: table;
+        font-weight: 100;
+        font-family: 'Lato';
+    }
 
-			.container {
-				text-align: center;
-				display: table-cell;
-				vertical-align: middle;
-			}
+    .container_quote {
+        text-align: center;
+        display: table-cell;
+        vertical-align: middle;
+    }
 
-			.content {
-				text-align: center;
-				display: inline-block;
-			}
+    .content_quote {
+        text-align: center;
+        display: inline-block;
+    }
 
-			.title {
-				font-size: 96px;
-				margin-bottom: 40px;
-			}
+    .title_quote {
+        font-size: 96px;
+        margin-bottom: 40px;
+    }
 
-			.quote {
-				font-size: 24px;
-			}
-		</style>
-	</head>
-	<body>
-		<div class="container">
-			<div class="content">
-				<div class="title">Kora 3</div>
-				<div class="quote">{{ Inspiring::quote() }}</div>
-			</div>
-		</div>
-	</body>
-</html>
+    .quote {
+        font-size: 24px;
+    }
+</style>
+<div class="body_quote">
+    <div class="container_quote">
+        <div class="content_quote">
+            <div class="title_quote">Kora 3</div>
+            <div class="quote">{{ Inspiring::quote() }}</div>
+        </div>
+    </div>
+</div>
+@endsection
+

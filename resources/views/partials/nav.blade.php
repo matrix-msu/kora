@@ -7,15 +7,17 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/~anthony.donofrio/Kora3/public/">Blog</a>
+          <a class="navbar-brand" href="{{ url('/') }}">Kora 3</a>
         </div>
 		
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <!-- Left justified links -->
+			<li></li>
           </ul>
 		  <ul class="nav navbar-right">
             <!-- Right justified links -->
+			<li></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
