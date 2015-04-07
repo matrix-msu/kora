@@ -1,7 +1,6 @@
 <?php namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Article;
 
 class ViewComposerServiceProvider extends ServiceProvider {
 
@@ -26,9 +25,7 @@ class ViewComposerServiceProvider extends ServiceProvider {
 	}
 	
 	private function composeNavigation(){
-		view()->composer('partials.nav', function($view){
-				$view->with('latest', Article::latest()->first());
-		});
+		
 	}
 
 }
