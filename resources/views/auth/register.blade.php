@@ -22,9 +22,9 @@
 						<input type="hidden" name="_token" value="{{ csrf_token() }}">
 
 						<div class="form-group">
-							<label class="col-md-4 control-label">Name</label>
+							<label class="col-md-4 control-label">Username</label>
 							<div class="col-md-6">
-								<input type="text" class="form-control" name="name" value="{{ old('name') }}">
+								<input type="text" class="form-control" name="username" value="{{ old('username') }}">
 							</div>
 						</div>
 
@@ -46,6 +46,27 @@
 							<label class="col-md-4 control-label">Confirm Password</label>
 							<div class="col-md-6">
 								<input type="password" class="form-control" name="password_confirmation">
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<label class="col-md-4 control-label">Real Name</label>
+							<div class="col-md-6">
+								<input type="text" class="form-control" name="name" value="{{ old('name') }}">
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<label class="col-md-4 control-label">Organization</label>
+							<div class="col-md-6">
+								<input type="text" class="form-control" name="organization" value="{{ old('organization') }}">
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<label class="col-md-4 control-label">Language</label>
+							<div class="col-md-6">
+								<input type="text" class="form-control" name="language" value="{{ old('language') }}">
 							</div>
 						</div>
 
