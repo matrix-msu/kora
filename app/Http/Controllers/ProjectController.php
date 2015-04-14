@@ -17,8 +17,8 @@ class ProjectController extends Controller {
 	{
         $projects = Project::all();
 
-        return "this is the projects page";
-        //return view('projects.index', compact('projects'));
+        //return "this is the projects page";
+        return view('projects.index', compact('projects'));
 	}
 
 	/**

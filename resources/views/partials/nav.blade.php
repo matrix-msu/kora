@@ -13,7 +13,7 @@
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <!-- Left justified links -->
-			<li></li>
+              <li><a href="{{ url('/projects') }}">Projects</a></li>
           </ul>
 		  <ul class="nav navbar-nav navbar-right">
 		    <!-- Right justified links -->
