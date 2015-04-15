@@ -30,8 +30,10 @@ class AuthController extends Controller {
 	 * @return void
 	 */
 	public function __construct(Guard $auth, Registrar $registrar)
-	{
+    {
+        //Authorizing current users
 		$this->auth = $auth;
+        //Validation and Creation of users
 		$this->registrar = $registrar;
 
 		$this->middleware('guest', ['except' => 'getLogout']);
