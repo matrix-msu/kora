@@ -14,4 +14,10 @@
             <div class="body">{{ $project->description }}</div>
         </article>
     @endforeach
+
+    <br/>
+    
+    <form action="{{ action('ProjectController@create') }}">
+        <input type="submit" value="Create New" class="btn btn-primary form-control">
+    </form>
 @stop
