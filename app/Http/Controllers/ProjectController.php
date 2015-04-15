@@ -2,6 +2,7 @@
 
 use App\Project;
 use App\Http\Requests;
+use App\Http\Requests\ProjectRequest;
 use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
@@ -36,9 +37,13 @@ class ProjectController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function store()
+	public function store(ProjectRequest $request)
 	{
-		//
+        $project = Project::create($request->all());
+
+        flash()->overlay('Your project has been successfully created!','Good Job');
+
+        return redirect('projects');
 	}
 
 	/**
