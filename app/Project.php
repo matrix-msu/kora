@@ -12,4 +12,6 @@ class Project extends Model {
         'adminId',
         'active'
     ];
+
+    protected $primaryKey = "pid";
 }

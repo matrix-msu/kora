@@ -12,7 +12,7 @@
 	<script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0-rc.2/js/select2.min.js"></script>
     <!-- Brings in Lato font -->
     <link href='//fonts.googleapis.com/css?family=Lato:100' rel='stylesheet' type='text/css'>
-    <title>Document</title>
+    <title>Kora 3</title>
 </head>
 <br /><br /><br />
 <body>
