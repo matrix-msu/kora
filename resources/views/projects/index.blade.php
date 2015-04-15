@@ -27,7 +27,12 @@
 
 
             <div class="body">Description: {{ $project->description }}</div>
-            <a href="{{ action('ProjectController@edit',[$project->pid]) }}">[Edit]</a>
+            <span>
+                <a href="{{ action('ProjectController@edit',[$project->pid]) }}">[Edit]</a>
+            </span>
+            <span>
+                <a onclick="deleteProject({{ $project->pid }})" href="javascript:void(0)">[Delete]</a>
+            </span>
         </project>
     @endforeach
 
@@ -36,4 +41,24 @@
     <form action="{{ action('ProjectController@create') }}">
         <input type="submit" value="Create New" class="btn btn-primary form-control">
     </form>
+@stop
+
+@section('footer')
+    <script>
+        function deleteProject(pid) {
+            var response = confirm("Are you sure you want to delete {{ $project->name }}?");
+            if (response) {
+                $.ajax({
+                    url: '{{ action('ProjectController@destroy',[$project->pid]) }}',
+                    type: 'DELETE',
+                    data: {
+                        "_token": "{{ csrf_token() }}"
+                    },
+                    success: function (result) {
+                        location.reload();
+                    }
+                });
+            }
+        }
+    </script>
 @stop

@@ -85,15 +85,16 @@ class ProjectController extends Controller {
         return redirect('projects');
 	}
 
-	/**
+    /**
 	 * Remove the specified resource from storage.
 	 *
 	 * @param  int  $id
 	 * @return Response
 	 */
 	public function destroy($id)
-	{
-		//
+    {
+        $project = $this->getProject($id);
+        $project->delete();
 	}
 
     public function getProject($id){
