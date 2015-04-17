@@ -1,4 +1,4 @@
-{!! Form::hidden('nextModel',$mid,['class' => 'form-control']) !!}
+{!! Form::hidden('nextForm',$fid,['class' => 'form-control']) !!}
 <div class="form-group">
     {!! Form::label('name','Name: ') !!}
     {!! Form::text('name',null,['class' => 'form-control']) !!}

@@ -13,8 +13,9 @@ class FormController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function create()
+	public function create($pid)
 	{
+        dd('build form for project '.$pid);
         return view('forms.create');
 	}
 

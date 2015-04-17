@@ -22,7 +22,7 @@ class ProjectRequest extends Request {
 	public function rules()
 	{
 		return [
-            'nextModel' => 'required|numeric',
+            'nextForm' => 'required|numeric',
             'name' => 'required|min:3',
             'slug' => 'required|alpha_num',
             'description' => 'required',
