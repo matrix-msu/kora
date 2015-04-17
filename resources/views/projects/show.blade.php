@@ -5,5 +5,10 @@
     <div>Description: {{ $project->description }}</div>
     <div>Admin: (Display Admin Here)</div>
     <hr/>
-    <h2>Schemes</h2>
+    <h2>Forms</h2>
+    <form>
+        @foreach($project->forms() as $form)
+            <h3>{{ $form->name }}</h3>
+        @endforeach
+    </form>
 @stop

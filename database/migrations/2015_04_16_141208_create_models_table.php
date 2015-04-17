@@ -14,13 +14,7 @@ class CreateModelsTable extends Migration {
 	{
 		Schema::create('models', function(Blueprint $table)
 		{
-			$table->integer('mid')->unsigned();
-			$table->integer('pid')->unsigned();
-			$table->primary(['mid', 'pid']);
-			$table->integer('nextField')->unsigned();
-			$table->string('name');
-			$table->string('slug')->unique();
-			$table->string('description');
+			$table->increments('id');
 			$table->timestamps();
 		});
 	}

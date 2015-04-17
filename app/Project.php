@@ -14,4 +14,8 @@ class Project extends Model {
     ];
 
     protected $primaryKey = "pid";
+
+    public function forms(){
+        return $this->hasMany('App\Form');
+    }
 }

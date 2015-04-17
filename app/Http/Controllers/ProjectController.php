@@ -54,7 +54,7 @@ class ProjectController extends Controller {
 	 */
 	public function show($id)
 	{
-        $project = $this->getProject($id);
+        $project = ProjectController::getProject($id);
         return view('projects.show', compact('project'));
 	}
 
@@ -66,7 +66,7 @@ class ProjectController extends Controller {
 	 */
 	public function edit($id)
 	{
-        $project = $this->getProject($id);
+        $project = ProjectController::getProject($id);
         return view('projects.edit', compact('project'));
 	}
 
@@ -78,7 +78,7 @@ class ProjectController extends Controller {
 	 */
 	public function update($id, ProjectRequest $request)
 	{
-        $project = $this->getProject($id);
+        $project = ProjectController::getProject($id);
         $project->update($request->all());
         flash()->overlay('Your project has been successfully updated!','Good Job');
 
@@ -93,11 +93,11 @@ class ProjectController extends Controller {
 	 */
 	public function destroy($id)
     {
-        $project = $this->getProject($id);
+        $project = ProjectController::getProject($id);
         $project->delete();
 	}
 
-    public function getProject($id){
+    public static function getProject($id){
         $project = Project::where('pid','=',$id)->first();
         if(is_null($project)){
             $project = Project::where('slug','=',$id)->first();
