@@ -7,7 +7,7 @@
     <hr/>
     <h2>Forms</h2>
     <formObj>
-        @foreach($project->forms() as $form)
+        @foreach($project->forms as $form)
             <h3>{{ $form->name }}</h3>
         @endforeach
     </formObj>

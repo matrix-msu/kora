@@ -11,7 +11,7 @@ class Form extends Model {
         'description'
     ];
 
-    protected $primaryKey = ["pid","fid"];
+    protected $primaryKey = "fid";
 
     public function project(){
         return $this->belongsTo('App\Project');

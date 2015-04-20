@@ -2,6 +2,7 @@
 
 use App\Form;
 use App\Http\Requests;
+use App\Http\Requests\FormRequest;
 use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
@@ -15,8 +16,8 @@ class FormController extends Controller {
 	 */
 	public function create($pid)
 	{
-        dd('build form for project '.$pid);
-        return view('forms.create');
+        $project = ProjectController::getProject($pid);
+        return view('forms.create', compact('project')); //pass in
 	}
 
 	/**
@@ -24,9 +25,25 @@ class FormController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function store()
+	public function store($pid, FormRequest $request)
 	{
-		//
+        $project = ProjectController::getProject($pid);
+        $fid = $project->nextForm;
+
+        $form = new Form;
+        $form->fid = $fid;
+        $form->pid = $pid;
+        $form->name = $request->name;
+        $form->slug = $request->slug;
+        $form->description = $request->description;
+        $form->nextField = $request->nextField;
+        $form->save();
+
+        $project->increment('nextForm');
+
+        flash()->overlay('Your form has been successfully created!','Good Job');
+
+        return redirect('projects/'.$pid);
 	}
 
 	/**
