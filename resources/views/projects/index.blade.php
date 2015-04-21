@@ -31,7 +31,7 @@
                 <a href="{{ action('ProjectController@edit',[$project->pid]) }}">[Edit]</a>
             </span>
             <span>
-                <a onclick="deleteProject({{ $project->pid }})" href="javascript:void(0)">[Delete]</a>
+                <a onclick="deleteProject('{{ $project->name }}', {{ $project->pid }})" href="javascript:void(0)">[Delete]</a>
             </span>
         </project>
     @endforeach
@@ -45,14 +45,16 @@
 
 @section('footer')
     <script>
-        function deleteProject(pid) {
-            var response = confirm("Are you sure you want to delete {{ $project->name }}?");
+        function deleteProject(projName,pid) {
+            var response = confirm("Are you sure you want to delete "+projName+"?");
             if (response) {
                 $.ajax({
-                    url: '{{ action('ProjectController@destroy',[$project->pid]) }}',
+                    //We manually create the link in a cheap way because the JS isn't aware of the pid until runtime
+                    //We pass in a blank project to the action array and then manually add the id
+                    url: '{{ action('ProjectController@destroy',['']) }}/'+pid,
                     type: 'DELETE',
                     data: {
-                        "_token": "{{ csrf_token() }}"
+                        "_token": "{{ csrf_token() }}",
                     },
                     success: function (result) {
                         location.reload();

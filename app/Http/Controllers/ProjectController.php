@@ -95,6 +95,8 @@ class ProjectController extends Controller {
     {
         $project = ProjectController::getProject($id);
         $project->delete();
+
+        flash()->overlay('Your project has been successfully deleted!','Good Job');
 	}
 
     public static function getProject($id){
