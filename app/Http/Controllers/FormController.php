@@ -54,9 +54,10 @@ class FormController extends Controller {
 	 */
 	public function show($pid, $fid)
 	{
+        $projName = ProjectController::getProject($pid)->name;
 		$form = FormController::getForm($pid, $fid);
 
-        return view('forms.show', compact('form'));
+        return view('forms.show', compact('form','projName'));
 	}
 
 	/**
@@ -67,9 +68,10 @@ class FormController extends Controller {
 	 */
 	public function edit($pid, $fid)
 	{
+        $projName = ProjectController::getProject($pid)->name;
         $form = FormController::getForm($pid, $fid);
 
-        return view('forms.edit', compact('form'));
+        return view('forms.edit', compact('form','projName'));
 	}
 
 	/**

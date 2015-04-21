@@ -1,5 +1,9 @@
 @extends('app')
 
+@section('leftNavLinks')
+    <li><a href="{{ url('/projects/'.$form->pid) }}">{{ $projName }}</a></li>
+@stop
+
 @section('content')
     <span><h1>{{ $form->name.' ('.$form->slug.')' }}</h1></span>
     <div>Description: {{ $form->description }}</div>

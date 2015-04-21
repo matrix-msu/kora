@@ -1,5 +1,9 @@
 @extends('app')
 
+@section('leftNavLinks')
+    <li><a href="{{ url('/projects/'.$form->pid) }}">{{ $projName }}</a></li>
+@stop
+
 @section('content')
     <h1>Edit Form</h1>
 
