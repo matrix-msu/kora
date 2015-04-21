@@ -8,7 +8,8 @@
     <h2>Forms</h2>
     <formObj>
         @foreach($project->forms as $form)
-            <h3>{{ $form->name }}</h3>
+            <h3><a href="{{ action('FormController@show',['pid' => $project->pid, 'fid' => $form]) }}">{{ $form->name }}</a></h3>
+            <div class="body">{{ $form->description }}</div>
         @endforeach
     </formObj>
     <form action="{{ action('FormController@create', ['pid' => $project->pid]) }}">

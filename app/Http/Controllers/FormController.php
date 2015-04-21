@@ -52,9 +52,12 @@ class FormController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function show($id)
+	public function show($pid, $fid)
 	{
-		//
+		$project = ProjectController::getProject($pid);
+        $form = FormController::getForm($project->pid, $fid);
+
+        return view('forms.show', compact('form'));
 	}
 
 	/**
@@ -89,5 +92,14 @@ class FormController extends Controller {
 	{
 		//
 	}
+
+    public static function getForm($pid, $fid){
+        $form = Form::where('fid','=',$fid)->where('pid','=',$pid)->first();
+        if(is_null($form)){
+            $form = Form::where('slug','=',$fid)->where('pid','=',$pid)->first();
+        }
+
+        return $form;
+    }
 
 }
