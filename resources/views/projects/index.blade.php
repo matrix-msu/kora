@@ -11,6 +11,7 @@
                 <div class="panel-heading">
                     <a href="{{ action('ProjectController@show',[$project->pid]) }}" style="font-size: 1.5em;">{{ $project->name }}</a>
                 </div>
+                <div class="collapseTest" style="display:none">
                 <div class="panel-body">
                     <span><b>Status:</b> </span>
                     <span style="color:green">Active</span>
@@ -18,8 +19,9 @@
                 </div>
             @else
                 <div class="panel-heading" style="font-size: 1.5em;">
-                    <div>{{ $project->name }}</div>
+                    {{ $project->name }}
                 </div>
+                <div class="collapseTest" style="display:none">
                 <div class="panel-body">
                     <span><b>Status:</b> </span>
                     <span style="color:red">Inactive</span>
@@ -33,7 +35,7 @@
                 <span>
                     <a onclick="deleteProject('{{ $project->name }}', {{ $project->pid }})" href="javascript:void(0)">[Delete]</a>
                 </span>
-            </div>
+            </div></div><!-- this is the close tag for the collapseTest div -->
         </div>
     @endforeach
 
@@ -46,6 +48,14 @@
 
 @section('footer')
     <script>
+        $( ".panel-heading" ).on( "click", function() {
+            if ($(this).siblings('.collapseTest').css('display') == 'none' ){
+                $(this).siblings('.collapseTest').slideDown();
+            }else {
+                $(this).siblings('.collapseTest').slideUp();
+            }
+        });
+
         function deleteProject(projName,pid) {
             var response = confirm("Are you sure you want to delete "+projName+"?");
             if (response) {

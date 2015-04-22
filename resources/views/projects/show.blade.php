@@ -12,14 +12,16 @@
             <div class="panel-heading" style="font-size: 1.5em;">
                 <a href="{{ action('FormController@show',['pid' => $project->pid, 'fid' => $form->fid]) }}">{{ $form->name }}</a>
             </div>
-            <div class="panel-body"><b>Description:</b> {{ $form->description }}</div>
-            <div class="panel-footer">
-                <span>
-                    <a href="{{ action('FormController@edit',['pid' => $project->pid, 'fid' => $form->fid]) }}">[Edit]</a>
-                </span>
-                <span>
-                    <a onclick="deleteForm('{{ $form->name }}', {{ $form->fid }})" href="javascript:void(0)">[Delete]</a>
-                </span>
+            <div class="collapseTest" style="display:none">
+                <div class="panel-body"><b>Description:</b> {{ $form->description }}</div>
+                <div class="panel-footer">
+                    <span>
+                        <a href="{{ action('FormController@edit',['pid' => $project->pid, 'fid' => $form->fid]) }}">[Edit]</a>
+                    </span>
+                    <span>
+                        <a onclick="deleteForm('{{ $form->name }}', {{ $form->fid }})" href="javascript:void(0)">[Delete]</a>
+                    </span>
+                </div>
             </div>
         </div>
     @endforeach
@@ -31,6 +33,14 @@
 
 @section('footer')
     <script>
+        $( ".panel-heading" ).on( "click", function() {
+            if ($(this).siblings('.collapseTest').css('display') == 'none' ){
+                $(this).siblings('.collapseTest').slideDown();
+            }else {
+                $(this).siblings('.collapseTest').slideUp();
+            }
+        });
+        
         function deleteForm(formName, fid) {
             var response = confirm("Are you sure you want to delete "+formName+"?");
             if (response) {
