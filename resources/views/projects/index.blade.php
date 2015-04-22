@@ -12,9 +12,9 @@
                     <a href="{{ action('ProjectController@show',[$project->pid]) }}" style="font-size: 1.5em;">{{ $project->name }}</a>
                 </div>
                 <div class="panel-body">
-                    <span>Status: </span>
+                    <span><b>Status:</b> </span>
                     <span style="color:green">Active</span>
-                    <div>Description: {{ $project->description }}</div>
+                    <div><b>Description:</b> {{ $project->description }}</div>
                 </div>
             @else
                 <div class="panel-heading" style="font-size: 1.5em;">

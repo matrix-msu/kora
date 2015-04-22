@@ -5,8 +5,9 @@
 @stop
 
 @section('content')
-    <span><h1>{{ $form->name.' ('.$form->slug.')' }}</h1></span>
-    <div>Description: {{ $form->description }}</div>
+    <span><h1>{{ $form->name }}</h1></span>
+    <div><b>Internal Name:</b> {{ $form->slug }}</div>
+    <div><b>Description:</b> {{ $form->description }}</div>
     <hr/>
     <h2>Fields</h2>
     <!--<formObj>

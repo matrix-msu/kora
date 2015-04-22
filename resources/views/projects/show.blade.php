@@ -1,11 +1,12 @@
 @extends('app')
 
 @section('content')
-    <span><h1>{{ $project->name.' ('.$project->slug.')' }}</h1></span>
-    <div>Description: {{ $project->description }}</div>
-    <div>Admin: (Display Admin Here)</div>
+    <span><h1>{{ $project->name }}</h1></span>
+    <div><b>Internal Name:</b> {{ $project->slug }}</div>
+    <div><b>Description:</b> {{ $project->description }}</div>
+    <div><b>Admin:</b> (Display Admin Here)</div>
     <hr/>
-
+    <h2>Forms</h2>
     @foreach($project->forms as $form)
         <div class="panel panel-default">
             <div class="panel-heading" style="font-size: 1.5em;">
