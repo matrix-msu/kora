@@ -1,10 +1,10 @@
 @extends('app')
 
 @section('content')
-    <h1>My Projects</h1>
+    <h1>My Dashboard</h1>
 
     <hr/>
-
+    <h2>Projects</h2>
     @foreach ($projects as $project)
         <div class="panel panel-default">
             @if($project->active==1)
@@ -21,9 +21,9 @@
                     <div>{{ $project->name }}</div>
                 </div>
                 <div class="panel-body">
-                    <span>Status: </span>
+                    <span><b>Status:</b> </span>
                     <span style="color:red">Inactive</span>
-                    <div>Description: {{ $project->description }}</div>
+                    <div><b>Description:</b> {{ $project->description }}</div>
                 </div>
             @endif
             <div class="panel-footer">

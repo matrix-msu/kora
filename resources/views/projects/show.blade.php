@@ -12,7 +12,7 @@
             <div class="panel-heading" style="font-size: 1.5em;">
                 <a href="{{ action('FormController@show',['pid' => $project->pid, 'fid' => $form->fid]) }}">{{ $form->name }}</a>
             </div>
-            <div class="panel-body">{{ $form->description }}</div>
+            <div class="panel-body"><b>Description:</b> {{ $form->description }}</div>
             <div class="panel-footer">
                 <span>
                     <a href="{{ action('FormController@edit',['pid' => $project->pid, 'fid' => $form->fid]) }}">[Edit]</a>
