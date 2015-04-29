@@ -13,7 +13,8 @@
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <!-- Left justified links -->
-              <li><a href="{{ url('/projects') }}">Projects</a></li>
+              <li><a href="{{ url('/projects') }}">Dashboard</a></li>
+              @yield('leftNavLinks')
           </ul>
 		  <ul class="nav navbar-nav navbar-right">
 		    <!-- Right justified links -->
