@@ -13,8 +13,7 @@
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <!-- Left justified links -->
-              <li><a href="{{ url('/projects') }}">Dashboard</a></li>
-              @yield('leftNavLinks')
+              <li><a href="{{ url('/projects') }}">Projects</a></li>
           </ul>
 		  <ul class="nav navbar-nav navbar-right">
 		    <!-- Right justified links -->
@@ -23,7 +22,7 @@
 				<li><a href="{{ url('/auth/register') }}">Register</a></li>
 			@else
 				<li class="dropdown">
-					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{ Auth::user()->name }} <span class="caret"></span></a>
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{ Auth::user()->username }} <span class="caret"></span></a>
 					<ul class="dropdown-menu" role="menu">
 						<li><a href="{{ url('/user') }}">View Profile</a></li>
 						<li><a href="{{ url('/auth/logout') }}">Logout</a></li>
