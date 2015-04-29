@@ -1,7 +1,7 @@
 @extends('app')
 
 @section('content')
-    <span><h1>{{ $project->name }}</h1></span>
+    <h1>{{ $project->name }}</h1>
     <div><b>Internal Name:</b> {{ $project->slug }}</div>
     <div><b>Description:</b> {{ $project->description }}</div>
     <div><b>Admin:</b> (Display Admin Here)</div>
@@ -40,7 +40,7 @@
                 $(this).siblings('.collapseTest').slideUp();
             }
         });
-        
+
         function deleteForm(formName, fid) {
             var response = confirm("Are you sure you want to delete "+formName+"?");
             if (response) {
