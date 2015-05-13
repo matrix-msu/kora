@@ -6,7 +6,7 @@
     <hr/>
 
     {!! Form::model($project,  ['method' => 'PATCH', 'action' => ['ProjectController@update', $project->pid]]) !!}
-    @include('projects.form',['submitButtonText' => 'Update Project', 'fid' => $project->nextForm])
+    @include('projects.form',['submitButtonText' => 'Update Project'])
     {!! Form::close() !!}
 
     @include('errors.list')

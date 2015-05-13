@@ -10,7 +10,7 @@
     @foreach($project->forms as $form)
         <div class="panel panel-default">
             <div class="panel-heading" style="font-size: 1.5em;">
-                <a href="{{ action('FormController@show',['pid' => $project->pid, 'fid' => $form->fid]) }}">{{ $form->name }}</a>
+                <a href="{{ action('FormController@show',['pid' => $project->pid,'fid' => $form->fid]) }}">{{ $form->name }}</a>
             </div>
             <div class="collapseTest" style="display:none">
                 <div class="panel-body"><b>Description:</b> {{ $form->description }}</div>

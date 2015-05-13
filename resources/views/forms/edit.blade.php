@@ -9,9 +9,8 @@
 
     <hr/>
 
-    {!! Form::model($form,  ['method' => 'PATCH', 'action' => ['FormController@update',$form->pid]]) !!}
-    {!! Form::hidden('fid',$form->fid,['class' => 'form-control']) !!}
-    @include('forms.form',['submitButtonText' => 'Update Form', 'nextField' => $form->nextField])
+    {!! Form::model($form,  ['method' => 'PATCH', 'action' => ['FormController@update',$form->fid]]) !!}
+    @include('forms.form',['submitButtonText' => 'Update Form', 'pid' => $form->pid])
     {!! Form::close() !!}
 
     @include('errors.list')

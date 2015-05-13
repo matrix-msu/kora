@@ -22,7 +22,7 @@ class FormRequest extends Request {
     public function rules()
     {
         return [
-            'nextField' => 'required|numeric',
+            'pid' => 'required|numeric',
             'name' => 'required|min:3',
             'slug' => 'required|alpha_num',
             'description' => 'required',

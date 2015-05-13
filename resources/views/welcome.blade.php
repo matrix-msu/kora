@@ -38,6 +38,7 @@
         <div class="content_quote">
             <div class="title_quote">Kora 3</div>
             <div class="quote">{{ Inspiring::quote() }}</div>
+            <div class="quote">Powered by Laravel</div>
         </div>
     </div>
 </div>

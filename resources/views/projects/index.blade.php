@@ -65,7 +65,7 @@
                     url: '{{ action('ProjectController@destroy',['']) }}/'+pid,
                     type: 'DELETE',
                     data: {
-                        "_token": "{{ csrf_token() }}",
+                        "_token": "{{ csrf_token() }}"
                     },
                     success: function (result) {
                         location.reload();

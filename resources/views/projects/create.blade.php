@@ -6,7 +6,7 @@
     <hr/>
 
     {!! Form::model($project = new \App\Project, ['url' => 'projects']) !!}
-    @include('projects.form',['submitButtonText' => 'Create Project', 'fid' => 1])
+    @include('projects.form',['submitButtonText' => 'Create Project'])
     {!! Form::close() !!}
 
     @include('errors.list')

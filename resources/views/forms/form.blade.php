@@ -1,4 +1,4 @@
-{!! Form::hidden('nextField',$nextField,['class' => 'form-control']) !!}
+{!! Form::hidden('pid',$pid) !!}
 <div class="form-group">
     {!! Form::label('name','Name: ') !!}
     {!! Form::text('name',null,['class' => 'form-control']) !!}

@@ -25,25 +25,13 @@ class FormController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function store($pid, FormRequest $request)
+	public function store(FormRequest $request)
 	{
-        $project = ProjectController::getProject($pid);
-        $fid = $project->nextForm;
-
-        $form = new Form;
-        $form->fid = $fid;
-        $form->pid = $pid;
-        $form->name = $request->name;
-        $form->slug = $request->slug;
-        $form->description = $request->description;
-        $form->nextField = $request->nextField;
-        $form->save();
-
-        $project->increment('nextForm');
+        $form = Form::create($request->all());
 
         flash()->overlay('Your form has been successfully created!','Good Job');
 
-        return redirect('projects/'.$pid);
+        return redirect('projects/'.$form->pid);
 	}
 
 	/**
@@ -54,8 +42,13 @@ class FormController extends Controller {
 	 */
 	public function show($pid, $fid)
 	{
-        $projName = ProjectController::getProject($pid)->name;
-		$form = FormController::getForm($pid, $fid);
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+
+        $form = FormController::getForm($fid);
+        $proj = ProjectController::getProject($pid);
+        $projName = $proj->name;
 
         return view('forms.show', compact('form','projName'));
 	}
@@ -67,9 +60,14 @@ class FormController extends Controller {
 	 * @return Response
 	 */
 	public function edit($pid, $fid)
-	{
-        $projName = ProjectController::getProject($pid)->name;
-        $form = FormController::getForm($pid, $fid);
+    {
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+
+        $form = FormController::getForm($fid);
+        $proj = ProjectController::getProject($pid);
+        $projName = $proj->name;
 
         return view('forms.edit', compact('form','projName'));
 	}
@@ -80,19 +78,15 @@ class FormController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function update($pid, FormRequest $request)
+	public function update($id, FormRequest $request)
 	{
-        $form = FormController::getForm($pid, $request->fid);
+        $form = FormController::getForm($id);
 
-        $form->name = $request->name;
-        $form->slug = $request->slug;
-        $form->description = $request->description;
-        $form->nextField = $request->nextField;
-        $form->save();
+        $form->update($request->all());
 
         flash()->overlay('Your form has been successfully updated!','Good Job');
 
-        return redirect('projects/'.$pid);
+        return redirect('projects/'.$form->pid);
 	}
 
 	/**
@@ -103,20 +97,35 @@ class FormController extends Controller {
 	 */
 	public function destroy($pid, $fid)
 	{
-        $form = FormController::getForm($pid, $fid);
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+        
+        $form = FormController::getForm($fid);
         $form->delete();
 
         flash()->overlay('Your form has been successfully deleted!','Good Job');
 	}
 
-    public static function getForm($pid, $fid){
-        $pid = ProjectController::getProject($pid)->pid;
-        $form = Form::where('fid','=',$fid)->where('pid','=',$pid)->first();
+    public static function getForm($fid){
+        $form = Form::where('fid','=',$fid)->first();
         if(is_null($form)){
-            $form = Form::where('slug','=',$fid)->where('pid','=',$pid)->first();
+            $form = Form::where('slug','=',$fid)->first();
         }
 
         return $form;
+    }
+
+    public static function validProjForm($pid, $fid){
+        $form = FormController::getForm($fid);
+        $proj = ProjectController::getProject($pid);
+
+        if($form == null | $proj == null)
+            return false;
+        else if($proj->pid==$form->pid)
+            return true;
+        else
+            return false;
     }
 
 }

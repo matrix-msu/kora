@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 class Form extends Model {
 
     protected $fillable = [
-        'nextField',
+        'pid',
         'name',
         'slug',
         'description'

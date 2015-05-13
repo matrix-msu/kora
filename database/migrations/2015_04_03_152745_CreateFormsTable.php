@@ -14,10 +14,8 @@ class CreateFormsTable extends Migration {
 	{
 		Schema::create('forms', function(Blueprint $table)
 		{
-			$table->integer('fid')->unsigned();
+			$table->increments('fid');
 			$table->integer('pid')->unsigned();
-			$table->primary(['fid', 'pid']);
-			$table->integer('nextField')->unsigned();
 			$table->string('name');
 			$table->string('slug')->unique();
 			$table->string('description');
