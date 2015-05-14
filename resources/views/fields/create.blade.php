@@ -10,7 +10,7 @@
     <hr/>
 
     {!! Form::model($field = new \App\Field, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid]) !!}
-        @include('fields.form',['submitButtonText' => 'Create Field'])
+        @include('fields.form', ['submitButtonText' => 'Create Field', 'pid' => $form->pid, 'fid' => $form->fid])
     {!! Form::close() !!}
 
     @include('errors.list')

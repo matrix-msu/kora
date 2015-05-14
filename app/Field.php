@@ -17,7 +17,7 @@ class Field extends Model {
         //'options'
     ];
 
-    protected $primaryKey = ["flid", 'fid', 'pid'];
+    protected $primaryKey = "flid";
 
     public function form(){
         return $this->belongsTo('App\Form');

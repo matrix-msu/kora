@@ -17,7 +17,7 @@ class Form extends Model {
         return $this->belongsTo('App\Project');
     }
 
-    public function field(){
-        return $this->hasMany('App\Field');
+    public function fields(){
+        return $this->hasMany('App\Field', 'fid');
     }
 }

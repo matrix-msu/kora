@@ -22,10 +22,12 @@ class FieldRequest extends Request {
     public function rules()
     {
         return [
+            'pid' => 'required|numeric',
+            'fid' => 'required|numeric',
             'order' => 'required',
             'type' => 'required',
             'name' => 'required|min:3',
-            'slug' => 'required|alpha_num',
+            'slug' => 'alpha_num',
             'description' => 'required',
             'required' => 'required'
         ];
