@@ -107,7 +107,14 @@ class FormController extends Controller {
         flash()->overlay('Your form has been successfully deleted!','Good Job');
 	}
 
-    public static function getForm($fid){
+    /**
+     * Get form object for use in controller.
+     *
+     * @param $fid
+     * @return mixed
+     */
+    public static function getForm($fid)
+    {
         $form = Form::where('fid','=',$fid)->first();
         if(is_null($form)){
             $form = Form::where('slug','=',$fid)->first();
@@ -116,11 +123,19 @@ class FormController extends Controller {
         return $form;
     }
 
-    public static function validProjForm($pid, $fid){
+    /**
+     * Validate that a form belongs to the project in use.
+     *
+     * @param $pid
+     * @param $fid
+     * @return bool
+     */
+    public static function validProjForm($pid, $fid)
+    {
         $form = FormController::getForm($fid);
         $proj = ProjectController::getProject($pid);
 
-        if($form == null | $proj == null)
+        if(is_null($form) || is_null($proj))
             return false;
         else if($proj->pid==$form->pid)
             return true;

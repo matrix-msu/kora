@@ -16,4 +16,8 @@ class Form extends Model {
     public function project(){
         return $this->belongsTo('App\Project');
     }
+
+    public function field(){
+        return $this->hasMany('App\Field');
+    }
 }
