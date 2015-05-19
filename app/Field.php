@@ -7,12 +7,11 @@ class Field extends Model {
     protected $fillable = [
         'pid',
         'fid',
-        'order',
         'type',
         'name',
         'slug',
         'desc',
-        'required',
+        'required'
         //'default',
         //'options'
     ];

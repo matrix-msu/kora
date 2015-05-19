@@ -16,7 +16,7 @@ class FieldController extends Controller {
 	 */
 	public function create($pid, $fid)
 	{
-		$form = FormController::getForm($pid, $fid);
+		$form = FormController::getForm($fid);
         return view('fields.create', compact('form'));
 	}
 
@@ -66,10 +66,10 @@ class FieldController extends Controller {
         }
 
         $field = FieldController::getField($flid);
-        $formName = FormController::getForm($pid, $fid)->name;
-        $projName = ProjectController::getProject($pid)->name;
+        //$form = FormController::getForm($fid);
+        //$proj = ProjectController::getProject($pid);
 
-        return view('fields.edit', compact('field', 'formName', 'projName'));
+        return view('fields.edit', compact('field', 'fid', 'pid'));
 	}
 
 	/**

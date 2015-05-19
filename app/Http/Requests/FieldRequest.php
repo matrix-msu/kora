@@ -24,7 +24,6 @@ class FieldRequest extends Request {
         return [
             'pid' => 'required|numeric',
             'fid' => 'required|numeric',
-            'order' => 'required',
             'type' => 'required',
             'name' => 'required|min:3',
             'slug' => 'alpha_num',
