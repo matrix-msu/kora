@@ -20,4 +20,8 @@ class Form extends Model {
     public function fields(){
         return $this->hasMany('App\Field', 'fid');
     }
+
+    public function records(){
+        return $this->hasMany('App\Record', 'rid');
+    }
 }
