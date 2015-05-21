@@ -14,9 +14,7 @@ class CreateFieldsTable extends Migration {
 	{
 		Schema::create('fields', function(Blueprint $table)
 		{
-            $table->integer('flid')->unsigned();
-            $table->primary('flid');
-
+            $table->increments('flid');
             $table->integer('pid')->unsigned();
             $table->integer('fid')->unsigned();
             $table->string('order');

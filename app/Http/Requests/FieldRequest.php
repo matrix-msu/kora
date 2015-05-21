@@ -27,7 +27,7 @@ class FieldRequest extends Request {
             'type' => 'required',
             'name' => 'required|min:3',
             'slug' => 'alpha_num',
-            'description' => 'required',
+            'desc' => 'required',
             'required' => 'required'
         ];
     }

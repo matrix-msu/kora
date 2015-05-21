@@ -21,10 +21,15 @@
     <div><b>Description:</b> {{ $form->description }}</div>
     <hr/>
     <h2>Fields</h2>
+
+    <!-- Remove or reformat later-->
+    <div><p class="pull-right">Type</p><p>Name</p></div>
+
     @foreach($form->fields as $field)
         <div class="panel panel-default">
             <div class="panel-heading" style="font-size: 1.5em;">
                 <a href="{{ action('FieldController@show',['pid' => $field->pid,'fid' => $field->fid, 'flid' => $field->flid]) }}">{{ $field->name }}</a>
+                <a href="{{ action('FieldController@show',['pid' => $field->pid,'fid' => $field->fid, 'flid' => $field->flid]) }}" class="pull-right">{{ $field->type }}</a>
             </div>
             <div class="collapseTest" style="display:none">
                 <div class="panel-body"><b>Description:</b> {{ $field->desc }}</div>
@@ -33,7 +38,7 @@
                         <a href="{{ action('FieldController@edit',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => $field->flid]) }}">[Edit]</a>
                     </span>
                     <span>
-                        <a onclick="deleteField('{{ $field->name }}', {{ $field->fid }})" href="javascript:void(0)">[Delete]</a>
+                        <a onclick="deleteField('{{ $field->name }}', {{ $field->flid }})" href="javascript:void(0)">[Delete]</a>
                     </span>
                 </div>
             </div>
