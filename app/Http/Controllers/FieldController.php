@@ -9,22 +9,25 @@ use Illuminate\Http\Request;
 
 class FieldController extends Controller {
 
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @return Response
-	 */
-	public function create($pid, $fid)
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @param $pid
+     * @param $fid
+     * @return Response
+     */
+	public function create($fid)
 	{
 		$form = FormController::getForm($fid);
         return view('fields.create', compact('form'));
 	}
 
-	/**
-	 * Store a newly created resource in storage.
-	 *
-	 * @return Response
-	 */
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param FieldRequest $request
+     * @return Response
+     */
 	public function store(FieldRequest $request)
     {
         $field = Field::Create($request->all());
@@ -34,12 +37,15 @@ class FieldController extends Controller {
         return redirect('projects/'.$field->pid.'/forms/'.$field->fid);
 	}
 
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
+    /**
+     * Display the specified resource.
+     *
+     * @param $pid
+     * @param $fid
+     * @param $flid
+     * @return Response
+     * @internal param int $id
+     */
 	public function show($pid, $fid, $flid)
 	{
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
@@ -53,12 +59,15 @@ class FieldController extends Controller {
         return view('fields.show', compact('field', 'form', 'proj'));
 	}
 
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param $pid
+     * @param $fid
+     * @param $flid
+     * @return Response
+     * @internal param int $id
+     */
 	public function edit($pid, $fid, $flid)
 	{
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
@@ -70,12 +79,14 @@ class FieldController extends Controller {
         return view('fields.edit', compact('field', 'fid', 'pid'));
 	}
 
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param $flid
+     * @param FieldRequest $request
+     * @return Response
+     * @internal param int $id
+     */
 	public function update($flid, FieldRequest $request)
 	{
 		$field = FieldController::getField($flid);
@@ -87,12 +98,15 @@ class FieldController extends Controller {
         return redirect('projects/'.$field->pid.'/forms/'.$field->fid);
 	}
 
-	/**
-	 * Remove the specified resource from storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param $pid
+     * @param $fid
+     * @param $flid
+     * @return Response
+     * @internal param int $id
+     */
 	public function destroy($pid, $fid, $flid)
 	{
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
@@ -104,6 +118,26 @@ class FieldController extends Controller {
 
         flash()->overlay('Your field has been successfully deleted!', 'Good Job!');
 	}
+
+
+    /**
+     * @param $pid
+     * @param $fid
+     * @param $flid
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
+     */
+    public function options($pid, $fid, $flid)
+    {
+        if(!FieldController::validProjFormField($pid, $fid, $flid)){
+            return redirect('projects');
+        }
+
+        $field = FieldController::getField($flid);
+        $form = FormController::getForm($fid);
+        $proj = ProjectController::getProject($pid);
+
+        return view('fields.options', compact('field', 'form', 'proj'));
+    }
 
 
     /**

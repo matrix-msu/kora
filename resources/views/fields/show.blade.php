@@ -17,6 +17,7 @@
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ $field->name }}<b class="caret"></b></a>
         <ul class="dropdown-menu">
             <li><a href="{{ url('/projects/'.$field->pid.'/forms/'.$field->fid.'/fields/'.$field->flid) }}">Field Home</a></li>
+            <li><a href="{{ url('/projects/'.$field->pid.'/forms/'.$field->fid.'/fields/'.$field->flid.'/options') }}">Field Options</a></li>
         </ul>
     </li>
 @stop

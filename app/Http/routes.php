@@ -21,6 +21,7 @@ Route::get('/projects/{pid}/forms/{fid}/fields/create','FieldController@create')
 Route::get('/projects/{pid}/forms/{fid}/fields/{flid}','FieldController@show');
 Route::delete('/projects/{pid}/forms/{fid}/fields/{flid}','FieldController@destroy');
 Route::get('/projects/{pid}/forms/{fid}/fields/{flid}/edit','FieldController@edit');
+Route::get('/projects/{pid}/forms/{fid}/fields/{flid}/options','FieldController@options');
 Route::post('/projects/{pid}/forms/{fid}','FieldController@store');
 
 //user routes
