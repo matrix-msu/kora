@@ -1,17 +1,22 @@
 @extends('app')
 
 @section('leftNavLinks')
-    <li>
-        <a href="{{ url('/projects/'.$field->pid) }}">{{ $proj->name }}</a>
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ $proj->name }}<b class="caret"></b></a>
+        <ul class="dropdown-menu">
+            <li><a href="{{ url('/projects/'.$field->pid) }}">Project Home</a></li>
+        </ul>
     </li>
-    <li>
-        <a href="{{ url('/projects/'.$field->pid.'/forms/'.$field->fid) }}">{{ $form->name }}</a>
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ $form->name }}<b class="caret"></b></a>
+        <ul class="dropdown-menu">
+            <li><a href="{{ url('/projects/'.$field->pid).'/forms/'.$field->fid}}">Form Home</a></li>
+        </ul>
     </li>
     <li class="dropdown">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ $field->name }}<b class="caret"></b></a>
         <ul class="dropdown-menu">
-            <li><a href="{{ url('/projects/'.$field->pid) }}">Project Home</a></li>
-            <li><a href="{{ url('/projects/'.$field->pid.'/forms/'.$field->fid) }}">Form Home</a></li>
+            <li><a href="{{ url('/projects/'.$field->pid.'/forms/'.$field->fid.'/fields/'.$field->flid) }}">Field Home</a></li>
         </ul>
     </li>
 @stop

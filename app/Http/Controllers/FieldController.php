@@ -47,7 +47,7 @@ class FieldController extends Controller {
         }
 
         $field = FieldController::getField($flid);
-        $form = FormController::getForm($pid, $fid);
+        $form = FormController::getForm($fid);
         $proj = ProjectController::getProject($pid);
 
         return view('fields.show', compact('field', 'form', 'proj'));
@@ -66,8 +66,6 @@ class FieldController extends Controller {
         }
 
         $field = FieldController::getField($flid);
-        //$form = FormController::getForm($fid);
-        //$proj = ProjectController::getProject($pid);
 
         return view('fields.edit', compact('field', 'fid', 'pid'));
 	}
@@ -98,7 +96,7 @@ class FieldController extends Controller {
 	public function destroy($pid, $fid, $flid)
 	{
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
-            return redirect('projects');
+            return redirect('projects/'.$pid.'forms/');
         }
 
         $field = FieldController::getField($flid);

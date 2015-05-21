@@ -1,13 +1,16 @@
 @extends('app')
 
 @section('leftNavLinks')
-    <li>
-        <a href="{{ url('/projects/'.$form->pid) }}">{{ $projName }}</a>
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ $projName }}<b class="caret"></b></a>
+        <ul class="dropdown-menu">
+            <li><a href="{{ url('/projects/'.$form->pid) }}">Project Home</a></li>
+        </ul>
     </li>
     <li class="dropdown">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ $form->name }}<b class="caret"></b></a>
         <ul class="dropdown-menu">
-            <li><a href="{{ url('/projects/'.$form->pid) }}">Project Home</a></li>
+            <li><a href="{{ url('/projects/'.$form->pid).'/forms/'.$form->fid}}">Form Home</a></li>
         </ul>
     </li>
 @stop
@@ -58,7 +61,7 @@
                 $.ajax({
                     //We manually create the link in a cheap way because the JS isn't aware of the fid until runtime
                     //We pass in a blank project to the action array and then manually add the id
-                    url: '{{ action('FormController@destroy',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => '']) }}/'+flid,
+                    url: '{{ action('FieldController@destroy', ['pid' => $form->pid, 'fid' => $form->fid, 'flid' => '']) }}/'+flid,
                     type: 'DELETE',
                     data: {
                         "_token": "{{ csrf_token() }}"
