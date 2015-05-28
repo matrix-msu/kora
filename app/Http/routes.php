@@ -7,7 +7,7 @@ Route::resource('projects', 'ProjectController');
 
 //form routes
 Route::get('/projects/{id}/forms','ProjectController@show'); //alias for project/{id}
-Route::patch('/projects/{pid}/forms','FormController@update'); //alias required for submitting of form edits
+Route::patch('/projects/{pid}/forms/{fid}','FormController@update');
 Route::get('/projects/{pid}/forms/create','FormController@create');
 Route::get('/projects/{pid}/forms/{fid}','FormController@show');
 Route::delete('/projects/{pid}/forms/{fid}','FormController@destroy');
@@ -16,12 +16,12 @@ Route::post('/projects/{pid}','FormController@store');
 
 //field routes
 Route::get('/projects/{id}/forms/{fid}/fields','FormController@show'); //alias for project/{id}
-Route::patch('/projects/{pid}/forms/{fid}/fields','FieldController@update'); //alias required for submitting of form edits
+Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}','FieldController@update');
 Route::get('/projects/{pid}/forms/{fid}/fields/create','FieldController@create');
 Route::get('/projects/{pid}/forms/{fid}/fields/{flid}','FieldController@show');
 Route::delete('/projects/{pid}/forms/{fid}/fields/{flid}','FieldController@destroy');
 Route::get('/projects/{pid}/forms/{fid}/fields/{flid}/edit','FieldController@edit');
-Route::get('/projects/{pid}/forms/{fid}/fields/{flid}/options','FieldController@options');
+Route::get('/projects/{pid}/forms/{fid}/fields/{flid}/options','FieldController@show'); //alias for fields/{id}
 Route::post('/projects/{pid}/forms/{fid}','FieldController@store');
 
 //user routes

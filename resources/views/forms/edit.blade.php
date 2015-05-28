@@ -14,7 +14,7 @@
 
     <hr/>
 
-    {!! Form::model($form,  ['method' => 'PATCH', 'action' => ['FormController@update',$form->fid]]) !!}
+    {!! Form::model($form,  ['method' => 'PATCH', 'action' => ['FormController@update',$form->pid, $form->fid]]) !!}
     @include('forms.form',['submitButtonText' => 'Update Form', 'pid' => $form->pid])
     {!! Form::close() !!}
 

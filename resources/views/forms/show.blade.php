@@ -22,14 +22,11 @@
     <hr/>
     <h2>Fields</h2>
 
-    <!-- Remove or reformat later-->
-    <div><p class="pull-right">Type</p><p>Name</p></div>
-
     @foreach($form->fields as $field)
         <div class="panel panel-default">
             <div class="panel-heading" style="font-size: 1.5em;">
                 <a href="{{ action('FieldController@show',['pid' => $field->pid,'fid' => $field->fid, 'flid' => $field->flid]) }}">{{ $field->name }}</a>
-                <a href="{{ action('FieldController@show',['pid' => $field->pid,'fid' => $field->fid, 'flid' => $field->flid]) }}" class="pull-right">{{ $field->type }}</a>
+                <span  class="pull-right">{{ $field->type }}</span>
             </div>
             <div class="collapseTest" style="display:none">
                 <div class="panel-body"><b>Description:</b> {{ $field->desc }}</div>

@@ -1,5 +1,7 @@
 {!! Form::hidden('pid',$pid) !!}
 {!! Form::hidden('fid',$fid) !!}
+{!! Form::hidden('type',$type) !!}
+{!! Form::hidden('required',$required) !!}
 <div class="form-group">
     {!! Form::label('name','Name: ') !!}
     {!! Form::text('name',null,['class' => 'form-control']) !!}
@@ -11,18 +13,8 @@
 </div>
 
 <div class="form-group">
-    {!! Form::label('type','Field Type: ') !!}
-    {!! Form::select('type', ['Text' => 'Text'], null,['class' => 'form-control']) !!}
-</div>
-
-<div class="form-group">
     {!! Form::label('desc','Description: ') !!}
     {!! Form::textarea('desc',null,['class' => 'form-control']) !!}
-</div>
-
-<div class="form-group">
-    {!! Form::label('required','Required: ') !!}
-    {!! Form::select('required',['false', 'true'], 'false', ['class' => 'form-control']) !!}
 </div>
 
 <div class="form-group">

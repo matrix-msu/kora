@@ -4,6 +4,7 @@ use App\Field;
 use App\Http\Requests;
 use App\Http\Requests\FieldRequest;
 use App\Http\Controllers\Controller;
+use App\FieldHelpers\FieldDefaults;
 
 use Illuminate\Http\Request;
 
@@ -31,6 +32,9 @@ class FieldController extends Controller {
 	public function store(FieldRequest $request)
     {
         $field = Field::Create($request->all());
+        $field->options = FieldDefaults::getOptions($field->type);
+        $field->default = FieldDefaults::getDefault($field->type);
+        $field->save();
 
         flash()->overlay('Your field has been successfully created!', 'Good Job');
 
@@ -87,7 +91,7 @@ class FieldController extends Controller {
      * @return Response
      * @internal param int $id
      */
-	public function update($flid, FieldRequest $request)
+	public function update($pid, $fid, $flid, FieldRequest $request)
 	{
 		$field = FieldController::getField($flid);
 
@@ -95,7 +99,7 @@ class FieldController extends Controller {
 
         flash()->overlay('Your field has been successfully updated!', 'Good Job!');
 
-        return redirect('projects/'.$field->pid.'/forms/'.$field->fid);
+        return redirect('projects/'.$pid.'/forms/'.$fid);
 	}
 
     /**
@@ -118,27 +122,6 @@ class FieldController extends Controller {
 
         flash()->overlay('Your field has been successfully deleted!', 'Good Job!');
 	}
-
-
-    /**
-     * @param $pid
-     * @param $fid
-     * @param $flid
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
-     */
-    public function options($pid, $fid, $flid)
-    {
-        if(!FieldController::validProjFormField($pid, $fid, $flid)){
-            return redirect('projects');
-        }
-
-        $field = FieldController::getField($flid);
-        $form = FormController::getForm($fid);
-        $proj = ProjectController::getProject($pid);
-
-        return view('fields.options', compact('field', 'form', 'proj'));
-    }
-
 
     /**
      * Get field object for use in controller.
