@@ -21,7 +21,10 @@ Route::get('/projects/{pid}/forms/{fid}/fields/create','FieldController@create')
 Route::get('/projects/{pid}/forms/{fid}/fields/{flid}','FieldController@show');
 Route::delete('/projects/{pid}/forms/{fid}/fields/{flid}','FieldController@destroy');
 Route::get('/projects/{pid}/forms/{fid}/fields/{flid}/edit','FieldController@edit');
+Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/required','FieldController@updateRequired');
+Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/default','FieldController@updateDefault');
 Route::get('/projects/{pid}/forms/{fid}/fields/{flid}/options','FieldController@show'); //alias for fields/{id}
+Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/update','FieldController@updateUpdates');
 Route::post('/projects/{pid}/forms/{fid}','FieldController@store');
 
 //user routes

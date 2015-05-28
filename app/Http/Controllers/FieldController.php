@@ -60,7 +60,9 @@ class FieldController extends Controller {
         $form = FormController::getForm($fid);
         $proj = ProjectController::getProject($pid);
 
-        return view('fields.show', compact('field', 'form', 'proj'));
+        if($field->type=="Text") {
+            return view('fields.options.text', compact('field', 'form', 'proj'));
+        }
 	}
 
     /**
@@ -101,6 +103,45 @@ class FieldController extends Controller {
 
         return redirect('projects/'.$pid.'/forms/'.$fid);
 	}
+
+    public function updateRequired($pid, $fid, $flid, FieldRequest $request)
+    {
+        dd('required');
+
+        $field = FieldController::getField($flid);
+
+        $field->update($request->all());
+
+        flash()->overlay('Your field has been successfully updated!', 'Good Job!');
+
+        return redirect('projects/'.$pid.'/forms/'.$fid);
+    }
+
+    public function updateDefault($pid, $fid, $flid, FieldRequest $request)
+    {
+        dd('default');
+
+        $field = FieldController::getField($flid);
+
+        $field->update($request->all());
+
+        flash()->overlay('Your field has been successfully updated!', 'Good Job!');
+
+        return redirect('projects/'.$pid.'/forms/'.$fid);
+    }
+
+    public function updateOptions($pid, $fid, $flid, FieldRequest $request)
+    {
+        dd('options');
+
+        $field = FieldController::getField($flid);
+
+        $field->update($request->all());
+
+        flash()->overlay('Your field has been successfully updated!', 'Good Job!');
+
+        return redirect('projects/'.$pid.'/forms/'.$fid);
+    }
 
     /**
      * Remove the specified resource from storage.
@@ -162,5 +203,13 @@ class FieldController extends Controller {
             return true;
         else
             return false;
+    }
+
+    public static function getFieldOption($field, $key){
+        $options = $field->options;
+        $tag = '[!'.$key.'!]';
+        $value = explode($tag,$options)[1];
+
+        return $value;
     }
 }
