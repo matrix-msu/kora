@@ -106,41 +106,39 @@ class FieldController extends Controller {
 
     public function updateRequired($pid, $fid, $flid, FieldRequest $request)
     {
-        dd('required');
-
         $field = FieldController::getField($flid);
 
-        $field->update($request->all());
+        $field->required = $request->required;
+        $field->save();
 
-        flash()->overlay('Your field has been successfully updated!', 'Good Job!');
+        flash()->success('Option updated!');
 
-        return redirect('projects/'.$pid.'/forms/'.$fid);
+        return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
     }
 
     public function updateDefault($pid, $fid, $flid, FieldRequest $request)
     {
-        dd('default');
-
         $field = FieldController::getField($flid);
 
-        $field->update($request->all());
+        $field->default = $request->default;
+        $field->save();
 
-        flash()->overlay('Your field has been successfully updated!', 'Good Job!');
+        flash()->success('Option updated!');
 
-        return redirect('projects/'.$pid.'/forms/'.$fid);
+        return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
     }
 
     public function updateOptions($pid, $fid, $flid, FieldRequest $request)
     {
         dd('options');
 
-        $field = FieldController::getField($flid);
+        /*$field = FieldController::getField($flid);
 
         $field->update($request->all());
 
         flash()->overlay('Your field has been successfully updated!', 'Good Job!');
 
-        return redirect('projects/'.$pid.'/forms/'.$fid);
+        return redirect('projects/'.$pid.'/forms/'.$fid);*/
     }
 
     /**
