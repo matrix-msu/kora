@@ -130,15 +130,13 @@ class FieldController extends Controller {
 
     public function updateOptions($pid, $fid, $flid, FieldRequest $request)
     {
-        dd('options');
+        $field = FieldController::getField($flid);
 
-        /*$field = FieldController::getField($flid);
+        FieldController::setFieldOptions($field, $request->option, $request->value);
 
-        $field->update($request->all());
+        flash()->success('Option updated!');
 
-        flash()->overlay('Your field has been successfully updated!', 'Good Job!');
-
-        return redirect('projects/'.$pid.'/forms/'.$fid);*/
+        return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
     }
 
     /**
@@ -209,5 +207,14 @@ class FieldController extends Controller {
         $value = explode($tag,$options)[1];
 
         return $value;
+    }
+
+    public static function setFieldOptions($field, $key, $value){
+        $options = $field->options;
+        $tag = '[!'.$key.'!]';
+        $array = explode($tag,$options);
+
+        $field->options = $array[0].$tag.$value.$tag.$array[2];
+        $field->save();
     }
 }
