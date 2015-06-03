@@ -9,6 +9,10 @@
     <span><h1>{{ $form->name }}</h1></span>
     <div><b>Internal Name:</b> {{ $form->slug }}</div>
     <div><b>Description:</b> {{ $form->description }}</div>
+    <div>
+        <a href="{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}">[Records]</a>
+        <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[New Record]</a>
+    </div>
     <hr/>
     <h2>Fields</h2>
 

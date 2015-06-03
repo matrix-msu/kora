@@ -12,9 +12,15 @@ class RecordController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function index()
+	public function index($pid, $fid)
 	{
-		//
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+
+        $form = FormController::getForm($fid);
+
+        return view('records.index', compact('form'));
 	}
 
 	/**
@@ -22,9 +28,15 @@ class RecordController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function create()
+	public function create($pid, $fid)
 	{
-		//
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+
+        $form = FormController::getForm($fid);
+
+        return view('records.create', compact('form'));
 	}
 
 	/**
