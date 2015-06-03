@@ -1,18 +1,8 @@
 @extends('app')
 
 @section('leftNavLinks')
-    <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ $projName }}<b class="caret"></b></a>
-        <ul class="dropdown-menu">
-            <li><a href="{{ url('/projects/'.$form->pid) }}">Project Home</a></li>
-        </ul>
-    </li>
-    <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ $form->name }}<b class="caret"></b></a>
-        <ul class="dropdown-menu">
-            <li><a href="{{ url('/projects/'.$form->pid).'/forms/'.$form->fid}}">Form Home</a></li>
-        </ul>
-    </li>
+    @include('partials.menu.project', ['pid' => $form->pid])
+    @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
 @stop
 
 @section('content')
@@ -33,6 +23,9 @@
                 <div class="panel-footer">
                     <span>
                         <a href="{{ action('FieldController@edit',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => $field->flid]) }}">[Edit]</a>
+                    </span>
+                    <span>
+                        <a href="{{ action('FieldController@show',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => $field->flid]) }}">[Options]</a>
                     </span>
                     <span>
                         <a onclick="deleteField('{{ $field->name }}', {{ $field->flid }})" href="javascript:void(0)">[Delete]</a>

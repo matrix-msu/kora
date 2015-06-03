@@ -1,18 +1,8 @@
 @extends('app')
 
 @section('leftNavLinks')
-    <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ $proj->name }}<b class="caret"></b></a>
-        <ul class="dropdown-menu">
-            <li><a href="{{ url('/projects/'.$field->pid) }}">Project Home</a></li>
-        </ul>
-    </li>
-    <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ $form->name }}<b class="caret"></b></a>
-        <ul class="dropdown-menu">
-            <li><a href="{{ url('/projects/'.$field->pid).'/forms/'.$field->fid}}">Form Home</a></li>
-        </ul>
-    </li>
+    @include('partials.menu.project', ['pid' => $field->pid])
+    @include('partials.menu.form', ['pid' => $field->pid, 'fid' => $field->fid])
 @stop
 
 @section('content')

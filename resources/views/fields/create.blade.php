@@ -1,7 +1,8 @@
 @extends('app')
 
 @section('leftNavLinks')
-    <li><a href="{{ url('/projects/'.$form->pid.'/forms/'.$form->fid) }}">{{ $form->name }}</a></li>
+    @include('partials.menu.project', ['pid' => $form->pid])
+    @include('partials.menu.form', ['pid' => $field->pid, 'fid' => $field->fid])
 @stop
 
 @section('content')
