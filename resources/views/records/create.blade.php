@@ -6,6 +6,13 @@
 @stop
 
 @section('content')
-Create new record
+    <h1>Create a New Record for {{ $form->name }}</h1>
 
+    <hr/>
+
+    {!! Form::model($record = new \App\Record, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid.'/records']) !!}
+        @include('records.form',['submitButtonText' => 'Create Record', 'form' => $form])
+    {!! Form::close() !!}
+
+    @include('errors.list')
 @stop
