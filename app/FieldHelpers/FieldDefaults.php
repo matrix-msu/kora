@@ -6,14 +6,14 @@
  * Time: 10:40 AM
  */
 
-namespace app\FieldHelpers;
+namespace App\FieldHelpers;
 
 
 class FieldDefaults {
 
     static function getOptions($type){
         if($type=="Text"){
-            return '[!Regex!][!Regex!][!MultiLine!]no[!MultiLine!]';
+            return '[!Regex!][!Regex!][!MultiLine!]0[!MultiLine!]';
         }
         else{
             return '';

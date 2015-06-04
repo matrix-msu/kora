@@ -22,6 +22,6 @@ class Form extends Model {
     }
 
     public function records(){
-        return $this->hasMany('App\Record', 'rid');
+        return $this->hasMany('App\Record', 'fid');
     }
 }

@@ -95,6 +95,10 @@ class FieldController extends Controller {
      */
 	public function update($pid, $fid, $flid, FieldRequest $request)
 	{
+        if(!FieldController::validProjFormField($pid, $fid, $flid)){
+            return redirect('projects');
+        }
+
 		$field = FieldController::getField($flid);
 
         $field->update($request->all());
@@ -106,6 +110,10 @@ class FieldController extends Controller {
 
     public function updateRequired($pid, $fid, $flid, FieldRequest $request)
     {
+        if(!FieldController::validProjFormField($pid, $fid, $flid)){
+            return redirect('projects');
+        }
+
         $field = FieldController::getField($flid);
 
         $field->required = $request->required;
@@ -118,6 +126,10 @@ class FieldController extends Controller {
 
     public function updateDefault($pid, $fid, $flid, FieldRequest $request)
     {
+        if(!FieldController::validProjFormField($pid, $fid, $flid)){
+            return redirect('projects');
+        }
+
         $field = FieldController::getField($flid);
 
         $field->default = $request->default;
@@ -130,6 +142,10 @@ class FieldController extends Controller {
 
     public function updateOptions($pid, $fid, $flid, FieldRequest $request)
     {
+        if(!FieldController::validProjFormField($pid, $fid, $flid)){
+            return redirect('projects');
+        }
+
         $field = FieldController::getField($flid);
 
         FieldController::setFieldOptions($field, $request->option, $request->value);

@@ -15,8 +15,6 @@ class CreateRecordsTable extends Migration {
 		Schema::create('records', function(Blueprint $table)
 		{
 			$table->increments('rid');
-            $table->primary('rid');
-
             $table->string('kid');
             $table->integer('pid')->unsigned();
             $table->integer('fid')->unsigned();

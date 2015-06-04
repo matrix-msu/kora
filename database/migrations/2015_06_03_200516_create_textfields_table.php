@@ -12,10 +12,9 @@ class CreateTextfieldsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('textfields', function(Blueprint $table)
+		Schema::create('text_fields', function(Blueprint $table)
 		{
-            $table->increment('id');
-            $table->primary('id');
+            $table->increments('id');
 
             $table->integer('rid')->unsigned();
             $table->integer('flid')->unsigned();

@@ -17,4 +17,8 @@ class Record extends Model {
         return $this->belongsTo('App\Form');
     }
 
+    public function textfields(){
+        return $this->hasMany('App\TextField', 'rid');
+    }
+
 }
