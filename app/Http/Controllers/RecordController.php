@@ -98,9 +98,16 @@ class RecordController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function show($id)
+	public function show($pid, $fid, $rid)
 	{
-		//
+        if(!RecordController::validProjFormRecord($pid, $fid, $rid)){
+            return redirect('projects');
+        }
+
+        $form = FormController::getForm($fid);
+        $record = RecordController::getRecord($rid);
+
+        return view('records.show', compact('record', 'form', 'pid'));
 	}
 
 	/**
@@ -109,9 +116,15 @@ class RecordController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function edit($id)
+	public function edit($pid, $fid, $rid)
 	{
-		//
+        if(!RecordController::validProjFormRecord($pid, $fid, $rid)){
+            return redirect('projects');
+        }
+
+        $record = RecordController::getRecord($rid);
+
+        return view('records.edit', compact('record', 'fid', 'pid'));
 	}
 
 	/**
@@ -131,9 +144,40 @@ class RecordController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy($id)
+	public function destroy($pid, $fid, $rid)
 	{
-		//
+        if(!RecordController::validProjFormRecord($pid, $fid, $rid)){
+            return redirect('projects/'.$pid.'forms/');
+        }
+
+        $record = RecordController::getRecord($rid);
+        $record->delete();
+
+        flash()->overlay('Your record has been successfully deleted!', 'Good Job!');
 	}
+
+    public static function getRecord($rid)
+    {
+        $record = Record::where('rid', '=', $rid)->first();
+
+        return $record;
+    }
+
+    public static function validProjFormRecord($pid, $fid, $rid)
+    {
+        $record = RecordController::getRecord($rid);
+        $form = FormController::getForm($fid);
+        $proj = ProjectController::getProject($pid);
+
+        if (!FormController::validProjForm($pid, $fid))
+            return false;
+
+        if (is_null($record) || is_null($form) || is_null($proj))
+            return false;
+        else if ($record->fid == $form->fid)
+            return true;
+        else
+            return false;
+    }
 
 }

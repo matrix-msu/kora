@@ -17,7 +17,9 @@
 
     @foreach($form->records as $record)
         <div class="panel panel-default">
-            <div><b>Record:</b> {{ $record->kid }}</div>
+            <div>
+                <b>Record:</b> <a href="{{ action('RecordController@show',['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid]) }}">{{ $record->kid }}</a>
+            </div>
             @foreach($form->fields as $field)
                 <div>
                     <span><b>{{ $field->name }}:</b> </span>
@@ -32,9 +34,6 @@
                     </span>
                 </div>
             @endforeach
-            <div><b>Owner:</b> {{ $record->owner }}</div>
-            <div><b>Tsp (created):</b> {{ $record->created_at }}</div>
-            <div><b>Tsp (modified):</b> {{ $record->updated_at }}</div>
         </div>
     @endforeach
 @stop
