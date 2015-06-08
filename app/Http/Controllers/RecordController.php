@@ -122,9 +122,10 @@ class RecordController extends Controller {
             return redirect('projects');
         }
 
+        $form = FormController::getForm($fid);
         $record = RecordController::getRecord($rid);
 
-        return view('records.edit', compact('record', 'fid', 'pid'));
+        return view('records.edit', compact('record', 'form'));
 	}
 
 	/**
@@ -133,9 +134,51 @@ class RecordController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function update($id)
+	public function update($pid, $fid, $rid, Request $request)
 	{
-		//
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+
+        foreach($request->all() as $key => $value){
+            if($key=='_token' | $key=='_method'){
+                continue;
+            }
+            $message = FieldValidation::validateField($key, $value);
+            if($message != ''){
+                flash()->error($message);
+
+                return redirect()->back()->withInput();
+            }
+        }
+
+        $record = Record::where('rid', '=', $rid)->first();
+        $record->save();
+
+        foreach($request->all() as $key => $value){
+            if($key=='_token' | $key=='_method'){
+                continue;
+            }
+            $field = FieldController::getField($key);
+            if($field->type=='Text'){
+                //we need to check if the field exist first
+                if(TextField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
+                    $tf = TextField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                    $tf->text = $value;
+                    $tf->save();
+                }else {
+                    $tf = new TextField();
+                    $tf->flid = $field->flid;
+                    $tf->rid = $record->rid;
+                    $tf->text = $value;
+                    $tf->save();
+                }
+            }
+        }
+
+        flash()->overlay('Your record has been successfully updated!', 'Good Job!');
+
+        return redirect('projects/'.$pid.'/forms/'.$fid.'/records/'.$rid);
 	}
 
 	/**
