@@ -16,28 +16,7 @@
     <hr/>
     <h2>Fields</h2>
 
-    <?php
-            $xml = xml_parser_create();
-            xml_parse_into_struct($xml,$form->layout, $vals, $index);
-    ?>
-
-    @for($i=0;$i<sizeof($vals);$i++)
-        @if($vals[$i]['tag']=='ID')
-            @include('forms.layout.printfield',['field' => App\Field::where('flid', '=', $vals[$i]['value'])->first()])
-        @elseif($vals[$i]['tag']=='NODE')
-            <?php
-                    $level = $vals[$i]['level'];
-                    $title = $vals[$i]['attributes']['TITLE'];
-                    $node = array();
-                    $i++;
-                    while($vals[$i]['tag']!='NODE' | $vals[$i]['type']!='close' | $vals[$i]['level']!=$level){
-                        array_push($node,$vals[$i]);
-                        $i++;
-                    }
-            ?>
-            @include('forms.layout.printnested',['node' => $node, 'title' => $title])
-        @endif
-    @endfor
+    @include('forms.layout.logic',['form' => $form, 'fieldview' => 'forms.layout.printfield', 'nestedview' => 'forms.layout.printnested'])
 
     <form action="{{action('FieldController@create', ['pid' => $form->pid, 'fid' => $form->fid]) }}">
         <input type="submit" value="Create New Field" class="btn btn-primary form-control">

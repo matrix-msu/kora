@@ -1,5 +1,5 @@
-<h3>{{ $title }}</h3>
 <div id="node" style="margin-left:50px">
+    <h3>{{ $title }}</h3>
     @for($i=0;$i<sizeof($node);$i++)
         @if($node[$i]['tag']=='ID')
             @include('forms.layout.printfield',['field' => App\Field::where('flid', '=', $node[$i]['value'])->first()])
