@@ -19,6 +19,7 @@ class CreateFormsTable extends Migration {
 			$table->string('name');
 			$table->string('slug')->unique();
 			$table->string('description');
+            $table->string('layout');
 			$table->timestamps();
 
             $table->foreign('pid')->references('pid')->on('projects')->onDelete('cascade');

@@ -7,7 +7,7 @@
 
 @section('content')
     <span><h1>{{ $form->name }}</h1></span>
-    <div><b>Internal Name:</b> {{ $form->slug }}</div>
+    <div><b>Internal Names:</b> {{ $form->slug }}</div>
     <div><b>Description:</b> {{ $form->description }}</div>
     <div>
         <a href="{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}">[Records]</a>
@@ -16,28 +16,28 @@
     <hr/>
     <h2>Fields</h2>
 
-    @foreach($form->fields as $field)
-        <div class="panel panel-default">
-            <div class="panel-heading" style="font-size: 1.5em;">
-                <a href="{{ action('FieldController@show',['pid' => $field->pid,'fid' => $field->fid, 'flid' => $field->flid]) }}">{{ $field->name }}</a>
-                <span  class="pull-right">{{ $field->type }}</span>
-            </div>
-            <div class="collapseTest" style="display:none">
-                <div class="panel-body"><b>Description:</b> {{ $field->desc }}</div>
-                <div class="panel-footer">
-                    <span>
-                        <a href="{{ action('FieldController@edit',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => $field->flid]) }}">[Edit]</a>
-                    </span>
-                    <span>
-                        <a href="{{ action('FieldController@show',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => $field->flid]) }}">[Options]</a>
-                    </span>
-                    <span>
-                        <a onclick="deleteField('{{ $field->name }}', {{ $field->flid }})" href="javascript:void(0)">[Delete]</a>
-                    </span>
-                </div>
-            </div>
-        </div>
-    @endforeach
+    <?php
+            $xml = xml_parser_create();
+            xml_parse_into_struct($xml,$form->layout, $vals, $index);
+    ?>
+
+    @for($i=0;$i<sizeof($vals);$i++)
+        @if($vals[$i]['tag']=='ID')
+            @include('forms.layout.printfield',['field' => App\Field::where('flid', '=', $vals[$i]['value'])->first()])
+        @elseif($vals[$i]['tag']=='NODE')
+            <?php
+                    $level = $vals[$i]['level'];
+                    $title = $vals[$i]['attributes']['TITLE'];
+                    $node = array();
+                    $i++;
+                    while($vals[$i]['tag']!='NODE' | $vals[$i]['type']!='close' | $vals[$i]['level']!=$level){
+                        array_push($node,$vals[$i]);
+                        $i++;
+                    }
+            ?>
+            @include('forms.layout.printnested',['node' => $node, 'title' => $title])
+        @endif
+    @endfor
 
     <form action="{{action('FieldController@create', ['pid' => $form->pid, 'fid' => $form->fid]) }}">
         <input type="submit" value="Create New Field" class="btn btn-primary form-control">

@@ -17,8 +17,12 @@ class FieldController extends Controller {
      * @param $fid
      * @return Response
      */
-	public function create($fid)
+	public function create($pid, $fid)
 	{
+        if(!FormController::validProjForm($pid, $fid)){
+            return redirect('projects');
+        }
+
 		$form = FormController::getForm($fid);
         return view('fields.create', compact('form'));
 	}

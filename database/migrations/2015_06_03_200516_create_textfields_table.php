@@ -33,7 +33,7 @@ class CreateTextfieldsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('textfields');
+		Schema::drop('text_fields');
 	}
 
 }
