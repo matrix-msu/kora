@@ -2,7 +2,6 @@
 $xml = xml_parser_create();
 xml_parse_into_struct($xml,$form->layout, $vals, $index);
 ?>
-
 @for($i=0;$i<sizeof($vals);$i++)
     @if($vals[$i]['tag']=='ID')
         @include($fieldview,['field' => App\Field::where('flid', '=', $vals[$i]['value'])->first()])
@@ -17,6 +16,6 @@ xml_parse_into_struct($xml,$form->layout, $vals, $index);
             $i++;
         }
         ?>
-        @include($nestedview,['node' => $node, 'title' => $title])
+        @include('forms.layout.nested',['node' => $node, 'title' => $title, 'fieldview' => $fieldview])
     @endif
 @endfor

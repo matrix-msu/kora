@@ -16,7 +16,7 @@
     <hr/>
     <h2>Fields</h2>
 
-    @include('forms.layout.logic',['form' => $form, 'fieldview' => 'forms.layout.printfield', 'nestedview' => 'forms.layout.printnested'])
+    @include('forms.layout.logic',['form' => $form, 'fieldview' => 'forms.layout.printfield'])
 
     <form action="{{action('FieldController@create', ['pid' => $form->pid, 'fid' => $form->fid]) }}">
         <input type="submit" value="Create New Field" class="btn btn-primary form-control">

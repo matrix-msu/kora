@@ -17,22 +17,9 @@
     <h2>Record: {{$record->kid}}</h2>
 
     <div class="panel panel-default">
-        @foreach($form->fields as $field)
-            <div>
-                <span><b>{{ $field->name }}:</b> </span>
-                    <span>
-                        @if($field->type=='Text')
-                            @foreach($record->textfields as $tf)
-                                @if($tf->flid == $field->flid)
-                                    {{ $tf->text }}
-                                @endif
-                            @endforeach
-                        @endif
-                    </span>
-            </div>
-        @endforeach
+        @include('forms.layout.logic',['form' => $form, 'fieldview' => 'records.layout.displayfield'])
         <div><b>Owner:</b> {{ $record->owner }}</div>
-        <div><b>Created:</b> {{ $record->created_at }}</div>
+        <div><b>Created At:</b> {{ $record->created_at }}</div>
         <div class="panel-footer">
             <span>
                 <a href="{{ action('RecordController@edit',['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid]) }}">[Edit]</a>

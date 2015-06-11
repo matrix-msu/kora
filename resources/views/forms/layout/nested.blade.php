@@ -2,7 +2,7 @@
     <h3>{{ $title }}</h3>
     @for($i=0;$i<sizeof($node);$i++)
         @if($node[$i]['tag']=='ID')
-            @include('forms.layout.printfield',['field' => App\Field::where('flid', '=', $node[$i]['value'])->first()])
+            @include($fieldview,['field' => App\Field::where('flid', '=', $node[$i]['value'])->first()])
         @elseif($node[$i]['tag']=='NODE')
             <?php
             $level = $node[$i]['level'];
@@ -14,7 +14,7 @@
                 $i++;
             }
             ?>
-            @include('forms.layout.printnested',['node' => $node2, 'title' => $title])
+            @include('forms.layout.nested',['node' => $node2, 'title' => $title, 'fieldview' => $fieldview])
         @endif
     @endfor
 </div>
