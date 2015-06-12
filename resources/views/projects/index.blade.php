@@ -4,7 +4,6 @@
     <h1>My Dashboard</h1>
 
     <hr/>
-
     <h2>Projects</h2>
     @foreach ($projects as $project)
         <div class="panel panel-default">

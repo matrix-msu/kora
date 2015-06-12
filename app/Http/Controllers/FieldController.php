@@ -183,6 +183,11 @@ class FieldController extends Controller {
         $field = FieldController::getField($flid);
         $field->delete();
 
+        $form = FormController::getForm($fid);
+        $layout = explode('<id>'.$field->flid.'</id>',$form->layout);
+        $form->layout = $layout[0].$layout[1];
+        $form->save();
+
         flash()->overlay('Your field has been successfully deleted!', 'Good Job!');
 	}
 
