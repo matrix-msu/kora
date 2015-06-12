@@ -40,6 +40,12 @@ class FieldController extends Controller {
         $field->default = FieldDefaults::getDefault($field->type);
         $field->save();
 
+        //need to add field to layout xml
+        $form = FormController::getForm($field->fid);
+        $layout = explode('</layout>',$form->layout);
+        $form->layout = $layout[0].'<id>'.$field->flid.'</id></layout>';
+        $form->save();
+
         flash()->overlay('Your field has been successfully created!', 'Good Job');
 
         return redirect('projects/'.$field->pid.'/forms/'.$field->fid);

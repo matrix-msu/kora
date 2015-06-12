@@ -15,6 +15,14 @@
                 <span>
                     <a onclick="deleteField('{{ $field->name }}', {{ $field->flid }})" href="javascript:void(0)">[Delete]</a>
                 </span>
+                <span  class="pull-right">
+                    <button><img src="{{ url() }}/arrows/KoraIII-Logo-15.png" alt="Move Up"></button>
+                    <button><img src="{{ url() }}/arrows/KoraIII-Logo-14.png" alt="Move Down"></button>
+                    <button><img src="{{ url() }}/arrows/KoraIII-Logo-12.png" alt="Move Up and In"></button>
+                    <button><img src="{{ url() }}/arrows/KoraIII-Logo-13.png" alt="Move Down and In"></button>
+                    <button><img src="{{ url() }}/arrows/KoraIII-Logo-10.png" alt="Move Up and Out"></button>
+                    <button><img src="{{ url() }}/arrows/KoraIII-Logo-11.png" alt="Move Down and Out"></button>
+                </span>
         </div>
     </div>
 </div>
