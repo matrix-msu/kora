@@ -10,6 +10,15 @@ use Illuminate\Http\Request;
 
 class RecordController extends Controller {
 
+    /**
+     * User must be logged in to access views in this controller.
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+
 	/**
 	 * Display a listing of the resource.
 	 *

@@ -10,6 +10,16 @@ use Illuminate\Http\Request;
 
 class FieldController extends Controller {
 
+
+    /**
+     * User must be logged in to access views in this controller.
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+
     /**
      * Show the form for creating a new resource.
      *

@@ -13,15 +13,20 @@ class WelcomeController extends Controller {
 	|
 	*/
 
-	/**
-	 * Create a new controller instance.
-	 *
-	 * @return void
-	 */
-	public function __construct()
-	{
-		$this->middleware('guest');
-	}
+    //Constructor causing a redirect loop error, it is solved by commenting it out.
+    //Error occurs only when a user is logged in so I assumed it was caused by
+    //this middleware redirecting to 'guest' middleware. -Ian
+
+//
+//	/**
+//	 * Create a new controller instance.
+//	 *
+//	 * @return void
+//	 */
+//	public function __construct()
+//	{
+//		$this->middleware('guest');
+//	}
 
 	/**
 	 * Show the application welcome screen to the user.
