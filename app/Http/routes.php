@@ -5,6 +5,10 @@ Route::get('/', 'WelcomeController@index');
 //project routes
 Route::resource('projects', 'ProjectController');
 
+//admin routes
+Route::get('/admin/users', 'AdminController@users');
+Route::patch('/admin/update', 'AdminController@update');
+
 //form routes
 Route::get('/projects/{pid}/forms','ProjectController@show'); //alias for project/{id}
 Route::patch('/projects/{pid}/forms/{fid}','FormController@update');

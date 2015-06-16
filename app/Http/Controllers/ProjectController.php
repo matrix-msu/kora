@@ -6,6 +6,7 @@ use App\Http\Requests\ProjectRequest;
 use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ProjectController extends Controller {
 
@@ -26,8 +27,9 @@ class ProjectController extends Controller {
 	{
         $projects = Project::all();
 
-        //return "this is the projects page";
-        return view('projects.index', compact('projects'));
+        $userId = \Auth::user()['attributes']['id'];
+
+        return view('projects.index', compact('projects'), compact('userId'));
 	}
 
 	/**
