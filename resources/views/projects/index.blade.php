@@ -3,6 +3,8 @@
 @section('content')
     <h1>My Dashboard</h1>
 
+    @include('partials.adminpanel')
+
     <hr/>
     <h2>Projects</h2>
     @foreach ($projects as $project)
