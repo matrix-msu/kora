@@ -1,8 +1,14 @@
-@if ($userId==1)
+@if ($admin)
     <hr/>
 
     <h4> Admin Panel</h4>
-    <div class="btn-group" role="group">
-        <button type="button" class="btn btn-default"><a href="{{ action('AdminController@users') }}">Manage Users</a></button>
-    </div>
+
+    <form action="{{ action('AdminController@users') }}" style="display: inline">
+        <button type="submit" class="btn btn-default"> Manage Users </button>
+    </form>
+
+    <form action="#" style="display: inline">
+        <button type="submit" class="btn btn-default"> Manage Tokens </button>
+    </form>
+
 @endif

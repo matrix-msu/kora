@@ -1,6 +1,7 @@
 <?php
 
 Route::get('/', 'WelcomeController@index');
+Route::get('/home', 'WelcomeController@index');
 
 //project routes
 Route::resource('projects', 'ProjectController');

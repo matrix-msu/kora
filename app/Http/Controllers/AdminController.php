@@ -26,31 +26,63 @@ class AdminController extends Controller {
     }
 
     /**
-     * Changes the user's password.
+     * Changes the user's password and/or makes user admin.
      *
      * @param Request $request
      * @return Response
      */
     public function update(Request $request)
     {
-        if (!empty($request)) {
-            $id = $request->users;
-            $new_pass = $request->new_password;
-            $confirm_pass = $request->confirm;
+        $user = User::where('id', '=', $request->users)->first();
+        $new_pass = $request->new_password;
+        $confirm = $request->confirm;
+
+        if(($request->admin)=="yes"){
+            if(empty($new_pass) && empty($confirm)){ //User did not want to update password
+                $user->admin=1;
+                $user->save();
+
+                flash()->overlay('User is now admin!', 'Success!');
+                return redirect('admin/users');
+            }
+
+            elseif($new_pass != $confirm){
+                flash()->overlay('Passwords do not match, please try again.', 'Whoops.');
+                return redirect('admin/users');
+            }
+
+            else{
+                $user->admin=1;
+                $user->password = bcrypt($new_pass);
+                $user->save();
+
+                flash()->overlay('User made admin and password has been updated!', 'Success!');
+                return redirect('admin/users');
+            }
         }
 
-        if (! ($new_pass == $confirm_pass)) {
-            flash()->overlay('Passwords do not match, try again please.');
-            return redirect('admin/users');
+        else{ //User does not want to give admin rights
+            if(empty($new_pass) && empty($confirm)){ //User did not want to update password
+                $user->admin=0;
+                $user->save();
+
+                flash()->overlay('User is not an admin now!', 'Success!');
+                return redirect('admin/users');
+            }
+
+            elseif($new_pass != $confirm){
+                flash()->overlay('Passwords do not match, please try again.', 'Whoops.');
+                return redirect('admin/users');
+            }
+
+            else{
+                $user->admin=0;
+                $user->password = bcrypt($new_pass);
+                $user->save();
+
+                flash()->overlay('Password has been updated, user is not admin!', 'Success!');
+                return redirect('admin/users');
+            }
         }
-
-        $user = User::where('id','=', $id)->first();
-        $user->password = bcrypt($new_pass);
-        $user->save();
-
-        flash()->overlay('Password updated!');
-        return redirect('admin/users');
     }
-
-
 }

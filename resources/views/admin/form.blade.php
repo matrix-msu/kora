@@ -10,6 +10,12 @@
     </div>
 
     <div class="form-group">
+        {!! Form::label('admin', 'Should user be admin?  ') !!}
+        <p style="display: inline"> No </p>{!! Form::radio('admin', 'no', true) !!}
+        <p style="display: inline"> Yes </p>{!! Form::radio('admin', 'yes', false) !!}
+    </div>
+
+    <div class="form-group">
         {!! Form::label('new_password', 'New Password:') !!}
         {!! Form::text('new_password', null, ['class' => 'form-control']) !!}
 
