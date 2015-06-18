@@ -27,9 +27,9 @@ class ProjectController extends Controller {
 	{
         $projects = Project::all();
 
-        $userId = \Auth::user()['attributes']['id'];
+        $admin = \Auth::user()['attributes']['admin']; 
 
-        return view('projects.index', compact('projects'), compact('userId'));
+        return view('projects.index', compact('projects'), compact('admin'));
 	}
 
 	/**
