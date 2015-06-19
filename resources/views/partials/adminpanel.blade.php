@@ -1,4 +1,4 @@
-@if ($admin)
+@if (\Auth::user()->admin)
     <hr/>
 
     <h4> Admin Panel</h4>

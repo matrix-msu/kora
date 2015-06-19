@@ -37,7 +37,7 @@ class AdminController extends Controller {
         $new_pass = $request->new_password;
         $confirm = $request->confirm;
 
-        if(($request->admin)=="yes"){
+        if(!is_null($request->admin)){
             if(empty($new_pass) && empty($confirm)){ //User did not want to update password
                 $user->admin=1;
                 $user->save();
@@ -66,7 +66,7 @@ class AdminController extends Controller {
                 $user->admin=0;
                 $user->save();
 
-                flash()->overlay('User is not an admin now!', 'Success!');
+                flash()->overlay('User is no longer an admin!', 'Success!');
                 return redirect('admin/users');
             }
 
@@ -80,7 +80,7 @@ class AdminController extends Controller {
                 $user->password = bcrypt($new_pass);
                 $user->save();
 
-                flash()->overlay('Password has been updated, user is not admin!', 'Success!');
+                flash()->overlay('Password has been updated, user is no longer an admin!', 'Success!');
                 return redirect('admin/users');
             }
         }

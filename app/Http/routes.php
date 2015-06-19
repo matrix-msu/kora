@@ -1,7 +1,7 @@
 <?php
 
 Route::get('/', 'WelcomeController@index');
-Route::get('/home', 'WelcomeController@index');
+Route:
 
 //project routes
 Route::resource('projects', 'ProjectController');
@@ -43,6 +43,7 @@ Route::post('/projects/{pid}/forms/{fid}/records','RecordController@store');
 
 //user routes
 Route::resource('user', 'Auth\UserController@index');
+Route::patch('user/changepw', 'Auth\UserController@changepw');
 
 Route::controllers([
 	'auth' => 'Auth\AuthController',
