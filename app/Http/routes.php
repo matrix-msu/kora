@@ -31,6 +31,7 @@ Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/required','Field
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/default','FieldController@updateDefault');
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/update','FieldController@updateOptions');
 Route::post('/projects/{pid}/forms/{fid}','FieldController@store');
+Route::post('/field/move', 'FieldNavController@index');
 
 //record routes
 Route::get('/projects/{pid}/forms/{fid}/records','RecordController@index');

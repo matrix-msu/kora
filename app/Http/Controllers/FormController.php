@@ -38,6 +38,9 @@ class FormController extends Controller {
 	{
         $form = Form::create($request->all());
 
+        $form->layout = '<layout></layout>';
+        $form->save();
+
         flash()->overlay('Your form has been successfully created!','Good Job');
 
         return redirect('projects/'.$form->pid);

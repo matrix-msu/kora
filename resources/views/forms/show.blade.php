@@ -37,7 +37,7 @@
             var response = confirm("Are you sure you want to delete "+fieldName+"?");
             if (response) {
                 $.ajax({
-                    //We manually create the link in a cheap way because the JS isn't aware of the fid until runtime
+                    //We manually create the link in a cheap way because our JS isn't aware of the fid until runtime
                     //We pass in a blank project to the action array and then manually add the id
                     url: '{{ action('FieldController@destroy', ['pid' => $form->pid, 'fid' => $form->fid, 'flid' => '']) }}/'+flid,
                     type: 'DELETE',
@@ -49,6 +49,38 @@
                     }
                 });
             }
+        }
+
+        var fieldNavAjax = '{{ action('FieldNavController@index') }}';
+
+        function moveFieldUp(flid){
+            $.post(fieldNavAjax, { action:'moveFieldUp', flid:flid, _token: "{{ csrf_token() }}", _method:'POST'},
+                    function(resp){
+                        location.reload();
+                    }, 'html');
+        }
+
+        function moveFieldDown(flid){
+            $.post(fieldNavAjax, { action:'moveFieldDown', flid:flid, _token: "{{ csrf_token() }}", _method:'POST'},
+                    function(resp){
+                        location.reload();
+                    }, 'html');
+        }
+
+        function moveFieldUpIn(flid){
+            console.log(flid);
+        }
+
+        function moveFieldDownIn(flid){
+            console.log(flid);
+        }
+
+        function moveFieldUpOut(flid){
+            console.log(flid);
+        }
+
+        function moveFieldDownOut(flid){
+            console.log(flid);
         }
     </script>
 @stop
