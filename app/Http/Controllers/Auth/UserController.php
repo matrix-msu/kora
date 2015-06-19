@@ -1,5 +1,7 @@
 <?php namespace App\Http\Controllers\Auth;
 
+use App\Http\Requests;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class UserController extends Controller {
@@ -37,34 +39,26 @@ class UserController extends Controller {
      */
     public function changepw(Request $request)
     {
-        dd($request);
+        $user = \Auth::user();
+        $new_pass = $request->new_password;
+        $confirm = $request->confirm;
 
-//        $id = \Auth::user()->id;
-//        $user = User::where('id', '=', $id)->first();
-//
-//        $new_pass = $request->new_pass;
-//        $confirm = $request->confirm;
-//
-//        if (empty($new_pass) && empty($confirm)){
-//            flash()->overlay('Please fill the fields before submitting.', 'Whoops.');
-//            return redirect('user/profile');
-//        }
-//
-//        elseif($new_pass != $confirm){
-//            flash()->overlay('Passwords do not match, please try again.', 'Whoops.');
-//            return redirect('user/profile');
-//        }
-//
-//        else{
-//            $user->password = bcrypt($new_pass);
-//            $user->save();
-//
-//            flash()->overlay('Your password has been changed!', 'Success!');
-//            return redirect('user/profile');
-//        }
+        if (empty($new_pass) && empty($confirm)){
+            flash()->overlay('Please fill both password fields before submitting.', 'Whoops.');
+            return redirect('user/profile');
+        }
 
+        elseif($new_pass != $confirm){
+            flash()->overlay('Passwords do not match, please try again.', 'Whoops.');
+            return redirect('user/profile');
+        }
 
+        else{
+            $user->password = bcrypt($new_pass);
+            $user->save();
+
+            flash()->overlay('Your password has been changed!', 'Success!');
+            return redirect('user/profile');
+        }
     }
-
-
 }

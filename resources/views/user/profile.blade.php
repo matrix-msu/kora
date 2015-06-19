@@ -17,6 +17,9 @@
                         <p>Organization: {{Auth::user()->organization}}</p>
                         <p>Language: {{Auth::user()->language}}</p>
                         <hr>
+
+                        @include('partials.changepassword')
+
                     </div>
                 </div>
             </div>
