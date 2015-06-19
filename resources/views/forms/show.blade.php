@@ -68,19 +68,31 @@
         }
 
         function moveFieldUpIn(flid){
-            console.log(flid);
+            $.post(fieldNavAjax, { action:'moveFieldUpIn', flid:flid, _token: "{{ csrf_token() }}", _method:'POST'},
+                    function(resp){
+                        location.reload();
+                    }, 'html');
         }
 
         function moveFieldDownIn(flid){
-            console.log(flid);
+            $.post(fieldNavAjax, { action:'moveFieldDownIn', flid:flid, _token: "{{ csrf_token() }}", _method:'POST'},
+                    function(resp){
+                        location.reload();
+                    }, 'html');
         }
 
         function moveFieldUpOut(flid){
-            console.log(flid);
+            $.post(fieldNavAjax, { action:'moveFieldUpOut', flid:flid, _token: "{{ csrf_token() }}", _method:'POST'},
+                    function(resp){
+                        location.reload();
+                    }, 'html');
         }
 
         function moveFieldDownOut(flid){
-            console.log(flid);
+            $.post(fieldNavAjax, { action:'moveFieldDownOut', flid:flid, _token: "{{ csrf_token() }}", _method:'POST'},
+                    function(resp){
+                        location.reload();
+                    }, 'html');
         }
     </script>
 @stop
