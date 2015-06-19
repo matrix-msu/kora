@@ -93,6 +93,98 @@ class FieldNavController extends Controller {
             }
         }
 
+        if($request->action=='moveFieldUpIn') {
+            for ($i = 0; $i < sizeof($vals); $i++) {
+                if(isset($vals[$i]['value']) && $vals[$i]['value']==$field->flid) {
+                    //if the Node is above us
+                    if($vals[$i-1]['tag']=='NODE' && $vals[$i-1]['type']=='close') {
+                        $tmp = $vals[$i];
+                        $vals[$i] = $vals[$i-1];
+                        $vals[$i-1] = $tmp;
+                    }
+
+                    $form->layout = $this->valsToXML($vals);
+                    $form->save();
+                    break;
+                }
+            }
+        }
+
+        if($request->action=='moveFieldDownIn') {
+            for ($i = 0; $i < sizeof($vals); $i++) {
+                if(isset($vals[$i]['value']) && $vals[$i]['value']==$field->flid) {
+                    //if the Node is above us
+                    if($vals[$i+1]['tag']=='NODE' && $vals[$i+1]['type']=='open') {
+                        $tmp = $vals[$i];
+                        $vals[$i] = $vals[$i+1];
+                        $vals[$i+1] = $tmp;
+                    }
+
+                    $form->layout = $this->valsToXML($vals);
+                    $form->save();
+                    break;
+                }
+            }
+        }
+
+        if($request->action=='moveFieldUpOut') {
+            for ($i = 0; $i < sizeof($vals); $i++) {
+                if(isset($vals[$i]['value']) && $vals[$i]['value']==$field->flid) {
+                    //if we have a node above us
+                    $j=$i-1;
+                    $lvl = $vals[$i]['level']-1;
+                    while ($j>0) {
+                        if ($vals[$j]['tag'] == 'NODE' && $vals[$j]['type'] == 'open' && $vals[$j]['level']==$lvl) {
+                            $k = $j;
+                            break;
+                        }else{
+                            $j--;
+                        }
+                    }
+
+                    $temp = $vals[$i];
+                    while($i>$k){
+                        $vals[$i] = $vals[$i-1];
+                        $i--;
+                    }
+                    $vals[$i] = $temp;
+
+                    $form->layout = $this->valsToXML($vals);
+                    $form->save();
+                    break;
+                }
+            }
+        }
+
+        if($request->action=='moveFieldDownOut') {
+            for ($i = 0; $i < sizeof($vals); $i++) {
+                if(isset($vals[$i]['value']) && $vals[$i]['value']==$field->flid) {
+                    //if we have a node below us
+                    $j=$i+1;
+                    $lvl = $vals[$i]['level']-1;
+                    while ($j<sizeof($vals)) {
+                        if ($vals[$j]['tag'] == 'NODE' && $vals[$j]['type'] == 'close' && $vals[$j]['level']==$lvl) {
+                            $k = $j;
+                            break;
+                        }else{
+                            $j++;
+                        }
+                    }
+
+                    $temp = $vals[$i];
+                    while($i<$k){
+                        $vals[$i] = $vals[$i+1];
+                        $i++;
+                    }
+                    $vals[$i] = $temp;
+
+                    $form->layout = $this->valsToXML($vals);
+                    $form->save();
+                    break;
+                }
+            }
+        }
+
     }
 
     public function valsToXML($vals){
@@ -102,7 +194,7 @@ class FieldNavController extends Controller {
             if($node['type']=='open'){
                 $tag = '<'.$node['tag'];
                 if(isset($node['attributes'])){
-                    $tag .= " title=".$node['attributes']['TITLE'];
+                    $tag .= " title='".$node['attributes']['TITLE']."'";
                 }
                 $tag .= '>';
                 $xml .= $tag;
