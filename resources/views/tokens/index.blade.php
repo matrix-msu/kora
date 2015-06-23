@@ -14,17 +14,42 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Token</th>
-                                    <th>Token Type</th>
+                                    <th>Search Tokens</th>
                                     <th>Projects</th>
                                 </tr>
                             </thead>
 
                             <tbody>
-                               @foreach ($tokens as $token)
+                            @foreach ($tokens as $token)
+                                @if ($token->type == 'search')
+                                <tr>
+                                    <td style="vertical-align: middle;"> {{ $token->token }} </td>
+                                    <td>
+                                        <ul style="list-style-type: none; padding: 0;">
+                                            @foreach ($token->projects()->get() as $project)
+                                                <li> {{$project->name}}</li>
+                                            @endforeach
+                                        </ul>
+                                    </td>
+                                </tr>
+                                @endif
+                            @endforeach
+                            </tbody>
+                        </table>
+
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Edit Tokens</th>
+                                <th>Projects</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            @foreach ($tokens as $token)
+                                @if ($token->type == 'edit')
                                     <tr>
                                         <td style="vertical-align: middle;"> {{ $token->token }} </td>
-                                        <td style="vertical-align: middle;"> {{ $token->type }} </td>
                                         <td>
                                             <ul style="list-style-type: none; padding: 0;">
                                                 @foreach ($token->projects()->get() as $project)
@@ -32,10 +57,61 @@
                                                 @endforeach
                                             </ul>
                                         </td>
-
-
                                     </tr>
-                               @endforeach
+                                @endif
+                            @endforeach
+                            </tbody>
+                        </table>
+
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Create Tokens</th>
+                                <th>Projects</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            @foreach ($tokens as $token)
+                                @if ($token->type == 'create')
+                                    <tr>
+                                        <td style="vertical-align: middle;"> {{ $token->token }} </td>
+                                        <td>
+                                            <ul style="list-style-type: none; padding: 0;">
+                                                @foreach ($token->projects()->get() as $project)
+                                                    <li> {{$project->name}}</li>
+                                                @endforeach
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                @endif
+                            @endforeach
+                            </tbody>
+                        </table>
+
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Delete Tokens</th>
+                                <th>Projects</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            @foreach ($tokens as $token)
+                                @if ($token->type == 'delete')
+                                    <tr>
+                                        <td style="vertical-align: middle;"> {{ $token->token }} </td>
+                                        <td>
+                                            <ul style="list-style-type: none; padding: 0;">
+                                                @foreach ($token->projects()->get() as $project)
+                                                    <li> {{$project->name}}</li>
+                                                @endforeach
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                @endif
+                            @endforeach
                             </tbody>
                         </table>
 
