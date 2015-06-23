@@ -10,6 +10,10 @@ Route::resource('projects', 'ProjectController');
 Route::get('/admin/users', 'AdminController@users');
 Route::patch('/admin/update', 'AdminController@update');
 
+//token routes
+Route::get('/tokens', 'TokenController@index');
+Route::post('/tokens/create', 'TokenController@create');
+
 //form routes
 Route::get('/projects/{pid}/forms','ProjectController@show'); //alias for project/{id}
 Route::patch('/projects/{pid}/forms/{fid}','FormController@update');

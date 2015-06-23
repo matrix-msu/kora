@@ -17,4 +17,13 @@ class Project extends Model {
     public function forms(){
         return $this->hasMany('App\Form','pid');
     }
+
+    /**
+     * Get the tokens associated with a given project.
+     *
+     * @return Token(s)
+     */
+    public function tokens(){
+        return $this->belongsToMany('App\Token');
+    }
 }

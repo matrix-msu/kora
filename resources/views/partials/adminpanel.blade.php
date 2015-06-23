@@ -7,7 +7,7 @@
         <button type="submit" class="btn btn-default"> Manage Users </button>
     </form>
 
-    <form action="#" style="display: inline">
+    <form action="{{ action('TokenController@index') }}" style="display: inline">
         <button type="submit" class="btn btn-default"> Manage Tokens </button>
     </form>
 
