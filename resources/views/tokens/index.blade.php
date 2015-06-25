@@ -22,7 +22,7 @@
                                 @foreach ($tokens as $token)
                                     @if ($token->type == strtolower($type))
                                         <tr>
-                                            <td>{{$token->token}}</td>
+                                            <td>{{$token->token}} <a onclick="deleteToken({{$token->id}})" href="javascript:void(0)">[Delete]</a></td>
                                             <td>
                                                 <ul style="list-style-type: none; padding: 0;">
                                                     @foreach ($token->projects()->get() as $project)
@@ -32,13 +32,14 @@
                                                     @endforeach
 
                                                     <li>
-                                                        <select onchange="addProject()" id="dropdown">
+                                                        <select onchange="addProject({{$token->id}})" id="dropdown{{$token->id}}">
                                                             <option selected disabled>Add a project</option>
                                                             @foreach ($all_projects as $project)
                                                                 @if($token->hasProject($project))
-                                                                    <!-- Do nothing, we don't want this project in the list. -->
                                                                 @else
-                                                                    <option id="{{$project->pid}}" token="{{$token->id}}">{{$project->name}}</option>
+                                                                    <option id="{{$project->pid}}" token="{{$token->id}}">
+                                                                        {{$project->name}}
+                                                                    </option>
                                                                 @endif
                                                             @endforeach
                                                         </select>
@@ -70,7 +71,7 @@
             $.ajax({
                 //We manually create the link in a cheap way because the JS isn't aware of the pid until runtime
                 //We pass in a blank project to the action array and then manually add the id
-                url: '{{ action('TokenController@deleteProject',['']) }}/'+pid,
+                url: '{{ action('TokenController@deleteProject',['']) }}',
                 type: 'PATCH',
                 data: {
                     "_token": "{{ csrf_token() }}",
@@ -83,13 +84,13 @@
             });
         }
 
-        function addProject() {
-            var pid = $('#dropdown option:selected').attr('id');
-            var token = $('#dropdown option:selected').attr('token');
+        function addProject(id) {
+            var pid = $('#dropdown' +id+ ' option:selected').attr('id');
+            var token = $('#dropdown' +id+ ' option:selected').attr('token');
 
-            $.ajax({
+                    $.ajax({
                 //Same method as deleteProject
-                url: '{{ action('TokenController@addProject',['']) }}/'+pid,
+                url: '{{ action('TokenController@addProject')}}',
                 type: 'PATCH',
                 data: {
                     "_token": "{{ csrf_token() }}",
@@ -100,6 +101,23 @@
                     location.reload();
                 }
             });
+        }
+
+        function deleteToken(id) {
+            var response = confirm('Are you sure you want to delete this token?');
+            if (response) {
+                $.ajax({
+                    url: '{{ action('TokenController@deleteToken',['']) }}',
+                    type: 'DELETE',
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        "id": id
+                    },
+                    success: function(){
+                        location.reload();
+                    }
+                });
+            }
         }
 
          $('#projects').select2();

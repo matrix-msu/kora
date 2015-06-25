@@ -54,7 +54,7 @@ class TokenController extends Controller {
      */
     public function deleteProject(Request $request)
     {
-        $instance = Token::where('id','=',$request->token)->first();
+        $instance = TokenController::getToken($request->token);
         $instance->projects()->detach($request['pid']);
     }
 
@@ -65,8 +65,16 @@ class TokenController extends Controller {
      */
     public function addProject(Request $request)
     {
-        $instance = Token::where('id','=',$request->token)->first();
+        $instance = TokenController::getToken($request->token);
         $instance->projects()->attach($request['pid']);
+    }
+
+    public function deleteToken(Request $request)
+    {
+        $instance = TokenController::getToken($request->id);
+        $instance->delete();
+
+        flash()->overlay('Your token has been deleted', 'Success!');
     }
 
     /**

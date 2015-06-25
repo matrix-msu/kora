@@ -13,8 +13,9 @@ Route::patch('/admin/update', 'AdminController@update');
 //token routes
 Route::get('/tokens', 'TokenController@index');
 Route::post('/tokens/create', 'TokenController@create');
-Route::patch('tokens/deleteProject/{pid}', 'TokenController@deleteProject');
-Route::patch('tokens/addProject/{pid}', 'TokenController@addProject');
+Route::patch('/tokens/deleteProject', 'TokenController@deleteProject');
+Route::patch('/tokens/addProject', 'TokenController@addProject');
+Route::delete('/tokens/deleteToken', 'TokenController@deleteToken');
 
 //form routes
 Route::get('/projects/{pid}/forms','ProjectController@show'); //alias for project/{id}
