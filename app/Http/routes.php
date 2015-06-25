@@ -13,6 +13,8 @@ Route::patch('/admin/update', 'AdminController@update');
 //token routes
 Route::get('/tokens', 'TokenController@index');
 Route::post('/tokens/create', 'TokenController@create');
+Route::patch('tokens/deleteProject/{pid}', 'TokenController@deleteProject');
+Route::patch('tokens/addProject/{pid}', 'TokenController@addProject');
 
 //form routes
 Route::get('/projects/{pid}/forms','ProjectController@show'); //alias for project/{id}

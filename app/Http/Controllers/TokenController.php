@@ -24,8 +24,9 @@ class TokenController extends Controller {
     {
         $tokens = Token::all();
         $projects = Project::lists('name', 'pid');
+        $all_projects = Project::all(); //Second variable created here to get around weird indexing needed for pivot table in $projects
 
-        return view('tokens.index', compact('tokens'), compact('projects'));
+        return view('tokens.index', compact('tokens', 'projects', 'all_projects'));
     }
 
     /**
@@ -47,6 +48,28 @@ class TokenController extends Controller {
     }
 
     /**
+     * Detaches a project from a token.
+     *
+     * @param Request $request
+     */
+    public function deleteProject(Request $request)
+    {
+        $instance = Token::where('id','=',$request->token)->first();
+        $instance->projects()->detach($request['pid']);
+    }
+
+    /**
+     * Attaches a project to a token.
+     *
+     * @param Request $request
+     */
+    public function addProject(Request $request)
+    {
+        $instance = Token::where('id','=',$request->token)->first();
+        $instance->projects()->attach($request['pid']);
+    }
+
+    /**
      * Creates random string of alphanumeric characters.
      *
      * @return string
@@ -63,4 +86,15 @@ class TokenController extends Controller {
         }
         return $token;
     }
+
+    /**
+     * @param $id
+     * @return Token
+     */
+    public static function getToken($id)
+    {
+        $token = Token::where('id', '=', $id)->first();
+        return $token;
+    }
+
 }

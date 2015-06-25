@@ -17,4 +17,10 @@ class Token extends Model {
     public function projects(){
         return $this->belongsToMany('App\Project');
     }
+
+    public function hasProject(Project $project)
+    {
+        $thisProjects = $this->projects()->get();
+        return $thisProjects->contains($project);
+    }
 }

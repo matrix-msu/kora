@@ -15,7 +15,3 @@
     </div>
 
 {!! Form::close() !!}
-
-@section('footer')
-    <script> $('#projects').select2(); </script>
-@stop
