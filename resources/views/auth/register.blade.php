@@ -70,7 +70,12 @@
 							</div>
 						</div>
 
-						<div class="form-group">
+                        <div class="form-group">
+                            <div style="padding: 5px" align="center" class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_PUBLIC_KEY') }}"></div>
+                        </div>
+
+
+						<div class="form-group" >
 							<div class="col-md-6 col-md-offset-4">
 								<button type="submit" class="btn btn-primary">
 									Register
@@ -84,3 +89,4 @@
 	</div>
 </div>
 @endsection
+

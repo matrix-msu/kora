@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Auth\Registrar;
+use ReCaptcha\ReCaptcha;
 
 trait AuthenticatesAndRegistersUsers {
 
@@ -38,6 +39,18 @@ trait AuthenticatesAndRegistersUsers {
 	 */
 	public function postRegister(Request $request)
 	{
+        $recaptcha = new ReCaptcha(env('RECAPTCHA_PRIVATE_KEY'));
+        $resp = $recaptcha->verify($request['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
+
+        if($resp->isSuccess());
+        else{
+            flash()->overlay('ReCAPTCHA incomplete!', 'Whoops.');
+
+            $validator = $this->registrar->validator($request->all());
+            $this->throwValidationException($request, $validator);
+        }
+
+
 		$validator = $this->registrar->validator($request->all());
 
 		if ($validator->fails())
