@@ -20,6 +20,7 @@
 
 					<form class="form-horizontal" role="form" method="POST" action="{{ url('/auth/register') }}">
 						<input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="regtoken" value="{{\App\Http\Controllers\Auth\AuthController::makeRegToken()}}">
 
 						<div class="form-group">
 							<label class="col-md-4 control-label">Username</label>

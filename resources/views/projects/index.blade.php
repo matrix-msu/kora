@@ -31,11 +31,12 @@
                 </div>
             @endif
             <div class="panel-footer">
+
                 <span>
-                    <a href="{{ action('ProjectController@edit',[$project->pid]) }}">[Edit]</a>
+                    @if(\Auth::user()->admin) <a href="{{ action('ProjectController@edit',[$project->pid]) }}">[Edit]</a> @endif
                 </span>
                 <span>
-                    <a onclick="deleteProject('{{ $project->name }}', {{ $project->pid }})" href="javascript:void(0)">[Delete]</a>
+                    @if(\Auth::user()->admin) <a onclick="deleteProject('{{ $project->name }}', {{ $project->pid }})" href="javascript:void(0)">[Delete]</a> @endif
                 </span>
             </div></div><!-- this is the close tag for the collapseTest div -->
         </div>
@@ -44,8 +45,9 @@
     <br/>
 
     <form action="{{ action('ProjectController@create') }}">
-        <input type="submit" value="Create New Project" class="btn btn-primary form-control">
+        @if(\Auth::user()->admin) <input type="submit" value="Create New Project" class="btn btn-primary form-control"> @endif
     </form>
+
 @stop
 
 @section('footer')

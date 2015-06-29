@@ -21,10 +21,13 @@ class UserController extends Controller {
     public function __construct()
     {
         $this->middleware('auth');
+        $this->middleware('active', ['except' => ['activate', 'activateshow']]);
     }
 
     /**
      * Show the application welcome screen to the user.
+     *
+     *
      *
      * @return Response
      */
@@ -60,5 +63,47 @@ class UserController extends Controller {
             flash()->overlay('Your password has been changed!', 'Success!');
             return redirect('user/profile');
         }
+    }
+
+
+    /**
+     * Returns the activate view.
+     * This may seem extraneous but is needed for the
+     * middleware and 'get' request in the routes file.
+     *
+     * @return Response
+     */
+    public function activateshow()
+    {
+        return view('user/activate');
+    }
+
+    /**
+     * Activates the user with a code that is emailed to them.
+     *
+     * @param Request $request
+     * @return Response
+     */
+    public function activate(Request $request)
+    {
+        $token = $request['token'];
+        $user = \Auth::user();
+
+        if ($token != $user->regtoken)
+        {
+            flash()->overlay('That token was invalid, try again. (Hint: tokens are case sensitive)', 'Whoops.');
+
+            return redirect('user/activate');
+        }
+        else
+        {
+            $user->active = 1;
+            $user->save();
+
+            flash()->overlay('Your account is now active!', 'Success!');
+            return redirect('/');
+        }
+
+
     }
 }

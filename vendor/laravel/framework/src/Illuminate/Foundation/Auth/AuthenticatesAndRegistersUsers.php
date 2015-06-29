@@ -1,9 +1,11 @@
 <?php namespace Illuminate\Foundation\Auth;
 
+
+use ReCaptcha\ReCaptcha;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Auth\Registrar;
-use ReCaptcha\ReCaptcha;
 
 trait AuthenticatesAndRegistersUsers {
 
@@ -61,6 +63,17 @@ trait AuthenticatesAndRegistersUsers {
 		}
 
 		$this->auth->login($this->registrar->create($request->all()));
+
+
+        $token = \Auth::user()->token;
+
+        Mail::send('emails.activation', compact('token'), function($message)
+        {
+            $message->from(env('MAIL_FROM_ADDRESS'));
+            $message->to(\Auth::user()->email);
+            $message->subject('Kora Account Activation');
+        });
+
 
 		return redirect($this->redirectPath());
 	}
@@ -142,5 +155,22 @@ trait AuthenticatesAndRegistersUsers {
 	{
 		return property_exists($this, 'loginPath') ? $this->loginPath : '/auth/login';
 	}
+
+    /**
+     * Creates the regToken for activating users.
+     *
+     * @return string
+     */
+    public static function makeRegToken(){
+        $valid = 'abcdefghijklmnopqrstuvwxyz';
+        $valid .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $valid .= '0123456789';
+
+        $token = '';
+        for ($i = 0; $i < 10; $i++){
+            $token .= $valid[( rand() % 62 )];
+        }
+        return $token;
+    }
 
 }

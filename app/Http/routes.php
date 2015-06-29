@@ -53,6 +53,10 @@ Route::post('/projects/{pid}/forms/{fid}/records','RecordController@store');
 Route::get('/user', 'Auth\UserController@index');
 Route::get('/user/profile', 'Auth\UserController@index');
 Route::patch('/user/changepw', 'Auth\UserController@changepw');
+Route::get('/user/activate', 'Auth\UserController@activateshow');
+Route::patch('/user/activate', 'Auth\UserController@activate');
+
+
 
 Route::controllers([
 	'auth' => 'Auth\AuthController',

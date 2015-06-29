@@ -1,5 +1,3 @@
-@section('content')
-
 {!! Form::open(['method' => 'PATCH', 'action' => 'AdminController@update']) !!}
 
     <div class="form-group">
@@ -35,8 +33,6 @@
     </div>
 
 {!! Form::close() !!}
-
-@stop
 
 @section('footer')
     <script>

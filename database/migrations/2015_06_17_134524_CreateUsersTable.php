@@ -23,6 +23,7 @@ class CreateUsersTable extends Migration {
             $table->string('password', 60);
             $table->string('organization');
             $table->string('language');
+            $table->string('regtoken');
             $table->rememberToken();
             $table->timestamps();
         });
@@ -37,5 +38,4 @@ class CreateUsersTable extends Migration {
     {
         Schema::drop('users');
     }
-
 }
