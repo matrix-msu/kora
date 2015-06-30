@@ -74,10 +74,14 @@ class UserController extends Controller {
         return view('auth.activate');
     }
 
+    /**
+     * @param Request $request
+     * @return Response
+     */
     public function activator(Request $request)
     {
         $user = User::where('username', '=', $request->user)->first();
-        $token = $request->token;
+        $token = trim($request->token);
 
         if ($user->regtoken == $token){
             $user->active = 1;
