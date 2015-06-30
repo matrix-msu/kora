@@ -1,1 +1,2 @@
-Click here to activate your account: <a href="{{action('Auth\UserController@activate', [\Auth::user()->regtoken])}}">Activate</a>.
+Click here to activate your account: <a href="{{action('Auth\UserController@activate', [\Auth::user()->regtoken])}}">Activate</a>. <br/>
+Or use this token on the activation page: {{\Auth::user()->regtoken}} (Case sensitive).

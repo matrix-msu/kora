@@ -54,6 +54,8 @@ Route::get('/user', 'Auth\UserController@index');
 Route::get('/user/profile', 'Auth\UserController@index');
 Route::patch('/user/changepw', 'Auth\UserController@changepw');
 Route::get('/user/activate/{token}', 'Auth\UserController@activate');
+Route::get('/auth/activator', 'Auth\UserController@activateshow');
+Route::post('/auth/activator', 'Auth\UserController@activator');
 
 
 

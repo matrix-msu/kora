@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers\Auth;
 
+use App\User;
 use App\Http\Requests;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -20,8 +21,8 @@ class UserController extends Controller {
      */
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware('active', ['except' => ['activate', 'activateshow']]);
+        $this->middleware('auth', ['except' => ['activate', 'activator', 'activateshow']]);
+        $this->middleware('active', ['except' => ['activate', 'activator', 'activateshow']]);
     }
 
     /**
@@ -42,7 +43,7 @@ class UserController extends Controller {
      */
     public function changepw(Request $request)
     {
-        $user = \Auth::user();
+        $user = Auth::user();
         $new_pass = $request->new_password;
         $confirm = $request->confirm;
 
@@ -66,14 +67,44 @@ class UserController extends Controller {
     }
 
     /**
-     * Activates the user with a code that is emailed to them.
+     * @return Response
+     */
+    public function activateshow()
+    {
+        return view('auth.activate');
+    }
+
+    public function activator(Request $request)
+    {
+        $user = User::where('username', '=', $request->user)->first();
+        $token = $request->token;
+
+        if ($user->regtoken == $token){
+            $user->active = 1;
+            $user->save();
+            flash()->overlay('You have been activated!', 'Success!');
+
+            \Auth::login($user);
+
+            return redirect('/');
+        }
+        else{
+            flash()->overlay('That token does not match that user.', 'Whoops.');
+            return redirect('auth/activate');
+        }
+    }
+
+    /**
+     * Activates the user with a link that is emailed to them.
      *
-     * @param Request $request
+     * @param token
      * @return Response
      */
     public function activate($token)
     {
-        $user = \Auth::user();
+        $user = User::where('regtoken', '=', $token)->first();
+
+        \Auth::login($user);
 
         if ($token != $user->regtoken)
         {
