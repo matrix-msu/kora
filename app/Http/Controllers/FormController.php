@@ -156,4 +156,57 @@ class FormController extends Controller {
             return false;
     }
 
+    public static function xmlToArray($layout){
+        $xml = xml_parser_create();
+        xml_parse_into_struct($xml,$layout, $vals, $index);
+
+        for($i=0;$i<sizeof($vals);$i++){
+            if($vals[$i]['tag']=='NODE' && $vals[$i]['type']=='complete'){
+                $j = $i;
+                $first = true;
+                for($k=sizeof($vals)-1;$k>$j;$k--){
+                    if($k==$j+1 && $first){
+                        //push k to end of array
+                        array_push($vals,$vals[$k]);
+                        //gather variables
+                        $lvl = $vals[$j]['level'];
+                        $title = $vals[$j]['attributes']['TITLE'];
+                        //add open to j
+                        $open = ['tag'=>'NODE', 'type'=>'open', 'level'=>$lvl, 'attributes'=>['TITLE'=>$title]];
+                        $vals[$j] = $open;
+                        //add close to k
+                        $close = ['tag'=>'NODE', 'type'=>'close', 'level'=>$lvl];
+                        $vals[$k] = $close;
+                        //break
+                        break;
+                    }else if ($k==$j+1){
+                        //move k to k+1
+                        $vals[$k+1] = $vals[$k];
+                        //gather variables
+                        $lvl = $vals[$j]['level'];
+                        $title = $vals[$j]['attributes']['TITLE'];
+                        //add open to j
+                        $open = ['tag'=>'NODE', 'type'=>'open', 'level'=>$lvl, 'attributes'=>['TITLE'=>$title]];
+                        $vals[$j] = $open;
+                        //add close to k
+                        $close = ['tag'=>'NODE', 'type'=>'close', 'level'=>$lvl];
+                        $vals[$k] = $close;
+                        //break
+                        break;
+                    }else if ($first){
+                        //push k to end of array
+                        array_push($vals,$vals[$k]);
+                        //first = false
+                        $first = false;
+                    }else{
+                        //move k to k+1
+                        $vals[$k+1] = $vals[$k];
+                    }
+                }
+            }
+        }
+
+        return $vals;
+    }
+
 }

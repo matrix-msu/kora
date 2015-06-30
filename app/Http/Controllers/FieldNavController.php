@@ -18,8 +18,7 @@ class FieldNavController extends Controller {
         $field = \App\Http\Controllers\FieldController::getField($request->flid);
         $form = \App\Http\Controllers\FormController::getForm($field->fid);
 
-        $xml = xml_parser_create();
-        xml_parse_into_struct($xml,$form->layout, $vals, $index);
+        $vals = FormController::xmlToArray($form->layout);
 
         if($request->action=='moveFieldUp') {
             for ($i = 0; $i < sizeof($vals); $i++) {

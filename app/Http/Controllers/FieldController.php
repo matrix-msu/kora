@@ -54,7 +54,7 @@ class FieldController extends Controller {
         //need to add field to layout xml
         $form = FormController::getForm($field->fid);
         $layout = explode('</layout>',$form->layout);
-        $form->layout = $layout[0].'<id>'.$field->flid.'</id></layout>';
+        $form->layout = $layout[0].'<ID>'.$field->flid.'</ID></LAYOUT>';
         $form->save();
 
         flash()->overlay('Your field has been successfully created!', 'Good Job');
@@ -195,7 +195,7 @@ class FieldController extends Controller {
         $field->delete();
 
         $form = FormController::getForm($fid);
-        $layout = explode('<id>'.$field->flid.'</id>',$form->layout);
+        $layout = explode('<ID>'.$field->flid.'</ID>',$form->layout);
         $form->layout = $layout[0].$layout[1];
         $form->save();
 

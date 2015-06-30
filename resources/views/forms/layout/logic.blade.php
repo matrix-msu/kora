@@ -1,6 +1,5 @@
 <?php
-$xml = xml_parser_create();
-xml_parse_into_struct($xml,$form->layout, $vals, $index);
+    $vals = \App\Http\Controllers\FormController::xmlToArray($form->layout);
 ?>
 @for($i=0;$i<sizeof($vals);$i++)
     @if($vals[$i]['tag']=='ID')
