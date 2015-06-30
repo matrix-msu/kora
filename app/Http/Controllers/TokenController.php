@@ -43,7 +43,8 @@ class TokenController extends Controller {
         $instance->type = $request['type'];
         $instance->save();
 
-        $instance->projects()->attach($request['projects']);
+        if (!is_null($request['projects']))
+            $instance->projects()->attach($request['projects']);
 
         return redirect('tokens');
     }

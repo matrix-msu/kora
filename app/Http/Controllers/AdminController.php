@@ -28,62 +28,49 @@ class AdminController extends Controller {
 
     /**
      * Changes the user's password and/or makes user admin.
+     * Builds up a message as it moves through if statements.
      *
      * @param Request $request
      * @return Response
      */
     public function update(Request $request)
     {
+        $message = "Here's what you changed (or kept the same):";
         $user = User::where('id', '=', $request->users)->first();
         $new_pass = $request->new_password;
         $confirm = $request->confirm;
 
-        if(!is_null($request->admin)){
-            if(empty($new_pass) && empty($confirm)){ //User did not want to update password
-                $user->admin=1;
-                $user->save();
+        if (!is_null($request->admin)){
+            $user->admin = 1;
+            $message .= " User is admin.";
+        }
+        else{
+            $user->admin = 0;
+            $message .= " User is not admin.";
+        }
 
-                flash()->overlay('User is now admin!', 'Success!');
-                return redirect('admin/users');
-            }
+        if (!is_null($request->active)){
+            $user->active = 1;
+            $message .= " User is active.";
+        }
+        else{
+            $user->active = 0;
+            $message .= " User is not active.";
+        }
 
-            elseif($new_pass != $confirm){
+        if (!empty($new_pass) || !empty($confirm)){
+            if ($new_pass != $confirm){
                 flash()->overlay('Passwords do not match, please try again.', 'Whoops.');
                 return redirect('admin/users');
             }
-
             else{
-                $user->admin=1;
                 $user->password = bcrypt($new_pass);
-                $user->save();
-
-                flash()->overlay('User made admin and password has been updated!', 'Success!');
-                return redirect('admin/users');
+                $message .= " User password changed. \n";
             }
         }
 
-        else{ //User does not want to give admin rights
-            if(empty($new_pass) && empty($confirm)){ //User did not want to update password
-                $user->admin=0;
-                $user->save();
-
-                flash()->overlay('User is no longer an admin!', 'Success!');
-                return redirect('admin/users');
-            }
-
-            elseif($new_pass != $confirm){
-                flash()->overlay('Passwords do not match, please try again.', 'Whoops.');
-                return redirect('admin/users');
-            }
-
-            else{
-                $user->admin=0;
-                $user->password = bcrypt($new_pass);
-                $user->save();
-
-                flash()->overlay('Password has been updated, user is no longer an admin!', 'Success!');
-                return redirect('admin/users');
-            }
-        }
+        $user->save();
+        flash()->overlay($message, 'Success!');
+        return redirect('admin/users');
     }
 }

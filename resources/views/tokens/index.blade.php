@@ -58,6 +58,7 @@
                         <h3>Create Token</h3>
 
                         @include('partials.newToken')
+
                     </div>
                 </div>
             </div>

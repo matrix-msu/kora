@@ -17,9 +17,8 @@ class IsActive {
 	{
         if (!(\Auth::user()->active))
         {
-            flash()->overlay('You must activate your account to view that page.', 'Whoops.');
-
-            return redirect('user/activate');
+            flash()->overlay('You must activate your account. Check your email.', 'Whoops.');
+            return redirect('/');
         }
 
         return $next($request);

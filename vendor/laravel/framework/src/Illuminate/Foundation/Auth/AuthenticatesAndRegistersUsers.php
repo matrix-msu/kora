@@ -64,7 +64,7 @@ trait AuthenticatesAndRegistersUsers {
 
 		$this->auth->login($this->registrar->create($request->all()));
 
-
+        //This will not error because of the statement above.
         $token = \Auth::user()->token;
 
         Mail::send('emails.activation', compact('token'), function($message)

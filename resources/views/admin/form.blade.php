@@ -9,7 +9,7 @@
                 @elseif( \Auth::user()->id == $user->id)
                     <!-- Do nothing, we don't want the current user to view their own username -->
                 @else
-                    <option value="{{$user->id}}" admin="{{$user->admin}}">{{$user->username}}</option>
+                    <option value="{{$user->id}}" admin="{{$user->admin}}" active="{{$user->active}}">{{$user->username}}</option>
                 @endif
             @endforeach
         </select>
@@ -18,6 +18,11 @@
     <div class="form-group">
         {!! Form::label('admin', 'Admin: ') !!}
         {!! Form::checkbox('admin') !!}
+    </div>
+
+    <div class="form-group">
+        {!! Form::label('active', 'Active: ') !!}
+        {!! Form::checkbox('active') !!}
     </div>
 
     <div class="form-group">
@@ -39,23 +44,37 @@
 
         window.onload = function() {
             var admin = $('#dropdown option:selected').attr('admin');
+            var active = $('#dropdown option:selected').attr('active');
 
             if (admin==1)
                 $('#admin').prop('checked', true);
 
             else
                 $('#admin').prop('checked', false);
+
+            if (active==1)
+                $('#active').prop('checked', true);
+
+            else
+                $('#active').prop('checked', false);
 
         }
 
         function checker(){
             var admin = $('#dropdown option:selected').attr('admin');
+            var active = $('#dropdown option:selected').attr('active');
 
             if (admin==1)
                 $('#admin').prop('checked', true);
 
             else
                 $('#admin').prop('checked', false);
+
+            if (active==1)
+                $('#active').prop('checked', true);
+
+            else
+                $('#active').prop('checked', false);
         }
 
 

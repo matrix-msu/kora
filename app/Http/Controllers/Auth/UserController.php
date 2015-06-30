@@ -65,35 +65,20 @@ class UserController extends Controller {
         }
     }
 
-
-    /**
-     * Returns the activate view.
-     * This may seem extraneous but is needed for the
-     * middleware and 'get' request in the routes file.
-     *
-     * @return Response
-     */
-    public function activateshow()
-    {
-        return view('user/activate');
-    }
-
     /**
      * Activates the user with a code that is emailed to them.
      *
      * @param Request $request
      * @return Response
      */
-    public function activate(Request $request)
+    public function activate($token)
     {
-        $token = $request['token'];
         $user = \Auth::user();
 
         if ($token != $user->regtoken)
         {
-            flash()->overlay('That token was invalid, try again. (Hint: tokens are case sensitive)', 'Whoops.');
-
-            return redirect('user/activate');
+            flash()->overlay('That token was invalid, try again.', 'Whoops.');
+            return redirect('/');
         }
         else
         {
