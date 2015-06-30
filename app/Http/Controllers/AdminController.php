@@ -65,7 +65,7 @@ class AdminController extends Controller {
             }
             else{
                 $user->password = bcrypt($new_pass);
-                $message .= " User password changed. \n";
+                $message .= " User password changed.";
             }
         }
 
