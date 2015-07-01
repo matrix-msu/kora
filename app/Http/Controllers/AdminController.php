@@ -73,4 +73,13 @@ class AdminController extends Controller {
         flash()->overlay($message, 'Success!');
         return redirect('admin/users');
     }
+
+    public function deleteUser($id)
+    {
+        $user = User::where('id', '=', $id)->first();
+        $user->delete();
+
+        flash()->overlay('User Deleted.', 'Success!');
+    }
+
 }

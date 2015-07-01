@@ -9,6 +9,7 @@ Route::resource('projects', 'ProjectController');
 //admin routes
 Route::get('/admin/users', 'AdminController@users');
 Route::patch('/admin/update', 'AdminController@update');
+Route::delete('admin/deleteUser/{id}', 'AdminController@deleteUser');
 
 //token routes
 Route::get('/tokens', 'TokenController@index');
