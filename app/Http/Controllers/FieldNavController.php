@@ -208,4 +208,14 @@ class FieldNavController extends Controller {
 
         return $xml;
     }
+
+    public static function navButtonsAllowed($layout){
+        $vis = ['up'=>false,'down'=>false,'upIn'=>false,'downIn'=>false,'upOut'=>false,'downOut'=>false];
+
+        //do stuff
+        $layout = FormController::xmlToArray($layout);
+        //dd($layout);
+
+        return $vis;
+    }
 }
