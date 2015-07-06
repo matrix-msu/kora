@@ -12,10 +12,17 @@ class CreateRichtextfieldsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('richtextfields', function(Blueprint $table)
+		Schema::create('rich_text_fields', function(Blueprint $table)
 		{
-			$table->increments('id');
-			$table->timestamps();
+            $table->increments('id');
+
+            $table->integer('rid')->unsigned();
+            $table->integer('flid')->unsigned();
+            $table->longText('rawtext');
+            $table->timestamps();
+
+            $table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');
+            $table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
 	}
 

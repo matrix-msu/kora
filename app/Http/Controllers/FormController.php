@@ -39,7 +39,7 @@ class FormController extends Controller {
 	{
         $form = Form::create($request->all());
 
-        $form->layout = '<layout></layout>';
+        $form->layout = '<LAYOUT></LAYOUT>';
         $form->save();
 
         flash()->overlay('Your form has been successfully created!','Good Job');

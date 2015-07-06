@@ -53,7 +53,7 @@ class FieldController extends Controller {
 
         //need to add field to layout xml
         $form = FormController::getForm($field->fid);
-        $layout = explode('</layout>',$form->layout);
+        $layout = explode('</LAYOUT>',$form->layout);
         $form->layout = $layout[0].'<ID>'.$field->flid.'</ID></LAYOUT>';
         $form->save();
 
