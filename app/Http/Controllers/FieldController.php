@@ -83,6 +83,8 @@ class FieldController extends Controller {
 
         if($field->type=="Text") {
             return view('fields.options.text', compact('field', 'form', 'proj'));
+        }else if($field->type=="Rich Text") {
+            return view('fields.options.richtext', compact('field', 'form', 'proj'));
         }
 	}
 

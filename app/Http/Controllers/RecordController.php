@@ -5,6 +5,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use App\Record;
+use App\RichTextField;
 use App\TextField;
 use Illuminate\Http\Request;
 
@@ -94,6 +95,12 @@ class RecordController extends Controller {
                 $tf->rid = $record->rid;
                 $tf->text = $value;
                 $tf->save();
+            } else if($field->type=='Rich Text'){
+                $rtf = new RichTextField();
+                $rtf->flid = $field->flid;
+                $rtf->rid = $record->rid;
+                $rtf->rawtext = $value;
+                $rtf->save();
             }
         }
 
@@ -182,6 +189,19 @@ class RecordController extends Controller {
                     $tf->rid = $record->rid;
                     $tf->text = $value;
                     $tf->save();
+                }
+            } else if($field->type=='Rich Text'){
+                //we need to check if the field exist first
+                if(RichTextField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
+                    $rtf = RichTextField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                    $rtf->rawtext = $value;
+                    $rtf->save();
+                }else {
+                    $rtf = new RichTextField();
+                    $rtf->flid = $field->flid;
+                    $rtf->rid = $record->rid;
+                    $rtf->rawtext = $value;
+                    $rtf->save();
                 }
             }
         }
