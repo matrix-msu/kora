@@ -2,9 +2,10 @@
 
 use Closure;
 
-class IsActive {
+class IsAdmin {
+
 	/**
-	 * Handles the user activation.
+	 * Handle an incoming request.
 	 *
 	 * @param  \Illuminate\Http\Request  $request
 	 * @param  \Closure  $next
@@ -12,9 +13,9 @@ class IsActive {
 	 */
 	public function handle($request, Closure $next)
 	{
-        if (!(\Auth::user()->active))
+        if (!(\Auth::user()->admin))
         {
-            flash()->overlay('You must activate your account. Check your email.', 'Whoops.');
+            flash()->overlay('You must be an admin to view that page.', 'Whoops.');
             return redirect('/');
         }
 

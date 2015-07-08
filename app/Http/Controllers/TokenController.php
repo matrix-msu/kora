@@ -10,12 +10,13 @@ use App\Http\Controllers\Controller;
 class TokenController extends Controller {
 
     /**
-     * User must be logged in to access views in this controller.
+     * User must be logged in and admin to access views in this controller.
      */
     public function __construct()
     {
         $this->middleware('auth');
         $this->middleware('active');
+        $this->middleware('admin');
     }
 
     /**
@@ -76,7 +77,7 @@ class TokenController extends Controller {
         $instance = TokenController::getToken($request->id);
         $instance->delete();
 
-        flash()->overlay('Your token has been deleted', 'Success!');
+        flash()->overlay('Token has been deleted', 'Success!');
     }
 
     /**

@@ -89,7 +89,7 @@
             var pid = $('#dropdown' +id+ ' option:selected').attr('id');
             var token = $('#dropdown' +id+ ' option:selected').attr('token');
 
-                    $.ajax({
+            $.ajax({
                 //Same method as deleteProject
                 url: '{{ action('TokenController@addProject')}}',
                 type: 'PATCH',

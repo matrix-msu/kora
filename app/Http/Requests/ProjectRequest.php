@@ -29,5 +29,4 @@ class ProjectRequest extends Request {
             'active' => 'required',
 		];
 	}
-
 }
