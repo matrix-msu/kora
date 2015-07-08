@@ -14,6 +14,8 @@
 	<script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0-rc.2/js/select2.min.js"></script>
     <!-- Brings in Lato font -->
     <link href='//fonts.googleapis.com/css?family=Lato:100' rel='stylesheet' type='text/css'>
+    <!-- For Rich Text -->
+    <script src="http://{{ env('BASE_URL') }}public/ckeditor/ckeditor.js"></script>
 
     <title>Kora 3</title>
 </head>

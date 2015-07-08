@@ -30,6 +30,12 @@
                                     {{ $tf->text }}
                                 @endif
                             @endforeach
+                        @elseif($field->type=='Rich Text')
+                            @foreach($record->richtextfields as $rtf)
+                                @if($rtf->flid == $field->flid)
+                                    <?php echo $rtf->rawtext ?>
+                                @endif
+                            @endforeach
                         @endif
                     </span>
                 </div>

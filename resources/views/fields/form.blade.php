@@ -12,7 +12,7 @@
 
 <div class="form-group">
     {!! Form::label('type','Field Type: ') !!}
-    {!! Form::select('type', ['Text' => 'Text'], null,['class' => 'form-control']) !!}
+    {!! Form::select('type', ['Text' => 'Text', 'Rich Text' => 'Rich Text'], null,['class' => 'form-control']) !!}
 </div>
 
 <div class="form-group">
