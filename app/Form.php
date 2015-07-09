@@ -8,7 +8,8 @@ class Form extends Model {
         'pid',
         'name',
         'slug',
-        'description'
+        'description',
+        'public_metadata'
     ];
 
     protected $primaryKey = "fid";
