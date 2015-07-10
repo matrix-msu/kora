@@ -58,6 +58,17 @@ Route::get('/user/activate/{token}', 'Auth\UserController@activate');
 Route::get('/auth/activate', 'Auth\UserController@activateshow');
 Route::post('/auth/activate', 'Auth\UserController@activator');
 
+
+//metadata routes
+Route::get('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@index');
+Route::post('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@store');
+Route::delete('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@destroy');
+Route::get('/projects/{pid}/forms/{fid}/metadata','MetadataController@records');
+
+
+
+
+
 Route::controllers([
 	'auth' => 'Auth\AuthController',
 	'password' => 'Auth\PasswordController',

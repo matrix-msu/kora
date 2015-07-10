@@ -21,5 +21,9 @@ class Field extends Model {
     public function form(){
         return $this->belongsTo('App\Form');
     }
+
+    public function metadata(){
+        return $this->hasOne('App\Metadata','flid');
+    }
 }
 
