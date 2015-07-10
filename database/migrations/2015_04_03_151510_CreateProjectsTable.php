@@ -18,7 +18,7 @@ class CreateProjectsTable extends Migration {
 			$table->string('name');
 			$table->string('slug')->unique();
 			$table->string('description');
-			$table->integer('adminId')->unsigned();
+            $table->integer('adminGID')->unsigned();
 			$table->boolean('active');
 			$table->timestamps();
 		});

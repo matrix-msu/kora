@@ -13,10 +13,14 @@
     {!! Form::textarea('description',null,['class' => 'form-control']) !!}
 </div>
 
+@if($submitButtonText == 'Create Project')
+
 <div class="form-group">
-    {!! Form::label('adminId','Project Admin: ') !!}
-    {!! Form::select('adminId',$users=['koraadmin'], null,['class' => 'form-control']) !!}
+    {!! Form::label('admins','Project Admin(s): ') !!}
+    {!! Form::select('admins[]',$users, null,['class' => 'form-control', 'multiple', 'id' => 'admins']) !!}
 </div>
+
+@endif
 
 <div class="form-group">
     {!! Form::label('active','Status: ') !!}

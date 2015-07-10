@@ -25,7 +25,6 @@ class ProjectRequest extends Request {
             'name' => 'required|min:3',
             'slug' => 'required|alpha_num',
             'description' => 'required',
-            'adminId' => 'required|numeric',
             'active' => 'required',
 		];
 	}

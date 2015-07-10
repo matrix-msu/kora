@@ -8,7 +8,7 @@ class Project extends Model {
         'name',
         'slug',
         'description',
-        'adminId',
+        'adminGID',
         'active'
     ];
 
@@ -33,11 +33,15 @@ class Project extends Model {
     }
 
     /**
-     * Returns the group that has control over the project.
+     * Returns the project's admin group.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function group(){
-        return $this->belongsTo('App\Group');
+    public function adminGroup(){
+        return $this->hasOne('App\ProjectGroup', 'pid', 'adminGID');
+    }
+
+    public function groups(){
+        return $this->hasMany('App\ProjectGroup','pid');
     }
 }

@@ -10,9 +10,4 @@
     <form action="{{ action('TokenController@index') }}" style="display: inline">
         <button type="submit" class="btn btn-default"> Manage Tokens </button>
     </form>
-
-    <form action="{{ action('GroupController@index') }}" style="display: inline">
-        <button type="submit" class="btn btn-default"> Manage Groups </button>
-    </form>
-
 @endif

@@ -1,10 +1,12 @@
 <?php namespace App\Http\Controllers;
 
+use App\Group;
 use App\Project;
 use App\Http\Requests;
 use App\Http\Requests\ProjectRequest;
 use App\Http\Controllers\Controller;
 
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -28,6 +30,7 @@ class ProjectController extends Controller {
 	{
         $projects = Project::all();
 
+
         return view('projects.index', compact('projects'));
 	}
 
@@ -38,7 +41,8 @@ class ProjectController extends Controller {
 	 */
 	public function create()
 	{
-        return view('projects.create');
+        $users = User::lists('name', 'id');
+        return view('projects.create', compact('users'));
 	}
 
 	/**
@@ -49,6 +53,8 @@ class ProjectController extends Controller {
 	public function store(ProjectRequest $request)
 	{
         $project = Project::create($request->all());
+
+        ProjectController::makeGroup($project, $request);
 
         flash()->overlay('Your project has been successfully created!','Good Job');
 
@@ -107,6 +113,27 @@ class ProjectController extends Controller {
 
         flash()->overlay('Your project has been successfully deleted!','Good Job');
 	}
+
+    /**
+     * Creates the project's adminGroup.
+     *
+     * @param $project
+     * @param $request
+     */
+    private function makeGroup($project, $request)
+    {
+        $groupName = $project->name;
+        $groupName .= ' Admin Group';
+
+        $adminGroup = new Group();
+        $adminGroup->name = $groupName;
+        //if admins not null
+        $adminGroup->users()->attach($request['admins']);
+        //endif
+        $adminGroup->pid = $project->pid;
+
+        //Checkboxes!
+    }
 
     public static function getProject($id){
         $project = Project::where('pid','=',$id)->first();
