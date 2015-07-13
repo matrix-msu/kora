@@ -17,8 +17,8 @@ class FieldValidation {
         $field = FieldController::getField($field);
         if($field->type=='Text'){
             return FieldValidation::validateText($field, $value);
-        } else if($field->type=='Rich Text'){
-            return FieldValidation::validateRichText($field, $value);
+        } else if($field->type=='Rich Text' | $field->type=='Number'){
+            return FieldValidation::validateDefault($field, $value);
         }
         else{
             return 'Field does not have a type';
@@ -40,7 +40,7 @@ class FieldValidation {
         return '';
     }
 
-    static function validateRichText($field, $value){
+    static function validateDefault($field, $value){
         $req = $field->required;
 
         if($req==1 && ($value==null | $value=="")){
