@@ -4,6 +4,7 @@ use App\FieldHelpers\FieldValidation;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
+use App\NumberField;
 use App\Record;
 use App\RichTextField;
 use App\TextField;
@@ -101,6 +102,12 @@ class RecordController extends Controller {
                 $rtf->rid = $record->rid;
                 $rtf->rawtext = $value;
                 $rtf->save();
+            } else if($field->type=='Number'){
+                $nf = new NumberField();
+                $nf->flid = $field->flid;
+                $nf->rid = $record->rid;
+                $nf->number = $value;
+                $nf->save();
             }
         }
 
@@ -202,6 +209,19 @@ class RecordController extends Controller {
                     $rtf->rid = $record->rid;
                     $rtf->rawtext = $value;
                     $rtf->save();
+                }
+            } else if($field->type=='Number'){
+                //we need to check if the field exist first
+                if(NumberField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
+                    $nf = NumberField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                    $nf->number = $value;
+                    $nf->save();
+                }else {
+                    $nf = new NumberField();
+                    $nf->flid = $field->flid;
+                    $nf->rid = $record->rid;
+                    $nf->number = $value;
+                    $nf->save();
                 }
             }
         }

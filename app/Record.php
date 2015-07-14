@@ -25,4 +25,8 @@ class Record extends Model {
         return $this->hasMany('App\RichTextField', 'rid');
     }
 
+    public function numberfields(){
+        return $this->hasMany('App\NumberField', 'rid');
+    }
+
 }

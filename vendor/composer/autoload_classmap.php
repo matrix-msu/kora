@@ -11,6 +11,7 @@ return array(
     'CreateGroupsTable' => $baseDir . '/database/migrations/2015_07_01_151433_create_groups_table.php',
     'CreateMetadataTable' => $baseDir . '/database/migrations/2015_07_01_122103_CreateMetadataTable.php',
     'CreateModelsTable' => $baseDir . '/database/migrations/2015_04_03_152745_CreateModelsTable.php',
+    'CreateNumberfieldsTable' => $baseDir . '/database/migrations/2015_07_09_183053_create_numberfields_table.php',
     'CreatePasswordResetsTable' => $baseDir . '/database/migrations/2015_04_03_151648_create_password_resets_table.php',
     'CreateProjectGroupsTable' => $baseDir . '/database/migrations/2015_07_09_171601_create_project_groups_table.php',
     'CreateProjectsTable' => $baseDir . '/database/migrations/2015_04_03_151510_CreateProjectsTable.php',

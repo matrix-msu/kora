@@ -14,6 +14,8 @@ class FieldDefaults {
     static function getOptions($type){
         if($type=="Text"){
             return '[!Regex!][!Regex!][!MultiLine!]0[!MultiLine!]';
+        }if($type=='Number'){
+            return '[!Max!][!Max!][!Min!][!Min!][!Increment!]1[!Increment!][!Unit!][!Unit!]';
         }
         else{
             return '';
