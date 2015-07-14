@@ -1,12 +1,11 @@
 <?php namespace App\Http\Controllers;
 
-use App\Group;
-use App\Project;
-use App\Http\Requests;
-use App\Http\Requests\ProjectRequest;
-use App\Http\Controllers\Controller;
-
 use App\User;
+use App\Project;
+use App\ProjectGroup;
+use App\Http\Requests;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\ProjectRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -19,6 +18,7 @@ class ProjectController extends Controller {
     {
         $this->middleware('auth');
         $this->middleware('active');
+        $this->middleware('admin', ['except' => ['index', 'show']]);
     }
 
 	/**
@@ -54,7 +54,9 @@ class ProjectController extends Controller {
 	{
         $project = Project::create($request->all());
 
-        ProjectController::makeGroup($project, $request);
+        $adminGroup = ProjectController::makeAdminGroup($project, $request);
+        $project->adminGID = $adminGroup->id;
+        $project->save();
 
         flash()->overlay('Your project has been successfully created!','Good Job');
 
@@ -70,7 +72,8 @@ class ProjectController extends Controller {
 	public function show($id)
 	{
         $project = ProjectController::getProject($id);
-        return view('projects.show', compact('project'));
+        $isProjectAdmin = ProjectController::isProjectAdmin(\Auth::user(), $project);
+        return view('projects.show', compact('project', 'isProjectAdmin'));
 	}
 
 	/**
@@ -115,24 +118,47 @@ class ProjectController extends Controller {
 	}
 
     /**
-     * Creates the project's adminGroup.
+     * Decides if a certain user is a project admin.
+     *
+     * @param User $user
+     * @param Project $project
+     * @return bool
+     */
+    public function isProjectAdmin(User $user, Project $project)
+    {
+        $adminGroup = $project->adminGroup()->first();
+        if($adminGroup->hasUser($user))
+            return true;
+        return false;
+    }
+
+    /**
+     * Creates the project's admin Group.
      *
      * @param $project
      * @param $request
+     * @return Group
      */
-    private function makeGroup($project, $request)
+    private function makeAdminGroup($project, $request)
     {
         $groupName = $project->name;
         $groupName .= ' Admin Group';
 
-        $adminGroup = new Group();
+        $adminGroup = new ProjectGroup();
         $adminGroup->name = $groupName;
-        //if admins not null
-        $adminGroup->users()->attach($request['admins']);
-        //endif
         $adminGroup->pid = $project->pid;
+        $adminGroup->save();
 
-        //Checkboxes!
+        if (!is_null($request['admins']))
+            $adminGroup->users()->attach($request['admins']);
+
+        $adminGroup->create = 1;
+        $adminGroup->edit = 1;
+        $adminGroup->delete = 1;
+
+        $adminGroup->save();
+
+        return $adminGroup;
     }
 
     public static function getProject($id){
@@ -143,5 +169,4 @@ class ProjectController extends Controller {
 
         return $project;
     }
-
 }

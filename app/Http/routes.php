@@ -6,6 +6,14 @@ Route::get('/home', 'WelcomeController@index');
 //project routes
 Route::resource('projects', 'ProjectController');
 
+//project group routes
+Route::get('/projects/{pid}/manage/groups', 'ProjectGroupController@index');
+Route::post('/projects/{pid}/manage/groups/create', 'ProjectGroupController@create');
+Route::patch('projects/{pid}/manage/groups/removeUser', 'ProjectGroupController@removeUser');
+Route::patch('projects/{pid}/manage/groups/addUser', 'ProjectGroupController@addUser');
+Route::patch('projects/{pid}/manage/groups/updatePermissions', 'ProjectGroupController@updatePermissions');
+Route::delete('projects/{pid}/manage/groups/deleteProjectGroup', 'ProjectGroupController@deleteProjectGroup');
+
 //admin routes
 Route::get('/admin/users', 'AdminController@users');
 Route::patch('/admin/update', 'AdminController@update');

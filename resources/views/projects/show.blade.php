@@ -8,7 +8,12 @@
     <h1>{{ $project->name }}</h1>
     <div><b>Internal Name:</b> {{ $project->slug }}</div>
     <div><b>Description:</b> {{ $project->description }}</div>
-    <div><b>Admin:</b> (Display Admin Here)</div>
+
+    @if (\Auth::user()->admin ||  $isProjectAdmin)
+    <form action="{{action('ProjectGroupController@index', ['pid'=>$project->pid])}}" style="display: inline">
+        <button type="submit" class="btn btn-default">Manage Groups</button>
+    </form>
+    @endif
     <hr/>
     <h2>Forms</h2>
     @foreach($project->forms as $form)

@@ -23,4 +23,9 @@ class ProjectGroup extends Model {
     public function project(){
         return $this->belongsTo('App\Project');
     }
+
+    public function hasUser(User $user){
+        $thisUsers = $this->users()->get();
+        return $thisUsers->contains($user);
+    }
 }
