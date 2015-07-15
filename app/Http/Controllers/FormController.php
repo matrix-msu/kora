@@ -5,6 +5,7 @@ use App\Http\Requests;
 use App\Http\Requests\FormRequest;
 use App\Http\Controllers\Controller;
 
+use App\Project;
 use Illuminate\Http\Request;
 
 class FormController extends Controller {
@@ -26,6 +27,10 @@ class FormController extends Controller {
 	 */
 	public function create($pid)
 	{
+        if(!FormController::checkPermissions($pid, 'create')){
+            return redirect('/projects/'.$pid.'/forms');
+        }
+
         $project = ProjectController::getProject($pid);
         return view('forms.create', compact('project')); //pass in
 	}
@@ -55,6 +60,10 @@ class FormController extends Controller {
 	 */
 	public function show($pid, $fid)
 	{
+        if(!FormController::checkPermissions($pid)){
+            return redirect('/projects');
+        }
+
         if(!FormController::validProjForm($pid,$fid)){
             return redirect('projects');
         }
@@ -74,6 +83,10 @@ class FormController extends Controller {
 	 */
 	public function edit($pid, $fid)
     {
+        if(!FormController::checkPermissions($pid, 'edit')){
+            return redirect('/projects/'.$pid.'/forms');
+        }
+
         if(!FormController::validProjForm($pid,$fid)){
             return redirect('projects');
         }
@@ -110,6 +123,10 @@ class FormController extends Controller {
 	 */
 	public function destroy($pid, $fid)
 	{
+        if(!FormController::checkPermissions($pid, 'delete')){
+            return redirect('/projects/'.$pid.'/forms');
+        }
+
         if(!FormController::validProjForm($pid,$fid)){
             return redirect('projects');
         }
@@ -208,5 +225,40 @@ class FormController extends Controller {
 
         return $vals;
     }
+
+    public static function checkPermissions($pid, $permission='')
+    {
+        switch ($permission) {
+            case 'create':
+                if(!(\Auth::user()->canCreateForms(ProjectController::getProject($pid))))
+                {
+                    flash()->overlay('You do not have permission to create forms for that project.', 'Whoops');
+                    return false;
+                }
+                break;
+            case 'edit':
+                if(!(\Auth::user()->canEditForms(ProjectController::getProject($pid))))
+                {
+                    flash()->overlay('You do not have permission to edit forms for that project.', 'Whoops');
+                    return false;
+                }
+                break;
+            case 'delete':
+                if(!(\Auth::user()->canDeleteForms(ProjectController::getProject($pid))))
+                {
+                    flash()->overlay('You do not have permission to delete forms for that project.', 'Whoops');
+                    return false;
+                }
+                break;
+            default:
+                if(!(\Auth::user()->inAProjectGroup(ProjectController::getProject($pid))))
+                {
+                    flash()->overlay('You do not have permission to view that project.');
+                    return false;
+                }
+                return true;
+        }
+    }
+
 
 }

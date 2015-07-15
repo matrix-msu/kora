@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Project;
 use App\User;
 use App\ProjectGroup;
 use App\Http\Requests;
@@ -26,7 +27,7 @@ class ProjectGroupController extends Controller {
     {
         $project = ProjectController::getProject($pid);
         $projectGroups = $project->groups()->get();
-        $users = User::lists('name', 'id');
+        $users = User::lists('username', 'id');
         $all_users = User::all();
         return view('projectGroups.index', compact('project', 'projectGroups', 'users', 'all_users'));
     }
@@ -89,9 +90,32 @@ class ProjectGroupController extends Controller {
         flash()->overlay('Project group has been deleted.', 'Success!');
     }
 
+    /**
+     * Change a group's permissions.
+     *
+     * @param Request $request
+     */
     public function updatePermissions(Request $request)
     {
-        dd($request);
+        $instance = ProjectGroup::where('id', '=', $request['projectGroup'])->first();
+
+        if($request['permCreate'])
+            $instance->create = 1;
+        else
+            $instance->create = 0;
+
+        if($request['permEdit'])
+            $instance->edit = 1;
+        else
+            $instance->edit = 0;
+
+        if($request['permDelete'])
+            $instance->delete = 1;
+        else
+            $instance->delete = 0;
+
+        $instance->save();
+
     }
 
     /**

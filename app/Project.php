@@ -38,7 +38,7 @@ class Project extends Model {
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function adminGroup(){
-        return $this->belongsTo('App\ProjectGroup', 'adminGID', 'pid');
+        return $this->belongsTo('App\ProjectGroup', 'adminGID');
     }
 
     public function groups(){

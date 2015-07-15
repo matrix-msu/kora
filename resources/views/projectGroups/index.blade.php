@@ -43,9 +43,6 @@
                                                     </ul>
                                                 </div>
                                             </div>
-                                            <div class="panel-footer">
-                                                <a href="javascript:void(0)" onclick="deleteProjectGroup({{$projectGroup->id}})">[Delete Project Group]</a>
-                                            </div>
                                         </div>
                                     </div>
                                 @endif
@@ -81,13 +78,13 @@
                                                 <span>Permissions:</span>
                                                 <ul class="list-group" id="perm-list{{$projectGroup->id}}">
                                                     <li class="list-group-item">Create:
-                                                        <input type="checkbox" id="create{{$projectGroup->id}}" @if($projectGroup->create) checked="checked" @endif onchange="updatePermissions({{$projectGroup->id}})">
+                                                        <input type="checkbox" id="create{{$projectGroup->id}}" @if($projectGroup->create) checked="checked" @endif onclick="updatePermissions({{$projectGroup->id}})">
                                                     </li>
                                                     <li class="list-group-item">Edit:
-                                                        <input type="checkbox" id="edit{{$projectGroup->id}}" @if($projectGroup->edit) checked="checked" @endif onchange="updatePermissions({{$projectGroup->id}})">
+                                                        <input type="checkbox" id="edit{{$projectGroup->id}}" @if($projectGroup->edit) checked="checked" @endif onclick="updatePermissions({{$projectGroup->id}})">
                                                     </li>
                                                     <li class="list-group-item">Delete:
-                                                        <input type="checkbox" id="delete{{$projectGroup->id}}" @if($projectGroup->delete) checked="checked" @endif onchange="updatePermissions({{$projectGroup->id}})">
+                                                        <input type="checkbox" id="delete{{$projectGroup->id}}" @if($projectGroup->delete) checked="checked" @endif onclick="updatePermissions({{$projectGroup->id}})">
                                                     </li>
                                                 </ul>
                                             </div>
@@ -181,15 +178,29 @@
         }
 
         function updatePermissions(projectGroup){
-            var permCreate = ($("#create"+projectGroup).checked ? 1 : 0);
-            var permEdit = ($("#edit"+projectGroup).checked ? 1 : 0);
-            var permDelete = ($("#delete"+projectGroup).checked ? 1 : 0);
+            var permCreate, permEdit, permDelete;
+
+            if ($("#create"+projectGroup).is(':checked'))
+                permCreate = 1;
+            else
+                permCreate = 0;
+
+            if ($("#edit"+projectGroup).is(':checked'))
+                permEdit = 1;
+            else
+                permEdit = 0;
+
+            if ($("#delete"+projectGroup).is(':checked'))
+                permDelete = 1;
+            else
+                permDelete = 0;
 
             $.ajax({
                 url: '{{action('ProjectGroupController@updatePermissions')}}',
                 type: 'PATCH',
                 data: {
                     "_token": "{{ csrf_token() }}",
+                    "projectGroup": projectGroup,
                     "permCreate": permCreate,
                     "permEdit": permEdit,
                     "permDelete": permDelete

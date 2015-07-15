@@ -8,7 +8,8 @@
     <hr/>
     <h2>Projects</h2>
     @foreach ($projects as $project)
-        <div class="panel panel-default">
+        @if((\Auth::user()->admin || \Auth::user()->inAProjectGroup($project)))
+            <div class="panel panel-default">
             @if($project->active==1)
                 <div class="panel-heading">
                     <a href="{{ action('ProjectController@show',[$project->pid]) }}" style="font-size: 1.5em;">{{ $project->name }}</a>
@@ -40,6 +41,7 @@
                 </span>
             </div></div><!-- this is the close tag for the collapseTest div -->
         </div>
+        @endif
     @endforeach
 
     <br/>

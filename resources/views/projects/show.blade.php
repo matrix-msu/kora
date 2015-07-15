@@ -9,7 +9,7 @@
     <div><b>Internal Name:</b> {{ $project->slug }}</div>
     <div><b>Description:</b> {{ $project->description }}</div>
 
-    @if (\Auth::user()->admin ||  $isProjectAdmin)
+    @if (\Auth::user()->admin ||  \Auth::user()->inAdminGroup($project))
     <form action="{{action('ProjectGroupController@index', ['pid'=>$project->pid])}}" style="display: inline">
         <button type="submit" class="btn btn-default">Manage Groups</button>
     </form>
@@ -24,20 +24,26 @@
             <div class="collapseTest" style="display:none">
                 <div class="panel-body"><b>Description:</b> {{ $form->description }}</div>
                 <div class="panel-footer">
+                    @if(\Auth::user()->canEditForms($project))
                     <span>
                         <a href="{{ action('FormController@edit',['pid' => $project->pid, 'fid' => $form->fid]) }}">[Edit]</a>
                     </span>
+                    @endif
+                    @if(\Auth::user()->canDeleteForms($project))
                     <span>
                         <a onclick="deleteForm('{{ $form->name }}', {{ $form->fid }})" href="javascript:void(0)">[Delete]</a>
                     </span>
+                    @endif
                 </div>
             </div>
         </div>
     @endforeach
 
+    @if(\Auth::user()->canCreateForms($project))
     <form action="{{ action('FormController@create', ['pid' => $project->pid]) }}">
         <input type="submit" value="Create New Form" class="btn btn-primary form-control">
     </form>
+    @endif
 @stop
 
 @section('footer')

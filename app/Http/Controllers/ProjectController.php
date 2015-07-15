@@ -70,10 +70,13 @@ class ProjectController extends Controller {
 	 * @return Response
 	 */
 	public function show($id)
-	{
+    {
+        if(!FormController::checkPermissions($id)){
+            return redirect('/projects');
+        }
+
         $project = ProjectController::getProject($id);
-        $isProjectAdmin = ProjectController::isProjectAdmin(\Auth::user(), $project);
-        return view('projects.show', compact('project', 'isProjectAdmin'));
+        return view('projects.show', compact('project'));
 	}
 
 	/**
