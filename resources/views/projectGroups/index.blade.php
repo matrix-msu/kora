@@ -20,7 +20,9 @@
                                                     <ul class="list-group" id="list{{$projectGroup->id}}">
                                                 @foreach($projectGroup->users()->get() as $user)
                                                         <li class="list-group-item" id="list-element{{$projectGroup->id}}{{$user->id}}" name="{{$user->name}}">
-                                                            {{$user->username}} <a href="javascript:void(0)" onclick="removeUser({{$projectGroup->id}}, {{$user->id}})">[X]</a>
+                                                            {{$user->username}} @if(\Auth::user()->id != $user->id)
+                                                                <a href="javascript:void(0)" onclick="removeUser({{$projectGroup->id}}, {{$user->id}})">[X]</a>
+                                                                                @endif
                                                         </li>
                                                 @endforeach
                                                     </ul>

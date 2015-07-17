@@ -9,6 +9,13 @@
     <span><h1>{{ $form->name }}</h1></span>
     <div><b>Internal Names:</b> {{ $form->slug }}</div>
     <div><b>Description:</b> {{ $form->description }}</div>
+
+    @if (\Auth::user()->admin || \Auth::user()->inFormAdminGroup($form))
+        <form action="{{action('FormGroupController@index', ['fid'=>$form->fid])}}" style="display: inline">
+            <button type="submit" class="btn btn-default">Manage Groups</button>
+        </form>
+    @endif
+
     <div>
         <a href="{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}">[Records]</a>
         <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[New Record]</a>

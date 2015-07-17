@@ -1,5 +1,6 @@
 <?php namespace App;
 
+use App\Http\Controllers\ProjectController;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -38,8 +39,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return bool
      */
     public function canCreateForms(Project $project){
-        if ($this->admin)
-            return true;
+        if ($this->admin) return true;
 
         $projectGroups = $project->groups()->get();
         foreach($projectGroups as $projectGroup){
@@ -56,8 +56,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return bool
      */
     public function canEditForms(Project $project){
-        if ($this->admin)
-            return true;
+        if ($this->admin) return true;
 
         $projectGroups = $project->groups()->get();
         foreach($projectGroups as $projectGroup){
@@ -74,8 +73,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return bool
      */
     public function canDeleteForms(Project $project){
-        if ($this->admin)
-            return true;
+        if ($this->admin) return true;
 
         $projectGroups = $project->groups()->get();
         foreach($projectGroups as $projectGroup){
@@ -92,6 +90,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return bool
      */
     public function inAProjectGroup(Project $project){
+        if($this->admin) return true;
+
         $projectGroups = $project->groups()->get();
         foreach($projectGroups as $projectGroup){
             if($projectGroup->hasUser($this))
@@ -106,11 +106,48 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @param Project $project
      * @return bool
      */
-    public function inAdminGroup(Project $project){
+    public function inProjectAdminGroup(Project $project){
+        if($this->admin) return true;
+
         $adminGroup = $project->adminGroup()->first();
         if ($adminGroup->hasUser($this))
             return true;
         return false;
     }
+
+    public function canCreateFields(Form $form){
+        return $form;
+    }
+
+    public function canEditFields(Form $form){
+        return $form;
+    }
+
+    public function canDeleteFields(Form $form){
+        return $form;
+    }
+
+    public function inAFormGroup(Form $form){
+        if($this->admin) return true;
+
+        $formGroups = $form->groups()->get();
+        foreach($formGroups as $formGroup){
+            if($formGroup->hasUser($this))
+                return true;
+        }
+        return false;
+    }
+
+    public function inFormAdminGroup(Form $form){
+        if($this->admin) return true;
+
+        if ($this->inProjectAdminGroup(ProjectController::getProject($form->pid)))
+            return true;
+        $adminGroup = $form->adminGroup()->first();
+        if ($adminGroup->hasUser($this))
+            return true;
+        return false;
+    }
+
 
 }

@@ -1,7 +1,7 @@
 <?php namespace App\Http\Controllers;
 
-use App\Project;
 use App\User;
+use App\Project;
 use App\ProjectGroup;
 use App\Http\Requests;
 use Illuminate\Http\Request;
@@ -26,6 +26,12 @@ class ProjectGroupController extends Controller {
     public function index($pid)
     {
         $project = ProjectController::getProject($pid);
+
+        if(!(\Auth::user()->admin) || !(\Auth::user()->inProjectAdminGroup($project))){
+            flash()->overlay('You are not an admin for that project.', 'Whoops.');
+            return redirect('projects/'.$pid);
+        }
+
         $projectGroups = $project->groups()->get();
         $users = User::lists('username', 'id');
         $all_users = User::all();
@@ -42,8 +48,8 @@ class ProjectGroupController extends Controller {
     public function create($pid, Request $request)
     {
         if($request['name'] == ""){
-            flash()->overlay('You must enter a group name.', 'Whoops,');
-            return redirect('projects/'.$pid.'/manage/groups');
+            flash()->overlay('You must enter a group name.', 'Whoops.');
+            return redirect('projects/'.$pid.'/manage/projectgroups');
         }
 
         $group = ProjectGroupController::buildGroup($pid, $request);
@@ -52,7 +58,7 @@ class ProjectGroupController extends Controller {
             $group->users()->attach($request['users']);
 
         flash()->overlay('Group created!', 'Success');
-        return redirect('projects/'.$pid.'/manage/groups');
+        return redirect('projects/'.$pid.'/manage/projectgroups');
     }
 
     /**
@@ -115,7 +121,6 @@ class ProjectGroupController extends Controller {
             $instance->delete = 0;
 
         $instance->save();
-
     }
 
     /**

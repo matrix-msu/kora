@@ -1,6 +1,8 @@
 <?php namespace App\Http\Controllers;
 
 use App\Form;
+use App\User;
+use App\FormGroup;
 use App\Http\Requests;
 use App\Http\Requests\FormRequest;
 use App\Http\Controllers\Controller;
@@ -32,7 +34,8 @@ class FormController extends Controller {
         }
 
         $project = ProjectController::getProject($pid);
-        return view('forms.create', compact('project')); //pass in
+        $users = User::lists('username', 'id');
+        return view('forms.create', compact('project', 'users')); //pass in
 	}
 
 	/**
@@ -45,6 +48,10 @@ class FormController extends Controller {
         $form = Form::create($request->all());
 
         $form->layout = '<LAYOUT></LAYOUT>';
+        $form->save();
+
+        $adminGroup = FormController::makeAdminGroup($form, $request);
+        $form->adminGID = $adminGroup->id;
         $form->save();
 
         flash()->overlay('Your form has been successfully created!','Good Job');
@@ -235,21 +242,21 @@ class FormController extends Controller {
                     flash()->overlay('You do not have permission to create forms for that project.', 'Whoops');
                     return false;
                 }
-                break;
+                return true;
             case 'edit':
                 if(!(\Auth::user()->canEditForms(ProjectController::getProject($pid))))
                 {
                     flash()->overlay('You do not have permission to edit forms for that project.', 'Whoops');
                     return false;
                 }
-                break;
+                return true;
             case 'delete':
                 if(!(\Auth::user()->canDeleteForms(ProjectController::getProject($pid))))
                 {
                     flash()->overlay('You do not have permission to delete forms for that project.', 'Whoops');
                     return false;
                 }
-                break;
+                return true;;
             default:
                 if(!(\Auth::user()->inAProjectGroup(ProjectController::getProject($pid))))
                 {
@@ -259,6 +266,43 @@ class FormController extends Controller {
                 return true;
         }
     }
+    /**
+     * Creates the form's admin Group.
+     *
+     * @param $project
+     * @param $request
+     * @return Group
+     */
+    private function makeAdminGroup(Form $form, Request $request)
+    {
+        $groupName = $form->name;
+        $groupName .= ' Admin Group';
 
+        $adminGroup = new FormGroup();
+        $adminGroup->name = $groupName;
+        $adminGroup->fid = $form->fid;
+        $adminGroup->save();
 
+        $formProject = $form->project()->first();
+        $projectAdminGroup = $formProject->adminGroup()->first();
+
+        $projectAdmins = $projectAdminGroup->users()->get();
+        $idArray = [];
+
+        foreach($projectAdmins as $projectAdmin)
+            $idArray[] .= $projectAdmin->id;
+
+        if (!is_null($request['admins']))
+            $idArray = array_unique(array_merge($request['admins'], $idArray));
+
+        $adminGroup->users()->attach($idArray);
+
+        $adminGroup->create = 1;
+        $adminGroup->edit = 1;
+        $adminGroup->delete = 1;
+
+        $adminGroup->save();
+
+        return $adminGroup;
+    }
 }

@@ -7,12 +7,20 @@ Route::get('/home', 'WelcomeController@index');
 Route::resource('projects', 'ProjectController');
 
 //project group routes
-Route::get('/projects/{pid}/manage/groups', 'ProjectGroupController@index');
-Route::post('/projects/{pid}/manage/groups/create', 'ProjectGroupController@create');
-Route::patch('projects/{pid}/manage/groups/removeUser', 'ProjectGroupController@removeUser');
-Route::patch('projects/{pid}/manage/groups/addUser', 'ProjectGroupController@addUser');
-Route::patch('projects/{pid}/manage/groups/updatePermissions', 'ProjectGroupController@updatePermissions');
-Route::delete('projects/{pid}/manage/groups/deleteProjectGroup', 'ProjectGroupController@deleteProjectGroup');
+Route::get('/projects/{pid}/manage/projectgroups', 'ProjectGroupController@index');
+Route::post('/projects/{pid}/manage/projectgroups/create', 'ProjectGroupController@create');
+Route::patch('projects/{pid}/manage/projectgroups/removeUser', 'ProjectGroupController@removeUser');
+Route::patch('projects/{pid}/manage/projectgroups/addUser', 'ProjectGroupController@addUser');
+Route::patch('projects/{pid}/manage/projectgroups/updatePermissions', 'ProjectGroupController@updatePermissions');
+Route::delete('projects/{pid}/manage/projectgroups/deleteProjectGroup', 'ProjectGroupController@deleteProjectGroup');
+
+//form group routes
+Route::get('/projects/{pid}/manage/formgroups', 'FormGroupController@index');
+Route::post('/projects/{pid}/manage/formgroups/create', 'FormGroupController@create');
+Route::patch('projects/{pid}/manage/formgroups/removeUser', 'FormGroupController@removeUser');
+Route::patch('projects/{pid}/manage/formgroups/addUser', 'FormGroupController@addUser');
+Route::patch('projects/{pid}/manage/formgroups/updatePermissions', 'FormGroupController@updatePermissions');
+Route::delete('projects/{pid}/manage/formgroups/deleteFormGroup', 'FormGroupController@deleteFormGroup');
 
 //admin routes
 Route::get('/admin/users', 'AdminController@users');

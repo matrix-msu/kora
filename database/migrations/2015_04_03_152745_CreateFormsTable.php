@@ -16,6 +16,7 @@ class CreateFormsTable extends Migration {
 		{
 			$table->increments('fid');
 			$table->integer('pid')->unsigned();
+            $table->integer('adminGID')->unsinged();
 			$table->string('name');
 			$table->string('slug')->unique();
 			$table->string('description');

@@ -41,7 +41,7 @@ class ProjectController extends Controller {
 	 */
 	public function create()
 	{
-        $users = User::lists('name', 'id');
+        $users = User::lists('username', 'id');
         return view('projects.create', compact('users'));
 	}
 

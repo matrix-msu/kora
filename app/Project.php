@@ -41,6 +41,11 @@ class Project extends Model {
         return $this->belongsTo('App\ProjectGroup', 'adminGID');
     }
 
+    /**
+     * Returns the groups associated with a project.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function groups(){
         return $this->hasMany('App\ProjectGroup','pid');
     }
