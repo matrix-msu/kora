@@ -29,4 +29,8 @@ class Record extends Model {
         return $this->hasMany('App\NumberField', 'rid');
     }
 
+    public function listfields(){
+        return $this->hasMany('App\ListField', 'rid');
+    }
+
 }

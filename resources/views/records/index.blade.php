@@ -46,6 +46,12 @@
                                     ?>
                                 @endif
                             @endforeach
+                        @elseif($field->type=='List')
+                            @foreach($record->listfields as $lf)
+                                @if($lf->flid == $field->flid)
+                                    {{  $lf->option }}
+                                @endif
+                            @endforeach
                         @endif
                     </span>
                 </div>

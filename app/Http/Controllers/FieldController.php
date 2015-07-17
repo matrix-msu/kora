@@ -87,6 +87,8 @@ class FieldController extends Controller {
             return view('fields.options.richtext', compact('field', 'form', 'proj'));
         }else if($field->type=="Number") {
             return view('fields.options.number', compact('field', 'form', 'proj'));
+        }else if($field->type=="List") {
+            return view('fields.options.list', compact('field', 'form', 'proj'));
         }
 	}
 
@@ -262,5 +264,58 @@ class FieldController extends Controller {
 
         $field->options = $array[0].$tag.$value.$tag.$array[2];
         $field->save();
+    }
+
+    //THIS SECTION IS RESERVED FOR FUNCTIONS DEALING WITH SPECIFIC LIST TYPES
+    public function saveList($pid, $fid, $flid){
+        if ($_REQUEST['action']=='SaveList') {
+            if(isset($_REQUEST['options']))
+                $options = $_REQUEST['options'];
+            else
+                $options = array();
+
+            $dbOpt = '';
+
+            if (sizeof($options) == 1) {
+                $dbOpt = $options[0];
+            } else if (sizeof($options) == 2) {
+                $dbOpt = $options[0] . '[!]' . $options[1];
+            } else if (sizeof($options) > 2) {
+                $dbOpt = $options[0];
+                for ($i = 1; $i < sizeof($options); $i++) {
+                    $dbOpt .= '[!]' . $options[$i];
+                }
+            }
+
+            $field = FieldController::getField($flid);
+
+            //This line removes the default if it no longer exists
+            if(!in_array($field->default,$options)){
+                $field->default = '';
+                $field->save();
+            }
+
+            FieldController::setFieldOptions($field, 'Options', $dbOpt);
+        }
+    }
+
+    public static function getList($field, $blankOpt=false){
+        $dbOpt = FieldController::getFieldOption($field,'Options');
+        $options = array();
+
+        if(!strstr($dbOpt,'[!]')){
+            $options = [$dbOpt => $dbOpt];
+        }else{
+            $opts = explode('[!]',$dbOpt);
+            foreach($opts as $opt){
+                $options[$opt] = $opt;
+            }
+        }
+
+        if($blankOpt){
+            $options = array(''=>'')+$options;
+        }
+
+        return $options;
     }
 }
