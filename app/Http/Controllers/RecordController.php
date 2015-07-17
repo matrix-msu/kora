@@ -4,6 +4,7 @@ use App\FieldHelpers\FieldValidation;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
+use App\ListField;
 use App\NumberField;
 use App\Record;
 use App\RichTextField;
@@ -108,6 +109,12 @@ class RecordController extends Controller {
                 $nf->rid = $record->rid;
                 $nf->number = $value;
                 $nf->save();
+            } else if($field->type=='List'){
+                $lf = new ListField();
+                $lf->flid = $field->flid;
+                $lf->rid = $record->rid;
+                $lf->option = $value;
+                $lf->save();
             }
         }
 
@@ -222,6 +229,19 @@ class RecordController extends Controller {
                     $nf->rid = $record->rid;
                     $nf->number = $value;
                     $nf->save();
+                }
+            } else if($field->type=='List'){
+                //we need to check if the field exist first
+                if(ListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
+                    $lf = ListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                    $lf->option = $value;
+                    $lf->save();
+                }else {
+                    $lf = new ListField();
+                    $lf->flid = $field->flid;
+                    $lf->rid = $record->rid;
+                    $lf->option = $value;
+                    $lf->save();
                 }
             }
         }

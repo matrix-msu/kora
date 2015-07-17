@@ -256,7 +256,11 @@ class FormController extends Controller {
                     flash()->overlay('You do not have permission to delete forms for that project.', 'Whoops');
                     return false;
                 }
+<<<<<<< HEAD
                 return true;;
+=======
+                return true;
+>>>>>>> a64a6e5a15721fcfa21bb0191977ef92af9cda4d
             default:
                 if(!(\Auth::user()->inAProjectGroup(ProjectController::getProject($pid))))
                 {
