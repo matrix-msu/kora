@@ -54,6 +54,17 @@ return [
 
 	'locale' => 'en',
 
+     /*
+    |--------------------------------------------------------------------------
+    | Application Locales Supported
+    |--------------------------------------------------------------------------
+    |
+    | This is the list of languages that appear across the app, it requires strings in /resources/lang/<iniitals>
+    | or it will fallback to the fallback set later on.  ['en','English'] is the format needed.
+    |
+    */
+    'locales_supported' => collect([['en','English'],['fr','Français'],['es','Español']]),
+
 	/*
 	|--------------------------------------------------------------------------
 	| Application Fallback Locale

@@ -33,4 +33,8 @@ class Record extends Model {
         return $this->hasMany('App\ListField', 'rid');
     }
 
+    public function multiselectlistfields(){
+        return $this->hasMany('App\MultiSelectListField', 'rid');
+    }
+
 }

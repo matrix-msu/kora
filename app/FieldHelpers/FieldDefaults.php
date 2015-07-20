@@ -16,7 +16,7 @@ class FieldDefaults {
             return '[!Regex!][!Regex!][!MultiLine!]0[!MultiLine!]';
         }else if($type=='Number'){
             return '[!Max!][!Max!][!Min!][!Min!][!Increment!]1[!Increment!][!Unit!][!Unit!]';
-        }else if($type=='List'){
+        }else if($type=='List' or $type='Multi-Select List'){
             return '[!Options!][!Options!]';
         }
         else{

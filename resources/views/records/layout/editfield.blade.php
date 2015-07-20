@@ -6,4 +6,6 @@
     @include('records.fieldInputs.number-edit', ['number' => \App\NumberField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
 @elseif($field->type == 'List')
     @include('records.fieldInputs.list-edit', ['list' => \App\ListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
+@elseif($field->type == 'Multi-Select List')
+    @include('records.fieldInputs.mslist-edit', ['list' => \App\MultiSelectListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
 @endif
