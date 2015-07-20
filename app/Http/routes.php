@@ -2,6 +2,7 @@
 
 Route::get('/', 'WelcomeController@index');
 Route::get('/home', 'WelcomeController@index');
+Route::post('/language','WelcomeController@setTemporaryLanguage');
 
 //project routes
 Route::resource('projects', 'ProjectController');
@@ -66,6 +67,7 @@ Route::patch('/user/changepw', 'Auth\UserController@changepw');
 Route::get('/user/activate/{token}', 'Auth\UserController@activate');
 Route::get('/auth/activate', 'Auth\UserController@activateshow');
 Route::post('/auth/activate', 'Auth\UserController@activator');
+Route::post('/user/profile','Auth\UserController@changeprofile');
 
 
 //metadata routes

@@ -1,5 +1,10 @@
 <?php namespace App\Http\Controllers;
 
+use \Illuminate\Support\Facades\App;
+Use \Illuminate\Support\Facades\Request;
+use \Illuminate\Support\Facades\Session;
+use \Illuminate\Support\Facades\Config;
+
 class WelcomeController extends Controller {
 
 	/*
@@ -33,10 +38,16 @@ class WelcomeController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function index()
+	public function index(Request $request)
 	{
-		return view('welcome');
+        $languages_available = Config::get('app.locales_supported');
+
+		return view('welcome',compact('languages_available'));
 	}
 
-
+    public  function setTemporaryLanguage(Request $request){
+        $language = Request::input('templanguage');
+        Session::put('guest_user_language',$language);
+        return("Visitor's language is now set to: ".$language);
+    }
 }

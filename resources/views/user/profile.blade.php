@@ -6,16 +6,14 @@
             <div class="col-md-10 col-md-offset-1">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <h1>Hello {{Auth::user()->name}}, This is your profile</h1>
+                        <h1>{{trans('profile.heading',['name'=>Auth::user()->name])}}</h1>
                     </div>
 
                     <div class="panel-body">
                         <h3>Your information:</h3>
-                        <p>Username: {{Auth::user()->username}}</p>
-                        <p>Email: {{Auth::user()->email}}</p>
-                        <p>Real Name: {{Auth::user()->name}}</p>
-                        <p>Organization: {{Auth::user()->organization}}</p>
-                        <p>Language: {{Auth::user()->language}}</p>
+
+                        @include('partials.changeprofile',compact('languages_available'))
+
                         <hr>
 
                         @include('partials.changepassword')
@@ -26,3 +24,38 @@
         </div>
     </div>
 @endsection
+
+@section('footer')
+
+    <script>
+
+        function updateLanguage(selected_lang){
+            changeProfile("lang",selected_lang);
+        }
+
+       function updateOrganization(){
+           changeProfile("org",$("#organization").val());
+       }
+       function updateRealName(){
+           changeProfile("name",$("#realname").val());
+       }
+
+        function changeProfile(rtype,rvalue){
+            var updateURL ="{{action('Auth\UserController@changeprofile')}}";
+            $.ajax({
+                url:updateURL,
+                method:'POST',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "type": rtype,
+                    "field": rvalue
+                },
+                success: function(data){
+                    window.location.replace('{{action('Auth\UserController@index')}}');
+                }
+            });
+        }
+
+    </script>
+
+@stop
