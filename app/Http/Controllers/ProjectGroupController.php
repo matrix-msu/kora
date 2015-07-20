@@ -27,7 +27,7 @@ class ProjectGroupController extends Controller {
     {
         $project = ProjectController::getProject($pid);
 
-        if(!(\Auth::user()->admin) || !(\Auth::user()->inProjectAdminGroup($project))){
+        if(!(\Auth::user()->isProjectAdmin($project))){
             flash()->overlay('You are not an admin for that project.', 'Whoops.');
             return redirect('projects/'.$pid);
         }
@@ -73,7 +73,7 @@ class ProjectGroupController extends Controller {
     }
 
     /**
-     * Add user to a project group.
+     * Add a user to a project group.
      *
      * @param Request $request
      */

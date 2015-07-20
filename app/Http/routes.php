@@ -54,7 +54,6 @@ Route::get('/projects/{pid}/forms/{fid}/fields/{flid}/options','FieldController@
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/required','FieldController@updateRequired');
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/default','FieldController@updateDefault');
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/update','FieldController@updateOptions');
-Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/saveList','FieldController@saveList');
 Route::post('/projects/{pid}/forms/{fid}','FieldController@store');
 Route::post('/field/move', 'FieldNavController@index');
 

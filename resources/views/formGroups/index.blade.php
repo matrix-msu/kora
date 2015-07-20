@@ -1,13 +1,20 @@
 @extends('app')
 
+@section('leftNavLinks')
+    @include('partials.menu.project', ['pid' => $form->pid])
+    @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+@stop
+
 @section('content')
     <div class="container">
         <div class="row">
             <div class="col-md-10 col-md-offset-1">
                 <div class="panel panel-default">
-                    <div class="panel-body">
-
+                    <div class="panel-heading">
                         <h3>Manage Form Groups</h3>
+                    </div>
+
+                    <div class="panel-body">
 
                         @foreach($formGroups as $formGroup)
                             @if($form->adminGID == $formGroup->id)
@@ -92,7 +99,7 @@
                                             </div>
                                         </div>
                                         <div class="panel-footer">
-                                            <a href="javascript:void(0)" onclick="deleteformGroup({{$formGroup->id}})">[Delete form Group]</a>
+                                            <a href="javascript:void(0)" onclick="deleteFormGroup({{$formGroup->id}})">[Delete Form Group]</a>
                                         </div>
                                     </div>
                                 </div>
@@ -162,7 +169,7 @@
             });
         }
 
-        function deleteformGroup(formGroup){
+        function deleteFormGroup(formGroup){
             var response = confirm("Are you sure you want to delete this group?");
             if (response) {
                 $.ajax({

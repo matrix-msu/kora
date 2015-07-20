@@ -30,6 +30,10 @@ class FieldController extends Controller {
      */
 	public function create($pid, $fid)
 	{
+        if(!FieldController::checkPermissions($fid, 'create')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
+        }
+
         if(!FormController::validProjForm($pid, $fid)){
             return redirect('projects');
         }
@@ -73,6 +77,10 @@ class FieldController extends Controller {
      */
 	public function show($pid, $fid, $flid)
 	{
+        if(!FieldController::checkPermissions($fid, 'edit')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
+        }
+
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
             return redirect('projects');
         }
@@ -87,8 +95,6 @@ class FieldController extends Controller {
             return view('fields.options.richtext', compact('field', 'form', 'proj'));
         }else if($field->type=="Number") {
             return view('fields.options.number', compact('field', 'form', 'proj'));
-        }else if($field->type=="List") {
-            return view('fields.options.list', compact('field', 'form', 'proj'));
         }
 	}
 
@@ -103,6 +109,10 @@ class FieldController extends Controller {
      */
 	public function edit($pid, $fid, $flid)
 	{
+        if(!FieldController::checkPermissions($fid, 'edit')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
+        }
+
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
             return redirect('projects');
         }
@@ -122,6 +132,10 @@ class FieldController extends Controller {
      */
 	public function update($pid, $fid, $flid, FieldRequest $request)
 	{
+        if(!FieldController::checkPermissions($fid, 'edit')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
+        }
+
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
             return redirect('projects');
         }
@@ -137,6 +151,10 @@ class FieldController extends Controller {
 
     public function updateRequired($pid, $fid, $flid, FieldRequest $request)
     {
+        if(!FieldController::checkPermissions($fid, 'edit')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
+        }
+
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
             return redirect('projects');
         }
@@ -153,6 +171,10 @@ class FieldController extends Controller {
 
     public function updateDefault($pid, $fid, $flid, FieldRequest $request)
     {
+        if(!FieldController::checkPermissions($fid, 'edit')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
+        }
+
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
             return redirect('projects');
         }
@@ -169,6 +191,10 @@ class FieldController extends Controller {
 
     public function updateOptions($pid, $fid, $flid, FieldRequest $request)
     {
+        if(!FieldController::checkPermissions($fid, 'edit')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
+        }
+
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
             return redirect('projects');
         }
@@ -193,6 +219,10 @@ class FieldController extends Controller {
      */
 	public function destroy($pid, $fid, $flid)
 	{
+        if(!FieldController::checkPermissions($fid, 'delete')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
+        }
+
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
             return redirect('projects/'.$pid.'forms/');
         }
@@ -266,56 +296,37 @@ class FieldController extends Controller {
         $field->save();
     }
 
-    //THIS SECTION IS RESERVED FOR FUNCTIONS DEALING WITH SPECIFIC LIST TYPES
-    public function saveList($pid, $fid, $flid){
-        if ($_REQUEST['action']=='SaveList') {
-            if(isset($_REQUEST['options']))
-                $options = $_REQUEST['options'];
-            else
-                $options = array();
-
-            $dbOpt = '';
-
-            if (sizeof($options) == 1) {
-                $dbOpt = $options[0];
-            } else if (sizeof($options) == 2) {
-                $dbOpt = $options[0] . '[!]' . $options[1];
-            } else if (sizeof($options) > 2) {
-                $dbOpt = $options[0];
-                for ($i = 1; $i < sizeof($options); $i++) {
-                    $dbOpt .= '[!]' . $options[$i];
+    private function checkPermissions($fid, $permission='')
+    {
+        switch($permission) {
+            case 'create':
+                if(!(\Auth::user()->canCreateFields(FormController::getForm($fid))))
+                {
+                    flash()->overlay('You do not have permission to create fields for that form.', 'Whoops.');
+                    return false;
                 }
-            }
-
-            $field = FieldController::getField($flid);
-
-            //This line removes the default if it no longer exists
-            if(!in_array($field->default,$options)){
-                $field->default = '';
-                $field->save();
-            }
-
-            FieldController::setFieldOptions($field, 'Options', $dbOpt);
+                return true;
+            case 'edit':
+                if(!(\Auth::user()->canEditFields(FormController::getForm($fid))))
+                {
+                    flash()->overlay('You do not have permission to edit fields for that form.', 'Whoops.');
+                    return false;
+                }
+                return true;
+            case 'delete':
+                if(!(\Auth::user()->canDeleteFields(FormController::getForm($fid))))
+                {
+                    flash()->overlay('You do not have permission to delete fields for that form.', 'Whoops.');
+                    return false;
+                }
+                return true;
+            default:
+                if(!(\Auth::user()->inAFormGroup(FormController::getForm($fid))))
+                {
+                    flash()->overlay('You do not have permission to view that field.', 'Whoops.');
+                    return false;
+                }
+                return true;
         }
-    }
-
-    public static function getList($field, $blankOpt=false){
-        $dbOpt = FieldController::getFieldOption($field,'Options');
-        $options = array();
-
-        if(!strstr($dbOpt,'[!]')){
-            $options = [$dbOpt => $dbOpt];
-        }else{
-            $opts = explode('[!]',$dbOpt);
-            foreach($opts as $opt){
-                $options[$opt] = $opt;
-            }
-        }
-
-        if($blankOpt){
-            $options = array(''=>'')+$options;
-        }
-
-        return $options;
     }
 }

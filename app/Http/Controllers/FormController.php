@@ -2,13 +2,13 @@
 
 use App\Form;
 use App\User;
+use App\Project;
 use App\FormGroup;
 use App\Http\Requests;
+use Illuminate\Http\Request;
 use App\Http\Requests\FormRequest;
 use App\Http\Controllers\Controller;
 
-use App\Project;
-use Illuminate\Http\Request;
 
 class FormController extends Controller {
 
@@ -30,7 +30,7 @@ class FormController extends Controller {
 	public function create($pid)
 	{
         if(!FormController::checkPermissions($pid, 'create')){
-            return redirect('/projects/'.$pid.'/forms');
+            return redirect('projects/'.$pid.'/forms');
         }
 
         $project = ProjectController::getProject($pid);
@@ -114,6 +114,10 @@ class FormController extends Controller {
 	public function update($id, FormRequest $request)
 	{
         $form = FormController::getForm($id);
+
+        if(!FormController::checkPermissions($id, 'edit')){
+            return redirect('/projects/'.$form->$pid.'/forms');
+        }
 
         $form->update($request->all());
 
@@ -256,15 +260,11 @@ class FormController extends Controller {
                     flash()->overlay('You do not have permission to delete forms for that project.', 'Whoops');
                     return false;
                 }
-<<<<<<< HEAD
-                return true;;
-=======
                 return true;
->>>>>>> a64a6e5a15721fcfa21bb0191977ef92af9cda4d
             default:
                 if(!(\Auth::user()->inAProjectGroup(ProjectController::getProject($pid))))
                 {
-                    flash()->overlay('You do not have permission to view that project.');
+                    flash()->overlay('You do not have permission to view that project.', 'Whoops.');
                     return false;
                 }
                 return true;
@@ -275,7 +275,7 @@ class FormController extends Controller {
      *
      * @param $project
      * @param $request
-     * @return Group
+     * @return FormGroup
      */
     private function makeAdminGroup(Form $form, Request $request)
     {
