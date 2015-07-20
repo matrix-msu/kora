@@ -7,6 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'CreateFieldsTable' => $baseDir . '/database/migrations/2015_05_01_140126_CreateFieldsTable.php',
+    'CreateFormgroupsTable' => $baseDir . '/database/migrations/2015_07_15_172743_create_formgroups_table.php',
     'CreateFormsTable' => $baseDir . '/database/migrations/2015_04_03_152745_CreateFormsTable.php',
     'CreateGroupsTable' => $baseDir . '/database/migrations/2015_07_01_151433_create_groups_table.php',
     'CreateMetadataTable' => $baseDir . '/database/migrations/2015_07_01_122103_CreateMetadataTable.php',
@@ -14,6 +15,7 @@ return array(
     'CreateNumberfieldsTable' => $baseDir . '/database/migrations/2015_07_09_183053_create_numberfields_table.php',
     'CreatePasswordResetsTable' => $baseDir . '/database/migrations/2015_04_03_151648_create_password_resets_table.php',
     'CreateProjectGroupsTable' => $baseDir . '/database/migrations/2015_07_09_171601_create_project_groups_table.php',
+    'CreateProjectgroupsTable' => $baseDir . '/database/migrations/2015_07_09_171601_create_projectgroups_table.php',
     'CreateProjectsTable' => $baseDir . '/database/migrations/2015_04_03_151510_CreateProjectsTable.php',
     'CreateRecordsTable' => $baseDir . '/database/migrations/2015_05_18_173954_create_records_table.php',
     'CreateRichtextfieldsTable' => $baseDir . '/database/migrations/2015_06_08_190300_create_richtextfields_table.php',

@@ -1,13 +1,21 @@
 @extends('app')
 
+@section('leftNavLinks')
+    @include('partials.menu.project', ['pid' => $project->pid])
+@stop
+
 @section('content')
     <div class="container">
         <div class="row">
             <div class="col-md-10 col-md-offset-1">
                 <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3>Manage Project Groups</h3>
+                    </div>
+
                     <div class="panel-body">
 
-                        <h3>Manage Project Groups</h3>
+
 
                             @foreach($projectGroups as $projectGroup)
                                 @if($project->adminGID == $projectGroup->id)
@@ -20,7 +28,9 @@
                                                     <ul class="list-group" id="list{{$projectGroup->id}}">
                                                 @foreach($projectGroup->users()->get() as $user)
                                                         <li class="list-group-item" id="list-element{{$projectGroup->id}}{{$user->id}}" name="{{$user->name}}">
-                                                            {{$user->username}} <a href="javascript:void(0)" onclick="removeUser({{$projectGroup->id}}, {{$user->id}})">[X]</a>
+                                                            {{$user->username}} @if(\Auth::user()->id != $user->id)
+                                                                <a href="javascript:void(0)" onclick="removeUser({{$projectGroup->id}}, {{$user->id}})">[X]</a>
+                                                                                @endif
                                                         </li>
                                                 @endforeach
                                                     </ul>

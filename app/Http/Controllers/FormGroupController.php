@@ -1,17 +1,17 @@
 <?php namespace App\Http\Controllers;
 
+use App\Form;
 use App\User;
-use App\Project;
-use App\ProjectGroup;
+use App\FormGroup;
 use App\Http\Requests;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 
-class ProjectGroupController extends Controller {
+class FormGroupController extends Controller {
 
     /**
-     * User must be logged in and an admin to access views in this controller.
+     * User must be logged in to access views in this controller.
      */
     public function __construct()
     {
@@ -20,90 +20,93 @@ class ProjectGroupController extends Controller {
     }
 
     /**
-     * @param $pid
+     * @param $fid
      * @return Response
      */
-    public function index($pid)
+    public function index($fid)
     {
-        $project = ProjectController::getProject($pid);
+        $form = FormController::getForm($fid);
+        $project = $form->project()->first();
 
-        if(!(\Auth::user()->isProjectAdmin($project))){
-            flash()->overlay('You are not an admin for that project.', 'Whoops.');
-            return redirect('projects/'.$pid);
+        if(!(\Auth::user()->isFormAdmin($form))) {
+            flash()->overlay('You are not an admin for that form.', 'Whoops.');
+            return redirect('projects'.$project->pid);
         }
 
-        $projectGroups = $project->groups()->get();
+        $formGroups = $form->groups()->get();
         $users = User::lists('username', 'id');
         $all_users = User::all();
-        return view('projectGroups.index', compact('project', 'projectGroups', 'users', 'all_users'));
+        return view('formGroups.index', compact('form', 'formGroups', 'users', 'all_users', 'project'));
     }
 
     /**
-     * Creates new group for a project.
+     * Creates a form group.
      *
-     * @param $pid
      * @param Request $request
      * @return Response
      */
-    public function create($pid, Request $request)
+    public function create(Request $request)
     {
+        $fid = $request['form'];
+        $form = FormController::getForm($fid);
+        $project = $form->project()->first();
+        $pid = $project->pid;
+
         if($request['name'] == ""){
             flash()->overlay('You must enter a group name.', 'Whoops.');
-            return redirect('projects/'.$pid.'/manage/projectgroups');
+            return redirect(action('FormGroupController@index', ['fid'=>$form->fid]));
         }
 
-        $group = ProjectGroupController::buildGroup($pid, $request);
+        $group = FormGroupController::buildGroup($form->fid, $request);
 
         if(!is_null($request['users']))
             $group->users()->attach($request['users']);
 
         flash()->overlay('Group created!', 'Success');
-        return redirect('projects/'.$pid.'/manage/projectgroups');
+        return redirect(action('FormGroupController@index', ['fid'=>$form->fid]));
     }
 
     /**
-     * Remove user from a project group.
+     * Remove user from form group.
      *
      * @param Request $request
      */
     public function removeUser(Request $request)
     {
-        $instance = ProjectGroup::where('id', '=', $request['projectGroup'])->first();
+        $instance = FormGroup::where('id', '=', $request['formGroup'])->first();
         $instance->users()->detach($request['userId']);
     }
 
     /**
-     * Add a user to a project group.
+     * Add user to form group.
      *
      * @param Request $request
      */
     public function addUser(Request $request)
     {
-        $instance = ProjectGroup::where('id', '=', $request['projectGroup'])->first();
+        $instance = FormGroup::where('id', '=', $request['formGroup'])->first();
         $instance->users()->attach($request['userId']);
     }
 
     /**
-     * Deletes a project group.
+     * Delete user from form group.
      *
      * @param Request $request
      */
-    public function deleteProjectGroup(Request $request)
+    public function deleteFormGroup(Request $request)
     {
-        $instance = ProjectGroup::where('id', '=', $request['projectGroup'])->first();
+        $instance = FormGroup::where('id', '=', $request['formGroup'])->first();
         $instance->delete();
-
-        flash()->overlay('Project group has been deleted.', 'Success!');
     }
 
     /**
-     * Change a group's permissions.
+     * Update form group's permissions.
      *
      * @param Request $request
      */
     public function updatePermissions(Request $request)
     {
-        $instance = ProjectGroup::where('id', '=', $request['projectGroup'])->first();
+        $instance = FormGroup::where('id', '=', $request['formGroup'])->first();
 
         if($request['permCreate'])
             $instance->create = 1;
@@ -123,18 +126,19 @@ class ProjectGroupController extends Controller {
         $instance->save();
     }
 
+
     /**
-     * Builds a new group for a project.
+     * Build a form group.
      *
-     * @param $pid
+     * @param $fid
      * @param Request $request
-     * @return ProjectGroup
+     * @return FormGroup
      */
-    private function buildGroup($pid, Request $request)
+    private function buildGroup($fid, Request $request)
     {
-        $group = new ProjectGroup();
+        $group = new FormGroup();
         $group->name = $request['name'];
-        $group->pid = $pid;
+        $group->fid = $fid;
         $group->create = 0;
         $group->edit = 0;
         $group->delete = 0;
@@ -150,4 +154,5 @@ class ProjectGroupController extends Controller {
 
         return $group;
     }
+
 }

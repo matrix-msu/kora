@@ -2,13 +2,11 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class ProjectGroup extends Model {
+class FormGroup extends Model {
 
 	protected $fillable = ['name', 'create', 'edit', 'delete'];
 
     /**
-     * Returns projects associated with a project group.
-     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function users(){
@@ -16,16 +14,26 @@ class ProjectGroup extends Model {
     }
 
     /**
-     * Returns a project group's project.
+     * Returns a form group's form.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function project(){
-        return $this->belongsTo('App\Project');
+    public function form(){
+        return $this->belongsTo('App\Form');
     }
 
     /**
-     * Determines if a user is in a project group.
+     * Returns a form group's project.
+     *
+     * @return mixed
+     */
+    public function project(){
+        $form = $this->form()->first();
+        return $form->project();
+    }
+
+    /**
+     * Determines if a user is in a form group.
      *
      * @param User $user
      * @return bool
@@ -34,4 +42,5 @@ class ProjectGroup extends Model {
         $thisUsers = $this->users()->get();
         return $thisUsers->contains($user);
     }
+
 }

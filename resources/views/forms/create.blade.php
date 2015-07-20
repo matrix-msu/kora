@@ -15,3 +15,9 @@
 
     @include('errors.list')
 @stop
+
+@section('footer')
+    <script>
+        $('#admins').select2();
+    </script>
+@stop
