@@ -20,6 +20,8 @@ class FieldValidation {
             return FieldValidation::validateText($field, $value);
         } else if($field->type='List') {
             return FieldValidation::validateList($field, $value);
+        } else if($field->type='Multi-Select List') {
+            return FieldValidation::validateMultiSelectList($field, $value);
         } else if($field->type=='Rich Text' | $field->type=='Number'){
             return FieldValidation::validateDefault($field, $value);
         }
@@ -54,6 +56,21 @@ class FieldValidation {
         if($value!='' && !in_array($value,$list)){
             return "Value not in list of options";
         }
+
+        return '';
+    }
+
+    static function validateMultiSelectList($field, $value){
+        $req = $field->required;
+        $list = FieldController::getList($field);
+
+        if($req==1 && ($value==null | $value=="")){
+            return $field->name.' field is required.';
+        }
+
+        /*if(!is_array($value) && !in_array($value,$list)){
+            return "Value not in list of options";
+        }*/
 
         return '';
     }

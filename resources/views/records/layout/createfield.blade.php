@@ -6,4 +6,6 @@
     @include('records.fieldInputs.number')
 @elseif($field->type == 'List')
     @include('records.fieldInputs.list')
+@elseif($field->type == 'Multi-Select List')
+    @include('records.fieldInputs.mslist')
 @endif

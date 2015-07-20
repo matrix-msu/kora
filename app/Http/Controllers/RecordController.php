@@ -5,6 +5,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use App\ListField;
+use App\MultiSelectListField;
 use App\NumberField;
 use App\Record;
 use App\RichTextField;
@@ -115,6 +116,12 @@ class RecordController extends Controller {
                 $lf->rid = $record->rid;
                 $lf->option = $value;
                 $lf->save();
+            } else if($field->type=='Multi-Select List'){
+                $mslf = new MultiSelectListField();
+                $mslf->flid = $field->flid;
+                $mslf->rid = $record->rid;
+                $mslf->options = $value;
+                $mslf->save();
             }
         }
 
@@ -242,6 +249,19 @@ class RecordController extends Controller {
                     $lf->rid = $record->rid;
                     $lf->option = $value;
                     $lf->save();
+                }
+            } else if($field->type=='Multi-Select List'){
+                //we need to check if the field exist first
+                if(MultiSelectListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
+                    $mslf = MultiSelectListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                    $mslf->options = $value;
+                    $mslf->save();
+                }else {
+                    $mslf = new MultiSelectListField();
+                    $mslf->flid = $field->flid;
+                    $mslf->rid = $record->rid;
+                    $mslf->options = $value;
+                    $mslf->save();
                 }
             }
         }

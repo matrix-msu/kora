@@ -89,6 +89,8 @@ class FieldController extends Controller {
             return view('fields.options.number', compact('field', 'form', 'proj'));
         }else if($field->type=="List") {
             return view('fields.options.list', compact('field', 'form', 'proj'));
+        }else if($field->type=="Multi-Select List") {
+            return view('fields.options.mslist', compact('field', 'form', 'proj'));
         }
 	}
 
