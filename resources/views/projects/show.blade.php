@@ -17,6 +17,7 @@
     <hr/>
     <h2>Forms</h2>
     @foreach($project->forms as $form)
+        @if(\Auth::user()->admin || \Auth::user()->inAFormGroup($form))
         <div class="panel panel-default">
             <div class="panel-heading" style="font-size: 1.5em;">
                 <a href="{{ action('FormController@show',['pid' => $project->pid,'fid' => $form->fid]) }}">{{ $form->name }}</a>
@@ -37,6 +38,7 @@
                 </div>
             </div>
         </div>
+        @endif
     @endforeach
 
     @if(\Auth::user()->canCreateForms($project))

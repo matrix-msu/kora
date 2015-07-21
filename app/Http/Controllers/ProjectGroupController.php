@@ -69,6 +69,10 @@ class ProjectGroupController extends Controller {
     public function removeUser(Request $request)
     {
         $instance = ProjectGroup::where('id', '=', $request['projectGroup'])->first();
+
+        if($request['pid'] == $instance->id)
+            ProjectGroupController::wipeAdminRights($request, $request['pid']);
+
         $instance->users()->detach($request['userId']);
     }
 
@@ -149,5 +153,17 @@ class ProjectGroupController extends Controller {
         $group->save();
 
         return $group;
+    }
+
+    private function wipeAdminRights($request, $pid)
+    {
+        $user = $request['userId'];
+        $project = ProjectController::getProject($pid);
+        $forms = $project->forms()->get();
+
+        foreach($forms as $form){
+            $adminGroup = $form->adminGroup()->first();
+            $adminGroup->users()->detach($user);
+        }
     }
 }

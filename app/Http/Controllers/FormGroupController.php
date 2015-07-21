@@ -108,21 +108,20 @@ class FormGroupController extends Controller {
     {
         $instance = FormGroup::where('id', '=', $request['formGroup'])->first();
 
-        if($request['permCreate'])
-            $instance->create = 1;
-        else
-            $instance->create = 0;
+        $permissions = [['permCreate', 'create'],
+            ['permEdit', 'edit'],
+            ['permDelete', 'delete'],
+            ['permIngest', 'ingest'],
+            ['permModify', 'modify'],
+            ['permDestroy', 'destroy']
+        ];
 
-        if($request['permEdit'])
-            $instance->edit = 1;
-        else
-            $instance->edit = 0;
-
-        if($request['permDelete'])
-            $instance->delete = 1;
-        else
-            $instance->delete = 0;
-
+        foreach($permissions as $permission){
+            if($request[$permission[0]])
+                $instance[$permission[1]] = 1;
+            else
+                $instance[$permission[1]] = 0;
+        }
         $instance->save();
     }
 
@@ -139,19 +138,16 @@ class FormGroupController extends Controller {
         $group = new FormGroup();
         $group->name = $request['name'];
         $group->fid = $fid;
-        $group->create = 0;
-        $group->edit = 0;
-        $group->delete = 0;
 
-        if(!is_null($request['create']))
-            $group->create = 1;
-        if(!is_null($request['edit']))
-            $group->edit = 1;
-        if(!is_null($request['delete']))
-            $group->delete = 1;
+        $permissions = ['create','edit','delete','ingest','modify','destroy'];
 
+        foreach($permissions as $permission) {
+            if (!is_null($request[$permission]))
+                $group[$permission] = 1;
+            else
+                $group[$permission] = 0;
+        }
         $group->save();
-
         return $group;
     }
 

@@ -18,7 +18,7 @@
 
     <div class="panel panel-default">
         @include('forms.layout.logic',['form' => $form, 'fieldview' => 'records.layout.displayfield'])
-        <div><b>Owner:</b> {{ $record->owner }}</div>
+        <div><b>Owner:</b> {{ $owner }}</div>
         <div><b>Created At:</b> {{ $record->created_at }}</div>
         <div class="panel-footer">
             <span>

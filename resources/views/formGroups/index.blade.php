@@ -46,9 +46,12 @@
                                             <div id="checkboxes">
                                                 <span>Permissions:</span>
                                                 <ul class="list-group" id="perm-list{{$formGroup->id}}">
-                                                    <li class="list-group-item">Create: <input type="checkbox" id="create" checked disabled></li>
-                                                    <li class="list-group-item">Edit: <input type="checkbox" id="edit" checked disabled></li>
-                                                    <li class="list-group-item">Delete: <input type="checkbox" id="delete" checked disabled></li>
+                                                    <li class="list-group-item">Create Field: <input type="checkbox" id="create" checked disabled></li>
+                                                    <li class="list-group-item">Edit Field: <input type="checkbox" id="edit" checked disabled></li>
+                                                    <li class="list-group-item">Delete Field: <input type="checkbox" id="delete" checked disabled></li>
+                                                    <li class="list-group-item">Create Record: <input type="checkbox" id="ingest" checked disabled></li>
+                                                    <li class="list-group-item">Edit Record: <input type="checkbox" id="modify" checked disabled></li>
+                                                    <li class="list-group-item">Delete Record: <input type="checkbox" id="destroy" checked disabled></li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -86,14 +89,23 @@
                                             <div id="checkboxes">
                                                 <span>Permissions:</span>
                                                 <ul class="list-group" id="perm-list{{$formGroup->id}}">
-                                                    <li class="list-group-item">Create:
+                                                    <li class="list-group-item">Create Field:
                                                         <input type="checkbox" id="create{{$formGroup->id}}" @if($formGroup->create) checked="checked" @endif onclick="updatePermissions({{$formGroup->id}})">
                                                     </li>
-                                                    <li class="list-group-item">Edit:
+                                                    <li class="list-group-item">Edit Field:
                                                         <input type="checkbox" id="edit{{$formGroup->id}}" @if($formGroup->edit) checked="checked" @endif onclick="updatePermissions({{$formGroup->id}})">
                                                     </li>
-                                                    <li class="list-group-item">Delete:
+                                                    <li class="list-group-item">Delete Field:
                                                         <input type="checkbox" id="delete{{$formGroup->id}}" @if($formGroup->delete) checked="checked" @endif onclick="updatePermissions({{$formGroup->id}})">
+                                                    </li>
+                                                    <li class="list-group-item">Create Record:
+                                                        <input type="checkbox" id="ingest{{$formGroup->id}}" @if($formGroup->ingest) checked="checked" @endif onclick="updatePermissions({{$formGroup->id}})">
+                                                    </li>
+                                                    <li class="list-group-item">Modify Record:
+                                                        <input type="checkbox" id="modify{{$formGroup->id}}" @if($formGroup->modify) checked="checked" @endif onclick="updatePermissions({{$formGroup->id}})">
+                                                    </li>
+                                                    <li class="list-group-item">Delete Record:
+                                                        <input type="checkbox" id="destroy{{$formGroup->id}}" @if($formGroup->destroy) checked="checked" @endif onclick="updatePermissions({{$formGroup->id}})">
                                                     </li>
                                                 </ul>
                                             </div>
@@ -187,7 +199,7 @@
         }
 
         function updatePermissions(formGroup){
-            var permCreate, permEdit, permDelete;
+            var permCreate, permEdit, permDelete, permIngest, permModify, permDestroy;
 
             if ($("#create"+formGroup).is(':checked'))
                 permCreate = 1;
@@ -204,6 +216,21 @@
             else
                 permDelete = 0;
 
+            if ($("#ingest"+formGroup).is(':checked'))
+                permIngest = 1;
+            else
+                permIngest = 0;
+
+            if ($("#modify"+formGroup).is(':checked'))
+                permModify = 1;
+            else
+                permModify = 0;
+
+            if ($("#destroy"+formGroup).is(':checked'))
+                permDestroy = 1;
+            else
+                permDestroy = 0;
+
             $.ajax({
                 url: '{{action('FormGroupController@updatePermissions')}}',
                 type: 'PATCH',
@@ -212,7 +239,10 @@
                     "formGroup": formGroup,
                     "permCreate": permCreate,
                     "permEdit": permEdit,
-                    "permDelete": permDelete
+                    "permDelete": permDelete,
+                    "permIngest": permIngest,
+                    "permModify": permModify,
+                    "permDestroy": permDestroy
                 }
             });
         }

@@ -1,16 +1,15 @@
 <?php namespace App\Http\Controllers;
 
-use App\FieldHelpers\FieldValidation;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
-use App\ListField;
-use App\MultiSelectListField;
-use App\NumberField;
+use App\User;
 use App\Record;
-use App\RichTextField;
 use App\TextField;
+use App\NumberField;
+use App\Http\Requests;
+use App\RichTextField;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\FieldHelpers\FieldValidation;
+
 
 class RecordController extends Controller {
 
@@ -31,6 +30,10 @@ class RecordController extends Controller {
 	 */
 	public function index($pid, $fid)
 	{
+        if(!RecordController::checkPermissions($fid)) {
+            return redirect('projects/'.$pid.'/forms/'.$fid);
+        }
+
         if(!FormController::validProjForm($pid,$fid)){
             return redirect('projects');
         }
@@ -47,6 +50,10 @@ class RecordController extends Controller {
 	 */
 	public function create($pid, $fid)
 	{
+        if(!RecordController::checkPermissions($fid, 'ingest')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid);
+        }
+
         if(!FormController::validProjForm($pid,$fid)){
             return redirect('projects');
         }
@@ -82,7 +89,7 @@ class RecordController extends Controller {
         $record = new Record();
         $record->pid = $pid;
         $record->fid = $fid;
-        $record->owner = 'koraadmin';
+        $record->owner = $request['userId'];
         $record->save(); //need to save to create rid needed to make kid
         $record->kid = $pid.'-'.$fid.'-'.$record->rid;
         $record->save();
@@ -110,18 +117,6 @@ class RecordController extends Controller {
                 $nf->rid = $record->rid;
                 $nf->number = $value;
                 $nf->save();
-            } else if($field->type=='List'){
-                $lf = new ListField();
-                $lf->flid = $field->flid;
-                $lf->rid = $record->rid;
-                $lf->option = $value;
-                $lf->save();
-            } else if($field->type=='Multi-Select List'){
-                $mslf = new MultiSelectListField();
-                $mslf->flid = $field->flid;
-                $mslf->rid = $record->rid;
-                $mslf->options = $value;
-                $mslf->save();
             }
         }
 
@@ -138,14 +133,19 @@ class RecordController extends Controller {
 	 */
 	public function show($pid, $fid, $rid)
 	{
+        if(!RecordController::checkPermissions($fid)) {
+            return redirect('projects/'.$pid.'/forms/'.$fid);
+        }
+
         if(!RecordController::validProjFormRecord($pid, $fid, $rid)){
             return redirect('projects');
         }
 
         $form = FormController::getForm($fid);
         $record = RecordController::getRecord($rid);
+        $owner = User::where('id', '=', $record->owner);
 
-        return view('records.show', compact('record', 'form', 'pid'));
+        return view('records.show', compact('record', 'form', 'pid', 'owner'));
 	}
 
 	/**
@@ -156,6 +156,10 @@ class RecordController extends Controller {
 	 */
 	public function edit($pid, $fid, $rid)
 	{
+        if(!RecordController::checkPermissions($fid, 'modify') || !\Auth::user()->isOwner(RecordController::getRecord($rid))) {
+            return redirect('projects/'.$pid.'/forms/'.$fid);
+        }
+
         if(!RecordController::validProjFormRecord($pid, $fid, $rid)){
             return redirect('projects');
         }
@@ -237,32 +241,6 @@ class RecordController extends Controller {
                     $nf->number = $value;
                     $nf->save();
                 }
-            } else if($field->type=='List'){
-                //we need to check if the field exist first
-                if(ListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
-                    $lf = ListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
-                    $lf->option = $value;
-                    $lf->save();
-                }else {
-                    $lf = new ListField();
-                    $lf->flid = $field->flid;
-                    $lf->rid = $record->rid;
-                    $lf->option = $value;
-                    $lf->save();
-                }
-            } else if($field->type=='Multi-Select List'){
-                //we need to check if the field exist first
-                if(MultiSelectListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
-                    $mslf = MultiSelectListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
-                    $mslf->options = $value;
-                    $mslf->save();
-                }else {
-                    $mslf = new MultiSelectListField();
-                    $mslf->flid = $field->flid;
-                    $mslf->rid = $record->rid;
-                    $mslf->options = $value;
-                    $mslf->save();
-                }
             }
         }
 
@@ -279,6 +257,10 @@ class RecordController extends Controller {
 	 */
 	public function destroy($pid, $fid, $rid)
 	{
+        if(!RecordController::checkPermissions($rid, 'destroy') || !\Auth::user()->isOwner(RecordController::getRecord($rid))) {
+            return redirect('projects/'.$pid.'/forms/'.$fid);
+        }
+
         if(!RecordController::validProjFormRecord($pid, $fid, $rid)){
             return redirect('projects/'.$pid.'forms/');
         }
@@ -311,6 +293,40 @@ class RecordController extends Controller {
             return true;
         else
             return false;
+    }
+
+    private function checkPermissions($fid, $permission='')
+    {
+        switch($permission){
+            case 'ingest':
+                if(!(\Auth::user()->canIngestRecords(FormController::getForm($fid))))
+                {
+                    flash()->overlay('You do not have permission to create records for that form.', 'Whoops.');
+                    return false;
+                }
+                return true;
+            case 'modify':
+                if(!(\Auth::user()->canModifyRecords(FormController::getForm($fid))))
+                {
+                    flash()->overlay('You do not have permission to edit records for that form.', 'Whoops.');
+                    return false;
+                }
+                return true;
+            case 'destroy':
+                if(!(\Auth::user()->canDestroyRecords(FormController::getForm($fid))))
+                {
+                    flash()->overlay('You do not have permission to delete records for that form.', 'Whoops.');
+                    return false;
+                }
+                return true;
+            default:
+                if(!(\Auth::user()->inAFormGroup(FormController::getForm($fid))))
+                {
+                    flash()->overlay('You do not have permission to view records for that form.', 'Whoops.');
+                    return false;
+                }
+                return true;
+        }
     }
 
 }

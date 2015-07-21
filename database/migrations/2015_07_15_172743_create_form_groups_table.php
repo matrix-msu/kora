@@ -7,7 +7,7 @@ class CreateFormGroupsTable extends Migration {
 
 	/**
 	 * Run the migrations.
-	 *
+     *
 	 * @return void
 	 */
 	public function up()
@@ -20,6 +20,9 @@ class CreateFormGroupsTable extends Migration {
             $table->boolean('create');
             $table->boolean('edit');
             $table->boolean('delete');
+            $table->boolean('ingest');
+            $table->boolean('modify');
+            $table->boolean('destroy');
 			$table->timestamps();
 
             $table->foreign('fid')->references('fid')->on('forms')->onDelete('cascade');

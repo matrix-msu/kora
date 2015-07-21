@@ -29,12 +29,9 @@ class Record extends Model {
         return $this->hasMany('App\NumberField', 'rid');
     }
 
-    public function listfields(){
-        return $this->hasMany('App\ListField', 'rid');
-    }
-
-    public function multiselectlistfields(){
-        return $this->hasMany('App\MultiSelectListField', 'rid');
+    public function owner(){
+        return $this->hasOne('App\User', 'owner');
     }
 
 }
+

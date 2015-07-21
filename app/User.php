@@ -187,6 +187,45 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return false;
     }
 
+    public function canIngestRecords(Form $form){
+        if ($this->admin) return true;
+
+        $formGroups = $form->groups()->get();
+        foreach($formGroups as $formGroup){
+            if($formGroup->hasUser($this) && $formGroup->ingest)
+                return true;
+        }
+        return false;
+    }
+
+    public function canModifyRecords(Form $form){
+        if ($this->admin) return true;
+
+        $formGroups = $form->groups()->get();
+        foreach($formGroups as $formGroup){
+            if($formGroup->hasUser($this) && $formGroup->modify)
+                return true;
+        }
+        return false;
+    }
+
+    public function canDestroyRecords(Form $form){
+        if ($this->admin) return true;
+
+        $formGroups = $form->groups()->get();
+        foreach($formGroups as $formGroup){
+            if($formGroup->hasUser($this) && $formGroup->destroy)
+                return true;
+        }
+        return false;
+    }
+
+    public function isOwner(Record $record){
+        if ($this->id == $record->owner)
+            return true;
+        return false;
+    }
+
     /**
      * Returns true if a user is in any of a form's form groups, false if not.
      *

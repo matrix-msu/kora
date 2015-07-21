@@ -299,11 +299,15 @@ class FormController extends Controller {
         if (!is_null($request['admins']))
             $idArray = array_unique(array_merge($request['admins'], $idArray));
 
-        $adminGroup->users()->attach($idArray);
+        if (!empty($idArray))
+            $adminGroup->users()->attach($idArray);
 
         $adminGroup->create = 1;
         $adminGroup->edit = 1;
         $adminGroup->delete = 1;
+        $adminGroup->ingest = 1;
+        $adminGroup->modify = 1;
+        $adminGroup->destroy = 1;
 
         $adminGroup->save();
 
