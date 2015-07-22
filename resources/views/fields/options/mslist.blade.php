@@ -17,7 +17,7 @@
     @include('fields.options.hiddens')
     <div class="form-group">
         {!! Form::label('default','Default: ') !!}
-        {!! Form::select('default',\App\Http\Controllers\FieldController::getList($field,true), $field->default,['class' => 'form-control', 'id' => 'default']) !!}
+        {!! Form::select('default[]',\App\Http\Controllers\FieldController::getList($field,false), explode('[!]',$field->default),['class' => 'form-control', 'multiple', 'id' => 'default']) !!}
     </div>
     <div class="form-group">
         {!! Form::submit("Update Default",['class' => 'btn btn-primary form-control']) !!}
@@ -37,7 +37,7 @@
             <button class="btn btn-primary move_option_down">Down</button>
         </div>
         <div>
-            <span></span><input type="text" class="new_list_option"></input></span>
+            <span><input type="text" class="new_list_option"></input></span>
             <span><button class="btn btn-primary add_option">Add</button></span>
         </div>
     </div>

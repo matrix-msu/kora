@@ -29,11 +29,12 @@
                     {{ $lf->option }}
                 @endif
             @endforeach
-        @endif
         @elseif($field->type=='Multi-Select List')
             @foreach($record->multiselectlistfields as $mslf)
                 @if($mslf->flid == $field->flid)
-                    {{ $mslf->options }}
+                    @foreach(explode('[!]',$mslf->options) as $opt)
+                        <div>{{ $opt }}</div>
+                    @endforeach
                 @endif
             @endforeach
         @endif

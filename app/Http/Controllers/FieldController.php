@@ -161,7 +161,17 @@ class FieldController extends Controller {
 
         $field = FieldController::getField($flid);
 
-        $field->default = $request->default;
+        if($field->type=='Multi-Select List' and !is_null($request->default)){
+            $reqDefs = $request->default;
+            $def = $reqDefs[0];
+            for($i=1;$i<sizeof($reqDefs);$i++){
+                $def .= '[!]'.$reqDefs[$i];
+            }
+            $field->default = $def;
+        }else{
+            $field->default = $request->default;
+        }
+
         $field->save();
 
         flash()->success('Option updated!');
@@ -268,7 +278,8 @@ class FieldController extends Controller {
         $field->save();
     }
 
-    //THIS SECTION IS RESERVED FOR FUNCTIONS DEALING WITH SPECIFIC LIST TYPES
+    //THIS SECTION IS RESERVED FOR FUNCTIONS DEALING WITH SPECIFIC LIST TYPES//////////////////////////////////////////
+
     public function saveList($pid, $fid, $flid){
         if ($_REQUEST['action']=='SaveList') {
             if(isset($_REQUEST['options']))
@@ -305,9 +316,11 @@ class FieldController extends Controller {
         $dbOpt = FieldController::getFieldOption($field,'Options');
         $options = array();
 
-        if(!strstr($dbOpt,'[!]')){
+        if($dbOpt==''){
+            //skip
+        } else if(!strstr($dbOpt,'[!]')){
             $options = [$dbOpt => $dbOpt];
-        }else{
+        } else{
             $opts = explode('[!]',$dbOpt);
             foreach($opts as $opt){
                 $options[$opt] = $opt;
@@ -319,5 +332,17 @@ class FieldController extends Controller {
         }
 
         return $options;
+    }
+
+    public static function msListArrayToString($array){
+        if(is_array($array)){
+            $list = $array[0];
+            for($i=1;$i<sizeof($array);$i++){
+                $list .= '[!]'.$array[$i];
+            }
+            return $list;
+        }
+
+        return '';
     }
 }

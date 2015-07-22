@@ -12,10 +12,17 @@ class CreateMultiselectlistfieldsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('multiselectlistfields', function(Blueprint $table)
+		Schema::create('multi_select_list_fields', function(Blueprint $table)
 		{
 			$table->increments('id');
+
+			$table->integer('rid')->unsigned();
+			$table->integer('flid')->unsigned();
+			$table->mediumText('options');
 			$table->timestamps();
+
+			$table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');
+			$table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
 	}
 
@@ -26,7 +33,7 @@ class CreateMultiselectlistfieldsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('multiselectlistfields');
+		Schema::drop('multi_select_list_fields');
 	}
 
 }

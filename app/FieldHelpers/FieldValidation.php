@@ -18,9 +18,9 @@ class FieldValidation {
         $field = FieldController::getField($field);
         if($field->type=='Text'){
             return FieldValidation::validateText($field, $value);
-        } else if($field->type='List') {
+        } else if($field->type=='List') {
             return FieldValidation::validateList($field, $value);
-        } else if($field->type='Multi-Select List') {
+        } else if($field->type=='Multi-Select List') {
             return FieldValidation::validateMultiSelectList($field, $value);
         } else if($field->type=='Rich Text' | $field->type=='Number'){
             return FieldValidation::validateDefault($field, $value);
@@ -68,9 +68,9 @@ class FieldValidation {
             return $field->name.' field is required.';
         }
 
-        /*if(!is_array($value) && !in_array($value,$list)){
+        if(sizeof(array_diff($value,$list))>0){
             return "Value not in list of options";
-        }*/
+        }
 
         return '';
     }

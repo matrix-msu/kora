@@ -63,6 +63,7 @@ class RecordController extends Controller {
 	 */
 	public function store($pid, $fid, Request $request)
 	{
+
         if(!FormController::validProjForm($pid,$fid)){
             return redirect('projects');
         }
@@ -120,7 +121,7 @@ class RecordController extends Controller {
                 $mslf = new MultiSelectListField();
                 $mslf->flid = $field->flid;
                 $mslf->rid = $record->rid;
-                $mslf->options = $value;
+                $mslf->options = FieldController::msListArrayToString($value);
                 $mslf->save();
             }
         }
@@ -254,13 +255,13 @@ class RecordController extends Controller {
                 //we need to check if the field exist first
                 if(MultiSelectListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
                     $mslf = MultiSelectListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
-                    $mslf->options = $value;
+                    $mslf->options = FieldController::msListArrayToString($value);
                     $mslf->save();
                 }else {
                     $mslf = new MultiSelectListField();
                     $mslf->flid = $field->flid;
                     $mslf->rid = $record->rid;
-                    $mslf->options = $value;
+                    $mslf->options = FieldController::msListArrayToString($value);
                     $mslf->save();
                 }
             }

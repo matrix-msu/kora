@@ -8,9 +8,10 @@ $baseDir = dirname($vendorDir);
 return array(
     'CreateFieldsTable' => $baseDir . '/database/migrations/2015_05_01_140126_CreateFieldsTable.php',
     'CreateFormsTable' => $baseDir . '/database/migrations/2015_04_03_152745_CreateFormsTable.php',
-    'CreateGroupsTable' => $baseDir . '/database/migrations/2015_07_01_151433_create_groups_table.php',
+    'CreateListfieldsTable' => $baseDir . '/database/migrations/2015_07_14_144933_create_listfields_table.php',
     'CreateMetadataTable' => $baseDir . '/database/migrations/2015_07_01_122103_CreateMetadataTable.php',
     'CreateModelsTable' => $baseDir . '/database/migrations/2015_04_03_152745_CreateModelsTable.php',
+    'CreateMultiselectlistfieldsTable' => $baseDir . '/database/migrations/2015_07_20_125652_create_multiselectlistfields_table.php',
     'CreateNumberfieldsTable' => $baseDir . '/database/migrations/2015_07_09_183053_create_numberfields_table.php',
     'CreatePasswordResetsTable' => $baseDir . '/database/migrations/2015_04_03_151648_create_password_resets_table.php',
     'CreateProjectGroupsTable' => $baseDir . '/database/migrations/2015_07_09_171601_create_project_groups_table.php',
