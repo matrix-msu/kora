@@ -145,6 +145,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function canCreateFields(Form $form){
         if ($this->admin) return true;
 
+        if ($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
+
         $formGroups = $form->groups()->get();
         foreach($formGroups as $formGroup){
             if($formGroup->hasUser($this) && $formGroup->create)
@@ -161,6 +163,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     public function canEditFields(Form $form){
         if ($this->admin) return true;
+
+        if ($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
 
         $formGroups = $form->groups()->get();
         foreach($formGroups as $formGroup){
@@ -179,6 +183,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function canDeleteFields(Form $form){
         if ($this->admin) return true;
 
+        if ($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
+
         $formGroups = $form->groups()->get();
         foreach($formGroups as $formGroup){
             if($formGroup->hasUser($this) && $formGroup->delete)
@@ -187,8 +193,16 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return false;
     }
 
+    /**
+     * Returns true if a user is allowed to create records in a form, false if not.
+     *
+     * @param Form $form
+     * @return bool
+     */
     public function canIngestRecords(Form $form){
         if ($this->admin) return true;
+
+        if ($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
 
         $formGroups = $form->groups()->get();
         foreach($formGroups as $formGroup){
@@ -198,8 +212,16 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return false;
     }
 
+    /**
+     * Returns true if a user is allowed to edit records in a form, false if not.
+     *
+     * @param Form $form
+     * @return bool
+     */
     public function canModifyRecords(Form $form){
         if ($this->admin) return true;
+
+        if ($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
 
         $formGroups = $form->groups()->get();
         foreach($formGroups as $formGroup){
@@ -209,8 +231,16 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return false;
     }
 
+    /**
+     * Returns true if a user is allowed to delete records in a form, false if not.
+     *
+     * @param Form $form
+     * @return bool
+     */
     public function canDestroyRecords(Form $form){
         if ($this->admin) return true;
+
+        if ($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
 
         $formGroups = $form->groups()->get();
         foreach($formGroups as $formGroup){
@@ -220,6 +250,12 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return false;
     }
 
+    /**
+     * Returns true if a user is the owner of a record, false if not.
+     *
+     * @param Record $record
+     * @return bool
+     */
     public function isOwner(Record $record){
         if ($this->id == $record->owner)
             return true;
@@ -234,6 +270,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     public function inAFormGroup(Form $form){
         if($this->admin) return true;
+
+        if ($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
 
         $formGroups = $form->groups()->get();
         foreach($formGroups as $formGroup){

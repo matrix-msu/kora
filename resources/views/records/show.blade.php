@@ -11,7 +11,9 @@
     <div><b>Description:</b> {{ $form->description }}</div>
     <div>
         <a href="{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}">[Records]</a>
+        @if(\Auth::user()->canIngestRecords($form))
         <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[New Record]</a>
+        @endif
     </div>
     <hr/>
     <h2>Record: {{$record->kid}}</h2>
@@ -22,10 +24,14 @@
         <div><b>Created At:</b> {{ $record->created_at }}</div>
         <div class="panel-footer">
             <span>
+                @if(\Auth::user()->canModifyRecords($form) || \Auth::user()->isOwner($record))
                 <a href="{{ action('RecordController@edit',['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid]) }}">[Edit]</a>
+                @endif
             </span>
             <span>
+                @if(\Auth::user()->canDestroyRecords($form) || \Auth::user()->isOwner($record))
                 <a onclick="deleteRecord()" href="javascript:void(0)">[Delete]</a>
+                @endif
             </span>
         </div>
     </div>

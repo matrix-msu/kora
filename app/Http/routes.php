@@ -85,9 +85,6 @@ Route::delete('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@d
 Route::get('/projects/{pid}/forms/{fid}/metadata','MetadataController@records');
 
 
-
-
-
 Route::controllers([
 	'auth' => 'Auth\AuthController',
 	'password' => 'Auth\PasswordController',
