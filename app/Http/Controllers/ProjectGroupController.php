@@ -1,7 +1,7 @@
 <?php namespace App\Http\Controllers;
 
-use App\Project;
 use App\User;
+use App\Project;
 use App\ProjectGroup;
 use App\Http\Requests;
 use Illuminate\Http\Request;
@@ -26,6 +26,12 @@ class ProjectGroupController extends Controller {
     public function index($pid)
     {
         $project = ProjectController::getProject($pid);
+
+        if(!(\Auth::user()->isProjectAdmin($project))){
+            flash()->overlay('You are not an admin for that project.', 'Whoops.');
+            return redirect('projects/'.$pid);
+        }
+
         $projectGroups = $project->groups()->get();
         $users = User::lists('username', 'id');
         $all_users = User::all();
@@ -42,8 +48,8 @@ class ProjectGroupController extends Controller {
     public function create($pid, Request $request)
     {
         if($request['name'] == ""){
-            flash()->overlay('You must enter a group name.', 'Whoops,');
-            return redirect('projects/'.$pid.'/manage/groups');
+            flash()->overlay('You must enter a group name.', 'Whoops.');
+            return redirect('projects/'.$pid.'/manage/projectgroups');
         }
 
         $group = ProjectGroupController::buildGroup($pid, $request);
@@ -52,7 +58,7 @@ class ProjectGroupController extends Controller {
             $group->users()->attach($request['users']);
 
         flash()->overlay('Group created!', 'Success');
-        return redirect('projects/'.$pid.'/manage/groups');
+        return redirect('projects/'.$pid.'/manage/projectgroups');
     }
 
     /**
@@ -63,11 +69,15 @@ class ProjectGroupController extends Controller {
     public function removeUser(Request $request)
     {
         $instance = ProjectGroup::where('id', '=', $request['projectGroup'])->first();
+
+        if($request['pid'] == $instance->id)
+            ProjectGroupController::wipeAdminRights($request, $request['pid']);
+
         $instance->users()->detach($request['userId']);
     }
 
     /**
-     * Add user to a project group.
+     * Add a user to a project group.
      *
      * @param Request $request
      */
@@ -115,7 +125,6 @@ class ProjectGroupController extends Controller {
             $instance->delete = 0;
 
         $instance->save();
-
     }
 
     /**
@@ -144,5 +153,17 @@ class ProjectGroupController extends Controller {
         $group->save();
 
         return $group;
+    }
+
+    private function wipeAdminRights($request, $pid)
+    {
+        $user = $request['userId'];
+        $project = ProjectController::getProject($pid);
+        $forms = $project->forms()->get();
+
+        foreach($forms as $form){
+            $adminGroup = $form->adminGroup()->first();
+            $adminGroup->users()->detach($user);
+        }
     }
 }

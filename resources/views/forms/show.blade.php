@@ -9,18 +9,30 @@
     <span><h1>{{ $form->name }}</h1></span>
     <div><b>Internal Names:</b> {{ $form->slug }}</div>
     <div><b>Description:</b> {{ $form->description }}</div>
+
+    @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
+        <form action="{{action('FormGroupController@index', ['fid'=>$form->fid])}}" style="display: inline">
+            <button type="submit" class="btn btn-default">Manage Groups</button>
+        </form>
+    @endif
+
     <div>
         <a href="{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}">[Records]</a>
+        @if(\Auth::user()->canIngestRecords($form))
         <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[New Record]</a>
+        @endif
     </div>
     <hr/>
     <h2>Fields</h2>
 
     @include('forms.layout.logic',['form' => $form, 'fieldview' => 'forms.layout.printfield'])
 
+    @if(\Auth::user()->canCreateFields($form))
     <form action="{{action('FieldController@create', ['pid' => $form->pid, 'fid' => $form->fid]) }}">
         <input type="submit" value="Create New Field" class="btn btn-primary form-control">
     </form>
+    @endif
+
 @stop
 
 @section('footer')

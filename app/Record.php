@@ -37,4 +37,9 @@ class Record extends Model {
         return $this->hasMany('App\MultiSelectListField', 'rid');
     }
 
+    public function owner(){
+        return $this->hasOne('App\User', 'owner');
+    }
+
 }
+

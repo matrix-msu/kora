@@ -14,6 +14,15 @@
     {!! Form::textarea('description',null,['class' => 'form-control']) !!}
 </div>
 
+@if($submitButtonText == 'Create Form')
+
+    <div class="form-group">
+        {!! Form::label('admins','Form Admin(s): ') !!}
+        {!! Form::select('admins[]',$users, null,['class' => 'form-control', 'multiple', 'id' => 'admins']) !!}
+    </div>
+
+@endif
+
 <div class="form-group">
     {!! Form::submit($submitButtonText,['class' => 'btn btn-primary form-control']) !!}
 </div>

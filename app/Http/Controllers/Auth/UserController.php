@@ -4,6 +4,8 @@ use App\User;
 use App\Http\Requests;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 
 class UserController extends Controller {
 
@@ -34,13 +36,67 @@ class UserController extends Controller {
      */
     public function index()
     {
-        return view('user/profile');
+        $languages_available = Config::get('app.locales_supported');
+        return view('user/profile',compact('languages_available'));
     }
 
     /**
      * @param Request $request
      * @return Response
      */
+
+    public function changeprofile(Request $request){
+        $user = Auth::user();
+        $type = $request->input("type");
+
+        if($type == "lang"){
+            $lang = $request->input("field");
+
+            if(empty($lang)){
+                flash()->overlay('You must select a language','Whoops.');
+                //return redirect('user/profile');
+            }
+            else{
+                $user->language = $lang;
+                $user->save();
+                flash()->overlay("Your language preference has been updated","Success!");
+               // return redirect('user/profile');
+            }
+        }
+        elseif($type == "name"){
+            $realname = $request->input("field");
+
+            if(empty($realname)){
+                flash()->overlay('You must enter a name','Whoops.');
+                //return redirect('user/profile');
+            }
+            else{
+                $user->name = $realname;
+                $user->save();
+                flash()->overlay("Your real name preference has been updated","Success!");
+                //return redirect('user/profile');
+            }
+        }
+        elseif($type == "org"){
+            $organization = $request->input("field");
+
+            if(empty($organization)){
+                flash()->overlay('You must enter an organization','Whoops.');
+                //return redirect('user/profile');
+            }
+            else{
+                $user->organization = $organization;
+                $user->save();
+                flash()->overlay("Your organization preference has been updated","Success!");
+               // return redirect('user/profile');
+            }
+
+        }
+        else{
+
+        }
+
+    }
     public function changepw(Request $request)
     {
         $user = Auth::user();

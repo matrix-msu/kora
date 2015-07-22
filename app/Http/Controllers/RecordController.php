@@ -1,16 +1,17 @@
 <?php namespace App\Http\Controllers;
 
-use App\FieldHelpers\FieldValidation;
+use App\User;
+use App\Record;
+use App\TextField;
+use App\NumberField;
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
+use App\RichTextField;
 use App\ListField;
 use App\MultiSelectListField;
-use App\NumberField;
-use App\Record;
-use App\RichTextField;
-use App\TextField;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\FieldHelpers\FieldValidation;
+
 
 class RecordController extends Controller {
 
@@ -31,6 +32,10 @@ class RecordController extends Controller {
 	 */
 	public function index($pid, $fid)
 	{
+        if(!RecordController::checkPermissions($fid)) {
+            return redirect('projects/'.$pid.'/forms/'.$fid);
+        }
+
         if(!FormController::validProjForm($pid,$fid)){
             return redirect('projects');
         }
@@ -47,6 +52,10 @@ class RecordController extends Controller {
 	 */
 	public function create($pid, $fid)
 	{
+        if(!RecordController::checkPermissions($fid, 'ingest')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid);
+        }
+
         if(!FormController::validProjForm($pid,$fid)){
             return redirect('projects');
         }
@@ -69,7 +78,7 @@ class RecordController extends Controller {
         }
 
         foreach($request->all() as $key => $value){
-            if($key=='_token'){
+            if($key=='_token' | $key=='userId'){
                 continue;
             }
             $message = FieldValidation::validateField($key, $value);
@@ -83,13 +92,13 @@ class RecordController extends Controller {
         $record = new Record();
         $record->pid = $pid;
         $record->fid = $fid;
-        $record->owner = 'koraadmin';
+        $record->owner = $request->userId;
         $record->save(); //need to save to create rid needed to make kid
         $record->kid = $pid.'-'.$fid.'-'.$record->rid;
         $record->save();
 
         foreach($request->all() as $key => $value){
-            if($key=='_token'){
+            if($key=='_token' | $key=='userId'){
                 continue;
             }
             $field = FieldController::getField($key);
@@ -139,14 +148,19 @@ class RecordController extends Controller {
 	 */
 	public function show($pid, $fid, $rid)
 	{
+        if(!RecordController::checkPermissions($fid)) {
+            return redirect('projects/'.$pid.'/forms/'.$fid);
+        }
+
         if(!RecordController::validProjFormRecord($pid, $fid, $rid)){
             return redirect('projects');
         }
 
         $form = FormController::getForm($fid);
         $record = RecordController::getRecord($rid);
+        $owner = User::where('id', '=', $record->owner)->first();
 
-        return view('records.show', compact('record', 'form', 'pid'));
+        return view('records.show', compact('record', 'form', 'pid', 'owner'));
 	}
 
 	/**
@@ -157,6 +171,10 @@ class RecordController extends Controller {
 	 */
 	public function edit($pid, $fid, $rid)
 	{
+        if(!RecordController::checkPermissions($fid, 'modify') || !\Auth::user()->isOwner(RecordController::getRecord($rid))) {
+            return redirect('projects/'.$pid.'/forms/'.$fid);
+        }
+
         if(!RecordController::validProjFormRecord($pid, $fid, $rid)){
             return redirect('projects');
         }
@@ -280,6 +298,10 @@ class RecordController extends Controller {
 	 */
 	public function destroy($pid, $fid, $rid)
 	{
+        if(!RecordController::checkPermissions($rid, 'destroy') || !\Auth::user()->isOwner(RecordController::getRecord($rid))) {
+            return redirect('projects/'.$pid.'/forms/'.$fid);
+        }
+
         if(!RecordController::validProjFormRecord($pid, $fid, $rid)){
             return redirect('projects/'.$pid.'forms/');
         }
@@ -312,6 +334,40 @@ class RecordController extends Controller {
             return true;
         else
             return false;
+    }
+
+    private function checkPermissions($fid, $permission='')
+    {
+        switch($permission){
+            case 'ingest':
+                if(!(\Auth::user()->canIngestRecords(FormController::getForm($fid))))
+                {
+                    flash()->overlay('You do not have permission to create records for that form.', 'Whoops.');
+                    return false;
+                }
+                return true;
+            case 'modify':
+                if(!(\Auth::user()->canModifyRecords(FormController::getForm($fid))))
+                {
+                    flash()->overlay('You do not have permission to edit records for that form.', 'Whoops.');
+                    return false;
+                }
+                return true;
+            case 'destroy':
+                if(!(\Auth::user()->canDestroyRecords(FormController::getForm($fid))))
+                {
+                    flash()->overlay('You do not have permission to delete records for that form.', 'Whoops.');
+                    return false;
+                }
+                return true;
+            default:
+                if(!(\Auth::user()->inAFormGroup(FormController::getForm($fid))))
+                {
+                    flash()->overlay('You do not have permission to view records for that form.', 'Whoops.');
+                    return false;
+                }
+                return true;
+        }
     }
 
 }

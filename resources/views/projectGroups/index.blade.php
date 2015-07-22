@@ -1,13 +1,21 @@
 @extends('app')
 
+@section('leftNavLinks')
+    @include('partials.menu.project', ['pid' => $project->pid])
+@stop
+
 @section('content')
     <div class="container">
         <div class="row">
             <div class="col-md-10 col-md-offset-1">
                 <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3>Manage Project Groups</h3>
+                    </div>
+
                     <div class="panel-body">
 
-                        <h3>Manage Project Groups</h3>
+
 
                             @foreach($projectGroups as $projectGroup)
                                 @if($project->adminGID == $projectGroup->id)
@@ -20,11 +28,13 @@
                                                     <ul class="list-group" id="list{{$projectGroup->id}}">
                                                 @foreach($projectGroup->users()->get() as $user)
                                                         <li class="list-group-item" id="list-element{{$projectGroup->id}}{{$user->id}}" name="{{$user->name}}">
-                                                            {{$user->username}} <a href="javascript:void(0)" onclick="removeUser({{$projectGroup->id}}, {{$user->id}})">[X]</a>
+                                                            {{$user->username}} @if(\Auth::user()->id != $user->id)
+                                                                <a href="javascript:void(0)" onclick="removeUser({{$projectGroup->id}}, {{$user->id}}, {{$project->pid}})">[X]</a>
+                                                                                @endif
                                                         </li>
                                                 @endforeach
                                                     </ul>
-                                                <select onchange="addUser({{$projectGroup->id}})" id="dropdown{{$projectGroup->id}}">
+                                                <select onchange="addUser({{$projectGroup->id}}, {{$project->pid}})" id="dropdown{{$projectGroup->id}}">
                                                     <option selected value="0">Add a user</option>
                                                     @foreach($all_users as $user)
                                                         @if($projectGroup->hasUser($user))
@@ -37,9 +47,9 @@
                                                 <div id="checkboxes">
                                                     <span>Permissions:</span>
                                                     <ul class="list-group" id="perm-list{{$projectGroup->id}}">
-                                                        <li class="list-group-item">Create: <input type="checkbox" id="create" checked disabled></li>
-                                                        <li class="list-group-item">Edit: <input type="checkbox" id="edit" checked disabled></li>
-                                                        <li class="list-group-item">Delete: <input type="checkbox" id="delete" checked disabled></li>
+                                                        <li class="list-group-item">Create Forms: <input type="checkbox" id="create" checked disabled></li>
+                                                        <li class="list-group-item">Edit Forms: <input type="checkbox" id="edit" checked disabled></li>
+                                                        <li class="list-group-item">Delete Forms: <input type="checkbox" id="delete" checked disabled></li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -59,12 +69,12 @@
                                                 <ul class="list-group" id="list{{$projectGroup->id}}">
                                                     @foreach($projectGroup->users()->get() as $user)
                                                         <li class="list-group-item" id="list-element{{$projectGroup->id}}{{$user->id}}" name="{{$user->name}}">
-                                                            {{$user->username}} <a href="javascript:void(0)" onclick="removeUser({{$projectGroup->id}}, {{$user->id}})">[X]</a>
+                                                            {{$user->username}} <a href="javascript:void(0)" onclick="removeUser({{$projectGroup->id}}, {{$user->id}}, {{$project->pid}})">[X]</a>
                                                         </li>
                                                     @endforeach
                                                 </ul>
 
-                                                <select onchange="addUser({{$projectGroup->id}})" id="dropdown{{$projectGroup->id}}">
+                                                <select onchange="addUser({{$projectGroup->id}}, {{$project->pid}})" id="dropdown{{$projectGroup->id}}">
                                                     <option selected value="0">Add a user</option>
                                                     @foreach($all_users as $user)
                                                         @if($projectGroup->hasUser($user))
@@ -77,13 +87,13 @@
                                             <div id="checkboxes">
                                                 <span>Permissions:</span>
                                                 <ul class="list-group" id="perm-list{{$projectGroup->id}}">
-                                                    <li class="list-group-item">Create:
+                                                    <li class="list-group-item">Create Forms:
                                                         <input type="checkbox" id="create{{$projectGroup->id}}" @if($projectGroup->create) checked="checked" @endif onclick="updatePermissions({{$projectGroup->id}})">
                                                     </li>
-                                                    <li class="list-group-item">Edit:
+                                                    <li class="list-group-item">Edit Forms:
                                                         <input type="checkbox" id="edit{{$projectGroup->id}}" @if($projectGroup->edit) checked="checked" @endif onclick="updatePermissions({{$projectGroup->id}})">
                                                     </li>
-                                                    <li class="list-group-item">Delete:
+                                                    <li class="list-group-item">Delete Forms:
                                                         <input type="checkbox" id="delete{{$projectGroup->id}}" @if($projectGroup->delete) checked="checked" @endif onclick="updatePermissions({{$projectGroup->id}})">
                                                     </li>
                                                 </ul>
@@ -120,7 +130,7 @@
             }
         });
 
-        function removeUser(projectGroup, userId){
+        function removeUser(projectGroup, userId, pid){
             var username = $("#list-element"+projectGroup+userId).attr('name');
 
             $.ajax({
@@ -129,7 +139,8 @@
                 data: {
                     "_token": "{{ csrf_token() }}",
                     "userId": userId,
-                    "projectGroup": projectGroup
+                    "projectGroup": projectGroup,
+                    "pid" : pid
                 },
                 success: function(){
                     $("#dropdown"+projectGroup).attr('selected', '0');
@@ -140,7 +151,7 @@
             });
         }
 
-        function addUser(projectGroup){
+        function addUser(projectGroup, pid){
             var userId = $("#dropdown"+projectGroup+" option:selected").attr('id');
             var username = $("#dropdown"+projectGroup+" option:selected").text();
 
@@ -154,7 +165,7 @@
                 },
                 success: function(){
                     $("#list"+projectGroup).append('<li class="list-group-item" id="list-element'+projectGroup+userId+'" name="'+username+'">'
-                                                    +username+' <a href="javascript:void(0)" onclick="removeUser('+projectGroup+', '+userId+')">[X]</a></li>');
+                                                    +username+' <a href="javascript:void(0)" onclick="removeUser('+projectGroup+', '+userId+', '+pid+')">[X]</a></li>');
                     $("#dropdown"+projectGroup+" option[id='"+userId+"']").remove();
                 }
             });
