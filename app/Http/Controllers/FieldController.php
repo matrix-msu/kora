@@ -51,6 +51,7 @@ class FieldController extends Controller {
 	public function store(FieldRequest $request)
     {
         $field = Field::Create($request->all());
+        $field->recentupdate = 0;
         $field->options = FieldDefaults::getOptions($field->type);
         $field->default = FieldDefaults::getDefault($field->type);
         $field->save();
@@ -343,6 +344,7 @@ class FieldController extends Controller {
                 return true;
         }
     }
+
 
     //THIS SECTION IS RESERVED FOR FUNCTIONS DEALING WITH SPECIFIC LIST TYPES//////////////////////////////////////////
 
