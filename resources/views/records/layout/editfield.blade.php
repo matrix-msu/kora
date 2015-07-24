@@ -8,4 +8,6 @@
     @include('records.fieldInputs.list-edit', ['list' => \App\ListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
 @elseif($field->type == 'Multi-Select List')
     @include('records.fieldInputs.mslist-edit', ['mslist' => \App\MultiSelectListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
+@elseif($field->type == 'Generated List')
+    @include('records.fieldInputs.genlist-edit', ['genlist' => \App\GeneratedListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
 @endif

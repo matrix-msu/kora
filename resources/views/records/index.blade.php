@@ -10,9 +10,7 @@
     <div><b>Internal Name:</b> {{ $form->slug }}</div>
     <div><b>Description:</b> {{ $form->description }}</div>
     <div>
-        @if(\Auth::user()->canIngestRecords($form))
         <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[New Record]</a>
-        @endif
     </div>
     <hr/>
     <h2>Records</h2>
@@ -58,6 +56,14 @@
                             @foreach($record->multiselectlistfields as $mslf)
                                 @if($mslf->flid == $field->flid)
                                     @foreach(explode('[!]',$mslf->options) as $opt)
+                                        <div>{{ $opt }}</div>
+                                    @endforeach
+                                @endif
+                            @endforeach
+                        @elseif($field->type=='Generated List')
+                            @foreach($record->generatedlistfields as $glf)
+                                @if($glf->flid == $field->flid)
+                                    @foreach(explode('[!]',$glf->options) as $opt)
                                         <div>{{ $opt }}</div>
                                     @endforeach
                                 @endif

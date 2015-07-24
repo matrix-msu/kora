@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\GeneratedListField;
 use App\User;
 use App\Record;
 use App\TextField;
@@ -132,6 +133,12 @@ class RecordController extends Controller {
                 $mslf->rid = $record->rid;
                 $mslf->options = FieldController::msListArrayToString($value);
                 $mslf->save();
+            } else if($field->type=='Generated List'){
+                $glf = new GeneratedListField();
+                $glf->flid = $field->flid;
+                $glf->rid = $record->rid;
+                $glf->options = FieldController::msListArrayToString($value);
+                $glf->save();
             }
         }
 
@@ -281,6 +288,19 @@ class RecordController extends Controller {
                     $mslf->rid = $record->rid;
                     $mslf->options = FieldController::msListArrayToString($value);
                     $mslf->save();
+                }
+            } else if($field->type=='Generated List'){
+                //we need to check if the field exist first
+                if(GeneratedListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
+                    $glf = GeneratedListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                    $glf->options = FieldController::msListArrayToString($value);
+                    $glf->save();
+                }else {
+                    $glf = new GeneratedListField();
+                    $glf->flid = $field->flid;
+                    $glf->rid = $record->rid;
+                    $glf->options = FieldController::msListArrayToString($value);
+                    $glf->save();
                 }
             }
         }

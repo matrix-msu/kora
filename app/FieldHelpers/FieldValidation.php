@@ -24,6 +24,8 @@ class FieldValidation {
             return FieldValidation::validateMultiSelectList($field, $value);
         } else if($field->type=='Rich Text' | $field->type=='Number'){
             return FieldValidation::validateDefault($field, $value);
+        } else if($field->type=='Generated List') {
+            return FieldValidation::validateGeneratedList($field, $value);
         }
         else{
             return 'Field does not have a type';
@@ -54,7 +56,7 @@ class FieldValidation {
         }
 
         if($value!='' && !in_array($value,$list)){
-            return "Value not in list of options";
+            return "Value for field ".$field->name." not in list of options";
         }
 
         return '';
@@ -69,7 +71,24 @@ class FieldValidation {
         }
 
         if(sizeof(array_diff($value,$list))>0){
-            return "Value not in list of options";
+            return "Value(s) for field ".$field->name." not in list of options";
+        }
+
+        return '';
+    }
+
+    static function validateGeneratedList($field, $value){
+        $req = $field->required;
+        $regex = FieldController::getFieldOption($field, 'Regex');
+
+        if($req==1 && ($value==null | $value=="")){
+            return $field->name.' field is required.';
+        }
+
+        foreach($value as $opt){
+            if(($regex!=null | $regex!="") && !preg_match($regex,$opt)){
+                return 'Value '.$opt.' for field '.$field->name.' does not match regex pattern.';
+            }
         }
 
         return '';

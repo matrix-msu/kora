@@ -94,11 +94,12 @@ class FieldController extends Controller {
             return view('fields.options.richtext', compact('field', 'form', 'proj'));
         }else if($field->type=="Number") {
             return view('fields.options.number', compact('field', 'form', 'proj'));
-
         }else if($field->type=="List") {
             return view('fields.options.list', compact('field', 'form', 'proj'));
         }else if($field->type=="Multi-Select List") {
             return view('fields.options.mslist', compact('field', 'form', 'proj'));
+        }else if($field->type=="Generated List") {
+            return view('fields.options.genlist', compact('field', 'form', 'proj'));
         }
 	}
 
@@ -185,7 +186,7 @@ class FieldController extends Controller {
 
         $field = FieldController::getField($flid);
 
-        if($field->type=='Multi-Select List' and !is_null($request->default)){
+        if(($field->type=='Multi-Select List' | $field->type=='Generated List') && !is_null($request->default)){
             $reqDefs = $request->default;
             $def = $reqDefs[0];
             for($i=1;$i<sizeof($reqDefs);$i++){
