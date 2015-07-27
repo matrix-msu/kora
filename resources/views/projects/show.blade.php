@@ -6,6 +6,11 @@
 
 @section('content')
     <h1>{{ $project->name }}</h1>
+
+    @include('partials.adminpanel')
+
+    <hr/>
+
     <div><b>Internal Name:</b> {{ $project->slug }}</div>
     <div><b>Description:</b> {{ $project->description }}</div>
 

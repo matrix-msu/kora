@@ -7,8 +7,23 @@
 
 @section('content')
     <span><h1>{{ $form->name }}</h1></span>
+
+    @include('partials.adminpanel')
+
+    <hr/>
+
     <div><b>Internal Name:</b> {{ $form->slug }}</div>
     <div><b>Description:</b> {{ $form->description }}</div>
+
+    @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
+        <form action="{{action('FormGroupController@index', ['fid'=>$form->fid])}}" style="display: inline">
+            <button type="submit" class="btn btn-default">Manage Groups</button>
+        </form>
+        <form action="{{action('RevisionController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
+            <button type="submit" class="btn btn-default">Revision History</button>
+        </form>
+    @endif
+
     <div>
         @if(\Auth::user()->canIngestRecords($form))
         <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[New Record]</a>
