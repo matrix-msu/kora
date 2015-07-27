@@ -37,6 +37,14 @@
                     @endforeach
                 @endif
             @endforeach
+        @elseif($field->type=='Generated List')
+            @foreach($record->generatedlistfields as $glf)
+                @if($glf->flid == $field->flid)
+                    @foreach(explode('[!]',$glf->options) as $opt)
+                        <div>{{ $opt }}</div>
+                    @endforeach
+                @endif
+            @endforeach
         @endif
     </span>
 </div>

@@ -8,4 +8,6 @@
     @include('records.fieldInputs.list')
 @elseif($field->type == 'Multi-Select List')
     @include('records.fieldInputs.mslist')
+@elseif($field->type == 'Generated List')
+    @include('records.fieldInputs.genlist')
 @endif
