@@ -90,17 +90,20 @@
         });
         $('.list_option_form').on('click', '.add_option', function(){
             val = $('.new_list_option').val();
+            val = val.trim();
 
-            $('.list_options').append($("<option/>", {
-                value: val,
-                text: val
-            }));
-            $('#default').append($("<option/>", {
-                value: val,
-                text: val
-            }));
-            $('.new_list_option').val('');
-            SaveList();
+            if(val != '') {
+                $('.list_options').append($("<option/>", {
+                    value: val,
+                    text: val
+                }));
+                $('#default').append($("<option/>", {
+                    value: val,
+                    text: val
+                }));
+                $('.new_list_option').val('');
+                SaveList();
+            }
         });
 
         function SaveList() {

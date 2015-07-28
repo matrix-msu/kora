@@ -167,8 +167,6 @@ class RecordController extends Controller {
         $form = FormController::getForm($fid);
         $record = RecordController::getRecord($rid);
 
-        dd($record->textfields()->get());
-
         $owner = User::where('id', '=', $record->owner)->first();
 
         return view('records.show', compact('record', 'form', 'pid', 'owner'));

@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Field;
 use App\Record;
 use App\Revision;
 use App\Http\Requests;
@@ -33,27 +34,27 @@ class RevisionController extends Controller {
 
 	public static function storeRevision($rid, $type)
     {
-//        $revision = new Revision();
-//        $record = RecordController::getRecord($rid);
-//
-//        /* Have to see which method is better, for now we'll use toJson.
-//           Alternative method is presented here. The base64_encode method might end up working
-//           better for data other than simple text.
-//
-//        $revision->data = base64_encode(serialize($record));
-//        To decode: $decode = unserialize(base64_decode(serialize($revision->data)));
-//        */
-//
-//        $fid = $record->form()->first()->fid;
-//        $revision->fid = $fid;
-//        $revision->rid = $record->rid;
-//        $revision->userId = \Auth::user()->id;
-//        $revision->type = $type;
-//
-//        $revision->data = RevisionController::buildDataArray($record);
-//
-//        $revision->rollback = 1;
-//        $revision->save();
+        $revision = new Revision();
+        $record = RecordController::getRecord($rid);
+
+        /* Have to see which method is better, for now we'll use toJson.
+           Alternative method is presented here. The base64_encode method might end up working
+           better for data other than simple text.
+
+        $revision->data = base64_encode(serialize($record));
+        To decode: $decode = unserialize(base64_decode(serialize($revision->data)));
+        */
+
+        $fid = $record->form()->first()->fid;
+        $revision->fid = $fid;
+        $revision->rid = $record->rid;
+        $revision->userId = \Auth::user()->id;
+        $revision->type = $type;
+
+        $revision->data = RevisionController::buildDataArray($record);
+
+        $revision->rollback = 1;
+        $revision->save();
     }
 
     public static function buildDataArray(Record $record)
@@ -70,11 +71,71 @@ class RevisionController extends Controller {
                 $text[$textfield->flid]['name'] = $name;
                 $text[$textfield->flid]['data'] = $textfield->text;
             }
-            $data['text'] = $text;
+            $data['textfields'] = $text;
+        }
+        if (!is_null($record->richtextfields()->first())){
+            $richtext = array();
+            $rtfields = $record->richtextfields()->get();
+            foreach($rtfields as $rtfield)
+            {
+                $name = Field::where('flid', '=', $rtfield->flid)->first()->name;
+
+                $richtext[$rtfield->flid]['name'] = $name;
+                $richtext[$rtfield->flid]['data'] = $rtfield->rawtext;
+            }
+            $data['richtextfields'] = $richtext;
+        }
+        if(!is_null($record->numberfields()->first())){
+            $number = array();
+            $numberfields = $record->numberfields()->get();
+            foreach($numberfields as $numberfield)
+            {
+                $name = Field::where('flid', '=', $rtfield->flid)->first()->name;
+
+                $number[$numberfield->flid]['name'] = $name;
+                $number[$numberfield->flid]['data'] = $numberfield->number;
+            }
+            $data['numberfields'] = $number;
+        }
+        if(!is_null($record->listfields()->first())){
+            $list = array();
+            $listfields = $record->listfields()->get();
+            foreach($listfields as $listfield)
+            {
+                $name = Field::where('flid', '=', $listfield->flid)->first()->name;
+
+                $list[$listfield->flid]['name'] = $name;
+                $list[$listfield->flid]['data'] = $listfield->option;
+            }
+            $data['listfields'] = $list;
+        }
+        if(!is_null($record->multiselectlistfields()->first())){
+            $msl = array();
+            $mslfields = $record->multiselectlistfields()->get();
+            foreach($mslfields as $mslfield)
+            {
+                $name = Field::where('flid', '=', $mslfield->flid)->first()->name;
+
+                $msl[$mslfield->flid]['name'] = $name;
+                $msl[$mslfield->flid]['data'] = $mslfield->options;
+            }
+            $data['multiselectlistfields'] = $msl;
+        }
+        if(!is_null($record->generatedlistfields()->first())){
+            $genlist = array();
+            $genlistfields = $record->generatedlistfields()->get();
+            foreach($genlistfields as $genlistfield)
+            {
+                $name = Field::where('flid', '=', $genlistfield->flid)->first()->name;
+
+                $genlist[$genlistfield->flid]['name'] = $name;
+                $genlist[$genlistfield->flid]['data'] = $genlistfield->options;
+            }
+            $data['generatedlistfields'] = $genlist;
         }
 
+        return serialize($data);
     }
-
 
     public static function wipeRollbacks($fid)
     {

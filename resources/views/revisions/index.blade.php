@@ -11,33 +11,59 @@
         <div class="row">
             <div class="col-md-10 col-md-offset-1">
                 <div class="panel panel-default">
+
                     <div class="panel-heading">
                         <h3>{{$message}} Revision History</h3>
                     </div>
 
                     <div class="panel-body">
                         @foreach($revisions as $revision)
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    {{$form->pid}}-{{$revision->fid}}-{{$revision->rid}}
-                                    <span class="pull-right">{{ ucfirst($revision->type) }}</span>
-                                </div>
+                            <?php $data = unserialize($revision->data) ?>
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        {{$form->pid}}-{{$revision->fid}}-{{$revision->rid}}
+                                        <span class="pull-right">{{ ucfirst($revision->type) }}</span>
+                                    </div>
 
-                                <div class="collapseTest" style="display: none">
-                                    <div class="panel-body">
-                                        <div>Type: {{$revision->type}}</div>
-                                        <div>Data: {{var_dump(json_decode($revision->data))}}</div>
+                                    <div class="collapseTest" style="display: none">
+                                        <div>Revision Type: {{$revision->type}}</div>
+                                        <div class="panel panel-default">
+                                            <div>
+                                                <b>Record: </b> {{$form->pid}}-{{$revision->fid}}-{{$revision->rid}}
+                                            </div>
+                                            @foreach($form->fields()->get() as $field)
+                                                <div>
+                                                    <span><b>{{$field->name}}:</b></span>
+                                                        <span>
+                                                            @if($field->type=='Text')
+                                                                {{$data['textfields'][$field->flid]['data']}}
+                                                            @elseif($field->type=='Rich Text')
+                                                                {{$data['richtextfields'][$field->flid]['data']}}
+                                                            @elseif($field->type=='Number')
+                                                                <?php
+                                                                echo $data['numberfields'][$field->flid]['data'];
+                                                                if($data['numberfields'][$field->flid]['data'] != '')
+                                                                    echo ' '.App\Http\Controllers\FieldController::getFieldOption($field,'Unit');
+                                                                ?>
+                                                            @elseif($field->type=='List')
+                                                                {{$data['listfields'][$field->flid]['data']}}
+                                                            @elseif($field->type=='Multi-Select List')
+                                                                @foreach(explode('[!]', $data['multiselectlistfields'][$field->flid]['data']) as $opt )
+                                                                    <div>{{$opt}}</div>
+                                                                @endforeach
+                                                            @elseif($field->type=='Generated List')
+                                                                @foreach(explode('[!]', $data['generatedlistfields'][$field->flid]['data']) as $opt)
+                                                                    <div>{{$opt}}</div>
+                                                                @endforeach
+                                                            @endif
+                                                        </span>
+                                                </div>
+                                            @endforeach
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-
-
                         @endforeach
-
                     </div>
-
-
-
                 </div>
             </div>
         </div>
