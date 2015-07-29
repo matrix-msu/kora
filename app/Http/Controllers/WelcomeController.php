@@ -4,6 +4,7 @@ use \Illuminate\Support\Facades\App;
 Use \Illuminate\Support\Facades\Request;
 use \Illuminate\Support\Facades\Session;
 use \Illuminate\Support\Facades\Config;
+use \Illuminate\Support\Facades\Artisan;
 
 class WelcomeController extends Controller {
 
@@ -40,9 +41,15 @@ class WelcomeController extends Controller {
 	 */
 	public function index(Request $request)
 	{
-        $languages_available = Config::get('app.locales_supported');
 
-		return view('welcome',compact('languages_available'));
+		$languages_available = Config::get('app.locales_supported');
+		$not_installed = true;
+		if(!file_exists("../.env")){
+			return view('welcome',compact('languages_available','not_installed'));
+		}
+		else{
+			return view('welcome',compact('languages_available'));
+		}
 	}
 
     public  function setTemporaryLanguage(Request $request){

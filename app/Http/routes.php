@@ -90,6 +90,13 @@ Route::post('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@sto
 Route::delete('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@destroy');
 Route::get('/projects/{pid}/forms/{fid}/metadata','MetadataController@records');
 
+//install routes
+Route::get('/install','InstallController@index');
+Route::post('/install','InstallController@install');
+Route::get('/install/migrate',"InstallController@runMigrate");
+
+
+
 
 Route::controllers([
 	'auth' => 'Auth\AuthController',

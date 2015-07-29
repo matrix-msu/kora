@@ -22,9 +22,12 @@
 </head>
 <br /><br /><br />
 <body>
+		@if(isset($not_installed))
+			@include('partials.install_nav')
+		@else
+			@include('partials.nav')
+		@endif
 
-	@include('partials.nav')
-	
     <div class="container">
 		@include('flash::message')
 	
