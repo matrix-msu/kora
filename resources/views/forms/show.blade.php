@@ -7,6 +7,11 @@
 
 @section('content')
     <span><h1>{{ $form->name }}</h1></span>
+
+    @include('partials.adminpanel')
+
+    <hr/>
+
     <div><b>Internal Names:</b> {{ $form->slug }}</div>
     <div><b>Description:</b> {{ $form->description }}</div>
 

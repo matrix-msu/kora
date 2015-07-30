@@ -25,7 +25,6 @@ class CreateFieldsTable extends Migration {
             $table->boolean('required');
             $table->string('default')->nullable();
             $table->string('options')->nullable();
-            $table->boolean('recentupdate');
 			$table->timestamps();
 
             $table->foreign(['pid', 'fid'])->references(['pid', 'fid'])->on('forms')->onDelete('cascade');

@@ -7,8 +7,23 @@
 
 @section('content')
     <span><h1>{{ $form->name }}</h1></span>
+
+    @include('partials.adminpanel')
+
+    <hr/>
+
     <div><b>Internal Name:</b> {{ $form->slug }}</div>
     <div><b>Description:</b> {{ $form->description }}</div>
+
+    @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
+        <form action="{{action('FormGroupController@index', ['fid'=>$form->fid])}}" style="display: inline">
+            <button type="submit" class="btn btn-default">Manage Groups</button>
+        </form>
+        <form action="{{action('RevisionController@index', ['fid'=>$form->fid, 'pid'=>$form->pid])}}" style="display: inline">
+            <button type="submit" class="btn btn-default">Revision History</button>
+        </form>
+    @endif
+
     <div>
         <a href="{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}">[Records]</a>
         @if(\Auth::user()->canIngestRecords($form))
@@ -31,6 +46,11 @@
             <span>
                 @if(\Auth::user()->canDestroyRecords($form) || \Auth::user()->isOwner($record))
                 <a onclick="deleteRecord()" href="javascript:void(0)">[Delete]</a>
+                @endif
+            </span>
+            <span>
+                @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
+                <a href='{{action('RevisionController@show', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid])}}'>[History]</a>
                 @endif
             </span>
         </div>

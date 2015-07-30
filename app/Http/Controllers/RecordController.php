@@ -74,7 +74,6 @@ class RecordController extends Controller {
 	 */
 	public function store($pid, $fid, Request $request)
 	{
-
         if(!FormController::validProjForm($pid,$fid)){
             return redirect('projects');
         }
@@ -153,6 +152,8 @@ class RecordController extends Controller {
             }
         }
 
+        RevisionController::storeRevision($record->rid, 'create');
+
         flash()->overlay('Your record has been successfully created!', 'Good Job!');
 
         return redirect('projects/'.$pid.'/forms/'.$fid.'/records');
@@ -176,6 +177,7 @@ class RecordController extends Controller {
 
         $form = FormController::getForm($fid);
         $record = RecordController::getRecord($rid);
+
         $owner = User::where('id', '=', $record->owner)->first();
 
         return view('records.show', compact('record', 'form', 'pid', 'owner'));
@@ -229,6 +231,8 @@ class RecordController extends Controller {
 
         $record = Record::where('rid', '=', $rid)->first();
         $record->save();
+
+        RevisionController::storeRevision($record->rid, 'edit');
 
         foreach($request->all() as $key => $value){
             if(!is_numeric($key)){
@@ -359,6 +363,9 @@ class RecordController extends Controller {
         }
 
         $record = RecordController::getRecord($rid);
+
+        RevisionController::storeRevision($record->rid, 'delete');
+
         $record->delete();
 
         flash()->overlay('Your record has been successfully deleted!', 'Good Job!');

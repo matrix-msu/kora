@@ -51,7 +51,6 @@ class FieldController extends Controller {
 	public function store(FieldRequest $request)
     {
         $field = Field::Create($request->all());
-        $field->recentupdate = 0;
         $field->options = FieldDefaults::getOptions($field->type);
         $field->default = FieldDefaults::getDefault($field->type);
         $field->save();
@@ -152,6 +151,8 @@ class FieldController extends Controller {
 
         $field->update($request->all());
 
+        RevisionController::wipeRollbacks($fid);
+
         flash()->overlay('Your field has been successfully updated!', 'Good Job!');
 
         return redirect('projects/'.$pid.'/forms/'.$fid);
@@ -171,6 +172,8 @@ class FieldController extends Controller {
 
         $field->required = $request->required;
         $field->save();
+
+        RevisionController::wipeRollbacks($fid);
 
         flash()->success('Option updated!');
 
@@ -210,6 +213,8 @@ class FieldController extends Controller {
 
         $field->save();
 
+        RevisionController::wipeRollbacks($fid);
+
         flash()->success('Option updated!');
 
         return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
@@ -228,6 +233,8 @@ class FieldController extends Controller {
         $field = FieldController::getField($flid);
 
         FieldController::setFieldOptions($field, $request->option, $request->value);
+
+        RevisionController::wipeRollbacks($fid);
 
         flash()->success('Option updated!');
 

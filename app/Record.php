@@ -14,7 +14,7 @@ class Record extends Model {
     protected $primaryKey = "rid";
 
     public function form(){
-        return $this->belongsTo('App\Form');
+        return $this->belongsTo('App\Form', 'fid');
     }
 
     public function textfields(){
