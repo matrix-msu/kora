@@ -44,7 +44,7 @@
             {!! Form::select('value', ['no','yes'], \App\Http\Controllers\FieldController::getFieldOption($field,'MultiLine'), ['class' => 'form-control']) !!}
         </div>
         <div class="form-group">
-            {!! Form::submit("Update Regex",['class' => 'btn btn-primary form-control']) !!}
+            {!! Form::submit("Update Multi-Line",['class' => 'btn btn-primary form-control']) !!}
         </div>
     {!! Form::close() !!}
 

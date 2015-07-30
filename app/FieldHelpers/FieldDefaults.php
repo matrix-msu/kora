@@ -20,6 +20,8 @@ class FieldDefaults {
             return '[!Options!][!Options!]';
         }else if($type=='Generated List'){
             return '[!Regex!][!Regex!][!Options!][!Options!]';
+        }else if($type=='Date'){
+            return '[!Circa!]No[!Circa!][!Start!]1900[!Start!][!End!]2020[!End!][!Format!]MMDDYYYY[!Format!][!Era!]Off[!Era!]';
         }
         else{
             return '';
@@ -27,8 +29,8 @@ class FieldDefaults {
     }
 
     static function getDefault($type){
-        if($type=="Text"){
-            return '';
+        if($type=="Date"){
+            return '[M][M][D][D][Y][Y]';
         }
         else{
             return '';

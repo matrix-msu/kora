@@ -10,4 +10,6 @@
     @include('records.fieldInputs.mslist-edit', ['mslist' => \App\MultiSelectListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
 @elseif($field->type == 'Generated List')
     @include('records.fieldInputs.genlist-edit', ['genlist' => \App\GeneratedListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
+@elseif($field->type == 'Date')
+    @include('records.fieldInputs.date-edit', ['date' => \App\DateField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
 @endif

@@ -101,6 +101,8 @@ class FieldController extends Controller {
             return view('fields.options.mslist', compact('field', 'form', 'proj'));
         }else if($field->type=="Generated List") {
             return view('fields.options.genlist', compact('field', 'form', 'proj'));
+        }else if($field->type=="Date") {
+            return view('fields.options.date', compact('field', 'form', 'proj'));
         }
 	}
 
@@ -194,6 +196,14 @@ class FieldController extends Controller {
                 $def .= '[!]'.$reqDefs[$i];
             }
             $field->default = $def;
+        }else if ($field->type=='Date'){
+            if(FieldController::validateDate($request->default_month,$request->default_day,$request->default_year))
+                $field->default = '[M]'.$request->default_month.'[M][D]'.$request->default_day.'[D][Y]'.$request->default_year.'[Y]';
+            else{
+                flash()->error('Invalid date. Either day given w/ no month provided, or day and month are impossible.');
+
+                return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            }
         }else{
             $field->default = $request->default;
         }
@@ -414,5 +424,17 @@ class FieldController extends Controller {
         }
 
         return '';
+    }
+
+    public static function validateDate($m,$d,$y){
+        if($d!='' && !is_null($d)) {
+            if ($m == '' | is_null($m)) {
+                return false;
+            } else {
+                return checkdate($m, $d, $y);
+            }
+        }
+
+        return true;
     }
 }
