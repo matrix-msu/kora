@@ -48,6 +48,11 @@
                 <a onclick="deleteRecord()" href="javascript:void(0)">[Delete]</a>
                 @endif
             </span>
+            <span>
+                @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
+                <a href='{{action('RevisionController@show', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid])}}'>[History]</a>
+                @endif
+            </span>
         </div>
     </div>
 @stop

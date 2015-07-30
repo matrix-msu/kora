@@ -26,11 +26,25 @@ class RevisionController extends Controller {
         return view('revisions.index', compact('revisions', 'records', 'form', 'message'));
     }
 
-    public function show($rid, $fid, $pid)
+    public function show($pid, $fid, $rid)
     {
-        return true;
-    }
+        if(!RecordController::validProjFormRecord($pid, $fid, $rid)){
+            return redirect('projects/'.$pid.'/forms');
+        }
 
+        if(!\Auth::user()->admin || !\Auth::user()->isFormAdmin(FormController::getForm($fid)))
+        {
+            return redirect('projects/'.$pid.'/forms/'.$fid);
+        }
+
+        $revisions = DB::table('revisions')->where('rid', '=', $rid)->orderBy('created_at','desc')->take(50)->get();
+
+        $records = Record::lists('kid', 'rid');
+        $form = FormController::getForm($fid);
+        $message = $pid.'-'.$fid.'-'.$rid;
+
+        return view('revisions.index', compact('revisions', 'records', 'form', 'message'))->render();
+    }
 
 	public static function storeRevision($rid, $type)
     {
@@ -139,7 +153,12 @@ class RevisionController extends Controller {
 
     public static function wipeRollbacks($fid)
     {
-        //wipe all the rollbacks
-    }
+        $revisions = Revision::where('fid','=',$fid)->get();
 
+        foreach($revisions as $revision)
+        {
+            $revision->rollback = 0;
+            $revision->save();
+        }
+    }
 }

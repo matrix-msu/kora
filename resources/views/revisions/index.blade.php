@@ -27,6 +27,7 @@
 
                                     <div class="collapseTest" style="display: none">
                                         <div>Revision Type: {{$revision->type}}</div>
+                                        <div>Rollback: @if($revision->rollback)True @else False @endif</div>
                                         <div class="panel panel-default">
                                             <div>
                                                 <b>Record: </b> {{$form->pid}}-{{$revision->fid}}-{{$revision->rid}}
@@ -63,6 +64,11 @@
                                     </div>
                                 </div>
                         @endforeach
+
+                        {!! Form::label('search', 'Search Record Revisions: ') !!}
+                        {!! Form::select('search', $records, ['class'=>'form-control', 'id'=>'search']) !!}
+                        <button class="btn btn-primary" onclick="showRecordRevisions()">Show Record Revisions</button>
+
                     </div>
                 </div>
             </div>
@@ -74,6 +80,13 @@
 
 @section('footer')
     <script>
+    $('#search').select2();
+
+    function showRecordRevisions() {
+        var rid = $('#search').val();
+        window.location.href = rid;
+    }
+
     $(".panel-heading").on("click", function(){
         if($(this).siblings('.collapseTest').css('display') == 'none') {
             $(this).siblings('.collapseTest').slideDown();
