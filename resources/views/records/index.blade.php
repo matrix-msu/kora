@@ -87,9 +87,6 @@
                     </span>
                 </div>
             @endforeach
-            @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
-                <a href='{{action('RevisionController@show', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid])}}'>[History]</a>
-            @endif
         </div>
     @endforeach
 @stop

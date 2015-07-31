@@ -73,6 +73,7 @@ Route::post('/projects/{pid}/forms/{fid}/records','RecordController@store');
 //revision routes
 Route::get('/projects/{pid}/forms/{fid}/records/revisions/recent', 'RevisionController@index');
 Route::get('/projects/{pid}/forms/{fid}/records/revisions/{rid}', 'RevisionController@show');
+Route::get('/rollback', 'RevisionController@rollback');
 
 //user routes
 Route::get('/user', 'Auth\UserController@index');
