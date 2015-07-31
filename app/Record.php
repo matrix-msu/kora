@@ -41,6 +41,10 @@ class Record extends Model {
         return $this->hasMany('App\GeneratedListField', 'rid');
     }
 
+    public function datefields(){
+        return $this->hasMany('App\DateField', 'rid');
+    }
+
     public function owner(){
         return $this->hasOne('App\User', 'owner');
     }

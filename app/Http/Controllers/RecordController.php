@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\DateField;
 use App\GeneratedListField;
 use App\User;
 use App\Record;
@@ -78,10 +79,10 @@ class RecordController extends Controller {
         }
 
         foreach($request->all() as $key => $value){
-            if($key=='_token' | $key=='userId'){
+            if(!is_numeric($key)){
                 continue;
             }
-            $message = FieldValidation::validateField($key, $value);
+            $message = FieldValidation::validateField($key, $value, $request);
             if($message != ''){
                 flash()->error($message);
 
@@ -98,7 +99,7 @@ class RecordController extends Controller {
         $record->save();
 
         foreach($request->all() as $key => $value){
-            if($key=='_token' | $key=='userId'){
+            if(!is_numeric($key)){
                 continue;
             }
             $field = FieldController::getField($key);
@@ -138,6 +139,16 @@ class RecordController extends Controller {
                 $glf->rid = $record->rid;
                 $glf->options = FieldController::msListArrayToString($value);
                 $glf->save();
+            } else if($field->type=='Date' && $request->input('year_'.$field->flid)!=''){
+                $df = new DateField();
+                $df->flid = $field->flid;
+                $df->rid = $record->rid;
+                $df->circa = $request->input('circa_'.$field->flid, '');
+                $df->month = $request->input('month_'.$field->flid);
+                $df->day = $request->input('day_'.$field->flid);
+                $df->year = $request->input('year_'.$field->flid);
+                $df->era = $request->input('era_'.$field->flid, 'CE');
+                $df->save();
             }
         }
 
@@ -207,10 +218,10 @@ class RecordController extends Controller {
         }
 
         foreach($request->all() as $key => $value){
-            if($key=='_token' | $key=='_method'){
+            if(!is_numeric($key)){
                 continue;
             }
-            $message = FieldValidation::validateField($key, $value);
+            $message = FieldValidation::validateField($key, $value, $request);
             if($message != ''){
                 flash()->error($message);
 
@@ -224,7 +235,7 @@ class RecordController extends Controller {
         RevisionController::storeRevision($record->rid, 'edit');
 
         foreach($request->all() as $key => $value){
-            if($key=='_token' | $key=='_method'){
+            if(!is_numeric($key)){
                 continue;
             }
             $field = FieldController::getField($key);
@@ -305,6 +316,27 @@ class RecordController extends Controller {
                     $glf->rid = $record->rid;
                     $glf->options = FieldController::msListArrayToString($value);
                     $glf->save();
+                }
+            } else if($field->type=='Date'){
+                //we need to check if the field exist first
+                if(DateField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
+                    $df = DateField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                    $df->circa = $request->input('circa_'.$field->flid, '');
+                    $df->month = $request->input('month_'.$field->flid);
+                    $df->day = $request->input('day_'.$field->flid);
+                    $df->year = $request->input('year_'.$field->flid);
+                    $df->era = $request->input('era_'.$field->flid, 'CE');
+                    $df->save();
+                }else {
+                    $df = new DateField();
+                    $df->flid = $field->flid;
+                    $df->rid = $record->rid;
+                    $df->circa = $request->input('circa_'.$field->flid, '');
+                    $df->month = $request->input('month_'.$field->flid);
+                    $df->day = $request->input('day_'.$field->flid);
+                    $df->year = $request->input('year_'.$field->flid);
+                    $df->era = $request->input('era_'.$field->flid, 'CE');
+                    $df->save();
                 }
             }
         }

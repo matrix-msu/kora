@@ -10,4 +10,6 @@
     @include('records.fieldInputs.mslist')
 @elseif($field->type == 'Generated List')
     @include('records.fieldInputs.genlist')
+@elseif($field->type == 'Date')
+    @include('records.fieldInputs.date')
 @endif

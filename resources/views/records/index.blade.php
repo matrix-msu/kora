@@ -83,6 +83,28 @@
                                     @endforeach
                                 @endif
                             @endforeach
+                        @elseif($field->type=='Date')
+                            @foreach($record->datefields as $df)
+                                @if($df->flid == $field->flid)
+                                    @if($df->circa==1 && \App\Http\Controllers\FieldController::getFieldOption($field,'Circa')=='Yes')
+                                        {{'circa '}}
+                                    @endif
+                                    @if($df->month==0 && $df->day==0)
+                                        {{$df->year}}
+                                    @elseif($df->day==0)
+                                        {{ $df->month.' '.$df->year }}
+                                    @elseif(\App\Http\Controllers\FieldController::getFieldOption($field,'Format')=='MMDDYYYY')
+                                        {{$df->month.'-'.$df->day.'-'.$df->year}}
+                                    @elseif(\App\Http\Controllers\FieldController::getFieldOption($field,'Format')=='DDMMYYYY')
+                                        {{$df->day.'-'.$df->month.'-'.$df->year}}
+                                    @elseif(\App\Http\Controllers\FieldController::getFieldOption($field,'Format')=='YYYYMMDD')
+                                        {{$df->year.'-'.$df->month.'-'.$df->day}}
+                                    @endif
+                                    @if(\App\Http\Controllers\FieldController::getFieldOption($field,'Era')=='Yes')
+                                        {{' '.$df->era}}
+                                    @endif
+                                @endif
+                            @endforeach
                         @endif
                     </span>
                 </div>

@@ -14,7 +14,7 @@ use App\Http\Controllers\FieldController;
 
 class FieldValidation {
 
-    static function validateField($field, $value){
+    static function validateField($field, $value, $request){
         $field = FieldController::getField($field);
         if($field->type=='Text'){
             return FieldValidation::validateText($field, $value);
@@ -26,6 +26,8 @@ class FieldValidation {
             return FieldValidation::validateDefault($field, $value);
         } else if($field->type=='Generated List') {
             return FieldValidation::validateGeneratedList($field, $value);
+        } else if($field->type=='Date') {
+            return FieldValidation::validateDate($field, $request);
         }
         else{
             return 'Field does not have a type';
@@ -89,6 +91,29 @@ class FieldValidation {
             if(($regex!=null | $regex!="") && !preg_match($regex,$opt)){
                 return 'Value '.$opt.' for field '.$field->name.' does not match regex pattern.';
             }
+        }
+
+        return '';
+    }
+
+    static function validateDate($field, $request){
+        $req = $field->required;
+        $start = FieldController::getFieldOption($field,'Start');
+        $end = FieldController::getFieldOption($field,'End');
+        $month = $request->input('month_'.$field->flid,'');
+        $day = $request->input('day_'.$field->flid,'');
+        $year = $request->input('year_'.$field->flid,'');
+
+        if($req==1 && $month=='' && $day=='' && $year==''){
+            return $field->name.' field is required.';
+        }
+
+        if(($year<$start | $year>$end) && ($month!='' | $day!='')){
+            return 'Year supplied for field '.$field->name.' is not in the range of '.$start.' and '.$end.'.';
+        }
+
+        if(!FieldController::validateDate($month,$day,$year)){
+            return 'Invalid date for field '.$field->name.'. Either day given w/ no month provided, or day and month are impossible.';
         }
 
         return '';
