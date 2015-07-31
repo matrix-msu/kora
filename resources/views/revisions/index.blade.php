@@ -42,7 +42,7 @@
                                                             @if($field->type=='Text')
                                                                 {{$data['textfields'][$field->flid]['data']}}
                                                             @elseif($field->type=='Rich Text')
-                                                                {{$data['richtextfields'][$field->flid]['data']}}
+                                                                <?php echo $data['richtextfields'][$field->flid]['data']; ?>
                                                             @elseif($field->type=='Number')
                                                                 <?php
                                                                 echo $data['numberfields'][$field->flid]['data'];
