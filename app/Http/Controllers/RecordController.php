@@ -232,7 +232,7 @@ class RecordController extends Controller {
         $record = Record::where('rid', '=', $rid)->first();
         $record->save();
 
-        RevisionController::storeRevision($record->rid, 'edit');
+        $revision = RevisionController::storeRevision($record->rid, 'edit');
 
         foreach($request->all() as $key => $value){
             if(!is_numeric($key)){
@@ -341,6 +341,9 @@ class RecordController extends Controller {
             }
         }
 
+        $revision->oldData = RevisionController::buildDataArray($record);
+        $revision->save();
+
         flash()->overlay('Your record has been successfully updated!', 'Good Job!');
 
         return redirect('projects/'.$pid.'/forms/'.$fid.'/records/'.$rid);
@@ -376,6 +379,11 @@ class RecordController extends Controller {
         $record = Record::where('rid', '=', $rid)->first();
 
         return $record;
+    }
+
+    public static function exists($rid)
+    {
+        return !is_null(Record::where('rid','=',$rid)->first());
     }
 
     public static function validProjFormRecord($pid, $fid, $rid)
