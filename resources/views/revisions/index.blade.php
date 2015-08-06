@@ -28,6 +28,9 @@
                                     <div class="collapseTest" style="display: none">
                                         <div>Revision Type: {{$revision->type}}</div>
                                         <div>Rollback: @if($revision->rollback)True @else False @endif</div>
+                                        @if($revision->rollback)
+                                            <a href="javascript:void(0)" onclick="rollback({{$revision->id}})">[Rollback Record]</a>
+                                        @endif
                                         <div class="panel panel-default">
                                             <div>
                                                 <b>Record: </b> {{$form->pid}}-{{$revision->fid}}-{{$revision->rid}}
@@ -39,7 +42,7 @@
                                                             @if($field->type=='Text')
                                                                 {{$data['textfields'][$field->flid]['data']}}
                                                             @elseif($field->type=='Rich Text')
-                                                                {{$data['richtextfields'][$field->flid]['data']}}
+                                                                <?php echo $data['richtextfields'][$field->flid]['data']; ?>
                                                             @elseif($field->type=='Number')
                                                                 <?php
                                                                 echo $data['numberfields'][$field->flid]['data'];
@@ -85,6 +88,23 @@
     function showRecordRevisions() {
         var rid = $('#search').val();
         window.location.href = rid;
+    }
+
+    function rollback(revision) {
+        resp = confirm('Are you sure you want to roll this record back?');
+        if(resp) {
+            $.ajax({
+              url: '{{action('RevisionController@rollback')}}',
+              type: 'GET',
+              data: {
+                  "_token": "{{ csrf_token() }}",
+                  "revision": revision
+              },
+              success: function(){
+                  location.reload();
+              }
+            });
+        }
     }
 
     $(".panel-heading").on("click", function(){

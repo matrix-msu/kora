@@ -46,14 +46,76 @@ class RevisionController extends Controller {
         return view('revisions.index', compact('revisions', 'records', 'form', 'message'))->render();
     }
 
+    public function rollback(Request $request)
+    {
+        $revision = Revision::where('id', '=', $request['revision'])->first();
+        $record = RecordController::getRecord($revision->rid);
+        $form = FormController::getForm($record->fid);
+        $data = unserialize($revision->data);
+
+        RevisionController::storeRevision($record->rid, 'rollback');
+
+        foreach($form->fields()->get() as $field)
+            if ($field->type == 'Text'){
+                foreach($record->textfields()->get() as $textfield){
+                    if($textfield->flid == $field->flid){
+                        $textfield['text'] = $data['textfields'][$field->flid]['data'];
+                        $textfield->save();
+                    }
+                }
+            }
+            elseif ($field->type == 'Rich Text'){
+                foreach($record->richtextfields()->get() as $rtfield){
+                    if($rtfield->flid == $field->flid){
+                        $rtfield['rawtext'] = $data['richtextfields'][$field->flid]['data'];
+                        $rtfield->save();
+                    }
+                }
+            }
+            elseif ($field->type == 'Number'){
+                foreach($record->numberfields()->get() as $numberfield){
+                    if($numberfield->flid == $field->flid){
+                        $numberfield['number'] = $data['numberfields'][$field->flid]['data'];
+                        $numberfield->save();
+                    }
+                }
+            }
+            elseif ($field->type == 'List'){
+                foreach($record->listfields()->get() as $listfield){
+                    if($listfield->flid == $field->flid){
+                        $listfield['option'] = $data['listfields'][$field->flid]['data'];
+                        $listfield->save();
+                    }
+                }
+            }
+            elseif ($field->type == 'Multi-Select List'){
+                foreach($record->multiselectlistfields()->get() as $mslfield){
+                    if($mslfield->flid == $field->flid){
+                        $mslfield['options'] = $data['multiselectlistfields'][$field->flid]['data'];
+                        $mslfield->save();
+                    }
+                }
+            }
+            elseif ($field->type == 'Generated List') {
+                foreach ($record->generatedlistfields()->get() as $genlistfield) {
+                    if ($genlistfield->flid == $field->flid) {
+                        $genlistfield['options'] = $data['generatedlistfields'][$field->flid]['data'];
+                        $genlistfield->save();
+                    }
+                }
+            }
+
+        flash()->overlay('Record '.$form->pid.'-'.$form->fid.'-'.$record->rid.' has been rolled back.', 'Success!');
+    }
+
 	public static function storeRevision($rid, $type)
     {
         $revision = new Revision();
         $record = RecordController::getRecord($rid);
 
-        /* Have to see which method is better, for now we'll use toJson.
+        /* Have to see which method is better, for now we'll use serialize.
            Alternative method is presented here. The base64_encode method might end up working
-           better for data other than simple text.
+           better for data other than simple text and lists.
 
         $revision->data = base64_encode(serialize($record));
         To decode: $decode = unserialize(base64_decode(serialize($revision->data)));
