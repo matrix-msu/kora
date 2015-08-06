@@ -111,6 +111,7 @@ class RevisionController extends Controller {
         }
         else{
             $record = RecordController::getRecord($revision->rid);
+
             RevisionController::redo($record, $form, $revision, true);
 
             flash()->overlay('Record '.$form->pid.'-'.$form->fid.'-'.$record->rid.' has been rolled back.', 'Success!');
@@ -122,8 +123,9 @@ class RevisionController extends Controller {
         $data = json_decode($revision->data, true);
 
         if($flag) {
-            $revision = RevisionController::storeRevision($record->rid, 'rollback');
-            $revision->oldData = RevisionController::buildDataArray($record);
+            $new_revision = RevisionController::storeRevision($record->rid, 'rollback');
+            $new_revision->oldData = $revision->data;
+            $new_revision->save();
         }
 
         foreach($form->fields()->get() as $field) {
