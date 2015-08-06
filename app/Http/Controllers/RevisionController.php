@@ -25,6 +25,14 @@ class RevisionController extends Controller {
     }
 
     public function index($fid){
+
+        if(!\Auth::user()->admin || !\Auth::user()->isFormAdmin(FormController::getForm($fid)))
+        {
+            $pid = FormController::getForm($fid)->pid;
+            flash()->overlay('You do not have permission to view that page.', 'Whoops.');
+            return redirect('projects/'.$pid.'/forms/'.$fid);
+        }
+
         $revisions = DB::table('revisions')->where('fid', '=', $fid)->orderBy('created_at', 'desc')->take(50)->get();
 
         $records = Record::lists('kid', 'rid');
@@ -42,6 +50,7 @@ class RevisionController extends Controller {
 
         if(!\Auth::user()->admin || !\Auth::user()->isFormAdmin(FormController::getForm($fid)))
         {
+            flash()->overlay('You do not have permission to view that page.', 'Whoops.');
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
