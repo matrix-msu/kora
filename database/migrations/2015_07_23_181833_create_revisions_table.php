@@ -18,8 +18,10 @@ class CreateRevisionsTable extends Migration {
             $table->integer('fid')->unsigned();
             $table->integer('rid')->unsigned();
             $table->integer('userId')->unsigned();
+            $table->integer('owner')->unsinged();
             $table->string('type');
             $table->binary('data');
+            $table->binary('oldData');
             $table->boolean('rollback');
 			$table->timestamps();
 
