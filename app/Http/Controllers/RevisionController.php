@@ -1,18 +1,18 @@
 <?php namespace App\Http\Controllers;
 
-use App\DateField;
 use App\Form;
 use App\Field;
-use App\GeneratedListField;
-use App\ListField;
-use App\MultiSelectListField;
-use App\NumberField;
 use App\Record;
 use App\Revision;
+use App\DateField;
 use App\TextField;
+use App\ListField;
+use App\NumberField;
 use App\Http\Requests;
 use App\RichTextField;
+use App\GeneratedListField;
 use Illuminate\Http\Request;
+use App\MultiSelectListField;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
@@ -34,9 +34,16 @@ class RevisionController extends Controller {
         }
 
         $revisions = DB::table('revisions')->where('fid', '=', $fid)->orderBy('created_at', 'desc')->take(50)->get();
-
-        $records = Record::lists('kid', 'rid');
         $form = FormController::getForm($fid);
+        $pid = $form->pid;
+        $records = array();
+
+        $temp = array_values(array_unique(Revision::lists('rid')));
+
+        for($i=0; $i < count($temp); $i++)
+        {
+            $records[$temp[$i]] = $pid.'-'.$form->fid.'-'.$temp[$i];
+        }
         $message = 'Recent';
 
         return view('revisions.index', compact('revisions', 'records', 'form', 'message'));
@@ -54,10 +61,17 @@ class RevisionController extends Controller {
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
-        $revisions = DB::table('revisions')->where('rid', '=', $rid)->orderBy('created_at','desc')->take(50)->get();
-
-        $records = Record::lists('kid', 'rid');
         $form = FormController::getForm($fid);
+        $revisions = DB::table('revisions')->where('rid', '=', $rid)->orderBy('created_at','desc')->take(50)->get();
+        $pid = $form->pid;
+        $records = array();
+
+        $temp = array_values(array_unique(Revision::lists('rid')));
+
+        for($i=0; $i < count($temp); $i++)
+        {
+            $records[$temp[$i]] = $pid.'-'.$form->fid.'-'.$temp[$i];
+        }
         $message = $pid.'-'.$fid.'-'.$rid;
 
         return view('revisions.index', compact('revisions', 'records', 'form', 'message', 'rid'))->render();

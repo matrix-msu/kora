@@ -13,7 +13,7 @@
                 <div class="panel panel-default">
 
                     <div class="panel-heading">
-                        <h3>{{$message}} Revision History</h3>
+                        <span><h3>{{$message}} Revision History</h3></span>
                         @if($message != 'Recent')
                             @if(App\Http\Controllers\RecordController::exists($rid))
                                 <a href="{{action('RecordController@show', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $rid])}}">[Show Record]</a>
@@ -25,11 +25,15 @@
 
                     <div class="panel-body">
 
-                        @include('revisions.printrevisions')
-
                         {!! Form::label('search', 'Search Record Revisions: ') !!}
                         {!! Form::select('search', $records, ['class'=>'form-control']) !!}
                         <button class="btn btn-primary" onclick="showRecordRevisions(1, '')">Show Record Revisions</button>
+                        @if($message != 'Recent')
+                        <button class="btn btn-primary" onclick="showRecordRevisions(-1, '')">Back to Recent Revisions</button>
+                        @endif
+                        <hr/>
+
+                        @include('revisions.printrevisions')
 
                     </div>
                 </div>
@@ -45,11 +49,13 @@
     $('#search').select2({ width: 'hybrid'});
 
     function showRecordRevisions(flag, value) {
-        if(flag){
-            var rid = $('#search').val();
-            window.location.href = rid;
+        if(flag==1){
+            window.location.href = $('#search').val();
         }
-        else{
+        else if(flag==-1){
+            window.location.href = 'recent';
+        }
+        else if(flag==0){
             window.location.href = value;
         }
     }
