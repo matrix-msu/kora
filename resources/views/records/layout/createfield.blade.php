@@ -12,4 +12,6 @@
     @include('records.fieldInputs.genlist')
 @elseif($field->type == 'Date')
     @include('records.fieldInputs.date')
+@elseif($field->type == 'Schedule')
+    @include('records.fieldInputs.schedule')
 @endif

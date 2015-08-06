@@ -22,7 +22,7 @@ class FieldValidation {
             return FieldValidation::validateList($field, $value);
         } else if($field->type=='Multi-Select List') {
             return FieldValidation::validateMultiSelectList($field, $value);
-        } else if($field->type=='Rich Text' | $field->type=='Number'){
+        } else if($field->type=='Rich Text' | $field->type=='Number' | $field->type=='Schedule'){
             return FieldValidation::validateDefault($field, $value);
         } else if($field->type=='Generated List') {
             return FieldValidation::validateGeneratedList($field, $value);

@@ -12,4 +12,6 @@
     @include('records.fieldInputs.genlist-edit', ['genlist' => \App\GeneratedListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
 @elseif($field->type == 'Date')
     @include('records.fieldInputs.date-edit', ['date' => \App\DateField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
+@elseif($field->type == 'Schedule')
+    @include('records.fieldInputs.schedule-edit', ['schedule' => \App\ScheduleField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
 @endif
