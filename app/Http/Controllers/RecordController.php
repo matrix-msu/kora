@@ -2,6 +2,7 @@
 
 use App\DateField;
 use App\GeneratedListField;
+use App\ScheduleField;
 use App\User;
 use App\Record;
 use App\TextField;
@@ -149,6 +150,12 @@ class RecordController extends Controller {
                 $df->year = $request->input('year_'.$field->flid);
                 $df->era = $request->input('era_'.$field->flid, 'CE');
                 $df->save();
+            } else if($field->type=='Schedule'){
+                $sf = new ScheduleField();
+                $sf->flid = $field->flid;
+                $sf->rid = $record->rid;
+                $sf->events = FieldController::msListArrayToString($value);
+                $sf->save();
             }
         }
 
@@ -337,6 +344,19 @@ class RecordController extends Controller {
                     $df->year = $request->input('year_'.$field->flid);
                     $df->era = $request->input('era_'.$field->flid, 'CE');
                     $df->save();
+                }
+            } else if($field->type=='Schedule'){
+                //we need to check if the field exist first
+                if(ScheduleField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
+                    $sf = ScheduleField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                    $sf->events = FieldController::msListArrayToString($value);
+                    $sf->save();
+                }else {
+                    $sf = new ScheduleField();
+                    $sf->flid = $field->flid;
+                    $sf->rid = $record->rid;
+                    $sf->events = FieldController::msListArrayToString($value);
+                    $sf->save();
                 }
             }
         }

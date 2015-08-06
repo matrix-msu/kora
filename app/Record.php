@@ -45,6 +45,10 @@ class Record extends Model {
         return $this->hasMany('App\DateField', 'rid');
     }
 
+    public function schedulefields(){
+        return $this->hasMany('App\ScheduleField', 'rid');
+    }
+
     public function owner(){
         return $this->hasOne('App\User', 'owner');
     }

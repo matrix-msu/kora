@@ -102,6 +102,8 @@ class FieldController extends Controller {
             return view('fields.options.genlist', compact('field', 'form', 'proj'));
         }else if($field->type=="Date") {
             return view('fields.options.date', compact('field', 'form', 'proj'));
+        }else if($field->type=="Schedule") {
+            return view('fields.options.schedule', compact('field', 'form', 'proj'));
         }
 	}
 
@@ -443,5 +445,51 @@ class FieldController extends Controller {
         }
 
         return true;
+    }
+
+    public static function getDateList($field)
+    {
+        $def = $field->default;
+        $options = array();
+
+        if ($def == '') {
+            //skip
+        } else if (!strstr($def, '[!]')) {
+            $options = [$def => $def];
+        } else {
+            $opts = explode('[!]', $def);
+            foreach ($opts as $opt) {
+                $options[$opt] = $opt;
+            }
+        }
+
+        return $options;
+    }
+
+    public static function saveDateList($pid, $fid, $flid){
+        if ($_REQUEST['action']=='SaveDateList') {
+            if(isset($_REQUEST['options']))
+                $options = $_REQUEST['options'];
+            else
+                $options = array();
+
+            $dbOpt = '';
+
+            if (sizeof($options) == 1) {
+                $dbOpt = $options[0];
+            } else if (sizeof($options) == 2) {
+                $dbOpt = $options[0] . '[!]' . $options[1];
+            } else if (sizeof($options) > 2) {
+                $dbOpt = $options[0];
+                for ($i = 1; $i < sizeof($options); $i++) {
+                    $dbOpt .= '[!]' . $options[$i];
+                }
+            }
+
+            $field = FieldController::getField($flid);
+
+            $field->default = $dbOpt;
+            $field->save();
+        }
     }
 }

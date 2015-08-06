@@ -105,6 +105,16 @@
                                     @endif
                                 @endif
                             @endforeach
+                        @elseif($field->type=='Schedule')
+                            @if(\App\Http\Controllers\FieldController::getFieldOption($field,'Calendar')=='No')
+                                @foreach($record->schedulefields as $sf)
+                                    @if($sf->flid == $field->flid)
+                                        @foreach(explode('[!]',$sf->events) as $event)
+                                            <div>{{ $event }}</div>
+                                        @endforeach
+                                    @endif
+                                @endforeach
+                            @endif
                         @endif
                     </span>
                 </div>

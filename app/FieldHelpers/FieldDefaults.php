@@ -22,6 +22,8 @@ class FieldDefaults {
             return '[!Regex!][!Regex!][!Options!][!Options!]';
         }else if($type=='Date'){
             return '[!Circa!]No[!Circa!][!Start!]1900[!Start!][!End!]2020[!End!][!Format!]MMDDYYYY[!Format!][!Era!]Off[!Era!]';
+        }else if($type=='Schedule'){
+            return '[!Start!]1900[!Start!][!End!]2020[!End!][!Calendar!]No[!Calendar!]';
         }
         else{
             return '';
