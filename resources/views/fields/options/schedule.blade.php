@@ -32,6 +32,8 @@
             <input type='text' class="form-control" id='startdatetime' />
             {!! Form::label('enddatetime','End: ') !!}
             <input type='text' class="form-control" id='enddatetime' />
+            {!! Form::label('allday','All Day: ') !!}
+            <input type='checkbox' class="form-control" id='allday' />
             <button class="btn btn-primary add_option">Add</button>
         </div>
     </div>
@@ -107,17 +109,42 @@
             sTime = $('#startdatetime').val().trim();
             eTime = $('#enddatetime').val().trim();
 
-            val = name+': '+sTime+' - '+eTime;
+            $('#eventname').css({ "border": ''});
+            $('#startdatetime').css({ "border": ''});
+            $('#enddatetime').css({ "border": ''});
 
-            if(val != ''){
-                $('.list_options').append($("<option/>", {
-                    value: val,
-                    text: val
-                }));
-                $('#eventname').val('');
-                $('#startdatetime').val('');
-                $('#enddatetime').val('');
-                SaveList();
+            if(name==''|sTime==''|eTime==''){
+                //show error
+                if(name=='')
+                    $('#eventname').css({ "border": '#FF0000 1px solid'});
+                if(sTime=='')
+                    $('#startdatetime').css({ "border": '#FF0000 1px solid'});
+                if(eTime=='')
+                    $('#enddatetime').css({ "border": '#FF0000 1px solid'});
+            }else{
+                if($('#allday').is(":checked")){
+                    sTime = sTime.split(" ")[0];
+                    eTime = eTime.split(" ")[0];
+                }
+
+                if(sTime>eTime){
+                    $('#startdatetime').css({ "border": '#FF0000 1px solid'});
+                    $('#enddatetime').css({ "border": '#FF0000 1px solid'});
+                }else {
+
+                    val = name + ': ' + sTime + ' - ' + eTime;
+
+                    if (val != '') {
+                        $('.list_options').append($("<option/>", {
+                            value: val,
+                            text: val
+                        }));
+                        $('#eventname').val('');
+                        $('#startdatetime').val('');
+                        $('#enddatetime').val('');
+                        SaveList();
+                    }
+                }
             }
         });
 
