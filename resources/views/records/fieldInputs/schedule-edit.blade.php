@@ -30,6 +30,8 @@
             <input type='text' class="form-control" id='startdatetime{{$field->flid}}' />
             {!! Form::label('enddatetime'.$field->flid,'End: ') !!}
             <input type='text' class="form-control" id='enddatetime{{$field->flid}}' />
+            {!! Form::label('allday'.$field->flid,'All Day: ') !!}
+            <input type='checkbox' class="form-control" id='allday{{$field->flid}}' />
             <button type="button" class="btn btn-primary add_option{{$field->flid}}">Add</button>
         </div>
     </div>
@@ -64,17 +66,42 @@
             sTime = $('#startdatetime{{$field->flid}}').val().trim();
             eTime = $('#enddatetime{{$field->flid}}').val().trim();
 
-            val = name+': '+sTime+' - '+eTime;
+            $('#eventname{{$field->flid}}').css({ "border": ''});
+            $('#startdatetime{{$field->flid}}').css({ "border": ''});
+            $('#enddatetime{{$field->flid}}').css({ "border": ''});
 
-            if(val != ''){
-                $('#list{{$field->flid}}').append($("<option/>", {
-                    value: val,
-                    text: val,
-                    selected: 'selected'
-                }));
-                $('#eventname{{$field->flid}}').val('');
-                $('#startdatetime{{$field->flid}}').val('');
-                $('#enddatetime{{$field->flid}}').val('');
+            if(name==''|sTime==''|eTime==''){
+                //show error
+                if(name=='')
+                    $('#eventname{{$field->flid}}').css({ "border": '#FF0000 1px solid'});
+                if(sTime=='')
+                    $('#startdatetime{{$field->flid}}').css({ "border": '#FF0000 1px solid'});
+                if(eTime=='')
+                    $('#enddatetime{{$field->flid}}').css({ "border": '#FF0000 1px solid'});
+            }else {
+                if ($('#allday{{$field->flid}}').is(":checked")) {
+                    sTime = sTime.split(" ")[0];
+                    eTime = eTime.split(" ")[0];
+                }
+
+                if(sTime>eTime){
+                    $('#startdatetime{{$field->flid}}').css({ "border": '#FF0000 1px solid'});
+                    $('#enddatetime{{$field->flid}}').css({ "border": '#FF0000 1px solid'});
+                }else {
+
+                    val = name + ': ' + sTime + ' - ' + eTime;
+
+                    if (val != '') {
+                        $('#list{{$field->flid}}').append($("<option/>", {
+                            value: val,
+                            text: val,
+                            selected: 'selected'
+                        }));
+                        $('#eventname{{$field->flid}}').val('');
+                        $('#startdatetime{{$field->flid}}').val('');
+                        $('#enddatetime{{$field->flid}}').val('');
+                    }
+                }
             }
         });
     </script>
