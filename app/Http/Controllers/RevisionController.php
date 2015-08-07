@@ -5,6 +5,7 @@ use App\Field;
 use App\Record;
 use App\Revision;
 use App\DateField;
+use App\ScheduleField;
 use App\TextField;
 use App\ListField;
 use App\NumberField;
@@ -24,7 +25,7 @@ class RevisionController extends Controller {
         $this->middleware('active');
     }
 
-    public function index($fid){
+    public function index($pid='', $fid, $rid=''){
 
         if(!\Auth::user()->admin || !\Auth::user()->isFormAdmin(FormController::getForm($fid)))
         {
@@ -34,6 +35,13 @@ class RevisionController extends Controller {
         }
 
         $revisions = DB::table('revisions')->where('fid', '=', $fid)->orderBy('created_at', 'desc')->take(50)->get();
+
+        $rid_array = array();
+        foreach($revisions as $revision){
+            $rid_array[] = $revision->rid;
+        }
+        $rid_array = array_values(array_unique($rid_array));
+
         $form = FormController::getForm($fid);
         $pid = $form->pid;
         $records = array();
@@ -42,7 +50,9 @@ class RevisionController extends Controller {
 
         for($i=0; $i < count($temp); $i++)
         {
-            $records[$temp[$i]] = $pid.'-'.$form->fid.'-'.$temp[$i];
+            if(in_array($temp[$i], $rid_array)) {
+                $records[$temp[$i]] = $pid . '-' . $form->fid . '-' . $temp[$i];
+            }
         }
         $message = 'Recent';
 
@@ -55,7 +65,9 @@ class RevisionController extends Controller {
             return redirect('projects/'.$pid.'/forms');
         }
 
-        if(!\Auth::user()->admin || !\Auth::user()->isFormAdmin(FormController::getForm($fid)))
+        $owner = Revision::where('rid', '=', $rid)->first()->owner;
+
+        if(!\Auth::user()->admin || !\Auth::user()->isFormAdmin(FormController::getForm($fid)) || \Auth::user()->id != $owner)
         {
             flash()->overlay('You do not have permission to view that page.', 'Whoops.');
             return redirect('projects/'.$pid.'/forms/'.$fid);
@@ -229,11 +241,11 @@ class RevisionController extends Controller {
                 if($revision->type != 'delete') {
                     foreach ($record->datefields()->get() as $datefield) {
                         if ($datefield->flid == $field->flid) {
-                            $datefield->circa = $data['datefields'][$field->flid]['data']['circa'];
-                            $datefield->month = $data['datefields'][$field->flid]['data']['month'];
-                            $datefield->day = $data['datefields'][$field->flid]['data']['day'];
-                            $datefield->year = $data['datefields'][$field->flid]['data']['year'];
-                            $datefield->era = $data['datefields'][$field->flid]['data']['era'];
+                            $datefield['circa'] = $data['datefields'][$field->flid]['data']['circa'];
+                            $datefield['month'] = $data['datefields'][$field->flid]['data']['month'];
+                            $datefield['day'] = $data['datefields'][$field->flid]['data']['day'];
+                            $datefield['year'] = $data['datefields'][$field->flid]['data']['year'];
+                            $datefield['era'] = $data['datefields'][$field->flid]['data']['era'];
                             $datefield->save();
                         }
                     }
@@ -248,6 +260,22 @@ class RevisionController extends Controller {
                     $datefield->year = $data['datefields'][$field->flid]['data']['year'];
                     $datefield->era = $data['datefields'][$field->flid]['data']['era'];
                     $datefield->save();
+                }
+            } elseif ($field->type == 'Schedule') {
+                if($revision->type != 'delete') {
+                    foreach ($record->schedulefields()->get() as $schedulefield) {
+                        if ($schedulefield->flid == $field->flid) {
+                            $schedulefield['events'] = $data['schedulefields'][$field->flid]['data'];
+                            $schedulefield->save();
+                        }
+                    }
+                }
+                else {
+                    $schedulefield = new ScheduleField();
+                    $schedulefield->flid = $field->flid;
+                    $schedulefield->rid = $record->rid;
+                    $schedulefield->events = $data['schedulefields'][$field->flid]['data'];
+                    $schedulefield->save();
                 }
             }
         }
@@ -397,6 +425,21 @@ class RevisionController extends Controller {
         }
         else{
             $data['datefields'] = null;
+        }
+        if(!is_null($record->schedulefields()->first())){
+            $schedule = array();
+            $schedulefields = $record->schedulefields()->get();
+            foreach($schedulefields as $schedulefield)
+            {
+                $name = Field::where('flid', '=', $schedulefield->flid)->first()->name;
+
+                $schedule[$schedulefield->flid]['name'] = $name;
+                $schedule[$schedulefield->flid]['data'] = $schedulefield->events;
+            }
+            $data['schedulefields'] = $schedule;
+        }
+        else{
+            $data['schedulefields'] = null;
         }
 
         return json_encode($data);

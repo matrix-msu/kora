@@ -49,7 +49,7 @@
                 @endif
             </span>
             <span>
-                @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
+                @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form) || \Auth::user()->isOwner($record))
                 <a href='{{action('RevisionController@show', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid])}}'>[History]</a>
                 @endif
             </span>

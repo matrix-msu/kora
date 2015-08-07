@@ -101,8 +101,16 @@
                                         @endif
                                     @endif
                                 @endif
+                            @elseif($field->type=='Schedule')
+                                @if($data['schedulefields'][$field->flid]['data'] != $oldData['schedulefields'][$field->flid]['data'] || $revision->type == 'create' || $revision->type=='delete')
+                                    <span><b>{{$field->name}}</b></span>
+                                    @if(!is_null($data['schedulefields']))
+                                        @foreach(explode('[!]', $data['schedulefields'][$field->flid]['data']) as $event)
+                                            <div>{{$event}}</div>
+                                        @endforeach
+                                    @endif
+                                @endif
                             @endif
-
                         </div>
                     @endforeach
                 </div>
@@ -189,8 +197,16 @@
                                         @endif
                                     @endif
                                 @endif
+                            @elseif($field->type=='Schedule')
+                                @if($data['schedulefields'][$field->flid]['data'] != $oldData['schedulefields'][$field->flid]['data'] || $revision->type == 'create' || $revision->type=='delete')
+                                    <span><b>{{$field->name}}</b></span>
+                                    @if(!is_null($oldData['schedulefields']))
+                                        @foreach(explode('[!]', $oldData['schedulefields'][$field->flid]['data']) as $event)
+                                            <div>{{$event}}</div>
+                                        @endforeach
+                                    @endif
+                                @endif
                             @endif
-
                         </div>
                     @endforeach
                 </div>

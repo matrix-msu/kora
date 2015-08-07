@@ -61,7 +61,7 @@ class FieldController extends Controller {
         $form->layout = $layout[0].'<ID>'.$field->flid.'</ID></LAYOUT>';
         $form->save();
 
-        RevisionController::wipeRollbacks($form->$fid);
+        RevisionController::wipeRollbacks($form->fid);
 
         flash()->overlay('Your field has been successfully created!', 'Good Job');
 
@@ -272,7 +272,7 @@ class FieldController extends Controller {
         $form->layout = $layout[0].$layout[1];
         $form->save();
 
-        RevisionController::wipeRollbacks($form->$fid);
+        RevisionController::wipeRollbacks($form->fid);
 
         flash()->overlay('Your field has been successfully deleted!', 'Good Job!');
 	}
