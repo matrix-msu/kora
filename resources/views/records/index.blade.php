@@ -110,6 +110,38 @@
                                         @endforeach
                                     @endif
                                 @endforeach
+                            @else
+                                @foreach($record->schedulefields as $sf)
+                                    @if($sf->flid == $field->flid)
+                                        <div id='calendar{{$field->flid}}'></div>
+                                        <script>
+                                            $('#calendar{{$field->flid}}').fullCalendar({
+                                                events: [
+                                                    @foreach(explode('[!]',$sf->events) as $event)
+                                                        {
+                                                            <?php
+                                                                $nameTime = explode(': ',$event);
+                                                                $times = explode(' - ',$nameTime[1]);
+                                                                $allDay = true;
+                                                                if(strpos($nameTime[1],'PM') | strpos($nameTime[1],'AM')){
+                                                                    $allDay = false;
+                                                                }
+                                                            ?>
+                                                            title: '{{ $nameTime[0] }}',
+                                                            start: '{{ $times[0] }}',
+                                                            end: '{{ $times[1] }}',
+                                                            @if($allDay)
+                                                                allDay: true
+                                                            @else
+                                                                allDay: false
+                                                            @endif
+                                                        },
+                                                    @endforeach
+                                                ]
+                                            });
+                                        </script>
+                                    @endif
+                                @endforeach
                             @endif
                         @endif
                     </span>

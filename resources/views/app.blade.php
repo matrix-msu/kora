@@ -21,6 +21,8 @@
 	<script type="text/javascript" src="http://{{ env('BASE_URL') }}public/bower_components/moment/min/moment.min.js"></script>
 	<script type="text/javascript" src="http://{{ env('BASE_URL') }}public/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
 	<link rel="stylesheet" href="http://{{ env('BASE_URL') }}public/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
+	<link rel='stylesheet' href='http://{{ env('BASE_URL') }}public/bower_components/fullcalendar/dist/fullcalendar.css' />
+	<script src='http://{{ env('BASE_URL') }}public/bower_components/fullcalendar/dist/fullcalendar.js'></script>
 
     <title>Kora 3</title>
 </head>
