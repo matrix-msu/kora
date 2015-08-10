@@ -5,10 +5,10 @@ use App\Field;
 use App\Record;
 use App\Revision;
 use App\DateField;
-use App\ScheduleField;
 use App\TextField;
 use App\ListField;
 use App\NumberField;
+use App\ScheduleField;
 use App\Http\Requests;
 use App\RichTextField;
 use App\GeneratedListField;
@@ -27,7 +27,7 @@ class RevisionController extends Controller {
 
     public function index($pid='', $fid, $rid=''){
 
-        if(!\Auth::user()->admin || !\Auth::user()->isFormAdmin(FormController::getForm($fid)))
+        if(!\Auth::user()->admin && !\Auth::user()->isFormAdmin(FormController::getForm($fid)))
         {
             $pid = FormController::getForm($fid)->pid;
             flash()->overlay('You do not have permission to view that page.', 'Whoops.');
@@ -67,7 +67,7 @@ class RevisionController extends Controller {
 
         $owner = Revision::where('rid', '=', $rid)->first()->owner;
 
-        if(!\Auth::user()->admin || !\Auth::user()->isFormAdmin(FormController::getForm($fid)) || \Auth::user()->id != $owner)
+        if(!\Auth::user()->admin && !\Auth::user()->isFormAdmin(FormController::getForm($fid)) && \Auth::user()->id != $owner)
         {
             flash()->overlay('You do not have permission to view that page.', 'Whoops.');
             return redirect('projects/'.$pid.'/forms/'.$fid);
@@ -348,10 +348,19 @@ class RevisionController extends Controller {
             $numberfields = $record->numberfields()->get();
             foreach($numberfields as $numberfield)
             {
-                $name = Field::where('flid', '=', $numberfield->flid)->first()->name;
+                $fieldactual = Field::where('flid', '=', $numberfield->flid)->first();
+                $name = $fieldactual->name;
+
+                $numberdata = array();
+                $numberdata['number'] = $numberfield->number;
+
+                if($numberfield->number != '')
+                    $numberdata['unit'] = FieldController::getFieldOption($fieldactual,'Unit');
+                else
+                    $numberdata['unit'] = '';
 
                 $number[$numberfield->flid]['name'] = $name;
-                $number[$numberfield->flid]['data'] = $numberfield->number;
+                $number[$numberfield->flid]['data'] = $numberdata;
             }
             $data['numberfields'] = $number;
         }
@@ -408,15 +417,23 @@ class RevisionController extends Controller {
             $datefields = $record->datefields()->get();
             foreach($datefields as $datefield)
             {
-                $name = Field::where('flid', '=', $datefield->flid)->first()->name;
+                $fieldactual = Field::where('flid', '=', $datefield->flid)->first();
+                $name = $fieldactual->name;
 
                 $datedata = array();
 
-                $datedata['circa'] = $datefield->circa;
+                $datedata['format'] = FieldController::getFieldOption($fieldactual, 'Format');
+                if(FieldController::getFieldOption($fieldactual, 'Circa') == 'Yes')
+                    $datedata['circa'] = $datefield->circa;
+                else
+                    $datedata['circa'] = '';
                 $datedata['day'] = $datefield->day;
                 $datedata['month'] = $datefield->month;
                 $datedata['year'] = $datefield->year;
-                $datedata['era'] = $datefield->era;
+                if(FieldController::getFieldOption($fieldactual, 'Era') == 'Yes')
+                    $datedata['era'] = $datefield->era;
+                else
+                    $datedata['era'] = '';
 
                 $date[$datefield->flid]['name'] = $name;
                 $date[$datefield->flid]['data'] = $datedata;
