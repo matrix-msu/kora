@@ -24,97 +24,191 @@
                 @endif
                 <div class="panel panel-default">
                     <div>
-                        <b>Record: </b> {{$form->pid}}-{{$revision->fid}}-{{$revision->rid}}
+                        <b> Record: </b> {{$form->pid}}-{{$revision->fid}}-{{$revision->rid}}
                     </div>
-                    @foreach($form->fields()->get() as $field)
-                        <div>
-                            @if($field->type=='Text')
-                                @if($data['textfields'][$field->flid]['data'] != $oldData['textfields'][$field->flid]['data'] || $revision->type == 'create' || $revision->type=='delete')
-                                    <span><b>{{$field->name}}:</b></span>
-                                    @if(!is_null($data['textfields']))
-                                        {{$data['textfields'][$field->flid]['data']}}
-                                    @endif
-                                @endif
-                            @elseif($field->type=='Rich Text')
-                                @if($data['richtextfields'][$field->flid]['data'] != $oldData['richtextfields'][$field->flid]['data'] || $revision->type == 'create' || $revision->type=='delete')
-                                    <span><b>{{$field->name}}:</b></span>
-                                    @if(!is_null($data['richtextfields']))
-                                        <?php echo $data['richtextfields'][$field->flid]['data']; ?>
-                                    @endif
-                                @endif
-                            @elseif($field->type=='Number')
-                                @if($data['numberfields'][$field->flid]['data'] != $oldData['numberfields'][$field->flid]['data'] || $revision->type == 'create' || $revision->type=='delete')
-                                    <span><b>{{$field->name}}:</b></span>
-                                    @if(!is_null($data['numberfields']))
-                                        <?php
-                                        echo $data['numberfields'][$field->flid]['data'];
-                                        if($data['numberfields'][$field->flid]['data'] != '')
-                                            echo ' '.App\Http\Controllers\FieldController::getFieldOption($field,'Unit');
-                                        ?>
-                                    @endif
-                                @endif
-                            @elseif($field->type=='List')
-                                @if($data['listfields'][$field->flid]['data'] != $oldData['listfields'][$field->flid]['data'] || $revision->type == 'create' || $revision->type=='delete')
-                                    <span><b>{{$field->name}}:</b></span>
-                                    @if(!is_null($data['listfields']))
-                                        {{$data['listfields'][$field->flid]['data']}}
-                                    @endif
-                                @endif
-                            @elseif($field->type=='Multi-Select List')
-                                @if($data['multiselectlistfields'][$field->flid]['data'] != $oldData['multiselectlistfields'][$field->flid]['data'] || $revision->type == 'create' || $revision->type=='delete')
-                                    <span><b>{{$field->name}}:</b></span>
-                                    @if(!is_null($data['multiselectlistfields']))
-                                        @foreach(explode('[!]', $data['multiselectlistfields'][$field->flid]['data']) as $opt )
-                                            <div>{{$opt}}</div>
-                                        @endforeach
-                                    @endif
-                                @endif
-                            @elseif($field->type=='Generated List')
-                                @if($data['generatedlistfields'][$field->flid]['data'] != $oldData['generatedlistfields'][$field->flid]['data'] || $revision->type == 'create' || $revision->type=='delete')
-                                    <span><b>{{$field->name}}:</b></span>
-                                    @if(!is_null($data['generatedlistfields']))
-                                        @foreach(explode('[!]', $data['generatedlistfields'][$field->flid]['data']) as $opt)
-                                            <div>{{$opt}}</div>
-                                        @endforeach
-                                    @endif
-                                @endif
-                            @elseif($field->type=='Date')
-                                @if($data['datefields'][$field->flid]['data'] != $oldData['datefields'][$field->flid]['data'] || $revision->type == 'create' || $revision->type=='delete')
-                                    <span><b>{{$field->name}}:</b></span>
-                                    @if(!is_null($data['datefields']))
-                                        @if($data['datefields'][$field->flid]['data']['circa'] && \App\Http\Controllers\FieldController::getFieldOption($field,'Circa')=='Yes')
-                                            {{'circa '}}
-                                        @endif
-                                        @if($data['datefields'][$field->flid]['data']['month'] == 0 && $data['datefields'][$field->flid]['data']['day'])
-                                            {{$data['datefields'][$field->flid]['data']['year']}}
-                                        @elseif($data['datefields'][$field->flid]['data']['day'] == 0)
-                                            {{$data['datefields'][$field->flid]['data']['month'].' '.$data['datefields'][$field->flid]['data']['year']}}
-                                        @elseif(\App\Http\Controllers\FieldController::getFieldOption($field,'Format')=='MMDDYYYY')
-                                            {{$data['datefields'][$field->flid]['data']['month'].'-'.$data['datefields'][$field->flid]['data']['day'].'-'.$data['datefields'][$field->flid]['data']['year']}}
-                                        @elseif(\App\Http\Controllers\FieldController::getFieldOption($field,'Format')=='DDMMYYYY')
-                                            {{$data['datefields'][$field->flid]['data']['day'].'-'.$data['datefields'][$field->flid]['data']['month'].'-'.$data['datefields'][$field->flid]['data']['year']}}
-                                        @elseif(\App\Http\Controllers\FieldController::getFieldOption($field,'Format')=='YYYYMMDD')
-                                            {{$data['datefields'][$field->flid]['data']['year'].'-'.$data['datefields'][$field->flid]['data']['month'].'-'.$data['datefields'][$field->flid]['data']['day']}}
-                                        @endif
-                                        @if(\App\Http\Controllers\FieldController::getFieldOption($field,'Era')=='Yes')
-                                            {{' '.$data['datefields'][$field->flid]['data']['era']}}
-                                        @endif
-                                    @endif
-                                @endif
-                            @elseif($field->type=='Schedule')
-                                @if($data['schedulefields'][$field->flid]['data'] != $oldData['schedulefields'][$field->flid]['data'] || $revision->type == 'create' || $revision->type=='delete')
-                                    <span><b>{{$field->name}}</b></span>
-                                    @if(!is_null($data['schedulefields']))
-                                        @foreach(explode('[!]', $data['schedulefields'][$field->flid]['data']) as $event)
-                                            <div>{{$event}}</div>
-                                        @endforeach
-                                    @endif
-                                @endif
-                            @endif
-                        </div>
-                    @endforeach
-                </div>
 
+                    <?php
+                        if(!is_null($data['textfields']))
+                            $new = array_values($data['textfields']);
+                        else
+                            $new = null;
+                        if(!is_null($oldData['textfields']))
+                            $old = array_values($oldData['textfields']);
+                        else
+                            $old = null;
+                    ?>
+                    @if(!is_null($new))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                <span><b>{{$new[$i]['name']}}:</b> {{$new[$i]['data']}}</span>
+                                <br/>
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(!is_null($data['richtextfields']))
+                        $new = array_values($data['richtextfields']);
+                    else
+                        $new = null;
+                    if(!is_null($oldData['richtextfields']))
+                        $old = array_values($oldData['richtextfields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($new))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                <span><b>{{$new[$i]['name']}}:</b><?php echo $new[$i]['data'] ?></span>
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(!is_null($data['numberfields']))
+                        $new = array_values($data['numberfields']);
+                    else
+                        $new = null;
+                    if(!is_null($oldData['numberfields']))
+                        $old = array_values($oldData['numberfields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($new))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                <span><b>{{$new[$i]['name']}}:</b> {{$new[$i]['data']['number']}} {{$new[$i]['data']['unit']}}</span>
+                                <br/>
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(!is_null($data['listfields']))
+                        $new = array_values($data['listfields']);
+                    else
+                        $new = null;
+                    if(!is_null($oldData['listfields']))
+                        $old = array_values($oldData['listfields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($new))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                <span><b>{{$new[$i]['name']}}:</b> {{$new[$i]['data']}}</span>
+                                <br>
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(!is_null($data['multiselectlistfields']))
+                        $new = array_values($data['multiselectlistfields']);
+                    else
+                        $new = null;
+                    if(!is_null($oldData['multiselectlistfields']))
+                        $old = array_values($oldData['multiselectlistfields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($new))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                <span><b>{{$new[$i]['name']}}:</b></span>
+                                @foreach(explode('[!]', $new[$i]['data']) as $opt)
+                                    <div>{{$opt}}</div>
+                                @endforeach
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(!is_null($data['generatedlistfields']))
+                        $new = array_values($data['generatedlistfields']);
+                    else
+                        $new = null;
+                    if(!is_null($oldData['generatedlistfields']))
+                        $old = array_values($oldData['generatedlistfields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($new))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                <span><b>{{$new[$i]['name']}}:</b></span>
+                                @foreach(explode('[!]', $new[$i]['data']) as $opt)
+                                    <div>{{$opt}}</div>
+                                @endforeach
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(!is_null($data['datefields']))
+                        $new = array_values($data['datefields']);
+                    else
+                        $new = null;
+                    if(!is_null($oldData['datefields']))
+                        $old = array_values($oldData['datefields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($new))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                <span><b>{{$new[$i]['name']}}:</b></span>
+                                @if($new[$i]['data']['circa'] != '')
+                                    {{'circa '}}
+                                @endif
+                                @if($new[$i]['data']['month'] == 0 && $new[$i]['data']['day'] == 0)
+                                    {{$new[$i]['data']['year']}}
+                                @elseif ($new[$i]['data']['day'] == 0)
+                                    {{$new[$i]['data']['month']. ' '. $new[$i]['data']['year']}}
+                                @elseif ($new[$i]['data']['format'] == 'MMDDYYYY')
+                                    {{$new[$i]['data']['month'].' '.$new[$i]['data']['day'].' '.$new[$i]['data']['year']}}
+                                @elseif ($new[$i]['data']['format'] == 'DDMMYYYY')
+                                    {{$new[$i]['data']['day'].' '.$new[$i]['data']['month'].' '.$new[$i]['data']['year']}}
+                                @elseif ($new[$i]['data']['format'] == 'YYYYMMDD')
+                                    {{$new[$i]['data']['year'].' '.$new[$i]['data']['month'].' '.$new[$i]['data']['day']}}
+                                @endif
+                                @if($new[$i]['data']['era'] != '')
+                                    {{$new[$i]['data']['era']}}
+                                @endif
+                                <br/>
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(!is_null($data['schedulefields']))
+                        $new = array_values($data['schedulefields']);
+                    else
+                        $new = null;
+                    if(!is_null($oldData['schedulefields']))
+                        $old = array_values($oldData['schedulefields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($new))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                <span><b>{{$new[$i]['name']}}:</b></span>
+                                @foreach(explode('[!]', $new[$i]['data']) as $event)
+                                    <div>{{$event}}</div>
+                                @endforeach
+                            @endif
+                        @endfor
+                    @endif
+
+                </div>
                 @if($revision->type != 'delete' && $revision->type != 'create')
                 <div><b>After</b></div>
                 <div class="panel panel-default">
@@ -122,93 +216,248 @@
                         <b>Record: </b> {{$form->pid}}-{{$revision->fid}}-{{$revision->rid}}
                     </div>
 
-                    @foreach($form->fields()->get() as $field)
-                        <div>
-                            @if($field->type=='Text')
-                                @if($data['textfields'][$field->flid]['data'] != $oldData['textfields'][$field->flid]['data'])
-                                    <span><b>{{$field->name}}:</b></span>
-                                    @if(!is_null($oldData['textfields']))
-                                        {{$oldData['textfields'][$field->flid]['data']}}
-                                    @endif
+                    <?php
+                    if(!is_null($data['textfields']))
+                        $new = array_values($data['textfields']);
+                    else
+                        $new = null;
+                    if(!is_null($oldData['textfields']))
+                        $old = array_values($oldData['textfields']);
+                    else
+                        $old = null;
+                    ?>
+                    @if(!is_null($old))
+                        @for($i = 0; $i < count($old); $i++)
+                            @if(isset($new[$i]))
+                                @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                    <span><b>{{$old[$i]['name']}}:</b> {{$old[$i]['data']}}</span>
+                                    <br/>
                                 @endif
-                            @elseif($field->type=='Rich Text')
-                                @if($data['richtextfields'][$field->flid]['data'] != $oldData['richtextfields'][$field->flid]['data'])
-                                    <span><b>{{$field->name}}:</b></span>
-                                    @if(!is_null($oldData['richtextfields']))
-                                        <?php echo $oldData['richtextfields'][$field->flid]['data']; ?>
-                                    @endif
-                                @endif
-                            @elseif($field->type=='Number')
-                                @if($data['numberfields'][$field->flid]['data'] != $oldData['numberfields'][$field->flid]['data'])
-                                    <span><b>{{$field->name}}:</b></span>
-                                    @if(!is_null($oldData['numberfields']))
-                                        <?php
-                                        echo $oldData['numberfields'][$field->flid]['data'];
-                                        if($oldData['numberfields'][$field->flid]['data'] != '')
-                                            echo ' '.App\Http\Controllers\FieldController::getFieldOption($field,'Unit');
-                                        ?>
-                                    @endif
-                                @endif
-                            @elseif($field->type=='List')
-                                @if($data['listfields'][$field->flid]['data'] != $oldData['listfields'][$field->flid]['data'])
-                                    <span><b>{{$field->name}}:</b></span>
-                                    @if(!is_null($oldData['listfields']))
-                                        {{$oldData['listfields'][$field->flid]['data']}}
-                                    @endif
-                                @endif
-                            @elseif($field->type=='Multi-Select List')
-                                @if($data['multiselectlistfields'][$field->flid]['data'] != $oldData['multiselectlistfields'][$field->flid]['data'])
-                                    <span><b>{{$field->name}}:</b></span>
-                                    @if(!is_null($oldData['multiselectlistfields']))
-                                        @foreach(explode('[!]', $oldData['multiselectlistfields'][$field->flid]['data']) as $opt )
-                                            <div>{{$opt}}</div>
-                                        @endforeach
-                                    @endif
-                                @endif
-                            @elseif($field->type=='Generated List')
-                                @if($data['generatedlistfields'][$field->flid]['data'] != $oldData['generatedlistfields'][$field->flid]['data'])
-                                    <span><b>{{$field->name}}:</b></span>
-                                    @if(!is_null($oldData['generatedlistfields']))
-                                        @foreach(explode('[!]', $oldData['generatedlistfields'][$field->flid]['data']) as $opt)
-                                            <div>{{$opt}}</div>
-                                        @endforeach
-                                    @endif
-                                @endif
-                            @elseif($field->type=='Date')
-                                @if($data['datefields'][$field->flid]['data'] != $oldData['datefields'][$field->flid]['data'])
-                                    <span><b>{{$field->name}}:</b></span>
-                                    @if(!is_null($oldData['datefields']))
-                                        @if($oldData['datefields'][$field->flid]['data']['circa'] && \App\Http\Controllers\FieldController::getFieldOption($field,'Circa')=='Yes')
-                                            {{'circa '}}
-                                        @endif
-                                        @if($oldData['datefields'][$field->flid]['data']['month'] == 0 && $oldData['datefields'][$field->flid]['data']['day'])
-                                            {{$oldData['datefields'][$field->flid]['data']['year']}}
-                                        @elseif($oldData['datefields'][$field->flid]['data']['day'] == 0)
-                                            {{$oldData['datefields'][$field->flid]['data']['month'].' '.$oldData['datefields'][$field->flid]['data']['year']}}
-                                        @elseif(\App\Http\Controllers\FieldController::getFieldOption($field,'Format')=='MMDDYYYY')
-                                            {{$oldData['datefields'][$field->flid]['data']['month'].'-'.$oldData['datefields'][$field->flid]['data']['day'].'-'.$oldData['datefields'][$field->flid]['data']['year']}}
-                                        @elseif(\App\Http\Controllers\FieldController::getFieldOption($field,'Format')=='DDMMYYYY')
-                                            {{$oldData['datefields'][$field->flid]['data']['day'].'-'.$oldData['datefields'][$field->flid]['data']['month'].'-'.$oldData['datefields'][$field->flid]['data']['year']}}
-                                        @elseif(\App\Http\Controllers\FieldController::getFieldOption($field,'Format')=='YYYYMMDD')
-                                            {{$oldData['datefields'][$field->flid]['data']['year'].'-'.$oldData['datefields'][$field->flid]['data']['month'].'-'.$oldData['datefields'][$field->flid]['data']['day']}}
-                                        @endif
-                                        @if(\App\Http\Controllers\FieldController::getFieldOption($field,'Era')=='Yes')
-                                            {{' '.$oldData['datefields'][$field->flid]['data']['era']}}
-                                        @endif
-                                    @endif
-                                @endif
-                            @elseif($field->type=='Schedule')
-                                @if($data['schedulefields'][$field->flid]['data'] != $oldData['schedulefields'][$field->flid]['data'] || $revision->type == 'create' || $revision->type=='delete')
-                                    <span><b>{{$field->name}}</b></span>
-                                    @if(!is_null($oldData['schedulefields']))
-                                        @foreach(explode('[!]', $oldData['schedulefields'][$field->flid]['data']) as $event)
-                                            <div>{{$event}}</div>
-                                        @endforeach
-                                    @endif
-                                @endif
+                            @elseif (!isset($new[$i]) && isset($old[$i]))
+                                <span><b>{{$old[$i]['name']}}:</b> {{$old[$i]['data']}}</span>
                             @endif
-                        </div>
-                    @endforeach
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(!is_null($data['richtextfields']))
+                        $new = array_values($data['richtextfields']);
+                    else
+                        $new = null;
+                    if(!is_null($oldData['richtextfields']))
+                        $old = array_values($oldData['richtextfields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($old))
+                        @for($i = 0; $i < count($old); $i++)
+                            @if(isset($new[$i]))
+                                @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                    <span><b>{{$old[$i]['name']}}:</b><?php echo $old[$i]['data'] ?></span>
+                                @endif
+                            @elseif (!isset($new[$i]) && isset($old[$i]))
+                                <span><b>{{$old[$i]['name']}}:</b><?php echo $old[$i]['data'] ?></span>
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(!is_null($data['numberfields']))
+                        $new = array_values($data['numberfields']);
+                    else
+                        $new = null;
+                    if(!is_null($oldData['numberfields']))
+                        $old = array_values($oldData['numberfields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($old))
+                        @for($i = 0; $i < count($old); $i++)
+                            @if(isset($new[$i]))
+                                @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                    <span><b>{{$old[$i]['name']}}:</b> {{$old[$i]['data']['number']}} {{$old[$i]['data']['unit']}}</span>
+                                    <br/>
+                                @endif
+                            @elseif (!isset($new[$i]) && isset($old[$i]))
+                                <span><b>{{$old[$i]['name']}}:</b> {{$old[$i]['data']['number']}} {{$old[$i]['data']['unit']}}</span>
+                                <br/>
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(!is_null($data['listfields']))
+                        $new = array_values($data['listfields']);
+                    else
+                        $new = null;
+                    if(!is_null($oldData['listfields']))
+                        $old = array_values($oldData['listfields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($old))
+                        @for($i = 0; $i < count($old); $i++)
+                            @if(isset($new[$i]))
+                                @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                    <span><b>{{$old[$i]['name']}}:</b> {{$old[$i]['data']}}</span>
+                                    <br/>
+                                @endif
+                            @elseif (!isset($new[$i]) && isset($old[$i]))
+                                <span><b>{{$old[$i]['name']}}:</b> {{$old[$i]['data']}}</span>
+                                <br/>
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(!is_null($data['multiselectlistfields']))
+                        $new = array_values($data['multiselectlistfields']);
+                    else
+                        $new = null;
+                    if(!is_null($oldData['multiselectlistfields']))
+                        $old = array_values($oldData['multiselectlistfields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($old))
+                        @for($i = 0; $i < count($old); $i++)
+                            @if(isset($new[$i]))
+                                @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                    <span><b>{{$old[$i]['name']}}:</b></span>
+                                    @foreach(explode('[!]', $old[$i]['data']) as $opt)
+                                        <div>{{$opt}}</div>
+                                    @endforeach
+                                @endif
+                            @elseif (!isset($new[$i]) && isset($old[$i]))
+                                <span><b>{{$old[$i]['name']}}:</b></span>
+                                @foreach(explode('[!]', $old[$i]['data']) as $opt)
+                                    <div>{{$opt}}</div>
+                                @endforeach
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(!is_null($data['generatedlistfields']))
+                        $new = array_values($data['generatedlistfields']);
+                    else
+                        $new = null;
+                    if(!is_null($oldData['generatedlistfields']))
+                        $old = array_values($oldData['generatedlistfields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($old))
+                        @for($i = 0; $i < count($old); $i++)
+                            @if(isset($new[$i]))
+                                @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                    <span><b>{{$old[$i]['name']}}:</b></span>
+                                    @foreach(explode('[!]', $old[$i]['data']) as $opt)
+                                        <div>{{$opt}}</div>
+                                    @endforeach
+                                @endif
+                            @elseif (!isset($new[$i]) && isset($old[$i]))
+                                <span><b>{{$old[$i]['name']}}:</b></span>
+                                @foreach(explode('[!]', $old[$i]['data']) as $opt)
+                                    <div>{{$opt}}</div>
+                                @endforeach
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(!is_null($data['datefields']))
+                        $new = array_values($data['datefields']);
+                    else
+                        $new = null;
+                    if(!is_null($oldData['datefields']))
+                        $old = array_values($oldData['datefields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($old))
+                        @for($i = 0; $i < count($old); $i++)
+                            @if(isset($new[$i]))
+                                @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                    <span><b>{{$old[$i]['name']}}:</b></span>
+                                    @if($old[$i]['data']['circa'] != '')
+                                        {{'circa '}}
+                                    @endif
+                                    @if($old[$i]['data']['month'] == 0 && $old[$i]['data']['day'] == 0)
+                                        {{$old[$i]['data']['year']}}
+                                    @elseif ($old[$i]['data']['day'] == 0)
+                                        {{$old[$i]['data']['month']. ' '. $old[$i]['data']['year']}}
+                                    @elseif ($old[$i]['data']['format'] == 'MMDDYYYY')
+                                        {{$old[$i]['data']['month'].' '.$old[$i]['data']['day'].' '.$old[$i]['data']['year']}}
+                                    @elseif ($old[$i]['data']['format'] == 'DDMMYYYY')
+                                        {{$old[$i]['data']['day'].' '.$old[$i]['data']['month'].' '.$old[$i]['data']['year']}}
+                                    @elseif ($old[$i]['data']['format'] == 'YYYYMMDD')
+                                        {{$old[$i]['data']['year'].' '.$old[$i]['data']['month'].' '.$old[$i]['data']['day']}}
+                                    @endif
+                                    @if($old[$i]['data']['era'] != '')
+                                        {{$old[$i]['data']['era']}}
+                                    @endif
+                                    <br/>
+                                @endif
+                            @elseif (!isset($new[$i]) && isset($old[$i]))
+                                <span><b>{{$old[$i]['name']}}:</b></span>
+                                @if($old[$i]['data']['circa'] != '')
+                                    {{'circa '}}
+                                @endif
+                                @if($old[$i]['data']['month'] == 0 && $old[$i]['data']['day'] == 0)
+                                    {{$old[$i]['data']['year']}}
+                                @elseif ($old[$i]['data']['day'] == 0)
+                                    {{$old[$i]['data']['month']. ' '. $old[$i]['data']['year']}}
+                                @elseif ($old[$i]['data']['format'] == 'MMDDYYYY')
+                                    {{$old[$i]['data']['month'].' '.$old[$i]['data']['day'].' '.$old[$i]['data']['year']}}
+                                @elseif ($old[$i]['data']['format'] == 'DDMMYYYY')
+                                    {{$old[$i]['data']['day'].' '.$old[$i]['data']['month'].' '.$old[$i]['data']['year']}}
+                                @elseif ($old[$i]['data']['format'] == 'YYYYMMDD')
+                                    {{$old[$i]['data']['year'].' '.$old[$i]['data']['month'].' '.$old[$i]['data']['day']}}
+                                @endif
+                                @if($old[$i]['data']['era'] != '')
+                                    {{$old[$i]['data']['era']}}
+                                @endif
+                                <br/>
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(!is_null($data['schedulefields']))
+                        $new = array_values($data['schedulefields']);
+                    else
+                        $new = null;
+                    if(!is_null($oldData['schedulefields']))
+                        $old = array_values($oldData['schedulefields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($old))
+                        @for($i = 0; $i < count($old); $i++)
+                            @if(isset($new[$i]))
+                                @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                    <span><b>{{$old[$i]['name']}}:</b></span>
+                                    @foreach(explode('[!]', $old[$i]['data']) as $event)
+                                        <div>{{$event}}</div>
+                                    @endforeach
+                                @endif
+                            @elseif (!isset($new[$i]) && isset($old[$i]))
+                                <span><b>{{$old[$i]['name']}}:</b></span>
+                                @foreach(explode('[!]', $old[$i]['data']) as $event)
+                                    <div>{{$event}}</div>
+                                @endforeach
+                            @endif
+                        @endfor
+                    @endif
+
                 </div>
                 @endif
             </div>
