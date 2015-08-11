@@ -148,6 +148,75 @@ class FormController extends Controller {
         flash()->overlay('Your form has been successfully deleted!','Good Job');
 	}
 
+    public function addNode($pid,$fid, Request $request){
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+
+        $form = FormController::getForm($fid);
+        $name = $request->name;
+
+        if(is_null($request->nodeTitle)) {
+            $layout = explode('</LAYOUT>', $form->layout)[0];
+
+            $layout .= "<NODE title='" . $name . "'></NODE></LAYOUT>";
+        }else{
+            $newNode = "<NODE title='" . $name . "'></NODE>";
+            $containerNode = "<NODE title='" . $request->nodeTitle . "'>";
+            $parts = explode($containerNode,$form->layout);
+
+            $layout = $parts[0].$containerNode.$newNode.$parts[1];
+        }
+
+        $form->layout = $layout;
+        $form->save();
+
+        flash()->overlay('Your node has been successfully created!','Good Job');
+
+        return redirect('projects/'.$form->pid.'/forms/'.$form->fid);
+    }
+
+    public function deleteNode($pid,$fid,$title, Request $request){
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+
+        $form = FormController::getForm($fid);
+
+        $layout = FormController::xmlToArray($form->layout);
+
+        $nodeStart=0;
+        for($i=0;$i<sizeof($layout);$i++){
+            if($layout[$i]['tag']=='NODE' && $layout[$i]['type']=='open' && $layout[$i]['attributes']['TITLE']==$title){
+                $nodeStart = $i;
+                break;
+            }
+        }
+
+        for($j=$nodeStart+1;$j<sizeof($layout);$j++){
+            if(isset($layout[$j]) && $layout[$j]['tag']=='NODE' && $layout[$j]['type']=='close' && $layout[$j]['level']==$layout[$nodeStart]['level']){
+                $nodeEnd = $j;
+                break;
+            }
+        }
+
+        $newLayout = array();
+
+        for($k=0;$k<sizeof($layout);$k++){
+            if($k!=$i && $k!=$j){
+                array_push($newLayout,$layout[$k]);
+            }
+        }
+
+        $fNav = new FieldNavController();
+        $form->layout = $fNav->valsToXML($newLayout);
+        $form->save();
+
+        flash()->overlay('Your node has been successfully deleted!','Good Job');
+
+        return redirect('projects/'.$form->pid.'/forms/'.$form->fid);
+    }
+
     /**
      * Get form object for use in controller.
      *

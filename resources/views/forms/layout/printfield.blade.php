@@ -25,7 +25,7 @@
                 </span>
             @endif
                 <span  class="pull-right">
-                    @include('forms.layout.navbuttons',['layout'=>\App\Http\Controllers\FieldNavController::navButtonsAllowed($form->layout)])
+                    @include('forms.layout.navbuttons',['layout'=>\App\Http\Controllers\FieldNavController::navButtonsAllowed($form->layout, $field->flid)])
                 </span>
         </div>
     </div>
