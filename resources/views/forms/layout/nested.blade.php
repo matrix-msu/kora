@@ -1,5 +1,22 @@
 <div id="node" style="margin-left:50px">
     <h3>{{ $title }}</h3>
+    @if(\Auth::user()->canCreateFields($form) && isset($layoutPage))
+        <div class="form-inline">
+            <form action="{{action('FormController@addNode', ['pid' => $form->pid, 'fid' => $form->fid]) }}"
+                  method="POST" class="form-group form-inline">
+                <input type="hidden" value="{{ csrf_token() }}" name="_token">
+                <input type="hidden" value="{{$title}}" name="nodeTitle">
+                <input type="text" name="name" class = "form-control" required/>
+                <input type="submit" value="Create New Node" class="btn form-control">
+            </form>
+            <form action="{{action('FormController@deleteNode', ['pid' => $form->pid, 'fid' => $form->fid, 'title' => $title]) }}"
+                  method="POST" class="form-group form-inline">
+                <input type="hidden" value="{{ csrf_token() }}" name="_token">
+                <input type="submit" value="Delete Node" class="btn btn-danger form-control">
+            </form>
+        </div>
+        <br />
+    @endif
     @for($i=0;$i<sizeof($node);$i++)
         @if($node[$i]['tag']=='ID')
             @include($fieldview,['field' => App\Field::where('flid', '=', $node[$i]['value'])->first()])

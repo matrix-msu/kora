@@ -209,12 +209,58 @@ class FieldNavController extends Controller {
         return $xml;
     }
 
-    public static function navButtonsAllowed($layout){
+    public static function navButtonsAllowed($layout, $flid){
         $vis = ['up'=>false,'down'=>false,'upIn'=>false,'downIn'=>false,'upOut'=>false,'downOut'=>false];
 
-        //do stuff
         $layout = FormController::xmlToArray($layout);
-        //dd($layout);
+
+        $fieldTag=0;
+        for($i=0;$i<sizeof($layout);$i++){
+            if($layout[$i]['tag']=='ID' && $layout[$i]['value']==$flid){
+                $fieldTag = $i;
+                break;
+            }
+        }
+
+        //up - if close node or field directly above
+        if(isset($layout[$fieldTag-1]) && $layout[$fieldTag-1]['tag']=='ID'){
+            $vis['up'] = true;
+        }else if(isset($layout[$fieldTag-1]) && $layout[$fieldTag-1]['tag']=='NODE' && $layout[$fieldTag-1]['type']=='close'){
+            $vis['up'] = true;
+        }
+
+        //down - if open node or field directly below
+        if(isset($layout[$fieldTag+1]) && $layout[$fieldTag+1]['tag']=='ID'){
+            $vis['down'] = true;
+        }else if(isset($layout[$fieldTag+1]) && $layout[$fieldTag+1]['tag']=='NODE' && $layout[$fieldTag+1]['type']=='open'){
+            $vis['down'] = true;
+        }
+
+        //upIn - if close node with same lvl is directly above
+        if(isset($layout[$fieldTag-1]) && $layout[$fieldTag-1]['tag']=='NODE' && $layout[$fieldTag-1]['type']=='close' && $layout[$fieldTag-1]['level']==$layout[$fieldTag]['level']){
+            $vis['upIn'] = true;
+        }
+
+        //downIn - if open node with same lvl is directly below
+        if(isset($layout[$fieldTag+1]) && $layout[$fieldTag+1]['tag']=='NODE' && $layout[$fieldTag+1]['type']=='open' && $layout[$fieldTag+1]['level']==$layout[$fieldTag]['level']){
+            $vis['downIn'] = true;
+        }
+
+        //upOut - if first open node with one lvl less is above
+        for($j=$fieldTag-1;$j>=0;$j--){
+            if(isset($layout[$j]) && $layout[$j]['tag']=='NODE' && $layout[$j]['type']=='open' && $layout[$j]['level']==$layout[$fieldTag]['level']-1){
+                $vis['upOut'] = true;
+                break;
+            }
+        }
+
+        //downOut - if first close node with one lvl less is below
+        for($j=$fieldTag+1;$j<sizeof($layout);$j++){
+            if(isset($layout[$j]) && $layout[$j]['tag']=='NODE' && $layout[$j]['type']=='close' && $layout[$j]['level']==$layout[$fieldTag]['level']-1){
+                $vis['downOut'] = true;
+                break;
+            }
+        }
 
         return $vis;
     }

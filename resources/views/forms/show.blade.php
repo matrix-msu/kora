@@ -26,12 +26,18 @@
     <hr/>
     <h2>Fields</h2>
 
-    @include('forms.layout.logic',['form' => $form, 'fieldview' => 'forms.layout.printfield'])
+    @include('forms.layout.logic',['form' => $form, 'fieldview' => 'forms.layout.printfield', 'layoutPage' => true])
 
     @if(\Auth::user()->canCreateFields($form))
-    <form action="{{action('FieldController@create', ['pid' => $form->pid, 'fid' => $form->fid]) }}">
-        <input type="submit" value="Create New Field" class="btn btn-primary form-control">
-    </form>
+        <form action="{{action('FormController@addNode', ['pid' => $form->pid, 'fid' => $form->fid]) }}"
+              method="POST" class="form-group form-inline">
+            <input type="hidden" value="{{ csrf_token() }}" name="_token">
+            <input type="text" name="name" class = "form-control" required/>
+            <input type="submit" value="Create New Node" class="btn form-control">
+        </form>
+        <form action="{{action('FieldController@create', ['pid' => $form->pid, 'fid' => $form->fid]) }}">
+            <input type="submit" value="Create New Field" class="btn btn-primary form-control">
+        </form>
     @endif
 
 @stop
