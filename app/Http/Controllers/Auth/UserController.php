@@ -51,7 +51,7 @@ class UserController extends Controller {
             $admin = 0;
             $projects = UserController::buildProjectsArray($user);
             $forms = UserController::buildFormsArray($user);
-            $records = UserController::buildRecordsArray($user);
+            $records = Record::where('owner', '=', $user->id)->orderBy('updated_at', 'desc')->get();
             return view('user/profile',compact('languages_available', 'admin', 'projects', 'forms', 'records'));
         }
     }
@@ -270,24 +270,5 @@ class UserController extends Controller {
             $i++;
         }
         return $forms;
-    }
-
-    public static function buildRecordsArray(User $user)
-    {
-        $i=0;
-        $all_records = Record::all()->sortby('created_at');
-        $records = array();
-        foreach($all_records as $record)
-        {
-            if($user->isOwner($record))
-            {
-                $records[$i]['rid'] = $record->rid;
-                $records[$i]['fid'] = $record->fid;
-                $records[$i]['pid'] = $record->pid;
-                $records[$i]['updated_at'] = $record->updated_at;
-            }
-            $i++;
-        }
-        return $records;
     }
 }
