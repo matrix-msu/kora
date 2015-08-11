@@ -1,5 +1,8 @@
 <?php namespace App\Http\Controllers\Auth;
 
+use App\Form;
+use App\Project;
+use App\Record;
 use App\User;
 use App\Http\Requests;
 use Illuminate\Http\Request;
@@ -37,7 +40,20 @@ class UserController extends Controller {
     public function index()
     {
         $languages_available = Config::get('app.locales_supported');
-        return view('user/profile',compact('languages_available'));
+
+        $user = Auth::user();
+
+        if($user->admin){
+            $admin = 1;
+            return view('user/profile',compact('languages_available', 'admin'));
+        }
+        else{
+            $admin = 0;
+            $projects = UserController::buildProjectsArray($user);
+            $forms = UserController::buildFormsArray($user);
+            $records = UserController::buildRecordsArray($user);
+            return view('user/profile',compact('languages_available', 'admin', 'projects', 'forms', 'records'));
+        }
     }
 
     /**
@@ -181,5 +197,97 @@ class UserController extends Controller {
         }
 
 
+    }
+
+    public static function buildProjectsArray(User $user)
+    {
+        $all_projects = Project::all();
+        $projects = array();
+        $i=0;
+        foreach($all_projects as $project)
+        {
+            if($user->inAProjectGroup($project))
+            {
+                $permissions = '';
+                $projects[$i]['pid'] = $project->pid;
+                $projects[$i]['name'] = $project->name;
+
+                if($user->isProjectAdmin($project))
+                    $projects[$i]['permissions'] = 'Admin';
+                else
+                {
+                    if($user->canCreateForms($project))
+                        $permissions .= 'Create Forms ';
+                    if($user->canEditForms($project))
+                        $permissions .= 'Edit Forms ';
+                    if($user->canDeleteForms($project))
+                        $permissions .= 'Delete Forms ';
+                    if($permissions == '')
+                        $permissions .= 'Read Only';
+                    $projects[$i]['permissions'] = $permissions;
+                }
+            }
+            $i++;
+        }
+        return $projects;
+    }
+
+    public static function buildFormsArray(User $user)
+    {
+        $i=0;
+        $all_forms = Form::all();
+        $forms = array();
+        foreach($all_forms as $form)
+        {
+            if($user->inAFormGroup($form))
+            {
+                $permissions = '';
+                $forms[$i]['fid'] = $form->fid;
+                $forms[$i]['pid'] = $form->pid;
+                $forms[$i]['name'] = $form->name;
+
+                if($user->isFormAdmin($form))
+                    $forms[$i]['permissions'] = 'Admin';
+                else
+                {
+                    if($user->canCreateFields($form))
+                        $permissions .= 'Create Fields ';
+                    if($user->canEditFields($form))
+                        $permissions .= 'Edit Fields ';
+                    if($user->canDeleteFields($form))
+                        $permissions .= 'Delete Fields ';
+                    if($user->canIngestRecords($form))
+                        $permissions .= 'Create Records ';
+                    if($user->canModifyRecords($form))
+                        $permissions .= 'Edit Records ';
+                    if ($user->canDestroyRecords($form))
+                        $permissions .= 'Delete Records ';
+                    if($permissions == '')
+                        $permissions .= 'Read Only';
+                    $forms[$i]['permissions'] = $permissions;
+                }
+            }
+            $i++;
+        }
+        return $forms;
+    }
+
+    public static function buildRecordsArray(User $user)
+    {
+        $i=0;
+        $all_records = Record::all()->sortby('created_at');
+        $records = array();
+        foreach($all_records as $record)
+        {
+            if($user->isOwner($record))
+            {
+                $records[$i]['rid'] = $record->rid;
+                $records[$i]['fid'] = $record->fid;
+                $records[$i]['pid'] = $record->pid;
+                $records[$i]['updated_at'] = $record->updated_at;
+            }
+            $i++;
+        }
+        return $records;
     }
 }

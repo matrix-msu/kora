@@ -18,6 +18,10 @@
 
                         @include('partials.changepassword')
 
+                        <hr>
+
+                        @include('partials.showpermissions')
+
                     </div>
                 </div>
             </div>
