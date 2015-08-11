@@ -198,7 +198,7 @@ class RecordController extends Controller {
 	 */
 	public function edit($pid, $fid, $rid)
 	{
-        if(!RecordController::checkPermissions($fid, 'modify') && !\Auth::user()->isOwner(RecordController::getRecord($rid))) {
+        if(!\Auth::user()->isOwner(RecordController::getRecord($rid)) && !RecordController::checkPermissions($fid, 'modify')) {
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
@@ -377,7 +377,7 @@ class RecordController extends Controller {
 	 */
 	public function destroy($pid, $fid, $rid)
 	{
-        if(!RecordController::checkPermissions($fid, 'destroy') && !\Auth::user()->isOwner(RecordController::getRecord($rid))) {
+        if(!\Auth::user()->isOwner(RecordController::getRecord($rid)) && !RecordController::checkPermissions($fid, 'destroy') ) {
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
