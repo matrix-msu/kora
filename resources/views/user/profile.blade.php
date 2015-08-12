@@ -32,6 +32,13 @@
 @section('footer')
 
     <script>
+        $( ".panel-heading" ).on( "click", function() {
+            if ($(this).siblings('.collapseTest').css('display') == 'none' ){
+                $(this).siblings('.collapseTest').slideDown();
+            }else {
+                $(this).siblings('.collapseTest').slideUp();
+            }
+        });
 
         function updateLanguage(selected_lang){
             changeProfile("lang",selected_lang);

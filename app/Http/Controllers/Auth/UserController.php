@@ -45,13 +45,15 @@ class UserController extends Controller {
 
         if($user->admin){
             $admin = 1;
-            return view('user/profile',compact('languages_available', 'admin'));
+            $records = Record::where('owner', '=', $user->id)->orderBy('updated_at', 'desc')->get();
+            return view('user/profile',compact('languages_available', 'admin', 'records'));
         }
         else{
             $admin = 0;
             $projects = UserController::buildProjectsArray($user);
             $forms = UserController::buildFormsArray($user);
             $records = Record::where('owner', '=', $user->id)->orderBy('updated_at', 'desc')->get();
+
             return view('user/profile',compact('languages_available', 'admin', 'projects', 'forms', 'records'));
         }
     }
@@ -217,14 +219,14 @@ class UserController extends Controller {
                 else
                 {
                     if($user->canCreateForms($project))
-                        $permissions .= 'Create Forms ';
+                        $permissions .= 'Create Forms | ';
                     if($user->canEditForms($project))
-                        $permissions .= 'Edit Forms ';
+                        $permissions .= 'Edit Forms | ';
                     if($user->canDeleteForms($project))
-                        $permissions .= 'Delete Forms ';
+                        $permissions .= 'Delete Forms | ';
                     if($permissions == '')
                         $permissions .= 'Read Only';
-                    $projects[$i]['permissions'] = $permissions;
+                    $projects[$i]['permissions'] = rtrim($permissions, '| ');
                 }
             }
             $i++;
@@ -251,20 +253,20 @@ class UserController extends Controller {
                 else
                 {
                     if($user->canCreateFields($form))
-                        $permissions .= 'Create Fields ';
+                        $permissions .= 'Create Fields | ';
                     if($user->canEditFields($form))
-                        $permissions .= 'Edit Fields ';
+                        $permissions .= 'Edit Fields | ';
                     if($user->canDeleteFields($form))
-                        $permissions .= 'Delete Fields ';
+                        $permissions .= 'Delete Fields | ';
                     if($user->canIngestRecords($form))
-                        $permissions .= 'Create Records ';
+                        $permissions .= 'Create Records | ';
                     if($user->canModifyRecords($form))
-                        $permissions .= 'Edit Records ';
+                        $permissions .= 'Edit Records | ';
                     if ($user->canDestroyRecords($form))
-                        $permissions .= 'Delete Records ';
+                        $permissions .= 'Delete Records | ';
                     if($permissions == '')
-                        $permissions .= 'Read Only';
-                    $forms[$i]['permissions'] = $permissions;
+                        $permissions .= 'Read Only ';
+                    $forms[$i]['permissions'] = rtrim($permissions, '| ');
                 }
             }
             $i++;

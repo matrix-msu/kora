@@ -77,10 +77,10 @@
         }
     }
 
-    $(".panel-heading").on("click", function(){
-        if($(this).siblings('.collapseTest').css('display') == 'none') {
+    $( ".panel-heading" ).on( "click", function() {
+        if ($(this).siblings('.collapseTest').css('display') == 'none' ){
             $(this).siblings('.collapseTest').slideDown();
-        } else {
+        }else {
             $(this).siblings('.collapseTest').slideUp();
         }
     });
