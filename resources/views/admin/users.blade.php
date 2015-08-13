@@ -9,6 +9,10 @@
 
                         @include('admin.form')
 
+                        <hr/>
+
+                        @include('admin.batch')
+
                     </div>
                 </div>
             </div>

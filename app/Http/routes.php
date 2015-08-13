@@ -26,7 +26,9 @@ Route::delete('projects/{pid}/manage/formgroups/deleteFormGroup', 'FormGroupCont
 //admin routes
 Route::get('/admin/users', 'AdminController@users');
 Route::patch('/admin/update', 'AdminController@update');
+Route::patch('/admin/batch', 'AdminController@batch');
 Route::delete('admin/deleteUser/{id}', 'AdminController@deleteUser');
+
 
 //token routes
 Route::get('/tokens', 'TokenController@index');
@@ -42,8 +44,6 @@ Route::get('/projects/{pid}/forms/create','FormController@create');
 Route::get('/projects/{pid}/forms/{fid}','FormController@show');
 Route::delete('/projects/{pid}/forms/{fid}','FormController@destroy');
 Route::get('/projects/{pid}/forms/{fid}/edit','FormController@edit');
-Route::post('/projects/{pid}/forms/{fid}/createNode','FormController@addNode');
-Route::post('/projects/{pid}/forms/{fid}/deleteNode/{title}','FormController@deleteNode');
 Route::post('/projects/{pid}','FormController@store');
 
 //field routes

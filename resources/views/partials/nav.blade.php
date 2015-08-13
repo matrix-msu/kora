@@ -30,6 +30,9 @@
 						<li><a href="{{ url('/auth/logout') }}">Logout</a></li>
 					</ul>
 				</li>
+              @if (!\Auth::user()->active)
+                  <li><a href="{{ action('Auth\UserController@activateshow') }}">{{trans('nav.activation')}}</a></li>
+              @endif
 			@endif
 		</ul>
         </div><!--/.nav-collapse -->

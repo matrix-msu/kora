@@ -3,7 +3,9 @@
 use App\User;
 use App\Http\Requests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Controller;
+use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 
 class AdminController extends Controller {
 
@@ -83,4 +85,73 @@ class AdminController extends Controller {
         flash()->overlay('User Deleted.', 'Success!');
     }
 
+    public function batch(Request $request)
+    {
+        $emails = str_replace(',', ' ', $request['emails']);
+        $emails = str_replace('  ', ' ', $emails);
+        $emails = array_unique(explode(' ', $emails));
+
+        $skipped = 0;
+        $created = 0;
+
+        foreach($emails as $email)
+        {
+            if(!AdminController::emailExists($email)) {
+                $username = explode('@', $email)[0];
+                $len = strlen($username);
+                $i = 1;
+                while (AdminController::usernameExists($username)) {
+                    $username = substr($username, 0, $len) . $i;
+                }
+
+                $user = new User();
+                $user->username = $username;
+                $user->email = $email;
+                $password = AdminController::passwordGen();
+                $user->password = bcrypt($password);
+                $token = AuthenticatesAndRegistersUsers::makeRegToken();
+                $user->regtoken = $token;
+                $user->save();
+
+                Mail::send('emails.batch-activation', compact('token', 'password', 'username'), function ($message) use ($email) {
+                    $message->from(env('MAIL_FROM_ADDRESS'));
+                    $message->to($email);
+                    $message->subject('Kora Account Activation');
+                });
+                $created++;
+            }
+            else {
+                $skipped++;
+            }
+        }
+        if($skipped)
+            flash()->overlay($skipped.' e-mail(s) were in use, '.$created.' user(s) created.', 'Success');
+        else
+            flash()->overlay($created. ' user(s) created.', 'Success');
+        return redirect('admin/users');
+    }
+
+    private function usernameExists($username)
+    {
+        return !is_null(User::where('username', '=', $username)->first());
+    }
+
+    private function emailExists($email)
+    {
+        return !is_null(User::where('email', '=', $email)->first());
+    }
+
+
+    private function passwordGen()
+    {
+        $valid = 'abcdefghijklmnopqrstuvwxyz';
+        $valid .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $valid .= '0123456789';
+
+        $password = '';
+        for ($i = 0; $i < 10; $i++){
+            $password .= $valid[( rand() % 62 )];
+        }
+        return $password;
+    }
 }
