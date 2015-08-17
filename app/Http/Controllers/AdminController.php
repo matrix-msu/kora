@@ -100,8 +100,12 @@ class AdminController extends Controller {
                 $username = explode('@', $email)[0];
                 $len = strlen($username);
                 $i = 1;
+                $username_array = array();
+                $username_array[0] = $username;
                 while (AdminController::usernameExists($username)) {
-                    $username = substr($username, 0, $len) . $i;
+                    $username_array[1] = $i;
+                    $username = implode($username_array);
+                    $i++;
                 }
 
                 $user = new User();
