@@ -11,9 +11,7 @@ class Field extends Model {
         'name',
         'slug',
         'desc',
-        'required'
-        //'default',
-        //'options'
+        'required',
     ];
 
     protected $primaryKey = "flid";

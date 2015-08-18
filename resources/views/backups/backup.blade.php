@@ -1,0 +1,114 @@
+@extends('app')
+
+@section('content')
+    <div class="container">
+        <div class="row">
+            <div class="col-md-10 col-md-offset-1">
+
+                @if (count($errors) > 0)
+                    <div class="alert alert-danger">
+                        <strong>Whoops!</strong> Make sure you entered everything correctly<br>
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <form method="get" action={{action("BackupController@create")}}>
+                    <input type="hidden" name="_token" value="{{csrf_token()}}">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            Backup
+                        </div>
+
+                        <div class="panel-body">
+                            <div style="" id="progress">
+                                <p>
+                                    The backup has started, depending on the size of your database, it may take a few minutes
+                                    to complete.  Do not leave this page or close your browser until it is completed.
+                                    When the backup is complete, you can see a summary of all the data that was saved.
+                                </p>
+                                <div class="progress">
+                                    <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                                        <span class="sr-only">99% Complete</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="display:none" id="summary">
+                                <p>
+                                    The backup has completed successfully.
+                                </p>
+                              <!--  <ul class="list-group">
+                                    <li class="list-group-item">
+                                        <span class="badge">11</span>
+                                        Users
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">1</span>
+                                        Projects
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">2</span>
+                                        Forms
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">8</span>
+                                        Fields
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">33</span>
+                                        Records
+                                    </li>
+                                </ul> -->
+                                <button onclick="download()" type="button" class="btn btn-default">
+                                    <span class="glyphicon glyphicon-save" aria-hidden="true"></span> Download
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('footer')
+    <script>
+        function backup(){
+            window.onbeforeunload = function() {
+                return "Do not leave this page, the backup process will be interrupted!";
+            }
+            var backupURL ="{{action('BackupController@create')}}";
+            $.ajax({
+                url:backupURL,
+                method:'POST',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "backup_name": '{{$backup_label}}'
+                },
+                success: function(data){
+                    console.log(data);
+                   $("#progress").css("display","none");
+                   $("#summary").css("display","inline");
+                    //alert("hi");
+                    console.log("done");
+                    window.onbeforeunload = null;
+                },
+                error: function(data){
+                    alert("The backup has failed for unknown reasons.");
+                    window.onbeforeunload = null;
+                }
+            });
+        }
+        function download(){
+                window.location ='{{action("BackupController@download")}}';
+        }
+$(backup);
+    </script>
+@endsection
+
+@stop
+
