@@ -19,5 +19,9 @@
 @section('footer')
     <script>
         $('#admins').select2();
+        $('#presets').select2({
+            placeholder: 'Select a Preset',
+            allowClear: true
+        });
     </script>
 @stop

@@ -20,11 +20,22 @@ use App\Http\Controllers\Controller;
 
 class RevisionController extends Controller {
 
+    /**
+     * User must be logged in to access views in this controller.
+     */
     public function __construct() {
         $this->middleware('auth');
         $this->middleware('active');
     }
 
+    /**
+     * Displays the fifty most recent record revisions index for the particular form.
+     *
+     * @param string $pid
+     * @param $fid
+     * @param string $rid
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
+     */
     public function index($pid='', $fid, $rid=''){
 
         if(!\Auth::user()->admin && !\Auth::user()->isFormAdmin(FormController::getForm($fid)))
@@ -59,6 +70,14 @@ class RevisionController extends Controller {
         return view('revisions.index', compact('revisions', 'records', 'form', 'message'));
     }
 
+    /**
+     * Shows the revision history for a particular record, still functional if the record is deleted.
+     *
+     * @param $pid
+     * @param $fid
+     * @param $rid
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|string
+     */
     public function show($pid, $fid, $rid)
     {
         if(!FormController::validProjForm($pid, $fid)){
@@ -89,6 +108,11 @@ class RevisionController extends Controller {
         return view('revisions.index', compact('revisions', 'records', 'form', 'message', 'rid'))->render();
     }
 
+    /**
+     * Rolls back a record.
+     *
+     * @param Request $request
+     */
     public function rollback(Request $request)
     {
         $revision = Revision::where('id', '=', $request['revision'])->first();
@@ -130,6 +154,14 @@ class RevisionController extends Controller {
         }
     }
 
+    /**
+     * Does the actual rolling back using the data array from a particular revision.
+     *
+     * @param Record $record
+     * @param Form $form
+     * @param Revision $revision
+     * @param $flag
+     */
     public static function redo(Record $record, Form $form, Revision $revision, $flag)
     {
         $data = json_decode($revision->data, true);
@@ -281,18 +313,17 @@ class RevisionController extends Controller {
         }
     }
 
-	public static function storeRevision($rid, $type)
+    /**
+     * Stores a new revision. Called on record creation, deletion, or edit.
+     *
+     * @param $rid
+     * @param $type
+     * @return Revision
+     */
+    public static function storeRevision($rid, $type)
     {
         $revision = new Revision();
         $record = RecordController::getRecord($rid);
-
-        /* Have to see which method is better, for now we'll use serialize.
-           Alternative method is presented here. The base64_encode method might end up working
-           better for data other than simple text and lists.
-
-        $revision->data = base64_encode(serialize($record));
-        To decode: $decode = unserialize(base64_decode(serialize($revision->data)));
-        */
 
         $fid = $record->form()->first()->fid;
         $revision->fid = $fid;
@@ -309,6 +340,12 @@ class RevisionController extends Controller {
         return $revision;
     }
 
+    /**
+     * Builds up an array that functions similarly to the field object. Json encoded for storage.
+     *
+     * @param Record $record
+     * @return string
+     */
     public static function buildDataArray(Record $record)
     {
         $data = array();
@@ -459,9 +496,22 @@ class RevisionController extends Controller {
             $data['schedulefields'] = null;
         }
 
+        /* Have to see which method is better, for now we'll use json_encode (remember to use json_decode($array, true)).
+           Alternative method is presented here. The base64_encode method might end up working
+           better for data other than simple text and lists.
+
+        $revision->data = base64_encode(serialize($record));
+        To decode: $decode = unserialize(base64_decode(serialize($revision->data)));
+        */
+
         return json_encode($data);
     }
 
+    /**
+     * Wipes ability to rollback any revisions. Called on field creation, deletion, or edit.
+     *
+     * @param $fid
+     */
     public static function wipeRollbacks($fid)
     {
         $revisions = Revision::where('fid','=',$fid)->get();

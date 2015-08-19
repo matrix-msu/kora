@@ -77,6 +77,11 @@ class AdminController extends Controller {
         return redirect('admin/users');
     }
 
+    /**
+     * Deletes a user.
+     *
+     * @param $id
+     */
     public function deleteUser($id)
     {
         $user = User::where('id', '=', $id)->first();
@@ -85,6 +90,13 @@ class AdminController extends Controller {
         flash()->overlay('User Deleted.', 'Success!');
     }
 
+    /**
+     * Takes in comma separated or space separated (or a combination of the two)
+     * e-mails and creates new users based on the emails.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function batch(Request $request)
     {
         $emails = str_replace(',', ' ', $request['emails']);
@@ -135,17 +147,34 @@ class AdminController extends Controller {
         return redirect('admin/users');
     }
 
+    /**
+     * Checks if a username is in use.
+     *
+     * @param $username
+     * @return bool
+     */
     private function usernameExists($username)
     {
         return !is_null(User::where('username', '=', $username)->first());
     }
 
+    /**
+     * Checks if a email is in use.
+     *
+     * @param $email
+     * @return bool
+     */
     private function emailExists($email)
     {
         return !is_null(User::where('email', '=', $email)->first());
     }
 
 
+    /**
+     * Generates a random temporary password.
+     *
+     * @return string
+     */
     private function passwordGen()
     {
         $valid = 'abcdefghijklmnopqrstuvwxyz';
