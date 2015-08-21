@@ -75,6 +75,7 @@ Route::get('/projects/{pid}/forms/{fid}/records/{rid}','RecordController@show');
 Route::delete('/projects/{pid}/forms/{fid}/records/{rid}','RecordController@destroy');
 Route::get('/projects/{pid}/forms/{fid}/records/{rid}/edit','RecordController@edit');
 Route::post('/projects/{pid}/forms/{fid}/records','RecordController@store');
+Route::delete('projects/{pid}/forms/{fid}/deleteAllRecords','RecordController@deleteAllRecords');
 
 //revision routes
 Route::get('/projects/{pid}/forms/{fid}/records/revisions/recent', 'RevisionController@index');

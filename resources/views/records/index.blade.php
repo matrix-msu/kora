@@ -18,6 +18,7 @@
         <form action="{{action('RevisionController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
             <button type="submit" class="btn btn-default">Revision History</button>
         </form>
+        <button class="btn btn-danger" onclick="deleteAll()">Delete All Records</button>
     @endif
 
     <div>
@@ -149,4 +150,27 @@
             @endforeach
         </div>
     @endforeach
+@stop
+
+@section('footer')
+    <script>
+        function deleteAll() {
+            var resp1 = confirm('This will delete all records for this form, are you sure?');
+            if(resp1) {
+                var resp2 = confirm('Press OK to delete all records.');
+                if(resp2) {
+                    $.ajax({
+                        url: '{{action('RecordController@deleteAllRecords', ['pid'=> $form->pid, 'fid' => $form->fid])}}',
+                        type: 'DELETE',
+                        data: {
+                            "_token": "{{ csrf_token() }}"
+                        },
+                        success: function() {
+                            location.reload();
+                        }
+                    });
+                }
+            }
+        }
+    </script>
 @stop
