@@ -18,6 +18,13 @@ class Token extends Model {
         return $this->belongsToMany('App\Project');
     }
 
+
+    /**
+     * Determines if a token belongs to a certain project.
+     *
+     * @param Project $project
+     * @return mixed
+     */
     public function hasProject(Project $project)
     {
         $thisProjects = $this->projects()->get();

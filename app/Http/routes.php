@@ -46,6 +46,7 @@ Route::delete('/projects/{pid}/forms/{fid}','FormController@destroy');
 Route::get('/projects/{pid}/forms/{fid}/edit','FormController@edit');
 Route::post('/projects/{pid}/forms/{fid}/createNode','FormController@addNode');
 Route::post('/projects/{pid}/forms/{fid}/deleteNode/{title}','FormController@deleteNode');
+Route::post('/projects/{pid}/forms/{fid}/preset', 'FormController@preset');
 Route::post('/projects/{pid}','FormController@store');
 
 //field routes
