@@ -23,6 +23,9 @@
 	<link rel="stylesheet" href="http://{{ env('BASE_URL') }}public/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
 	<link rel='stylesheet' href='http://{{ env('BASE_URL') }}public/bower_components/fullcalendar/dist/fullcalendar.css' />
 	<script src='http://{{ env('BASE_URL') }}public/bower_components/fullcalendar/dist/fullcalendar.js'></script>
+	<!-- For Geolocator -->
+	<link rel="stylesheet" href="http://{{ env('BASE_URL') }}public/leaflet/leaflet.css" />
+	<script src="http://{{ env('BASE_URL') }}public/leaflet/leaflet.js"></script>
 
     <title>Kora 3</title>
 </head>

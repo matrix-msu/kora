@@ -12,10 +12,17 @@ class CreateGeolocatorfieldsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('geolocatorfields', function(Blueprint $table)
+		Schema::create('geolocator_fields', function(Blueprint $table)
 		{
 			$table->increments('id');
+
+			$table->integer('rid')->unsigned();
+			$table->integer('flid')->unsigned();
+			$table->mediumText('locations');
 			$table->timestamps();
+
+			$table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');
+			$table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
 	}
 
@@ -26,7 +33,7 @@ class CreateGeolocatorfieldsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('geolocatorfields');
+		Schema::drop('geolocator_fields');
 	}
 
 }

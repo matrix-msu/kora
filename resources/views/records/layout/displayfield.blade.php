@@ -83,8 +83,8 @@
                         <script>
                             $('#calendar{{$field->flid}}').fullCalendar({
                                 events: [
-                                        @foreach(explode('[!]',$sf->events) as $event)
-                                            {
+                                    @foreach(explode('[!]',$sf->events) as $event)
+                                        {
                                         <?php
                                             $nameTime = explode(': ',$event);
                                             $times = explode(' - ',$nameTime[1]);
@@ -106,6 +106,45 @@
                                 ]
                             });
                         </script>
+                    @endif
+                @endforeach
+            @endif
+        @elseif($field->type=='Geolocator')
+            @if(\App\Http\Controllers\FieldController::getFieldOption($field,'Map')=='No')
+                @foreach($record->geolocatorfields as $gf)
+                    @if($gf->flid == $field->flid)
+                        @foreach(explode('[!]',$gf->locations) as $opt)
+                            <div>{{ $opt }}</div>
+                        @endforeach
+                    @endif
+                @endforeach
+            @else
+                @foreach($record->geolocatorfields as $gf)
+                    @if($gf->flid == $field->flid)
+                        <div id="map{{$field->flid}}" style="height:270px;"></div>
+                        <?php $locs = array(); ?>
+                        @foreach(explode('[!]',$gf->locations) as $location)
+                            <?php
+                                $loc = array();
+                                $desc = explode(': ',$location)[0];
+                                $x = explode(', ', explode(': ',$location)[1])[0];
+                                $y = explode(', ', explode(': ',$location)[1])[1];
+
+                                $loc['desc'] = $desc;
+                                $loc['x'] = $x;
+                                $loc['y'] = $y;
+
+                                array_push($locs,$loc);
+                            ?>
+                        @endforeach
+                    <script>
+                        var map{{$field->flid}} = L.map('map{{$field->flid}}').setView([{{$locs[0]['x']}}, {{$locs[0]['y']}}], 13);
+                        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(map{{$field->flid}});
+                        @foreach($locs as $loc)
+                            var marker = L.marker([{{$loc['x']}}, {{$loc['y']}}]).addTo(map{{$field->flid}});
+                            marker.bindPopup("{{$loc['desc']}}");
+                        @endforeach
+                    </script>
                     @endif
                 @endforeach
             @endif
