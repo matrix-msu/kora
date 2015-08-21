@@ -143,6 +143,14 @@
                                     @endif
                                 @endforeach
                             @endif
+                        @elseif($field->type=='Geolocator')
+                            @foreach($record->geolocatorfields as $gf)
+                                @if($gf->flid == $field->flid)
+                                    @foreach(explode('[!]',$gf->locations) as $opt)
+                                        <div>{{ $opt }}</div>
+                                    @endforeach
+                                @endif
+                            @endforeach
                         @endif
                     </span>
                 </div>
