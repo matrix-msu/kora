@@ -416,6 +416,16 @@ class RecordController extends Controller {
         flash()->overlay('Your record has been successfully deleted!', 'Good Job!');
 	}
 
+    public function deleteAllRecords($pid, $fid)
+    {
+        $records = Record::where('fid', '=', $fid)->get();
+        foreach($records as $record)
+        {
+            RecordController::destroy($pid, $fid, $record->rid);
+        }
+        flash()->overlay('All records deleted.', 'Success!');
+    }
+
     public static function getRecord($rid)
     {
         $record = Record::where('rid', '=', $rid)->first();
