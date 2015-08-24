@@ -120,11 +120,11 @@ class FormController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function update($id, FormRequest $request)
+	public function update($pid, $fid, FormRequest $request)
 	{
-        $form = FormController::getForm($id);
+        $form = FormController::getForm($fid);
 
-        if(!FormController::checkPermissions($id, 'edit')){
+        if(!FormController::checkPermissions($pid, 'edit')){
             return redirect('/projects/'.$form->$pid.'/forms');
         }
 
