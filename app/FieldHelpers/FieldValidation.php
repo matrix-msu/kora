@@ -22,16 +22,14 @@ class FieldValidation {
             return FieldValidation::validateList($field, $value);
         } else if($field->type=='Multi-Select List') {
             return FieldValidation::validateMultiSelectList($field, $value);
-        } else if($field->type=='Rich Text' | $field->type=='Number' | $field->type=='Schedule'){
+        } else if($field->type=='Rich Text' | $field->type=='Number' | $field->type=='Schedule'
+            | $field->type=='Geolocator' | $field->type=='Associator' ){
             return FieldValidation::validateDefault($field, $value);
         } else if($field->type=='Generated List') {
             return FieldValidation::validateGeneratedList($field, $value);
         } else if($field->type=='Date') {
             return FieldValidation::validateDate($field, $request);
-        } else if($field->type=='Geolocator') {
-            return FieldValidation::validateGeolocation($field, $value);
-        }
-        else{
+        } else{
             return 'Field does not have a type';
         }
     }
@@ -119,14 +117,6 @@ class FieldValidation {
         }
 
         return '';
-    }
-
-    static function validateGeolocation($field, $value){
-        $req = $field->required;
-
-        if($req==1 && ($value==null | $value=="")){
-            return $field->name.' field is required.';
-        }
     }
 
     static function validateDefault($field, $value){
