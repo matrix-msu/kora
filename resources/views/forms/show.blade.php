@@ -15,6 +15,7 @@
         <form action="{{action('FormGroupController@index', ['fid'=>$form->fid])}}" style="display: inline">
             <button type="submit" class="btn btn-default">Manage Groups</button>
         </form>
+        <span>Make Preset: </span><input type="checkbox" onchange="presetForm()" id="preset" @if($form->preset) checked @endif>
     @endif
 
     <div>
@@ -112,6 +113,22 @@
                     function(resp){
                         location.reload();
                     }, 'html');
+        }
+
+        function presetForm(){
+            var preset;
+            if($('#preset').is(':checked'))
+                preset = 1;
+            else
+                preset = 0;
+            $.ajax({
+                url: '{{action('FormController@preset', ['pid' => $form->pid, 'fid' => $form->fid])}}',
+                type: 'POST',
+                data: {
+                    "_token": '{{csrf_token()}}',
+                    "preset": preset
+                }
+            });
         }
     </script>
 @stop

@@ -3,7 +3,9 @@
 use App\User;
 use App\Http\Requests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Controller;
+use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 
 class AdminController extends Controller {
 
@@ -75,6 +77,11 @@ class AdminController extends Controller {
         return redirect('admin/users');
     }
 
+    /**
+     * Deletes a user.
+     *
+     * @param $id
+     */
     public function deleteUser($id)
     {
         $user = User::where('id', '=', $id)->first();
@@ -83,4 +90,101 @@ class AdminController extends Controller {
         flash()->overlay('User Deleted.', 'Success!');
     }
 
+    /**
+     * Takes in comma separated or space separated (or a combination of the two)
+     * e-mails and creates new users based on the emails.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function batch(Request $request)
+    {
+        $emails = str_replace(',', ' ', $request['emails']);
+        $emails = str_replace('  ', ' ', $emails);
+        $emails = array_unique(explode(' ', $emails));
+
+        $skipped = 0;
+        $created = 0;
+
+        foreach($emails as $email)
+        {
+            if(!AdminController::emailExists($email)) {
+                $username = explode('@', $email)[0];
+                $len = strlen($username);
+                $i = 1;
+                $username_array = array();
+                $username_array[0] = $username;
+                while (AdminController::usernameExists($username)) {
+                    $username_array[1] = $i;
+                    $username = implode($username_array);
+                    $i++;
+                }
+
+                $user = new User();
+                $user->username = $username;
+                $user->email = $email;
+                $password = AdminController::passwordGen();
+                $user->password = bcrypt($password);
+                $token = AuthenticatesAndRegistersUsers::makeRegToken();
+                $user->regtoken = $token;
+                $user->save();
+
+                Mail::send('emails.batch-activation', compact('token', 'password', 'username'), function ($message) use ($email) {
+                    $message->from(env('MAIL_FROM_ADDRESS'));
+                    $message->to($email);
+                    $message->subject('Kora Account Activation');
+                });
+                $created++;
+            }
+            else {
+                $skipped++;
+            }
+        }
+        if($skipped)
+            flash()->overlay($skipped.' e-mail(s) were in use, '.$created.' user(s) created.', 'Success');
+        else
+            flash()->overlay($created. ' user(s) created.', 'Success');
+        return redirect('admin/users');
+    }
+
+    /**
+     * Checks if a username is in use.
+     *
+     * @param $username
+     * @return bool
+     */
+    private function usernameExists($username)
+    {
+        return !is_null(User::where('username', '=', $username)->first());
+    }
+
+    /**
+     * Checks if a email is in use.
+     *
+     * @param $email
+     * @return bool
+     */
+    private function emailExists($email)
+    {
+        return !is_null(User::where('email', '=', $email)->first());
+    }
+
+
+    /**
+     * Generates a random temporary password.
+     *
+     * @return string
+     */
+    private function passwordGen()
+    {
+        $valid = 'abcdefghijklmnopqrstuvwxyz';
+        $valid .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $valid .= '0123456789';
+
+        $password = '';
+        for ($i = 0; $i < 10; $i++){
+            $password .= $valid[( rand() % 62 )];
+        }
+        return $password;
+    }
 }

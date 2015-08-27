@@ -14,7 +14,7 @@
     {!! Form::label('type','Field Type: ') !!}
     {!! Form::select('type', ['Text' => 'Text', 'Rich Text' => 'Rich Text', 'Number' => 'Number',
         'List' => 'List', 'Multi-Select List' => 'Multi-Select List', 'Generated List' => 'Generated List',
-        'Date' => 'Date', 'Schedule' => 'Schedule'], null,['class' => 'form-control']) !!}
+        'Date' => 'Date', 'Schedule' => 'Schedule', 'Geolocator' => 'Geolocator'], null,['class' => 'form-control']) !!}
 </div>
 
 <div class="form-group">

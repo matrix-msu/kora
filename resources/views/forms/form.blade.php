@@ -21,6 +21,16 @@
         {!! Form::select('admins[]',$users, null,['class' => 'form-control', 'multiple', 'id' => 'admins']) !!}
     </div>
 
+    <div class="form-group">
+        {!! Form::label('preset', 'Preset: ') !!}
+        <select class="form-control" id="presets" name="preset">
+            <option disabled selected>Select a Preset</option>
+            @for($i=1; $i <= sizeof($presets); $i++)
+                <option value="{{$i}}">{{$presets[$i]}}</option>
+            @endfor
+        </select>
+    </div>
+
 @endif
 
 <div class="form-group">

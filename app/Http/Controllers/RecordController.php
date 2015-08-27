@@ -2,6 +2,7 @@
 
 use App\DateField;
 use App\GeneratedListField;
+use App\GeolocatorField;
 use App\ScheduleField;
 use App\User;
 use App\Record;
@@ -157,6 +158,12 @@ class RecordController extends Controller {
                 $sf->rid = $record->rid;
                 $sf->events = FieldController::msListArrayToString($value);
                 $sf->save();
+            } else if($field->type=='Geolocator'){
+                $gf = new GeolocatorField();
+                $gf->flid = $field->flid;
+                $gf->rid = $record->rid;
+                $gf->locations = FieldController::msListArrayToString($value);
+                $gf->save();
             }
         }
 
@@ -360,6 +367,19 @@ class RecordController extends Controller {
                     $sf->events = FieldController::msListArrayToString($value);
                     $sf->save();
                 }
+            } else if($field->type=='Geolocator'){
+                //we need to check if the field exist first
+                if(GeolocatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
+                    $gf = GeolocatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                    $gf->locations = FieldController::msListArrayToString($value);
+                    $gf->save();
+                }else {
+                    $gf = new GeolocatorField();
+                    $gf->flid = $field->flid;
+                    $gf->rid = $record->rid;
+                    $gf->locations = FieldController::msListArrayToString($value);
+                    $gf->save();
+                }
             }
         }
 
@@ -395,6 +415,16 @@ class RecordController extends Controller {
 
         flash()->overlay('Your record has been successfully deleted!', 'Good Job!');
 	}
+
+    public function deleteAllRecords($pid, $fid)
+    {
+        $records = Record::where('fid', '=', $fid)->get();
+        foreach($records as $record)
+        {
+            RecordController::destroy($pid, $fid, $record->rid);
+        }
+        flash()->overlay('All records deleted.', 'Success!');
+    }
 
     public static function getRecord($rid)
     {

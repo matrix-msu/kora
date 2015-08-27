@@ -2,6 +2,7 @@
 
 use App\Form;
 use App\User;
+use App\Field;
 use App\Project;
 use App\FormGroup;
 use App\Http\Requests;
@@ -35,7 +36,12 @@ class FormController extends Controller {
 
         $project = ProjectController::getProject($pid);
         $users = User::lists('username', 'id');
-        return view('forms.create', compact('project', 'users')); //pass in
+
+        $presets = array();
+        foreach(Form::where('preset', '=', 1)->get() as $form)
+            $presets[$form->fid] = $form->name;
+
+        return view('forms.create', compact('project', 'users', 'presets')); //pass in
 	}
 
 	/**
@@ -53,6 +59,9 @@ class FormController extends Controller {
         $adminGroup = FormController::makeAdminGroup($form, $request);
         $form->adminGID = $adminGroup->id;
         $form->save();
+
+        if(isset($request['preset']))
+            FormController::addPresets($form, $request['preset']);
 
         flash()->overlay('Your form has been successfully created!','Good Job');
 
@@ -111,11 +120,11 @@ class FormController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function update($id, FormRequest $request)
+	public function update($pid, $fid, FormRequest $request)
 	{
-        $form = FormController::getForm($id);
+        $form = FormController::getForm($fid);
 
-        if(!FormController::checkPermissions($id, 'edit')){
+        if(!FormController::checkPermissions($pid, 'edit')){
             return redirect('/projects/'.$form->$pid.'/forms');
         }
 
@@ -215,6 +224,20 @@ class FormController extends Controller {
         flash()->overlay('Your node has been successfully deleted!','Good Job');
 
         return redirect('projects/'.$form->pid.'/forms/'.$form->fid);
+    }
+
+    public function preset($pid, $fid, Request $request)
+    {
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+
+        $form = FormController::getForm($fid);
+        if($request['preset'])
+            $form->preset = 1;
+        else
+            $form->preset = 0;
+        $form->save();
     }
 
     /**
@@ -381,5 +404,47 @@ class FormController extends Controller {
         $adminGroup->save();
 
         return $adminGroup;
+    }
+
+    private function addPresets(Form $form, $fid)
+    {
+        $preset = Form::where('fid', '=', $fid)->first();
+
+        $field_assoc = array();
+
+        $form->layout = $preset->layout;
+
+        foreach($preset->fields()->get() as $field)
+        {
+            $new = new Field();
+            $new->pid = $form->pid;
+            $new->fid = $form->fid;
+            $new->order = $field->order;
+            $new->type = $field->type;
+            $new->name = $field->name;
+            $new->slug = '_'.$field->slug.'_'.$form->slug;
+            $new->desc = $field->desc;
+            $new->required = $field->required;
+            $new->default = $field->default;
+            $new->options = $field->options;
+            $new->save();
+
+            $field_assoc[$field->flid] = $new->flid;
+        }
+
+        $xmlArray = FormController::xmlToArray($form->layout);
+        for($i=0; $i<sizeof($xmlArray); $i++)
+        {
+            if($xmlArray[$i]['tag'] == 'ID')
+            {
+                $temp = $field_assoc[$xmlArray[$i]['value']];
+                $xmlArray[$i]['value'] = $temp;
+            }
+        }
+
+        $x = new FieldNavController();
+        $xmlString = $x->valsToXML($xmlArray);
+        $form->layout = $xmlString;
+        $form->save();
     }
 }

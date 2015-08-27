@@ -14,4 +14,6 @@
     @include('records.fieldInputs.date')
 @elseif($field->type == 'Schedule')
     @include('records.fieldInputs.schedule')
+@elseif($field->type == 'Geolocator')
+    @include('records.fieldInputs.geolocator')
 @endif

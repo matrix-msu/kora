@@ -180,6 +180,10 @@ class UserController extends Controller {
      */
     public function activate($token)
     {
+        if(!is_null(\Auth::user())){
+            \Auth::logout(\Auth::user()->id);
+        }
+
         $user = User::where('regtoken', '=', $token)->first();
 
         \Auth::login($user);
@@ -197,8 +201,6 @@ class UserController extends Controller {
             flash()->overlay('Your account is now active!', 'Success!');
             return redirect('/');
         }
-
-
     }
 
     public static function buildProjectsArray(User $user)
@@ -224,6 +226,7 @@ class UserController extends Controller {
                         $permissions .= 'Edit Forms | ';
                     if($user->canDeleteForms($project))
                         $permissions .= 'Delete Forms | ';
+
                     if($permissions == '')
                         $permissions .= 'Read Only';
                     $projects[$i]['permissions'] = rtrim($permissions, '| ');

@@ -2,12 +2,12 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class GeolocatorField extends Model {
+class AssociatorField extends Model {
 
     protected $fillable = [
         'rid',
         'flid',
-        'locations'
+        'records'
     ];
 
     protected $primaryKey = "id";

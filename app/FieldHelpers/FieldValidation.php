@@ -22,14 +22,14 @@ class FieldValidation {
             return FieldValidation::validateList($field, $value);
         } else if($field->type=='Multi-Select List') {
             return FieldValidation::validateMultiSelectList($field, $value);
-        } else if($field->type=='Rich Text' | $field->type=='Number' | $field->type=='Schedule'){
+        } else if($field->type=='Rich Text' | $field->type=='Number' | $field->type=='Schedule'
+            | $field->type=='Geolocator' | $field->type=='Associator' ){
             return FieldValidation::validateDefault($field, $value);
         } else if($field->type=='Generated List') {
             return FieldValidation::validateGeneratedList($field, $value);
         } else if($field->type=='Date') {
             return FieldValidation::validateDate($field, $request);
-        }
-        else{
+        } else{
             return 'Field does not have a type';
         }
     }

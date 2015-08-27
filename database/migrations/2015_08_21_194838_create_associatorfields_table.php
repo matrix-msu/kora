@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateGeolocatorfieldsTable extends Migration {
+class CreateAssociatorfieldsTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,13 +12,13 @@ class CreateGeolocatorfieldsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('geolocator_fields', function(Blueprint $table)
+		Schema::create('associator_fields', function(Blueprint $table)
 		{
 			$table->increments('id');
 
 			$table->integer('rid')->unsigned();
 			$table->integer('flid')->unsigned();
-			$table->mediumText('locations');
+			$table->mediumText('records');
 			$table->timestamps();
 
 			$table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');
@@ -33,7 +33,7 @@ class CreateGeolocatorfieldsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('geolocator_fields');
+		Schema::drop('associator_fields');
 	}
 
 }

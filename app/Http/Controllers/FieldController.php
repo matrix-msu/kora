@@ -106,6 +106,10 @@ class FieldController extends Controller {
             return view('fields.options.date', compact('field', 'form', 'proj'));
         }else if($field->type=="Schedule") {
             return view('fields.options.schedule', compact('field', 'form', 'proj'));
+        }else if($field->type=="Geolocator") {
+            return view('fields.options.geolocator', compact('field', 'form', 'proj'));
+        }else if($field->type=="Associator") {
+            return view('fields.options.assoctiator', compact('field', 'form', 'proj'));
         }
 	}
 

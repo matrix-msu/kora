@@ -26,7 +26,9 @@ Route::delete('projects/{pid}/manage/formgroups/deleteFormGroup', 'FormGroupCont
 //admin routes
 Route::get('/admin/users', 'AdminController@users');
 Route::patch('/admin/update', 'AdminController@update');
+Route::patch('/admin/batch', 'AdminController@batch');
 Route::delete('admin/deleteUser/{id}', 'AdminController@deleteUser');
+
 
 //token routes
 Route::get('/tokens', 'TokenController@index');
@@ -44,6 +46,7 @@ Route::delete('/projects/{pid}/forms/{fid}','FormController@destroy');
 Route::get('/projects/{pid}/forms/{fid}/edit','FormController@edit');
 Route::post('/projects/{pid}/forms/{fid}/createNode','FormController@addNode');
 Route::post('/projects/{pid}/forms/{fid}/deleteNode/{title}','FormController@deleteNode');
+Route::post('/projects/{pid}/forms/{fid}/preset', 'FormController@preset');
 Route::post('/projects/{pid}','FormController@store');
 
 //field routes
@@ -72,6 +75,7 @@ Route::get('/projects/{pid}/forms/{fid}/records/{rid}','RecordController@show');
 Route::delete('/projects/{pid}/forms/{fid}/records/{rid}','RecordController@destroy');
 Route::get('/projects/{pid}/forms/{fid}/records/{rid}/edit','RecordController@edit');
 Route::post('/projects/{pid}/forms/{fid}/records','RecordController@store');
+Route::delete('projects/{pid}/forms/{fid}/deleteAllRecords','RecordController@deleteAllRecords');
 
 //revision routes
 Route::get('/projects/{pid}/forms/{fid}/records/revisions/recent', 'RevisionController@index');
