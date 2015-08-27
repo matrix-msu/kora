@@ -42,7 +42,7 @@
                     </div>
                 </form>
 
-                <form method="post" enctype="multipart/form-data" action={{action("BackupController@loadRestore")}}>
+                <form method="post" enctype="multipart/form-data" action={{action("BackupController@startRestore")}}>
                     <input type="hidden" name="_token" value="{{csrf_token()}}">
                     <div class="panel panel-default">
                         <div class="panel-heading">
@@ -63,8 +63,8 @@
                                 <label for="restore_point">Saved Restore Points:</label>
                                 <select id="restore_point" name="restore_point" class="form-control">
                                     @for($index =0; $index<$saved_backups->count(); $index++)
-                                        <!--{{$backup = $saved_backups->get($index)}} -->
-                                        <option value={{$index}}>{{$backup->get("date")}} | {{$backup->get("name")}}</option>
+                                            <!--{{$backup = $saved_backups->get($index)}} -->
+                                    <option value={{$index}}>{{$backup->get("date")}} | {{$backup->get("name")}}</option>
                                     @endfor
                                 </select>
                             </div>

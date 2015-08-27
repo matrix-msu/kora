@@ -40,29 +40,22 @@
                                 <p>
                                     The backup has completed successfully.
                                 </p>
-                              <!--  <ul class="list-group">
-                                    <li class="list-group-item">
-                                        <span class="badge">11</span>
-                                        Users
-                                    </li>
-                                    <li class="list-group-item">
-                                        <span class="badge">1</span>
-                                        Projects
-                                    </li>
-                                    <li class="list-group-item">
-                                        <span class="badge">2</span>
-                                        Forms
-                                    </li>
-                                    <li class="list-group-item">
-                                        <span class="badge">8</span>
-                                        Fields
-                                    </li>
-                                    <li class="list-group-item">
-                                        <span class="badge">33</span>
-                                        Records
-                                    </li>
-                                </ul> -->
                                 <button onclick="download()" type="button" class="btn btn-default">
+                                    <span class="glyphicon glyphicon-save" aria-hidden="true"></span> Download
+                                </button>
+                            </div>
+
+                            <div style="display:none" id="error_info">
+                                <p id="error_message">
+                                    There was an error during the restore, no error information is available.
+                                </p>
+                                <ul style="display:none" id="error_list" class="list-group">
+                                    <li class="list-group-item">
+                                        <span id="error_count" class="badge">Unknown</span>
+                                        <strong class="list-group-item-heading">Errors</strong>
+                                    </li>
+                                </ul>
+                                <button id="download_btn_for_error" style="display:none" onclick="download()" type="button" class="btn btn-default">
                                     <span class="glyphicon glyphicon-save" aria-hidden="true"></span> Download
                                 </button>
                             </div>
@@ -93,12 +86,24 @@
                     console.log(data);
                    $("#progress").css("display","none");
                    $("#summary").css("display","inline");
-                    //alert("hi");
                     console.log("done");
                     window.onbeforeunload = null;
                 },
                 error: function(data){
-                    alert("The backup has failed for unknown reasons.");
+                    $("#progress").fadeOut();
+                    $("#summary").fadeOut();
+                    $("#user_lockout_notice").fadeIn(1000);
+                    $("#error_info").fadeIn(1000);
+                    $("#download_btn_for_error").fadeIn(1000);
+                    $("#error_message").text(data.responseJSON.message);
+                    if(data.responseJSON.error_list.length >0){
+                        $("#error_list").fadeIn(1000);
+                    }
+
+                    for(var i=0; i<data.responseJSON.error_list.length; i++) {
+                        $("#error_list").append("<li class='list-group-item small'> <span class='glyphicon glyphicon-chevron-right'></span>"+data.responseJSON.error_list[i]+"</li>");
+                    }
+                    $("#error_count").text(data.responseJSON.error_list.length);
                     window.onbeforeunload = null;
                 }
             });

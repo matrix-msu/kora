@@ -105,11 +105,12 @@ Route::get('/install/migrate',"InstallController@runMigrate");
 
 //backup routes
 Route::get('/backup','BackupController@index');
-Route::post('/backup','BackupController@create');
+Route::post('/backup/start','BackupController@create');
 Route::get('/backup/download','BackupController@download');
-//Route::get('/backup/restore','BackupController@selectRestore');
-Route::post('/backup/restore','BackupController@loadRestore');
-Route::post('/backup/summary','BackupController@startBackup');
+Route::post('/backup/restore/start','BackupController@restoreData');
+Route::post('/backup','BackupController@startBackup');
+Route::post('/backup/restore','BackupController@startRestore');
+Route::post('/backup/unlock','BackupController@unlockUsers');
 
 
 Route::controllers([
