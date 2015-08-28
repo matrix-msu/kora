@@ -62,10 +62,10 @@
                             <div class="form-group" id="group_restore_points">
                                 <label for="restore_point">Saved Restore Points:</label>
                                 <select id="restore_point" name="restore_point" class="form-control">
-                                    @for($index =0; $index<$saved_backups->count(); $index++)
-                                            <!--{{$backup = $saved_backups->get($index)}} -->
-                                    <option value={{$index}}>{{$backup->get("date")}} | {{$backup->get("name")}}</option>
-                                    @endfor
+
+                                    @foreach($saved_backups as $backup)
+                                        <option value={{$backup->get("index")}}>{{$backup->get("date")}} | {{$backup->get("name")}}</option>
+                                    @endforeach
                                 </select>
                             </div>
 

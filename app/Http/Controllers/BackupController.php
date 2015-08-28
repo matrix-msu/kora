@@ -71,15 +71,20 @@ class BackupController extends Controller
         $saved_backups = new Collection();
 
         //Load all previously saved backups, and package them up so they can be displayed by the view
+        $available_backups_index = 0;
         foreach($available_backups as $backup){
             $backup_info = new Collection();
             $backup_file = Storage::get($backup);
             $parsed_data = json_decode($backup_file);
+            $backup_info->put("index",$available_backups_index); //We sort this later,  but it needs to refer to other
+            $available_backups_index++;
             try {
                 $backup_info->put("date", $parsed_data->kora3->date);
+                $backup_info->put("timestamp",Carbon::parse($parsed_data->kora3->date)->timestamp);
             }
             catch(\Exception $e){
-                $backup_info->put("date","Unknown"); //Missing this sort of info is not a good start to a restore
+                $backup_info->put("date","Unknown");
+                $backup_info->put("timestamp",Carbon::now()->timestamp);
             }
             try {
                 $backup_info->put("name", $parsed_data->kora3->name);
@@ -96,10 +101,11 @@ class BackupController extends Controller
 
             $saved_backups->push($backup_info);
         }
-        $saved_backups->sortByDesc(function($item){
-            return $item->get("date");
+        $saved_backups = $saved_backups->sortByDesc(function($item){
+            //dd($item->get('date'));
+            return $item->get('timestamp');
         });
-
+       // dd($saved_backups);
         $request->session()->put("restore_points_available",$available_backups);
         return view('backups.index',compact('saved_backups'));
     }
@@ -120,6 +126,12 @@ class BackupController extends Controller
     }
 
 	public function create(Request $request){
+        /*
+         * create(Request $request)
+         *
+         * This method should be called via AJAX and will create a backup,
+         * then return success or error information through JSON.
+         */
         $users_exempt_from_lockout = new Collection();
         $users_exempt_from_lockout->put(1,1); //Add another one of these with (userid,userid) to exempt extra users
 
@@ -196,7 +208,7 @@ class BackupController extends Controller
         //Some info about the backup itself
         $backup_info = new Collection();
         $backup_info->put("version","1");   //In case a breaking change happens in the future (like new table added or a table removed)
-        $backup_info->put("date",Carbon::now()->toDateTimeString()); //UTC time the backup started 1975-12-25T14:15:16-05:00
+        $backup_info->put("date",Carbon::now()->toDateTimeString()); //UTC time the backup started
         $backup_info->put("name",$backup_name); //A user-assigned name for the backup
         $backup_info->put("created_by",Auth::user()->email); //The email for the user that created it
 
@@ -622,6 +634,7 @@ class BackupController extends Controller
             'upload_file'=>'required_if:backup_source,upload'
         ]);
 
+        dd($request);
         if($request->input("backup_source") == "server"){
             $available_backups = $request->session()->get("restore_points_available"); //Same array as previous page (in case file was deleted and indices changed)
             try {
@@ -632,13 +645,10 @@ class BackupController extends Controller
                 return redirect()->back();
             }
             $request->session()->put("restore_file_path",$filename);
-            //return $this->restoreData($filename);
         }
         else if($request->input("backup_source") == "upload"){
             if($request->hasFile("upload_file") == true){
                 $file = $request->file("upload_file");
-               //dd($file->getRealPath());
-               /// dd($file);
                 $new_file_name = "user_upload_" . time() . ".kora3_backup";
                 $filename = $this->UPLOAD_DIRECTORY."/".$new_file_name;
                 if($file->isValid()){
@@ -651,7 +661,6 @@ class BackupController extends Controller
                         flash()->overlay("The file could not be moved to the backup directory.","Whoops!");
                         return redirect()->back();
                     }
-                    //return $this->restoreData($filename);
                     $request->session()->put("restore_file_path",$filename);
                 }
                 else{
@@ -716,6 +725,8 @@ class BackupController extends Controller
         }
 
         $backup_data = $this->decoded_json;
+
+        //Delete all existing data
         try {
             foreach (User::all() as $User) {
                 if ($User->id == 1) { //Do not delete the default admin user
@@ -779,7 +790,7 @@ class BackupController extends Controller
             $this->ajaxResponse(false, "There was a problem when attempting to remove existing information from the
             database, the database user may not have permission to do this or the database may be in use.");
         }
-        try {
+        try { //This try-catch is for non-QueryExceptions, like if a table is missing entirely from the JSON data
             // User
             foreach ($backup_data->users as $user) {
                 try {
@@ -1092,7 +1103,6 @@ class BackupController extends Controller
             $this->unlockUsers();
             $this->ajaxResponse(true,"The restore completed successfully.");
         }
-        //return redirect("/");
 
 	}
 

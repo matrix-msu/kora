@@ -15,18 +15,19 @@
 	<script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0-rc.2/js/select2.min.js"></script>
     <!-- Brings in Lato font -->
     <link href='//fonts.googleapis.com/css?family=Lato:100' rel='stylesheet' type='text/css'>
-    <!-- For Rich Text -->
-    <script src="http://{{ env('BASE_URL') }}public/ckeditor/ckeditor.js"></script>
-	<!-- For Schedule -->
-	<script type="text/javascript" src="http://{{ env('BASE_URL') }}public/bower_components/moment/min/moment.min.js"></script>
-	<script type="text/javascript" src="http://{{ env('BASE_URL') }}public/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
-	<link rel="stylesheet" href="http://{{ env('BASE_URL') }}public/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
-	<link rel='stylesheet' href='http://{{ env('BASE_URL') }}public/bower_components/fullcalendar/dist/fullcalendar.css' />
-	<script src='http://{{ env('BASE_URL') }}public/bower_components/fullcalendar/dist/fullcalendar.js'></script>
-	<!-- For Geolocator -->
-	<link rel="stylesheet" href="http://{{ env('BASE_URL') }}public/leaflet/leaflet.css" />
-	<script src="http://{{ env('BASE_URL') }}public/leaflet/leaflet.js"></script>
-
+    @if(!isset($not_installed))
+        <!-- For Rich Text -->
+        <script src="http://{{ env('BASE_URL') }}public/ckeditor/ckeditor.js"></script>
+        <!-- For Schedule -->
+        <script type="text/javascript" src="http://{{ env('BASE_URL') }}public/bower_components/moment/min/moment.min.js"></script>
+        <script type="text/javascript" src="http://{{ env('BASE_URL') }}public/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+        <link rel="stylesheet" href="http://{{ env('BASE_URL') }}public/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
+        <link rel='stylesheet' href='http://{{ env('BASE_URL') }}public/bower_components/fullcalendar/dist/fullcalendar.css' />
+        <script src='http://{{ env('BASE_URL') }}public/bower_components/fullcalendar/dist/fullcalendar.js'></script>
+        <!-- For Geolocator -->
+        <link rel="stylesheet" href="http://{{ env('BASE_URL') }}public/leaflet/leaflet.css" />
+        <script src="http://{{ env('BASE_URL') }}public/leaflet/leaflet.js"></script>
+    @endif
     <title>Kora 3</title>
 </head>
 <br /><br /><br />
