@@ -10,7 +10,8 @@
 
     <hr/>
 
-    {!! Form::model($record = new \App\Record, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid.'/records']) !!}
+    {!! Form::model($record = new \App\Record, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid.'/records',
+        'enctype' => 'multipart/form-data', 'id' => 'new_record_form']) !!}
         @include('records.form',['submitButtonText' => 'Create Record', 'form' => $form])
     {!! Form::close() !!}
 

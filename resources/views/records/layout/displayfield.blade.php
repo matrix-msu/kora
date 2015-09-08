@@ -148,6 +148,20 @@
                     @endif
                 @endforeach
             @endif
+        @elseif($field->type=='Documents')
+            @foreach($record->documentsfields as $df)
+                @if($df->flid == $field->flid)
+                    @foreach(explode('[!]',$df->documents) as $opt)
+                        @if($opt != '')
+                            <?php
+                            $name = explode('[Name]',$opt)[1];
+                            $link = env('BASE_URL').'storage/app/files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$name;
+                            ?>
+                            <div><a href="{{$link}}">{{$name}}</a></div>
+                        @endif
+                    @endforeach
+                @endif
+            @endforeach
         @endif
     </span>
 </div>

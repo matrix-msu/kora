@@ -66,6 +66,10 @@ Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/clearRecency', 'FieldCont
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/checkRecency', 'FieldController@checkRecency');
 Route::post('/projects/{pid}/forms/{fid}','FieldController@store');
 Route::post('/field/move', 'FieldNavController@index');
+Route::post('/saveTmpFile/{flid}', 'FieldController@saveTmpFile');
+Route::patch('/saveTmpFile/{flid}', 'FieldController@saveTmpFile');
+Route::delete('/deleteTmpFile/{flid}/{filename}', 'FieldController@delTmpFile');
+Route::get('/download/{rid}/{flid}/{filename}','FieldController@getFileDownload')->where('filename', '[A-Za-z0-9\-\_\.]+');
 
 //record routes
 Route::get('/projects/{pid}/forms/{fid}/records','RecordController@index');

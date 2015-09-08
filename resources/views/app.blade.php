@@ -26,10 +26,17 @@
 	<!-- For Geolocator -->
 	<link rel="stylesheet" href="http://{{ env('BASE_URL') }}public/leaflet/leaflet.css" />
 	<script src="http://{{ env('BASE_URL') }}public/leaflet/leaflet.js"></script>
+	<!-- For Documents -->
+	<link rel="stylesheet" href="http://{{ env('BASE_URL') }}public/fileUpload/css/style.css">
+	<link rel="stylesheet" href="http://{{ env('BASE_URL') }}public/fileUpload/css/jquery.fileupload.css">
+	<link rel="stylesheet" href="http://{{ env('BASE_URL') }}public/fileUpload/css/jquery.fileupload-ui.css">
+	<script src="http://{{ env('BASE_URL') }}public/fileUpload/js/vendor/jquery.ui.widget.js"></script>
+	<script src="http://{{ env('BASE_URL') }}public/fileUpload/js/jquery.iframe-transport.js"></script>
+	<script src="http://{{ env('BASE_URL') }}public/fileUpload/js/jquery.fileupload.js"></script>
 
     <title>Kora 3</title>
 </head>
-<br /><br /><br />
+<br />
 <body>
 		@if(isset($not_installed))
 			@include('partials.install_nav')

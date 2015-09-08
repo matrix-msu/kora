@@ -182,6 +182,20 @@
                                     @endif
                                 @endforeach
                             @endif
+                        @elseif($field->type=='Documents')
+                            @foreach($record->documentsfields as $df)
+                                @if($df->flid == $field->flid)
+                                    @foreach(explode('[!]',$df->documents) as $opt)
+                                        @if($opt != '')
+                                            <?php
+                                                $name = explode('[Name]',$opt)[1];
+                                                $link = action('FieldController@getFileDownload',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name]);
+                                            ?>
+                                            <div><a href="{{$link}}">{{$name}}</a></div>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            @endforeach
                         @endif
                     </span>
                 </div>

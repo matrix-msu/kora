@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\DateField;
+use App\DocumentsField;
 use App\GeneratedListField;
 use App\GeolocatorField;
 use App\ScheduleField;
@@ -164,6 +165,34 @@ class RecordController extends Controller {
                 $gf->rid = $record->rid;
                 $gf->locations = FieldController::msListArrayToString($value);
                 $gf->save();
+            } else if($field->type=='Documents' && glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') != false){
+                $df = new DocumentsField();
+                $df->flid = $field->flid;
+                $df->rid = $record->rid;
+                $infoString = '';
+                $newPath = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid;
+                mkdir($newPath,0775,true);
+                if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
+                    $types = FieldController::getMimeTypes();
+                    foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
+                        if ($file->isFile()) {
+                            if(!array_key_exists($file->getExtension(),$types))
+                                $type = 'application/octet-stream';
+                            else
+                                $type =  $types[$file->getExtension()];
+                            $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
+                            if ($infoString == '') {
+                                $infoString = $info;
+                            } else {
+                                $infoString .= '[!]' . $info;
+                            }
+                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                                $newPath . '/' . $file->getFilename());
+                        }
+                    }
+                }
+                $df->documents = $infoString;
+                $df->save();
             }
         }
 
@@ -380,6 +409,48 @@ class RecordController extends Controller {
                     $gf->locations = FieldController::msListArrayToString($value);
                     $gf->save();
                 }
+            } else if($field->type=='Documents'
+                    && (DocumentsField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null
+                    | glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') != false)){
+                //we need to check if the field exist first
+                if(DocumentsField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
+                    $df = DocumentsField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                }else {
+                    $df = new DocumentsField();
+                    $df->flid = $field->flid;
+                    $df->rid = $record->rid;
+                    $newPath = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid;
+                    mkdir($newPath,0775,true);
+                }
+                //clear the old files before moving the update over
+                foreach (new \DirectoryIterator(env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid) as $file) {
+                    if ($file->isFile()) {
+                        unlink(env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$file->getFilename());
+                    }
+                }
+                //build new stuff
+                $infoString = '';
+                if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
+                    $types = FieldController::getMimeTypes();
+                    foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
+                        if ($file->isFile()) {
+                            if(!array_key_exists($file->getExtension(),$types))
+                                $type = 'application/octet-stream';
+                            else
+                                $type =  $types[$file->getExtension()];
+                            $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
+                            if ($infoString == '') {
+                                $infoString = $info;
+                            } else {
+                                $infoString .= '[!]' . $info;
+                            }
+                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                                env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $file->getFilename());
+                        }
+                    }
+                }
+                $df->documents = $infoString;
+                $df->save();
             }
         }
 
@@ -410,6 +481,9 @@ class RecordController extends Controller {
         $record = RecordController::getRecord($rid);
 
         RevisionController::storeRevision($record->rid, 'delete');
+
+        //if directory r[rid] exists
+        //  destroy directory
 
         $record->delete();
 
