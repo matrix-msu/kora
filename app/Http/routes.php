@@ -107,7 +107,14 @@ Route::get('/install','InstallController@index');
 Route::post('/install','InstallController@install');
 Route::get('/install/migrate',"InstallController@runMigrate");
 
-
+//backup routes
+Route::get('/backup','BackupController@index');
+Route::post('/backup/start','BackupController@create');
+Route::get('/backup/download','BackupController@download');
+Route::post('/backup/restore/start','BackupController@restoreData');
+Route::post('/backup','BackupController@startBackup');
+Route::post('/backup/restore','BackupController@startRestore');
+Route::post('/backup/unlock','BackupController@unlockUsers');
 
 
 Route::controllers([

@@ -24,6 +24,7 @@ class CreateUsersTable extends Migration {
             $table->string('organization');
             $table->string('language');
             $table->string('regtoken');
+            $table->boolean("locked_out");
             $table->rememberToken();
             $table->timestamps();
         });

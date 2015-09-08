@@ -45,8 +45,9 @@ class CreateFormGroupsTable extends Migration {
 	 */
 	public function down()
 	{
+        Schema::drop('form_group_user');
 		Schema::drop('form_groups');
 
-        Schema::drop('form_group_user');
+
 	}
 }

@@ -33,7 +33,7 @@ class CreateRichtextfieldsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('richtext_fields');
+		Schema::drop('rich_text_fields');
 	}
 
 }
