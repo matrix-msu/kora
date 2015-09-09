@@ -38,8 +38,8 @@ class FormController extends Controller {
         $users = User::lists('username', 'id');
 
         $presets = array();
-        foreach(Form::where('preset', '=', 1)->get() as $form)
-            $presets[$form->fid] = $form->name;
+        foreach(Form::where('preset', '=', 1, 'and', 'pid', '=', $pid)->get() as $form)
+            $presets[] = ['fid' => $form->fid, 'name' => $form->name];
 
         return view('forms.create', compact('project', 'users', 'presets')); //pass in
 	}
@@ -422,7 +422,7 @@ class FormController extends Controller {
             $new->order = $field->order;
             $new->type = $field->type;
             $new->name = $field->name;
-            $new->slug = '_'.$field->slug.'_'.$form->slug;
+            $new->slug = $field->slug.'_'.$form->slug;
             $new->desc = $field->desc;
             $new->required = $field->required;
             $new->default = $field->default;

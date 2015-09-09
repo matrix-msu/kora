@@ -18,6 +18,9 @@
         <form action="{{action('RevisionController@index', ['fid'=>$form->fid, 'pid'=>$form->pid])}}" style="display: inline">
             <button type="submit" class="btn btn-default">Revision History</button>
         </form>
+        <form action="{{action('RecordPresetController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
+            <button type="submit" class="btn btn-default">Manage Presets</button>
+        </form>
     @endif
 
     <div>
@@ -28,6 +31,10 @@
     </div>
     <hr/>
     <h2>Record: {{$record->kid}}</h2>
+    @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
+        <input type="text" id="preset" placeholder="Enter a Name">
+        <button onclick="presetRecord({{$record->rid}})">Make Preset</button>
+    @endif
 
     <div class="panel panel-default">
         @include('forms.layout.logic',['form' => $form, 'fieldview' => 'records.layout.displayfield'])
@@ -68,6 +75,26 @@
                     },
                     success: function (result) {
                         location.href = '{{ action('RecordController@index', ['pid' => $form->pid, 'fid' => $form->fid]) }}';
+                    }
+                });
+            }
+        }
+
+        function presetRecord(rid) {
+            var name = $('#preset').val();
+            if(name == '')
+                alert('You must enter a valid name.');
+            else {
+                $.ajax({
+                    url: '{{ action('RecordController@presetRecord') }} ',
+                    type: 'POST',
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        "name": name,
+                        "rid": rid
+                    },
+                    success: function () {
+                        location.reload();
                     }
                 });
             }

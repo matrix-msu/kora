@@ -2,6 +2,7 @@
 
 use App\DateField;
 use App\GeneratedListField;
+use App\RecordPreset;
 use App\ScheduleField;
 use App\User;
 use App\Record;
@@ -65,8 +66,16 @@ class RecordController extends Controller {
         }
 
         $form = FormController::getForm($fid);
+        $presets = array();
 
-        return view('records.create', compact('form'));
+        foreach(RecordPreset::where('fid', '=', $fid)->get() as $preset)
+            $presets[] = ['id' => $preset->id, 'name' => $preset->name];
+
+        $fields = array(); //array of field ids
+        foreach($form->fields()->get() as $field)
+            $fields[] = $field->flid;
+
+        return view('records.create', compact('form', 'presets', 'fields'));
 	}
 
 	/**
@@ -185,7 +194,6 @@ class RecordController extends Controller {
 
         $form = FormController::getForm($fid);
         $record = RecordController::getRecord($rid);
-
         $owner = User::where('id', '=', $record->owner)->first();
 
         return view('records.show', compact('record', 'form', 'pid', 'owner'));
@@ -398,12 +406,38 @@ class RecordController extends Controller {
 
     public function deleteAllRecords($pid, $fid)
     {
-        $records = Record::where('fid', '=', $fid)->get();
-        foreach($records as $record)
-        {
-            RecordController::destroy($pid, $fid, $record->rid);
+        $form = FormController::getForm($fid);
+        if(!\Auth::user()->admin && \Auth::user()->isFormAdmin($form)){
+            flash()->overlay('You do not have permission for that.', 'Whoops.');
         }
-        flash()->overlay('All records deleted.', 'Success!');
+        else {
+            $records = Record::where('fid', '=', $fid)->get();
+            foreach ($records as $record) {
+                RecordController::destroy($pid, $fid, $record->rid);
+            }
+            flash()->overlay('All records deleted.', 'Success!');
+        }
+    }
+
+    public function presetRecord(Request $request)
+    {
+        $name = $request->name;
+        $rid = $request->rid;
+
+        if(!is_null(RecordPreset::where('rid', '=', $rid)->first()))
+            flash()->overlay('Record is already a preset.');
+        else {
+            $record = RecordController::getRecord($rid);
+            $fid = $record->fid;
+
+            $preset = new RecordPreset();
+            $preset->rid = $rid;
+            $preset->fid = $fid;
+            $preset->name = $name;
+            $preset->save();
+
+            flash()->overlay('Record preset saved.', 'Success!');
+        }
     }
 
     public static function getRecord($rid)

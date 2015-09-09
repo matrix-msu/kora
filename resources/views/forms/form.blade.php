@@ -25,8 +25,8 @@
         {!! Form::label('preset', 'Preset: ') !!}
         <select class="form-control" id="presets" name="preset">
             <option disabled selected>Select a Preset</option>
-            @for($i=1; $i <= sizeof($presets); $i++)
-                <option value="{{$i}}">{{$presets[$i]}}</option>
+            @for($i=0; $i < sizeof($presets); $i++)
+                <option value="{{$presets[$i]['fid']}}">{{$presets[$i]['name']}}</option>
             @endfor
         </select>
     </div>

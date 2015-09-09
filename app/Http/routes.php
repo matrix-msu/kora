@@ -29,7 +29,6 @@ Route::patch('/admin/update', 'AdminController@update');
 Route::patch('/admin/batch', 'AdminController@batch');
 Route::delete('admin/deleteUser/{id}', 'AdminController@deleteUser');
 
-
 //token routes
 Route::get('/tokens', 'TokenController@index');
 Route::post('/tokens/create', 'TokenController@create');
@@ -67,6 +66,12 @@ Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/checkRecency', 'FieldCont
 Route::post('/projects/{pid}/forms/{fid}','FieldController@store');
 Route::post('/field/move', 'FieldNavController@index');
 
+//record preset routes
+Route::get('/projects/{pid}/forms/{fid}/records/presets', 'RecordPresetController@index');
+Route::patch('/changePresetName', 'RecordPresetController@changePresetName');
+Route::delete('/deletePreset', 'RecordPresetController@deletePreset');
+Route::post('/getRecordArray', 'RecordPresetController@getRecordArray');
+
 //record routes
 Route::get('/projects/{pid}/forms/{fid}/records','RecordController@index');
 Route::patch('/projects/{pid}/forms/{fid}/records/{rid}','RecordController@update');
@@ -76,6 +81,7 @@ Route::delete('/projects/{pid}/forms/{fid}/records/{rid}','RecordController@dest
 Route::get('/projects/{pid}/forms/{fid}/records/{rid}/edit','RecordController@edit');
 Route::post('/projects/{pid}/forms/{fid}/records','RecordController@store');
 Route::delete('projects/{pid}/forms/{fid}/deleteAllRecords','RecordController@deleteAllRecords');
+Route::post('/presetRecord', 'RecordController@presetRecord');
 
 //revision routes
 Route::get('/projects/{pid}/forms/{fid}/records/revisions/recent', 'RevisionController@index');
@@ -91,7 +97,6 @@ Route::get('/auth/activate', 'Auth\UserController@activateshow');
 Route::post('/auth/activate', 'Auth\UserController@activator');
 Route::post('/user/profile','Auth\UserController@changeprofile');
 
-
 //metadata routes
 Route::get('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@index');
 Route::post('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@store');
@@ -102,9 +107,6 @@ Route::get('/projects/{pid}/forms/{fid}/metadata','MetadataController@records');
 Route::get('/install','InstallController@index');
 Route::post('/install','InstallController@install');
 Route::get('/install/migrate',"InstallController@runMigrate");
-
-
-
 
 Route::controllers([
 	'auth' => 'Auth\AuthController',
