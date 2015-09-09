@@ -14,4 +14,8 @@
     @include('records.fieldInputs.date-edit', ['date' => \App\DateField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
 @elseif($field->type == 'Schedule')
     @include('records.fieldInputs.schedule-edit', ['schedule' => \App\ScheduleField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
+@elseif($field->type == 'Geolocator')
+    @include('records.fieldInputs.geolocator-edit', ['geolocator' => \App\GeolocatorField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
+@elseif($field->type == 'Documents')
+    @include('records.fieldInputs.documents-edit', ['documents' => \App\DocumentsField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
 @endif

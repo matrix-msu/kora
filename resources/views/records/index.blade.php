@@ -18,10 +18,13 @@
         <form action="{{action('RevisionController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
             <button type="submit" class="btn btn-default">Revision History</button>
         </form>
+<<<<<<< HEAD
         <form action="{{action('RecordPresetController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
             <button type="submit" class="btn btn-default">Manage Presets</button>
         </form>
         <button class="btn btn-danger" onclick="deleteAll()">Delete All Records</button>
+=======
+>>>>>>> 5f0c6f2883128fbafc87b3db4bdd29b376e7e61c
     @endif
 
     <div>
@@ -147,33 +150,63 @@
                                     @endif
                                 @endforeach
                             @endif
+                        @elseif($field->type=='Geolocator')
+                            @if(\App\Http\Controllers\FieldController::getFieldOption($field,'Map')=='No')
+                                @foreach($record->geolocatorfields as $gf)
+                                    @if($gf->flid == $field->flid)
+                                        @foreach(explode('[!]',$gf->locations) as $opt)
+                                            <div>{{ $opt }}</div>
+                                        @endforeach
+                                    @endif
+                                @endforeach
+                            @else
+                                @foreach($record->geolocatorfields as $gf)
+                                    @if($gf->flid == $field->flid)
+                                        <div id="map{{$field->flid}}" style="height:270px;"></div>
+                                        <?php $locs = array(); ?>
+                                        @foreach(explode('[!]',$gf->locations) as $location)
+                                            <?php
+                                            $loc = array();
+                                            $desc = explode(': ',$location)[0];
+                                            $x = explode(', ', explode(': ',$location)[1])[0];
+                                            $y = explode(', ', explode(': ',$location)[1])[1];
+
+                                            $loc['desc'] = $desc;
+                                            $loc['x'] = $x;
+                                            $loc['y'] = $y;
+
+                                            array_push($locs,$loc);
+                                            ?>
+                                        @endforeach
+                                        <script>
+                                            var map{{$field->flid}} = L.map('map{{$field->flid}}').setView([{{$locs[0]['x']}}, {{$locs[0]['y']}}], 13);
+                                            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(map{{$field->flid}});
+                                            @foreach($locs as $loc)
+                                                var marker = L.marker([{{$loc['x']}}, {{$loc['y']}}]).addTo(map{{$field->flid}});
+                                                marker.bindPopup("{{$loc['desc']}}");
+                                            @endforeach
+                                        </script>
+                                    @endif
+                                @endforeach
+                            @endif
+                        @elseif($field->type=='Documents')
+                            @foreach($record->documentsfields as $df)
+                                @if($df->flid == $field->flid)
+                                    @foreach(explode('[!]',$df->documents) as $opt)
+                                        @if($opt != '')
+                                            <?php
+                                                $name = explode('[Name]',$opt)[1];
+                                                $link = action('FieldController@getFileDownload',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name]);
+                                            ?>
+                                            <div><a href="{{$link}}">{{$name}}</a></div>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            @endforeach
                         @endif
                     </span>
                 </div>
             @endforeach
         </div>
     @endforeach
-@stop
-
-@section('footer')
-    <script>
-        function deleteAll() {
-            var resp1 = confirm('This will delete all records for this form, are you sure?');
-            if(resp1) {
-                var resp2 = confirm('Press OK to delete all records.');
-                if(resp2) {
-                    $.ajax({
-                        url: '{{action('RecordController@deleteAllRecords', ['pid'=> $form->pid, 'fid' => $form->fid])}}',
-                        type: 'DELETE',
-                        data: {
-                            "_token": "{{ csrf_token() }}"
-                        },
-                        success: function() {
-                            location.reload();
-                        }
-                    });
-                }
-            }
-        }
-    </script>
 @stop

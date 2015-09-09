@@ -7,7 +7,7 @@ class ScheduleField extends Model {
     protected $fillable = [
         'rid',
         'flid',
-        'dates'
+        'events'
     ];
 
     protected $primaryKey = "id";

@@ -159,16 +159,20 @@
                           </div>
 
                       <div class="panel panel-default">
-                              <div class="panel-heading">
-                                  Base URL
+                          <div class="panel-heading">
+                              Base
+                          </div>
+                          <div class="panel-body">
+                              <div class="form-group">
+                                  <label for="baseurl_url">URL:</label>
+                                  <input type="text" class="form-control" id="baseurl_url" name="baseurl_url" value="{{old('baseurl_url')}}">
                               </div>
-                              <div class="panel-body">
-                                  <div class="form-group">
-                                      <label for="baseurl_url">URL:</label>
-                                      <input type="text" class="form-control" id="baseurl_url" name="baseurl_url" value="{{old('baseurl_url')}}">
-                                  </div>
+                              <div class="form-group">
+                                  <label for="basepath">Path:</label>
+                                  <input type="text" class="form-control" id="basepath" name="basepath" value="{{old('basepath')}}">
                               </div>
                           </div>
+                      </div>
 
                       <div class="form-group">
                           <input type="submit" class="btn btn-primary form-control" id="usr" value="Submit">

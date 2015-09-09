@@ -65,6 +65,10 @@ Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/clearRecency', 'FieldCont
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/checkRecency', 'FieldController@checkRecency');
 Route::post('/projects/{pid}/forms/{fid}','FieldController@store');
 Route::post('/field/move', 'FieldNavController@index');
+Route::post('/saveTmpFile/{flid}', 'FieldController@saveTmpFile');
+Route::patch('/saveTmpFile/{flid}', 'FieldController@saveTmpFile');
+Route::delete('/deleteTmpFile/{flid}/{filename}', 'FieldController@delTmpFile');
+Route::get('/download/{rid}/{flid}/{filename}','FieldController@getFileDownload')->where('filename', '[A-Za-z0-9\-\_\.]+');
 
 //record preset routes
 Route::get('/projects/{pid}/forms/{fid}/records/presets', 'RecordPresetController@index');
@@ -107,6 +111,15 @@ Route::get('/projects/{pid}/forms/{fid}/metadata','MetadataController@records');
 Route::get('/install','InstallController@index');
 Route::post('/install','InstallController@install');
 Route::get('/install/migrate',"InstallController@runMigrate");
+
+//backup routes
+Route::get('/backup','BackupController@index');
+Route::post('/backup/start','BackupController@create');
+Route::get('/backup/download','BackupController@download');
+Route::post('/backup/restore/start','BackupController@restoreData');
+Route::post('/backup','BackupController@startBackup');
+Route::post('/backup/restore','BackupController@startRestore');
+Route::post('/backup/unlock','BackupController@unlockUsers');
 
 Route::controllers([
 	'auth' => 'Auth\AuthController',

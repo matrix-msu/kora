@@ -10,7 +10,8 @@
 
     <hr/>
 
-    {!! Form::model($record,  ['method' => 'PATCH', 'action' => ['RecordController@update',$form->pid, $form->fid, $record->rid]]) !!}
+    {!! Form::model($record,  ['method' => 'PATCH', 'action' => ['RecordController@update',$form->pid, $form->fid, $record->rid],
+        'enctype' => 'multipart/form-data', 'id' => 'new_record_form']) !!}
     @include('records.form-edit',['submitButtonText' => 'Update Record', 'form' => $form])
     {!! Form::close() !!}
 

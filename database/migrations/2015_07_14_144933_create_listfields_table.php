@@ -33,7 +33,7 @@ class CreateListfieldsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('listfields');
+		Schema::drop('list_fields');
 	}
 
 }

@@ -5,6 +5,7 @@ use App\Http\Requests;
 use App\Http\Requests\FieldRequest;
 use App\Http\Controllers\Controller;
 use App\FieldHelpers\FieldDefaults;
+use App\FieldHelpers\UploadHandler;
 
 use Illuminate\Http\Request;
 
@@ -106,6 +107,12 @@ class FieldController extends Controller {
             return view('fields.options.date', compact('field', 'form', 'proj'));
         }else if($field->type=="Schedule") {
             return view('fields.options.schedule', compact('field', 'form', 'proj'));
+        }else if($field->type=="Geolocator") {
+            return view('fields.options.geolocator', compact('field', 'form', 'proj'));
+        }else if($field->type=="Documents") {
+            return view('fields.options.documents', compact('field', 'form', 'proj'));
+        }else if($field->type=="Associator") {
+            return view('fields.options.assoctiator', compact('field', 'form', 'proj'));
         }
 	}
 
@@ -331,6 +338,14 @@ class FieldController extends Controller {
         $tag = '[!'.$key.'!]';
         $array = explode($tag,$options);
 
+        if($field->type=='Documents' && $key=='FileTypes'){
+            $valueString = $value[0];
+            for($i=1;$i<sizeof($value);$i++){
+                $valueString .= '[!]'.$value[$i];
+            }
+            $value = $valueString;
+        }
+
         $field->options = $array[0].$tag.$value.$tag.$array[2];
         $field->save();
     }
@@ -494,6 +509,97 @@ class FieldController extends Controller {
 
             $field->default = $dbOpt;
             $field->save();
+        }
+    }
+
+    public function saveTmpFile($flid, Request $request){
+        $field = FieldController::getField($flid);
+        $uid = \Auth::user()->id;
+        $dir = env('BASE_PATH').'storage/app/tmpFiles/f'.$flid.'u'.$uid;
+
+        $maxFileNum = FieldController::getFieldOption($field, 'MaxFiles');
+        $fileNumRequest = sizeof($_FILES['file'.$flid]['name']);
+        if (glob($dir.'/*.*') != false)
+        {
+            $fileNumDisk = count(glob($dir.'/*.*'));
+        }
+        else
+        {
+            $fileNumDisk = 0;
+        }
+
+        $maxFieldSize = FieldController::getFieldOption($field, 'FieldSize')*1024; //conversion of kb to bytes
+        $fileSizeRequest = 0;
+        foreach($_FILES['file'.$flid]['size'] as $size){
+            $fileSizeRequest += $size;
+        }
+        $fileSizeDisk = 0;
+        if(file_exists($dir)) {
+            foreach (new \DirectoryIterator($dir) as $file) {
+                if ($file->isFile()) {
+                    $fileSizeDisk += $file->getSize();
+                }
+            }
+        }
+
+        $validTypes = true;
+        $fileTypes = explode('[!]',FieldController::getFieldOption($field, 'FileTypes'));
+        $fileTypesRequest = $_FILES['file'.$flid]['type'];
+        if(sizeof($fileTypes)!=1 | $fileTypes[0]!='') {
+            foreach ($fileTypesRequest as $type) {
+                if (!in_array($type,$fileTypes)){
+                    $validTypes = false;
+                }
+            }
+        }
+
+        $options = array();
+        $options['flid'] = 'f'.$flid.'u'.$uid;
+        if(!$validTypes){
+            echo 'InvalidType';
+        } else if($maxFileNum !=0 && $fileNumRequest+$fileNumDisk>$maxFileNum){
+            echo 'TooManyFiles';
+        } else if($maxFieldSize !=0 && $fileSizeRequest+$fileSizeDisk>$maxFieldSize){
+            echo 'MaxSizeReached';
+        } else {
+            $upload_handler = new UploadHandler($options);
+        }
+    }
+
+    public function delTmpFile($flid, $filename, Request $request){
+        $uid = \Auth::user()->id;
+        $options = array();
+        $options['flid'] = $flid;
+        $options['filename'] = $filename;
+        $upload_handler = new UploadHandler($options);
+    }
+
+    public static function getMimeTypes(){
+        $types=array();
+        foreach(@explode("\n",@file_get_contents('http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types'))as $x)
+            if(isset($x[0])&&$x[0]!=='#'&&preg_match_all('#([^\s]+)#',$x,$out)&&isset($out[1])&&($c=count($out[1]))>1)
+                for($i=1;$i<$c;$i++)
+                    $types[$out[1][$i]]=$out[1][0];
+        return $types;
+    }
+
+    public function getFileDownload($rid, $flid, $filename){
+        $record = RecordController::getRecord($rid);
+        $field = FieldController::getField($flid);
+
+        // Check if file exists in app/storage/file folder
+        $file_path = env('BASE_PATH').'storage/app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $filename;
+        if (file_exists($file_path))
+        {
+            // Send Download
+            return response()->download($file_path, $filename, [
+                'Content-Length: '. filesize($file_path)
+            ]);
+        }
+        else
+        {
+            // Error
+            exit('Requested file does not exist on our server!');
         }
     }
 }

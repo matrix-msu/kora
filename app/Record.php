@@ -54,6 +54,18 @@ class Record extends Model {
         return $this->hasMany('App\ScheduleField', 'rid');
     }
 
+    public function geolocatorfields(){
+        return $this->hasMany('App\GeolocatorField', 'rid');
+    }
+
+    public function documentsfields(){
+        return $this->hasMany('App\DocumentsField', 'rid');
+    }
+
+    public function associatorfields(){
+        return $this->hasMany('App\AssociatorField', 'rid');
+    }
+
     public function owner(){
         return $this->hasOne('App\User', 'owner');
     }

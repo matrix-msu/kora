@@ -14,35 +14,17 @@ class InstallController extends Controller {
 
 	/*
 	|--------------------------------------------------------------------------
-	| Welcome Controller
+	| Install Controller
 	|--------------------------------------------------------------------------
 	|
-	| This controller renders the "marketing page" for the application and
-	| is configured to only allow guests. Like most of the other sample
-	| controllers, you are free to modify or remove it as you desire.
-	|
+	| This controller handles generating the .env file and running the artisan
+	| migration so the rest of the controllers can function.  It also creates the
+	| first user.  And sets the application key, and creates needed folders.
 	*/
 
-    //Constructor causing a redirect loop error, it is solved by commenting it out.
-    //Error occurs only when a user is logged in so I assumed it was caused by
-    //this middleware redirecting to 'guest' middleware. -Ian
+    //Any directory in this array will be created for you during install with 0644 permission
+    private $DIRECTORIES = ["storage/app/backups","storage/app/backups/user_upload"];
 
-//
-//	/**
-//	 * Create a new controller instance.
-//	 *
-//	 * @return void
-//	 */
-//	public function __construct()
-//	{
-//		$this->middleware('guest');
-//	}
-
-	/**
-	 * Show the application welcome screen to the user.
-	 *
-	 * @return Response
-	 */
 	public function index(Request $request)
 	{
 
@@ -85,7 +67,8 @@ class InstallController extends Controller {
 			'mail_password'=>'required',
 			'recaptcha_public_key'=>'required',
 			'recaptcha_private_key'=>'required',
-			'baseurl_url'=>'required'
+			'baseurl_url'=>'required',
+            'basepath'=>'required'
 		]);
 
 		$envstrings->put("db_driver",$request->input("db_driver"));
@@ -102,6 +85,7 @@ class InstallController extends Controller {
 		$envstrings->put("recaptcha_public_key",$request->input("recaptcha_public_key"));
 		$envstrings->put("recaptcha_private_key",$request->input("recaptcha_private_key"));
 		$envstrings->put("baseurl_url",$request->input("baseurl_url"));
+        $envstrings->put("basepath",$request->input("basepath"));
 
 		$adminuser->put('user_username',$request->input("user_username"));
 		$adminuser->put('user_email',$request->input("user_email"));
@@ -166,6 +150,7 @@ class InstallController extends Controller {
 			SESSION_DRIVER=file
 
 			BASE_URL=" . $envstrings->get('baseurl_url') . "\n
+			BASE_PATH=" . $envstrings->get('basepath') . "\n
 
 			RECAPTCHA_PUBLIC_KEY=" . $envstrings->get('recaptcha_public_key') . "\n
 			RECAPTCHA_PRIVATE_KEY=" . $envstrings->get('recaptcha_private_key') . "\n
@@ -190,7 +175,7 @@ class InstallController extends Controller {
 		}
 	}
 
-		public function runMigrate(\Illuminate\Http\Request $request){
+    public function runMigrate(\Illuminate\Http\Request $request){
 			if(!file_exists("../.env")){
 				//flash()->overlay("The database connection settings do not exist",'Whoops!');
 				return redirect('/install');
@@ -212,6 +197,21 @@ class InstallController extends Controller {
 					flash()->overlay("Sorry, couldn't run the Artisan migrations, please check Laravel's logs for details. ","Whoops!");
 					return redirect('/');
 				}
+                try{
+                    $status = Artisan::call("key:generate");
+                }
+                catch(\Exception $e){
+                    flash()->overlay("Sorry, couldn't generate the application key through Artisan, please check Laravel's logs for details. ","Whoops!");
+                    return redirect('/');
+                }
+
+                try{
+                    $status = $this->createDirectories();
+                }
+                catch(\Exception $e){
+                    flash()->overlay("Sorry, there was a problem creating some required directories.","Whoops!");
+                    return redirect('/');
+                }
 
 				try{
 					$adminuser = $request->session()->get('adminuser');
@@ -236,5 +236,16 @@ class InstallController extends Controller {
 				}
 			}
 		}
+
+    public function createDirectories(){
+        foreach($this->DIRECTORIES as $dir){
+            if(file_exists(ENV("BASE_PATH").$dir)){
+                continue;
+            }
+            else{
+                mkdir(ENV("BASE_PATH").$dir,0644); //Notice the permission that is set and if it's OK!
+            }
+        }
+    }
 
 }

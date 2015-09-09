@@ -10,6 +10,7 @@
 
     <hr/>
 
+<<<<<<< HEAD
     <div class="form-group">
         <span>{!! Form::label('presetlabel', 'From Preset: ') !!}</span>
         <select class="form-control" id="presetselect" onchange="populate()">
@@ -120,6 +121,10 @@
     </script>
 
     {!! Form::model($record = new \App\Record, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid.'/records', 'id' => 'createform']) !!}
+=======
+    {!! Form::model($record = new \App\Record, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid.'/records',
+        'enctype' => 'multipart/form-data', 'id' => 'new_record_form']) !!}
+>>>>>>> 5f0c6f2883128fbafc87b3db4bdd29b376e7e61c
         @include('records.form',['submitButtonText' => 'Create Record', 'form' => $form])
     {!! Form::close() !!}
 
