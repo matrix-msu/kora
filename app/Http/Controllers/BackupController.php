@@ -59,14 +59,15 @@ class BackupController extends Controller
 
         $this->ajax_error_list = new Collection(); //The Exception's getMessage() for data that didn't restore/backup
     }
-
+    /*
+     * This method retrieves all restore points saved on the server, and displays a view
+     * for the user to create a new backup, revert to a restore point, or to upload a backup file
+     *
+     * @params Request $request
+     * @return view
+     */
     public function index(Request $request){
-        /*
-         * index(Request $request)
-         *
-         * This method retrieves all restore points saved on the server, and displays a view
-         * for the user to create a new backup, revert to a restore point, or to upload a backup file
-         */
+
         $available_backups = Storage::files($this->BACKUP_DIRECTORY);
         $saved_backups = new Collection();
 
@@ -102,21 +103,22 @@ class BackupController extends Controller
             $saved_backups->push($backup_info);
         }
         $saved_backups = $saved_backups->sortByDesc(function($item){
-            //dd($item->get('date'));
             return $item->get('timestamp');
         });
-       // dd($saved_backups);
         $request->session()->put("restore_points_available",$available_backups);
         return view('backups.index',compact('saved_backups'));
     }
 
+
+    /*
+     * This method validates the backup info, then displays a view with a progress bar
+     * the view makes an AJAX call to BackupController@create to start the backup process
+     *
+     * @params Request $request
+     * @return view
+     */
     public function startBackup(Request $request){
-        /*
-         * startBackup(Request $request)
-         *
-         * This method validates the backup info, then displays a view with a progress bar
-         * the view makes an AJAX call to BackupController@create to start the backup process
-         */
+
         $this->validate($request,[
             'backup_label'=>'required|alpha_dash',
         ]);
@@ -125,13 +127,16 @@ class BackupController extends Controller
         return view('backups.backup',compact('backup_label'));
     }
 
+
+    /*
+     * This method should be called via AJAX and will create a backup,
+     * then return success or error information through JSON.
+     *
+     * @params Request $request
+     * @return response
+     */
 	public function create(Request $request){
-        /*
-         * create(Request $request)
-         *
-         * This method should be called via AJAX and will create a backup,
-         * then return success or error information through JSON.
-         */
+
         $users_exempt_from_lockout = new Collection();
         $users_exempt_from_lockout->put(1,1); //Add another one of these with (userid,userid) to exempt extra users
 
@@ -172,15 +177,15 @@ class BackupController extends Controller
         }
 	}
 
+    /*
+     * This method allows the user to download a backup file once.
+     * It retrieves the file name from the session, then deletes it from session,
+     * then sends the file as response.  If there is no filename, it flashes an error.
+     *
+     * @params Request $request
+     * @return response
+     */
     public function download(Request $request){
-        /*
-         * download(Request $request)
-         *
-         * This method allows the user to download a backup file once.
-         * It retrieves the file name from the session, then deletes it from session,
-         * then sends the file as response.  If there is no filename, it flashes an error.
-         */
-
         if($request->session()->has("backup_file_name")){
             $filename = $request->session()->get("backup_file_name");
             $request->session()->forget("backup_file_name");
@@ -192,16 +197,17 @@ class BackupController extends Controller
         }
     }
 
+    /*
+     * This method loops through all of the models and returns them all in a collection.
+     * The $backup_name is a friendly name for the backup.
+     *
+     * If there is an error with just a row, it will add it to $ajax_error_list
+     * If there is a more serious error, it will stop and immediately send a JSON response with the error
+     *
+     * @params String $backup_name
+     * @return Collection
+     */
 	public function saveDatabase($backup_name){
-        /*
-         * saveDatabase($backup_name)
-         *
-         * This method loops through all of the models and returns them all in a collection.
-         * The $backup_name is a friendly name for the backup.
-         *
-         * If there is an error with just a row, it will add it to $ajax_error_list
-         * If there is a more serious error, it will stop and immediately send a JSON response with the error
-         */
 
 		$entire_database = new Collection(); //This will hold literally the entire database and then some
 
@@ -619,14 +625,15 @@ class BackupController extends Controller
 		return $entire_database;
 	}
 
+    /*
+    * This method validates the restore info, then displays a view with a progress bar
+    * the view makes an AJAX call to BackupController@restoreData to start the restore process
+    *
+    * @params Request $request
+    * @return view
+    */
     public function startRestore(Request $request){
-        /*
-         * startRestore(Request $request)
-         *
-         * This method validates the restore info, then displays a view with a progress bar
-         * the view makes an AJAX call to BackupController@restoreData to start the restore process
-         *
-         */
+
 
         $this->validate($request,[
             'backup_source'=>'required|in:server,upload',
@@ -680,18 +687,20 @@ class BackupController extends Controller
         return view('backups.restore');
     }
 
+    /*
+     * Deletes all rows from the existing database, then creates new ones based on the JSON file
+     * Expects to be called via AJAX, so the response is a JSON object that is
+     * {"status": boolean, "message":"string","restore_errors":["array"]}
+     *
+     * along with an HTTP status code of either 200 or 500
+     * If you get an error, it's likely that users are locked out of the application, so you must
+     * call BackupController@unlockUsers() to restore access.
+     *
+     * @params Request $request
+     * @return response
+     */
 	public function restoreData(Request $request){
-        /*
-         * restoreData(Request $request)
-         *
-         * Deletes all rows from the existing database, then creates new ones based on the JSON file
-         * Expects to be called via AJAX, so the response is a JSON object that is
-         * {"status": boolean, "message":"string","restore_errors":["array"]}
-         *
-         * along with an HTTP status code of either 200 or 500
-         * If you get an error, it's likely that users are locked out of the application, so you must
-         * call BackupController@unlockUsers() to restore access.
-         */
+
 
         $this->json_file = null;
         $this->decoded_json = null;
@@ -1105,17 +1114,18 @@ class BackupController extends Controller
         }
 
 	}
-
+    /*
+     * This method accepts a boolean (status) and a string (message)
+     * and it returns a JSON response for AJAX calls with the status, message,
+     * and an array of restore errors.  It also sets the HTTP status code.
+     *
+     * Note that this sends the response immediately, and will exit()!
+     *
+     * @params String $status, String, $message
+     * @return response
+     */
     public function ajaxResponse($status,$message){
-        /*
-         * ajaxResponse($status,$message)
-         *
-         * This method accepts a boolean (status) and a string (message)
-         * and it returns a JSON response with the status, message,
-         * and an array of restore errors.  It also sets the HTTP status code.
-         *
-         * Note that this sends the response immediately, and will exit()!
-         */
+
         $this->ajax_return_data = new Collection(); //This will get a status boolean, a message, and an array of errors
         $this->ajax_return_data->put("status",$status);
         $this->ajax_return_data->put("error_list",$this->ajax_error_list);
@@ -1127,21 +1137,23 @@ class BackupController extends Controller
             return response()->json($this->ajax_return_data,200)->send();
         }
         else{
+            //This is bad, but otherwise it keeps running, maybe there's an alternative?
             return response()->json($this->ajax_return_data,500)->send() && exit();
         }
 
     }
 
+    /*
+     * This method takes a collection of user IDs as keys, and their username as value
+     * It will lock any user that is not exempted, so that they cannot access the app during
+     * backup and restore operations.  They should be unlocked afterwards.
+     *
+     * The default is [1,1]
+     *
+     * @params Collection $exemptions
+     * @return
+     */
     public function lockUsers(Collection $exemptions){
-        /*
-         * lockUsers(Collection $exemptions)
-         *
-         * This method takes a collection of user IDs as keys, and their username as value
-         * It will lock any user that is not exempted, so that they cannot access the app during
-         * backup and restore operations.  They should be unlocked afterwards.
-         *
-         * The default is [1,1]
-         */
         $users = User::all();
         foreach($users as $user){
             if($exemptions->has($user->id)){
@@ -1154,13 +1166,15 @@ class BackupController extends Controller
         }
     }
 
+    /*
+     * This method will unlock all users, it returns a response with a message and status code,
+     * but the response isn't sent (unless this is called from a route).
+     *
+     * @params
+     * @return response
+     */
     public function unlockUsers(){
-        /*
-         * unlockUsers()
-         *
-         * This method will unlock all users, it returns a response with a message and status code,
-         * but the response isn't sent (unless this is called from a route).
-         */
+
         try {
             $users = User::all();
             foreach ($users as $user) {
