@@ -14,6 +14,10 @@ class Record extends Model {
 
     protected $primaryKey = "rid";
 
+    public function preset() {
+        return $this->belongsTo('App/Preset');
+    }
+
     public function form(){
         return $this->belongsTo('App\Form', 'fid');
     }
@@ -52,6 +56,10 @@ class Record extends Model {
 
     public function geolocatorfields(){
         return $this->hasMany('App\GeolocatorField', 'rid');
+    }
+
+    public function documentsfields(){
+        return $this->hasMany('App\DocumentsField', 'rid');
     }
 
     public function associatorfields(){

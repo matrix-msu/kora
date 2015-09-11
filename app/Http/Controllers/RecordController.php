@@ -1,7 +1,9 @@
 <?php namespace App\Http\Controllers;
 
 use App\DateField;
+use App\DocumentsField;
 use App\GeneratedListField;
+use App\RecordPreset;
 use App\GeolocatorField;
 use App\ScheduleField;
 use App\User;
@@ -66,8 +68,16 @@ class RecordController extends Controller {
         }
 
         $form = FormController::getForm($fid);
+        $presets = array();
 
-        return view('records.create', compact('form'));
+        foreach(RecordPreset::where('fid', '=', $fid)->get() as $preset)
+            $presets[] = ['id' => $preset->id, 'name' => $preset->name];
+
+        $fields = array(); //array of field ids
+        foreach($form->fields()->get() as $field)
+            $fields[] = $field->flid;
+
+        return view('records.create', compact('form', 'presets', 'fields'));
 	}
 
 	/**
@@ -164,6 +174,34 @@ class RecordController extends Controller {
                 $gf->rid = $record->rid;
                 $gf->locations = FieldController::msListArrayToString($value);
                 $gf->save();
+            } else if($field->type=='Documents' && glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') != false){
+                $df = new DocumentsField();
+                $df->flid = $field->flid;
+                $df->rid = $record->rid;
+                $infoString = '';
+                $newPath = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid;
+                mkdir($newPath,0775,true);
+                if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
+                    $types = FieldController::getMimeTypes();
+                    foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
+                        if ($file->isFile()) {
+                            if(!array_key_exists($file->getExtension(),$types))
+                                $type = 'application/octet-stream';
+                            else
+                                $type =  $types[$file->getExtension()];
+                            $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
+                            if ($infoString == '') {
+                                $infoString = $info;
+                            } else {
+                                $infoString .= '[!]' . $info;
+                            }
+                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                                $newPath . '/' . $file->getFilename());
+                        }
+                    }
+                }
+                $df->documents = $infoString;
+                $df->save();
             }
         }
 
@@ -192,7 +230,6 @@ class RecordController extends Controller {
 
         $form = FormController::getForm($fid);
         $record = RecordController::getRecord($rid);
-
         $owner = User::where('id', '=', $record->owner)->first();
 
         return view('records.show', compact('record', 'form', 'pid', 'owner'));
@@ -380,6 +417,48 @@ class RecordController extends Controller {
                     $gf->locations = FieldController::msListArrayToString($value);
                     $gf->save();
                 }
+            } else if($field->type=='Documents'
+                    && (DocumentsField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null
+                    | glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') != false)){
+                //we need to check if the field exist first
+                if(DocumentsField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
+                    $df = DocumentsField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                }else {
+                    $df = new DocumentsField();
+                    $df->flid = $field->flid;
+                    $df->rid = $record->rid;
+                    $newPath = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid;
+                    mkdir($newPath,0775,true);
+                }
+                //clear the old files before moving the update over
+                foreach (new \DirectoryIterator(env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid) as $file) {
+                    if ($file->isFile()) {
+                        unlink(env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$file->getFilename());
+                    }
+                }
+                //build new stuff
+                $infoString = '';
+                if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
+                    $types = FieldController::getMimeTypes();
+                    foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
+                        if ($file->isFile()) {
+                            if(!array_key_exists($file->getExtension(),$types))
+                                $type = 'application/octet-stream';
+                            else
+                                $type =  $types[$file->getExtension()];
+                            $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
+                            if ($infoString == '') {
+                                $infoString = $info;
+                            } else {
+                                $infoString .= '[!]' . $info;
+                            }
+                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                                env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $file->getFilename());
+                        }
+                    }
+                }
+                $df->documents = $infoString;
+                $df->save();
             }
         }
 
@@ -411,6 +490,9 @@ class RecordController extends Controller {
 
         RevisionController::storeRevision($record->rid, 'delete');
 
+        //if directory r[rid] exists
+        //  destroy directory
+
         $record->delete();
 
         flash()->overlay('Your record has been successfully deleted!', 'Good Job!');
@@ -418,12 +500,38 @@ class RecordController extends Controller {
 
     public function deleteAllRecords($pid, $fid)
     {
-        $records = Record::where('fid', '=', $fid)->get();
-        foreach($records as $record)
-        {
-            RecordController::destroy($pid, $fid, $record->rid);
+        $form = FormController::getForm($fid);
+        if(!\Auth::user()->admin && \Auth::user()->isFormAdmin($form)){
+            flash()->overlay('You do not have permission for that.', 'Whoops.');
         }
-        flash()->overlay('All records deleted.', 'Success!');
+        else {
+            $records = Record::where('fid', '=', $fid)->get();
+            foreach ($records as $record) {
+                RecordController::destroy($pid, $fid, $record->rid);
+            }
+            flash()->overlay('All records deleted.', 'Success!');
+        }
+    }
+
+    public function presetRecord(Request $request)
+    {
+        $name = $request->name;
+        $rid = $request->rid;
+
+        if(!is_null(RecordPreset::where('rid', '=', $rid)->first()))
+            flash()->overlay('Record is already a preset.');
+        else {
+            $record = RecordController::getRecord($rid);
+            $fid = $record->fid;
+
+            $preset = new RecordPreset();
+            $preset->rid = $rid;
+            $preset->fid = $fid;
+            $preset->name = $name;
+            $preset->save();
+
+            flash()->overlay('Record preset saved.', 'Success!');
+        }
     }
 
     public static function getRecord($rid)

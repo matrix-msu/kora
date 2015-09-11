@@ -29,7 +29,6 @@ Route::patch('/admin/update', 'AdminController@update');
 Route::patch('/admin/batch', 'AdminController@batch');
 Route::delete('admin/deleteUser/{id}', 'AdminController@deleteUser');
 
-
 //token routes
 Route::get('/tokens', 'TokenController@index');
 Route::post('/tokens/create', 'TokenController@create');
@@ -66,6 +65,16 @@ Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/clearRecency', 'FieldCont
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/checkRecency', 'FieldController@checkRecency');
 Route::post('/projects/{pid}/forms/{fid}','FieldController@store');
 Route::post('/field/move', 'FieldNavController@index');
+Route::post('/saveTmpFile/{flid}', 'FieldController@saveTmpFile');
+Route::patch('/saveTmpFile/{flid}', 'FieldController@saveTmpFile');
+Route::delete('/deleteTmpFile/{flid}/{filename}', 'FieldController@delTmpFile');
+Route::get('/download/{rid}/{flid}/{filename}','FieldController@getFileDownload')->where('filename', '[A-Za-z0-9\-\_\.]+');
+
+//record preset routes
+Route::get('/projects/{pid}/forms/{fid}/records/presets', 'RecordPresetController@index');
+Route::patch('/changePresetName', 'RecordPresetController@changePresetName');
+Route::delete('/deletePreset', 'RecordPresetController@deletePreset');
+Route::post('/getRecordArray', 'RecordPresetController@getRecordArray');
 
 //record routes
 Route::get('/projects/{pid}/forms/{fid}/records','RecordController@index');
@@ -76,6 +85,7 @@ Route::delete('/projects/{pid}/forms/{fid}/records/{rid}','RecordController@dest
 Route::get('/projects/{pid}/forms/{fid}/records/{rid}/edit','RecordController@edit');
 Route::post('/projects/{pid}/forms/{fid}/records','RecordController@store');
 Route::delete('projects/{pid}/forms/{fid}/deleteAllRecords','RecordController@deleteAllRecords');
+Route::post('/presetRecord', 'RecordController@presetRecord');
 
 //revision routes
 Route::get('/projects/{pid}/forms/{fid}/records/revisions/recent', 'RevisionController@index');
@@ -90,7 +100,6 @@ Route::get('/user/activate/{token}', 'Auth\UserController@activate');
 Route::get('/auth/activate', 'Auth\UserController@activateshow');
 Route::post('/auth/activate', 'Auth\UserController@activator');
 Route::post('/user/profile','Auth\UserController@changeprofile');
-
 
 //metadata routes
 Route::get('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@index');
@@ -111,7 +120,6 @@ Route::post('/backup/restore/start','BackupController@restoreData');
 Route::post('/backup','BackupController@startBackup');
 Route::post('/backup/restore','BackupController@startRestore');
 Route::post('/backup/unlock','BackupController@unlockUsers');
-
 
 Route::controllers([
 	'auth' => 'Auth\AuthController',

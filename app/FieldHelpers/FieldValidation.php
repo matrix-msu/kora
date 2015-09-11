@@ -29,6 +29,8 @@ class FieldValidation {
             return FieldValidation::validateGeneratedList($field, $value);
         } else if($field->type=='Date') {
             return FieldValidation::validateDate($field, $request);
+        }else if($field->type=='Documents'){
+            return FieldValidation::validateDocuments($field, $value);
         } else{
             return 'Field does not have a type';
         }
@@ -117,6 +119,15 @@ class FieldValidation {
         }
 
         return '';
+    }
+
+    static function validateDocuments($field, $value){
+        $req = $field->required;
+
+        if($req==1){
+            if(glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') == false)
+                return $field->name.' field is required. No files submitted.';
+        }
     }
 
     static function validateDefault($field, $value){

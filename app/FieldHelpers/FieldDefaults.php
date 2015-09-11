@@ -24,9 +24,11 @@ class FieldDefaults {
             return '[!Circa!]No[!Circa!][!Start!]1900[!Start!][!End!]2020[!End!][!Format!]MMDDYYYY[!Format!][!Era!]Off[!Era!]';
         }else if($type=='Schedule'){
             return '[!Start!]1900[!Start!][!End!]2020[!End!][!Calendar!]No[!Calendar!]';
-        }else if($type="Geolocator"){
+        }else if($type=="Geolocator"){
             return '[!Map!]No[!Map!][!DataView!]LatLon[!DataView!]';
-        }else if($type="Associator"){
+        }else if($type=="Documents"){
+            return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!][!FileTypes!]';
+        }else if($type=="Associator"){
             return '[!Forms!][!Forms!][!SearchForms!][!SearchForms!]';
         }
         else{

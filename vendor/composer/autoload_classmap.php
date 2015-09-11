@@ -6,8 +6,12 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'App\\FieldHelpers\\FieldDefaults' => $baseDir . '/app/FieldHelpers/FieldDefaults.php',
+    'App\\FieldHelpers\\FieldValidation' => $baseDir . '/app/FieldHelpers/FieldValidation.php',
+    'App\\FieldHelpers\\UploadHandler' => $baseDir . '/app/FieldHelpers/UploadHelper.php',
     'CreateAssociatorfieldsTable' => $baseDir . '/database/migrations/2015_08_21_194838_create_associatorfields_table.php',
     'CreateDatefieldsTable' => $baseDir . '/database/migrations/2015_07_27_130034_create_datefields_table.php',
+    'CreateDocumentsfieldsTable' => $baseDir . '/database/migrations/2015_08_24_155227_create_documentsfields_table.php',
     'CreateFieldsTable' => $baseDir . '/database/migrations/2015_05_01_140126_CreateFieldsTable.php',
     'CreateFormGroupsTable' => $baseDir . '/database/migrations/2015_07_15_172743_create_form_groups_table.php',
     'CreateFormsTable' => $baseDir . '/database/migrations/2015_04_03_152745_CreateFormsTable.php',
@@ -21,6 +25,7 @@ return array(
     'CreatePasswordResetsTable' => $baseDir . '/database/migrations/2015_04_03_151648_create_password_resets_table.php',
     'CreateProjectGroupsTable' => $baseDir . '/database/migrations/2015_07_09_171601_create_project_groups_table.php',
     'CreateProjectsTable' => $baseDir . '/database/migrations/2015_04_03_151510_CreateProjectsTable.php',
+    'CreateRecordpresetsTable' => $baseDir . '/database/migrations/2015_08_21_154839_create_recordpresets_table.php',
     'CreateRecordsTable' => $baseDir . '/database/migrations/2015_05_18_173954_create_records_table.php',
     'CreateRevisionsTable' => $baseDir . '/database/migrations/2015_07_23_181833_create_revisions_table.php',
     'CreateRichtextfieldsTable' => $baseDir . '/database/migrations/2015_06_08_190300_create_richtextfields_table.php',

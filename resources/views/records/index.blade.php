@@ -18,6 +18,13 @@
         <form action="{{action('RevisionController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
             <button type="submit" class="btn btn-default">Revision History</button>
         </form>
+<<<<<<< HEAD
+        <form action="{{action('RecordPresetController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
+            <button type="submit" class="btn btn-default">Manage Presets</button>
+        </form>
+        <button class="btn btn-danger" onclick="deleteAll()">Delete All Records</button>
+=======
+>>>>>>> 5f0c6f2883128fbafc87b3db4bdd29b376e7e61c
     @endif
 
     <div>
@@ -182,6 +189,20 @@
                                     @endif
                                 @endforeach
                             @endif
+                        @elseif($field->type=='Documents')
+                            @foreach($record->documentsfields as $df)
+                                @if($df->flid == $field->flid)
+                                    @foreach(explode('[!]',$df->documents) as $opt)
+                                        @if($opt != '')
+                                            <?php
+                                                $name = explode('[Name]',$opt)[1];
+                                                $link = action('FieldController@getFileDownload',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name]);
+                                            ?>
+                                            <div><a href="{{$link}}">{{$name}}</a></div>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            @endforeach
                         @endif
                     </span>
                 </div>
