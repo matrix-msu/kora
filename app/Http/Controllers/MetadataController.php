@@ -138,6 +138,18 @@ class MetadataController extends Controller {
                         $jsRecord->put($field->metadata()->first()->name,$events_array);
                     }
                 }
+
+                foreach($record->geolocatorfields as $gf){
+                    $field = Field::find($gf->flid);
+                    if($item==$gf->flid && count($field->metadata)>0){
+                        $locations_array = explode("[!]",$gf->locations);
+                        $locations_and_description_array = new Collection();
+                        foreach($locations_array as $location){
+                            $locations_and_description_array->push(explode(":",$location));
+                        }
+                        $jsRecord->put($field->metadata()->first()->name,$locations_and_description_array);
+                    }
+                }
             }
             else{
                 $node_fields = $this->matchRecordsAndMetadata($item,$record);
