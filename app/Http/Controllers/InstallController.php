@@ -149,7 +149,7 @@ class InstallController extends Controller {
 			CACHE_DRIVER=file
 			SESSION_DRIVER=file
 
-			BASE_URL=" . $envstrings->get('baseurl_url') . "\n
+			BASE_URL=http://" . $envstrings->get('baseurl_url') . "\n
 			BASE_PATH=" . $envstrings->get('basepath') . "\n
 
 			RECAPTCHA_PUBLIC_KEY=" . $envstrings->get('recaptcha_public_key') . "\n

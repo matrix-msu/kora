@@ -18,7 +18,7 @@
     <span class="btn btn-success fileinput-button">
         <span>Add files...</span>
         <input id="file{{$field->flid}}" type="file" name="file{{$field->flid}}[]"
-               data-url="http://{{ env('BASE_URL') }}public/saveTmpFile/{{$field->flid}}" multiple>
+               data-url="{{ env('BASE_URL') }}public/saveTmpFile/{{$field->flid}}" multiple>
         {!! Form::hidden($field->flid,'f'.$field->flid.'u'.\Auth::user()->id) !!}
     </span>
     <br/><br/>

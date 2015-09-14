@@ -17,23 +17,23 @@
     <link href='//fonts.googleapis.com/css?family=Lato:100' rel='stylesheet' type='text/css'>
     @if(!isset($not_installed))
         <!-- For Rich Text -->
-        <script src="http://{{ env('BASE_URL') }}public/ckeditor/ckeditor.js"></script>
+        <script src="{{ env('BASE_URL') }}public/ckeditor/ckeditor.js"></script>
         <!-- For Schedule -->
-        <script type="text/javascript" src="http://{{ env('BASE_URL') }}public/bower_components/moment/min/moment.min.js"></script>
-        <script type="text/javascript" src="http://{{ env('BASE_URL') }}public/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
-        <link rel="stylesheet" href="http://{{ env('BASE_URL') }}public/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
-        <link rel='stylesheet' href='http://{{ env('BASE_URL') }}public/bower_components/fullcalendar/dist/fullcalendar.css' />
-        <script src='http://{{ env('BASE_URL') }}public/bower_components/fullcalendar/dist/fullcalendar.js'></script>
+        <script type="text/javascript" src="{{ env('BASE_URL') }}public/bower_components/moment/min/moment.min.js"></script>
+        <script type="text/javascript" src="{{ env('BASE_URL') }}public/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+        <link rel="stylesheet" href="{{ env('BASE_URL') }}public/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
+        <link rel='stylesheet' href='{{ env('BASE_URL') }}public/bower_components/fullcalendar/dist/fullcalendar.css' />
+        <script src='{{ env('BASE_URL') }}public/bower_components/fullcalendar/dist/fullcalendar.js'></script>
         <!-- For Geolocator -->
-        <link rel="stylesheet" href="http://{{ env('BASE_URL') }}public/leaflet/leaflet.css" />
-        <script src="http://{{ env('BASE_URL') }}public/leaflet/leaflet.js"></script>
+        <link rel="stylesheet" href="{{ env('BASE_URL') }}public/leaflet/leaflet.css" />
+        <script src="{{ env('BASE_URL') }}public/leaflet/leaflet.js"></script>
 		<!-- For Documents -->
-		<link rel="stylesheet" href="http://{{ env('BASE_URL') }}public/fileUpload/css/style.css">
-		<link rel="stylesheet" href="http://{{ env('BASE_URL') }}public/fileUpload/css/jquery.fileupload.css">
-		<link rel="stylesheet" href="http://{{ env('BASE_URL') }}public/fileUpload/css/jquery.fileupload-ui.css">
-		<script src="http://{{ env('BASE_URL') }}public/fileUpload/js/vendor/jquery.ui.widget.js"></script>
-		<script src="http://{{ env('BASE_URL') }}public/fileUpload/js/jquery.iframe-transport.js"></script>
-		<script src="http://{{ env('BASE_URL') }}public/fileUpload/js/jquery.fileupload.js"></script>
+		<link rel="stylesheet" href="{{ env('BASE_URL') }}public/fileUpload/css/style.css">
+		<link rel="stylesheet" href="{{ env('BASE_URL') }}public/fileUpload/css/jquery.fileupload.css">
+		<link rel="stylesheet" href="{{ env('BASE_URL') }}public/fileUpload/css/jquery.fileupload-ui.css">
+		<script src="{{ env('BASE_URL') }}public/fileUpload/js/vendor/jquery.ui.widget.js"></script>
+		<script src="{{ env('BASE_URL') }}public/fileUpload/js/jquery.iframe-transport.js"></script>
+		<script src="{{ env('BASE_URL') }}public/fileUpload/js/jquery.fileupload.js"></script>
     @endif
     <title>Kora 3</title>
 </head>
