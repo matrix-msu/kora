@@ -7,6 +7,8 @@ use App\RecordPreset;
 use App\GeolocatorField;
 use App\ScheduleField;
 use App\User;
+use App\Form;
+use App\Field;
 use App\Record;
 use App\TextField;
 use App\NumberField;
@@ -18,6 +20,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\FieldHelpers\FieldValidation;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 
 
 class RecordController extends Controller {
@@ -597,4 +601,304 @@ class RecordController extends Controller {
         }
     }
 
+
+    /**
+     *
+     * Display a view for mass assigning a value to many records at once
+     *
+     * @param $pid
+     * @param $fid
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
+     */
+    public function showMassAssignmentView($pid,$fid){
+
+
+        if(!$this->checkPermissions($fid,'modify')){
+            return redirect()->back();
+        }
+
+        $form = FormController::getForm($fid);
+        $fields = $form->fields()->get();
+        return view('records.mass-assignment',compact('form','fields','pid','fid'));
+    }
+
+    /**
+     *
+     * Mass assign a value to many records at once, similar to update, but loops through all of them
+     *
+     * @param $pid
+     * @param $fid
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function massAssignRecords($pid, $fid, Request $request)
+    {
+
+        if(!$this->checkPermissions($fid,'modify')){
+            return redirect()->back();
+        }
+
+        $flid = $request->input("field_selection");
+        if (!is_numeric($flid)) {
+            flash()->overlay("That is not a valid field");
+            return redirect()->back();
+        }
+
+        if($request->has($flid)) {
+            $form_field_value = $request->input($flid); //Note this only works when there is one form element being submitted, so if you have more, check Date
+        }
+        else{
+            flash()->overlay("You didn't provide a value to assign to the records","Whoops.");
+            return redirect()->back();
+        }
+
+        if ($request->has("overwrite")) {
+            $overwrite = $request->input("overwrite"); //Overwrite field in all records, even if it has data
+        } else {
+            $overwrite = 0;
+        }
+
+
+        $field = Field::find($flid);
+        foreach (Form::find($fid)->records()->get() as $record) {
+            if ($field->type == "Text") {
+                $matching_record_fields = $record->textfields()->where("flid", '=', $flid)->get();
+                $record->updated_at = Carbon::now();
+                $record->save();
+                if ($matching_record_fields->count() > 0) {
+                    $textfield = $matching_record_fields->first();
+                    if ($overwrite == true || $textfield->text == "" || is_null($textfield->text)) {
+                        $revision = RevisionController::storeRevision($record->rid, 'edit');
+                        $textfield->text = $form_field_value;
+                        $textfield->save();
+                        $revision->oldData = RevisionController::buildDataArray($record);
+                        $revision->save();
+                    } else {
+                        continue;
+                    }
+                } else {
+                    $tf = new TextField();
+                    $revision = RevisionController::storeRevision($record->rid, 'edit');
+                    $tf->flid = $field->flid;
+                    $tf->rid = $record->rid;
+                    $tf->text = $form_field_value;
+                    $tf->save();
+                    $revision->oldData = RevisionController::buildDataArray($record);
+                    $revision->save();
+                }
+            } elseif ($field->type == "Rich Text") {
+                $matching_record_fields = $record->richtextfields()->where("flid", '=', $flid)->get();
+                $record->updated_at = Carbon::now();
+                $record->save();
+                if ($matching_record_fields->count() > 0) {
+                    $richtextfield = $matching_record_fields->first();
+                    if ($overwrite == true || $richtextfield->rawtext == "" || is_null($richtextfield->rawtext)) {
+                        $revision = RevisionController::storeRevision($record->rid, 'edit');
+                        $richtextfield->rawtext = $form_field_value;
+                        $richtextfield->save();
+                        $revision->oldData = RevisionController::buildDataArray($record);
+                        $revision->save();
+                    } else {
+                        continue;
+                    }
+                } else {
+                    $rtf = new RichTextField();
+                    $revision = RevisionController::storeRevision($record->rid, 'edit');
+                    $rtf->flid = $field->flid;
+                    $rtf->rid = $record->rid;
+                    $rtf->rawtext = $form_field_value;
+                    $rtf->save();
+                    $revision->oldData = RevisionController::buildDataArray($record);
+                    $revision->save();
+                }
+            } elseif ($field->type == "Number") {
+                $matching_record_fields = $record->numberfields()->where("flid", '=', $flid)->get();
+                $record->updated_at = Carbon::now();
+                $record->save();
+                if ($matching_record_fields->count() > 0) {
+                    $numberfield = $matching_record_fields->first();
+                    if ($overwrite == true || $numberfield->number == "" || is_null($numberfield->number)) {
+                        $revision = RevisionController::storeRevision($record->rid, 'edit');
+                        $numberfield->number = $form_field_value;
+                        $numberfield->save();
+                        $revision->oldData = RevisionController::buildDataArray($record);
+                        $revision->save();
+                    } else {
+                        continue;
+                    }
+                } else {
+                    $nf = new NumberField();
+                    $revision = RevisionController::storeRevision($record->rid, 'edit');
+                    $nf->flid = $field->flid;
+                    $nf->rid = $record->rid;
+                    $nf->number = $form_field_value;
+                    $nf->save();
+                    $revision->oldData = RevisionController::buildDataArray($record);
+                    $revision->save();
+                }
+            } elseif ($field->type == "List") {
+                $matching_record_fields = $record->listfields()->where("flid", '=', $flid)->get();
+                $record->updated_at = Carbon::now();
+                $record->save();
+                if ($matching_record_fields->count() > 0) {
+                    $listfield = $matching_record_fields->first();
+                    if ($overwrite == true || $listfield->option == "" || is_null($listfield->option)) {
+                        $revision = RevisionController::storeRevision($record->rid, 'edit');
+                        $listfield->option = $form_field_value;
+                        $listfield->save();
+                        $revision->oldData = RevisionController::buildDataArray($record);
+                        $revision->save();
+                    } else {
+                        continue;
+                    }
+                } else {
+                    $lf = new ListField();
+                    $revision = RevisionController::storeRevision($record->rid, 'edit');
+                    $lf->flid = $field->flid;
+                    $lf->rid = $record->rid;
+                    $lf->option = $form_field_value;
+                    $lf->save();
+                    $revision->oldData = RevisionController::buildDataArray($record);
+                    $revision->save();
+                }
+            } elseif ($field->type == "Multi-Select List") {
+                $matching_record_fields = $record->multiselectlistfields()->where("flid", '=', $flid)->get();
+                $record->updated_at = Carbon::now();
+                $record->save();
+                if ($matching_record_fields->count() > 0) {
+                    $multiselectlistfield = $matching_record_fields->first();
+                    if ($overwrite == true || $multiselectlistfield->options == "" || is_null($multiselectlistfield->options)) {
+                        $revision = RevisionController::storeRevision($record->rid, 'edit');
+                        $multiselectlistfield->options = implode("[!]", $form_field_value);
+                        $multiselectlistfield->save();
+                        $revision->oldData = RevisionController::buildDataArray($record);
+                        $revision->save();
+                    } else {
+                        continue;
+                    }
+                } else {
+                    $mslf = new MultiSelectListField();
+                    $revision = RevisionController::storeRevision($record->rid, 'edit');
+                    $mslf->flid = $field->flid;
+                    $mslf->rid = $record->rid;
+                    $mslf->options = implode("[!]", $form_field_value);
+                    $mslf->save();
+                    $revision->oldData = RevisionController::buildDataArray($record);
+                    $revision->save();
+                }
+            } elseif ($field->type == "Generated List") {
+                $matching_record_fields = $record->generatedlistfields()->where("flid", '=', $flid)->get();
+                $record->updated_at = Carbon::now();
+                $record->save();
+                if ($matching_record_fields->count() > 0) {
+                    $generatedlistfield = $matching_record_fields->first();
+                    if ($overwrite == true || $generatedlistfield->options == "" || is_null($generatedlistfield->options)) {
+                        $revision = RevisionController::storeRevision($record->rid, 'edit');
+                        $generatedlistfield->options = implode("[!]", $form_field_value);
+                        $generatedlistfield->save();
+                        $revision->oldData = RevisionController::buildDataArray($record);
+                        $revision->save();
+                    } else {
+                        continue;
+                    }
+                } else {
+                    $glf = new GeneratedListField();
+                    $revision = RevisionController::storeRevision($record->rid, 'edit');
+                    $glf->flid = $field->flid;
+                    $glf->rid = $record->rid;
+                    $glf->options = implode("[!]", $form_field_value);
+                    $glf->save();
+                    $revision->oldData = RevisionController::buildDataArray($record);
+                    $revision->save();
+                }
+            } elseif ($field->type == "Date") {
+                $matching_record_fields = $record->datefields()->where("flid", '=', $flid)->get();
+                $record->updated_at = Carbon::now();
+                $record->save();
+                if ($matching_record_fields->count() > 0) {
+                    $datefield = $matching_record_fields->first();
+                    if ($overwrite == true || $datefield->month == "" || is_null($datefield->month)) {
+                        $revision = RevisionController::storeRevision($record->rid, 'edit');
+                        $datefield->circa = $request->input('circa_' . $flid, '');
+                        $datefield->month = $request->input('month_' . $flid);
+                        $datefield->day = $request->input('day_' . $flid);
+                        $datefield->year = $request->input('year_' . $flid);
+                        $datefield->era = $request->input('era_' . $flid, 'CE');
+                        $datefield->save();
+                        $revision->oldData = RevisionController::buildDataArray($record);
+                        $revision->save();
+                    } else {
+                        continue;
+                    }
+                } else {
+                    $df = new DateField();
+                    $revision = RevisionController::storeRevision($record->rid, 'edit');
+                    $df->circa = $request->input('circa_' . $flid, '');
+                    $df->month = $request->input('month_' . $flid);
+                    $df->day = $request->input('day_' . $flid);
+                    $df->year = $request->input('year_' . $flid);
+                    $df->era = $request->input('era_' . $flid, 'CE');
+                    $df->rid = $record->rid;
+                    $df->flid = $flid;
+                    $df->save();
+                    $revision->oldData = RevisionController::buildDataArray($record);
+                    $revision->save();
+                }
+            } elseif ($field->type == "Schedule") {
+                $matching_record_fields = $record->schedulefields()->where("flid", '=', $flid)->get();
+                $record->updated_at = Carbon::now();
+                $record->save();
+                if ($matching_record_fields->count() > 0) {
+                    $schedulefield = $matching_record_fields->first();
+                    if ($overwrite == true || $schedulefield->events == "" || is_null($schedulefield->events)) {
+                        $revision = RevisionController::storeRevision($record->rid, 'edit');
+                        $schedulefield->events = implode("[!]", $form_field_value);
+                        $schedulefield->save();
+                        $revision->oldData = RevisionController::buildDataArray($record);
+                        $revision->save();
+                    } else {
+                        continue;
+                    }
+                } else {
+                    $sf = new ScheduleField();
+                    $revision = RevisionController::storeRevision($record->rid, 'edit');
+                    $sf->flid = $field->flid;
+                    $sf->rid = $record->rid;
+                    $sf->events = implode("[!]", $form_field_value);
+                    $sf->save();
+                    $revision->oldData = RevisionController::buildDataArray($record);
+                    $revision->save();
+                }
+            }
+            elseif($field->type == "Geolocator"){
+                $matching_record_fields = $record->geolocatorfields()->where("flid", '=', $flid)->get();
+                $record->updated_at = Carbon::now();
+                $record->save();
+                if ($matching_record_fields->count() > 0) {
+                    $geolocatorfield = $matching_record_fields->first();
+                    if ($overwrite == true || $geolocatorfield->locations == "" || is_null($geolocatorfield->locations)) {
+                        $revision = RevisionController::storeRevision($record->rid, 'edit');
+                        $geolocatorfield->locations = implode("[!]", $form_field_value);
+                        $geolocatorfield->save();
+                        $revision->oldData = RevisionController::buildDataArray($record);
+                        $revision->save();
+                    } else {
+                        continue;
+                    }
+                } else {
+                    $gf = new GeolocatorField();
+                    $revision = RevisionController::storeRevision($record->rid, 'edit');
+                    $gf->flid = $field->flid;
+                    $gf->rid = $record->rid;
+                    $gf->locations = implode("[!]", $form_field_value);
+                    $gf->save();
+                    $revision->oldData = RevisionController::buildDataArray($record);
+                    $revision->save();
+                }
+            }
+        }
+
+        flash()->overlay("The records were updated","Good Job!");
+        return redirect()->action('RecordController@index',compact('pid','fid'));
+    }
 }

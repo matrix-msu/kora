@@ -78,6 +78,8 @@ Route::post('/getRecordArray', 'RecordPresetController@getRecordArray');
 
 //record routes
 Route::get('/projects/{pid}/forms/{fid}/records','RecordController@index');
+Route::get('projects/{pid}/forms/{fid}/records/massAssignRecords','RecordController@showMassAssignmentView');
+Route::post('projects/{pid}/forms/{fid}/records/massAssignRecords','RecordController@massAssignRecords');
 Route::patch('/projects/{pid}/forms/{fid}/records/{rid}','RecordController@update');
 Route::get('/projects/{pid}/forms/{fid}/records/create','RecordController@create');
 Route::get('/projects/{pid}/forms/{fid}/records/{rid}','RecordController@show');
@@ -86,6 +88,7 @@ Route::get('/projects/{pid}/forms/{fid}/records/{rid}/edit','RecordController@ed
 Route::post('/projects/{pid}/forms/{fid}/records','RecordController@store');
 Route::delete('projects/{pid}/forms/{fid}/deleteAllRecords','RecordController@deleteAllRecords');
 Route::post('/presetRecord', 'RecordController@presetRecord');
+
 
 //revision routes
 Route::get('/projects/{pid}/forms/{fid}/records/revisions/recent', 'RevisionController@index');
