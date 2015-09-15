@@ -18,6 +18,10 @@
         <form action="{{action('RevisionController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
             <button type="submit" class="btn btn-default">Revision History</button>
         </form>
+        <form action="{{action('RecordPresetController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
+            <button type="submit" class="btn btn-default">Manage Presets</button>
+        </form>
+        <button class="btn btn-danger" onclick="deleteAll()">Delete All Records</button>
     @endif
 
     <div>

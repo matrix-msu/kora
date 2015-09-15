@@ -14,6 +14,10 @@ class Record extends Model {
 
     protected $primaryKey = "rid";
 
+    public function preset() {
+        return $this->belongsTo('App/Preset');
+    }
+
     public function form(){
         return $this->belongsTo('App\Form', 'fid');
     }

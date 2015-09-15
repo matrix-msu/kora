@@ -26,6 +26,7 @@ return array(
     'CreatePasswordResetsTable' => $baseDir . '/database/migrations/2015_04_03_151648_create_password_resets_table.php',
     'CreateProjectGroupsTable' => $baseDir . '/database/migrations/2015_07_09_171601_create_project_groups_table.php',
     'CreateProjectsTable' => $baseDir . '/database/migrations/2015_04_03_151510_CreateProjectsTable.php',
+    'CreateRecordpresetsTable' => $baseDir . '/database/migrations/2015_08_21_154839_create_recordpresets_table.php',
     'CreateRecordsTable' => $baseDir . '/database/migrations/2015_05_18_173954_create_records_table.php',
     'CreateRevisionsTable' => $baseDir . '/database/migrations/2015_07_23_181833_create_revisions_table.php',
     'CreateRichtextfieldsTable' => $baseDir . '/database/migrations/2015_06_08_190300_create_richtextfields_table.php',
