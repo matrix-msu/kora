@@ -2,6 +2,7 @@
 
 use App\DateField;
 use App\DocumentsField;
+use App\GalleryField;
 use App\GeneratedListField;
 use App\GeolocatorField;
 use App\ScheduleField;
@@ -193,6 +194,41 @@ class RecordController extends Controller {
                 }
                 $df->documents = $infoString;
                 $df->save();
+            } else if($field->type=='Gallery' && glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') != false){
+                $gf = new GalleryField();
+                $gf->flid = $field->flid;
+                $gf->rid = $record->rid;
+                $infoString = '';
+                $newPath = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid;
+                //make the three directories
+                mkdir($newPath,0775,true);
+                mkdir($newPath.'/thumbnail',0775,true);
+                mkdir($newPath.'/medium',0775,true);
+                if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
+                    $types = FieldController::getMimeTypes();
+                    foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
+                        if ($file->isFile()) {
+                            if(!array_key_exists($file->getExtension(),$types))
+                                $type = 'application/octet-stream';
+                            else
+                                $type =  $types[$file->getExtension()];
+                            $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
+                            if ($infoString == '') {
+                                $infoString = $info;
+                            } else {
+                                $infoString .= '[!]' . $info;
+                            }
+                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                                $newPath . '/' . $file->getFilename());
+                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename(),
+                                $newPath . '/thumbnail/' . $file->getFilename());
+                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/medium/' . $file->getFilename(),
+                                $newPath . '/medium/' . $file->getFilename());
+                        }
+                    }
+                }
+                $gf->images = $infoString;
+                $gf->save();
             }
         }
 
@@ -451,6 +487,56 @@ class RecordController extends Controller {
                 }
                 $df->documents = $infoString;
                 $df->save();
+            } else if($field->type=='Gallery'
+                    && (GalleryField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null
+                    | glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') != false)){
+                //we need to check if the field exist first
+                if(GalleryField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
+                    $gf = GalleryField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                }else {
+                    $gf = new GalleryField();
+                    $gf->flid = $field->flid;
+                    $gf->rid = $record->rid;
+                    $newPath = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid;
+                    mkdir($newPath,0775,true);
+                    mkdir($newPath.'/thumbnail',0775,true);
+                    mkdir($newPath.'/medium',0775,true);
+                }
+                //clear the old files before moving the update over
+                foreach (new \DirectoryIterator(env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid) as $file) {
+                    if ($file->isFile()) {
+                        unlink(env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$file->getFilename());
+                        unlink(env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid.'/thumbnail/'.$file->getFilename());
+                        unlink(env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid.'/medium/'.$file->getFilename());
+                    }
+                }
+                //build new stuff
+                $infoString = '';
+                if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
+                    $types = FieldController::getMimeTypes();
+                    foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
+                        if ($file->isFile()) {
+                            if(!array_key_exists($file->getExtension(),$types))
+                                $type = 'application/octet-stream';
+                            else
+                                $type =  $types[$file->getExtension()];
+                            $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
+                            if ($infoString == '') {
+                                $infoString = $info;
+                            } else {
+                                $infoString .= '[!]' . $info;
+                            }
+                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                                env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $file->getFilename());
+                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename(),
+                                env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/thumbnail/' . $file->getFilename());
+                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/medium/' . $file->getFilename(),
+                                env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/medium/' . $file->getFilename());
+                        }
+                    }
+                }
+                $gf->images = $infoString;
+                $gf->save();
             }
         }
 

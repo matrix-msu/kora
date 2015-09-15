@@ -34,6 +34,7 @@
 		<script src="http://{{ env('BASE_URL') }}public/fileUpload/js/vendor/jquery.ui.widget.js"></script>
 		<script src="http://{{ env('BASE_URL') }}public/fileUpload/js/jquery.iframe-transport.js"></script>
 		<script src="http://{{ env('BASE_URL') }}public/fileUpload/js/jquery.fileupload.js"></script>
+		<!-- For Gallery -->
     @endif
     <title>Kora 3</title>
 </head>

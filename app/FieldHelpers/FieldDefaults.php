@@ -28,6 +28,8 @@ class FieldDefaults {
             return '[!Map!]No[!Map!][!DataView!]LatLon[!DataView!]';
         }else if($type=="Documents"){
             return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!][!FileTypes!]';
+        }else if($type=="Gallery"){
+            return '[!FieldSize!]0[!FieldSize!][!ThumbSmall!]150x150[!ThumbSmall!][!ThumbLarge!]300x300[!ThumbLarge!][!MaxFiles!]0[!MaxFiles!][!FileTypes!][!FileTypes!]';
         }else if($type=="Associator"){
             return '[!Forms!][!Forms!][!SearchForms!][!SearchForms!]';
         }

@@ -15,6 +15,7 @@ return array(
     'CreateFieldsTable' => $baseDir . '/database/migrations/2015_05_01_140126_CreateFieldsTable.php',
     'CreateFormGroupsTable' => $baseDir . '/database/migrations/2015_07_15_172743_create_form_groups_table.php',
     'CreateFormsTable' => $baseDir . '/database/migrations/2015_04_03_152745_CreateFormsTable.php',
+    'CreateGalleryfieldsTable' => $baseDir . '/database/migrations/2015_09_09_134307_create_galleryfields_table.php',
     'CreateGeneratedlistfieldsTable' => $baseDir . '/database/migrations/2015_07_23_131521_create_generatedlistfields_table.php',
     'CreateGeolocatorfieldsTable' => $baseDir . '/database/migrations/2015_08_10_175706_create_geolocatorfields_table.php',
     'CreateListfieldsTable' => $baseDir . '/database/migrations/2015_07_14_144933_create_listfields_table.php',

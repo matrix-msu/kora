@@ -138,12 +138,10 @@ class UploadHandler
                     'auto_orient' => true
                 ),
                 // Uncomment the following to create medium sized images:
-                /*
                 'medium' => array(
-                    'max_width' => 800,
-                    'max_height' => 600
+                    'max_width' => 300,
+                    'max_height' => 300
                 ),
-                */
                 'thumbnail' => array(
                     // Uncomment the following to use a defined directory for the thumbnails
                     // instead of a subdirectory based on the version identifier.
@@ -155,8 +153,8 @@ class UploadHandler
                     // Uncomment the following to force the max
                     // dimensions and e.g. create square thumbnails:
                     //'crop' => true,
-                    'max_width' => 80,
-                    'max_height' => 80
+                    'max_width' => 150,
+                    'max_height' => 150
                 )
             ),
             'print_response' => true
@@ -845,7 +843,7 @@ class UploadHandler
             $this->get_scaled_image_file_paths($file_name, $version);
         $image = $this->imagick_get_image_object(
             $file_path,
-            !empty($options['crop']) || !empty($options['no_cache'])
+            true
         );
         if ($image->getImageFormat() === 'GIF') {
             // Handle animated GIFs:
@@ -917,7 +915,8 @@ class UploadHandler
         if (!empty($options['strip'])) {
             $image->stripImage();
         }
-        return $success && $image->writeImage($new_file_path);
+        $success2 = $image->writeImage($new_file_path);
+        return $success && $success2;
     }
 
     protected function imagemagick_create_scaled_image($file_name, $version, $options) {

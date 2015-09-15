@@ -196,6 +196,15 @@
                                     @endforeach
                                 @endif
                             @endforeach
+                        @elseif($field->type=='Gallery')
+                            @foreach($record->galleryfields as $gf)
+                                @if($gf->flid == $field->flid)
+                                    <div id="gallery{{$gf->flid}}"></div>
+                                    <?php
+                                        $dir = env('BASE_URL').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$record->rid.'/fl'.$field->flid.'/';
+                                    ?>
+                                @endif
+                            @endforeach
                         @endif
                     </span>
                 </div>

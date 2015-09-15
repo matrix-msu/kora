@@ -29,7 +29,7 @@ class FieldValidation {
             return FieldValidation::validateGeneratedList($field, $value);
         } else if($field->type=='Date') {
             return FieldValidation::validateDate($field, $request);
-        }else if($field->type=='Documents'){
+        }else if($field->type=='Documents' | $field->type=='Gallery'){
             return FieldValidation::validateDocuments($field, $value);
         } else{
             return 'Field does not have a type';
