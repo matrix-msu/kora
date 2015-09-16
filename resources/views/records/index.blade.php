@@ -18,13 +18,10 @@
         <form action="{{action('RevisionController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
             <button type="submit" class="btn btn-default">Revision History</button>
         </form>
-<<<<<<< HEAD
         <form action="{{action('RecordPresetController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
             <button type="submit" class="btn btn-default">Manage Presets</button>
         </form>
         <button class="btn btn-danger" onclick="deleteAll()">Delete All Records</button>
-=======
->>>>>>> 5f0c6f2883128fbafc87b3db4bdd29b376e7e61c
     @endif
 
     <div>
@@ -209,4 +206,26 @@
             @endforeach
         </div>
     @endforeach
+@stop
+
+@section('footer')
+    <script>
+        function deleteAll() {
+            var resp1 = confirm('Are you sure?');
+            if(resp1) {
+                var resp2 = confirm('Are you really sure? This will delete all records!');
+                if(resp2) {
+                    $.ajax({
+                        url: '{{ action('RecordController@deleteAllRecords', ['pid' => $form->pid, 'fid' => $form->fid]) }}',
+                        type: 'DELETE',
+                        data: {
+                            "_token": "{{ csrf_token() }}"
+                        }, success: function () {
+                            location.reload();
+                        }
+                    });
+                }
+            }
+        }
+    </script>
 @stop

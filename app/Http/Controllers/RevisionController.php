@@ -1,7 +1,9 @@
 <?php namespace App\Http\Controllers;
 
+use App\DocumentsField;
 use App\Form;
 use App\Field;
+use App\GeolocatorField;
 use App\Record;
 use App\Revision;
 use App\DateField;
@@ -16,6 +18,7 @@ use Illuminate\Http\Request;
 use App\MultiSelectListField;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use PhpParser\Comment\Doc;
 
 
 class RevisionController extends Controller {
@@ -84,8 +87,6 @@ class RevisionController extends Controller {
             return redirect('projects/'.$pid.'/forms');
         }
 
-        $owner = Revision::where('rid', '=', $rid)->first()->owner;
-
         if(!\Auth::user()->admin && !\Auth::user()->isFormAdmin(FormController::getForm($fid)) && \Auth::user()->id != $owner)
         {
             flash()->overlay('You do not have permission to view that page.', 'Whoops.');
@@ -94,6 +95,7 @@ class RevisionController extends Controller {
 
         $form = FormController::getForm($fid);
         $revisions = DB::table('revisions')->where('rid', '=', $rid)->orderBy('created_at','desc')->take(50)->get();
+
         $pid = $form->pid;
         $records = array();
 
@@ -156,6 +158,7 @@ class RevisionController extends Controller {
 
     /**
      * Does the actual rolling back using the data array from a particular revision.
+     * This is essentially doing the opposite of RevisionController::buildDataArray(Record $record)
      *
      * @param Record $record
      * @param Form $form
@@ -183,131 +186,183 @@ class RevisionController extends Controller {
                     }
                 }
                 else {
-                    $textfield = new TextField();
-                    $textfield->flid = $field->flid;
-                    $textfield->rid = $record->rid;
-                    $textfield->text = $data['textfields'][$field->flid]['data'];
-                    $textfield->save();
+                    if(!is_null($data['textfields'][$field->flid]['data'])) {
+                        $textfield = new TextField();
+                        $textfield->flid = $field->flid;
+                        $textfield->rid = $record->rid;
+                        $textfield->text = $data['textfields'][$field->flid]['data'];
+                        $textfield->save();
+                    }
                 }
             } elseif ($field->type == 'Rich Text') {
                 if($revision->type != 'delete') {
                     foreach ($record->richtextfields()->get() as $rtfield) {
                         if ($rtfield->flid == $field->flid) {
-                            $rtfield['rawtext'] = $data['richtextfields'][$field->flid]['data'];
+                            $rtfield->rawtext = $data['richtextfields'][$field->flid]['data'];
                             $rtfield->save();
                         }
                     }
                 }
                 else {
-                    $rtfield = new RichTextField();
-                    $rtfield->flid = $field->flid;
-                    $rtfield->rid = $record->rid;
-                    $rtfield->rawtext = $data['richtextfields'][$field->flid]['data'];
-                    $rtfield->save();
+                    if(!is_null($data['richtextfields'][$field->flid]['data'])) {
+                        $rtfield = new RichTextField();
+                        $rtfield->flid = $field->flid;
+                        $rtfield->rid = $record->rid;
+                        $rtfield->rawtext = $data['richtextfields'][$field->flid]['data'];
+                        $rtfield->save();
+                    }
                 }
             } elseif ($field->type == 'Number') {
                 if($revision->type != 'delete') {
                     foreach ($record->numberfields()->get() as $numberfield) {
                         if ($numberfield->flid == $field->flid) {
-                            $numberfield['number'] = $data['numberfields'][$field->flid]['data'];
+                            $numberfield->number = $data['numberfields'][$field->flid]['data'];
                             $numberfield->save();
                         }
                     }
                 }
                 else {
-                    $numberfield = new NumberField();
-                    $numberfield->flid = $field->flid;
-                    $numberfield->rid = $record->rid;
-                    $numberfield->number = $data['numberfields'][$field->flid]['data'];
-                    $numberfield->save();
+                    if(!is_null($data['numberfields'][$field->flid]['data'])) {
+                        $numberfield = new NumberField();
+                        $numberfield->flid = $field->flid;
+                        $numberfield->rid = $record->rid;
+                        $numberfield->number = $data['numberfields'][$field->flid]['data'];
+                        $numberfield->save();
+                    }
                 }
             } elseif ($field->type == 'List') {
                 if($revision->type != 'delete') {
                     foreach ($record->listfields()->get() as $listfield) {
                         if ($listfield->flid == $field->flid) {
-                            $listfield['option'] = $data['listfields'][$field->flid]['data'];
+                            $listfield->option = $data['listfields'][$field->flid]['data'];
                             $listfield->save();
                         }
                     }
                 }
                 else {
-                    $listfield = new ListField();
-                    $listfield->flid = $field->flid;
-                    $listfield->rid = $record->rid;
-                    $listfield->option = $data['listfields'][$field->flid]['data'];
-                    $listfield->save();
+                    if(!is_null($data['listfields'][$field->flid]['data'])) {
+                        $listfield = new ListField();
+                        $listfield->flid = $field->flid;
+                        $listfield->rid = $record->rid;
+                        $listfield->option = $data['listfields'][$field->flid]['data'];
+                        $listfield->save();
+                    }
                 }
             } elseif ($field->type == 'Multi-Select List') {
                 if($revision->type != 'delete') {
                     foreach ($record->multiselectlistfields()->get() as $mslfield) {
                         if ($mslfield->flid == $field->flid) {
-                            $mslfield['options'] = $data['multiselectlistfields'][$field->flid]['data'];
+                            $mslfield->options = $data['multiselectlistfields'][$field->flid]['data'];
                             $mslfield->save();
                         }
                     }
                 }
                 else {
-                    $mslfield = new MultiSelectListField();
-                    $mslfield->flid = $field->flid;
-                    $mslfield->rid = $record->rid;
-                    $mslfield->options = $data['multiselectlistfields'][$field->flid]['data'];
-                    $mslfield->save();
+                    if(!is_null($data['multiselectlistfields'][$field->flid]['data'])) {
+                        $mslfield = new MultiSelectListField();
+                        $mslfield->flid = $field->flid;
+                        $mslfield->rid = $record->rid;
+                        $mslfield->options = $data['multiselectlistfields'][$field->flid]['data'];
+                        $mslfield->save();
+                    }
                 }
             } elseif ($field->type == 'Generated List') {
                 if($revision->type != 'delete') {
                     foreach ($record->generatedlistfields()->get() as $genlistfield) {
                         if ($genlistfield->flid == $field->flid) {
-                            $genlistfield['options'] = $data['generatedlistfields'][$field->flid]['data'];
+                            $genlistfield->options = $data['generatedlistfields'][$field->flid]['data'];
                             $genlistfield->save();
                         }
                     }
                 }
                 else {
-                    $genlistfield = new GeneratedListField();
-                    $genlistfield->flid = $field->flid;
-                    $genlistfield->rid = $record->rid;
-                    $genlistfield->options = $data['generatedlistfields'][$field->flid]['data'];
-                    $genlistfield->save();
+                    if(!is_null($data['generatedlistfields'][$field->flid]['data'])) {
+                        $genlistfield = new GeneratedListField();
+                        $genlistfield->flid = $field->flid;
+                        $genlistfield->rid = $record->rid;
+                        $genlistfield->options = $data['generatedlistfields'][$field->flid]['data'];
+                        $genlistfield->save();
+                    }
                 }
             } elseif ($field->type == 'Date') {
                 if($revision->type != 'delete') {
                     foreach ($record->datefields()->get() as $datefield) {
                         if ($datefield->flid == $field->flid) {
-                            $datefield['circa'] = $data['datefields'][$field->flid]['data']['circa'];
-                            $datefield['month'] = $data['datefields'][$field->flid]['data']['month'];
-                            $datefield['day'] = $data['datefields'][$field->flid]['data']['day'];
-                            $datefield['year'] = $data['datefields'][$field->flid]['data']['year'];
-                            $datefield['era'] = $data['datefields'][$field->flid]['data']['era'];
+                            $datefield->circa = $data['datefields'][$field->flid]['data']['circa'];
+                            $datefield->month = $data['datefields'][$field->flid]['data']['month'];
+                            $datefield->day = $data['datefields'][$field->flid]['data']['day'];
+                            $datefield->year = $data['datefields'][$field->flid]['data']['year'];
+                            $datefield->era = $data['datefields'][$field->flid]['data']['era'];
                             $datefield->save();
                         }
                     }
                 }
                 else {
-                    $datefield = new DateField();
-                    $datefield->flid = $field->flid;
-                    $datefield->rid = $record->rid;
-                    $datefield->circa = $data['datefields'][$field->flid]['data']['circa'];
-                    $datefield->month = $data['datefields'][$field->flid]['data']['month'];
-                    $datefield->day = $data['datefields'][$field->flid]['data']['day'];
-                    $datefield->year = $data['datefields'][$field->flid]['data']['year'];
-                    $datefield->era = $data['datefields'][$field->flid]['data']['era'];
-                    $datefield->save();
+                    if(!is_null($data['datefields'][$field->flid]['data'])) {
+                        $datefield = new DateField();
+                        $datefield->flid = $field->flid;
+                        $datefield->rid = $record->rid;
+                        $datefield->circa = $data['datefields'][$field->flid]['data']['circa'];
+                        $datefield->month = $data['datefields'][$field->flid]['data']['month'];
+                        $datefield->day = $data['datefields'][$field->flid]['data']['day'];
+                        $datefield->year = $data['datefields'][$field->flid]['data']['year'];
+                        $datefield->era = $data['datefields'][$field->flid]['data']['era'];
+                        $datefield->save();
+                    }
                 }
             } elseif ($field->type == 'Schedule') {
                 if($revision->type != 'delete') {
                     foreach ($record->schedulefields()->get() as $schedulefield) {
                         if ($schedulefield->flid == $field->flid) {
-                            $schedulefield['events'] = $data['schedulefields'][$field->flid]['data'];
+                            $schedulefield->events = $data['schedulefields'][$field->flid]['data'];
                             $schedulefield->save();
                         }
                     }
                 }
                 else {
-                    $schedulefield = new ScheduleField();
-                    $schedulefield->flid = $field->flid;
-                    $schedulefield->rid = $record->rid;
-                    $schedulefield->events = $data['schedulefields'][$field->flid]['data'];
-                    $schedulefield->save();
+                    if(!is_null($data['schedulefields'][$field->flid]['data'])) {
+                        $schedulefield = new ScheduleField();
+                        $schedulefield->flid = $field->flid;
+                        $schedulefield->rid = $record->rid;
+                        $schedulefield->events = $data['schedulefields'][$field->flid]['data'];
+                        $schedulefield->save();
+                    }
+                }
+            } elseif ($field->type == 'Geolocator') {
+                if($revision->type != 'delete') {
+                    foreach ($record->geolocatorfields()->get() as $geolocatorfield) {
+                        if ($geolocatorfield->flid == $field->flid) {
+                            $geolocatorfield->locations = $data['geolocatorfields'][$field->flid]['data'];
+                            $geolocatorfield->save();
+                        }
+                    }
+                }
+                else {
+                    if(!is_null($data['geolocatorfields'][$field->flid]['data'])) {
+                        $geolocatorfield = new GeolocatorField();
+                        $geolocatorfield->flid = $field->flid;
+                        $geolocatorfield->rid = $record->rid;
+                        $geolocatorfield->locations = $data['geolocatorfields'][$field->flid]['data'];
+                        $geolocatorfield->save();
+                    }
+                }
+            } elseif ($field->type == 'Documents') {
+                if($revision->type != 'delete') {
+                    foreach ($record->documentsfields()->get() as $documentsfield) {
+                        if ($documentsfield->flid == $field->flid) {
+                            $documentsfield->documents = $data['documentsfields'][$field->flid]['data'];
+                            $documentsfield->save();
+                        }
+                    }
+                }
+                else {
+                    if(!is_null($data['documentsfields'][$field->flid]['data'])) {
+                        $documentsfield = new DocumentsField();
+                        $documentsfield->flid = $field->flid;
+                        $documentsfield->rid = $record->rid;
+                        $documentsfield->documents = $data['documentsfields'][$field->flid]['data'];
+                        $documentsfield->save();
+                    }
                 }
             }
         }
@@ -349,156 +404,145 @@ class RevisionController extends Controller {
     public static function buildDataArray(Record $record)
     {
         $data = array();
+        $form = Form::where('fid', '=', $record->fid)->first();
 
-        if (!is_null($record->textfields()->first())){
-            $text = array();
-            $textfields = $record->textfields()->get();
-            foreach($textfields as $textfield)
+
+        /* Check each field and get the data associated with it.
+         *
+         * Complexities occur when forming the possibly large associative array describing a record's fields.
+         * For each field, the general case is as follows: the general field type is checked and name is acquired,
+         * if the field has data at its lower, less general level (e.g. TextFields), it is assigned to the data array,
+         * else null is assigned.
+         */
+        foreach($form->fields()->get() as $field) {
+            switch ($field->type)
             {
-                $name = Field::where('flid', '=', $textfield->flid)->first()->name;
+                case 'Text':
+                    $data['textfields'][$field->flid]['name'] = $field->name;
+                    $textfield = TextField::where('flid', '=', $field->flid)->first();
+                    if(!is_null($textfield))
+                        $data['textfields'][$field->flid]['data'] = $textfield->text;
+                    else
+                        $data['textfields'][$field->flid]['data'] = null;
+                    break;
 
-                $text[$textfield->flid]['name'] = $name;
-                $text[$textfield->flid]['data'] = $textfield->text;
+                case 'Rich Text':
+                    $data['richtextfields'][$field->flid]['name'] = $field->name;
+                    $rtfield = RichTextField::where('flid', '=', $field->flid)->first();
+                    if(!is_null($rtfield))
+                        $data['richtextfields'][$field->flid]['data'] = $rtfield->rawtext;
+                    else
+                        $data['richtextfields'][$field->flid]['data'] = null;
+                    break;
+
+                case 'Number':
+                    $data['numberfields'][$field->flid]['name'] = $field->name;
+                    $numberfield = NumberField::where('flid', '=', $field->flid)->first();
+                    if(!is_null($numberfield))
+                    {
+                        $numberdata = array();
+                        $numberdata['number'] = $numberfield->number;
+
+                        if($numberfield->number != '')
+                            $numberdata['unit'] = FieldController::getFieldOption($field, 'Unit');
+                        else
+                            $nubmerdata['unit'] = '';
+
+                        $data['numberfields'][$field->flid]['data'] = $numberdata;
+                    }
+                    else
+                        $data['numberfields'][$field->flid]['data'] = null;
+                    break;
+
+                case 'List':
+                    $data['listfields'][$field->flid]['name'] = $field->name;
+                    $listfield = ListField::where('flid', '=', $field->flid)->first();
+
+                    if(!is_null($listfield))
+                        $data['listfields'][$field->flid]['data'] = $listfield->option;
+                    else
+                        $data['listfields'][$field->flid]['data'] = null;
+                    break;
+
+                case 'Multi-Select List':
+                    $data['multiselectlistfields'][$field->flid]['name'] = $field->name;
+                    $mslfield = MultiSelectListField::where('flid', '=', $field->flid)->first();
+                    if(!is_null($mslfield))
+                        $data['multiselectlistfields'][$field->flid]['data'] = $mslfield->options;
+                    else
+                        $data['multiselectlistfields'][$field->flid]['data'] = null;
+                    break;
+
+                case 'Generated List':
+                    $data['generatedlistfields'][$field->flid]['name'] = $field->name;
+                    $genfield = GeneratedListField::where('flid', '=', $field->flid)->first();
+                    if(!is_null($genfield))
+                        $data['generatedlistfields'][$field->flid]['name'] = $genfield->options;
+                    else
+                        $data['generatedlistfields'][$field->flid]['name'] = null;
+                    break;
+
+                case 'Date':
+                    $data['datefields'][$field->flid]['name'] = $field->name;
+                    $datefield = DateField::where('flid', '=', $field->flid)->first();
+                    if(!is_null($datefield))
+                    {
+                        $datedata = array();
+
+                        $datedata['format'] = FieldController::getFieldOption($field, 'Format');
+                        if (FieldController::getFieldOption($field, 'Circa') == 'Yes')
+                            $datedata['circa'] = $datefield->circa;
+                        else
+                            $datedata['circa'] = '';
+
+                        $datedata['day'] = $datefield->day;
+                        $datedata['month'] = $datefield->month;
+                        $datedata['year'] = $datefield->year;
+
+                        if (FieldController::getFieldOption($field, 'Era') == 'Yes')
+                            $datedata['era'] = $datefield->era;
+                        else
+                            $datedata['era'] = '';
+
+                        $data['datefields'][$field->flid]['data'] = $datedata;
+                    }
+                    else
+                        $data['datefields'][$field->flid]['data'] = null;
+                    break;
+
+                case 'Schedule':
+                    $data['schedulefields'][$field->flid]['name'] = $field->name;
+                    $schedulefield = ScheduleField::where('flid', '=', $field->flid)->first();
+                    if(!is_null($schedulefield))
+                        $data['schedulefields'][$field->flid]['data'] = $schedulefield->events;
+                    else
+                        $data['schedulefields'][$field->flid]['data'] = null;
+                    break;
+
+                case 'Geolocator':
+                    $data['geolocatorfields'][$field->flid]['name'] = $field->name;
+                    $geofield = GeolocatorField::where('flid', '=', $field->flid)->first();
+                    if(!is_null($geofield))
+                        $data['geolocatorfields'][$field->flid]['data'] = $geofield->locations;
+                    else
+                        $data['geolocatorfields'][$field->flid]['data'] = null;
+                    break;
+
+                case 'Documents':
+                    $data['documentsfields'][$field->flid]['name'] = $field->name;
+                    $docfield = DocumentsField::where('flid', '=', $field->flid)->first();
+                    if(!is_null($docfield))
+                        $data['documentsfields'][$field->flid]['data'] = $docfield->documents;
+                    else
+                        $data['documentsfields'][$field->flid]['data'] = null;
+                    break;
             }
-            $data['textfields'] = $text;
-        }
-        else{
-            $data['textfields'] = null;
-        }
-        if (!is_null($record->richtextfields()->first())){
-            $richtext = array();
-            $rtfields = $record->richtextfields()->get();
-            foreach($rtfields as $rtfield)
-            {
-                $name = Field::where('flid', '=', $rtfield->flid)->first()->name;
 
-                $richtext[$rtfield->flid]['name'] = $name;
-                $richtext[$rtfield->flid]['data'] = $rtfield->rawtext;
-            }
-            $data['richtextfields'] = $richtext;
-        }
-        else{
-            $data['richtextfields'] = null;
-        }
-        if(!is_null($record->numberfields()->first())){
-            $number = array();
-            $numberfields = $record->numberfields()->get();
-            foreach($numberfields as $numberfield)
-            {
-                $fieldactual = Field::where('flid', '=', $numberfield->flid)->first();
-                $name = $fieldactual->name;
-
-                $numberdata = array();
-                $numberdata['number'] = $numberfield->number;
-
-                if($numberfield->number != '')
-                    $numberdata['unit'] = FieldController::getFieldOption($fieldactual,'Unit');
-                else
-                    $numberdata['unit'] = '';
-
-                $number[$numberfield->flid]['name'] = $name;
-                $number[$numberfield->flid]['data'] = $numberdata;
-            }
-            $data['numberfields'] = $number;
-        }
-        else{
-            $data['numberfields'] = null;
-        }
-        if(!is_null($record->listfields()->first())){
-            $list = array();
-            $listfields = $record->listfields()->get();
-            foreach($listfields as $listfield)
-            {
-                $name = Field::where('flid', '=', $listfield->flid)->first()->name;
-
-                $list[$listfield->flid]['name'] = $name;
-                $list[$listfield->flid]['data'] = $listfield->option;
-            }
-            $data['listfields'] = $list;
-        }
-        else{
-            $data['listfields'] = null;
-        }
-        if(!is_null($record->multiselectlistfields()->first())){
-            $msl = array();
-            $mslfields = $record->multiselectlistfields()->get();
-            foreach($mslfields as $mslfield)
-            {
-                $name = Field::where('flid', '=', $mslfield->flid)->first()->name;
-
-                $msl[$mslfield->flid]['name'] = $name;
-                $msl[$mslfield->flid]['data'] = $mslfield->options;
-            }
-            $data['multiselectlistfields'] = $msl;
-        }
-        else{
-            $data['multiselectlistfields'] = null;
-        }
-        if(!is_null($record->generatedlistfields()->first())){
-            $genlist = array();
-            $genlistfields = $record->generatedlistfields()->get();
-            foreach($genlistfields as $genlistfield)
-            {
-                $name = Field::where('flid', '=', $genlistfield->flid)->first()->name;
-
-                $genlist[$genlistfield->flid]['name'] = $name;
-                $genlist[$genlistfield->flid]['data'] = $genlistfield->options;
-            }
-            $data['generatedlistfields'] = $genlist;
-        }
-        else{
-            $data['generatedlistfields'] = null;
-        }
-        if(!is_null($record->datefields()->first())){
-            $date = array();
-            $datefields = $record->datefields()->get();
-            foreach($datefields as $datefield)
-            {
-                $fieldactual = Field::where('flid', '=', $datefield->flid)->first();
-                $name = $fieldactual->name;
-
-                $datedata = array();
-
-                $datedata['format'] = FieldController::getFieldOption($fieldactual, 'Format');
-                if(FieldController::getFieldOption($fieldactual, 'Circa') == 'Yes')
-                    $datedata['circa'] = $datefield->circa;
-                else
-                    $datedata['circa'] = '';
-                $datedata['day'] = $datefield->day;
-                $datedata['month'] = $datefield->month;
-                $datedata['year'] = $datefield->year;
-                if(FieldController::getFieldOption($fieldactual, 'Era') == 'Yes')
-                    $datedata['era'] = $datefield->era;
-                else
-                    $datedata['era'] = '';
-
-                $date[$datefield->flid]['name'] = $name;
-                $date[$datefield->flid]['data'] = $datedata;
-            }
-            $data['datefields'] = $date;
-        }
-        else{
-            $data['datefields'] = null;
-        }
-        if(!is_null($record->schedulefields()->first())){
-            $schedule = array();
-            $schedulefields = $record->schedulefields()->get();
-            foreach($schedulefields as $schedulefield)
-            {
-                $name = Field::where('flid', '=', $schedulefield->flid)->first()->name;
-
-                $schedule[$schedulefield->flid]['name'] = $name;
-                $schedule[$schedulefield->flid]['data'] = $schedulefield->events;
-            }
-            $data['schedulefields'] = $schedule;
-        }
-        else{
-            $data['schedulefields'] = null;
         }
 
         /* Have to see which method is better, for now we'll use json_encode (remember to use json_decode($array, true)).
            Alternative method is presented here. The base64_encode method might end up working
-           better for data other than simple text and lists.
+           better for things other than simple text and lists. Who knows though.
 
         $revision->data = base64_encode(serialize($record));
         To decode: $decode = unserialize(base64_decode(serialize($revision->data)));
