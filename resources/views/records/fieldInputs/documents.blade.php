@@ -18,7 +18,7 @@
     <span class="btn btn-success fileinput-button">
         <span>Add files...</span>
         <input id="file{{$field->flid}}" type="file" name="file{{$field->flid}}[]"
-               data-url="http://{{ env('BASE_URL') }}public/saveTmpFile/{{$field->flid}}" multiple>
+               data-url="{{ env('BASE_URL') }}public/saveTmpFile/{{$field->flid}}" multiple>
         {!! Form::hidden($field->flid,'f'.$field->flid.'u'.\Auth::user()->id) !!}
     </span>
     <br/><br/>
@@ -49,13 +49,10 @@
             var error = data.jqXHR['responseText'];
 
             if(error=='InvalidType'){
-                console.log('here');
                 $('#file_error{{$field->flid}}').text('One or more submitted files has an invalid file type.');
             } else if(error=='TooManyFiles'){
-                console.log('here');
                 $('#file_error{{$field->flid}}').text('A maximum of {{\App\Http\Controllers\FieldController::getFieldOption($field,'MaxFiles')}} file(s) can be submitted.');
             } else if(error=='MaxSizeReached'){
-                console.log('here');
                 $('#file_error{{$field->flid}}').text('Adding the selected file(s) would exceed the max file limit of {{\App\Http\Controllers\FieldController::getFieldOption($field,'FieldSize')}} kb');
             }
         },

@@ -62,6 +62,10 @@ class Record extends Model {
         return $this->hasMany('App\DocumentsField', 'rid');
     }
 
+    public function galleryfields(){
+        return $this->hasMany('App\GalleryField', 'rid');
+    }
+
     public function associatorfields(){
         return $this->hasMany('App\AssociatorField', 'rid');
     }

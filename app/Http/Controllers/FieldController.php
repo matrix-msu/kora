@@ -111,6 +111,8 @@ class FieldController extends Controller {
             return view('fields.options.geolocator', compact('field', 'form', 'proj'));
         }else if($field->type=="Documents") {
             return view('fields.options.documents', compact('field', 'form', 'proj'));
+        }else if($field->type=="Gallery") {
+            return view('fields.options.gallery', compact('field', 'form', 'proj'));
         }else if($field->type=="Associator") {
             return view('fields.options.assoctiator', compact('field', 'form', 'proj'));
         }
@@ -338,12 +340,17 @@ class FieldController extends Controller {
         $tag = '[!'.$key.'!]';
         $array = explode($tag,$options);
 
-        if($field->type=='Documents' && $key=='FileTypes'){
+        if(($field->type=='Documents' | $field->type=='Gallery') && $key=='FileTypes'){
             $valueString = $value[0];
             for($i=1;$i<sizeof($value);$i++){
                 $valueString .= '[!]'.$value[$i];
             }
             $value = $valueString;
+        }else if($field->type=='Gallery' && ($key=='ThumbSmall' | $key=='ThumbLarge')){
+            $x = $_REQUEST['value_x'];
+            $y = $_REQUEST['value_y'];
+
+            $value = $x.'x'.$y;
         }
 
         $field->options = $array[0].$tag.$value.$tag.$array[2];
@@ -542,6 +549,9 @@ class FieldController extends Controller {
             }
         }
 
+        $smThumbs = explode('x',FieldController::getFieldOption($field, 'ThumbSmall'));
+        $lgThumbs = explode('x',FieldController::getFieldOption($field, 'ThumbLarge'));
+
         $validTypes = true;
         $fileTypes = explode('[!]',FieldController::getFieldOption($field, 'FileTypes'));
         $fileTypesRequest = $_FILES['file'.$flid]['type'];
@@ -551,10 +561,20 @@ class FieldController extends Controller {
                     $validTypes = false;
                 }
             }
+        }else if($field->type=='Gallery'){
+            foreach ($fileTypesRequest as $type) {
+                if (!in_array($type,['image/jpeg','image/gif','image/png'])){
+                    $validTypes = false;
+                }
+            }
         }
 
         $options = array();
         $options['flid'] = 'f'.$flid.'u'.$uid;
+        $options['image_versions']['thumbnail']['max_width'] = $smThumbs[0];
+        $options['image_versions']['thumbnail']['max_height'] = $smThumbs[1];
+        $options['image_versions']['medium']['max_width'] = $lgThumbs[0];
+        $options['image_versions']['medium']['max_height'] = $lgThumbs[1];
         if(!$validTypes){
             echo 'InvalidType';
         } else if($maxFileNum !=0 && $fileNumRequest+$fileNumDisk>$maxFileNum){

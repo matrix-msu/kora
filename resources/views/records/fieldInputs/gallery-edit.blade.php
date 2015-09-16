@@ -1,28 +1,30 @@
 <?php
-    $value = array();
+$value = array();
 
-    //clear the tmp files
-    $folder = 'f'.$field->flid.'u'.\Auth::user()->id;
-    $dirTmp = env('BASE_PATH').'storage/app/tmpFiles/'.$folder;
-    if(file_exists($dirTmp)) {
-        foreach (new \DirectoryIterator($dirTmp) as $file) {
+//clear the tmp files
+$folder = 'f'.$field->flid.'u'.\Auth::user()->id;
+$dirTmp = env('BASE_PATH').'storage/app/tmpFiles/'.$folder;
+if(file_exists($dirTmp)) {
+    foreach (new \DirectoryIterator($dirTmp) as $file) {
+        if ($file->isFile()) {
+            unlink($dirTmp.'/'.$file->getFilename());
+        }
+    }
+}
+if(!is_null($gallery)){
+    //move things over from storage to tmp
+    $dir = env('BASE_PATH').'storage/app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid;
+    if(file_exists($dir)) {
+        foreach (new \DirectoryIterator($dir) as $file) {
             if ($file->isFile()) {
-                unlink($dirTmp.'/'.$file->getFilename());
+                copy($dir.'/'.$file->getFilename(),$dirTmp.'/'.$file->getFilename());
+                copy($dir.'/thumbnail/'.$file->getFilename(),$dirTmp.'/thumbnail/'.$file->getFilename());
+                copy($dir.'/medium/'.$file->getFilename(),$dirTmp.'/medium/'.$file->getFilename());
+                array_push($value,$file->getFilename());
             }
         }
     }
-    if(!is_null($documents)){
-        //move things over from storage to tmp
-        $dir = env('BASE_PATH').'storage/app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid;
-        if(file_exists($dir)) {
-            foreach (new \DirectoryIterator($dir) as $file) {
-                if ($file->isFile()) {
-                    copy($dir.'/'.$file->getFilename(),$dirTmp.'/'.$file->getFilename());
-                    array_push($value,$file->getFilename());
-                }
-            }
-        }
-    }
+}
 ?>
 <div class="form-group" id="fileDiv{{$field->flid}}">
     {!! Form::label($field->flid, $field->name.': ') !!}
@@ -30,9 +32,9 @@
         <b style="color:red;font-size:20px">*</b>
     @endif
     <span class="btn btn-success fileinput-button">
-        <span>Add files...</span>
+        <span>Add images...</span>
         <input id="file{{$field->flid}}" type="file" name="file{{$field->flid}}[]"
-               data-url="{{ env('BASE_URL') }}public/saveTmpFile/{{$field->flid}}" multiple>
+               data-url="http://{{ env('BASE_URL') }}public/saveTmpFile/{{$field->flid}}" multiple>
         {!! Form::hidden($field->flid,'f'.$field->flid.'u'.\Auth::user()->id) !!}
     </span>
     <br/><br/>

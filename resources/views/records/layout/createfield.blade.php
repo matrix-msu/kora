@@ -18,4 +18,6 @@
     @include('records.fieldInputs.geolocator')
 @elseif($field->type == 'Documents')
     @include('records.fieldInputs.documents')
+@elseif($field->type == 'Gallery')
+    @include('records.fieldInputs.gallery')
 @endif

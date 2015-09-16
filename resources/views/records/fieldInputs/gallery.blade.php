@@ -1,28 +1,25 @@
 <?php
-    $value = array();
-
-    //clear the tmp files
-    $folder = 'f'.$field->flid.'u'.\Auth::user()->id;
-    $dirTmp = env('BASE_PATH').'storage/app/tmpFiles/'.$folder;
-    if(file_exists($dirTmp)) {
-        foreach (new \DirectoryIterator($dirTmp) as $file) {
-            if ($file->isFile()) {
-                unlink($dirTmp.'/'.$file->getFilename());
-            }
+//We need to clean up any lingering files in tmp for this form
+$folder = 'f'.$field->flid.'u'.\Auth::user()->id;
+$dir = env('BASE_PATH').'storage/app/tmpFiles/'.$folder;
+if(file_exists($dir)) {
+    //clear tmp and thumb folders
+    foreach (new \DirectoryIterator($dir) as $file) {
+        if ($file->isFile()) {
+            unlink($dir.'/'.$file->getFilename());
         }
     }
-    if(!is_null($documents)){
-        //move things over from storage to tmp
-        $dir = env('BASE_PATH').'storage/app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid;
-        if(file_exists($dir)) {
-            foreach (new \DirectoryIterator($dir) as $file) {
-                if ($file->isFile()) {
-                    copy($dir.'/'.$file->getFilename(),$dirTmp.'/'.$file->getFilename());
-                    array_push($value,$file->getFilename());
-                }
-            }
+    foreach (new \DirectoryIterator($dir.'/thumbnail') as $file) {
+        if ($file->isFile()) {
+            unlink($dir.'/thumbnail/'.$file->getFilename());
         }
     }
+    foreach (new \DirectoryIterator($dir.'/medium') as $file) {
+        if ($file->isFile()) {
+            unlink($dir.'/medium/'.$file->getFilename());
+        }
+    }
+}
 ?>
 <div class="form-group" id="fileDiv{{$field->flid}}">
     {!! Form::label($field->flid, $field->name.': ') !!}
@@ -30,9 +27,9 @@
         <b style="color:red;font-size:20px">*</b>
     @endif
     <span class="btn btn-success fileinput-button">
-        <span>Add files...</span>
+        <span>Add images...</span>
         <input id="file{{$field->flid}}" type="file" name="file{{$field->flid}}[]"
-               data-url="{{ env('BASE_URL') }}public/saveTmpFile/{{$field->flid}}" multiple>
+               data-url="http://{{ env('BASE_URL') }}public/saveTmpFile/{{$field->flid}}" multiple>
         {!! Form::hidden($field->flid,'f'.$field->flid.'u'.\Auth::user()->id) !!}
     </span>
     <br/><br/>
@@ -41,18 +38,7 @@
     </div>
     <br/>
     <div id="file_error{{$field->flid}}" style="color: red"></div>
-    <div id="filenames{{$field->flid}}">
-        @foreach($value as $file)
-            <div>
-                {{$file}}
-                <button class="btn btn-danger delete" type="button" data-type="DELETE"
-                        data-url="{{env('BASE_URL')}}public/deleteTmpFile/{{$folder}}/{{urlencode($file)}}">
-                    <i class="glyphicon glyphicon-trash"></i>
-                    DELETE
-                </button>
-            </div>
-        @endforeach
-    </div>
+    <div id="filenames{{$field->flid}}"></div>
 </div>
 
 <script>
@@ -60,9 +46,10 @@
         dataType: 'json',
         singleFileUploads: false,
         done: function (e, data) {
+            $('#file_error{{$field->flid}}').text('');
             $.each(data.result['file{{$field->flid}}'], function (index, file) {
-                var del = '<div>'+file.name+' ';
-                del += '<button class="btn btn-danger delete" type="button" data-type="'+file.deleteType+'" data-url="'+file.deleteUrl+'" >';
+                var del = '<div>' + file.name + ' ';
+                del += '<button class="btn btn-danger delete" type="button" data-type="' + file.deleteType + '" data-url="' + file.deleteUrl + '" >';
                 del += '<i class="glyphicon glyphicon-trash" /> DELETE</button>';
                 del += '</div>';
 

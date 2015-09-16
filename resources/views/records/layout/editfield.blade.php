@@ -18,4 +18,6 @@
     @include('records.fieldInputs.geolocator-edit', ['geolocator' => \App\GeolocatorField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
 @elseif($field->type == 'Documents')
     @include('records.fieldInputs.documents-edit', ['documents' => \App\DocumentsField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
+@elseif($field->type == 'Gallery')
+    @include('records.fieldInputs.gallery-edit', ['gallery' => \App\GalleryField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
 @endif
