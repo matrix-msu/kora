@@ -622,4 +622,28 @@ class FieldController extends Controller {
             exit('Requested file does not exist on our server!');
         }
     }
+
+    public function getImgDisplay($rid, $flid, $filename, $type){
+        $record = RecordController::getRecord($rid);
+        $field = FieldController::getField($flid);
+        if($type == 'thumbnail' | $type == 'medium'){
+            $file_path = env('BASE_PATH').'storage/app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$type.'/'. $filename;
+        }else{
+            $file_path = env('BASE_PATH').'storage/app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $filename;
+
+        }
+
+        if (file_exists($file_path))
+        {
+            // Send Download
+            return response()->download($file_path, $filename, [
+                'Content-Length: '. filesize($file_path)
+            ]);
+        }
+        else
+        {
+            // Error
+            exit('Requested file does not exist on our server!');
+        }
+    }
 }

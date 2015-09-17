@@ -34,7 +34,12 @@
 		<script src="{{ env('BASE_URL') }}public/fileUpload/js/vendor/jquery.ui.widget.js"></script>
 		<script src="{{ env('BASE_URL') }}public/fileUpload/js/jquery.iframe-transport.js"></script>
 		<script src="{{ env('BASE_URL') }}public/fileUpload/js/jquery.fileupload.js"></script>
-    @endif
+		<!-- For Gallery -->
+		<link rel="stylesheet" type="text/css" href="{{ env('BASE_URL') }}public/slick/slick/slick.css"/>
+		<link rel="stylesheet" type="text/css" href="{{ env('BASE_URL') }}public/slick/slick/slick-theme.css"/>
+		<script type="text/javascript" src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+		<script type="text/javascript" src="{{ env('BASE_URL') }}public/slick/slick/slick.min.js"></script>
+	@endif
     <title>Kora 3</title>
 </head>
 <br />
