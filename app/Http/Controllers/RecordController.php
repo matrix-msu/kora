@@ -471,8 +471,18 @@ class RecordController extends Controller {
                     mkdir($newPath,0775,true);
                 }
                 //clear the old files before moving the update over
+                //we only want to remove files that are being replaced by new versions
+                //we keep old files around for revision purposes
+                $newNames = array();
+                //scan the tmpFile as these will be the "new ones"
+                if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
+                    foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
+                        array_push($newNames,$file->getFilename());
+                    }
+                }
+                //actually clear them
                 foreach (new \DirectoryIterator(env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid) as $file) {
-                    if ($file->isFile()) {
+                    if ($file->isFile() and in_array($file->getFilename(),$newNames)) {
                         unlink(env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$file->getFilename());
                     }
                 }
@@ -515,8 +525,18 @@ class RecordController extends Controller {
                     mkdir($newPath.'/medium',0775,true);
                 }
                 //clear the old files before moving the update over
+                //we only want to remove files that are being replaced by new versions
+                //we keep old files around for revision purposes
+                $newNames = array();
+                //scan the tmpFile as these will be the "new ones"
+                if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
+                    foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
+                        array_push($newNames,$file->getFilename());
+                    }
+                }
+                //actually clear them
                 foreach (new \DirectoryIterator(env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid) as $file) {
-                    if ($file->isFile()) {
+                    if ($file->isFile() and in_array($file->getFilename(),$newNames)) {
                         unlink(env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$file->getFilename());
                         unlink(env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid.'/thumbnail/'.$file->getFilename());
                         unlink(env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid.'/medium/'.$file->getFilename());

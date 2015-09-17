@@ -208,7 +208,7 @@
                                             @if($img != '')
                                                 <?php
                                                 $name = explode('[Name]',$img)[1];
-                                                $link = action('FieldController@getImgDisplay',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name, 'type' => 'thumbnail']);
+                                                $link = action('FieldController@getImgDisplay',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name, 'type' => 'medium']);
                                                 ?>
                                                 <div><img class="img-responsive" src="{{$link}}" alt="{{$name}}"></div>
                                             @endif

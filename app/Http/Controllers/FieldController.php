@@ -549,8 +549,10 @@ class FieldController extends Controller {
             }
         }
 
-        $smThumbs = explode('x',FieldController::getFieldOption($field, 'ThumbSmall'));
-        $lgThumbs = explode('x',FieldController::getFieldOption($field, 'ThumbLarge'));
+        if($field->type=='Gallery') {
+            $smThumbs = explode('x', FieldController::getFieldOption($field, 'ThumbSmall'));
+            $lgThumbs = explode('x', FieldController::getFieldOption($field, 'ThumbLarge'));
+        }
 
         $validTypes = true;
         $fileTypes = explode('[!]',FieldController::getFieldOption($field, 'FileTypes'));
@@ -571,10 +573,12 @@ class FieldController extends Controller {
 
         $options = array();
         $options['flid'] = 'f'.$flid.'u'.$uid;
-        $options['image_versions']['thumbnail']['max_width'] = $smThumbs[0];
-        $options['image_versions']['thumbnail']['max_height'] = $smThumbs[1];
-        $options['image_versions']['medium']['max_width'] = $lgThumbs[0];
-        $options['image_versions']['medium']['max_height'] = $lgThumbs[1];
+        if($field->type=='Gallery') {
+            $options['image_versions']['thumbnail']['max_width'] = $smThumbs[0];
+            $options['image_versions']['thumbnail']['max_height'] = $smThumbs[1];
+            $options['image_versions']['medium']['max_width'] = $lgThumbs[0];
+            $options['image_versions']['medium']['max_height'] = $lgThumbs[1];
+        }
         if(!$validTypes){
             echo 'InvalidType';
         } else if($maxFileNum !=0 && $fileNumRequest+$fileNumDisk>$maxFileNum){

@@ -67,7 +67,7 @@
     $('#filenames{{$field->flid}}').on('click','.delete',function(){
         var div = $(this).parent();
         $.ajax({
-            url: 'http://'+$(this).attr('data-url'),
+            url: $(this).attr('data-url'),
             type: 'DELETE',
             dataType: 'json',
             data: {

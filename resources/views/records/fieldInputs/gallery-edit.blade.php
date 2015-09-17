@@ -12,11 +12,15 @@ if(file_exists($dirTmp)) {
     }
 }
 if(!is_null($gallery)){
+    $names = explode('[!]',$gallery->images);
+    foreach($names as $key => $file){
+        $names[$key] = explode('[Name]',$file)[1];
+    }
     //move things over from storage to tmp
     $dir = env('BASE_PATH').'storage/app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid;
     if(file_exists($dir)) {
         foreach (new \DirectoryIterator($dir) as $file) {
-            if ($file->isFile()) {
+            if ($file->isFile() && in_array($file->getFilename(),$names)) {
                 copy($dir.'/'.$file->getFilename(),$dirTmp.'/'.$file->getFilename());
                 copy($dir.'/thumbnail/'.$file->getFilename(),$dirTmp.'/thumbnail/'.$file->getFilename());
                 copy($dir.'/medium/'.$file->getFilename(),$dirTmp.'/medium/'.$file->getFilename());
@@ -34,7 +38,7 @@ if(!is_null($gallery)){
     <span class="btn btn-success fileinput-button">
         <span>Add images...</span>
         <input id="file{{$field->flid}}" type="file" name="file{{$field->flid}}[]"
-               data-url="http://{{ env('BASE_URL') }}public/saveTmpFile/{{$field->flid}}" multiple>
+               data-url="{{ env('BASE_URL') }}public/saveTmpFile/{{$field->flid}}" multiple>
         {!! Form::hidden($field->flid,'f'.$field->flid.'u'.\Auth::user()->id) !!}
     </span>
     <br/><br/>
@@ -93,7 +97,7 @@ if(!is_null($gallery)){
     $('#filenames{{$field->flid}}').on('click','.delete',function(){
         var div = $(this).parent();
         $.ajax({
-            url: 'http://'+$(this).attr('data-url'),
+            url: $(this).attr('data-url'),
             type: 'DELETE',
             dataType: 'json',
             data: {

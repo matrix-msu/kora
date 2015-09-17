@@ -12,11 +12,15 @@
         }
     }
     if(!is_null($documents)){
+        $names = explode('[!]',$documents->documents);
+        foreach($names as $key => $file){
+            $names[$key] = explode('[Name]',$file)[1];
+        }
         //move things over from storage to tmp
         $dir = env('BASE_PATH').'storage/app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid;
         if(file_exists($dir)) {
             foreach (new \DirectoryIterator($dir) as $file) {
-                if ($file->isFile()) {
+                if ($file->isFile() && in_array($file->getFilename(),$names)) {
                     copy($dir.'/'.$file->getFilename(),$dirTmp.'/'.$file->getFilename());
                     array_push($value,$file->getFilename());
                 }
@@ -91,7 +95,7 @@
     $('#filenames{{$field->flid}}').on('click','.delete',function(){
         var div = $(this).parent();
         $.ajax({
-            url: 'http://'+$(this).attr('data-url'),
+            url: $(this).attr('data-url'),
             type: 'DELETE',
             dataType: 'json',
             data: {
