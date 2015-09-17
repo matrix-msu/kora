@@ -28,11 +28,11 @@
                     </div>
 
                     <?php
-                        if(!is_null($data['textfields']))
+                        if(isset($data['textfields']))
                             $new = array_values($data['textfields']);
                         else
                             $new = null;
-                        if(!is_null($oldData['textfields']))
+                        if(isset($oldData['textfields']))
                             $old = array_values($oldData['textfields']);
                         else
                             $old = null;
@@ -47,11 +47,11 @@
                     @endif
 
                     <?php
-                    if(!is_null($data['richtextfields']))
+                    if(isset($data['richtextfields']))
                         $new = array_values($data['richtextfields']);
                     else
                         $new = null;
-                    if(!is_null($oldData['richtextfields']))
+                    if(isset($oldData['richtextfields']))
                         $old = array_values($oldData['richtextfields']);
                     else
                         $old = null;
@@ -66,11 +66,11 @@
                     @endif
 
                     <?php
-                    if(!is_null($data['numberfields']))
+                    if(isset($data['numberfields']))
                         $new = array_values($data['numberfields']);
                     else
                         $new = null;
-                    if(!is_null($oldData['numberfields']))
+                    if(isset($oldData['numberfields']))
                         $old = array_values($oldData['numberfields']);
                     else
                         $old = null;
@@ -86,11 +86,11 @@
                     @endif
 
                     <?php
-                    if(!is_null($data['listfields']))
+                    if(isset($data['listfields']))
                         $new = array_values($data['listfields']);
                     else
                         $new = null;
-                    if(!is_null($oldData['listfields']))
+                    if(isset($oldData['listfields']))
                         $old = array_values($oldData['listfields']);
                     else
                         $old = null;
@@ -106,11 +106,11 @@
                     @endif
 
                     <?php
-                    if(!is_null($data['multiselectlistfields']))
+                    if(isset($data['multiselectlistfields']))
                         $new = array_values($data['multiselectlistfields']);
                     else
                         $new = null;
-                    if(!is_null($oldData['multiselectlistfields']))
+                    if(isset($oldData['multiselectlistfields']))
                         $old = array_values($oldData['multiselectlistfields']);
                     else
                         $old = null;
@@ -128,11 +128,11 @@
                     @endif
 
                     <?php
-                    if(!is_null($data['generatedlistfields']))
+                    if(isset($data['generatedlistfields']))
                         $new = array_values($data['generatedlistfields']);
                     else
                         $new = null;
-                    if(!is_null($oldData['generatedlistfields']))
+                    if(isset($oldData['generatedlistfields']))
                         $old = array_values($oldData['generatedlistfields']);
                     else
                         $old = null;
@@ -150,11 +150,11 @@
                     @endif
 
                     <?php
-                    if(!is_null($data['datefields']))
+                    if(isset($data['datefields']))
                         $new = array_values($data['datefields']);
                     else
                         $new = null;
-                    if(!is_null($oldData['datefields']))
+                    if(isset($oldData['datefields']))
                         $old = array_values($oldData['datefields']);
                     else
                         $old = null;
@@ -187,11 +187,11 @@
                     @endif
 
                     <?php
-                    if(!is_null($data['schedulefields']))
+                    if(isset($data['schedulefields']))
                         $new = array_values($data['schedulefields']);
                     else
                         $new = null;
-                    if(!is_null($oldData['schedulefields']))
+                    if(isset($oldData['schedulefields']))
                         $old = array_values($oldData['schedulefields']);
                     else
                         $old = null;
@@ -208,7 +208,56 @@
                         @endfor
                     @endif
 
+                    <?php
+                    if(isset($data['geolocatorfields']))
+                        $new = array_values($data['geolocatorfields']);
+                    else
+                        $new = null;
+                    if(isset($oldData['geolocatorfields']))
+                        $old = array_values($oldData['geolocatorfields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($new))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                <span><b>{{$new[$i]['name']}}:</b></span>
+                                @foreach(explode('[!]', $new[$i]['data']) as $location)
+                                    <div>{{$location}}</div>
+                                @endforeach
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(isset($data['documentsfields']))
+                        $new = array_values($data['documentsfields']);
+                    else
+                        $new = null;
+                    if(isset($oldData['documentsfields']))
+                        $old = array_values($oldData['documentsfields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($new))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+
+                                <span><b>{{$new[$i]['name']}}:</b></span>
+                                @foreach(explode('[!]', $new[$i]['data']) as $document)
+                                    @if($document != '')
+                                        <div>{{explode('[Name]',$document)[1]}}</div>
+                                    @else
+                                    @endif
+                                @endforeach
+                            @endif
+                        @endfor
+                    @endif
+
                 </div>
+<!--- --- --- --- --- --- ---  ---  --- --- --- Begin Old Record Print --- --- --- --- --- --- ---  ---  --- --- --->
                 @if($revision->type != 'delete' && $revision->type != 'create')
                 <div><b>After</b></div>
                 <div class="panel panel-default">
@@ -217,11 +266,11 @@
                     </div>
 
                     <?php
-                    if(!is_null($data['textfields']))
+                    if(isset($data['textfields']))
                         $new = array_values($data['textfields']);
                     else
                         $new = null;
-                    if(!is_null($oldData['textfields']))
+                    if(isset($oldData['textfields']))
                         $old = array_values($oldData['textfields']);
                     else
                         $old = null;
@@ -240,11 +289,11 @@
                     @endif
 
                     <?php
-                    if(!is_null($data['richtextfields']))
+                    if(isset($data['richtextfields']))
                         $new = array_values($data['richtextfields']);
                     else
                         $new = null;
-                    if(!is_null($oldData['richtextfields']))
+                    if(isset($oldData['richtextfields']))
                         $old = array_values($oldData['richtextfields']);
                     else
                         $old = null;
@@ -263,11 +312,11 @@
                     @endif
 
                     <?php
-                    if(!is_null($data['numberfields']))
+                    if(isset($data['numberfields']))
                         $new = array_values($data['numberfields']);
                     else
                         $new = null;
-                    if(!is_null($oldData['numberfields']))
+                    if(isset($oldData['numberfields']))
                         $old = array_values($oldData['numberfields']);
                     else
                         $old = null;
@@ -288,11 +337,11 @@
                     @endif
 
                     <?php
-                    if(!is_null($data['listfields']))
+                    if(isset($data['listfields']))
                         $new = array_values($data['listfields']);
                     else
                         $new = null;
-                    if(!is_null($oldData['listfields']))
+                    if(isset($oldData['listfields']))
                         $old = array_values($oldData['listfields']);
                     else
                         $old = null;
@@ -313,11 +362,11 @@
                     @endif
 
                     <?php
-                    if(!is_null($data['multiselectlistfields']))
+                    if(isset($data['multiselectlistfields']))
                         $new = array_values($data['multiselectlistfields']);
                     else
                         $new = null;
-                    if(!is_null($oldData['multiselectlistfields']))
+                    if(isset($oldData['multiselectlistfields']))
                         $old = array_values($oldData['multiselectlistfields']);
                     else
                         $old = null;
@@ -342,11 +391,11 @@
                     @endif
 
                     <?php
-                    if(!is_null($data['generatedlistfields']))
+                    if(isset($data['generatedlistfields']))
                         $new = array_values($data['generatedlistfields']);
                     else
                         $new = null;
-                    if(!is_null($oldData['generatedlistfields']))
+                    if(isset($oldData['generatedlistfields']))
                         $old = array_values($oldData['generatedlistfields']);
                     else
                         $old = null;
@@ -371,11 +420,11 @@
                     @endif
 
                     <?php
-                    if(!is_null($data['datefields']))
+                    if(isset($data['datefields']))
                         $new = array_values($data['datefields']);
                     else
                         $new = null;
-                    if(!is_null($oldData['datefields']))
+                    if(isset($oldData['datefields']))
                         $old = array_values($oldData['datefields']);
                     else
                         $old = null;
@@ -430,11 +479,11 @@
                     @endif
 
                     <?php
-                    if(!is_null($data['schedulefields']))
+                    if(isset($data['schedulefields']))
                         $new = array_values($data['schedulefields']);
                     else
                         $new = null;
-                    if(!is_null($oldData['schedulefields']))
+                    if(isset($oldData['schedulefields']))
                         $old = array_values($oldData['schedulefields']);
                     else
                         $old = null;
@@ -458,7 +507,56 @@
                         @endfor
                     @endif
 
+                    <?php
+                    if(isset($data['geolocatorfields']))
+                        $new = array_values($data['geolocatorfields']);
+                    else
+                        $new = null;
+                    if(isset($oldData['geolocatorfields']))
+                        $old = array_values($oldData['geolocatorfields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($old))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                <span><b>{{$old[$i]['name']}}:</b></span>
+                                @foreach(explode('[!]', $old[$i]['data']) as $location)
+                                    <div>{{$location}}</div>
+                                @endforeach
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(isset($data['documentsfields']))
+                        $new = array_values($data['documentsfields']);
+                    else
+                        $new = null;
+                    if(isset($oldData['documentsfields']))
+                        $old = array_values($oldData['documentsfields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($new))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+
+                                <span><b>{{$new[$i]['name']}}:</b></span>
+                                @foreach(explode('[!]', $old[$i]['data']) as $document)
+                                    @if($document != '')
+                                        <div>{{explode('[Name]',$document)[1]}}</div>
+                                    @else
+                                    @endif
+                                @endforeach
+                            @endif
+                        @endfor
+                    @endif
+
                 </div>
+
                 @endif
             </div>
         </div>

@@ -232,3 +232,25 @@
         </div>
     @endforeach
 @stop
+
+@section('footer')
+    <script>
+        function deleteAll() {
+            var resp1 = confirm('Are you sure?');
+            if(resp1) {
+                var resp2 = confirm('Are you really sure? This will delete all records!');
+                if(resp2) {
+                    $.ajax({
+                        url: '{{ action('RecordController@deleteAllRecords', ['pid' => $form->pid, 'fid' => $form->fid]) }}',
+                        type: 'DELETE',
+                        data: {
+                            "_token": "{{ csrf_token() }}"
+                        }, success: function () {
+                            location.reload();
+                        }
+                    });
+                }
+            }
+        }
+    </script>
+@stop
