@@ -29,7 +29,7 @@ if(file_exists($dir)) {
     <span class="btn btn-success fileinput-button">
         <span>Add images...</span>
         <input id="file{{$field->flid}}" type="file" name="file{{$field->flid}}[]"
-               data-url="http://{{ env('BASE_URL') }}public/saveTmpFile/{{$field->flid}}" multiple>
+               data-url="{{ env('BASE_URL') }}public/saveTmpFile/{{$field->flid}}" multiple>
         {!! Form::hidden($field->flid,'f'.$field->flid.'u'.\Auth::user()->id) !!}
     </span>
     <br/><br/>
@@ -78,7 +78,7 @@ if(file_exists($dir)) {
     $('#filenames{{$field->flid}}').on('click','.delete',function(){
         var div = $(this).parent();
         $.ajax({
-            url: 'http://'+$(this).attr('data-url'),
+            url: $(this).attr('data-url'),
             type: 'DELETE',
             dataType: 'json',
             data: {

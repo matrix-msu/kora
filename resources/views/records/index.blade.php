@@ -205,10 +205,26 @@
                         @elseif($field->type=='Gallery')
                             @foreach($record->galleryfields as $gf)
                                 @if($gf->flid == $field->flid)
-                                    <div id="gallery{{$gf->flid}}"></div>
-                                    <?php
-                                        $dir = env('BASE_URL').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$record->rid.'/fl'.$field->flid.'/';
-                                    ?>
+                                    <div class="gal{{$field->flid}}">
+                                        @foreach(explode('[!]',$gf->images) as $img)
+                                            @if($img != '')
+                                                <?php
+                                                $name = explode('[Name]',$img)[1];
+                                                $link = action('FieldController@getImgDisplay',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name, 'type' => 'medium']);
+                                                ?>
+                                                <div><img class="img-responsive" src="{{$link}}" alt="{{$name}}"></div>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                    <script>
+                                        $('.gal{{$field->flid}}').slick({
+                                            dots: true,
+                                            infinite: true,
+                                            speed: 500,
+                                            fade: true,
+                                            cssEase: 'linear'
+                                        });
+                                    </script>
                                 @endif
                             @endforeach
                         @endif
