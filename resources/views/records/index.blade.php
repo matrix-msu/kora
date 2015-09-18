@@ -22,6 +22,8 @@
             <button type="submit" class="btn btn-default">Manage Presets</button>
         </form>
         <button class="btn btn-danger" onclick="deleteAll()">Delete All Records</button>
+        <button class="btn btn-danger" onclick="cleanup()">Clean Up Old Record Files</button>
+        <span>Current Form Filesize: {{$filesize}}</span>
     @endif
 
     <div>
@@ -234,6 +236,21 @@
                         }
                     });
                 }
+            }
+        }
+
+        function cleanUp() {
+            var resp1 = confirm('Are you sure? This will delete all files with records that do not currently exist.');
+            if (resp1) {
+                $.ajax({
+                    url: '{{ action('RecordController@deleteAllRecords', ['pid' => $form->pid, 'fid' => $form->fid]) }}',
+                    type: 'POST',
+                    data: {
+                        "_token": "{{ csrf_token() }}"
+                    }, success: function () {
+                        location.reload();
+                    }
+                });
             }
         }
     </script>

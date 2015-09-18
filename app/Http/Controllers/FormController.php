@@ -241,6 +241,18 @@ class FormController extends Controller {
     }
 
     /**
+     * Deletes file directories for records that do not exist anymore.
+     *
+     * @param $pid
+     * @param $fid
+     */
+    public function cleanUp($pid, $fid) {
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+    }
+
+    /**
      * Get form object for use in controller.
      *
      * @param $fid
