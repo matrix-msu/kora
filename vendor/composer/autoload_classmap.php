@@ -24,6 +24,7 @@ return array(
     'CreateMultiselectlistfieldsTable' => $baseDir . '/database/migrations/2015_07_20_125652_create_multiselectlistfields_table.php',
     'CreateNumberfieldsTable' => $baseDir . '/database/migrations/2015_07_09_183053_create_numberfields_table.php',
     'CreatePasswordResetsTable' => $baseDir . '/database/migrations/2015_04_03_151648_create_password_resets_table.php',
+    'CreatePlaylistfieldsTable' => $baseDir . '/database/migrations/2015_09_17_193708_create_playlistfields_table.php',
     'CreateProjectGroupsTable' => $baseDir . '/database/migrations/2015_07_09_171601_create_project_groups_table.php',
     'CreateProjectsTable' => $baseDir . '/database/migrations/2015_04_03_151510_CreateProjectsTable.php',
     'CreateRecordpresetsTable' => $baseDir . '/database/migrations/2015_08_21_154839_create_recordpresets_table.php',

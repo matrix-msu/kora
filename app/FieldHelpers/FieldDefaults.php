@@ -26,7 +26,7 @@ class FieldDefaults {
             return '[!Start!]1900[!Start!][!End!]2020[!End!][!Calendar!]No[!Calendar!]';
         }else if($type=="Geolocator"){
             return '[!Map!]No[!Map!][!DataView!]LatLon[!DataView!]';
-        }else if($type=="Documents"){
+        }else if($type=="Documents" | $type=="Playlist"){
             return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!][!FileTypes!]';
         }else if($type=="Gallery"){
             return '[!FieldSize!]0[!FieldSize!][!ThumbSmall!]150x150[!ThumbSmall!][!ThumbLarge!]300x300[!ThumbLarge!][!MaxFiles!]0[!MaxFiles!][!FileTypes!][!FileTypes!]';

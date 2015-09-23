@@ -39,6 +39,9 @@
 		<link rel="stylesheet" type="text/css" href="{{ env('BASE_URL') }}public/slick/slick/slick-theme.css"/>
 		<script type="text/javascript" src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
 		<script type="text/javascript" src="{{ env('BASE_URL') }}public/slick/slick/slick.min.js"></script>
+		<!-- For Playlist -->
+		<link rel="stylesheet" type="text/css" href="{{ env('BASE_URL') }}public/AudioPlayer/css/audioplayer.css"/>
+		<script type="text/javascript" src="{{ env('BASE_URL') }}public/AudioPlayer/js/audioplayer.min.js"></script>
 	@endif
     <title>Kora 3</title>
 </head>

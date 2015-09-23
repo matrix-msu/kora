@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Audio Player: Responsive &amp; Touch-Friendly</title>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="description" content="Responsive &amp; Touch-Friendly Audio Player" />
+		<meta name="author" content="Osvaldas Valutis, www.osvaldas.info" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:400,700" />
+		<link rel="shortcut icon" href="../favicon.ico">
+		<link rel="stylesheet" href="css/reset.css" />
+		<link rel="stylesheet" href="css/demo.css" />
+		<link rel="stylesheet" href="css/audioplayer.css" />
+		<script>
+			/*
+				VIEWPORT BUG FIX
+				iOS viewport scaling bug fix, by @mathias, @cheeaun and @jdalton
+			*/
+			(function(doc){var addEvent='addEventListener',type='gesturestart',qsa='querySelectorAll',scales=[1,1],meta=qsa in doc?doc[qsa]('meta[name=viewport]'):[];function fix(){meta.content='width=device-width,minimum-scale='+scales[0]+',maximum-scale='+scales[1];doc.removeEventListener(type,fix,true);}if((meta=meta[meta.length-1])&&addEvent in doc){fix();scales=[.25,1.6];doc[addEvent](type,fix,true);}}(document));
+		</script>
+	</head>
+	<body>
+		<!-- Codrops top bar -->
+		<div class="codrops-top clearfix">
+			<a href="http://tympanus.net/Development/StackSlider/">
+				<strong>&laquo; Previous Demo: </strong>StackSlider: A 3D Image Slider
+			</a>
+			<span class="right">
+				<a href="http://tympanus.net/codrops/?p=11380">
+					<strong>Back to the Codrops Article</strong>
+				</a>
+			</span>
+		</div><!--/ Codrops top bar -->
+		<h1>Audio Player &ndash; <span>Responsive &amp; Touch-Friendly</span></h1>
+		<h2>jQuery Audio Player Plugin with CSS-only UI</h2>
+		<div id="wrapper">
+			<audio preload="auto" controls>
+				<source src="audio/BlueDucks_FourFlossFiveSix.mp3">
+				<source src="audio/BlueDucks_FourFlossFiveSix.ogg">
+				<source src="audio/BlueDucks_FourFlossFiveSix.wav">
+			</audio>
+			<script src="js/jquery.js"></script>
+			<script src="js/audioplayer.js"></script>
+			<script>$( function() { $( 'audio' ).audioPlayer(); } );</script>
+
+			<div class="attribution">
+				<div xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/" about="http://freemusicarchive.org/music/Blue_Ducks/Six/">
+					<span property="dct:title">Six</span> (<a rel="cc:attributionURL" property="cc:attributionName" href="http://freemusicarchive.org/music/Blue_Ducks/">Blue Ducks</a>) / <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>
+				</div>
+			</div>
+		</div>
+
+	</body>
+</html>

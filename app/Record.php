@@ -66,6 +66,10 @@ class Record extends Model {
         return $this->hasMany('App\GalleryField', 'rid');
     }
 
+    public function playlistfields(){
+        return $this->hasMany('App\PlaylistField', 'rid');
+    }
+
     public function associatorfields(){
         return $this->hasMany('App\AssociatorField', 'rid');
     }

@@ -4,6 +4,7 @@ use App\DateField;
 use App\DocumentsField;
 use App\GalleryField;
 use App\GeneratedListField;
+use App\PlaylistField;
 use App\RecordPreset;
 use App\GeolocatorField;
 use App\ScheduleField;
@@ -242,6 +243,34 @@ class RecordController extends Controller {
                 }
                 $gf->images = $infoString;
                 $gf->save();
+            } else if($field->type=='Playlist' && glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') != false){
+                $pf = new PlaylistField();
+                $pf->flid = $field->flid;
+                $pf->rid = $record->rid;
+                $infoString = '';
+                $newPath = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid;
+                mkdir($newPath,0775,true);
+                if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
+                    $types = FieldController::getMimeTypes();
+                    foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
+                        if ($file->isFile()) {
+                            if(!array_key_exists($file->getExtension(),$types))
+                                $type = 'application/octet-stream';
+                            else
+                                $type =  $types[$file->getExtension()];
+                            $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
+                            if ($infoString == '') {
+                                $infoString = $info;
+                            } else {
+                                $infoString .= '[!]' . $info;
+                            }
+                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                                $newPath . '/' . $file->getFilename());
+                        }
+                    }
+                }
+                $pf->audio = $infoString;
+                $pf->save();
             }
         }
 
@@ -569,6 +598,58 @@ class RecordController extends Controller {
                 }
                 $gf->images = $infoString;
                 $gf->save();
+            } else if($field->type=='Playlist'
+                && (PlaylistField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null
+                    | glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') != false)){
+                //we need to check if the field exist first
+                if(PlaylistField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
+                    $pf = PlaylistField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                }else {
+                    $pf = new PlaylistField();
+                    $pf->flid = $field->flid;
+                    $pf->rid = $record->rid;
+                    $newPath = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid;
+                    mkdir($newPath,0775,true);
+                }
+                //clear the old files before moving the update over
+                //we only want to remove files that are being replaced by new versions
+                //we keep old files around for revision purposes
+                $newNames = array();
+                //scan the tmpFile as these will be the "new ones"
+                if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
+                    foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
+                        array_push($newNames,$file->getFilename());
+                    }
+                }
+                //actually clear them
+                foreach (new \DirectoryIterator(env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid) as $file) {
+                    if ($file->isFile() and in_array($file->getFilename(),$newNames)) {
+                        unlink(env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$file->getFilename());
+                    }
+                }
+                //build new stuff
+                $infoString = '';
+                if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
+                    $types = FieldController::getMimeTypes();
+                    foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
+                        if ($file->isFile()) {
+                            if(!array_key_exists($file->getExtension(),$types))
+                                $type = 'application/octet-stream';
+                            else
+                                $type =  $types[$file->getExtension()];
+                            $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
+                            if ($infoString == '') {
+                                $infoString = $info;
+                            } else {
+                                $infoString .= '[!]' . $info;
+                            }
+                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                                env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $file->getFilename());
+                        }
+                    }
+                }
+                $pf->audio = $infoString;
+                $pf->save();
             }
         }
 

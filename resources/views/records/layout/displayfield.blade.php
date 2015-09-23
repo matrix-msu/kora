@@ -187,6 +187,26 @@
                     </script>
                 @endif
             @endforeach
+        @elseif($field->type=='Playlist')
+            @foreach($record->playlistfields as $pf)
+                @if($pf->flid == $field->flid)
+                    @foreach(explode('[!]',$pf->audio) as $key => $aud)
+                        @if($aud != '')
+                            <?php
+                            $name = explode('[Name]',$aud)[1];
+                            $link = env('BASE_URL').'storage/app/files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$name;
+                            ?>
+                            <div>
+                                {{$name}}:
+                                <audio id="audio{{$field->flid.'_'.$key}}" src="{{$link}}" preload="auto"></audio>
+                            </div>
+                            <script>
+                                $( '#audio{{$field->flid.'_'.$key}}' ).audioPlayer();
+                            </script>
+                        @endif
+                    @endforeach
+                @endif
+            @endforeach
         @endif
     </span>
 </div>

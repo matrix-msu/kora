@@ -113,6 +113,8 @@ class FieldController extends Controller {
             return view('fields.options.documents', compact('field', 'form', 'proj'));
         }else if($field->type=="Gallery") {
             return view('fields.options.gallery', compact('field', 'form', 'proj'));
+        }else if($field->type=="Playlist") {
+            return view('fields.options.playlist', compact('field', 'form', 'proj'));
         }else if($field->type=="Associator") {
             return view('fields.options.assoctiator', compact('field', 'form', 'proj'));
         }
@@ -566,6 +568,12 @@ class FieldController extends Controller {
         }else if($field->type=='Gallery'){
             foreach ($fileTypesRequest as $type) {
                 if (!in_array($type,['image/jpeg','image/gif','image/png'])){
+                    $validTypes = false;
+                }
+            }
+        }else if($field->type=='Playlist'){
+            foreach ($fileTypesRequest as $type) {
+                if (!in_array($type,['audio/mp3','audio/wav','audio/ogg'])){
                     $validTypes = false;
                 }
             }
