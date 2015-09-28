@@ -22,4 +22,6 @@
     @include('records.fieldInputs.gallery-edit', ['gallery' => \App\GalleryField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
 @elseif($field->type == 'Playlist')
     @include('records.fieldInputs.playlist-edit', ['playlist' => \App\PlaylistField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
+@elseif($field->type == 'Video')
+    @include('records.fieldInputs.video-edit', ['video' => \App\VideoField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
 @endif

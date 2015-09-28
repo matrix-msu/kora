@@ -22,4 +22,6 @@
     @include('records.fieldInputs.gallery')
 @elseif($field->type == 'Playlist')
     @include('records.fieldInputs.playlist')
+@elseif($field->type == 'Video')
+    @include('records.fieldInputs.video')
 @endif

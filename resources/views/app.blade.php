@@ -40,8 +40,10 @@
 		<script type="text/javascript" src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
 		<script type="text/javascript" src="{{ env('BASE_URL') }}public/slick/slick/slick.min.js"></script>
 		<!-- For Playlist -->
-		<link rel="stylesheet" type="text/css" href="{{ env('BASE_URL') }}public/AudioPlayer/css/audioplayer.css"/>
-		<script type="text/javascript" src="{{ env('BASE_URL') }}public/AudioPlayer/js/audioplayer.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="{{ env('BASE_URL') }}public/jplayer/pink.flag/css/jplayer.pink.flag.min.css"/>
+		<script type="text/javascript" src="{{ env('BASE_URL') }}public/jplayer/jquery.jplayer.min.js"></script>
+		<script type="text/javascript" src="{{ env('BASE_URL') }}public/jplayer/jplayer.playlist.min.js"></script>
+		<!-- For Video -->
 	@endif
     <title>Kora 3</title>
 </head>

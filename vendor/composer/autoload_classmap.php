@@ -35,6 +35,7 @@ return array(
     'CreateTextfieldsTable' => $baseDir . '/database/migrations/2015_06_03_200516_create_textfields_table.php',
     'CreateTokensTable' => $baseDir . '/database/migrations/2015_06_19_152400_CreateTokensTable.php',
     'CreateUsersTable' => $baseDir . '/database/migrations/2015_06_17_134524_CreateUsersTable.php',
+    'CreateVideofieldsTable' => $baseDir . '/database/migrations/2015_09_23_141035_create_videofields_table.php',
     'DatabaseSeeder' => $baseDir . '/database/seeds/DatabaseSeeder.php',
     'File_Iterator' => $vendorDir . '/phpunit/php-file-iterator/File/Iterator.php',
     'File_Iterator_Facade' => $vendorDir . '/phpunit/php-file-iterator/File/Iterator/Facade.php',
