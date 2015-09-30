@@ -74,6 +74,10 @@ class Record extends Model {
         return $this->hasMany('App\VideoField', 'rid');
     }
 
+    public function modelfields(){
+        return $this->hasMany('App\ModelField', 'rid');
+    }
+
     public function associatorfields(){
         return $this->hasMany('App\AssociatorField', 'rid');
     }

@@ -117,6 +117,8 @@ class FieldController extends Controller {
             return view('fields.options.playlist', compact('field', 'form', 'proj'));
         }else if($field->type=="Video") {
             return view('fields.options.video', compact('field', 'form', 'proj'));
+        }else if($field->type=="3D-Model") {
+            return view('fields.options.3dmodel', compact('field', 'form', 'proj'));
         }else if($field->type=="Associator") {
             return view('fields.options.assoctiator', compact('field', 'form', 'proj'));
         }
@@ -344,7 +346,8 @@ class FieldController extends Controller {
         $tag = '[!'.$key.'!]';
         $array = explode($tag,$options);
 
-        if(($field->type=='Documents' | $field->type=='Gallery') && $key=='FileTypes'){
+        if(($field->type=='Documents' | $field->type=='Gallery' | $field->type=='Playlist' | $field->type=='Video'
+                | $field->type=='3D-Model') && $key=='FileTypes'){
             $valueString = $value[0];
             for($i=1;$i<sizeof($value);$i++){
                 $valueString .= '[!]'.$value[$i];
@@ -561,7 +564,7 @@ class FieldController extends Controller {
         $validTypes = true;
         $fileTypes = explode('[!]',FieldController::getFieldOption($field, 'FileTypes'));
         $fileTypesRequest = $_FILES['file'.$flid]['type'];
-        if(sizeof($fileTypes)!=1 | $fileTypes[0]!='') {
+        if((sizeof($fileTypes)!=1 | $fileTypes[0]!='') && $field->type != '3D-Model') {
             foreach ($fileTypesRequest as $type) {
                 if (!in_array($type,$fileTypes)){
                     $validTypes = false;
@@ -582,6 +585,14 @@ class FieldController extends Controller {
         }else if($field->type=='Video'){
             foreach ($fileTypesRequest as $type) {
                 if (!in_array($type,['video/mp4','video/ogg'])){
+                    $validTypes = false;
+                }
+            }
+        }else if($field->type=='3D-Model'){
+            foreach ($_FILES['file'.$flid]['name'] as $file) {
+                $filetype = explode('.',$file);
+                $type = array_pop($filetype);
+                if (!in_array($type,['obj','stl'])){
                     $validTypes = false;
                 }
             }

@@ -351,6 +351,35 @@
                     </script>
                 @endif
             @endforeach
+        @elseif($field->type=='3D-Model')
+            @foreach($record->modelfields as $mf)
+                @if($mf->flid == $field->flid)
+                    @foreach(explode('[!]',$mf->model) as $opt)
+                        @if($opt != '')
+                            <?php
+                            $name = explode('[Name]',$opt)[1];
+                            $link = action('FieldController@getFileDownload',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name]);
+                            ?>
+                            <div style="width:800px; margin:auto; position:relative;">
+                                <canvas id="cv{{$field->flid}}" style="border: 1px solid;" width="750" height="400">
+                                    It seems you are using an outdated browser that does not support canvas :-(
+                                </canvas>
+                            </div>
+
+                            <script type="text/javascript">
+                                var viewer = new JSC3D.Viewer(document.getElementById('cv{{$field->flid}}'));
+                                viewer.setParameter('SceneUrl',         '{{$link}}');
+                                viewer.setParameter('ModelColor',       '#CAA618');
+                                viewer.setParameter('BackgroundColor1', '#E5D7BA');
+                                viewer.setParameter('BackgroundColor2', '#383840');
+                                viewer.setParameter('RenderMode',       'flat');
+                                viewer.init();
+                                viewer.update();
+                            </script>
+                        @endif
+                    @endforeach
+                @endif
+            @endforeach
         @endif
     </span>
 </div>

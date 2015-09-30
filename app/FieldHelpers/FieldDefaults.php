@@ -30,6 +30,8 @@ class FieldDefaults {
             return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!][!FileTypes!]';
         }else if($type=="Gallery"){
             return '[!FieldSize!]0[!FieldSize!][!ThumbSmall!]150x150[!ThumbSmall!][!ThumbLarge!]300x300[!ThumbLarge!][!MaxFiles!]0[!MaxFiles!][!FileTypes!][!FileTypes!]';
+        }else if($type=="3D-Model"){
+            return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]1[!MaxFiles!][!FileTypes!][!FileTypes!]';
         }else if($type=="Associator"){
             return '[!Forms!][!Forms!][!SearchForms!][!SearchForms!]';
         }

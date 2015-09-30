@@ -20,6 +20,7 @@ return array(
     'CreateGeolocatorfieldsTable' => $baseDir . '/database/migrations/2015_08_10_175706_create_geolocatorfields_table.php',
     'CreateListfieldsTable' => $baseDir . '/database/migrations/2015_07_14_144933_create_listfields_table.php',
     'CreateMetadataTable' => $baseDir . '/database/migrations/2015_07_01_122103_CreateMetadataTable.php',
+    'CreateModelfieldsTable' => $baseDir . '/database/migrations/2015_09_29_132315_create_modelfields_table.php',
     'CreateModelsTable' => $baseDir . '/database/migrations/2015_04_03_152745_CreateModelsTable.php',
     'CreateMultiselectlistfieldsTable' => $baseDir . '/database/migrations/2015_07_20_125652_create_multiselectlistfields_table.php',
     'CreateNumberfieldsTable' => $baseDir . '/database/migrations/2015_07_09_183053_create_numberfields_table.php',
