@@ -14,6 +14,9 @@
     <form action="{{action('ProjectGroupController@index', ['pid'=>$project->pid])}}" style="display: inline">
         <button type="submit" class="btn btn-default">Manage Groups</button>
     </form>
+    <form action="{{action('OptionPresetController@index', ['pid'=>$project->pid])}}" style="display: inline">
+        <button type="submit" class="btn btn-default">Manage Option Presets</button>
+    </form>
     @endif
     <hr/>
     <h2>Forms</h2>

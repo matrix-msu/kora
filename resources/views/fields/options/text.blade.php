@@ -48,5 +48,15 @@
         </div>
     {!! Form::close() !!}
 
+    @include('partials.option_preset')
+
     @include('errors.list')
+@stop
+
+@section('footer')
+
+    <script>
+
+    </script>
+
 @stop
