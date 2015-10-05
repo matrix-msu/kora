@@ -47,7 +47,7 @@ Route::post('/projects/{pid}/forms/{fid}/createNode','FormController@addNode');
 Route::post('/projects/{pid}/forms/{fid}/deleteNode/{title}','FormController@deleteNode');
 Route::post('/projects/{pid}/forms/{fid}/preset', 'FormController@preset');
 Route::post('/projects/{pid}','FormController@store');
-Route::post('/projects/{pid}/forms/{fid}/cleanUp', 'FormController@cleanUp');
+
 
 //field routes
 Route::get('/projects/{pid}/forms/{fid}/fields','FormController@show'); //alias for form/{id}
@@ -90,6 +90,7 @@ Route::get('/projects/{pid}/forms/{fid}/records/{rid}/edit','RecordController@ed
 Route::post('/projects/{pid}/forms/{fid}/records','RecordController@store');
 Route::delete('projects/{pid}/forms/{fid}/deleteAllRecords','RecordController@deleteAllRecords');
 Route::post('/presetRecord', 'RecordController@presetRecord');
+Route::post('/projects/{pid}/forms/{fid}/cleanUp', 'RecordController@cleanUp');
 
 
 //revision routes
