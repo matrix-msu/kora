@@ -37,10 +37,12 @@
             <button class="btn btn-primary move_option_down">Down</button>
         </div>
         <div>
-            <span></span><input type="text" class="new_list_option"></input></span>
+            <span><input type="text" class="new_list_option"></input></span>
             <span><button class="btn btn-primary add_option">Add</button></span>
         </div>
     </div>
+
+    @include('partials.option_preset')
 
     @include('errors.list')
 @stop

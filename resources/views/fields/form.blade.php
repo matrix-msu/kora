@@ -14,7 +14,8 @@
     {!! Form::label('type','Field Type: ') !!}
     {!! Form::select('type', ['Text' => 'Text', 'Rich Text' => 'Rich Text', 'Number' => 'Number',
         'List' => 'List', 'Multi-Select List' => 'Multi-Select List', 'Generated List' => 'Generated List',
-        'Date' => 'Date', 'Schedule' => 'Schedule', 'Geolocator' => 'Geolocator', 'Documents' => 'Documents', 'Gallery' => 'Gallery'],
+        'Date' => 'Date', 'Schedule' => 'Schedule', 'Geolocator' => 'Geolocator', 'Documents' => 'Documents',
+        'Gallery' => 'Gallery', 'Playlist' => 'Playlist', 'Video' => 'Video', '3D-Model' => '3D-Model'],
         null,['class' => 'form-control']) !!}
 </div>
 

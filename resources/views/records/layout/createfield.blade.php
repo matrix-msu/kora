@@ -20,4 +20,10 @@
     @include('records.fieldInputs.documents')
 @elseif($field->type == 'Gallery')
     @include('records.fieldInputs.gallery')
+@elseif($field->type == 'Playlist')
+    @include('records.fieldInputs.playlist')
+@elseif($field->type == 'Video')
+    @include('records.fieldInputs.video')
+@elseif($field->type == '3D-Model')
+    @include('records.fieldInputs.3dmodel')
 @endif
