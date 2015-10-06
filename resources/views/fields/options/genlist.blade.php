@@ -55,6 +55,8 @@
     </div>
 
     @include('errors.list')
+
+    @include('partials.option_preset')
 @stop
 
 @section('footer')

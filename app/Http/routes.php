@@ -4,6 +4,9 @@ Route::get('/', 'WelcomeController@index');
 Route::get('/home', 'WelcomeController@index');
 Route::post('/language','WelcomeController@setTemporaryLanguage');
 
+
+
+
 //project routes
 Route::resource('projects', 'ProjectController');
 
@@ -48,6 +51,7 @@ Route::post('/projects/{pid}/forms/{fid}/deleteNode/{title}','FormController@del
 Route::post('/projects/{pid}/forms/{fid}/preset', 'FormController@preset');
 Route::post('/projects/{pid}','FormController@store');
 
+
 //field routes
 Route::get('/projects/{pid}/forms/{fid}/fields','FormController@show'); //alias for form/{id}
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}','FieldController@update');
@@ -78,6 +82,18 @@ Route::patch('/changePresetName', 'RecordPresetController@changePresetName');
 Route::delete('/deletePreset', 'RecordPresetController@deletePreset');
 Route::post('/getRecordArray', 'RecordPresetController@getRecordArray');
 
+
+//option preset routes
+Route::get('/projects/{pid}/presets', 'OptionPresetController@index');
+Route::get('/projects/{pid}/presets/create','OptionPresetController@newPreset');
+Route::post('/projects/{pid}/presets/create','OptionPresetController@create');
+Route::delete('/projects/{pid}/presets/delete','OptionPresetController@delete');
+Route::get('/projects/{pid}/presets/{id}/edit','OptionPresetController@edit');
+Route::post('/projects/{pid}/presets/{id}/saveList','OptionPresetController@saveList');
+Route::post('/projects/{pid}/presets/{id}/edit','OptionPresetController@update');
+Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/applyPreset','OptionPresetController@applyPreset');
+
+
 //record routes
 Route::get('/projects/{pid}/forms/{fid}/records','RecordController@index');
 Route::get('projects/{pid}/forms/{fid}/records/massAssignRecords','RecordController@showMassAssignmentView');
@@ -90,6 +106,8 @@ Route::get('/projects/{pid}/forms/{fid}/records/{rid}/edit','RecordController@ed
 Route::post('/projects/{pid}/forms/{fid}/records','RecordController@store');
 Route::delete('projects/{pid}/forms/{fid}/deleteAllRecords','RecordController@deleteAllRecords');
 Route::post('/presetRecord', 'RecordController@presetRecord');
+Route::post('/projects/{pid}/forms/{fid}/cleanUp', 'RecordController@cleanUp');
+
 
 
 //revision routes

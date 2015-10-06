@@ -97,24 +97,27 @@ class FieldController extends Controller {
         $field = FieldController::getField($flid);
         $form = FormController::getForm($fid);
         $proj = ProjectController::getProject($pid);
+
+        $presets = OptionPresetController::getPresetsSupported($pid,$field);
+
         if($field->type=="Text") {
-            return view('fields.options.text', compact('field', 'form', 'proj'));
+            return view('fields.options.text', compact('field', 'form', 'proj','presets'));
         }else if($field->type=="Rich Text") {
             return view('fields.options.richtext', compact('field', 'form', 'proj'));
         }else if($field->type=="Number") {
             return view('fields.options.number', compact('field', 'form', 'proj'));
         }else if($field->type=="List") {
-            return view('fields.options.list', compact('field', 'form', 'proj'));
+            return view('fields.options.list', compact('field', 'form', 'proj','presets'));
         }else if($field->type=="Multi-Select List") {
-            return view('fields.options.mslist', compact('field', 'form', 'proj'));
+            return view('fields.options.mslist', compact('field', 'form', 'proj','presets'));
         }else if($field->type=="Generated List") {
-            return view('fields.options.genlist', compact('field', 'form', 'proj'));
+            return view('fields.options.genlist', compact('field', 'form', 'proj','presets'));
         }else if($field->type=="Date") {
             return view('fields.options.date', compact('field', 'form', 'proj'));
         }else if($field->type=="Schedule") {
-            return view('fields.options.schedule', compact('field', 'form', 'proj'));
+            return view('fields.options.schedule', compact('field', 'form', 'proj','presets'));
         }else if($field->type=="Geolocator") {
-            return view('fields.options.geolocator', compact('field', 'form', 'proj'));
+            return view('fields.options.geolocator', compact('field', 'form', 'proj','presets'));
         }else if($field->type=="Documents") {
             return view('fields.options.documents', compact('field', 'form', 'proj'));
         }else if($field->type=="Gallery") {
@@ -151,7 +154,7 @@ class FieldController extends Controller {
 
         $field = FieldController::getField($flid);
 
-        return view('fields.edit', compact('field', 'fid', 'pid'));
+        return view('fields.edit', compact('field', 'fid', 'pid','presets'));
 	}
 
     /**

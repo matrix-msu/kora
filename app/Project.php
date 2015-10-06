@@ -49,4 +49,9 @@ class Project extends Model {
     public function groups(){
         return $this->hasMany('App\ProjectGroup','pid');
     }
+
+    public function optionPresets(){
+        return $this->hasMany('App\OptionPreset','pid');
+    }
+
 }

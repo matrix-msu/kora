@@ -8,6 +8,7 @@ use App\ModelField;
 use App\PlaylistField;
 use App\RecordPreset;
 use App\GeolocatorField;
+use App\Revision;
 use App\ScheduleField;
 use App\User;
 use App\Form;
@@ -26,6 +27,8 @@ use App\Http\Controllers\Controller;
 use App\FieldHelpers\FieldValidation;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use RecursiveIteratorIterator;
+use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
 
 
 class RecordController extends Controller {
@@ -56,8 +59,9 @@ class RecordController extends Controller {
         }
 
         $form = FormController::getForm($fid);
+        $filesize = RecordController::getFormFilesize($fid);
 
-        return view('records.index', compact('form'));
+        return view('records.index', compact('form', 'filesize'));
 	}
 
 	/**
@@ -383,6 +387,61 @@ class RecordController extends Controller {
 
         return view('records.edit', compact('record', 'form'));
 	}
+
+    /**
+     * Deletes file directories for records that do not exist anymore.
+     *
+     * @param $pid
+     * @param $fid
+     * @return Response
+     */
+    public function cleanUp($pid, $fid) {
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+
+        // Using revisions, if a record's most recent change is a deletion,
+        // we remove the file directory associated with that record.
+        $all_revisions = Revision::where('fid', '=', $fid)->get();
+        $rids = array();
+
+        foreach($all_revisions as $revision){
+            $rids[] = $revision->rid;
+        }
+        $rids = array_unique($rids);
+
+        $revisions = array(); //Revisions with records that do not exist.
+        foreach($rids as $rid){
+            //If a record's most recent revision is a deletion...
+            $revision = Revision::where('rid', '=', $rid)->orderBy('created_at', 'desc')->first();
+            if($revision->type == 'delete'){
+                $revisions[] = $revision; //... add to the array.
+            }
+        }
+
+        $base_path = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid;
+
+        foreach ($revisions as $revision){
+            $path = $base_path . "/r" . $revision->rid;
+            if(is_dir($path)) {
+                $it = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
+                $files = new RecursiveIteratorIterator($it,
+                    RecursiveIteratorIterator::CHILD_FIRST);
+                foreach($files as $file) {
+                    if ($file->isDir()){
+                        rmdir($file->getRealPath());
+                    } else {
+                        unlink($file->getRealPath());
+                    }
+                }
+                rmdir($path);
+            }
+        }
+
+        return $revisions;
+
+    }
+
 
 	/**
 	 * Update the specified resource in storage.
@@ -851,6 +910,12 @@ class RecordController extends Controller {
         flash()->overlay('Your record has been successfully deleted!', 'Good Job!');
 	}
 
+    /**
+     * Delete all records from a form.
+     *
+     * @param $pid
+     * @param $fid
+     */
     public function deleteAllRecords($pid, $fid)
     {
         $form = FormController::getForm($fid);
@@ -866,6 +931,11 @@ class RecordController extends Controller {
         }
     }
 
+    /**
+     * Makes a record a preset for other records to be copied from.
+     *
+     * @param Request $request
+     */
     public function presetRecord(Request $request)
     {
         $name = $request->name;
@@ -887,6 +957,12 @@ class RecordController extends Controller {
         }
     }
 
+    /**
+     * Gets a record.
+     *
+     * @param $rid
+     * @return mixed
+     */
     public static function getRecord($rid)
     {
         $record = Record::where('rid', '=', $rid)->first();
@@ -894,11 +970,25 @@ class RecordController extends Controller {
         return $record;
     }
 
+    /**
+     * Determines if a record exists.
+     *
+     * @param $rid
+     * @return bool
+     */
     public static function exists($rid)
     {
         return !is_null(Record::where('rid','=',$rid)->first());
     }
 
+    /**
+     * Determines if a pid, fid, rid combination is valid in the system.
+     *
+     * @param $pid
+     * @param $fid
+     * @param $rid
+     * @return bool
+     */
     public static function validProjFormRecord($pid, $fid, $rid)
     {
         $record = RecordController::getRecord($rid);
@@ -916,6 +1006,13 @@ class RecordController extends Controller {
             return false;
     }
 
+    /**
+     * Determines if a user has certain record permissions.
+     *
+     * @param $fid
+     * @param string $permission
+     * @return bool
+     */
     private function checkPermissions($fid, $permission='')
     {
         switch($permission){
@@ -950,6 +1047,97 @@ class RecordController extends Controller {
         }
     }
 
+
+    /**
+     * Gets the filesize of the particular form's file directory.
+     *
+     * @param $fid
+     * @return string
+     */
+    public function getFormFilesize($fid) {
+        $form = FormController::getForm($fid);
+        $pid = $form->pid;
+        $filesize = 0;
+        $levels = 1; //Keep track of directory levels for size counting purposes.
+
+        $basedir = env( "BASE_PATH" ) . "storage/app/files/p".$pid."/f".$fid;
+        $filesize += RecordController::dirCrawl($basedir);
+
+        $filesize = RecordController::fileSizeConvert($filesize);
+
+        return $filesize;
+
+    }
+
+    /**
+     * Recursively builds up fileszie of directories, their subdirectories, and any files.
+     *
+     * @param $dir
+     * @param $filesize
+     * @return int
+     */
+    function dirCrawl($dir) {
+        $filesize = 0;
+
+        foreach(new \DirectoryIterator($dir) as $file) {
+            // If the file is a valid directory, call dirCrawl and access its child directory(s)
+            if ($file->isDir() && $file->getFilename() != '.' && $file->getFilename() != '..') {
+                $filesize += RecordController::dirCrawl($file->getPathname());
+            }
+            // If the file is indeed a file, add its size
+            elseif ($file->isFile()) {
+                $filesize += $file->getSize();
+            }
+        }
+
+        return $filesize;
+    }
+
+    /**
+     * Converts bytes into human readable file size.
+     *
+     * @param string $bytes
+     * @return string human readable file size
+     * @author Mogilev Arseny
+     */
+    function fileSizeConvert($bytes)
+    {
+        $result = "0 B";
+        $bytes = floatval($bytes);
+        $arBytes = array(
+            0 => array(
+                "UNIT" => "TB",
+                "VALUE" => pow(1024, 4)
+            ),
+            1 => array(
+                "UNIT" => "GB",
+                "VALUE" => pow(1024, 3)
+            ),
+            2 => array(
+                "UNIT" => "MB",
+                "VALUE" => pow(1024, 2)
+            ),
+            3 => array(
+                "UNIT" => "KB",
+                "VALUE" => 1024
+            ),
+            4 => array(
+                "UNIT" => "B",
+                "VALUE" => 1
+            ),
+        );
+
+        foreach($arBytes as $arItem)
+        {
+            if($bytes >= $arItem["VALUE"])
+            {
+                $result = $bytes / $arItem["VALUE"];
+                $result = strval(round($result, 2))." ".$arItem["UNIT"];
+                break;
+            }
+        }
+        return $result;
+    }
 
     /**
      *
