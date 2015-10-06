@@ -20,11 +20,11 @@ use PhpSpec\Formatter\Template as TemplateInterface;
 class ReportFailedItem
 {
     /**
-     * @var \PhpSpec\Formatter\Template
+     * @var TemplateInterface
      */
     private $template;
     /**
-     * @var \PhpSpec\Event\ExampleEvent
+     * @var ExampleEvent
      */
     private $event;
     /**
@@ -54,7 +54,8 @@ class ReportFailedItem
     public function write($index)
     {
         $code = $this->presenter->presentException($this->event->getException(), true);
-        $this->template->render(Template::DIR.'/Template/ReportFailed.html',
+        $this->template->render(
+            Template::DIR.'/Template/ReportFailed.html',
             array(
                 'title' => htmlentities(strip_tags($this->event->getTitle())),
                 'message' => htmlentities(strip_tags($this->event->getMessage())),

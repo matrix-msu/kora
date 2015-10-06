@@ -1,3 +1,71 @@
+2.3.0 / 2015-09-07
+==================
+
+* No changes from rc1
+
+2.3.0-rc1 / 2015-08-28
+======================
+
+* No changes from beta3
+
+2.3.0-beta3 / 2015-08-08
+========================
+
+* Fixed broken dependency in beta2
+
+2.3.0-beta2 / 2015-08-08
+========================
+
+* Fixed bugs when generating methods in class with unusual whitespace
+
+2.3.0-beta / 2015-07-04
+========================
+
+* Adds `duringInstantiation()` to more easily test constructor exceptions
+* Adds `beConstructedThrough*()` and `beConstructed*()` shortcuts for named constructors
+* Generated constructors are now placed at the start of the class
+* Offers to make constructors private after generating a named constructor
+* Shows a warning when a class is generated in a location that is not autoloadable
+* Adds `%paths.config%` placeholder to allow config paths to be relative to config file
+* Fixed invalid JUnit output in some non-EN locales
+
+2.2.1 / 2015-05-30
+==================
+
+* Fix false positives in `shouldHaveKeyWithValue` matcher
+* Fix fatal error in edge case when method call parameters don't match expectations
+
+2.2.0 / 2015-04-18
+==================
+
+* No changes from rc1
+
+2.2.0-rc1 / 2015-04-13
+======================
+
+* No changes from beta2
+
+2.2.0-beta2 / 2015-04-03
+========================
+
+ * Better diffs when presenting unexpected method arguments
+ * Better handling of methods delclared inside Traits when faking
+
+2.2.0-beta / 2015-03-28
+=======================
+
+ * Offer to generate interfaces for missing typehinted collaborators
+ * Support for TAP format output
+ * Remove deprecated usage of Symfony DialogHelper
+ * New array `shouldHaveKeyWithValue` matcher
+ * Clearer error message when specs have incorrect namespace prefix
+ * Fix suite rerunning for HHVM
+
+Backward Compatibility
+----------------------
+
+ * The unused `ask` and `askAndValidate` methods on `Console\IO` have been removed
+
 2.1.1 / 2015-01-09
 ==================
 

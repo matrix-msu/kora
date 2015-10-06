@@ -12,7 +12,7 @@ class PasswordBroker implements PasswordBrokerContract {
 	/**
 	 * The password token repository.
 	 *
-	 * @var \Illuminate\Auth\Passwords\TokenRepositoryInterface  $tokens
+	 * @var \Illuminate\Auth\Passwords\TokenRepositoryInterface
 	 */
 	protected $tokens;
 
@@ -112,14 +112,17 @@ class PasswordBroker implements PasswordBrokerContract {
 		{
 			$m->to($user->getEmailForPasswordReset());
 
-			if ( ! is_null($callback)) call_user_func($callback, $m, $user, $token);
+			if ( ! is_null($callback))
+			{
+				call_user_func($callback, $m, $user, $token);
+			}
 		});
 	}
 
 	/**
 	 * Reset the password for the given token.
 	 *
-	 * @param  array     $credentials
+	 * @param  array  $credentials
 	 * @param  \Closure  $callback
 	 * @return mixed
 	 */
@@ -193,14 +196,14 @@ class PasswordBroker implements PasswordBrokerContract {
 	public function validateNewPassword(array $credentials)
 	{
 		list($password, $confirm) = [
-			$credentials['password'], $credentials['password_confirmation']
+			$credentials['password'],
+			$credentials['password_confirmation'],
 		];
 
 		if (isset($this->passwordValidator))
 		{
 			return call_user_func(
-				$this->passwordValidator, $credentials) && $password === $confirm
-			;
+				$this->passwordValidator, $credentials) && $password === $confirm;
 		}
 
 		return $this->validatePasswordWithDefaults($credentials);
@@ -215,7 +218,8 @@ class PasswordBroker implements PasswordBrokerContract {
 	protected function validatePasswordWithDefaults(array $credentials)
 	{
 		list($password, $confirm) = [
-			$credentials['password'], $credentials['password_confirmation']
+			$credentials['password'],
+			$credentials['password_confirmation'],
 		];
 
 		return $password === $confirm && mb_strlen($password) >= 6;

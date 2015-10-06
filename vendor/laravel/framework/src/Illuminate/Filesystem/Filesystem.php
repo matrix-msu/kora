@@ -1,5 +1,6 @@
 <?php namespace Illuminate\Filesystem;
 
+use ErrorException;
 use FilesystemIterator;
 use Symfony\Component\Finder\Finder;
 use Illuminate\Support\Traits\Macroable;
@@ -115,7 +116,20 @@ class Filesystem {
 
 		$success = true;
 
-		foreach ($paths as $path) { if ( ! @unlink($path)) $success = false; }
+		foreach ($paths as $path)
+		{
+			try
+			{
+				if ( ! @unlink($path))
+				{
+					$success = false;
+				}
+			}
+			catch (ErrorException $e)
+			{
+				$success = false;
+			}
+		}
 
 		return $success;
 	}
@@ -175,6 +189,17 @@ class Filesystem {
 	public function type($path)
 	{
 		return filetype($path);
+	}
+
+	/**
+	 * Get the mime-type of a given file.
+	 *
+	 * @param  string  $path
+	 * @return string|false
+	 */
+	public function mimeType($path)
+	{
+		return finfo_file(finfo_open(FILEINFO_MIME_TYPE), $path);
 	}
 
 	/**
@@ -383,7 +408,7 @@ class Filesystem {
 			// If the item is a directory, we can just recurse into the function and
 			// delete that sub-directory otherwise we'll just delete the file and
 			// keep iterating through each file until the directory is cleaned.
-			if ($item->isDir())
+			if ($item->isDir() && ! $item->isLink())
 			{
 				$this->deleteDirectory($item->getPathname());
 			}

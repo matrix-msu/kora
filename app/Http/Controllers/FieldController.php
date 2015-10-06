@@ -1,13 +1,19 @@
 <?php namespace App\Http\Controllers;
 
 use App\Field;
+use App\FieldHelpers\gPoint;
 use App\Http\Requests;
 use App\Http\Requests\FieldRequest;
 use App\Http\Controllers\Controller;
 use App\FieldHelpers\FieldDefaults;
 use App\FieldHelpers\UploadHandler;
 
+use Geocoder\HttpAdapter\CurlHttpAdapter;
+use Geocoder\Provider\NominatimProvider;
+use Geocoder\Provider\YandexProvider;
+use Geocoder\Tests\HttpAdapter\CurlHttpAdapterTest;
 use Illuminate\Http\Request;
+use Toin0u\Geocoder\Facade\Geocoder;
 
 class FieldController extends Controller {
 
@@ -523,6 +529,102 @@ class FieldController extends Controller {
 
             $field->default = $dbOpt;
             $field->save();
+        }
+    }
+
+    public function geoConvert(Request $request){
+        if($request->type == 'latlon'){
+            $lat = $request->lat;
+            $lon = $request->lon;
+
+            //to utm
+            $con = new gPoint();
+            $con->gPoint();
+            $con->setLongLat($lon,$lat);
+            $con->convertLLtoTM();
+            $utm = $con->utmZone.':'.$con->utmEasting.','.$con->utmNorthing;
+
+            //to address
+            $con = new \Geocoder\Geocoder();
+            $con->registerProviders([
+                new NominatimProvider(
+                    new CurlHttpAdapter(), 'http://nominatim.openstreetmap.org/', 'en'
+                )
+            ]);
+            try {
+                $res = $con->geocode($lat.', '.$lon);
+                $addr = $res->getStreetNumber().' '.$res->getStreetName().' '.$res->getCity().' '.$res->getRegion();
+            } catch(\Exception $e){
+                $addr = 'null';
+            }
+
+            $result = '[LatLon]'.$lat.','.$lon.'[LatLon][UTM]'.$utm.'[UTM][Address]'.$addr.'[Address]';
+
+            return $result;
+        }else if($request->type == 'utm'){
+            $zone = $request->zone;
+            $east = $request->east;
+            $north = $request->north;
+
+            //to latlon
+            $con = new gPoint();
+            $con->gPoint();
+            $con->setUTM($east,$north,$zone);
+            $con->convertTMtoLL();
+            $lat = $con->lat;
+            $lon = $con->long;
+
+            //to address
+            $con = new \Geocoder\Geocoder();
+            $con->registerProviders([
+                new NominatimProvider(
+                    new CurlHttpAdapter(), 'http://nominatim.openstreetmap.org/', 'en'
+                )
+            ]);
+            try {
+                $res = $con->geocode($lat.', '.$lon);
+                $addr = $res->getStreetNumber().' '.$res->getStreetName().' '.$res->getCity().' '.$res->getRegion();
+            } catch(\Exception $e){
+                $addr = 'null';
+            }
+
+            $result = '[LatLon]'.$lat.','.$lon.'[LatLon][UTM]'.$zone.':'.$east.','.$north.'[UTM][Address]'.$addr.'[Address]';
+
+            return $result;
+        }else if($request->type == 'geo') {
+            $addr = $request->addr;
+
+            //to latlon
+            $con = new \Geocoder\Geocoder();
+            $con->registerProviders([
+                new NominatimProvider(
+                    new CurlHttpAdapter(), 'http://nominatim.openstreetmap.org/', 'en'
+                )
+            ]);
+            try {
+                $res = $con->geocode($addr);
+                $lat = $res->getLatitude();
+                $lon = $res->getLongitude();
+            } catch(\Exception $e){
+                $lat = 'null';
+                $lon = 'null';
+            }
+
+            //to utm
+            if($lat != 'null' && $lon != 'null') {
+                $con = new gPoint();
+                $con->gPoint();
+                $con->setLongLat($lon,$lat);
+                $con->convertLLtoTM();
+
+                $utm = $con->utmZone.':'.$con->utmEasting.','.$con->utmNorthing;
+            }else{
+                $utm = 'null:null.null';
+            }
+
+            $result = '[LatLon]'.$lat.','.$lon.'[LatLon][UTM]'.$utm.'[UTM][Address]'.$addr.'[Address]';
+
+            return $result;
         }
     }
 

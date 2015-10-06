@@ -57,6 +57,7 @@ abstract class AbstractCloner implements ClonerInterface
 
         'ErrorException' => 'Symfony\Component\VarDumper\Caster\ExceptionCaster::castErrorException',
         'Exception' => 'Symfony\Component\VarDumper\Caster\ExceptionCaster::castException',
+        'Error' => 'Symfony\Component\VarDumper\Caster\ExceptionCaster::castError',
         'Symfony\Component\DependencyInjection\ContainerInterface' => 'Symfony\Component\VarDumper\Caster\StubCaster::cutInternals',
         'Symfony\Component\VarDumper\Exception\ThrowingCasterException' => 'Symfony\Component\VarDumper\Caster\ExceptionCaster::castThrowingCasterException',
 
@@ -204,11 +205,14 @@ abstract class AbstractCloner implements ClonerInterface
             $a = (array) $obj;
         }
 
-        foreach ($a as $k => $p) {
-            if (!isset($k[0]) || ("\0" !== $k[0] && !$classInfo[2]->hasProperty($k))) {
-                unset($a[$k]);
-                $a["\0+\0".$k] = $p;
+        if ($a) {
+            $p = array_keys($a);
+            foreach ($p as $i => $k) {
+                if (!isset($k[0]) || ("\0" !== $k[0] && !$classInfo[2]->hasProperty($k))) {
+                    $p[$i] = "\0+\0".$k;
+                }
             }
+            $a = array_combine($p, $a);
         }
 
         foreach ($classInfo[3] as $p) {
@@ -265,7 +269,7 @@ abstract class AbstractCloner implements ClonerInterface
                 $a = $cast;
             }
         } catch (\Exception $e) {
-            $a["\0~\0⚠"] = new ThrowingCasterException($callback, $e);
+            $a[(Stub::TYPE_OBJECT === $stub->type ? "\0~\0" : '').'⚠'] = new ThrowingCasterException($callback, $e);
         }
 
         return $a;

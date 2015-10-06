@@ -25,32 +25,34 @@
             <button class="btn btn-primary move_option_up">Up</button>
             <button class="btn btn-primary move_option_down">Down</button>
         </div>
-        <div class="latlon_container">
+        <div>
             {!! Form::label($field->flid, 'Description: ') !!}
-            <span><input type="text" class="latlon_desc"></span>
+            <input type="text" class="form-control loc_desc">
+        </div>
+        <div>
+            {!! Form::label($field->flid, 'Type: ') !!}
+            {!! Form::select('loc_type', ['LatLon' => 'LatLon','UTM' => 'UTM','Address' => 'Address'], 'LatLon', ['class' => 'form-control loc_type']) !!}
+        </div>
+        <div class="latlon_container">
             {!! Form::label($field->flid, 'Latitude: ') !!}
-            <span><input type="number" class="latlon_lat" min=-90 max=90 step=".000001"></span>
+            <input type="number" class="form-control latlon_lat" min=-90 max=90 step=".000001">
             {!! Form::label($field->flid, 'Longitude: ') !!}
-            <span><input type="number" class="latlon_lon" min=-180 max=180 step=".000001"></span>
-            <span><button class="btn btn-primary add_latlon">Add</button></span>
+            <input type="number" class="form-control latlon_lon" min=-180 max=180 step=".000001">
         </div>
         <div class="utm_container" style="display:none">
-            {!! Form::label($field->flid, 'Description: ') !!}
-            <span><input type="text" class="utm_desc"></span>
             {!! Form::label($field->flid, 'Zone: ') !!}
-            <span><input type="text" class="utm_zone"></span>
+            <input type="text" class="form-control utm_zone">
             {!! Form::label($field->flid, 'Easting: ') !!}
-            <span><input type="text" class="utm_east"></span>
+            <input type="text" class="form-control utm_east">
             {!! Form::label($field->flid, 'Northing: ') !!}
-            <span><input type="text" class="utm_north"></span>
-            <span><button class="btn btn-primary add_utm">Add</button></span>
+            <input type="text" class="form-control utm_north">
         </div>
         <div class="text_container" style="display:none">
-            {!! Form::label($field->flid, 'Description: ') !!}
-            <span><input type="text" class="text_desc"></span>
             {!! Form::label($field->flid, 'Address: ') !!}
-            <span><input type="text" class="text_addr"></span>
-            <span><button class="btn btn-primary add_text">Add</button></span>
+            <input type="text" class="form-control text_addr">
+        </div>
+        <div>
+            <button class="btn btn-primary form-control add_geo">Add to Default</button>
         </div>
     </div>
 
@@ -101,31 +103,163 @@
             });
             SaveList();
         });
-        $('.latlon_container').on('click', '.add_latlon', function() {
-            desc = $('.latlon_desc').val();
-            desc = desc.trim();
-            lat = $('.latlon_lat').val();
-            lat = lat.trim();
-            lon = $('.latlon_lon').val();
-            lon = lon.trim();
-
-            if(desc!='' && lat!='' && lon!='') {
-                $('.list_options').append($('<option/>', {
-                    value: desc + ': ' + lat + ', ' + lon,
-                    text: desc + ': ' + lat + ', ' + lon
-                }));
-                SaveList();
-                $('.latlon_desc').val('');
-                $('.latlon_lat').val('');
-                $('.latlon_lon').val('');
+        $('.list_option_form').on('change', '.loc_type', function(){
+            newType = $('.loc_type').val();
+            if(newType=='LatLon'){
+                $('.latlon_container').show();
+                $('.utm_container').hide();
+                $('.text_container').hide();
+            }else if(newType=='UTM'){
+                $('.latlon_container').hide();
+                $('.utm_container').show();
+                $('.text_container').hide();
+            }else if(newType=='Address'){
+                $('.latlon_container').hide();
+                $('.utm_container').hide();
+                $('.text_container').show();
             }
         });
-        $('.utm_container').on('click', '.add_utm', function() {
-            console.log("utm");
+        $('.list_option_form').on('click', '.add_geo', function() {
+            //clear errors
+            $('.latlon_lat').attr('style','');
+            $('.latlon_lon').attr('style','');
+            $('.utm_zone').attr('style','');
+            $('.utm_east').attr('style','');
+            $('.utm_north').attr('style','');
+            $('.text_addr').attr('style','');
+            $('.loc_desc').attr('style','');
+
+            //check to see if description provided
+            var desc = $('.loc_desc').val();
+            //if blank
+            if(desc=='') {
+                $('.loc_desc').attr('style','border: 1px solid red;');
+                console.log('bad description');
+            }else {
+                //check what type
+                var type = $('.loc_type').val();
+
+                //determine if info is good for that type
+                var valid = true;
+                if (type == 'LatLon') {
+                    var lat = $('.latlon_lat').val();
+                    var lon = $('.latlon_lon').val();
+
+                    if (lat == '' | lon == '') {
+                        $('.latlon_lat').attr('style','border: 1px solid red;');
+                        $('.latlon_lon').attr('style','border: 1px solid red;');
+                        valid = false;
+                    }
+                }else if(type == 'UTM'){
+                    var zone = $('.utm_zone').val();
+                    var east = $('.utm_east').val();
+                    var north = $('.utm_north').val();
+
+                    if (zone == '' | east == '' | north == '') {
+                        $('.utm_zone').attr('style','border: 1px solid red;');
+                        $('.utm_east').attr('style','border: 1px solid red;');
+                        $('.utm_north').attr('style','border: 1px solid red;');
+                        valid = false;
+                    }
+                }else if(type == 'Address'){
+                    var addr = $('.text_addr').val();
+
+                    if(addr == ''){
+                        $('.text_addr').attr('style','border: 1px solid red;');
+                        valid = false;
+                    }
+                }
+
+                //if still valid
+                if (valid) {
+                    //find info for other loc types
+                    if (type == 'LatLon') {
+                        latLonConvert(lat,lon);
+                    }else if(type == 'UTM'){
+                        utmConvert(zone,east,north);
+                    }else if(type == 'Address'){
+                        addrConvert(addr);
+                    }
+                    $('.latlon_lat').val('');
+                    $('.latlon_lon').val('');
+                    $('.utm_zone').val('');
+                    $('.utm_east').val('');
+                    $('.utm_north').val('');
+                    $('.text_addr').val('');
+                } else {
+                    console.log('invalid');
+                }
+            }
         });
-        $('.text_container').on('click', '.add_text', function() {
-            console.log("text");
-        });
+
+        function latLonConvert(lat,lon){
+            $.ajax({
+                url: '{{ action('FieldController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
+                type: 'POST',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    lat: lat,
+                    lon: lon,
+                    type: 'latlon'
+                },
+                success:function(result) {
+                    desc = $('.loc_desc').val();
+                    result = '[Desc]'+desc+'[Desc]'+result;
+                    $('.list_options').append($("<option/>", {
+                        value: result,
+                        text: result
+                    }));
+                    $('.loc_desc').val('');
+                    SaveList();
+                }
+            });
+        }
+
+        function utmConvert(zone,east,north){
+            $.ajax({
+                url: '{{ action('FieldController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
+                type: 'POST',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    zone: zone,
+                    east: east,
+                    north: north,
+                    type: 'utm'
+                },
+                success: function (result) {
+                    desc = $('.loc_desc').val();
+                    result = '[Desc]'+desc+'[Desc]'+result;
+                    $('.list_options').append($("<option/>", {
+                        value: result,
+                        text: result
+                    }));
+                    $('.loc_desc').val('');
+                    SaveList();
+                }
+            });
+        }
+
+        function addrConvert(addr){
+            $.ajax({
+                url: '{{ action('FieldController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
+                type: 'POST',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    addr: addr,
+                    type: 'geo'
+                },
+                success: function (result) {
+                    desc = $('.loc_desc').val();
+                    result = '[Desc]'+desc+'[Desc]'+result;
+                    $('.list_options').append($("<option/>", {
+                        value: result,
+                        text: result
+                    }));
+                    $('.loc_desc').val('');
+                    SaveList();
+                }
+            });
+        }
 
         function SaveList() {
             options = new Array();

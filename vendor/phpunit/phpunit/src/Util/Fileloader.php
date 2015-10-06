@@ -11,13 +11,7 @@
 /**
  * Utility methods to load PHP sourcefiles.
  *
- * @package    PHPUnit
- * @subpackage Util
- * @author     Sebastian Bergmann <sebastian@phpunit.de>
- * @copyright  Sebastian Bergmann <sebastian@phpunit.de>
- * @license    http://www.opensource.org/licenses/BSD-3-Clause  The BSD 3-Clause License
- * @link       http://www.phpunit.de/
- * @since      Class available since Release 2.3.0
+ * @since Class available since Release 2.3.0
  */
 class PHPUnit_Util_Fileloader
 {
@@ -59,7 +53,8 @@ class PHPUnit_Util_Fileloader
 
         $newVariables     = get_defined_vars();
         $newVariableNames = array_diff(
-            array_keys($newVariables), $oldVariableNames
+            array_keys($newVariables),
+            $oldVariableNames
         );
 
         foreach ($newVariableNames as $variableName) {

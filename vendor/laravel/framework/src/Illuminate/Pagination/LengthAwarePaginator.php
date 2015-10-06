@@ -123,6 +123,11 @@ class LengthAwarePaginator extends AbstractPaginator implements Arrayable, Array
 	 */
 	public function render(Presenter $presenter = null)
 	{
+		if (is_null($presenter) && static::$presenterResolver)
+		{
+			$presenter = call_user_func(static::$presenterResolver, $this);
+		}
+
 		$presenter = $presenter ?: new BootstrapThreePresenter($this);
 
 		return $presenter->render();
@@ -144,7 +149,7 @@ class LengthAwarePaginator extends AbstractPaginator implements Arrayable, Array
 			'prev_page_url' => $this->previousPageUrl(),
 			'from'          => $this->firstItem(),
 			'to'            => $this->lastItem(),
-			'data'          => $this->items->toArray()
+			'data'          => $this->items->toArray(),
 		];
 	}
 

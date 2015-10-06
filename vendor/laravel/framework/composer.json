@@ -3,6 +3,11 @@
     "description": "The Laravel Framework.",
     "keywords": ["framework", "laravel"],
     "license": "MIT",
+    "homepage": "http://laravel.com",
+    "support": {
+        "issues": "https://github.com/laravel/framework/issues",
+        "source": "https://github.com/laravel/framework"
+    },
     "authors": [
         {
             "name": "Taylor Otwell",
@@ -23,7 +28,7 @@
         "monolog/monolog": "~1.11",
         "mtdowling/cron-expression": "~1.0",
         "nesbot/carbon": "~1.0",
-        "psy/psysh": "0.3.*",
+        "psy/psysh": "0.4.*",
         "swiftmailer/swiftmailer": "~5.1",
         "symfony/console": "2.6.*",
         "symfony/debug": "2.6.*",
@@ -93,7 +98,7 @@
         }
     },
     "suggest": {
-        "aws/aws-sdk-php": "Required to use the SQS queue driver (~2.4).",
+        "aws/aws-sdk-php": "Required to use the SQS queue driver and SES mail driver (~2.4).",
         "doctrine/dbal": "Required to rename columns and drop SQLite columns (~2.4).",
         "guzzlehttp/guzzle": "Required to use the Mailgun and Mandrill mail drivers (~5.0).",
         "iron-io/iron_mq": "Required to use the iron queue driver (~1.5).",

@@ -13,6 +13,7 @@
 
 namespace PhpSpec\Runner\Maintainer;
 
+use Phpspec\CodeAnalysis\AccessInspectorInterface;
 use PhpSpec\Loader\Node\ExampleNode;
 use PhpSpec\SpecificationInterface;
 use PhpSpec\Runner\MatcherManager;
@@ -25,28 +26,37 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class SubjectMaintainer implements MaintainerInterface
 {
     /**
-     * @var \PhpSpec\Formatter\Presenter\PresenterInterface
+     * @var PresenterInterface
      */
     private $presenter;
     /**
-     * @var \PhpSpec\Wrapper\Unwrapper
+     * @var Unwrapper
      */
     private $unwrapper;
     /**
-     * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
+     * @var EventDispatcherInterface
      */
     private $dispatcher;
+    /**
+     * @var AccessInspectorInterface
+     */
+    private $accessInspector;
 
     /**
      * @param PresenterInterface       $presenter
      * @param Unwrapper                $unwrapper
      * @param EventDispatcherInterface $dispatcher
      */
-    public function __construct(PresenterInterface $presenter, Unwrapper $unwrapper, EventDispatcherInterface $dispatcher)
-    {
+    public function __construct(
+        PresenterInterface $presenter,
+        Unwrapper $unwrapper,
+        EventDispatcherInterface $dispatcher,
+        AccessInspectorInterface $accessInspector
+    ) {
         $this->presenter = $presenter;
         $this->unwrapper = $unwrapper;
         $this->dispatcher = $dispatcher;
+        $this->accessInspector = $accessInspector;
     }
 
     /**
@@ -67,10 +77,13 @@ class SubjectMaintainer implements MaintainerInterface
      * @param MatcherManager         $matchers
      * @param CollaboratorManager    $collaborators
      */
-    public function prepare(ExampleNode $example, SpecificationInterface $context,
-                            MatcherManager $matchers, CollaboratorManager $collaborators)
-    {
-        $subjectFactory = new Wrapper($matchers, $this->presenter, $this->dispatcher, $example);
+    public function prepare(
+        ExampleNode $example,
+        SpecificationInterface $context,
+        MatcherManager $matchers,
+        CollaboratorManager $collaborators
+    ) {
+        $subjectFactory = new Wrapper($matchers, $this->presenter, $this->dispatcher, $example, $this->accessInspector);
         $subject = $subjectFactory->wrap(null);
         $subject->beAnInstanceOf(
             $example->getSpecification()->getResource()->getSrcClassname()
@@ -85,9 +98,12 @@ class SubjectMaintainer implements MaintainerInterface
      * @param MatcherManager         $matchers
      * @param CollaboratorManager    $collaborators
      */
-    public function teardown(ExampleNode $example, SpecificationInterface $context,
-                             MatcherManager $matchers, CollaboratorManager $collaborators)
-    {
+    public function teardown(
+        ExampleNode $example,
+        SpecificationInterface $context,
+        MatcherManager $matchers,
+        CollaboratorManager $collaborators
+    ) {
     }
 
     /**

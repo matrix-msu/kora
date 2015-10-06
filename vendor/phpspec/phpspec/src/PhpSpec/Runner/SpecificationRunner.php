@@ -20,7 +20,7 @@ use PhpSpec\Loader\Node\SpecificationNode;
 class SpecificationRunner
 {
     /**
-     * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
+     * @var EventDispatcherInterface
      */
     private $dispatcher;
     /**
@@ -45,7 +45,8 @@ class SpecificationRunner
     public function run(SpecificationNode $specification)
     {
         $startTime = microtime(true);
-        $this->dispatcher->dispatch('beforeSpecification',
+        $this->dispatcher->dispatch(
+            'beforeSpecification',
             new Event\SpecificationEvent($specification)
         );
 
@@ -54,7 +55,8 @@ class SpecificationRunner
             $result = max($result, $this->exampleRunner->run($example));
         }
 
-        $this->dispatcher->dispatch('afterSpecification',
+        $this->dispatcher->dispatch(
+            'afterSpecification',
             new Event\SpecificationEvent($specification, microtime(true) - $startTime, $result)
         );
 

@@ -47,7 +47,7 @@ class ExampleEvent extends Event implements EventInterface
     const BROKEN  = 4;
 
     /**
-     * @var \PhpSpec\Loader\Node\ExampleNode
+     * @var ExampleNode
      */
     private $example;
 
@@ -72,9 +72,12 @@ class ExampleEvent extends Event implements EventInterface
      * @param integer|null $result
      * @param \Exception   $exception
      */
-    public function __construct(ExampleNode $example, $time = null, $result = null,
-                                \Exception $exception = null)
-    {
+    public function __construct(
+        ExampleNode $example,
+        $time = null,
+        $result = null,
+        \Exception $exception = null
+    ) {
         $this->example   = $example;
         $this->time      = $time;
         $this->result    = $result;
