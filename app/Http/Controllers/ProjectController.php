@@ -135,26 +135,6 @@ class ProjectController extends Controller {
         return false;
     }
 
-    /**
-     * Builds an array of projects a user is allowed to view. 
-     *
-     * @param User $user
-     * @return array
-     */
-    public function getAllowedProjects(User $user)
-    {
-        $all_projects = Project::all();
-        $projects = array(); //Array of projects the user can view.
-
-        foreach($all_projects as $project){
-            if($user->inAProjectGroup($project)){
-                $projects[] = $project;
-            }
-        }
-
-        return $projects;
-    }
-
 
     /**
      * Creates the project's admin Group.

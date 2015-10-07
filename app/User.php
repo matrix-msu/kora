@@ -305,15 +305,35 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return array
      */
     public function allowedProjects(){
-        return ProjectController::getAllowedProjects($this);
+        $all_projects = Project::all();
+        $projects = array(); //Array of projects the user can view.
+
+        foreach($all_projects as $project){
+            if($this->inAProjectGroup($project)){
+                $projects[] = $project;
+            }
+        }
+
+        return $projects;
     }
 
 
     /**
      * Returns the forms a particular user is allowed to view in a certain project.
      *
+     * @param pid
+     * @return array
      */
     public function allowedForms($pid){
-        return FormController::getAllowedForms($this, $pid);
+        $form_projects = Form::where('pid', '=', $pid)->get();
+        $forms = array(); //Array of forms the user is allowed to view in a certain project.
+
+        foreach($form_projects as $form){
+            if($this->inAFormGroup($form)){
+                $forms[] = $form;
+            }
+        }
+
+        return $forms;
     }
 }
