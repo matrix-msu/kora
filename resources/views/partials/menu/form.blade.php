@@ -5,7 +5,9 @@
         <li class="dropdown-submenu"> <a href="#" data-toggle="dropdown">Jump to Form</a>
             <ul class="dropdown-menu">
                 @foreach(\Auth::user()->allowedForms($pid) as $form)
-                    <li><a href="{{ url('/projects/'.$pid).'/forms/'.$form->fid }}">{{ $form->name }}</a></li>
+                    @if($form->fid != $fid)
+                        <li><a href="{{ url('/projects/'.$pid).'/forms/'.$form->fid }}">{{ $form->name }}</a></li>
+                    @endif
                 @endforeach
             </ul>
         </li>

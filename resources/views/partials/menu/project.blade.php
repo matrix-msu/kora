@@ -5,7 +5,9 @@
         <li class="dropdown-submenu"> <a onmouseover="href='#'" data-toggle="dropdown">Jump to Project</a>
             <ul class="dropdown-menu">
                 @foreach(\Auth::user()->allowedProjects() as $project)
-                    <li><a href="{{ url('/projects/'.$project->pid) }}">{{ $project->name }}</a></li>
+                    @if($project->pid != $pid)
+                        <li><a href="{{ url('/projects/'.$project->pid) }}">{{ $project->name }}</a></li>
+                    @endif
                 @endforeach
             </ul>
         </li>
