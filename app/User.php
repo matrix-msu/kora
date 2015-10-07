@@ -1,5 +1,6 @@
 <?php namespace App;
 
+use App\Http\Controllers\FormController;
 use App\Http\Controllers\ProjectController;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
@@ -296,5 +297,23 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         if ($adminGroup->hasUser($this))
             return true;
         return false;
+    }
+
+    /**
+     * Returns the projects a particular user is allowed to view.
+     *
+     * @return array
+     */
+    public function allowedProjects(){
+        return ProjectController::getAllowedProjects($this);
+    }
+
+
+    /**
+     * Returns the forms a particular user is allowed to view in a certain project.
+     *
+     */
+    public function allowedForms($pid){
+        return FormController::getAllowedForms($this, $pid);
     }
 }
