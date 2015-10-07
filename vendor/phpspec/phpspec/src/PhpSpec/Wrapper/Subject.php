@@ -55,9 +55,14 @@ class Subject implements ArrayAccess, WrapperInterface
      * @param SubjectWithArrayAccess $arrayAccess
      * @param ExpectationFactory     $expectationFactory
      */
-    public function __construct($subject, Wrapper $wrapper, WrappedObject $wrappedObject, Caller $caller,
-                                SubjectWithArrayAccess $arrayAccess, ExpectationFactory $expectationFactory)
-    {
+    public function __construct(
+        $subject,
+        Wrapper $wrapper,
+        WrappedObject $wrappedObject,
+        Caller $caller,
+        SubjectWithArrayAccess $arrayAccess,
+        ExpectationFactory $expectationFactory
+    ) {
         $this->subject            = $subject;
         $this->wrapper            = $wrapper;
         $this->wrappedObject      = $wrappedObject;
@@ -183,6 +188,14 @@ class Subject implements ArrayAccess, WrapperInterface
     {
         if (0 === strpos($method, 'should')) {
             return $this->callExpectation($method, $arguments);
+        }
+
+        if (preg_match('/^beConstructedThrough(?P<method>[0-9A-Z]+)/i', $method, $matches)) {
+            return $this->beConstructedThrough(lcfirst($matches['method']), $arguments);
+        }
+
+        if (preg_match('/^beConstructed(?P<method>[0-9A-Z]+)/i', $method, $matches)) {
+            return $this->beConstructedThrough(lcfirst($matches['method']), $arguments);
         }
 
         return $this->caller->call($method, $arguments);

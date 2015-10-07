@@ -154,7 +154,13 @@
                                 @foreach($record->geolocatorfields as $gf)
                                     @if($gf->flid == $field->flid)
                                         @foreach(explode('[!]',$gf->locations) as $opt)
-                                            <div>{{ $opt }}</div>
+                                            @if(\App\Http\Controllers\FieldController::getFieldOption($field,'DataView')=='LatLon')
+                                                <div>{{ explode('[Desc]',$opt)[1].': '.explode('[LatLon]',$opt)[1] }}</div>
+                                            @elseif(\App\Http\Controllers\FieldController::getFieldOption($field,'DataView')=='UTM')
+                                                <div>{{ explode('[Desc]',$opt)[1].': '.explode('[UTM]',$opt)[1] }}</div>
+                                            @elseif(\App\Http\Controllers\FieldController::getFieldOption($field,'DataView')=='Textual')
+                                                <div>{{ explode('[Desc]',$opt)[1].': '.explode('[Address]',$opt)[1] }}</div>
+                                            @endif
                                         @endforeach
                                     @endif
                                 @endforeach
@@ -166,9 +172,9 @@
                                         @foreach(explode('[!]',$gf->locations) as $location)
                                             <?php
                                             $loc = array();
-                                            $desc = explode(': ',$location)[0];
-                                            $x = explode(', ', explode(': ',$location)[1])[0];
-                                            $y = explode(', ', explode(': ',$location)[1])[1];
+                                            $desc = explode('[Desc]',$location)[1];
+                                            $x = explode(',', explode('[LatLon]',$location)[1])[0];
+                                            $y = explode(',', explode('[LatLon]',$location)[1])[1];
 
                                             $loc['desc'] = $desc;
                                             $loc['x'] = $x;

@@ -48,13 +48,15 @@ class Lexer
      * @throws Error on lexing errors (unterminated comment or unexpected character)
      */
     public function startLexing($code) {
-        $scream = ini_set('xdebug.scream', 0);
+        $scream = ini_set('xdebug.scream', '0');
 
         $this->resetErrors();
         $this->tokens = @token_get_all($code);
         $this->handleErrors();
 
-        ini_set('xdebug.scream', $scream);
+        if (false !== $scream) {
+            ini_set('xdebug.scream', $scream);
+        }
 
         $this->code = $code; // keep the code around for __halt_compiler() handling
         $this->pos  = -1;
@@ -76,7 +78,7 @@ class Lexer
             '~^Unterminated comment starting line ([0-9]+)$~',
             $error['message'], $matches
         )) {
-            throw new Error('Unterminated comment', $matches[1]);
+            throw new Error('Unterminated comment', (int) $matches[1]);
         }
 
         if (preg_match(
@@ -121,8 +123,13 @@ class Lexer
         $startAttributes = array();
         $endAttributes   = array();
 
-        while (isset($this->tokens[++$this->pos])) {
-            $token = $this->tokens[$this->pos];
+        while (1) {
+            if (isset($this->tokens[++$this->pos])) {
+                $token = $this->tokens[$this->pos];
+            } else {
+                // EOF token with ID 0
+                $token = "\0";
+            }
 
             if (isset($this->usedAttributes['startTokenPos'])) {
                 $startAttributes['startTokenPos'] = $this->pos;
@@ -190,10 +197,7 @@ class Lexer
             }
         }
 
-        $startAttributes['startLine'] = $this->line;
-
-        // 0 is the EOF token
-        return 0;
+        throw new \RuntimeException('Reached end of lexer loop');
     }
 
     /**
@@ -216,23 +220,13 @@ class Lexer
      * @return string Remaining text
      */
     public function handleHaltCompiler() {
-        // get the length of the text before the T_HALT_COMPILER token
-        $textBefore = '';
-        for ($i = 0; $i <= $this->pos; ++$i) {
-            if (is_string($this->tokens[$i])) {
-                $textBefore .= $this->tokens[$i];
-            } else {
-                $textBefore .= $this->tokens[$i][1];
-            }
-        }
-
         // text after T_HALT_COMPILER, still including ();
-        $textAfter = substr($this->code, strlen($textBefore));
+        $textAfter = substr($this->code, $this->filePos);
 
         // ensure that it is followed by ();
         // this simplifies the situation, by not allowing any comments
         // in between of the tokens.
-        if (!preg_match('~\s*\(\s*\)\s*(?:;|\?>\r?\n?)~', $textAfter, $matches)) {
+        if (!preg_match('~^\s*\(\s*\)\s*(?:;|\?>\r?\n?)~', $textAfter, $matches)) {
             throw new Error('__HALT_COMPILER must be followed by "();"');
         }
 
@@ -258,26 +252,33 @@ class Lexer
         // 256 is the minimum possible token number, as everything below
         // it is an ASCII value
         for ($i = 256; $i < 1000; ++$i) {
-            // T_DOUBLE_COLON is equivalent to T_PAAMAYIM_NEKUDOTAYIM
             if (T_DOUBLE_COLON === $i) {
+                // T_DOUBLE_COLON is equivalent to T_PAAMAYIM_NEKUDOTAYIM
                 $tokenMap[$i] = Parser::T_PAAMAYIM_NEKUDOTAYIM;
-            // T_OPEN_TAG_WITH_ECHO with dropped T_OPEN_TAG results in T_ECHO
             } elseif(T_OPEN_TAG_WITH_ECHO === $i) {
+                // T_OPEN_TAG_WITH_ECHO with dropped T_OPEN_TAG results in T_ECHO
                 $tokenMap[$i] = Parser::T_ECHO;
-            // T_CLOSE_TAG is equivalent to ';'
             } elseif(T_CLOSE_TAG === $i) {
+                // T_CLOSE_TAG is equivalent to ';'
                 $tokenMap[$i] = ord(';');
-            // and the others can be mapped directly
-            } elseif ('UNKNOWN' !== ($name = token_name($i))
-                      && defined($name = 'PhpParser\Parser::' . $name)
-            ) {
-                $tokenMap[$i] = constant($name);
+            } elseif ('UNKNOWN' !== $name = token_name($i)) {
+                if ('T_HASHBANG' === $name) {
+                    // HHVM uses a special token for #! hashbang lines
+                    $tokenMap[$i] = Parser::T_INLINE_HTML;
+                } else if (defined($name = 'PhpParser\Parser::' . $name)) {
+                    // Other tokens can be mapped directly
+                    $tokenMap[$i] = constant($name);
+                }
             }
         }
 
         // HHVM uses a special token for numbers that overflow to double
         if (defined('T_ONUMBER')) {
             $tokenMap[T_ONUMBER] = Parser::T_DNUMBER;
+        }
+        // HHVM also has a separate token for the __COMPILER_HALT_OFFSET__ constant
+        if (defined('T_COMPILER_HALT_OFFSET')) {
+            $tokenMap[T_COMPILER_HALT_OFFSET] = Parser::T_STRING;
         }
 
         return $tokenMap;

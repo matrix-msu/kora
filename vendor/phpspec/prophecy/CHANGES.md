@@ -1,3 +1,30 @@
+1.5.0 / 2015-04-27
+==================
+
+  * Add support for PHP7 scalar type hints (thanks @trowski)
+  * Add support for PHP7 return types (thanks @trowski)
+  * Update internal test suite to support PHP7
+
+1.4.1 / 2015-04-27
+==================
+
+  * Fixed bug in closure-based argument tokens (#181)
+
+1.4.0 / 2015-03-27
+==================
+
+  * Fixed errors in return type phpdocs (thanks @sobit)
+  * Fixed stringifying of hash containing one value (thanks @avant1)
+  * Improved clarity of method call expectation exception (thanks @dantleech)
+  * Add ability to specify which argument is returned in willReturnArgument (thanks @coderbyheart)
+  * Add more information to MethodNotFound exceptions (thanks @ciaranmcnulty)
+  * Support for mocking classes with methods that return references (thanks @edsonmedina)
+  * Improved object comparison (thanks @whatthejeff)
+  * Adopted '^' in composer dependencies (thanks @GrahamCampbell)
+  * Fixed non-typehinted arguments being treated as optional (thanks @whatthejeff)
+  * Magic methods are now filtered for keywords (thanks @seagoj)
+  * More readable errors for failure when expecting single calls (thanks @dantleech)
+
 1.3.1 / 2014-11-17
 ==================
 

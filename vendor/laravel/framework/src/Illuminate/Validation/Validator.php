@@ -143,7 +143,7 @@ class Validator implements ValidatorContract {
 	 * @var array
 	 */
 	protected $implicitRules = array(
-		'Required', 'RequiredWith', 'RequiredWithAll', 'RequiredWithout', 'RequiredWithoutAll', 'RequiredIf', 'Accepted'
+		'Required', 'RequiredWith', 'RequiredWithAll', 'RequiredWithout', 'RequiredWithoutAll', 'RequiredIf', 'Accepted',
 	);
 
 	/**
@@ -276,9 +276,16 @@ class Validator implements ValidatorContract {
 
 		foreach ($data as $dataKey => $dataValue)
 		{
-			foreach ($rules as $ruleValue)
+			foreach ($rules as $ruleKey => $ruleValue)
 			{
-				$this->mergeRules("$attribute.$dataKey", $ruleValue);
+				if ( ! is_string($ruleKey))
+				{
+					$this->mergeRules("$attribute.$dataKey", $ruleValue);
+				}
+				else
+				{
+					$this->mergeRules("$attribute.$dataKey.$ruleKey", $ruleValue);
+				}
 			}
 		}
 	}
@@ -753,7 +760,7 @@ class Validator implements ValidatorContract {
 
 		$other = array_get($this->data, $parameters[0]);
 
-		return (isset($other) && $value == $other);
+		return isset($other) && $value == $other;
 	}
 
 	/**
@@ -770,7 +777,7 @@ class Validator implements ValidatorContract {
 
 		$other = array_get($this->data, $parameters[0]);
 
-		return (isset($other) && $value != $other);
+		return isset($other) && $value != $other;
 	}
 
 	/**
@@ -786,7 +793,7 @@ class Validator implements ValidatorContract {
 	{
 		$acceptable = array('yes', 'on', '1', 1, true, 'true');
 
-		return ($this->validateRequired($attribute, $value) && in_array($value, $acceptable, true));
+		return $this->validateRequired($attribute, $value) && in_array($value, $acceptable, true);
 	}
 
 	/**
@@ -1868,6 +1875,20 @@ class Validator implements ValidatorContract {
 	}
 
 	/**
+	 * Replace all place-holders for the required_with_all rule.
+	 *
+	 * @param  string  $message
+	 * @param  string  $attribute
+	 * @param  string  $rule
+	 * @param  array   $parameters
+	 * @return string
+	 */
+	protected function replaceRequiredWithAll($message, $attribute, $rule, $parameters)
+	{
+		return $this->replaceRequiredWith($message, $attribute, $rule, $parameters);
+	}
+
+	/**
 	 * Replace all place-holders for the required_without rule.
 	 *
 	 * @param  string  $message
@@ -2341,7 +2362,7 @@ class Validator implements ValidatorContract {
 	}
 
 	/**
-	 * Get the custom messages for the validator
+	 * Get the custom messages for the validator.
 	 *
 	 * @return array
 	 */
@@ -2351,7 +2372,7 @@ class Validator implements ValidatorContract {
 	}
 
 	/**
-	 * Set the custom messages for the validator
+	 * Set the custom messages for the validator.
 	 *
 	 * @param  array  $messages
 	 * @return void

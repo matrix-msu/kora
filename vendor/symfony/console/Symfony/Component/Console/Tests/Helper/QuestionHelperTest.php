@@ -191,7 +191,7 @@ class QuestionHelperTest extends \PHPUnit_Framework_TestCase
 
         $dialog->setInputStream($this->getInputStream("green\nyellow\norange\n"));
         try {
-            $this->assertEquals('white', $dialog->ask($this->createInputInterfaceMock(), $this->createOutputInterface(), $question));
+            $dialog->ask($this->createInputInterfaceMock(), $this->createOutputInterface(), $question);
             $this->fail();
         } catch (\InvalidArgumentException $e) {
             $this->assertEquals($error, $e->getMessage());
@@ -208,7 +208,7 @@ class QuestionHelperTest extends \PHPUnit_Framework_TestCase
     protected function getInputStream($input)
     {
         $stream = fopen('php://memory', 'r+', false);
-        fputs($stream, $input);
+        fwrite($stream, $input);
         rewind($stream);
 
         return $stream;

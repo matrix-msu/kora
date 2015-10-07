@@ -32,13 +32,14 @@ use ArrayAccess;
  * @method void beConstructedThrough($factoryMethod, array $constructorArguments)
  * @method void beAnInstanceOf($class)
  * @method void shouldHaveType($type)
- * @method \PhpSpec\Wrapper\Subject\Expectation\DuringCall shouldThrow($exception = null)
+ * @method Subject\Expectation\DuringCall shouldThrow($exception = null)
  */
-class ObjectBehavior implements ArrayAccess,
-                                MatchersProviderInterface,
-                                SubjectContainerInterface,
-                                WrapperInterface,
-                                SpecificationInterface
+class ObjectBehavior implements
+    ArrayAccess,
+    MatchersProviderInterface,
+    SubjectContainerInterface,
+    WrapperInterface,
+    SpecificationInterface
 {
     /**
      * @var Subject
@@ -120,7 +121,7 @@ class ObjectBehavior implements ArrayAccess,
      */
     public function offsetUnset($key)
     {
-        return $this->object->offsetUnset($key);
+        $this->object->offsetUnset($key);
     }
 
     /**

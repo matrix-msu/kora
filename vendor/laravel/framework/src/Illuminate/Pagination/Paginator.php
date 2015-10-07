@@ -98,6 +98,11 @@ class Paginator extends AbstractPaginator implements Arrayable, ArrayAccess, Cou
 	 */
 	public function render(Presenter $presenter = null)
 	{
+		if (is_null($presenter) && static::$presenterResolver)
+		{
+			$presenter = call_user_func(static::$presenterResolver, $this);
+		}
+
 		$presenter = $presenter ?: new SimpleBootstrapThreePresenter($this);
 
 		return $presenter->render();
@@ -114,7 +119,7 @@ class Paginator extends AbstractPaginator implements Arrayable, ArrayAccess, Cou
 			'per_page' => $this->perPage(), 'current_page' => $this->currentPage(),
 			'next_page_url' => $this->nextPageUrl(), 'prev_page_url' => $this->previousPageUrl(),
 			'from' => $this->firstItem(), 'to' => $this->lastItem(),
-			'data' => $this->items->toArray()
+			'data' => $this->items->toArray(),
 		];
 	}
 

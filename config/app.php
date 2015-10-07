@@ -159,6 +159,7 @@ return [
 		'App\Providers\ViewComposerServiceProvider',
 		
 		'Laracasts\Flash\FlashServiceProvider',
+		'Toin0u\Geocoder\GeocoderServiceProvider',
 
 	],
 
@@ -210,6 +211,7 @@ return [
 		'Form'      => 'Illuminate\Html\FormFacade',
 		'Html'      => 'Illuminate\Html\HtmlFacade',
 		'Flash'      => 'Laracasts\Flash\Flash',
+		'Geocoder' => 'Toin0u\Geocoder\Facade\Geocoder',
 	],
 
 ];

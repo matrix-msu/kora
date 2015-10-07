@@ -65,6 +65,7 @@ Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/default','FieldC
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/update','FieldController@updateOptions');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/saveList','FieldController@saveList');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/saveDateList','FieldController@saveDateList');
+Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/geoConvert','FieldController@geoConvert');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/clearRecency', 'FieldController@clearRecency');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/checkRecency', 'FieldController@checkRecency');
 Route::post('/projects/{pid}/forms/{fid}','FieldController@store');

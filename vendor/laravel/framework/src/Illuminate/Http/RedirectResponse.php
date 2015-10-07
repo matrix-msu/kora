@@ -3,13 +3,14 @@
 use BadMethodCallException;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\ViewErrorBag;
-use Symfony\Component\HttpFoundation\Cookie;
 use Illuminate\Session\Store as SessionStore;
 use Illuminate\Contracts\Support\MessageProvider;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RedirectResponse as BaseRedirectResponse;
 
 class RedirectResponse extends BaseRedirectResponse {
+
+	use ResponseTrait;
 
 	/**
 	 * The request instance.
@@ -26,21 +27,6 @@ class RedirectResponse extends BaseRedirectResponse {
 	protected $session;
 
 	/**
-	 * Set a header on the Response.
-	 *
-	 * @param  string  $key
-	 * @param  string  $value
-	 * @param  bool  $replace
-	 * @return $this
-	 */
-	public function header($key, $value, $replace = true)
-	{
-		$this->headers->set($key, $value, $replace);
-
-		return $this;
-	}
-
-	/**
 	 * Flash a piece of data to the session.
 	 *
 	 * @param  string  $key
@@ -55,19 +41,6 @@ class RedirectResponse extends BaseRedirectResponse {
 		{
 			$this->session->flash($k, $v);
 		}
-
-		return $this;
-	}
-
-	/**
-	 * Add a cookie to the response.
-	 *
-	 * @param  \Symfony\Component\HttpFoundation\Cookie  $cookie
-	 * @return $this
-	 */
-	public function withCookie(Cookie $cookie)
-	{
-		$this->headers->setCookie($cookie);
 
 		return $this;
 	}
@@ -98,8 +71,13 @@ class RedirectResponse extends BaseRedirectResponse {
 	{
 		$input = $input ?: $this->request->input();
 
-		$this->session->flashInput(array_filter($input, function ($value)
+		$this->session->flashInput($data = array_filter($input, $callback = function (&$value) use (&$callback)
 		{
+			if (is_array($value))
+			{
+				$value = array_filter($value, $callback);
+			}
+
 			return ! $value instanceof UploadedFile;
 		}));
 
@@ -131,7 +109,7 @@ class RedirectResponse extends BaseRedirectResponse {
 	/**
 	 * Flash a container of errors to the session.
 	 *
-	 * @param  \Illuminate\Contracts\Support\MessageProvider|array  $provider
+	 * @param  \Illuminate\Contracts\Support\MessageProvider|array|string  $provider
 	 * @param  string  $key
 	 * @return $this
 	 */
@@ -149,7 +127,7 @@ class RedirectResponse extends BaseRedirectResponse {
 	/**
 	 * Parse the given errors into an appropriate value.
 	 *
-	 * @param  \Illuminate\Contracts\Support\MessageProvider|array  $provider
+	 * @param  \Illuminate\Contracts\Support\MessageProvider|array|string  $provider
 	 * @return \Illuminate\Support\MessageBag
 	 */
 	protected function parseErrors($provider)

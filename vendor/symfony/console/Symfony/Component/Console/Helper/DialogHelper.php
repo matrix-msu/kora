@@ -56,14 +56,14 @@ class DialogHelper extends InputAwareHelper
 
         $result = $this->askAndValidate($output, '> ', function ($picked) use ($choices, $errorMessage, $multiselect) {
             // Collapse all spaces.
-            $selectedChoices = str_replace(" ", "", $picked);
+            $selectedChoices = str_replace(' ', '', $picked);
 
             if ($multiselect) {
                 // Check for a separated comma values
                 if (!preg_match('/^[a-zA-Z0-9_-]+(?:,[a-zA-Z0-9_-]+)*$/', $selectedChoices, $matches)) {
                     throw new \InvalidArgumentException(sprintf($errorMessage, $picked));
                 }
-                $selectedChoices = explode(",", $selectedChoices);
+                $selectedChoices = explode(',', $selectedChoices);
             } else {
                 $selectedChoices = array($picked);
             }
@@ -74,7 +74,7 @@ class DialogHelper extends InputAwareHelper
                 if (empty($choices[$value])) {
                     throw new \InvalidArgumentException(sprintf($errorMessage, $value));
                 }
-                array_push($multiselectChoices, $value);
+                $multiselectChoices[] = $value;
             }
 
             if ($multiselect) {
@@ -138,7 +138,7 @@ class DialogHelper extends InputAwareHelper
                 // Backspace Character
                 if ("\177" === $c) {
                     if (0 === $numMatches && 0 !== $i) {
-                        $i--;
+                        --$i;
                         // Move cursor backwards
                         $output->write("\033[1D");
                     }
@@ -191,7 +191,7 @@ class DialogHelper extends InputAwareHelper
                 } else {
                     $output->write($c);
                     $ret .= $c;
-                    $i++;
+                    ++$i;
 
                     $numMatches = 0;
                     $ofs = 0;
@@ -459,18 +459,18 @@ class DialogHelper extends InputAwareHelper
      */
     private function validateAttempts($interviewer, OutputInterface $output, $validator, $attempts)
     {
-        $error = null;
+        $e = null;
         while (false === $attempts || $attempts--) {
-            if (null !== $error) {
-                $output->writeln($this->getHelperSet()->get('formatter')->formatBlock($error->getMessage(), 'error'));
+            if (null !== $e) {
+                $output->writeln($this->getHelperSet()->get('formatter')->formatBlock($e->getMessage(), 'error'));
             }
 
             try {
                 return call_user_func($validator, $interviewer());
-            } catch (\Exception $error) {
+            } catch (\Exception $e) {
             }
         }
 
-        throw $error;
+        throw $e;
     }
 }

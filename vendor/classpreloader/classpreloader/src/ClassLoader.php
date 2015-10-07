@@ -1,9 +1,19 @@
 <?php
 
+/*
+ * This file is part of Class Preloader.
+ *
+ * (c) Graham Campbell <graham@cachethq.io>
+ * (c) Michael Dowling <mtdowling@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace ClassPreloader;
 
-require_once __DIR__ . '/ClassNode.php';
-require_once __DIR__ . '/ClassList.php';
+require_once __DIR__.'/ClassNode.php';
+require_once __DIR__.'/ClassList.php';
 
 /**
  * This is the class loader class.
@@ -134,7 +144,7 @@ class ClassLoader
             } catch (\ReflectionException $e) {
                 // We ignore all exceptions related to reflection,
                 // because in some cases class can't exists. This
-                // can be if you use in your code constuctions like
+                // can be if you use in your code constructions like
                 //
                 // if (class_exists('SomeClass')) { // <-- here will trigger autoload
                 //      class SomeSuperClass extends SomeClass {

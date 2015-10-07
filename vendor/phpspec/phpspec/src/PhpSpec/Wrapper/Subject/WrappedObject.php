@@ -25,7 +25,7 @@ class WrappedObject
      */
     private $instance;
     /**
-     * @var \PhpSpec\Formatter\Presenter\PresenterInterface
+     * @var PresenterInterface
      */
     private $presenter;
     /**
@@ -108,8 +108,7 @@ class WrappedObject
      */
     public function beConstructedThrough($factoryMethod, array $arguments = array())
     {
-        if (
-            is_string($factoryMethod) &&
+        if (is_string($factoryMethod) &&
             false === strpos($factoryMethod, '::') &&
             method_exists($this->classname, $factoryMethod)
         ) {

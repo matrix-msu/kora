@@ -17,42 +17,49 @@ class Event {
 	 *
 	 * @var string
 	 */
-	protected $command;
+	public $command;
 
 	/**
 	 * The cron expression representing the event's frequency.
 	 *
 	 * @var string
 	 */
-	protected $expression = '* * * * * *';
+	public $expression = '* * * * * *';
 
 	/**
 	 * The timezone the date should be evaluated on.
 	 *
 	 * @var \DateTimeZone|string
 	 */
-	protected $timezone;
+	public $timezone;
 
 	/**
 	 * The user the command should run as.
 	 *
 	 * @var string
 	 */
-	protected $user;
+	public $user;
 
 	/**
 	 * The list of environments the command should run under.
 	 *
 	 * @var array
 	 */
-	protected $environments = [];
+	public $environments = [];
 
 	/**
 	 * Indicates if the command should run in maintenance mode.
 	 *
 	 * @var bool
 	 */
-	protected $evenInMaintenanceMode = false;
+	public $evenInMaintenanceMode = false;
+
+	/**
+	 * Indicates if the command should not overlap itself.
+	 *
+	 * @var bool
+	 */
+	public $withoutOverlapping = false;
 
 	/**
 	 * The filter callback.
@@ -73,7 +80,7 @@ class Event {
 	 *
 	 * @var string
 	 */
-	protected $output = '/dev/null';
+	public $output = '/dev/null';
 
 	/**
 	 * The array of callbacks to be run after the event is finished.
@@ -87,7 +94,7 @@ class Event {
 	 *
 	 * @var string
 	 */
-	protected $description;
+	public $description;
 
 	/**
 	 * Create a new event instance.
@@ -153,8 +160,6 @@ class Event {
 	 */
 	protected function callAfterCallbacks(Container $container)
 	{
-		if (empty($this->afterCallbacks)) return;
-
 		foreach ($this->afterCallbacks as $callback)
 		{
 			$container->call($callback);
@@ -168,9 +173,27 @@ class Event {
 	 */
 	public function buildCommand()
 	{
-		$command = $this->command.' > '.$this->output.' 2>&1 &';
+		if ($this->withoutOverlapping)
+		{
+			$command = '(touch '.$this->mutexPath().'; '.$this->command.'; rm '.$this->mutexPath().') > '.$this->output.' 2>&1 &';
+		}
+		else
+		{
+			$command = $this->command.' > '.$this->output.' 2>&1 &';
+		}
+
 
 		return $this->user ? 'sudo -u '.$this->user.' '.$command : $command;
+	}
+
+	/**
+	 * Get the mutex path for the scheduled command.
+	 *
+	 * @return string
+	 */
+	protected function mutexPath()
+	{
+		return storage_path().'/framework/schedule-'.md5($this->expression.$this->command);
 	}
 
 	/**
@@ -181,7 +204,7 @@ class Event {
 	 */
 	public function isDue(Application $app)
 	{
-		if ($app->isDownForMaintenance() && ! $this->runsInMaintenanceMode())
+		if ( ! $this->runsInMaintenanceMode() && $app->isDownForMaintenance())
 		{
 			return false;
 		}
@@ -205,7 +228,7 @@ class Event {
 			$date->setTimezone($this->timezone);
 		}
 
-		return CronExpression::factory($this->expression)->isDue($date);
+		return CronExpression::factory($this->expression)->isDue($date->toDateTimeString());
 	}
 
 	/**
@@ -266,9 +289,7 @@ class Event {
 	 */
 	public function hourly()
 	{
-		$this->expression = '0 * * * * *';
-
-		return $this;
+		return $this->cron('0 * * * * *');
 	}
 
 	/**
@@ -278,9 +299,7 @@ class Event {
 	 */
 	public function daily()
 	{
-		$this->expression = '0 0 * * * *';
-
-		return $this;
+		return $this->cron('0 0 * * * *');
 	}
 
 	/**
@@ -315,9 +334,7 @@ class Event {
 	 */
 	public function twiceDaily()
 	{
-		$this->expression = '0 1,13 * * * *';
-
-		return $this;
+		return $this->cron('0 1,13 * * * *');
 	}
 
 	/**
@@ -407,9 +424,7 @@ class Event {
 	 */
 	public function weekly()
 	{
-		$this->expression = '0 0 * * 0 *';
-
-		return $this;
+		return $this->cron('0 0 * * 0 *');
 	}
 
 	/**
@@ -433,9 +448,7 @@ class Event {
 	 */
 	public function monthly()
 	{
-		$this->expression = '0 0 1 * * *';
-
-		return $this;
+		return $this->cron('0 0 1 * * *');
 	}
 
 	/**
@@ -445,9 +458,7 @@ class Event {
 	 */
 	public function yearly()
 	{
-		$this->expression = '0 0 1 1 * *';
-
-		return $this;
+		return $this->cron('0 0 1 1 * *');
 	}
 
 	/**
@@ -457,9 +468,7 @@ class Event {
 	 */
 	public function everyFiveMinutes()
 	{
-		$this->expression = '*/5 * * * * *';
-
-		return $this;
+		return $this->cron('*/5 * * * * *');
 	}
 
 	/**
@@ -469,9 +478,7 @@ class Event {
 	 */
 	public function everyTenMinutes()
 	{
-		$this->expression = '*/10 * * * * *';
-
-		return $this;
+		return $this->cron('*/10 * * * * *');
 	}
 
 	/**
@@ -481,9 +488,7 @@ class Event {
 	 */
 	public function everyThirtyMinutes()
 	{
-		$this->expression = '0,30 * * * * *';
-
-		return $this;
+		return $this->cron('0,30 * * * * *');
 	}
 
 	/**
@@ -494,9 +499,9 @@ class Event {
 	 */
 	public function days($days)
 	{
-		$this->spliceIntoPosition(5, implode(',', is_array($days) ? $days : func_get_args()));
+		$days = is_array($days) ? $days : func_get_args();
 
-		return $this;
+		return $this->spliceIntoPosition(5, implode(',', $days));
 	}
 
 	/**
@@ -548,6 +553,21 @@ class Event {
 		$this->evenInMaintenanceMode = true;
 
 		return $this;
+	}
+
+	/**
+	 * Do not allow the event to overlap each other.
+	 *
+	 * @return $this
+	 */
+	public function withoutOverlapping()
+	{
+		$this->withoutOverlapping = true;
+
+		return $this->skip(function()
+		{
+			return file_exists($this->mutexPath());
+		});
 	}
 
 	/**
@@ -604,9 +624,11 @@ class Event {
 			throw new LogicException("Must direct output to a file in order to e-mail results.");
 		}
 
+		$addresses = is_array($addresses) ? $addresses : func_get_args();
+
 		return $this->then(function(Mailer $mailer) use ($addresses)
 		{
-			$this->emailOutput($mailer, is_array($addresses) ? $addresses : func_get_args());
+			$this->emailOutput($mailer, $addresses);
 		});
 	}
 
@@ -646,7 +668,7 @@ class Event {
 	}
 
 	/**
-	 * Register a callback to the ping a given URL after the job runs.
+	 * Register a callback to ping a given URL after the job runs.
 	 *
 	 * @param  string  $url
 	 * @return $this
@@ -675,6 +697,17 @@ class Event {
 	 * @param  string  $description
 	 * @return $this
 	 */
+	public function name($description)
+	{
+		return $this->description($description);
+	}
+
+	/**
+	 * Set the human-friendly description of the event.
+	 *
+	 * @param  string  $description
+	 * @return $this
+	 */
 	public function description($description)
 	{
 		$this->description = $description;
@@ -695,9 +728,7 @@ class Event {
 
 		$segments[$position - 1] = $value;
 
-		$this->expression = implode(' ', $segments);
-
-		return $this;
+		return $this->cron(implode(' ', $segments));
 	}
 
 	/**

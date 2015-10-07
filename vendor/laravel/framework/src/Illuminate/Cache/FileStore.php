@@ -14,7 +14,7 @@ class FileStore implements Store {
 	protected $files;
 
 	/**
-	 * The file cache directory
+	 * The file cache directory.
 	 *
 	 * @var string
 	 */
@@ -57,11 +57,6 @@ class FileStore implements Store {
 		// If the file doesn't exists, we obviously can't return the cache so we will
 		// just return null. Otherwise, we'll get the contents of the file and get
 		// the expiration UNIX timestamps from the start of the file's contents.
-		if ( ! $this->files->exists($path))
-		{
-			return array('data' => null, 'time' => null);
-		}
-
 		try
 		{
 			$expire = substr($contents = $this->files->get($path), 0, 10);
@@ -165,7 +160,7 @@ class FileStore implements Store {
 	 */
 	public function forever($key, $value)
 	{
-		return $this->put($key, $value, 0);
+		$this->put($key, $value, 0);
 	}
 
 	/**
@@ -212,7 +207,7 @@ class FileStore implements Store {
 	{
 		$parts = array_slice(str_split($hash = md5($key), 2), 0, 2);
 
-		return $this->directory.'/'.join('/', $parts).'/'.$hash;
+		return $this->directory.'/'.implode('/', $parts).'/'.$hash;
 	}
 
 	/**

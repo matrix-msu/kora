@@ -21,7 +21,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 class SuiteRunner
 {
     /**
-     * @var \Symfony\Component\EventDispatcher\EventDispatcher
+     * @var EventDispatcher
      */
     private $dispatcher;
     /**
@@ -61,7 +61,8 @@ class SuiteRunner
         }
 
         $endTime = microtime(true);
-        $this->dispatcher->dispatch('afterSuite',
+        $this->dispatcher->dispatch(
+            'afterSuite',
             new SuiteEvent($suite, $endTime-$startTime, $result)
         );
 
