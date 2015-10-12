@@ -12,7 +12,7 @@
     <div><b>Description:</b> {{ $form->description }}</div>
 
     @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
-        <form action="{{action('FormGroupController@index', ['fid'=>$form->fid])}}" style="display: inline">
+        <form action="{{action('FormGroupController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
             <button type="submit" class="btn btn-default">Manage Groups</button>
         </form>
         <span>Make Preset: </span><input type="checkbox" onchange="presetForm()" id="preset" @if($form->preset) checked @endif>
