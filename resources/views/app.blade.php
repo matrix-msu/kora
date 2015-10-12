@@ -47,9 +47,9 @@
 		<script type="text/javascript" src="{{ env('BASE_URL') }}public/jsc3d/jsc3d.js"></script>
 		<script type="text/javascript" src="{{ env('BASE_URL') }}public/jsc3d/jsc3d.webgl.js"></script>
 		<script type="text/javascript" src="{{ env('BASE_URL') }}public/jsc3d/jsc3d.touch.js"></script>
-		<!-- Dropdowns enhancement -->
-		<link href="{{ env('BASE_URL') }}public/dropdown_enhancement/dist/css/dropdowns-enhancement.css" rel="stylesheet"/>
-		<script type="text/javascript" src="{{ env('BASE_URL') }}public/dropdown_enhancement/dist/js/dropdowns-enhancement.js"></script>
+        <!-- Dropdowns enhancement -->
+        <link href="{{ env('BASE_URL') }}public/dropdowns_enhancement/dist/css/dropdowns-enhancement.css" rel="stylesheet"/>
+        <script type="text/javascript" src="{{ env('BASE_URL') }}public/dropdowns_enhancement/dist/js/dropdowns-enhancement.js"></script>
 	@endif
     <title>Kora 3</title>
 </head>
@@ -71,6 +71,25 @@
 	<script>
 		$('#flash-overlay-modal').modal();
 		//$('div.alert').not('.alert-important').delay(3000).slideUp(300);
+
+        formselecter = $("#form-submenu");
+        projectselecter = $("#project-submenu");
+
+        formselecter.mouseenter(function() {
+            $(this).attr("class", "dropdown-submenu open");
+        });
+
+        formselecter.mouseleave(function() {
+            $(this).attr("class", "dropdown-submenu");
+        });
+
+        projectselecter.mouseenter(function() {
+            $(this).attr("class", "dropdown-submenu open");
+        });
+
+        projectselecter.mouseleave(function() {
+            $(this).attr("class", "dropdown-submenu");
+        });
 	</script>
     @yield('footer')
 </body>

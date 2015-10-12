@@ -4,7 +4,7 @@
         <li><a href="{{ url('/projects/'.$pid).'/forms/'.$fid}}">Form Layout</a></li>
         <?php $allowed_forms = \Auth::user()->allowedForms($pid) ?>
         @if(sizeof($allowed_forms) > 1)
-            <li class="dropdown-submenu"> <a href="#" data-toggle="dropdown">Jump to Form</a>
+            <li class="dropdown-submenu" id="form-submenu"> <a href="#" data-toggle="dropdown">Jump to Form</a>
                 <ul class="dropdown-menu">
                     @foreach($allowed_forms as $form)
                         @if($form->fid != $fid)
@@ -12,7 +12,6 @@
                         @endif
                     @endforeach
                 </ul>
-
             </li>
         @endif
         <li class="divider"></li>

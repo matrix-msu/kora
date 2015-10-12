@@ -1079,14 +1079,15 @@ class RecordController extends Controller {
     function dirCrawl($dir) {
         $filesize = 0;
 
-        foreach(new \DirectoryIterator($dir) as $file) {
-            // If the file is a valid directory, call dirCrawl and access its child directory(s)
-            if ($file->isDir() && $file->getFilename() != '.' && $file->getFilename() != '..') {
-                $filesize += RecordController::dirCrawl($file->getPathname());
-            }
-            // If the file is indeed a file, add its size
-            elseif ($file->isFile()) {
-                $filesize += $file->getSize();
+        if (file_exists($dir)) {
+            foreach (new \DirectoryIterator($dir) as $file) {
+                // If the file is a valid directory, call dirCrawl and access its child directory(s)
+                if ($file->isDir() && $file->getFilename() != '.' && $file->getFilename() != '..') {
+                    $filesize += RecordController::dirCrawl($file->getPathname());
+                } // If the file is indeed a file, add its size
+                elseif ($file->isFile()) {
+                    $filesize += $file->getSize();
+                }
             }
         }
 
