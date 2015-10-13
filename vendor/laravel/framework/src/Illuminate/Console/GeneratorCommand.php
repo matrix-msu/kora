@@ -52,9 +52,7 @@ abstract class GeneratorCommand extends Command {
 
 		if ($this->files->exists($path = $this->getPath($name)))
 		{
-			$this->error($this->type.' already exists!');
-
-			return false;
+			return $this->error($this->type.' already exists!');
 		}
 
 		$this->makeDirectory($path);

@@ -132,8 +132,12 @@ Route::get('/projects/{pid}/forms/{fid}/metadata','MetadataController@records');
 
 //install routes
 Route::get('/install','InstallController@index');
-Route::post('/install','InstallController@install');
-Route::get('/install/migrate',"InstallController@runMigrate");
+Route::post('/install/migrate',"InstallController@runMigrate");
+Route::post('/install/environment',"InstallController@installKora");
+Route::get('/install/config',"InstallController@editEnvConfigs");
+Route::post('/install/config',"InstallController@updateEnvConfigs");
+
+
 
 //backup routes
 Route::get('/backup','BackupController@index');

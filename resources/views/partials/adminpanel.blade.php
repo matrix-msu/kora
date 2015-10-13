@@ -15,4 +15,8 @@
         <button type="submit" class="btn btn-default"> Manage Backups </button>
     </form>
 
+    <form action="{{ action('InstallController@editEnvConfigs') }}" style="display: inline">
+        <button type="submit" class="btn btn-default"> Manage Environment File</button>
+    </form>
+
 @endif
