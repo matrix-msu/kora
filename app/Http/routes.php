@@ -39,6 +39,11 @@ Route::patch('/tokens/deleteProject', 'TokenController@deleteProject');
 Route::patch('/tokens/addProject', 'TokenController@addProject');
 Route::delete('/tokens/deleteToken', 'TokenController@deleteToken');
 
+//association routes
+Route::get('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@index');
+Route::post('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@create');
+Route::delete('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@destroy');
+
 //form routes
 Route::get('/projects/{pid}/forms','ProjectController@show'); //alias for project/{id}
 Route::patch('/projects/{pid}/forms/{fid}','FormController@update');

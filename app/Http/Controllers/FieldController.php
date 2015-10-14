@@ -129,7 +129,7 @@ class FieldController extends Controller {
         }else if($field->type=="3D-Model") {
             return view('fields.options.3dmodel', compact('field', 'form', 'proj'));
         }else if($field->type=="Associator") {
-            return view('fields.options.assoctiator', compact('field', 'form', 'proj'));
+            return view('fields.options.associator', compact('field', 'form', 'proj'));
         }
 	}
 
@@ -208,7 +208,7 @@ class FieldController extends Controller {
         return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
     }
 
-    public function updateDefault($pid, $fid, $flid, FieldRequest $request)
+    public function updateDefault($pid, $fid, $flid, Request $request)
     {
         if(!FieldController::checkPermissions($fid, 'edit')) {
             return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
@@ -220,7 +220,7 @@ class FieldController extends Controller {
 
         $field = FieldController::getField($flid);
 
-        if(($field->type=='Multi-Select List' | $field->type=='Generated List') && !is_null($request->default)){
+        if(($field->type=='Multi-Select List' | $field->type=='Generated List' | $field->type=='Associator') && !is_null($request->default)){
             $reqDefs = $request->default;
             $def = $reqDefs[0];
             for($i=1;$i<sizeof($reqDefs);$i++){
@@ -248,7 +248,7 @@ class FieldController extends Controller {
         return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
     }
 
-    public function updateOptions($pid, $fid, $flid, FieldRequest $request)
+    public function updateOptions($pid, $fid, $flid, Request $request)
     {
         if(!FieldController::checkPermissions($fid, 'edit')) {
             return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
@@ -264,9 +264,11 @@ class FieldController extends Controller {
 
         RevisionController::wipeRollbacks($fid);
 
-        flash()->success('Option updated!');
+        if($request->option != 'SearchForms') {
+            flash()->success('Option updated!');
 
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }
     }
 
     /**

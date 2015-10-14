@@ -33,7 +33,7 @@ class FieldDefaults {
         }else if($type=="3D-Model"){
             return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]1[!MaxFiles!][!FileTypes!][!FileTypes!]';
         }else if($type=="Associator"){
-            return '[!Forms!][!Forms!][!SearchForms!][!SearchForms!]';
+            return '[!SearchForms!][!SearchForms!]';
         }
         else{
             return '';
