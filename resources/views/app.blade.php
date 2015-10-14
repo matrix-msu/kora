@@ -1,6 +1,7 @@
 <html>
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<!--<link rel="stylesheet" href="{{env('BASE_URL')}}"> -->
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 	<!-- Optional theme -->
@@ -52,8 +53,9 @@
         <script type="text/javascript" src="{{ env('BASE_URL') }}public/dropdowns_enhancement/dist/js/dropdowns-enhancement.js"></script>
 	@endif
     <title>Kora 3</title>
+
+	<style>#app_container{padding-top: 70px;}</style> {{-- This fixes the css ghost--}}
 </head>
-<br />
 <body>
 		@if(isset($not_installed))
 			@include('partials.install_nav')
@@ -61,7 +63,7 @@
 			@include('partials.nav')
 		@endif
 
-    <div class="container">
+    <div id="app_container" class="container">
 		@include('flash::message')
 	
         @yield('content')

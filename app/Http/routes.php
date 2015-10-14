@@ -39,6 +39,11 @@ Route::patch('/tokens/deleteProject', 'TokenController@deleteProject');
 Route::patch('/tokens/addProject', 'TokenController@addProject');
 Route::delete('/tokens/deleteToken', 'TokenController@deleteToken');
 
+//association routes
+Route::get('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@index');
+Route::post('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@create');
+Route::delete('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@destroy');
+
 //form routes
 Route::get('/projects/{pid}/forms','ProjectController@show'); //alias for project/{id}
 Route::patch('/projects/{pid}/forms/{fid}','FormController@update');
@@ -132,8 +137,12 @@ Route::get('/projects/{pid}/forms/{fid}/metadata','MetadataController@records');
 
 //install routes
 Route::get('/install','InstallController@index');
-Route::post('/install','InstallController@install');
-Route::get('/install/migrate',"InstallController@runMigrate");
+Route::post('/install/migrate',"InstallController@runMigrate");
+Route::post('/install/environment',"InstallController@installKora");
+Route::get('/install/config',"InstallController@editEnvConfigs");
+Route::post('/install/config',"InstallController@updateEnvConfigs");
+
+
 
 //backup routes
 Route::get('/backup','BackupController@index');

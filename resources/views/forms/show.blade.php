@@ -15,6 +15,9 @@
         <form action="{{action('FormGroupController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
             <button type="submit" class="btn btn-default">Manage Groups</button>
         </form>
+        <form action="{{action('AssociationController@index', ['fid'=>$form->fid, 'pid'=>$form->pid])}}" style="display: inline">
+            <button type="submit" class="btn btn-default">Manage Associations</button>
+        </form>
         <span>Make Preset: </span><input type="checkbox" onchange="presetForm()" id="preset" @if($form->preset) checked @endif>
     @endif
 
