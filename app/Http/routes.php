@@ -19,12 +19,12 @@ Route::patch('projects/{pid}/manage/projectgroups/updatePermissions', 'ProjectGr
 Route::delete('projects/{pid}/manage/projectgroups/deleteProjectGroup', 'ProjectGroupController@deleteProjectGroup');
 
 //form group routes
-Route::get('/projects/{pid}/manage/formgroups', 'FormGroupController@index');
-Route::post('/projects/{pid}/manage/formgroups/create', 'FormGroupController@create');
-Route::patch('projects/{pid}/manage/formgroups/removeUser', 'FormGroupController@removeUser');
-Route::patch('projects/{pid}/manage/formgroups/addUser', 'FormGroupController@addUser');
-Route::patch('projects/{pid}/manage/formgroups/updatePermissions', 'FormGroupController@updatePermissions');
-Route::delete('projects/{pid}/manage/formgroups/deleteFormGroup', 'FormGroupController@deleteFormGroup');
+Route::get('/projects/{pid}/forms/{fid}/manage/formgroups', 'FormGroupController@index');
+Route::post('/projects/{pid}/forms/{fid}/manage/formgroups/create', 'FormGroupController@create');
+Route::patch('projects/{pid}/forms/{fid}/manage/formgroups/removeUser', 'FormGroupController@removeUser');
+Route::patch('projects/{pid}/forms/{fid}/manage/formgroups/addUser', 'FormGroupController@addUser');
+Route::patch('projects/{pid}/forms/{fid}/manage/formgroups/updatePermissions', 'FormGroupController@updatePermissions');
+Route::delete('projects/{pid}/forms/{fid}/manage/formgroups/deleteFormGroup', 'FormGroupController@deleteFormGroup');
 
 //admin routes
 Route::get('/admin/users', 'AdminController@users');
@@ -137,8 +137,12 @@ Route::get('/projects/{pid}/forms/{fid}/metadata','MetadataController@records');
 
 //install routes
 Route::get('/install','InstallController@index');
-Route::post('/install','InstallController@install');
-Route::get('/install/migrate',"InstallController@runMigrate");
+Route::post('/install/migrate',"InstallController@runMigrate");
+Route::post('/install/environment',"InstallController@installKora");
+Route::get('/install/config',"InstallController@editEnvConfigs");
+Route::post('/install/config',"InstallController@updateEnvConfigs");
+
+
 
 //backup routes
 Route::get('/backup','BackupController@index');

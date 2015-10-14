@@ -26,6 +26,13 @@ class RecordPresetController extends Controller {
         $this->middleware('active');
     }
 
+    /**
+     * The record preset index. 
+     *
+     * @param $pid
+     * @param $fid
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
+     */
     public function index($pid, $fid)
     {
         if(!FormController::validProjForm($pid,$fid)){
@@ -44,6 +51,11 @@ class RecordPresetController extends Controller {
         return view('recordPresets/index', compact('form', 'presets'));
     }
 
+    /**
+     * Changes a preset's name.
+     *
+     * @param Request $request
+     */
     public function changePresetName(Request $request)
     {
         $name = $request->name;
@@ -55,6 +67,11 @@ class RecordPresetController extends Controller {
         $preset->save();
     }
 
+    /**
+     * Removes a record as a preset.
+     *
+     * @param Request $request
+     */
     public function deletePreset(Request $request)
     {
         $id = $request->id;
@@ -64,6 +81,12 @@ class RecordPresetController extends Controller {
         flash()->overlay('Record has been removed as a preset.', 'Success!');
     }
 
+    /**
+     * Builds an array to populate fields for a record creation page.
+     *
+     * @param Request $request
+     * @return mixed
+     */
     public function getRecordArray(Request $request)
     {
         $id = $request->id;

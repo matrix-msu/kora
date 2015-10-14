@@ -20,11 +20,16 @@ class FormGroupController extends Controller {
     }
 
     /**
+     * @pararm $pid
      * @param $fid
      * @return Response
      */
-    public function index($fid)
+    public function index($pid, $fid)
     {
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+
         $form = FormController::getForm($fid);
         $project = $form->project()->first();
 
@@ -57,7 +62,7 @@ class FormGroupController extends Controller {
             return redirect(action('FormGroupController@index', ['fid'=>$form->fid]));
         }
 
-        $group = FormGroupController::buildGroup($form->fid, $request);
+        $group = FormGroupController::buildGroup($pid, $form->fid, $request);
 
         if(!is_null($request['users']))
             $group->users()->attach($request['users']);
@@ -133,7 +138,7 @@ class FormGroupController extends Controller {
      * @param Request $request
      * @return FormGroup
      */
-    private function buildGroup($fid, Request $request)
+    private function buildGroup($pid, $fid, Request $request)
     {
         $group = new FormGroup();
         $group->name = $request['name'];

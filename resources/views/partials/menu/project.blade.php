@@ -4,7 +4,7 @@
         <li><a href="{{ url('/projects/'.$pid) }}">Project Home</a></li>
         <?php $allowed_projects = \Auth::user()->allowedProjects() ?>
         @if(sizeof($allowed_projects) > 1)
-            <li class="dropdown-submenu"> <a onmouseover="href='#'" data-toggle="dropdown">Jump to Project</a>
+            <li class="dropdown-submenu" id="project-submenu"> <a href='#' data-toggle="dropdown">Jump to Project</a>
                 <ul class="dropdown-menu">
                     @foreach($allowed_projects as $project)
                         @if($project->pid != $pid)

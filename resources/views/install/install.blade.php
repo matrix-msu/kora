@@ -2,9 +2,9 @@
 
 @section('content')
 
-    <div class="container">
+    <!--<div class="container">-->
         <div class="row">
-            <form method="post" action={{action("InstallController@install")}}>
+           {{-- <form method="post" action={{action("InstallController@install")}}> --}}
                 <input type="hidden" name="_token" value="{{csrf_token()}}">
                   <div class="col-md-10 col-md-offset-1">
 
@@ -91,7 +91,7 @@
 
                             <div class="form-group">
                                 <label for="user_confirmpassword">Confirm Password:</label>
-                                <input type="password" class="form-control" id="user_confrimpassword" name="user_confirmpassword">
+                                <input type="password" class="form-control" id="user_confirmpassword" name="user_confirmpassword">
                             </div>
 
                             <div class="form-group">
@@ -175,13 +175,12 @@
                       </div>
 
                       <div class="form-group">
-                          <input type="submit" class="btn btn-primary form-control" id="usr" value="Submit">
+                          <button class="btn btn-primary form-control" id="usr">Install Now</button>
                       </div>
                    </div>
 
-            </form>
         </div>
-    </div>
+   <!-- </div> -->
 
 
 
@@ -199,8 +198,113 @@
             $("#not_for_sqlite").show('slow');
         }
     });
+
+    $("#usr").on('click',function(){
+        sendEnvironmentConfiguration();
+    });
+
+    function sendEnvironmentConfiguration() {
+        $.ajax({
+            url: '{{ action('InstallController@installKora')}}',
+            type: 'POST',
+            data: {
+                "_token": "{{ csrf_token() }}",
+                db_host: $("#db_host").val(),
+                db_database: $("#db_database").val(),
+                db_username: $("#db_username").val(),
+                db_password: $("#db_password").val(),
+                db_prefix: $("#db_prefix").val(),
+                mail_host: $("#mail_host").val(),
+                mail_from_address: $("#mail_from_address").val(),
+                mail_from_name: $("#mail_from_name").val(),
+                mail_username: $("#mail_username").val(),
+                mail_password: $("#mail_password").val(),
+                db_driver: $("#db_driver").val(),
+                recaptcha_public_key: $("#recaptcha_public_key").val(),
+                recaptcha_private_key: $("#recaptcha_private_key").val(),
+                baseurl_url: $("#baseurl_url").val(),
+                basepath: $("#basepath").val(),
+            },
+            success: function (result,textStatus,jqXHRs) {
+                if (result.status = true) {
+                    console.log(result);
+                    //alert("Database, mail, and recaptcha settings saved");
+                    if(jqXHRs.status ==301){
+                        alert("There was a problem, your database settings may be incorrect.");
+                    }
+                    else{
+                        startApplicationConfiguration();
+                    }
+
+                }
+            },
+            error: function (result,textStatus,jqXHRs) {
+                console.log(result);
+                var message = "There was a problem, your database settings may be incorrect";
+                if(result.status == 422){
+                    message = "Your settings were not saved, please check these fields:\n ";
+                    for(prop in result.responseJSON){
+                        if(!result.responseJSON.hasOwnProperty(prop)){
+                            continue;
+                        }
+                        message += (prop + "\n");
+                    }
+                }
+                if(result.status == false){
+                    message = result.message;
+                }
+                alert(message);
+                //location.reload();
+            }
+        });
+    }
+
+    function startApplicationConfiguration() {
+        $.ajax({
+            url: '{{ action('InstallController@runMigrate')}}',
+            type: 'POST',
+            data: {
+                "_token": "{{ csrf_token() }}",
+                user_username: $("#user_username").val(),
+                user_email: $("#user_email").val(),
+                user_password: $("#user_password").val(),
+                user_confirmpassword: $("#user_confirmpassword").val(),
+                user_realname: $("#user_realname").val(),
+                user_language: $("#user_language").val(),
+            },
+            success: function (result) {
+                if (result.status = true) {
+                    console.log(result);
+                    //alert("Database migration completed and admin account created");
+                    location.reload();
+                }
+            },
+            error: function (result) {
+                console.log(result);
+                var message = "There was a problem, your database migrations and admin account may not be complete";
+                if(result.status == 422){
+                    message = "Your settings were not saved, please check these fields:\n ";
+                    for(prop in result.responseJSON){
+                        if(!result.responseJSON.hasOwnProperty(prop)){
+                            continue;
+                        }
+                        message += (prop + "\n");
+                    }
+                }
+                if(result.status == false){
+                    message = result.message;
+                }
+                alert(message);
+                //location.reload();
+            }
+        });
+    }
+
+
+
+
 </script>
-@endsection
+@stop
 
 @stop
 

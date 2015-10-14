@@ -1,6 +1,7 @@
 <html>
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<!--<link rel="stylesheet" href="{{env('BASE_URL')}}"> -->
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 	<!-- Optional theme -->
@@ -47,13 +48,14 @@
 		<script type="text/javascript" src="{{ env('BASE_URL') }}public/jsc3d/jsc3d.js"></script>
 		<script type="text/javascript" src="{{ env('BASE_URL') }}public/jsc3d/jsc3d.webgl.js"></script>
 		<script type="text/javascript" src="{{ env('BASE_URL') }}public/jsc3d/jsc3d.touch.js"></script>
-		<!-- Dropdowns enhancement -->
-		<link href="{{ env('BASE_URL') }}public/dropdown_enhancement/dist/css/dropdowns-enhancement.css" rel="stylesheet"/>
-		<script type="text/javascript" src="{{ env('BASE_URL') }}public/dropdown_enhancement/dist/js/dropdowns-enhancement.js"></script>
+        <!-- Dropdowns enhancement -->
+        <link href="{{ env('BASE_URL') }}public/dropdowns_enhancement/dist/css/dropdowns-enhancement.css" rel="stylesheet"/>
+        <script type="text/javascript" src="{{ env('BASE_URL') }}public/dropdowns_enhancement/dist/js/dropdowns-enhancement.js"></script>
 	@endif
     <title>Kora 3</title>
+
+	<style>#app_container{padding-top: 70px;}</style> {{-- This fixes the css ghost--}}
 </head>
-<br />
 <body>
 		@if(isset($not_installed))
 			@include('partials.install_nav')
@@ -61,7 +63,7 @@
 			@include('partials.nav')
 		@endif
 
-    <div class="container">
+    <div id="app_container" class="container">
 		@include('flash::message')
 	
         @yield('content')
@@ -71,6 +73,25 @@
 	<script>
 		$('#flash-overlay-modal').modal();
 		//$('div.alert').not('.alert-important').delay(3000).slideUp(300);
+
+        formselecter = $("#form-submenu");
+        projectselecter = $("#project-submenu");
+
+        formselecter.mouseenter(function() {
+            $(this).attr("class", "dropdown-submenu open");
+        });
+
+        formselecter.mouseleave(function() {
+            $(this).attr("class", "dropdown-submenu");
+        });
+
+        projectselecter.mouseenter(function() {
+            $(this).attr("class", "dropdown-submenu open");
+        });
+
+        projectselecter.mouseleave(function() {
+            $(this).attr("class", "dropdown-submenu");
+        });
 	</script>
     @yield('footer')
 </body>
