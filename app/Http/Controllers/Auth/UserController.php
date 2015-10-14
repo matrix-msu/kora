@@ -126,6 +126,11 @@ class UserController extends Controller {
             return redirect('user/profile');
         }
 
+        elseif(strlen($new_pass) < 6){
+            flash()->overlay('Password less than 6 characters, please try again.', 'Whoops.');
+            return redirect('user/profile');
+        }
+
         elseif($new_pass != $confirm){
             flash()->overlay('Passwords do not match, please try again.', 'Whoops.');
             return redirect('user/profile');
