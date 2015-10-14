@@ -30,9 +30,12 @@
         <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[New Record]</a>
     </div>
     <hr/>
+
+    <div style="text-align: left">{!! $records->render() !!}</div>
+
     <h2>Records</h2>
 
-    @foreach($form->records as $record)
+    @foreach($records as $record)
         <div class="panel panel-default">
             <div>
                 <b>Record:</b> <a href="{{ action('RecordController@show',['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid]) }}">{{ $record->kid }}</a>

@@ -60,8 +60,10 @@ class RecordController extends Controller {
 
         $form = FormController::getForm($fid);
         $filesize = RecordController::getFormFilesize($fid);
+        $records = Record::paginate(10);
+        $records->setPath(env('BASE_URL').'public/projects/1/forms/1/records');
 
-        return view('records.index', compact('form', 'filesize'));
+        return view('records.index', compact('form', 'filesize', 'records'));
 	}
 
 	/**
