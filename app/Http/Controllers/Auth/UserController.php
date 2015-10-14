@@ -155,6 +155,11 @@ class UserController extends Controller {
     public function activator(Request $request)
     {
         $user = User::where('username', '=', $request->user)->first();
+        if($user==null){
+            flash()->overlay('User does not exist.', 'Whoops.');
+            return redirect('auth/activate');
+        }
+
         $token = trim($request->token);
 
         if ($user->regtoken == $token){
