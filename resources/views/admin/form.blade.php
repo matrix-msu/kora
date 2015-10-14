@@ -34,11 +34,21 @@
     </div>
 
     <div class="form-group">
-        {!! Form::submit('Update User', ['class' => 'btn btn-primary form-control', 'name' => 'update']) !!}
+        @if(sizeof($users)==1)
+            {!! Form::submit('Update User', ['class' => 'btn btn-primary form-control', 'name' => 'update', 'disabled']) !!}
+        @else
+            {!! Form::submit('Update User', ['class' => 'btn btn-primary form-control', 'name' => 'update']) !!}
+        @endif
     </div>
 
 {!! Form::close() !!}
 
+@if(sizeof($users)==1)
+    <button onclick="deleteUser()" class="btn btn-danger form-control" name="delete" disabled>
+        Delete User
+    </button>
+@else
     <button onclick="deleteUser()" class="btn btn-danger form-control" name="delete">
         Delete User
     </button>
+@endif
