@@ -26,4 +26,6 @@
     @include('records.fieldInputs.video')
 @elseif($field->type == '3D-Model')
     @include('records.fieldInputs.3dmodel')
+@elseif($field->type == 'Associator')
+    @include('records.fieldInputs.associator')
 @endif

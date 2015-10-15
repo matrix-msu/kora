@@ -26,4 +26,6 @@
     @include('records.fieldInputs.video-edit', ['video' => \App\VideoField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
 @elseif($field->type == '3D-Model')
     @include('records.fieldInputs.3dmodel-edit', ['model' => \App\ModelField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
+@elseif($field->type == 'Associator')
+    @include('records.fieldInputs.associator-edit', ['associator' => \App\AssociatorField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first()])
 @endif

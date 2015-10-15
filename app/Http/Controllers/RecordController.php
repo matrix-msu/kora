@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\AssociatorField;
 use App\DateField;
 use App\DocumentsField;
 use App\GalleryField;
@@ -335,6 +336,12 @@ class RecordController extends Controller {
                 }
                 $mf->model = $infoString;
                 $mf->save();
+            } else if($field->type=='Associator'){
+                $af = new AssociatorField();
+                $af->flid = $field->flid;
+                $af->rid = $record->rid;
+                $af->records = FieldController::msListArrayToString($value);
+                $af->save();
             }
         }
 
@@ -873,6 +880,19 @@ class RecordController extends Controller {
                 }
                 $mf->model = $infoString;
                 $mf->save();
+            } else if($field->type=='Associator'){
+                //we need to check if the field exist first
+                if(AssociatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
+                    $af = AssociatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                    $af->records = FieldController::msListArrayToString($value);
+                    $af->save();
+                }else {
+                    $af = new AssociatorField();
+                    $af->flid = $field->flid;
+                    $af->rid = $record->rid;
+                    $af->records = FieldController::msListArrayToString($value);
+                    $af->save();
+                }
             }
         }
 

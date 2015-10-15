@@ -429,6 +429,14 @@
                                     @endforeach
                                 @endif
                             @endforeach
+                        @elseif($field->type=='Associator')
+                            @foreach($record->associatorfields as $af)
+                                @if($af->flid == $field->flid)
+                                    @foreach(explode('[!]',$af->records) as $opt)
+                                        <div>{{ $opt }}</div>
+                                    @endforeach
+                                @endif
+                            @endforeach
                         @endif
                     </span>
                 </div>
