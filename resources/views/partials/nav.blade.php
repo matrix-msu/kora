@@ -13,7 +13,11 @@
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <!-- Left justified links -->
-              <li><a href="{{ url('/projects') }}">{{trans('nav.dashboard')}}</a></li>
+              @if (\Auth::user() != null && \Auth::user()->admin)
+                  @include('partials.menu.dashboard')
+              @else
+                  <li><a href="{{ url('/projects') }}">{{trans('nav.dashboard')}}</a></li>
+              @endif
               @yield('leftNavLinks')
           </ul>
 		  <ul class="nav navbar-nav navbar-right">
