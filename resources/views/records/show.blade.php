@@ -11,24 +11,31 @@
     <div><b>Internal Name:</b> {{ $form->slug }}</div>
     <div><b>Description:</b> {{ $form->description }}</div>
 
-    @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
-        <form action="{{action('FormGroupController@index', ['fid'=>$form->fid])}}" style="display: inline">
-            <button type="submit" class="btn btn-default">Manage Groups</button>
-        </form>
-        <form action="{{action('RevisionController@index', ['fid'=>$form->fid, 'pid'=>$form->pid])}}" style="display: inline">
-            <button type="submit" class="btn btn-default">Revision History</button>
-        </form>
-        <form action="{{action('RecordPresetController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
-            <button type="submit" class="btn btn-default">Manage Presets</button>
-        </form>
-    @endif
-
     <div>
         <a href="{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}">[Records]</a>
         @if(\Auth::user()->canIngestRecords($form))
-        <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[New Record]</a>
+            <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[New Record]</a>
         @endif
     </div>
+
+    @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
+        <hr/>
+
+        <h4> Form Admin Panel</h4>
+        <form action="{{action('FormGroupController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
+            <button type="submit" class="btn btn-default">Manage Groups</button>
+        </form>
+        <form action="{{action('AssociationController@index', ['fid'=>$form->fid, 'pid'=>$form->pid])}}" style="display: inline">
+            <button type="submit" class="btn btn-default">Manage Associations</button>
+        </form>
+        <form action="{{action('RevisionController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
+            <button type="submit" class="btn btn-default">Manage Record Revisions</button>
+        </form>
+        <form action="{{action('RecordPresetController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
+            <button type="submit" class="btn btn-default">Manage Record Presets</button>
+        </form>
+    @endif
+
     <hr/>
     <h2>Record: {{$record->kid}}</h2>
     @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))

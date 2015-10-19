@@ -19,5 +19,12 @@
         <li><a href="{{ url('/projects/'.$pid).'/forms/'.$fid.'/records/create'}}">New Record</a></li>
         <li class="divider"></li>
         <li><a href="{{url('/projects/'.$pid).'/forms/'.$fid.'/metadata/setup'}}">Metadata</a></li>
+        @if (\Auth::user()->admin || \Auth::user()->isFormAdmin(\App\Http\Controllers\FormController::getForm($fid)))
+            <li class="divider"></li>
+            <li><a href="{{action('FormGroupController@index', ['pid'=>$pid, 'fid'=>$fid])}}">Manage Groups</a></li>
+            <li><a href="{{action('AssociationController@index', ['fid'=>$fid, 'pid'=>$pid])}}">Manage Associations</a></li>
+            <li><a href="{{action('RevisionController@index', ['pid'=>$pid, 'fid'=>$fid])}}">Manage Record Revisions</a></li>
+            <li><a href="{{action('RecordPresetController@index', ['pid'=>$pid, 'fid'=>$fid])}}">Manage Record Presets</a></li>
+        @endif
     </ul>
 </li>

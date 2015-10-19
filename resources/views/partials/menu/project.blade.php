@@ -14,5 +14,10 @@
                 </ul>
             </li>
         @endif
+        @if (\Auth::user()->admin ||  \Auth::user()->isProjectAdmin(\App\Http\Controllers\ProjectController::getProject($pid)))
+            <li class="divider"></li>
+            <li><a href="{{action('ProjectGroupController@index', ['pid'=>$pid])}}">Manage Groups</a></li>
+            <li><a href="{{action('OptionPresetController@index', ['pid'=>$pid])}}">Manage Option Presets</a></li>
+        @endif
     </ul>
 </li>

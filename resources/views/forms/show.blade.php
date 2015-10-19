@@ -11,25 +11,36 @@
     <div><b>Internal Names:</b> {{ $form->slug }}</div>
     <div><b>Description:</b> {{ $form->description }}</div>
 
+    <div>
+        <a href="{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}">[Records]</a>
+        @if(\Auth::user()->canIngestRecords($form))
+            <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[New Record]</a>
+        @endif
+        @if(\Auth::user()->canModifyRecords($form))
+            <a href="{{ action('RecordController@showMassAssignmentView',['pid' => $form->pid, 'fid' => $form->fid]) }}">[Mass Assign Records]</a>
+        @endif
+    </div>
+
     @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
+        <hr/>
+
+        <h4> Form Admin Panel</h4>
         <form action="{{action('FormGroupController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
             <button type="submit" class="btn btn-default">Manage Groups</button>
         </form>
         <form action="{{action('AssociationController@index', ['fid'=>$form->fid, 'pid'=>$form->pid])}}" style="display: inline">
             <button type="submit" class="btn btn-default">Manage Associations</button>
         </form>
-        <span>Make Preset: </span><input type="checkbox" onchange="presetForm()" id="preset" @if($form->preset) checked @endif>
+        <form action="{{action('RevisionController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
+            <button type="submit" class="btn btn-default">Manage Record Revisions</button>
+        </form>
+        <form action="{{action('RecordPresetController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
+            <button type="submit" class="btn btn-default">Manage Record Presets</button>
+        </form>
+        <div>
+            <span>Make Form Preset: </span><input type="checkbox" onchange="presetForm()" id="preset" @if($form->preset) checked @endif>
+        </div>
     @endif
-
-    <div>
-        <a href="{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}">[Records]</a>
-        @if(\Auth::user()->canIngestRecords($form))
-        <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[New Record]</a>
-        @endif
-        @if(\Auth::user()->canModifyRecords($form))
-                <a href="{{ action('RecordController@showMassAssignmentView',['pid' => $form->pid, 'fid' => $form->fid]) }}">[Mass Assign Records]</a>
-            @endif
-    </div>
     <hr/>
     <h2>Fields</h2>
 

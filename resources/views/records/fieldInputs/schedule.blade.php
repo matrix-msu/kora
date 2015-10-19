@@ -25,7 +25,6 @@
     </div>
 </div>
 
-@section('footer')
 <script>
     $('#startdatetime{{$field->flid}}').datetimepicker({
         minDate:'{{ \App\Http\Controllers\FieldController::getFieldOption($field, 'Start') }}',
@@ -93,4 +92,3 @@
         }
     });
 </script>
-@stop
