@@ -12,18 +12,23 @@
     <div><b>Description:</b> {{ $form->description }}</div>
 
     @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
-        <form action="{{action('FormGroupController@index', ['fid'=>$form->fid])}}" style="display: inline">
+        <form action="{{action('FormGroupController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
             <button type="submit" class="btn btn-default">Manage Groups</button>
         </form>
+        <form action="{{action('AssociationController@index', ['fid'=>$form->fid, 'pid'=>$form->pid])}}" style="display: inline">
+            <button type="submit" class="btn btn-default">Manage Associations</button>
+        </form>
         <form action="{{action('RevisionController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
-            <button type="submit" class="btn btn-default">Revision History</button>
+            <button type="submit" class="btn btn-default">Manage Record Revisions</button>
         </form>
         <form action="{{action('RecordPresetController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
-            <button type="submit" class="btn btn-default">Manage Presets</button>
+            <button type="submit" class="btn btn-default">Manage Record Presets</button>
         </form>
-        <button class="btn btn-danger" onclick="deleteAll()">Delete All Records</button>
-        <button class="btn btn-danger" onclick="cleanUp()">Clean Up Old Record Files</button>
-        <span><b>Current Form Filesize:</b> {{$filesize}}</span>
+        <div>
+            <button class="btn btn-danger" onclick="deleteAll()">Delete All Records</button>
+            <button class="btn btn-danger" onclick="cleanUp()">Clean Up Old Record Files</button>
+            <span><b>Current Form Filesize:</b> {{$filesize}}</span>
+        </div>
     @endif
 
     <div>
