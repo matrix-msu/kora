@@ -11,6 +11,9 @@
     <div><b>Description:</b> {{ $project->description }}</div>
 
     @if (\Auth::user()->admin ||  \Auth::user()->isProjectAdmin($project))
+        <hr/>
+
+        <h4> Project Admin Panel</h4>
     <form action="{{action('ProjectGroupController@index', ['pid'=>$project->pid])}}" style="display: inline">
         <button type="submit" class="btn btn-default">Manage Groups</button>
     </form>

@@ -11,7 +11,17 @@
     <div><b>Internal Name:</b> {{ $form->slug }}</div>
     <div><b>Description:</b> {{ $form->description }}</div>
 
+    <div>
+        <a href="{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}">[Records]</a>
+        @if(\Auth::user()->canIngestRecords($form))
+            <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[New Record]</a>
+        @endif
+    </div>
+
     @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
+        <hr/>
+
+        <h4> Form Admin Panel</h4>
         <form action="{{action('FormGroupController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
             <button type="submit" class="btn btn-default">Manage Groups</button>
         </form>
@@ -26,12 +36,6 @@
         </form>
     @endif
 
-    <div>
-        <a href="{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}">[Records]</a>
-        @if(\Auth::user()->canIngestRecords($form))
-        <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[New Record]</a>
-        @endif
-    </div>
     <hr/>
     <h2>Record: {{$record->kid}}</h2>
     @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))

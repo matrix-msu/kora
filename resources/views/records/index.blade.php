@@ -11,7 +11,14 @@
     <div><b>Internal Name:</b> {{ $form->slug }}</div>
     <div><b>Description:</b> {{ $form->description }}</div>
 
+    <div>
+        <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[New Record]</a>
+    </div>
+
     @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
+        <hr/>
+
+        <h4> Form Admin Panel</h4>
         <form action="{{action('FormGroupController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
             <button type="submit" class="btn btn-default">Manage Groups</button>
         </form>
@@ -31,9 +38,6 @@
         </div>
     @endif
 
-    <div>
-        <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[New Record]</a>
-    </div>
     <hr/>
 
     <div style="text-align: left">{!! $records->render() !!}</div>
