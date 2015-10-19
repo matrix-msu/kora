@@ -39,7 +39,9 @@
                                                     @foreach($all_users as $user)
                                                         @if($projectGroup->hasUser($user))
                                                         @else
-                                                            <option id="{{$user->id}}">{{$user->username}}</option>
+                                                            @if(\Auth::user()->id != $user->id)
+                                                                <option id="{{$user->id}}">{{$user->username}}</option>
+                                                            @endif
                                                         @endif
                                                     @endforeach
                                                 </select>
@@ -79,7 +81,9 @@
                                                     @foreach($all_users as $user)
                                                         @if($projectGroup->hasUser($user))
                                                         @else
-                                                            <option id="{{$user->id}}">{{$user->username}}</option>
+                                                            @if(\Auth::user()->id != $user->id)
+                                                                <option id="{{$user->id}}">{{$user->username}}</option>
+                                                            @endif
                                                         @endif
                                                     @endforeach
                                                 </select>

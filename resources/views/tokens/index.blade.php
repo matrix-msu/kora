@@ -9,15 +9,12 @@
                         <h3>Manage Tokens</h3>
                     </div>
                     <div class="panel-body">
-
-
-
                         @foreach(array('Search', 'Edit', 'Create', 'Delete') as $type)
-                            <table class="table">
+                            <table class="table table-striped">
                                 <thead>
                                 <tr>
                                     <th>{{$type}} Tokens</th>
-                                    <th>Projects</th>
+                                    <th class="pull-right">Projects</th>
                                 </tr>
                                 </thead>
 
@@ -27,7 +24,7 @@
                                         <tr>
                                             <td>{{$token->token}} <a onclick="deleteToken({{$token->id}})" href="javascript:void(0)">[Delete]</a></td>
                                             <td>
-                                                <ul style="list-style-type: none; padding: 0;">
+                                                <ul class="pull-right" style="list-style-type: none; padding: 0;">
                                                     @foreach ($token->projects()->get() as $project)
                                                         <li>
                                                             {{$project->name}} <a onclick="deleteProject({{$project->pid}}, {{$token->id}})" href="javascript:void(0)">[X]</a>
@@ -89,8 +86,10 @@
         }
 
         function addProject(id) {
-            var pid = $('#dropdown' +id+ ' option:selected').attr('id');
-            var token = $('#dropdown' +id+ ' option:selected').attr('token');
+            var selector = $('#dropdown' +id+ ' option:selected');
+
+            var pid = selector.attr('id');
+            var token = selector.attr('token');
 
             $.ajax({
                 //Same method as deleteProject

@@ -100,51 +100,60 @@ class AdminController extends Controller {
     public function batch(Request $request)
     {
         $emails = str_replace(',', ' ', $request['emails']);
-        $emails = str_replace('  ', ' ', $emails);
+        $emails = preg_replace('!\s+!', ' ', $emails);
         $emails = array_unique(explode(' ', $emails));
 
-        $skipped = 0;
-        $created = 0;
-
-        foreach($emails as $email)
-        {
-            if(!AdminController::emailExists($email)) {
-                $username = explode('@', $email)[0];
-                $len = strlen($username);
-                $i = 1;
-                $username_array = array();
-                $username_array[0] = $username;
-                while (AdminController::usernameExists($username)) {
-                    $username_array[1] = $i;
-                    $username = implode($username_array);
-                    $i++;
-                }
-
-                $user = new User();
-                $user->username = $username;
-                $user->email = $email;
-                $password = AdminController::passwordGen();
-                $user->password = bcrypt($password);
-                $token = AuthenticatesAndRegistersUsers::makeRegToken();
-                $user->regtoken = $token;
-                $user->save();
-
-                Mail::send('emails.batch-activation', compact('token', 'password', 'username'), function ($message) use ($email) {
-                    $message->from(env('MAIL_FROM_ADDRESS'));
-                    $message->to($email);
-                    $message->subject('Kora Account Activation');
-                });
-                $created++;
-            }
-            else {
-                $skipped++;
-            }
+        if ($emails[0] == "") {
+            flash()->overlay("You must enter something!", "Whoops.");
+            return redirect('admin/users');
         }
-        if($skipped)
-            flash()->overlay($skipped.' e-mail(s) were in use, '.$created.' user(s) created.', 'Success');
-        else
-            flash()->overlay($created. ' user(s) created.', 'Success');
-        return redirect('admin/users');
+        else {
+            $skipped = 0;
+            $created = 0;
+
+            foreach ($emails as $email) {
+                if (!AdminController::emailExists($email)) {
+                    if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                        $username = explode('@', $email)[0];
+                        $len = strlen($username);
+                        $i = 1;
+                        $username_array = array();
+                        $username_array[0] = $username;
+                        while (AdminController::usernameExists($username)) {
+                            $username_array[1] = $i;
+                            $username = implode($username_array);
+                            $i++;
+                        }
+
+                        $user = new User();
+                        $user->username = $username;
+                        $user->email = $email;
+                        $password = AdminController::passwordGen();
+                        $user->password = bcrypt($password);
+                        $token = AuthenticatesAndRegistersUsers::makeRegToken();
+                        $user->regtoken = $token;
+                        $user->save();
+
+                        Mail::send('emails.batch-activation', compact('token', 'password', 'username'), function ($message) use ($email) {
+                            $message->from(env('MAIL_FROM_ADDRESS'));
+                            $message->to($email);
+                            $message->subject('Kora Account Activation');
+                        });
+                        $created++;
+                    }
+                    else {
+                        $skipped++;
+                    }
+                } else {
+                    $skipped++;
+                }
+            }
+            if ($skipped)
+                flash()->overlay($skipped . ' entries skipped, ' . $created . ' user(s) created.', 'Success');
+            else
+                flash()->overlay($created . ' user(s) created.', 'Success');
+            return redirect('admin/users');
+        }
     }
 
     /**

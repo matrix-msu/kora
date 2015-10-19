@@ -27,7 +27,7 @@ class RecordPresetController extends Controller {
     }
 
     /**
-     * The record preset index. 
+     * The record preset index.
      *
      * @param $pid
      * @param $fid
