@@ -53,8 +53,6 @@
         <script type="text/javascript" src="{{ env('BASE_URL') }}public/dropdowns_enhancement/dist/js/dropdowns-enhancement.js"></script>
 	@endif
     <title>Kora 3</title>
-
-	<style>#app_container{padding-top: 70px;}</style> {{-- This fixes the css ghost--}}
 </head>
 <body>
 		@if(isset($not_installed))

@@ -12,10 +12,13 @@
 
 <div class="form-group">
     {!! Form::label('type','Field Type: ') !!}
-    {!! Form::select('type', ['Text' => 'Text', 'Rich Text' => 'Rich Text', 'Number' => 'Number',
-        'List' => 'List', 'Multi-Select List' => 'Multi-Select List', 'Generated List' => 'Generated List',
-        'Date' => 'Date', 'Schedule' => 'Schedule', 'Geolocator' => 'Geolocator', 'Documents' => 'Documents',
-        'Gallery' => 'Gallery', 'Playlist' => 'Playlist', 'Video' => 'Video', '3D-Model' => '3D-Model', 'Associator' => 'Associator'],
+    {!! Form::select('type',
+        ['Text Fields' => array('Text' => 'Text', 'Rich Text' => 'Rich Text', 'Number' => 'Number'),
+        'List Fields' => array('List' => 'List', 'Multi-Select List' => 'Multi-Select List', 'Generated List' => 'Generated List'),
+        'Date Fields' => array('Date' => 'Date', 'Schedule' => 'Schedule'),
+        'File Fields' => array('Documents' => 'Documents','Gallery' => 'Gallery (jpg, gif, png)',
+            'Playlist' => 'Playlist (mp3, wav, oga)', 'Video' => 'Video (mp4, ogv)', '3D-Model' => '3D-Model (obj, stl)'),
+        'Specialty Fields' => array('Geolocator' => 'Geolocator (latlon, utm, textual)','Associator' => 'Associator')],
         null,['class' => 'form-control']) !!}
 </div>
 
