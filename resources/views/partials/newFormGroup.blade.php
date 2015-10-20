@@ -1,6 +1,4 @@
-{!! Form::open(['method' => 'POST', 'action' => ['FormGroupController@create', $project->pid]]) !!}
-
-{!! Form::hidden('form', $form->fid, ['class' => 'form-control']) !!}
+{!! Form::open(['method' => 'POST', 'action' => ['FormGroupController@create', 'pid'=>$form->pid, 'fid'=>$form->fid]]) !!}
 
 <div class="form-group">
     {!! Form::label('name', 'Name: ') !!}

@@ -50,12 +50,13 @@ class FormGroupController extends Controller {
      * @param Request $request
      * @return Response
      */
-    public function create(Request $request)
+    public function create($pid, $fid, Request $request)
     {
-        $fid = $request['form'];
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+
         $form = FormController::getForm($fid);
-        $project = $form->project()->first();
-        $pid = $project->pid;
 
         if($request['name'] == ""){
             flash()->overlay('You must enter a group name.', 'Whoops.');
@@ -67,8 +68,8 @@ class FormGroupController extends Controller {
         if(!is_null($request['users']))
             $group->users()->attach($request['users']);
 
-        flash()->overlay('Group created!', 'Success');
-        return redirect(action('FormGroupController@index', ['fid'=>$form->fid]));
+        flash()->overlay('Group created!', 'Success!');
+        return redirect(action('FormGroupController@index', ['pid'=>$form->pid, 'fid'=>$form->fid]));
     }
 
     /**
@@ -111,8 +112,10 @@ class FormGroupController extends Controller {
      */
     public function updatePermissions(Request $request)
     {
-        $instance = FormGroup::where('id', '=', $request['formGroup'])->first();
+        $formGroup = FormGroup::where('id', '=', $request['formGroup'])->first();
 
+        //Because of some name convention problems in JavaScript we use a simple associative array to
+        //relate the permissions passed by the request to the form group
         $permissions = [['permCreate', 'create'],
             ['permEdit', 'edit'],
             ['permDelete', 'delete'],
@@ -123,11 +126,11 @@ class FormGroupController extends Controller {
 
         foreach($permissions as $permission){
             if($request[$permission[0]])
-                $instance[$permission[1]] = 1;
+                $formGroup[$permission[1]] = 1;
             else
-                $instance[$permission[1]] = 0;
+                $formGroup[$permission[1]] = 0;
         }
-        $instance->save();
+        $formGroup->save();
     }
 
 
