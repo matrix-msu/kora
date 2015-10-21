@@ -157,6 +157,8 @@ class ProjectController extends Controller {
      */
     public function isProjectAdmin(User $user, Project $project)
     {
+        if ($user->admin) return true;
+
         $adminGroup = $project->adminGroup()->first();
         if($adminGroup->hasUser($user))
             return true;

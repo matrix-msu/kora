@@ -15,7 +15,7 @@
             valuearray[0] = 'List';
             valuearray[1] = options;
         }
-       else if(preset_type == "Text"){
+        else if(preset_type == "Text"){
             valuearray[0] = "Text";
             valuearray[1] = $("#value").val();
         }
@@ -35,11 +35,11 @@
             valuearray[0] = "Schedule";
             valuearray[1] = options;
         }
-       else{
+        else{
             alert("This field has no options that can be saved as a preset");
         }
 
-       return valuearray;
+        return valuearray;
    }
 
 

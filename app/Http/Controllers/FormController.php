@@ -30,6 +30,10 @@ class FormController extends Controller {
 	 */
 	public function create($pid)
 	{
+        if(!ProjectController::validProj($pid)){
+            return redirect('projects');
+        }
+
         if(!FormController::checkPermissions($pid, 'create')){
             return redirect('projects/'.$pid.'/forms');
         }
@@ -99,12 +103,12 @@ class FormController extends Controller {
 	 */
 	public function edit($pid, $fid)
     {
-        if(!FormController::checkPermissions($pid, 'edit')){
-            return redirect('/projects/'.$pid.'/forms');
-        }
-
         if(!FormController::validProjForm($pid,$fid)){
             return redirect('projects');
+        }
+
+        if(!FormController::checkPermissions($pid, 'edit')){
+            return redirect('/projects/'.$pid.'/forms');
         }
 
         $form = FormController::getForm($fid);
@@ -122,6 +126,10 @@ class FormController extends Controller {
 	 */
 	public function update($pid, $fid, FormRequest $request)
 	{
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+
         $form = FormController::getForm($fid);
 
         if(!FormController::checkPermissions($pid, 'edit')){
@@ -143,14 +151,14 @@ class FormController extends Controller {
 	 */
 	public function destroy($pid, $fid)
 	{
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+
         if(!FormController::checkPermissions($pid, 'delete')){
             return redirect('/projects/'.$pid.'/forms');
         }
 
-        if(!FormController::validProjForm($pid,$fid)){
-            return redirect('projects');
-        }
-        
         $form = FormController::getForm($fid);
         $form->delete();
 
@@ -226,6 +234,14 @@ class FormController extends Controller {
         return redirect('projects/'.$form->pid.'/forms/'.$form->fid);
     }
 
+    /**
+     * Sets a form as a preset.
+     *
+     * @param $pid
+     * @param $fid
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function preset($pid, $fid, Request $request)
     {
         if(!FormController::validProjForm($pid,$fid)){
@@ -395,6 +411,7 @@ class FormController extends Controller {
         $projectAdmins = $projectAdminGroup->users()->get();
         $idArray = [];
 
+        //Add all current project admins to the form's admin group.
         foreach($projectAdmins as $projectAdmin)
             $idArray[] .= $projectAdmin->id;
 
@@ -416,6 +433,12 @@ class FormController extends Controller {
         return $adminGroup;
     }
 
+    /**
+     * Creates the form from a preset form.
+     *
+     * @param Form $form
+     * @param $fid
+     */
     private function addPresets(Form $form, $fid)
     {
         $preset = Form::where('fid', '=', $fid)->first();
@@ -424,6 +447,7 @@ class FormController extends Controller {
 
         $form->layout = $preset->layout;
 
+        //Duplicate fields
         foreach($preset->fields()->get() as $field)
         {
             $new = new Field();
