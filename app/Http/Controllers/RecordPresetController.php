@@ -100,6 +100,7 @@ class RecordPresetController extends Controller {
         foreach($field_collect as $field)
         {
             $data = array();
+            $flid_array = array();
             $data['flid'] = $field->flid;
             $data['type'] = $field->type;
 

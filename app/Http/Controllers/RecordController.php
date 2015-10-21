@@ -51,12 +51,12 @@ class RecordController extends Controller {
 	 */
 	public function index($pid, $fid)
 	{
-        if(!RecordController::checkPermissions($fid)) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
-
         if(!FormController::validProjForm($pid,$fid)){
             return redirect('projects');
+        }
+
+        if(!RecordController::checkPermissions($fid)) {
+            return redirect('projects/' . $pid . '/forms/' . $fid);
         }
 
         $form = FormController::getForm($fid);
@@ -74,12 +74,12 @@ class RecordController extends Controller {
 	 */
 	public function create($pid, $fid)
 	{
-        if(!RecordController::checkPermissions($fid, 'ingest')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
-
         if(!FormController::validProjForm($pid,$fid)){
             return redirect('projects');
+        }
+
+        if(!RecordController::checkPermissions($fid, 'ingest')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
         $form = FormController::getForm($fid);
@@ -360,12 +360,12 @@ class RecordController extends Controller {
 	 */
 	public function show($pid, $fid, $rid)
 	{
-        if(!RecordController::checkPermissions($fid)) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
-
         if(!RecordController::validProjFormRecord($pid, $fid, $rid)){
             return redirect('projects');
+        }
+
+        if(!RecordController::checkPermissions($fid)) {
+            return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
         $form = FormController::getForm($fid);
@@ -383,12 +383,12 @@ class RecordController extends Controller {
 	 */
 	public function edit($pid, $fid, $rid)
 	{
-        if(!\Auth::user()->isOwner(RecordController::getRecord($rid)) && !RecordController::checkPermissions($fid, 'modify')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
-
         if(!RecordController::validProjFormRecord($pid, $fid, $rid)){
             return redirect('projects');
+        }
+
+        if(!\Auth::user()->isOwner(RecordController::getRecord($rid)) && !RecordController::checkPermissions($fid, 'modify')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
         $form = FormController::getForm($fid);
@@ -407,6 +407,10 @@ class RecordController extends Controller {
     public function cleanUp($pid, $fid) {
         if(!FormController::validProjForm($pid,$fid)){
             return redirect('projects');
+        }
+
+        if(!\Auth::user()->isFormAdmin(FormController::getForm($fid))){
+            flash()->overlay('You do not have permission for that.', 'Whoops.');
         }
 
         // Using revisions, if a record's most recent change is a deletion,
@@ -912,12 +916,12 @@ class RecordController extends Controller {
 	 */
 	public function destroy($pid, $fid, $rid)
 	{
-        if(!\Auth::user()->isOwner(RecordController::getRecord($rid)) && !RecordController::checkPermissions($fid, 'destroy') ) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
-
         if(!RecordController::validProjFormRecord($pid, $fid, $rid)){
             return redirect('projects/'.$pid.'forms/');
+        }
+
+        if(!\Auth::user()->isOwner(RecordController::getRecord($rid)) && !RecordController::checkPermissions($fid, 'destroy') ) {
+            return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
         $record = RecordController::getRecord($rid);
@@ -941,7 +945,7 @@ class RecordController extends Controller {
     public function deleteAllRecords($pid, $fid)
     {
         $form = FormController::getForm($fid);
-        if(!\Auth::user()->admin && \Auth::user()->isFormAdmin($form)){
+        if(!\Auth::user()->isFormAdmin($form)){
             flash()->overlay('You do not have permission for that.', 'Whoops.');
         }
         else {

@@ -37,12 +37,12 @@ class FieldController extends Controller {
      */
 	public function create($pid, $fid)
 	{
-        if(!FieldController::checkPermissions($fid, 'create')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
-        }
-
         if(!FormController::validProjForm($pid, $fid)){
             return redirect('projects');
+        }
+
+        if(!FieldController::checkPermissions($fid, 'create')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
         }
 
 		$form = FormController::getForm($fid);
@@ -68,6 +68,7 @@ class FieldController extends Controller {
         $form->layout = $layout[0].'<ID>'.$field->flid.'</ID></LAYOUT>';
         $form->save();
 
+        //A field has been changed, so current record rollbacks become invalid.
         RevisionController::wipeRollbacks($form->fid);
 
         flash()->overlay('Your field has been successfully created!', 'Good Job');
@@ -86,12 +87,12 @@ class FieldController extends Controller {
      */
 	public function show($pid, $fid, $flid)
 	{
-        if(!FieldController::checkPermissions($fid, 'edit')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
-        }
-
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
             return redirect('projects');
+        }
+
+        if(!FieldController::checkPermissions($fid, 'edit')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
         }
 
         $field = FieldController::getField($flid);
@@ -144,12 +145,12 @@ class FieldController extends Controller {
      */
 	public function edit($pid, $fid, $flid)
 	{
-        if(!FieldController::checkPermissions($fid, 'edit')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
-        }
-
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
             return redirect('projects');
+        }
+
+        if(!FieldController::checkPermissions($fid, 'edit')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
         }
 
         $field = FieldController::getField($flid);
@@ -167,18 +168,19 @@ class FieldController extends Controller {
      */
 	public function update($pid, $fid, $flid, FieldRequest $request)
 	{
-        if(!FieldController::checkPermissions($fid, 'edit')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
-        }
-
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
             return redirect('projects');
+        }
+
+        if(!FieldController::checkPermissions($fid, 'edit')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
         }
 
 		$field = FieldController::getField($flid);
 
         $field->update($request->all());
 
+        //A field has been changed, so current record rollbacks become invalid.
         RevisionController::wipeRollbacks($fid);
 
         flash()->overlay('Your field has been successfully updated!', 'Good Job!');
@@ -188,12 +190,12 @@ class FieldController extends Controller {
 
     public function updateRequired($pid, $fid, $flid, FieldRequest $request)
     {
-        if(!FieldController::checkPermissions($fid, 'edit')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
-        }
-
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
             return redirect('projects');
+        }
+
+        if(!FieldController::checkPermissions($fid, 'edit')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
         }
 
         $field = FieldController::getField($flid);
@@ -201,6 +203,7 @@ class FieldController extends Controller {
         $field->required = $request->required;
         $field->save();
 
+        //A field has been changed, so current record rollbacks become invalid.
         RevisionController::wipeRollbacks($fid);
 
         flash()->success('Option updated!');
@@ -210,12 +213,12 @@ class FieldController extends Controller {
 
     public function updateDefault($pid, $fid, $flid, Request $request)
     {
-        if(!FieldController::checkPermissions($fid, 'edit')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
-        }
-
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
             return redirect('projects');
+        }
+
+        if(!FieldController::checkPermissions($fid, 'edit')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
         }
 
         $field = FieldController::getField($flid);
@@ -241,6 +244,7 @@ class FieldController extends Controller {
 
         $field->save();
 
+        //A field has been changed, so current record rollbacks become invalid.
         RevisionController::wipeRollbacks($fid);
 
         flash()->success('Option updated!');
@@ -250,18 +254,19 @@ class FieldController extends Controller {
 
     public function updateOptions($pid, $fid, $flid, Request $request)
     {
-        if(!FieldController::checkPermissions($fid, 'edit')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
-        }
-
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
             return redirect('projects');
+        }
+
+        if(!FieldController::checkPermissions($fid, 'edit')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
         }
 
         $field = FieldController::getField($flid);
 
         FieldController::setFieldOptions($field, $request->option, $request->value);
 
+        //A field has been changed, so current record rollbacks become invalid.
         RevisionController::wipeRollbacks($fid);
 
         if($request->option != 'SearchForms') {
@@ -282,12 +287,12 @@ class FieldController extends Controller {
      */
 	public function destroy($pid, $fid, $flid)
 	{
-        if(!FieldController::checkPermissions($fid, 'delete')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
-        }
-
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
             return redirect('projects/'.$pid.'forms/');
+        }
+
+        if(!FieldController::checkPermissions($fid, 'delete')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
         }
 
         $field = FieldController::getField($flid);
@@ -375,6 +380,15 @@ class FieldController extends Controller {
         $field->save();
     }
 
+    /**
+     * Checks if a user has a certain permission.
+     * If no permission is provided checkPermissions simply decides if they are in any form group.
+     * This acts as the "can read" permission level.
+     *
+     * @param $fid
+     * @param string $permission
+     * @return bool
+     */
     private function checkPermissions($fid, $permission='')
     {
         switch($permission) {
@@ -410,7 +424,9 @@ class FieldController extends Controller {
     }
 
 
-    //THIS SECTION IS RESERVED FOR FUNCTIONS DEALING WITH SPECIFIC LIST TYPES//////////////////////////////////////////
+    /****************************************************************************************************
+     *          THIS SECTION IS RESERVED FOR FUNCTIONS DEALING WITH SPECIFIC LIST TYPES                 *
+     ****************************************************************************************************/
 
     public function saveList($pid, $fid, $flid){
         if ($_REQUEST['action']=='SaveList') {

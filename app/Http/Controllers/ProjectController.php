@@ -41,6 +41,8 @@ class ProjectController extends Controller {
 	 */
 	public function create()
 	{
+        if(\Auth::user()->admin);
+
         $users = User::lists('username', 'id');
         return view('projects.create', compact('users'));
 	}
@@ -71,6 +73,10 @@ class ProjectController extends Controller {
 	 */
 	public function show($id)
     {
+        if (!ProjectController::validProj(($id))){
+            return redirect('/projects');
+        }
+
         if(!FormController::checkPermissions($id)){
             return redirect('/projects');
         }
@@ -87,7 +93,18 @@ class ProjectController extends Controller {
 	 */
 	public function edit($id)
 	{
+        if (!ProjectController::validProj(($id))){
+            return redirect('/projects');
+        }
+
+        $user = \Auth::user();
         $project = ProjectController::getProject($id);
+
+        if (!$user->admin && !ProjectController::isProjectAdmin($user, $project)) {
+            flash()->overlay('You do not have permission to edit that project.', 'Whoops.');
+            return redirect('/projects');
+        }
+
         return view('projects.edit', compact('project'));
 	}
 
@@ -114,7 +131,18 @@ class ProjectController extends Controller {
 	 */
 	public function destroy($id)
     {
+        if (!ProjectController::validProj(($id))){
+            return redirect('/projects');
+        }
+
+        $user = \Auth::user();
         $project = ProjectController::getProject($id);
+
+        if (!$user->admin && !ProjectController::isProjectAdmin($user, $project)) {
+            flash()->overlay('You do not have permission to delete that project.', 'Whoops.');
+            return redirect('/projects');
+        }
+
         $project->delete();
 
         flash()->overlay('Your project has been successfully deleted!','Good Job');
@@ -129,6 +157,8 @@ class ProjectController extends Controller {
      */
     public function isProjectAdmin(User $user, Project $project)
     {
+        if ($user->admin) return true;
+
         $adminGroup = $project->adminGroup()->first();
         if($adminGroup->hasUser($user))
             return true;
@@ -165,6 +195,12 @@ class ProjectController extends Controller {
         return $adminGroup;
     }
 
+    /**
+     * Gets the project based on id or slug.
+     *
+     * @param $id
+     * @return Project $project (possibly null)
+     */
     public static function getProject($id){
         $project = Project::where('pid','=',$id)->first();
         if(is_null($project)){
@@ -172,5 +208,15 @@ class ProjectController extends Controller {
         }
 
         return $project;
+    }
+
+    /**
+     * Determines the validity of a pid.
+     *
+     * @param $id
+     * @return bool
+     */
+    public static function validProj($id){
+        return !is_null(ProjectController::getProject($id));
     }
 }
