@@ -76,12 +76,12 @@ class FormController extends Controller {
 	 */
 	public function show($pid, $fid)
 	{
-        if(!FormController::checkPermissions($pid)){
-            return redirect('/projects');
-        }
-
         if(!FormController::validProjForm($pid,$fid)){
             return redirect('projects');
+        }
+
+        if(!FormController::checkPermissions($pid)){
+            return redirect('/projects');
         }
 
         $form = FormController::getForm($fid);
@@ -330,6 +330,15 @@ class FormController extends Controller {
         return $vals;
     }
 
+    /**
+     * Checks if a user has a certain permission.
+     * If no permission is provided checkPermissions simply decides if they are in any project group.
+     * This acts as the "can read" permission level.
+     *
+     * @param $pid
+     * @param string $permission
+     * @return bool
+     */
     public static function checkPermissions($pid, $permission='')
     {
         switch ($permission) {
@@ -354,7 +363,7 @@ class FormController extends Controller {
                     return false;
                 }
                 return true;
-            default:
+            default: //"Read Only"
                 if(!(\Auth::user()->inAProjectGroup(ProjectController::getProject($pid))))
                 {
                     flash()->overlay('You do not have permission to view that project.', 'Whoops.');
