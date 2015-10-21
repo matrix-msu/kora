@@ -419,7 +419,7 @@
                                             $link = action('FieldController@getFileDownload',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name]);
                                             ?>
                                             <div style="width:800px; margin:auto; position:relative;">
-                                                <canvas id="cv{{$field->flid}}" style="border: 1px solid;" width="750" height="400">
+                                                <canvas id="cv{{$field->flid}}" style="border: 1px solid;" width="325" height="200">
                                                     It seems you are using an outdated browser that does not support canvas :-(
                                                 </canvas>
                                             </div>

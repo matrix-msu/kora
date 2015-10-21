@@ -128,11 +128,68 @@
             if (valid) {
                 //find info for other loc types
                 if (type == 'LatLon') {
-                    latLonConvert(lat,lon);
+                    $.ajax({
+                        url: '{{ action('FieldController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
+                        type: 'POST',
+                        data: {
+                            "_token": "{{ csrf_token() }}",
+                            lat: lat,
+                            lon: lon,
+                            type: 'latlon'
+                        },
+                        success:function(result) {
+                            desc = $('.loc_desc{{$field->flid}}').val();
+                            result = '[Desc]'+desc+'[Desc]'+result;
+                            $('#list{{$field->flid}}').append($("<option/>", {
+                                value: result,
+                                text: result,
+                                selected: ''
+                            }));
+                            $('.loc_desc{{$field->flid}}').val('');
+                        }
+                    });
                 }else if(type == 'UTM'){
-                    utmConvert(zone,east,north);
+                    $.ajax({
+                        url: '{{ action('FieldController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
+                        type: 'POST',
+                        data: {
+                            "_token": "{{ csrf_token() }}",
+                            zone: zone,
+                            east: east,
+                            north: north,
+                            type: 'utm'
+                        },
+                        success: function (result) {
+                            desc = $('.loc_desc{{$field->flid}}').val();
+                            result = '[Desc]'+desc+'[Desc]'+result;
+                            $('#list{{$field->flid}}').append($("<option/>", {
+                                value: result,
+                                text: result,
+                                selected: ''
+                            }));
+                            $('.loc_desc{{$field->flid}}').val('');
+                        }
+                    });
                 }else if(type == 'Address'){
-                    addrConvert(addr);
+                    $.ajax({
+                        url: '{{ action('FieldController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
+                        type: 'POST',
+                        data: {
+                            "_token": "{{ csrf_token() }}",
+                            addr: addr,
+                            type: 'geo'
+                        },
+                        success: function (result) {
+                            desc = $('.loc_desc{{$field->flid}}').val();
+                            result = '[Desc]'+desc+'[Desc]'+result;
+                            $('#list{{$field->flid}}').append($("<option/>", {
+                                value: result,
+                                text: result,
+                                selected: ''
+                            }));
+                            $('.loc_desc{{$field->flid}}').val('');
+                        }
+                    });
                 }
                 $('.latlon_lat{{$field->flid}}').val('');
                 $('.latlon_lon{{$field->flid}}').val('');
@@ -146,70 +203,4 @@
             }
         }
     });
-
-    function latLonConvert(lat,lon){
-        $.ajax({
-            url: '{{ action('FieldController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
-            type: 'POST',
-            data: {
-                "_token": "{{ csrf_token() }}",
-                lat: lat,
-                lon: lon,
-                type: 'latlon'
-            },
-            success:function(result) {
-                desc = $('.loc_desc{{$field->flid}}').val();
-                result = '[Desc]'+desc+'[Desc]'+result;
-                $('#list{{$field->flid}}').append($("<option/>", {
-                    value: result,
-                    text: result
-                }));
-                $('.loc_desc{{$field->flid}}').val('');
-            }
-        });
-    }
-
-    function utmConvert(zone,east,north){
-        $.ajax({
-            url: '{{ action('FieldController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
-            type: 'POST',
-            data: {
-                "_token": "{{ csrf_token() }}",
-                zone: zone,
-                east: east,
-                north: north,
-                type: 'utm'
-            },
-            success: function (result) {
-                desc = $('.loc_desc{{$field->flid}}').val();
-                result = '[Desc]'+desc+'[Desc]'+result;
-                $('#list{{$field->flid}}').append($("<option/>", {
-                    value: result,
-                    text: result
-                }));
-                $('.loc_desc{{$field->flid}}').val('');
-            }
-        });
-    }
-
-    function addrConvert(addr){
-        $.ajax({
-            url: '{{ action('FieldController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
-            type: 'POST',
-            data: {
-                "_token": "{{ csrf_token() }}",
-                addr: addr,
-                type: 'geo'
-            },
-            success: function (result) {
-                desc = $('.loc_desc{{$field->flid}}').val();
-                result = '[Desc]'+desc+'[Desc]'+result;
-                $('#list{{$field->flid}}').append($("<option/>", {
-                    value: result,
-                    text: result
-                }));
-                $('.loc_desc{{$field->flid}}').val('');
-            }
-        });
-    }
 </script>

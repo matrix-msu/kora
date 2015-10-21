@@ -6,7 +6,7 @@
         $value = $number->number;
     }
     ?>
-    {!! Form::label($field->flid, $field->name.': ') !!}
+    {!! Form::label($field->flid, $field->name.' ('.\App\Http\Controllers\FieldController::getFieldOption($field, "Unit").'): ') !!}
     @if($field->required==1)
         <b style="color:red;font-size:20px">*</b>
     @endif
