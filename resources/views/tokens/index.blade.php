@@ -12,9 +12,9 @@
                         @foreach(array('Search', 'Edit', 'Create', 'Delete') as $type)
                             <table class="table table-striped">
                                 <thead>
-                                <tr>
+                                <tr style="border-bottom: 2px solid #ddd">
                                     <th>{{$type}} Tokens</th>
-                                    <th class="pull-right">Projects</th>
+                                    <th class="pull-right" style="border-bottom: 0px">Projects</th>
                                 </tr>
                                 </thead>
 

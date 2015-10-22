@@ -3,6 +3,7 @@
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $field->pid])
     @include('partials.menu.form', ['pid' => $field->pid, 'fid' => $field->fid])
+    @include('partials.menu.options', ['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid])
 @stop
 
 @section('content')
