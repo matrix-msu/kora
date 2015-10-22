@@ -72,10 +72,19 @@
 		$('#flash-overlay-modal').modal();
 		//$('div.alert').not('.alert-important').delay(3000).slideUp(300);
 
+		fieldselector = $("#field-submenu");
         formselecter = $("#form-submenu");
         projectselecter = $("#project-submenu");
 
-        formselecter.mouseenter(function() {
+        fieldselector.mouseenter(function() {
+            $(this).attr("class", "dropdown-submenu open");
+        });
+
+		fieldselector.mouseleave(function() {
+            $(this).attr("class", "dropdown-submenu");
+        });
+
+		formselecter.mouseenter(function() {
             $(this).attr("class", "dropdown-submenu open");
         });
 
