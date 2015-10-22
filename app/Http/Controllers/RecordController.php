@@ -132,23 +132,29 @@ class RecordController extends Controller {
             }
             $field = FieldController::getField($key);
             if($field->type=='Text'){
-                $tf = new TextField();
-                $tf->flid = $field->flid;
-                $tf->rid = $record->rid;
-                $tf->text = $value;
-                $tf->save();
+                if(!empty($value) && !is_null($value)) {
+                    $tf = new TextField();
+                    $tf->flid = $field->flid;
+                    $tf->rid = $record->rid;
+                    $tf->text = $value;
+                    $tf->save();
+                }
             } else if($field->type=='Rich Text'){
-                $rtf = new RichTextField();
-                $rtf->flid = $field->flid;
-                $rtf->rid = $record->rid;
-                $rtf->rawtext = $value;
-                $rtf->save();
+                if(!empty($value) && !is_null($value)) {
+                    $rtf = new RichTextField();
+                    $rtf->flid = $field->flid;
+                    $rtf->rid = $record->rid;
+                    $rtf->rawtext = $value;
+                    $rtf->save();
+                }
             } else if($field->type=='Number'){
-                $nf = new NumberField();
-                $nf->flid = $field->flid;
-                $nf->rid = $record->rid;
-                $nf->number = $value;
-                $nf->save();
+                if(!empty($value) && !is_null($value)) {
+                    $nf = new NumberField();
+                    $nf->flid = $field->flid;
+                    $nf->rid = $record->rid;
+                    $nf->number = $value;
+                    $nf->save();
+                }
             } else if($field->type=='List'){
                 $lf = new ListField();
                 $lf->flid = $field->flid;
@@ -464,10 +470,10 @@ class RecordController extends Controller {
 	 */
 	public function update($pid, $fid, $rid, Request $request)
 	{
+       // dd($request);
         if(!FormController::validProjForm($pid,$fid)){
             return redirect('projects');
         }
-
         foreach($request->all() as $key => $value){
             if(!is_numeric($key)){
                 continue;
@@ -486,18 +492,34 @@ class RecordController extends Controller {
 
         $revision = RevisionController::storeRevision($record->rid, 'edit');
 
-        foreach($request->all() as $key => $value){
-            if(!is_numeric($key)){
-                continue;
+        $form_fields_expected = Form::find($fid)->fields()->get();
+
+        foreach($form_fields_expected as $expected_field){
+
+            $key = $expected_field->flid;
+
+            if($request->has($key)){
+                $value = $request->input($key);
             }
+            else{
+                $value = null;
+            }
+
+
             $field = FieldController::getField($key);
             if($field->type=='Text'){
                 //we need to check if the field exist first
-                if(TextField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
-                    $tf = TextField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                $tf  = TextField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                if( !is_null($tf) && !is_null($value)){
+                   // $tf = TextField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
                     $tf->text = $value;
                     $tf->save();
-                }else {
+                }
+                elseif(!is_null($tf) && is_null($value)){
+                    //$tf = TextField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                    $tf->delete();
+                }
+                elseif(is_null($tf) && !is_null($value)){
                     $tf = new TextField();
                     $tf->flid = $field->flid;
                     $tf->rid = $record->rid;
@@ -506,11 +528,14 @@ class RecordController extends Controller {
                 }
             } else if($field->type=='Rich Text'){
                 //we need to check if the field exist first
-                if(RichTextField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
-                    $rtf = RichTextField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                $rtf = RichTextField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                if(!is_null($rtf) && !is_null($value)){
                     $rtf->rawtext = $value;
                     $rtf->save();
-                }else {
+                }elseif(!is_null($rtf) && is_null($value)){
+                    $rtf->delete();
+                }
+                else {
                     $rtf = new RichTextField();
                     $rtf->flid = $field->flid;
                     $rtf->rid = $record->rid;
@@ -519,11 +544,15 @@ class RecordController extends Controller {
                 }
             } else if($field->type=='Number'){
                 //we need to check if the field exist first
-                if(NumberField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
-                    $nf = NumberField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                $nf = NumberField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                if(!is_null($nf) && !is_null($value)){
                     $nf->number = $value;
                     $nf->save();
-                }else {
+                }
+                else if(!is_null($nf) && is_null($value)){
+                    $nf->delete();
+                }
+                else {
                     $nf = new NumberField();
                     $nf->flid = $field->flid;
                     $nf->rid = $record->rid;
@@ -532,11 +561,15 @@ class RecordController extends Controller {
                 }
             } else if($field->type=='List'){
                 //we need to check if the field exist first
-                if(ListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
-                    $lf = ListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                $lf = ListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                if(!is_null($lf) && !is_null($value)){
                     $lf->option = $value;
                     $lf->save();
-                }else {
+                }
+                else if(!is_null($lf) && is_null($value)){
+                    $lf->delete();
+                }
+                else {
                     $lf = new ListField();
                     $lf->flid = $field->flid;
                     $lf->rid = $record->rid;
@@ -545,11 +578,17 @@ class RecordController extends Controller {
                 }
             } else if($field->type=='Multi-Select List'){
                 //we need to check if the field exist first
-                if(MultiSelectListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
-                    $mslf = MultiSelectListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                $mslf = MultiSelectListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+
+                if(!is_null($mslf) && !is_null($value)){
+                   // $mslf = MultiSelectListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
                     $mslf->options = FieldController::msListArrayToString($value);
                     $mslf->save();
-                }else {
+                }
+                elseif(!is_null($mslf) && is_null($value)){
+                    $mslf->delete();
+                }
+                elseif(is_null($mslf) && !is_null($value)){
                     $mslf = new MultiSelectListField();
                     $mslf->flid = $field->flid;
                     $mslf->rid = $record->rid;
@@ -558,11 +597,15 @@ class RecordController extends Controller {
                 }
             } else if($field->type=='Generated List'){
                 //we need to check if the field exist first
-                if(GeneratedListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
-                    $glf = GeneratedListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                $glf = GeneratedListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                if(!is_null($glf) && !is_null($value)){
+                    //$glf = GeneratedListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
                     $glf->options = FieldController::msListArrayToString($value);
                     $glf->save();
-                }else {
+                }elseif(!is_null($glf) && is_null($value)){
+                    $glf->delete();
+                }
+                elseif(is_null($glf) && !is_null($value)) {
                     $glf = new GeneratedListField();
                     $glf->flid = $field->flid;
                     $glf->rid = $record->rid;
@@ -571,15 +614,19 @@ class RecordController extends Controller {
                 }
             } else if($field->type=='Date'){
                 //we need to check if the field exist first
-                if(DateField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
-                    $df = DateField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                $df = DateField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                if(!is_null($df) && !(empty($request->input('month_'.$key)) && empty($request->input('day_'.$key)) && empty($request->input('year_'.$key)))){
                     $df->circa = $request->input('circa_'.$field->flid, '');
                     $df->month = $request->input('month_'.$field->flid);
                     $df->day = $request->input('day_'.$field->flid);
                     $df->year = $request->input('year_'.$field->flid);
                     $df->era = $request->input('era_'.$field->flid, 'CE');
                     $df->save();
-                }else {
+                }
+                elseif(!is_null($df) && (empty($request->input('month_'.$key)) && empty($request->input('day_'.$key)) && empty($request->input('year_'.$key)))){
+                    $df->delete();
+                }
+                elseif(is_null($df) && !(empty($request->input('month_'.$key)) && empty($request->input('day_'.$key)) && empty($request->input('year_'.$key)))){
                     $df = new DateField();
                     $df->flid = $field->flid;
                     $df->rid = $record->rid;
@@ -592,11 +639,16 @@ class RecordController extends Controller {
                 }
             } else if($field->type=='Schedule'){
                 //we need to check if the field exist first
-                if(ScheduleField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
-                    $sf = ScheduleField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                $sf = ScheduleField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                if(!is_null($sf) && !is_null($value)){
                     $sf->events = FieldController::msListArrayToString($value);
                     $sf->save();
-                }else {
+                }
+                elseif(!is_null($sf) && is_null($value)){
+                    $sf->delete();
+                }
+
+                elseif(is_null($sf) && !is_null($value)) {
                     $sf = new ScheduleField();
                     $sf->flid = $field->flid;
                     $sf->rid = $record->rid;
@@ -605,11 +657,16 @@ class RecordController extends Controller {
                 }
             } else if($field->type=='Geolocator'){
                 //we need to check if the field exist first
-                if(GeolocatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
+                $gf = GeolocatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                if(!is_null($gf) && !is_null($value)){
                     $gf = GeolocatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
                     $gf->locations = FieldController::msListArrayToString($value);
                     $gf->save();
-                }else {
+                }
+                elseif(!is_null($gf) && is_null($gf)){
+                    $gf->delete();
+                }
+                elseif(is_null($gf) && !is_null($gf)) {
                     $gf = new GeolocatorField();
                     $gf->flid = $field->flid;
                     $gf->rid = $record->rid;
@@ -619,6 +676,11 @@ class RecordController extends Controller {
             } else if($field->type=='Documents'
                     && (DocumentsField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null
                     | glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') != false)){
+
+
+                $doc_files_exist = false; // if this remains false, then the files were deleted and row should be removed from table
+
+
                 //we need to check if the field exist first
                 if(DocumentsField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
                     $df = DocumentsField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
@@ -627,7 +689,10 @@ class RecordController extends Controller {
                     $df->flid = $field->flid;
                     $df->rid = $record->rid;
                     $newPath = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid;
-                    mkdir($newPath,0775,true);
+
+                    if(!file_exists($newPath)) {
+                        mkdir($newPath, 0775, true);
+                    }
                 }
                 //clear the old files before moving the update over
                 //we only want to remove files that are being replaced by new versions
@@ -663,14 +728,28 @@ class RecordController extends Controller {
                             }
                             rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                                 env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $file->getFilename());
+
+                            $doc_files_exist = true;
                         }
                     }
                 }
                 $df->documents = $infoString;
                 $df->save();
+
+                if(!$doc_files_exist){
+                    $df->delete();
+                }
+
+
             } else if($field->type=='Gallery'
                     && (GalleryField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null
                     | glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') != false)){
+
+
+                $gal_files_exist = false; // if this remains false, then the files were deleted and row should be removed from table
+                $gfcount = 0;
+
+
                 //we need to check if the field exist first
                 if(GalleryField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
                     $gf = GalleryField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
@@ -679,9 +758,13 @@ class RecordController extends Controller {
                     $gf->flid = $field->flid;
                     $gf->rid = $record->rid;
                     $newPath = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid;
-                    mkdir($newPath,0775,true);
-                    mkdir($newPath.'/thumbnail',0775,true);
-                    mkdir($newPath.'/medium',0775,true);
+
+                    if(!file_exists($newPath)) {
+                        mkdir($newPath, 0775, true);
+                        mkdir($newPath.'/thumbnail',0775,true);
+                        mkdir($newPath.'/medium',0775,true);
+
+                    }
                 }
                 //clear the old files before moving the update over
                 //we only want to remove files that are being replaced by new versions
@@ -723,14 +806,27 @@ class RecordController extends Controller {
                                 env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/thumbnail/' . $file->getFilename());
                             rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/medium/' . $file->getFilename(),
                                 env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/medium/' . $file->getFilename());
+
+                            $gal_files_exist = true;
+                            //$gfcount += 1;
                         }
                     }
                 }
                 $gf->images = $infoString;
                 $gf->save();
+
+
+                if(!$gal_files_exist){
+                    $gf->delete();
+                }
+
+
             } else if($field->type=='Playlist'
                 && (PlaylistField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null
                     | glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') != false)){
+
+                $pla_files_exist = false; // if this remains false, then the files were deleted and row should be removed from table
+
                 //we need to check if the field exist first
                 if(PlaylistField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
                     $pf = PlaylistField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
@@ -739,7 +835,9 @@ class RecordController extends Controller {
                     $pf->flid = $field->flid;
                     $pf->rid = $record->rid;
                     $newPath = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid;
-                    mkdir($newPath,0775,true);
+                    if(!file_exists($newPath)) {
+                        mkdir($newPath, 0775, true);
+                    }
                 }
                 //clear the old files before moving the update over
                 //we only want to remove files that are being replaced by new versions
@@ -775,14 +873,24 @@ class RecordController extends Controller {
                             }
                             rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                                 env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $file->getFilename());
+                            $pla_files_exist = true;
                         }
                     }
                 }
                 $pf->audio = $infoString;
                 $pf->save();
+
+                if(!$pla_files_exist){
+                    $pf->delete();
+                    flash()->overlay("No files exist");
+                }
+
             } else if($field->type=='Video'
                 && (VideoField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null
                     | glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') != false)){
+
+                $vid_files_exist = false; // if this remains false, then the files were deleted and row should be removed from table
+
                 //we need to check if the field exist first
                 if(VideoField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
                     $vf = VideoField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
@@ -791,7 +899,9 @@ class RecordController extends Controller {
                     $vf->flid = $field->flid;
                     $vf->rid = $record->rid;
                     $newPath = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid;
-                    mkdir($newPath,0775,true);
+                    if(!file_exists($newPath)) {
+                        mkdir($newPath, 0775, true);
+                    }
                 }
                 //clear the old files before moving the update over
                 //we only want to remove files that are being replaced by new versions
@@ -827,14 +937,24 @@ class RecordController extends Controller {
                             }
                             rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                                 env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $file->getFilename());
+                                $vid_files_exist = true;
                         }
+
                     }
                 }
                 $vf->video = $infoString;
                 $vf->save();
+
+                if(!$vid_files_exist){
+                    $vf->delete();
+                }
+
             } else if($field->type=='3D-Model'
                 && (ModelField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null
                     | glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') != false)){
+
+                $mod_files_exist = false; // if this remains false, then the files were deleted and row should be removed from table
+
                 //we need to check if the field exist first
                 if(Modelfield::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
                     $mf = Modelfield::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
@@ -843,7 +963,9 @@ class RecordController extends Controller {
                     $mf->flid = $field->flid;
                     $mf->rid = $record->rid;
                     $newPath = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid;
-                    mkdir($newPath,0775,true);
+                    if(!file_exists($newPath)) {
+                        mkdir($newPath, 0775, true);
+                    }
                 }
                 //clear the old files before moving the update over
                 //we only want to remove files that are being replaced by new versions
@@ -879,11 +1001,16 @@ class RecordController extends Controller {
                             }
                             rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                                 env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $file->getFilename());
+                             $mod_files_exist = true;
                         }
                     }
                 }
                 $mf->model = $infoString;
                 $mf->save();
+
+                if(!$mod_files_exist){
+                    $mf->delete();
+                }
             } else if($field->type=='Associator'){
                 //we need to check if the field exist first
                 if(AssociatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){

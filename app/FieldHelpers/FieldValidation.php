@@ -74,7 +74,7 @@ class FieldValidation {
             return $field->name.' field is required.';
         }
 
-        if(sizeof(array_diff($value,$list))>0){
+        if(sizeof(array_diff($value,$list))>0 && $value[0] !== ' '){
             return "Value(s) for field ".$field->name." not in list of options";
         }
 
