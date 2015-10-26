@@ -32,6 +32,10 @@ class MetadataController extends Controller {
      * @return Response
      */
     public function records($pid,$fid){
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects/'.$pid.'/forms');
+        }
+
         //if public metadata is enabled OR if the user is signed in, display JSON
         $form = Form::find($fid);
         if($form->public_metadata || Auth::check()) {
@@ -231,6 +235,9 @@ class MetadataController extends Controller {
 
     public function index($pid,$fid)
     {
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects/'.$pid.'/forms');
+        }
         //Fields that already have metadata do not get sent to the view to be listed
         $all_fields = Field::where('pid',$pid)->where('fid',$fid)->get();
         $available_fields = new \Illuminate\Support\Collection;

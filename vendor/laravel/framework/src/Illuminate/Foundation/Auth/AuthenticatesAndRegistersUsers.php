@@ -167,7 +167,7 @@ trait AuthenticatesAndRegistersUsers {
         $valid .= '0123456789';
 
         $token = '';
-        for ($i = 0; $i < 10; $i++){
+        for ($i = 0; $i < 31; $i++){
             $token .= $valid[( rand() % 62 )];
         }
         return $token;

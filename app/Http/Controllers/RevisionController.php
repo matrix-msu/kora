@@ -39,7 +39,11 @@ class RevisionController extends Controller {
      * @param string $rid
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
      */
-    public function index($pid='', $fid, $rid=''){
+    public function index($pid, $fid){
+
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects/'.$pid.'/forms');
+        }
 
         if(!\Auth::user()->admin && !\Auth::user()->isFormAdmin(FormController::getForm($fid)))
         {
@@ -86,6 +90,8 @@ class RevisionController extends Controller {
         if(!FormController::validProjForm($pid, $fid)){
             return redirect('projects/'.$pid.'/forms');
         }
+
+        $owner = DB::table('revisions')->where('rid', '=', $rid)->orderBy('created_at','desc')->first()->owner;
 
         if(!\Auth::user()->admin && !\Auth::user()->isFormAdmin(FormController::getForm($fid)) && \Auth::user()->id != $owner)
         {
