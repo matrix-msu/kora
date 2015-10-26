@@ -63,13 +63,25 @@
 								<input type="text" class="form-control" name="organization" value="{{ old('organization') }}">
 							</div>
 						</div>
-						
+						{{--
 						<div class="form-group">
 							<label class="col-md-4 control-label">Language</label>
 							<div class="col-md-6">
 								<input type="text" class="form-control" name="language" value="{{ App::getLocale() }}">
 							</div>
-						</div>
+						</div> --}}
+
+                        <div class="form-group">
+                            <label class="col-md-4 control-label">Language</label>
+                            <div class="col-md-6">
+                                <select name="language" class="form-control">
+                                    {{$languages_available = Config::get('app.locales_supported')}}
+                                    @foreach($languages_available->keys() as $lang)
+                                        <option value='{{$languages_available->get($lang)[0]}}'>{{$languages_available->get($lang)[1]}} </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
 
                         <div class="form-group">
                             <div style="padding: 5px" align="center" class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_PUBLIC_KEY') }}"></div>
