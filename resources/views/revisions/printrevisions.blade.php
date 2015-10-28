@@ -201,9 +201,12 @@
                         @for($i = 0; $i < count($new); $i++)
                             @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
                                 <span><b>{{$new[$i]['name']}}:</b></span>
-                                @foreach(explode('[!]', $new[$i]['data']) as $event)
-                                    <div>{{$event}}</div>
-                                @endforeach
+                                @if(!is_null($new[$i]['data']))
+                                    @foreach(explode('[!]', $new[$i]['data']) as $event)
+                                        <div>{{$event}}</div>
+                                    @endforeach
+                                @else
+                                @endif
                             @endif
                         @endfor
                     @endif
@@ -244,12 +247,116 @@
                     @if(!is_null($new))
                         @for($i = 0; $i < count($new); $i++)
                             @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
-
                                 <span><b>{{$new[$i]['name']}}:</b></span>
                                 @foreach(explode('[!]', $new[$i]['data']) as $document)
                                     @if($document != '')
                                         <div>{{explode('[Name]',$document)[1]}}</div>
                                     @else
+                                        <br/>
+                                    @endif
+                                @endforeach
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(isset($data['galleryfields']))
+                        $new = array_values($data['galleryfields']);
+                    else
+                        $new = null;
+                    if(isset($oldData['galleryfields']))
+                        $old = array_values($oldData['galleryfields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($new))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                <span><b>{{$new[$i]['name']}}:</b></span>
+                                @foreach(explode('[!]', $new[$i]['data']) as $image)
+                                    @if($image != '')
+                                        <div>{{explode('[Name]', $image)[1]}}</div>
+                                    @else
+                                        <br/>
+                                    @endif
+                                @endforeach
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(isset($data['modelfields']))
+                        $new = array_values($data['modelfields']);
+                    else
+                        $new = null;
+                    if(isset($oldData['modelfields']))
+                        $old = array_values($oldData['modelfields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($new))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                <span><b>{{$new[$i]['name']}}:</b></span>
+                                @foreach(explode('[!]', $new[$i]['data']) as $model)
+                                    @if($model != '')
+                                        <div>{{explode('[Name]', $model)[1]}}</div>
+                                    @else
+                                        <br/>
+                                    @endif
+                                @endforeach
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(isset($data['playlistfields']))
+                        $new = array_values($data['playlistfields']);
+                    else
+                        $new = null;
+                    if(isset($oldData['playlistfields']))
+                        $old = array_values($oldData['playlistfields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($new))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                <span><b>{{$new[$i]['name']}}:</b></span>
+                                @foreach(explode('[!]', $new[$i]['data']) as $song)
+                                    @if($song != '')
+                                        <div>{{explode('[Name]', $song)[1]}}</div>
+                                    @else
+                                        <br/>
+                                    @endif
+                                @endforeach
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(isset($data['videofields']))
+                        $new = array_values($data['videofields']);
+                    else
+                        $new = null;
+                    if(isset($oldData['videofields']))
+                        $old = array_values($oldData['videofields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($new))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                <span><b>{{$new[$i]['name']}}:</b></span>
+                                @foreach(explode('[!]', $new[$i]['data']) as $video)
+                                    @if($video != '')
+                                        <div>{{explode('[Name]', $video)[1]}}</div>
+                                    @else
+                                        <br/>
                                     @endif
                                 @endforeach
                             @endif
@@ -540,15 +647,119 @@
                         $old = null;
                     ?>
 
-                    @if(!is_null($new))
+                    @if(!is_null($old))
                         @for($i = 0; $i < count($new); $i++)
                             @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
 
-                                <span><b>{{$new[$i]['name']}}:</b></span>
+                                <span><b>{{$old[$i]['name']}}:</b></span>
                                 @foreach(explode('[!]', $old[$i]['data']) as $document)
                                     @if($document != '')
                                         <div>{{explode('[Name]',$document)[1]}}</div>
                                     @else
+                                    @endif
+                                @endforeach
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(isset($data['galleryfields']))
+                        $new = array_values($data['galleryfields']);
+                    else
+                        $new = null;
+                    if(isset($oldData['galleryfields']))
+                        $old = array_values($oldData['galleryfields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($old))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                <span><b>{{$old[$i]['name']}}:</b></span>
+                                @foreach(explode('[!]', $old[$i]['data']) as $image)
+                                    @if($image != '')
+                                        <div>{{explode('[Name]', $image)[1]}}</div>
+                                    @else
+                                        <br/>
+                                    @endif
+                                @endforeach
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(isset($data['modelfields']))
+                        $new = array_values($data['modelfields']);
+                    else
+                        $new = null;
+                    if(isset($oldData['modelfields']))
+                        $old = array_values($oldData['modelfields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($old))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                <span><b>{{$old[$i]['name']}}:</b></span>
+                                @foreach(explode('[!]', $old[$i]['data']) as $model)
+                                    @if($model != '')
+                                        <div>{{explode('[Name]', $model)[1]}}</div>
+                                    @else
+                                        <br/>
+                                    @endif
+                                @endforeach
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(isset($data['playlistfields']))
+                        $new = array_values($data['playlistfields']);
+                    else
+                        $new = null;
+                    if(isset($oldData['playlistfields']))
+                        $old = array_values($oldData['playlistfields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($old))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                <span><b>{{$old[$i]['name']}}:</b></span>
+                                @foreach(explode('[!]', $old[$i]['data']) as $song)
+                                    @if($song != '')
+                                        <div>{{explode('[Name]', $song)[1]}}</div>
+                                    @else
+                                        <br/>
+                                    @endif
+                                @endforeach
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(isset($data['videofields']))
+                        $new = array_values($data['videofields']);
+                    else
+                        $new = null;
+                    if(isset($oldData['videofields']))
+                        $old = array_values($oldData['videofields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($old))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                <span><b>{{$old[$i]['name']}}:</b></span>
+                                @foreach(explode('[!]', $old[$i]['data']) as $video)
+                                    @if($video != '')
+                                        <div>{{explode('[Name]', $video)[1]}}</div>
+                                    @else
+                                        <br/>
                                     @endif
                                 @endforeach
                             @endif

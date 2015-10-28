@@ -3,7 +3,10 @@
 use App\DocumentsField;
 use App\Form;
 use App\Field;
+use App\GalleryField;
 use App\GeolocatorField;
+use App\ModelField;
+use App\PlaylistField;
 use App\Record;
 use App\Revision;
 use App\DateField;
@@ -14,6 +17,7 @@ use App\ScheduleField;
 use App\Http\Requests;
 use App\RichTextField;
 use App\GeneratedListField;
+use App\VideoField;
 use Illuminate\Http\Request;
 use App\MultiSelectListField;
 use Illuminate\Support\Facades\DB;
@@ -138,6 +142,7 @@ class RevisionController extends Controller {
                 flash()->overlay('Cannot recreate a record that already exists.');
             }
             else {
+                // We must create a new record
                 $record = new Record();
                 $record->rid = $revision->rid;
                 $record->fid = $revision->fid;
@@ -370,6 +375,76 @@ class RevisionController extends Controller {
                         $documentsfield->save();
                     }
                 }
+            } elseif ($field->type == 'Gallery') {
+                if($revision->type != 'delete') {
+                    foreach ($record->galleryfields()->get() as $galleryfield) {
+                        if ($galleryfield->flid == $field->flid) {
+                            $galleryfield->images = $data['galleryfields'][$field->flid]['data'];
+                            $galleryfield->save();
+                        }
+                    }
+                }
+                else {
+                    if(!is_null($data['galleryfields'][$field->flid]['data'])) {
+                        $galleryfield = new GalleryField();
+                        $galleryfield->flid = $field->flid;
+                        $galleryfield->rid = $record->rid;
+                        $galleryfield->images = $data['galleryfields'][$field->flid]['data'];
+                        $galleryfield->save();
+                    }
+                }
+            } elseif ($field->type == '3D-Model') {
+                if($revision->type != 'delete') {
+                    foreach ($record->modelfields()->get() as $modelfield) {
+                        if ($modelfield->flid == $field->flid) {
+                            $modelfield->model = $data['modelfields'][$field->flid]['data'];
+                            $modelfield->save();
+                        }
+                    }
+                }
+                else {
+                    if(!is_null($data['modelfields'][$field->flid]['data'])) {
+                        $modelfield = new ModelField();
+                        $modelfield->flid = $field->flid;
+                        $modelfield->rid = $record->rid;
+                        $modelfield->model = $data['modelfields'][$field->flid]['data'];
+                        $modelfield->save();
+                    }
+                }
+            } elseif ($field->type == 'Playlist') {
+                if ($revision->type != 'delete') {
+                    foreach ($record->playlistfields()->get() as $playfield) {
+                        if ($playfield->flid == $field->flid) {
+                            $playfield->audio = $data['playlistfields'][$field->flid]['data'];
+                            $playfield->save();
+                        }
+                    }
+                } else {
+                    if (!is_null($data['playlistfields'][$field->flid]['data'])) {
+                        $playfield = new PlaylistField();
+                        $playfield->flid = $field->flid;
+                        $playfield->rid = $record->rid;
+                        $playfield->audio = $data['playlistfields'][$field->flid]['data'];
+                        $playfield->save();
+                    }
+                }
+            } elseif ($field->type == 'Video') {
+                if ($revision->type != 'delete') {
+                    foreach ($record->videofields()->get() as $playfield) {
+                        if ($playfield->flid == $field->flid) {
+                            $playfield->video = $data['videofields'][$field->flid]['data'];
+                            $playfield->save();
+                        }
+                    }
+                } else {
+                    if (!is_null($data['videofields'][$field->flid]['data'])) {
+                        $playfield = new PlaylistField();
+                        $playfield->flid = $field->flid;
+                        $playfield->rid = $record->rid;
+                        $playfield->video = $data['videofields'][$field->flid]['data'];
+                        $playfield->save();
+                    }
+                }
             }
         }
     }
@@ -542,13 +617,44 @@ class RevisionController extends Controller {
                     else
                         $data['documentsfields'][$field->flid]['data'] = null;
                     break;
+                case 'Gallery':
+                    $data['galleryfields'][$field->flid]['name'] = $field->name;
+                    $galfield = GalleryField::where('flid', '=', $field->flid)->first();
+                    if(!is_null($galfield))
+                        $data['galleryfields'][$field->flid]['data'] = $galfield->images;
+                    else
+                        $data['galleryfields'][$field->flid]['data'] = null;
+                    break;
+                case '3D-Model':
+                    $data['modelfields'][$field->flid]['name'] = $field->name;
+                    $modelfield = ModelField::where('flid', '=', $field->flid)->first();
+                    if(!is_null($modelfield))
+                        $data['modelfields'][$field->flid]['data'] = $modelfield->model;
+                    else
+                        $data['modelfields'][$field->flid]['data'] = null;
+                    break;
+                case 'Playlist':
+                    $data['playlistfields'][$field->flid]['name'] = $field->name;
+                    $playfield = PlaylistField::where('flid', '=', $field->flid)->first();
+                    if(!is_null($playfield))
+                        $data['playlistfields'][$field->flid]['data'] = $playfield->audio;
+                    else
+                        $data['playlistfields'][$field->flid]['data'] = null;
+                    break;
+                case 'Video':
+                    $data['videofields'][$field->flid]['name'] = $field->name;
+                    $videofield = VideoField::where('flid', '=', $field->flid)->first();
+                    if(!is_null($videofield))
+                        $data['videofields'][$field->flid]['data'] = $videofield->video;
+                    else
+                        $data['videofields'][$field->flid]['data'] = null;
+                    break;
             }
 
         }
 
         /* Have to see which method is better, for now we'll use json_encode (remember to use json_decode($array, true)).
-           Alternative method is presented here. The base64_encode method might end up working
-           better for things other than simple text and lists. Who knows though.
+           Alternative method is presented here. The base64_encode method might end up working better. Who knows right?
 
         $revision->data = base64_encode(serialize($record));
         To decode: $decode = unserialize(base64_decode(serialize($revision->data)));
