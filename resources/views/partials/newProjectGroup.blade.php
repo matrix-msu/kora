@@ -13,17 +13,17 @@
     {!! Form::label('permissions', 'Group Permissions: ') !!}<br/>
 
     <div class="form-group" style="display: inline">
-        {!! Form::label('create', 'Create: ') !!}
+        {!! Form::label('create', 'Create Form: ') !!}
         {!! Form::checkbox('create', null, ['class' => 'form-control']) !!}
     </div>
 
     <div class="form-group" style="display: inline">
-        {!! Form::label('edit', 'Edit: ') !!}
+        {!! Form::label('edit', 'Edit Form: ') !!}
         {!! Form::checkbox('edit', null, ['class' => 'form-control']) !!}
     </div>
 
     <div class="form-group" style="display: inline">
-        {!! Form::label('create', 'Delete: ') !!}
+        {!! Form::label('create', 'Delete Form: ') !!}
         {!! Form::checkbox('delete', null, ['class' => 'form-control']) !!}
     </div>
 

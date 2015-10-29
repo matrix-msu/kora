@@ -11,9 +11,12 @@
     <div><b>Internal Name:</b> {{ $form->slug }}</div>
     <div><b>Description:</b> {{ $form->description }}</div>
 
-    <div>
+    @if(\Auth::user()->canIngestRecords($form))
         <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[New Record]</a>
-    </div>
+    @endif
+    @if(\Auth::user()->canModifyRecords($form))
+        <a href="{{ action('RecordController@showMassAssignmentView',['pid' => $form->pid, 'fid' => $form->fid]) }}">[Mass Assign Records]</a>
+    @endif
 
     @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
         <hr/>

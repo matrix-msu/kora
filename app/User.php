@@ -309,7 +309,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         $projects = array(); //Array of projects the user can view.
 
         foreach($all_projects as $project){
-            if($this->inAProjectGroup($project)){
+            if($this->inAProjectGroup($project) && $project->active==1){
                 $projects[] = $project;
             }
         }
