@@ -18,6 +18,7 @@ use App\Http\Requests;
 use App\RichTextField;
 use App\GeneratedListField;
 use App\VideoField;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use App\MultiSelectListField;
 use Illuminate\Support\Facades\DB;
@@ -185,131 +186,115 @@ class RevisionController extends Controller {
             $new_revision->oldData = $revision->data;
             $new_revision->save();
         }
-
+        //
+        // If the record exists (revision type is not a deletion) and the less general field (in this case TextField)
+        // type exists in the database, the data is simply assigned from the old data array as expected in the rollback.
+        //
+        // Else a new less general field is created for the record and its values are appropriately assigned.
+        //
         foreach($form->fields()->get() as $field) {
-            if ($field->type == 'Text') {
-                if($revision->type != 'delete') {
-                    foreach ($record->textfields()->get() as $textfield) {
-                        if ($textfield->flid == $field->flid) {
-                            $textfield->text = $data['textfields'][$field->flid]['data'];
-                            $textfield->save();
-                        }
-                    }
-                }
-                else {
-                    if(!is_null($data['textfields'][$field->flid]['data'])) {
+            switch($field->type) {
+                // Text Assignment
+                case 'Text':
+                    $textfield = TextField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
+                    if ($revision->type != 'delete' && !is_null($textfield)) {
+                        $textfield->text = $data['textfields'][$field->flid]['data'];
+                        $textfield->save();
+                    } else {
                         $textfield = new TextField();
                         $textfield->flid = $field->flid;
                         $textfield->rid = $record->rid;
                         $textfield->text = $data['textfields'][$field->flid]['data'];
                         $textfield->save();
                     }
-                }
-            } elseif ($field->type == 'Rich Text') {
-                if($revision->type != 'delete') {
-                    foreach ($record->richtextfields()->get() as $rtfield) {
-                        if ($rtfield->flid == $field->flid) {
-                            $rtfield->rawtext = $data['richtextfields'][$field->flid]['data'];
-                            $rtfield->save();
-                        }
-                    }
-                }
-                else {
-                    if(!is_null($data['richtextfields'][$field->flid]['data'])) {
+                    break;
+
+                // Rich Text Assignment
+                case 'Rich Text':
+                    $rtfield = RichTextField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
+                    if ($revision->type != 'delete' && !is_null($rtfield)) {
+                        $rtfield->rawtext = $data['richtextfields'][$field->flid]['data'];
+                        $rtfield->save();
+                    } else {
                         $rtfield = new RichTextField();
                         $rtfield->flid = $field->flid;
                         $rtfield->rid = $record->rid;
                         $rtfield->rawtext = $data['richtextfields'][$field->flid]['data'];
                         $rtfield->save();
                     }
-                }
-            } elseif ($field->type == 'Number') {
-                if($revision->type != 'delete') {
-                    foreach ($record->numberfields()->get() as $numberfield) {
-                        if ($numberfield->flid == $field->flid) {
-                            $numberfield->number = $data['numberfields'][$field->flid]['data'];
-                            $numberfield->save();
-                        }
-                    }
-                }
-                else {
-                    if(!is_null($data['numberfields'][$field->flid]['data'])) {
+                    break;
+
+                // Number Assignment
+                case 'Number':
+                    $numberfield = NumberField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
+                    if ($revision->type != 'delete' && !is_null($numberfield)) {
+                        $numberfield->number = $data['numberfields'][$field->flid]['data'];
+                        $numberfield->save();
+                    } else {
                         $numberfield = new NumberField();
                         $numberfield->flid = $field->flid;
                         $numberfield->rid = $record->rid;
                         $numberfield->number = $data['numberfields'][$field->flid]['data'];
                         $numberfield->save();
                     }
-                }
-            } elseif ($field->type == 'List') {
-                if($revision->type != 'delete') {
-                    foreach ($record->listfields()->get() as $listfield) {
-                        if ($listfield->flid == $field->flid) {
-                            $listfield->option = $data['listfields'][$field->flid]['data'];
-                            $listfield->save();
-                        }
-                    }
-                }
-                else {
-                    if(!is_null($data['listfields'][$field->flid]['data'])) {
+                break;
+
+                // List Assignment
+                case 'List':
+                    $listfield = ListField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
+                    if ($revision->type != 'delete' && !is_null($listfield)) {
+                        $listfield->option = $data['listfields'][$field->flid]['data'];
+                        $listfield->save();
+                    } else {
                         $listfield = new ListField();
                         $listfield->flid = $field->flid;
                         $listfield->rid = $record->rid;
                         $listfield->option = $data['listfields'][$field->flid]['data'];
                         $listfield->save();
                     }
-                }
-            } elseif ($field->type == 'Multi-Select List') {
-                if($revision->type != 'delete') {
-                    foreach ($record->multiselectlistfields()->get() as $mslfield) {
-                        if ($mslfield->flid == $field->flid) {
-                            $mslfield->options = $data['multiselectlistfields'][$field->flid]['data'];
-                            $mslfield->save();
-                        }
-                    }
-                }
-                else {
-                    if(!is_null($data['multiselectlistfields'][$field->flid]['data'])) {
+                    break;
+
+                // Multi-Select List Assignment
+                case 'Multi-Select List':
+                    $mslfield = MultiSelectListField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
+                    if ($revision->type != 'delete' && !is_null($mslfield)) {
+                        $mslfield->options = $data['multiselectlistfields'][$field->flid]['data'];
+                        $mslfield->save();
+                    } else {
                         $mslfield = new MultiSelectListField();
                         $mslfield->flid = $field->flid;
                         $mslfield->rid = $record->rid;
                         $mslfield->options = $data['multiselectlistfields'][$field->flid]['data'];
                         $mslfield->save();
                     }
-                }
-            } elseif ($field->type == 'Generated List') {
-                if($revision->type != 'delete') {
-                    foreach ($record->generatedlistfields()->get() as $genlistfield) {
-                        if ($genlistfield->flid == $field->flid) {
-                            $genlistfield->options = $data['generatedlistfields'][$field->flid]['data'];
-                            $genlistfield->save();
-                        }
-                    }
-                }
-                else {
-                    if(!is_null($data['generatedlistfields'][$field->flid]['data'])) {
+                    break;
+
+                // Generated List Assignment
+                case 'Generated List':
+                    $genlistfield = GeneratedListField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
+                    if ($revision->type != 'delete' && !is_null($genlistfield)) {
+                        $genlistfield->options = $data['generatedlistfields'][$field->flid]['data'];
+                        $genlistfield->save();
+                    } else {
                         $genlistfield = new GeneratedListField();
                         $genlistfield->flid = $field->flid;
                         $genlistfield->rid = $record->rid;
                         $genlistfield->options = $data['generatedlistfields'][$field->flid]['data'];
                         $genlistfield->save();
                     }
-                }
-            } elseif ($field->type == 'Date') {
-                if($revision->type != 'delete') {
-                    foreach ($record->datefields()->get() as $datefield) {
-                        if ($datefield->flid == $field->flid) {
-                            $datefield->circa = $data['datefields'][$field->flid]['data']['circa'];
-                            $datefield->month = $data['datefields'][$field->flid]['data']['month'];
-                            $datefield->day = $data['datefields'][$field->flid]['data']['day'];
-                            $datefield->year = $data['datefields'][$field->flid]['data']['year'];
-                            $datefield->era = $data['datefields'][$field->flid]['data']['era'];
-                            $datefield->save();
-                        }
-                    }
-                }
-                else {
-                    if(!is_null($data['datefields'][$field->flid]['data'])) {
+                    break;
+
+                // Date Assignment
+                case 'Date':
+                    $datefield = DateField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
+                    if ($revision->type != 'delete' && !is_null($datefield)) {
+                        $datefield->circa = $data['datefields'][$field->flid]['data']['circa'];
+                        $datefield->month = $data['datefields'][$field->flid]['data']['month'];
+                        $datefield->day = $data['datefields'][$field->flid]['data']['day'];
+                        $datefield->year = $data['datefields'][$field->flid]['data']['year'];
+                        $datefield->era = $data['datefields'][$field->flid]['data']['era'];
+                        $datefield->save();
+                    } else {
                         $datefield = new DateField();
                         $datefield->flid = $field->flid;
                         $datefield->rid = $record->rid;
@@ -320,131 +305,112 @@ class RevisionController extends Controller {
                         $datefield->era = $data['datefields'][$field->flid]['data']['era'];
                         $datefield->save();
                     }
-                }
-            } elseif ($field->type == 'Schedule') {
-                if($revision->type != 'delete') {
-                    foreach ($record->schedulefields()->get() as $schedulefield) {
-                        if ($schedulefield->flid == $field->flid) {
-                            $schedulefield->events = $data['schedulefields'][$field->flid]['data'];
-                            $schedulefield->save();
-                        }
-                    }
-                }
-                else {
-                    if(!is_null($data['schedulefields'][$field->flid]['data'])) {
+                    break;
+
+                // Schedule Assignment
+                case 'Schedule':
+                    $schedulefield = ScheduleField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
+                    if ($revision->type != 'delete' && !is_null($schedulefield)) {
+                        $schedulefield->events = $data['schedulefields'][$field->flid]['data'];
+                        $schedulefield->save();
+                    } else {
                         $schedulefield = new ScheduleField();
                         $schedulefield->flid = $field->flid;
                         $schedulefield->rid = $record->rid;
                         $schedulefield->events = $data['schedulefields'][$field->flid]['data'];
                         $schedulefield->save();
                     }
-                }
-            } elseif ($field->type == 'Geolocator') {
-                if($revision->type != 'delete') {
-                    foreach ($record->geolocatorfields()->get() as $geolocatorfield) {
-                        if ($geolocatorfield->flid == $field->flid) {
-                            $geolocatorfield->locations = $data['geolocatorfields'][$field->flid]['data'];
-                            $geolocatorfield->save();
-                        }
-                    }
-                }
-                else {
-                    if(!is_null($data['geolocatorfields'][$field->flid]['data'])) {
+                    break;
+
+                // Geolocator Assignment
+                case 'Geolocator':
+                    $geolocatorfield = GeolocatorField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
+                    if ($revision->type != 'delete' && !is_null($geolocatorfield)) {
+                        $geolocatorfield->locations = $data['geolocatorfields'][$field->flid]['data'];
+                        $geolocatorfield->save();
+                    } else {
                         $geolocatorfield = new GeolocatorField();
                         $geolocatorfield->flid = $field->flid;
                         $geolocatorfield->rid = $record->rid;
                         $geolocatorfield->locations = $data['geolocatorfields'][$field->flid]['data'];
                         $geolocatorfield->save();
                     }
-                }
-            } elseif ($field->type == 'Documents') {
-                if($revision->type != 'delete') {
-                    foreach ($record->documentsfields()->get() as $documentsfield) {
-                        if ($documentsfield->flid == $field->flid) {
-                            $documentsfield->documents = $data['documentsfields'][$field->flid]['data'];
-                            $documentsfield->save();
-                        }
-                    }
-                }
-                else {
-                    if(!is_null($data['documentsfields'][$field->flid]['data'])) {
+                    break;
+
+                // Documents Assignment
+                case 'Documents':
+                    $documentsfield = DocumentsField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
+                    if ($revision->type != 'delete' && !is_null($documentsfield)) {
+                        $documentsfield->documents = $data['documentsfields'][$field->flid]['data'];
+                        $documentsfield->save();
+                    } else {
                         $documentsfield = new DocumentsField();
                         $documentsfield->flid = $field->flid;
                         $documentsfield->rid = $record->rid;
                         $documentsfield->documents = $data['documentsfields'][$field->flid]['data'];
                         $documentsfield->save();
                     }
-                }
-            } elseif ($field->type == 'Gallery') {
-                if($revision->type != 'delete') {
-                    foreach ($record->galleryfields()->get() as $galleryfield) {
-                        if ($galleryfield->flid == $field->flid) {
-                            $galleryfield->images = $data['galleryfields'][$field->flid]['data'];
-                            $galleryfield->save();
-                        }
-                    }
-                }
-                else {
-                    if(!is_null($data['galleryfields'][$field->flid]['data'])) {
+                    break;
+
+                // Gallery Assignment
+                case 'Gallery':
+                    $galleryfield = GalleryField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
+                    if ($revision->type != 'delete' && !is_null($galleryfield)) {
+                        $galleryfield->images = $data['galleryfields'][$field->flid]['data'];
+                        $galleryfield->save();
+                    } else {
                         $galleryfield = new GalleryField();
                         $galleryfield->flid = $field->flid;
                         $galleryfield->rid = $record->rid;
                         $galleryfield->images = $data['galleryfields'][$field->flid]['data'];
                         $galleryfield->save();
                     }
-                }
-            } elseif ($field->type == '3D-Model') {
-                if($revision->type != 'delete') {
-                    foreach ($record->modelfields()->get() as $modelfield) {
-                        if ($modelfield->flid == $field->flid) {
-                            $modelfield->model = $data['modelfields'][$field->flid]['data'];
-                            $modelfield->save();
-                        }
-                    }
-                }
-                else {
-                    if(!is_null($data['modelfields'][$field->flid]['data'])) {
+                    break;
+
+                // 3-D Model Assignment
+                case '3D-Model':
+                    $modelfield = ModelField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
+                    if ($revision->type != 'delete' && !is_null($modelfield)) {
+                        $modelfield->model = $data['modelfields'][$field->flid]['data'];
+                        $modelfield->save();
+                    } else {
                         $modelfield = new ModelField();
                         $modelfield->flid = $field->flid;
                         $modelfield->rid = $record->rid;
                         $modelfield->model = $data['modelfields'][$field->flid]['data'];
                         $modelfield->save();
                     }
-                }
-            } elseif ($field->type == 'Playlist') {
-                if ($revision->type != 'delete') {
-                    foreach ($record->playlistfields()->get() as $playfield) {
-                        if ($playfield->flid == $field->flid) {
-                            $playfield->audio = $data['playlistfields'][$field->flid]['data'];
-                            $playfield->save();
-                        }
-                    }
-                } else {
-                    if (!is_null($data['playlistfields'][$field->flid]['data'])) {
+                    break;
+
+                // Playlist Assignment
+                case 'Playlist':
+                    $playfield = PlaylistField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
+                    if ($revision->type != 'delete' && !is_null($playfield)) {
+                        $playfield->audio = $data['playlistfields'][$field->flid]['data'];
+                        $playfield->save();
+                    } else {
                         $playfield = new PlaylistField();
                         $playfield->flid = $field->flid;
                         $playfield->rid = $record->rid;
                         $playfield->audio = $data['playlistfields'][$field->flid]['data'];
                         $playfield->save();
                     }
-                }
-            } elseif ($field->type == 'Video') {
-                if ($revision->type != 'delete') {
-                    foreach ($record->videofields()->get() as $playfield) {
-                        if ($playfield->flid == $field->flid) {
-                            $playfield->video = $data['videofields'][$field->flid]['data'];
-                            $playfield->save();
-                        }
+                    break;
+
+                // Video Assignment
+                case 'Video':
+                    $vidfield = VideoField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
+                    if ($revision->type != 'delete') {
+                        $vidfield->video = $data['videofields'][$field->flid]['data'];
+                        $vidfield->save();
+                    } else {
+                        $vidfield = new PlaylistField();
+                        $vidfield->flid = $field->flid;
+                        $vidfield->rid = $record->rid;
+                        $vidfield->video = $data['videofields'][$field->flid]['data'];
+                        $vidfield->save();
                     }
-                } else {
-                    if (!is_null($data['videofields'][$field->flid]['data'])) {
-                        $playfield = new PlaylistField();
-                        $playfield->flid = $field->flid;
-                        $playfield->rid = $record->rid;
-                        $playfield->video = $data['videofields'][$field->flid]['data'];
-                        $playfield->save();
-                    }
-                }
+                    break;
             }
         }
     }
@@ -500,7 +466,7 @@ class RevisionController extends Controller {
             {
                 case 'Text':
                     $data['textfields'][$field->flid]['name'] = $field->name;
-                    $textfield = TextField::where('flid', '=', $field->flid)->first();
+                    $textfield = TextField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
                     if(!is_null($textfield))
                         $data['textfields'][$field->flid]['data'] = $textfield->text;
                     else
@@ -509,7 +475,7 @@ class RevisionController extends Controller {
 
                 case 'Rich Text':
                     $data['richtextfields'][$field->flid]['name'] = $field->name;
-                    $rtfield = RichTextField::where('flid', '=', $field->flid)->first();
+                    $rtfield = RichTextField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
                     if(!is_null($rtfield))
                         $data['richtextfields'][$field->flid]['data'] = $rtfield->rawtext;
                     else
@@ -518,7 +484,7 @@ class RevisionController extends Controller {
 
                 case 'Number':
                     $data['numberfields'][$field->flid]['name'] = $field->name;
-                    $numberfield = NumberField::where('flid', '=', $field->flid)->first();
+                    $numberfield = NumberField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
                     if(!is_null($numberfield))
                     {
                         $numberdata = array();
@@ -547,7 +513,7 @@ class RevisionController extends Controller {
 
                 case 'Multi-Select List':
                     $data['multiselectlistfields'][$field->flid]['name'] = $field->name;
-                    $mslfield = MultiSelectListField::where('flid', '=', $field->flid)->first();
+                    $mslfield = MultiSelectListField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
                     if(!is_null($mslfield))
                         $data['multiselectlistfields'][$field->flid]['data'] = $mslfield->options;
                     else
@@ -556,7 +522,7 @@ class RevisionController extends Controller {
 
                 case 'Generated List':
                     $data['generatedlistfields'][$field->flid]['name'] = $field->name;
-                    $genfield = GeneratedListField::where('flid', '=', $field->flid)->first();
+                    $genfield = GeneratedListField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
                     if(!is_null($genfield))
                         $data['generatedlistfields'][$field->flid]['name'] = $genfield->options;
                     else
@@ -565,7 +531,7 @@ class RevisionController extends Controller {
 
                 case 'Date':
                     $data['datefields'][$field->flid]['name'] = $field->name;
-                    $datefield = DateField::where('flid', '=', $field->flid)->first();
+                    $datefield = DateField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
                     if(!is_null($datefield))
                     {
                         $datedata = array();
@@ -593,7 +559,7 @@ class RevisionController extends Controller {
 
                 case 'Schedule':
                     $data['schedulefields'][$field->flid]['name'] = $field->name;
-                    $schedulefield = ScheduleField::where('flid', '=', $field->flid)->first();
+                    $schedulefield = ScheduleField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
                     if(!is_null($schedulefield))
                         $data['schedulefields'][$field->flid]['data'] = $schedulefield->events;
                     else
@@ -602,7 +568,7 @@ class RevisionController extends Controller {
 
                 case 'Geolocator':
                     $data['geolocatorfields'][$field->flid]['name'] = $field->name;
-                    $geofield = GeolocatorField::where('flid', '=', $field->flid)->first();
+                    $geofield = GeolocatorField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
                     if(!is_null($geofield))
                         $data['geolocatorfields'][$field->flid]['data'] = $geofield->locations;
                     else
@@ -611,7 +577,7 @@ class RevisionController extends Controller {
 
                 case 'Documents':
                     $data['documentsfields'][$field->flid]['name'] = $field->name;
-                    $docfield = DocumentsField::where('flid', '=', $field->flid)->first();
+                    $docfield = DocumentsField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
                     if(!is_null($docfield))
                         $data['documentsfields'][$field->flid]['data'] = $docfield->documents;
                     else
@@ -619,7 +585,7 @@ class RevisionController extends Controller {
                     break;
                 case 'Gallery':
                     $data['galleryfields'][$field->flid]['name'] = $field->name;
-                    $galfield = GalleryField::where('flid', '=', $field->flid)->first();
+                    $galfield = GalleryField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
                     if(!is_null($galfield))
                         $data['galleryfields'][$field->flid]['data'] = $galfield->images;
                     else
@@ -627,7 +593,7 @@ class RevisionController extends Controller {
                     break;
                 case '3D-Model':
                     $data['modelfields'][$field->flid]['name'] = $field->name;
-                    $modelfield = ModelField::where('flid', '=', $field->flid)->first();
+                    $modelfield = ModelField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
                     if(!is_null($modelfield))
                         $data['modelfields'][$field->flid]['data'] = $modelfield->model;
                     else
@@ -635,7 +601,7 @@ class RevisionController extends Controller {
                     break;
                 case 'Playlist':
                     $data['playlistfields'][$field->flid]['name'] = $field->name;
-                    $playfield = PlaylistField::where('flid', '=', $field->flid)->first();
+                    $playfield = PlaylistField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
                     if(!is_null($playfield))
                         $data['playlistfields'][$field->flid]['data'] = $playfield->audio;
                     else
@@ -643,7 +609,7 @@ class RevisionController extends Controller {
                     break;
                 case 'Video':
                     $data['videofields'][$field->flid]['name'] = $field->name;
-                    $videofield = VideoField::where('flid', '=', $field->flid)->first();
+                    $videofield = VideoField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
                     if(!is_null($videofield))
                         $data['videofields'][$field->flid]['data'] = $videofield->video;
                     else
