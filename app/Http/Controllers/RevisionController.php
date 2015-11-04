@@ -583,6 +583,7 @@ class RevisionController extends Controller {
                     else
                         $data['documentsfields'][$field->flid]['data'] = null;
                     break;
+
                 case 'Gallery':
                     $data['galleryfields'][$field->flid]['name'] = $field->name;
                     $galfield = GalleryField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
@@ -591,6 +592,7 @@ class RevisionController extends Controller {
                     else
                         $data['galleryfields'][$field->flid]['data'] = null;
                     break;
+
                 case '3D-Model':
                     $data['modelfields'][$field->flid]['name'] = $field->name;
                     $modelfield = ModelField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
@@ -599,6 +601,7 @@ class RevisionController extends Controller {
                     else
                         $data['modelfields'][$field->flid]['data'] = null;
                     break;
+
                 case 'Playlist':
                     $data['playlistfields'][$field->flid]['name'] = $field->name;
                     $playfield = PlaylistField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
@@ -607,6 +610,7 @@ class RevisionController extends Controller {
                     else
                         $data['playlistfields'][$field->flid]['data'] = null;
                     break;
+
                 case 'Video':
                     $data['videofields'][$field->flid]['name'] = $field->name;
                     $videofield = VideoField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();

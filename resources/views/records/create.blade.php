@@ -39,71 +39,97 @@
                     var flids = response['flids'];
                     var data = response['data'];
 
+                    console.log(response);
+
                     var i;
                     for (i = 0; i < flids.length; i++) {
                         var flid = flids[i];
                         var field = data[flid];
 
-                        if(field['type'] == 'Text') {
-                            $('[name='+flid+']').val(field['text']);
-                        }
-                        else if(field['type'] == 'Rich Text') {
-                            CKEDITOR.instances[flid].setData(field['rawtext']);
-                        }
-                        else if(field['type'] == 'Number') {
-                            $('[name='+flid+']').val(field['number']);
-                        }
-                        else if(field['type'] == 'List') {
-                            $('[name='+flid+']').select2('val', field['option']);
-                        }
-                        else if(field['type'] == 'Multi-Select List') {
-                            $('#list'+flid).select2('val', field['options']);
-                        }
-                        else if(field['type'] == 'Generated List') {
-                            var options = field['options'];
-                            var valArray = [];
-                            var h = 0;
-                            var selector = $("#list" + flid);
-                            for (var k = 0; k < options.length; k++) {
-                                if ($("#list" + flid + " option[value='" + options[k] + "']").length > 0) {
-                                    valArray[h] = options[k];
-                                    h++;
+                        switch (field['type']) {
+                            case 'Text':
+                                $('[name='+flid+']').val(field['text']);
+                                break;
+
+                            case 'Rich Text':
+                                CKEDITOR.instances[flid].setData(field['rawtext']);
+                                break;
+
+                            case 'Number':
+                                $('[name='+flid+']').val(field['number']);
+                                break;
+
+                            case 'List':
+                                $('[name='+flid+']').select2('val', field['option']);
+                                break;
+
+                            case 'Multi-Select List':
+                                $('#list'+flid).select2('val', field['options']);
+                                break;
+
+                            case 'Generated List':
+                                var options = field['options'];
+                                var valArray = [];
+                                var h = 0;
+                                var selector = $("#list" + flid);
+                                for (var k = 0; k < options.length; k++) {
+                                    if ($("#list" + flid + " option[value='" + options[k] + "']").length > 0) {
+                                        valArray[h] = options[k];
+                                        h++;
+                                    }
+                                    else {
+                                        selector.append($('<option/>', {
+                                            value: options[k],
+                                            text: options[k],
+                                            selected: 'selected'
+                                        }));
+                                        valArray[h] = options[k];
+                                        h++;
+                                    }
                                 }
-                                else {
+                                selector.select2('val', valArray);
+                                break;
+
+                            case 'Date':
+                                var date = field['data'];
+
+                                if(date['circa'])
+                                    $('[name=circa_'+flid+']').prop('checked', true);
+                                $('[name=month_'+flid+']').val(date['month']);
+                                $('[name=day_'+flid+']').val(date['day']);
+                                $('[name=year_'+flid+']').val(date['year']);
+                                $('[name=era_'+flid+']').val(date['era']);
+                                break;
+
+                            case 'Schedule':
+                                var j,  events = field['events'];
+                                var selector = $('#list'+flid);
+                                $('#list'+flid+' option[value!="0"]').remove();
+
+                                for (j=0; j < events.length; j++) {
                                     selector.append($('<option/>', {
-                                        value: options[k],
-                                        text: options[k],
+                                        value: events[j],
+                                        text: events[j],
                                         selected: 'selected'
                                     }));
-                                    valArray[h] = options[k];
-                                    h++;
                                 }
-                            }
-                            selector.select2('val', valArray);
-                        }
-                        else if(field['type'] == 'Date') {
-                            var date = field['data'];
+                                break;
 
-                            if(date['circa'])
-                                $('[name=circa_'+flid+']').prop('checked', true);
-                            $('[name=month_'+flid+']').val(date['month']);
-                            $('[name=day_'+flid+']').val(date['day']);
-                            $('[name=year_'+flid+']').val(date['year']);
-                            $('[name=era_'+flid+']').val(date['era']);
-                        }
-                        else if(field['type'] == 'Schedule') {
-                            var j, events = field['events'];
-                            var selector = $('#list'+flid);
-                            $('#list'+flid+' option[value!="0"]').remove();
+                            case 'Geolocator':
+                                var l, locations = field['locations'];
+                                var selector = $('#list'+flid);
+                                $('#list'+flid+' option[value!="0"]').remove();
 
-                            for (j=0; j < events.length; j++) {
-                                selector.append($('<option/>', {
-                                    value: events[j],
-                                    text: events[j],
-                                    selected: 'selected'
-                                }));
-                            }
+                                for (l=0; l < locations.length; l++) {
+                                    selector.append($('<option/>', {
+                                        value: locations[j],
+                                        text: locations[j],
+                                        selected: 'selected'
+                                    }));
+                                }
+                                break;
                         }
+
                     }
                 }
             });
