@@ -122,8 +122,8 @@
 
                                 for (l=0; l < locations.length; l++) {
                                     selector.append($('<option/>', {
-                                        value: locations[j],
-                                        text: locations[j],
+                                        value: locations[l],
+                                        text: locations[l],
                                         selected: 'selected'
                                     }));
                                 }
