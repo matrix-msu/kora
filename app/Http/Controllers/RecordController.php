@@ -118,240 +118,247 @@ class RecordController extends Controller {
             }
         }
 
-        $record = new Record();
-        $record->pid = $pid;
-        $record->fid = $fid;
-        $record->owner = $request->userId;
-        $record->save(); //need to save to create rid needed to make kid
-        $record->kid = $pid.'-'.$fid.'-'.$record->rid;
-        $record->save();
+        if($request->mass_creation == "on")
+            $numRecs = $request->mass_creation_num;
+        else
+            $numRecs = 1;
 
-        foreach($request->all() as $key => $value){
-            if(!is_numeric($key)){
-                continue;
+        for($i=0;$i<$numRecs;$i++) {
+            $record = new Record();
+            $record->pid = $pid;
+            $record->fid = $fid;
+            $record->owner = $request->userId;
+            $record->save(); //need to save to create rid needed to make kid
+            $record->kid = $pid . '-' . $fid . '-' . $record->rid;
+            $record->save();
+
+            foreach ($request->all() as $key => $value) {
+                if (!is_numeric($key)) {
+                    continue;
+                }
+                $field = FieldController::getField($key);
+                if ($field->type == 'Text') {
+                    if (!empty($value) && !is_null($value)) {
+                        $tf = new TextField();
+                        $tf->flid = $field->flid;
+                        $tf->rid = $record->rid;
+                        $tf->text = $value;
+                        $tf->save();
+                    }
+                } else if ($field->type == 'Rich Text') {
+                    if (!empty($value) && !is_null($value)) {
+                        $rtf = new RichTextField();
+                        $rtf->flid = $field->flid;
+                        $rtf->rid = $record->rid;
+                        $rtf->rawtext = $value;
+                        $rtf->save();
+                    }
+                } else if ($field->type == 'Number') {
+                    if (!empty($value) && !is_null($value)) {
+                        $nf = new NumberField();
+                        $nf->flid = $field->flid;
+                        $nf->rid = $record->rid;
+                        $nf->number = $value;
+                        $nf->save();
+                    }
+                } else if ($field->type == 'List') {
+                    $lf = new ListField();
+                    $lf->flid = $field->flid;
+                    $lf->rid = $record->rid;
+                    $lf->option = $value;
+                    $lf->save();
+                } else if ($field->type == 'Multi-Select List') {
+                    $mslf = new MultiSelectListField();
+                    $mslf->flid = $field->flid;
+                    $mslf->rid = $record->rid;
+                    $mslf->options = FieldController::msListArrayToString($value);
+                    $mslf->save();
+                } else if ($field->type == 'Generated List') {
+                    $glf = new GeneratedListField();
+                    $glf->flid = $field->flid;
+                    $glf->rid = $record->rid;
+                    $glf->options = FieldController::msListArrayToString($value);
+                    $glf->save();
+                } else if ($field->type == 'Date' && $request->input('year_' . $field->flid) != '') {
+                    $df = new DateField();
+                    $df->flid = $field->flid;
+                    $df->rid = $record->rid;
+                    $df->circa = $request->input('circa_' . $field->flid, '');
+                    $df->month = $request->input('month_' . $field->flid);
+                    $df->day = $request->input('day_' . $field->flid);
+                    $df->year = $request->input('year_' . $field->flid);
+                    $df->era = $request->input('era_' . $field->flid, 'CE');
+                    $df->save();
+                } else if ($field->type == 'Schedule') {
+                    $sf = new ScheduleField();
+                    $sf->flid = $field->flid;
+                    $sf->rid = $record->rid;
+                    $sf->events = FieldController::msListArrayToString($value);
+                    $sf->save();
+                } else if ($field->type == 'Geolocator') {
+                    $gf = new GeolocatorField();
+                    $gf->flid = $field->flid;
+                    $gf->rid = $record->rid;
+                    $gf->locations = FieldController::msListArrayToString($value);
+                    $gf->save();
+                } else if ($field->type == 'Documents' && glob(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/*.*') != false) {
+                    $df = new DocumentsField();
+                    $df->flid = $field->flid;
+                    $df->rid = $record->rid;
+                    $infoString = '';
+                    $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
+                    mkdir($newPath, 0775, true);
+                    if (file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
+                        $types = FieldController::getMimeTypes();
+                        foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
+                            if ($file->isFile()) {
+                                if (!array_key_exists($file->getExtension(), $types))
+                                    $type = 'application/octet-stream';
+                                else
+                                    $type = $types[$file->getExtension()];
+                                $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
+                                if ($infoString == '') {
+                                    $infoString = $info;
+                                } else {
+                                    $infoString .= '[!]' . $info;
+                                }
+                                copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                                    $newPath . '/' . $file->getFilename());
+                            }
+                        }
+                    }
+                    $df->documents = $infoString;
+                    $df->save();
+                } else if ($field->type == 'Gallery' && glob(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/*.*') != false) {
+                    $gf = new GalleryField();
+                    $gf->flid = $field->flid;
+                    $gf->rid = $record->rid;
+                    $infoString = '';
+                    $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
+                    //make the three directories
+                    mkdir($newPath, 0775, true);
+                    mkdir($newPath . '/thumbnail', 0775, true);
+                    mkdir($newPath . '/medium', 0775, true);
+                    if (file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
+                        $types = FieldController::getMimeTypes();
+                        foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
+                            if ($file->isFile()) {
+                                if (!array_key_exists($file->getExtension(), $types))
+                                    $type = 'application/octet-stream';
+                                else
+                                    $type = $types[$file->getExtension()];
+                                $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
+                                if ($infoString == '') {
+                                    $infoString = $info;
+                                } else {
+                                    $infoString .= '[!]' . $info;
+                                }
+                                copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                                    $newPath . '/' . $file->getFilename());
+                                copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename(),
+                                    $newPath . '/thumbnail/' . $file->getFilename());
+                                copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/medium/' . $file->getFilename(),
+                                    $newPath . '/medium/' . $file->getFilename());
+                            }
+                        }
+                    }
+                    $gf->images = $infoString;
+                    $gf->save();
+                } else if ($field->type == 'Playlist' && glob(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/*.*') != false) {
+                    $pf = new PlaylistField();
+                    $pf->flid = $field->flid;
+                    $pf->rid = $record->rid;
+                    $infoString = '';
+                    $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
+                    mkdir($newPath, 0775, true);
+                    if (file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
+                        $types = FieldController::getMimeTypes();
+                        foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
+                            if ($file->isFile()) {
+                                if (!array_key_exists($file->getExtension(), $types))
+                                    $type = 'application/octet-stream';
+                                else
+                                    $type = $types[$file->getExtension()];
+                                $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
+                                if ($infoString == '') {
+                                    $infoString = $info;
+                                } else {
+                                    $infoString .= '[!]' . $info;
+                                }
+                                copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                                    $newPath . '/' . $file->getFilename());
+                            }
+                        }
+                    }
+                    $pf->audio = $infoString;
+                    $pf->save();
+                } else if ($field->type == 'Video' && glob(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/*.*') != false) {
+                    $vf = new VideoField();
+                    $vf->flid = $field->flid;
+                    $vf->rid = $record->rid;
+                    $infoString = '';
+                    $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
+                    mkdir($newPath, 0775, true);
+                    if (file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
+                        $types = FieldController::getMimeTypes();
+                        foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
+                            if ($file->isFile()) {
+                                if (!array_key_exists($file->getExtension(), $types))
+                                    $type = 'application/octet-stream';
+                                else
+                                    $type = $types[$file->getExtension()];
+                                $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
+                                if ($infoString == '') {
+                                    $infoString = $info;
+                                } else {
+                                    $infoString .= '[!]' . $info;
+                                }
+                                copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                                    $newPath . '/' . $file->getFilename());
+                            }
+                        }
+                    }
+                    $vf->video = $infoString;
+                    $vf->save();
+                } else if ($field->type == '3D-Model' && glob(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/*.*') != false) {
+                    $mf = new ModelField();
+                    $mf->flid = $field->flid;
+                    $mf->rid = $record->rid;
+                    $infoString = '';
+                    $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
+                    mkdir($newPath, 0775, true);
+                    if (file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
+                        $types = FieldController::getMimeTypes();
+                        foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
+                            if ($file->isFile()) {
+                                if (!array_key_exists($file->getExtension(), $types))
+                                    $type = 'application/octet-stream';
+                                else
+                                    $type = $types[$file->getExtension()];
+                                $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
+                                if ($infoString == '') {
+                                    $infoString = $info;
+                                } else {
+                                    $infoString .= '[!]' . $info;
+                                }
+                                copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                                    $newPath . '/' . $file->getFilename());
+                            }
+                        }
+                    }
+                    $mf->model = $infoString;
+                    $mf->save();
+                } else if ($field->type == 'Associator') {
+                    $af = new AssociatorField();
+                    $af->flid = $field->flid;
+                    $af->rid = $record->rid;
+                    $af->records = FieldController::msListArrayToString($value);
+                    $af->save();
+                }
             }
-            $field = FieldController::getField($key);
-            if($field->type=='Text'){
-                if(!empty($value) && !is_null($value)) {
-                    $tf = new TextField();
-                    $tf->flid = $field->flid;
-                    $tf->rid = $record->rid;
-                    $tf->text = $value;
-                    $tf->save();
-                }
-            } else if($field->type=='Rich Text'){
-                if(!empty($value) && !is_null($value)) {
-                    $rtf = new RichTextField();
-                    $rtf->flid = $field->flid;
-                    $rtf->rid = $record->rid;
-                    $rtf->rawtext = $value;
-                    $rtf->save();
-                }
-            } else if($field->type=='Number'){
-                if(!empty($value) && !is_null($value)) {
-                    $nf = new NumberField();
-                    $nf->flid = $field->flid;
-                    $nf->rid = $record->rid;
-                    $nf->number = $value;
-                    $nf->save();
-                }
-            } else if($field->type=='List'){
-                $lf = new ListField();
-                $lf->flid = $field->flid;
-                $lf->rid = $record->rid;
-                $lf->option = $value;
-                $lf->save();
-            } else if($field->type=='Multi-Select List'){
-                $mslf = new MultiSelectListField();
-                $mslf->flid = $field->flid;
-                $mslf->rid = $record->rid;
-                $mslf->options = FieldController::msListArrayToString($value);
-                $mslf->save();
-            } else if($field->type=='Generated List'){
-                $glf = new GeneratedListField();
-                $glf->flid = $field->flid;
-                $glf->rid = $record->rid;
-                $glf->options = FieldController::msListArrayToString($value);
-                $glf->save();
-            } else if($field->type=='Date' && $request->input('year_'.$field->flid)!=''){
-                $df = new DateField();
-                $df->flid = $field->flid;
-                $df->rid = $record->rid;
-                $df->circa = $request->input('circa_'.$field->flid, '');
-                $df->month = $request->input('month_'.$field->flid);
-                $df->day = $request->input('day_'.$field->flid);
-                $df->year = $request->input('year_'.$field->flid);
-                $df->era = $request->input('era_'.$field->flid, 'CE');
-                $df->save();
-            } else if($field->type=='Schedule'){
-                $sf = new ScheduleField();
-                $sf->flid = $field->flid;
-                $sf->rid = $record->rid;
-                $sf->events = FieldController::msListArrayToString($value);
-                $sf->save();
-            } else if($field->type=='Geolocator'){
-                $gf = new GeolocatorField();
-                $gf->flid = $field->flid;
-                $gf->rid = $record->rid;
-                $gf->locations = FieldController::msListArrayToString($value);
-                $gf->save();
-            } else if($field->type=='Documents' && glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') != false){
-                $df = new DocumentsField();
-                $df->flid = $field->flid;
-                $df->rid = $record->rid;
-                $infoString = '';
-                $newPath = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid;
-                mkdir($newPath,0775,true);
-                if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
-                    $types = FieldController::getMimeTypes();
-                    foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
-                        if ($file->isFile()) {
-                            if(!array_key_exists($file->getExtension(),$types))
-                                $type = 'application/octet-stream';
-                            else
-                                $type =  $types[$file->getExtension()];
-                            $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
-                            if ($infoString == '') {
-                                $infoString = $info;
-                            } else {
-                                $infoString .= '[!]' . $info;
-                            }
-                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
-                                $newPath . '/' . $file->getFilename());
-                        }
-                    }
-                }
-                $df->documents = $infoString;
-                $df->save();
-            } else if($field->type=='Gallery' && glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') != false){
-                $gf = new GalleryField();
-                $gf->flid = $field->flid;
-                $gf->rid = $record->rid;
-                $infoString = '';
-                $newPath = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid;
-                //make the three directories
-                mkdir($newPath,0775,true);
-                mkdir($newPath.'/thumbnail',0775,true);
-                mkdir($newPath.'/medium',0775,true);
-                if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
-                    $types = FieldController::getMimeTypes();
-                    foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
-                        if ($file->isFile()) {
-                            if(!array_key_exists($file->getExtension(),$types))
-                                $type = 'application/octet-stream';
-                            else
-                                $type =  $types[$file->getExtension()];
-                            $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
-                            if ($infoString == '') {
-                                $infoString = $info;
-                            } else {
-                                $infoString .= '[!]' . $info;
-                            }
-                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
-                                $newPath . '/' . $file->getFilename());
-                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename(),
-                                $newPath . '/thumbnail/' . $file->getFilename());
-                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/medium/' . $file->getFilename(),
-                                $newPath . '/medium/' . $file->getFilename());
-                        }
-                    }
-                }
-                $gf->images = $infoString;
-                $gf->save();
-            } else if($field->type=='Playlist' && glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') != false){
-                $pf = new PlaylistField();
-                $pf->flid = $field->flid;
-                $pf->rid = $record->rid;
-                $infoString = '';
-                $newPath = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid;
-                mkdir($newPath,0775,true);
-                if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
-                    $types = FieldController::getMimeTypes();
-                    foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
-                        if ($file->isFile()) {
-                            if(!array_key_exists($file->getExtension(),$types))
-                                $type = 'application/octet-stream';
-                            else
-                                $type =  $types[$file->getExtension()];
-                            $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
-                            if ($infoString == '') {
-                                $infoString = $info;
-                            } else {
-                                $infoString .= '[!]' . $info;
-                            }
-                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
-                                $newPath . '/' . $file->getFilename());
-                        }
-                    }
-                }
-                $pf->audio = $infoString;
-                $pf->save();
-            } else if($field->type=='Video' && glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') != false){
-                $vf = new VideoField();
-                $vf->flid = $field->flid;
-                $vf->rid = $record->rid;
-                $infoString = '';
-                $newPath = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid;
-                mkdir($newPath,0775,true);
-                if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
-                    $types = FieldController::getMimeTypes();
-                    foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
-                        if ($file->isFile()) {
-                            if(!array_key_exists($file->getExtension(),$types))
-                                $type = 'application/octet-stream';
-                            else
-                                $type =  $types[$file->getExtension()];
-                            $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
-                            if ($infoString == '') {
-                                $infoString = $info;
-                            } else {
-                                $infoString .= '[!]' . $info;
-                            }
-                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
-                                $newPath . '/' . $file->getFilename());
-                        }
-                    }
-                }
-                $vf->video = $infoString;
-                $vf->save();
-            } else if($field->type=='3D-Model' && glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') != false){
-                $mf = new ModelField();
-                $mf->flid = $field->flid;
-                $mf->rid = $record->rid;
-                $infoString = '';
-                $newPath = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid;
-                mkdir($newPath,0775,true);
-                if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
-                    $types = FieldController::getMimeTypes();
-                    foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
-                        if ($file->isFile()) {
-                            if(!array_key_exists($file->getExtension(),$types))
-                                $type = 'application/octet-stream';
-                            else
-                                $type =  $types[$file->getExtension()];
-                            $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
-                            if ($infoString == '') {
-                                $infoString = $info;
-                            } else {
-                                $infoString .= '[!]' . $info;
-                            }
-                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
-                                $newPath . '/' . $file->getFilename());
-                        }
-                    }
-                }
-                $mf->model = $infoString;
-                $mf->save();
-            } else if($field->type=='Associator'){
-                $af = new AssociatorField();
-                $af->flid = $field->flid;
-                $af->rid = $record->rid;
-                $af->records = FieldController::msListArrayToString($value);
-                $af->save();
-            }
+
+            RevisionController::storeRevision($record->rid, 'create');
         }
-
-        RevisionController::storeRevision($record->rid, 'create');
 
         flash()->overlay('Your record has been successfully created!', 'Good Job!');
 
@@ -726,7 +733,7 @@ class RecordController extends Controller {
                             } else {
                                 $infoString .= '[!]' . $info;
                             }
-                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                            copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                                 env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $file->getFilename());
 
                             $doc_files_exist = true;
@@ -800,11 +807,11 @@ class RecordController extends Controller {
                             } else {
                                 $infoString .= '[!]' . $info;
                             }
-                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                            copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                                 env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $file->getFilename());
-                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename(),
+                            copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename(),
                                 env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/thumbnail/' . $file->getFilename());
-                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/medium/' . $file->getFilename(),
+                            copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/medium/' . $file->getFilename(),
                                 env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/medium/' . $file->getFilename());
 
                             $gal_files_exist = true;
@@ -871,7 +878,7 @@ class RecordController extends Controller {
                             } else {
                                 $infoString .= '[!]' . $info;
                             }
-                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                            copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                                 env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $file->getFilename());
                             $pla_files_exist = true;
                         }
@@ -935,7 +942,7 @@ class RecordController extends Controller {
                             } else {
                                 $infoString .= '[!]' . $info;
                             }
-                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                            copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                                 env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $file->getFilename());
                                 $vid_files_exist = true;
                         }
@@ -999,7 +1006,7 @@ class RecordController extends Controller {
                             } else {
                                 $infoString .= '[!]' . $info;
                             }
-                            rename(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                            copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                                 env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $file->getFilename());
                              $mod_files_exist = true;
                         }

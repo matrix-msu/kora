@@ -114,6 +114,9 @@
     {!! Form::model($record = new \App\Record, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid.'/records', 'id' => 'createform']) !!}
     {!! Form::model($record = new \App\Record, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid.'/records',
         'enctype' => 'multipart/form-data', 'id' => 'new_record_form']) !!}
+        <div><b>Mass Creation (Max 1000):</b> <input type="checkbox" name="mass_creation"></div>
+        <input type="number" name="mass_creation_num" class="form-control" value="2" step="1" max="1000" min="2">
+    <br>
         @include('records.form',['submitButtonText' => 'Create Record', 'form' => $form])
     {!! Form::close() !!}
 

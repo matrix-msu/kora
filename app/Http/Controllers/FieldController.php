@@ -425,7 +425,7 @@ class FieldController extends Controller {
 
 
     /****************************************************************************************************
-     *          THIS SECTION IS RESERVED FOR FUNCTIONS DEALING WITH SPECIFIC LIST TYPES                 *
+     *          THIS SECTION IS RESERVED FOR FUNCTIONS DEALING WITH SPECIFIC FIELD TYPES                 *
      ****************************************************************************************************/
 
     public function saveList($pid, $fid, $flid){
