@@ -3,6 +3,7 @@
 use App\DateField;
 use App\Form;
 use App\GeneratedListField;
+use App\GeolocatorField;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\ListField;
@@ -96,59 +97,78 @@ class RecordPresetController extends Controller {
 
         $field_collect = $form->fields()->get();
         $field_array = array();
+        $flid_array = array();
 
-        foreach($field_collect as $field)
-        {
+        foreach($field_collect as $field) {
             $data = array();
-            $flid_array = array();
             $data['flid'] = $field->flid;
             $data['type'] = $field->type;
 
-            if($field->type == 'Text') {
-                $textfield = TextField::where('rid', '=', $record->rid)->first();
-                $data['text'] = $textfield->text;
-                $flid_array[] = $field->flid;
+            switch ($field->type) {
+                case 'Text':
+                    $textfield = TextField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
+                    $data['text'] = $textfield->text;
+                    $flid_array[] = $field->flid;
+                    break;
+
+                case 'Rich Text':
+                    $rtfield = RichTextField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
+                    $data['rawtext'] = $rtfield->rawtext;
+                    $flid_array[] = $field->flid;
+                    break;
+
+                case 'Number':
+                    $numberfield = NumberField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
+                    $data['number'] = $numberfield->number;
+                    $flid_array[] = $field->flid;
+                    break;
+
+                case 'List':
+                    $listfield = ListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
+                    $data['option'] = $listfield->option;
+                    $flid_array[] = $field->flid;
+                    break;
+
+                case 'Multi-Select List':
+                    $mslfield = MultiSelectListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
+                    $data['options'] = explode('[!]', $mslfield->options);
+                    $flid_array[] = $field->flid;
+                    break;
+
+                case 'Generated List':
+                    $gnlfield = GeneratedListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
+                    $data['options'] = explode('[!]', $gnlfield->options);
+                    $flid_array[] = $field->flid;
+                    break;
+
+                case 'Date':
+                    $datefield = DateField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
+                    $date_array['circa'] = $datefield->circa;
+                    $date_array['era'] = $datefield->era;
+                    $date_array['day'] = $datefield->day;
+                    $date_array['month'] = $datefield->month;
+                    $date_array['year'] = $datefield->year;
+                    $data['data'] = $date_array;
+                    $flid_array[] = $field->flid;
+                    break;
+
+                case 'Schedule':
+                    $schedfield = ScheduleField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
+                    $data['events'] = explode('[!]', $schedfield->events);
+                    $flid_array[] = $field->flid;
+                    break;
+
+                case 'Geolocator':
+                    $geofield = GeolocatorField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
+                    $data['locations'] = explode('[!]', $geofield->locations);
+                    $flid_array[] = $field->flid;
+                    break;
+
+                default:
+                    //Presets not supported for any other field types.
+                    break;
             }
-            elseif($field->type == 'Rich Text') {
-                $rtfield = RichTextField::where('rid', '=', $record->rid)->first();
-                $data['rawtext'] = $rtfield->rawtext;
-                $flid_array[] = $field->flid;
-            }
-            elseif($field->type == 'Number') {
-                $numberfield = NumberField::where('rid', '=', $record->rid)->first();
-                $data['number'] = $numberfield->number;
-                $flid_array[] = $field->flid;
-            }
-            elseif($field->type == 'List') {
-                $listfield = ListField::where('rid', '=', $record->rid)->first();
-                $data['option'] = $listfield->option;
-                $flid_array[] = $field->flid;
-            }
-            elseif($field->type == 'Multi-Select List') {
-                $mslfield = MultiSelectListField::where('rid', '=', $record->rid)->first();
-                $data['options'] = explode('[!]', $mslfield->options);
-                $flid_array[] = $field->flid;
-            }
-            elseif($field->type == 'Generated List') {
-                $gnlfield = GeneratedListField::where('rid', '=', $record->rid)->first();
-                $data['options'] = explode('[!]', $gnlfield->options);
-                $flid_array[] = $field->flid;
-            }
-            elseif($field->type == 'Date') {
-                $datefield = DateField::where('rid', '=', $record->rid)->first();
-                $date_array['circa'] = $datefield->circa;
-                $date_array['era'] = $datefield->era;
-                $date_array['day'] = $datefield->day;
-                $date_array['month'] = $datefield->month;
-                $date_array['year'] = $datefield->year;
-                $data['data'] = $date_array;
-                $flid_array[] = $field->flid;
-            }
-            elseif($field->type == 'Schedule') {
-                $schedfield = ScheduleField::where('rid', '=', $record->rid)->first();
-                $data['events'] = explode('[!]', $schedfield->events);
-                $flid_array[] = $field->flid;
-            }
+
             $field_array[$field->flid] = $data;
         }
 
