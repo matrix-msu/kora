@@ -36,7 +36,8 @@
 <div class="body_quote">
     <div class="container_quote">
         <div class="content_quote">
-            <div class="title_quote">Kora 3</div>
+            <img src="{{ env('BASE_URL') }}public/logos/koraiii-logo-blue.svg">
+            <br><br>
             <div class="quote">{{ Inspiring::quote() }}</div>
             <div class="quote">Powered by Laravel</div>
 
