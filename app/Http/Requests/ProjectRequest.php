@@ -37,5 +37,5 @@ class ProjectRequest extends Request {
 			'slug.min' => 'The reference name must be at least 3 characters.'
 		];
 	}
-	
+
 }
