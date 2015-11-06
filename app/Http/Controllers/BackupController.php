@@ -53,7 +53,7 @@ class BackupController extends Controller
         if(Auth::check()){
             if(Auth::user()->id != 1){
                 flash()->overlay("Only the default admin can view that page","Whoops.");
-                return redirect("/")->send();
+                return redirect("/projects")->send();
             }
         }
 

@@ -5,7 +5,9 @@
         <li class="divider"></li>
         <li><a href="{{ url('/admin/users') }}">Manage Users</a></li>
         <li><a href="{{ url('/tokens') }}">Manage Tokens</a></li>
+        @if(Auth::user()->id == 1)
         <li><a href="{{ url('/backup') }}">Manage Backups</a></li>
+        @endif
         <li><a href="{{ url('/install/config') }}">Manage ENV File</a></li>
     </ul>
 </li>
