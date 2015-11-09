@@ -524,9 +524,9 @@ class RevisionController extends Controller {
                     $data['generatedlistfields'][$field->flid]['name'] = $field->name;
                     $genfield = GeneratedListField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
                     if(!is_null($genfield))
-                        $data['generatedlistfields'][$field->flid]['name'] = $genfield->options;
+                        $data['generatedlistfields'][$field->flid]['data'] = $genfield->options;
                     else
-                        $data['generatedlistfields'][$field->flid]['name'] = null;
+                        $data['generatedlistfields'][$field->flid]['data'] = null;
                     break;
 
                 case 'Date':
