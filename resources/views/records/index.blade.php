@@ -43,7 +43,9 @@
 
     <hr/>
 
-    <div style="text-align: left">{!! $records->render() !!}</div>
+    @include('pagination.records', ['object' => $records])
+
+    {{--<div style="text-align: left">{!! $records->render() !!}</div>--}}
 
     <h2>Records</h2>
 
