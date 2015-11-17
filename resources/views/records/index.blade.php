@@ -62,7 +62,12 @@
                         @if($field->type=='Text')
                             @foreach($record->textfields as $tf)
                                 @if($tf->flid == $field->flid)
-                                    {{ $tf->text }}
+                                    @if(\App\Http\Controllers\FieldController::getFieldOption($field,'MultiLine')==1)
+                                        <br>
+                                        <?php echo nl2br($tf->text) ?>
+                                    @else
+                                        {{ $tf->text }}
+                                    @endif
                                 @endif
                             @endforeach
                         @elseif($field->type=='Rich Text')
