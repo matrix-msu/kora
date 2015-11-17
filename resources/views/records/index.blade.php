@@ -43,11 +43,12 @@
 
     <hr/>
 
-    @include('pagination.records', ['object' => $records])
-
     {{--<div style="text-align: left">{!! $records->render() !!}</div>--}}
 
     <h2>Records</h2>
+    <div>Total: {{sizeof(\App\Record::where('fid','=',$form->fid)->get())}}</div>
+
+    @include('pagination.records', ['object' => $records])
 
     @foreach($records as $record)
         <div class="panel panel-default">
