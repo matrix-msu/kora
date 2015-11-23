@@ -32,7 +32,6 @@ use \Illuminate\Support\Facades\App;
 Use \Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
 
 class BackupController extends Controller
 {
@@ -160,20 +159,11 @@ class BackupController extends Controller
 
 		$this->backup_data = $this->saveDatabase($backup_label);
 
-        //$this->copyMediaFiles(ENV('BASE_PATH')."storage/app/".$this->MEDIA_DIRECTORY,ENV('BASE_PATH').'storage/app/backups/files/'.$this->backup_filename);//)//{
         $this->copyMediaFiles($this->MEDIA_DIRECTORY,$this->BACKUP_DIRECTORY."/files/".$this->backup_filename);
-
-        //   $this->unlockUsers();
-          //  $this->ajaxResponse(false,"The backup failed, unable to copy files for media fields.");
-        //}
 
         $this->backup_filepath = $this->BACKUP_DIRECTORY."/".$this->backup_filename;
 
         $backup_files_list = new Collection();
-
-        //$val = $this->verifyBackedUpMediaFiles(ENV('BASE_PATH').'storage/app/backups/files/'.$this->backup_filename,$backup_files_list);
-
-
 
 		if(Storage::exists($this->backup_filepath)){
             $this->unlockUsers();
@@ -230,7 +220,7 @@ class BackupController extends Controller
      * @params String $backup_name
      * @return Collection
      */
-        public function saveDatabase($backup_name){
+    public function saveDatabase($backup_name){
 
 		$entire_database = new Collection(); //This will hold literally the entire database and then some
 
@@ -849,6 +839,13 @@ class BackupController extends Controller
         catch(\Exception $e){
             $this->ajaxResponse(false,"The backup file contains invalid JSON data, it may be corrupt or damaged.  Check the file or try another one.  The restore did not start, so data already in the database was not deleted.");
         }
+        try{
+            $media_file_location = $this->decoded_json->kora3->filename;
+            Storage::get($this->BACKUP_DIRECTORY."/files/".$media_file_location."/files");
+        }
+        catch(\Exception $e){
+            $this->ajaxResponse(false,"Sorry, the required media files could not be found at $this->BACKUP_DIRECTORY/$media_file_location/files.  Place the files in that location, or create an empty directory with that name to proceed without them.  The existing database and records were not deleted, it should be safe to unlock users.");
+        }
 
         $backup_data = $this->decoded_json;
 
@@ -1211,13 +1208,22 @@ class BackupController extends Controller
                 }
             }
 
-            // DocumentsField
+            // DocumentsField (other file/media fields have slightly different names but are the same
             foreach($backup_data->documentsfield as $documentsfield){
-                $df_filenames = $this->getRecordFileNames($documentsfield->documents);
-                if ($this->verifyMediaFilesExist($documentsfield->rid, $documentsfield->flid, $df_filenames)) {
+                $files_db_row = $documentsfield->documents;  //This is the database row with filenames/info
+                $df_filenames = $this->getRecordFileNames($documentsfield->documents); //get the file names only from the row
+                $files_present = $this->verifyMediaFilesExist($documentsfield->rid, $documentsfield->flid, $df_filenames); //check that the files exist at the expected location
 
+                //If there are less files than there should be, remove them from the database row before restoring it
+                if($files_present->count() < $df_filenames->count()){
+                    $files_db_row = $this->removeFilesFromDbRow($files_db_row,$files_present);
+                    $this->ajax_error_list->push("Record ".$documentsfield->rid." is missing files, and was only partially restored.  Locate the missing files and run the restore process again.");
+                }
+
+                //Only create a databse row if at least SOME files were restored, but not if none
+                if ($files_present->count() > 0) {
                     try {
-                        $new_documentsfield = new DocumentsField(array("rid" => $documentsfield->rid, "flid" => $documentsfield->flid, "documents" => $documentsfield->documents));
+                        $new_documentsfield = new DocumentsField(array("rid" => $documentsfield->rid, "flid" => $documentsfield->flid, "documents" => $files_db_row));
                         $new_documentsfield->id = $documentsfield->id;
                         $new_documentsfield->created_at = $documentsfield->created_at;
                         $new_documentsfield->updated_at = $documentsfield->updated_at;
@@ -1227,17 +1233,24 @@ class BackupController extends Controller
                     }
                 }
                 else{
-                    $this->ajax_error_list->push("Record ".$documentsfield->rid." was not restored because it is missing files.");
+                    $this->ajax_error_list->push("Record ".$documentsfield->rid." Documents field was not restored because it is missing all required files.");
                 }
             }
             // GalleryField
             foreach($backup_data->galleryfield as $galleryfield){
-
+                $files_db_row = $galleryfield->images;
                 $gf_filenames = $this->getRecordFileNames($galleryfield->images);
-                if ($this->verifyMediaFilesExist($galleryfield->rid, $galleryfield->flid, $gf_filenames)) {
+                $files_present = $this->verifyMediaFilesExist($galleryfield->rid, $galleryfield->flid, $gf_filenames);
+
+                if($files_present->count() < $gf_filenames->count()){
+                    $files_db_row = $this->removeFilesFromDbRow($files_db_row,$files_present);
+                    $this->ajax_error_list->push("Record ".$galleryfield->rid." is missing files, and was only partially restored.  Locate the missing files and run the restore process again.");
+                }
+
+                if ($files_present->count() > 0) {
 
                     try {
-                        $new_galleryfield = new GalleryField(array("rid" => $galleryfield->rid, "flid" => $galleryfield->flid, "images" => $galleryfield->images));
+                        $new_galleryfield = new GalleryField(array("rid" => $galleryfield->rid, "flid" => $galleryfield->flid, "images" => $files_db_row));
                         $new_galleryfield->id = $galleryfield->id;
                         $new_galleryfield->created_at = $galleryfield->created_at;
                         $new_galleryfield->updated_at = $galleryfield->updated_at;
@@ -1247,15 +1260,24 @@ class BackupController extends Controller
                     }
                 }
                 else{
-                    $this->ajax_error_list->push("Record ".$galleryfield->rid." was not restored because it is missing files.");
+                    $this->ajax_error_list->push("Record ".$galleryfield->rid." Gallery field was not restored because it is missing files.");
                 }
             }
             // ModelField
             foreach($backup_data->modelfield as $modelfield){
+                $files_db_row = $modelfield->model;
                 $mf_filenames = $this->getRecordFileNames($modelfield->model);
-                if ($this->verifyMediaFilesExist($modelfield->rid, $modelfield->flid, $mf_filenames)) {
+                $files_present = $this->verifyMediaFilesExist($modelfield->rid, $modelfield->flid, $mf_filenames);
+
+                if($files_present->count() < $mf_filenames->count()){
+                    $files_db_row = $this->removeFilesFromDbRow($files_db_row,$files_present);
+                    $this->ajax_error_list->push("Record ".$modelfield->rid." is missing files, and was only partially restored.  Locate the missing files and run the restore process again.");
+                }
+
+
+                if ($files_present->count() > 0) {
                     try {
-                        $new_modelfield = new ModelField(array("rid" => $modelfield->rid, "flid" => $modelfield->flid, "model" => $modelfield->model));
+                        $new_modelfield = new ModelField(array("rid" => $modelfield->rid, "flid" => $modelfield->flid, "model" => $files_db_row));
                         $new_modelfield->id = $modelfield->id;
                         $new_modelfield->created_at = $modelfield->created_at;
                         $new_modelfield->updated_at = $modelfield->updated_at;
@@ -1265,13 +1287,21 @@ class BackupController extends Controller
                     }
                 }
                 else{
-                    $this->ajax_error_list->push("Record ".$modelfield->rid." was not restored because it is missing files.");
+                    $this->ajax_error_list->push("Record ".$modelfield->rid." Model field $modelfield->flid was not restored because it is missing files.");
                 }
             }
             // PlaylistField
             foreach($backup_data->playlistfield as $playlistfield){
+                $files_db_row = $playlistfield->audio;
                 $pf_filenames = $this->getRecordFileNames($playlistfield->audio);
-                if ($this->verifyMediaFilesExist($playlistfield->rid, $playlistfield->flid, $pf_filenames)) {
+                $files_present = $this->verifyMediaFilesExist($playlistfield->rid,$playlistfield->flid,$pf_filenames);
+
+                if($files_present->count() < $pf_filenames->count()){
+                    $files_db_row = $this->removeFilesFromDbRow($files_db_row,$files_present);
+                    $this->ajax_error_list->push("Record ".$playlistfield->rid." is missing files, and was only partially restored.  Locate the missing files and run the restore process again.");
+                }
+
+                if ($files_present->count() > 0) {
                     try {
                         $new_playlistfield = new PlaylistField(array("rid" => $playlistfield->rid, "flid" => $playlistfield->flid, "audio" => $playlistfield->audio));
                         $new_playlistfield->id = $playlistfield->id;
@@ -1288,8 +1318,16 @@ class BackupController extends Controller
             }
             // VideoField
             foreach($backup_data->videofield as $videofield){
+                $files_db_row = $videofield->video;
                 $vf_filenames = $this->getRecordFileNames($videofield->video);
-                if ($this->verifyMediaFilesExist($videofield->rid, $videofield->flid, $vf_filenames)) {
+                $files_present = $this->verifyMediaFilesExist($videofield->rid,$videofield->flid,$vf_filenames);
+
+                if($files_present->count() < $vf_filenames->count()){
+                    $files_db_row = $this->removeFilesFromDbRow($files_db_row,$files_present);
+                    $this->ajax_error_list->push("Record ".$videofield->rid." is missing files, and was only partially restored.  Locate the missing files and run the restore process again.");
+                }
+
+                if ($files_present->count() > 0) {
                     try {
                         $new_videofield = new VideoField(array("rid" => $videofield->rid, "flid" => $videofield->flid, "video" => $videofield->video));
                         $new_videofield->id = $videofield->id;
@@ -1347,7 +1385,6 @@ class BackupController extends Controller
                 }
             }
 
-            //$this->copyMediaFiles($this->backup_media_files_path,ENV('BASE_PATH')."storage/app/".$this->MEDIA_DIRECTORY);
             $this->copyMediaFiles($this->BACKUP_DIRECTORY."/files/".$this->backup_filename,"/");
 
         }
@@ -1387,8 +1424,6 @@ class BackupController extends Controller
         $this->ajax_return_data->put("status",$status);
         $this->ajax_return_data->put("error_list",$this->ajax_error_list);
         $this->ajax_return_data->put("message",$message);
-
-
 
         if($status == true){
             return response()->json($this->ajax_return_data,200)->send();
@@ -1447,85 +1482,44 @@ class BackupController extends Controller
     public function copyMediaFiles($source, $dest, $permissions = 0755)
         {
             $filesList = Storage::allFiles($source);
+            if(count($filesList) > 0) {
+                foreach ($filesList as $fileItem) {
+                    //When restoring, parts of the path (/backups/$filename/files/) need to be removed
+                    //When backing up, this doesn't exist to be removed, but gets added on the front with $dest
+                    //Using Storage::copy() instead of File::copyDirectory and PHP functions allows the backup
+                    //destination to be changed later to Dropbox or something hopefully without needing to update this.
 
-            foreach($filesList as $fileItem){
-                //When restoring, parts of the path (/backups/$filename/files/) need to be removed
-                //When backing up, this doesn't exist to be removed, but gets added on the front with $dest
-                //Using Storage::copy() instead of File::copyDirectory and PHP functions allows the backup
-                //destination to be changed later to Dropbox or something hopefully without needing to update this.
-
-                $pathPrefix = addcslashes($this->BACKUP_DIRECTORY."/files/".$this->backup_filename,"/");
-                $newFilePath = preg_replace("/$pathPrefix/","",$fileItem);
-                Storage::copy($fileItem,$dest.'/'.$newFilePath);
-            }
-            /*try{
-                File::copyDirectory($source,$dest);
-                $dest;
-                //Filesystem::copyDirectory($source,$dest);
-                //Storage::copy($source,$dest);
-                return true;
-            }
-            catch(\Exception $e){
-                $this->ajax_error_list->push($e->getMessage());
-                return false;
-            }
-
-*/
-            /*if (is_file($source)) {
-                try {
-                    return copy($source, $dest);
-                }
-                catch(\Exception $e){
-                    $this->ajax_error_list->push($e->getMessage());
-                    return false;
-                }
-            }
-            if (!is_dir($dest)) {
-                try{
-                    mkdir($dest, $permissions);
-                }
-                catch(\Exception $e){
-                    $this->ajax_error_list->push($e->getMessage());
-                    return false;
-                }
-            }
-            try {
-
-                $dir = dir($source);
-                while (false !== $entry = $dir->read()) {
-                    // Skip . and .. that should not be followed
-                    if ($entry == '.' || $entry == '..') {
-                        continue;
+                    $pathPrefix = addcslashes($this->BACKUP_DIRECTORY . "/files/" . $this->backup_filename, "/");
+                    $newFilePath = preg_replace("/$pathPrefix/", "", $fileItem);
+                    try {
+                        Storage::copy($fileItem, $dest . '/' . $newFilePath);
                     }
-
-                    // Recursion for the dirs inside dirs!
-                    $this->copyMediaFiles("$source/$entry", "$dest/$entry", $permissions);
+                    catch(\Exception $e){
+                        $this->ajax_error_list->push($e->getMessage());
+                    }
                 }
-                $dir->close();
-                return true;
             }
-            catch(\Exception $e){
-                $this->ajax_error_list->push($e->getMessage());
-                return false;
-            }*/
+            else{
+                Storage::makeDirectory($dest.'/files');
+            }
     }
 
+    /**
+     * Delete media files at the location $source
+     * @param $source
+     */
     public function deleteMediaFiles($source){
-        /*$mediaIterator = new \RecursiveDirectoryIterator($source);
-        foreach($mediaIterator as $fs_entry){
-            if($mediaIterator->hasChildren()){
-                $this->deleteMediaFiles($fs_entry);
-                rmdir($fs_entry);
-            }
-            elseif(is_file($fs_entry)){
-              unlink($fs_entry);
-            }
-        }
-        */
         Storage::deleteDirectory($source);
     }
 
-    public function verifyBackedUpMediaFiles($media_dir,&$files_list){
+    /**
+     *
+     * Generate a list of the media files and place it into $files_list
+     * @param $media_dir
+     * @param $files_list
+     * @return mixed
+     */
+    public function verifyBackedUpMediaFiles($media_dir, &$files_list){
         $mediaIterator = new \RecursiveDirectoryIterator($media_dir);
         foreach($mediaIterator as $fs_entry){
             if($mediaIterator->hasChildren()){
@@ -1544,12 +1538,21 @@ class BackupController extends Controller
         return $files_list;
     }
 
-    public function verifyMediaFilesExist($rid,$flid,$filenames){
+    /**
+     * Verify that media files actually exist with the correct $rid and $flid in their path
+     * @param $rid
+     * @param $flid
+     * @param $filenames
+     * @return Collection
+     */
+    public function verifyMediaFilesExist($rid, $flid, $filenames){
         $status = true;
+        $mediaFilesPresent = new Collection();
         foreach($filenames as $filename) {
             $expected_filepath = "r" . $rid . "/fl" . $flid . "/" . $filename;
             try {
                 if ($this->backup_file_list->has($expected_filepath)) {
+                    $mediaFilesPresent->put($filename,true);
                     continue;
                 } else {
                     $this->ajax_error_list->push("Media file does not exist: " . $expected_filepath);
@@ -1560,31 +1563,47 @@ class BackupController extends Controller
                 $status = false;
             }
         }
-        return $status;
+        return $mediaFilesPresent;
     }
 
-   /* public static function getAllRecordFileNamesFromDbRow($dbRow){
-        preg_match_all("/\[Name\].+?\]/",$dbRow,$recordFileNames);
-
-        $flatten = new \RecursiveArrayIterator($recordFileNames);
-        $corrected_record_file_names  = new Collection();
-
-        foreach($flatten as $flat){
-            $corrected_record_file_names;
-        }
-        return $flatten;
-    }*/
-
-    public static function getRecordFileNames($dbRow){
-        $imageArray = explode('[!]', $dbRow);
-        $newArray = new Collection();
-        foreach($imageArray as $image)
+    /**
+     * Extract record file names from a database row for the file/media fields
+     * @param $db_row
+     * @return Collection
+     */
+    public static function getRecordFileNames($db_row){
+        $file_array = explode('[!]', $db_row);
+        $file_name_array = new Collection();
+        foreach($file_array as $file_info)
         {
-            $newArray->push(explode('[Name]', $image)[1]);
+            $file_name_array->push(explode('[Name]', $file_info)[1]);
         }
-        return $newArray;
+        return $file_name_array;
     }
 
+    /**
+     * Remove a file from a database row of backup JSON (so that a missing file doesn't get restored)
+     * @param $db_row
+     * @param $files_present
+     * @return string
+     */
+    public function removeFilesFromDbRow($db_row, $files_present){
+        $file_array = explode('[!]',$db_row);
+        $corrected_file_array = new Collection();
+        foreach($file_array as $file_info) {
+            if($files_present->has(explode('[Name]',$file_info)[1])){
+                $corrected_file_array->push($file_info);
+            }
+        }
+
+        return implode("[!]",$corrected_file_array->toArray());
+    }
+
+    /**
+     * Delete a restore point and its files
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     */
     public function delete(Request $request){
 
         $this->validate($request,[
@@ -1599,8 +1618,6 @@ class BackupController extends Controller
                 $filename = explode("/",$filename);
 
                 try{
-                    //unlink(ENV('BASE_PATH')."storage/app/backups/".$filename[1]);
-                    //$this->deleteMediaFiles(ENV("BASE_PATH")."storage/app/backups/files/".$filename[1]);
                     if(Storage::exists($this->BACKUP_DIRECTORY."/".$filename[1])){
                         Storage::delete($this->BACKUP_DIRECTORY."/".$filename[1]);
                     }
