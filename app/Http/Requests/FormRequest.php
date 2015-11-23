@@ -21,11 +21,24 @@ class FormRequest extends Request {
      */
     public function rules()
     {
+        $messages = [
+            'email.required' => 'We need to know your e-mail address!',
+        ];
+
         return [
             'pid' => 'required|numeric',
             'name' => 'required|min:3',
-            'slug' => 'required|alpha_num',
+            'slug' => 'required|alpha_num|min:3',
             'description' => 'required',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'slug.required' => 'The reference name field is required.',
+            'slug.alpha_num' => 'The reference name may only contain letters and numbers.',
+            'slug.min' => 'The reference name must be at least 3 characters.'
         ];
     }
 

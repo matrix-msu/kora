@@ -23,9 +23,19 @@ class ProjectRequest extends Request {
 	{
 		return [
             'name' => 'required|min:3',
-            'slug' => 'required|alpha_num',
+            'slug' => 'required|alpha_num|min:3',
             'description' => 'required',
             'active' => 'required',
 		];
 	}
+
+	public function messages()
+	{
+		return [
+			'slug.required' => 'The reference name field is required.',
+			'slug.alpha_num' => 'The reference name may only contain letters and numbers.',
+			'slug.min' => 'The reference name must be at least 3 characters.'
+		];
+	}
+
 }

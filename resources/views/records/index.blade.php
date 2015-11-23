@@ -43,9 +43,12 @@
 
     <hr/>
 
-    <div style="text-align: left">{!! $records->render() !!}</div>
+    {{--<div style="text-align: left">{!! $records->render() !!}</div>--}}
 
     <h2>Records</h2>
+    <div>Total: {{sizeof(\App\Record::where('fid','=',$form->fid)->get())}}</div>
+
+    @include('pagination.records', ['object' => $records])
 
     @foreach($records as $record)
         <div class="panel panel-default">
@@ -59,7 +62,12 @@
                         @if($field->type=='Text')
                             @foreach($record->textfields as $tf)
                                 @if($tf->flid == $field->flid)
-                                    {{ $tf->text }}
+                                    @if(\App\Http\Controllers\FieldController::getFieldOption($field,'MultiLine')==1)
+                                        <br>
+                                        <?php echo nl2br($tf->text) ?>
+                                    @else
+                                        {{ $tf->text }}
+                                    @endif
                                 @endif
                             @endforeach
                         @elseif($field->type=='Rich Text')
@@ -134,9 +142,9 @@
                             @else
                                 @foreach($record->schedulefields as $sf)
                                     @if($sf->flid == $field->flid)
-                                        <div id='calendar{{$field->flid}}'></div>
+                                        <div id='calendar{{$field->flid.'_'.$record->rid}}'></div>
                                         <script>
-                                            $('#calendar{{$field->flid}}').fullCalendar({
+                                            $('#calendar{{$field->flid.'_'.$record->rid}}').fullCalendar({
                                                 events: [
                                                     @foreach(explode('[!]',$sf->events) as $event)
                                                         {
@@ -182,7 +190,7 @@
                             @else
                                 @foreach($record->geolocatorfields as $gf)
                                     @if($gf->flid == $field->flid)
-                                        <div id="map{{$field->flid}}" style="height:270px;"></div>
+                                        <div id="map{{$field->flid.'_'.$record->rid}}" style="height:270px;"></div>
                                         <?php $locs = array(); ?>
                                         @foreach(explode('[!]',$gf->locations) as $location)
                                             <?php
@@ -199,10 +207,10 @@
                                             ?>
                                         @endforeach
                                         <script>
-                                            var map{{$field->flid}} = L.map('map{{$field->flid}}').setView([{{$locs[0]['x']}}, {{$locs[0]['y']}}], 13);
-                                            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(map{{$field->flid}});
+                                            var map{{$field->flid.'_'.$record->rid}} = L.map('map{{$field->flid.'_'.$record->rid}}').setView([{{$locs[0]['x']}}, {{$locs[0]['y']}}], 13);
+                                            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(map{{$field->flid.'_'.$record->rid}});
                                             @foreach($locs as $loc)
-                                                var marker = L.marker([{{$loc['x']}}, {{$loc['y']}}]).addTo(map{{$field->flid}});
+                                                var marker = L.marker([{{$loc['x']}}, {{$loc['y']}}]).addTo(map{{$field->flid.'_'.$record->rid}});
                                                 marker.bindPopup("{{$loc['desc']}}");
                                             @endforeach
                                         </script>
@@ -226,7 +234,7 @@
                         @elseif($field->type=='Gallery')
                             @foreach($record->galleryfields as $gf)
                                 @if($gf->flid == $field->flid)
-                                    <div class="gal{{$field->flid}}">
+                                    <div class="gal{{$field->flid.'_'.$record->rid}}">
                                         @foreach(explode('[!]',$gf->images) as $img)
                                             @if($img != '')
                                                 <?php
@@ -238,7 +246,7 @@
                                         @endforeach
                                     </div>
                                     <script>
-                                        $('.gal{{$field->flid}}').slick({
+                                        $('.gal{{$field->flid.'_'.$record->rid}}').slick({
                                             dots: true,
                                             infinite: true,
                                             speed: 500,
@@ -251,9 +259,9 @@
                         @elseif($field->type=='Playlist')
                             @foreach($record->playlistfields as $pf)
                                 @if($pf->flid == $field->flid)
-                                    <div id="jp_container_{{$field->flid}}" class="jp-video jp-video-270p" role="application" aria-label="media player">
+                                    <div id="jp_container_{{$field->flid.'_'.$record->rid}}" class="jp-video jp-video-270p" role="application" aria-label="media player">
                                         <div class="jp-type-playlist">
-                                            <div id="jquery_jplayer_{{$field->flid}}" class="jp-jplayer"></div>
+                                            <div id="jquery_jplayer_{{$field->flid.'_'.$record->rid}}" class="jp-jplayer"></div>
                                             <div class="jp-gui">
                                                 <div class="jp-video-play">
                                                     <button class="jp-video-play-icon" role="button" tabindex="0">play</button>
@@ -302,7 +310,7 @@
                                         </div>
                                     </div>
                                     <script>
-                                        var cssSelector = { jPlayer: "#jquery_jplayer_{{$field->flid}}", cssSelectorAncestor: "#jp_container_{{$field->flid}}" };
+                                        var cssSelector = { jPlayer: "#jquery_jplayer_{{$field->flid.'_'.$record->rid}}", cssSelectorAncestor: "#jp_container_{{$field->flid.'_'.$record->rid}}" };
                                         var playlist = [
                                                 @foreach(explode('[!]',$pf->audio) as $key => $aud)
                                                     @if($aud != '')
@@ -334,9 +342,9 @@
                         @elseif($field->type=='Video')
                             @foreach($record->videofields as $vf)
                                 @if($vf->flid == $field->flid)
-                                    <div id="jp_container_{{$field->flid}}" class="jp-video jp-video-270p" role="application" aria-label="media player">
+                                    <div id="jp_container_{{$field->flid.'_'.$record->rid}}" class="jp-video jp-video-270p" role="application" aria-label="media player">
                                         <div class="jp-type-playlist">
-                                            <div id="jquery_jplayer_{{$field->flid}}" class="jp-jplayer"></div>
+                                            <div id="jquery_jplayer_{{$field->flid.'_'.$record->rid}}" class="jp-jplayer"></div>
                                             <div class="jp-gui">
                                                 <div class="jp-video-play">
                                                     <button class="jp-video-play-icon" role="button" tabindex="0">play</button>
@@ -385,7 +393,7 @@
                                         </div>
                                     </div>
                                     <script>
-                                        var cssSelector = { jPlayer: "#jquery_jplayer_{{$field->flid}}", cssSelectorAncestor: "#jp_container_{{$field->flid}}" };
+                                        var cssSelector = { jPlayer: "#jquery_jplayer_{{$field->flid.'_'.$record->rid}}", cssSelectorAncestor: "#jp_container_{{$field->flid.'_'.$record->rid}}" };
                                         var playlist = [
                                                 @foreach(explode('[!]',$vf->video) as $key => $vid)
                                                     @if($vid != '')
@@ -422,13 +430,13 @@
                                             $link = action('FieldController@getFileDownload',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name]);
                                             ?>
                                             <div style="width:800px; margin:auto; position:relative;">
-                                                <canvas id="cv{{$field->flid}}" style="border: 1px solid;" width="325" height="200">
+                                                <canvas id="cv{{$field->flid.'_'.$record->rid}}" style="border: 1px solid;" width="325" height="200">
                                                     It seems you are using an outdated browser that does not support canvas :-(
                                                 </canvas>
                                             </div>
 
                                             <script type="text/javascript">
-                                                var viewer = new JSC3D.Viewer(document.getElementById('cv{{$field->flid}}'));
+                                                var viewer = new JSC3D.Viewer(document.getElementById('cv{{$field->flid.'_'.$record->rid}}'));
                                                 viewer.setParameter('SceneUrl',         '{{$link}}');
                                                 viewer.setParameter('ModelColor',       '#CAA618');
                                                 viewer.setParameter('BackgroundColor1', '#E5D7BA');
