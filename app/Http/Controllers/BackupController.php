@@ -1,15 +1,19 @@
 <?php namespace App\Http\Controllers;
 
 use App\DateField;
+use App\DocumentsField;
 use App\Field;
 use App\Form;
 use App\FormGroup;
+use App\GalleryField;
 use App\GeneratedListField;
 use App\GeolocatorField;
 use App\ListField;
 use App\Metadata;
+use App\ModelField;
 use App\MultiSelectListField;
 use App\NumberField;
+use App\PlaylistField;
 use App\Project;
 use App\ProjectGroup;
 use App\Record;
@@ -19,6 +23,7 @@ use App\ScheduleField;
 use App\TextField;
 use App\Token;
 use App\User;
+use App\VideoField;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Database\QueryException;
@@ -43,6 +48,7 @@ class BackupController extends Controller
 
     private $BACKUP_DIRECTORY = "backups"; //Set the backup directory relative to laravel/storaage/app
     private $UPLOAD_DIRECTORY = "backups/user_upload/"; //Set the upload directory relative to laravel/storage/app
+    private $MEDIA_DIRECTORY =  "files"; //Set the storage directory for media field types relative to laravel/storage/app
 
 
     public function __construct()
@@ -106,6 +112,7 @@ class BackupController extends Controller
             return $item->get('timestamp');
         });
         $request->session()->put("restore_points_available",$available_backups);
+
         return view('backups.index',compact('saved_backups'));
     }
 
@@ -152,7 +159,11 @@ class BackupController extends Controller
 
 		$this->backup_data = $this->saveDatabase($backup_label);
 
+        $this->copyMediaFiles($this->MEDIA_DIRECTORY,$this->BACKUP_DIRECTORY."/files/".$this->backup_filename);
+
         $this->backup_filepath = $this->BACKUP_DIRECTORY."/".$this->backup_filename;
+
+        $backup_files_list = new Collection();
 
 		if(Storage::exists($this->backup_filepath)){
             $this->unlockUsers();
@@ -168,11 +179,13 @@ class BackupController extends Controller
             }
 		}
         $this->unlockUsers();
+        $request->session()->put("backup_file_name",$this->backup_filename);
         if($this->ajax_error_list->count() >0){
-            $this->ajaxResponse(false,"The backup completed with errors, restoring this file may not work.");
+            //$request->session()->put("backup_file_name",$this->backup_filename);
+            $this->ajaxResponse(false,"The backup completed with errors, the backup may be corrupted.  You can try downloading the file, if one was created.");
         }
         else{
-            $request->session()->put("backup_file_name",$this->backup_filename);
+            //$request->session()->put("backup_file_name",$this->backup_filename);
             $this->ajaxResponse(true,"The backup completed successfully");
         }
 	}
@@ -207,7 +220,7 @@ class BackupController extends Controller
      * @params String $backup_name
      * @return Collection
      */
-	public function saveDatabase($backup_name){
+    public function saveDatabase($backup_name){
 
 		$entire_database = new Collection(); //This will hold literally the entire database and then some
 
@@ -215,6 +228,7 @@ class BackupController extends Controller
         $backup_info = new Collection();
         $backup_info->put("version","1");   //In case a breaking change happens in the future (like new table added or a table removed)
         $backup_info->put("date",Carbon::now()->toDateTimeString()); //UTC time the backup started
+        $backup_info->put("filename",$this->backup_filename);
         $backup_info->put("name",$backup_name); //A user-assigned name for the backup
         $backup_info->put("created_by",Auth::user()->email); //The email for the user that created it
 
@@ -230,6 +244,8 @@ class BackupController extends Controller
             //Everything is inside this try-catch block, so if something goes wrong, the exception's getMessage will
             //be displayed to the user.  If there is an error backing up an individual row, it will try to continue.
             //If there is something more serious (ex. kora3_projects table doesn't exist), it will stop.
+
+
 
 
             // Project
@@ -559,6 +575,96 @@ class BackupController extends Controller
                 }
             }
 
+            // DocumentsField
+            $all_documentsfield_data = new Collection();
+            $entire_database->put('documentsfield',$all_documentsfield_data);
+            foreach(DocumentsField::all() as $documentsfield){
+                try{
+                    $individual_documentsfield_data = new Collection();
+                    $individual_documentsfield_data->put("id",$documentsfield->id);
+                    $individual_documentsfield_data->put("rid",$documentsfield->rid);
+                    $individual_documentsfield_data->put("flid",$documentsfield->flid);
+                    $individual_documentsfield_data->put("documents",$documentsfield->documents);
+                    $individual_documentsfield_data->put("created_at", $documentsfield->created_at->toDateTimeString());
+                    $individual_documentsfield_data->put("updated_at", $documentsfield->updated_at->toDateTimeString());
+                    $all_documentsfield_data->push($individual_documentsfield_data);
+                } catch(\Exception $e){
+                    $this->ajax_error_list->push($e->getMessage());
+                }
+            }
+
+            // PlaylistField
+            $all_playlistfield_data = new Collection();
+            $entire_database->put('playlistfield',$all_playlistfield_data);
+            foreach(PlaylistField::all() as $playlistfield){
+                try{
+                    $individual_playlistfield_data = new Collection();
+                    $individual_playlistfield_data->put("id",$playlistfield->id);
+                    $individual_playlistfield_data->put("rid",$playlistfield->rid);
+                    $individual_playlistfield_data->put("flid",$playlistfield->flid);
+                    $individual_playlistfield_data->put("audio",$playlistfield->audio);
+                    $individual_playlistfield_data->put("created_at", $playlistfield->created_at->toDateTimeString());
+                    $individual_playlistfield_data->put("updated_at", $playlistfield->updated_at->toDateTimeString());
+                    $all_playlistfield_data->push($individual_playlistfield_data);
+                } catch(\Exception $e){
+                    $this->ajax_error_list->push($e->getMessage());
+                }
+            }
+
+            // VideoField
+            $all_videofield_data = new Collection();
+            $entire_database->put('videofield',$all_videofield_data);
+            foreach(VideoField::all() as $videofield){
+                try{
+                    $individual_videofield_data = new Collection();
+                    $individual_videofield_data->put("id",$videofield->id);
+                    $individual_videofield_data->put("rid",$videofield->rid);
+                    $individual_videofield_data->put("flid",$videofield->flid);
+                    $individual_videofield_data->put("video",$videofield->video);
+                    $individual_videofield_data->put("created_at", $videofield->created_at->toDateTimeString());
+                    $individual_videofield_data->put("updated_at", $videofield->updated_at->toDateTimeString());
+                    $all_videofield_data->push($individual_videofield_data);
+                } catch(\Exception $e){
+                    $this->ajax_error_list->push($e->getMessage());
+                }
+            }
+
+            // ModelField
+            $all_modelfield_data = new Collection();
+            $entire_database->put('modelfield',$all_modelfield_data);
+            foreach(ModelField::all() as $modelfield){
+                try{
+                    $individual_modelfield_data = new Collection();
+                    $individual_modelfield_data->put("id",$modelfield->id);
+                    $individual_modelfield_data->put("rid",$modelfield->rid);
+                    $individual_modelfield_data->put("flid",$modelfield->flid);
+                    $individual_modelfield_data->put("model",$modelfield->model);
+                    $individual_modelfield_data->put("created_at", $modelfield->created_at->toDateTimeString());
+                    $individual_modelfield_data->put("updated_at", $modelfield->updated_at->toDateTimeString());
+                    $all_modelfield_data->push($individual_modelfield_data);
+                } catch(\Exception $e){
+                    $this->ajax_error_list->push($e->getMessage());
+                }
+            }
+
+            // ModelField
+            $all_galleryfield_data = new Collection();
+            $entire_database->put('galleryfield',$all_galleryfield_data);
+            foreach(GalleryField::all() as $galleryfield){
+                try{
+                    $individual_galleryfield_data = new Collection();
+                    $individual_galleryfield_data->put("id",$galleryfield->id);
+                    $individual_galleryfield_data->put("rid",$galleryfield->rid);
+                    $individual_galleryfield_data->put("flid",$galleryfield->flid);
+                    $individual_galleryfield_data->put("images",$galleryfield->images);
+                    $individual_galleryfield_data->put("created_at", $galleryfield->created_at->toDateTimeString());
+                    $individual_galleryfield_data->put("updated_at", $galleryfield->updated_at->toDateTimeString());
+                    $all_galleryfield_data->push($individual_galleryfield_data);
+                } catch(\Exception $e){
+                    $this->ajax_error_list->push($e->getMessage());
+                }
+            }
+
             //  Token
             $all_tokens_data = new Collection();
             $entire_database->put("tokens", $all_tokens_data);
@@ -616,6 +722,9 @@ class BackupController extends Controller
                     $this->ajax_error_list->push($e->getMessage());
                 }
             }
+
+
+
         }
         catch(\Exception $e){
             $this->ajax_error_list->push($e->getMessage());
@@ -641,7 +750,6 @@ class BackupController extends Controller
             'upload_file'=>'required_if:backup_source,upload'
         ]);
 
-        dd($request);
         if($request->input("backup_source") == "server"){
             $available_backups = $request->session()->get("restore_points_available"); //Same array as previous page (in case file was deleted and indices changed)
             try {
@@ -729,8 +837,14 @@ class BackupController extends Controller
             $this->decoded_json->kora3;
         }
         catch(\Exception $e){
-            $this->ajaxResponse(false,"The backup file contains invalid JSON data, it may be corrupt or damaged.  Check the file or try another one.
-            The restore did not start, so data already in the database was not deleted.");
+            $this->ajaxResponse(false,"The backup file contains invalid JSON data, it may be corrupt or damaged.  Check the file or try another one.  The restore did not start, so data already in the database was not deleted.");
+        }
+        try{
+            $media_file_location = $this->decoded_json->kora3->filename;
+            Storage::get($this->BACKUP_DIRECTORY."/files/".$media_file_location."/files");
+        }
+        catch(\Exception $e){
+            $this->ajaxResponse(false,"Sorry, the required media files could not be found at $this->BACKUP_DIRECTORY/$media_file_location/files.  Place the files in that location, or create an empty directory with that name to proceed without them.  The existing database and records were not deleted, it should be safe to unlock users.");
         }
 
         $backup_data = $this->decoded_json;
@@ -795,9 +909,49 @@ class BackupController extends Controller
             foreach(TextField::all() as $TextField){
                 $TextField->delete();
             }
+            foreach(DocumentsField::all() as $DocumentsField){
+                $DocumentsField->delete();
+            }
+            foreach(ModelField::all() as $ModelField){
+                $ModelField->delete();
+            }
+            foreach(GalleryField::all() as $GalleryField){
+                $GalleryField->delete();
+            }
+            foreach(VideoField::all() as $VideoField){
+                $VideoField->delete();
+            }
+            foreach(PlaylistField::all() as $PlaylistField){
+                $PlaylistField->delete();
+            }
+
+
         }catch(\Exception $e){
             $this->ajaxResponse(false, "There was a problem when attempting to remove existing information from the
             database, the database user may not have permission to do this or the database may be in use.");
+        }
+        try{
+            //$this->copyMediaFiles(ENV('BASE_PATH').'storage/app/backups/files/'.$backup_data->kora3->filename,ENV('BASE_PATH')."storage/app/".$this->MEDIA_DIRECTORY);
+            //$this->deleteMediaFiles(ENV('BASE_PATH').'storage/app/backups/files/'.$backup_data->kora3->filename);
+            $this->deleteMediaFiles($this->MEDIA_DIRECTORY);
+
+        }catch(\Exception $e){
+            $this->ajax_error_list->push($e->getMessage());
+            $this->ajaxResponse(false,"There was a problem when attempting to remove existing media files, make sure
+            the permissions are correct and the files are not in use.");
+        }
+
+        $this->backup_media_files_path = ENV('BASE_PATH') . 'storage/app/' . $this->BACKUP_DIRECTORY . "/files/" . $backup_data->kora3->filename . "/files";
+        $this->backup_filename = $backup_data->kora3->filename; //Don't rename Kora3 backups
+        $this->backup_file_list = new Collection();
+        try {
+
+            //Prepare a list
+            $this->verifyBackedUpMediaFiles($this->backup_media_files_path, $this->backup_file_list);
+        }
+        catch(\Exception $e){
+            $this->ajax_error_list->push($e->getMessage());
+            $this->ajaxResponse(false,"There is a problem with the media files for Documents/Gallery/Video/Model fields.");
         }
         try { //This try-catch is for non-QueryExceptions, like if a table is missing entirely from the JSON data
             // User
@@ -1036,7 +1190,7 @@ class BackupController extends Controller
                     $new_schedulefield->created_at = $schedulefield->created_at;
                     $new_schedulefield->updated_at = $schedulefield->updated_at;
                     $new_schedulefield->save();
-                } catch (QueryException $e) {
+                } catch(QueryException $e) {
                     $this->ajax_error_list->push($e->getMessage());
                 }
             }
@@ -1047,12 +1201,149 @@ class BackupController extends Controller
                     $new_geolocatorfield = new GeolocatorField(array("rid"=>$geolocatorfield->rid,"flid"=>$geolocatorfield->flid,"locations"=>$geolocatorfield->locations));
                     $new_geolocatorfield->id = $geolocatorfield->id;
                     $new_geolocatorfield->created_at = $geolocatorfield->created_at;
-                    $new_geolocatorfield->updated_at = $new_geolocatorfield->updated_at;
+                    $new_geolocatorfield->updated_at = $geolocatorfield->updated_at;
                     $new_geolocatorfield->save();
                 }catch(QueryException $e){
                     $this->ajax_error_list->push($e->getMessage());
                 }
             }
+
+            // DocumentsField (other file/media fields have slightly different names but are the same
+            foreach($backup_data->documentsfield as $documentsfield){
+                $files_db_row = $documentsfield->documents;  //This is the database row with filenames/info
+                $df_filenames = $this->getRecordFileNames($documentsfield->documents); //get the file names only from the row
+                $files_present = $this->verifyMediaFilesExist($documentsfield->rid, $documentsfield->flid, $df_filenames); //check that the files exist at the expected location
+
+                //If there are less files than there should be, remove them from the database row before restoring it
+                if($files_present->count() < $df_filenames->count()){
+                    $files_db_row = $this->removeFilesFromDbRow($files_db_row,$files_present);
+                    $this->ajax_error_list->push("Record ".$documentsfield->rid." is missing files, and was only partially restored.  Locate the missing files and run the restore process again.");
+                }
+
+                //Only create a databse row if at least SOME files were restored, but not if none
+                if ($files_present->count() > 0) {
+                    try {
+                        $new_documentsfield = new DocumentsField(array("rid" => $documentsfield->rid, "flid" => $documentsfield->flid, "documents" => $files_db_row));
+                        $new_documentsfield->id = $documentsfield->id;
+                        $new_documentsfield->created_at = $documentsfield->created_at;
+                        $new_documentsfield->updated_at = $documentsfield->updated_at;
+                        $new_documentsfield->save();
+                    } catch (QueryException $e) {
+                        $this->ajax_error_list->push($e->getMessage());
+                    }
+                }
+                else{
+                    $this->ajax_error_list->push("Record ".$documentsfield->rid." Documents field was not restored because it is missing all required files.");
+                }
+            }
+            // GalleryField
+            foreach($backup_data->galleryfield as $galleryfield){
+                $files_db_row = $galleryfield->images;
+                $gf_filenames = $this->getRecordFileNames($galleryfield->images);
+                $files_present = $this->verifyMediaFilesExist($galleryfield->rid, $galleryfield->flid, $gf_filenames);
+
+                if($files_present->count() < $gf_filenames->count()){
+                    $files_db_row = $this->removeFilesFromDbRow($files_db_row,$files_present);
+                    $this->ajax_error_list->push("Record ".$galleryfield->rid." is missing files, and was only partially restored.  Locate the missing files and run the restore process again.");
+                }
+
+                if ($files_present->count() > 0) {
+
+                    try {
+                        $new_galleryfield = new GalleryField(array("rid" => $galleryfield->rid, "flid" => $galleryfield->flid, "images" => $files_db_row));
+                        $new_galleryfield->id = $galleryfield->id;
+                        $new_galleryfield->created_at = $galleryfield->created_at;
+                        $new_galleryfield->updated_at = $galleryfield->updated_at;
+                        $new_galleryfield->save();
+                    } catch (QueryException $e) {
+                        $this->ajax_error_list->push($e->getMessage());
+                    }
+                }
+                else{
+                    $this->ajax_error_list->push("Record ".$galleryfield->rid." Gallery field was not restored because it is missing files.");
+                }
+            }
+            // ModelField
+            foreach($backup_data->modelfield as $modelfield){
+                $files_db_row = $modelfield->model;
+                $mf_filenames = $this->getRecordFileNames($modelfield->model);
+                $files_present = $this->verifyMediaFilesExist($modelfield->rid, $modelfield->flid, $mf_filenames);
+
+                if($files_present->count() < $mf_filenames->count()){
+                    $files_db_row = $this->removeFilesFromDbRow($files_db_row,$files_present);
+                    $this->ajax_error_list->push("Record ".$modelfield->rid." is missing files, and was only partially restored.  Locate the missing files and run the restore process again.");
+                }
+
+
+                if ($files_present->count() > 0) {
+                    try {
+                        $new_modelfield = new ModelField(array("rid" => $modelfield->rid, "flid" => $modelfield->flid, "model" => $files_db_row));
+                        $new_modelfield->id = $modelfield->id;
+                        $new_modelfield->created_at = $modelfield->created_at;
+                        $new_modelfield->updated_at = $modelfield->updated_at;
+                        $new_modelfield->save();
+                    } catch (QueryException $e) {
+                        $this->ajax_error_list->push($e->getMessage());
+                    }
+                }
+                else{
+                    $this->ajax_error_list->push("Record ".$modelfield->rid." Model field $modelfield->flid was not restored because it is missing files.");
+                }
+            }
+            // PlaylistField
+            foreach($backup_data->playlistfield as $playlistfield){
+                $files_db_row = $playlistfield->audio;
+                $pf_filenames = $this->getRecordFileNames($playlistfield->audio);
+                $files_present = $this->verifyMediaFilesExist($playlistfield->rid,$playlistfield->flid,$pf_filenames);
+
+                if($files_present->count() < $pf_filenames->count()){
+                    $files_db_row = $this->removeFilesFromDbRow($files_db_row,$files_present);
+                    $this->ajax_error_list->push("Record ".$playlistfield->rid." is missing files, and was only partially restored.  Locate the missing files and run the restore process again.");
+                }
+
+                if ($files_present->count() > 0) {
+                    try {
+                        $new_playlistfield = new PlaylistField(array("rid" => $playlistfield->rid, "flid" => $playlistfield->flid, "audio" => $playlistfield->audio));
+                        $new_playlistfield->id = $playlistfield->id;
+                        $new_playlistfield->created_at = $playlistfield->created_at;
+                        $new_playlistfield->updated_at = $playlistfield->updated_at;
+                        $new_playlistfield->save();
+                    } catch (QueryException $e) {
+                        $this->ajax_error_list->push($e->getMessage());
+                    }
+                }
+                else{
+                    $this->ajax_error_list->push("Record ".$playlistfield->rid." was not restored because it is missing files.");
+                }
+            }
+            // VideoField
+            foreach($backup_data->videofield as $videofield){
+                $files_db_row = $videofield->video;
+                $vf_filenames = $this->getRecordFileNames($videofield->video);
+                $files_present = $this->verifyMediaFilesExist($videofield->rid,$videofield->flid,$vf_filenames);
+
+                if($files_present->count() < $vf_filenames->count()){
+                    $files_db_row = $this->removeFilesFromDbRow($files_db_row,$files_present);
+                    $this->ajax_error_list->push("Record ".$videofield->rid." is missing files, and was only partially restored.  Locate the missing files and run the restore process again.");
+                }
+
+                if ($files_present->count() > 0) {
+                    try {
+                        $new_videofield = new VideoField(array("rid" => $videofield->rid, "flid" => $videofield->flid, "video" => $videofield->video));
+                        $new_videofield->id = $videofield->id;
+                        $new_videofield->created_at = $videofield->created_at;
+                        $new_videofield->updated_at = $videofield->updated_at;
+                        $new_videofield->save();
+                    } catch (QueryException $e) {
+                        $this->ajax_error_list->push($e->getMessage());
+                    }
+                }
+                else{
+                    $this->ajax_error_list->push("Record ".$videofield->rid." was not restored because it is missing files.");
+                }
+            }
+
+
 
             // Token
             foreach ($backup_data->tokens as $token) {
@@ -1093,6 +1384,9 @@ class BackupController extends Controller
                     $this->ajax_error_list->push($e->getMessage());
                 }
             }
+
+            $this->copyMediaFiles($this->BACKUP_DIRECTORY."/files/".$this->backup_filename,"/");
+
         }
 		catch(\Exception $e){
                 $this->ajax_error_list->push($e->getMessage());
@@ -1104,7 +1398,7 @@ class BackupController extends Controller
 
         if(count($this->ajax_error_list) != 0){
             $this->ajaxResponse(false,"Not all of your data was restored, check the errors below for details.
-            The errors are in order that they occurred, if you can resolve the first error, it will often correct
+            The errors are in the order that they occurred, if you can resolve the first error, it will often correct
             one or more of the errors below it.
             Users will stay locked out until you run a successful restore or manually unlock them above.");
         }
@@ -1116,7 +1410,7 @@ class BackupController extends Controller
 	}
     /*
      * This method accepts a boolean (status) and a string (message)
-     * and it returns a JSON response for AJAX calls with the status, message,
+     * and it returns a JSON response for AJAX calls with php escape stringthe status, message,
      * and an array of restore errors.  It also sets the HTTP status code.
      *
      * Note that this sends the response immediately, and will exit()!
@@ -1130,8 +1424,6 @@ class BackupController extends Controller
         $this->ajax_return_data->put("status",$status);
         $this->ajax_return_data->put("error_list",$this->ajax_error_list);
         $this->ajax_return_data->put("message",$message);
-
-
 
         if($status == true){
             return response()->json($this->ajax_return_data,200)->send();
@@ -1165,7 +1457,6 @@ class BackupController extends Controller
             }
         }
     }
-
     /*
      * This method will unlock all users, it returns a response with a message and status code,
      * but the response isn't sent (unless this is called from a route).
@@ -1187,6 +1478,175 @@ class BackupController extends Controller
         }
         return response("success",200);
     }
+
+    public function copyMediaFiles($source, $dest, $permissions = 0755)
+        {
+            $filesList = Storage::allFiles($source);
+            if(count($filesList) > 0) {
+                foreach ($filesList as $fileItem) {
+                    //When restoring, parts of the path (/backups/$filename/files/) need to be removed
+                    //When backing up, this doesn't exist to be removed, but gets added on the front with $dest
+                    //Using Storage::copy() instead of File::copyDirectory and PHP functions allows the backup
+                    //destination to be changed later to Dropbox or something hopefully without needing to update this.
+
+                    $pathPrefix = addcslashes($this->BACKUP_DIRECTORY . "/files/" . $this->backup_filename, "/");
+                    $newFilePath = preg_replace("/$pathPrefix/", "", $fileItem);
+                    try {
+                        Storage::copy($fileItem, $dest . '/' . $newFilePath);
+                    }
+                    catch(\Exception $e){
+                        $this->ajax_error_list->push($e->getMessage());
+                    }
+                }
+            }
+            else{
+                Storage::makeDirectory($dest.'/files');
+            }
+    }
+
+    /**
+     * Delete media files at the location $source
+     * @param $source
+     */
+    public function deleteMediaFiles($source){
+        Storage::deleteDirectory($source);
+    }
+
+    /**
+     *
+     * Generate a list of the media files and place it into $files_list
+     * @param $media_dir
+     * @param $files_list
+     * @return mixed
+     */
+    public function verifyBackedUpMediaFiles($media_dir, &$files_list){
+        $mediaIterator = new \RecursiveDirectoryIterator($media_dir);
+        foreach($mediaIterator as $fs_entry){
+            if($mediaIterator->hasChildren()){
+                //$media_list->push($fsEntry);
+                $this->verifyBackedUpMediaFiles($fs_entry,$files_list);
+            }
+            elseif(is_file($fs_entry)){
+                //$path_prefix = ENV('BASE_PATH').'storage/app/'.$this->BACKUP_DIRECTORY."/files/".$this->backup_filename;
+                $something = addcslashes($this->backup_media_files_path,"/");
+                $file_path = preg_replace("/".$something."\/p\d+\/f\d+\//","",$fs_entry);
+                $files_list->put($file_path,$fs_entry->getFilename());
+               // $files_list->push(str_replace($this->backup_media_files_path.preg_match("/\/p[0-9]\/f[0-9]\//",$fs_entry),"",$fs_entry));
+            }
+        }
+
+        return $files_list;
+    }
+
+    /**
+     * Verify that media files actually exist with the correct $rid and $flid in their path
+     * @param $rid
+     * @param $flid
+     * @param $filenames
+     * @return Collection
+     */
+    public function verifyMediaFilesExist($rid, $flid, $filenames){
+        $status = true;
+        $mediaFilesPresent = new Collection();
+        foreach($filenames as $filename) {
+            $expected_filepath = "r" . $rid . "/fl" . $flid . "/" . $filename;
+            try {
+                if ($this->backup_file_list->has($expected_filepath)) {
+                    $mediaFilesPresent->put($filename,true);
+                    continue;
+                } else {
+                    $this->ajax_error_list->push("Media file does not exist: " . $expected_filepath);
+                    $status = false;
+                }
+            } catch (\Exception $e) {
+                $this->ajax_error_list->push($e->getMessage());
+                $status = false;
+            }
+        }
+        return $mediaFilesPresent;
+    }
+
+    /**
+     * Extract record file names from a database row for the file/media fields
+     * @param $db_row
+     * @return Collection
+     */
+    public static function getRecordFileNames($db_row){
+        $file_array = explode('[!]', $db_row);
+        $file_name_array = new Collection();
+        foreach($file_array as $file_info)
+        {
+            $file_name_array->push(explode('[Name]', $file_info)[1]);
+        }
+        return $file_name_array;
+    }
+
+    /**
+     * Remove a file from a database row of backup JSON (so that a missing file doesn't get restored)
+     * @param $db_row
+     * @param $files_present
+     * @return string
+     */
+    public function removeFilesFromDbRow($db_row, $files_present){
+        $file_array = explode('[!]',$db_row);
+        $corrected_file_array = new Collection();
+        foreach($file_array as $file_info) {
+            if($files_present->has(explode('[Name]',$file_info)[1])){
+                $corrected_file_array->push($file_info);
+            }
+        }
+
+        return implode("[!]",$corrected_file_array->toArray());
+    }
+
+    /**
+     * Delete a restore point and its files
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     */
+    public function delete(Request $request){
+
+        $this->validate($request,[
+            'backup_source'=>'required|in:server',
+            'restore_point'=>'required'
+        ]);
+
+        if($request->input("backup_source") == "server"){
+            $available_backups = $request->session()->get("restore_points_available"); //Same array as previous page (in case file was deleted and indices changed)
+            try {
+                $filename = $available_backups[$request->input("restore_point")]; //Using index in array so user can't provide weird or malicious file names
+                $filename = explode("/",$filename);
+
+                try{
+                    if(Storage::exists($this->BACKUP_DIRECTORY."/".$filename[1])){
+                        Storage::delete($this->BACKUP_DIRECTORY."/".$filename[1]);
+                    }
+                    if(Storage::exists($this->BACKUP_DIRECTORY."/files/".$filename[1])){
+                        Storage::deleteDirectory($this->BACKUP_DIRECTORY."/files/".$filename[1]);
+                    }
+
+                }
+                catch(\Exception $e){
+                    return response()->json(["status"=>false,"message"=>"$e"]);
+                }
+
+                return response()->json(["status"=>true,"message"=>$filename]);
+
+            }
+            catch(\Exception $e){
+                flash()->overlay("The restore point you selected is not valid.","Whoops!"); //This can happen if another user deleted the backup or if the params were edited before POST
+                return redirect()->back();
+            }
+            $request->session()->put("restore_file_path",$filename);
+        }
+        else{
+            flash()->overlay("The restore point you selected is not valid","Whoops.");
+            return redirect()->back();
+        }
+
+
+    }
+
 }
 
 

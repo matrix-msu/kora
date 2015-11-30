@@ -155,6 +155,7 @@ Route::post('/backup/restore/start','BackupController@restoreData');
 Route::post('/backup','BackupController@startBackup');
 Route::post('/backup/restore','BackupController@startRestore');
 Route::post('/backup/unlock','BackupController@unlockUsers');
+Route::post('/backup/delete','BackupController@delete');
 
 Route::controllers([
 	'auth' => 'Auth\AuthController',
