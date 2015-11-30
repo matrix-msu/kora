@@ -142,7 +142,10 @@ Route::post('/install/environment',"InstallController@installKora");
 Route::get('/install/config',"InstallController@editEnvConfigs");
 Route::post('/install/config',"InstallController@updateEnvConfigs");
 
-
+//update routes
+Route::get('/update', 'UpdateController@index');
+Route::get('/update/gitUpdate', 'UpdateController@gitUpdate');
+Route::get('/update/independentUpdate', 'UpdateController@independentUpdate');
 
 //backup routes
 Route::get('/backup','BackupController@index');
