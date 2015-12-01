@@ -1316,7 +1316,17 @@ class RecordController extends Controller {
         }
 
         $form = FormController::getForm($fid);
-        $fields = $form->fields()->get();
+        $all_fields = $form->fields()->get();
+        $fields = new Collection();
+        foreach($all_fields as $field){
+            $type = $field->type;
+            if($type == "Documents" || $type == "Gallery" || $type == "Playlist" || $type == "3D-Model" || $type == 'Video'){
+                continue;
+            }
+            else{
+                $fields->push($field);
+            }
+        }
         return view('records.mass-assignment',compact('form','fields','pid','fid'));
     }
 

@@ -19,7 +19,7 @@
         <li><a href="{{ url('/projects/'.$pid).'/forms/'.$fid.'/records/create'}}">New Record</a></li>
         <li><a href="{{ action('RecordController@showMassAssignmentView',['pid' => $pid, 'fid' => $fid]) }}">Mass Assign Records</a></li>
         <li class="divider"></li>
-        <li><a href="{{url('/projects/'.$pid).'/forms/'.$fid.'/metadata/setup'}}">Metadata</a></li>
+        <li><a href="{{url('/projects/'.$pid).'/forms/'.$fid.'/metadata/setup'}}">Linked Open Data</a></li>
         @if (\Auth::user()->admin || \Auth::user()->isFormAdmin(\App\Http\Controllers\FormController::getForm($fid)))
             <li class="divider"></li>
             <li><a href="{{action('FormGroupController@index', ['pid'=>$pid, 'fid'=>$fid])}}">Manage Groups</a></li>

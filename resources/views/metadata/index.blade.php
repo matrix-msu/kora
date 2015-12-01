@@ -12,12 +12,12 @@
                 <div class="panel panel-default">
                     <div class="panel-body">
 
-                        <span><h3>Metadata</h3></span>
+                        <span><h3>Linked Open Data</h3></span>
                         <hr>
 
                         <div>
                             <b class="pull-left">Field</b>
-                            <b class="pull-right">Metadata</b>
+                            <b class="pull-right">Linked Open Data</b>
                         </div>
                         <br>
 
@@ -31,7 +31,7 @@
                             @else
                                 <input id="public_metadata" name="public_metadata" type="checkbox" value="true">
                             @endif
-                                Metadata can be viewed by anyone
+                                Linked Open Data can be viewed by anyone
                             </label>
                         </div>
 
@@ -51,17 +51,20 @@
                         {!! Form::token() !!}
                         {!! Form::hidden('type', 'addmetadata') !!}
                         <div class="form-group">
-                            {!! Form::label('name','Metadata name') !!}
+                            {!! Form::label('name','Linked Open Data name') !!}
                             {!! Form::text('name','',array('class'=>'form-control')) !!}
                         </div>
                         <div class="form-group">
-                            {!! Form::label('field','Field to link with this metadata') !!}
+                            {!! Form::label('field','Field to link with this Linked Open Data') !!}
                             {!! Form::select('field',$fields,'',array('class'=>'form-control')) !!}
                         </div>
 
-                        {!! Form::submit('Add Metadata',array('class'=>'btn btn-primary form-control')) !!}
+                        {!! Form::submit('Assign Linked Open Data',array('class'=>'btn btn-primary form-control')) !!}
 
                         {!! Form::close() !!}
+                        <hr>
+                        <p><strong>Automatically Mass Assign Linked Open Data</strong></p>
+                        <button id="massAssign" class="btn btn-primary form-control">Mass Assign Linked Open Data</button>
                     </div>
                 </div>
             </div>
@@ -79,7 +82,10 @@
             if($("#public_metadata").prop('checked')) state = true;
             else state = false;
             makeMetaPublic(state);
-        })
+        });
+        $("#massAssign").on('click',function(){
+            massAssignMeta();
+        });
 
         function deleteMeta(flid){
            var deleteURL ="{{action('MetadataController@destroy',compact('pid','fid'))}}";
@@ -95,6 +101,21 @@
                 }
             });
         }
+        function massAssignMeta(){
+            var deleteURL ="{{action('MetadataController@massAssign',compact('pid','fid'))}}";
+            $.ajax({
+                url:deleteURL,
+                method:'POST',
+                data: {
+                    "_token": "{{ csrf_token() }}"
+                },
+                success: function(data){
+                    location.reload();
+                }
+            });
+        }
+
+
         function makeMetaPublic(state){
             var deleteURL ="{{action('MetadataController@store',compact('pid','fid'))}}";
             $.ajax({
@@ -107,13 +128,13 @@
                 },
                 success: function(data){
                     //location.reload();
-                    console.log("visibility was changed");
+                    console.log("linked to open data was changed");
                 },
                 error: function(jqxhr, textStatus, errorThrown){
-                    console.log("Error in changing metadata visibility");
+                    console.log("Error in changing linked to open data visibility");
                     //console.log("text status: " + textStatus);
                     //console.log("error thrown: "+errorThrown);
-                    alert("Sorry, there was an error when trying to change the metadata's visibility. Reload the page and try again");
+                    alert("Sorry, there was an error when trying to change the linked to open data's visibility. Reload the page and try again");
                 }
             });
         }

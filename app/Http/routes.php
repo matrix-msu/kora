@@ -134,6 +134,7 @@ Route::get('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@inde
 Route::post('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@store');
 Route::delete('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@destroy');
 Route::get('/projects/{pid}/forms/{fid}/metadata','MetadataController@records');
+Route::post('/projects/{pid}/forms/{fid}/metadata/massassign','MetadataController@massAssign');
 
 //install routes
 Route::get('/install','InstallController@index');
