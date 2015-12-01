@@ -10,7 +10,7 @@ use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 class AdminController extends Controller {
 
     /**
-     * User must be logged in to access views in this controller.
+     * User must be logged in and admin to access views in this controller.
      */
     public function __construct()
     {

@@ -52,7 +52,9 @@
                 </ul>">
             <span class="glyphicon glyphicon-globe"></span>  {{App::getLocale()}}
         </button>
+
     </div>
+
 </div>
 
 
