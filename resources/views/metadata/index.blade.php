@@ -128,13 +128,14 @@
                 },
                 success: function(data){
                     //location.reload();
-                    console.log("linked to open data was changed");
+                    console.log("Linked Open Data was changed");
                 },
                 error: function(jqxhr, textStatus, errorThrown){
                     console.log("Error in changing linked to open data visibility");
                     //console.log("text status: " + textStatus);
                     //console.log("error thrown: "+errorThrown);
-                    alert("Sorry, there was an error when trying to change the linked to open data's visibility. Reload the page and try again");
+                    alert("Sorry, there was an error when trying to change the Linked Open Data's visibility.");
+                    location.reload()
                 }
             });
         }
