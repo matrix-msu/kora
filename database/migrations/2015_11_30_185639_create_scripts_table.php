@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateVersionsTable extends Migration {
+class CreateScriptsTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,10 +12,11 @@ class CreateVersionsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('versions', function(Blueprint $table)
+		Schema::create('scripts', function(Blueprint $table)
 		{
 			$table->increments('id');
-			$table->string('version');
+			$table->string('filename')->unique();
+			$table->boolean('hasRun');
 			$table->timestamps();
 		});
 	}
@@ -27,7 +28,7 @@ class CreateVersionsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('versions');
+		Schema::drop('scripts');
 	}
 
 }

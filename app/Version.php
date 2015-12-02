@@ -4,6 +4,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Version extends Model {
 
-    protected $fillable = ['version', 'scripts'];
+    protected $fillable = ['id', 'version'];
 
 }
