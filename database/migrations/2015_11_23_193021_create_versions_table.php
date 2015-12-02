@@ -16,6 +16,7 @@ class CreateVersionsTable extends Migration {
 		{
 			$table->increments('id');
 			$table->string('version');
+			$table->string('scripts');
 			$table->timestamps();
 		});
 	}
