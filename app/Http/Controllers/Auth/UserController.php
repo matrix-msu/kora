@@ -167,7 +167,7 @@ class UserController extends Controller {
 
         $token = trim($request->token);
 
-        if ($user->regtoken == $token && !empty($user->regtoken) && !($user->active ==1)){
+        if ($user->regtoken == $token){
             $user->active = 1;
             $user->save();
             flash()->overlay('You have been activated!', 'Success!');
@@ -177,7 +177,7 @@ class UserController extends Controller {
             return redirect('/');
         }
         else{
-            flash()->overlay('The token is not valid for that user at this time.', 'Whoops.');
+            flash()->overlay('That token does not match that user.', 'Whoops.');
             return redirect('auth/activate');
         }
     }
