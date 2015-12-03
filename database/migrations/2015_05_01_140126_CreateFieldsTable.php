@@ -23,8 +23,8 @@ class CreateFieldsTable extends Migration {
             $table->string('slug')->nullable();
             $table->string('desc')->nullable();
             $table->boolean('required');
-            $table->string('default')->nullable();
-            $table->string('options')->nullable();
+            $table->text('default')->nullable();
+            $table->text('options')->nullable();
 			$table->timestamps();
 
             $table->foreign(['pid', 'fid'])->references(['pid', 'fid'])->on('forms')->onDelete('cascade');

@@ -67,8 +67,12 @@ Route::get('/projects/{pid}/forms/{fid}/fields/{flid}/edit','FieldController@edi
 Route::get('/projects/{pid}/forms/{fid}/fields/{flid}/options','FieldController@show'); //alias for fields/{id}
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/required','FieldController@updateRequired');
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/default','FieldController@updateDefault');
+Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/defaultCombo','FieldController@updateComboDefault');
+Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/defaultCombo/remove','FieldController@removeComboDefault');
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/update','FieldController@updateOptions');
+Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/updateCombo','FieldController@updateComboOptions');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/saveList','FieldController@saveList');
+Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/saveComboList','FieldController@saveComboList');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/saveDateList','FieldController@saveDateList');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/geoConvert','FieldController@geoConvert');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/clearRecency', 'FieldController@clearRecency');

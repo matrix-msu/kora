@@ -113,6 +113,8 @@ class FieldController extends Controller {
             return view('fields.options.mslist', compact('field', 'form', 'proj','presets'));
         }else if($field->type=="Generated List") {
             return view('fields.options.genlist', compact('field', 'form', 'proj','presets'));
+        }else if($field->type=="Combo List") {
+            return view('fields.options.combolist', compact('field', 'form', 'proj'));
         }else if($field->type=="Date") {
             return view('fields.options.date', compact('field', 'form', 'proj'));
         }else if($field->type=="Schedule") {
@@ -188,7 +190,7 @@ class FieldController extends Controller {
         return redirect('projects/'.$pid.'/forms/'.$fid);
 	}
 
-    public function updateRequired($pid, $fid, $flid, FieldRequest $request)
+    public function updateRequired($pid, $fid, $flid, Request $request)
     {
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
             return redirect('projects');
@@ -252,6 +254,226 @@ class FieldController extends Controller {
         return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
     }
 
+    public function updateComboDefault($pid, $fid, $flid, Request $request)
+    {
+        if(!FieldController::validProjFormField($pid, $fid, $flid)){
+            return redirect('projects');
+        }
+
+        if(!FieldController::checkPermissions($fid, 'edit')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
+        }
+
+        $field = FieldController::getField($flid);
+        $currDef = explode('[!def!]',$field->default);
+
+        $valone = $request->default_one;
+        $typeone = $request->default_type_one;
+
+        $valtwo = $request->default_two;
+        $typetwo = $request->default_type_two;
+
+        if($valone=="" | $valtwo==""){
+            flash()->error('Value must be supplied for both fields.');
+
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+        }
+
+        if($typeone=='Text'){
+            $regex = FieldController::getComboFieldOption($field,'Regex','one');
+            if(($regex!=null | $regex!="") && !preg_match($regex,$valone)){
+                flash()->error('Value for field one does not match the required regex pattern.');
+
+                return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            }
+
+            $fieldoneval = '[!f1!]'.$valone.'[!f1!]';
+        }else if($typeone=='Number'){
+            $max = FieldController::getComboFieldOption($field,'Max','one');
+            $min = FieldController::getComboFieldOption($field,'Min','one');
+            $inc = FieldController::getComboFieldOption($field,'Increment','one');
+
+            if($valone<$min | $valone>$max){
+                flash()->error('Value for field one is not within the required range.');
+
+                return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            }
+
+            if(fmod(floatval($valone),floatval($inc))!=0){
+                flash()->error('Value for field one is not a multiple of the required increment.');
+
+                return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            }
+
+            $fieldoneval = '[!f1!]'.$valone.'[!f1!]';
+        }else if($typeone=='List'){
+            $opts = explode('[!]',FieldController::getComboFieldOption($field,'Options','one'));
+
+            if(!in_array($valone,$opts)){
+                flash()->error('Value for field one is not a valid list option.');
+
+                return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            }
+
+            $fieldoneval = '[!f1!]'.$valone.'[!f1!]';
+        }else if($typeone=='Multi-Select List'){
+            $opts = explode('[!]',FieldController::getComboFieldOption($field,'Options','one'));
+
+            if(sizeof(array_diff($valone,$opts))>0){
+                flash()->error('One or more values for field one are not a valid list options.');
+
+                return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            }
+
+            $optString = $valone[0];
+            for($i=1;$i<sizeof($valone);$i++){
+                $optString .= '[!]'.$valone[$i];
+            }
+
+            $fieldoneval = '[!f1!]'.$optString.'[!f1!]';
+        }else if($typeone=='Generated List'){
+            $regex = FieldController::getComboFieldOption($field,'Regex','one');
+
+            if($regex != null | $regex != "") {
+                foreach ($valone as $val) {
+                    if (!preg_match($regex, $val)) {
+                        flash()->error('One or more values for field one do not match the required regex pattern.');
+
+                        return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+                    }
+                }
+            }
+
+            $optString = $valone[0];
+            for($i=1;$i<sizeof($valone);$i++){
+                $optString .= '[!]'.$valone[$i];
+            }
+
+            $fieldoneval = '[!f1!]'.$optString.'[!f1!]';
+        }
+
+        if($typetwo=='Text'){
+            $regex = FieldController::getComboFieldOption($field,'Regex','two');
+            if(($regex!=null | $regex!="") && !preg_match($regex,$valtwo)){
+                flash()->error('Value for field two does not match the required regex pattern.');
+
+                return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            }
+
+            $fieldtwoval = '[!f2!]'.$valtwo.'[!f2!]';
+        }else if($typetwo=='Number'){
+            $max = FieldController::getComboFieldOption($field,'Max','two');
+            $min = FieldController::getComboFieldOption($field,'Min','two');
+            $inc = FieldController::getComboFieldOption($field,'Increment','two');
+
+            if($valtwo<$min | $valtwo>$max){
+                flash()->error('Value for field two is not within the required range.');
+
+                return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            }
+            if(fmod(floatval($valtwo),floatval($inc))!=0){
+                flash()->error('Value for field two is not a multiple of the required increment.');
+
+                return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            }
+
+            $fieldtwoval = '[!f2!]'.$valtwo.'[!f2!]';
+        }else if($typetwo=='List'){
+            $opts = explode('[!]',FieldController::getComboFieldOption($field,'Options','two'));
+
+            if(!in_array($valtwo,$opts)){
+                flash()->error('Value for field two is not a valid list option.');
+
+                return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            }
+
+            $fieldtwoval = '[!f2!]'.$valtwo.'[!f2!]';
+        }else if($typetwo=='Multi-Select List'){
+            $opts = explode('[!]',FieldController::getComboFieldOption($field,'Options','two'));
+
+            if(sizeof(array_diff($valtwo,$opts))>0){
+                flash()->error('One or more values for field two are not a valid list options.');
+
+                return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            }
+
+            $optString = $valtwo[0];
+            for($i=1;$i<sizeof($valtwo);$i++){
+                $optString .= '[!]'.$valtwo[$i];
+            }
+
+            $fieldtwoval = '[!f2!]'.$optString.'[!f2!]';
+        }else if($typetwo=='Generated List'){
+            $regex = FieldController::getComboFieldOption($field,'Regex','two');
+
+            if($regex != null | $regex != "") {
+                foreach ($valtwo as $val) {
+                    if (!preg_match($regex, $val)) {
+                        flash()->error('One or more values for field two do not match the required regex pattern.');
+
+                        return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+                    }
+                }
+            }
+
+            $optString = $valtwo[0];
+            for($i=1;$i<sizeof($valtwo);$i++){
+                $optString .= '[!]'.$valtwo[$i];
+            }
+
+            $fieldtwoval = '[!f2!]'.$optString.'[!f2!]';
+        }
+
+        $newDef = $fieldoneval.$fieldtwoval;
+
+        if($currDef[0]==""){
+            $field->default = $newDef;
+        }else{
+            array_push($currDef,$newDef);
+            $defString = $currDef[0];
+            for($i=1;$i<sizeof($currDef);$i++){
+                $defString .= '[!def!]'.$currDef[$i];
+            }
+
+            $field->default = $defString;
+        }
+
+        $field->save();
+
+        flash()->success('Option updated!');
+
+        return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+    }
+
+    public function removeComboDefault($pid, $fid, $flid, Request $request){
+        if(!FieldController::validProjFormField($pid, $fid, $flid)){
+            return redirect('projects');
+        }
+
+        if(!FieldController::checkPermissions($fid, 'edit')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
+        }
+
+        $field = FieldController::getField($flid);
+        $currDef = explode('[!def!]',$field->default);
+        $defToRemove = $request->comID;
+
+        array_splice($currDef,$defToRemove,1);
+
+        if(!empty($currDef)){
+            $defString = $currDef[0];
+            for($i=1;$i<sizeof($currDef);$i++){
+                $defString .= '[!def!]'.$currDef[$i];
+            }
+
+            $field->default = $defString;
+        }else{
+            $field->default = '';
+        }
+
+        $field->save();
+    }
+
     public function updateOptions($pid, $fid, $flid, Request $request)
     {
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
@@ -265,6 +487,30 @@ class FieldController extends Controller {
         $field = FieldController::getField($flid);
 
         FieldController::setFieldOptions($field, $request->option, $request->value);
+
+        //A field has been changed, so current record rollbacks become invalid.
+        RevisionController::wipeRollbacks($fid);
+
+        if($request->option != 'SearchForms') {
+            flash()->success('Option updated!');
+
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }
+    }
+
+    public function updateComboOptions($pid, $fid, $flid, Request $request)
+    {
+        if(!FieldController::validProjFormField($pid, $fid, $flid)){
+            return redirect('projects');
+        }
+
+        if(!FieldController::checkPermissions($fid, 'edit')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
+        }
+
+        $field = FieldController::getField($flid);
+
+        FieldController::setComboFieldOptions($field, $request->option, $request->value, $request->fieldnum);
 
         //A field has been changed, so current record rollbacks become invalid.
         RevisionController::wipeRollbacks($fid);
@@ -357,6 +603,47 @@ class FieldController extends Controller {
         return $value;
     }
 
+    public static function getComboFieldOption($field, $key, $num){
+        $options = $field->options;
+        if($num=='one')
+            $opt = explode('[!Field1!]',$options)[1];
+        else if($num=='two')
+            $opt = explode('[!Field2!]',$options)[1];
+
+        $tag = '[!'.$key.'!]';
+        $value = explode($tag,$opt)[1];
+
+        return $value;
+    }
+
+    public static function getComboFieldName($field, $num){
+        $options = $field->options;
+
+        if($num=='one') {
+            $oneOpts = explode('[!Field1!]', $options)[1];
+            $name = explode('[Name]', $oneOpts)[1];
+        }else if ($num=='two') {
+            $twoOpts = explode('[!Field2!]', $options)[1];
+            $name = explode('[Name]', $twoOpts)[1];
+        }
+
+        return $name;
+    }
+
+    public static function getComboFieldType($field, $num){
+        $options = $field->options;
+
+        if($num=='one') {
+            $oneOpts = explode('[!Field1!]', $options)[1];
+            $type = explode('[Type]', $oneOpts)[1];
+        }else if ($num=='two') {
+            $twoOpts = explode('[!Field2!]', $options)[1];
+            $type = explode('[Type]', $twoOpts)[1];
+        }
+
+        return $type;
+    }
+
     public static function setFieldOptions($field, $key, $value){
         $options = $field->options;
         $tag = '[!'.$key.'!]';
@@ -377,6 +664,24 @@ class FieldController extends Controller {
         }
 
         $field->options = $array[0].$tag.$value.$tag.$array[2];
+        $field->save();
+    }
+
+    public static function setComboFieldOptions($field, $key, $value, $num){
+        $options = $field->options;
+        if($num=='one') {
+            $fieldnum = '[!Field1!]';
+            $optParts = explode($fieldnum, $options);
+        }
+        else if($num=='two') {
+            $fieldnum = '[!Field2!]';
+            $optParts = explode($fieldnum, $options);
+        }
+
+        $tag = '[!'.$key.'!]';
+        $array = explode($tag,$optParts[1]);
+
+        $field->options = $optParts[0].$fieldnum.$array[0].$tag.$value.$tag.$array[2].$fieldnum.$optParts[2];
         $field->save();
     }
 
@@ -460,9 +765,65 @@ class FieldController extends Controller {
         }
     }
 
+    public function saveComboList($pid, $fid, $flid){
+        if ($_REQUEST['action']=='SaveList') {
+            if(isset($_REQUEST['options']))
+                $options = $_REQUEST['options'];
+            else
+                $options = array();
+
+            $fnum = $_REQUEST['fnum'];
+            $dbOpt = '';
+
+            if (sizeof($options) == 1) {
+                $dbOpt = $options[0];
+            } else if (sizeof($options) == 2) {
+                $dbOpt = $options[0] . '[!]' . $options[1];
+            } else if (sizeof($options) > 2) {
+                $dbOpt = $options[0];
+                for ($i = 1; $i < sizeof($options); $i++) {
+                    $dbOpt .= '[!]' . $options[$i];
+                }
+            }
+
+            $field = FieldController::getField($flid);
+
+            //This line removes the default if it no longer exists
+            if(!in_array($field->default,$options)){
+                //$field->default = '';
+                //$field->save();
+            }
+
+            FieldController::setComboFieldOptions($field, 'Options', $dbOpt, $fnum);
+        }
+    }
+
     public static function getList($field, $blankOpt=false)
     {
         $dbOpt = FieldController::getFieldOption($field, 'Options');
+        $options = array();
+
+        if ($dbOpt == '') {
+            //skip
+        } else if (!strstr($dbOpt, '[!]')) {
+            $options = [$dbOpt => $dbOpt];
+        } else {
+            $opts = explode('[!]', $dbOpt);
+            foreach ($opts as $opt) {
+                $options[$opt] = $opt;
+            }
+        }
+
+        if ($blankOpt) {
+            $options = array('' => '') + $options;
+        }
+
+        return $options;
+    }
+
+    public static function getComboList($field, $blankOpt=false, $fnum)
+    {
+        $dbOpt = FieldController::getComboFieldOption($field, 'Options', $fnum);
         $options = array();
 
         if ($dbOpt == '') {

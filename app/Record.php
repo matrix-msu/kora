@@ -46,6 +46,10 @@ class Record extends Model {
         return $this->hasMany('App\GeneratedListField', 'rid');
     }
 
+    public function combolistfields(){
+        return $this->hasMany('App\ComboListField', 'rid');
+    }
+
     public function datefields(){
         return $this->hasMany('App\DateField', 'rid');
     }

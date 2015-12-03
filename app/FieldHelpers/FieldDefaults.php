@@ -20,6 +20,42 @@ class FieldDefaults {
             return '[!Options!][!Options!]';
         }else if($type=='Generated List'){
             return '[!Regex!][!Regex!][!Options!][!Options!]';
+        }else if($type=='Combo List'){
+            $type1 = $_REQUEST['cftype1'];
+            $type2 = $_REQUEST['cftype2'];
+            $name1 = '[Name]'.$_REQUEST['cfname1'].'[Name]';
+            $name2 = '[Name]'.$_REQUEST['cfname2'].'[Name]';
+            $options = "";
+
+            $options = "[!Field1!][Type]";
+            if($type1=='Text'){
+                $options .= "Text[Type]".$name1."[Options][!Regex!][!Regex!][!MultiLine!]0[!MultiLine!]";
+            }else if($type1=='Number'){
+                $options .= "Number[Type]".$name1."[Options][!Max!][!Max!][!Min!][!Min!][!Increment!]1[!Increment!][!Unit!][!Unit!]";
+            }else if($type1=='List'){
+                $options .= "List[Type]".$name1."[Options][!Options!][!Options!]";
+            }else if($type1=='Multi-Select List'){
+                $options .= "Multi-Select List[Type]".$name1."[Options][!Options!][!Options!]";
+            }else if($type1=='Generated List'){
+                $options .= "Generated List[Type]".$name1."[Options][!Regex!][!Regex!][!Options!][!Options!]";
+            }
+            $options .= "[Options][!Field1!]";
+
+            $options .= "[!Field2!][Type]";
+            if($type2=='Text'){
+                $options .= "Text[Type]".$name2."[Options][!Regex!][!Regex!][!MultiLine!]0[!MultiLine!]";
+            }else if($type2=='Number'){
+                $options .= "Number[Type]".$name2."[Options][!Max!][!Max!][!Min!][!Min!][!Increment!]1[!Increment!][!Unit!][!Unit!]";
+            }else if($type2=='List'){
+                $options .= "List[Type]".$name2."[Options][!Options!][!Options!]";
+            }else if($type2=='Multi-Select List'){
+                $options .= "Multi-Select List[Type]".$name2."[Options][!Options!][!Options!]";
+            }else if($type2=='Generated List'){
+                $options .= "Generated List[Type]".$name2."[Options][!Regex!][!Regex!][!Options!][!Options!]";
+            }
+            $options .= "[Options][!Field2!]";
+
+            return $options;
         }else if($type=='Date'){
             return '[!Circa!]No[!Circa!][!Start!]1900[!Start!][!End!]2020[!End!][!Format!]MMDDYYYY[!Format!][!Era!]Off[!Era!]';
         }else if($type=='Schedule'){
@@ -43,6 +79,8 @@ class FieldDefaults {
     static function getDefault($type){
         if($type=="Date"){
             return '[M][M][D][D][Y][Y]';
+        } else if($type=="Combo List"){
+            return '[!f1Default!][!f1Default!][!f2Default!][!f2Default!]';
         }
         else{
             return '';

@@ -18,7 +18,8 @@
     <div class="form-group">
         {!! Form::label('default','Default: ') !!}
         <input
-                type="number" name="default" class="form-control" step="any" value="{{ $field->default }}"
+                type="number" name="default" class="form-control" value="{{ $field->default }}"
+                step="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Increment") }}"
                 min="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Min") }}"
                 max="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Max") }}">
     </div>
