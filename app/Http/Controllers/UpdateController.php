@@ -38,7 +38,7 @@ class UpdateController extends Controller {
     public function index()
     {
         //Determine if the user installed Kora 3 using Git (.git directory exists)
-        $git = is_dir( env('BASE_PATH'). DIRECTORY_SEPARATOR . 'git');
+        $git = is_dir( env('BASE_PATH'). DIRECTORY_SEPARATOR . '.git');
 
         //Determine if an update is needed (this is determined independent of how Kora was acquired).
         $update = UpdateController::checkVersion();
