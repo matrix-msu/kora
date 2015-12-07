@@ -66,7 +66,7 @@ class UpdateController extends Controller {
      * Gets the current version of Kora as a string.
      * \return string The standardized version string.
      */
-    public function getCurrentVersion()
+    static public function getCurrentVersion()
     {
         //
         // Get the html of the github page, then find the current version in the html.

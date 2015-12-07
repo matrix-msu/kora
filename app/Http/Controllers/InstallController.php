@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Metadata;
+use App\Version;
 use Illuminate\Support\Collection;
 use \Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
@@ -379,6 +380,17 @@ class InstallController extends Controller {
                     //return redirect('/');
 					return response()->json(["status"=>false,"message"=>"Unable to create required directories","exception"=>$e->getMessage()],500);
                 }
+
+				try{
+					$v = new Version();
+					$v->version = UpdateController::getCurrentVersion();
+					$v->save();
+				}
+				catch(\Exception $e){
+					flash()->overlay("Sorry, current verison could not be added to database.", "Whoops!");
+					//return redirect('/');
+					return response()->json(["status"=>false,"message"=>"Problem adding current version to the database"],500);
+				}
 
 				try{
 
