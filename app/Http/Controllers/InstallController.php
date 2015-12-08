@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Metadata;
+use App\Version;
 use Illuminate\Support\Collection;
 use \Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
@@ -18,13 +19,13 @@ class InstallController extends Controller {
 	| Install Controller
 	|--------------------------------------------------------------------------
 	|
-	| This controller handles generating the .env file and running the artisan
+	| This controller handles generating the .env file a2pdo67a7nd running the artisan
 	| migration so the rest of the controllers can function.  It also creates the
 	| first user.  And sets the application key, and creates needed folders.
 	*/
 
     //Any directory in this array will be created for you during install with 0644 permission
-    public $DIRECTORIES = ["storage/app/backups","storage/app/backups/user_upload","storage/app/tmpFiles","storage/app/files"];
+    public $DIRECTORIES = ["storage/app/backups","storage/app/backups/user_upload","storage/app/backups/files","storage/app/tmpFiles","storage/app/files"];
 
 	public function index(Request $request)
 	{
@@ -379,6 +380,17 @@ class InstallController extends Controller {
                     //return redirect('/');
 					return response()->json(["status"=>false,"message"=>"Unable to create required directories","exception"=>$e->getMessage()],500);
                 }
+
+				try{
+					$v = new Version();
+					$v->version = UpdateController::getCurrentVersion();
+					$v->save();
+				}
+				catch(\Exception $e){
+					flash()->overlay("Sorry, current verison could not be added to database.", "Whoops!");
+					//return redirect('/');
+					return response()->json(["status"=>false,"message"=>"Problem adding current version to the database"],500);
+				}
 
 				try{
 

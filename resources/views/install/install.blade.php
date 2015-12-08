@@ -99,10 +99,21 @@
                                 <input type="text" class="form-control" id="user_realname" name="user_realname" value="{{old('user_realname')}}">
                             </div>
 
-                            <div class="form-group">
+                           {{-- <div class="form-group">
                                 <label for="user_language">Language:</label>
                                 <input type="text" class="form-control" id="user_language" name="user_language" value="{{ App::getLocale() }}">
+                            </div> --}}
+
+                            <div class="form-group">
+                                <label for="user_language" class="control-label">Language</label>
+                                <select id="user_language" name="user_language" class="form-control">
+                                    <!--{{$languages_available = Config::get('app.locales_supported')}} -->
+                                    @foreach($languages_available->keys() as $lang)
+                                        <option value='{{$languages_available->get($lang)[0]}}'>{{$languages_available->get($lang)[1]}} </option>
+                                    @endforeach
+                                </select>
                             </div>
+
 
 
                         </div>
@@ -181,7 +192,7 @@
 
         </div>
    <!-- </div> -->
-
+@endsection
 
 
 @section('footer')
@@ -243,7 +254,7 @@
                 var message = "There was a problem, your database settings may be incorrect";
                 if(result.status == 422){
                     message = "Your settings were not saved, please check these fields:\n ";
-                    for(prop in result.responseJSON){
+                    for(var prop in result.responseJSON){
                         if(!result.responseJSON.hasOwnProperty(prop)){
                             continue;
                         }

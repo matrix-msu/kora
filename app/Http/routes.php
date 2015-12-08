@@ -138,6 +138,7 @@ Route::get('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@inde
 Route::post('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@store');
 Route::delete('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@destroy');
 Route::get('/projects/{pid}/forms/{fid}/metadata','MetadataController@records');
+Route::post('/projects/{pid}/forms/{fid}/metadata/massassign','MetadataController@massAssign');
 
 //install routes
 Route::get('/install','InstallController@index');
@@ -146,7 +147,10 @@ Route::post('/install/environment',"InstallController@installKora");
 Route::get('/install/config',"InstallController@editEnvConfigs");
 Route::post('/install/config',"InstallController@updateEnvConfigs");
 
-
+//update routes
+Route::get('/update', 'UpdateController@index');
+Route::get('/update/gitUpdate', 'UpdateController@gitUpdate');
+Route::get('/update/independentUpdate', 'UpdateController@independentUpdate');
 
 //backup routes
 Route::get('/backup','BackupController@index');
@@ -156,6 +160,7 @@ Route::post('/backup/restore/start','BackupController@restoreData');
 Route::post('/backup','BackupController@startBackup');
 Route::post('/backup/restore','BackupController@startRestore');
 Route::post('/backup/unlock','BackupController@unlockUsers');
+Route::post('/backup/delete','BackupController@delete');
 
 Route::controllers([
 	'auth' => 'Auth\AuthController',

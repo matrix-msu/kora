@@ -4,6 +4,7 @@ use App\Http\Requests;
 Use App\Metadata;
 Use App\Field;
 Use App\Form;
+use Illuminate\Bus\MarshalException;
 Use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -16,7 +17,7 @@ class MetadataController extends Controller {
     |
     | This controller handles assigning/removing metadata for a field, as well as
     | displaying all records with their field's metadata, and changing the visibility
-    | of metadata to the public
+    | of metadata to the public, and mass assigning metadata
     |
     */
     public function __construct()
@@ -154,6 +155,87 @@ class MetadataController extends Controller {
                         $jsRecord->put($field->metadata()->first()->name,$locations_and_description_array);
                     }
                 }
+
+                foreach($record->documentsfields as $df){
+                    $field = Field::find($df->flid);
+                    if($item==$df->flid && count($field->metadata)>0){
+                        $files_array = explode("[!]",$df->documents);
+                        $files_and_info_array = new Collection();
+                        foreach($files_array as $files){
+                            $individual_file_array = new Collection();
+                            $individual_file_array->put("Name",explode("[Name]",$files)[1]);
+                            $individual_file_array->put("Size",explode("[Size]",$files)[1]);
+                            $individual_file_array->put("Type",explode("[Type]",$files)[1]);
+                            $files_and_info_array->push($individual_file_array);
+                        }
+                        $jsRecord->put($field->metadata()->first()->name,$files_and_info_array);
+                    }
+                }
+
+                foreach($record->galleryfields as $gf){
+                    $field = Field::find($gf->flid);
+                    if($item==$gf->flid && count($field->metadata)>0){
+                        $files_array = explode("[!]",$gf->images);
+                        $files_and_info_array = new Collection();
+                        foreach($files_array as $files){
+                            $individual_file_array = new Collection();
+                            $individual_file_array->put("Name",explode("[Name]",$files)[1]);
+                            $individual_file_array->put("Size",explode("[Size]",$files)[1]);
+                            $individual_file_array->put("Type",explode("[Type]",$files)[1]);
+                            $files_and_info_array->push($individual_file_array);
+                        }
+                        $jsRecord->put($field->metadata()->first()->name,$files_and_info_array);
+                    }
+                }
+
+                foreach($record->videofields as $vf){
+                    $field = Field::find($vf->flid);
+                    if($item==$vf->flid && count($field->metadata)>0){
+                        $files_array = explode("[!]",$vf->video);
+                        $files_and_info_array = new Collection();
+                        foreach($files_array as $files){
+                            $individual_file_array = new Collection();
+                            $individual_file_array->put("Name",explode("[Name]",$files)[1]);
+                            $individual_file_array->put("Size",explode("[Size]",$files)[1]);
+                            $individual_file_array->put("Type",explode("[Type]",$files)[1]);
+                            $files_and_info_array->push($individual_file_array);
+                        }
+                        $jsRecord->put($field->metadata()->first()->name,$files_and_info_array);
+                    }
+                }
+
+                foreach($record->modelfields as $mf){
+                    $field = Field::find($mf->flid);
+                    if($item==$mf->flid && count($field->metadata)>0){
+                        $files_array = explode("[!]",$mf->model);
+                        $files_and_info_array = new Collection();
+                        foreach($files_array as $files){
+                            $individual_file_array = new Collection();
+                            $individual_file_array->put("Name",explode("[Name]",$files)[1]);
+                            $individual_file_array->put("Size",explode("[Size]",$files)[1]);
+                            $individual_file_array->put("Type",explode("[Type]",$files)[1]);
+                            $files_and_info_array->push($individual_file_array);
+                        }
+                        $jsRecord->put($field->metadata()->first()->name,$files_and_info_array);
+                    }
+                }
+
+                foreach($record->playlistfields as $pf){
+                    $field = Field::find($pf->flid);
+                    if($item==$pf->flid && count($field->metadata)>0){
+                        $files_array = explode("[!]",$pf->audio);
+                        $files_and_info_array = new Collection();
+                        foreach($files_array as $files){
+                            $individual_file_array = new Collection();
+                            $individual_file_array->put("Name",explode("[Name]",$files)[1]);
+                            $individual_file_array->put("Size",explode("[Size]",$files)[1]);
+                            $individual_file_array->put("Type",explode("[Type]",$files)[1]);
+                            $files_and_info_array->push($individual_file_array);
+                        }
+                        $jsRecord->put($field->metadata()->first()->name,$files_and_info_array);
+                    }
+                }
+
             }
             else{
                 $node_fields = $this->matchRecordsAndMetadata($item,$record);
@@ -281,6 +363,11 @@ class MetadataController extends Controller {
                 'field' => 'required|unique:metadatas,flid', //field can only have 1 metadata
             ]);
 
+            if(!$this->isUniqueToForm($fid,$request->input('name'))){
+                flash()->overlay('That name is already used in this form","Whoops.');
+                return redirect()->back();
+            }
+
             $field = Field::where('pid',$pid)->where('fid',$fid)->where('flid','=',$request->input('field'))->first();
             $metadata = new Metadata(['pid'=>$pid,'fid'=>$fid, 'name'=>$request->input('name')]);
             $metadata->field()->associate($field);
@@ -304,6 +391,52 @@ class MetadataController extends Controller {
         flash()->overlay('The field\'s metadata was deleted', 'Success!');
         return response()->json('deleted');
 
+    }
+
+    public function isUniqueToForm($fid,$name){
+        $fields = Form::find($fid)->fields()->get();
+        $metas = new Collection();
+        foreach($fields as $field) {
+            if (!is_null($field->metadata()->first())) {
+                $metas->put($field->metadata()->first()->name,true);
+            }
+        }
+        if($metas->has($name)){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+
+
+    public function massAssign($pid,$fid,Request $request){
+        $fields = Form::find($fid)->fields()->get();
+        $metas = new Collection();
+        foreach($fields as $field){
+            if(is_null($field->metadata()->first())){
+                //$metas->push($field->metadata()->first());
+                if($this->isUniqueToForm($fid,$field->name)){
+                    $metadata = new Metadata(['pid'=>$pid,'fid'=>$fid, 'name'=>$field->name]);
+                }
+                else{
+                    if($this->isUniqueToForm($fid,$field->name."_".$field->slug)){
+                        $metadata = new Metadata(['pid'=>$pid,'fid'=>$fid, 'name'=>$field->name."_".$field->slug]);
+                    }
+                    else{
+                        $count = 0;
+                        $name = $field->name."_".$field->slug."0";
+                        while(!$this->isUniqueToForm($fid,$name)){
+                            $name = $field->name."_".$field->slug.$count;
+                            $count++;
+                        }
+                        $metadata = new Metadata(['pid'=>$pid,'fid'=>$fid, 'name'=>$name]);
+                    }
+                }
+                $metadata->field()->associate($field);
+                $field->metadata()->save($metadata);
+            }
+        }
     }
 
 }
