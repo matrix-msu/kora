@@ -102,6 +102,7 @@ class RecordController extends Controller {
 	 */
 	public function store($pid, $fid, Request $request)
 	{
+        //dd($request);
         if(!FormController::validProjForm($pid,$fid)){
             return redirect('projects');
         }
@@ -206,6 +207,7 @@ class RecordController extends Controller {
                     $df->flid = $field->flid;
                     $df->rid = $record->rid;
                     $infoString = '';
+                    $infoArray = array();
                     $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
                     mkdir($newPath, 0775, true);
                     if (file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
@@ -217,13 +219,18 @@ class RecordController extends Controller {
                                 else
                                     $type = $types[$file->getExtension()];
                                 $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
-                                if ($infoString == '') {
-                                    $infoString = $info;
-                                } else {
-                                    $infoString .= '[!]' . $info;
-                                }
+                                $infoArray[$file->getFilename()] = $info;
                                 copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                                     $newPath . '/' . $file->getFilename());
+                            }
+                        }
+                        foreach($_REQUEST['file'.$field->flid] as $fName){
+                            if($fName!=''){
+                                if ($infoString == '') {
+                                    $infoString = $infoArray[$fName];
+                                } else {
+                                    $infoString .= '[!]' . $infoArray[$fName];
+                                }
                             }
                         }
                     }
@@ -234,6 +241,7 @@ class RecordController extends Controller {
                     $gf->flid = $field->flid;
                     $gf->rid = $record->rid;
                     $infoString = '';
+                    $infoArray = array();
                     $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
                     //make the three directories
                     mkdir($newPath, 0775, true);
@@ -248,17 +256,22 @@ class RecordController extends Controller {
                                 else
                                     $type = $types[$file->getExtension()];
                                 $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
-                                if ($infoString == '') {
-                                    $infoString = $info;
-                                } else {
-                                    $infoString .= '[!]' . $info;
-                                }
+                                $infoArray[$file->getFilename()] = $info;
                                 copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                                     $newPath . '/' . $file->getFilename());
                                 copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename(),
                                     $newPath . '/thumbnail/' . $file->getFilename());
                                 copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/medium/' . $file->getFilename(),
                                     $newPath . '/medium/' . $file->getFilename());
+                            }
+                        }
+                        foreach($_REQUEST['file'.$field->flid] as $fName){
+                            if($fName!=''){
+                                if ($infoString == '') {
+                                    $infoString = $infoArray[$fName];
+                                } else {
+                                    $infoString .= '[!]' . $infoArray[$fName];
+                                }
                             }
                         }
                     }
@@ -269,6 +282,7 @@ class RecordController extends Controller {
                     $pf->flid = $field->flid;
                     $pf->rid = $record->rid;
                     $infoString = '';
+                    $infoArray = array();
                     $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
                     mkdir($newPath, 0775, true);
                     if (file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
@@ -280,13 +294,18 @@ class RecordController extends Controller {
                                 else
                                     $type = $types[$file->getExtension()];
                                 $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
-                                if ($infoString == '') {
-                                    $infoString = $info;
-                                } else {
-                                    $infoString .= '[!]' . $info;
-                                }
+                                $infoArray[$file->getFilename()] = $info;
                                 copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                                     $newPath . '/' . $file->getFilename());
+                            }
+                        }
+                        foreach($_REQUEST['file'.$field->flid] as $fName){
+                            if($fName!=''){
+                                if ($infoString == '') {
+                                    $infoString = $infoArray[$fName];
+                                } else {
+                                    $infoString .= '[!]' . $infoArray[$fName];
+                                }
                             }
                         }
                     }
@@ -297,6 +316,7 @@ class RecordController extends Controller {
                     $vf->flid = $field->flid;
                     $vf->rid = $record->rid;
                     $infoString = '';
+                    $infoArray = array();
                     $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
                     mkdir($newPath, 0775, true);
                     if (file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
@@ -308,13 +328,18 @@ class RecordController extends Controller {
                                 else
                                     $type = $types[$file->getExtension()];
                                 $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
-                                if ($infoString == '') {
-                                    $infoString = $info;
-                                } else {
-                                    $infoString .= '[!]' . $info;
-                                }
+                                $infoArray[$file->getFilename()] = $info;
                                 copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                                     $newPath . '/' . $file->getFilename());
+                            }
+                        }
+                        foreach($_REQUEST['file'.$field->flid] as $fName){
+                            if($fName!=''){
+                                if ($infoString == '') {
+                                    $infoString = $infoArray[$fName];
+                                } else {
+                                    $infoString .= '[!]' . $infoArray[$fName];
+                                }
                             }
                         }
                     }
@@ -325,6 +350,7 @@ class RecordController extends Controller {
                     $mf->flid = $field->flid;
                     $mf->rid = $record->rid;
                     $infoString = '';
+                    $infoArray = array();
                     $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
                     mkdir($newPath, 0775, true);
                     if (file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
@@ -336,13 +362,18 @@ class RecordController extends Controller {
                                 else
                                     $type = $types[$file->getExtension()];
                                 $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
-                                if ($infoString == '') {
-                                    $infoString = $info;
-                                } else {
-                                    $infoString .= '[!]' . $info;
-                                }
+                                $infoArray[$file->getFilename()] = $info;
                                 copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                                     $newPath . '/' . $file->getFilename());
+                            }
+                        }
+                        foreach($_REQUEST['file'.$field->flid] as $fName){
+                            if($fName!=''){
+                                if ($infoString == '') {
+                                    $infoString = $infoArray[$fName];
+                                } else {
+                                    $infoString .= '[!]' . $infoArray[$fName];
+                                }
                             }
                         }
                     }
@@ -719,6 +750,7 @@ class RecordController extends Controller {
                 }
                 //build new stuff
                 $infoString = '';
+                $infoArray = array();
                 if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
                     $types = FieldController::getMimeTypes();
                     foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
@@ -728,15 +760,20 @@ class RecordController extends Controller {
                             else
                                 $type =  $types[$file->getExtension()];
                             $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
-                            if ($infoString == '') {
-                                $infoString = $info;
-                            } else {
-                                $infoString .= '[!]' . $info;
-                            }
+                            $infoArray[$file->getFilename()] = $info;
                             copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                                 env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $file->getFilename());
 
                             $doc_files_exist = true;
+                        }
+                    }
+                    foreach($_REQUEST['file'.$field->flid] as $fName){
+                        if($fName!=''){
+                            if ($infoString == '') {
+                                $infoString = $infoArray[$fName];
+                            } else {
+                                $infoString .= '[!]' . $infoArray[$fName];
+                            }
                         }
                     }
                 }
@@ -793,6 +830,7 @@ class RecordController extends Controller {
                 }
                 //build new stuff
                 $infoString = '';
+                $infoArray = array();
                 if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
                     $types = FieldController::getMimeTypes();
                     foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
@@ -802,11 +840,7 @@ class RecordController extends Controller {
                             else
                                 $type =  $types[$file->getExtension()];
                             $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
-                            if ($infoString == '') {
-                                $infoString = $info;
-                            } else {
-                                $infoString .= '[!]' . $info;
-                            }
+                            $infoArray[$file->getFilename()] = $info;
                             copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                                 env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $file->getFilename());
                             copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename(),
@@ -816,6 +850,15 @@ class RecordController extends Controller {
 
                             $gal_files_exist = true;
                             //$gfcount += 1;
+                        }
+                    }
+                    foreach($_REQUEST['file'.$field->flid] as $fName){
+                        if($fName!=''){
+                            if ($infoString == '') {
+                                $infoString = $infoArray[$fName];
+                            } else {
+                                $infoString .= '[!]' . $infoArray[$fName];
+                            }
                         }
                     }
                 }
@@ -864,6 +907,7 @@ class RecordController extends Controller {
                 }
                 //build new stuff
                 $infoString = '';
+                $infoArray = array();
                 if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
                     $types = FieldController::getMimeTypes();
                     foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
@@ -873,14 +917,19 @@ class RecordController extends Controller {
                             else
                                 $type =  $types[$file->getExtension()];
                             $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
-                            if ($infoString == '') {
-                                $infoString = $info;
-                            } else {
-                                $infoString .= '[!]' . $info;
-                            }
+                            $infoArray[$file->getFilename()] = $info;
                             copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                                 env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $file->getFilename());
                             $pla_files_exist = true;
+                        }
+                    }
+                    foreach($_REQUEST['file'.$field->flid] as $fName){
+                        if($fName!=''){
+                            if ($infoString == '') {
+                                $infoString = $infoArray[$fName];
+                            } else {
+                                $infoString .= '[!]' . $infoArray[$fName];
+                            }
                         }
                     }
                 }
@@ -928,6 +977,7 @@ class RecordController extends Controller {
                 }
                 //build new stuff
                 $infoString = '';
+                $infoArray = array();
                 if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
                     $types = FieldController::getMimeTypes();
                     foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
@@ -937,16 +987,21 @@ class RecordController extends Controller {
                             else
                                 $type =  $types[$file->getExtension()];
                             $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
-                            if ($infoString == '') {
-                                $infoString = $info;
-                            } else {
-                                $infoString .= '[!]' . $info;
-                            }
+                            $infoArray[$file->getFilename()] = $info;
                             copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                                 env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $file->getFilename());
                                 $vid_files_exist = true;
                         }
 
+                    }
+                    foreach($_REQUEST['file'.$field->flid] as $fName){
+                        if($fName!=''){
+                            if ($infoString == '') {
+                                $infoString = $infoArray[$fName];
+                            } else {
+                                $infoString .= '[!]' . $infoArray[$fName];
+                            }
+                        }
                     }
                 }
                 $vf->video = $infoString;
@@ -992,6 +1047,7 @@ class RecordController extends Controller {
                 }
                 //build new stuff
                 $infoString = '';
+                $infoArray = array();
                 if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
                     $types = FieldController::getMimeTypes();
                     foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
@@ -1001,14 +1057,19 @@ class RecordController extends Controller {
                             else
                                 $type =  $types[$file->getExtension()];
                             $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
-                            if ($infoString == '') {
-                                $infoString = $info;
-                            } else {
-                                $infoString .= '[!]' . $info;
-                            }
+                            $infoArray[$file->getFilename()] = $info;
                             copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                                 env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $file->getFilename());
                              $mod_files_exist = true;
+                        }
+                    }
+                    foreach($_REQUEST['file'.$field->flid] as $fName){
+                        if($fName!=''){
+                            if ($infoString == '') {
+                                $infoString = $infoArray[$fName];
+                            } else {
+                                $infoString .= '[!]' . $infoArray[$fName];
+                            }
                         }
                     }
                 }

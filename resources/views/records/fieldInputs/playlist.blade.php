@@ -37,7 +37,10 @@ if(file_exists($dir)) {
         done: function (e, data) {
             $('#file_error{{$field->flid}}').text('');
             $.each(data.result['file{{$field->flid}}'], function (index, file) {
-                var del = '<div>' + file.name + ' ';
+                var del = '<div id="uploaded_file_div">' + file.name + ' ';
+                del += '<input type="hidden" name="file{{$field->flid}}[]" value ="'+file.name+'">';
+                del += '<button id="up" class="btn btn-default" type="button">UP</button>';
+                del += '<button id="down"class="btn btn-default" type="button">Down</button>';
                 del += '<button class="btn btn-danger delete" type="button" data-type="' + file.deleteType + '" data-url="' + file.deleteUrl + '" >';
                 del += '<i class="glyphicon glyphicon-trash" /> DELETE</button>';
                 del += '</div>';
@@ -77,6 +80,26 @@ if(file_exists($dir)) {
                 div.remove();
             }
         });
+    });
+
+    $('#filenames{{$field->flid}}').on('click','#up',function(){
+        fileDiv = $(this).parent('#uploaded_file_div');
+
+        if(fileDiv.prev('#uploaded_file_div').length==1){
+            prevDiv = fileDiv.prev('#uploaded_file_div');
+
+            fileDiv.insertBefore(prevDiv);
+        }
+    });
+
+    $('#filenames{{$field->flid}}').on('click','#down',function(){
+        fileDiv = $(this).parent('#uploaded_file_div');
+
+        if(fileDiv.next('#uploaded_file_div').length==1){
+            nextDiv = fileDiv.next('#uploaded_file_div');
+
+            fileDiv.insertAfter(nextDiv);
+        }
     });
 
     function numFiles(flid){

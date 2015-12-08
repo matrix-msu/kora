@@ -37,7 +37,8 @@ if(file_exists($dir)) {
         done: function (e, data) {
             $('#file_error{{$field->flid}}').text('');
             $.each(data.result['file{{$field->flid}}'], function (index, file) {
-                var del = '<div>' + file.name + ' ';
+                var del = '<div id="uploaded_file_div">' + file.name + ' ';
+                del += '<input type="hidden" name="file{{$field->flid}}[]" value ="'+file.name+'">';
                 del += '<button class="btn btn-danger delete" type="button" data-type="' + file.deleteType + '" data-url="' + file.deleteUrl + '" >';
                 del += '<i class="glyphicon glyphicon-trash" /> DELETE</button>';
                 del += '</div>';
