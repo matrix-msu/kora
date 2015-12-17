@@ -9,7 +9,7 @@
     @endif
 @elseif($type=='Number')
     <input
-            type="number" name="default_{{$fnum}}" class="form-control" value=""
+            type="number" id="default_{{$fnum}}" name="default_{{$fnum}}" class="form-control" value=""
             step="{{ \App\Http\Controllers\FieldController::getComboFieldOption($field, "Increment", $fnum) }}"
             min="{{ \App\Http\Controllers\FieldController::getComboFieldOption($field, "Min", $fnum) }}"
             max="{{ \App\Http\Controllers\FieldController::getComboFieldOption($field, "Max", $fnum) }}">

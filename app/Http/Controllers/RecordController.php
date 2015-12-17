@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\AssociatorField;
+use App\ComboListField;
 use App\DateField;
 use App\DocumentsField;
 use App\GalleryField;
@@ -115,7 +116,15 @@ class RecordController extends Controller {
             if($message != ''){
                 flash()->error($message);
 
-                return redirect()->back()->withInput();
+                $arrayed_keys = array();
+
+                foreach($request->all() as $akey => $avalue) {
+                    if(is_array($avalue)){
+                        array_push($arrayed_keys,$akey);
+                    }
+                }
+
+                return redirect()->back()->withInput($request->except($arrayed_keys));
             }
         }
 
@@ -180,6 +189,15 @@ class RecordController extends Controller {
                     $glf->rid = $record->rid;
                     $glf->options = FieldController::msListArrayToString($value);
                     $glf->save();
+                } else if($field->type == 'Combo List' && $request->input($field->flid.'_val') != null){
+                    $clf = new ComboListField();
+                    $clf->flid = $field->flid;
+                    $clf->rid = $record->rid;
+                    $clf->options = $_REQUEST[$field->flid.'_val'][0];
+                    for($i=1;$i<sizeof($_REQUEST[$field->flid.'_val']);$i++){
+                        $clf->options .= '[!val!]'.$_REQUEST[$field->flid.'_val'][$i];
+                    }
+                    $clf->save();
                 } else if ($field->type == 'Date' && $request->input('year_' . $field->flid) != '') {
                     $df = new DateField();
                     $df->flid = $field->flid;
@@ -508,7 +526,7 @@ class RecordController extends Controller {
 	 */
 	public function update($pid, $fid, $rid, Request $request)
 	{
-       // dd($request);
+        //dd($request);
         if(!FormController::validProjForm($pid,$fid)){
             return redirect('projects');
         }

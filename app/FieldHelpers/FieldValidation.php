@@ -27,6 +27,8 @@ class FieldValidation {
             return FieldValidation::validateDefault($field, $value);
         } else if($field->type=='Generated List') {
             return FieldValidation::validateGeneratedList($field, $value);
+        }  else if($field->type=='Combo List') {
+            return FieldValidation::validateComboList($field, $request);
         } else if($field->type=='Date') {
             return FieldValidation::validateDate($field, $request);
         }else if($field->type=='Documents' | $field->type=='Gallery' | $field->type=='Playlist' | $field->type=="Video" | $field->type=="3D-Model"){
@@ -93,6 +95,17 @@ class FieldValidation {
             if(($regex!=null | $regex!="") && !preg_match($regex,$opt)){
                 return 'Value '.$opt.' for field '.$field->name.' does not match regex pattern.';
             }
+        }
+
+        return '';
+    }
+
+    static function validateComboList($field, $request){
+        $req = $field->required;
+        $flid = $field->flid;
+
+        if($req==1 && !isset($request[$flid.'_val'])){
+            return $field->name.' field is required.';
         }
 
         return '';

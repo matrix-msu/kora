@@ -10,6 +10,8 @@
     @include('records.fieldInputs.mslist')
 @elseif($field->type == 'Generated List')
     @include('records.fieldInputs.genlist')
+@elseif($field->type == 'Combo List')
+    @include('records.fieldInputs.combolist')
 @elseif($field->type == 'Date')
     @include('records.fieldInputs.date')
 @elseif($field->type == 'Schedule')

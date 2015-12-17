@@ -856,6 +856,103 @@ class FieldController extends Controller {
         return '';
     }
 
+    public function validateComboListOpt($pid, $fid, $flid, Request $request){
+        $field = FieldController::getField($flid);
+
+        $valone = $request->valone;
+        $valtwo = $request->valtwo;
+        $typeone = $request->typeone;
+        $typetwo = $request->typetwo;
+
+        if($valone=="" | $valtwo==""){
+            return 'Value must be supplied for both fields.';
+        }
+
+        if($typeone=='Text'){
+            $regex = FieldController::getComboFieldOption($field,'Regex','one');
+            if(($regex!=null | $regex!="") && !preg_match($regex,$valone)){
+                return 'Value for field one does not match the required regex pattern.';
+            }
+        }else if($typeone=='Number'){
+            $max = FieldController::getComboFieldOption($field,'Max','one');
+            $min = FieldController::getComboFieldOption($field,'Min','one');
+            $inc = FieldController::getComboFieldOption($field,'Increment','one');
+
+            if($valone<$min | $valone>$max){
+                return 'Value for field one is not within the required range.';
+            }
+
+            if(fmod(floatval($valone),floatval($inc))!=0){
+                return 'Value for field one is not a multiple of the required increment.';
+            }
+        }else if($typeone=='List'){
+            $opts = explode('[!]',FieldController::getComboFieldOption($field,'Options','one'));
+
+            if(!in_array($valone,$opts)){
+                return 'Value for field one is not a valid list option.';
+            }
+        }else if($typeone=='Multi-Select List'){
+            $opts = explode('[!]',FieldController::getComboFieldOption($field,'Options','one'));
+
+            if(sizeof(array_diff($valone,$opts))>0){
+                return 'One or more values for field one are not a valid list options.';
+            }
+        }else if($typeone=='Generated List'){
+            $regex = FieldController::getComboFieldOption($field,'Regex','one');
+
+            if($regex != null | $regex != "") {
+                foreach ($valone as $val) {
+                    if (!preg_match($regex, $val)) {
+                        return 'One or more values for field one do not match the required regex pattern.';
+                    }
+                }
+            }
+        }
+
+        if($typetwo=='Text'){
+            $regex = FieldController::getComboFieldOption($field,'Regex','two');
+            if(($regex!=null | $regex!="") && !preg_match($regex,$valtwo)){
+                return 'Value for field two does not match the required regex pattern.';
+            }
+
+            $fieldtwoval = '[!f2!]'.$valtwo.'[!f2!]';
+        }else if($typetwo=='Number'){
+            $max = FieldController::getComboFieldOption($field,'Max','two');
+            $min = FieldController::getComboFieldOption($field,'Min','two');
+            $inc = FieldController::getComboFieldOption($field,'Increment','two');
+
+            if($valtwo<$min | $valtwo>$max){
+                return 'Value for field two is not within the required range.';
+            }
+            if(fmod(floatval($valtwo),floatval($inc))!=0){
+                return 'Value for field two is not a multiple of the required increment.';
+            }
+        }else if($typetwo=='List'){
+            $opts = explode('[!]',FieldController::getComboFieldOption($field,'Options','two'));
+
+            if(!in_array($valtwo,$opts)){
+                return 'Value for field two is not a valid list option.';
+            }
+        }else if($typetwo=='Multi-Select List'){
+            $opts = explode('[!]',FieldController::getComboFieldOption($field,'Options','two'));
+
+            if(sizeof(array_diff($valtwo,$opts))>0){
+                return 'One or more values for field two are not a valid list options.';
+            }
+        }else if($typetwo=='Generated List'){
+            $regex = FieldController::getComboFieldOption($field,'Regex','two');
+
+            if($regex != null | $regex != "") {
+                foreach ($valtwo as $val) {
+                    if (!preg_match($regex, $val)) {
+                        return 'One or more values for field two do not match the required regex pattern.';
+                    }
+                }
+            }
+        }
+        return '';
+    }
+
     public static function validateDate($m,$d,$y){
         if($d!='' && !is_null($d)) {
             if ($m == '' | is_null($m)) {
