@@ -668,7 +668,29 @@ class RecordController extends Controller {
                     $glf->options = FieldController::msListArrayToString($value);
                     $glf->save();
                 }
-            } else if($field->type=='Date'){
+            } else if($field->type=='Combo List'){
+                //we need to check if the field exist first
+                $clf = ComboListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                if(!is_null($clf) && !is_null($request->input($field->flid.'_val'))){
+                    $clf->options = $_REQUEST[$field->flid.'_val'][0];
+                    for($i=1;$i<sizeof($_REQUEST[$field->flid.'_val']);$i++){
+                        $clf->options .= '[!val!]'.$_REQUEST[$field->flid.'_val'][$i];
+                    }
+                    $clf->save();
+                }elseif(!is_null($clf) && is_null($request->input($field->flid.'_val'))){
+                    $clf->delete();
+                }
+                elseif(is_null($clf) && !is_null($request->input($field->flid.'_val'))) {
+                    $clf = new ComboListField();
+                    $clf->flid = $field->flid;
+                    $clf->rid = $record->rid;
+                    $clf->options = $_REQUEST[$field->flid.'_val'][0];
+                    for($i=1;$i<sizeof($_REQUEST[$field->flid.'_val']);$i++){
+                        $clf->options .= '[!val!]'.$_REQUEST[$field->flid.'_val'][$i];
+                    }
+                    $clf->save();
+                }
+            }else if($field->type=='Date'){
                 //we need to check if the field exist first
                 $df = DateField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
                 if(!is_null($df) && !(empty($request->input('month_'.$key)) && empty($request->input('day_'.$key)) && empty($request->input('year_'.$key)))){
