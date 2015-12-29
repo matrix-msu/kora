@@ -46,16 +46,18 @@
 
 <div class="panel panel-default">
     <div class="panel-heading">
-        <span>Owned Records</span><span class="pull-right">Last Edited</span>
+        <span>Owned Records</span><span class="pull-right">Last 30 Edited</span>
     </div>
     <div class="collapseTest" style="display: none">
         <div class="panel-body">
             <ul class="list-group">
                 @foreach($records as $record)
-                    <li class="list-group-item"><a href="{{action('RecordController@show', ['pid' => $record['pid'], 'fid' => $record['fid'], 'rid' => $record['rid']])}}">
+                    <li class="list-group-item">
+                        <a href="{{action('RecordController@show', ['pid' => $record['pid'], 'fid' => $record['fid'], 'rid' => $record['rid']])}}">
                             {{$record['pid']}}-{{$record['fid']}}-{{$record['rid']}}
                         </a>
                         <span class="pull-right">{{$record['updated_at']}}</span>
+                        @include('forms.layout.logic',['form' => \App\Http\Controllers\FormController::getForm($record['fid']), 'fieldview' => 'records.layout.displayfield'])
                     </li>
                 @endforeach
             </ul>
