@@ -44,15 +44,16 @@
         </div>
     </div>
     <div style="position: fixed; bottom:50; left:50;">
-        <button id="langselect" type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-html="true" data-placement="right" data-title="Language" data-content="
-             <ul style='list-style-type: none; padding-left: 0;'>
-                @foreach($languages_available->keys() as $lang)
-                    <li><a onclick='setTempLang({{$lang}})' href='#'>{{$languages_available->get($lang)[1]}}</a> </li>
-                @endforeach
-                </ul>">
-            <span class="glyphicon glyphicon-globe"></span>  {{App::getLocale()}}
-        </button>
-
+        @if (Auth::guest())
+            <button id="langselect" type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-html="true" data-placement="right" data-title="Language" data-content="
+                 <ul style='list-style-type: none; padding-left: 0;'>
+                    @foreach($languages_available->keys() as $lang)
+                        <li><a onclick='setTempLang({{$lang}})' href='#'>{{$languages_available->get($lang)[1]}}</a> </li>
+                    @endforeach
+                    </ul>">
+                <span class="glyphicon glyphicon-globe"></span>  {{App::getLocale()}}
+            </button>
+        @endif
     </div>
 
 </div>
