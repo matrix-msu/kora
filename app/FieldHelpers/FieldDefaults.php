@@ -79,8 +79,6 @@ class FieldDefaults {
     static function getDefault($type){
         if($type=="Date"){
             return '[M][M][D][D][Y][Y]';
-        } else if($type=="Combo List"){
-            return '[!f1Default!][!f1Default!][!f2Default!][!f2Default!]';
         }
         else{
             return '';
