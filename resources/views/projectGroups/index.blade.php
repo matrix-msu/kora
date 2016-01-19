@@ -10,7 +10,7 @@
             <div class="col-md-10 col-md-offset-1">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <h3>Manage Project Groups</h3>
+                        <h3>{{trans('projectGroups_index.manage')}}</h3>
                     </div>
 
                     <div class="panel-body">
@@ -24,7 +24,7 @@
 
                                         <div class="collapseTest" style="display: none">
                                             <div class="panel-body">
-                                                <span>Users associated with this project group:</span>
+                                                <span>{{trans('projectGroups_index.users')}}:</span>
                                                     <ul class="list-group" id="list{{$projectGroup->id}}">
                                                 @foreach($projectGroup->users()->get() as $user)
                                                         <li class="list-group-item" id="list-element{{$projectGroup->id}}{{$user->id}}" name="{{$user->name}}">
@@ -35,7 +35,7 @@
                                                 @endforeach
                                                     </ul>
                                                 <select onchange="addUser({{$projectGroup->id}}, {{$project->pid}})" id="dropdown{{$projectGroup->id}}">
-                                                    <option selected value="0">Add a user</option>
+                                                    <option selected value="0">{{trans('projectGroups_index.add')}}</option>
                                                     @foreach($all_users as $user)
                                                         @if($projectGroup->hasUser($user))
                                                         @else
@@ -47,11 +47,11 @@
                                                 </select>
                                                 <hr/>
                                                 <div id="checkboxes">
-                                                    <span>Permissions:</span>
+                                                    <span>{{trans('projectGroups_index.permissions')}}:</span>
                                                     <ul class="list-group" id="perm-list{{$projectGroup->id}}">
-                                                        <li class="list-group-item">Create Forms: <input type="checkbox" id="create" checked disabled></li>
-                                                        <li class="list-group-item">Edit Forms: <input type="checkbox" id="edit" checked disabled></li>
-                                                        <li class="list-group-item">Delete Forms: <input type="checkbox" id="delete" checked disabled></li>
+                                                        <li class="list-group-item">{{trans('projectGroups_index.create')}}: <input type="checkbox" id="create" checked disabled></li>
+                                                        <li class="list-group-item">{{trans('projectGroups_index.edit')}}: <input type="checkbox" id="edit" checked disabled></li>
+                                                        <li class="list-group-item">{{trans('projectGroups_index.delete')}}: <input type="checkbox" id="delete" checked disabled></li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -67,7 +67,7 @@
 
                                         <div class="collapseTest" style="display: none">
                                             <div class="panel-body">
-                                                <span>Users associated with this project group:</span>
+                                                <span>{{trans('projectGroups_index.users')}}:</span>
                                                 <ul class="list-group" id="list{{$projectGroup->id}}">
                                                     @foreach($projectGroup->users()->get() as $user)
                                                         <li class="list-group-item" id="list-element{{$projectGroup->id}}{{$user->id}}" name="{{$user->name}}">
@@ -77,7 +77,7 @@
                                                 </ul>
 
                                                 <select onchange="addUser({{$projectGroup->id}}, {{$project->pid}})" id="dropdown{{$projectGroup->id}}">
-                                                    <option selected value="0">Add a user</option>
+                                                    <option selected value="0">{{trans('projectGroups_index.add')}}</option>
                                                     @foreach($all_users as $user)
                                                         @if($projectGroup->hasUser($user))
                                                         @else
@@ -89,22 +89,22 @@
                                                 </select>
                                             <hr/>
                                             <div id="checkboxes">
-                                                <span>Permissions:</span>
+                                                <span>{{trans('projectGroups_index.permissions')}}:</span>
                                                 <ul class="list-group" id="perm-list{{$projectGroup->id}}">
-                                                    <li class="list-group-item">Create Forms:
+                                                    <li class="list-group-item">{{trans('projectGroups_index.create')}}:
                                                         <input type="checkbox" id="create{{$projectGroup->id}}" @if($projectGroup->create) checked="checked" @endif onclick="updatePermissions({{$projectGroup->id}})">
                                                     </li>
-                                                    <li class="list-group-item">Edit Forms:
+                                                    <li class="list-group-item">{{trans('projectGroups_index.edit')}}:
                                                         <input type="checkbox" id="edit{{$projectGroup->id}}" @if($projectGroup->edit) checked="checked" @endif onclick="updatePermissions({{$projectGroup->id}})">
                                                     </li>
-                                                    <li class="list-group-item">Delete Forms:
+                                                    <li class="list-group-item">{{trans('projectGroups_index.delete')}}:
                                                         <input type="checkbox" id="delete{{$projectGroup->id}}" @if($projectGroup->delete) checked="checked" @endif onclick="updatePermissions({{$projectGroup->id}})">
                                                     </li>
                                                 </ul>
                                             </div>
                                         </div>
                                             <div class="panel-footer">
-                                                <a href="javascript:void(0)" onclick="deleteProjectGroup({{$projectGroup->id}})">[Delete Project Group]</a>
+                                                <a href="javascript:void(0)" onclick="deleteProjectGroup({{$projectGroup->id}})">[{{trans('projectGroups_index.deleteproj')}}]</a>
                                             </div>
                                         </div>
                                     </div>
@@ -113,7 +113,7 @@
 
                         <hr/>
 
-                        <h3>Create Project Groups</h3>
+                        <h3>{{trans('projectGroups_index.createproj')}}</h3>
 
                         @include('partials.newProjectGroup')
 
@@ -176,7 +176,7 @@
         }
 
         function deleteProjectGroup(projectGroup){
-            var response = confirm("Are you sure you want to delete this group?");
+            var response = confirm("{{trans('projectGroups_index.areyousure')}}?");
             if (response) {
                 $.ajax({
                     url: '{{action('ProjectGroupController@deleteProjectGroup')}}',

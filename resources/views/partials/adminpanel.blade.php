@@ -1,28 +1,28 @@
 @if (\Auth::user()->admin)
     <hr/>
 
-    <h4> Admin Panel</h4>
+    <h4> {{trans('partials_adminpanel.admin')}}</h4>
 
     <form action="{{ action('AdminController@users') }}" style="display: inline">
-        <button type="submit" class="btn btn-default"> Manage Users </button>
+        <button type="submit" class="btn btn-default"> {{trans('partials_adminpanel.users')}} </button>
     </form>
 
     <form action="{{ action('TokenController@index') }}" style="display: inline">
-        <button type="submit" class="btn btn-default"> Manage Tokens </button>
+        <button type="submit" class="btn btn-default"> {{trans('partials_adminpanel.tokens')}} </button>
     </form>
 
     @if(Auth::user()->id == 1)
     <form action="{{ action('BackupController@index') }}" style="display: inline">
-        <button type="submit" class="btn btn-default"> Manage Backups </button>
+        <button type="submit" class="btn btn-default"> {{trans('partials_adminpanel.backups')}} </button>
     </form>
     @endif
 
     <form action="{{ action('InstallController@editEnvConfigs') }}" style="display: inline">
-        <button type="submit" class="btn btn-default"> Manage Environment File</button>
+        <button type="submit" class="btn btn-default"> {{trans('partials_adminpanel.env')}}</button>
     </form>
 
     <form action="{{ action('UpdateController@index') }}" style="display: inline">
-        <button type="submit" class="btn btn-default"> Update </button>
+        <button type="submit" class="btn btn-default"> {{trans('partials_adminpanel.update')}} </button>
     </form>
 
 @endif

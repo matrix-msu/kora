@@ -13,23 +13,23 @@
                 <div class="panel panel-default">
 
                     <div class="panel-heading">
-                        <span><h3>{{$message}} Revision History</h3></span>
+                        <span><h3>{{$message}} {{trans('revisions_index.history')}}</h3></span>
                         @if($message != 'Recent')
                             @if(App\Http\Controllers\RecordController::exists($rid))
-                                <a href="{{action('RecordController@show', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $rid])}}">[Show Record]</a>
+                                <a href="{{action('RecordController@show', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $rid])}}">[{{trans('revisions_index.show')}}]</a>
                             @else
-                                [Record Deleted]
+                                [{{trans('revisions_index.delete')}}]
                             @endif
                         @endif
                     </div>
 
                     <div class="panel-body">
 
-                        {!! Form::label('search', 'Search Record Revisions: ') !!}
+                        {!! Form::label('search', trans('revisions_index.search').': ') !!}
                         {!! Form::select('search', $records, ['class'=>'form-control']) !!}
-                        <button class="btn btn-primary" onclick="showRecordRevisions(1, '')">Show Record Revisions</button>
+                        <button class="btn btn-primary" onclick="showRecordRevisions(1, '')">{{trans('revisions_index.showrev')}}</button>
                         @if($message != 'Recent')
-                        <button class="btn btn-primary" onclick="showRecordRevisions(-1, '')">Back to Recent Revisions</button>
+                        <button class="btn btn-primary" onclick="showRecordRevisions(-1, '')">{{trans('revisions_index.back')}}</button>
                         @endif
                         <hr/>
 
@@ -61,7 +61,7 @@
     }
 
     function rollback(revision) {
-        resp = confirm('Are you sure you want to roll this record back?');
+        resp = confirm('{{trans('revisions_index.areyousure')}}?');
         if(resp) {
             $.ajax({
               url: '{{action('RevisionController@rollback')}}',

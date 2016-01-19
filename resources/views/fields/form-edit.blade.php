@@ -3,17 +3,17 @@
 {!! Form::hidden('type',$type) !!}
 {!! Form::hidden('required',$required) !!}
 <div class="form-group">
-    {!! Form::label('name','Name: ') !!}
+    {!! Form::label('name',trans('fields_form-edit.name').': ') !!}
     {!! Form::text('name',null,['class' => 'form-control']) !!}
 </div>
 
 <div class="form-group">
-    {!! Form::label('slug','Internal Reference Name (no spaces, alpha-numeric values only): ') !!}
+    {!! Form::label('slug',trans('fields_form-edit.slug').': ') !!}
     {!! Form::text('slug',null,['class' => 'form-control']) !!}
 </div>
 
 <div class="form-group">
-    {!! Form::label('desc','Description: ') !!}
+    {!! Form::label('desc',trans('fields_form-edit.desc').': ') !!}
     {!! Form::textarea('desc',null,['class' => 'form-control']) !!}
 </div>
 

@@ -3,29 +3,29 @@
 {!! Form::hidden('option','Regex') !!}
 {!! Form::hidden('fieldnum',$fnum) !!}
 <div class="form-group">
-    {!! Form::label('value','Regex: ') !!}
+    {!! Form::label('value',trans('partials_combofields_genlist.regex').': ') !!}
     {!! Form::text('value', \App\Http\Controllers\FieldController::getComboFieldOption($field,'Regex',$fnum), ['class' => 'form-control']) !!}
 </div>
 <div class="form-group">
-    {!! Form::submit("Update Regex",['class' => 'btn btn-primary form-control']) !!}
+    {!! Form::submit(trans('partials_combofields_genlist.updateregex'),['class' => 'btn btn-primary form-control']) !!}
 </div>
 {!! Form::close() !!}
 
 <div id="list_option_form{{$fnum}}">
     <div>
-        {!! Form::label('options','Options: ') !!}
+        {!! Form::label('options',trans('partials_combofields_genlist.options').': ') !!}
         <select multiple class="form-control list_options{{$fnum}}">
             @foreach(\App\Http\Controllers\FieldController::getComboList($field,false,$fnum) as $opt)
                 <option value="{{$opt}}">{{$opt}}</option>
             @endforeach
         </select>
-        <button class="btn btn-primary remove_option{{$fnum}}">Delete</button>
-        <button class="btn btn-primary move_option_up{{$fnum}}">Up</button>
-        <button class="btn btn-primary move_option_down{{$fnum}}">Down</button>
+        <button class="btn btn-primary remove_option{{$fnum}}">{{trans('partials_combofields_genlist.delete')}}</button>
+        <button class="btn btn-primary move_option_up{{$fnum}}">{{trans('partials_combofields_genlist.up')}}</button>
+        <button class="btn btn-primary move_option_down{{$fnum}}">{{trans('partials_combofields_genlist.down')}}</button>
     </div>
     <div>
         <span><input type="text" class="new_list_option{{$fnum}}"></span>
-        <span><button class="btn btn-primary add_option{{$fnum}}">Add</button></span>
+        <span><button class="btn btn-primary add_option{{$fnum}}">{{trans('partials_combofields_genlist.add')}}</button></span>
     </div>
 </div>
 

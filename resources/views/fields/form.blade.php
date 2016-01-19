@@ -1,41 +1,45 @@
 {!! Form::hidden('pid',$pid) !!}
 {!! Form::hidden('fid',$fid) !!}
 <div class="form-group">
-    {!! Form::label('name','Name: ') !!}
+    {!! Form::label('name',trans('fields_form.name').': ') !!}
     {!! Form::text('name',null,['class' => 'form-control']) !!}
 </div>
 
 <div class="form-group">
-    {!! Form::label('slug','Internal Reference Name (no spaces, alpha-numeric values only): ') !!}
+    {!! Form::label('slug',trans('fields_form.slug').': ') !!}
     {!! Form::text('slug',null,['class' => 'form-control']) !!}
 </div>
 
 <div class="form-group" id="field_types_div">
-    {!! Form::label('type','Field Type: ') !!}
+    {!! Form::label('type',trans('fields_form.type').': ') !!}
     {!! Form::select('type',
-        ['Text Fields' => array('Text' => 'Text', 'Rich Text' => 'Rich Text', 'Number' => 'Number'),
-        'List Fields' => array('List' => 'List', 'Multi-Select List' => 'Multi-Select List', 'Generated List' => 'Generated List',
-            'Combo List' => 'Combo List'),
-        'Date Fields' => array('Date' => 'Date', 'Schedule' => 'Schedule'),
-        'File Fields' => array('Documents' => 'Documents','Gallery' => 'Gallery (jpg, gif, png)',
-            'Playlist' => 'Playlist (mp3, wav, oga)', 'Video' => 'Video (mp4, ogv)', '3D-Model' => '3D-Model (obj, stl)'),
-        'Specialty Fields' => array('Geolocator' => 'Geolocator (latlon, utm, textual)','Associator' => 'Associator')],
+        [trans('fields_form.tf') => array('Text' => trans('fields_form.text'), 'Rich Text' => trans('fields_form.richtext'),
+            'Number' => trans('fields_form.number')),
+        trans('fields_form.lf') => array('List' => trans('fields_form.list'), 'Multi-Select List' => trans('fields_form.mslist'),
+            'Generated List' => trans('fields_form.genlist'), 'Combo List' => trans('fields_form.combolist')),
+        trans('fields_form.df') => array('Date' => trans('fields_form.date'), 'Schedule' => trans('fields_form.schedule')),
+        trans('fields_form.ff') => array('Documents' => trans('fields_form.doc'),'Gallery' => trans('fields_form.gallery').' (jpg, gif, png)',
+            'Playlist' => trans('fields_form.playlist').' (mp3, wav, oga)', 'Video' => trans('fields_form.video').' (mp4, ogv)',
+            '3D-Model' => trans('fields_form.model').' (obj, stl)'),
+        trans('fields_form.sf') => array('Geolocator' => trans('fields_form.geo').' (latlon, utm, textual)','Associator' => trans('fields_form.assoc'))],
         null,['class' => 'form-control field_types']) !!}
     <div id="combo_field_types" style="display: none">
-        {!! Form::label('cftype1','Combo Field Type 1: ') !!}
+        {!! Form::label('cftype1',trans('fields_form.combotype').' 1: ') !!}
         {!! Form::select('cftype1',
-            ['Text Fields' => array('Text' => 'Text', 'Number' => 'Number'),
-            'List Fields' => array('List' => 'List', 'Multi-Select List' => 'Multi-Select List', 'Generated List' => 'Generated List')],
+            [trans('fields_form.tf') => array('Text' => trans('fields_form.text'), 'Number' => trans('fields_form.number')),
+            trans('fields_form.lf') => array('List' => trans('fields_form.list'), 'Multi-Select List' => trans('fields_form.mslist'),
+            'Generated List' => trans('fields_form.genlist'))],
             null,['class' => 'form-control']) !!}
-        {!! Form::label('cfname1','Combo Field Name 1: ') !!}
+        {!! Form::label('cfname1',trans('fields_form.comboname').' 1: ') !!}
         {!! Form::text('cfname1',null,['class' => 'form-control']) !!}
 
-        {!! Form::label('cftype2','Combo Field Type 2: ') !!}
+        {!! Form::label('cftype2',trans('fields_form.combotype').' 2: ') !!}
         {!! Form::select('cftype2',
-            ['Text Fields' => array('Text' => 'Text', 'Number' => 'Number'),
-            'List Fields' => array('List' => 'List', 'Multi-Select List' => 'Multi-Select List', 'Generated List' => 'Generated List')],
+            [trans('fields_form.tf') => array('Text' => trans('fields_form.text'), 'Number' => trans('fields_form.number')),
+            trans('fields_form.lf') => array('List' => trans('fields_form.list'), 'Multi-Select List' => trans('fields_form.mslist'),
+            'Generated List' => trans('fields_form.genlist'))],
             null,['class' => 'form-control']) !!}
-        {!! Form::label('cfname2','Combo Field Name 2: ') !!}
+        {!! Form::label('cfname2',trans('fields_form.comboname').' 2: ') !!}
         {!! Form::text('cfname2',null,['class' => 'form-control']) !!}
     </div>
 
@@ -56,12 +60,12 @@
 </div>
 
 <div class="form-group">
-    {!! Form::label('desc','Description: ') !!}
+    {!! Form::label('desc',trans('fields_form.desc').': ') !!}
     {!! Form::textarea('desc',null,['class' => 'form-control']) !!}
 </div>
 
 <div class="form-group">
-    {!! Form::label('required','Required: ') !!}
+    {!! Form::label('required',trans('fields_form.req').': ') !!}
     {!! Form::select('required',['false', 'true'], 'false', ['class' => 'form-control']) !!}
 </div>
 

@@ -11,7 +11,7 @@
             <div class="col-md-10 col-md-offset-1">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <h3>Manage Form Groups</h3>
+                        <h3>{{trans('formGroups_index.manage')}}</h3>
                     </div>
 
                     <div class="panel-body">
@@ -23,7 +23,7 @@
 
                                     <div class="collapseTest" style="display: none">
                                         <div class="panel-body">
-                                            <span>Users associated with this form group:</span>
+                                            <span>{{trans('formGroups_index.users')}}:</span>
                                             <ul class="list-group" id="list{{$formGroup->id}}">
                                                 @foreach($formGroup->users()->get() as $user)
                                                     <li class="list-group-item" id="list-element{{$formGroup->id}}{{$user->id}}" name="{{$user->name}}">
@@ -34,7 +34,7 @@
                                                 @endforeach
                                             </ul>
                                             <select onchange="addUser({{$formGroup->id}})" id="dropdown{{$formGroup->id}}">
-                                                <option selected value="0">Add a user</option>
+                                                <option selected value="0">{{trans('formGroups_index.adduser')}}</option>
                                                 @foreach($all_users as $user)
                                                     @if($formGroup->hasUser($user))
                                                     @else
@@ -44,14 +44,14 @@
                                             </select>
                                             <hr/>
                                             <div id="checkboxes">
-                                                <span>Permissions:</span>
+                                                <span>{{trans('formGroups_index.permissions')}}:</span>
                                                 <ul class="list-group" id="perm-list{{$formGroup->id}}">
-                                                    <li class="list-group-item">Create Field: <input type="checkbox" id="create" checked disabled></li>
-                                                    <li class="list-group-item">Edit Field: <input type="checkbox" id="edit" checked disabled></li>
-                                                    <li class="list-group-item">Delete Field: <input type="checkbox" id="delete" checked disabled></li>
-                                                    <li class="list-group-item">Create Record: <input type="checkbox" id="ingest" checked disabled></li>
-                                                    <li class="list-group-item">Edit Record: <input type="checkbox" id="modify" checked disabled></li>
-                                                    <li class="list-group-item">Delete Record: <input type="checkbox" id="destroy" checked disabled></li>
+                                                    <li class="list-group-item">{{trans('formGroups_index.cField')}}: <input type="checkbox" id="create" checked disabled></li>
+                                                    <li class="list-group-item">{{trans('formGroups_index.eField')}}: <input type="checkbox" id="edit" checked disabled></li>
+                                                    <li class="list-group-item">{{trans('formGroups_index.dField')}}: <input type="checkbox" id="delete" checked disabled></li>
+                                                    <li class="list-group-item">{{trans('formGroups_index.cRec')}} <input type="checkbox" id="ingest" checked disabled></li>
+                                                    <li class="list-group-item">{{trans('formGroups_index.eRec')}}: <input type="checkbox" id="modify" checked disabled></li>
+                                                    <li class="list-group-item">{{trans('formGroups_index.dRec')}}: <input type="checkbox" id="destroy" checked disabled></li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -67,7 +67,7 @@
 
                                     <div class="collapseTest" style="display: none">
                                         <div class="panel-body">
-                                            <span>Users associated with this form group:</span>
+                                            <span>{{trans('formGroups_index.users')}}:</span>
                                             <ul class="list-group" id="list{{$formGroup->id}}">
                                                 @foreach($formGroup->users()->get() as $user)
                                                     <li class="list-group-item" id="list-element{{$formGroup->id}}{{$user->id}}" name="{{$user->name}}">
@@ -77,7 +77,7 @@
                                             </ul>
 
                                             <select onchange="addUser({{$formGroup->id}})" id="dropdown{{$formGroup->id}}">
-                                                <option selected value="0">Add a user</option>
+                                                <option selected value="0">{{trans('formGroups_index.adduser')}}</option>
                                                 @foreach($all_users as $user)
                                                     @if($formGroup->hasUser($user))
                                                     @else
@@ -87,31 +87,31 @@
                                             </select>
                                             <hr/>
                                             <div id="checkboxes">
-                                                <span>Permissions:</span>
+                                                <span>{{trans('formGroups_index.permissions')}}:</span>
                                                 <ul class="list-group" id="perm-list{{$formGroup->id}}">
-                                                    <li class="list-group-item">Create Field:
+                                                    <li class="list-group-item">{{trans('formGroups_index.cField')}}:
                                                         <input type="checkbox" id="create{{$formGroup->id}}" @if($formGroup->create) checked="checked" @endif onclick="updatePermissions({{$formGroup->id}})">
                                                     </li>
-                                                    <li class="list-group-item">Edit Field:
+                                                    <li class="list-group-item">{{trans('formGroups_index.eField')}}:
                                                         <input type="checkbox" id="edit{{$formGroup->id}}" @if($formGroup->edit) checked="checked" @endif onclick="updatePermissions({{$formGroup->id}})">
                                                     </li>
-                                                    <li class="list-group-item">Delete Field:
+                                                    <li class="list-group-item">{{trans('formGroups_index.dField')}}:
                                                         <input type="checkbox" id="delete{{$formGroup->id}}" @if($formGroup->delete) checked="checked" @endif onclick="updatePermissions({{$formGroup->id}})">
                                                     </li>
-                                                    <li class="list-group-item">Create Record:
+                                                    <li class="list-group-item">{{trans('formGroups_index.cRec')}}:
                                                         <input type="checkbox" id="ingest{{$formGroup->id}}" @if($formGroup->ingest) checked="checked" @endif onclick="updatePermissions({{$formGroup->id}})">
                                                     </li>
-                                                    <li class="list-group-item">Modify Record:
+                                                    <li class="list-group-item">{{trans('formGroups_index.eRec')}}:
                                                         <input type="checkbox" id="modify{{$formGroup->id}}" @if($formGroup->modify) checked="checked" @endif onclick="updatePermissions({{$formGroup->id}})">
                                                     </li>
-                                                    <li class="list-group-item">Delete Record:
+                                                    <li class="list-group-item">{{trans('formGroups_index.dRec')}}:
                                                         <input type="checkbox" id="destroy{{$formGroup->id}}" @if($formGroup->destroy) checked="checked" @endif onclick="updatePermissions({{$formGroup->id}})">
                                                     </li>
                                                 </ul>
                                             </div>
                                         </div>
                                         <div class="panel-footer">
-                                            <a href="javascript:void(0)" onclick="deleteFormGroup({{$formGroup->id}})">[Delete Form Group]</a>
+                                            <a href="javascript:void(0)" onclick="deleteFormGroup({{$formGroup->id}})">[{{trans('formGroups_index.deleteform')}}]</a>
                                         </div>
                                     </div>
                                 </div>
@@ -120,7 +120,7 @@
 
                         <hr/>
 
-                        <h3>Create Form Groups</h3>
+                        <h3>{{trans('formGroups_index.createform')}}</h3>
 
                         @include('partials.newFormGroup')
 

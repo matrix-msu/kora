@@ -10,12 +10,12 @@
 
                         {!! Form::open(['method' => 'PATCH', 'action' => 'Auth\UserController@activate']) !!}
 
-                        {!! Form::label('token', 'Enter your activation token: ') !!}
+                        {!! Form::label('token', trans('user_activate.enter').': ') !!}
                         {!! Form::text('token', null, ['class' => 'form-control']) !!}
 
                         <br/>
 
-                        {!! Form::submit('Activate', ['class' => 'btn btn-primary form-control']) !!}
+                        {!! Form::submit(trans('user_activate.activate'), ['class' => 'btn btn-primary form-control']) !!}
 
                     </div>
                 </div>

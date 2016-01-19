@@ -7,7 +7,7 @@
 
                 @if (count($errors) > 0)
                     <div class="alert alert-danger">
-                        <strong>Whoops!</strong> Make sure you entered everything correctly<br>
+                        <strong>{{trans('backups_backup.whoops')}}!</strong> {{trans('backups_backup.makesure')}}<br>
                         <ul>
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
@@ -20,43 +20,41 @@
                     <input type="hidden" name="_token" value="{{csrf_token()}}">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            Backup
+                            {{trans('backups_backup.backup')}}
                         </div>
 
                         <div class="panel-body">
                             <div style="" id="progress">
                                 <p>
-                                    The backup has started, depending on the size of your database, it may take a few minutes
-                                    to complete.  Do not leave this page or close your browser until it is completed.
-                                    When the backup is complete, you can see a summary of all the data that was saved.
+                                    {{trans('backups_backup.backupnotes')}}.
                                 </p>
                                 <div class="progress">
                                     <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
-                                        <span class="sr-only">99% Complete</span>
+                                        <span class="sr-only">{{trans('backups_backup.almostdone')}}</span>
                                     </div>
                                 </div>
                             </div>
                             <div style="display:none" id="summary">
                                 <p>
-                                    The backup has completed successfully.
+                                    {{trans('backups_backup.success')}}.
                                 </p>
                                 <button onclick="download()" type="button" class="btn btn-default">
-                                    <span class="glyphicon glyphicon-save" aria-hidden="true"></span> Download
+                                    <span class="glyphicon glyphicon-save" aria-hidden="true"></span> {{trans('backups_backup.download')}}
                                 </button>
                             </div>
 
                             <div style="display:none" id="error_info">
                                 <p id="error_message">
-                                    There was an error during the restore, no error information is available.
+                                    {{trans('backups_backup.restoreerror')}}.
                                 </p>
                                 <ul style="display:none" id="error_list" class="list-group">
                                     <li class="list-group-item">
-                                        <span id="error_count" class="badge">Unknown</span>
-                                        <strong class="list-group-item-heading">Errors</strong>
+                                        <span id="error_count" class="badge">{{trans('backups_backup.unknown')}}</span>
+                                        <strong class="list-group-item-heading">{{trans('backups_backup.errors')}}</strong>
                                     </li>
                                 </ul>
                                 <button id="download_btn_for_error" style="display:none" onclick="download()" type="button" class="btn btn-default">
-                                    <span class="glyphicon glyphicon-save" aria-hidden="true"></span> Download
+                                    <span class="glyphicon glyphicon-save" aria-hidden="true"></span> {{trans('backups_backup.download')}}
                                 </button>
                             </div>
                         </div>
@@ -72,7 +70,7 @@
     <script>
         function backup(){
             window.onbeforeunload = function() {
-                return "Do not leave this page, the backup process will be interrupted!";
+                return "{{trans('backups_backup.dontleave')}}!";
             }
             var backupURL ="{{action('BackupController@create')}}";
             $.ajax({

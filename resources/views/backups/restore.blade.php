@@ -7,7 +7,7 @@
 
                 @if (count($errors) > 0)
                     <div class="alert alert-danger">
-                        <strong>Whoops!</strong> Make sure you entered everything correctly<br>
+                        <strong>{{trans('backups_restore.whoops')}}!</strong> {{trans('backups_restore.makesure')}}<br>
                         <ul>
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
@@ -17,41 +17,39 @@
                 @endif
 
                 <div style="display:none" id="user_lockout_notice" class="alert alert-danger" role="alert">
-                    <strong>Users are locked out because the restore failed.</strong> <a id="link_unlock_users" href="#" class="alert-link">Unlock users</a>
+                    <strong>{{trans('backups_restore.userslocked')}}.</strong> <a id="link_unlock_users" href="#" class="alert-link">{{trans('backups_restore.unlockusers')}}</a>
                 </div>
 
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        Restore
+                        {{trans('backups_restore.restore')}}
                     </div>
 
                     <div class="panel-body">
                         <div style="" id="progress">
                             <p>
-                                The restore has started, depending on the size of your database, it may take a few minutes
-                                to complete.  Do not leave this page or close your browser until it is completed.
-                                When the backup is complete, you can see a summary of all the data that was saved.
+                                {{trans('backups_restore.restorenotes')}}.
                             </p>
                             <div class="progress">
                                 <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
-                                    <span class="sr-only">99% Complete</span>
+                                    <span class="sr-only">{{trans('backups_restore.almostdone')}}</span>
                                 </div>
                             </div>
                         </div>
                         <div style="display:none" id="summary">
                             <p>
-                                The restore has completed successfully.
+                                {{trans('backups_restore.success')}}.
                             </p>
 
                         </div>
                         <div style="display:none" id="error_info">
                             <p id="error_message">
-                                There was an error during the restore, no error information is available.
+                                {{trans('backups_restore.restoreerror')}}.
                             </p>
                               <ul style="display:none" id="error_list" class="list-group">
                                   <li class="list-group-item">
-                                      <span id="error_count" class="badge">Unknown</span>
-                                      <strong class="list-group-item-heading">Errors</strong>
+                                      <span id="error_count" class="badge">{{trans('backups_restore.unknown')}}</span>
+                                      <strong class="list-group-item-heading">{{trans('backups_restore.errors')}}</strong>
                                   </li>
                               </ul>
                         </div>
@@ -67,7 +65,7 @@
     <script>
         function restore(){
             window.onbeforeunload = function() {
-                return "Do not leave this page, the restore process will be interrupted!";
+                return "{{trans('backups_restore.dontleave')}}!";
             }
             var restoreURL ="{{action('BackupController@restoreData')}}";
             $.ajax({
@@ -100,7 +98,7 @@
             });
         }
         function download(){
-            alert("There is no download available for you at this time.");
+            alert("{{trans('backups_restore.nodownload')}}.");
         }
 
         $("#link_unlock_users").click(function(){
@@ -118,7 +116,7 @@
                     $("#user_lockout_notice").fadeOut(1000);
                 },
                 error: function(data){
-                    alert("Unable to restore access to all users.");
+                    alert("{{trans('backups_restore.unablerestore')}}.");
                 }
             })
         });

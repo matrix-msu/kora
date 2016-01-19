@@ -1,34 +1,34 @@
 {!! Form::open(['method' => 'POST', 'action' => ['ProjectGroupController@create', $project->pid]]) !!}
 
     <div class="form-group">
-        {!! Form::label('name', 'Name: ') !!}
+        {!! Form::label('name', trans('partials_newProjectGroup.name').': ') !!}
         {!! Form::text('name', null, ['class' => 'form-control']) !!}
     </div>
 
     <div class="form-group">
-        {!! Form::label('users', 'Users: ') !!}
+        {!! Form::label('users', trans('partials_newProjectGroup.users').': ') !!}
         {!! Form::select('users[]', $users, null, ['id' => 'users', 'class' => 'form-control', 'multiple']) !!}
     </div>
 
-    {!! Form::label('permissions', 'Group Permissions: ') !!}<br/>
+    {!! Form::label('permissions', trans('partials_newProjectGroup.permissions').': ') !!}<br/>
 
     <div class="form-group" style="display: inline">
-        {!! Form::label('create', 'Create Form: ') !!}
+        {!! Form::label('create', trans('partials_newProjectGroup.create').': ') !!}
         {!! Form::checkbox('create', null, ['class' => 'form-control']) !!}
     </div>
 
     <div class="form-group" style="display: inline">
-        {!! Form::label('edit', 'Edit Form: ') !!}
+        {!! Form::label('edit', trans('partials_newProjectGroup.edit').': ') !!}
         {!! Form::checkbox('edit', null, ['class' => 'form-control']) !!}
     </div>
 
     <div class="form-group" style="display: inline">
-        {!! Form::label('create', 'Delete Form: ') !!}
+        {!! Form::label('create', trans('partials_newProjectGroup.delete').': ') !!}
         {!! Form::checkbox('delete', null, ['class' => 'form-control']) !!}
     </div>
 
     <div class="form-group">
-        {!! Form::submit('Create Project Group', ['class' => 'btn btn-primary form-control']) !!}
+        {!! Form::submit(trans('partials_newProjectGroup.project'), ['class' => 'btn btn-primary form-control']) !!}
     </div>
 
 {!! Form::close() !!}

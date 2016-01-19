@@ -8,13 +8,13 @@
                 <div class="panel panel-default">
                     <div class="panel-body">
 
-                        <span><h3>Environment File Settings</h3></span>
+                        <span><h3>{{trans('install_config.env')}}</h3></span>
                         <hr>
                         @foreach($configs as $config => $value)
                             <div class="form-group">
                                 <label class="">{{$value[0]}}</label>
                                 <input id="{{$config}}"class="form-control" type="text" value="{{$value[1]}}">
-                                <button class="btn btn-primary form-control" onClick="updateEnvConfigs('{{$config}}','{{$value[0]}}')" type="submit">Update {{$value[0]}}</button>
+                                <button class="btn btn-primary form-control" onClick="updateEnvConfigs('{{$config}}','{{$value[0]}}')" type="submit">{{trans('install_config.update')}} {{$value[0]}}</button>
                             </div>
                         @endforeach
 
@@ -23,7 +23,7 @@
 
                         @if (count($errors) > 0)
                             <div class="alert alert-danger">
-                                <strong>Whoops!</strong>  Make sure you entered everything correctly<br><br>
+                                <strong>{{trans('install_config.whoops')}}!</strong>  {{trans('install_config.makesure')}}<br><br>
                                 <ul>
                                     @foreach ($errors->all() as $error)
                                         <li>{{ $error }}</li>
@@ -60,7 +60,7 @@
                     console.log("Error in changing metadata visibility");
                     console.log("text status: " + textStatus);
                     console.log("error thrown: "+errorThrown);
-                    alert("There was a problem updating that, make sure you have permission!");
+                    alert("{{trans('install_config.problem')}}!");
                 }
             });
         }

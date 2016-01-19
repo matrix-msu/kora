@@ -19,38 +19,38 @@
         <div>
             {!! Form::select($field->flid.'[]',$value2,$value,
             ['class' => 'form-control list-options'.$field->flid, 'Multiple', 'id' => 'list'.$field->flid]) !!}
-            <button type="button" class="btn btn-primary remove_option{{$field->flid}}">Delete</button>
-            <button type="button" class="btn btn-primary move_option_up{{$field->flid}}">Up</button>
-            <button type="button" class="btn btn-primary move_option_down{{$field->flid}}">Down</button>
+            <button type="button" class="btn btn-primary remove_option{{$field->flid}}">{{trans('records_fieldInput.delete')}}</button>
+            <button type="button" class="btn btn-primary move_option_up{{$field->flid}}">{{trans('records_fieldInput.up')}}</button>
+            <button type="button" class="btn btn-primary move_option_down{{$field->flid}}">{{trans('records_fieldInput.down')}}</button>
         </div>
         <div>
-            {!! Form::label($field->flid, 'Description: ') !!}
+            {!! Form::label($field->flid, trans('records_fieldInput.desc').': ') !!}
             <input type="text" class="form-control loc_desc{{$field->flid}}">
         </div>
         <div>
-            {!! Form::label($field->flid, 'Type: ') !!}
-            {!! Form::select('loc_type', ['LatLon' => 'LatLon','UTM' => 'UTM','Address' => 'Address'], 'LatLon', ['class' => 'form-control loc_type'.$field->flid]) !!}
+            {!! Form::label($field->flid, trans('records_fieldInput.type').': ') !!}
+            {!! Form::select('loc_type', ['LatLon' => 'LatLon','UTM' => 'UTM','Address' => trans('records_fieldInput.addr')], 'LatLon', ['class' => 'form-control loc_type'.$field->flid]) !!}
         </div>
         <div class="latlon_container{{$field->flid}}">
-            {!! Form::label($field->flid, 'Latitude: ') !!}
+            {!! Form::label($field->flid, trans('records_fieldInput.lat').': ') !!}
             <input type="number" class="form-control latlon_lat{{$field->flid}}" min=-90 max=90 step=".000001">
-            {!! Form::label($field->flid, 'Longitude: ') !!}
+            {!! Form::label($field->flid, trans('records_fieldInput.lon').': ') !!}
             <input type="number" class="form-control latlon_lon{{$field->flid}}" min=-180 max=180 step=".000001">
         </div>
         <div class="utm_container{{$field->flid}}" style="display:none">
-            {!! Form::label($field->flid, 'Zone: ') !!}
+            {!! Form::label($field->flid, trans('records_fieldInput.zone').': ') !!}
             <input type="text" class="form-control utm_zone{{$field->flid}}">
-            {!! Form::label($field->flid, 'Easting: ') !!}
+            {!! Form::label($field->flid, trans('records_fieldInput.east').': ') !!}
             <input type="text" class="form-control utm_east{{$field->flid}}">
-            {!! Form::label($field->flid, 'Northing: ') !!}
+            {!! Form::label($field->flid, trans('records_fieldInput.north').': ') !!}
             <input type="text" class="form-control utm_north{{$field->flid}}">
         </div>
         <div class="text_container{{$field->flid}}" style="display:none">
-            {!! Form::label($field->flid, 'Address: ') !!}
+            {!! Form::label($field->flid, trans('records_fieldInput.addr').': ') !!}
             <input type="text" class="form-control text_addr{{$field->flid}}">
         </div>
         <div>
-            <button type="button" class="btn btn-primary form-control add_geo{{$field->flid}}">Add Location</button>
+            <button type="button" class="btn btn-primary form-control add_geo{{$field->flid}}">{{trans('records_fieldInput.addloc')}}</button>
         </div>
     </div>
 </div>

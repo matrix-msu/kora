@@ -58,7 +58,7 @@ class BackupController extends Controller
         $this->middleware('admin');
         if(Auth::check()){
             if(Auth::user()->id != 1){
-                flash()->overlay("Only the default admin can view that page","Whoops.");
+                flash()->overlay(trans('controller_backup.admin'),trans('controller_backup.whoops'));
                 return redirect("/projects")->send();
             }
         }
@@ -167,7 +167,7 @@ class BackupController extends Controller
 
 		if(Storage::exists($this->backup_filepath)){
             $this->unlockUsers();
-            $this->ajaxResponse(false,"Could not create the backup, a file with that name already exists.");
+            $this->ajaxResponse(false,trans('controller_backup.fileexists'));
 		}
 		else{
             try {
@@ -175,18 +175,18 @@ class BackupController extends Controller
             }
             catch(\Exception $e){
                 $this->ajax_error_list->push($e->getMessage());
-                $this->ajaxResponse(false,"The backup failed, unable to save the backup file.");
+                $this->ajaxResponse(false,trans('controller_backup.cantsave'));
             }
 		}
         $this->unlockUsers();
         $request->session()->put("backup_file_name",$this->backup_filename);
         if($this->ajax_error_list->count() >0){
             //$request->session()->put("backup_file_name",$this->backup_filename);
-            $this->ajaxResponse(false,"The backup completed with errors, the backup may be corrupted.  You can try downloading the file, if one was created.");
+            $this->ajaxResponse(false,trans('controller_backup.errors'));
         }
         else{
             //$request->session()->put("backup_file_name",$this->backup_filename);
-            $this->ajaxResponse(true,"The backup completed successfully");
+            $this->ajaxResponse(true,trans('controller_backup.complete'));
         }
 	}
 
@@ -205,7 +205,7 @@ class BackupController extends Controller
             return response()->download((realpath("../storage/app/".$this->BACKUP_DIRECTORY."/".$filename)),$filename,array("Content-Type"=>"application/octet-stream"));
         }
         else{
-            flash()->overlay("There is no file available right now.  You may have already downloaded the file, or there may have been an error during the backup process","Whoops.");
+            flash()->overlay(trans('controller_backup.nofiletemp'),trans('controller_backup.whoops'));
             return redirect("/");
         }
     }
@@ -728,7 +728,7 @@ class BackupController extends Controller
         }
         catch(\Exception $e){
             $this->ajax_error_list->push($e->getMessage());
-            $this->ajaxResponse(false,"The backup failed, correct these errors and try again.");
+            $this->ajaxResponse(false,trans('controller_backup.correct'));
         }
 
 		return $entire_database;
@@ -756,7 +756,7 @@ class BackupController extends Controller
                 $filename = $available_backups[$request->input("restore_point")]; //Using index in array so user can't provide weird or malicious file names
             }
             catch(\Exception $e){
-                flash()->overlay("The restore point you selected is not valid.","Whoops!"); //This can happen if another user deleted the backup or if the params were edited before POST
+                flash()->overlay(trans('controller_backup.badrestore'),trans('controller_backup.whoops')); //This can happen if another user deleted the backup or if the params were edited before POST
                 return redirect()->back();
             }
             $request->session()->put("restore_file_path",$filename);
@@ -773,18 +773,18 @@ class BackupController extends Controller
                         //$filename is used by Flysystem so it only needs path relative to LARAVEL/storage/app
                     }
                     catch(\Exception $e){
-                        flash()->overlay("The file could not be moved to the backup directory.","Whoops!");
+                        flash()->overlay(trans('controller_backup.cantmove'),trans('controller_backup.whoops'));
                         return redirect()->back();
                     }
                     $request->session()->put("restore_file_path",$filename);
                 }
                 else{
-                    flash()->overlay("There is something wrong with the file that was uploaded","Whoops!");
+                    flash()->overlay(trans('controller_backup.badfile'),trans('controller_backup.whoops'));
                     return redirect()->back();
                 }
             }
             else{
-                flash()->overlay("No file was uploaded.","Whoops!");
+                flash()->overlay(trans('controller_backup.nofiles'),trans('controller_backup.whoops'));
                 return redirect()->back();
             }
         }
@@ -823,28 +823,28 @@ class BackupController extends Controller
             $request->session()->forget("restore_file_path");
         }
         else{
-            return $this->ajaxResponse(false,"You did not select a valid restore point or upload a valid backup file");
+            return $this->ajaxResponse(false,trans('controller_backup.noselect'));
         }
 
 		try{
 			$this->json_file = Storage::get($filepath);
 		}
 		catch(\Exception $e){
-            $this->ajaxResponse(false,"The backup file couldn't be opened.  Make sure it still exists and the permissions are correct.");
+            $this->ajaxResponse(false,trans('controller_backup.noopen'));
 		}
         try {
             $this->decoded_json = json_decode($this->json_file);
             $this->decoded_json->kora3;
         }
         catch(\Exception $e){
-            $this->ajaxResponse(false,"The backup file contains invalid JSON data, it may be corrupt or damaged.  Check the file or try another one.  The restore did not start, so data already in the database was not deleted.");
+            $this->ajaxResponse(false,trans('controller_backup.badjson'));
         }
         try{
             $media_file_location = $this->decoded_json->kora3->filename;
             Storage::get($this->BACKUP_DIRECTORY."/files/".$media_file_location."/files");
         }
         catch(\Exception $e){
-            $this->ajaxResponse(false,"Sorry, the required media files could not be found at $this->BACKUP_DIRECTORY/$media_file_location/files.  Place the files in that location, or create an empty directory with that name to proceed without them.  The existing database and records were not deleted, it should be safe to unlock users.");
+            $this->ajaxResponse(false,trans('controller_backup.reqmedia')."$this->BACKUP_DIRECTORY/$media_file_location/files.".trans('controller_backup.placefiles'));
         }
 
         $backup_data = $this->decoded_json;
@@ -927,8 +927,7 @@ class BackupController extends Controller
 
 
         }catch(\Exception $e){
-            $this->ajaxResponse(false, "There was a problem when attempting to remove existing information from the
-            database, the database user may not have permission to do this or the database may be in use.");
+            $this->ajaxResponse(false, trans('controller_backup.dbpermission'));
         }
         try{
             //$this->copyMediaFiles(ENV('BASE_PATH').'storage/app/backups/files/'.$backup_data->kora3->filename,ENV('BASE_PATH')."storage/app/".$this->MEDIA_DIRECTORY);
@@ -937,8 +936,7 @@ class BackupController extends Controller
 
         }catch(\Exception $e){
             $this->ajax_error_list->push($e->getMessage());
-            $this->ajaxResponse(false,"There was a problem when attempting to remove existing media files, make sure
-            the permissions are correct and the files are not in use.");
+            $this->ajaxResponse(false,trans('controller_backup.filepermission'));
         }
 
         $this->backup_media_files_path = ENV('BASE_PATH') . 'storage/app/' . $this->BACKUP_DIRECTORY . "/files/" . $backup_data->kora3->filename . "/files";
@@ -951,7 +949,7 @@ class BackupController extends Controller
         }
         catch(\Exception $e){
             $this->ajax_error_list->push($e->getMessage());
-            $this->ajaxResponse(false,"There is a problem with the media files for Documents/Gallery/Video/Model fields.");
+            $this->ajaxResponse(false,trans('controller_backup.mediaproblem'));
         }
         try { //This try-catch is for non-QueryExceptions, like if a table is missing entirely from the JSON data
             // User
@@ -1217,7 +1215,7 @@ class BackupController extends Controller
                 //If there are less files than there should be, remove them from the database row before restoring it
                 if($files_present->count() < $df_filenames->count()){
                     $files_db_row = $this->removeFilesFromDbRow($files_db_row,$files_present);
-                    $this->ajax_error_list->push("Record ".$documentsfield->rid." is missing files, and was only partially restored.  Locate the missing files and run the restore process again.");
+                    $this->ajax_error_list->push(trans('controller_backup.record').$documentsfield->rid.trans('controller_backup.partrestored'));
                 }
 
                 //Only create a databse row if at least SOME files were restored, but not if none
@@ -1233,7 +1231,7 @@ class BackupController extends Controller
                     }
                 }
                 else{
-                    $this->ajax_error_list->push("Record ".$documentsfield->rid." Documents field was not restored because it is missing all required files.");
+                    $this->ajax_error_list->push(trans('controller_backup.record').$documentsfield->rid.trans('controller_backup.docmissing'));
                 }
             }
             // GalleryField
@@ -1244,7 +1242,7 @@ class BackupController extends Controller
 
                 if($files_present->count() < $gf_filenames->count()){
                     $files_db_row = $this->removeFilesFromDbRow($files_db_row,$files_present);
-                    $this->ajax_error_list->push("Record ".$galleryfield->rid." is missing files, and was only partially restored.  Locate the missing files and run the restore process again.");
+                    $this->ajax_error_list->push(trans('controller_backup.record').$galleryfield->rid.trans('controller_backup.partrestored'));
                 }
 
                 if ($files_present->count() > 0) {
@@ -1260,7 +1258,7 @@ class BackupController extends Controller
                     }
                 }
                 else{
-                    $this->ajax_error_list->push("Record ".$galleryfield->rid." Gallery field was not restored because it is missing files.");
+                    $this->ajax_error_list->push(trans('controller_backup.record').$galleryfield->rid.trans('controller_backup.galmissing'));
                 }
             }
             // ModelField
@@ -1271,7 +1269,7 @@ class BackupController extends Controller
 
                 if($files_present->count() < $mf_filenames->count()){
                     $files_db_row = $this->removeFilesFromDbRow($files_db_row,$files_present);
-                    $this->ajax_error_list->push("Record ".$modelfield->rid." is missing files, and was only partially restored.  Locate the missing files and run the restore process again.");
+                    $this->ajax_error_list->push(trans('controller_backup.record').$modelfield->rid.trans('controller_backup.partrestored'));
                 }
 
 
@@ -1287,7 +1285,7 @@ class BackupController extends Controller
                     }
                 }
                 else{
-                    $this->ajax_error_list->push("Record ".$modelfield->rid." Model field $modelfield->flid was not restored because it is missing files.");
+                    $this->ajax_error_list->push(trans('controller_backup.record').$modelfield->rid.trans('controller_backup.modmissing'));
                 }
             }
             // PlaylistField
@@ -1298,7 +1296,7 @@ class BackupController extends Controller
 
                 if($files_present->count() < $pf_filenames->count()){
                     $files_db_row = $this->removeFilesFromDbRow($files_db_row,$files_present);
-                    $this->ajax_error_list->push("Record ".$playlistfield->rid." is missing files, and was only partially restored.  Locate the missing files and run the restore process again.");
+                    $this->ajax_error_list->push(trans('controller_backup.admin').$playlistfield->rid.trans('controller_backup.partrestored'));
                 }
 
                 if ($files_present->count() > 0) {
@@ -1313,7 +1311,7 @@ class BackupController extends Controller
                     }
                 }
                 else{
-                    $this->ajax_error_list->push("Record ".$playlistfield->rid." was not restored because it is missing files.");
+                    $this->ajax_error_list->push(trans('controller_backup.record').$playlistfield->rid.trans('controller_backup.notres'));
                 }
             }
             // VideoField
@@ -1324,7 +1322,7 @@ class BackupController extends Controller
 
                 if($files_present->count() < $vf_filenames->count()){
                     $files_db_row = $this->removeFilesFromDbRow($files_db_row,$files_present);
-                    $this->ajax_error_list->push("Record ".$videofield->rid." is missing files, and was only partially restored.  Locate the missing files and run the restore process again.");
+                    $this->ajax_error_list->push(trans('controller_backup.record').$videofield->rid.trans('controller_backup.partrestore'));
                 }
 
                 if ($files_present->count() > 0) {
@@ -1339,7 +1337,7 @@ class BackupController extends Controller
                     }
                 }
                 else{
-                    $this->ajax_error_list->push("Record ".$videofield->rid." was not restored because it is missing files.");
+                    $this->ajax_error_list->push(trans('controller_backup.record').$videofield->rid.trans('controller_backup.notres'));
                 }
             }
 
@@ -1390,21 +1388,15 @@ class BackupController extends Controller
         }
 		catch(\Exception $e){
                 $this->ajax_error_list->push($e->getMessage());
-                $this->ajaxResponse(false,"An unknown error prevented the restore from completing.
-                You can try restoring from a different backup file or restore point.
-                Users will stay locked out until you run a successful restore or manually unlock them above.
-                For this error, it's not recommended that you unlock users unless you have resolved the problem");
+                $this->ajaxResponse(false,trans('controller_backup.unknown'));
         }
 
         if(count($this->ajax_error_list) != 0){
-            $this->ajaxResponse(false,"Not all of your data was restored, check the errors below for details.
-            The errors are in the order that they occurred, if you can resolve the first error, it will often correct
-            one or more of the errors below it.
-            Users will stay locked out until you run a successful restore or manually unlock them above.");
+            $this->ajaxResponse(false,trans('controller_backup.notalldata'));
         }
         else{
             $this->unlockUsers();
-            $this->ajaxResponse(true,"The restore completed successfully.");
+            $this->ajaxResponse(true,trans('controller_backup.success'));
         }
 
 	}
@@ -1555,7 +1547,7 @@ class BackupController extends Controller
                     $mediaFilesPresent->put($filename,true);
                     continue;
                 } else {
-                    $this->ajax_error_list->push("Media file does not exist: " . $expected_filepath);
+                    $this->ajax_error_list->push(trans('controller_backup.notexist') . $expected_filepath);
                     $status = false;
                 }
             } catch (\Exception $e) {
@@ -1634,13 +1626,13 @@ class BackupController extends Controller
 
             }
             catch(\Exception $e){
-                flash()->overlay("The restore point you selected is not valid.","Whoops!"); //This can happen if another user deleted the backup or if the params were edited before POST
+                flash()->overlay(trans('controller_backup.badrestore'),trans('controller_backup.whoops')); //This can happen if another user deleted the backup or if the params were edited before POST
                 return redirect()->back();
             }
             $request->session()->put("restore_file_path",$filename);
         }
         else{
-            flash()->overlay("The restore point you selected is not valid","Whoops.");
+            flash()->overlay(trans('controller_backup.badrestore'),trans('controller_backup.whoops'));
             return redirect()->back();
         }
 

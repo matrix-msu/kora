@@ -8,18 +8,18 @@
 
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        Update
+                        {{trans('update_index.update')}}
                     </div>
 
                     <div class="panel-body">
                         @if($update)
                             @if ($git)
-                                <button formaction="{{action('UpdateController@gitUpdate')}}" class="btn btn-primary form-control">Update</button>
+                                <button formaction="{{action('UpdateController@gitUpdate')}}" class="btn btn-primary form-control">{{trans('update_index.update')}}</button>
                             @else
-                                <button formaction="{{action('UpdateController@independentUpdate')}}" class="btn btn-primary form-control">Update</button>
+                                <button formaction="{{action('UpdateController@independentUpdate')}}" class="btn btn-primary form-control">{{trans('update_index.update')}}</button>
                             @endif
                         @else
-                            No update required, you are up to date!
+                            {{trans('update_index.none')}}!
                         @endif
                     </div>
                 </div>

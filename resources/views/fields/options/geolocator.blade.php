@@ -5,54 +5,54 @@
     {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@updateRequired', $field->pid, $field->fid, $field->flid]]) !!}
     @include('fields.options.hiddens')
     <div class="form-group">
-        {!! Form::label('required','Required: ') !!}
+        {!! Form::label('required',trans('fields_options_geolocator.req').': ') !!}
         {!! Form::select('required',['false', 'true'], $field->required, ['class' => 'form-control']) !!}
     </div>
     <div class="form-group">
-        {!! Form::submit("Update Required",['class' => 'btn btn-primary form-control']) !!}
+        {!! Form::submit(trans('fields_options_geolocator.updatereq'),['class' => 'btn btn-primary form-control']) !!}
     </div>
     {!! Form::close() !!}
 
     <div class="list_option_form">
         <div>
-            {!! Form::label('default','Default: ') !!}
+            {!! Form::label('default',trans('fields_options_geolocator.def').': ') !!}
             <select multiple class="form-control list_options">
                 @foreach(\App\Http\Controllers\FieldController::getDateList($field) as $opt)
                     <option value="{{$opt}}">{{$opt}}</option>
                 @endforeach
             </select>
-            <button class="btn btn-primary remove_option">Delete</button>
-            <button class="btn btn-primary move_option_up">Up</button>
-            <button class="btn btn-primary move_option_down">Down</button>
+            <button class="btn btn-primary remove_option">{{trans('fields_options_geolocator.delete')}}</button>
+            <button class="btn btn-primary move_option_up">{{trans('fields_options_geolocator.up')}}</button>
+            <button class="btn btn-primary move_option_down">{{trans('fields_options_geolocator.down')}}</button>
         </div>
         <div>
-            {!! Form::label($field->flid, 'Description: ') !!}
+            {!! Form::label($field->flid, trans('fields_options_geolocator.desc').': ') !!}
             <input type="text" class="form-control loc_desc">
         </div>
         <div>
-            {!! Form::label($field->flid, 'Type: ') !!}
-            {!! Form::select('loc_type', ['LatLon' => 'LatLon','UTM' => 'UTM','Address' => 'Address'], 'LatLon', ['class' => 'form-control loc_type']) !!}
+            {!! Form::label($field->flid, trans('fields_options_geolocator.type').': ') !!}
+            {!! Form::select('loc_type', ['LatLon' => 'LatLon','UTM' => 'UTM','Address' => trans('fields_options_geolocator.addr')], 'LatLon', ['class' => 'form-control loc_type']) !!}
         </div>
         <div class="latlon_container">
-            {!! Form::label($field->flid, 'Latitude: ') !!}
+            {!! Form::label($field->flid, trans('fields_options_geolocator.lat').': ') !!}
             <input type="number" class="form-control latlon_lat" min=-90 max=90 step=".000001">
-            {!! Form::label($field->flid, 'Longitude: ') !!}
+            {!! Form::label($field->flid, trans('fields_options_geolocator.lon').': ') !!}
             <input type="number" class="form-control latlon_lon" min=-180 max=180 step=".000001">
         </div>
         <div class="utm_container" style="display:none">
-            {!! Form::label($field->flid, 'Zone: ') !!}
+            {!! Form::label($field->flid, trans('fields_options_geolocator.zone').': ') !!}
             <input type="text" class="form-control utm_zone">
-            {!! Form::label($field->flid, 'Easting: ') !!}
+            {!! Form::label($field->flid, trans('fields_options_geolocator.east').': ') !!}
             <input type="text" class="form-control utm_east">
-            {!! Form::label($field->flid, 'Northing: ') !!}
+            {!! Form::label($field->flid, trans('fields_options_geolocator.north').': ') !!}
             <input type="text" class="form-control utm_north">
         </div>
         <div class="text_container" style="display:none">
-            {!! Form::label($field->flid, 'Address: ') !!}
+            {!! Form::label($field->flid, trans('fields_options_geolocator.addr').': ') !!}
             <input type="text" class="form-control text_addr">
         </div>
         <div>
-            <button class="btn btn-primary form-control add_geo">Add to Default</button>
+            <button class="btn btn-primary form-control add_geo">{{trans('fields_options_geolocator.adddef')}}</button>
         </div>
     </div>
 
@@ -60,11 +60,11 @@
     @include('fields.options.hiddens')
     {!! Form::hidden('option','Map') !!}
     <div class="form-group">
-        {!! Form::label('value','Map View: ') !!}
-        {!! Form::select('value', ['No' => 'No','Yes' => 'Yes'], \App\Http\Controllers\FieldController::getFieldOption($field,'Map'), ['class' => 'form-control']) !!}
+        {!! Form::label('value',trans('fields_options_geolocator.map').': ') !!}
+        {!! Form::select('value', ['No' => trans('fields_options_geolocator.no'),'Yes' => trans('fields_options_geolocator.yes')], \App\Http\Controllers\FieldController::getFieldOption($field,'Map'), ['class' => 'form-control']) !!}
     </div>
     <div class="form-group">
-        {!! Form::submit("Update Map View",['class' => 'btn btn-primary form-control']) !!}
+        {!! Form::submit(trans('fields_options_geolocator.updatemap'),['class' => 'btn btn-primary form-control']) !!}
     </div>
     {!! Form::close() !!}
 
@@ -72,11 +72,11 @@
     @include('fields.options.hiddens')
     {!! Form::hidden('option','DataView') !!}
     <div class="form-group">
-        {!! Form::label('value','Data View: ') !!}
-        {!! Form::select('value', ['LatLon' => 'Lat Long','UTM' => 'UTM Coordinates','Textual' => 'Textual'], \App\Http\Controllers\FieldController::getFieldOption($field,'DataView'), ['class' => 'form-control']) !!}
+        {!! Form::label('value',trans('fields_options_geolocator.data').': ') !!}
+        {!! Form::select('value', ['LatLon' => 'Lat Long','UTM' => 'UTM Coordinates','Textual' => trans('fields_options_geolocator.text')], \App\Http\Controllers\FieldController::getFieldOption($field,'DataView'), ['class' => 'form-control']) !!}
     </div>
     <div class="form-group">
-        {!! Form::submit("Update Data View",['class' => 'btn btn-primary form-control']) !!}
+        {!! Form::submit(trans('fields_options_geolocator.updatedata'),['class' => 'btn btn-primary form-control']) !!}
     </div>
     {!! Form::close() !!}
 

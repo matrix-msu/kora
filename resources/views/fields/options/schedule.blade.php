@@ -5,34 +5,34 @@
     {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@updateRequired', $field->pid, $field->fid, $field->flid]]) !!}
     @include('fields.options.hiddens')
     <div class="form-group">
-        {!! Form::label('required','Required: ') !!}
+        {!! Form::label('required',trans('fields_options_schedule.req').': ') !!}
         {!! Form::select('required',['false', 'true'], $field->required, ['class' => 'form-control']) !!}
     </div>
     <div class="form-group">
-        {!! Form::submit("Update Required",['class' => 'btn btn-primary form-control']) !!}
+        {!! Form::submit(trans('fields_options_schedule.updatereq'),['class' => 'btn btn-primary form-control']) !!}
     </div>
     {!! Form::close() !!}
 
     <div class="list_option_form">
         <div>
-            {!! Form::label('default','Default: ') !!}
+            {!! Form::label('default',trans('fields_options_schedule.def').': ') !!}
             <select multiple class="form-control list_options">
                 @foreach(\App\Http\Controllers\FieldController::getDateList($field) as $opt)
                     <option value="{{$opt}}">{{$opt}}</option>
                 @endforeach
             </select>
-            <button class="btn btn-primary remove_option">Delete</button>
-            <button class="btn btn-primary move_option_up">Up</button>
-            <button class="btn btn-primary move_option_down">Down</button>
+            <button class="btn btn-primary remove_option">{{trans('fields_options_schedule.delete')}}</button>
+            <button class="btn btn-primary move_option_up">{{trans('fields_options_schedule.up')}}</button>
+            <button class="btn btn-primary move_option_down">{{trans('fields_options_schedule.down')}}</button>
         </div>
         <div class="form-inline" style="position:relative">
-            {!! Form::label('eventname','Event Title: ') !!}
+            {!! Form::label('eventname',trans('fields_options_schedule.event').': ') !!}
             <input type="text" class="form-control" id="eventname" />
-            {!! Form::label('startdatetime','Start: ') !!}
+            {!! Form::label('startdatetime',trans('fields_options_schedule.start').': ') !!}
             <input type='text' class="form-control" id='startdatetime' />
-            {!! Form::label('enddatetime','End: ') !!}
+            {!! Form::label('enddatetime',trans('fields_options_schedule.end').': ') !!}
             <input type='text' class="form-control" id='enddatetime' />
-            {!! Form::label('allday','All Day: ') !!}
+            {!! Form::label('allday',trans('fields_options_schedule.allday').': ') !!}
             <input type='checkbox' class="form-control" id='allday' />
             <button class="btn btn-primary add_option">Add</button>
         </div>
@@ -42,11 +42,11 @@
     @include('fields.options.hiddens')
     {!! Form::hidden('option','Start') !!}
     <div class="form-group">
-        {!! Form::label('value','Start Year: ') !!}
+        {!! Form::label('value',trans('fields_options_schedule.startyear').': ') !!}
         {!! Form::input('number', 'value', \App\Http\Controllers\FieldController::getFieldOption($field,'Start'), ['class' => 'form-control', 'min' => 0, 'max' => 9999]) !!}
     </div>
     <div class="form-group">
-        {!! Form::submit("Update Start Year",['class' => 'btn btn-primary form-control']) !!}
+        {!! Form::submit(trans('fields_options_schedule.updatestart'),['class' => 'btn btn-primary form-control']) !!}
     </div>
     {!! Form::close() !!}
 
@@ -54,11 +54,11 @@
     @include('fields.options.hiddens')
     {!! Form::hidden('option','End') !!}
     <div class="form-group">
-        {!! Form::label('value','End Year: ') !!}
+        {!! Form::label('value',trans('fields_options_schedule.endyear').': ') !!}
         {!! Form::input('number', 'value', \App\Http\Controllers\FieldController::getFieldOption($field,'End'), ['class' => 'form-control', 'min' => 0, 'max' => 9999]) !!}
     </div>
     <div class="form-group">
-        {!! Form::submit("Update End Year",['class' => 'btn btn-primary form-control']) !!}
+        {!! Form::submit(trans('fields_options_schedule.updateend'),['class' => 'btn btn-primary form-control']) !!}
     </div>
     {!! Form::close() !!}
 
@@ -66,11 +66,11 @@
     @include('fields.options.hiddens')
     {!! Form::hidden('option','Calendar') !!}
     <div class="form-group">
-        {!! Form::label('value','Calendar View: ') !!}
-        {!! Form::select('value', ['No' => 'No','Yes' => 'Yes'], \App\Http\Controllers\FieldController::getFieldOption($field,'Calendar'), ['class' => 'form-control']) !!}
+        {!! Form::label('value',trans('fields_options_schedule.calendar').': ') !!}
+        {!! Form::select('value', ['No' => trans('fields_options_schedule.no'),'Yes' => trans('fields_options_schedule.yes')], \App\Http\Controllers\FieldController::getFieldOption($field,'Calendar'), ['class' => 'form-control']) !!}
     </div>
     <div class="form-group">
-        {!! Form::submit("Update Calendar View",['class' => 'btn btn-primary form-control']) !!}
+        {!! Form::submit(trans('fields_options_schedule.updatecal'),['class' => 'btn btn-primary form-control']) !!}
     </div>
     {!! Form::close() !!}
 

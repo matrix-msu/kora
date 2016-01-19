@@ -21,11 +21,11 @@
     {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@updateRequired', $field->pid, $field->fid, $field->flid]]) !!}
     @include('fields.options.hiddens')
     <div class="form-group">
-        {!! Form::label('required','Required: ') !!}
+        {!! Form::label('required',trans('fields_options_associator.req').': ') !!}
         {!! Form::select('required',['false', 'true'], $field->required, ['class' => 'form-control']) !!}
     </div>
     <div class="form-group">
-        {!! Form::submit("Update Required",['class' => 'btn btn-primary form-control']) !!}
+        {!! Form::submit(trans('fields_options_associator.updatereq'),['class' => 'btn btn-primary form-control']) !!}
     </div>
     {!! Form::close() !!}
 
@@ -45,20 +45,20 @@
             }
     ?>
     <div class="form-group">
-        {!! Form::label('default','Default: ') !!}
+        {!! Form::label('default',trans('fields_options_associator.def').': ') !!}
         {!! Form::select('default[]',$assocRecords, explode('[!]',$field->default), ['class' => 'form-control', 'multiple', 'id' => 'default']) !!}
     </div>
     <div class="form-group">
-        {!! Form::submit("Update Default",['class' => 'btn btn-primary form-control']) !!}
+        {!! Form::submit(trans('fields_options_associator.updatedef'),['class' => 'btn btn-primary form-control']) !!}
     </div>
     {!! Form::close() !!}
 
     <div id="assoc_permissions">
-        {!! Form::label('forms','Associated Forms: ') !!}
+        {!! Form::label('forms',trans('fields_options_associator.assoc').': ') !!}
         <div class="assoc_item_titles">
-            <span style="float: left; width: 33%;"><b>Form Name</b></span>
-            <span style="display: inline-block; width: 33%;"><b>Searchable</b></span>
-            <span style="float: right; width: 33%;"><b>Preview Fields</b></span>
+            <span style="float: left; width: 33%;"><b>{{trans('fields_options_associator.form')}}</b></span>
+            <span style="display: inline-block; width: 33%;"><b>{{trans('fields_options_associator.search')}}</b></span>
+            <span style="float: right; width: 33%;"><b>{{trans('fields_options_associator.preview')}}</b></span>
         </div>
         @foreach(\App\Http\Controllers\AssociationController::getAvailableAssociations($field->fid) as $a)
             <?php

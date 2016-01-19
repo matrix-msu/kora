@@ -364,7 +364,7 @@ class MetadataController extends Controller {
             ]);
 
             if(!$this->isUniqueToForm($fid,$request->input('name'))){
-                flash()->overlay('That name is already used in this form","Whoops.');
+                flash()->overlay(trans('controller_metadata.name'),trans('controller_metadata.whoops'));
                 return redirect()->back();
             }
 
@@ -388,7 +388,7 @@ class MetadataController extends Controller {
     {
         $meta = Field::find($request->input('flid'))->metadata()->first();
         if($meta !== null) $meta->delete();
-        flash()->overlay('The field\'s metadata was deleted', 'Success!');
+        flash()->overlay(trans('controller_metadata.delete'), trans('controller_metadata.success'));
         return response()->json('deleted');
 
     }

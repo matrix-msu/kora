@@ -77,7 +77,7 @@ class TokenController extends Controller {
         $instance = TokenController::getToken($request->id);
         $instance->delete();
 
-        flash()->overlay('Token has been deleted', 'Success!');
+        flash()->overlay(trans('controller_token.delete'), trans('controller_token.success'));
     }
 
     /**

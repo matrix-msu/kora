@@ -8,41 +8,41 @@
 @section('content')
     <span><h1>{{ $form->name }}</h1></span>
 
-    <div><b>Internal Names:</b> {{ $form->slug }}</div>
-    <div><b>Description:</b> {{ $form->description }}</div>
+    <div><b>{{trans('forms_show.slug')}}:</b> {{ $form->slug }}</div>
+    <div><b>{{trans('forms_show.desc')}}:</b> {{ $form->description }}</div>
 
     <div>
-        <a href="{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}">[Records]</a>
+        <a href="{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('forms_show.records')}}]</a>
         @if(\Auth::user()->canIngestRecords($form))
-            <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[New Record]</a>
+            <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('forms_show.newrec')}}]</a>
         @endif
         @if(\Auth::user()->canModifyRecords($form))
-            <a href="{{ action('RecordController@showMassAssignmentView',['pid' => $form->pid, 'fid' => $form->fid]) }}">[Mass Assign Records]</a>
+            <a href="{{ action('RecordController@showMassAssignmentView',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('forms_show.massassign')}}]</a>
         @endif
     </div>
 
     @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
         <hr/>
 
-        <h4> Form Admin Panel</h4>
+        <h4>{{trans('forms_show.formpanel')}}</h4>
         <form action="{{action('FormGroupController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
-            <button type="submit" class="btn btn-default">Manage Groups</button>
+            <button type="submit" class="btn btn-default">{{trans('forms_show.mGroups')}}</button>
         </form>
         <form action="{{action('AssociationController@index', ['fid'=>$form->fid, 'pid'=>$form->pid])}}" style="display: inline">
-            <button type="submit" class="btn btn-default">Manage Associations</button>
+            <button type="submit" class="btn btn-default">{{trans('forms_show.mAssoc')}}</button>
         </form>
         <form action="{{action('RevisionController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
-            <button type="submit" class="btn btn-default">Manage Record Revisions</button>
+            <button type="submit" class="btn btn-default">{{trans('forms_show.mRecRiv')}}</button>
         </form>
         <form action="{{action('RecordPresetController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
-            <button type="submit" class="btn btn-default">Manage Record Presets</button>
+            <button type="submit" class="btn btn-default">{{trans('forms_show.mRecPre')}}</button>
         </form>
         <div>
-            <span>Make Form Preset: </span><input type="checkbox" onchange="presetForm()" id="preset" @if($form->preset) checked @endif>
+            <span>{{trans('forms_show.makepreset')}}: </span><input type="checkbox" onchange="presetForm()" id="preset" @if($form->preset) checked @endif>
         </div>
     @endif
     <hr/>
-    <h2>Fields</h2>
+    <h2>{{trans('forms_show.fields')}}</h2>
 
     @include('forms.layout.logic',['form' => $form, 'fieldview' => 'forms.layout.printfield', 'layoutPage' => true])
 
@@ -51,10 +51,10 @@
               method="POST" class="form-group form-inline">
             <input type="hidden" value="{{ csrf_token() }}" name="_token">
             <input type="text" name="name" class = "form-control" required/>
-            <input type="submit" value="Create New Node" class="btn form-control">
+            <input type="submit" value="{{trans('forms_show.createnode')}}" class="btn form-control">
         </form>
         <form action="{{action('FieldController@create', ['pid' => $form->pid, 'fid' => $form->fid]) }}">
-            <input type="submit" value="Create New Field" class="btn btn-primary form-control">
+            <input type="submit" value="{{trans('forms_show.createfield')}}" class="btn btn-primary form-control">
         </form>
     @endif
 
@@ -71,7 +71,7 @@
         });
 
         function deleteField(fieldName, flid) {
-            var response = confirm("Are you sure you want to delete "+fieldName+"?");
+            var response = confirm("{{trans('forms_show.areyousure')}} "+fieldName+"?");
             if (response) {
                 $.ajax({
                     //We manually create the link in a cheap way because our JS isn't aware of the fid until runtime

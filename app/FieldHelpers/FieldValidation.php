@@ -34,7 +34,7 @@ class FieldValidation {
         }else if($field->type=='Documents' | $field->type=='Gallery' | $field->type=='Playlist' | $field->type=="Video" | $field->type=="3D-Model"){
             return FieldValidation::validateDocuments($field, $value);
         } else{
-            return 'Field does not have a type';
+            return trans('fieldhelpers_val.notype');
         }
     }
 
@@ -43,11 +43,11 @@ class FieldValidation {
         $regex = FieldController::getFieldOption($field, 'Regex');
 
         if($req==1 && ($value==null | $value=="")){
-            return $field->name.' field is required.';
+            return $field->name.trans('fieldhelpers_val.req');
         }
 
         if(($regex!=null | $regex!="") && !preg_match($regex,$value)){
-            return 'Value for field '.$field->name.' does not match regex pattern.';
+            return trans('fieldhelpers_val.regex',['name'=>$field->name]);
         }
 
         return '';
@@ -58,11 +58,11 @@ class FieldValidation {
         $list = FieldController::getList($field);
 
         if($req==1 && ($value==null | $value=="")){
-            return $field->name.' field is required.';
+            return $field->name.trans('fieldhelpers_val.req');
         }
 
         if($value!='' && !in_array($value,$list)){
-            return "Value for field ".$field->name." not in list of options";
+            return trans('fieldhelpers_val.list',['name'=>$field->name]);
         }
 
         return '';
@@ -73,11 +73,11 @@ class FieldValidation {
         $list = FieldController::getList($field);
 
         if($req==1 && ($value==null | $value=="")){
-            return $field->name.' field is required.';
+            return $field->name.trans('fieldhelpers_val.req');
         }
 
         if(sizeof(array_diff($value,$list))>0 && $value[0] !== ' '){
-            return "Value(s) for field ".$field->name." not in list of options";
+            return trans('fieldhelpers_val.mslist',['name'=>$field->name]);
         }
 
         return '';
@@ -88,12 +88,12 @@ class FieldValidation {
         $regex = FieldController::getFieldOption($field, 'Regex');
 
         if($req==1 && ($value==null | $value=="")){
-            return $field->name.' field is required.';
+            return $field->name.trans('fieldhelpers_val.req');
         }
 
         foreach($value as $opt){
             if(($regex!=null | $regex!="") && !preg_match($regex,$opt)){
-                return 'Value '.$opt.' for field '.$field->name.' does not match regex pattern.';
+                return trans('fieldhelpers_val.regexopt',['name'=>$field->name,'opt'=>$opt]);
             }
         }
 
@@ -105,7 +105,7 @@ class FieldValidation {
         $flid = $field->flid;
 
         if($req==1 && !isset($request[$flid.'_val'])){
-            return $field->name.' field is required.';
+            return $field->name.trans('fieldhelpers_val.req');
         }
 
         return '';
@@ -120,15 +120,15 @@ class FieldValidation {
         $year = $request->input('year_'.$field->flid,'');
 
         if($req==1 && $month=='' && $day=='' && $year==''){
-            return $field->name.' field is required.';
+            return $field->name.trans('fieldhelpers_val.req');
         }
 
         if(($year<$start | $year>$end) && ($month!='' | $day!='')){
-            return 'Year supplied for field '.$field->name.' is not in the range of '.$start.' and '.$end.'.';
+            return trans('fieldhelpers_val.year',['name'=>$field->name,'start'=>$start,'end'=>$end]);
         }
 
         if(!FieldController::validateDate($month,$day,$year)){
-            return 'Invalid date for field '.$field->name.'. Either day given w/ no month provided, or day and month are impossible.';
+            return trans('fieldhelpers_val.date',['name'=>$field->name]);
         }
 
         return '';
@@ -139,7 +139,7 @@ class FieldValidation {
 
         if($req==1){
             if(glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') == false)
-                return $field->name.' field is required. No files submitted.';
+                return $field->name.trans('fieldhelpers_val.file');
         }
     }
 
@@ -147,7 +147,7 @@ class FieldValidation {
         $req = $field->required;
 
         if($req==1 && ($value==null | $value=="")){
-            return $field->name.' field is required.';
+            return $field->name.trans('fieldhelpers_val.req');
         }
     }
 }

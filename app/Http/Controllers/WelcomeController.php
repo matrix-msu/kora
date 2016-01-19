@@ -55,6 +55,6 @@ class WelcomeController extends Controller {
     public  function setTemporaryLanguage(Request $request){
         $language = Request::input('templanguage');
         Session::put('guest_user_language',$language);
-        return("Visitor's language is now set to: ".$language);
+        return(trans('controller_welcome.visitor').$language);
     }
 }

@@ -6,13 +6,13 @@
 @stop
 
 @section('content')
-    <h1>Create a New Record for {{ $form->name }}</h1>
+    <h1>{{trans('records_create.new')}} {{ $form->name }}</h1>
 
     <hr/>
     <div class="form-group">
-        <span>{!! Form::label('presetlabel', 'From Preset: ') !!}</span>
+        <span>{!! Form::label('presetlabel', trans('records_create.from').': ') !!}</span>
         <select class="form-control" id="presetselect" onchange="populate()">
-            <option disabled selected>Select a Preset</option>
+            <option disabled selected>{{trans('records_create.select')}}</option>
             @for($i=0; $i < sizeof($presets); $i++)
                 <option value="{{$presets[$i]['id']}}">{{$presets[$i]['name']}}</option>
             @endfor
@@ -23,7 +23,7 @@
 
     <script>
         $('#presetselect').select2({
-            placeholder: 'Select a Preset'
+            placeholder: '{{trans('records_create.select')}}'
         });
 
         function populate() {
@@ -140,10 +140,10 @@
     {!! Form::model($record = new \App\Record, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid.'/records', 'id' => 'createform']) !!}
     {!! Form::model($record = new \App\Record, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid.'/records',
         'enctype' => 'multipart/form-data', 'id' => 'new_record_form']) !!}
-        <div><b>Mass Creation (Max 1000):</b> <input type="checkbox" name="mass_creation"></div>
+        <div><b>{{trans('records_create.mass')}} ({{trans('records_create.max')}} 1000):</b> <input type="checkbox" name="mass_creation"></div>
         <input type="number" name="mass_creation_num" class="form-control" value="2" step="1" max="1000" min="2">
     <br>
-        @include('records.form',['submitButtonText' => 'Create Record', 'form' => $form])
+        @include('records.form',['submitButtonText' => trans('records_create.create'), 'form' => $form])
     {!! Form::close() !!}
 
     @include('errors.list')

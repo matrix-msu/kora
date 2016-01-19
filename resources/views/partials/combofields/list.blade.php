@@ -1,18 +1,18 @@
 <div id="list_option_form{{$fnum}}">
     <div>
-        {!! Form::label('options','Options: ') !!}
+        {!! Form::label('options',trans('partials_combofields_list.options').': ') !!}
         <select multiple class="form-control list_options{{$fnum}}">
             @foreach(\App\Http\Controllers\FieldController::getComboList($field,false,$fnum) as $opt)
                 <option value="{{$opt}}">{{$opt}}</option>
             @endforeach
         </select>
-        <button class="btn btn-primary remove_option{{$fnum}}">Delete</button>
-        <button class="btn btn-primary move_option_up{{$fnum}}">Up</button>
-        <button class="btn btn-primary move_option_down{{$fnum}}">Down</button>
+        <button class="btn btn-primary remove_option{{$fnum}}">{{trans('partials_combofields_list.delete')}}</button>
+        <button class="btn btn-primary move_option_up{{$fnum}}">{{trans('partials_combofields_list.up')}}</button>
+        <button class="btn btn-primary move_option_down{{$fnum}}">{{trans('partials_combofields_list.down')}}</button>
     </div>
     <div>
         <span><input type="text" class="new_list_option{{$fnum}}"></span>
-        <span><button class="btn btn-primary add_option{{$fnum}}">Add</button></span>
+        <span><button class="btn btn-primary add_option{{$fnum}}">{{trans('partials_combofields_list.add')}}</button></span>
     </div>
 </div>
 

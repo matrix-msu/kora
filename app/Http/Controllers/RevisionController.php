@@ -53,7 +53,7 @@ class RevisionController extends Controller {
         if(!\Auth::user()->admin && !\Auth::user()->isFormAdmin(FormController::getForm($fid)))
         {
             $pid = FormController::getForm($fid)->pid;
-            flash()->overlay('You do not have permission to view that page.', 'Whoops.');
+            flash()->overlay(trans('controller_revision.permission'), trans('controller_revision.whoops'));
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
@@ -77,7 +77,7 @@ class RevisionController extends Controller {
                 $records[$temp[$i]] = $pid . '-' . $form->fid . '-' . $temp[$i];
             }
         }
-        $message = 'Recent';
+        $message = trans('controller_revision.recent');
 
         return view('revisions.index', compact('revisions', 'records', 'form', 'message'));
     }
@@ -100,7 +100,7 @@ class RevisionController extends Controller {
 
         if(!\Auth::user()->admin && !\Auth::user()->isFormAdmin(FormController::getForm($fid)) && \Auth::user()->id != $owner)
         {
-            flash()->overlay('You do not have permission to view that page.', 'Whoops.');
+            flash()->overlay(trans('controller_revision.permission'), trans('controller_revision.whoops'));
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
@@ -136,11 +136,11 @@ class RevisionController extends Controller {
             $revision = RevisionController::storeRevision($record->rid, 'delete');
             $record->delete();
 
-            flash()->overlay('Record '.$form->pid.'-'.$form->fid.'-'.$revision->rid.' has been deleted.', 'Success!' );
+            flash()->overlay(trans('controller_revision.record').$form->pid.'-'.$form->fid.'-'.$revision->rid.trans('controller_revision.delete'), trans('controller_revision.success') );
         }
         elseif($revision->type == 'delete'){
             if(RecordController::exists($revision->rid)){
-                flash()->overlay('Cannot recreate a record that already exists.');
+                flash()->overlay(trans('controller_revision.exists'));
             }
             else {
                 // We must create a new record
@@ -156,7 +156,7 @@ class RevisionController extends Controller {
                 RevisionController::redo($record, $form, $revision, false);
                 RevisionController::storeRevision($record->rid, 'create');
 
-                flash()->overlay('Record ' . $form->pid . '-' . $form->fid . '-' . $record->rid . ' has been rolled back.', 'Success!');
+                flash()->overlay(trans('controller_revision.record') . $form->pid . '-' . $form->fid . '-' . $record->rid . trans('controller_revision.rollback'), trans('controller_revision.success'));
             }
         }
         else{
@@ -164,7 +164,7 @@ class RevisionController extends Controller {
 
             RevisionController::redo($record, $form, $revision, true);
 
-            flash()->overlay('Record '.$form->pid.'-'.$form->fid.'-'.$record->rid.' has been rolled back.', 'Success!');
+            flash()->overlay(trans('controller_revision.record').$form->pid.'-'.$form->fid.'-'.$record->rid.trans('controller_revision.rollback'), trans('controller_revision.success'));
         }
     }
 

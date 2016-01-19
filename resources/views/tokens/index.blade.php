@@ -6,15 +6,15 @@
             <div class="col-md-10 col-md-offset-1">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <h3>Manage Tokens</h3>
+                        <h3>{{trans('tokens_index.manage')}}</h3>
                     </div>
                     <div class="panel-body">
                         @foreach(array('Search', 'Edit', 'Create', 'Delete') as $type)
                             <table class="table table-striped">
                                 <thead>
                                 <tr style="border-bottom: 2px solid #ddd">
-                                    <th>{{$type}} Tokens</th>
-                                    <th class="pull-right" style="border-bottom: 0px">Projects</th>
+                                    <th>{{$type}} {{trans('tokens_index.tokens')}}</th>
+                                    <th class="pull-right" style="border-bottom: 0px">{{trans('tokens_index.projects')}}</th>
                                 </tr>
                                 </thead>
 
@@ -22,7 +22,7 @@
                                 @foreach ($tokens as $token)
                                     @if ($token->type == strtolower($type))
                                         <tr>
-                                            <td>{{$token->token}} <a onclick="deleteToken({{$token->id}})" href="javascript:void(0)">[Delete]</a></td>
+                                            <td>{{$token->token}} <a onclick="deleteToken({{$token->id}})" href="javascript:void(0)">[{{trans('tokens_index.delete')}}]</a></td>
                                             <td>
                                                 <ul class="pull-right" style="list-style-type: none; padding: 0;">
                                                     @foreach ($token->projects()->get() as $project)
@@ -33,7 +33,7 @@
 
                                                     <li>
                                                         <select onchange="addProject({{$token->id}})" id="dropdown{{$token->id}}">
-                                                            <option selected disabled>Add a project</option>
+                                                            <option selected disabled>{{trans('tokens_index.add')}}</option>
                                                             @foreach ($all_projects as $project)
                                                                 @if($token->hasProject($project))
                                                                 @else
@@ -55,7 +55,7 @@
 
                         <hr/>
 
-                        <h3>Create Token</h3>
+                        <h3>{{trans('tokens_index.create')}}</h3>
 
                         @include('partials.newToken')
 
@@ -107,7 +107,7 @@
         }
 
         function deleteToken(id) {
-            var response = confirm('Are you sure you want to delete this token?');
+            var response = confirm('{{trans('tokens_index.areyousure')}}?');
             if (response) {
                 $.ajax({
                     url: '{{ action('TokenController@deleteToken',['']) }}',

@@ -71,7 +71,7 @@ class UpdateController extends Controller {
         //
         // Get the html of the github page, then find the current version in the html.
         //
-        $search = "Current Kora Version: ";
+        $search = trans('controller_update.current');
         $html = file_get_contents('http://matrix-msu.github.io/Kora3/');
 
         $pos = strpos($html, $search) + strlen($search); //Position of the version string.

@@ -12,11 +12,11 @@
     {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@updateRequired', $field->pid, $field->fid, $field->flid]]) !!}
     @include('fields.options.hiddens')
     <div class="form-group">
-        {!! Form::label('required','Required: ') !!}
+        {!! Form::label('required',trans('fields_options_combolist.req').': ') !!}
         {!! Form::select('required',['false', 'true'], $field->required, ['class' => 'form-control']) !!}
     </div>
     <div class="form-group">
-        {!! Form::submit("Update Required",['class' => 'btn btn-primary form-control']) !!}
+        {!! Form::submit(trans('fields_options_combolist.updatereq'),['class' => 'btn btn-primary form-control']) !!}
     </div>
     {!! Form::close() !!}
 
@@ -24,7 +24,7 @@
         <div>
             <span style="float:left;width:40%;margin-bottom:10px"><b>{{\App\Http\Controllers\FieldController::getComboFieldName($field,'one')}}</b></span>
             <span style="float:left;width:40%;margin-bottom:10px"><b>{{\App\Http\Controllers\FieldController::getComboFieldName($field,'two')}}</b></span>
-            <span style="float:left;width:20%;margin-bottom:10px"><b>Remove</b></span>
+            <span style="float:left;width:20%;margin-bottom:10px"><b>{{trans('fields_options_combolist.remove')}}</b></span>
         </div>
         @if($defs!=null && $defs!='')
             @for($i=0;$i<sizeof($defArray);$i++)
@@ -94,13 +94,13 @@
         @include('partials.combofields.default_inputs',['field'=>$field, 'type'=>$twoType, 'fnum'=>'two'])
     </div>
     <div class="form-group">
-        {!! Form::submit("Add to Default",['class' => 'btn btn-primary form-control']) !!}
+        {!! Form::submit(trans('fields_options_combolist.adddef'),['class' => 'btn btn-primary form-control']) !!}
     </div>
     {!! Form::close() !!}
 
     <br>
 
-    <h4>Options for {{ \App\Http\Controllers\FieldController::getComboFieldName($field,'one') }}</h4>
+    <h4>{{trans('fields_options_combolist.options')}} {{ \App\Http\Controllers\FieldController::getComboFieldName($field,'one') }}</h4>
     @if($oneType=='Text')
         @include('partials.combofields.text',['field'=>$field,'fnum'=>'one'])
     @elseif($oneType=='Number')
@@ -115,7 +115,7 @@
 
     <br>
 
-    <h4>Options for {{ \App\Http\Controllers\FieldController::getComboFieldName($field,'two') }}</h4>
+    <h4>{{trans('fields_options_combolist.options')}} {{ \App\Http\Controllers\FieldController::getComboFieldName($field,'two') }}</h4>
     @if($twoType=='Text')
         @include('partials.combofields.text',['field'=>$field,'fnum'=>'two'])
     @elseif($twoType=='Number')

@@ -38,42 +38,42 @@ class AdminController extends Controller {
      */
     public function update(Request $request)
     {
-        $message = "Here's what you changed (or kept the same):";
+        $message = trans('controller_admin.changed');
         $user = User::where('id', '=', $request->users)->first();
         $new_pass = $request->new_password;
         $confirm = $request->confirm;
 
         if (!is_null($request->admin)){
             $user->admin = 1;
-            $message .= " User is admin.";
+            $message .= trans('controller_admin.admin');
         }
         else{
             $user->admin = 0;
-            $message .= " User is not admin.";
+            $message .= trans('controller_admin.notadmin');
         }
 
         if (!is_null($request->active)){
             $user->active = 1;
-            $message .= " User is active.";
+            $message .= trans('controller_admin.active');
         }
         else{
             $user->active = 0;
-            $message .= " User is not active.";
+            $message .= trans('controller_admin.inactive');
         }
 
         if (!empty($new_pass) || !empty($confirm)){
             if ($new_pass != $confirm){
-                flash()->overlay('Passwords do not match, please try again.', 'Whoops.');
+                flash()->overlay(trans('controller_admin.nomatch'), trans('controller_admin.whoops'));
                 return redirect('admin/users');
             }
             else{
                 $user->password = bcrypt($new_pass);
-                $message .= " User password changed.";
+                $message .= trans('controller_admin.passchange');
             }
         }
 
         $user->save();
-        flash()->overlay($message, 'Success!');
+        flash()->overlay($message, trans('controller_admin.success'));
         return redirect('admin/users');
     }
 
@@ -87,7 +87,7 @@ class AdminController extends Controller {
         $user = User::where('id', '=', $id)->first();
         $user->delete();
 
-        flash()->overlay('User Deleted.', 'Success!');
+        flash()->overlay(trans('controller_admin.delete'), trans('controller_admin.success'));
     }
 
     /**
@@ -104,7 +104,7 @@ class AdminController extends Controller {
         $emails = array_unique(explode(' ', $emails));
 
         if ($emails[0] == "") {
-            flash()->overlay("You must enter something!", "Whoops.");
+            flash()->overlay(trans('controller_admin.enter'), trans('controller_admin.whoops'));
             return redirect('admin/users');
         }
         else {
@@ -149,9 +149,9 @@ class AdminController extends Controller {
                 }
             }
             if ($skipped)
-                flash()->overlay($skipped . ' entries skipped, ' . $created . ' user(s) created.', 'Success');
+                flash()->overlay($skipped . trans('controller_admin.skipped') . $created . trans('controller_admin.created'), trans('controller_admin.success'));
             else
-                flash()->overlay($created . ' user(s) created.', 'Success');
+                flash()->overlay($created . trans('controller_admin.created'), trans('controller_admin.success'));
             return redirect('admin/users');
         }
     }

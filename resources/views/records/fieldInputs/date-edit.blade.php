@@ -19,17 +19,20 @@
         <b style="color:red;font-size:20px">*</b>
     @endif
     @if(\App\Http\Controllers\FieldController::getFieldOption($field, 'Circa')=='Yes')
-        {!! Form::label('circa'.$field->flid,'Circa: ') !!}
+        {!! Form::label('circa'.$field->flid,trans('record_fieldInputs.circa').': ') !!}
         {!! Form::checkbox('circa_'.$field->flid,1,$circa, ['class' => 'form-control']) !!}
     @endif
     <input type="hidden" name={{$field->flid}} value="{{$field->flid}}">
-    {!! Form::label('month_'.$field->flid,'Month: ') !!}
-    {!! Form::select('month_'.$field->flid,['' => '','1' => '01 - January', '2' => '02 - February',
-        '3' => '03 - March', '4' => '04 - April', '5' => '05 - May', '6' => '06 - June',
-        '7' => '07 - July', '8' => '08 - August', '9' => '09 - September',
-        '10' => '10 - October', '11' => '11 - November', '12' => '12 - December'],
+    {!! Form::label('month_'.$field->flid,trans('record_fieldInputs.month').': ') !!}
+    {!! Form::select('month_'.$field->flid,['' => '',
+            '1' => '01 - '.trans('record_fieldInputs.jan'), '2' => '02 - '.trans('record_fieldInputs.feb'),
+            '3' => '03 - '.trans('record_fieldInputs.mar'), '4' => '04 - '.trans('record_fieldInputs.apr'),
+            '5' => '05 - '.trans('record_fieldInputs.may'), '6' => '06 - '.trans('record_fieldInputs.june'),
+            '7' => '07 - '.trans('record_fieldInputs.july'), '8' => '08 - '.trans('record_fieldInputs.aug'),
+            '9' => '09 - '.trans('record_fieldInputs.sep'), '10' => '10 - '.trans('record_fieldInputs.oct'),
+            '11' => '11 - '.trans('record_fieldInputs.nov'), '12' => '12 - '.trans('record_fieldInputs.dec')],
         $month, ['class' => 'form-control']) !!}
-    {!! Form::label('day_'.$field->flid,'Day: ') !!}
+    {!! Form::label('day_'.$field->flid,trans('record_fieldInputs.day').': ') !!}
     <select name="day_{{$field->flid}}" class="form-control">
         <option value=""></option>
         <?php
@@ -45,7 +48,7 @@
         }
         ?>
     </select>
-    {!! Form::label('year_'.$field->flid,'Year: ') !!}
+    {!! Form::label('year_'.$field->flid,trans('record_fieldInputs.year').': ') !!}
     <select name="year_{{$field->flid}}" class="form-control">
         <option value=""></option>
         <?php
@@ -63,7 +66,7 @@
         ?>
     </select>
     @if(\App\Http\Controllers\FieldController::getFieldOption($field, 'Era')=='Yes')
-        {!! Form::label('era'.$field->flid,'Era: ') !!}
+        {!! Form::label('era'.$field->flid,trans('record_fieldInputs.era').': ') !!}
         {!! Form::select('era_'.$field->flid,['CE'=>'CE','BCE'=>'BCE'],$era, ['class' => 'form-control']) !!}
     @endif
 </div>

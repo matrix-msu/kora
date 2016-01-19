@@ -5,22 +5,22 @@
     {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@updateRequired', $field->pid, $field->fid, $field->flid]]) !!}
         @include('fields.options.hiddens')
         <div class="form-group">
-            {!! Form::label('required','Required: ') !!}
+            {!! Form::label('required',trans('fields_options_text.req').': ') !!}
             {!! Form::select('required',['false', 'true'], $field->required, ['class' => 'form-control']) !!}
         </div>
         <div class="form-group">
-            {!! Form::submit("Update Required",['class' => 'btn btn-primary form-control']) !!}
+            {!! Form::submit(trans('fields_options_text.updatereq'),['class' => 'btn btn-primary form-control']) !!}
         </div>
     {!! Form::close() !!}
 
     {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@updateDefault', $field->pid, $field->fid, $field->flid]]) !!}
         @include('fields.options.hiddens')
         <div class="form-group">
-            {!! Form::label('default','Default: ') !!}
+            {!! Form::label('default',trans('fields_options_text.def').': ') !!}
             {!! Form::text('default', $field->default, ['class' => 'form-control']) !!}
         </div>
         <div class="form-group">
-            {!! Form::submit("Update Default",['class' => 'btn btn-primary form-control']) !!}
+            {!! Form::submit(trans('fields_options_text.updatedef'),['class' => 'btn btn-primary form-control']) !!}
         </div>
     {!! Form::close() !!}
 
@@ -28,11 +28,11 @@
         @include('fields.options.hiddens')
         {!! Form::hidden('option','Regex') !!}
         <div class="form-group">
-            {!! Form::label('value','Regex: ') !!}
+            {!! Form::label('value',trans('fields_options_text.regex').': ') !!}
             {!! Form::text('value', \App\Http\Controllers\FieldController::getFieldOption($field,'Regex'), ['class' => 'form-control']) !!}
         </div>
         <div class="form-group">
-            {!! Form::submit("Update Regex",['class' => 'btn btn-primary form-control']) !!}
+            {!! Form::submit(trans('fields_options_text.updateregex'),['class' => 'btn btn-primary form-control']) !!}
         </div>
     {!! Form::close() !!}
 
@@ -40,11 +40,11 @@
         @include('fields.options.hiddens')
         {!! Form::hidden('option','MultiLine') !!}
         <div class="form-group">
-            {!! Form::label('value','Multi-Line: ') !!}
-            {!! Form::select('value', ['no','yes'], \App\Http\Controllers\FieldController::getFieldOption($field,'MultiLine'), ['class' => 'form-control']) !!}
+            {!! Form::label('value',trans('fields_options_text.multi').': ') !!}
+            {!! Form::select('value', ['no'=>trans('fields_options_text.no'),'yes'=>trans('fields_options_text.yes')], \App\Http\Controllers\FieldController::getFieldOption($field,'MultiLine'), ['class' => 'form-control']) !!}
         </div>
         <div class="form-group">
-            {!! Form::submit("Update Multi-Line",['class' => 'btn btn-primary form-control']) !!}
+            {!! Form::submit(trans('fields_options_text.updatemulti'),['class' => 'btn btn-primary form-control']) !!}
         </div>
     {!! Form::close() !!}
 

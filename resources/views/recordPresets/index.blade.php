@@ -11,7 +11,7 @@
             <div class="col-md-10 col-md-offset-1">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <span><h3>Record Presets</h3></span>
+                        <span><h3>{{trans('recordPresets_index.preset')}}</h3></span>
                     </div>
 
                     <div class="panel-body">
@@ -22,14 +22,14 @@
                                     <span id="name{{$preset->id}}">{{$preset->name}}</span>
                                 </div>
                                 <div class="collapseTest" style="display: none">
-                                    <div>Record KID: <a href="{{action('RecordController@show', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $preset->rid])}}">
+                                    <div>{{trans('recordPresets_index.record')}} KID: <a href="{{action('RecordController@show', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $preset->rid])}}">
                                             {{$form->pid}}-{{$form->fid}}-{{$preset->rid}}</a>
                                     </div>
                                     <div>
                                         <input name="presetname{{$preset->id}}" id="presetname{{$preset->id}}" placeholder="{{$preset->name}}">
-                                        <button onclick="changePresetName({{$preset->id}})">Change Name</button>
+                                        <button onclick="changePresetName({{$preset->id}})">{{trans('recordPresets_index.change')}}</button>
                                     </div>
-                                    <a href="javascript:void(0)" onclick="deletePreset({{$preset->id}})">[Remove as Preset]</a>
+                                    <a href="javascript:void(0)" onclick="deletePreset({{$preset->id}})">[{{trans('recordPresets_index.remove')}}]</a>
                                 </div>
                             </div>
                         @endforeach

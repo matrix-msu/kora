@@ -43,7 +43,7 @@ class RecordPresetController extends Controller {
         $form = FormController::getForm($fid);
 
         if (!\Auth::user()->isFormAdmin($form)){
-            flash()->overlay('You do not have permission to view that page.', 'Whoops.');
+            flash()->overlay(trans('controller_recordpreset.view'), trans('controller_recordpreset.whoops'));
             return redirect('projects');
         }
 
@@ -79,7 +79,7 @@ class RecordPresetController extends Controller {
         $preset = RecordPreset::where('id', '=', $id)->first();
         $preset->delete();
 
-        flash()->overlay('Record has been removed as a preset.', 'Success!');
+        flash()->overlay(trans('controller_recordpreset.preset'), trans('controller_recordpreset.success'));
     }
 
     /**

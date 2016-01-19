@@ -12,16 +12,16 @@
             field_array.push([flid,ftype])
         }
     </script>
-    <h1>Mass Assign Records for {{ $form->name }}</h1>
+    <h1>{{trans('records_mass-assignment.mass')}} {{ $form->name }}</h1>
 
     <hr/>
 
     <form method="post" action="{{action('RecordController@massAssignRecords',compact('pid','fid'))}}">
         {!! Form::token() !!}
         <div class="form-group">
-            <label for="field_selection">Field:</label>
+            <label for="field_selection">{{trans('records_mass-assignment.field')}}:</label>
             <select class="form-control" name="field_selection" id="field_selection">
-                <option value="default">-Select a Field-</option>
+                <option value="default">-{{trans('records_mass-assignment.select')}}-</option>
                 @foreach($fields as $field)
                     <script>
                         addField(parseInt({{$field->flid}}),("{{$field->type}}"));
@@ -31,7 +31,7 @@
             </select>
             <hr/>
             <div id="field_default">
-               <p>There is no field selected.</p>
+               <p>{{trans('records_mass-assignment.none')}}.</p>
             </div>
         </div>
             @foreach($fields as $field)
@@ -210,13 +210,13 @@
         </script>
 
         <div class="form-group">
-            <label for="overwrite">Overwrite:
+            <label for="overwrite">{{trans('records_mass-assignment.overwrite')}}:
                 <input name="overwrite" value="True" type="checkbox">
             </label>
         </div>
 
         <div class="form-group">
-            <input type="submit" class="btn btn-primary form-control" id="submit" value="Submit">
+            <input type="submit" class="btn btn-primary form-control" id="submit" value="{{trans('records_mass-assignment.submit')}}">
         </div>
     </form>
 

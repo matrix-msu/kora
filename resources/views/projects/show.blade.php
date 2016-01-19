@@ -7,22 +7,22 @@
 @section('content')
     <h1>{{ $project->name }}</h1>
 
-    <div><b>Internal Name:</b> {{ $project->slug }}</div>
-    <div><b>Description:</b> {{ $project->description }}</div>
+    <div><b>{{trans('projects_show.name')}}:</b> {{ $project->slug }}</div>
+    <div><b>{{trans('projects_show.desc')}}:</b> {{ $project->description }}</div>
 
     @if (\Auth::user()->admin ||  \Auth::user()->isProjectAdmin($project))
         <hr/>
 
-        <h4> Project Admin Panel</h4>
+        <h4> {{trans('projects_show.admin')}}</h4>
     <form action="{{action('ProjectGroupController@index', ['pid'=>$project->pid])}}" style="display: inline">
-        <button type="submit" class="btn btn-default">Manage Groups</button>
+        <button type="submit" class="btn btn-default">{{trans('projects_show.groups')}}</button>
     </form>
     <form action="{{action('OptionPresetController@index', ['pid'=>$project->pid])}}" style="display: inline">
-        <button type="submit" class="btn btn-default">Manage Option Presets</button>
+        <button type="submit" class="btn btn-default">{{trans('projects_show.presets')}}</button>
     </form>
     @endif
     <hr/>
-    <h2>Forms</h2>
+    <h2>{{trans('projects_show.forms')}}</h2>
     @foreach($project->forms as $form)
         @if(\Auth::user()->admin || \Auth::user()->inAFormGroup($form))
         <div class="panel panel-default">
@@ -30,16 +30,16 @@
                 <a href="{{ action('FormController@show',['pid' => $project->pid,'fid' => $form->fid]) }}">{{ $form->name }}</a>
             </div>
             <div class="collapseTest" style="display:none">
-                <div class="panel-body"><b>Description:</b> {{ $form->description }}</div>
+                <div class="panel-body"><b>{{trans('projects_show.desc')}}:</b> {{ $form->description }}</div>
                 <div class="panel-footer">
                     @if(\Auth::user()->canEditForms($project))
                     <span>
-                        <a href="{{ action('FormController@edit',['pid' => $project->pid, 'fid' => $form->fid]) }}">[Edit]</a>
+                        <a href="{{ action('FormController@edit',['pid' => $project->pid, 'fid' => $form->fid]) }}">[{{trans('projects_show.edit')}}]</a>
                     </span>
                     @endif
                     @if(\Auth::user()->canDeleteForms($project))
                     <span>
-                        <a onclick="deleteForm('{{ $form->name }}', {{ $form->fid }})" href="javascript:void(0)">[Delete]</a>
+                        <a onclick="deleteForm('{{ $form->name }}', {{ $form->fid }})" href="javascript:void(0)">[{{trans('projects_show.delete')}}]</a>
                     </span>
                     @endif
                 </div>
@@ -50,7 +50,7 @@
 
     @if(\Auth::user()->canCreateForms($project))
     <form action="{{ action('FormController@create', ['pid' => $project->pid]) }}">
-        <input type="submit" value="Create New Form" class="btn btn-primary form-control">
+        <input type="submit" value="{{trans('projects_show.create')}}" class="btn btn-primary form-control">
     </form>
     @endif
 @stop
@@ -66,7 +66,7 @@
         });
 
         function deleteForm(formName, fid) {
-            var response = confirm("Are you sure you want to delete "+formName+"?");
+            var response = confirm("{{trans('projects_show.areyousure')}} "+formName+"?");
             if (response) {
                 $.ajax({
                     //We manually create the link in a cheap way because the JS isn't aware of the fid until runtime
