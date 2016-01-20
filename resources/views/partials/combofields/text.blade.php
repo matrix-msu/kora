@@ -3,11 +3,11 @@
 {!! Form::hidden('option','Regex') !!}
 {!! Form::hidden('fieldnum',$fnum) !!}
 <div class="form-group">
-    {!! Form::label('value',trans('options_combofields_text.regex').': ') !!}
+    {!! Form::label('value',trans('partials_combofields_text.regex').': ') !!}
     {!! Form::text('value', \App\Http\Controllers\FieldController::getComboFieldOption($field,'Regex',$fnum), ['class' => 'form-control']) !!}
 </div>
 <div class="form-group">
-    {!! Form::submit(trans('options_combofields_text.updateregex'),['class' => 'btn btn-primary form-control']) !!}
+    {!! Form::submit(trans('partials_combofields_text.updateregex'),['class' => 'btn btn-primary form-control']) !!}
 </div>
 {!! Form::close() !!}
 
@@ -16,10 +16,10 @@
 {!! Form::hidden('option','MultiLine') !!}
 {!! Form::hidden('fieldnum',$fnum) !!}
 <div class="form-group">
-    {!! Form::label('value',trans('options_combofields_text.multi').': ') !!}
+    {!! Form::label('value',trans('partials_combofields_text.multi').': ') !!}
     {!! Form::select('value', ['no','yes'], \App\Http\Controllers\FieldController::getComboFieldOption($field,'MultiLine',$fnum), ['class' => 'form-control']) !!}
 </div>
 <div class="form-group">
-    {!! Form::submit(trans('options_combofields_text.updatemulti'),['class' => 'btn btn-primary form-control']) !!}
+    {!! Form::submit(trans('partials_combofields_text.updatemulti'),['class' => 'btn btn-primary form-control']) !!}
 </div>
 {!! Form::close() !!}
