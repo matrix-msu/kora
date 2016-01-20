@@ -11,6 +11,8 @@ return [
 	"inactive" => " User is not active.",
 	"whoops" => "Whoops.",
 	"nomatch" => "Passwords do not match, please try again.",
+	"short" => "Password is too short, please try again.",
+	"spaces" => "Password contains whitespaces, please try again.",
 	"passchange" => " User password changed.",
 	"success" => "Success!",
 	"delete" => "User Deleted.",

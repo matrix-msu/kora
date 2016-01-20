@@ -66,10 +66,21 @@ class AdminController extends Controller {
                 flash()->overlay(trans('controller_admin.nomatch'), trans('controller_admin.whoops'));
                 return redirect('admin/users');
             }
-            else{
-                $user->password = bcrypt($new_pass);
-                $message .= trans('controller_admin.passchange');
+
+            //if password is less than 6 chars
+            if(strlen($new_pass)<6){
+                flash()->overlay(trans('controller_admin.short'), trans('controller_admin.whoops'));
+                return redirect('admin/users');
             }
+
+            //if password contains spaces
+            if ( preg_match('/\s/',$new_pass) ){
+                flash()->overlay(trans('controller_admin.spaces'), trans('controller_admin.whoops'));
+                return redirect('admin/users');
+            }
+
+            $user->password = bcrypt($new_pass);
+            $message .= trans('controller_admin.passchange');
         }
 
         $user->save();

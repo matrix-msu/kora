@@ -11,6 +11,8 @@ return [
 	"inactive" => " El usuario no es activo.",
 	"whoops" => "Gritos.",
 	"nomatch" => "Las contrase&ntilde;as no hacen juego, por favor intente otra vez.",
+	"short" => "La contrase&ntilde;a es demasiado corta, por favor intente otra vez.",
+	"spaces" => "La contrase&ntilde;a contiene whitespaces , por favor intente otra vez.",
 	"passchange" => " La contrase&ntilde;a del usuario cambi&oacute;.",
 	"success" => "&iexcl;&Eacute;xito!",
 	"delete" => "Usuario suprimido.",

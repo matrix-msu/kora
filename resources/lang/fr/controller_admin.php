@@ -11,6 +11,8 @@ return [
 	"inactive" => " L'utilisateur n'est pas en activit&eacute;.",
 	"whoops" => "Hu&eacute;es.",
 	"nomatch" => "Les mots de passe ne s'assortissent pas, satisfaire d'essayer encore.",
+	"short" => "Le mot de passe est trop court, essayent svp encore.",
+	"spaces" => "Le mot de passe contient des whitespaces, essayent svp encore.",
 	"passchange" => " Mot de passe utilisateur chang&eacute;.",
 	"success" => "Succ&egrave;s !",
 	"delete" => "Utilisateur supprim&eacute;.",
