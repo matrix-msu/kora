@@ -700,13 +700,27 @@ class FieldController extends Controller {
             $x = $_REQUEST['value_x'];
             $y = $_REQUEST['value_y'];
 
+            if($x=='' && $key=='ThumbSmall')
+                $x = 150;
+            if($x=='' && $key=='ThumbLarge')
+                $x = 300;
+            if($y=='' && $key=='ThumbSmall')
+                $y = 150;
+            if($y=='' && $key=='ThumbLarge')
+                $y = 300;
+
             $value = $x.'x'.$y;
-        }else if($field->type=='Date'){
+        }else if(($field->type=='Date' | $field->type=='Schedule')  && ($key=='Start' | $key=='End')){
             if($value=='' && $key=='Start'){
                 $value = 0;
             }
             if($value=='' && $key=='End'){
                 $value = 9999;
+            }
+        }else if (($field->type=='Documents' | $field->type=='Gallery' | $field->type=='Playlist' | $field->type=='Video'
+                | $field->type=='3D-Model') && ($key=='MaxFiles' | $key=='FieldSize')){
+            if($value==''){
+                $value = 0;
             }
         }
 
