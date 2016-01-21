@@ -71,6 +71,7 @@ Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/defaultCombo','F
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/defaultCombo/remove','FieldController@removeComboDefault');
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/update','FieldController@updateOptions');
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/updateCombo','FieldController@updateComboOptions');
+Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/updateComboName','FieldController@updateComboName');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/validateCombo','FieldController@validateComboListOpt');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/saveList','FieldController@saveList');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/saveComboList','FieldController@saveComboList');

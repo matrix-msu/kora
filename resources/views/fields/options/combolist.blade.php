@@ -20,6 +20,32 @@
     </div>
     {!! Form::close() !!}
 
+
+    {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@updateComboName', $field->pid, $field->fid, $field->flid]]) !!}
+    @include('fields.options.hiddens')
+    {!! Form::hidden('fieldnum','one') !!}
+    <div class="form-group">
+        {!! Form::label('value',trans('fields_options_combolist.nameone').': ') !!}
+        {!! Form::text('value',\App\Http\Controllers\FieldController::getComboFieldName($field,'one'), ['class' => 'form-control']) !!}
+    </div>
+    <div class="form-group">
+        {!! Form::submit(trans('fields_options_combolist.updateone'),['class' => 'btn btn-primary form-control']) !!}
+    </div>
+    {!! Form::close() !!}
+
+    {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@updateComboName', $field->pid, $field->fid, $field->flid]]) !!}
+    @include('fields.options.hiddens')
+    {!! Form::hidden('fieldnum','two') !!}
+    <div class="form-group">
+        {!! Form::label('value',trans('fields_options_combolist.nametwo').': ') !!}
+        {!! Form::text('value',\App\Http\Controllers\FieldController::getComboFieldName($field,'two'), ['class' => 'form-control']) !!}
+    </div>
+    <div class="form-group">
+        {!! Form::submit(trans('fields_options_combolist.updatetwo'),['class' => 'btn btn-primary form-control']) !!}
+    </div>
+    {!! Form::close() !!}
+
+
     <div id="combo_defaults" style="overflow: auto">
         <div>
             <span style="float:left;width:40%;margin-bottom:10px"><b>{{\App\Http\Controllers\FieldController::getComboFieldName($field,'one')}}</b></span>

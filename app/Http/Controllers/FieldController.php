@@ -522,6 +522,46 @@ class FieldController extends Controller {
         }
     }
 
+    public function updateComboName($pid, $fid, $flid, Request $request)
+    {
+        if(!FieldController::validProjFormField($pid, $fid, $flid)){
+            return redirect('projects');
+        }
+
+        if(!FieldController::checkPermissions($fid, 'edit')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
+        }
+
+        $field = FieldController::getField($flid);
+
+        $fnum = $request->fieldnum;
+        $opts = $field->options;
+
+        if($fnum=='one'){
+            $optParts = explode('[!Field1!]',$opts);
+            $nameParts = explode('[Name]',$optParts[1]);
+            $newName = '[Name]'.$request->value.'[Name]';
+            $opts = $optParts[0].'[!Field1!]'.$nameParts[0].$newName.$nameParts[2].'[!Field1!]'.$optParts[2];
+        }else if($fnum=='two'){
+            $optParts = explode('[!Field2!]',$opts);
+            $nameParts = explode('[Name]',$optParts[1]);
+            $newName = '[Name]'.$request->value.'[Name]';
+            $opts = $optParts[0].'[!Field2!]'.$nameParts[0].$newName.$nameParts[2].'[!Field2!]'.$optParts[2];
+        }
+
+        $field->options = $opts;
+        $field->save();
+
+        //A field has been changed, so current record rollbacks become invalid.
+        RevisionController::wipeRollbacks($fid);
+
+        if($request->option != 'SearchForms') {
+            flash()->success(trans('controller_field.optupdate'));
+
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }
+    }
+
     /**
      * Remove the specified resource from storage.
      *
