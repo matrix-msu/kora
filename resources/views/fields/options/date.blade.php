@@ -47,7 +47,7 @@
             <?php
             $i = \App\Http\Controllers\FieldController::getFieldOption($field, 'Start');
             $j = \App\Http\Controllers\FieldController::getFieldOption($field, 'End');
-            while ($i <= $j+1)
+            while ($i <= $j)
             {
                 if(explode('[Y]',$field->default)[1]==$i){
                     echo "<option value=" . $i . " selected>" . $i . "</option>";

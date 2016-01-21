@@ -701,6 +701,13 @@ class FieldController extends Controller {
             $y = $_REQUEST['value_y'];
 
             $value = $x.'x'.$y;
+        }else if($field->type=='Date'){
+            if($value=='' && $key=='Start'){
+                $value = 0;
+            }
+            if($value=='' && $key=='End'){
+                $value = 9999;
+            }
         }
 
         $field->options = $array[0].$tag.$value.$tag.$array[2];
