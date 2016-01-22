@@ -58,6 +58,14 @@ class FieldController extends Controller {
 	public function store(FieldRequest $request)
     {
         $field = Field::Create($request->all());
+
+        //special error check for combo list field
+        if($field->type=='Combo List' && ($_REQUEST['cfname1']=='' | $_REQUEST['cfname2']=='')){
+            flash()->error(trans('controller_field.comboname'));
+
+            return redirect()->back()->withInput();
+        }
+
         $field->options = FieldDefaults::getOptions($field->type);
         $field->default = FieldDefaults::getDefault($field->type);
         $field->save();

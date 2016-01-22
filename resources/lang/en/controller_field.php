@@ -4,6 +4,7 @@ return [
 
 	//controller_field english translations
 
+	"comboname" => "You must enter a name for both Combo List fields!",
 	"fieldcreated" => "Your field has been successfully created!",
 	"goodjob" => "Good Job!",
 	"fieldupdated" => "Your field has been successfully updated!",

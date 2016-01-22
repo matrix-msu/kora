@@ -4,6 +4,7 @@ return [
 
 	//controller_field spanish translations
 
+	"comboname" => "&iexcl;Debe ingresar un nombre para ambos campos de la Lista del Grupo!",
 	"fieldcreated" => "&iexcl;Su campo se ha con &eacute;xito creado!",
 	"goodjob" => "&iexcl;Trabajo bueno!",
 	"fieldupdated" => "&iexcl;Su campo se ha con &eacute;xito actualizado!",
