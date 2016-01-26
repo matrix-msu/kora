@@ -4,6 +4,7 @@ return [
 
 	//controller_field french translations
 
+	"comboname" => "Vous devez &eacute;crire un nom pour les deux champs combin&eacute;s de liste !",
 	"fieldcreated" => "Votre champ a &eacute;t&eacute; avec succ&egrave;s cr&eacute;&eacute; !",
 	"goodjob" => "Le bon travail !",
 	"fieldupdated" => "Votre champ a &eacute;t&eacute; avec succ&egrave;s mis &agrave; jour !",
