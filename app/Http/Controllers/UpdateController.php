@@ -10,18 +10,6 @@ use App\Http\Controllers\Controller;
 
 class UpdateController extends Controller {
 
-    /*************************************************************
-     *************************************************************
-     *************************************************************
-     *************************************************************
-     ********This should be examined for safety before************
-     *************regarded as working code...*********************
-     *************************************************************
-     *************************************************************
-     *************************************************************
-     *************************************************************/
-
-
     /**
      * User must be logged in and admin to access views in this controller.
      */
@@ -71,7 +59,7 @@ class UpdateController extends Controller {
         //
         // Get the html of the github page, then find the current version in the html.
         //
-        $search = trans('controller_update.current');
+        $search = "Current Kora Version: ";
         $html = file_get_contents('http://matrix-msu.github.io/Kora3/');
 
         $pos = strpos($html, $search) + strlen($search); //Position of the version string.
@@ -86,60 +74,58 @@ class UpdateController extends Controller {
     /**
      * Updates the application using the git update routine.
      */
-    public function gitUpdate()
+    public function runScripts()
     {
-        //
-        // Pull an update from git.
-        // At this point, it has been established that using
-        // exec is safe because the user's environment has git enabled.
-        //
-        exec("git pull");
+        // Allow the script to run for 20 minutes.
+        ignore_user_abort(true);
+        set_time_limit(1200);
 
         //
         // Make new entries in the scripts table for
         // those that do not exist yet (ignores '.' and '..')
         //
-        $scriptNames = array_diff(scandir(env('BASE_PATH'). DIRECTORY_SEPARATOR ."scripts"), array('..', '.'));
+        $scriptNames = array_diff(scandir(env('BASE_PATH'). "scripts"), array('..', '.'));
         foreach($scriptNames as $scriptName)
         {
-            if (is_null(Script::where('name', '=', $scriptName)))
+            if (is_null(Script::where('filename', '=', $scriptName)->first()))
             {
                 $script = new Script();
+                $script->hasRun = false;
                 $script->filename = $scriptName;
                 $script->save();
             }
         }
 
-        //
-        // Run scripts that have not yet been run.
-        //
-        foreach(Script::all() as $script)
+        if (UpdateController::hasPulled())
         {
-            if(!$script->hasRun)
-            {
-                $includeString = env('BASE_PATH'). DIRECTORY_SEPARATOR .'scripts'. DIRECTORY_SEPARATOR . $script->filename.".php";
-                include $includeString;
-                $script->hasRun = true;
-                $script->save();
+            //
+            // Run scripts that have not yet been run.
+            //
+            foreach (Script::all() as $script) {
+                if (!$script->hasRun) {
+                    $includeString = env('BASE_PATH') . 'scripts' . DIRECTORY_SEPARATOR . $script->filename;
+                    include $includeString;
+                    $script->hasRun = true;
+                    $script->save();
+                }
             }
+            UpdateController::refresh();
+            UpdateController::storeVersion();
+        }
+        else
+        {
+            //
+            // Inform the user they have not successfully executed a git pull.
+            //
+            flash()->overlay(trans('controller_update.pullfail'), trans('controller_admin.whoops'));
         }
 
-        UpdateController::storeVersion();
-        UpdateController::refresh();
+        ignore_user_abort(false);
+        return redirect('update');
     }
 
     /**
-     * Updates the application independent of laravel and git.
-     */
-    public function independentUpdate()
-    {
-
-        UpdateController::storeVersion();
-        UpdateController::refresh();
-    }
-
-    /**
-     * Clears the cached views the Laravel compiled caches.
+     * Clears the cached views and the Laravel compiled caches.
      */
     private function refresh()
     {
@@ -167,5 +153,22 @@ class UpdateController extends Controller {
         $v = new Version();
         $v->version = UpdateController::getCurrentVersion();
         $v->save();
+    }
+
+    /**
+     * Determine if any new scripts are in the app/scripts directory.
+     * This effectively determines if the user has actually done a git pull.
+     */
+    private function hasPulled()
+    {
+        foreach(Script::all() as $script)
+        {
+            if(!$script->hasRun)
+            {   // We have found a script that has not run, hence the user has executed a git pull successfully.
+                return true;
+            }
+        }
+        // No scripts were found that were not already run, hence the user has not executed a git pull successfully.
+        return false;
     }
 }

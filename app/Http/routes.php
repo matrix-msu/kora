@@ -151,8 +151,7 @@ Route::post('/install/config',"InstallController@updateEnvConfigs");
 
 //update routes
 Route::get('/update', 'UpdateController@index');
-Route::get('/update/gitUpdate', 'UpdateController@gitUpdate');
-Route::get('/update/independentUpdate', 'UpdateController@independentUpdate');
+Route::get('/update/runScripts', 'UpdateController@runScripts');
 
 //backup routes
 Route::get('/backup','BackupController@index');
