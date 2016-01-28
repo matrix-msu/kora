@@ -9,6 +9,7 @@ return [
 	"runscripts" => "Escrituras Dirigidas",
 	"updaterequired" => 'Su Kora 3 es pasada de moda. Tire las actualizaciones del dep&oacute;sito git entonces
 	                     presionan la carrera escrituras en esta p&aacute;gina. Haga clic en esta relaci&oacute;n
-	                     para m&aacute;s informaci&oacute;n:'
+	                     para m&aacute;s informaci&oacute;n:',
+	"loading" =>  'Carga, por favor espere...'
 
 ];

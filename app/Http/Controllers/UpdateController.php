@@ -111,6 +111,11 @@ class UpdateController extends Controller {
             }
             UpdateController::refresh();
             UpdateController::storeVersion();
+
+            //
+            // Inform the user they have successfully updated.
+            //
+            flash()->overlay(trans('controller_update.updatesuccess'), trans('controller_admin.success'));
         }
         else
         {
