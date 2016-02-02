@@ -22,5 +22,6 @@ return [
 	"history" => "Histoire",
 	"areyousure" => "&Ecirc;tes-vous s&ucirc;r de que vouloir supprimer",
 	"mustenter" => "Vous devez saisir un nom valide",
+	"clone" => "Cloner",
 
 ];

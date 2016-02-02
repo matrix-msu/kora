@@ -119,6 +119,7 @@ Route::get('/projects/{pid}/forms/{fid}/records/{rid}/edit','RecordController@ed
 Route::post('/projects/{pid}/forms/{fid}/records','RecordController@store');
 Route::delete('projects/{pid}/forms/{fid}/deleteAllRecords','RecordController@deleteAllRecords');
 Route::post('/projects/{pid}/forms/{fid}/cleanUp', 'RecordController@cleanUp');
+Route::get('/projects/{pid}/forms/{fid}/clone/{rid}', 'RecordController@cloneRecord');
 
 
 
