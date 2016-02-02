@@ -162,6 +162,11 @@ Route::post('/backup','BackupController@startBackup');
 Route::post('/backup/restore','BackupController@startRestore');
 Route::post('/backup/unlock','BackupController@unlockUsers');
 Route::post('/backup/delete','BackupController@delete');
+Route::post('/backup/project/restore','BackupController@startRestoreProject');
+Route::post('/backup/project/restore/start','BackupController@restoreProject');
+Route::get('/backup/project/{pid}','BackupController@projectIndex');
+Route::post('/backup/project/{pid}','BackupController@backupProject');
+Route::post('/backup/project','BackupController@createProject');
 
 Route::controllers([
 	'auth' => 'Auth\AuthController',

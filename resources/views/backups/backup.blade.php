@@ -40,9 +40,11 @@
                                 <p>
                                     The backup has completed successfully.
                                 </p>
-                                <button onclick="download()" type="button" class="btn btn-default">
-                                    <span class="glyphicon glyphicon-save" aria-hidden="true"></span> Download
-                                </button>
+                                @if($type == "system")
+                                    <button onclick="download()" type="button" class="btn btn-default">
+                                        <span class="glyphicon glyphicon-save" aria-hidden="true"></span> Download
+                                    </button>
+                                @endif
                             </div>
 
                             <div style="display:none" id="error_info">
@@ -55,9 +57,11 @@
                                         <strong class="list-group-item-heading">Errors</strong>
                                     </li>
                                 </ul>
-                                <button id="download_btn_for_error" style="display:none" onclick="download()" type="button" class="btn btn-default">
-                                    <span class="glyphicon glyphicon-save" aria-hidden="true"></span> Download
-                                </button>
+                                @if($type == "system")
+                                    <button id="download_btn_for_error" style="display:none" onclick="download()" type="button" class="btn btn-default">
+                                        <span class="glyphicon glyphicon-save" aria-hidden="true"></span> Download
+                                    </button>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -74,7 +78,12 @@
             window.onbeforeunload = function() {
                 return "Do not leave this page, the backup process will be interrupted!";
             }
-            var backupURL ="{{action('BackupController@create')}}";
+
+            @if($type == "system")
+                var backupURL ="{{action('BackupController@create')}}";
+            @elseif($type == "project")
+                var backupURL = "{{action('BackupController@createProject')}}";
+            @endif
             $.ajax({
                 url:backupURL,
                 method:'POST',

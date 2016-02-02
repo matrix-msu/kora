@@ -20,6 +20,9 @@
     <form action="{{action('OptionPresetController@index', ['pid'=>$project->pid])}}" style="display: inline">
         <button type="submit" class="btn btn-default">Manage Option Presets</button>
     </form>
+    <form action="{{action('BackupController@projectIndex', ['pid'=>$project->pid])}}" style="display: inline">
+        <button type="submit" class="btn btn-default">Manage Backups</button>
+    </form>
     @endif
     <hr/>
     <h2>Forms</h2>
