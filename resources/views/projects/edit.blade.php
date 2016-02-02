@@ -1,12 +1,12 @@
 @extends('app')
 
 @section('content')
-    <h1>Edit Project</h1>
+    <h1>{{trans('projects_edit.edit')}}</h1>
 
     <hr/>
 
     {!! Form::model($project,  ['method' => 'PATCH', 'action' => ['ProjectController@update', $project->pid]]) !!}
-    @include('projects.form',['submitButtonText' => 'Update Project'])
+    @include('projects.form',['submitButtonText' => trans('projects_edit.update')])
     {!! Form::close() !!}
 
     @include('errors.list')

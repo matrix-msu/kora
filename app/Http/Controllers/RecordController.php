@@ -409,7 +409,7 @@ class RecordController extends Controller {
             RevisionController::storeRevision($record->rid, 'create');
         }
 
-        flash()->overlay('Your record has been successfully created!', 'Good Job!');
+        flash()->overlay(trans('controller_record.created'), trans('controller_record.goodjob'));
 
         return redirect('projects/'.$pid.'/forms/'.$fid.'/records');
 	}
@@ -440,7 +440,7 @@ class RecordController extends Controller {
 	/**
 	 * Show the form for editing the specified resource.
 	 *
-	 * @param  int  $id
+	 * @param int $id
 	 * @return Response
 	 */
 	public function edit($pid, $fid, $rid)
@@ -460,6 +460,38 @@ class RecordController extends Controller {
 	}
 
     /**
+     * Clones the record.
+     * More specifically, it sends it's array representation to the cretion page.
+     *
+     * @param $pid
+     * @param $fid
+     * @param $rid
+     * @return Response
+     */
+    public function cloneRecord($pid, $fid, $rid) {
+
+        if(!RecordController::validProjFormRecord($pid, $fid, $rid)){
+            return redirect('projects');
+        }
+
+        $form = FormController::getForm($fid);
+
+        $rpc = new RecordPresetController();
+        $cloneArray = $rpc->getRecordArray($rid);
+
+        $presets = array();
+
+        foreach(RecordPreset::where('fid', '=', $fid)->get() as $preset)
+            $presets[] = ['id' => $preset->id, 'name' => $preset->name];
+
+        $fields = array(); //array of field ids
+        foreach($form->fields()->get() as $field)
+            $fields[] = $field->flid;
+
+        return view('records.create', compact('form', 'rid', 'presets', 'fields', 'cloneArray'));
+    }
+
+    /**
      * Deletes file directories for records that do not exist anymore.
      *
      * @param $pid
@@ -472,7 +504,7 @@ class RecordController extends Controller {
         }
 
         if(!\Auth::user()->isFormAdmin(FormController::getForm($fid))){
-            flash()->overlay('You do not have permission for that.', 'Whoops.');
+            flash()->overlay(trans('controller_record.noperm'), trans('controller_record.whoops'));
         }
 
         // Using revisions, if a record's most recent change is a deletion,
@@ -978,7 +1010,7 @@ class RecordController extends Controller {
 
                 if(!$pla_files_exist){
                     $pf->delete();
-                    flash()->overlay("No files exist");
+                    flash()->overlay(trans('controller_record.nofile'));
                 }
 
             } else if($field->type=='Video'
@@ -1138,7 +1170,7 @@ class RecordController extends Controller {
         $revision->oldData = RevisionController::buildDataArray($record);
         $revision->save();
 
-        flash()->overlay('Your record has been successfully updated!', 'Good Job!');
+        flash()->overlay(trans('controller_record.updated'), trans('controller_record.goodjob'));
 
         return redirect('projects/'.$pid.'/forms/'.$fid.'/records/'.$rid);
 	}
@@ -1168,7 +1200,7 @@ class RecordController extends Controller {
 
         $record->delete();
 
-        flash()->overlay('Your record has been successfully deleted!', 'Good Job!');
+        flash()->overlay(trans('controller_record.deleted'), trans('controller_record.goodjob'));
 	}
 
     /**
@@ -1181,40 +1213,14 @@ class RecordController extends Controller {
     {
         $form = FormController::getForm($fid);
         if(!\Auth::user()->isFormAdmin($form)){
-            flash()->overlay('You do not have permission for that.', 'Whoops.');
+            flash()->overlay(trans('controller_record.noperm'), trans('controller_record.whoops'));
         }
         else {
             $records = Record::where('fid', '=', $fid)->get();
             foreach ($records as $record) {
                 RecordController::destroy($pid, $fid, $record->rid);
             }
-            flash()->overlay('All records deleted.', 'Success!');
-        }
-    }
-
-    /**
-     * Makes a record a preset for other records to be copied from.
-     *
-     * @param Request $request
-     */
-    public function presetRecord(Request $request)
-    {
-        $name = $request->name;
-        $rid = $request->rid;
-
-        if(!is_null(RecordPreset::where('rid', '=', $rid)->first()))
-            flash()->overlay('Record is already a preset.');
-        else {
-            $record = RecordController::getRecord($rid);
-            $fid = $record->fid;
-
-            $preset = new RecordPreset();
-            $preset->rid = $rid;
-            $preset->fid = $fid;
-            $preset->name = $name;
-            $preset->save();
-
-            flash()->overlay('Record preset saved.', 'Success!');
+            flash()->overlay(trans('controller_record.alldelete'), trans('controller_record.success'));
         }
     }
 
@@ -1280,28 +1286,28 @@ class RecordController extends Controller {
             case 'ingest':
                 if(!(\Auth::user()->canIngestRecords(FormController::getForm($fid))))
                 {
-                    flash()->overlay('You do not have permission to create records for that form.', 'Whoops.');
+                    flash()->overlay(trans('controller_record.createper'), trans('controller_record.whoops'));
                     return false;
                 }
                 return true;
             case 'modify':
                 if(!(\Auth::user()->canModifyRecords(FormController::getForm($fid))))
                 {
-                    flash()->overlay('You do not have permission to edit records for that form.', 'Whoops.');
+                    flash()->overlay(trans('controller_record.editper'), trans('controller_record.whoops'));
                     return false;
                 }
                 return true;
             case 'destroy':
                 if(!(\Auth::user()->canDestroyRecords(FormController::getForm($fid))))
                 {
-                    flash()->overlay('You do not have permission to delete records for that form.', 'Whoops.');
+                    flash()->overlay(trans('controller_record.deleteper'), trans('controller_record.whoops'));
                     return false;
                 }
                 return true;
             default:
                 if(!(\Auth::user()->inAFormGroup(FormController::getForm($fid))))
                 {
-                    flash()->overlay('You do not have permission to view records for that form.', 'Whoops.');
+                    flash()->overlay(trans('controller_record.viewper'), trans('controller_record.whoops'));
                     return false;
                 }
                 return true;
@@ -1449,7 +1455,7 @@ class RecordController extends Controller {
 
         $flid = $request->input("field_selection");
         if (!is_numeric($flid)) {
-            flash()->overlay("That is not a valid field");
+            flash()->overlay(trans('controller_record.notvalid'));
             return redirect()->back();
         }
 
@@ -1457,7 +1463,7 @@ class RecordController extends Controller {
             $form_field_value = $request->input($flid); //Note this only works when there is one form element being submitted, so if you have more, check Date
         }
         else{
-            flash()->overlay("You didn't provide a value to assign to the records","Whoops.");
+            flash()->overlay(trans('controller_record.provide'),trans('controller_record.whoops'));
             return redirect()->back();
         }
 
@@ -1707,7 +1713,7 @@ class RecordController extends Controller {
             }
         }
 
-        flash()->overlay("The records were updated","Good Job!");
+        flash()->overlay(trans('controller_record.recupdate'),trans('controller_record.goodjob'));
         return redirect()->action('RecordController@index',compact('pid','fid'));
     }
 }

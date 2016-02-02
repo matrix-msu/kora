@@ -5,12 +5,12 @@
 @stop
 
 @section('content')
-    <h1>Edit Form</h1>
+    <h1>{{trans('forms_edit.edit')}}</h1>
 
     <hr/>
 
     {!! Form::model($form,  ['method' => 'PATCH', 'action' => ['FormController@update',$form->pid, $form->fid]]) !!}
-    @include('forms.form',['submitButtonText' => 'Update Form', 'pid' => $form->pid])
+    @include('forms.form',['submitButtonText' => trans('forms_edit.update'), 'pid' => $form->pid])
     {!! Form::close() !!}
 
     @include('errors.list')

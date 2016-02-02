@@ -8,59 +8,67 @@
 @section('content')
     <span><h1>{{ $form->name }}</h1></span>
 
-    <div><b>Internal Name:</b> {{ $form->slug }}</div>
-    <div><b>Description:</b> {{ $form->description }}</div>
+    <div><b>{{trans('records_show.name')}}:</b> {{ $form->slug }}</div>
+    <div><b>{{trans('records_show.desc')}}:</b> {{ $form->description }}</div>
 
     <div>
-        <a href="{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}">[Records]</a>
+        <a href="{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_show.records')}}]</a>
         @if(\Auth::user()->canIngestRecords($form))
-            <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[New Record]</a>
+            <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_show.new')}}]</a>
         @endif
     </div>
 
     @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
         <hr/>
 
-        <h4> Form Admin Panel</h4>
+        <h4> {{trans('records_show.panel')}}</h4>
         <form action="{{action('FormGroupController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
-            <button type="submit" class="btn btn-default">Manage Groups</button>
+            <button type="submit" class="btn btn-default">{{trans('records_show.groups')}}</button>
         </form>
         <form action="{{action('AssociationController@index', ['fid'=>$form->fid, 'pid'=>$form->pid])}}" style="display: inline">
-            <button type="submit" class="btn btn-default">Manage Associations</button>
+            <button type="submit" class="btn btn-default">{{trans('records_show.assoc')}}</button>
         </form>
         <form action="{{action('RevisionController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
-            <button type="submit" class="btn btn-default">Manage Record Revisions</button>
+            <button type="submit" class="btn btn-default">{{trans('records_show.revisions')}}</button>
         </form>
         <form action="{{action('RecordPresetController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
-            <button type="submit" class="btn btn-default">Manage Record Presets</button>
+            <button type="submit" class="btn btn-default">{{trans('records_show.presets')}}</button>
         </form>
     @endif
 
     <hr/>
-    <h2>Record: {{$record->kid}}</h2>
-    @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
-        <input type="text" id="preset" placeholder="Enter a Name">
-        <button onclick="presetRecord({{$record->rid}})">Make Preset</button>
-    @endif
+    <h2>{{trans('records_show.record')}}: {{$record->kid}}</h2>
+
+    <div style="margin: 0 0 1.25em 0">
+        @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
+            <input type="text" id="preset" placeholder="Enter a Name">
+            <button onclick="presetRecord({{$record->rid}})">{{trans('records_show.makepreset')}}</button>
+        @endif
+    </div>
 
     <div class="panel panel-default">
         @include('forms.layout.logic',['form' => $form, 'fieldview' => 'records.layout.displayfield'])
-        <div><b>Owner:</b> {{ $owner->username }}</div>
-        <div><b>Created At:</b> {{ $record->created_at }}</div>
+        <div><b>{{trans('records_show.owner')}}:</b> {{ $owner->username }}</div>
+        <div><b>{{trans('records_show.created')}}:</b> {{ $record->created_at }}</div>
         <div class="panel-footer">
             <span>
                 @if(\Auth::user()->canModifyRecords($form) || \Auth::user()->isOwner($record))
-                <a href="{{ action('RecordController@edit',['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid]) }}">[Edit]</a>
+                <a href="{{ action('RecordController@edit',['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid]) }}">[{{trans('records_show.edit')}}]</a>
                 @endif
             </span>
             <span>
                 @if(\Auth::user()->canDestroyRecords($form) || \Auth::user()->isOwner($record))
-                <a onclick="deleteRecord()" href="javascript:void(0)">[Delete]</a>
+                <a onclick="deleteRecord()" href="javascript:void(0)">[{{trans('records_show.delete')}}]</a>
                 @endif
             </span>
             <span>
                 @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form) || \Auth::user()->isOwner($record))
-                <a href='{{action('RevisionController@show', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid])}}'>[History]</a>
+                <a href='{{action('RevisionController@show', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid])}}'>[{{trans('records_show.history')}}]</a>
+                @endif
+            </span>
+            <span>
+                @if(\Auth::user()->CanIngestRecords($form) || \Auth::user()->isOwner($record))
+                <a href='{{action('RecordController@cloneRecord', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid])}}'>[{{trans('records_show.clone')}}]</a>
                 @endif
             </span>
         </div>
@@ -70,7 +78,7 @@
 @section('footer')
     <script>
         function deleteRecord() {
-            var response = confirm("Are you sure you want to delete {{$record->kid}}?");
+            var response = confirm("{{trans('records_show.areyousure')}} {{$record->kid}}?");
             if (response) {
                 $.ajax({
                     //We manually create the link in a cheap way because the JS isn't aware of the fid until runtime
@@ -90,10 +98,10 @@
         function presetRecord(rid) {
             var name = $('#preset').val();
             if(name == '')
-                alert('You must enter a valid name.');
+                alert('{{trans('records_show.mustenter')}}.');
             else {
                 $.ajax({
-                    url: '{{ action('RecordController@presetRecord') }} ',
+                    url: '{{ action('RecordPresetController@presetRecord') }} ',
                     type: 'POST',
                     data: {
                         "_token": "{{ csrf_token() }}",

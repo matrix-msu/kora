@@ -36,7 +36,7 @@
             valuearray[1] = options;
         }
         else{
-            alert("This field has no options that can be saved as a preset");
+            alert("{{trans('partials_option_preset.nooptions')}}");
         }
 
         return valuearray;
@@ -63,7 +63,7 @@
                 location.reload();
             },
             error: function(result){
-                alert("Sorry, the preset could not be saved.  Make sure you entered a name and value for the preset.");
+                alert("{{trans('partials_option_preset.sorrylong')}}.");
                 $("#preset_submit").removeClass("disabled");
             }
         });
@@ -82,7 +82,7 @@
                location.reload();
             },
             error: function(result){
-                alert("Sorry, the preset could not be applied");
+                alert("{{trans('partials_option_preset.sorryshort')}}");
                 location.reload();
             }
         });
@@ -94,16 +94,16 @@
 
     <div class="select_preset">
         <div class="form-group">
-             <label for="existing_presets">Presets:</label>
+             <label for="existing_presets">{{trans('partials_option_preset.presets')}}:</label>
              <select name="existing_presets" id="existing_presets" class="form-control">
                @foreach($presets as $type=>$subset)
                    @foreach($subset as $key=>$supported_preset)
                          <option value="{{$supported_preset->id}}">{{$supported_preset->name}}
 
                             @if(($type == "Shared"))
-                               | shared from {{$supported_preset->project()->first()->name}}
+                               | {{trans('partials_option_preset.shared')}} {{$supported_preset->project()->first()->name}}
                             @elseif($type == "Stock")
-                               | Stock
+                               | {{trans('partials_option_preset.stock')}}
                             @endif
                          </option>
                     @endforeach
@@ -111,7 +111,7 @@
              </select>
         </div>
 
-        <span><button id="preset_apply" onclick="ApplyPreset()" class="btn btn-primary form-control">Apply an Existing Preset</button></span>
+        <span><button id="preset_apply" onclick="ApplyPreset()" class="btn btn-primary form-control">{{trans('partials_option_preset.apply')}}</button></span>
     </div>
 
     <hr>
@@ -119,14 +119,14 @@
     <div class="create_preset">
 
         <div class="form-group">
-            <label for="preset_name">Preset Name:</label>
+            <label for="preset_name">{{trans('partials_option_preset.preset')}}:</label>
             <input name="preset_name" id="preset_name" type="text" class="form-control">
         </div>
         <div class="form-group">
-            <label for="preset_shared">Share with all projects:</label>
+            <label for="preset_shared">{{trans('partials_option_preset.share')}}:</label>
             <input id="preset_shared" type="checkbox" name="preset_shared">
         </div>
-        <span><button id="preset_submit" onclick="SavePreset()" class="btn btn-primary form-control">Create a New Preset</button></span>
+        <span><button id="preset_submit" onclick="SavePreset()" class="btn btn-primary form-control">{{trans('partials_option_preset.create')}}</button></span>
     </div>
 
 </div>

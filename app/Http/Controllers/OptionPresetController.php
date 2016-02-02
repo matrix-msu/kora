@@ -70,12 +70,12 @@ class OptionPresetController extends Controller
             $user = Auth::user();
             $pc = new ProjectController;
             if(!$pc->isProjectAdmin($user,$presets_project)){
-                flash()->overlay('You cannot create presets unless you are an admin of the project it belongs to.','Whoops.');
-                return response()->json("You cannot create presets unless you are an admin of the project it belongs to",500);
+                flash()->overlay(trans('controller_optionpreset.createadmin'),trans('controller_optionpreset.whoops'));
+                return response()->json(trans('controller_optionpreset.createadmin'),500);
             }
         }
         else{
-            flash()->overlay("You cannot create presets outside of a project.","Whoops.");
+            flash()->overlay(trans('controller_optionpreset.createproj'),trans('controller_optionpreset.whoops'));
             return response()->json("You cannot create presets outside of a project.",500);
         }
         $type = $request->input("type");
@@ -94,7 +94,7 @@ class OptionPresetController extends Controller
             $preset->shared = 0;
         }
         $preset->save();
-        flash()->success("The preset was created!");
+        flash()->success(trans('controller_optionpreset.created'));
         return response()->json( ['status'=>true,'url'=>(action("OptionPresetController@index",compact('pid')))],200);
     }
 
@@ -112,7 +112,7 @@ class OptionPresetController extends Controller
             return view('optionPresets.edit', compact('preset', 'project', 'pid', 'id'));
         }
         else{
-            flash()->overlay("The preset or project you're trying to edit doesn't exist","Whoops.");
+            flash()->overlay(trans('controller_optionpreset.noexist'),trans('controller_optionpreset.whoops'));
             return redirect()->back();
         }
     }
@@ -128,16 +128,16 @@ class OptionPresetController extends Controller
         $preset = OptionPreset::where('id', '=', $id)->first();
 
         if(($preset->pid === null)){
-            flash()->overlay("You can't edit a stock preset",'Whoops.');
-            return response()->json(["status"=>false,"message"=>"Can't edit a stock preset"],500);
+            flash()->overlay(trans('controller_optionpreset.cantedit'),trans('controller_optionpreset.whoops'));
+            return response()->json(["status"=>false,"message"=>trans('controller_optionpreset.editstock')],500);
         }
         if($preset->pid !== null){
             $presets_project = $preset->project->first();
             $user = Auth::user();
             $pc = new ProjectController;
             if(!$pc->isProjectAdmin($user,$presets_project)){
-                flash()->overlay('You cannot modify presets unless you are an admin of the project it belongs to.','Whoops.');
-                return response()->json(["status"=>false,"message"=>"You cannot modify a preset unless you are an admin of the project it belongs to"],500);
+                flash()->overlay(trans('controller_optionpreset.createadmin'),trans('controller_optionpreset.whoops'));
+                return response()->json(["status"=>false,"message"=>trans('controller_optionpreset.createadmin')],500);
             }
         }
 
@@ -152,7 +152,7 @@ class OptionPresetController extends Controller
             $op = OptionPreset::find($id);
             $op->name = $request->input("preset_name");
             $op->save();
-            return response()->json(["status"=>true,"message"=>"The name has been updated"],200);
+            return response()->json(["status"=>true,"message"=>trans('controller_optionpreset.name')],200);
         }
 
         elseif($request->input("action") == 'changeSharing'){
@@ -164,7 +164,7 @@ class OptionPresetController extends Controller
                 $op->shared = false;
             }
             $op->save();
-            return response()->json(["status"=>true,"message"=>"The sharing preference has been updated"],200);
+            return response()->json(["status"=>true,"message"=>trans('controller_optionpreset.sharing')],200);
         }
 
         elseif($request->input("action") == "changeRegex"){
@@ -172,10 +172,10 @@ class OptionPresetController extends Controller
             $op->preset = $request->input("preset_regex");
             $op->save();
 
-            return response()->json(["status"=>true,"message"=>"Updated the regex"],200);
+            return response()->json(["status"=>true,"message"=>trans('controller_optionpreset.regex')],200);
         }
 
-        return response()->json(["status"=>false,"message"=>"The preset or action requested isn't valid"]);
+        return response()->json(["status"=>false,"message"=>trans('controller_optionpreset.actionvalid')]);
 
     }
 
@@ -185,12 +185,12 @@ class OptionPresetController extends Controller
         $preset = OptionPreset::where('id', '=', $id)->first();
         if($preset->pid == null){
             if(!Auth::user()->admin){
-                flash()->overlay("You do not have permission to modify a stock preset");
-                return response()->json(["status"=>false,"message"=>"Cannot modify stock preset"],500);
+                flash()->overlay(trans('controller_optionpreset.modpermission'));
+                return response()->json(["status"=>false,"message"=>trans('controller_optionpreset.modstock')],500);
             }
             else{
                 $preset->delete();
-                flash()->overlay('The option preset was deleted.', 'Success!');
+                flash()->overlay(trans('controller_optionpreset.optdeleted'), trans('controller_optionpreset.success'));
                 return response()->json(["status"=>true,"message"=>"Preset deleted"],200);
             }
         }
@@ -199,17 +199,17 @@ class OptionPresetController extends Controller
             $user = Auth::user();
             $pc = new ProjectController;
             if(!$pc->isProjectAdmin($user,$presets_project)){
-                flash()->overlay('You cannot modify presets unless you are an admin of the project it belongs to.','Whoops.');
-                return response()->json("You cannot modify presets unless you are an admimn of the project it belongs to.",500);
+                flash()->overlay(trans('controller_optionpreset.createadmin'),trans('controller_optionpreset.whoops'));
+                return response()->json(trans('controller_optionpreset.createadmin'),500);
             }
             else{
                 $preset->delete();
-                flash()->overlay('The option preset was deleted.', 'Success!');
+                flash()->overlay(trans('controller_optionpreset.optdeleted'), trans('controller_optionpreset.success'));
                 return response()->json(["status"=>true,"message"=>"Preset deleted"],200);
             }
         }
-        flash()->overlay('You do not have permission to delete the preset', 'Whoops');
-        return response()->json(["status"=>false,"message"=>"You do not have permission to delete the preset"],500);
+        flash()->overlay(trans('controller_optionpreset.deleteper'), trans('controller_optionpreset.whoops'));
+        return response()->json(["status"=>false,"message"=>trans('controller_optionpreset.deleteper')],500);
     }
 
     public static function getPresetsIndex($pid){
@@ -257,36 +257,36 @@ class OptionPresetController extends Controller
             if(($preset->pid == $project->pid) || $preset->shared || is_null($preset->pid)){
                 //Make sure preset is for this project or is shared
                 if(!$user->canEditFields(FormController::getForm($fid))){
-                    flash()->overlay("You do not have permission to edit this field");
-                    return response()->json(["status"=>false,"message"=>"You do not have permission to edit this field"],500);
+                    flash()->overlay(trans('controller_optionpreset.editpermission'));
+                    return response()->json(["status"=>false,"message"=>trans('controller_optionpreset.editpermission')],500);
                 }
                 else{
                     if($preset->type=="Text") {
                         FieldController::setFieldOptions($field, "Regex", $preset->preset);
-                        flash()->overlay("The preset was applied to the regex",'Good job!');
+                        flash()->overlay(trans('controller_optionpreset.regexapplied'),trans('controller_optionpreset.goodjob'));
                         return response()->json(["status"=>true,"presetval"=>$preset->preset],200);
                     }
                     else if($preset->type =="List"){
                         FieldController::setFieldOptions($field,"Options",$preset->preset);
-                        flash()->overlay("The preset was applied to the options for the field",'Good job!');
+                        flash()->overlay(trans('controller_optionpreset.presetopt'),trans('controller_optionpreset.goodjob'));
                         return response()->json(["status"=>true,"presetval"=>$preset->preset],200);
                     }
                     else if($preset->type == "Schedule" || $preset->type == "Geolocator"){
                         $field->default = $preset->preset;
                         $field->save();
-                        flash()->overlay("The preset was applied to the defaults for the field","Good job!");
+                        flash()->overlay(trans('controller_optionpreset.presetdef'),trans('controller_optionpreset.goodjob'));
                         return response()->json(["status"=>true,"presetval"=>$preset->preset],200);
                     }
                 }
             }
             else{
-                flash()->overlay("Make sure you selected a preset that belongs to this project, or is shared from another project, or is a stock preset","Whoops.");
-                return response()->json(['status'=>false,"message"=>"preset is not valid for this project","preset_project_field_objects"=>$arr,"preset_pid"=>$preset->pid, "project_pid"=>$project->pid],500);
+                flash()->overlay(trans('controller_optionpreset.makesurelong'),trans('controller_optionpreset.whoops'));
+                return response()->json(['status'=>false,"message"=>trans('controller_optionpreset.badpreset'),"preset_project_field_objects"=>$arr,"preset_pid"=>$preset->pid, "project_pid"=>$project->pid],500);
             }
         }
         else{
-            flash()->overlay("Make sure you have permission to edit this field then try again","Whoops.");
-            return response()->json(["status"=>false,"message"=>"Make sure you have at least edit permission for this field","values"=>$arr],500);
+            flash()->overlay(trans('controller_optionpreset.makesureedit'),trans('controller_optionpreset.whoops'));
+            return response()->json(["status"=>false,"message"=>trans('controller_optionpreset.makesurelast'),"values"=>$arr],500);
         }
     }
 
@@ -322,16 +322,16 @@ class OptionPresetController extends Controller
         $preset = OptionPreset::where('id', '=', $id)->first();
 
         if(($preset->pid === null)){
-            flash()->overlay("You can't edit a stock preset",'Whoops.');
-            return response()->json("Can't edit a stock preset",500);
+            flash()->overlay(trans('controller_optionpreset.cantedit'),trans('controller_optionpreset.whoops'));
+            return response()->json(trans('controller_optionpreset.editstock'),500);
         }
         if($preset->pid !== null){
             $presets_project = $preset->project->first();
             $user = Auth::user();
             $pc = new ProjectController;
             if(!$pc->isProjectAdmin($user,$presets_project)){
-                flash()->overlay('You cannot modify presets unless you are an admin of the project it belongs to.','Whoops.');
-                return response()->json("You cannot modify presets unless you are an admimn of the project it belongs to.",500);
+                flash()->overlay(trans('controller_optionpreset.createadmin'),trans('controller_optionpreset.whoops'));
+                return response()->json(trans('controller_optionpreset.createadmin'),500);
             }
         }
 

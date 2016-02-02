@@ -21,7 +21,7 @@
         <div>
             <span style="float:left;width:40%;margin-bottom:10px"><b>{{\App\Http\Controllers\FieldController::getComboFieldName($field,'one')}}</b></span>
             <span style="float:left;width:40%;margin-bottom:10px"><b>{{\App\Http\Controllers\FieldController::getComboFieldName($field,'two')}}</b></span>
-            <span style="float:left;width:20%;margin-bottom:10px"><b>Remove</b></span>
+            <span style="float:left;width:20%;margin-bottom:10px"><b>{{trans('records_fieldInput.remove')}}</b></span>
         </div>
 
         @for($i=0;$i<sizeof($valArray);$i++)
@@ -88,7 +88,7 @@
         <div style="color: red" id="combo_error_{{$field->flid}}"></div>
         @include('partials.combofields.newrec_inputs',['field'=>$field, 'type'=>$oneType, 'fnum'=>'one', 'flid'=>$field->flid])
         @include('partials.combofields.newrec_inputs',['field'=>$field, 'type'=>$twoType, 'fnum'=>'two', 'flid'=>$field->flid])
-        <button type="button" id="combo_add_val_{{$field->flid}}" class="btn btn-default form-control">Add Value</button>
+        <button type="button" id="combo_add_val_{{$field->flid}}" class="btn btn-default form-control">{{trans('records_fieldInput.addval')}}</button>
     </div>
 </div>
 

@@ -67,7 +67,7 @@ class FormController extends Controller {
         if(isset($request['preset']))
             FormController::addPresets($form, $request['preset']);
 
-        flash()->overlay('Your form has been successfully created!','Good Job');
+        flash()->overlay(trans('controller_form.create'),trans('controller_form.goodjob'));
 
         return redirect('projects/'.$form->pid);
 	}
@@ -138,7 +138,7 @@ class FormController extends Controller {
 
         $form->update($request->all());
 
-        flash()->overlay('Your form has been successfully updated!','Good Job');
+        flash()->overlay(trans('controller_form.update'),trans('controller_form.goodjob'));
 
         return redirect('projects/'.$form->pid);
 	}
@@ -162,7 +162,7 @@ class FormController extends Controller {
         $form = FormController::getForm($fid);
         $form->delete();
 
-        flash()->overlay('Your form has been successfully deleted!','Good Job');
+        flash()->overlay(trans('controller_form.delete'),trans('controller_form.goodjob'));
 	}
 
     public function addNode($pid,$fid, Request $request){
@@ -188,7 +188,7 @@ class FormController extends Controller {
         $form->layout = $layout;
         $form->save();
 
-        flash()->overlay('Your node has been successfully created!','Good Job');
+        flash()->overlay(trans('controller_form.createnode'),trans('controller_form.goodjob'));
 
         return redirect('projects/'.$form->pid.'/forms/'.$form->fid);
     }
@@ -229,7 +229,7 @@ class FormController extends Controller {
         $form->layout = $fNav->valsToXML($newLayout);
         $form->save();
 
-        flash()->overlay('Your node has been successfully deleted!','Good Job');
+        flash()->overlay(trans('controller_form.deletenode'),trans('controller_form.goodjob'));
 
         return redirect('projects/'.$form->pid.'/forms/'.$form->fid);
     }
@@ -361,28 +361,28 @@ class FormController extends Controller {
             case 'create':
                 if(!(\Auth::user()->canCreateForms(ProjectController::getProject($pid))))
                 {
-                    flash()->overlay('You do not have permission to create forms for that project.', 'Whoops');
+                    flash()->overlay(trans('controller_form.createper'), trans('controller_form.whoops'));
                     return false;
                 }
                 return true;
             case 'edit':
                 if(!(\Auth::user()->canEditForms(ProjectController::getProject($pid))))
                 {
-                    flash()->overlay('You do not have permission to edit forms for that project.', 'Whoops');
+                    flash()->overlay(trans('controller_form.editper'), trans('controller_form.whoops'));
                     return false;
                 }
                 return true;
             case 'delete':
                 if(!(\Auth::user()->canDeleteForms(ProjectController::getProject($pid))))
                 {
-                    flash()->overlay('You do not have permission to delete forms for that project.', 'Whoops');
+                    flash()->overlay(trans('controller_form.deleteper'), trans('controller_form.whoops'));
                     return false;
                 }
                 return true;
             default: //"Read Only"
                 if(!(\Auth::user()->inAProjectGroup(ProjectController::getProject($pid))))
                 {
-                    flash()->overlay('You do not have permission to view that project.', 'Whoops.');
+                    flash()->overlay(trans('controller_form.viewper'), trans('controller_form.whoops'));
                     return false;
                 }
                 return true;

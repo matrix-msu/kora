@@ -8,36 +8,36 @@
 @section('content')
     <span><h1>{{ $form->name }}</h1></span>
 
-    <div><b>Internal Name:</b> {{ $form->slug }}</div>
-    <div><b>Description:</b> {{ $form->description }}</div>
+    <div><b>{{trans('records_index.name')}}:</b> {{ $form->slug }}</div>
+    <div><b>{{trans('records_index.desc')}}:</b> {{ $form->description }}</div>
 
     @if(\Auth::user()->canIngestRecords($form))
-        <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[New Record]</a>
+        <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_index.new')}}]</a>
     @endif
     @if(\Auth::user()->canModifyRecords($form))
-        <a href="{{ action('RecordController@showMassAssignmentView',['pid' => $form->pid, 'fid' => $form->fid]) }}">[Mass Assign Records]</a>
+        <a href="{{ action('RecordController@showMassAssignmentView',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_index.mass')}}]</a>
     @endif
 
     @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
         <hr/>
 
-        <h4> Form Admin Panel</h4>
+        <h4> {{trans('records_index.panel')}}</h4>
         <form action="{{action('FormGroupController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
-            <button type="submit" class="btn btn-default">Manage Groups</button>
+            <button type="submit" class="btn btn-default">{{trans('records_index.groups')}}</button>
         </form>
         <form action="{{action('AssociationController@index', ['fid'=>$form->fid, 'pid'=>$form->pid])}}" style="display: inline">
-            <button type="submit" class="btn btn-default">Manage Associations</button>
+            <button type="submit" class="btn btn-default">{{trans('records_index.assoc')}}</button>
         </form>
         <form action="{{action('RevisionController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
-            <button type="submit" class="btn btn-default">Manage Record Revisions</button>
+            <button type="submit" class="btn btn-default">{{trans('records_index.revisions')}}</button>
         </form>
         <form action="{{action('RecordPresetController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
-            <button type="submit" class="btn btn-default">Manage Record Presets</button>
+            <button type="submit" class="btn btn-default">{{trans('records_index.presets')}}</button>
         </form>
         <div>
-            <button class="btn btn-danger" onclick="deleteAll()">Delete All Records</button>
-            <button class="btn btn-danger" onclick="cleanUp()">Clean Up Old Record Files</button>
-            <span><b>Current Form Filesize:</b> {{$filesize}}</span>
+            <button class="btn btn-danger" onclick="deleteAll()">{{trans('records_index.delete')}}</button>
+            <button class="btn btn-danger" onclick="cleanUp()">{{trans('records_index.cleanup')}}</button>
+            <span><b>{{trans('records_index.size')}}:</b> {{$filesize}}</span>
         </div>
     @endif
 
@@ -45,15 +45,15 @@
 
     {{--<div style="text-align: left">{!! $records->render() !!}</div>--}}
 
-    <h2>Records</h2>
-    <div>Total: {{sizeof(\App\Record::where('fid','=',$form->fid)->get())}}</div>
+    <h2>{{trans('records_index.records')}}</h2>
+    <div>{{trans('records_index.total')}}: {{sizeof(\App\Record::where('fid','=',$form->fid)->get())}}</div>
 
     @include('pagination.records', ['object' => $records])
 
     @foreach($records as $record)
         <div class="panel panel-default">
             <div>
-                <b>Record:</b> <a href="{{ action('RecordController@show',['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid]) }}">{{ $record->kid }}</a>
+                <b>{{trans('records_index.record')}}:</b> <a href="{{ action('RecordController@show',['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid]) }}">{{ $record->kid }}</a>
             </div>
             @foreach($form->fields as $field)
                 <div>
@@ -541,9 +541,9 @@
 @section('footer')
     <script>
         function deleteAll() {
-            var resp1 = confirm('Are you sure?');
+            var resp1 = confirm('{{trans('records_index.areyousure')}}?');
             if(resp1) {
-                var resp2 = confirm('Are you really sure? This will delete all records!');
+                var resp2 = confirm('{{trans('records_index.reallysure')}}!');
                 if(resp2) {
                     $.ajax({
                         url: '{{ action('RecordController@deleteAllRecords', ['pid' => $form->pid, 'fid' => $form->fid]) }}',
@@ -559,7 +559,7 @@
         }
 
         function cleanUp() {
-            var resp1 = confirm('Are you sure? This will delete all files with records that do not currently exist.');
+            var resp1 = confirm('{{trans('records_index.deletefiles')}}.');
             if (resp1) {
                 $.ajax({
                     url: '{{ action('RecordController@cleanUp', ['pid' => $form->pid, 'fid' => $form->fid]) }}',

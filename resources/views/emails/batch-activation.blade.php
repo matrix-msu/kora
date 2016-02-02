@@ -1,5 +1,5 @@
-Welcome to Kora 3! <br/>
-Click here to activate your account: <a href="{{action('Auth\UserController@activate', ['token' => $token])}}">Activate</a>. <br/>
-Or use this token on the activation page (case sensitive): {{$token}}. <br/>
-Your user name is (case sensitive): {{$username}}. <br/>
-Your password is (case sensitive): {{$password}}.  Note this is a temporary password and should be changed!
+{{trans('emails_batch-activation.welcome')}} Kora 3! <br/>
+{{trans('emails_batch-activation.clickhere')}}: <a href="{{action('Auth\UserController@activate', ['token' => $token])}}">{{trans('emails_batch-activation.activate')}}</a>. <br/>
+{{trans('emails_batch-activation.token')}}: {{$token}}. <br/>
+{{trans('emails_batch-activation.user')}}: {{$username}}. <br/>
+{{trans('emails_batch-activation.pass')}}: {{$password}}.  {{trans('emails_batch-activation.temp')}}!

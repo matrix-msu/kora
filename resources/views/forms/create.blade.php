@@ -5,12 +5,12 @@
 @stop
 
 @section('content')
-    <h1>Create a New Form for {{ $project->name }}</h1>
+    <h1>{{trans('forms_create.new')}} {{ $project->name }}</h1>
 
     <hr/>
 
     {!! Form::model($form = new \App\Form, ['url' => 'projects/'.$project->pid]) !!}
-        @include('forms.form',['submitButtonText' => 'Create Form', 'pid' => $project->pid])
+        @include('forms.form',['submitButtonText' => trans('forms_create.create'), 'pid' => $project->pid])
     {!! Form::close() !!}
 
     @include('errors.list')
@@ -20,7 +20,7 @@
     <script>
         $('#admins').select2();
         $('#presets').select2({
-            placeholder: 'Select a Preset',
+            placeholder: '{{trans('forms_create.select')}}',
             allowClear: true
         });
     </script>

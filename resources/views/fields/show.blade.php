@@ -8,9 +8,9 @@
 
 @section('content')
     <span><h1>{{ $field->name }}</h1></span>
-    <div><b>Internal Name:</b> {{ $field->slug }}</div>
-    <div><b>Type:</b> {{ $field->type }}</div>
-    <div><b>Description:</b> {{ $field->desc }}</div>
+    <div><b>{{trans('fields_show.name')}}:</b> {{ $field->slug }}</div>
+    <div><b>{{trans('fields_show.type')}}:</b> {{ $field->type }}</div>
+    <div><b>{{trans('fields_show.desc')}}:</b> {{ $field->desc }}</div>
     <hr/>
 
     @yield('fieldOptions')

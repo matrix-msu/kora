@@ -15,7 +15,7 @@ class IsAdmin {
 	{
         if (!(\Auth::user()->admin))
         {
-            flash()->overlay('You must be an admin to view that page.', 'Whoops.');
+            flash()->overlay(trans('middleware_isadmin.admin'), trans('middleware_isadmin.whoops'));
             return redirect('/');
         }
 

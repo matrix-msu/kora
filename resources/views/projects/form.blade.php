@@ -1,30 +1,30 @@
 <div class="form-group">
-    {!! Form::label('name','Name: ') !!}
+    {!! Form::label('name',trans('projects_form.name').': ') !!}
     {!! Form::text('name',null,['class' => 'form-control']) !!}
 </div>
 
 <div class="form-group">
-    {!! Form::label('slug','Internal Reference Name (no spaces, alpha-numeric values only): ') !!}
+    {!! Form::label('slug',trans('projects_form.slug').': ') !!}
     {!! Form::text('slug',null,['class' => 'form-control']) !!}
 </div>
 
 <div class="form-group">
-    {!! Form::label('description','Description: ') !!}
+    {!! Form::label('description',trans('projects_form.desc').': ') !!}
     {!! Form::textarea('description',null,['class' => 'form-control']) !!}
 </div>
 
 @if($submitButtonText == 'Create Project')
 
 <div class="form-group">
-    {!! Form::label('admins','Project Admin(s): ') !!}
+    {!! Form::label('admins',trans('projects_form.admin').'(s): ') !!}
     {!! Form::select('admins[]',$users, null,['class' => 'form-control', 'multiple', 'id' => 'admins']) !!}
 </div>
 
 @endif
 
 <div class="form-group">
-    {!! Form::label('active','Status: ') !!}
-    {!! Form::select('active', ['1' => 'Active', '0' => 'Inactive'], null,['class' => 'form-control']) !!}
+    {!! Form::label('active',trans('projects_form.status').': ') !!}
+    {!! Form::select('active', ['1' => trans('projects_form.active'), '0' => trans('projects_form.inactive')], null,['class' => 'form-control']) !!}
 </div>
 
 <div class="form-group">

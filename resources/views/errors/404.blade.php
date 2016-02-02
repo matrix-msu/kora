@@ -32,7 +32,7 @@
     <div class="body_error">
         <div class="container_error">
             <div class="content_error">
-                <div class="title_error">These are not the droids you are looking 404.</div>
+                <div class="title_error">{{trans('errors_404.droids')}} 4(04).</div>
             </div>
         </div>
     </div>

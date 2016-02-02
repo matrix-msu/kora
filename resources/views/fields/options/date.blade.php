@@ -5,24 +5,27 @@
     {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@updateRequired', $field->pid, $field->fid, $field->flid]]) !!}
     @include('fields.options.hiddens')
     <div class="form-group">
-        {!! Form::label('required','Required: ') !!}
+        {!! Form::label('required',trans('fields_options_date.req').': ') !!}
         {!! Form::select('required',['false', 'true'], $field->required, ['class' => 'form-control']) !!}
     </div>
     <div class="form-group">
-        {!! Form::submit("Update Required",['class' => 'btn btn-primary form-control']) !!}
+        {!! Form::submit(trans('fields_options_date.updatereq'),['class' => 'btn btn-primary form-control']) !!}
     </div>
     {!! Form::close() !!}
 
     {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@updateDefault', $field->pid, $field->fid, $field->flid], 'class' => 'form-inline']) !!}
     @include('fields.options.hiddens')
     <div class="form-group">
-        {!! Form::label('default_month','Month: ') !!}
-        {!! Form::select('default_month',['' => '','1' => '01 - January', '2' => '02 - February',
-            '3' => '03 - March', '4' => '04 - April', '5' => '05 - May', '6' => '06 - June',
-            '7' => '07 - July', '8' => '08 - August', '9' => '09 - September',
-            '10' => '10 - October', '11' => '11 - November', '12' => '12 - December'],
+        {!! Form::label('default_month',trans('fields_options_date.month').': ') !!}
+        {!! Form::select('default_month',['' => '',
+            '1' => '01 - '.trans('fields_options_date.jan'), '2' => '02 - '.trans('fields_options_date.feb'),
+            '3' => '03 - '.trans('fields_options_date.mar'), '4' => '04 - '.trans('fields_options_date.apr'),
+            '5' => '05 - '.trans('fields_options_date.may'), '6' => '06 - '.trans('fields_options_date.june'),
+            '7' => '07 - '.trans('fields_options_date.july'), '8' => '08 - '.trans('fields_options_date.aug'),
+            '9' => '09 - '.trans('fields_options_date.sep'), '10' => '10 - '.trans('fields_options_date.oct'),
+            '11' => '11 - '.trans('fields_options_date.nov'), '12' => '12 - '.trans('fields_options_date.dec')],
             explode('[M]',$field->default)[1], ['class' => 'form-control']) !!}
-        {!! Form::label('default_day','Day: ') !!}
+        {!! Form::label('default_day',trans('fields_options_date.day').': ') !!}
         <select name="default_day" class="form-control">
             <option value=""></option>
             <?php
@@ -38,13 +41,13 @@
                 }
             ?>
         </select>
-        {!! Form::label('default_year','Year: ') !!}
+        {!! Form::label('default_year',trans('fields_options_date.year').': ') !!}
         <select name="default_year" class="form-control">
             <option value=""></option>
             <?php
             $i = \App\Http\Controllers\FieldController::getFieldOption($field, 'Start');
             $j = \App\Http\Controllers\FieldController::getFieldOption($field, 'End');
-            while ($i <= $j+1)
+            while ($i <= $j)
             {
                 if(explode('[Y]',$field->default)[1]==$i){
                     echo "<option value=" . $i . " selected>" . $i . "</option>";
@@ -57,7 +60,7 @@
         </select>
     </div>
     <div class="form-group">
-        {!! Form::submit("Update Default",['class' => 'btn btn-primary form-control']) !!}
+        {!! Form::submit(trans('fields_options_date.updatedef'),['class' => 'btn btn-primary form-control']) !!}
     </div>
     {!! Form::close() !!}
 
@@ -65,11 +68,11 @@
     @include('fields.options.hiddens')
     {!! Form::hidden('option','Format') !!}
     <div class="form-group">
-        {!! Form::label('value','Format: ') !!}
+        {!! Form::label('value',trans('fields_options_date.format').': ') !!}
         {!! Form::select('value', ['MMDDYYYY' => 'MM DD, YYYY','DDMMYYYY' => 'DD MM YYYY','YYYYMMDD' => 'YYYY MM DD'], \App\Http\Controllers\FieldController::getFieldOption($field,'Format'), ['class' => 'form-control']) !!}
     </div>
     <div class="form-group">
-        {!! Form::submit("Update Format",['class' => 'btn btn-primary form-control']) !!}
+        {!! Form::submit(trans('fields_options_date.updatefor'),['class' => 'btn btn-primary form-control']) !!}
     </div>
     {!! Form::close() !!}
 
@@ -77,11 +80,11 @@
     @include('fields.options.hiddens')
     {!! Form::hidden('option','Start') !!}
     <div class="form-group">
-        {!! Form::label('value','Start Year: ') !!}
+        {!! Form::label('value',trans('fields_options_date.startyear').': ') !!}
         {!! Form::input('number', 'value', \App\Http\Controllers\FieldController::getFieldOption($field,'Start'), ['class' => 'form-control']) !!}
     </div>
     <div class="form-group">
-        {!! Form::submit("Update Start Year",['class' => 'btn btn-primary form-control']) !!}
+        {!! Form::submit(trans('fields_options_date.updatestart'),['class' => 'btn btn-primary form-control']) !!}
     </div>
     {!! Form::close() !!}
 
@@ -89,11 +92,11 @@
     @include('fields.options.hiddens')
     {!! Form::hidden('option','End') !!}
     <div class="form-group">
-        {!! Form::label('value','End Year: ') !!}
+        {!! Form::label('value',trans('fields_options_date.endyear').': ') !!}
         {!! Form::input('number', 'value', \App\Http\Controllers\FieldController::getFieldOption($field,'End'), ['class' => 'form-control']) !!}
     </div>
     <div class="form-group">
-        {!! Form::submit("Update End Year",['class' => 'btn btn-primary form-control']) !!}
+        {!! Form::submit(trans('fields_options_date.updateend'),['class' => 'btn btn-primary form-control']) !!}
     </div>
     {!! Form::close() !!}
 
@@ -101,11 +104,11 @@
     @include('fields.options.hiddens')
     {!! Form::hidden('option','Circa') !!}
     <div class="form-group">
-        {!! Form::label('value','Allow Circa Approximations: ') !!}
-        {!! Form::select('value', ['No' => 'No','Yes' => 'Yes'], \App\Http\Controllers\FieldController::getFieldOption($field,'Era'), ['class' => 'form-control']) !!}
+        {!! Form::label('value',trans('fields_options_date.circa').': ') !!}
+        {!! Form::select('value', ['No' => trans('fields_options_date.no'),'Yes' => trans('fields_options_date.yes')], \App\Http\Controllers\FieldController::getFieldOption($field,'Era'), ['class' => 'form-control']) !!}
     </div>
     <div class="form-group">
-        {!! Form::submit("Update Circa",['class' => 'btn btn-primary form-control']) !!}
+        {!! Form::submit(trans('fields_options_date.updatecirca'),['class' => 'btn btn-primary form-control']) !!}
     </div>
     {!! Form::close() !!}
 
@@ -113,11 +116,11 @@
     @include('fields.options.hiddens')
     {!! Form::hidden('option','Era') !!}
     <div class="form-group">
-        {!! Form::label('value','Show Era: ') !!}
-        {!! Form::select('value', ['No' => 'No','Yes' => 'Yes'], \App\Http\Controllers\FieldController::getFieldOption($field,'Era'), ['class' => 'form-control']) !!}
+        {!! Form::label('value',trans('fields_options_date.era').': ') !!}
+        {!! Form::select('value', ['No' => trans('fields_options_date.no'),'Yes' => trans('fields_options_date.yes')], \App\Http\Controllers\FieldController::getFieldOption($field,'Era'), ['class' => 'form-control']) !!}
     </div>
     <div class="form-group">
-        {!! Form::submit("Update Format",['class' => 'btn btn-primary form-control']) !!}
+        {!! Form::submit(trans('fields_options_date.updateera'),['class' => 'btn btn-primary form-control']) !!}
     </div>
     {!! Form::close() !!}
 

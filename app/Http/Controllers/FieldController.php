@@ -58,6 +58,14 @@ class FieldController extends Controller {
 	public function store(FieldRequest $request)
     {
         $field = Field::Create($request->all());
+
+        //special error check for combo list field
+        if($field->type=='Combo List' && ($_REQUEST['cfname1']=='' | $_REQUEST['cfname2']=='')){
+            flash()->error(trans('controller_field.comboname'));
+
+            return redirect()->back()->withInput();
+        }
+
         $field->options = FieldDefaults::getOptions($field->type);
         $field->default = FieldDefaults::getDefault($field->type);
         $field->save();
@@ -71,7 +79,7 @@ class FieldController extends Controller {
         //A field has been changed, so current record rollbacks become invalid.
         RevisionController::wipeRollbacks($form->fid);
 
-        flash()->overlay('Your field has been successfully created!', 'Good Job');
+        flash()->overlay(trans('controller_field.fieldcreated'), trans('controller_field.goodjob'));
 
         return redirect('projects/'.$field->pid.'/forms/'.$field->fid);
 	}
@@ -185,7 +193,7 @@ class FieldController extends Controller {
         //A field has been changed, so current record rollbacks become invalid.
         RevisionController::wipeRollbacks($fid);
 
-        flash()->overlay('Your field has been successfully updated!', 'Good Job!');
+        flash()->overlay(trans('controller_field.fieldupdated'), trans('controller_field.goodjob'));
 
         return redirect('projects/'.$pid.'/forms/'.$fid);
 	}
@@ -208,7 +216,7 @@ class FieldController extends Controller {
         //A field has been changed, so current record rollbacks become invalid.
         RevisionController::wipeRollbacks($fid);
 
-        flash()->success('Option updated!');
+        flash()->success(trans('controller_field.optupdate'));
 
         return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
     }
@@ -236,7 +244,7 @@ class FieldController extends Controller {
             if(FieldController::validateDate($request->default_month,$request->default_day,$request->default_year))
                 $field->default = '[M]'.$request->default_month.'[M][D]'.$request->default_day.'[D][Y]'.$request->default_year.'[Y]';
             else{
-                flash()->error('Invalid date. Either day given w/ no month provided, or day and month are impossible.');
+                flash()->error(trans('controller_field.baddate'));
 
                 return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
             }
@@ -249,7 +257,7 @@ class FieldController extends Controller {
         //A field has been changed, so current record rollbacks become invalid.
         RevisionController::wipeRollbacks($fid);
 
-        flash()->success('Option updated!');
+        flash()->success(trans('controller_field.optupdate'));
 
         return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
     }
@@ -274,7 +282,7 @@ class FieldController extends Controller {
         $typetwo = $request->default_type_two;
 
         if($valone=="" | $valtwo==""){
-            flash()->error('Value must be supplied for both fields.');
+            flash()->error(trans('controller_field.valueboth'));
 
             return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
         }
@@ -282,7 +290,7 @@ class FieldController extends Controller {
         if($typeone=='Text'){
             $regex = FieldController::getComboFieldOption($field,'Regex','one');
             if(($regex!=null | $regex!="") && !preg_match($regex,$valone)){
-                flash()->error('Value for field one does not match the required regex pattern.');
+                flash()->error(trans('controller_field.v1regex'));
 
                 return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
             }
@@ -294,13 +302,13 @@ class FieldController extends Controller {
             $inc = FieldController::getComboFieldOption($field,'Increment','one');
 
             if($valone<$min | $valone>$max){
-                flash()->error('Value for field one is not within the required range.');
+                flash()->error(trans('controller_field.v1num'));
 
                 return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
             }
 
             if(fmod(floatval($valone),floatval($inc))!=0){
-                flash()->error('Value for field one is not a multiple of the required increment.');
+                flash()->error(trans('controller_field.v1numinc'));
 
                 return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
             }
@@ -310,7 +318,7 @@ class FieldController extends Controller {
             $opts = explode('[!]',FieldController::getComboFieldOption($field,'Options','one'));
 
             if(!in_array($valone,$opts)){
-                flash()->error('Value for field one is not a valid list option.');
+                flash()->error(trans('controller_field.v1list'));
 
                 return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
             }
@@ -320,7 +328,7 @@ class FieldController extends Controller {
             $opts = explode('[!]',FieldController::getComboFieldOption($field,'Options','one'));
 
             if(sizeof(array_diff($valone,$opts))>0){
-                flash()->error('One or more values for field one are not a valid list options.');
+                flash()->error(trans('controller_field.v1mslist'));
 
                 return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
             }
@@ -337,7 +345,7 @@ class FieldController extends Controller {
             if($regex != null | $regex != "") {
                 foreach ($valone as $val) {
                     if (!preg_match($regex, $val)) {
-                        flash()->error('One or more values for field one do not match the required regex pattern.');
+                        flash()->error(trans('controller_field.v1genlist'));
 
                         return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
                     }
@@ -355,7 +363,7 @@ class FieldController extends Controller {
         if($typetwo=='Text'){
             $regex = FieldController::getComboFieldOption($field,'Regex','two');
             if(($regex!=null | $regex!="") && !preg_match($regex,$valtwo)){
-                flash()->error('Value for field two does not match the required regex pattern.');
+                flash()->error(trans('controller_field.v2regex'));
 
                 return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
             }
@@ -367,12 +375,12 @@ class FieldController extends Controller {
             $inc = FieldController::getComboFieldOption($field,'Increment','two');
 
             if($valtwo<$min | $valtwo>$max){
-                flash()->error('Value for field two is not within the required range.');
+                flash()->error(trans('controller_field.v2num'));
 
                 return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
             }
             if(fmod(floatval($valtwo),floatval($inc))!=0){
-                flash()->error('Value for field two is not a multiple of the required increment.');
+                flash()->error(trans('controller_field.v2numinc'));
 
                 return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
             }
@@ -382,7 +390,7 @@ class FieldController extends Controller {
             $opts = explode('[!]',FieldController::getComboFieldOption($field,'Options','two'));
 
             if(!in_array($valtwo,$opts)){
-                flash()->error('Value for field two is not a valid list option.');
+                flash()->error(trans('controller_field.v2list'));
 
                 return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
             }
@@ -392,7 +400,7 @@ class FieldController extends Controller {
             $opts = explode('[!]',FieldController::getComboFieldOption($field,'Options','two'));
 
             if(sizeof(array_diff($valtwo,$opts))>0){
-                flash()->error('One or more values for field two are not a valid list options.');
+                flash()->error(trans('controller_field.v2mslist'));
 
                 return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
             }
@@ -409,7 +417,7 @@ class FieldController extends Controller {
             if($regex != null | $regex != "") {
                 foreach ($valtwo as $val) {
                     if (!preg_match($regex, $val)) {
-                        flash()->error('One or more values for field two do not match the required regex pattern.');
+                        flash()->error(trans('controller_field.v2genlist'));
 
                         return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
                     }
@@ -440,7 +448,7 @@ class FieldController extends Controller {
 
         $field->save();
 
-        flash()->success('Option updated!');
+        flash()->success(trans('controller_field.optupdate'));
 
         return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
     }
@@ -492,7 +500,7 @@ class FieldController extends Controller {
         RevisionController::wipeRollbacks($fid);
 
         if($request->option != 'SearchForms') {
-            flash()->success('Option updated!');
+            flash()->success(trans('controller_field.optupdate'));
 
             return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
         }
@@ -516,7 +524,47 @@ class FieldController extends Controller {
         RevisionController::wipeRollbacks($fid);
 
         if($request->option != 'SearchForms') {
-            flash()->success('Option updated!');
+            flash()->success(trans('controller_field.optupdate'));
+
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }
+    }
+
+    public function updateComboName($pid, $fid, $flid, Request $request)
+    {
+        if(!FieldController::validProjFormField($pid, $fid, $flid)){
+            return redirect('projects');
+        }
+
+        if(!FieldController::checkPermissions($fid, 'edit')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
+        }
+
+        $field = FieldController::getField($flid);
+
+        $fnum = $request->fieldnum;
+        $opts = $field->options;
+
+        if($fnum=='one'){
+            $optParts = explode('[!Field1!]',$opts);
+            $nameParts = explode('[Name]',$optParts[1]);
+            $newName = '[Name]'.$request->value.'[Name]';
+            $opts = $optParts[0].'[!Field1!]'.$nameParts[0].$newName.$nameParts[2].'[!Field1!]'.$optParts[2];
+        }else if($fnum=='two'){
+            $optParts = explode('[!Field2!]',$opts);
+            $nameParts = explode('[Name]',$optParts[1]);
+            $newName = '[Name]'.$request->value.'[Name]';
+            $opts = $optParts[0].'[!Field2!]'.$nameParts[0].$newName.$nameParts[2].'[!Field2!]'.$optParts[2];
+        }
+
+        $field->options = $opts;
+        $field->save();
+
+        //A field has been changed, so current record rollbacks become invalid.
+        RevisionController::wipeRollbacks($fid);
+
+        if($request->option != 'SearchForms') {
+            flash()->success(trans('controller_field.optupdate'));
 
             return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
         }
@@ -551,7 +599,7 @@ class FieldController extends Controller {
 
         RevisionController::wipeRollbacks($form->fid);
 
-        flash()->overlay('Your field has been successfully deleted!', 'Good Job!');
+        flash()->overlay(trans('controller_field.deleted'), trans('controller_field.goodjob'));
 	}
 
     /**
@@ -660,7 +708,28 @@ class FieldController extends Controller {
             $x = $_REQUEST['value_x'];
             $y = $_REQUEST['value_y'];
 
+            if($x=='' && $key=='ThumbSmall')
+                $x = 150;
+            if($x=='' && $key=='ThumbLarge')
+                $x = 300;
+            if($y=='' && $key=='ThumbSmall')
+                $y = 150;
+            if($y=='' && $key=='ThumbLarge')
+                $y = 300;
+
             $value = $x.'x'.$y;
+        }else if(($field->type=='Date' | $field->type=='Schedule')  && ($key=='Start' | $key=='End')){
+            if($value=='' && $key=='Start'){
+                $value = 0;
+            }
+            if($value=='' && $key=='End'){
+                $value = 9999;
+            }
+        }else if (($field->type=='Documents' | $field->type=='Gallery' | $field->type=='Playlist' | $field->type=='Video'
+                | $field->type=='3D-Model') && ($key=='MaxFiles' | $key=='FieldSize')){
+            if($value==''){
+                $value = 0;
+            }
         }
 
         $field->options = $array[0].$tag.$value.$tag.$array[2];
@@ -700,28 +769,28 @@ class FieldController extends Controller {
             case 'create':
                 if(!(\Auth::user()->canCreateFields(FormController::getForm($fid))))
                 {
-                    flash()->overlay('You do not have permission to create fields for that form.', 'Whoops.');
+                    flash()->overlay(trans('controller_field.createper'), trans('controller_field.whoops'));
                     return false;
                 }
                 return true;
             case 'edit':
                 if(!(\Auth::user()->canEditFields(FormController::getForm($fid))))
                 {
-                    flash()->overlay('You do not have permission to edit fields for that form.', 'Whoops.');
+                    flash()->overlay(trans('controller_field.editper'), trans('controller_field.whoops'));
                     return false;
                 }
                 return true;
             case 'delete':
                 if(!(\Auth::user()->canDeleteFields(FormController::getForm($fid))))
                 {
-                    flash()->overlay('You do not have permission to delete fields for that form.', 'Whoops.');
+                    flash()->overlay(trans('controller_field.deleteper'), trans('controller_field.whoops'));
                     return false;
                 }
                 return true;
             default:
                 if(!(\Auth::user()->inAFormGroup(FormController::getForm($fid))))
                 {
-                    flash()->overlay('You do not have permission to view that field.', 'Whoops.');
+                    flash()->overlay(trans('controller_field.viewper'), trans('controller_field.whoops'));
                     return false;
                 }
                 return true;
@@ -865,13 +934,13 @@ class FieldController extends Controller {
         $typetwo = $request->typetwo;
 
         if($valone=="" | $valtwo==""){
-            return 'Value must be supplied for both fields.';
+            return trans('controller_field.valueboth');
         }
 
         if($typeone=='Text'){
             $regex = FieldController::getComboFieldOption($field,'Regex','one');
             if(($regex!=null | $regex!="") && !preg_match($regex,$valone)){
-                return 'Value for field one does not match the required regex pattern.';
+                return trans('controller_field.v1regex');
             }
         }else if($typeone=='Number'){
             $max = FieldController::getComboFieldOption($field,'Max','one');
@@ -879,23 +948,23 @@ class FieldController extends Controller {
             $inc = FieldController::getComboFieldOption($field,'Increment','one');
 
             if($valone<$min | $valone>$max){
-                return 'Value for field one is not within the required range.';
+                return trans('controller_field.v1num');
             }
 
             if(fmod(floatval($valone),floatval($inc))!=0){
-                return 'Value for field one is not a multiple of the required increment.';
+                return trans('controller_field.v1numinc');
             }
         }else if($typeone=='List'){
             $opts = explode('[!]',FieldController::getComboFieldOption($field,'Options','one'));
 
             if(!in_array($valone,$opts)){
-                return 'Value for field one is not a valid list option.';
+                return trans('controller_field.v1list');
             }
         }else if($typeone=='Multi-Select List'){
             $opts = explode('[!]',FieldController::getComboFieldOption($field,'Options','one'));
 
             if(sizeof(array_diff($valone,$opts))>0){
-                return 'One or more values for field one are not a valid list options.';
+                return trans('controller_field.v1mslist');
             }
         }else if($typeone=='Generated List'){
             $regex = FieldController::getComboFieldOption($field,'Regex','one');
@@ -903,7 +972,7 @@ class FieldController extends Controller {
             if($regex != null | $regex != "") {
                 foreach ($valone as $val) {
                     if (!preg_match($regex, $val)) {
-                        return 'One or more values for field one do not match the required regex pattern.';
+                        return trans('controller_field.v1genlist');
                     }
                 }
             }
@@ -912,7 +981,7 @@ class FieldController extends Controller {
         if($typetwo=='Text'){
             $regex = FieldController::getComboFieldOption($field,'Regex','two');
             if(($regex!=null | $regex!="") && !preg_match($regex,$valtwo)){
-                return 'Value for field two does not match the required regex pattern.';
+                return trans('controller_field.v2regex');
             }
 
             $fieldtwoval = '[!f2!]'.$valtwo.'[!f2!]';
@@ -922,22 +991,22 @@ class FieldController extends Controller {
             $inc = FieldController::getComboFieldOption($field,'Increment','two');
 
             if($valtwo<$min | $valtwo>$max){
-                return 'Value for field two is not within the required range.';
+                return trans('controller_field.v2num');
             }
             if(fmod(floatval($valtwo),floatval($inc))!=0){
-                return 'Value for field two is not a multiple of the required increment.';
+                return trans('controller_field.v2numinc');
             }
         }else if($typetwo=='List'){
             $opts = explode('[!]',FieldController::getComboFieldOption($field,'Options','two'));
 
             if(!in_array($valtwo,$opts)){
-                return 'Value for field two is not a valid list option.';
+                return trans('controller_field.v2list');
             }
         }else if($typetwo=='Multi-Select List'){
             $opts = explode('[!]',FieldController::getComboFieldOption($field,'Options','two'));
 
             if(sizeof(array_diff($valtwo,$opts))>0){
-                return 'One or more values for field two are not a valid list options.';
+                return trans('controller_field.v2mslist');
             }
         }else if($typetwo=='Generated List'){
             $regex = FieldController::getComboFieldOption($field,'Regex','two');
@@ -945,7 +1014,7 @@ class FieldController extends Controller {
             if($regex != null | $regex != "") {
                 foreach ($valtwo as $val) {
                     if (!preg_match($regex, $val)) {
-                        return 'One or more values for field two do not match the required regex pattern.';
+                        return trans('controller_field.v2genlist');
                     }
                 }
             }
@@ -1231,7 +1300,7 @@ class FieldController extends Controller {
         else
         {
             // Error
-            exit('Requested file does not exist on our server!');
+            exit(trans('controller_field.nofile'));
         }
     }
 
@@ -1255,7 +1324,7 @@ class FieldController extends Controller {
         else
         {
             // Error
-            exit('Requested file does not exist on our server!');
+            exit(trans('controller_field.nofile'));
         }
     }
 }

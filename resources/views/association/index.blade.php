@@ -11,10 +11,10 @@
             <div class="col-md-10 col-md-offset-1">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <h3>Manage Form Associations</h3>
+                        <h3>{{trans('association_index.manageassoc')}}</h3>
                     </div>
                     <div class="panel-body">
-                        <div id="form_select">Forms:
+                        <div id="form_select">{{trans('association_index.forms')}}:
                             <select id="selected_assoc">
                                 @foreach(\App\Form::all() as $f)
                                     @if(!in_array($f->fid,$associds) && $f->fid != $form->fid)
@@ -22,11 +22,11 @@
                                     @endif
                                 @endforeach
                             </select>
-                            <button id="add_assoc" class="btn btn-primary">Add Allowed Association</button>
+                            <button id="add_assoc" class="btn btn-primary">{{trans('association_index.addallowed')}}</button>
                         </div>
                         <br>
                         <div id="form_allowed">
-                            <b>Allowed Associations by this Form</b>
+                            <b>{{trans('association_index.allowedassoc')}}</b>
                             <hr>
                             @foreach($assocs as $a)
                                 <?php
@@ -37,7 +37,7 @@
                         </div>
                         <div>
                             <br>
-                            <b>Forms that this Form Associates</b>
+                            <b>{{trans('association_index.formsassoc')}}</b>
                             <hr>
                             @foreach(\App\Http\Controllers\AssociationController::getAvailableAssociations($form->fid) as $a)
                                 <?php

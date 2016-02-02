@@ -5,27 +5,40 @@
     <div class="container">
         <div class="row">
             <div class="col-md-10 col-md-offset-1">
-
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        Update
+                        {{trans('update_index.update')}}
                     </div>
 
-                    <div class="panel-body">
-                        @if($update)
-                            @if ($git)
-                                <button formaction="{{action('UpdateController@gitUpdate')}}" class="btn btn-primary form-control">Update</button>
+                    <div style="" class="panel-body">
+                        <div style="" id="update">
+                            @if($update)
+                                <p>{{trans('update_index.updaterequired')}} <a href="http://matrix-msu.github.io/Kora3/">Kora 3 Info.</a></p>
+                                <form action="{{action("UpdateController@runScripts")}}">
+                                    <button onclick="showProgress()" type="submit" class="btn btn-primary form-control">{{trans('update_index.runscripts')}}</button>
+                                </form>
                             @else
-                                <button formaction="{{action('UpdateController@independentUpdate')}}" class="btn btn-primary form-control">Update</button>
+                                {{trans('update_index.none')}}!
                             @endif
-                        @else
-                            No update required, you are up to date!
-                        @endif
+                        </div>
+                        <div style="display:none; margin-top: 1em;" id="progress" class="progress">
+                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
+                                {{trans('update_index.loading')}}
+                            </div>
+                        </div>
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
+@stop
 
-
+@section('footer')
+    <script>
+        function showProgress() {
+            $("#update").css("display", "none");
+            $("#progress").css("display", "");
+        }
+    </script>
 @stop

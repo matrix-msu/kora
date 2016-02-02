@@ -71,13 +71,13 @@ class UserController extends Controller {
             $lang = $request->input("field");
 
             if(empty($lang)){
-                flash()->overlay('You must select a language','Whoops.');
+                flash()->overlay(trans('controller_auth_user.selectlan'),trans('controller_auth_user.whoops'));
                 //return redirect('user/profile');
             }
             else{
                 $user->language = $lang;
                 $user->save();
-                flash()->overlay("Your language preference has been updated","Success!");
+                flash()->overlay(trans('controller_auth_user.lanupdate'),trans('controller_auth_user.success'));
                // return redirect('user/profile');
             }
         }
@@ -85,13 +85,13 @@ class UserController extends Controller {
             $realname = $request->input("field");
 
             if(empty($realname)){
-                flash()->overlay('You must enter a name','Whoops.');
+                flash()->overlay(trans('controller_auth_user.entername'),trans('controller_auth_user.whoops'));
                 //return redirect('user/profile');
             }
             else{
                 $user->name = $realname;
                 $user->save();
-                flash()->overlay("Your real name preference has been updated","Success!");
+                flash()->overlay(trans('controller_auth_user.nameupdate'),trans('controller_auth_user.success'));
                 //return redirect('user/profile');
             }
         }
@@ -99,13 +99,13 @@ class UserController extends Controller {
             $organization = $request->input("field");
 
             if(empty($organization)){
-                flash()->overlay('You must enter an organization','Whoops.');
+                flash()->overlay(trans('controller_auth_user.enterorg'),trans('controller_auth_user.whoops'));
                 //return redirect('user/profile');
             }
             else{
                 $user->organization = $organization;
                 $user->save();
-                flash()->overlay("Your organization preference has been updated","Success!");
+                flash()->overlay(trans('controller_auth_user.orgupdate'),trans('controller_auth_user.success'));
                // return redirect('user/profile');
             }
 
@@ -122,17 +122,17 @@ class UserController extends Controller {
         $confirm = $request->confirm;
 
         if (empty($new_pass) && empty($confirm)){
-            flash()->overlay('Please fill both password fields before submitting.', 'Whoops.');
+            flash()->overlay(trans('controller_auth_user.bothpass'), trans('controller_auth_user.whoops'));
             return redirect('user/profile');
         }
 
         elseif(strlen($new_pass) < 6){
-            flash()->overlay('Password less than 6 characters, please try again.', 'Whoops.');
+            flash()->overlay(trans('controller_auth_user.lessthan'), trans('controller_auth_user.whoops'));
             return redirect('user/profile');
         }
 
         elseif($new_pass != $confirm){
-            flash()->overlay('Passwords do not match, please try again.', 'Whoops.');
+            flash()->overlay(trans('controller_auth_user.nomatch'), trans('controller_auth_user.whoops'));
             return redirect('user/profile');
         }
 
@@ -140,7 +140,7 @@ class UserController extends Controller {
             $user->password = bcrypt($new_pass);
             $user->save();
 
-            flash()->overlay('Your password has been changed!', 'Success!');
+            flash()->overlay(trans('controller_auth_user.passupdate'), trans('controller_auth_user.success'));
             return redirect('user/profile');
         }
     }
@@ -161,7 +161,7 @@ class UserController extends Controller {
     {
         $user = User::where('username', '=', $request->user)->first();
         if($user==null){
-            flash()->overlay('User does not exist.', 'Whoops.');
+            flash()->overlay(trans('controller_auth_user.nouser'), trans('controller_auth_user.whoops'));
             return redirect('auth/activate');
         }
 
@@ -170,14 +170,14 @@ class UserController extends Controller {
         if ($user->regtoken == $token && !empty($user->regtoken) && !($user->active ==1)){
             $user->active = 1;
             $user->save();
-            flash()->overlay('You have been activated!', 'Success!');
+            flash()->overlay(trans('controller_auth_user.activated'), trans('controller_auth_user.success'));
 
             \Auth::login($user);
 
             return redirect('/');
         }
         else{
-            flash()->overlay('The token is not valid for that user at this time.', 'Whoops.');
+            flash()->overlay(trans('controller_auth_user.badtokenuser'), trans('controller_auth_user.whoops'));
             return redirect('auth/activate');
         }
     }
@@ -200,7 +200,7 @@ class UserController extends Controller {
 
         if ($token != $user->regtoken)
         {
-            flash()->overlay('That token was invalid, try again.', 'Whoops.');
+            flash()->overlay(trans('controller_auth_user.badtoken'), trans('controller_auth_user.whoops'));
             return redirect('/');
         }
         else
@@ -208,7 +208,7 @@ class UserController extends Controller {
             $user->active = 1;
             $user->save();
 
-            flash()->overlay('Your account is now active!', 'Success!');
+            flash()->overlay(trans('controller_auth_user.acttwo'), trans('controller_auth_user.success'));
             return redirect('/');
         }
     }

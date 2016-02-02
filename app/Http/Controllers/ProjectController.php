@@ -60,7 +60,7 @@ class ProjectController extends Controller {
         $project->adminGID = $adminGroup->id;
         $project->save();
 
-        flash()->overlay('Your project has been successfully created!','Good Job');
+        flash()->overlay(trans('controller_project.create'),trans('controller_project.goodjob'));
 
         return redirect('projects');
 	}
@@ -101,7 +101,7 @@ class ProjectController extends Controller {
         $project = ProjectController::getProject($id);
 
         if (!$user->admin && !ProjectController::isProjectAdmin($user, $project)) {
-            flash()->overlay('You do not have permission to edit that project.', 'Whoops.');
+            flash()->overlay(trans('controller_project.editper'), trans('controller_project.whoops'));
             return redirect('/projects');
         }
 
@@ -118,7 +118,7 @@ class ProjectController extends Controller {
 	{
         $project = ProjectController::getProject($id);
         $project->update($request->all());
-        flash()->overlay('Your project has been successfully updated!','Good Job');
+        flash()->overlay(trans('controller_project.updated'),trans('controller_project.goodjob'));
 
         return redirect('projects');
 	}
@@ -139,13 +139,13 @@ class ProjectController extends Controller {
         $project = ProjectController::getProject($id);
 
         if (!$user->admin && !ProjectController::isProjectAdmin($user, $project)) {
-            flash()->overlay('You do not have permission to delete that project.', 'Whoops.');
+            flash()->overlay(trans('controller_project.deleteper'), trans('controller_project.whoops'));
             return redirect('/projects');
         }
 
         $project->delete();
 
-        flash()->overlay('Your project has been successfully deleted!','Good Job');
+        flash()->overlay(trans('controller_project.deleted'),trans('controller_project.goodjob'));
 	}
 
     /**

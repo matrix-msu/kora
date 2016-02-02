@@ -8,20 +8,20 @@
         <span  class="pull-right">{{ $field->type }}</span>
     </div>
     <div class="collapseTest" style="display:none">
-        <div class="panel-body"><b>Description:</b> {{ $field->desc }}</div>
+        <div class="panel-body"><b>{{trans('forms_layout_printfield.desc')}}:</b> {{ $field->desc }}</div>
         <div class="panel-footer">
 
             @if(\Auth::user()->canEditFields($form))
                 <span>
-                    <a href="{{ action('FieldController@edit',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => $field->flid]) }}">[Edit]</a>
+                    <a href="{{ action('FieldController@edit',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => $field->flid]) }}">[{{trans('forms_layout_printfield.edit')}}]</a>
                 </span>
                 <span>
-                    <a href="{{ action('FieldController@show',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => $field->flid]) }}">[Options]</a>
+                    <a href="{{ action('FieldController@show',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => $field->flid]) }}">[{{trans('forms_layout_printfield.options')}}]</a>
                 </span>
             @endif
             @if(\Auth::user()->canDeleteFields($form))
                 <span>
-                    <a onclick="deleteField('{{ $field->name }}', {{ $field->flid }})" href="javascript:void(0)">[Delete]</a>
+                    <a onclick="deleteField('{{ $field->name }}', {{ $field->flid }})" href="javascript:void(0)">[{{trans('forms_layout_printfield.delete')}}]</a>
                 </span>
             @endif
                 <span  class="pull-right">

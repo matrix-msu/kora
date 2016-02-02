@@ -12,19 +12,19 @@
                 <span class="pull-right">{{ ucfirst($revision->type) }}</span>
             </div>
             <div class="collapseTest" style="display: none">
-                <div>Revision Type: {{$revision->type}}</div>
-                <div>Rollback: @if($revision->rollback)True @else False @endif</div>
+                <div>{{trans('revisions_printrevisions.type')}}: {{$revision->type}}</div>
+                <div>{{trans('revisions_printrevisions.rollback')}}: @if($revision->rollback)True @else False @endif</div>
                 @if($revision->rollback)
-                    <a href="javascript:void(0)" onclick="rollback({{$revision->id}})">[Rollback Record]</a>
+                    <a href="javascript:void(0)" onclick="rollback({{$revision->id}})">[{{trans('revisions_printrevisions.rollrecord')}}]</a>
                 @endif
                 @if($revision->type != 'create')
-                <div><b>Before</b></div>
+                <div><b>{{trans('revisions_printrevisions.before')}}</b></div>
                 @elseif($revision->type == 'create')
-                <div><b>After</b></div>
+                <div><b>{{trans('revisions_printrevisions.after')}}</b></div>
                 @endif
                 <div class="panel panel-default">
                     <div>
-                        <b> Record: </b> {{$form->pid}}-{{$revision->fid}}-{{$revision->rid}}
+                        <b> {{trans('revisions_printrevisions.record')}}: </b> {{$form->pid}}-{{$revision->fid}}-{{$revision->rid}}
                     </div>
 
                     <?php
@@ -366,10 +366,10 @@
                 </div>
 <!--- --- --- --- --- --- ---  ---  --- --- --- Begin Old Record Print --- --- --- --- --- --- ---  ---  --- --- --->
                 @if($revision->type != 'delete' && $revision->type != 'create')
-                <div><b>After</b></div>
+                <div><b>{{trans('revisions_printrevisions.after')}}</b></div>
                 <div class="panel panel-default">
                     <div>
-                        <b>Record: </b> {{$form->pid}}-{{$revision->fid}}-{{$revision->rid}}
+                        <b>{{trans('revisions_printrevisions.record')}}: </b> {{$form->pid}}-{{$revision->fid}}-{{$revision->rid}}
                     </div>
 
                     <?php

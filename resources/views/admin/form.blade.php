@@ -1,7 +1,7 @@
 {!! Form::open(['method' => 'PATCH', 'action' => 'AdminController@update']) !!}
 
     <div class="form-group">
-        {!! Form::label('select', 'Select user: ') !!}
+        {!! Form::label('select', trans('admin_form.selectuser').': ') !!}
         <select name="users" class="form-control" id="dropdown" onchange="checker()">
             @foreach ($users as $user)
                 @if($user->id == 1)
@@ -16,28 +16,28 @@
     </div>
 
     <div class="form-group">
-        {!! Form::label('admin', 'Admin: ') !!}
+        {!! Form::label('admin', trans('admin_form.admin').': ') !!}
         {!! Form::checkbox('admin') !!}
     </div>
 
     <div class="form-group">
-        {!! Form::label('active', 'Active: ') !!}
+        {!! Form::label('active', trans('admin_form.active').': ') !!}
         {!! Form::checkbox('active') !!}
     </div>
 
     <div class="form-group">
-        {!! Form::label('new_password', 'New Password:') !!}
+        {!! Form::label('new_password', trans('admin_form.newpass').':') !!}
         {!! Form::password('new_password', ['class' => 'form-control']) !!}
 
-        {!! Form::label('confirm', 'Confirm New Password:') !!}
+        {!! Form::label('confirm', trans('admin_form.confirmpass').'') !!}
         {!! Form::password('confirm', ['class' => 'form-control']) !!}
     </div>
 
     <div class="form-group">
         @if(sizeof($users)==1)
-            {!! Form::submit('Update User', ['class' => 'btn btn-primary form-control', 'name' => 'update', 'disabled']) !!}
+            {!! Form::submit(trans('admin_form.updateuser'), ['class' => 'btn btn-primary form-control', 'name' => 'update', 'disabled']) !!}
         @else
-            {!! Form::submit('Update User', ['class' => 'btn btn-primary form-control', 'name' => 'update']) !!}
+            {!! Form::submit(trans('admin_form.updateuser'), ['class' => 'btn btn-primary form-control', 'name' => 'update']) !!}
         @endif
     </div>
 
@@ -45,10 +45,10 @@
 
 @if(sizeof($users)==1)
     <button onclick="deleteUser()" class="btn btn-danger form-control" name="delete" disabled>
-        Delete User
+        {{trans('admin_form.deleteuser')}}
     </button>
 @else
     <button onclick="deleteUser()" class="btn btn-danger form-control" name="delete">
-        Delete User
+        {{trans('admin_form.deleteuser')}}
     </button>
 @endif

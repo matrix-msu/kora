@@ -34,7 +34,7 @@ if(!is_null($model)){
         <b style="color:red;font-size:20px">*</b>
     @endif
     <span class="btn btn-success fileinput-button">
-        <span>Add model...</span>
+        <span>{{trans('records_fieldInput.addmod')}}...</span>
         <input id="file{{$field->flid}}" type="file" name="file{{$field->flid}}[]"
                data-url="{{ env('BASE_URL') }}public/saveTmpFile/{{$field->flid}}" multiple>
         {!! Form::hidden($field->flid,'f'.$field->flid.'u'.\Auth::user()->id) !!}
@@ -50,12 +50,10 @@ if(!is_null($model)){
             <div id="uploaded_file_div">
                 {{$file}}
                 <input type="hidden" name="file{{$field->flid}}[]" value ="{{$file}}">
-                <button id="up" class="btn btn-default" type="button">UP</button>
-                <button id="down"class="btn btn-default" type="button">Down</button>
                 <button class="btn btn-danger delete" type="button" data-type="DELETE"
                         data-url="{{env('BASE_URL')}}public/deleteTmpFile/{{$folder}}/{{urlencode($file)}}">
                     <i class="glyphicon glyphicon-trash"></i>
-                    DELETE
+                    {{trans('records_fieldInput.delete')}}
                 </button>
             </div>
         @endforeach
@@ -71,7 +69,7 @@ if(!is_null($model)){
                 var del = '<div id="uploaded_file_div">' + file.name + ' ';
                 del += '<input type="hidden" name="file{{$field->flid}}[]" value ="'+file.name+'">';
                 del += '<button class="btn btn-danger delete" type="button" data-type="'+file.deleteType+'" data-url="'+file.deleteUrl+'" >';
-                del += '<i class="glyphicon glyphicon-trash" /> DELETE</button>';
+                del += '<i class="glyphicon glyphicon-trash" /> {{trans('records_fieldInput.delete')}}</button>';
                 del += '</div>';
 
                 $('#filenames{{$field->flid}}').append(del);
@@ -81,11 +79,11 @@ if(!is_null($model)){
             var error = data.jqXHR['responseText'];
 
             if(error=='InvalidType'){
-                $('#file_error{{$field->flid}}').text('One or more submitted files has an invalid file type.');
+                $('#file_error{{$field->flid}}').text('{{trans('records_fieldInput.invalid')}}.');
             } else if(error=='TooManyFiles'){
-                $('#file_error{{$field->flid}}').text('A maximum of {{\App\Http\Controllers\FieldController::getFieldOption($field,'MaxFiles')}} file(s) can be submitted.');
+                $('#file_error{{$field->flid}}').text('{{trans('records_fieldInput.max')}} {{\App\Http\Controllers\FieldController::getFieldOption($field,'MaxFiles')}} {{trans('records_fieldInput.submit')}}.');
             } else if(error=='MaxSizeReached'){
-                $('#file_error{{$field->flid}}').text('Adding the selected file(s) would exceed the max file limit of {{\App\Http\Controllers\FieldController::getFieldOption($field,'FieldSize')}} kb');
+                $('#file_error{{$field->flid}}').text('{{trans('records_fieldInput.exceed')}} {{\App\Http\Controllers\FieldController::getFieldOption($field,'FieldSize')}} kb');
             }
         },
         progressall: function (e, data) {

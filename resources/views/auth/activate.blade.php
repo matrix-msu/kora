@@ -8,22 +8,22 @@
                 <div class="panel panel-default">
                     <div class="panel-body">
 
-                        <h3>Activate a user</h3>
+                        <h3>{{trans('auth_activate.activateuser')}}</h3>
 
                         {!! Form::open(['method' => 'POST', 'action' => 'Auth\UserController@activator']) !!}
 
                         <div class="form-group">
-                            {!! Form::label('user', 'Username: ') !!}
+                            {!! Form::label('user', trans('auth_activate.username').': ') !!}
                             {!! Form::text('user', null, ['class' => 'form-control']) !!}
                         </div>
 
                         <div class="form-group">
-                            {!! Form::label('token', 'Token: ') !!}
+                            {!! Form::label('token', trans('auth_activate.token').': ') !!}
                             {!! Form::text('token', null, ['class' => 'form-control']) !!}
                         </div>
 
                         <div class="form-group">
-                            {!! Form::submit('Activate User', ['class' => 'btn btn-primary form-control']) !!}
+                            {!! Form::submit(trans('auth_activate.activateuser'), ['class' => 'btn btn-primary form-control']) !!}
                         </div>
 
                         {!! Form::close() !!}

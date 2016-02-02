@@ -3,14 +3,14 @@
 {!! Form::hidden('option','Min') !!}
 {!! Form::hidden('fieldnum',$fnum) !!}
 <div class="form-group">
-    {!! Form::label('value','Min: ') !!}
+    {!! Form::label('value',trans('partials_combofields_number.min').': ') !!}
     <input
             type="number" name="value" class="form-control" step="any"
             value="{{ \App\Http\Controllers\FieldController::getComboFieldOption($field, "Min", $fnum) }}"
             max="{{ \App\Http\Controllers\FieldController::getComboFieldOption($field, "Max", $fnum) }}">
 </div>
 <div class="form-group">
-    {!! Form::submit("Update Min",['class' => 'btn btn-primary form-control']) !!}
+    {!! Form::submit(trans('partials_combofields_number.updatemin'),['class' => 'btn btn-primary form-control']) !!}
 </div>
 {!! Form::close() !!}
 
@@ -19,14 +19,14 @@
 {!! Form::hidden('option','Max') !!}
 {!! Form::hidden('fieldnum',$fnum) !!}
 <div class="form-group">
-    {!! Form::label('value','Max: ') !!}
+    {!! Form::label('value',trans('partials_combofields_number.max').': ') !!}
     <input
             type="number" name="value" class="form-control" step="any"
             value="{{ \App\Http\Controllers\FieldController::getComboFieldOption($field, "Max", $fnum) }}"
             min="{{ \App\Http\Controllers\FieldController::getComboFieldOption($field, "Min", $fnum) }}">
 </div>
 <div class="form-group">
-    {!! Form::submit("Update Max",['class' => 'btn btn-primary form-control']) !!}
+    {!! Form::submit(trans('partials_combofields_number.updatemax'),['class' => 'btn btn-primary form-control']) !!}
 </div>
 {!! Form::close() !!}
 
@@ -35,13 +35,13 @@
 {!! Form::hidden('option','Increment') !!}
 {!! Form::hidden('fieldnum',$fnum) !!}
 <div class="form-group">
-    {!! Form::label('value','Increment: ') !!}
+    {!! Form::label('value',trans('partials_combofields_number.inc').': ') !!}
     <input
             type="number" name="value" class="form-control" step="any"
             value="{{ \App\Http\Controllers\FieldController::getComboFieldOption($field, "Increment", $fnum) }}">
 </div>
 <div class="form-group">
-    {!! Form::submit("Update Increment",['class' => 'btn btn-primary form-control']) !!}
+    {!! Form::submit(trans('partials_combofields_number.updateinc'),['class' => 'btn btn-primary form-control']) !!}
 </div>
 {!! Form::close() !!}
 
@@ -50,10 +50,10 @@
 {!! Form::hidden('option','Unit') !!}
 {!! Form::hidden('fieldnum',$fnum) !!}
 <div class="form-group">
-    {!! Form::label('value','Unit: ') !!}
+    {!! Form::label('value',trans('partials_combofields_number.unit').': ') !!}
     {!! Form::text('value', \App\Http\Controllers\FieldController::getComboFieldOption($field,'Unit', $fnum), ['class' => 'form-control']) !!}
 </div>
 <div class="form-group">
-    {!! Form::submit("Update Unit",['class' => 'btn btn-primary form-control']) !!}
+    {!! Form::submit(trans('partials_combofields_number.updateunit'),['class' => 'btn btn-primary form-control']) !!}
 </div>
 {!! Form::close() !!}

@@ -1,13 +1,13 @@
 <div class="panel panel-default">
     <div class="panel-heading">
-        <span>Projects</span><span class="pull-right">Permissions</span>
+        <span>{{trans('partials_showpermissions.projects')}}</span><span class="pull-right">{{trans('partials_showpermissions.permissions')}}</span>
     </div>
     <div class="collapseTest" style="display: none">
         <div class="panel-body">
             <ul class="list-group">
                 @if($admin)
                     <li class="list-group-item">
-                        <span>ALL</span> <span class="pull-right">Super Admin</span>
+                        <span>{{trans('partials_showpermissions.all')}}</span> <span class="pull-right">{{trans('partials_showpermissions.super')}}</span>
                     </li>
                 @else
                     @foreach($projects as $project)
@@ -23,14 +23,14 @@
 
 <div class="panel panel-default">
     <div class="panel-heading">
-        <span>Forms</span><span class="pull-right">Permissions</span>
+        <span>{{trans('partials_showpermissions.forms')}}</span><span class="pull-right">{{trans('partials_showpermissions.permissions')}}</span>
     </div>
     <div class="collapseTest" style="display: none">
         <div class="panel-body">
             <ul class="list-group">
                 @if($admin)
                     <li class="list-group-item">
-                        <span>ALL</span> <span class="pull-right">Super Admin</span>
+                        <span>{{trans('partials_showpermissions.all')}}</span> <span class="pull-right">{{trans('partials_showpermissions.super')}}</span>
                     </li>
                 @else
                     @foreach($forms as $form)
@@ -46,7 +46,7 @@
 
 <div class="panel panel-default">
     <div class="panel-heading">
-        <span>Owned Records</span><span class="pull-right">Last 30 Edited</span>
+        <span>{{trans('partials_showpermissions.records')}}</span><span class="pull-right">{{trans('partials_showpermissions.last')}}</span>
     </div>
     <div class="collapseTest" style="display: none">
         <div class="panel-body">

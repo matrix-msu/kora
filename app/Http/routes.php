@@ -71,6 +71,7 @@ Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/defaultCombo','F
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/defaultCombo/remove','FieldController@removeComboDefault');
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/update','FieldController@updateOptions');
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/updateCombo','FieldController@updateComboOptions');
+Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/updateComboName','FieldController@updateComboName');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/validateCombo','FieldController@validateComboListOpt');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/saveList','FieldController@saveList');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/saveComboList','FieldController@saveComboList');
@@ -91,6 +92,8 @@ Route::get('/projects/{pid}/forms/{fid}/records/presets', 'RecordPresetControlle
 Route::patch('/changePresetName', 'RecordPresetController@changePresetName');
 Route::delete('/deletePreset', 'RecordPresetController@deletePreset');
 Route::post('/getRecordArray', 'RecordPresetController@getRecordArray');
+Route::post('/presetRecord', 'RecordPresetController@presetRecord');
+Route::post('/getData', 'RecordPresetController@getData');
 
 
 //option preset routes
@@ -115,8 +118,8 @@ Route::delete('/projects/{pid}/forms/{fid}/records/{rid}','RecordController@dest
 Route::get('/projects/{pid}/forms/{fid}/records/{rid}/edit','RecordController@edit');
 Route::post('/projects/{pid}/forms/{fid}/records','RecordController@store');
 Route::delete('projects/{pid}/forms/{fid}/deleteAllRecords','RecordController@deleteAllRecords');
-Route::post('/presetRecord', 'RecordController@presetRecord');
 Route::post('/projects/{pid}/forms/{fid}/cleanUp', 'RecordController@cleanUp');
+Route::get('/projects/{pid}/forms/{fid}/clone/{rid}', 'RecordController@cloneRecord');
 
 
 
@@ -150,8 +153,7 @@ Route::post('/install/config',"InstallController@updateEnvConfigs");
 
 //update routes
 Route::get('/update', 'UpdateController@index');
-Route::get('/update/gitUpdate', 'UpdateController@gitUpdate');
-Route::get('/update/independentUpdate', 'UpdateController@independentUpdate');
+Route::get('/update/runScripts', 'UpdateController@runScripts');
 
 //backup routes
 Route::get('/backup','BackupController@index');

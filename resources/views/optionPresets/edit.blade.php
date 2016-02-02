@@ -10,19 +10,19 @@
     <hr/>
 
     <div class="form-group">
-        <label for="preset_name">Name:</label>
+        <label for="preset_name">{{trans('optionPresets_edit.name')}}:</label>
         <input name="preset_name" id="preset_name" class="form-control" type="text" value="{{$preset->name}}">
     </div>
     <div class="form-group">
-        <input id="submit_preset_name" type="submit" value="Update Name" class="btn btn-primary form-control">
+        <input id="submit_preset_name" type="submit" value="{{trans('optionPresets_edit.updatename')}}" class="btn btn-primary form-control">
     </div>
     @if($preset->type == "Text")
         <div class="form-group">
-            <label for="preset_regex">Regex:</label>
+            <label for="preset_regex">{{trans('optionPresets_edit.regex')}}:</label>
             <input name="preset_regex" id="preset_regex" class="form-control" type="text" value="{{$preset->preset}}">
         </div>
         <div class="form-group">
-            <input id="preset_regex_submit" type="submit" value="Update Regex" class="btn btn-primary form-control">
+            <input id="preset_regex_submit" type="submit" value="{{trans('optionPresets_edit.updateregex')}}" class="btn btn-primary form-control">
         </div>
     @elseif($preset->type == "List")
         <div class="list_option_form form-group">
@@ -32,90 +32,90 @@
                     <option value="{{$opt}}">{{$opt}}</option>
                 @endforeach
             </select>
-            <button class="btn btn-primary remove_option">Delete</button>
-            <button class="btn btn-primary move_option_up">Up</button>
-            <button class="btn btn-primary move_option_down">Down</button>
+            <button class="btn btn-primary remove_option">{{trans('optionPresets_edit.delete')}}</button>
+            <button class="btn btn-primary move_option_up">{{trans('optionPresets_edit.up')}}</button>
+            <button class="btn btn-primary move_option_down">{{trans('optionPresets_edit.down')}}</button>
             <div>
                 <span><input type="text" class="new_list_option"></span>
-                <span><button class="btn btn-primary add_option">Add</button></span>
+                <span><button class="btn btn-primary add_option">{{trans('optionPresets_edit.add')}}</button></span>
             </div>
         </div>
     @elseif($preset->type == "Schedule")
         <div id="preset_schedule" class="list_option_form form-group sched_events_select">
             <div>
-                <label for="preset_schedule_events">Events:</label>
+                <label for="preset_schedule_events">{{trans('optionPresets_edit.events')}}:</label>
                 <select name="preset_schedule_events" id="preset_schedule_events" multiple class="form-control list_options schedule_events">
                     @foreach(\App\Http\Controllers\OptionPresetController::getList($preset->id,false) as $opt)
                         <option value="{{$opt}}">{{$opt}}</option>
                     @endforeach
                 </select>
-                <button class="btn btn-primary remove_option">Delete</button>
-                <button class="btn btn-primary move_option_up">Up</button>
-                <button class="btn btn-primary move_option_down">Down</button>
+                <button class="btn btn-primary remove_option">{{trans('optionPresets_edit.delete')}}</button>
+                <button class="btn btn-primary move_option_up">{{trans('optionPresets_edit.up')}}</button>
+                <button class="btn btn-primary move_option_down">{{trans('optionPresets_edit.down')}}</button>
             </div>
             <div class="form-inline" style="position:relative">
-                {!! Form::label('eventname','Event Title: ') !!}
+                {!! Form::label('eventname',trans('optionPresets_edit.title').': ') !!}
                 <input type="text" class="form-control" id="eventname" />
-                {!! Form::label('startdatetime','Start: ') !!}
+                {!! Form::label('startdatetime',trans('optionPresets_edit.start').': ') !!}
                 <input type='text' class="form-control" id='startdatetime' />
-                {!! Form::label('enddatetime','End: ') !!}
+                {!! Form::label('enddatetime',trans('optionPresets_edit.end').': ') !!}
                 <input type='text' class="form-control" id='enddatetime' />
-                {!! Form::label('allday','All Day: ') !!}
+                {!! Form::label('allday',trans('optionPresets_edit.allday').': ') !!}
                 <input type='checkbox' class="form-control" id='allday' />
-                <button class="btn btn-primary add_event">Add</button>
+                <button class="btn btn-primary add_event">{{trans('optionPresets_edit.add')}}</button>
             </div>
         </div>
     @elseif($preset->type == "Geolocator")
         <div id="preset_geolocator" class="list_option_form">
             <div>
-                <label for="preset_geolocator_locations">Locations:</label>
+                <label for="preset_geolocator_locations">{{trans('optionPresets_edit.loc')}}:</label>
                 <select name="preset_geolocator_locations" id="preset_geolocator_locations" multiple class="form-control list_options geolocator_locations">
                     @foreach(\App\Http\Controllers\OptionPresetController::getList($preset->id,false) as $opt)
                         <option value="{{$opt}}">{{$opt}}</option>
                     @endforeach
                 </select>
-                <button class="btn btn-primary remove_option">Delete</button>
-                <button class="btn btn-primary move_option_up">Up</button>
-                <button class="btn btn-primary move_option_down">Down</button>
+                <button class="btn btn-primary remove_option">{{trans('optionPresets_edit.delete')}}</button>
+                <button class="btn btn-primary move_option_up">{{trans('optionPresets_edit.up')}}</button>
+                <button class="btn btn-primary move_option_down">{{trans('optionPresets_edit.down')}}</button>
             </div>
             <div class="latlon_container">
-                <label>Locations:</label>
+                <label>{{trans('optionPresets_edit.loc')}}:</label>
                 <span><input type="text" class="latlon_desc"></span>
-                <label>Latitude:</label>
+                <label>{{trans('optionPresets_edit.lat')}}:</label>
                 <span><input type="number" class="latlon_lat" min=-90 max=90 step=".000001"></span>
-                <label>Longitude:</label>
+                <label>{{trans('optionPresets_edit.lon')}}:</label>
                 <span><input type="number" class="latlon_lon" min=-180 max=180 step=".000001"></span>
-                <span><button class="btn btn-primary add_latlon">Add</button></span>
+                <span><button class="btn btn-primary add_latlon">{{trans('optionPresets_edit.add')}}</button></span>
             </div>
             <div class="utm_container" style="display:none">
-                <label>Description:</label>
+                <label>{{trans('optionPresets_edit.desc')}}:</label>
                 <span><input type="text" class="utm_desc"></span>
-                <label>Zone:</label>
+                <label>{{trans('optionPresets_edit.zone')}}:</label>
                 <span><input type="text" class="utm_zone"></span>
-                <label>Easting:</label>
+                <label>{{trans('optionPresets_edit.east')}}:</label>
                 <span><input type="text" class="utm_east"></span>
-                <label>Northing:</label>
+                <label>{{trans('optionPresets_edit.north')}}:</label>
                 <span><input type="text" class="utm_north"></span>
-                <span><button class="btn btn-primary add_utm">Add</button></span>
+                <span><button class="btn btn-primary add_utm">{{trans('optionPresets_edit.add')}}</button></span>
             </div>
             <div class="text_container" style="display:none">
-                <label>Description:</label>
+                <label>{{trans('optionPresets_edit.desc')}}:</label>
                 <span><input type="text" class="text_desc"></span>
-                <label>Address:</label>
+                <label>{{trans('optionPresets_edit.addr')}}:</label>
                 <span><input type="text" class="text_addr"></span>
-                <span><button class="btn btn-primary add_text">Add</button></span>
+                <span><button class="btn btn-primary add_text">{{trans('optionPresets_edit.add')}}</button></span>
             </div>
         </div>
     @endif
 
     @if($preset->shared == true)
         <div class="form-group">
-            <label for="preset_shared">Share with all projects:</label>
+            <label for="preset_shared">{{trans('optionPresets_edit.share')}}:</label>
             <input id="preset_shared" type="checkbox" name="preset_shared" checked>
         </div>
     @else
         <div class="form-group">
-            <label for="preset_shared">Share with all projects:</label>
+            <label for="preset_shared">{{trans('optionPresets_edit.share')}}:</label>
             <input id="preset_shared" type="checkbox" name="preset_shared">
         </div>
 
@@ -352,7 +352,7 @@
         }
 
         function deletePreset(presetId) {
-            var response = confirm("Are you sure you want to delete this preset?");
+            var response = confirm("{{trans('optionPresets_edit.areyousure')}}?");
             if (response) {
                 $.ajax({
                     url: '{{ action('OptionPresetController@delete')}}',

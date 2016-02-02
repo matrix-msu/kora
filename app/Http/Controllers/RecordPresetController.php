@@ -43,13 +43,40 @@ class RecordPresetController extends Controller {
         $form = FormController::getForm($fid);
 
         if (!\Auth::user()->isFormAdmin($form)){
-            flash()->overlay('You do not have permission to view that page.', 'Whoops.');
+            flash()->overlay(trans('controller_recordpreset.view'), trans('controller_recordpreset.whoops'));
             return redirect('projects');
         }
 
         $presets = RecordPreset::where('fid', '=', $fid)->get();
 
         return view('recordPresets/index', compact('form', 'presets'));
+    }
+
+    /**
+     * Makes a record a preset for other records to be copied from.
+     *
+     * @param Request $request
+     */
+    public function presetRecord(Request $request)
+    {
+        $name = $request->name;
+        $rid = $request->rid;
+
+        if(!is_null(RecordPreset::where('rid', '=', $rid)->first()))
+            flash()->overlay(trans('controller_record.already'));
+        else {
+            $record = RecordController::getRecord($rid);
+            $fid = $record->fid;
+
+            $preset = new RecordPreset();
+            $preset->rid = $rid;
+            $preset->fid = $fid;
+            $preset->name = $name;
+            $preset->preset = json_encode(RecordPresetController::getRecordArray($rid));
+            $preset->save();
+
+            flash()->overlay(trans('controller_record.presetsaved'), trans('controller_record.success'));
+        }
     }
 
     /**
@@ -79,19 +106,29 @@ class RecordPresetController extends Controller {
         $preset = RecordPreset::where('id', '=', $id)->first();
         $preset->delete();
 
-        flash()->overlay('Record has been removed as a preset.', 'Success!');
+        flash()->overlay(trans('controller_recordpreset.preset'), trans('controller_recordpreset.success'));
     }
 
     /**
-     * Builds an array to populate fields for a record creation page.
+     * Get the array associated with a certain record preset.
      *
      * @param Request $request
      * @return mixed
      */
-    public function getRecordArray(Request $request)
-    {
+    public function getData(Request $request) {
         $id = $request->id;
-        $rid = RecordPreset::where('id', '=', $id)->first()->rid;
+        $recordPreset = RecordPreset::where('id', '=', $id)->first();
+        return json_decode($recordPreset->preset, true);
+    }
+
+    /**
+     * Builds an array representing a record, saving its FLIDs for creation page population.
+     *
+     * @param Request $request
+     * @return mixed
+     */
+    public function getRecordArray($rid)
+    {
         $record = Record::where('rid', '=', $rid)->first();
         $form = Form::where('fid', '=', $record->fid)->first();
 

@@ -36,7 +36,7 @@ class Authenticate {
 		{
 			if ($request->ajax())
 			{
-				return response('Unauthorized.', 401);
+				return response(trans('middleware_authenticate.auth'), 401);
 			}
 			else
 			{

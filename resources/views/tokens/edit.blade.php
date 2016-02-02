@@ -8,7 +8,7 @@
                     <div class="panel-body">
 
                         <h3 style="text-align: center">
-                            Update projects for token: {{ $token->token }}
+                            {{trans('tokens_edit.projects')}}: {{ $token->token }}
                         </h3>
 
                         {!! Form::model($token, ['method' => 'PATCH', 'action' => 'TokenController@update']) !!}
@@ -18,7 +18,7 @@
                         </div>
 
                         <div class="form-group">
-                            {!! Form::submit('Update Token', ['class' => 'btn btn-primary form-control']) !!}
+                            {!! Form::submit(trans('tokens_edit.update'), ['class' => 'btn btn-primary form-control']) !!}
                         </div>
 
                         {!! Form::close() !!}
@@ -26,7 +26,7 @@
                         <hr/>
 
                         <form action="{{action('TokenController@index')}}" style="text-align: center">
-                            <button type="submit" class="btn btn-default"> Return to Token Index </button>
+                            <button type="submit" class="btn btn-default"> {{trans('tokens_edit.return')}} </button>
                         </form>
 
                     </div>

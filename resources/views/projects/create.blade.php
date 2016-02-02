@@ -1,12 +1,12 @@
 @extends('app')
 
 @section('content')
-    <h1>Create a New Project</h1>
+    <h1>{{trans('projects_create.new')}}</h1>
 
     <hr/>
 
     {!! Form::model($project = new \App\Project, ['url' => 'projects']) !!}
-    @include('projects.form',['submitButtonText' => 'Create Project'])
+    @include('projects.form',['submitButtonText' => trans('projects_create.project')])
     {!! Form::close() !!}
 
     @include('errors.list')
