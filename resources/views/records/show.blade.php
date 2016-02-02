@@ -93,7 +93,7 @@
                 alert('{{trans('records_show.mustenter')}}.');
             else {
                 $.ajax({
-                    url: '{{ action('RecordController@presetRecord') }} ',
+                    url: '{{ action('RecordPresetController@presetRecord') }} ',
                     type: 'POST',
                     data: {
                         "_token": "{{ csrf_token() }}",

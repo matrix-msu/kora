@@ -8,5 +8,6 @@ return [
 	"record" => "Compte rendu",
 	"change" => "Changement de nom",
 	"remove" => "Supprimer le param&egrave;tre pr&eacute;d&eacute;fini",
+	"recordDeleted" => "Disque supprim&eacute;"
 
 ];

@@ -92,6 +92,8 @@ Route::get('/projects/{pid}/forms/{fid}/records/presets', 'RecordPresetControlle
 Route::patch('/changePresetName', 'RecordPresetController@changePresetName');
 Route::delete('/deletePreset', 'RecordPresetController@deletePreset');
 Route::post('/getRecordArray', 'RecordPresetController@getRecordArray');
+Route::post('/presetRecord', 'RecordPresetController@presetRecord');
+Route::post('/getData', 'RecordPresetController@getData');
 
 
 //option preset routes
@@ -116,7 +118,6 @@ Route::delete('/projects/{pid}/forms/{fid}/records/{rid}','RecordController@dest
 Route::get('/projects/{pid}/forms/{fid}/records/{rid}/edit','RecordController@edit');
 Route::post('/projects/{pid}/forms/{fid}/records','RecordController@store');
 Route::delete('projects/{pid}/forms/{fid}/deleteAllRecords','RecordController@deleteAllRecords');
-Route::post('/presetRecord', 'RecordController@presetRecord');
 Route::post('/projects/{pid}/forms/{fid}/cleanUp', 'RecordController@cleanUp');
 
 

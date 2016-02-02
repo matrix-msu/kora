@@ -18,10 +18,10 @@ class CreateRecordpresetsTable extends Migration {
             $table->integer('fid')->unsigned();
             $table->integer('rid')->unsigned();
             $table->string('name');
+			$table->binary('preset');
 			$table->timestamps();
 
             $table->foreign('fid')->references('fid')->on('forms')->onDelete('cascade');
-            $table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');
 		});
 	}
 

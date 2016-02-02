@@ -1193,32 +1193,6 @@ class RecordController extends Controller {
     }
 
     /**
-     * Makes a record a preset for other records to be copied from.
-     *
-     * @param Request $request
-     */
-    public function presetRecord(Request $request)
-    {
-        $name = $request->name;
-        $rid = $request->rid;
-
-        if(!is_null(RecordPreset::where('rid', '=', $rid)->first()))
-            flash()->overlay(trans('controller_record.already'));
-        else {
-            $record = RecordController::getRecord($rid);
-            $fid = $record->fid;
-
-            $preset = new RecordPreset();
-            $preset->rid = $rid;
-            $preset->fid = $fid;
-            $preset->name = $name;
-            $preset->save();
-
-            flash()->overlay(trans('controller_record.presetsaved'), trans('controller_record.success'));
-        }
-    }
-
-    /**
      * Gets a record.
      *
      * @param $rid

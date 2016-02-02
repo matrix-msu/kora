@@ -30,7 +30,7 @@
             var val = $('#presetselect').val();
 
             $.ajax({
-                url: '{{action('RecordPresetController@getRecordArray')}}',
+                url: '{{action('RecordPresetController@getData')}}',
                 type: 'POST',
                 data: {
                     '_token': '{{csrf_token()}}',
