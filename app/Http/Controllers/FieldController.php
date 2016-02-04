@@ -27,7 +27,6 @@ class FieldController extends Controller {
         $this->middleware('active');
     }
 
-
     /**
      * Show the form for creating a new resource.
      *
@@ -198,7 +197,7 @@ class FieldController extends Controller {
         return redirect('projects/'.$pid.'/forms/'.$fid);
 	}
 
-    public function updateRequired($pid, $fid, $flid, Request $request)
+    public static function updateRequired($pid, $fid, $flid, $req)
     {
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
             return redirect('projects');
@@ -210,18 +209,14 @@ class FieldController extends Controller {
 
         $field = FieldController::getField($flid);
 
-        $field->required = $request->required;
+        $field->required = $req;
         $field->save();
 
         //A field has been changed, so current record rollbacks become invalid.
         RevisionController::wipeRollbacks($fid);
-
-        flash()->success(trans('controller_field.optupdate'));
-
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
     }
 
-    public function updateDefault($pid, $fid, $flid, Request $request)
+    public static function updateDefault($pid, $fid, $flid, $def)
     {
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
             return redirect('projects');
@@ -233,33 +228,275 @@ class FieldController extends Controller {
 
         $field = FieldController::getField($flid);
 
-        if(($field->type=='Multi-Select List' | $field->type=='Generated List' | $field->type=='Associator') && !is_null($request->default)){
-            $reqDefs = $request->default;
-            $def = $reqDefs[0];
-            for($i=1;$i<sizeof($reqDefs);$i++){
-                $def .= '[!]'.$reqDefs[$i];
-            }
-            $field->default = $def;
-        }else if ($field->type=='Date'){
-            if(FieldController::validateDate($request->default_month,$request->default_day,$request->default_year))
-                $field->default = '[M]'.$request->default_month.'[M][D]'.$request->default_day.'[D][Y]'.$request->default_year.'[Y]';
-            else{
-                flash()->error(trans('controller_field.baddate'));
-
-                return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
-            }
-        }else{
-            $field->default = $request->default;
-        }
+        $field->default = $def;
 
         $field->save();
 
         //A field has been changed, so current record rollbacks become invalid.
         RevisionController::wipeRollbacks($fid);
+    }
 
-        flash()->success(trans('controller_field.optupdate'));
+    public static function updateOptions($pid, $fid, $flid, $opt, $value)
+    {
+        if(!FieldController::validProjFormField($pid, $fid, $flid)){
+            return redirect('projects');
+        }
 
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+        if(!FieldController::checkPermissions($fid, 'edit')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
+        }
+
+        $field = FieldController::getField($flid);
+
+        $options = $field->options;
+        $tag = '[!'.$opt.'!]';
+        $array = explode($tag,$options);
+
+        $field->options = $array[0].$tag.$value.$tag.$array[2];
+        $field->save();
+
+        //A field has been changed, so current record rollbacks become invalid.
+        RevisionController::wipeRollbacks($fid);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param $pid
+     * @param $fid
+     * @param $flid
+     * @return Response
+     * @internal param int $id
+     */
+	public function destroy($pid, $fid, $flid)
+	{
+        if(!FieldController::validProjFormField($pid, $fid, $flid)){
+            return redirect('projects/'.$pid.'forms/');
+        }
+
+        if(!FieldController::checkPermissions($fid, 'delete')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
+        }
+
+        $field = FieldController::getField($flid);
+        $field->delete();
+
+        $form = FormController::getForm($fid);
+        $layout = explode('<ID>'.$field->flid.'</ID>',$form->layout);
+        $form->layout = $layout[0].$layout[1];
+        $form->save();
+
+        RevisionController::wipeRollbacks($form->fid);
+
+        flash()->overlay(trans('controller_field.deleted'), trans('controller_field.goodjob'));
+	}
+
+    /**
+     * Get field object for use in controller.
+     *
+     * @param $flid
+     * @return mixed
+     */
+    public static function getField($flid)
+    {
+        $field = Field::where('flid', '=', $flid)->first();
+        if(is_null($field)){
+            $field = Field::where('slug','=',$flid)->first();
+        }
+
+        return $field;
+    }
+
+    /**
+     * Validate that a field belongs to a form and project.
+     *
+     * @param $pid
+     * @param $fid
+     * @param $flid
+     * @return bool
+     */
+    public static function validProjFormField($pid, $fid, $flid)
+    {
+        $field = FieldController::getField($flid);
+        $form = FormController::getForm($fid);
+        $proj = ProjectController::getProject($pid);
+
+        if (!FormController::validProjForm($pid, $fid))
+            return false;
+
+        if (is_null($field) || is_null($form) || is_null($proj))
+            return false;
+        else if ($field->fid == $form->fid)
+            return true;
+        else
+            return false;
+    }
+
+    public static function getFieldOption($field, $key){
+        $options = $field->options;
+        $tag = '[!'.$key.'!]';
+        $value = explode($tag,$options)[1];
+
+        return $value;
+    }
+
+    /**
+     * Checks if a user has a certain permission.
+     * If no permission is provided checkPermissions simply decides if they are in any form group.
+     * This acts as the "can read" permission level.
+     *
+     * @param $fid
+     * @param string $permission
+     * @return bool
+     */
+    private static function checkPermissions($fid, $permission='')
+    {
+        switch($permission) {
+            case 'create':
+                if(!(\Auth::user()->canCreateFields(FormController::getForm($fid))))
+                {
+                    flash()->overlay(trans('controller_field.createper'), trans('controller_field.whoops'));
+                    return false;
+                }
+                return true;
+            case 'edit':
+                if(!(\Auth::user()->canEditFields(FormController::getForm($fid))))
+                {
+                    flash()->overlay(trans('controller_field.editper'), trans('controller_field.whoops'));
+                    return false;
+                }
+                return true;
+            case 'delete':
+                if(!(\Auth::user()->canDeleteFields(FormController::getForm($fid))))
+                {
+                    flash()->overlay(trans('controller_field.deleteper'), trans('controller_field.whoops'));
+                    return false;
+                }
+                return true;
+            default:
+                if(!(\Auth::user()->inAFormGroup(FormController::getForm($fid))))
+                {
+                    flash()->overlay(trans('controller_field.viewper'), trans('controller_field.whoops'));
+                    return false;
+                }
+                return true;
+        }
+    }
+
+
+    /****************************************************************************************************
+     *          THIS SECTION IS RESERVED FOR FUNCTIONS DEALING WITH SPECIFIC FIELD TYPES                 *
+     ****************************************************************************************************/
+
+    public function saveList($pid, $fid, $flid){
+        if ($_REQUEST['action']=='SaveList') {
+            if(isset($_REQUEST['options']))
+                $options = $_REQUEST['options'];
+            else
+                $options = array();
+
+            $dbOpt = '';
+
+            if (sizeof($options) == 1) {
+                $dbOpt = $options[0];
+            } else if (sizeof($options) == 2) {
+                $dbOpt = $options[0] . '[!]' . $options[1];
+            } else if (sizeof($options) > 2) {
+                $dbOpt = $options[0];
+                for ($i = 1; $i < sizeof($options); $i++) {
+                    $dbOpt .= '[!]' . $options[$i];
+                }
+            }
+
+            $field = FieldController::getField($flid);
+
+            //This line removes the default if it no longer exists
+            if(!in_array($field->default,$options)){
+                $field->default = '';
+                $field->save();
+            }
+
+            FieldController::setFieldOptions($field, 'Options', $dbOpt);
+        }
+    }
+
+    public function saveComboList($pid, $fid, $flid){
+        if ($_REQUEST['action']=='SaveList') {
+            if(isset($_REQUEST['options']))
+                $options = $_REQUEST['options'];
+            else
+                $options = array();
+
+            $fnum = $_REQUEST['fnum'];
+            $dbOpt = '';
+
+            if (sizeof($options) == 1) {
+                $dbOpt = $options[0];
+            } else if (sizeof($options) == 2) {
+                $dbOpt = $options[0] . '[!]' . $options[1];
+            } else if (sizeof($options) > 2) {
+                $dbOpt = $options[0];
+                for ($i = 1; $i < sizeof($options); $i++) {
+                    $dbOpt .= '[!]' . $options[$i];
+                }
+            }
+
+            $field = FieldController::getField($flid);
+
+            //This line removes the default if it no longer exists
+            if(!in_array($field->default,$options)){
+                //$field->default = '';
+                //$field->save();
+            }
+
+            FieldController::setComboFieldOptions($field, 'Options', $dbOpt, $fnum);
+        }
+    }
+
+    public static function getList($field, $blankOpt=false)
+    {
+        $dbOpt = FieldController::getFieldOption($field, 'Options');
+        $options = array();
+
+        if ($dbOpt == '') {
+            //skip
+        } else if (!strstr($dbOpt, '[!]')) {
+            $options = [$dbOpt => $dbOpt];
+        } else {
+            $opts = explode('[!]', $dbOpt);
+            foreach ($opts as $opt) {
+                $options[$opt] = $opt;
+            }
+        }
+
+        if ($blankOpt) {
+            $options = array('' => '') + $options;
+        }
+
+        return $options;
+    }
+
+    public static function getComboList($field, $blankOpt=false, $fnum)
+    {
+        $dbOpt = FieldController::getComboFieldOption($field, 'Options', $fnum);
+        $options = array();
+
+        if ($dbOpt == '') {
+            //skip
+        } else if (!strstr($dbOpt, '[!]')) {
+            $options = [$dbOpt => $dbOpt];
+        } else {
+            $opts = explode('[!]', $dbOpt);
+            foreach ($opts as $opt) {
+                $options[$opt] = $opt;
+            }
+        }
+
+        if ($blankOpt) {
+            $options = array('' => '') + $options;
+        }
+
+        return $options;
     }
 
     public function updateComboDefault($pid, $fid, $flid, Request $request)
@@ -482,54 +719,6 @@ class FieldController extends Controller {
         $field->save();
     }
 
-    public function updateOptions($pid, $fid, $flid, Request $request)
-    {
-        if(!FieldController::validProjFormField($pid, $fid, $flid)){
-            return redirect('projects');
-        }
-
-        if(!FieldController::checkPermissions($fid, 'edit')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
-        }
-
-        $field = FieldController::getField($flid);
-
-        FieldController::setFieldOptions($field, $request->option, $request->value);
-
-        //A field has been changed, so current record rollbacks become invalid.
-        RevisionController::wipeRollbacks($fid);
-
-        if($request->option != 'SearchForms') {
-            flash()->success(trans('controller_field.optupdate'));
-
-            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
-        }
-    }
-
-    public function updateComboOptions($pid, $fid, $flid, Request $request)
-    {
-        if(!FieldController::validProjFormField($pid, $fid, $flid)){
-            return redirect('projects');
-        }
-
-        if(!FieldController::checkPermissions($fid, 'edit')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
-        }
-
-        $field = FieldController::getField($flid);
-
-        FieldController::setComboFieldOptions($field, $request->option, $request->value, $request->fieldnum);
-
-        //A field has been changed, so current record rollbacks become invalid.
-        RevisionController::wipeRollbacks($fid);
-
-        if($request->option != 'SearchForms') {
-            flash()->success(trans('controller_field.optupdate'));
-
-            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
-        }
-    }
-
     public function updateComboName($pid, $fid, $flid, Request $request)
     {
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
@@ -570,85 +759,28 @@ class FieldController extends Controller {
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param $pid
-     * @param $fid
-     * @param $flid
-     * @return Response
-     * @internal param int $id
-     */
-	public function destroy($pid, $fid, $flid)
-	{
+    public function updateComboOptions($pid, $fid, $flid, Request $request)
+    {
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
-            return redirect('projects/'.$pid.'forms/');
+            return redirect('projects');
         }
 
-        if(!FieldController::checkPermissions($fid, 'delete')) {
+        if(!FieldController::checkPermissions($fid, 'edit')) {
             return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
         }
 
         $field = FieldController::getField($flid);
-        $field->delete();
 
-        $form = FormController::getForm($fid);
-        $layout = explode('<ID>'.$field->flid.'</ID>',$form->layout);
-        $form->layout = $layout[0].$layout[1];
-        $form->save();
+        FieldController::setComboFieldOptions($field, $request->option, $request->value, $request->fieldnum);
 
-        RevisionController::wipeRollbacks($form->fid);
+        //A field has been changed, so current record rollbacks become invalid.
+        RevisionController::wipeRollbacks($fid);
 
-        flash()->overlay(trans('controller_field.deleted'), trans('controller_field.goodjob'));
-	}
+        if($request->option != 'SearchForms') {
+            flash()->success(trans('controller_field.optupdate'));
 
-    /**
-     * Get field object for use in controller.
-     *
-     * @param $flid
-     * @return mixed
-     */
-    public static function getField($flid)
-    {
-        $field = Field::where('flid', '=', $flid)->first();
-        if(is_null($field)){
-            $field = Field::where('slug','=',$flid)->first();
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
         }
-
-        return $field;
-    }
-
-    /**
-     * Validate that a field belongs to a form and project.
-     *
-     * @param $pid
-     * @param $fid
-     * @param $flid
-     * @return bool
-     */
-    public static function validProjFormField($pid, $fid, $flid)
-    {
-        $field = FieldController::getField($flid);
-        $form = FormController::getForm($fid);
-        $proj = ProjectController::getProject($pid);
-
-        if (!FormController::validProjForm($pid, $fid))
-            return false;
-
-        if (is_null($field) || is_null($form) || is_null($proj))
-            return false;
-        else if ($field->fid == $form->fid)
-            return true;
-        else
-            return false;
-    }
-
-    public static function getFieldOption($field, $key){
-        $options = $field->options;
-        $tag = '[!'.$key.'!]';
-        $value = explode($tag,$options)[1];
-
-        return $value;
     }
 
     public static function getComboFieldOption($field, $key, $num){
@@ -662,6 +794,24 @@ class FieldController extends Controller {
         $value = explode($tag,$opt)[1];
 
         return $value;
+    }
+
+    public static function setComboFieldOptions($field, $key, $value, $num){
+        $options = $field->options;
+        if($num=='one') {
+            $fieldnum = '[!Field1!]';
+            $optParts = explode($fieldnum, $options);
+        }
+        else if($num=='two') {
+            $fieldnum = '[!Field2!]';
+            $optParts = explode($fieldnum, $options);
+        }
+
+        $tag = '[!'.$key.'!]';
+        $array = explode($tag,$optParts[1]);
+
+        $field->options = $optParts[0].$fieldnum.$array[0].$tag.$value.$tag.$array[2].$fieldnum.$optParts[2];
+        $field->save();
     }
 
     public static function getComboFieldName($field, $num){
@@ -690,227 +840,6 @@ class FieldController extends Controller {
         }
 
         return $type;
-    }
-
-    public static function setFieldOptions($field, $key, $value){
-        $options = $field->options;
-        $tag = '[!'.$key.'!]';
-        $array = explode($tag,$options);
-
-        if(($field->type=='Documents' | $field->type=='Gallery' | $field->type=='Playlist' | $field->type=='Video'
-                | $field->type=='3D-Model') && $key=='FileTypes'){
-            $valueString = $value[0];
-            for($i=1;$i<sizeof($value);$i++){
-                $valueString .= '[!]'.$value[$i];
-            }
-            $value = $valueString;
-        }else if($field->type=='Gallery' && ($key=='ThumbSmall' | $key=='ThumbLarge')){
-            $x = $_REQUEST['value_x'];
-            $y = $_REQUEST['value_y'];
-
-            if($x=='' && $key=='ThumbSmall')
-                $x = 150;
-            if($x=='' && $key=='ThumbLarge')
-                $x = 300;
-            if($y=='' && $key=='ThumbSmall')
-                $y = 150;
-            if($y=='' && $key=='ThumbLarge')
-                $y = 300;
-
-            $value = $x.'x'.$y;
-        }else if(($field->type=='Date' | $field->type=='Schedule')  && ($key=='Start' | $key=='End')){
-            if($value=='' && $key=='Start'){
-                $value = 0;
-            }
-            if($value=='' && $key=='End'){
-                $value = 9999;
-            }
-        }else if (($field->type=='Documents' | $field->type=='Gallery' | $field->type=='Playlist' | $field->type=='Video'
-                | $field->type=='3D-Model') && ($key=='MaxFiles' | $key=='FieldSize')){
-            if($value==''){
-                $value = 0;
-            }
-        }
-
-        $field->options = $array[0].$tag.$value.$tag.$array[2];
-        $field->save();
-    }
-
-    public static function setComboFieldOptions($field, $key, $value, $num){
-        $options = $field->options;
-        if($num=='one') {
-            $fieldnum = '[!Field1!]';
-            $optParts = explode($fieldnum, $options);
-        }
-        else if($num=='two') {
-            $fieldnum = '[!Field2!]';
-            $optParts = explode($fieldnum, $options);
-        }
-
-        $tag = '[!'.$key.'!]';
-        $array = explode($tag,$optParts[1]);
-
-        $field->options = $optParts[0].$fieldnum.$array[0].$tag.$value.$tag.$array[2].$fieldnum.$optParts[2];
-        $field->save();
-    }
-
-    /**
-     * Checks if a user has a certain permission.
-     * If no permission is provided checkPermissions simply decides if they are in any form group.
-     * This acts as the "can read" permission level.
-     *
-     * @param $fid
-     * @param string $permission
-     * @return bool
-     */
-    private function checkPermissions($fid, $permission='')
-    {
-        switch($permission) {
-            case 'create':
-                if(!(\Auth::user()->canCreateFields(FormController::getForm($fid))))
-                {
-                    flash()->overlay(trans('controller_field.createper'), trans('controller_field.whoops'));
-                    return false;
-                }
-                return true;
-            case 'edit':
-                if(!(\Auth::user()->canEditFields(FormController::getForm($fid))))
-                {
-                    flash()->overlay(trans('controller_field.editper'), trans('controller_field.whoops'));
-                    return false;
-                }
-                return true;
-            case 'delete':
-                if(!(\Auth::user()->canDeleteFields(FormController::getForm($fid))))
-                {
-                    flash()->overlay(trans('controller_field.deleteper'), trans('controller_field.whoops'));
-                    return false;
-                }
-                return true;
-            default:
-                if(!(\Auth::user()->inAFormGroup(FormController::getForm($fid))))
-                {
-                    flash()->overlay(trans('controller_field.viewper'), trans('controller_field.whoops'));
-                    return false;
-                }
-                return true;
-        }
-    }
-
-
-    /****************************************************************************************************
-     *          THIS SECTION IS RESERVED FOR FUNCTIONS DEALING WITH SPECIFIC FIELD TYPES                 *
-     ****************************************************************************************************/
-
-    public function saveList($pid, $fid, $flid){
-        if ($_REQUEST['action']=='SaveList') {
-            if(isset($_REQUEST['options']))
-                $options = $_REQUEST['options'];
-            else
-                $options = array();
-
-            $dbOpt = '';
-
-            if (sizeof($options) == 1) {
-                $dbOpt = $options[0];
-            } else if (sizeof($options) == 2) {
-                $dbOpt = $options[0] . '[!]' . $options[1];
-            } else if (sizeof($options) > 2) {
-                $dbOpt = $options[0];
-                for ($i = 1; $i < sizeof($options); $i++) {
-                    $dbOpt .= '[!]' . $options[$i];
-                }
-            }
-
-            $field = FieldController::getField($flid);
-
-            //This line removes the default if it no longer exists
-            if(!in_array($field->default,$options)){
-                $field->default = '';
-                $field->save();
-            }
-
-            FieldController::setFieldOptions($field, 'Options', $dbOpt);
-        }
-    }
-
-    public function saveComboList($pid, $fid, $flid){
-        if ($_REQUEST['action']=='SaveList') {
-            if(isset($_REQUEST['options']))
-                $options = $_REQUEST['options'];
-            else
-                $options = array();
-
-            $fnum = $_REQUEST['fnum'];
-            $dbOpt = '';
-
-            if (sizeof($options) == 1) {
-                $dbOpt = $options[0];
-            } else if (sizeof($options) == 2) {
-                $dbOpt = $options[0] . '[!]' . $options[1];
-            } else if (sizeof($options) > 2) {
-                $dbOpt = $options[0];
-                for ($i = 1; $i < sizeof($options); $i++) {
-                    $dbOpt .= '[!]' . $options[$i];
-                }
-            }
-
-            $field = FieldController::getField($flid);
-
-            //This line removes the default if it no longer exists
-            if(!in_array($field->default,$options)){
-                //$field->default = '';
-                //$field->save();
-            }
-
-            FieldController::setComboFieldOptions($field, 'Options', $dbOpt, $fnum);
-        }
-    }
-
-    public static function getList($field, $blankOpt=false)
-    {
-        $dbOpt = FieldController::getFieldOption($field, 'Options');
-        $options = array();
-
-        if ($dbOpt == '') {
-            //skip
-        } else if (!strstr($dbOpt, '[!]')) {
-            $options = [$dbOpt => $dbOpt];
-        } else {
-            $opts = explode('[!]', $dbOpt);
-            foreach ($opts as $opt) {
-                $options[$opt] = $opt;
-            }
-        }
-
-        if ($blankOpt) {
-            $options = array('' => '') + $options;
-        }
-
-        return $options;
-    }
-
-    public static function getComboList($field, $blankOpt=false, $fnum)
-    {
-        $dbOpt = FieldController::getComboFieldOption($field, 'Options', $fnum);
-        $options = array();
-
-        if ($dbOpt == '') {
-            //skip
-        } else if (!strstr($dbOpt, '[!]')) {
-            $options = [$dbOpt => $dbOpt];
-        } else {
-            $opts = explode('[!]', $dbOpt);
-            foreach ($opts as $opt) {
-                $options[$opt] = $opt;
-            }
-        }
-
-        if ($blankOpt) {
-            $options = array('' => '') + $options;
-        }
-
-        return $options;
     }
 
     public static function msListArrayToString($array){

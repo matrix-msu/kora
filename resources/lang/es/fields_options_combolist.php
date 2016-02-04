@@ -13,5 +13,6 @@ return [
 	"updateone" => "Actualice campo un nombre",
 	"nametwo" => "Campo dos llama",
 	"updatetwo" => "Actualice campo dos llama",
+    "default" => "Defecto",
 
 ];

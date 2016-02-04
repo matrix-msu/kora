@@ -1,9 +1,7 @@
-
-{!! Form::hidden('default_type_'.$fnum,$type) !!}
 {!! Form::label('default_'.$fnum,\App\Http\Controllers\FieldController::getComboFieldName($field,$fnum).': ') !!}
 @if($type=='Text')
     @if(\App\Http\Controllers\FieldController::getComboFieldOption($field,'MultiLine',$fnum)==0)
-        {!! Form::text('default_'.$fnum, null, ['class' => 'form-control']) !!}
+        {!! Form::text('default_'.$fnum, null, ['class' => 'form-control', 'id' => 'default_'.$fnum]) !!}
     @elseif(\App\Http\Controllers\FieldController::getComboFieldOption($field,'MultiLine',$fnum)==1)
         {!! Form::textarea('default_'.$fnum, null, ['class' => 'form-control']) !!}
     @endif
