@@ -4,57 +4,44 @@
     <?php
             $oneType = \App\Http\Controllers\FieldController::getComboFieldType($field,'one');
             $twoType = \App\Http\Controllers\FieldController::getComboFieldType($field,'two');
+            $oneName = \App\Http\Controllers\FieldController::getComboFieldName($field,'one');
+            $twoName = \App\Http\Controllers\FieldController::getComboFieldName($field,'two');
 
             $defs = $field->default;
             $defArray = explode('[!def!]',$defs);
     ?>
 
-    {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@updateRequired', $field->pid, $field->fid, $field->flid]]) !!}
+    {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['OptionController@updateCombolist', $field->pid, $field->fid, $field->flid], 'onsubmit' => 'selectAll()', 'id' => 'comboform']) !!}
     @include('fields.options.hiddens')
+    {!! Form::hidden('typeone',$oneType) !!}
+    {!! Form::hidden('typetwo',$twoType) !!}
+    {!! Form::hidden('nameone',$oneName) !!}
+    {!! Form::hidden('nametwo',$twoName) !!}
     <div class="form-group">
         {!! Form::label('required',trans('fields_options_combolist.req').': ') !!}
         {!! Form::select('required',['false', 'true'], $field->required, ['class' => 'form-control']) !!}
     </div>
-    <div class="form-group">
-        {!! Form::submit(trans('fields_options_combolist.updatereq'),['class' => 'btn btn-primary form-control']) !!}
-    </div>
-    {!! Form::close() !!}
 
+    <div class="form-group">
+        {!! Form::label('nameone',trans('fields_options_combolist.nameone').': ') !!}
+        {!! Form::text('nameone',$oneName, ['class' => 'form-control']) !!}
+    </div>
 
-    {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@updateComboName', $field->pid, $field->fid, $field->flid]]) !!}
-    @include('fields.options.hiddens')
-    {!! Form::hidden('fieldnum','one') !!}
     <div class="form-group">
-        {!! Form::label('value',trans('fields_options_combolist.nameone').': ') !!}
-        {!! Form::text('value',\App\Http\Controllers\FieldController::getComboFieldName($field,'one'), ['class' => 'form-control']) !!}
+        {!! Form::label('nametwo',trans('fields_options_combolist.nametwo').': ') !!}
+        {!! Form::text('nametwo',$twoName, ['class' => 'form-control']) !!}
     </div>
-    <div class="form-group">
-        {!! Form::submit(trans('fields_options_combolist.updateone'),['class' => 'btn btn-primary form-control']) !!}
-    </div>
-    {!! Form::close() !!}
-
-    {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@updateComboName', $field->pid, $field->fid, $field->flid]]) !!}
-    @include('fields.options.hiddens')
-    {!! Form::hidden('fieldnum','two') !!}
-    <div class="form-group">
-        {!! Form::label('value',trans('fields_options_combolist.nametwo').': ') !!}
-        {!! Form::text('value',\App\Http\Controllers\FieldController::getComboFieldName($field,'two'), ['class' => 'form-control']) !!}
-    </div>
-    <div class="form-group">
-        {!! Form::submit(trans('fields_options_combolist.updatetwo'),['class' => 'btn btn-primary form-control']) !!}
-    </div>
-    {!! Form::close() !!}
-
 
     <div id="combo_defaults" style="overflow: auto">
+        {!! Form::label('default', trans('fields_options_combolist.default').': ') !!}
         <div>
-            <span style="float:left;width:40%;margin-bottom:10px"><b>{{\App\Http\Controllers\FieldController::getComboFieldName($field,'one')}}</b></span>
-            <span style="float:left;width:40%;margin-bottom:10px"><b>{{\App\Http\Controllers\FieldController::getComboFieldName($field,'two')}}</b></span>
+            <span style="float:left;width:40%;margin-bottom:10px"><b>{{$oneName}}</b></span>
+            <span style="float:left;width:40%;margin-bottom:10px"><b>{{$twoName}}</b></span>
             <span style="float:left;width:20%;margin-bottom:10px"><b>{{trans('fields_options_combolist.remove')}}</b></span>
         </div>
         @if($defs!=null && $defs!='')
             @for($i=0;$i<sizeof($defArray);$i++)
-                <div id="{{$i}}">
+                <div class="default">
                     @if($oneType=='Text' | $oneType=='List')
                         <?php $value = explode('[!f1!]',$defArray[$i])[1]; ?>
                         <span style="float:left;width:40%;margin-bottom:10px">{{$value}}</span>
@@ -106,27 +93,23 @@
                         </span>
                     @endif
 
-                    <span class="delete_combo_def" id="{{$i}}" style="float:left;width:20%;margin-bottom:10px"><a>[X]</a></span>
+                    <span class="delete_combo_def" style="float:left;width:20%;margin-bottom:10px"><a>[X]</a></span>
                 </div>
             @endfor
         @endif
     </div>
 
 
-    {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@updateComboDefault', $field->pid, $field->fid, $field->flid]]) !!}
-    @include('fields.options.hiddens')
     <div class="form-group">
         @include('partials.combofields.default_inputs',['field'=>$field, 'type'=>$oneType, 'fnum'=>'one'])
         @include('partials.combofields.default_inputs',['field'=>$field, 'type'=>$twoType, 'fnum'=>'two'])
+        <br>
+        <button type="button" class="btn btn-primary add_option">Add Default Value</button>
     </div>
-    <div class="form-group">
-        {!! Form::submit(trans('fields_options_combolist.adddef'),['class' => 'btn btn-primary form-control']) !!}
-    </div>
-    {!! Form::close() !!}
 
     <br>
 
-    <h4>{{trans('fields_options_combolist.options')}} {{ \App\Http\Controllers\FieldController::getComboFieldName($field,'one') }}</h4>
+    <h4>{{trans('fields_options_combolist.options')}} {{ $oneName }}</h4>
     @if($oneType=='Text')
         @include('partials.combofields.text',['field'=>$field,'fnum'=>'one'])
     @elseif($oneType=='Number')
@@ -141,7 +124,7 @@
 
     <br>
 
-    <h4>{{trans('fields_options_combolist.options')}} {{ \App\Http\Controllers\FieldController::getComboFieldName($field,'two') }}</h4>
+    <h4>{{trans('fields_options_combolist.options')}} {{ $twoName }}</h4>
     @if($twoType=='Text')
         @include('partials.combofields.text',['field'=>$field,'fnum'=>'two'])
     @elseif($twoType=='Number')
@@ -154,6 +137,12 @@
         @include('partials.combofields.genlist',['field'=>$field,'fnum'=>'two'])
     @endif
 
+
+    <div class="form-group">
+        {!! Form::submit(trans('field_options_generic.submit',['field'=>$field->name]),['class' => 'btn btn-primary form-control']) !!}
+    </div>
+    {!! Form::close() !!}
+
     @include('errors.list')
 @stop
 
@@ -161,21 +150,130 @@
 
     <script>
         $('#combo_defaults').on('click', '.delete_combo_def', function() {
-            comID = $(this).attr('id');
             parentDiv = $(this).parent();
-
-            $.ajax({
-                url: '{{ action('FieldController@removeComboDefault',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
-                type: 'PATCH',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    comID: comID
-                },
-                success: function (result) {
-                    parentDiv.remove();
-                }
-            });
+            parentDiv.remove();
         });
+
+        $('.form-group').on('click', '.add_option', function() {
+            val1 = $('#default_one').val();
+            val2 = $('#default_two').val();
+            type1 = '{{$oneType}}';
+            type2 = '{{$twoType}}';
+
+            if(val1=='' | val2==''){
+                console.log('Both fields must be filled out');
+            }else{
+                div = '<div class="default">';
+
+                if(type1=='Text' | type1=='List'){
+                    div += '<span style="float:left;width:40%;margin-bottom:10px">'+val1+'</span>';
+                }else if(type1=='Number'){
+                    unit = '<?php
+                        if($oneType=='Number')
+                            echo \App\Http\Controllers\FieldController::getComboFieldOption($field,'Unit','one');
+                    ?>';
+                    div += '<span style="float:left;width:40%;margin-bottom:10px">'+val1+' '+unit+'</span>';
+                }else if(type1=='Multi-Select List' | type1=='Generated List'){
+                    div += '<span style="float:left;width:40%;margin-bottom:10px">';
+                    for(k=0;k<val1.length;k++){
+                        div += '<div>'+val1[k]+'</div>';
+                    }
+                    div += '</span>';
+                }
+
+                if(type2=='Text' | type2=='List'){
+                    div += '<span style="float:left;width:40%;margin-bottom:10px">'+val2+'</span>';
+                }else if(type2=='Number'){
+                    unit = '<?php
+                        if($twoType=='Number')
+                            echo \App\Http\Controllers\FieldController::getComboFieldOption($field,'Unit','two');
+                    ?>';
+                    div += '<span style="float:left;width:40%;margin-bottom:10px">'+val2+' '+unit+'</span>';
+                }else if(type2=='Multi-Select List' | type2=='Generated List'){
+                    div += '<span style="float:left;width:40%;margin-bottom:10px">';
+                    for(k=0;k<val2.length;k++){
+                        div += '<div>'+val2[k]+'</div>';
+                    }
+                    div += '</span>';
+                }
+
+                div += '<span class="delete_combo_def" style="float:left;width:20%;margin-bottom:10px"><a>[X]</a></span>';
+
+                div += '</div>';
+
+                $('#combo_defaults').html($('#combo_defaults').html()+div);
+            }
+        });
+
+        function selectAll(){
+            selectBox = $('.list_optionsone > option').each(function(){
+                $(this).attr('selected', 'selected');
+            });
+
+            selectBox = $('.list_optionstwo > option').each(function(){
+                $(this).attr('selected', 'selected');
+            });
+
+            type1 = '{{$oneType}}';
+            type2 = '{{$twoType}}';
+
+            valone = [];
+            valtwo = [];
+
+            $('.default').each(function(){
+                var i=1;
+                $(this).children().each(function(){
+                    if(i==1){
+                        if(type1=='Text' | type1=='List'){
+                            val = $(this).text();
+                            valone.push(val);
+                        }else if(type1=='Number'){
+                            val = $(this).text().split(" ")[0];
+                            valone.push(val);
+                        }else if(type1=='Multi-Select List' | type1=='Generated List'){
+                            val = '';
+                            $(this).children().each(function(){
+                                if(val=='')
+                                    val += ($(this).text());
+                                else
+                                    val += '[!]'+($(this).text());
+                            });
+                            valone.push(val);
+                        }
+                        i=2;
+                    }else if(i==2){
+                        if(type2=='Text' | type2=='List'){
+                            val = $(this).text();
+                            valtwo.push(val);
+                        }else if(type2=='Number'){
+                            val = $(this).text().split(" ")[0];
+                            valtwo.push(val);
+                        }else if(type2=='Multi-Select List' | type2=='Generated List'){
+                            val = '';
+                            $(this).children().each(function(){
+                                if(val=='')
+                                    val += ($(this).text());
+                                else
+                                    val += '[!]'+($(this).text());
+                            });
+                            valtwo.push(val);
+                        }
+                        return false;
+                    }
+                });
+            });
+
+            for(j=0;j<valone.length;j++) {
+                var input1 = $("<input>")
+                        .attr("type", "hidden")
+                        .attr("name", "defvalone[]").val(valone[j]);
+                var input2 = $("<input>")
+                        .attr("type", "hidden")
+                        .attr("name", "defvaltwo[]").val(valtwo[j]);
+                $('#comboform').append($(input1));
+                $('#comboform').append($(input2));
+            }
+        }
     </script>
 
 @stop
