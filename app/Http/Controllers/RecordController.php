@@ -440,7 +440,7 @@ class RecordController extends Controller {
 	/**
 	 * Show the form for editing the specified resource.
 	 *
-	 * @param  int  $id
+	 * @param int $id
 	 * @return Response
 	 */
 	public function edit($pid, $fid, $rid)
@@ -458,6 +458,38 @@ class RecordController extends Controller {
 
         return view('records.edit', compact('record', 'form'));
 	}
+
+    /**
+     * Clones the record.
+     * More specifically, it sends it's array representation to the cretion page.
+     *
+     * @param $pid
+     * @param $fid
+     * @param $rid
+     * @return Response
+     */
+    public function cloneRecord($pid, $fid, $rid) {
+
+        if(!RecordController::validProjFormRecord($pid, $fid, $rid)){
+            return redirect('projects');
+        }
+
+        $form = FormController::getForm($fid);
+
+        $rpc = new RecordPresetController();
+        $cloneArray = $rpc->getRecordArray($rid);
+
+        $presets = array();
+
+        foreach(RecordPreset::where('fid', '=', $fid)->get() as $preset)
+            $presets[] = ['id' => $preset->id, 'name' => $preset->name];
+
+        $fields = array(); //array of field ids
+        foreach($form->fields()->get() as $field)
+            $fields[] = $field->flid;
+
+        return view('records.create', compact('form', 'rid', 'presets', 'fields', 'cloneArray'));
+    }
 
     /**
      * Deletes file directories for records that do not exist anymore.
@@ -1189,32 +1221,6 @@ class RecordController extends Controller {
                 RecordController::destroy($pid, $fid, $record->rid);
             }
             flash()->overlay(trans('controller_record.alldelete'), trans('controller_record.success'));
-        }
-    }
-
-    /**
-     * Makes a record a preset for other records to be copied from.
-     *
-     * @param Request $request
-     */
-    public function presetRecord(Request $request)
-    {
-        $name = $request->name;
-        $rid = $request->rid;
-
-        if(!is_null(RecordPreset::where('rid', '=', $rid)->first()))
-            flash()->overlay(trans('controller_record.already'));
-        else {
-            $record = RecordController::getRecord($rid);
-            $fid = $record->fid;
-
-            $preset = new RecordPreset();
-            $preset->rid = $rid;
-            $preset->fid = $fid;
-            $preset->name = $name;
-            $preset->save();
-
-            flash()->overlay(trans('controller_record.presetsaved'), trans('controller_record.success'));
         }
     }
 

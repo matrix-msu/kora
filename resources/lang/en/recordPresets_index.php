@@ -8,5 +8,6 @@ return [
 	"record" => "Record",
 	"change" => "Change Name",
 	"remove" => "Remove as Preset",
+	"recordDeleted" => "Record Deleted"
 
 ];

@@ -38,10 +38,13 @@
 
     <hr/>
     <h2>{{trans('records_show.record')}}: {{$record->kid}}</h2>
-    @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
-        <input type="text" id="preset" placeholder="Enter a Name">
-        <button onclick="presetRecord({{$record->rid}})">{{trans('records_show.makepreset')}}</button>
-    @endif
+
+    <div style="margin: 0 0 1.25em 0">
+        @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
+            <input type="text" id="preset" placeholder="Enter a Name">
+            <button onclick="presetRecord({{$record->rid}})">{{trans('records_show.makepreset')}}</button>
+        @endif
+    </div>
 
     <div class="panel panel-default">
         @include('forms.layout.logic',['form' => $form, 'fieldview' => 'records.layout.displayfield'])
@@ -61,6 +64,11 @@
             <span>
                 @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form) || \Auth::user()->isOwner($record))
                 <a href='{{action('RevisionController@show', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid])}}'>[{{trans('records_show.history')}}]</a>
+                @endif
+            </span>
+            <span>
+                @if(\Auth::user()->CanIngestRecords($form) || \Auth::user()->isOwner($record))
+                <a href='{{action('RecordController@cloneRecord', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid])}}'>[{{trans('records_show.clone')}}]</a>
                 @endif
             </span>
         </div>
@@ -93,7 +101,7 @@
                 alert('{{trans('records_show.mustenter')}}.');
             else {
                 $.ajax({
-                    url: '{{ action('RecordController@presetRecord') }} ',
+                    url: '{{ action('RecordPresetController@presetRecord') }} ',
                     type: 'POST',
                     data: {
                         "_token": "{{ csrf_token() }}",

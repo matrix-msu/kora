@@ -22,8 +22,14 @@
                                     <span id="name{{$preset->id}}">{{$preset->name}}</span>
                                 </div>
                                 <div class="collapseTest" style="display: none">
-                                    <div>{{trans('recordPresets_index.record')}} KID: <a href="{{action('RecordController@show', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $preset->rid])}}">
-                                            {{$form->pid}}-{{$form->fid}}-{{$preset->rid}}</a>
+                                    <div>{{trans('recordPresets_index.record')}}
+                                        @if(App\Http\Controllers\RecordController::exists($preset->rid))
+                                            KID: <a href="{{action('RecordController@show', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $preset->rid])}}">
+                                                {{$form->pid}}-{{$form->fid}}-{{$preset->rid}}
+                                            </a>
+                                        @else
+                                            <p>{{$form->pid}}-{{$form->fid}}-{{$preset->rid}} ({{trans('recordPresets_index.recordDeleted')}})</p>
+                                        @endif
                                     </div>
                                     <div>
                                         <input name="presetname{{$preset->id}}" id="presetname{{$preset->id}}" placeholder="{{$preset->name}}">

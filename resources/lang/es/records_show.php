@@ -14,15 +14,14 @@ return [
 	"revisions" => "Administrar establecer revisiones",
 	"presets" => "Gestionar preajustes registro",
 	"record" => "Registro",
-	"makepreset" => "Hacer preselecci&oacute;n
-",
+	"makepreset" => "Hacer preselecci&oacute;n",
 	"owner" => "Propietario",
 	"created" => "Crear en el",
 	"edit" => "Editar",
 	"delete" => "Eliminar",
 	"history" => "Historia",
 	"areyousure" => "Est&aacute; seguro que desea eliminar",
-	"mustenter" => "Debe introducir un nombre v&aacute;lido
-",
+	"mustenter" => "Debe introducir un nombre v&aacute;lido",
+	"clone" => "Clona",
 
 ];

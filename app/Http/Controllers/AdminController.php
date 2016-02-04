@@ -20,6 +20,8 @@ class AdminController extends Controller {
     }
 
     /**
+     * Method for the manage users page.
+     *
      * @return Response
      */
     public function users()
@@ -43,6 +45,7 @@ class AdminController extends Controller {
         $new_pass = $request->new_password;
         $confirm = $request->confirm;
 
+        // Has the user been given admin rights?
         if (!is_null($request->admin)){
             $user->admin = 1;
             $message .= trans('controller_admin.admin');
@@ -52,6 +55,7 @@ class AdminController extends Controller {
             $message .= trans('controller_admin.notadmin');
         }
 
+        // Has the user been activated?
         if (!is_null($request->active)){
             $user->active = 1;
             $message .= trans('controller_admin.active');
@@ -61,19 +65,22 @@ class AdminController extends Controller {
             $message .= trans('controller_admin.inactive');
         }
 
+        // Handle password change cases.
         if (!empty($new_pass) || !empty($confirm)){
+
+            // If passwords don't match.
             if ($new_pass != $confirm){
                 flash()->overlay(trans('controller_admin.nomatch'), trans('controller_admin.whoops'));
                 return redirect('admin/users');
             }
 
-            //if password is less than 6 chars
+            // If password is less than 6 chars
             if(strlen($new_pass)<6){
                 flash()->overlay(trans('controller_admin.short'), trans('controller_admin.whoops'));
                 return redirect('admin/users');
             }
 
-            //if password contains spaces
+            // If password contains spaces
             if ( preg_match('/\s/',$new_pass) ){
                 flash()->overlay(trans('controller_admin.spaces'), trans('controller_admin.whoops'));
                 return redirect('admin/users');
@@ -91,7 +98,7 @@ class AdminController extends Controller {
     /**
      * Deletes a user.
      *
-     * @param $id
+     * @param $id, the user's id.
      */
     public function deleteUser($id)
     {
@@ -102,7 +109,7 @@ class AdminController extends Controller {
     }
 
     /**
-     * Takes in comma separated or space separated (or a combination of the two)
+     * Takes in comma or space separated (or a combination of the two)
      * e-mails and creates new users based on the emails.
      *
      * @param Request $request
@@ -114,6 +121,7 @@ class AdminController extends Controller {
         $emails = preg_replace('!\s+!', ' ', $emails);
         $emails = array_unique(explode(' ', $emails));
 
+        // The user hasn't entered anything.
         if ($emails[0] == "") {
             flash()->overlay(trans('controller_admin.enter'), trans('controller_admin.whoops'));
             return redirect('admin/users');
@@ -126,16 +134,20 @@ class AdminController extends Controller {
                 if (!AdminController::emailExists($email)) {
                     if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
                         $username = explode('@', $email)[0];
-                        $len = strlen($username);
                         $i = 1;
                         $username_array = array();
                         $username_array[0] = $username;
+
+                        // Increment a count while the username exists.
                         while (AdminController::usernameExists($username)) {
                             $username_array[1] = $i;
                             $username = implode($username_array);
                             $i++;
                         }
 
+                        //
+                        // Create the new user.
+                        //
                         $user = new User();
                         $user->username = $username;
                         $user->email = $email;
@@ -145,6 +157,9 @@ class AdminController extends Controller {
                         $user->regtoken = $token;
                         $user->save();
 
+                        //
+                        // Send a confirmation email.
+                        //
                         Mail::send('emails.batch-activation', compact('token', 'password', 'username'), function ($message) use ($email) {
                             $message->from(env('MAIL_FROM_ADDRESS'));
                             $message->to($email);
@@ -179,7 +194,7 @@ class AdminController extends Controller {
     }
 
     /**
-     * Checks if a email is in use.
+     * Checks if an email is in use.
      *
      * @param $email
      * @return bool

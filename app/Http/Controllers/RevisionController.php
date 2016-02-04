@@ -228,13 +228,13 @@ class RevisionController extends Controller {
                 case 'Number':
                     $numberfield = NumberField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
                     if ($revision->type != 'delete' && !is_null($numberfield)) {
-                        $numberfield->number = $data['numberfields'][$field->flid]['data'];
+                        $numberfield->number = $data['numberfields'][$field->flid]['data']['number'];
                         $numberfield->save();
                     } else {
                         $numberfield = new NumberField();
                         $numberfield->flid = $field->flid;
                         $numberfield->rid = $record->rid;
-                        $numberfield->number = $data['numberfields'][$field->flid]['data'];
+                        $numberfield->number = $data['numberfields'][$field->flid]['data']['number'];
                         $numberfield->save();
                     }
                 break;
