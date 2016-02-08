@@ -19,4 +19,16 @@ class DateField extends Model {
         return $this->belongsTo('App\Record');
     }
 
+    public static function validateDate($m,$d,$y){
+        if($d!='' && !is_null($d)) {
+            if ($m == '' | is_null($m)) {
+                return false;
+            } else {
+                return checkdate($m, $d, $y);
+            }
+        }
+
+        return true;
+    }
+
 }

@@ -16,14 +16,14 @@
 
     <div class="form-group">
         {!! Form::label('default',trans('fields_options_genlist.def').': ') !!}
-        {!! Form::select('default[]',\App\Http\Controllers\FieldController::getList($field,false), explode('[!]',$field->default),['class' => 'form-control', 'multiple', 'id' => 'default']) !!}
+        {!! Form::select('default[]',\App\GeneratedListField::getList($field,false), explode('[!]',$field->default),['class' => 'form-control', 'multiple', 'id' => 'default']) !!}
     </div>
 
     <div class="list_option_form">
         <div>
             {!! Form::label('options',trans('fields_options_genlist.options').': ') !!}
             <select multiple class="form-control list_options" name="options[]">
-                @foreach(\App\Http\Controllers\FieldController::getList($field,false) as $opt)
+                @foreach(\App\GeneratedListField::getList($field,false) as $opt)
                     <option value="{{$opt}}">{{$opt}}</option>
                 @endforeach
             </select>

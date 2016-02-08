@@ -2,7 +2,7 @@
     <div>
         {!! Form::label('options_'.$fnum,trans('partials_combofields_mslist.options').': ') !!}
         <select multiple class="form-control list_options{{$fnum}}" name = "options_{{$fnum}}[]">
-            @foreach(\App\Http\Controllers\FieldController::getComboList($field,false,$fnum) as $opt)
+            @foreach(\App\ComboListField::getComboList($field,false,$fnum) as $opt)
                 <option value="{{$opt}}">{{$opt}}</option>
             @endforeach
         </select>

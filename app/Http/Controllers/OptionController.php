@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\DateField;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
@@ -136,7 +137,7 @@ class OptionController extends Controller {
     public function updateDate($pid, $fid, $flid, Request $request){
         //dd($request);
 
-        if(FieldController::validateDate($request->default_month,$request->default_day,$request->default_year))
+        if(DateField::validateDate($request->default_month,$request->default_day,$request->default_year))
             $default = '[M]'.$request->default_month.'[M][D]'.$request->default_day.'[D][Y]'.$request->default_year.'[Y]';
         else{
             flash()->error(trans('controller_option.baddate'));

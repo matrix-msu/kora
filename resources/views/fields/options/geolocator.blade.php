@@ -13,7 +13,7 @@
         <div>
             {!! Form::label('default',trans('fields_options_geolocator.def').': ') !!}
             <select multiple class="form-control list_options" name="default[]">
-                @foreach(\App\Http\Controllers\FieldController::getDateList($field) as $opt)
+                @foreach(\App\GeolocatorField::getLocationList($field) as $opt)
                     <option value="{{$opt}}">{{$opt}}</option>
                 @endforeach
             </select>
@@ -183,7 +183,7 @@
 
         function latLonConvert(lat,lon){
             $.ajax({
-                url: '{{ action('FieldController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
+                url: '{{ action('FieldAjaxController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
                 type: 'POST',
                 data: {
                     "_token": "{{ csrf_token() }}",
@@ -205,7 +205,7 @@
 
         function utmConvert(zone,east,north){
             $.ajax({
-                url: '{{ action('FieldController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
+                url: '{{ action('FieldAjaxController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
                 type: 'POST',
                 data: {
                     "_token": "{{ csrf_token() }}",
@@ -228,7 +228,7 @@
 
         function addrConvert(addr){
             $.ajax({
-                url: '{{ action('FieldController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
+                url: '{{ action('FieldAjaxController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
                 type: 'POST',
                 data: {
                     "_token": "{{ csrf_token() }}",

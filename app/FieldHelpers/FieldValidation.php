@@ -9,8 +9,11 @@
 namespace App\FieldHelpers;
 
 
+use App\DateField;
 use App\Field;
 use App\Http\Controllers\FieldController;
+use App\ListField;
+use App\MultiSelectListField;
 
 class FieldValidation {
 
@@ -55,7 +58,7 @@ class FieldValidation {
 
     static function validateList($field, $value){
         $req = $field->required;
-        $list = FieldController::getList($field);
+        $list = ListField::getList($field);
 
         if($req==1 && ($value==null | $value=="")){
             return $field->name.trans('fieldhelpers_val.req');
@@ -70,7 +73,7 @@ class FieldValidation {
 
     static function validateMultiSelectList($field, $value){
         $req = $field->required;
-        $list = FieldController::getList($field);
+        $list = MultiSelectListField::getList($field);
 
         if($req==1 && ($value==null | $value=="")){
             return $field->name.trans('fieldhelpers_val.req');
@@ -127,7 +130,7 @@ class FieldValidation {
             return trans('fieldhelpers_val.year',['name'=>$field->name,'start'=>$start,'end'=>$end]);
         }
 
-        if(!FieldController::validateDate($month,$day,$year)){
+        if(!DateField::validateDate($month,$day,$year)){
             return trans('fieldhelpers_val.date',['name'=>$field->name]);
         }
 

@@ -1,13 +1,13 @@
 <div class="form-group">
     {!! Form::label('regex_'.$fnum,trans('partials_combofields_genlist.regex').': ') !!}
-    {!! Form::text('regex_'.$fnum, \App\Http\Controllers\FieldController::getComboFieldOption($field,'Regex',$fnum), ['class' => 'form-control']) !!}
+    {!! Form::text('regex_'.$fnum, \App\ComboListField::getComboFieldOption($field,'Regex',$fnum), ['class' => 'form-control']) !!}
 </div>
 
 <div id="list_option_form{{$fnum}}">
     <div>
         {!! Form::label('options_'.$fnum,trans('partials_combofields_genlist.options').': ') !!}
         <select multiple class="form-control list_options{{$fnum}}" name = "options_{{$fnum}}[]">
-            @foreach(\App\Http\Controllers\FieldController::getComboList($field,false,$fnum) as $opt)
+            @foreach(\App\ComboListField::getComboList($field,false,$fnum) as $opt)
                 <option value="{{$opt}}">{{$opt}}</option>
             @endforeach
         </select>
