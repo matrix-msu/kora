@@ -2,10 +2,10 @@
 
 @section('fieldOptions')
     <?php
-            $oneType = \App\Http\Controllers\FieldController::getComboFieldType($field,'one');
-            $twoType = \App\Http\Controllers\FieldController::getComboFieldType($field,'two');
-            $oneName = \App\Http\Controllers\FieldController::getComboFieldName($field,'one');
-            $twoName = \App\Http\Controllers\FieldController::getComboFieldName($field,'two');
+            $oneType = \App\ComboListField::getComboFieldType($field,'one');
+            $twoType = \App\ComboListField::getComboFieldType($field,'two');
+            $oneName = \App\ComboListField::getComboFieldName($field,'one');
+            $twoName = \App\ComboListField::getComboFieldName($field,'two');
 
             $defs = $field->default;
             $defArray = explode('[!def!]',$defs);
@@ -48,7 +48,7 @@
                     @elseif($oneType=='Number')
                         <?php
                             $value = explode('[!f1!]',$defArray[$i])[1];
-                            $unit = \App\Http\Controllers\FieldController::getComboFieldOption($field,'Unit','one');
+                            $unit = \App\ComboListField::getComboFieldOption($field,'Unit','one');
                             if($unit!=null && $unit!=''){
                                 $value .= ' '.$unit;
                             }
@@ -74,7 +74,7 @@
                     @elseif($twoType=='Number')
                         <?php
                             $value = explode('[!f2!]',$defArray[$i])[1];
-                            $unit = \App\Http\Controllers\FieldController::getComboFieldOption($field,'Unit','two');
+                            $unit = \App\ComboListField::getComboFieldOption($field,'Unit','two');
                             if($unit!=null && $unit!=''){
                                 $value .= ' '.$unit;
                             }
@@ -170,7 +170,7 @@
                 }else if(type1=='Number'){
                     unit = '<?php
                         if($oneType=='Number')
-                            echo \App\Http\Controllers\FieldController::getComboFieldOption($field,'Unit','one');
+                            echo \App\ComboListField::getComboFieldOption($field,'Unit','one');
                     ?>';
                     div += '<span style="float:left;width:40%;margin-bottom:10px">'+val1+' '+unit+'</span>';
                 }else if(type1=='Multi-Select List' | type1=='Generated List'){
@@ -186,7 +186,7 @@
                 }else if(type2=='Number'){
                     unit = '<?php
                         if($twoType=='Number')
-                            echo \App\Http\Controllers\FieldController::getComboFieldOption($field,'Unit','two');
+                            echo \App\ComboListField::getComboFieldOption($field,'Unit','two');
                     ?>';
                     div += '<span style="float:left;width:40%;margin-bottom:10px">'+val2+' '+unit+'</span>';
                 }else if(type2=='Multi-Select List' | type2=='Generated List'){

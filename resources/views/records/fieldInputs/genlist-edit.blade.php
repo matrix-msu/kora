@@ -2,7 +2,7 @@
     <?php
     if($genlist==null){
         $value = '';
-        $value2 = \App\Http\Controllers\FieldController::getList($field,false);
+        $value2 = \App\GeneratedListField::getList($field,false);
     }else{
         $value = explode('[!]',$genlist->options);
         $value2 = array();

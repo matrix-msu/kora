@@ -11,14 +11,14 @@
 
     <div class="form-group">
         {!! Form::label('default',trans('fields_options_list.def').': ') !!}
-        {!! Form::select('default',\App\Http\Controllers\FieldController::getList($field,true), $field->default,['class' => 'form-control', 'id' => 'default']) !!}
+        {!! Form::select('default',\App\ListField::getList($field,true), $field->default,['class' => 'form-control', 'id' => 'default']) !!}
     </div>
 
     <div class="list_option_form">
         <div>
             {!! Form::label('options',trans('fields_options_list.options').': ') !!}
             <select multiple class="form-control list_options" name="options[]">
-                @foreach(\App\Http\Controllers\FieldController::getList($field,false) as $opt)
+                @foreach(\App\ListField::getList($field,false) as $opt)
                     <option value="{{$opt}}">{{$opt}}</option>
                 @endforeach
             </select>
