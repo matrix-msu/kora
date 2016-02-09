@@ -181,13 +181,13 @@ class RecordController extends Controller {
                     $mslf = new MultiSelectListField();
                     $mslf->flid = $field->flid;
                     $mslf->rid = $record->rid;
-                    $mslf->options = FieldController::msListArrayToString($value);
+                    $mslf->options = FieldController::listArrayToString($value);
                     $mslf->save();
                 } else if ($field->type == 'Generated List') {
                     $glf = new GeneratedListField();
                     $glf->flid = $field->flid;
                     $glf->rid = $record->rid;
-                    $glf->options = FieldController::msListArrayToString($value);
+                    $glf->options = FieldController::listArrayToString($value);
                     $glf->save();
                 } else if($field->type == 'Combo List' && $request->input($field->flid.'_val') != null){
                     $clf = new ComboListField();
@@ -212,13 +212,13 @@ class RecordController extends Controller {
                     $sf = new ScheduleField();
                     $sf->flid = $field->flid;
                     $sf->rid = $record->rid;
-                    $sf->events = FieldController::msListArrayToString($value);
+                    $sf->events = FieldController::listArrayToString($value);
                     $sf->save();
                 } else if ($field->type == 'Geolocator') {
                     $gf = new GeolocatorField();
                     $gf->flid = $field->flid;
                     $gf->rid = $record->rid;
-                    $gf->locations = FieldController::msListArrayToString($value);
+                    $gf->locations = FieldController::listArrayToString($value);
                     $gf->save();
                 } else if ($field->type == 'Documents' && glob(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/*.*') != false) {
                     $df = new DocumentsField();
@@ -229,7 +229,7 @@ class RecordController extends Controller {
                     $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
                     mkdir($newPath, 0775, true);
                     if (file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
-                        $types = FieldController::getMimeTypes();
+                        $types = DocumentsField::getMimeTypes();
                         foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
                             if ($file->isFile()) {
                                 if (!array_key_exists($file->getExtension(), $types))
@@ -266,7 +266,7 @@ class RecordController extends Controller {
                     mkdir($newPath . '/thumbnail', 0775, true);
                     mkdir($newPath . '/medium', 0775, true);
                     if (file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
-                        $types = FieldController::getMimeTypes();
+                        $types = DocumentsField::getMimeTypes();
                         foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
                             if ($file->isFile()) {
                                 if (!array_key_exists($file->getExtension(), $types))
@@ -304,7 +304,7 @@ class RecordController extends Controller {
                     $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
                     mkdir($newPath, 0775, true);
                     if (file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
-                        $types = FieldController::getMimeTypes();
+                        $types = DocumentsField::getMimeTypes();
                         foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
                             if ($file->isFile()) {
                                 if (!array_key_exists($file->getExtension(), $types))
@@ -338,7 +338,7 @@ class RecordController extends Controller {
                     $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
                     mkdir($newPath, 0775, true);
                     if (file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
-                        $types = FieldController::getMimeTypes();
+                        $types = DocumentsField::getMimeTypes();
                         foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
                             if ($file->isFile()) {
                                 if (!array_key_exists($file->getExtension(), $types))
@@ -372,7 +372,7 @@ class RecordController extends Controller {
                     $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
                     mkdir($newPath, 0775, true);
                     if (file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
-                        $types = FieldController::getMimeTypes();
+                        $types = DocumentsField::getMimeTypes();
                         foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
                             if ($file->isFile()) {
                                 if (!array_key_exists($file->getExtension(), $types))
@@ -401,7 +401,7 @@ class RecordController extends Controller {
                     $af = new AssociatorField();
                     $af->flid = $field->flid;
                     $af->rid = $record->rid;
-                    $af->records = FieldController::msListArrayToString($value);
+                    $af->records = FieldController::listArrayToString($value);
                     $af->save();
                 }
             }
@@ -678,7 +678,7 @@ class RecordController extends Controller {
 
                 if(!is_null($mslf) && !is_null($value)){
                    // $mslf = MultiSelectListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
-                    $mslf->options = FieldController::msListArrayToString($value);
+                    $mslf->options = FieldController::listArrayToString($value);
                     $mslf->save();
                 }
                 elseif(!is_null($mslf) && is_null($value)){
@@ -688,7 +688,7 @@ class RecordController extends Controller {
                     $mslf = new MultiSelectListField();
                     $mslf->flid = $field->flid;
                     $mslf->rid = $record->rid;
-                    $mslf->options = FieldController::msListArrayToString($value);
+                    $mslf->options = FieldController::listArrayToString($value);
                     $mslf->save();
                 }
             } else if($field->type=='Generated List'){
@@ -696,7 +696,7 @@ class RecordController extends Controller {
                 $glf = GeneratedListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
                 if(!is_null($glf) && !is_null($value)){
                     //$glf = GeneratedListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
-                    $glf->options = FieldController::msListArrayToString($value);
+                    $glf->options = FieldController::listArrayToString($value);
                     $glf->save();
                 }elseif(!is_null($glf) && is_null($value)){
                     $glf->delete();
@@ -705,7 +705,7 @@ class RecordController extends Controller {
                     $glf = new GeneratedListField();
                     $glf->flid = $field->flid;
                     $glf->rid = $record->rid;
-                    $glf->options = FieldController::msListArrayToString($value);
+                    $glf->options = FieldController::listArrayToString($value);
                     $glf->save();
                 }
             } else if($field->type=='Combo List'){
@@ -759,7 +759,7 @@ class RecordController extends Controller {
                 //we need to check if the field exist first
                 $sf = ScheduleField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
                 if(!is_null($sf) && !is_null($value)){
-                    $sf->events = FieldController::msListArrayToString($value);
+                    $sf->events = FieldController::listArrayToString($value);
                     $sf->save();
                 }
                 elseif(!is_null($sf) && is_null($value)){
@@ -770,7 +770,7 @@ class RecordController extends Controller {
                     $sf = new ScheduleField();
                     $sf->flid = $field->flid;
                     $sf->rid = $record->rid;
-                    $sf->events = FieldController::msListArrayToString($value);
+                    $sf->events = FieldController::listArrayToString($value);
                     $sf->save();
                 }
             } else if($field->type=='Geolocator'){
@@ -778,7 +778,7 @@ class RecordController extends Controller {
                 $gf = GeolocatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
                 if(!is_null($gf) && !is_null($value)){
                     $gf = GeolocatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
-                    $gf->locations = FieldController::msListArrayToString($value);
+                    $gf->locations = FieldController::listArrayToString($value);
                     $gf->save();
                 }
                 elseif(!is_null($gf) && is_null($gf)){
@@ -788,7 +788,7 @@ class RecordController extends Controller {
                     $gf = new GeolocatorField();
                     $gf->flid = $field->flid;
                     $gf->rid = $record->rid;
-                    $gf->locations = FieldController::msListArrayToString($value);
+                    $gf->locations = FieldController::listArrayToString($value);
                     $gf->save();
                 }
             } else if($field->type=='Documents'
@@ -832,7 +832,7 @@ class RecordController extends Controller {
                 $infoString = '';
                 $infoArray = array();
                 if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
-                    $types = FieldController::getMimeTypes();
+                    $types = DocumentsField::getMimeTypes();
                     foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
                         if ($file->isFile()) {
                             if(!array_key_exists($file->getExtension(),$types))
@@ -912,7 +912,7 @@ class RecordController extends Controller {
                 $infoString = '';
                 $infoArray = array();
                 if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
-                    $types = FieldController::getMimeTypes();
+                    $types = DocumentsField::getMimeTypes();
                     foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
                         if ($file->isFile()) {
                             if(!array_key_exists($file->getExtension(),$types))
@@ -989,7 +989,7 @@ class RecordController extends Controller {
                 $infoString = '';
                 $infoArray = array();
                 if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
-                    $types = FieldController::getMimeTypes();
+                    $types = DocumentsField::getMimeTypes();
                     foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
                         if ($file->isFile()) {
                             if(!array_key_exists($file->getExtension(),$types))
@@ -1059,7 +1059,7 @@ class RecordController extends Controller {
                 $infoString = '';
                 $infoArray = array();
                 if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
-                    $types = FieldController::getMimeTypes();
+                    $types = DocumentsField::getMimeTypes();
                     foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
                         if ($file->isFile()) {
                             if(!array_key_exists($file->getExtension(),$types))
@@ -1129,7 +1129,7 @@ class RecordController extends Controller {
                 $infoString = '';
                 $infoArray = array();
                 if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
-                    $types = FieldController::getMimeTypes();
+                    $types = DocumentsField::getMimeTypes();
                     foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
                         if ($file->isFile()) {
                             if(!array_key_exists($file->getExtension(),$types))
@@ -1163,13 +1163,13 @@ class RecordController extends Controller {
                 //we need to check if the field exist first
                 if(AssociatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
                     $af = AssociatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
-                    $af->records = FieldController::msListArrayToString($value);
+                    $af->records = FieldController::listArrayToString($value);
                     $af->save();
                 }else {
                     $af = new AssociatorField();
                     $af->flid = $field->flid;
                     $af->rid = $record->rid;
-                    $af->records = FieldController::msListArrayToString($value);
+                    $af->records = FieldController::listArrayToString($value);
                     $af->save();
                 }
             }

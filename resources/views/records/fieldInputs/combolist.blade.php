@@ -5,8 +5,8 @@
     @endif
 
     <?php
-    $oneType = \App\Http\Controllers\FieldController::getComboFieldType($field,'one');
-    $twoType = \App\Http\Controllers\FieldController::getComboFieldType($field,'two');
+    $oneType = \App\ComboListField::getComboFieldType($field,'one');
+    $twoType = \App\ComboListField::getComboFieldType($field,'two');
 
     $defs = $field->default;
     $defArray = explode('[!def!]',$defs);
@@ -15,8 +15,8 @@
     <div id="combo_list_{{$field->flid}}" style="overflow: auto">
         {!! Form::hidden($field->flid,true) !!}
         <div>
-            <span style="float:left;width:40%;margin-bottom:10px"><b>{{\App\Http\Controllers\FieldController::getComboFieldName($field,'one')}}</b></span>
-            <span style="float:left;width:40%;margin-bottom:10px"><b>{{\App\Http\Controllers\FieldController::getComboFieldName($field,'two')}}</b></span>
+            <span style="float:left;width:40%;margin-bottom:10px"><b>{{\App\ComboListField::getComboFieldName($field,'one')}}</b></span>
+            <span style="float:left;width:40%;margin-bottom:10px"><b>{{\App\ComboListField::getComboFieldName($field,'two')}}</b></span>
             <span style="float:left;width:20%;margin-bottom:10px"><b>{{trans('records_fieldInput.remove')}}</b></span>
         </div>
         @if($defs!=null && $defs!='')
@@ -28,7 +28,7 @@
                     @elseif($oneType=='Number')
                         <?php
                         $value1 = explode('[!f1!]',$defArray[$i])[1];
-                        $unit = \App\Http\Controllers\FieldController::getComboFieldOption($field,'Unit','one');
+                        $unit = \App\ComboListField::getComboFieldOption($field,'Unit','one');
                         if($unit!=null && $unit!=''){
                             $value1 .= ' '.$unit;
                         }
@@ -54,7 +54,7 @@
                     @elseif($twoType=='Number')
                         <?php
                         $value2 = explode('[!f2!]',$defArray[$i])[1];
-                        $unit = \App\Http\Controllers\FieldController::getComboFieldOption($field,'Unit','two');
+                        $unit = \App\ComboListField::getComboFieldOption($field,'Unit','two');
                         if($unit!=null && $unit!=''){
                             $value2 .= ' '.$unit;
                         }
@@ -114,7 +114,7 @@
         }
 
         $.ajax({
-            url: '{{ action('FieldController@validateComboListOpt',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
+            url: '{{ action('FieldAjaxController@validateComboListOpt',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
             type: 'POST',
             data: {
                 "_token": "{{ csrf_token() }}",

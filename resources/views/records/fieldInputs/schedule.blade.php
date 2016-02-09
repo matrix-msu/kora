@@ -5,7 +5,7 @@
     @endif
     <div class="list_option_form{{$field->flid}}">
         <div>
-            {!! Form::select($field->flid.'[]',\App\Http\Controllers\FieldController::getDateList($field),
+            {!! Form::select($field->flid.'[]',\App\ScheduleField::getDateList($field),
                 explode('[!]',$field->default),['class' => 'form-control list-options'.$field->flid, 'Multiple', 'id' => 'list'.$field->flid]) !!}
             <button type="button" class="btn btn-primary remove_option{{$field->flid}}">{{trans('records_fieldInput.delete')}}</button>
             <button type="button" class="btn btn-primary move_option_up{{$field->flid}}">{{trans('records_fieldInput.up')}}</button>

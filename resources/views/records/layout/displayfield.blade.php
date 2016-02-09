@@ -54,11 +54,11 @@
             @foreach($record->combolistfields as $clf)
                 @if($clf->flid == $field->flid)
                     <?php
-                        $cmbName1 = \App\Http\Controllers\FieldController::getComboFieldName($field,'one');
-                        $cmbName2 = \App\Http\Controllers\FieldController::getComboFieldName($field,'two');
+                        $cmbName1 = \App\ComboListField::getComboFieldName($field,'one');
+                        $cmbName2 = \App\ComboListField::getComboFieldName($field,'two');
 
-                        $oneType = \App\Http\Controllers\FieldController::getComboFieldType($field,'one');
-                        $twoType = \App\Http\Controllers\FieldController::getComboFieldType($field,'two');
+                        $oneType = \App\ComboListField::getComboFieldType($field,'one');
+                        $twoType = \App\ComboListField::getComboFieldType($field,'two');
 
                         $valArray = explode('[!val!]',$clf->options);
                     ?>
@@ -75,7 +75,7 @@
                                 @elseif($oneType=='Number')
                                     <?php
                                     $value1 = explode('[!f1!]',$valArray[$i])[1];
-                                    $unit = \App\Http\Controllers\FieldController::getComboFieldOption($field,'Unit','one');
+                                    $unit = \App\ComboListField::getComboFieldOption($field,'Unit','one');
                                     if($unit!=null && $unit!=''){
                                         $value1 .= ' '.$unit;
                                     }
@@ -100,7 +100,7 @@
                                 @elseif($twoType=='Number')
                                     <?php
                                     $value2 = explode('[!f2!]',$valArray[$i])[1];
-                                    $unit = \App\Http\Controllers\FieldController::getComboFieldOption($field,'Unit','two');
+                                    $unit = \App\ComboListField::getComboFieldOption($field,'Unit','two');
                                     if($unit!=null && $unit!=''){
                                         $value2 .= ' '.$unit;
                                     }
@@ -239,7 +239,7 @@
                         @if($opt != '')
                             <?php
                             $name = explode('[Name]',$opt)[1];
-                            $link = action('FieldController@getFileDownload',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name]);
+                            $link = action('FieldAjaxController@getFileDownload',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name]);
                             ?>
                             <div><a href="{{$link}}">{{$name}}</a></div>
                         @endif
@@ -254,7 +254,7 @@
                             @if($img != '')
                                 <?php
                                 $name = explode('[Name]',$img)[1];
-                                $link = action('FieldController@getImgDisplay',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name, 'type' => 'normal']);
+                                $link = action('FieldAjaxController@getImgDisplay',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name, 'type' => 'normal']);
                                 ?>
                                 <div><img class="img-responsive" src="{{$link}}" alt="{{$name}}"></div>
                             @endif
@@ -442,7 +442,7 @@
                         @if($opt != '')
                             <?php
                             $name = explode('[Name]',$opt)[1];
-                            $link = action('FieldController@getFileDownload',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name]);
+                            $link = action('FieldAjaxController@getFileDownload',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name]);
                             ?>
                             <div style="width:800px; margin:auto; position:relative;">
                                 <canvas id="cv{{$field->flid}}" style="border: 1px solid;" width="750" height="400">

@@ -2,28 +2,24 @@
 
 @section('fieldOptions')
 
-    {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@updateRequired', $field->pid, $field->fid, $field->flid]]) !!}
+    {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['OptionController@updateGeolocator', $field->pid, $field->fid, $field->flid], 'onsubmit' => 'selectAll()']) !!}
     @include('fields.options.hiddens')
     <div class="form-group">
         {!! Form::label('required',trans('fields_options_geolocator.req').': ') !!}
         {!! Form::select('required',['false', 'true'], $field->required, ['class' => 'form-control']) !!}
     </div>
-    <div class="form-group">
-        {!! Form::submit(trans('fields_options_geolocator.updatereq'),['class' => 'btn btn-primary form-control']) !!}
-    </div>
-    {!! Form::close() !!}
 
     <div class="list_option_form">
         <div>
             {!! Form::label('default',trans('fields_options_geolocator.def').': ') !!}
-            <select multiple class="form-control list_options">
-                @foreach(\App\Http\Controllers\FieldController::getDateList($field) as $opt)
+            <select multiple class="form-control list_options" name="default[]">
+                @foreach(\App\GeolocatorField::getLocationList($field) as $opt)
                     <option value="{{$opt}}">{{$opt}}</option>
                 @endforeach
             </select>
-            <button class="btn btn-primary remove_option">{{trans('fields_options_geolocator.delete')}}</button>
-            <button class="btn btn-primary move_option_up">{{trans('fields_options_geolocator.up')}}</button>
-            <button class="btn btn-primary move_option_down">{{trans('fields_options_geolocator.down')}}</button>
+            <button type="button" class="btn btn-primary remove_option">{{trans('fields_options_geolocator.delete')}}</button>
+            <button type="button" class="btn btn-primary move_option_up">{{trans('fields_options_geolocator.up')}}</button>
+            <button type="button" class="btn btn-primary move_option_down">{{trans('fields_options_geolocator.down')}}</button>
         </div>
         <div>
             {!! Form::label($field->flid, trans('fields_options_geolocator.desc').': ') !!}
@@ -52,31 +48,24 @@
             <input type="text" class="form-control text_addr">
         </div>
         <div>
-            <button class="btn btn-primary form-control add_geo">{{trans('fields_options_geolocator.adddef')}}</button>
+            <button type="button" class="btn btn-primary add_geo">{{trans('fields_options_geolocator.adddef')}}</button>
         </div>
     </div>
 
-    {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@updateOptions', $field->pid, $field->fid, $field->flid]]) !!}
-    @include('fields.options.hiddens')
     {!! Form::hidden('option','Map') !!}
     <div class="form-group">
-        {!! Form::label('value',trans('fields_options_geolocator.map').': ') !!}
-        {!! Form::select('value', ['No' => trans('fields_options_geolocator.no'),'Yes' => trans('fields_options_geolocator.yes')], \App\Http\Controllers\FieldController::getFieldOption($field,'Map'), ['class' => 'form-control']) !!}
+        {!! Form::label('map',trans('fields_options_geolocator.map').': ') !!}
+        {!! Form::select('map', ['No' => trans('fields_options_geolocator.no'),'Yes' => trans('fields_options_geolocator.yes')], \App\Http\Controllers\FieldController::getFieldOption($field,'Map'), ['class' => 'form-control']) !!}
     </div>
-    <div class="form-group">
-        {!! Form::submit(trans('fields_options_geolocator.updatemap'),['class' => 'btn btn-primary form-control']) !!}
-    </div>
-    {!! Form::close() !!}
 
-    {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@updateOptions', $field->pid, $field->fid, $field->flid]]) !!}
-    @include('fields.options.hiddens')
     {!! Form::hidden('option','DataView') !!}
     <div class="form-group">
-        {!! Form::label('value',trans('fields_options_geolocator.data').': ') !!}
-        {!! Form::select('value', ['LatLon' => 'Lat Long','UTM' => 'UTM Coordinates','Textual' => trans('fields_options_geolocator.text')], \App\Http\Controllers\FieldController::getFieldOption($field,'DataView'), ['class' => 'form-control']) !!}
+        {!! Form::label('view',trans('fields_options_geolocator.data').': ') !!}
+        {!! Form::select('view', ['LatLon' => 'Lat Long','UTM' => 'UTM Coordinates','Textual' => trans('fields_options_geolocator.text')], \App\Http\Controllers\FieldController::getFieldOption($field,'DataView'), ['class' => 'form-control']) !!}
     </div>
+
     <div class="form-group">
-        {!! Form::submit(trans('fields_options_geolocator.updatedata'),['class' => 'btn btn-primary form-control']) !!}
+        {!! Form::submit(trans('field_options_generic.submit',['field'=>$field->name]),['class' => 'btn btn-primary form-control']) !!}
     </div>
     {!! Form::close() !!}
 
@@ -92,19 +81,16 @@
 
         $('.list_option_form').on('click', '.remove_option', function(){
             $('option:selected', '.list_options').remove();
-            SaveList();
         });
         $('.list_option_form').on('click', '.move_option_up', function(){
             $('.list_options').find('option:selected').each(function() {
                 $(this).insertBefore($(this).prev());
             });
-            SaveList();
         });
         $('.list_option_form').on('click', '.move_option_down', function(){
             $('.list_options').find('option:selected').each(function() {
                 $(this).insertAfter($(this).next());
             });
-            SaveList();
         });
         $('.list_option_form').on('change', '.loc_type', function(){
             newType = $('.loc_type').val();
@@ -197,7 +183,7 @@
 
         function latLonConvert(lat,lon){
             $.ajax({
-                url: '{{ action('FieldController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
+                url: '{{ action('FieldAjaxController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
                 type: 'POST',
                 data: {
                     "_token": "{{ csrf_token() }}",
@@ -213,14 +199,13 @@
                         text: result
                     }));
                     $('.loc_desc').val('');
-                    SaveList();
                 }
             });
         }
 
         function utmConvert(zone,east,north){
             $.ajax({
-                url: '{{ action('FieldController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
+                url: '{{ action('FieldAjaxController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
                 type: 'POST',
                 data: {
                     "_token": "{{ csrf_token() }}",
@@ -237,14 +222,13 @@
                         text: result
                     }));
                     $('.loc_desc').val('');
-                    SaveList();
                 }
             });
         }
 
         function addrConvert(addr){
             $.ajax({
-                url: '{{ action('FieldController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
+                url: '{{ action('FieldAjaxController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
                 type: 'POST',
                 data: {
                     "_token": "{{ csrf_token() }}",
@@ -259,28 +243,13 @@
                         text: result
                     }));
                     $('.loc_desc').val('');
-                    SaveList();
                 }
             });
         }
 
-        function SaveList() {
-            options = new Array();
-            $(".list_options option").each(function(){
-                options.push($(this).val());
-            });
-
-            $.ajax({
-                url: '{{ action('FieldController@saveDateList',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
-                type: 'POST',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    action: 'SaveDateList',
-                    options: options
-                },
-                success: function (result) {
-                    //location.reload();
-                }
+        function selectAll(){
+            selectBox = $('.list_options > option').each(function(){
+                $(this).attr('selected', 'selected');
             });
         }
     </script>

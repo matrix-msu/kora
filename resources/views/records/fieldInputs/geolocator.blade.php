@@ -5,7 +5,7 @@
     @endif
     <div class="list_option_form{{$field->flid}}">
         <div>
-            {!! Form::select($field->flid.'[]',\App\Http\Controllers\FieldController::getDateList($field),
+            {!! Form::select($field->flid.'[]',\App\GeolocatorField::getLocationList($field),
                 explode('[!]',$field->default),['class' => 'form-control list-options'.$field->flid, 'Multiple', 'id' => 'list'.$field->flid]) !!}
             <button type="button" class="btn btn-primary remove_option{{$field->flid}}">{{trans('records_fieldInput.delete')}}</button>
             <button type="button" class="btn btn-primary move_option_up{{$field->flid}}">{{trans('records_fieldInput.up')}}</button>
@@ -129,7 +129,7 @@
                 //find info for other loc types
                 if (type == 'LatLon') {
                     $.ajax({
-                        url: '{{ action('FieldController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
+                        url: '{{ action('FieldAjaxController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
                         type: 'POST',
                         data: {
                             "_token": "{{ csrf_token() }}",
@@ -150,7 +150,7 @@
                     });
                 }else if(type == 'UTM'){
                     $.ajax({
-                        url: '{{ action('FieldController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
+                        url: '{{ action('FieldAjaxController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
                         type: 'POST',
                         data: {
                             "_token": "{{ csrf_token() }}",
@@ -172,7 +172,7 @@
                     });
                 }else if(type == 'Address'){
                     $.ajax({
-                        url: '{{ action('FieldController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
+                        url: '{{ action('FieldAjaxController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
                         type: 'POST',
                         data: {
                             "_token": "{{ csrf_token() }}",

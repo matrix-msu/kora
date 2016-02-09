@@ -2,7 +2,7 @@
     <?php
     if($schedule==null){
         $value = '';
-        $value2 = \App\Http\Controllers\FieldController::getDateList($field);
+        $value2 = \App\ScheduleField::getDateList($field);
     }else{
         $value = explode('[!]',$schedule->events);
         $value2 = array();

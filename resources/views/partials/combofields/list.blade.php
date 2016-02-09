@@ -1,18 +1,18 @@
 <div id="list_option_form{{$fnum}}">
     <div>
-        {!! Form::label('options',trans('partials_combofields_list.options').': ') !!}
-        <select multiple class="form-control list_options{{$fnum}}">
-            @foreach(\App\Http\Controllers\FieldController::getComboList($field,false,$fnum) as $opt)
+        {!! Form::label('options_'.$fnum,trans('partials_combofields_list.options').': ') !!}
+        <select multiple class="form-control list_options{{$fnum}}" name = "options_{{$fnum}}[]">
+            @foreach(\App\ComboListField::getComboList($field,false,$fnum) as $opt)
                 <option value="{{$opt}}">{{$opt}}</option>
             @endforeach
         </select>
-        <button class="btn btn-primary remove_option{{$fnum}}">{{trans('partials_combofields_list.delete')}}</button>
-        <button class="btn btn-primary move_option_up{{$fnum}}">{{trans('partials_combofields_list.up')}}</button>
-        <button class="btn btn-primary move_option_down{{$fnum}}">{{trans('partials_combofields_list.down')}}</button>
+        <button type="button" class="btn btn-primary remove_option{{$fnum}}">{{trans('partials_combofields_list.delete')}}</button>
+        <button type="button" class="btn btn-primary move_option_up{{$fnum}}">{{trans('partials_combofields_list.up')}}</button>
+        <button type="button" class="btn btn-primary move_option_down{{$fnum}}">{{trans('partials_combofields_list.down')}}</button>
     </div>
     <div>
         <span><input type="text" class="new_list_option{{$fnum}}"></span>
-        <span><button class="btn btn-primary add_option{{$fnum}}">{{trans('partials_combofields_list.add')}}</button></span>
+        <span><button type="button" class="btn btn-primary add_option{{$fnum}}">{{trans('partials_combofields_list.add')}}</button></span>
     </div>
 </div>
 
@@ -22,7 +22,6 @@
 
         $('option:selected', '.list_options{{$fnum}}').remove();
         $("#default_{{$fnum}} option[value='"+val+"']").remove();
-        SaveList{{$fnum}}();
     });
     $('#list_option_form{{$fnum}}').on('click', '.move_option_up{{$fnum}}', function(){
         val = $('option:selected', '.list_options{{$fnum}}').val();
@@ -32,7 +31,6 @@
             $(this).insertBefore($(this).prev());
         });
         defOpt.insertBefore(defOpt.prev());
-        SaveList{{$fnum}}();
     });
     $('#list_option_form{{$fnum}}').on('click', '.move_option_down{{$fnum}}', function(){
         val = $('option:selected', '.list_options{{$fnum}}').val();
@@ -42,7 +40,6 @@
             $(this).insertAfter($(this).next());
         });
         defOpt.insertAfter(defOpt.next());
-        SaveList{{$fnum}}();
     });
     $('#list_option_form{{$fnum}}').on('click', '.add_option{{$fnum}}', function() {
         val = $('.new_list_option{{$fnum}}').val();
@@ -58,28 +55,6 @@
                 value: val,
                 text: val
             }));
-            SaveList{{$fnum}}();
         }
     });
-
-    function SaveList{{$fnum}}() {
-        options = new Array();
-        $(".list_options{{$fnum}} option").each(function(){
-            options.push($(this).val());
-        });
-
-        $.ajax({
-            url: '{{ action('FieldController@saveComboList',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
-            type: 'POST',
-            data: {
-                "_token": "{{ csrf_token() }}",
-                action: 'SaveList',
-                options: options,
-                fnum: '{{$fnum}}'
-            },
-            success: function (result) {
-                //location.reload();
-            }
-        });
-    }
 </script>

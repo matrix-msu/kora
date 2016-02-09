@@ -13,5 +13,6 @@ return [
 	"updateone" => "Update Field One Name",
 	"nametwo" => "Field Two Name",
 	"updatetwo" => "Update Field Two Name",
+	"default" => "Default",
 
 ];

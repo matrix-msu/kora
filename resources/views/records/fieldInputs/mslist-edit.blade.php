@@ -10,7 +10,7 @@
     @if($field->required==1)
         <b style="color:red;font-size:20px">*</b>
     @endif
-    {!! Form::select($field->flid.'[]',\App\Http\Controllers\FieldController::getList($field,false), $value,['class' => 'form-control', 'Multiple', 'id' => 'list'.$field->flid]) !!}
+    {!! Form::select($field->flid.'[]',\App\MultiSelectListField::getList($field,false), $value,['class' => 'form-control', 'Multiple', 'id' => 'list'.$field->flid]) !!}
 </div>
 
 <script>

@@ -2,7 +2,7 @@
     <?php
     if($geolocator==null){
         $value = '';
-        $value2 = \App\Http\Controllers\FieldController::getDateList($field);
+        $value2 = \App\GeolocatorField::getLocationList($field);
     }else{
         $value = explode('[!]',$geolocator->locations);
         $value2 = array();
@@ -141,7 +141,7 @@
                 //find info for other loc types
                 if (type == 'LatLon') {
                     $.ajax({
-                        url: '{{ action('FieldController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
+                        url: '{{ action('FieldAjaxController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
                         type: 'POST',
                         data: {
                             "_token": "{{ csrf_token() }}",
@@ -162,7 +162,7 @@
                     });
                 }else if(type == 'UTM'){
                     $.ajax({
-                        url: '{{ action('FieldController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
+                        url: '{{ action('FieldAjaxController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
                         type: 'POST',
                         data: {
                             "_token": "{{ csrf_token() }}",
@@ -184,7 +184,7 @@
                     });
                 }else if(type == 'Address'){
                     $.ajax({
-                        url: '{{ action('FieldController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
+                        url: '{{ action('FieldAjaxController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}',
                         type: 'POST',
                         data: {
                             "_token": "{{ csrf_token() }}",
