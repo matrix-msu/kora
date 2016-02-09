@@ -9,5 +9,6 @@ return [
 	"tokens" => "G&eacute;rer les jetons",
 	"backups" => "G&eacute;rer les sauvegardes",
 	"env" => "G&eacute;rer les fichiers de l'environnement",
+	"update" => "Mise &agrave; Jour",
 
 ];

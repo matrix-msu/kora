@@ -79,6 +79,17 @@ class RecordPresetController extends Controller {
         }
     }
 
+    public function updateIfExists($rid) {
+        $pre = RecordPreset::where("rid", '=', $rid)->first();
+
+        if(is_null($pre)) {
+            return;
+        }
+        else {
+            $pre->preset = RecordPresetController::getRecordArray($rid);
+        }
+    }
+
     /**
      * Changes a preset's name.
      *

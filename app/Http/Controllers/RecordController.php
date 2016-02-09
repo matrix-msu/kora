@@ -407,6 +407,7 @@ class RecordController extends Controller {
             }
 
             RevisionController::storeRevision($record->rid, 'create');
+            RecordPresetController::updateIfExists($record->rid);
         }
 
         flash()->overlay(trans('controller_record.created'), trans('controller_record.goodjob'));
@@ -507,8 +508,12 @@ class RecordController extends Controller {
             flash()->overlay(trans('controller_record.noperm'), trans('controller_record.whoops'));
         }
 
+        //
         // Using revisions, if a record's most recent change is a deletion,
         // we remove the file directory associated with that record.
+        // More specifically, if the record no longer exists we
+        // intend to clean up the files associated with it.
+        //
         $all_revisions = Revision::where('fid', '=', $fid)->get();
         $rids = array();
 
@@ -517,17 +522,20 @@ class RecordController extends Controller {
         }
         $rids = array_unique($rids);
 
-        $revisions = array(); //Revisions with records that do not exist.
+        $revisions = array(); // To be filled with revisions with records that do not exist.
         foreach($rids as $rid){
-            //If a record's most recent revision is a deletion...
+            // If a record's most recent revision is a deletion...
             $revision = Revision::where('rid', '=', $rid)->orderBy('created_at', 'desc')->first();
             if($revision->type == 'delete'){
-                $revisions[] = $revision; //... add to the array.
+                $revisions[] = $revision; // ... add to the array.
             }
         }
 
         $base_path = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid;
 
+        //
+        // For each revision,
+        //
         foreach ($revisions as $revision){
             $path = $base_path . "/r" . $revision->rid;
             if(is_dir($path)) {

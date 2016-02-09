@@ -619,6 +619,10 @@ class RevisionController extends Controller {
                     else
                         $data['videofields'][$field->flid]['data'] = null;
                     break;
+
+                case 'Combo List':
+                    $data['combofields'][$field->flid]['name'] = $field->name;
+                    break;
             }
 
         }
