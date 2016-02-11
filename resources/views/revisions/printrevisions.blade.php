@@ -363,6 +363,94 @@
                         @endfor
                     @endif
 
+                    <?php
+                    if(isset($data['combofields'])) {
+                        $new = array_values($data['combofields']);
+                    }
+                    else
+                        $new = null;
+                    if(isset($oldData['combofields'])) {
+                        $old = array_values($oldData['combofields']);
+                    }
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($new))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['values'] != $old[$i]['values'] || $revision->type == 'create' || $revision->type == 'delete')
+                                <span><b>{{$new[$i]['name']}}:</b></span>
+
+                                <?php $valArray = $new[$i]['values'];
+                                    $oneType = $new[$i]['first']['type'];
+                                    $twoType = $new[$i]['second']['type'];
+                                    $options = $new[$i]['options'];
+                                ?>
+
+                                <div style="overflow: auto">
+                                    <span style="float:left;width:50%;margin-bottom:10px"><b>{{$new[$i]['first']['name']}}</b></span>
+                                    <span style="float:left;width:50%;margin-bottom:10px"><b>{{$new[$i]['second']['name']}}</b></span>
+
+                                    @for($j = 0; $j < sizeof($valArray); $j++)
+                                        <div>
+                                            @if($oneType == 'Text' || $oneType == 'List')
+                                                <?php $value1 = explode('[!f1!]', $valArray[$j])[1]; ?>
+                                                <span style="float:left;width:50%;margin-bottom:10px">{{$value1}}</span>
+                                            @elseif($oneType == 'Number')
+                                                <?php
+                                                $value1 = explode('[!f1!]', $valArray[$j])[1];
+                                                $unit = explode('[!Field1!]', $options)[1];
+                                                $unit = explode('[!Unit!]', $unit)[1];
+
+                                                if($unit != null && $unit != '') {
+                                                    $value1 .= ' '.$unit;
+                                                }
+                                                ?>
+                                                <span style="float:left;width:50%;margin-bottom:10px">{{$value1}}</span>
+                                            @elseif($oneType == 'Multi-Select List' || $oneType == 'Generated List')
+                                                <?php
+                                                $value1 = explode('[!f1!]', $valArray[$j])[1];
+                                                $val1Array = explode('[!]', $value1);
+                                                ?>
+                                                <span style="float:left;width:50%;margin-bottom:10px">
+                                                    @foreach($value1Array as $val)
+                                                        <div>{{$val}}</div>
+                                                    @endforeach
+                                                </span>
+                                            @endif
+
+                                            @if($twoType == 'Text' || $twoType == 'List')
+                                                <?php $value2 = explode('[!f2!]', $valArray[$j])[1]; ?>
+                                                <span style="float:left;width:50%;margin-bottom:10px">{{$value2}}</span>
+                                            @elseif($twoType == 'Number')
+                                                <?php
+                                                $value2 = explode('[!f2!]', $valArray[$j])[1];
+                                                $unit = explode('[!Field2!]', $options)[1];
+                                                $unit = explode('Unit', $unit)[1];
+
+                                                if($unit != null && $unit != '') {
+                                                    $value2 .= ' '.$unit;
+                                                }
+                                                ?>
+                                                <span style="float:left;width:50%;margin-bottom:10px">{{$value2}}</span>
+                                            @elseif($twoType == 'Multi-Select List' || $twoType == 'Generated List')
+                                                <?php
+                                                $value2 = explode('[!f2!]', $valArray[$j])[1];
+                                                $val2Array = explode('[!]', $value2);
+                                                ?>
+                                                <span style="float:left;width:50%;margin-bottom:10px">
+                                                    @foreach($val2Array as $val)
+                                                        <div>{{$val}}</div>
+                                                    @endforeach
+                                                </span>
+                                            @endif
+                                        </div>
+                                    @endfor
+                                </div>
+                            @endif
+                        @endfor
+                    @endif
+
                 </div>
 <!--- --- --- --- --- --- ---  ---  --- --- --- Begin Old Record Print --- --- --- --- --- --- ---  ---  --- --- --->
                 @if($revision->type != 'delete' && $revision->type != 'create')
@@ -766,8 +854,94 @@
                         @endfor
                     @endif
 
-                </div>
+                    <?php
+                    if(isset($data['combofields']))
+                        $new = array_values($data['combofields']);
+                    else
+                        $new = null;
+                    if(isset($oldData['combofields'])) {
+                        $old = array_values($oldData['combofields']);
+                    }
+                    else
+                        $old = null;
+                    ?>
 
+                    @if(!is_null($old))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['values'] != $old[$i]['values'] || $revision->type == 'create' || $revision->type == 'delete')
+                                <span><b>{{$old[$i]['name']}}:</b></span>
+
+                                <?php $valArray = $old[$i]['values'];
+                                $oneType = $old[$i]['first']['type'];
+                                $twoType = $old[$i]['second']['type'];
+                                $options = $old[$i]['options'];
+                                ?>
+
+                                <div style="overflow: auto">
+                                    <span style="float:left;width:50%;margin-bottom:10px"><b>{{$new[$i]['first']['name']}}</b></span>
+                                    <span style="float:left;width:50%;margin-bottom:10px"><b>{{$new[$i]['second']['name']}}</b></span>
+
+                                    @for($j = 0; $j < sizeof($valArray); $j++)
+                                        <div>
+                                            @if($oneType == 'Text' || $oneType == 'List')
+                                                <?php $value1 = explode('[!f1!]', $valArray[$j])[1]; ?>
+                                                <span style="float:left;width:50%;margin-bottom:10px">{{$value1}}</span>
+                                            @elseif($oneType == 'Number')
+                                                <?php
+                                                $value1 = explode('[!f1!]', $valArray[$j])[1];
+                                                $unit = explode('[!Field1!]', $options)[1];
+                                                $unit = explode('[!Unit!]', $unit)[1];
+
+                                                if($unit != null && $unit != '') {
+                                                    $value1 .= ' '.$unit;
+                                                }
+                                                ?>
+                                                <span style="float:left;width:50%;margin-bottom:10px">{{$value1}}</span>
+                                            @elseif($oneType == 'Multi-Select List' || $oneType == 'Generated List')
+                                                <?php
+                                                $value1 = explode('[!f1!]', $valArray[$j])[1];
+                                                $val1Array = explode('[!]', $value1);
+                                                ?>
+                                                <span style="float:left;width:50%;margin-bottom:10px">
+                                                    @foreach($value1Array as $val)
+                                                        <div>{{$val}}</div>
+                                                    @endforeach
+                                                </span>
+                                            @endif
+
+                                            @if($twoType == 'Text' || $twoType == 'List')
+                                                <?php $value2 = explode('[!f2!]', $valArray[$j])[1]; ?>
+                                                <span style="float:left;width:50%;margin-bottom:10px">{{$value2}}</span>
+                                            @elseif($twoType == 'Number')
+                                                <?php
+                                                $value2 = explode('[!f2!]', $valArray[$j])[1];
+                                                $unit = explode('[!Field2!]', $options)[1];
+                                                $unit = explode('Unit', $unit)[1];
+
+                                                if($unit != null && $unit != '') {
+                                                    $value2 .= ' '.$unit;
+                                                }
+                                                ?>
+                                                <span style="float:left;width:50%;margin-bottom:10px">{{$value2}}</span>
+                                            @elseif($twoType == 'Multi-Select List' || $twoType == 'Generated List')
+                                                <?php
+                                                $value2 = explode('[!f2!]', $valArray[$j])[1];
+                                                $val2Array = explode('[!]', $value2);
+                                                ?>
+                                                <span style="float:left;width:50%;margin-bottom:10px">
+                                                    @foreach($val2Array as $val)
+                                                        <div>{{$val}}</div>
+                                                    @endforeach
+                                                </span>
+                                            @endif
+                                        </div>
+                                    @endfor
+                                </div>
+                            @endif
+                        @endfor
+                    @endif
+
+                </div>
                 @endif
             </div>
         </div>
