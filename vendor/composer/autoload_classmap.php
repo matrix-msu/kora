@@ -36,6 +36,7 @@ return array(
     'CreateRevisionsTable' => $baseDir . '/database/migrations/2015_07_23_181833_create_revisions_table.php',
     'CreateRichtextfieldsTable' => $baseDir . '/database/migrations/2015_06_08_190300_create_richtextfields_table.php',
     'CreateSchedulefieldsTable' => $baseDir . '/database/migrations/2015_08_03_183859_create_schedulefields_table.php',
+    'CreateScriptsTable' => $baseDir . '/database/migrations/2015_11_30_185639_create_scripts_table.php',
     'CreateTextfieldsTable' => $baseDir . '/database/migrations/2015_06_03_200516_create_textfields_table.php',
     'CreateTokensTable' => $baseDir . '/database/migrations/2015_06_19_152400_CreateTokensTable.php',
     'CreateUsersTable' => $baseDir . '/database/migrations/2015_06_17_134524_CreateUsersTable.php',

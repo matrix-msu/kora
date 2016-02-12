@@ -16,6 +16,6 @@ return [
     "register" => "S'inscrire",
     "activation" => "Activation",
     "viewprofile" => "Voir le profil",
-    "logout" => "Logout",
+    "logout" => "D&eacute;connexion",
 
 ];

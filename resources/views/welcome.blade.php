@@ -36,7 +36,11 @@
 <div class="body_quote">
     <div class="container_quote">
         <div class="content_quote">
-            <img src="{{ env('BASE_URL') }}public/logos/koraiii-logo-blue.svg">
+            @if(!isset($not_installed))
+                <img src="{{ env('BASE_URL') }}public/logos/koraiii-logo-blue.svg">
+            @else
+                <img src="logos/koraiii-logo-blue.svg">
+            @endif
             <br><br>
             <div class="quote">{{ Inspiring::quote() }}</div>
             <div class="quote">Powered by Laravel</div>

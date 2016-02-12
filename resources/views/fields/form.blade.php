@@ -71,7 +71,7 @@
 
 <div id="advance_options_div">
     <div class="form-group">
-        <button type="button" id="adv_opt" class="btn form-control">Advanced Options</button>
+        <button type="button" id="adv_opt" class="btn form-control">{{trans('fields_form.adv')}}</button>
     </div>
 </div>
 
@@ -113,7 +113,7 @@
             }
             //close advanced options page
             button = '<div class="form-group">';
-            button += '<button type="button" id="adv_opt" class="btn form-control">Advanced Options</button>';
+            button += '<button type="button" id="adv_opt" class="btn form-control">{{trans('fields_form.adv')}}</button>';
             button += '<div>';
             $('#advance_options_div').html(button);
             //set adv to false

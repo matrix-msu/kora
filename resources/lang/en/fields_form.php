@@ -32,5 +32,6 @@ return [
 	"model" => "3D-Model",
 	"geo" => "Geolocator",
 	"assoc" => "Associator",
+    "adv" => "Advanced Options",
 
 ];

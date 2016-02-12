@@ -78,7 +78,7 @@ class RevisionController extends Controller {
                 $records[$temp[$i]] = $pid . '-' . $form->fid . '-' . $temp[$i];
             }
         }
-        $message = trans('controller_revision.recent');
+        $message = 'Recent';
 
         //dd($revisions);
 
