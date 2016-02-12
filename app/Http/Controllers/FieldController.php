@@ -56,6 +56,7 @@ class FieldController extends Controller {
      */
 	public function store(FieldRequest $request)
     {
+        //dd($request);
         $field = Field::Create($request->all());
 
         //special error check for combo list field
@@ -74,6 +75,12 @@ class FieldController extends Controller {
         $layout = explode('</LAYOUT>',$form->layout);
         $form->layout = $layout[0].'<ID>'.$field->flid.'</ID></LAYOUT>';
         $form->save();
+
+        //if advanced options was selected we should call the correct one
+        if($request->advance) {
+            $optC = new OptionController();
+            $optC->updateAdvanced($field,$request);
+        }
 
         //A field has been changed, so current record rollbacks become invalid.
         RevisionController::wipeRollbacks($form->fid);

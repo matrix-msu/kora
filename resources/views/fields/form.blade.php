@@ -69,6 +69,56 @@
     {!! Form::select('required',['false', 'true'], 'false', ['class' => 'form-control']) !!}
 </div>
 
+<div id="advance_options_div">
+    <div class="form-group">
+        <button type="button" id="adv_opt" class="btn form-control">Advanced Options</button>
+    </div>
+</div>
+
 <div class="form-group">
     {!! Form::submit($submitButtonText,['class' => 'btn btn-primary form-control']) !!}
 </div>
+
+<script>
+    var adv = false;
+
+    $('#advance_options_div').on('click','#adv_opt',function(){
+        //opens advanced options page for selected type
+        $.ajax({
+            url: "{{ action('OptionController@getAdvancedOptionsPage',['pid' => $pid,'fid'=>$fid]) }}",
+            type: 'GET',
+            data: {
+                "_token": "{{ csrf_token() }}",
+                type: $(".field_types").val()
+            },
+            success: function (result) {
+                $('#advance_options_div').html(result);
+            }
+        });
+
+        //set adv to true
+        adv = true;
+    });
+
+    $('#field_types_div').on('focus', '.field_types', function () {
+        // Store the current value on focus and on change
+        previous = $(this).val();
+    }).on('change','.field_types',function(){
+        //if adv is true
+        if(adv) {
+            //dialog warning
+            if (!confirm("Changing the field type will reset your advanced options. Are you sure you want to proceed?")) {
+                $('.field_types').val(previous);
+                return false;
+            }
+            //close advanced options page
+            button = '<div class="form-group">';
+            button += '<button type="button" id="adv_opt" class="btn form-control">Advanced Options</button>';
+            button += '<div>';
+            $('#advance_options_div').html(button);
+            //set adv to false
+            adv = false;
+        }
+    });
+
+</script>

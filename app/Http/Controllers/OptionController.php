@@ -8,7 +8,80 @@ use Illuminate\Http\Request;
 
 class OptionController extends Controller {
 
-    public function updateModel($pid, $fid, $flid, Request $request){
+    public function getAdvancedOptionsPage(Request $request){
+        $type = $request->type;
+        if($type=="Text") {
+            return view('partials.field_option_forms.text', compact('field', 'form', 'proj','presets'));
+        }else if($type=="Rich Text") {
+            return view('partials.field_option_forms.richtext', compact('field', 'form', 'proj'));
+        }else if($type=="Number") {
+            return view('partials.field_option_forms.number', compact('field', 'form', 'proj'));
+        }else if($type=="List") {
+            return view('partials.field_option_forms.list', compact('field', 'form', 'proj','presets'));
+        }else if($type=="Multi-Select List") {
+            return view('partials.field_option_forms.mslist', compact('field', 'form', 'proj','presets'));
+        }else if($type=="Generated List") {
+            return view('partials.field_option_forms.genlist', compact('field', 'form', 'proj','presets'));
+        }else if($type=="Combo List") {
+            return view('partials.field_option_forms.combolist', compact('field', 'form', 'proj'));
+        }else if($type=="Date") {
+            return view('partials.field_option_forms.date', compact('field', 'form', 'proj'));
+        }else if($type=="Schedule") {
+            return view('partials.field_option_forms.schedule', compact('field', 'form', 'proj','presets'));
+        }else if($type=="Geolocator") {
+            return view('partials.field_option_forms.geolocator', compact('field', 'form', 'proj','presets'));
+        }else if($type=="Documents") {
+            return view('partials.field_option_forms.documents', compact('field', 'form', 'proj'));
+        }else if($type=="Gallery") {
+            return view('partials.field_option_forms.gallery', compact('field', 'form', 'proj'));
+        }else if($type=="Playlist") {
+            return view('partials.field_option_forms.playlist', compact('field', 'form', 'proj'));
+        }else if($type=="Video") {
+            return view('partials.field_option_forms.video', compact('field', 'form', 'proj'));
+        }else if($type=="3D-Model") {
+            return view('partials.field_option_forms.3dmodel', compact('field', 'form', 'proj'));
+        }else if($type=="Associator") {
+            return view('partials.field_option_forms.associator', compact('field', 'form', 'proj'));
+        }
+    }
+
+    public function updateAdvanced($field,Request $request){
+        if($field->type=="Text") {
+            $this->updateText($field->pid,$field->fid,$field->flid,$request,false);
+        }else if($field->type=="Rich Text") {
+            $this->updateRichtext($field->pid,$field->fid,$field->flid,$request,false);
+        }else if($field->type=="Number") {
+            $this->updateNumber($field->pid,$field->fid,$field->flid,$request,false);
+        }else if($field->type=="List") {
+            $this->updateList($field->pid,$field->fid,$field->flid,$request,false);
+        }else if($field->type=="Multi-Select List") {
+            $this->updateMultilist($field->pid,$field->fid,$field->flid,$request,false);
+        }else if($field->type=="Generated List") {
+            $this->updateGenlist($field->pid,$field->fid,$field->flid,$request,false);
+        }else if($field->type=="Combo List") {
+            $this->updateCombolist($field->pid,$field->fid,$field->flid,$request,false);
+        }else if($field->type=="Date") {
+            $this->updateDate($field->pid,$field->fid,$field->flid,$request,false);
+        }else if($field->type=="Schedule") {
+            $this->updateSchedule($field->pid,$field->fid,$field->flid,$request,false);
+        }else if($field->type=="Geolocator") {
+            $this->updateGeolocator($field->pid,$field->fid,$field->flid,$request,false);
+        }else if($field->type=="Documents") {
+            $this->updateDocument($field->pid,$field->fid,$field->flid,$request,false);
+        }else if($field->type=="Gallery") {
+            $this->updateGallery($field->pid,$field->fid,$field->flid,$request,false);
+        }else if($field->type=="Playlist") {
+            $this->updatePlaylist($field->pid,$field->fid,$field->flid,$request,false);
+        }else if($field->type=="Video") {
+            $this->updateVideo($field->pid,$field->fid,$field->flid,$request,false);
+        }else if($field->type=="3D-Model") {
+            $this->updateModel($field->pid,$field->fid,$field->flid,$request,false);
+        }else if($field->type=="Associator") {
+            $this->updateAssociator($field->pid,$field->fid,$field->flid,$request,false);
+        }
+    }
+
+    public function updateModel($pid, $fid, $flid, Request $request, $return=true){
         //dd($request);
 
         $filetype = $request->filetype[0];
@@ -24,12 +97,14 @@ class OptionController extends Controller {
         FieldController::updateOptions($pid, $fid, $flid, 'FieldSize', $request->filesize);
         FieldController::updateOptions($pid, $fid, $flid, 'FileTypes', $filetype);
 
-        flash()->success(trans('controller_option.updated'));
+        if($return) {
+            flash()->success(trans('controller_option.updated'));
 
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }
     }
 
-    public function updateAssociator($pid, $fid, $flid, Request $request){
+    public function updateAssociator($pid, $fid, $flid, Request $request, $return=true){
         //dd($request);
 
         $reqDefs = $request->default;
@@ -40,7 +115,7 @@ class OptionController extends Controller {
 
     }
 
-    public function updateCombolist($pid, $fid, $flid, Request $request){
+    public function updateCombolist($pid, $fid, $flid, Request $request, $return=true){
         //dd($request);
 
         $flopt_one ='[Type]'.$request->typeone.'[Type][Name]'.$request->nameone.'[Name][Options]';
@@ -129,12 +204,14 @@ class OptionController extends Controller {
         FieldController::updateOptions($pid, $fid, $flid, 'Field1', $flopt_one);
         FieldController::updateOptions($pid, $fid, $flid, 'Field2', $flopt_two);
 
-        flash()->success(trans('controller_option.updated'));
+        if($return) {
+            flash()->success(trans('controller_option.updated'));
 
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }
     }
 
-    public function updateDate($pid, $fid, $flid, Request $request){
+    public function updateDate($pid, $fid, $flid, Request $request, $return=true){
         //dd($request);
 
         if(DateField::validateDate($request->default_month,$request->default_day,$request->default_year))
@@ -160,12 +237,14 @@ class OptionController extends Controller {
         FieldController::updateOptions($pid, $fid, $flid, 'Circa', $request->circa);
         FieldController::updateOptions($pid, $fid, $flid, 'Era', $request->era);
 
-        flash()->success(trans('controller_option.updated'));
+        if($return) {
+            flash()->success(trans('controller_option.updated'));
 
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }
     }
 
-    public function updateDocument($pid, $fid, $flid, Request $request){
+    public function updateDocument($pid, $fid, $flid, Request $request, $return=true){
         //dd($request);
 
         $filetype = $request->filetype[0];
@@ -185,12 +264,14 @@ class OptionController extends Controller {
         FieldController::updateOptions($pid, $fid, $flid, 'MaxFiles', $request->maxfiles);
         FieldController::updateOptions($pid, $fid, $flid, 'FileTypes', $filetype);
 
-        flash()->success(trans('controller_option.updated'));
+        if($return) {
+            flash()->success(trans('controller_option.updated'));
 
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }
     }
 
-    public function updateGallery($pid, $fid, $flid, Request $request){
+    public function updateGallery($pid, $fid, $flid, Request $request, $return=true){
         //dd($request);
 
         $filetype = $request->filetype[0];
@@ -228,12 +309,14 @@ class OptionController extends Controller {
         FieldController::updateOptions($pid, $fid, $flid, 'ThumbSmall', $small);
         FieldController::updateOptions($pid, $fid, $flid, 'ThumbLarge', $large);
 
-        flash()->success(trans('controller_option.updated'));
+        if($return) {
+            flash()->success(trans('controller_option.updated'));
 
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }
     }
 
-    public function updateGenlist($pid, $fid, $flid, Request $request){
+    public function updateGenlist($pid, $fid, $flid, Request $request, $return=true){
         //dd($request);
 
         $reqDefs = $request->default;
@@ -259,12 +342,14 @@ class OptionController extends Controller {
         FieldController::updateOptions($pid, $fid, $flid, 'Regex', $request->regex);
         FieldController::updateOptions($pid, $fid, $flid, 'Options', $options);
 
-        flash()->success(trans('controller_option.updated'));
+        if($return) {
+            flash()->success(trans('controller_option.updated'));
 
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }
     }
 
-    public function updateGeolocator($pid, $fid, $flid, Request $request){
+    public function updateGeolocator($pid, $fid, $flid, Request $request, $return=true){
         //dd($request);
 
         $reqDefs = $request->default;
@@ -278,12 +363,14 @@ class OptionController extends Controller {
         FieldController::updateOptions($pid, $fid, $flid, 'Map', $request->map);
         FieldController::updateOptions($pid, $fid, $flid, 'DataView', $request->view);
 
-        flash()->success(trans('controller_option.updated'));
+        if($return) {
+            flash()->success(trans('controller_option.updated'));
 
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }
     }
 
-    public function updateList($pid, $fid, $flid, Request $request){
+    public function updateList($pid, $fid, $flid, Request $request, $return=true){
         //dd($request);
 
         $reqOpts = $request->options;
@@ -296,12 +383,14 @@ class OptionController extends Controller {
         FieldController::updateDefault($pid, $fid, $flid, $request->default);
         FieldController::updateOptions($pid, $fid, $flid, 'Options', $options);
 
-        flash()->success(trans('controller_option.updated'));
+        if($return) {
+            flash()->success(trans('controller_option.updated'));
 
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }
     }
 
-    public function updateMultilist($pid, $fid, $flid, Request $request){
+    public function updateMultilist($pid, $fid, $flid, Request $request, $return=true){
         //dd($request);
 
         $reqDefs = $request->default;
@@ -320,12 +409,14 @@ class OptionController extends Controller {
         FieldController::updateDefault($pid, $fid, $flid, $default);
         FieldController::updateOptions($pid, $fid, $flid, 'Options', $options);
 
-        flash()->success(trans('controller_option.updated'));
+        if($return) {
+            flash()->success(trans('controller_option.updated'));
 
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }
     }
 
-    public function updateNumber($pid, $fid, $flid, Request $request){
+    public function updateNumber($pid, $fid, $flid, Request $request, $return=true){
         //dd($request);
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
@@ -335,12 +426,14 @@ class OptionController extends Controller {
         FieldController::updateOptions($pid, $fid, $flid, 'Increment', $request->inc);
         FieldController::updateOptions($pid, $fid, $flid, 'Unit', $request->unit);
 
-        flash()->success(trans('controller_option.updated'));
+        if($return) {
+            flash()->success(trans('controller_option.updated'));
 
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }
     }
 
-    public function updatePlaylist($pid, $fid, $flid, Request $request){
+    public function updatePlaylist($pid, $fid, $flid, Request $request, $return=true){
         //dd($request);
 
         $filetype = $request->filetype[0];
@@ -360,23 +453,27 @@ class OptionController extends Controller {
         FieldController::updateOptions($pid, $fid, $flid, 'MaxFiles', $request->maxfiles);
         FieldController::updateOptions($pid, $fid, $flid, 'FileTypes', $filetype);
 
-        flash()->success(trans('controller_option.updated'));
+        if($return) {
+            flash()->success(trans('controller_option.updated'));
 
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }
     }
 
-    public function updateRichtext($pid, $fid, $flid, Request $request){
+    public function updateRichtext($pid, $fid, $flid, Request $request, $return=true){
         //dd($request);
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
         FieldController::updateDefault($pid, $fid, $flid, $request->default);
 
-        flash()->success(trans('controller_option.updated'));
+        if($return) {
+            flash()->success(trans('controller_option.updated'));
 
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }
     }
 
-    public function updateSchedule($pid, $fid, $flid, Request $request){
+    public function updateSchedule($pid, $fid, $flid, Request $request, $return=true){
         //dd($request);
 
         $reqDefs = $request->default;
@@ -398,12 +495,14 @@ class OptionController extends Controller {
         FieldController::updateOptions($pid, $fid, $flid, 'End', $request->end);
         FieldController::updateOptions($pid, $fid, $flid, 'Calendar', $request->cal);
 
-        flash()->success(trans('controller_option.updated'));
+        if($return) {
+            flash()->success(trans('controller_option.updated'));
 
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }
     }
 
-    public function updateText($pid, $fid, $flid, Request $request){
+    public function updateText($pid, $fid, $flid, Request $request, $return=true){
         //dd($request);
 
         if ($request->regex!='' && $request->default!='' && !preg_match($request->regex, $request->default))
@@ -418,12 +517,14 @@ class OptionController extends Controller {
         FieldController::updateOptions($pid, $fid, $flid, 'Regex', $request->regex);
         FieldController::updateOptions($pid, $fid, $flid, 'MultiLine', $request->multi);
 
-        flash()->success(trans('controller_option.updated'));
+        if($return) {
+            flash()->success(trans('controller_option.updated'));
 
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }
     }
 
-    public function updateVideo($pid, $fid, $flid, Request $request){
+    public function updateVideo($pid, $fid, $flid, Request $request, $return=true){
         //dd($request);
 
         $filetype = $request->filetype[0];
@@ -443,8 +544,10 @@ class OptionController extends Controller {
         FieldController::updateOptions($pid, $fid, $flid, 'MaxFiles', $request->maxfiles);
         FieldController::updateOptions($pid, $fid, $flid, 'FileTypes', $filetype);
 
-        flash()->success(trans('controller_option.updated'));
+        if($return) {
+            flash()->success(trans('controller_option.updated'));
 
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }
     }
 }
