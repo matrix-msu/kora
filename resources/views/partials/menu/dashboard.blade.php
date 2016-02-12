@@ -9,5 +9,6 @@
         <li><a href="{{ url('/backup') }}">{{trans('partials_menu_dashboard.backups')}}</a></li>
         @endif
         <li><a href="{{ url('/install/config') }}">{{trans('partials_menu_dashboard.env')}}</a></li>
+        <li><a href="{{ url('/update') }}">{{trans('partials_menu_dashboard.update')}}</a></li>
     </ul>
 </li>

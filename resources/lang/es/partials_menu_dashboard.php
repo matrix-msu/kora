@@ -9,5 +9,6 @@ return [
 	"tokens" => "Manejar Tokens",
 	"backups" => "Administrar copias de seguridad",
 	"env" => "Gesti&oacute;n de archivo medio ambiente",
+	"update" => "Uctualizaci&oacute;n",
 
 ];

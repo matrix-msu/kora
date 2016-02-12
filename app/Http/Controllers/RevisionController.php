@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\ComboListField;
 use App\DocumentsField;
 use App\Form;
 use App\Field;
@@ -78,6 +79,8 @@ class RevisionController extends Controller {
             }
         }
         $message = trans('controller_revision.recent');
+
+        //dd($revisions);
 
         return view('revisions.index', compact('revisions', 'records', 'form', 'message'));
     }
@@ -411,6 +414,30 @@ class RevisionController extends Controller {
                         $vidfield->save();
                     }
                     break;
+
+                case 'Combo List':
+                    $cmbfield = ComboListField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
+
+                    $valuesArray = $data['combofields'][$field->flid]['values'];
+
+                    $values = "";
+                    for($i=0; $i < count($valuesArray) - 1; $i++) {
+                        $values .= $valuesArray[$i];
+                        $values .= '[!val!]';
+                    }
+                    $values .=  $valuesArray[count($valuesArray) - 1];
+
+                    if($revision->type != 'delete') {
+                        $cmbfield->options = $values;
+                        $cmbfield->save();
+                    } else {
+                        $cmbfield = new ComboListField();
+                        $cmbfield->flid = $field->flid;
+                        $cmbfield->rid = $record->rid;
+                        $cmbfield->options = $values;
+                        $cmbfield->save();
+                    }
+                    break;
             }
         }
     }
@@ -456,7 +483,7 @@ class RevisionController extends Controller {
 
         /* Check each field and get the data associated with it.
          *
-         * Complexities occur when forming the possibly large associative array describing a record's fields.
+         * Complexities occur when forming the possibly (probably) large associative array describing a record's fields.
          * For each field, the general case is as follows: the general field type is checked and name is acquired,
          * if the field has data at its lower, less general level (e.g. TextFields), it is assigned to the data array,
          * else null is assigned.
@@ -618,6 +645,41 @@ class RevisionController extends Controller {
                         $data['videofields'][$field->flid]['data'] = $videofield->video;
                     else
                         $data['videofields'][$field->flid]['data'] = null;
+                    break;
+
+                case 'Combo List':
+                    $data['combofields'][$field->flid]['name'] = $field->name;
+
+                    $combofield = ComboListField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
+                    if(!is_null($combofield)) {
+                        $first = array(); $second = array(); $combodata = array(); $valArray = array();
+
+                        // Get information from the first field.
+                        $first['name'] = ComboListField::getComboFieldName($field, 'one');
+                        $first['type'] = ComboListField::getComboFieldType($field, 'one');
+
+                        // Get information from the second field.
+                        $second['name'] = ComboListField::getComboFieldName($field, 'two');
+                        $second['type'] = ComboListField::getComboFieldType($field, 'two');
+
+                        // Get the values from the actual combo list field.
+                        $valArray = explode('[!val!]', $combofield->options);
+
+                        // Get the options of the field
+                        $options = $field->options;
+
+                        $combodata['ftype1'] = $combofield->ftype1;
+                        $combodata['ftype2'] = $combofield->ftype2;
+
+                        $data['combofields'][$field->flid]['first'] = $first;
+                        $data['combofields'][$field->flid]['second'] = $second;
+                        $data['combofields'][$field->flid]['values'] = $valArray;
+                        $data['combofields'][$field->flid]['options'] = $options;
+                        $data['combofields'][$field->flid]['data'] = $combodata;
+                    }
+                    else {
+                        $data['combofields'][$field->flid]['data'] = null;
+                    }
                     break;
             }
 
