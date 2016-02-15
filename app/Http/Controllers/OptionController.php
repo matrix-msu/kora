@@ -188,8 +188,9 @@ class OptionController extends Controller {
 
         $flopt_two .= '[Options]';
 
+        $default='';
         if(!is_null($request->defvalone) && $request->defvalone != ''){
-            $default = '[!f1!]'.$request->defvalone[0].'[!f1!]';
+            $default .= '[!f1!]'.$request->defvalone[0].'[!f1!]';
             $default .= '[!f2!]'.$request->defvaltwo[0].'[!f2!]';
 
             for($i=1;$i<sizeof($request->defvalone);$i++){
