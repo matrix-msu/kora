@@ -18,7 +18,6 @@
                 max="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Max") }}">
     </div>
 
-    {!! Form::hidden('option','Min') !!}
     <div class="form-group">
         {!! Form::label('min',trans('fields_options_number.min').': ') !!}
         <input
@@ -27,7 +26,6 @@
                 max="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Max") }}">
     </div>
 
-    {!! Form::hidden('option','Max') !!}
     <div class="form-group">
         {!! Form::label('max',trans('fields_options_number.max').': ') !!}
         <input
@@ -36,7 +34,6 @@
                 min="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Min") }}">
     </div>
 
-    {!! Form::hidden('option','Increment') !!}
     <div class="form-group">
         {!! Form::label('inc',trans('fields_options_number.inc').': ') !!}
         <input
@@ -44,7 +41,6 @@
                 value="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Increment") }}">
     </div>
 
-    {!! Form::hidden('option','Unit') !!}
     <div class="form-group">
         {!! Form::label('unit',trans('fields_options_number.unit').': ') !!}
         {!! Form::text('unit', \App\Http\Controllers\FieldController::getFieldOption($field,'Unit'), ['class' => 'form-control']) !!}

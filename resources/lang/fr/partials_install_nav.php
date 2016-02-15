@@ -7,6 +7,6 @@ return [
 	"nav" => "Activer/d&eacute;sactiver navigation",
 	"install" => "Installer",
 	"profile" => "Voir le profil",
-	"logout" => "Se d&eacute;connecter",
+	"logout" => "D&eacute;connexion",
 
 ];

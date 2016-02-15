@@ -24,6 +24,8 @@ class DateField extends Model {
             if ($m == '' | is_null($m)) {
                 return false;
             } else {
+                if($y=='')
+                    $y=1;
                 return checkdate($m, $d, $y);
             }
         }

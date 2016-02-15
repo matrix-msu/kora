@@ -10,7 +10,7 @@
 
     <hr/>
 
-    {!! Form::model($field = new \App\Field, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid]) !!}
+    {!! Form::model($field = new \App\Field, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid,'onsubmit' => 'selectAll()']) !!}
         @include('fields.form', ['submitButtonText' => trans('fields_create.create'), 'pid' => $form->pid, 'fid' => $form->fid])
     {!! Form::close() !!}
 

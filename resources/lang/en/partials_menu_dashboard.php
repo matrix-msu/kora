@@ -9,5 +9,6 @@ return [
 	"tokens" => "Manage Tokens",
 	"backups" => "Manage Backups",
 	"env" => "Manage ENV File",
+	"update" => "Update",
 
 ];

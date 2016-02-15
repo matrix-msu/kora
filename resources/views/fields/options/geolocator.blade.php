@@ -52,13 +52,11 @@
         </div>
     </div>
 
-    {!! Form::hidden('option','Map') !!}
     <div class="form-group">
         {!! Form::label('map',trans('fields_options_geolocator.map').': ') !!}
         {!! Form::select('map', ['No' => trans('fields_options_geolocator.no'),'Yes' => trans('fields_options_geolocator.yes')], \App\Http\Controllers\FieldController::getFieldOption($field,'Map'), ['class' => 'form-control']) !!}
     </div>
 
-    {!! Form::hidden('option','DataView') !!}
     <div class="form-group">
         {!! Form::label('view',trans('fields_options_geolocator.data').': ') !!}
         {!! Form::select('view', ['LatLon' => 'Lat Long','UTM' => 'UTM Coordinates','Textual' => trans('fields_options_geolocator.text')], \App\Http\Controllers\FieldController::getFieldOption($field,'DataView'), ['class' => 'form-control']) !!}

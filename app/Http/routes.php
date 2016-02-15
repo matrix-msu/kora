@@ -65,6 +65,7 @@ Route::get('/projects/{pid}/forms/{fid}/fields/{flid}','FieldController@show');
 Route::delete('/projects/{pid}/forms/{fid}/fields/{flid}','FieldController@destroy');
 Route::get('/projects/{pid}/forms/{fid}/fields/{flid}/edit','FieldController@edit');
 Route::get('/projects/{pid}/forms/{fid}/fields/{flid}/options','FieldController@show'); //alias for fields/{id}
+Route::get('/projects/{pid}/forms/{fid}/advOpt','OptionController@getAdvancedOptionsPage');
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/text','OptionController@updateText');
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/model','OptionController@updateModel');
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/combo','OptionController@updateCombolist');

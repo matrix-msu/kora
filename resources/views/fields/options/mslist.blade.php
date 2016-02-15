@@ -26,7 +26,7 @@
             <button type="button" class="btn btn-primary move_option_down">{{trans('fields_options_mslist.down')}}</button>
         </div>
         <div>
-            <span><input type="text" class="new_list_option"></input></span>
+            <span><input type="text" class="new_list_option"></span>
             <span><button type="button" class="btn btn-primary add_option">{{trans('fields_options_mslist.add')}}</button></span>
         </div>
     </div>
