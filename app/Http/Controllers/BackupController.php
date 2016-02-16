@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\ComboListField;
 use App\DateField;
 use App\DocumentsField;
 use App\Field;
@@ -17,12 +18,14 @@ use App\PlaylistField;
 use App\Project;
 use App\ProjectGroup;
 use App\Record;
+use App\OptionPreset;
 use App\Revision;
 use App\RichTextField;
 use App\ScheduleField;
 use App\TextField;
 use App\Token;
 use App\User;
+use App\Http\Controllers\OptionPresetController;
 use App\VideoField;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\Guard;
@@ -668,6 +671,27 @@ class BackupController extends Controller
                 }
             }
 
+            //ComboList Field
+            $all_combolistfield_data = new Collection();
+            $entire_database->put('combolistfield',$all_combolistfield_data);
+            foreach(ComboListField::all() as $combolistfield){
+                try{
+                    $individual_combolistfield_data = new Collection();
+                    $individual_combolistfield_data->put('id',$combolistfield->id);
+                    $individual_combolistfield_data->put('rid',$combolistfield->rid);
+                    $individual_combolistfield_data->put('flid',$combolistfield->flid);
+                    $individual_combolistfield_data->put('options',$combolistfield->options);
+                    $individual_combolistfield_data->put('ftype1',$combolistfield->ftype1);
+                    $individual_combolistfield_data->put('ftype2',$combolistfield->ftype2);
+                    $individual_combolistfield_data->put("created_at", $combolistfield->created_at->toDateTimeString());
+                    $individual_combolistfield_data->put("updated_at", $combolistfield->updated_at->toDateTimeString());
+                    $all_combolistfield_data->push($individual_combolistfield_data);
+
+                }catch(\Exception $e){
+                    $this->ajax_error_list->push($e->getMessage());
+                }
+            }
+
             //  Token
             $all_tokens_data = new Collection();
             $entire_database->put("tokens", $all_tokens_data);
@@ -833,9 +857,9 @@ class BackupController extends Controller
      *
      * @params Request $request
      * @return response
+     *
      */
 	public function restoreData(Request $request){
-
 
         $this->json_file = null;
         $this->decoded_json = null;
@@ -953,6 +977,9 @@ class BackupController extends Controller
             }
             foreach(PlaylistField::all() as $PlaylistField){
                 $PlaylistField->delete();
+            }
+            foreach(ComboListField::all() as $ComboListField){
+                $ComboListField->delete();
             }
 
 
@@ -1219,6 +1246,20 @@ class BackupController extends Controller
                     $new_schedulefield->updated_at = $schedulefield->updated_at;
                     $new_schedulefield->save();
                 } catch(QueryException $e) {
+                    $this->ajax_error_list->push($e->getMessage());
+                }
+            }
+
+            // ComboListField
+            foreach($backup_data->combolistfield as $combolistfield){
+                try{
+                    $new_combolistfield = new ComboListField(array("rid"=>$combolistfield->rid,"flid"=>$combolistfield->flid,"options"=>$combolistfield->options,"ftype1"=>$combolistfield->ftype1,"ftype2"=>$combolistfield->ftype2));
+                    $new_combolistfield->id = $combolistfield->id;
+                    $new_combolistfield->created_at = $combolistfield->created_at;
+                    $new_combolistfield->updated_at = $combolistfield->updated_at;
+                    $new_combolistfield->save();
+                }
+                catch(QueryException $e){
                     $this->ajax_error_list->push($e->getMessage());
                 }
             }
@@ -1960,6 +2001,7 @@ class BackupController extends Controller
         $project_videofield_data = new Collection();
         $project_modelfield_data = new Collection();
         $project_galleryfield_data = new Collection();
+        $project_combolistfield_data = new Collection();
         foreach(Record::where('pid',$pid)->get() as $record){
             try {
                 $individual_record_data = new Collection();
@@ -2200,6 +2242,26 @@ class BackupController extends Controller
                     }
                 }
 
+                //ComboList Field
+
+                foreach($record->combolistfields()->get() as $combolistfield){
+                    try{
+                        $individual_combolistfield_data = new Collection();
+                        $individual_combolistfield_data->put('id',$combolistfield->id);
+                        $individual_combolistfield_data->put('rid',$combolistfield->rid);
+                        $individual_combolistfield_data->put('flid',$combolistfield->flid);
+                        $individual_combolistfield_data->put('options',$combolistfield->options);
+                        $individual_combolistfield_data->put('ftype1',$combolistfield->ftype1);
+                        $individual_combolistfield_data->put('ftype2',$combolistfield->ftype2);
+                        $individual_combolistfield_data->put("created_at", $combolistfield->created_at->toDateTimeString());
+                        $individual_combolistfield_data->put("updated_at", $combolistfield->updated_at->toDateTimeString());
+                        $project_combolistfield_data->push($individual_combolistfield_data);
+
+                    }catch(\Exception $e){
+                        $this->ajax_error_list->push($e->getMessage());
+                    }
+                }
+
 
             } catch (\Exception $e) {
                 $this->ajax_error_list->push($e->getMessage());
@@ -2220,6 +2282,7 @@ class BackupController extends Controller
         $project_data->put('videofield',$project_videofield_data);
         $project_data->put('modelfield',$project_modelfield_data);
         $project_data->put('galleryfield',$project_galleryfield_data);
+        $project_data->put('combolistfield',$project_combolistfield_data);
 
 
         return $project_data;
@@ -2566,6 +2629,20 @@ class BackupController extends Controller
                     $new_multiselectlistfield->updated_at = $multiselectlistfield->updated_at;
                     $new_multiselectlistfield->save();
                 } catch (QueryException $e) {
+                    $this->ajax_error_list->push($e->getMessage());
+                }
+            }
+
+            // ComboListField
+            foreach($backup_data->combolistfield as $combolistfield){
+                try{
+                    $new_combolistfield = new ComboListField(array("rid"=>$combolistfield->rid,"flid"=>$combolistfield->flid,"options"=>$combolistfield->options,"ftype1"=>$combolistfield->ftype1,"ftype2"=>$combolistfield->ftype2));
+                    $new_combolistfield->id = $combolistfield->id;
+                    $new_combolistfield->created_at = $combolistfield->created_at;
+                    $new_combolistfield->updated_at = $combolistfield->updated_at;
+                    $new_combolistfield->save();
+                }
+                catch(QueryException $e){
                     $this->ajax_error_list->push($e->getMessage());
                 }
             }
