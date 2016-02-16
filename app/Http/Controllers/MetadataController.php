@@ -98,6 +98,14 @@ class MetadataController extends Controller {
                         $jsRecord->put($field->metadata()->first()->name,$options_array);
                     }
                 }
+                foreach($record->combolistfields as $clf){
+                    $field = Field::find($clf->flid);
+                    if($item==$clf->flid && count($field->metadata)>0 && ($clf->options  != "" && $clf->options !== null)){
+                        $options_array = explode("[!]",$clf->options);
+                        $jsRecord->put($field->metadata()->first()->name,$options_array);
+                    }
+                }
+
                 foreach($record->datefields as $df) {
                     $field = Field::find($df->flid);
                     if ($item == $df->flid && count($field->metadata) > 0 && $df->month != "0") {
