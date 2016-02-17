@@ -52,6 +52,7 @@ Route::get('/projects/{pid}/forms/{fid}','FormController@show');
 Route::delete('/projects/{pid}/forms/{fid}','FormController@destroy');
 Route::get('/projects/{pid}/forms/{fid}/edit','FormController@edit');
 Route::get('/projects/{pid}/forms/{fid}/exportRecords','FormController@exportRecords');
+Route::get('/projects/{pid}/forms/{fid}/exportFiles','FormController@exportRecordFiles');
 Route::post('/projects/{pid}/forms/{fid}/createNode','FormController@addNode');
 Route::post('/projects/{pid}/forms/{fid}/deleteNode/{title}','FormController@deleteNode');
 Route::post('/projects/{pid}/forms/{fid}/preset', 'FormController@preset');

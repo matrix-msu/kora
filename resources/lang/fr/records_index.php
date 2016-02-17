@@ -18,6 +18,7 @@ return [
 	"size" => "Taille de forme actuelle",
 	"records" => "Comptes rendus",
     "exportRec" => "Disques d'exportation",
+    "exportFiles" => "Dossiers d'exportation",
 	"total" => "Total",
 	"record" => "Compte rendu",
 	"areyousure" => "Es-tu s&ucirc;r",

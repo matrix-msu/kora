@@ -26,6 +26,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Requests\FormRequest;
 use App\Http\Controllers\Controller;
+use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
 
 
 class FormController extends Controller {
@@ -407,6 +408,54 @@ class FormController extends Controller {
         header("Content-Type: application/octet-stream; ");
 
         echo $xml;
+    }
+
+    public function exportRecordFiles($pid, $fid){
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+
+        $form = FormController::getForm($fid);
+
+        if(!\Auth::user()->isFormAdmin($form)){
+            return redirect('projects/'.$pid.'/forms/'.$fid);
+        }
+
+        $path = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid;
+        $zipPath = env('BASE_PATH').'storage/app/tmpFiles/';
+
+        // Initialize archive object
+        $zip = new \ZipArchive();
+        $time = Carbon::now();
+        $zip->open($zipPath.$form->name.'_fileData_'.$time.'.zip', \ZipArchive::CREATE);
+
+        //add files
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($path),
+            \RecursiveIteratorIterator::LEAVES_ONLY
+        );
+
+        foreach ($files as $name => $file)
+        {
+            // Skip directories (they would be added automatically)
+            if (!$file->isDir())
+            {
+                // Get real and relative path for current file
+                $filePath = $file->getRealPath();
+                $relativePath = substr($filePath, strlen($path) + 1);
+
+                // Add current file to archive
+                $zip->addFile($filePath, $relativePath);
+            }
+        }
+
+        // Zip archive will be created only after closing object
+        $zip->close();
+
+        header("Content-Disposition: attachment; filename=".$form->name.'_fileData_'.$time.'.zip');
+        header("Content-Type: application/zip; ");
+
+        readfile($zipPath.$form->name.'_fileData_'.$time.'.zip');
     }
 
     public function addNode($pid,$fid, Request $request){
