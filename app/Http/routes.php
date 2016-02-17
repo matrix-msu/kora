@@ -51,13 +51,15 @@ Route::get('/projects/{pid}/forms/create','FormController@create');
 Route::get('/projects/{pid}/forms/{fid}','FormController@show');
 Route::delete('/projects/{pid}/forms/{fid}','FormController@destroy');
 Route::get('/projects/{pid}/forms/{fid}/edit','FormController@edit');
-Route::get('/projects/{pid}/forms/{fid}/exportRecords','ExportController@exportRecords');
-Route::get('/projects/{pid}/forms/{fid}/exportFiles','ExportController@exportRecordFiles');
 Route::post('/projects/{pid}/forms/{fid}/createNode','FormController@addNode');
 Route::post('/projects/{pid}/forms/{fid}/deleteNode/{title}','FormController@deleteNode');
 Route::post('/projects/{pid}/forms/{fid}/preset', 'FormController@preset');
 Route::post('/projects/{pid}','FormController@store');
 
+//export routes
+Route::get('/projects/{pid}/forms/{fid}/exportRecords','ExportController@exportRecords');
+Route::get('/projects/{pid}/forms/{fid}/exportFiles','ExportController@exportRecordFiles');
+Route::get('/projects/{pid}/forms/{fid}/exportForm','ExportController@exportForm');
 
 //field routes
 Route::get('/projects/{pid}/forms/{fid}/fields','FormController@show'); //alias for form/{id}

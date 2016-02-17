@@ -11,6 +11,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use App\ListField;
+use App\Metadata;
 use App\ModelField;
 use App\MultiSelectListField;
 use App\NumberField;
@@ -300,4 +301,57 @@ class ExportController extends Controller {
         readfile($zipPath.$form->name.'_fileData_'.$time.'.zip');
     }
 
+    public function exportForm($pid, $fid)
+    {
+        if (!FormController::validProjForm($pid, $fid)) {
+            return redirect('projects');
+        }
+
+        $form = FormController::getForm($fid);
+
+        if (!\Auth::user()->isFormAdmin($form)) {
+            return redirect('projects/' . $pid . '/forms/' . $fid);
+        }
+
+        $xml = '<Form>';
+
+        $xml .= '<Name>'.htmlentities($form->name).'</Name>';
+        $xml .= '<Slug>'.htmlentities($form->slug).'</Slug>';
+        $xml .= '<Desc>'.htmlentities($form->description).'</Desc>';
+        $xml .= '<Layout>'.htmlentities($form->layout).'</Layout>';
+        $xml .= '<Preset>'.htmlentities($form->preset).'</Preset>';
+        $xml .= '<Metadata>'.htmlentities($form->public_metadata).'</Metadata>';
+
+        $fields = Field::where('fid','=',$form->fid)->get();
+        $xml .= '<Fields>';
+
+        foreach($fields as $field){
+            $xml .= '<Field>';
+
+            $xml .= '<flid>'.htmlentities($field->flid).'</flid>';
+            $xml .= '<Type>'.htmlentities($field->type).'</Type>';
+            $xml .= '<Name>'.htmlentities($field->name).'</Name>';
+            $xml .= '<Slug>'.htmlentities($field->slug).'</Slug>';
+            $xml .= '<Desc>'.htmlentities($field->desc).'</Desc>';
+            $xml .= '<Required>'.htmlentities($field->required).'</Required>';
+            $xml .= '<Default>'.htmlentities($field->default).'</Default>';
+            $xml .= '<Options>'.htmlentities($field->options).'</Options>';
+
+            $meta = Metadata::where('flid','=',$field->flid)->get()->first();
+            if(!is_null($meta))
+                $xml .= '<Metadata>'.htmlentities($meta->name).'</Metadata>';
+            else
+                $xml .= '<Metadata></Metadata>';
+
+            $xml .= '</Field>';
+        }
+
+        $xml .= '</Fields>';
+        $xml .= '</Form>';
+
+        header("Content-Disposition: attachment; filename=".$form->name.'_Layout_'.Carbon::now().'.xml');
+        header("Content-Type: application/octet-stream; ");
+
+        echo $xml;
+    }
 }
