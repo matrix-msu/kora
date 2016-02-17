@@ -17,6 +17,7 @@ return [
 	"cleanup" => "Limpiar archivos de registro antiguo",
 	"size" => "Tama&ntilde;o de archivo de formulario actual",
 	"records" => "Registros",
+    "exportRec" => "Archivos de exportaci&oacute;n",
 	"total" => "Total",
 	"record" => "Registro",
 	"areyousure" => "Est&aacute;s seguro",
