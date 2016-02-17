@@ -4,6 +4,7 @@ use App\ComboListField;
 use App\DateField;
 use App\DocumentsField;
 use App\Field;
+use App\Form;
 use App\GalleryField;
 use App\GeneratedListField;
 use App\GeolocatorField;
@@ -301,7 +302,7 @@ class ExportController extends Controller {
         readfile($zipPath.$form->name.'_fileData_'.$time.'.zip');
     }
 
-    public function exportForm($pid, $fid)
+    public function exportForm($pid, $fid, $download=true)
     {
         if (!FormController::validProjForm($pid, $fid)) {
             return redirect('projects');
@@ -349,7 +350,45 @@ class ExportController extends Controller {
         $xml .= '</Fields>';
         $xml .= '</Form>';
 
-        header("Content-Disposition: attachment; filename=".$form->name.'_Layout_'.Carbon::now().'.xml');
+        if($download) {
+            header("Content-Disposition: attachment; filename=" . $form->name . '_Layout_' . Carbon::now() . '.xml');
+            header("Content-Type: application/octet-stream; ");
+
+            echo $xml;
+        }else{
+            return $xml;
+        }
+    }
+
+    public function exportProject($pid){
+        if (!ProjectController::validProj($pid)) {
+            return redirect('projects');
+        }
+
+        $proj = ProjectController::getProject($pid);
+
+        if (!\Auth::user()->isProjectAdmin($proj)) {
+            return redirect('projects/' . $pid);
+        }
+
+        $xml = '<Project>';
+
+        $xml .= '<Name>'.htmlentities($proj->name).'</Name>';
+        $xml .= '<Slug>'.htmlentities($proj->slug).'</Slug>';
+        $xml .= '<Desc>'.htmlentities($proj->description).'</Desc>';
+
+        //preset stuff
+
+        $forms = Form::where('pid','=',$pid)->get();
+        $xml .= '<Forms>';
+        foreach($forms as $form) {
+            $xml .= $this->exportForm($pid,$form->fid,false);
+        }
+        $xml .= '</Forms>';
+
+        $xml .= '</Project>';
+
+        header("Content-Disposition: attachment; filename=" . $proj->name . '_Layout_' . Carbon::now() . '.xml');
         header("Content-Type: application/octet-stream; ");
 
         echo $xml;

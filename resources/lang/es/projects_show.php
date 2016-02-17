@@ -10,6 +10,7 @@ return [
 	"groups" => "Administrar grupos",
 	"presets" => "Administrar valores de opci&oacute;n",
 	"forms" => "Formas",
+    "export" => "Proyecto de exportaci&oacute;n",
 	"edit" => "Editar",
 	"delete" => "Eliminar",
 	"create" => "Crear nuevo formulario",
