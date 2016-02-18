@@ -544,6 +544,8 @@
             @endforeach
         </div>
     @endforeach
+
+    @include('pagination.records', ['object' => $records])
 @stop
 
 @section('footer')
