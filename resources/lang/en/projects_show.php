@@ -10,6 +10,7 @@ return [
 	"groups" => "Manage Groups",
 	"presets" => "Manage Option Presets",
 	"forms" => "Forms",
+	"export" => "Export Project",
 	"edit" => "Edit",
 	"delete" => "Delete",
 	"create" => "Create New Form",

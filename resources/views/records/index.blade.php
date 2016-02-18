@@ -47,6 +47,14 @@
 
     <h2>{{trans('records_index.records')}}</h2>
     <div>{{trans('records_index.total')}}: {{sizeof(\App\Record::where('fid','=',$form->fid)->get())}}</div>
+    @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
+        <div>
+            <a href="{{ action('ExportController@exportRecords',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_index.exportRec')}}]</a>
+            @if(file_exists(env('BASE_PATH') . 'storage/app/files/p'.$form->pid.'/f'.$form->fid.'/'))
+            <a href="{{ action('ExportController@exportRecordFiles',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_index.exportFiles')}}]</a>
+            @endif
+        </div> <br>
+    @endif
 
     @include('pagination.records', ['object' => $records])
 
@@ -536,6 +544,8 @@
             @endforeach
         </div>
     @endforeach
+
+    @include('pagination.records', ['object' => $records])
 @stop
 
 @section('footer')

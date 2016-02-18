@@ -23,6 +23,11 @@
     @endif
     <hr/>
     <h2>{{trans('projects_show.forms')}}</h2>
+    @if(\Auth::user()->admin || \Auth::user()->isProjectAdmin($project))
+        <div>
+            <a href="{{ action('ExportController@exportProject',['pid' => $project->pid]) }}">[{{trans('projects_show.export')}}]</a>
+        </div> <br>
+    @endif
     @foreach($project->forms as $form)
         @if(\Auth::user()->admin || \Auth::user()->inAFormGroup($form))
         <div class="panel panel-default">

@@ -10,6 +10,7 @@ return [
 	"groups" => "G&eacute;rer des groupes",
 	"presets" => "G&eacute;rer les pr&eacute;r&eacute;glages de l'Option",
 	"forms" => "Les formes",
+    "export" => "Projet d'exportation",
 	"edit" => "Modifier",
 	"delete" => "Supprimer",
 	"create" => "Cr&eacute;er formulaire",

@@ -16,6 +16,7 @@ return [
 	"mRecPre" => "Gestionar preajustes registro",
 	"makepreset" => "Hacer formulario preestablecido",
 	"fields" => "Campos",
+    "export" => "Forma de exportaci&oacute;n",
 	"createnode" => "Crear un nuevo nodo",
 	"createfield" => "Crear nuevo campo",
 	"areyousure" => "Est&aacute; seguro que desea eliminar",

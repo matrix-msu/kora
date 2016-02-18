@@ -16,6 +16,7 @@ return [
 	"mRecPre" => "G&eacute;rer les pr&eacute;r&eacute;glages Record",
 	"makepreset" => "Faire la forme pr&eacute;d&eacute;finie",
 	"fields" => "Champs",
+    "export" => "Forme d'exportation",
 	"createnode" => "Cr&eacute;er le nouveau n&oelig;ud",
 	"createfield" => "Cr&eacute;er nouveau champ",
 	"areyousure" => "&Ecirc;tes-vous s&ucirc;r de que vouloir supprimer",

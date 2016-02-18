@@ -16,6 +16,7 @@ return [
 	"mRecPre" => "Manage Record Presets",
 	"makepreset" => "Make Form Preset",
 	"fields" => "Fields",
+	"export" => "Export Form",
 	"createnode" => "Create New Node",
 	"createfield" => "Create New Field",
 	"areyousure" => "Are you sure you want to delete",

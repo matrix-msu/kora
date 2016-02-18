@@ -44,6 +44,12 @@
     <hr/>
     <h2>{{trans('forms_show.fields')}}</h2>
 
+    @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
+        <div>
+            <a href="{{ action('ExportController@exportForm',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('forms_show.export')}}]</a>
+        </div> <br>
+    @endif
+
     @include('forms.layout.logic',['form' => $form, 'fieldview' => 'forms.layout.printfield', 'layoutPage' => true])
 
     @if(\Auth::user()->canCreateFields($form))

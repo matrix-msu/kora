@@ -17,6 +17,8 @@ return [
 	"cleanup" => "Clean Up Old Record Files",
 	"size" => "Current Form Filesize",
 	"records" => "Records",
+	"exportRec" => "Export Records",
+	"exportFiles" => "Export Files",
 	"total" => "Total",
 	"record" => "Record",
 	"areyousure" => "Are you sure",
