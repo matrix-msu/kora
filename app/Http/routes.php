@@ -8,6 +8,8 @@ Route::post('/language','WelcomeController@setTemporaryLanguage');
 
 
 //project routes
+Route::get('/projects/import','ProjectController@importProjectView');
+Route::post('/projects/import','ImportController@importProject');
 Route::resource('projects', 'ProjectController');
 
 //project group routes

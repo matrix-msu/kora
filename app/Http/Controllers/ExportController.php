@@ -372,26 +372,23 @@ class ExportController extends Controller {
             return redirect('projects/' . $pid);
         }
 
-        $xml = '<Project>';
+        $projArray = array();
 
-        $xml .= '<Name>'.htmlentities($proj->name).'</Name>';
-        $xml .= '<Slug>'.htmlentities($proj->slug).'</Slug>';
-        $xml .= '<Desc>'.htmlentities($proj->description).'</Desc>';
+        $projArray['name'] = $proj->name;
+        $projArray['slug'] = $proj->slug;
+        $projArray['description'] = $proj->description;
 
         //preset stuff
 
         $forms = Form::where('pid','=',$pid)->get();
-        $xml .= '<Forms>';
+        $projArray['forms'] = array();
         foreach($forms as $form) {
-            $xml .= $this->exportForm($pid,$form->fid,false);
+            array_push($projArray['forms'],$this->exportForm($pid,$form->fid,false));
         }
-        $xml .= '</Forms>';
-
-        $xml .= '</Project>';
 
         header("Content-Disposition: attachment; filename=" . $proj->name . '_Layout_' . Carbon::now() . '.proj');
         header("Content-Type: application/octet-stream; ");
 
-        echo $xml;
+        echo json_encode($projArray);
     }
 }

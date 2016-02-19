@@ -13,6 +13,8 @@ return [
 	"edit" => "Edit",
 	"delete" => "Delete",
 	"create" => "Create New Project",
+	"import" => "Import Project",
+	"importsubmit" => "Submit Project",
 	"areyousure" => "Are you sure you want to delete",
 	"title" => "Projects",
 

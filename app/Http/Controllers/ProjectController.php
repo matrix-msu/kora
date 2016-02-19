@@ -219,4 +219,8 @@ class ProjectController extends Controller {
     public static function validProj($id){
         return !is_null(ProjectController::getProject($id));
     }
+
+    public function importProjectView(){
+        return view('projects.import');
+    }
 }
