@@ -15,6 +15,7 @@
         <a href="{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_show.records')}}]</a>
         @if(\Auth::user()->canIngestRecords($form))
             <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_show.new')}}]</a>
+            <a href="{{ action('RecordController@importRecordsView',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('forms_show.import')}}]</a>
         @endif
     </div>
 

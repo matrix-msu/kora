@@ -48,6 +48,8 @@ Route::delete('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@destro
 Route::get('/projects/{pid}/forms','ProjectController@show'); //alias for project/{id}
 Route::patch('/projects/{pid}/forms/{fid}','FormController@update');
 Route::get('/projects/{pid}/forms/create','FormController@create');
+Route::get('/projects/{pid}/forms/import','FormController@importFormView');
+Route::post('/projects/{pid}/forms/import','ImportController@importForm');
 Route::get('/projects/{pid}/forms/{fid}','FormController@show');
 Route::delete('/projects/{pid}/forms/{fid}','FormController@destroy');
 Route::get('/projects/{pid}/forms/{fid}/edit','FormController@edit');
@@ -124,6 +126,7 @@ Route::get('projects/{pid}/forms/{fid}/records/massAssignRecords','RecordControl
 Route::post('projects/{pid}/forms/{fid}/records/massAssignRecords','RecordController@massAssignRecords');
 Route::patch('/projects/{pid}/forms/{fid}/records/{rid}','RecordController@update');
 Route::get('/projects/{pid}/forms/{fid}/records/create','RecordController@create');
+Route::get('/projects/{pid}/forms/{fid}/records/import','RecordController@importRecordsView');
 Route::get('/projects/{pid}/forms/{fid}/records/{rid}','RecordController@show');
 Route::delete('/projects/{pid}/forms/{fid}/records/{rid}','RecordController@destroy');
 Route::get('/projects/{pid}/forms/{fid}/records/{rid}/edit','RecordController@edit');

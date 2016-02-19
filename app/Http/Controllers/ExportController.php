@@ -314,49 +314,50 @@ class ExportController extends Controller {
             return redirect('projects/' . $pid . '/forms/' . $fid);
         }
 
-        $xml = '<Form>';
+        $formArray = array();
 
-        $xml .= '<Name>'.htmlentities($form->name).'</Name>';
-        $xml .= '<Slug>'.htmlentities($form->slug).'</Slug>';
-        $xml .= '<Desc>'.htmlentities($form->description).'</Desc>';
-        $xml .= '<Layout>'.htmlentities($form->layout).'</Layout>';
-        $xml .= '<Preset>'.htmlentities($form->preset).'</Preset>';
-        $xml .= '<Metadata>'.htmlentities($form->public_metadata).'</Metadata>';
+        $formArray['name'] = $form->name;
+        $formArray['slug'] = $form->slug;
+        $formArray['desc'] = $form->description;
+        $formArray['layout'] = $form->layout;
+        $formArray['preset'] = $form->preset;
+        $formArray['metadata'] = $form->public_metadata;
 
         $fields = Field::where('fid','=',$form->fid)->get();
-        $xml .= '<Fields>';
+        $formArray['fields'] = array();
 
         foreach($fields as $field){
-            $xml .= '<Field>';
+            $fieldArray = array();
 
-            $xml .= '<flid>'.htmlentities($field->flid).'</flid>';
-            $xml .= '<Type>'.htmlentities($field->type).'</Type>';
-            $xml .= '<Name>'.htmlentities($field->name).'</Name>';
-            $xml .= '<Slug>'.htmlentities($field->slug).'</Slug>';
-            $xml .= '<Desc>'.htmlentities($field->desc).'</Desc>';
-            $xml .= '<Required>'.htmlentities($field->required).'</Required>';
-            $xml .= '<Default>'.htmlentities($field->default).'</Default>';
-            $xml .= '<Options>'.htmlentities($field->options).'</Options>';
+            $fieldArray['flid'] = $field->flid;
+            $fieldArray['type'] = $field->type;
+            $fieldArray['name'] = $field->name;
+            $fieldArray['slug'] = $field->slug;
+            $fieldArray['desc'] = $field->desc;
+            $fieldArray['required'] = $field->required;
+            $fieldArray['default'] = $field->default;
+            $fieldArray['options'] = $field->options;
 
             $meta = Metadata::where('flid','=',$field->flid)->get()->first();
             if(!is_null($meta))
-                $xml .= '<Metadata>'.htmlentities($meta->name).'</Metadata>';
+                $fieldArray['metadata'] = $meta->name;
             else
-                $xml .= '<Metadata></Metadata>';
+                $fieldArray['metadata'] = '';
 
-            $xml .= '</Field>';
+            array_push($formArray['fields'],$fieldArray);
+
+            //swap layout flid with slug for import
+
+            $formArray['layout'] = str_replace('<ID>'.$field->flid.'</ID>','<ID>'.$field->slug.'</ID>',$formArray['layout']);
         }
 
-        $xml .= '</Fields>';
-        $xml .= '</Form>';
-
         if($download) {
-            header("Content-Disposition: attachment; filename=" . $form->name . '_Layout_' . Carbon::now() . '.xml');
+            header("Content-Disposition: attachment; filename=" . $form->name . '_Layout_' . Carbon::now() . '.form');
             header("Content-Type: application/octet-stream; ");
 
-            echo $xml;
+            echo json_encode($formArray);
         }else{
-            return $xml;
+            return $formArray;
         }
     }
 
@@ -388,7 +389,7 @@ class ExportController extends Controller {
 
         $xml .= '</Project>';
 
-        header("Content-Disposition: attachment; filename=" . $proj->name . '_Layout_' . Carbon::now() . '.xml');
+        header("Content-Disposition: attachment; filename=" . $proj->name . '_Layout_' . Carbon::now() . '.proj');
         header("Content-Type: application/octet-stream; ");
 
         echo $xml;

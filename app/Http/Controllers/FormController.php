@@ -274,6 +274,19 @@ class FormController extends Controller {
         $form->save();
     }
 
+    public function importFormView($pid){
+        if(!ProjectController::validProj($pid)){
+            return redirect('projects');
+        }
+
+        if(!FormController::checkPermissions($pid, 'ingest')) {
+            return redirect('projects/'.$pid);
+        }
+
+        $proj = ProjectController::getProject($pid);
+
+        return view('forms.import',compact('proj','pid'));
+    }
 
     /**
      * Get form object for use in controller.
