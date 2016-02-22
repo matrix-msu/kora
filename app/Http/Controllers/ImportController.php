@@ -7,6 +7,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use App\Metadata;
+use App\OptionPreset;
 use App\Project;
 use App\ProjectGroup;
 use Illuminate\Http\Request;
@@ -202,6 +203,20 @@ class ImportController extends Controller {
         $admin = $this->makeProjAdminGroup($proj);
         $proj->adminGID = $admin->id;
         $proj->save();
+
+        $optPresets = $fileArray->optPresets;
+
+        foreach($optPresets as $opt) {
+            $pre = new OptionPreset();
+
+            $pre->pid = $proj->pid;
+            $pre->type = $opt->type;
+            $pre->name = $opt->name;
+            $pre->preset = $opt->preset;
+            $pre->shared = $opt->shared;
+
+            $pre->save();
+        }
 
         $forms = $fileArray->forms;
 

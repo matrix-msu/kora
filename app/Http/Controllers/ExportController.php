@@ -16,6 +16,7 @@ use App\Metadata;
 use App\ModelField;
 use App\MultiSelectListField;
 use App\NumberField;
+use App\OptionPreset;
 use App\PlaylistField;
 use App\Record;
 use App\RichTextField;
@@ -379,6 +380,17 @@ class ExportController extends Controller {
         $projArray['description'] = $proj->description;
 
         //preset stuff
+        $optPresets = OptionPreset::where('pid','=',$pid)->get();
+        $projArray['optPresets'] = array();
+        foreach($optPresets as $pre) {
+            $opt = array();
+            $opt['type'] = $pre->type;
+            $opt['name'] = $pre->name;
+            $opt['preset'] = $pre->preset;
+            $opt['shared'] = $pre->shared;
+
+            array_push($projArray['optPresets'],$opt);
+        }
 
         $forms = Form::where('pid','=',$pid)->get();
         $projArray['forms'] = array();
