@@ -12,7 +12,7 @@
     {!! Form::open(['url' => action('ImportController@importForm', ['pid' => $proj->pid]),'enctype' => 'multipart/form-data']) !!}
     <div class="form-group">
         {!! Form::label('form', 'Form (.form): ') !!}
-        {!! Form::file('form', ['class' => 'form-control', 'accept' => '.form']) !!}
+        {!! Form::file('form', ['class' => 'form-control', 'accept' => '.k3Form']) !!}
     </div>
 
     <div class="form-group">
