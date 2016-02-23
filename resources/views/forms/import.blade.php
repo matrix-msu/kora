@@ -11,7 +11,7 @@
 
     {!! Form::open(['url' => action('ImportController@importForm', ['pid' => $proj->pid]),'enctype' => 'multipart/form-data']) !!}
     <div class="form-group">
-        {!! Form::label('form', 'Form (.form): ') !!}
+        {!! Form::label('form', 'Form (.k3Form): ') !!}
         {!! Form::file('form', ['class' => 'form-control', 'accept' => '.k3Form']) !!}
     </div>
 

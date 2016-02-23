@@ -7,7 +7,7 @@
 
     {!! Form::open(['url' => action('ImportController@importProject'),'enctype' => 'multipart/form-data']) !!}
     <div class="form-group">
-        {!! Form::label('project', 'Project (.proj): ') !!}
+        {!! Form::label('project', 'Project (.k3Proj): ') !!}
         {!! Form::file('project', ['class' => 'form-control', 'accept' => '.k3Proj']) !!}
     </div>
 

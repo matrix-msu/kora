@@ -10,6 +10,7 @@ use App\Metadata;
 use App\OptionPreset;
 use App\Project;
 use App\ProjectGroup;
+use App\RecordPreset;
 use Illuminate\Http\Request;
 
 class ImportController extends Controller {
@@ -48,6 +49,19 @@ class ImportController extends Controller {
         $admin = $this->makeFormAdminGroup($form);
         $form->adminGID = $admin->id;
         $form->save();
+
+        //record presets
+        $recPresets = $fileArray->recPresets;
+
+        foreach($recPresets as $pre) {
+            $rec = new RecordPreset();
+
+            $rec->fid = $form->fid;
+            $rec->name = $pre->name;
+            $rec->preset = $pre->preset;
+
+            $rec->save();
+        }
 
         $fields = $fileArray->fields;
 
@@ -107,6 +121,19 @@ class ImportController extends Controller {
         $admin = $this->makeFormAdminGroup($form);
         $form->adminGID = $admin->id;
         $form->save();
+
+        //record presets
+        $recPresets = $fileArray->recPresets;
+
+        foreach($recPresets as $pre) {
+            $rec = new RecordPreset();
+
+            $rec->fid = $form->fid;
+            $rec->name = $pre->name;
+            $rec->preset = $pre->preset;
+
+            $rec->save();
+        }
 
         $fields = $fileArray->fields;
 

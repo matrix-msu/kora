@@ -19,6 +19,7 @@ use App\NumberField;
 use App\OptionPreset;
 use App\PlaylistField;
 use App\Record;
+use App\RecordPreset;
 use App\RichTextField;
 use App\ScheduleField;
 use App\TextField;
@@ -323,6 +324,17 @@ class ExportController extends Controller {
         $formArray['layout'] = $form->layout;
         $formArray['preset'] = $form->preset;
         $formArray['metadata'] = $form->public_metadata;
+
+        //record presets
+        $recPresets = RecordPreset::where('fid','=',$fid)->get();
+        $formArray['recPresets'] = array();
+        foreach($recPresets as $pre) {
+            $rec = array();
+            $rec['name'] = $pre->name;
+            $rec['preset'] = $pre->preset;
+
+            array_push($formArray['recPresets'],$rec);
+        }
 
         $fields = Field::where('fid','=',$form->fid)->get();
         $formArray['fields'] = array();
