@@ -85,19 +85,19 @@ class ImportController extends Controller {
             $field->fid = $form->fid;
             $field->type = $fieldArray->type;
             $field->name = $fieldArray->name;
-            if (Field::where('slug', '=', $fileArray->slug)->exists()) {
+            if (Field::where('slug', '=', $fieldArray->slug)->exists()) {
                 $unique = false;
                 $i=1;
                 while(!$unique){
-                    if(Field::where('slug', '=', $fileArray->slug.$i)->exists()){
+                    if(Field::where('slug', '=', $fieldArray->slug.$i)->exists()){
                         $i++;
                     }else{
-                        $field->slug = $fileArray->slug.$i;
+                        $field->slug = $fieldArray->slug.$i;
                         $unique = true;
                     }
                 }
             }else{
-                $field->slug = $fileArray->slug;
+                $field->slug = $fieldArray->slug;
             }
             $field->desc = $fieldArray->desc;
             $field->required = $fieldArray->required;
@@ -183,19 +183,19 @@ class ImportController extends Controller {
             $field->fid = $form->fid;
             $field->type = $fieldArray->type;
             $field->name = $fieldArray->name;
-            if (Field::where('slug', '=', $fileArray->slug)->exists()) {
+            if (Field::where('slug', '=', $fieldArray->slug)->exists()) {
                 $unique = false;
                 $i=1;
                 while(!$unique){
-                    if(Field::where('slug', '=', $fileArray->slug.$i)->exists()){
+                    if(Field::where('slug', '=', $fieldArray->slug.$i)->exists()){
                         $i++;
                     }else{
-                        $field->slug = $fileArray->slug.$i;
+                        $field->slug = $fieldArray->slug.$i;
                         $unique = true;
                     }
                 }
             }else{
-                $field->slug = $fileArray->slug;
+                $field->slug = $fieldArray->slug;
             }
             $field->desc = $fieldArray->desc;
             $field->required = $fieldArray->required;
