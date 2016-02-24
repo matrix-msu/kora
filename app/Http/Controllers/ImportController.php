@@ -37,7 +37,20 @@ class ImportController extends Controller {
 
         $form->pid = $project->pid;
         $form->name = $fileArray->name;
-        $form->slug = $fileArray->slug.rand(10000,99999); //fix some time
+        if (Form::where('slug', '=', $fileArray->slug)->exists()) {
+            $unique = false;
+            $i=1;
+            while(!$unique){
+                if(Form::where('slug', '=', $fileArray->slug.$i)->exists()){
+                    $i++;
+                }else{
+                    $form->slug = $fileArray->slug.$i;
+                    $unique = true;
+                }
+            }
+        }else{
+            $form->slug = $fileArray->slug;
+        }
         $form->description = $fileArray->desc;
         $form->layout = $fileArray->layout;
         $form->preset = $fileArray->preset;
@@ -72,7 +85,20 @@ class ImportController extends Controller {
             $field->fid = $form->fid;
             $field->type = $fieldArray->type;
             $field->name = $fieldArray->name;
-            $field->slug = $fieldArray->slug.rand(10000,99999);
+            if (Field::where('slug', '=', $fileArray->slug)->exists()) {
+                $unique = false;
+                $i=1;
+                while(!$unique){
+                    if(Field::where('slug', '=', $fileArray->slug.$i)->exists()){
+                        $i++;
+                    }else{
+                        $field->slug = $fileArray->slug.$i;
+                        $unique = true;
+                    }
+                }
+            }else{
+                $field->slug = $fileArray->slug;
+            }
             $field->desc = $fieldArray->desc;
             $field->required = $fieldArray->required;
             $field->default = $fieldArray->default;
@@ -109,7 +135,20 @@ class ImportController extends Controller {
 
         $form->pid = $project->pid;
         $form->name = $fileArray->name;
-        $form->slug = $fileArray->slug.rand(10000,99999); //fix some time
+        if (Form::where('slug', '=', $fileArray->slug)->exists()) {
+            $unique = false;
+            $i=1;
+            while(!$unique){
+                if(Form::where('slug', '=', $fileArray->slug.$i)->exists()){
+                    $i++;
+                }else{
+                    $form->slug = $fileArray->slug.$i;
+                    $unique = true;
+                }
+            }
+        }else{
+            $form->slug = $fileArray->slug;
+        }
         $form->description = $fileArray->desc;
         $form->layout = $fileArray->layout;
         $form->preset = $fileArray->preset;
@@ -144,7 +183,20 @@ class ImportController extends Controller {
             $field->fid = $form->fid;
             $field->type = $fieldArray->type;
             $field->name = $fieldArray->name;
-            $field->slug = $fieldArray->slug.rand(10000,99999);
+            if (Field::where('slug', '=', $fileArray->slug)->exists()) {
+                $unique = false;
+                $i=1;
+                while(!$unique){
+                    if(Field::where('slug', '=', $fileArray->slug.$i)->exists()){
+                        $i++;
+                    }else{
+                        $field->slug = $fileArray->slug.$i;
+                        $unique = true;
+                    }
+                }
+            }else{
+                $field->slug = $fileArray->slug;
+            }
             $field->desc = $fieldArray->desc;
             $field->required = $fieldArray->required;
             $field->default = $fieldArray->default;
@@ -220,7 +272,20 @@ class ImportController extends Controller {
         $proj = new Project();
 
         $proj->name = $fileArray->name;
-        $proj->slug = $fileArray->slug.rand(10000,99999); //fix some time
+        if (Project::where('slug', '=', $fileArray->slug)->exists()) {
+            $unique = false;
+            $i=1;
+            while(!$unique){
+                if(Project::where('slug', '=', $fileArray->slug.$i)->exists()){
+                    $i++;
+                }else{
+                    $proj->slug = $fileArray->slug.$i;
+                    $unique = true;
+                }
+            }
+        }else{
+            $proj->slug = $fileArray->slug;
+        }
         $proj->description = $fileArray->description;
         $proj->active = 1;
 
