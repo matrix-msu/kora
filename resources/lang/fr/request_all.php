@@ -8,5 +8,6 @@ return [
 	"req" => "La zone d'identification de r&eacute;f&eacute;rence est exig&eacute;e.",
 	"alpha" => "Le nom de r&eacute;f&eacute;rence peut seulement contenir des lettres et des nombres.",
 	"minimum" => "Le nom de r&eacute;f&eacute;rence doit &ecirc;tre au moins 3 caract&egrave;res.",
+    "unique" => "Le nom de r&eacute;f&eacute;rence existe d&eacute;j&agrave;. Veuillez essayer un autre.",
 
 ];

@@ -20,8 +20,8 @@ class CreateFieldsTable extends Migration {
             $table->string('order');
             $table->string('type');
             $table->string('name');
-            $table->string('slug')->nullable();
-            $table->string('desc')->nullable();
+            $table->string('slug')->unique();
+            $table->string('desc');
             $table->boolean('required');
             $table->text('default')->nullable();
             $table->text('options')->nullable();

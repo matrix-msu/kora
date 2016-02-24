@@ -26,7 +26,7 @@ class FieldRequest extends Request {
             'fid' => 'required|numeric',
             'type' => 'required',
             'name' => 'required|min:3',
-            'slug' => 'required|alpha_num|min:3',
+            'slug' => 'required|unique:fields|alpha_num|min:3',
             'desc' => 'required'
         ];
     }
@@ -36,7 +36,8 @@ class FieldRequest extends Request {
         return [
             'slug.required' => trans('request_all.req'),
             'slug.alpha_num' => trans('request_all.alpha'),
-            'slug.min' => trans('request_all.minimum')
+            'slug.min' => trans('request_all.minimum'),
+            'slug.unique' => trans('request_all.unique')
         ];
     }
 
