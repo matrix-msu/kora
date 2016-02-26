@@ -31,7 +31,7 @@ class FieldDefaults {
             if($type1=='Text'){
                 $options .= "Text[Type]".$name1."[Options][!Regex!][!Regex!][!MultiLine!]0[!MultiLine!]";
             }else if($type1=='Number'){
-                $options .= "Number[Type]".$name1."[Options][!Max!][!Max!][!Min!][!Min!][!Increment!]1[!Increment!][!Unit!][!Unit!]";
+                $options .= "Number[Type]".$name1."[Options][!Max!]10[!Max!][!Min!]1[!Min!][!Increment!]1[!Increment!][!Unit!][!Unit!]";
             }else if($type1=='List'){
                 $options .= "List[Type]".$name1."[Options][!Options!][!Options!]";
             }else if($type1=='Multi-Select List'){
@@ -45,7 +45,7 @@ class FieldDefaults {
             if($type2=='Text'){
                 $options .= "Text[Type]".$name2."[Options][!Regex!][!Regex!][!MultiLine!]0[!MultiLine!]";
             }else if($type2=='Number'){
-                $options .= "Number[Type]".$name2."[Options][!Max!][!Max!][!Min!][!Min!][!Increment!]1[!Increment!][!Unit!][!Unit!]";
+                $options .= "Number[Type]".$name2."[Options][!Max!]10[!Max!][!Min!]1[!Min!][!Increment!]1[!Increment!][!Unit!][!Unit!]";
             }else if($type2=='List'){
                 $options .= "List[Type]".$name2."[Options][!Options!][!Options!]";
             }else if($type2=='Multi-Select List'){

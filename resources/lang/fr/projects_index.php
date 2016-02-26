@@ -13,6 +13,8 @@ return [
 	"edit" => "Modifier",
 	"delete" => "Supprimer",
 	"create" => "Cr&eacute;er le nouveau projet",
+    "import" => "Projet d'importation",
+    "importsubmit" => "Soumettez le projet",
 	"areyousure" => "&Ecirc;tes-vous s&ucirc;r de que vouloir supprimer",
 	"title" => "Projets",
 

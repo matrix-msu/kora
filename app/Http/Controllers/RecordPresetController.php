@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\ComboListField;
 use App\DateField;
 use App\Form;
 use App\GeneratedListField;
@@ -62,8 +63,9 @@ class RecordPresetController extends Controller {
         $name = $request->name;
         $rid = $request->rid;
 
-        if(!is_null(RecordPreset::where('rid', '=', $rid)->first()))
+        if(!is_null(RecordPreset::where('rid', '=', $rid)->first())) {
             flash()->overlay(trans('controller_record.already'));
+        }
         else {
             $record = RecordController::getRecord($rid);
             $fid = $record->fid;
@@ -212,8 +214,14 @@ class RecordPresetController extends Controller {
                     $flid_array[] = $field->flid;
                     break;
 
+                case 'Combo List':
+                    $cmbfield = ComboListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
+                    $data['combolists'] = explode('[!val!]', $cmbfield->options);
+                    $flid_array[] = $field->flid;
+                    break;
+
                 default:
-                    //Presets not supported for any other field types.
+                    //Presets not supported for any other field types at this time...
                     break;
             }
 

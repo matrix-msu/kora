@@ -8,5 +8,6 @@ return [
 	"req" => "El campo del nombre de la referencia se requiere.",
 	"alpha" => "El nombre de la referencia s&oacute;lo puede contener cartas y n&uacute;meros.",
 	"minimum" => "El nombre de la referencia debe ser al menos 3 caracteres.",
+    "unique" => "El nombre de la referencia ya existe. Por favor intente el otro.",
 
 ];

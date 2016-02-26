@@ -15,6 +15,7 @@
         <a href="{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('forms_show.records')}}]</a>
         @if(\Auth::user()->canIngestRecords($form))
             <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('forms_show.newrec')}}]</a>
+            <a href="{{ action('RecordController@importRecordsView',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('forms_show.import')}}]</a>
         @endif
         @if(\Auth::user()->canModifyRecords($form))
             <a href="{{ action('RecordController@showMassAssignmentView',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('forms_show.massassign')}}]</a>
@@ -43,6 +44,12 @@
     @endif
     <hr/>
     <h2>{{trans('forms_show.fields')}}</h2>
+
+    @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
+        <div>
+            <a href="{{ action('ExportController@exportForm',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('forms_show.export')}}]</a>
+        </div> <br>
+    @endif
 
     @include('forms.layout.logic',['form' => $form, 'fieldview' => 'forms.layout.printfield', 'layoutPage' => true])
 

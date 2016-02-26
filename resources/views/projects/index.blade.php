@@ -7,6 +7,11 @@
 
     <hr/>
     <h2>{{trans('projects_index.title')}}</h2>
+    @if(\Auth::user()->admin)
+        <div>
+            <a href="{{ action('ProjectController@importProjectView') }}">[{{trans('projects_index.import')}}]</a>
+        </div> <br>
+    @endif
     @foreach ($projects as $project)
         @if((\Auth::user()->admin || \Auth::user()->inAProjectGroup($project)))
             <div class="panel panel-default">

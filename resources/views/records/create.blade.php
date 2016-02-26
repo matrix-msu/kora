@@ -41,9 +41,6 @@
                     '_token': '{{csrf_token()}}',
                     'id': val
                 }, success: function(response) {
-
-                    console.log(response);
-
                     putArray(response);
                 }
             });
@@ -140,8 +137,53 @@
                             }));
                         }
                         break;
-                }
 
+                    case 'Combo List':
+                        var p, combos = field['combolists'];
+                        var selector = $('#combo_list_'+flid);
+
+                        selector.empty(); // Empty defaults, we need to do this as the preset may have done so.
+                                          // However if it hasn't, the defaults will be in the preset so this is safe.
+                        for(p=0; p < combos.length; p++) {
+                            var rawData = combos[p];
+
+                            var field1RawData = rawData.split('[!f1!]')[1];
+                            var field2RawData = rawData.split('[!f2!]')[1];
+
+                            var field1ToPrint = field1RawData.split('[!]');
+                            var field2ToPrint = field2RawData.split('[!]');
+
+                            var html = "";
+                            html += '<div id="val_"'+flid+'">';
+
+                            if (field1ToPrint.length == 1) {
+                                html += '<span style="float:left;width:40%;margin-bottom:10px">'+field1ToPrint+'</span>';
+                            }
+                            else {
+                                html += '<span style="float:left;width:40%;margin-bottom:10px">';
+                                for (var q = 0; q < field1ToPrint.length; q++) {
+                                    html += '<div>'+field1ToPrint[q]+'</div>';
+                                }
+                                html+= '</span>';
+                            }
+                            if (field2ToPrint.length == 1) {
+                                html += '<span style="float:left;width:40%;margin-bottom:10px">'+field2ToPrint+'</span>';
+                            }
+                            else {
+                                html += '<span style="float:left;width:40%;margin-bottom:10px">';
+                                for (var r = 0; r < field2ToPrint.length; r++) {
+                                    html += '<div>'+field2ToPrint[r]+'</div>';
+                                }
+                                html += '</span>';
+                            }
+                            html += '<input name="'+flid+'_val[]" type="hidden" value="'+rawData+'" id="'+flid+'_val[]">';
+                            html += '<span class="delete_combo_def_11" style="float:left;width:20%;margin-bottom:10px"><a>[X]</a></span>';
+                            html += '</div>';
+
+                            selector.append(html);
+                        }
+                        break;
+                }
             }
         }
 
