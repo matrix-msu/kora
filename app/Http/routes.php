@@ -129,6 +129,8 @@ Route::post('projects/{pid}/forms/{fid}/records/massAssignRecords','RecordContro
 Route::patch('/projects/{pid}/forms/{fid}/records/{rid}','RecordController@update');
 Route::get('/projects/{pid}/forms/{fid}/records/create','RecordController@create');
 Route::get('/projects/{pid}/forms/{fid}/records/import','RecordController@importRecordsView');
+Route::post('/projects/{pid}/forms/{fid}/records/matchup','ImportController@matchupFields');
+Route::post('/projects/{pid}/forms/{fid}/records/importRecord','ImportController@importRecord');
 Route::get('/projects/{pid}/forms/{fid}/records/{rid}','RecordController@show');
 Route::delete('/projects/{pid}/forms/{fid}/records/{rid}','RecordController@destroy');
 Route::get('/projects/{pid}/forms/{fid}/records/{rid}/edit','RecordController@edit');
