@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\ComboListField;
 use App\Http\Requests;
 Use App\Metadata;
 Use App\Field;
@@ -98,6 +99,21 @@ class MetadataController extends Controller {
                         $jsRecord->put($field->metadata()->first()->name,$options_array);
                     }
                 }
+                foreach($record->combolistfields as $clf){
+                    $field = Field::find($clf->flid);
+                    if($item==$clf->flid && count($field->metadata)>0 && ($clf->options  != "" && $clf->options !== null)){
+                        $options_array = explode("[!val!]",$clf->options);
+                        $combo_array = new Collection();
+                        foreach($options_array as $option){
+                            $f1 = explode("[!f1!]",$option)[1];
+                            $f2 = explode("[!f2!]",$option)[1];
+                            $combo_array->put(ComboListField::getComboFieldName($field,'one'),$f1);
+                            $combo_array->put(ComboListField::getComboFieldName($field,'two'),$f2);
+                        }
+                        $jsRecord->put($field->metadata()->first()->name,$combo_array);
+                    }
+                }
+
                 foreach($record->datefields as $df) {
                     $field = Field::find($df->flid);
                     if ($item == $df->flid && count($field->metadata) > 0 && $df->month != "0") {

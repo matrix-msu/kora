@@ -67,7 +67,11 @@
             window.onbeforeunload = function() {
                 return "{{trans('backups_restore.dontleave')}}!";
             }
-            var restoreURL ="{{action('BackupController@restoreData')}}";
+            @if($type == 'system')
+                var restoreURL ="{{action('BackupController@restoreData')}}";
+            @elseif($type=="project")
+                var restoreURL ="{{action('BackupController@restoreProject')}}";
+            @endif
             $.ajax({
                 url:restoreURL,
                 method:'POST',
@@ -82,7 +86,9 @@
                 error: function(data){
                     $("#progress").fadeOut();
                     $("#summary").fadeOut();
+                    @if($type == 'system')
                     $("#user_lockout_notice").fadeIn(1000);
+                    @endif
                     $("#error_info").fadeIn(1000);
                     $("#error_message").text(data.responseJSON.message);
                     if(data.responseJSON.error_list.length >0){
