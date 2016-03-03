@@ -302,11 +302,19 @@
          * a post on the PHP.net user contributions on the urlencode() page (davis dot pexioto at gmail dot com
          */
         function myUrlEncode(to_encode) {
-            var entities = ['%21', '%2A', '%27', '%28', '%29', '%3B', '%3A', '%40', '%26', '%3D', '%2B',
-                            '%24', '%2C', '%2F', '%3F', '%25', '%23', '%5B', '%5D'];
+            //
+            // Build array of characters that need to be replaced.
+            //
             var replace = ['!', '*', "'", "(", ")", ";", ":", "@", "&", "=", "+", "$", ",", "/", "?",
                                "%", "#", "[", "]"];
 
+            //
+            // Build array of the replacements for the characters listed above.
+            //
+            var entities = ['%21', '%2A', '%27', '%28', '%29', '%3B', '%3A', '%40', '%26', '%3D', '%2B',
+                '%24', '%2C', '%2F', '%3F', '%25', '%23', '%5B', '%5D'];
+
+            // Replace them in the string!
             for(var i = 0; i < entities.length; i++) {
                 to_encode = to_encode.replace(replace[i], entities[i]);
             }
