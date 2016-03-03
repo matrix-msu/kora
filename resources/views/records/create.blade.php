@@ -210,8 +210,8 @@
 
                         if (!field['images']) { /* Do nothing. */ }
                         else {
-                            // Build the array of file names.
-                            var imgs = [];
+                            moveFiles(presetID, flid, userID);
+
                             for (var x = 0; x < field['images'].length; x++) {
                                 filename = field['images'][x].split('[Name]')[1];
                                 filenames.append(fileDivHTML(filename, flid, userID, true));
@@ -226,8 +226,8 @@
 
                         if (!field['audio']) { /* Do nothing. */ }
                         else {
-                            // Build array of file names.
-                            var aud = [];
+                            moveFiles(presetID, flid, userID);
+
                             for (var y = 0; y < field['audio'].length; y++) {
                                 filename = field['audio'][y].split('[Name]')[1];
                                 filenames.append(fileDivHTML(filename, flid, userID, true));
@@ -242,6 +242,8 @@
 
                         if (!field['video']) { /* Do nothing. */ }
                         else {
+                            moveFiles(presetID, flid, userID);
+
                             var vid = field['video'].split('[Name]')[1];
                             filenames.append(fileDivHTML(vid, flid, userID, false));
                         }
@@ -254,6 +256,8 @@
 
                         if (!field['model']) { /* Do nothing. */ }
                         else {
+                            moveFiles(presetID, flid, userID);
+
                             var mod = field['model'].split('[Name]')[1];
                             filenames.append(fileDivHTML(mod, flid, userID, false));
                         }
