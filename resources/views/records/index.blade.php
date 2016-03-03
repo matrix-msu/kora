@@ -13,7 +13,6 @@
 
     @if(\Auth::user()->canIngestRecords($form))
         <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_index.new')}}]</a>
-        <a href="{{ action('RecordController@importRecordsView',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('forms_show.import')}}]</a>
     @endif
     @if(\Auth::user()->canModifyRecords($form))
         <a href="{{ action('RecordController@showMassAssignmentView',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_index.mass')}}]</a>
@@ -56,6 +55,8 @@
             @endif
         </div> <br>
     @endif
+
+    <div id="slideme">
 
     @include('pagination.records', ['object' => $records])
 
@@ -547,6 +548,14 @@
     @endforeach
 
     @include('pagination.records', ['object' => $records])
+
+    </div>
+
+    <div style="display:none; margin-top: 1em;" id="progress" class="progress">
+        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
+            {{trans('update_index.loading')}}
+        </div>
+    </div>
 @stop
 
 @section('footer')
@@ -554,8 +563,13 @@
         function deleteAll() {
             var resp1 = confirm('{{trans('records_index.areyousure')}}?');
             if(resp1) {
-                var resp2 = confirm('{{trans('records_index.reallysure')}}!');
-                if(resp2) {
+                var resp2 = prompt('{{trans('records_index.reallysure')}}!', '{{ trans('records_index.reallysureplaceholder')}}.');
+                if(resp2 === 'DELETE') {
+
+                    $("#slideme").slideToggle(2000, function() {
+                        $('#progress').slideToggle(400);
+                    });
+
                     $.ajax({
                         url: '{{ action('RecordController@deleteAllRecords', ['pid' => $form->pid, 'fid' => $form->fid]) }}',
                         type: 'DELETE',

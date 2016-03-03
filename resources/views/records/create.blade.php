@@ -267,6 +267,20 @@
             }
         }
 
+        /**
+         * Generates the HTML for an uploaded file's div.
+         *
+         * This is the HTML that handles moving the order of file type fields that allow for
+         * multiple inputs and deleting a file input. It builds the url for the delete button and
+         * encodes the URL as expected.
+         *
+         * @param {string} filename The filename of file's div we're generating.
+         * @param {int} flid The field ID we're generating for.
+         * @param {int} userID The ID of the user currently creating a file from the preset.
+         *                     This is needed to build the delete button's URL.
+         * @param {bool} multiple True if the field can have multiple entries, false otherwise.
+         * @return {string} The formatted HTML.
+         */
         function fileDivHTML(filename, flid, userID, multiple) {
             var HTML = "";
             HTML += '<div id="uploaded_file_div">' + filename + ' ';
@@ -300,6 +314,7 @@
          *
          * Javascript's encode funciton wasn't playing nice with our system so I wrote this based off of
          * a post on the PHP.net user contributions on the urlencode() page (davis dot pexioto at gmail dot com
+         *
          */
         function myUrlEncode(to_encode) {
             //
@@ -307,7 +322,6 @@
             //
             var replace = ['!', '*', "'", "(", ")", ";", ":", "@", "&", "=", "+", "$", ",", "/", "?",
                                "%", "#", "[", "]"];
-
             //
             // Build array of the replacements for the characters listed above.
             //
