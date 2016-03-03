@@ -16,8 +16,10 @@ use App\Metadata;
 use App\ModelField;
 use App\MultiSelectListField;
 use App\NumberField;
+use App\OptionPreset;
 use App\PlaylistField;
 use App\Record;
+use App\RecordPreset;
 use App\RichTextField;
 use App\ScheduleField;
 use App\TextField;
@@ -314,49 +316,61 @@ class ExportController extends Controller {
             return redirect('projects/' . $pid . '/forms/' . $fid);
         }
 
-        $xml = '<Form>';
+        $formArray = array();
 
-        $xml .= '<Name>'.htmlentities($form->name).'</Name>';
-        $xml .= '<Slug>'.htmlentities($form->slug).'</Slug>';
-        $xml .= '<Desc>'.htmlentities($form->description).'</Desc>';
-        $xml .= '<Layout>'.htmlentities($form->layout).'</Layout>';
-        $xml .= '<Preset>'.htmlentities($form->preset).'</Preset>';
-        $xml .= '<Metadata>'.htmlentities($form->public_metadata).'</Metadata>';
+        $formArray['name'] = $form->name;
+        $formArray['slug'] = $form->slug;
+        $formArray['desc'] = $form->description;
+        $formArray['layout'] = $form->layout;
+        $formArray['preset'] = $form->preset;
+        $formArray['metadata'] = $form->public_metadata;
+
+        //record presets
+        $recPresets = RecordPreset::where('fid','=',$fid)->get();
+        $formArray['recPresets'] = array();
+        foreach($recPresets as $pre) {
+            $rec = array();
+            $rec['name'] = $pre->name;
+            $rec['preset'] = $pre->preset;
+
+            array_push($formArray['recPresets'],$rec);
+        }
 
         $fields = Field::where('fid','=',$form->fid)->get();
-        $xml .= '<Fields>';
+        $formArray['fields'] = array();
 
         foreach($fields as $field){
-            $xml .= '<Field>';
+            $fieldArray = array();
 
-            $xml .= '<flid>'.htmlentities($field->flid).'</flid>';
-            $xml .= '<Type>'.htmlentities($field->type).'</Type>';
-            $xml .= '<Name>'.htmlentities($field->name).'</Name>';
-            $xml .= '<Slug>'.htmlentities($field->slug).'</Slug>';
-            $xml .= '<Desc>'.htmlentities($field->desc).'</Desc>';
-            $xml .= '<Required>'.htmlentities($field->required).'</Required>';
-            $xml .= '<Default>'.htmlentities($field->default).'</Default>';
-            $xml .= '<Options>'.htmlentities($field->options).'</Options>';
+            $fieldArray['flid'] = $field->flid;
+            $fieldArray['type'] = $field->type;
+            $fieldArray['name'] = $field->name;
+            $fieldArray['slug'] = $field->slug;
+            $fieldArray['desc'] = $field->desc;
+            $fieldArray['required'] = $field->required;
+            $fieldArray['default'] = $field->default;
+            $fieldArray['options'] = $field->options;
 
             $meta = Metadata::where('flid','=',$field->flid)->get()->first();
             if(!is_null($meta))
-                $xml .= '<Metadata>'.htmlentities($meta->name).'</Metadata>';
+                $fieldArray['metadata'] = $meta->name;
             else
-                $xml .= '<Metadata></Metadata>';
+                $fieldArray['metadata'] = '';
 
-            $xml .= '</Field>';
+            array_push($formArray['fields'],$fieldArray);
+
+            //swap layout flid with slug for import
+
+            $formArray['layout'] = str_replace('<ID>'.$field->flid.'</ID>','<ID>'.$field->slug.'</ID>',$formArray['layout']);
         }
 
-        $xml .= '</Fields>';
-        $xml .= '</Form>';
-
         if($download) {
-            header("Content-Disposition: attachment; filename=" . $form->name . '_Layout_' . Carbon::now() . '.xml');
+            header("Content-Disposition: attachment; filename=" . $form->name . '_Layout_' . Carbon::now() . '.k3Form');
             header("Content-Type: application/octet-stream; ");
 
-            echo $xml;
+            echo json_encode($formArray);
         }else{
-            return $xml;
+            return $formArray;
         }
     }
 
@@ -371,26 +385,34 @@ class ExportController extends Controller {
             return redirect('projects/' . $pid);
         }
 
-        $xml = '<Project>';
+        $projArray = array();
 
-        $xml .= '<Name>'.htmlentities($proj->name).'</Name>';
-        $xml .= '<Slug>'.htmlentities($proj->slug).'</Slug>';
-        $xml .= '<Desc>'.htmlentities($proj->description).'</Desc>';
+        $projArray['name'] = $proj->name;
+        $projArray['slug'] = $proj->slug;
+        $projArray['description'] = $proj->description;
 
         //preset stuff
+        $optPresets = OptionPreset::where('pid','=',$pid)->get();
+        $projArray['optPresets'] = array();
+        foreach($optPresets as $pre) {
+            $opt = array();
+            $opt['type'] = $pre->type;
+            $opt['name'] = $pre->name;
+            $opt['preset'] = $pre->preset;
+            $opt['shared'] = $pre->shared;
+
+            array_push($projArray['optPresets'],$opt);
+        }
 
         $forms = Form::where('pid','=',$pid)->get();
-        $xml .= '<Forms>';
+        $projArray['forms'] = array();
         foreach($forms as $form) {
-            $xml .= $this->exportForm($pid,$form->fid,false);
+            array_push($projArray['forms'],$this->exportForm($pid,$form->fid,false));
         }
-        $xml .= '</Forms>';
 
-        $xml .= '</Project>';
-
-        header("Content-Disposition: attachment; filename=" . $proj->name . '_Layout_' . Carbon::now() . '.xml');
+        header("Content-Disposition: attachment; filename=" . $proj->name . '_Layout_' . Carbon::now() . '.k3Proj');
         header("Content-Type: application/octet-stream; ");
 
-        echo $xml;
+        echo json_encode($projArray);
     }
 }

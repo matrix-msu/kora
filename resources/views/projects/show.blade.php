@@ -20,12 +20,16 @@
     <form action="{{action('OptionPresetController@index', ['pid'=>$project->pid])}}" style="display: inline">
         <button type="submit" class="btn btn-default">{{trans('projects_show.presets')}}</button>
     </form>
+    <form action="{{action('BackupController@projectIndex', ['pid'=>$project->pid])}}" style="display: inline">
+        <button type="submit" class="btn btn-default">Manage Backups</button>
+    </form>
     @endif
     <hr/>
     <h2>{{trans('projects_show.forms')}}</h2>
     @if(\Auth::user()->admin || \Auth::user()->isProjectAdmin($project))
         <div>
             <a href="{{ action('ExportController@exportProject',['pid' => $project->pid]) }}">[{{trans('projects_show.export')}}]</a>
+            <a href="{{ action('FormController@importFormView',['pid' => $project->pid]) }}">[{{trans('projects_show.import')}}]</a>
         </div> <br>
     @endif
     @foreach($project->forms as $form)

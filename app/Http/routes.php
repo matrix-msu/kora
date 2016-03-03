@@ -8,6 +8,8 @@ Route::post('/language','WelcomeController@setTemporaryLanguage');
 
 
 //project routes
+Route::get('/projects/import','ProjectController@importProjectView');
+Route::post('/projects/import','ImportController@importProject');
 Route::resource('projects', 'ProjectController');
 
 //project group routes
@@ -48,6 +50,8 @@ Route::delete('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@destro
 Route::get('/projects/{pid}/forms','ProjectController@show'); //alias for project/{id}
 Route::patch('/projects/{pid}/forms/{fid}','FormController@update');
 Route::get('/projects/{pid}/forms/create','FormController@create');
+Route::get('/projects/{pid}/forms/import','FormController@importFormView');
+Route::post('/projects/{pid}/forms/import','ImportController@importForm');
 Route::get('/projects/{pid}/forms/{fid}','FormController@show');
 Route::delete('/projects/{pid}/forms/{fid}','FormController@destroy');
 Route::get('/projects/{pid}/forms/{fid}/edit','FormController@edit');
@@ -125,6 +129,9 @@ Route::get('projects/{pid}/forms/{fid}/records/massAssignRecords','RecordControl
 Route::post('projects/{pid}/forms/{fid}/records/massAssignRecords','RecordController@massAssignRecords');
 Route::patch('/projects/{pid}/forms/{fid}/records/{rid}','RecordController@update');
 Route::get('/projects/{pid}/forms/{fid}/records/create','RecordController@create');
+Route::get('/projects/{pid}/forms/{fid}/records/import','RecordController@importRecordsView');
+Route::post('/projects/{pid}/forms/{fid}/records/matchup','ImportController@matchupFields');
+Route::post('/projects/{pid}/forms/{fid}/records/importRecord','ImportController@importRecord');
 Route::get('/projects/{pid}/forms/{fid}/records/{rid}','RecordController@show');
 Route::delete('/projects/{pid}/forms/{fid}/records/{rid}','RecordController@destroy');
 Route::get('/projects/{pid}/forms/{fid}/records/{rid}/edit','RecordController@edit');
@@ -176,6 +183,11 @@ Route::post('/backup','BackupController@startBackup');
 Route::post('/backup/restore','BackupController@startRestore');
 Route::post('/backup/unlock','BackupController@unlockUsers');
 Route::post('/backup/delete','BackupController@delete');
+Route::post('/backup/project/restore','BackupController@startRestoreProject');
+Route::post('/backup/project/restore/start','BackupController@restoreProject');
+Route::get('/backup/project/{pid}','BackupController@projectIndex');
+Route::post('/backup/project/{pid}','BackupController@backupProject');
+Route::post('/backup/project','BackupController@createProject');
 
 Route::controllers([
 	'auth' => 'Auth\AuthController',

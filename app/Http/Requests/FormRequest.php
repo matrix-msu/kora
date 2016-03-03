@@ -28,7 +28,7 @@ class FormRequest extends Request {
         return [
             'pid' => 'required|numeric',
             'name' => 'required|min:3',
-            'slug' => 'required|alpha_num|min:3',
+            'slug' => 'required|alpha_num|min:3|unique:forms',
             'description' => 'required',
         ];
     }
@@ -38,7 +38,8 @@ class FormRequest extends Request {
         return [
             'slug.required' => trans('request_all.req'),
             'slug.alpha_num' => trans('request_all.alpha'),
-            'slug.min' => trans('request_all.minimum')
+            'slug.min' => trans('request_all.minimum'),
+            'slug.unique' => trans('request_all.unique')
         ];
     }
 

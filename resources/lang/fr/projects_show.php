@@ -11,6 +11,8 @@ return [
 	"presets" => "G&eacute;rer les pr&eacute;r&eacute;glages de l'Option",
 	"forms" => "Les formes",
     "export" => "Projet d'exportation",
+    "import" => "Forme d'importation",
+    "importsubmit" => "Soumettez la forme",
 	"edit" => "Modifier",
 	"delete" => "Supprimer",
 	"create" => "Cr&eacute;er formulaire",

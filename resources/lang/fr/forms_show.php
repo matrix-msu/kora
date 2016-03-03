@@ -8,6 +8,7 @@ return [
 	"desc" => "Description",
 	"records" => "Comptes rendus",
 	"newrec" => "Nouveau Record",
+    "import" => "Disques d'importation",
 	"massassign" => "Assign masse Records",
 	"formpanel" => "Panneau d'administration de forme",
 	"mGroups" => "G&eacute;rer des groupes",

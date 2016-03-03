@@ -58,4 +58,8 @@ class Form extends Model {
     public function groups(){
         return $this->hasMany('App\FormGroup', 'fid');
     }
+
+    public function revisions(){
+        return $this->hasMany('App\Revision','fid');
+    }
 }

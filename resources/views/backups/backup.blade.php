@@ -38,9 +38,11 @@
                                 <p>
                                     {{trans('backups_backup.success')}}.
                                 </p>
-                                <button onclick="download()" type="button" class="btn btn-default">
-                                    <span class="glyphicon glyphicon-save" aria-hidden="true"></span> {{trans('backups_backup.download')}}
-                                </button>
+                                @if($type == "system")
+                                    <button onclick="download()" type="button" class="btn btn-default">
+                                        <span class="glyphicon glyphicon-save" aria-hidden="true"></span> Download
+                                    </button>
+                                @endif
                             </div>
 
                             <div style="display:none" id="error_info">
@@ -53,9 +55,11 @@
                                         <strong class="list-group-item-heading">{{trans('backups_backup.errors')}}</strong>
                                     </li>
                                 </ul>
-                                <button id="download_btn_for_error" style="display:none" onclick="download()" type="button" class="btn btn-default">
-                                    <span class="glyphicon glyphicon-save" aria-hidden="true"></span> {{trans('backups_backup.download')}}
-                                </button>
+                                @if($type == "system")
+                                    <button id="download_btn_for_error" style="display:none" onclick="download()" type="button" class="btn btn-default">
+                                        <span class="glyphicon glyphicon-save" aria-hidden="true"></span> Download
+                                    </button>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -72,7 +76,12 @@
             window.onbeforeunload = function() {
                 return "{{trans('backups_backup.dontleave')}}!";
             }
-            var backupURL ="{{action('BackupController@create')}}";
+
+            @if($type == "system")
+                var backupURL ="{{action('BackupController@create')}}";
+            @elseif($type == "project")
+                var backupURL = "{{action('BackupController@createProject')}}";
+            @endif
             $.ajax({
                 url:backupURL,
                 method:'POST',

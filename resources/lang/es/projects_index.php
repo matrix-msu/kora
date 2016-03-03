@@ -13,6 +13,8 @@ return [
 	"edit" => "Editar",
 	"delete" => "Eliminar",
 	"create" => "Crear nuevo proyecto",
+    "import" => "Proyecto de importaci&oacute;n",
+    "importsubmit" => "Presente proyecto",
 	"areyousure" => "Est&aacute; seguro que desea eliminar",
 	"title" => "Proyectos",
 

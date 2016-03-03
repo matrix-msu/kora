@@ -8,6 +8,7 @@ return [
 	"desc" => "Description",
 	"records" => "Records",
 	"newrec" => "New Record",
+	"import" => "Import Records",
 	"massassign" => "Mass Assign Records",
 	"formpanel" => "Form Admin Panel",
 	"mGroups" => "Manage Groups",

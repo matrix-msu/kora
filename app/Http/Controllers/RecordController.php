@@ -133,6 +133,11 @@ class RecordController extends Controller {
         else
             $numRecs = 1;
 
+        //safeguard
+        if($numRecs>1000){
+            $numRecs = 1000;
+        }
+
         for($i=0;$i<$numRecs;$i++) {
             $record = new Record();
             $record->pid = $pid;
@@ -193,9 +198,9 @@ class RecordController extends Controller {
                     $clf = new ComboListField();
                     $clf->flid = $field->flid;
                     $clf->rid = $record->rid;
-                    $clf->options = $_REQUEST[$field->flid.'_val'][0];
-                    for($i=1;$i<sizeof($_REQUEST[$field->flid.'_val']);$i++){
-                        $clf->options .= '[!val!]'.$_REQUEST[$field->flid.'_val'][$i];
+                    $clf->options = $request->input($field->flid.'_val')[0];
+                    for($j=1;$j<sizeof($request->input($field->flid.'_val'));$j++){
+                        $clf->options .= '[!val!]'.$request->input($field->flid.'_val')[$j];
                     }
                     $clf->save();
                 } else if ($field->type == 'Date' && $request->input('year_' . $field->flid) != '') {
@@ -1412,6 +1417,20 @@ class RecordController extends Controller {
             }
         }
         return $result;
+    }
+
+    public function importRecordsView($pid,$fid){
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+
+        if(!RecordController::checkPermissions($fid, 'ingest')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid);
+        }
+
+        $form = FormController::getForm($fid);
+
+        return view('records.import',compact('form','pid','fid'));
     }
 
     /**

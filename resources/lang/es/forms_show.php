@@ -8,6 +8,7 @@ return [
 	"desc" => "Descripci&oacute;n",
 	"records" => "Registros",
 	"newrec" => "Nuevo registro",
+    "import" => "Archivos de importaci&oacute;n",
 	"massassign" => "Asignaci&oacute;n masiva de registros",
 	"formpanel" => "Panel de administraci&oacute;n de forma",
 	"mGroups" => "Administrar grupos",

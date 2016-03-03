@@ -11,6 +11,8 @@ return [
 	"presets" => "Manage Option Presets",
 	"forms" => "Forms",
 	"export" => "Export Project",
+	"import" => "Import Form",
+	"importsubmit" => "Submit Form",
 	"edit" => "Edit",
 	"delete" => "Delete",
 	"create" => "Create New Form",
