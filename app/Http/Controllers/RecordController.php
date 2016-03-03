@@ -1644,7 +1644,44 @@ class RecordController extends Controller {
                     $revision->oldData = RevisionController::buildDataArray($record);
                     $revision->save();
                 }
-            } elseif ($field->type == "Date") {
+            } elseif($field->type == "Combo List"){
+                $matching_record_fields = $record->combolistfields()->where('flid','=',$flid)->get();
+                $record->updated_at = Carbon::now();
+                $record->save();
+
+                if($matching_record_fields->count() > 0){
+                    $combolistfield = $matching_record_fields->first();
+                    if($overwrite == true || $combolistfield->options == "" || is_null($combolistfield->options)){
+                        $revision = RevisionController::storeRevision($record->rid,'edit');
+                        //$combolistfield->options = implode("[!]",$form_field_value);
+                        $combolistfield->options = $_REQUEST[$flid.'_val'][0];
+                        for($i=1;$i<sizeof($_REQUEST[$flid.'_val']);$i++){
+                            $combolistfield->options .= '[!val!]'.$_REQUEST[$flid.'_val'][$i];
+                        }
+                        $combolistfield->save();
+                        $revision->oldData = RevisionController::buildDataArray($record);
+                        $revision->save();
+                    }
+                    else{
+                        continue;
+                    }
+                } else{
+                    $clf = new ComboListField();;
+                    $revision = RevisionController::storeRevision($record->rid,'edit');
+                    $clf->flid = $flid;
+                    $clf->rid = $record->rid;
+                    $clf->options = $_REQUEST[$flid.'_val'][0];
+                    for($i=1;$i<sizeof($_REQUEST[$flid.'_val']);$i++){
+                        $clf->options .= '[!val!]'.$_REQUEST[$flid.'_val'][$i];
+                    }
+                    $clf->save();
+                    $revision->oldData = RevisionController::buildDataArray($record);
+                    $revision->save();
+                }
+
+
+            }
+            elseif ($field->type == "Date") {
                 $matching_record_fields = $record->datefields()->where("flid", '=', $flid)->get();
                 $record->updated_at = Carbon::now();
                 $record->save();
