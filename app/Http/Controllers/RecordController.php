@@ -534,7 +534,7 @@ class RecordController extends Controller {
         $base_path = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid;
 
         //
-        // For each revision,
+        // For each revision, delete it's associated record's files.
         //
         foreach ($revisions as $revision){
             $path = $base_path . "/r" . $revision->rid;
@@ -1333,7 +1333,6 @@ class RecordController extends Controller {
         $form = FormController::getForm($fid);
         $pid = $form->pid;
         $filesize = 0;
-        $levels = 1; //Keep track of directory levels for size counting purposes.
 
         $basedir = env( "BASE_PATH" ) . "storage/app/files/p".$pid."/f".$fid;
         $filesize += RecordController::dirCrawl($basedir);
