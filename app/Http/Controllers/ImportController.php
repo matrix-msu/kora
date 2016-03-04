@@ -12,8 +12,156 @@ use App\Project;
 use App\ProjectGroup;
 use App\RecordPreset;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class ImportController extends Controller {
+
+    public function matchupFields($pid, $fid, Request $request){
+        $form = FormController::getForm($fid);
+
+        if(!\Auth::user()->admin && !\Auth::user()->isFormAdmin($form)){
+            return 'Error: ';
+        }
+
+        //if zip file
+            //clear import directory
+            //upzip and move files to import directory
+
+        $xml = simplexml_load_file($request->file('records'));
+
+        $xmlNames = array();
+        $recordXMLobjs = array();
+
+        foreach ($xml->children() as $record) {
+            array_push($recordXMLobjs, $record->asXML());
+            foreach ($record->children() as $fields){
+                array_push($xmlNames,$fields->getName());
+            }
+        }
+
+        $xmlNames = array_unique($xmlNames);
+
+        $fields = $form->fields()->get();
+
+        $table = '<div id="matchup_table" style="overflow: auto">';
+
+        $table .= '<div>';
+        $table .= '<span style="float:left;width:50%;margin-bottom:10px"><b>'.trans('controller_input.slug').'</b></span>';
+        $table .= '<span style="float:left;width:50%;margin-bottom:10px"><b>'.trans('controller_input.xml').'</b></span>';
+        $table .= '</div>';
+
+        foreach ($fields as $field){
+            $table .= '<div>';
+            $table .= '<span style="float:left;width:50%;margin-bottom:10px">';
+            $table .= $field->name.' ('.$field->slug.')';
+            $table .= '</span>';
+            $table .= '<input type="hidden" class="slugs" value="'.$field->slug.'">';
+            $table .= '<span style="float:left;width:50%;margin-bottom:10px">';
+            $table .= '<select class="tags">';
+            $table .= '<option></option>';
+            foreach($xmlNames as $name){
+                if($field->slug==$name) {
+                    $table .= '<option selected>' . $name . '</option>';
+                }
+                else
+                    $table .= '<option>'.$name.'</option>';
+            }
+            $table .= '</select>';
+            $table .= '</span>';
+            $table .= '</div>';
+        }
+
+        $table .= '</div>';
+
+        $table .= '<div class="form-group">';
+           $table .= '<button type="button" class="form-control btn btn-primary" id="submit_records">'.trans('controller_input.records').'</button>';
+        $table .= '</div>';
+
+        $result = array();
+        $result['records'] = $recordXMLobjs;
+        $result['matchup'] = $table;
+
+        return $result;
+    }
+
+    public function importRecord($pid, $fid, Request $request){
+        $matchup = $request->table;
+
+        $record = $request->record;
+
+        $record =  simplexml_load_string($record);
+
+        $recRequest = new Request();
+        $recRequest['userId'] = \Auth::user()->id;
+
+        $originKid = $record->attributes()->kid;
+        $originRid = explode('-',$originKid)[2];
+
+        foreach($record->children() as $key => $field){
+            $fieldSlug = $matchup[$key];
+            $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
+            $type = $field->attributes()->type;
+
+            if($type=='Text' | $type=='Rich Text' | $type=='Number' | $type=='List')
+                $recRequest[$flid] = (string)$field;
+            else if($type=='Multi-Select List'){
+                $recRequest[$flid] = (array)$field->value;
+            } else if($type=='Generated List'){
+                $recRequest[$flid] = (array)$field->value;
+            } else if($type=='Combo List'){
+                $values = array();
+                foreach($field->Value as $val) {
+                    if((string)$val->Field_One!='')
+                        $fone = '[!f1!]'.(string)$val->Field_One.'[!f1!]';
+                    else if(sizeof($val->Field_One->value)==1)
+                        $fone = '[!f1!]'.(string)$val->Field_One->value.'[!f1!]';
+                    else
+                        $fone = '[!f1!]'.FieldController::listArrayToString((array)$val->Field_One->value).'[!f1!]';
+
+
+                    if((string)$val->Field_Two!='')
+                        $ftwo = '[!f2!]'.(string)$val->Field_Two.'[!f2!]';
+                    else if(sizeof($val->Field_Two->value)==1)
+                        $ftwo = '[!f2!]'.(string)$val->Field_Two->value.'[!f2!]';
+                    else
+                        $ftwo = '[!f2!]'.FieldController::listArrayToString((array)$val->Field_Two->value).'[!f2!]';
+
+                    array_push($values,$fone.$ftwo);
+                }
+                $recRequest[$flid] = '';
+                $recRequest[$flid.'_val'] = $values;
+            } else if($type=='Date'){
+                $recRequest['circa_'.$flid] = (string)$field->Circa;
+                $recRequest['month_'.$flid] = (string)$field->Month;
+                $recRequest['day_'.$flid] = (string)$field->Day;
+                $recRequest['year_'.$flid] = (string)$field->Year;
+                $recRequest['era_'.$flid] = (string)$field->Era;
+                $recRequest[$flid] = '';
+            } else if($type=='Schedule'){
+                $events = array();
+                foreach($field->Event as $event){
+                    $string = $event->Title.': '.$event->Start.' - '.$event->End;
+                    array_push($events,$string);
+                }
+                $recRequest[$flid] = $events;
+            } else if($type=='Geolocator'){
+                $geo = array();
+                foreach($field->Location as $loc){
+                    $string = '[Desc]'.$loc->Desc.'[Desc]';
+                    $string .= '[LatLon]'.$loc->Lat.','.$loc->Lon.'[LatLon]';
+                    $string .= '[UTM]'.$loc->Zone.':'.$loc->East.','.$loc->North.'[UTM]';
+                    $string .= '[Address]'.$loc->Address.'[Address]';
+                    array_push($geo,$string);
+                }
+                $recRequest[$flid] = $geo;
+            }
+        }
+
+        $recCon = new RecordController();
+        $recCon->store($pid,$fid,$recRequest);
+
+        return '';
+    }
 
 	/**
 	 * Display a listing of the resource.

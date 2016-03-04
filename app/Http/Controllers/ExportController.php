@@ -47,13 +47,10 @@ class ExportController extends Controller {
         //dd($records);
 
         foreach($records as $record){
-            $xml .= '<Record>';
-            $xml .= '<kid>'.$record->kid.'</kid>';
-
-            $xml .= '<Data>';
+            $xml .= '<Record kid="'.$record->kid.'">';
 
             foreach($fields as $field){
-                $xml .= '<'.htmlentities($field->name).'>';
+                $xml .= '<'.htmlentities($field->slug).' type="'.$field->type.'">';
 
                 if($field->type=='Text'){
                     $f = TextField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->get()->first();
@@ -240,10 +237,8 @@ class ExportController extends Controller {
                     }
                 }
 
-                $xml .= '</'.htmlentities($field->name).'>';
+                $xml .= '</'.htmlentities($field->slug).'>';
             }
-
-            $xml .= '</Data>';
 
             $xml .= '</Record>';
         }
