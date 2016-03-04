@@ -133,11 +133,6 @@ class RecordController extends Controller {
         else
             $numRecs = 1;
 
-        //safeguard
-        if($numRecs>1000){
-            $numRecs = 1000;
-        }
-
         for($i=0;$i<$numRecs;$i++) {
             $record = new Record();
             $record->pid = $pid;
@@ -198,9 +193,9 @@ class RecordController extends Controller {
                     $clf = new ComboListField();
                     $clf->flid = $field->flid;
                     $clf->rid = $record->rid;
-                    $clf->options = $request->input($field->flid.'_val')[0];
-                    for($j=1;$j<sizeof($request->input($field->flid.'_val'));$j++){
-                        $clf->options .= '[!val!]'.$request->input($field->flid.'_val')[$j];
+                    $clf->options = $_REQUEST[$field->flid.'_val'][0];
+                    for($i=1;$i<sizeof($_REQUEST[$field->flid.'_val']);$i++){
+                        $clf->options .= '[!val!]'.$_REQUEST[$field->flid.'_val'][$i];
                     }
                     $clf->save();
                 } else if ($field->type == 'Date' && $request->input('year_' . $field->flid) != '') {
@@ -411,8 +406,14 @@ class RecordController extends Controller {
                 }
             }
 
-            RevisionController::storeRevision($record->rid, 'create');
-            RecordPresetController::updateIfExists($record->rid);
+            //
+            // Only create a revision if the record was not mass created.
+            // This prevents clutter from an operation that the user
+            // will obviously not want to undo using revisions.
+            //
+            if(!$request->mass_creation == "on")
+                RevisionController::storeRevision($record->rid, 'create');
+
         }
 
         flash()->overlay(trans('controller_record.created'), trans('controller_record.goodjob'));
@@ -539,7 +540,7 @@ class RecordController extends Controller {
         $base_path = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid;
 
         //
-        // For each revision,
+        // For each revision, delete it's associated record's files.
         //
         foreach ($revisions as $revision){
             $path = $base_path . "/r" . $revision->rid;
@@ -1183,18 +1184,22 @@ class RecordController extends Controller {
         $revision->oldData = RevisionController::buildDataArray($record);
         $revision->save();
 
+        RecordPresetController::updateIfExists($record->rid);
+
         flash()->overlay(trans('controller_record.updated'), trans('controller_record.goodjob'));
 
         return redirect('projects/'.$pid.'/forms/'.$fid.'/records/'.$rid);
 	}
 
-	/**
-	 * Remove the specified resource from storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function destroy($pid, $fid, $rid)
+
+    /**
+     * @param int $pid The project ID
+     * @param int $fid The form ID
+     * @param int $rid The recrod ID
+     * @param bool $mass Is this is a mass deletion?
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function destroy($pid, $fid, $rid, $mass = false)
 	{
         if(!RecordController::validProjFormRecord($pid, $fid, $rid)){
             return redirect('projects/'.$pid.'forms/');
@@ -1206,8 +1211,9 @@ class RecordController extends Controller {
 
         $record = RecordController::getRecord($rid);
 
-        RevisionController::storeRevision($record->rid, 'delete');
-
+        if (!$mass) {
+            RevisionController::storeRevision($record->rid, 'delete');
+        }
         //if directory r[rid] exists
         //  destroy directory
 
@@ -1231,7 +1237,7 @@ class RecordController extends Controller {
         else {
             $records = Record::where('fid', '=', $fid)->get();
             foreach ($records as $record) {
-                RecordController::destroy($pid, $fid, $record->rid);
+                RecordController::destroy($pid, $fid, $record->rid, true);
             }
             flash()->overlay(trans('controller_record.alldelete'), trans('controller_record.success'));
         }
@@ -1338,7 +1344,6 @@ class RecordController extends Controller {
         $form = FormController::getForm($fid);
         $pid = $form->pid;
         $filesize = 0;
-        $levels = 1; //Keep track of directory levels for size counting purposes.
 
         $basedir = env( "BASE_PATH" ) . "storage/app/files/p".$pid."/f".$fid;
         $filesize += RecordController::dirCrawl($basedir);
@@ -1418,20 +1423,6 @@ class RecordController extends Controller {
             }
         }
         return $result;
-    }
-
-    public function importRecordsView($pid,$fid){
-        if(!FormController::validProjForm($pid,$fid)){
-            return redirect('projects');
-        }
-
-        if(!RecordController::checkPermissions($fid, 'ingest')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
-
-        $form = FormController::getForm($fid);
-
-        return view('records.import',compact('form','pid','fid'));
     }
 
     /**
@@ -1653,7 +1644,44 @@ class RecordController extends Controller {
                     $revision->oldData = RevisionController::buildDataArray($record);
                     $revision->save();
                 }
-            } elseif ($field->type == "Date") {
+            } elseif($field->type == "Combo List"){
+                $matching_record_fields = $record->combolistfields()->where('flid','=',$flid)->get();
+                $record->updated_at = Carbon::now();
+                $record->save();
+
+                if($matching_record_fields->count() > 0){
+                    $combolistfield = $matching_record_fields->first();
+                    if($overwrite == true || $combolistfield->options == "" || is_null($combolistfield->options)){
+                        $revision = RevisionController::storeRevision($record->rid,'edit');
+                        //$combolistfield->options = implode("[!]",$form_field_value);
+                        $combolistfield->options = $_REQUEST[$flid.'_val'][0];
+                        for($i=1;$i<sizeof($_REQUEST[$flid.'_val']);$i++){
+                            $combolistfield->options .= '[!val!]'.$_REQUEST[$flid.'_val'][$i];
+                        }
+                        $combolistfield->save();
+                        $revision->oldData = RevisionController::buildDataArray($record);
+                        $revision->save();
+                    }
+                    else{
+                        continue;
+                    }
+                } else{
+                    $clf = new ComboListField();;
+                    $revision = RevisionController::storeRevision($record->rid,'edit');
+                    $clf->flid = $flid;
+                    $clf->rid = $record->rid;
+                    $clf->options = $_REQUEST[$flid.'_val'][0];
+                    for($i=1;$i<sizeof($_REQUEST[$flid.'_val']);$i++){
+                        $clf->options .= '[!val!]'.$_REQUEST[$flid.'_val'][$i];
+                    }
+                    $clf->save();
+                    $revision->oldData = RevisionController::buildDataArray($record);
+                    $revision->save();
+                }
+
+
+            }
+            elseif ($field->type == "Date") {
                 $matching_record_fields = $record->datefields()->where("flid", '=', $flid)->get();
                 $record->updated_at = Carbon::now();
                 $record->save();

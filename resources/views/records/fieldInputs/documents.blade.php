@@ -44,7 +44,6 @@
                 del += '<button class="btn btn-danger delete" type="button" data-type="' + file.deleteType + '" data-url="' + file.deleteUrl + '" >';
                 del += '<i class="glyphicon glyphicon-trash" /> {{trans('records_fieldInput.delete')}}</button>';
                 del += '</div>';
-
                 $('#filenames{{$field->flid}}').append(del);
             });
         },

@@ -33,7 +33,6 @@
 
         function populate() {
             var val = $('#presetselect').val();
-
             $.ajax({
                 url: '{{action('RecordPresetController@getData')}}',
                 type: 'POST',
@@ -47,10 +46,13 @@
         }
 
         function putArray(ary) {
+            var userID = <?php echo \Auth::user()->id; ?>;
             var flids = ary['flids'];
             var data = ary['data'];
+            var presetID = $('#presetselect').val();
 
             var i;
+            var filename;
             for (i = 0; i < flids.length; i++) {
                 var flid = flids[i];
                 var field = data[flid];
@@ -187,10 +189,169 @@
                             selector.append(html);
                         }
                         break;
+
+                    // The file fields will all have the same routine, basically.
+                    case 'Documents':
+
+                        var filenames = $("#filenames" + flid);
+                        filenames.empty();
+
+                        if (!field['documents']) { /* Do nothing. */ }
+                        else {
+                            moveFiles(presetID, flid, userID);
+
+                            for (var z = 0; z < field['documents'].length; z++) {
+                                filename = field['documents'][z].split('[Name]')[1];
+                                filenames.append(fileDivHTML(filename, flid, userID, true));
+                            }
+                        }
+                        break;
+
+                    case 'Gallery':
+
+                        var filenames = $("#filenames" + flid);
+                        filenames.empty();
+
+                        if (!field['images']) { /* Do nothing. */ }
+                        else {
+                            moveFiles(presetID, flid, userID);
+
+                            for (var x = 0; x < field['images'].length; x++) {
+                                filename = field['images'][x].split('[Name]')[1];
+                                filenames.append(fileDivHTML(filename, flid, userID, true));
+                            }
+                        }
+                        break;
+
+                    case 'Playlist':
+
+                        var filenames = $("#filenames" + flid);
+                        filenames.empty();
+
+                        if (!field['audio']) { /* Do nothing. */ }
+                        else {
+                            moveFiles(presetID, flid, userID);
+
+                            for (var y = 0; y < field['audio'].length; y++) {
+                                filename = field['audio'][y].split('[Name]')[1];
+                                filenames.append(fileDivHTML(filename, flid, userID, true));
+                            }
+                        }
+                        break;
+
+                    case 'Video':
+
+                        var filenames = $("#filenames" + flid);
+                        filenames.empty();
+
+                        if (!field['video']) { /* Do nothing. */ }
+                        else {
+                            moveFiles(presetID, flid, userID);
+
+                            var vid = field['video'].split('[Name]')[1];
+                            filenames.append(fileDivHTML(vid, flid, userID, false));
+                        }
+                        break;
+
+                    case '3D-Model':
+
+                        var filenames = $("#filenames" + flid);
+                        filenames.empty();
+
+                        if (!field['model']) { /* Do nothing. */ }
+                        else {
+                            moveFiles(presetID, flid, userID);
+
+                            var mod = field['model'].split('[Name]')[1];
+                            filenames.append(fileDivHTML(mod, flid, userID, false));
+                        }
+                        break;
+
                 }
             }
         }
 
+        /**
+         * Generates the HTML for an uploaded file's div.
+         *
+         * This is the HTML that handles moving the order of file type fields that allow for
+         * multiple inputs and deleting a file input. It builds the url for the delete button and
+         * encodes the URL as expected.
+         *
+         * @param {string} filename The filename of file's div we're generating.
+         * @param {int} flid The field ID we're generating for.
+         * @param {int} userID The ID of the user currently creating a file from the preset.
+         *                     This is needed to build the delete button's URL.
+         * @param {bool} multiple True if the field can have multiple entries, false otherwise.
+         * @return {string} The formatted HTML.
+         */
+        function fileDivHTML(filename, flid, userID, multiple) {
+            var HTML = "";
+            HTML += '<div id="uploaded_file_div">' + filename + ' ';
+            HTML += '<input type="hidden" name="file'+ flid +'[]" value ="'+ filename +'">';
+
+            //
+            // Build the delete file url.
+            //
+            var baseUrl = '<?php echo env('BASE_URL'). 'public/deleteTmpFile/'; ?>';
+            baseUrl += 'f' + flid + 'u' + userID + '/' + myUrlEncode(filename);
+
+            //
+            // If it is possible for a file field to have multiple inputs, we'll
+            // print out the up and down buttons for ordering
+            //
+            if (multiple) {
+                HTML += '<button id="up" class="btn btn-default" type="button">{{trans('records_fieldInput.up')}}</button>';
+                HTML += '<button id="down"class="btn btn-default" type="button">{{trans('records_fieldInput.down')}}</button>';
+            }
+
+            HTML += '<button class="btn btn-danger delete" type="button" data-type="DELETE" data-url="'+
+                    baseUrl +'" >';
+            HTML += '<i class="glyphicon glyphicon-trash" /> {{trans('records_fieldInput.delete')}}</button>';
+            HTML += '</div>';
+
+            return HTML;
+        }
+
+        /**
+         * Encodes a string for a url.
+         *
+         * Javascript's encode funciton wasn't playing nice with our system so I wrote this based off of
+         * a post on the PHP.net user contributions on the urlencode() page (davis dot pexioto at gmail dot com
+         *
+         */
+        function myUrlEncode(to_encode) {
+            //
+            // Build array of characters that need to be replaced.
+            //
+            var replace = ['!', '*', "'", "(", ")", ";", ":", "@", "&", "=", "+", "$", ",", "/", "?",
+                               "%", "#", "[", "]"];
+            //
+            // Build array of the replacements for the characters listed above.
+            //
+            var entities = ['%21', '%2A', '%27', '%28', '%29', '%3B', '%3A', '%40', '%26', '%3D', '%2B',
+                '%24', '%2C', '%2F', '%3F', '%25', '%23', '%5B', '%5D'];
+
+            // Replace them in the string!
+            for(var i = 0; i < entities.length; i++) {
+                to_encode = to_encode.replace(replace[i], entities[i]);
+            }
+
+            return to_encode;
+        }
+
+        function moveFiles(presetID, flid, userID) {
+            $.ajax({
+                url: '{{action('RecordPresetController@moveFilesToTemp')}}',
+                type: 'POST',
+                data: {
+                    '_token': '{{csrf_token()}}',
+                    'presetID': presetID,
+                    'flid': flid,
+                    'userID': userID
+                }
+            });
+        }
     </script>
 
     @if(isset($cloneArray))

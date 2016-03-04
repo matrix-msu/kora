@@ -24,5 +24,6 @@ return [
 	"areyousure" => "Are you sure",
 	"reallysure" => "Are you really sure? This will delete all records",
 	"deletefiles" => "Are you sure? This will delete all files with records that do not currently exist",
+	"reallysureplaceholder" => "Type DELETE here if you want to continue"
 
 ];

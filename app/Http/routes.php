@@ -109,6 +109,7 @@ Route::delete('/deletePreset', 'RecordPresetController@deletePreset');
 Route::post('/getRecordArray', 'RecordPresetController@getRecordArray');
 Route::post('/presetRecord', 'RecordPresetController@presetRecord');
 Route::post('/getData', 'RecordPresetController@getData');
+Route::post('/moveFilesToTemp', 'RecordPresetController@moveFilesToTemp');
 
 
 //option preset routes
