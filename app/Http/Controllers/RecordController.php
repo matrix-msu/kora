@@ -1243,6 +1243,20 @@ class RecordController extends Controller {
         }
     }
 
+    public function importRecordsView($pid,$fid){
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+
+        if(!RecordController::checkPermissions($fid, 'ingest')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid);
+        }
+
+        $form = FormController::getForm($fid);
+
+        return view('records.import',compact('form','pid','fid'));
+    }
+
     /**
      * Gets a record.
      *
