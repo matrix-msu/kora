@@ -242,7 +242,7 @@ class RecordController extends Controller {
                                     $newPath . '/' . $file->getFilename());
                             }
                         }
-                        foreach($_REQUEST['file'.$field->flid] as $fName){
+                        foreach($request->input('file'.$field->flid) as $fName){
                             if($fName!=''){
                                 if ($infoString == '') {
                                     $infoString = $infoArray[$fName];
@@ -283,7 +283,7 @@ class RecordController extends Controller {
                                     $newPath . '/medium/' . $file->getFilename());
                             }
                         }
-                        foreach($_REQUEST['file'.$field->flid] as $fName){
+                        foreach($request->input('file'.$field->flid) as $fName){
                             if($fName!=''){
                                 if ($infoString == '') {
                                     $infoString = $infoArray[$fName];
@@ -317,7 +317,7 @@ class RecordController extends Controller {
                                     $newPath . '/' . $file->getFilename());
                             }
                         }
-                        foreach($_REQUEST['file'.$field->flid] as $fName){
+                        foreach($request->input('file'.$field->flid) as $fName){
                             if($fName!=''){
                                 if ($infoString == '') {
                                     $infoString = $infoArray[$fName];
@@ -351,7 +351,7 @@ class RecordController extends Controller {
                                     $newPath . '/' . $file->getFilename());
                             }
                         }
-                        foreach($_REQUEST['file'.$field->flid] as $fName){
+                        foreach($request->input('file'.$field->flid) as $fName){
                             if($fName!=''){
                                 if ($infoString == '') {
                                     $infoString = $infoArray[$fName];
@@ -385,7 +385,7 @@ class RecordController extends Controller {
                                     $newPath . '/' . $file->getFilename());
                             }
                         }
-                        foreach($_REQUEST['file'.$field->flid] as $fName){
+                        foreach($request->input('file'.$field->flid) as $fName){
                             if($fName!=''){
                                 if ($infoString == '') {
                                     $infoString = $infoArray[$fName];

@@ -24,8 +24,28 @@ class ImportController extends Controller {
         }
 
         //if zip file
-            //clear import directory
-            //upzip and move files to import directory
+        if(!is_null($request->file('files'))) {
+            $zip = new \ZipArchive();
+            $res = $zip->open($request->file('files'));
+            if($res){
+                $dir = env('BASE_PATH').'storage/app/tmpFiles/impU'.\Auth::user()->id;
+                //clear import directory
+                $files = new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator($dir),
+                    \RecursiveIteratorIterator::LEAVES_ONLY
+                );
+                foreach ($files as $file)
+                {
+                    // Skip directories (they would be added automatically)
+                    if (!$file->isDir())
+                    {
+                        unlink($file);
+                    }
+                }
+                $zip->extractTo($dir.'/');
+                $zip->close();
+            }
+        }
 
         $xml = simplexml_load_file($request->file('records'));
 
@@ -154,6 +174,70 @@ class ImportController extends Controller {
                     array_push($geo,$string);
                 }
                 $recRequest[$flid] = $geo;
+            } else if($type=='Documents' | $type=='Playlist' | $type=='Video' | $type=='3D-Model'){
+                $files = array();
+                $currDir = env('BASE_PATH').'storage/app/tmpFiles/impU'.\Auth::user()->id.'/r'.$originRid.'/fl'.$flid;
+                $newDir = env('BASE_PATH').'storage/app/tmpFiles/f'.$flid.'u'.\Auth::user()->id;
+                if(file_exists($newDir)) {
+                    foreach (new \DirectoryIterator($newDir) as $file) {
+                        if ($file->isFile()) {
+                            unlink($newDir.'/'.$file->getFilename());
+                        }
+                    }
+                }else{
+                    mkdir($newDir, 0775, true);
+                }
+                foreach($field->File as $file){
+                    $name = (string)$file->Name;
+                    //move file from imp temp to tmp files
+                    copy($currDir.'/'.$name,$newDir.'/'.$name);
+                    //add input for this file
+                    array_push($files, $name);
+                }
+                var_dump($files);
+                $recRequest['file'.$flid] = $files;
+                $recRequest[$flid] = 'f'.$flid.'u'.\Auth::user()->id;
+            } else if($type=='Gallery'){
+                $files = array();
+                $currDir = env('BASE_PATH').'storage/app/tmpFiles/impU'.\Auth::user()->id.'/r'.$originRid.'/fl'.$flid;
+                $newDir = env('BASE_PATH').'storage/app/tmpFiles/f'.$flid.'u'.\Auth::user()->id;
+                if(file_exists($newDir)) {
+                    foreach (new \DirectoryIterator($newDir) as $file) {
+                        if ($file->isFile()) {
+                            unlink($newDir.'/'.$file->getFilename());
+                        }
+                    }
+                    if(file_exists($newDir.'/thumbnail')) {
+                        foreach (new \DirectoryIterator($newDir.'/thumbnail') as $file) {
+                            if ($file->isFile()) {
+                                unlink($newDir.'/thumbnail/'.$file->getFilename());
+                            }
+                        }
+                    }
+                    if(file_exists($newDir.'/medium')) {
+                        foreach (new \DirectoryIterator($newDir.'/medium') as $file) {
+                            if ($file->isFile()) {
+                                unlink($newDir.'/medium/'.$file->getFilename());
+                            }
+                        }
+                    }
+                }else{
+                    mkdir($newDir, 0775, true);
+                    mkdir($newDir . '/thumbnail', 0775, true);
+                    mkdir($newDir . '/medium', 0775, true);
+                }
+                foreach($field->File as $file){
+                    $name = (string)$file->Name;
+                    //move file from imp temp to tmp files
+                    copy($currDir.'/'.$name,$newDir.'/'.$name);
+                    copy($currDir.'/thumbnail/'.$name,$newDir.'/thumbnail/'.$name);
+                    copy($currDir.'/medium/'.$name,$newDir.'/medium/'.$name);
+                    //add input for this file
+                    array_push($files, $name);
+                }
+                var_dump($files);
+                $recRequest['file'.$flid] = $files;
+                $recRequest[$flid] = 'f'.$flid.'u'.\Auth::user()->id;
             }
         }
 

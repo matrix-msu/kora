@@ -9,7 +9,7 @@ if(file_exists($dir)) {
             unlink($dir.'/'.$file->getFilename());
         }
     }
-    if(file_exists($dir.'/thmubnail')) {
+    if(file_exists($dir.'/thumbnail')) {
         foreach (new \DirectoryIterator($dir.'/thumbnail') as $file) {
             if ($file->isFile()) {
                 unlink($dir.'/thumbnail/'.$file->getFilename());

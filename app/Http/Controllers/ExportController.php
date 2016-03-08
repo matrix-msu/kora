@@ -212,9 +212,11 @@ class ExportController extends Controller {
                     $f = ModelField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->get()->first();
                     if(!is_null($f)) {
                         $value = $f->model;
+                        $xml .= '<File>';
                         $xml .= '<Name>'.htmlentities(explode('[Name]',$value)[1]).'</Name>';
                         $xml .= '<Size>'.htmlentities(explode('[Size]',$value)[1]).'</Size>';
                         $xml .= '<Type>'.htmlentities(explode('[Type]',$value)[1]).'</Type>';
+                        $xml .= '</File>';
                     }
                 } else if($field->type=='Geolocator'){
                     $f = GeolocatorField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->get()->first();
