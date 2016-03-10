@@ -13,7 +13,7 @@
     <div id="upload_div">
         <div class="form-group">
             {!! Form::label('xml', trans('forms_show.xml').': ') !!}
-            {!! Form::file('xml', ['class' => 'form-control', 'id' => 'upload_xml', 'accept' => '.xml']) !!}
+            {!! Form::file('xml', ['class' => 'form-control', 'id' => 'upload_xml', 'accept' => '.xml,.json']) !!}
         </div>
 
         <div class="form-group">
@@ -48,6 +48,8 @@
             if ($('#upload_xml').val() != '') {
                 fd = new FormData();
                 fd.append("records",$('#upload_xml')[0].files[0]);
+                var name = $('#upload_xml').val();
+                fd.append('type',name.replace(/^.*\./, ''));
                 if ($('#upload_zip').val() != '') {
                     fd.append("files", $('#upload_zip')[0].files[0]);
                 }
@@ -100,12 +102,13 @@
                                     data: {
                                         "_token": "{{ csrf_token() }}",
                                         "record": data['records'][i],
-                                        "table": table
+                                        "table": table,
+                                        "type": data['type']
                                     },
                                     success: function(data){
                                         console.log(data);
                                         //if success
-                                        /*if(data=='') {
+                                        if(data=='') {
                                             succ++;
                                             $('#progress_text').text(succ+' of '+total+' Records Submitted');
                                         }
@@ -114,8 +117,8 @@
                                             //list error message
                                             $('#error_div').html(data);
                                             //add obj to failed
-                                            failed.push(data['records'][i]);
-                                        }*/
+                                            //failed.push(data['records'][i]);
+                                        }
                                         done++;
                                         //update progress bar
                                         percent = (done/total)*100;
@@ -129,6 +132,7 @@
                                         if(done==total) {
                                             //Display links for downloading bad xml
                                             //Display link to Go to Records Page
+                                            $('#counter_div').append('<a href="{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_show.records')}}]</a>');
                                             //console.log(failed);
                                         }
                                     }

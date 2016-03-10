@@ -61,7 +61,7 @@ Route::post('/projects/{pid}/forms/{fid}/preset', 'FormController@preset');
 Route::post('/projects/{pid}','FormController@store');
 
 //export routes
-Route::get('/projects/{pid}/forms/{fid}/exportRecords','ExportController@exportRecords');
+Route::get('/projects/{pid}/forms/{fid}/exportRecords/{type}','ExportController@exportRecords');
 Route::get('/projects/{pid}/forms/{fid}/exportFiles','ExportController@exportRecordFiles');
 Route::get('/projects/{pid}/forms/{fid}/exportForm','ExportController@exportForm');
 Route::get('/projects/{pid}/exportProj','ExportController@exportProject');

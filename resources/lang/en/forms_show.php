@@ -10,7 +10,7 @@ return [
 	"newrec" => "New Record",
 	"import" => "Import Records",
 	"submitfiles" => "Submit Files",
-	"xml" => "Record XML",
+	"xml" => "Record XML/JSON/CSV",
 	"zip" => "Record File Zip",
 	"massassign" => "Mass Assign Records",
 	"formpanel" => "Form Admin Panel",

@@ -10,7 +10,7 @@ return [
 	"newrec" => "Nouveau Record",
     "import" => "Disques d'importation",
     "submitfiles" => "Soumettez les dossiers",
-    "xml" => "XML record",
+    "xml" => "XML/JSON/CSV record",
     "zip" => "Fermeture &eacute;clair de dossier record",
 	"massassign" => "Assign masse Records",
 	"formpanel" => "Panneau d'administration de forme",

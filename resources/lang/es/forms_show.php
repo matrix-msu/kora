@@ -10,7 +10,7 @@ return [
 	"newrec" => "Nuevo registro",
     "import" => "Archivos de importaci&oacute;n",
     "submitfiles" => "Presente archivos",
-    "xml" => "XML de registro",
+    "xml" => "XML/JSON/CSV de registro",
     "zip" => "Cremallera del archivo de registro",
 	"massassign" => "Asignaci&oacute;n masiva de registros",
 	"formpanel" => "Panel de administraci&oacute;n de forma",

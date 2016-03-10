@@ -50,7 +50,10 @@
     <div>{{trans('records_index.total')}}: {{sizeof(\App\Record::where('fid','=',$form->fid)->get())}}</div>
     @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
         <div>
-            <a href="{{ action('ExportController@exportRecords',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_index.exportRec')}}]</a>
+            {{trans('records_index.exportRec')}}:
+            <a href="{{ action('ExportController@exportRecords',['pid' => $form->pid, 'fid' => $form->fid, 'type'=>'xml']) }}">[XML]</a>
+            <a href="{{ action('ExportController@exportRecords',['pid' => $form->pid, 'fid' => $form->fid, 'type'=>'json']) }}">[JSON]</a>
+            <a href="{{ action('ExportController@exportRecords',['pid' => $form->pid, 'fid' => $form->fid, 'type'=>'csv']) }}">[CSV]</a>
             @if(file_exists(env('BASE_PATH') . 'storage/app/files/p'.$form->pid.'/f'.$form->fid.'/'))
             <a href="{{ action('ExportController@exportRecordFiles',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_index.exportFiles')}}]</a>
             @endif

@@ -16,7 +16,10 @@
         @endif
         <li class="divider"></li>
         <li><a href="{{ url('/projects/'.$pid).'/forms/'.$fid.'/records'}}">{{trans('partials_menu_form.records')}}</a></li>
-        <li><a href="{{ url('/projects/'.$pid).'/forms/'.$fid.'/records/create'}}">{{trans('partials_menu_form.newrec')}}</a></li>
+        @if(\Auth::user()->canIngestRecords($form))
+            <li><a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">{{trans('partials_menu_form.newrec')}}</a></li>
+            <li><a href="{{ action('RecordController@importRecordsView',['pid' => $form->pid, 'fid' => $form->fid]) }}">{{trans('partials_menu_form.import')}}</a></li>
+        @endif
         <li><a href="{{ action('RecordController@showMassAssignmentView',['pid' => $pid, 'fid' => $fid]) }}">{{trans('partials_menu_form.massassign')}}</a></li>
         <li class="divider"></li>
         <li><a href="{{url('/projects/'.$pid).'/forms/'.$fid.'/metadata/setup'}}">{{trans('partials_menu_form.lod')}}</a></li>
