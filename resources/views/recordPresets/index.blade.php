@@ -49,11 +49,19 @@
 
 @section('footer')
     <script>
+
+        /**
+         * Changes a particular preset's name.
+         *
+         * @param id {int} The id of the preset we need to change.
+         */
         function changePresetName(id) {
             var field = $('#presetname'+id);
             var name = field.val();
+
             field.attr('placeholder', name);
             document.getElementById('name'+id).innerHTML = name;
+
             $.ajax({
                 url: '{{action('RecordPresetController@changePresetName')}}',
                 type: 'PATCH',
@@ -65,6 +73,11 @@
             });
         }
 
+        /**
+         * The Ajax to delete a preset.
+         *
+         * @param id {int} The id of the preset to be deleted.
+         */
         function deletePreset(id) {
             $.ajax({
                 url: '{{action('RecordPresetController@deletePreset')}}',
@@ -79,6 +92,9 @@
             });
         }
 
+        /**
+         * The collapsing display jQuery.
+         */
         $( ".panel-heading" ).on( "click", function() {
             if ($(this).siblings('.collapseTest').css('display') == 'none' ){
                 $(this).siblings('.collapseTest').slideDown();

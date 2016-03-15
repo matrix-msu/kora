@@ -162,8 +162,10 @@
         }
 
         function addUser(formGroup){
-            var userId = $("#dropdown"+formGroup+" option:selected").attr('id');
-            var username = $("#dropdown"+formGroup+" option:selected").text();
+            var selector = $("#dropdown"+formGroup+" option:selected");
+
+            var userId = selector.attr('id');
+            var username = selector.text();
 
             $.ajax({
                 url: '{{action('FormGroupController@addUser')}}',
@@ -198,34 +200,48 @@
             }
         }
 
+        /**
+         * Update the permissions of a particular form group.
+         *
+         * Note that permissions create, edit, and delete refer to the creation, editing, and deletion of fields, respectfully.
+         * And that permissions ingest, modify, and destroy refer to the creation, editing, and deletion of records, respectfully.
+         *
+         * @param formGroup {int} The form group id.
+         */
         function updatePermissions(formGroup){
             var permCreate, permEdit, permDelete, permIngest, permModify, permDestroy;
 
+            // If the box is checked, allow users in the form group to create fields within the form.
             if ($("#create"+formGroup).is(':checked'))
                 permCreate = 1;
             else
                 permCreate = 0;
 
+            // Allow users to edit fields.
             if ($("#edit"+formGroup).is(':checked'))
                 permEdit = 1;
             else
                 permEdit = 0;
 
+            // Allow users to delete fields.
             if ($("#delete"+formGroup).is(':checked'))
                 permDelete = 1;
             else
                 permDelete = 0;
 
+            // If the box is checked, allow users in the form group to create records within the form.
             if ($("#ingest"+formGroup).is(':checked'))
                 permIngest = 1;
             else
                 permIngest = 0;
 
+            // Allow users to edit records.
             if ($("#modify"+formGroup).is(':checked'))
                 permModify = 1;
             else
                 permModify = 0;
 
+            // Allow users to delete records.
             if ($("#destroy"+formGroup).is(':checked'))
                 permDestroy = 1;
             else

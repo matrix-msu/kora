@@ -121,7 +121,7 @@
     }
 
     /**
-     * The collapsing display jQuery. 
+     * The collapsing display jQuery.
      */
     $( ".panel-heading" ).on( "click", function() {
         if ($(this).siblings('.collapseTest').css('display') == 'none' ){
