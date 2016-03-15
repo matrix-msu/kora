@@ -317,7 +317,7 @@
          * Encodes a string for a url.
          *
          * Javascript's encode funciton wasn't playing nice with our system so I wrote this based off of
-         * a post on the PHP.net user contributions on the urlencode() page (davis dot pexioto at gmail dot com
+         * a post on the PHP.net user contributions on the urlencode() page davis dot pexioto at gmail dot com
          *
          */
         function myUrlEncode(to_encode) {
