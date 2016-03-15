@@ -755,12 +755,12 @@
         "target-dir": "Symfony/Component/Routing",
         "source": {
             "type": "git",
-            "url": "https://github.com/symfony/Routing.git",
+            "url": "https://github.com/symfony/routing.git",
             "reference": "0a1764d41bbb54f3864808c50569ac382b44d128"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/Routing/zipball/0a1764d41bbb54f3864808c50569ac382b44d128",
+            "url": "https://api.github.com/repos/symfony/routing/zipball/0a1764d41bbb54f3864808c50569ac382b44d128",
             "reference": "0a1764d41bbb54f3864808c50569ac382b44d128",
             "shasum": ""
         },
@@ -3167,5 +3167,41 @@
             "geocoding",
             "laravel"
         ]
+    },
+    {
+        "name": "stilliard/csvparser",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/stilliard/CsvParser.git",
+            "reference": "b9c00d8208ec0ea4bfc891cf97461806f749bd7d"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/stilliard/CsvParser/zipball/b9c00d8208ec0ea4bfc891cf97461806f749bd7d",
+            "reference": "b9c00d8208ec0ea4bfc891cf97461806f749bd7d",
+            "shasum": ""
+        },
+        "time": "2015-12-02 08:36:32",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "psr-4": {
+                "CsvParser\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Andrew Stilliard",
+                "email": "andrew.stilliard@gmail.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "csv manipulation made simple"
     }
 ]

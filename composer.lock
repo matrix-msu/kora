@@ -4,7 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "a32d259736a3edfb236bf6b3d7e11677",
+    "hash": "de36c917b472f3545f766b51ab7db4bf",
+    "content-hash": "4a1d036534f9ce357cb667148f773098",
     "packages": [
         {
             "name": "classpreloader/classpreloader",
@@ -1075,6 +1076,40 @@
             "time": "2015-03-26 18:43:54"
         },
         {
+            "name": "stilliard/csvparser",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/stilliard/CsvParser.git",
+                "reference": "b9c00d8208ec0ea4bfc891cf97461806f749bd7d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/stilliard/CsvParser/zipball/b9c00d8208ec0ea4bfc891cf97461806f749bd7d",
+                "reference": "b9c00d8208ec0ea4bfc891cf97461806f749bd7d",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "CsvParser\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Andrew Stilliard",
+                    "email": "andrew.stilliard@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "csv manipulation made simple",
+            "time": "2015-12-02 08:36:32"
+        },
+        {
             "name": "swiftmailer/swiftmailer",
             "version": "v5.4.1",
             "source": {
@@ -1591,12 +1626,12 @@
             "target-dir": "Symfony/Component/Routing",
             "source": {
                 "type": "git",
-                "url": "https://github.com/symfony/Routing.git",
+                "url": "https://github.com/symfony/routing.git",
                 "reference": "0a1764d41bbb54f3864808c50569ac382b44d128"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Routing/zipball/0a1764d41bbb54f3864808c50569ac382b44d128",
+                "url": "https://api.github.com/repos/symfony/routing/zipball/0a1764d41bbb54f3864808c50569ac382b44d128",
                 "reference": "0a1764d41bbb54f3864808c50569ac382b44d128",
                 "shasum": ""
             },
@@ -3071,7 +3106,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "toin0u/geocoder-laravel": 0
+        "toin0u/geocoder-laravel": 0,
+        "stilliard/csvparser": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
