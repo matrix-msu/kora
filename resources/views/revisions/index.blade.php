@@ -59,6 +59,18 @@
     <script>
     $('#search').select2({ width: 'hybrid'});
 
+
+    /**
+     * Shows recent record revisions based on a simple flagging system.
+     *
+     * This function is a little silly but it gets the job done. The cases for flag are:
+     *  1: The user wants to show the revisions for a particular record using the search box.
+     * -1: The user wants to show the recent revision history for all records.
+     *  0: The user wants to show the revisions for a certain record using a text link on the recent revision page.
+     *
+     * @param flag {int} The action that should be taken, listed above.
+     * @param value {string} The KID (PID-FID-RID) of the record that we want to show (only used in case 0);
+     */
     function showRecordRevisions(flag, value) {
         if(flag==1){
             window.location.href = $('#search').val();
@@ -71,6 +83,12 @@
         }
     }
 
+    /**
+     * Sends the ajax call to roll back a revision.
+     * See RevisionController::rollback for more information.
+     *
+     * @param revision {int} The id of the revision.
+     */
     function rollback(revision) {
         resp = confirm('{{trans('revisions_index.areyousure')}}?');
         if(resp) {
@@ -91,6 +109,9 @@
         }
     }
 
+    /**
+     * Shows the progress bar.
+     */
     function showProgress() {
         var revisions = $("#revisions");
         revisions.slideUp();
@@ -99,6 +120,9 @@
         progress.css("display", "");
     }
 
+    /**
+     * The collapsing display jQuery. 
+     */
     $( ".panel-heading" ).on( "click", function() {
         if ($(this).siblings('.collapseTest').css('display') == 'none' ){
             $(this).siblings('.collapseTest').slideDown();

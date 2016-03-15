@@ -36,6 +36,9 @@
 
 @section('footer')
     <script>
+        /**
+         * Displays the loading bar in the "progress" div.
+         */
         function showProgress() {
             $("#update").css("display", "none");
             $("#progress").css("display", "");
