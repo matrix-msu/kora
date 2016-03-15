@@ -126,6 +126,10 @@
 
 @section('footer')
     <script>
+
+        /**
+         * The collapsing display jQuery.
+         */
         $(".panel-heading").on("click", function(){
             if ($(this).siblings('.collapseTest').css('display') == 'none') {
                 $(this).siblings('.collapseTest').slideDown();
@@ -134,6 +138,13 @@
             }
         });
 
+        /**
+         * The Ajax to remove a user from a particular project's project group.
+         *
+         * @param projectGroup {int} The project group id.
+         * @param userId {int} The user id.
+         * @param pid {int} The project id.
+         */
         function removeUser(projectGroup, userId, pid){
             var username = $("#list-element"+projectGroup+userId).attr('name');
 
@@ -147,17 +158,30 @@
                     "pid" : pid
                 },
                 success: function(){
-                    $("#dropdown"+projectGroup).attr('selected', '0');
+                    var selector = $("#dropdown"+projectGroup);
+                    //
+                    // Remove the user from the list of users currently in the group.
+                    // Then add the user to the users that can be added to the group.
+                    //
+                    selector.attr('selected', '0');
 
                     $("#list-element"+projectGroup+userId).remove();
-                    $("#dropdown"+projectGroup).append('<option id="'+userId+'">'+username+'</option>');
+                    selector.append('<option id="'+userId+'">'+username+'</option>');
                 }
             });
         }
 
+        /**
+         * The Ajax to add a user to a particular project's project group.
+         *
+         * @param projectGroup {int} The project group id.
+         * @param pid {int} The project id.
+         */
         function addUser(projectGroup, pid){
-            var userId = $("#dropdown"+projectGroup+" option:selected").attr('id');
-            var username = $("#dropdown"+projectGroup+" option:selected").text();
+            var selector = $("#dropdown"+projectGroup+" option:selected");
+
+            var userId = selector.attr('id');
+            var username = selector.text();
 
             $.ajax({
                 url: '{{action('ProjectGroupController@addUser')}}',
@@ -168,6 +192,10 @@
                     "projectGroup": projectGroup
                 },
                 success: function(){
+                    //
+                    // Add the user to the users currently in the group.
+                    // Then remove the user from the list that can be added to the group.
+                    //
                     $("#list"+projectGroup).append('<li class="list-group-item" id="list-element'+projectGroup+userId+'" name="'+username+'">'
                                                     +username+' <a href="javascript:void(0)" onclick="removeUser('+projectGroup+', '+userId+', '+pid+')">[X]</a></li>');
                     $("#dropdown"+projectGroup+" option[id='"+userId+"']").remove();
@@ -175,6 +203,11 @@
             });
         }
 
+        /**
+         * The Ajax to delete a project group.
+         *
+         * @param projectGroup {int} The project group id.
+         */
         function deleteProjectGroup(projectGroup){
             var response = confirm("{{trans('projectGroups_index.areyousure')}}?");
             if (response) {
@@ -192,19 +225,27 @@
             }
         }
 
+        /**
+         * Update the permissions of a particular project group.
+         *
+         * @param projectGroup {int} The project
+         */
         function updatePermissions(projectGroup){
             var permCreate, permEdit, permDelete;
 
+            // If the box is checked, allow users in the project group to create forms within the project.
             if ($("#create"+projectGroup).is(':checked'))
                 permCreate = 1;
             else
                 permCreate = 0;
 
+            // Allow users to edit forms.
             if ($("#edit"+projectGroup).is(':checked'))
                 permEdit = 1;
             else
                 permEdit = 0;
 
+            // Allow users to delete forms.
             if ($("#delete"+projectGroup).is(':checked'))
                 permDelete = 1;
             else

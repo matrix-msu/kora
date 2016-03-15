@@ -8,6 +8,12 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 
+/**
+ * Form groups control permissions over fields and records within a project.
+ *
+ * Class FormGroupController
+ * @package App\Http\Controllers
+ */
 class FormGroupController extends Controller {
 
     /**
@@ -107,6 +113,9 @@ class FormGroupController extends Controller {
 
     /**
      * Update form group's permissions.
+     *
+     * Note that permissions create, edit, and delete refer to the creation, editing, and deletion of fields, respectfully.
+     * And that permissions ingest, modify, and destroy refer to the creation, editing, and deletion of records, respectfully.
      *
      * @param Request $request
      */

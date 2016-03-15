@@ -23,26 +23,16 @@
 @section('footer')
     <script>
 
+        /**
+         * Check the appropriate boxes based on the initially loaded user.
+         */
         window.onload = function() {
-            var selector = $('#dropdown option:selected');
+            checker();
+        };
 
-            var admin = selector.attr('admin');
-            var active = selector.attr('active');
-
-            if (admin==1)
-                $('#admin').prop('checked', true);
-
-            else
-                $('#admin').prop('checked', false);
-
-            if (active==1)
-                $('#active').prop('checked', true);
-
-            else
-                $('#active').prop('checked', false);
-
-        }
-
+        /**
+         * Deletes a user.
+         */
         function deleteUser(){
             var selector = $('#dropdown option:selected');
 
@@ -65,18 +55,23 @@
             }
         }
 
+        /**
+         * Check the boxes for a particular user.
+         */
         function checker(){
             var selector = $('#dropdown option:selected');
 
             var admin = selector.attr('admin');
             var active = selector.attr('active');
 
+            // If they are an admin, check the admin box.
             if (admin==1)
                 $('#admin').prop('checked', true);
 
             else
                 $('#admin').prop('checked', false);
 
+            // If they are an active user, check the active box.
             if (active==1)
                 $('#active').prop('checked', true);
 

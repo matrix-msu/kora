@@ -68,6 +68,12 @@
 
 @section('footer')
     <script>
+        /**
+         * Removes the relationship between a certain token and a project.
+         *
+         * @param pid {int} The project id.
+         * @param token {int} The token id.
+         */
         function deleteProject(pid, token) {
             $.ajax({
                 //We manually create the link in a cheap way because the JS isn't aware of the pid until runtime
@@ -85,6 +91,11 @@
             });
         }
 
+        /**
+         * Adds a relationship between a token and a project.
+         *
+         * @param id {int} The project id.
+         */
         function addProject(id) {
             var selector = $('#dropdown' +id+ ' option:selected');
 
@@ -106,6 +117,12 @@
             });
         }
 
+        /**
+         * Deletes a particular token.
+         * Prompts the user before doing so with a simple confirm window.
+         *
+         * @param id {int} The token id.
+         */
         function deleteToken(id) {
             var response = confirm('{{trans('tokens_index.areyousure')}}?');
             if (response) {
