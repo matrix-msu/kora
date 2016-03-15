@@ -54,6 +54,9 @@
                     @if($field->type == "Generated List")
                         @include('records.fieldInputs.genlist')
                     @endif
+                    @if($field->type =="Combo List")
+                        @include('records.fieldInputs.combolist')
+                    @endif
                     @if($field->type == "Date")
                         @include('records.fieldInputs.date')
                     @endif

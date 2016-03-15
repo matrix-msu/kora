@@ -144,8 +144,12 @@
                         var p, combos = field['combolists'];
                         var selector = $('#combo_list_'+flid);
 
-                        selector.empty(); // Empty defaults, we need to do this as the preset may have done so.
-                                          // However if it hasn't, the defaults will be in the preset so this is safe.
+                        // Empty defaults, we need to do this as the preset may have done so.
+                        // However if it hasn't, the defaults will be in the preset so this is safe.
+                        selector.children("#val_"+flid).each(function(){
+                            $(this).remove();
+                        });
+
                         for(p=0; p < combos.length; p++) {
                             var rawData = combos[p];
 
@@ -156,7 +160,7 @@
                             var field2ToPrint = field2RawData.split('[!]');
 
                             var html = "";
-                            html += '<div id="val_"'+flid+'">';
+                            html += '<div id="val_'+flid+'">';
 
                             if (field1ToPrint.length == 1) {
                                 html += '<span style="float:left;width:40%;margin-bottom:10px">'+field1ToPrint+'</span>';

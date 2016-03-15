@@ -8,6 +8,7 @@ return [
 	"jump" => "Jump to Form",
 	"records" => "Records",
 	"newrec" => "New Record",
+    "import" => "Import Records",
 	"massassign" => "Mass Assign Records",
 	"lod" => "Linked Open Data",
 	"groups" => "Manage Groups",

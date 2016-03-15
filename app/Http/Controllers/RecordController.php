@@ -133,6 +133,11 @@ class RecordController extends Controller {
         else
             $numRecs = 1;
 
+        //safeguard
+        if($numRecs>1000){
+            $numRecs = 1000;
+        }
+
         for($i=0;$i<$numRecs;$i++) {
             $record = new Record();
             $record->pid = $pid;
@@ -193,9 +198,9 @@ class RecordController extends Controller {
                     $clf = new ComboListField();
                     $clf->flid = $field->flid;
                     $clf->rid = $record->rid;
-                    $clf->options = $_REQUEST[$field->flid.'_val'][0];
-                    for($i=1;$i<sizeof($_REQUEST[$field->flid.'_val']);$i++){
-                        $clf->options .= '[!val!]'.$_REQUEST[$field->flid.'_val'][$i];
+                    $clf->options = $request->input($field->flid.'_val')[0];
+                    for($j=1;$j<sizeof($request->input($field->flid.'_val'));$j++){
+                        $clf->options .= '[!val!]'.$request->input($field->flid.'_val')[$j];
                     }
                     $clf->save();
                 } else if ($field->type == 'Date' && $request->input('year_' . $field->flid) != '') {
@@ -242,7 +247,7 @@ class RecordController extends Controller {
                                     $newPath . '/' . $file->getFilename());
                             }
                         }
-                        foreach($_REQUEST['file'.$field->flid] as $fName){
+                        foreach($request->input('file'.$field->flid) as $fName){
                             if($fName!=''){
                                 if ($infoString == '') {
                                     $infoString = $infoArray[$fName];
@@ -283,7 +288,7 @@ class RecordController extends Controller {
                                     $newPath . '/medium/' . $file->getFilename());
                             }
                         }
-                        foreach($_REQUEST['file'.$field->flid] as $fName){
+                        foreach($request->input('file'.$field->flid) as $fName){
                             if($fName!=''){
                                 if ($infoString == '') {
                                     $infoString = $infoArray[$fName];
@@ -317,7 +322,7 @@ class RecordController extends Controller {
                                     $newPath . '/' . $file->getFilename());
                             }
                         }
-                        foreach($_REQUEST['file'.$field->flid] as $fName){
+                        foreach($request->input('file'.$field->flid) as $fName){
                             if($fName!=''){
                                 if ($infoString == '') {
                                     $infoString = $infoArray[$fName];
@@ -351,7 +356,7 @@ class RecordController extends Controller {
                                     $newPath . '/' . $file->getFilename());
                             }
                         }
-                        foreach($_REQUEST['file'.$field->flid] as $fName){
+                        foreach($request->input('file'.$field->flid) as $fName){
                             if($fName!=''){
                                 if ($infoString == '') {
                                     $infoString = $infoArray[$fName];
@@ -385,7 +390,7 @@ class RecordController extends Controller {
                                     $newPath . '/' . $file->getFilename());
                             }
                         }
-                        foreach($_REQUEST['file'.$field->flid] as $fName){
+                        foreach($request->input('file'.$field->flid) as $fName){
                             if($fName!=''){
                                 if ($infoString == '') {
                                     $infoString = $infoArray[$fName];
@@ -1243,6 +1248,20 @@ class RecordController extends Controller {
         }
     }
 
+    public function importRecordsView($pid,$fid){
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+
+        if(!RecordController::checkPermissions($fid, 'ingest')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid);
+        }
+
+        $form = FormController::getForm($fid);
+
+        return view('records.import',compact('form','pid','fid'));
+    }
+
     /**
      * Gets a record.
      *
@@ -1644,7 +1663,44 @@ class RecordController extends Controller {
                     $revision->oldData = RevisionController::buildDataArray($record);
                     $revision->save();
                 }
-            } elseif ($field->type == "Date") {
+            } elseif($field->type == "Combo List"){
+                $matching_record_fields = $record->combolistfields()->where('flid','=',$flid)->get();
+                $record->updated_at = Carbon::now();
+                $record->save();
+
+                if($matching_record_fields->count() > 0){
+                    $combolistfield = $matching_record_fields->first();
+                    if($overwrite == true || $combolistfield->options == "" || is_null($combolistfield->options)){
+                        $revision = RevisionController::storeRevision($record->rid,'edit');
+                        //$combolistfield->options = implode("[!]",$form_field_value);
+                        $combolistfield->options = $_REQUEST[$flid.'_val'][0];
+                        for($i=1;$i<sizeof($_REQUEST[$flid.'_val']);$i++){
+                            $combolistfield->options .= '[!val!]'.$_REQUEST[$flid.'_val'][$i];
+                        }
+                        $combolistfield->save();
+                        $revision->oldData = RevisionController::buildDataArray($record);
+                        $revision->save();
+                    }
+                    else{
+                        continue;
+                    }
+                } else{
+                    $clf = new ComboListField();;
+                    $revision = RevisionController::storeRevision($record->rid,'edit');
+                    $clf->flid = $flid;
+                    $clf->rid = $record->rid;
+                    $clf->options = $_REQUEST[$flid.'_val'][0];
+                    for($i=1;$i<sizeof($_REQUEST[$flid.'_val']);$i++){
+                        $clf->options .= '[!val!]'.$_REQUEST[$flid.'_val'][$i];
+                    }
+                    $clf->save();
+                    $revision->oldData = RevisionController::buildDataArray($record);
+                    $revision->save();
+                }
+
+
+            }
+            elseif ($field->type == "Date") {
                 $matching_record_fields = $record->datefields()->where("flid", '=', $flid)->get();
                 $record->updated_at = Carbon::now();
                 $record->save();
