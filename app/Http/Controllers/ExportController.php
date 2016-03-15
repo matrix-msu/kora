@@ -25,6 +25,7 @@ use App\ScheduleField;
 use App\TextField;
 use App\VideoField;
 use Carbon\Carbon;
+use CsvParser\Parser;
 use Illuminate\Http\Request;
 
 class ExportController extends Controller {
@@ -456,7 +457,209 @@ class ExportController extends Controller {
 
             echo $json;
         } else if($type=='csv'){
+            $csv=array();
 
+            foreach ($records as $record) {
+                $recArray = array('records'=>$record->kid);
+                array_push($csv,$recArray);
+
+                foreach ($fields as $field) {
+                    $fieldArray = array(0 => $field->slug, 1 => $field->type);
+
+                    if ($field->type == 'Text') {
+                        $f = TextField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->get()->first();
+                        if (!is_null($f)) {
+                            array_push($fieldArray,$f->text);
+                        }
+                    } else if ($field->type == 'Rich Text') {
+                        $f = RichTextField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->get()->first();
+                        if (!is_null($f)) {
+                            array_push($fieldArray,$f->rawtext);
+                        }
+                    } else if ($field->type == 'Number') {
+                        $f = NumberField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->get()->first();
+                        if (!is_null($f)) {
+                            array_push($fieldArray,$f->number);
+                        }
+                    } else if ($field->type == 'List') {
+                        $f = ListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->get()->first();
+                        if (!is_null($f)) {
+                           array_push($fieldArray,$f->option);
+                        }
+                    } else if ($field->type == 'Multi-Select List') {
+                        $f = MultiSelectListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->get()->first();
+                        if (!is_null($f)) {
+                            $options = explode('[!]', $f->options);
+                            foreach($options as $opt){
+                                array_push($fieldArray,$opt);
+                            }
+                        }
+                    } else if ($field->type == 'Generated List') {
+                        $f = GeneratedListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->get()->first();
+                        if (!is_null($f)) {
+                            $options = explode('[!]', $f->options);
+                            foreach($options as $opt){
+                                array_push($fieldArray,$opt);
+                            }
+                        }
+                    } else if ($field->type == 'Combo List') {
+                        $f = ComboListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->get()->first();
+                        if (!is_null($f)) {
+                            $typeone = ComboListField::getComboFieldType($field, 'one');
+                            $typetwo = ComboListField::getComboFieldType($field, 'two');
+                            $vals = explode('[!val!]', $f->options);
+                            foreach ($vals as $val) {
+                                $valArray = array();
+                                $valone = explode('[!f1!]', $val)[1];
+                                $valtwo = explode('[!f2!]', $val)[1];
+
+                                array_push($fieldArray, '[CF_1]');
+                                if ($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List') {
+
+                                    array_push($fieldArray, $valone);
+                                }
+                                else if ($typeone == 'Multi-Select List' | $typeone == 'Generated List') {
+                                    $valone = explode('[!]',$valone);
+                                    foreach($valone as $vone){
+                                        array_push($fieldArray, $vone);
+                                    }
+                                }
+
+                                array_push($fieldArray, '[CF_2]');
+                                if ($typetwo == 'Text' | $typetwo == 'Number' | $typetwo == 'List'){
+                                    array_push($fieldArray, $valtwo);
+                                }
+                                else if ($typetwo == 'Multi-Select List' | $typetwo == 'Generated List') {
+                                    $valtwo = explode('[!]',$valtwo);
+                                    foreach($valtwo as $vtwo){
+                                        array_push($fieldArray, $vtwo);
+                                    }
+                                }
+                            }
+                        }
+                    } else if ($field->type == 'Date') {
+                        $f = DateField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->get()->first();
+                        if (!is_null($f)) {
+                            array_push($fieldArray,$f->circa);
+                            array_push($fieldArray,$f->month);
+                            array_push($fieldArray,$f->day);
+                            array_push($fieldArray,$f->year);
+                            array_push($fieldArray,$f->era);
+                        }
+                    } else if ($field->type == 'Schedule') {
+                        $f = ScheduleField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->get()->first();
+                        if (!is_null($f)) {
+                            $events = explode('[!]', $f->events);
+                            foreach ($events as $event) {
+                                $parts = explode(' ', $event);
+                                if (sizeof($parts) == 8) {
+                                    $title = substr($parts[0], 0, -1);
+                                    $start = $parts[1] . ' ' . $parts[2] . ' ' . $parts[3];
+                                    $end = $parts[5] . ' ' . $parts[6] . ' ' . $parts[7];
+                                    $allday = 0;
+                                } else { //all day event
+                                    $title = substr($parts[0], 0, -1);
+                                    $start = $parts[1];
+                                    $end = $parts[3];
+                                    $allday = 1;
+                                }
+                                array_push($fieldArray,$title);
+                                array_push($fieldArray,$start);
+                                array_push($fieldArray,$end);
+                                array_push($fieldArray,$allday);
+                            }
+                        }
+                    } else if ($field->type == 'Documents') {
+                        $f = DocumentsField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->get()->first();
+                        if (!is_null($f)) {
+                            $files = explode('[!]', $f->documents);
+                            $fieldArray['files'] = array();
+                            foreach ($files as $file) {
+                                $fileArray = array();
+                                $fileArray['name'] = explode('[Name]', $file)[1];
+                                $fileArray['size'] = explode('[Size]', $file)[1];
+                                $fileArray['type'] = explode('[Type]', $file)[1];
+                                array_push($fieldArray['files'],$fileArray);
+                            }
+                        }
+                    } else if ($field->type == 'Gallery') {
+                        $f = GalleryField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->get()->first();
+                        if (!is_null($f)) {
+                            $files = explode('[!]', $f->images);
+                            $fieldArray['files'] = array();
+                            foreach ($files as $file) {
+                                $fileArray = array();
+                                $fileArray['name'] = explode('[Name]', $file)[1];
+                                $fileArray['size'] = explode('[Size]', $file)[1];
+                                $fileArray['type'] = explode('[Type]', $file)[1];
+                                array_push($fieldArray['files'],$fileArray);
+                            }
+                        }
+                    } else if ($field->type == 'Playlist') {
+                        $f = PlaylistField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->get()->first();
+                        if (!is_null($f)) {
+                            $files = explode('[!]', $f->audio);
+                            $fieldArray['files'] = array();
+                            foreach ($files as $file) {
+                                $fileArray = array();
+                                $fileArray['name'] = explode('[Name]', $file)[1];
+                                $fileArray['size'] = explode('[Size]', $file)[1];
+                                $fileArray['type'] = explode('[Type]', $file)[1];
+                                array_push($fieldArray['files'],$fileArray);
+                            }
+                        }
+                    } else if ($field->type == 'Video') {
+                        $f = VideoField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->get()->first();
+                        if (!is_null($f)) {
+                            $files = explode('[!]', $f->video);
+                            $fieldArray['files'] = array();
+                            foreach ($files as $file) {
+                                $fileArray = array();
+                                $fileArray['name'] = explode('[Name]', $file)[1];
+                                $fileArray['size'] = explode('[Size]', $file)[1];
+                                $fileArray['type'] = explode('[Type]', $file)[1];
+                                array_push($fieldArray['files'],$fileArray);
+                            }
+                        }
+                    } else if ($field->type == '3D-Model') {
+                        $f = ModelField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->get()->first();
+                        if (!is_null($f)) {
+                            $file = $f->model;
+                            $fieldArray['files'] = array();
+                            $fileArray = array();
+                            $fileArray['name'] = explode('[Name]', $file)[1];
+                            $fileArray['size'] = explode('[Size]', $file)[1];
+                            $fileArray['type'] = explode('[Type]', $file)[1];
+                            array_push($fieldArray['files'],$fileArray);
+                        }
+                    } else if ($field->type == 'Geolocator') {
+                        $f = GeolocatorField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->get()->first();
+                        if (!is_null($f)) {
+                            $locations = explode('[!]', $f->locations);
+                            foreach ($locations as $loc) {
+                                $latlon = explode('[LatLon]', $loc)[1];
+                                $utm = explode('[UTM]', $loc)[1];
+                                $desc = explode('[Desc]', $loc)[1];
+                                $address = explode('[Address]', $loc)[1];
+
+                                array_push($fieldArray,$desc);
+                                array_push($fieldArray,$latlon);
+                                array_push($fieldArray,$utm);
+                                array_push($fieldArray,$address);
+                            }
+                        }
+                    }
+
+                    array_push($csv,$fieldArray);
+                }
+            }
+            $parser = new Parser();
+            $csvfa = $parser->fromArray($csv);
+
+            header("Content-Disposition: attachment; filename=".$form->name.'_recordData_'.Carbon::now().'.csv');
+            header("Content-Type: application/octet-stream; ");
+
+            echo $parser->toString($csvfa);
         }
     }
 

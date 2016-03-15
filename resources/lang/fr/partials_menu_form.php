@@ -8,6 +8,7 @@ return [
 	"jump" => "Passer au formulaire",
 	"records" => "Comptes rendus",
 	"newrec" => "Nouveau Record",
+    "import" => "Disques d'importation",
 	"massassign" => "Assign masse Records",
 	"lod" => "Linked Open Data",
 	"groups" => "G&eacute;rer des groupes",
