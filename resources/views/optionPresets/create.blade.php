@@ -57,7 +57,7 @@
         </div>
         <div class="form-inline" style="position:relative">
             {!! Form::label('eventname',trans('optionPresets_create.title').': ') !!}
-            <input type="text" class="form-control" id="eventname" />
+            <input type="text" class="form-control" id="eventname" maxlength="24"/>
             {!! Form::label('startdatetime',trans('optionPresets_create.start').': ') !!}
             <input type='text' class="form-control" id='startdatetime' />
             {!! Form::label('enddatetime',trans('optionPresets_create.end').': ') !!}

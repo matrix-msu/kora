@@ -23,7 +23,7 @@
         </div>
         <div class="form-inline" style="position:relative">
             {!! Form::label('eventname',trans('fields_options_schedule.event').': ') !!}
-            <input type="text" class="form-control" id="eventname" />
+            <input type="text" class="form-control" id="eventname" maxlength="24"/>
             {!! Form::label('startdatetime',trans('fields_options_schedule.start').': ') !!}
             <input type='text' class="form-control" id='startdatetime' />
             {!! Form::label('enddatetime',trans('fields_options_schedule.end').': ') !!}

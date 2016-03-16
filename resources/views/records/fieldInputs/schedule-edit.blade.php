@@ -25,7 +25,7 @@
         </div>
         <div class="form-inline" style="position:relative">
             {!! Form::label('eventname'.$field->flid,trans('records_fieldInput.title').': ') !!}
-            <input type="text" class="form-control" id="eventname{{$field->flid}}" />
+            <input type="text" class="form-control" id="eventname{{$field->flid}}" maxlength="24"/>
             {!! Form::label('startdatetime'.$field->flid,trans('records_fieldInput.start').': ') !!}
             <input type='text' class="form-control" id='startdatetime{{$field->flid}}' />
             {!! Form::label('enddatetime'.$field->flid,trans('records_fieldInput.end').': ') !!}
