@@ -12,7 +12,7 @@
     <div class="list_option_form">
         <div>
             {!! Form::label('default',trans('fields_options_schedule.def').': ') !!}
-            <select multiple class="form-control list_options" name="default[]">
+            <select multiple class="form-control list_options" name="default[]" style="overflow:auto">
                 @foreach(\App\ScheduleField::getDateList($field) as $opt)
                     <option value="{{$opt}}">{{$opt}}</option>
                 @endforeach

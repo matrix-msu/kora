@@ -4,7 +4,7 @@
 <div class="list_option_form">
     <div>
         {!! Form::label('default',trans('fields_options_schedule.def').': ') !!}
-        <select multiple class="form-control list_options" name="default[]">
+        <select multiple class="form-control list_options" name="default[]" style="overflow:auto">
         </select>
         <button type="button" class="btn btn-primary remove_option">{{trans('fields_options_schedule.delete')}}</button>
         <button type="button" class="btn btn-primary move_option_up">{{trans('fields_options_schedule.up')}}</button>
