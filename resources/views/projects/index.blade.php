@@ -68,7 +68,8 @@
         });
 
         function deleteProject(projName,pid) {
-            var response = confirm("{{trans('projects_index.areyousure')}} "+projName+"?");
+            var encode = $('<div/>').html("{{trans('projects_index.areyousure')}}").text();
+            var response = confirm(encode + projName + "?");
             if (response) {
                 $.ajax({
                     //We manually create the link in a cheap way because the JS isn't aware of the pid until runtime

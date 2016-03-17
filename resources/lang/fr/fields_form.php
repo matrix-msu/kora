@@ -33,5 +33,6 @@ return [
 	"geo" => "G&eacute;olocalisateur",
 	"assoc" => "Associateur",
     "adv" => "Options avanc&eacute;es",
+	"confirmchange" => "Le changement du type de terrain r&eacute;glera vos options avanc&eacute;es. &Ecirc;tes-vous s&ucirc;r que vous voulez proc&eacute;der ?",
 
 ];

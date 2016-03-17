@@ -75,7 +75,8 @@
         });
 
         function deleteForm(formName, fid) {
-            var response = confirm("{{trans('projects_show.areyousure')}} "+formName+"?");
+            var encode = $('<div/>').html("{{ trans('projects_show.areyousure') }}").text();
+            var response = confirm(encode + formName + "?");
             if (response) {
                 $.ajax({
                     //We manually create the link in a cheap way because the JS isn't aware of the fid until runtime

@@ -107,7 +107,8 @@
         //if adv is true
         if(adv) {
             //dialog warning
-            if (!confirm("Changing the field type will reset your advanced options. Are you sure you want to proceed?")) {
+            var encode = $('<div/>').html("{{ trans('fields_form.confirmchange') }}").text();
+            if (!confirm(encode)) {
                 $('.field_types').val(previous);
                 return false;
             }

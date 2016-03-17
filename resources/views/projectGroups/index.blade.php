@@ -209,7 +209,8 @@
          * @param projectGroup {int} The project group id.
          */
         function deleteProjectGroup(projectGroup){
-            var response = confirm("{{trans('projectGroups_index.areyousure')}}?");
+            var encode = $('<div/>').html('{{trans('projectGroups_index.areyousure')}}').text();
+            var response = confirm(encode + "?");
             if (response) {
                 $.ajax({
                     url: '{{action('ProjectGroupController@deleteProjectGroup')}}',

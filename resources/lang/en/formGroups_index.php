@@ -16,5 +16,6 @@ return [
 	"dRec" => "Delete Record",
 	"deleteform" => "Delete Form Group",
 	"createform" => "Create Form Groups",
+	"deleteconfirm" => "Are you sure you want to delete this group?",
 
 ];

@@ -184,7 +184,8 @@
         }
 
         function deleteFormGroup(formGroup){
-            var response = confirm("Are you sure you want to delete this group?");
+            var encode = $('<div/>').html("{{ trans('formGroups_index.deleteconfirm') }}").text();
+            var response = confirm(encode);
             if (response) {
                 $.ajax({
                     url: '{{action('FormGroupController@deleteFormGroup')}}',

@@ -98,8 +98,10 @@
 
         function presetRecord(rid) {
             var name = $('#preset').val();
-            if(name == '')
-                alert('{{trans('records_show.mustenter')}}.');
+            if(name == '') {
+                var encode = $('<div/>').html('{{trans('records_show.mustenter')}}').text();
+                alert(encode + '.');
+            }
             else {
                 $.ajax({
                     url: '{{action('RecordPresetController@presetRecord')}}',

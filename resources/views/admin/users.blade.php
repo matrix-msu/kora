@@ -39,7 +39,8 @@
             var id = selector.attr('value');
             var name = selector.text();
 
-            var response = confirm('Are you sure you want to delete user '+name+'?');
+            var encode = $('<div/>').html("{{ trans('admin_users.deleteconfirm') }}").text();
+            var response = confirm(encode + name + '?');
 
             if(response) {
                 $.ajax({

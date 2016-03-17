@@ -104,7 +104,8 @@
             });
         }
         function download(){
-            alert("{{trans('backups_restore.nodownload')}}.");
+            var encode = $('<div/>').html("{{ trans('backups_restore.nodownload') }}").text();
+            alert(encode + ".");
         }
 
         $("#link_unlock_users").click(function(){
@@ -122,7 +123,8 @@
                     $("#user_lockout_notice").fadeOut(1000);
                 },
                 error: function(data){
-                    alert("{{trans('backups_restore.unablerestore')}}.");
+                    var encode = $('<div/>').html("{{ trans('backups_restore.unablerestore') }}").text();
+                    alert(encode + ".");
                 }
             })
         });

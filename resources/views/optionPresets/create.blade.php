@@ -364,7 +364,8 @@
                     }
                 },
                 error: function(result){
-                    alert("{{trans('optionPresets_create.sorry')}}.");
+                    var encode = $("<div/>").html("{{ trans('optionPresets_create.sorry') }}").text();
+                    alert(encode + ".");
                 }
             });
         }

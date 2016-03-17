@@ -36,7 +36,8 @@
             valuearray[1] = options;
         }
         else{
-            alert("{{trans('partials_option_preset.nooptions')}}");
+            var encode = $("<div/>").html("{{trans('partials_option_preset.nooptions')}}").text();
+            alert(encode);
         }
 
         return valuearray;
@@ -63,7 +64,8 @@
                 location.reload();
             },
             error: function(result){
-                alert("{{trans('partials_option_preset.sorrylong')}}.");
+                var encode = $('<div/>').html("{{ trans('partials_option_preset.sorrylong') }}").text();
+                alert(encode + ".");
                 $("#preset_submit").removeClass("disabled");
             }
         });
@@ -82,7 +84,8 @@
                location.reload();
             },
             error: function(result){
-                alert("{{trans('partials_option_preset.sorryshort')}}");
+                var encode = $('<div/>').html("{{ trans('partials_option_preset.sorryshort') }}").text();
+                alert(encode);
                 location.reload();
             }
         });

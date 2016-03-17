@@ -7,7 +7,7 @@
 
                 @if (count($errors) > 0)
                     <div class="alert alert-danger">
-                        <strong>Whoops!</strong> Make sure you entered everything correctly<br>
+                        <strong>{{ trans("backups_backup.whoops") }}</strong> {{ trans("backups_backup.makesure") }}<br>
                         <ul>
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
@@ -20,17 +20,15 @@
                     <input type="hidden" name="_token" value="{{csrf_token()}}">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            Backup {{$project->name}}
+                            {{ trans("backups_backup.backup") }} {{$project->name}}
                         </div>
                         <div class="panel-body">
                             <p>
-                                A backup file will be created and saved as a restore point on the server.  You can include a name or
-                                short description, the start date and time will be added for you. Depending
-                                on the size of the project, it may take a few minutes to finish.  The project will be inactive while the backup and restore are in progress.
+                                {{ trans("backup_project.backupinfo") }}
                             </p>
 
                             <div class="form-group">
-                                <label for="backup_label">Label:</label>
+                                <label for="backup_label">{{ trans("backup_project.label") }}:</label>
                                 <input type="text" class="form-control" id="backup_label" name="backup_label">
                             </div>
                             <div class="form-group">
@@ -44,12 +42,12 @@
                     <input type="hidden" name="_token" value="{{csrf_token()}}">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            Restore {{ $project->name }}
+                            {{ trans("backup_project.restore") }} {{ $project->name }}
                         </div>
 
                         <div class="panel-body">
                             <div class="form-group" id="group_restore_points">
-                                <label for="restore_point">Saved Restore Points:</label>
+                                <label for="restore_point">{{ trans("backup_project.saved") }}</label>
                                 <select id="restore_point" name="restore_point" class="form-control">
 
                                     @foreach($saved_backups as $backup)
@@ -63,7 +61,7 @@
                             </div>
 
                             <div id="group_restore_delete" class="form-group">
-                                <button type="button"  id="btn_deleterestore" class="btn btn-primary btn-danger form-control">Delete Restore Point</button>
+                                <button type="button"  id="btn_deleterestore" class="btn btn-primary btn-danger form-control">{{ trans("backup_project.delete") }}</button>
                             </div>
 
                         </div>
@@ -88,10 +86,13 @@
 
         function deleteRestore(){
 
-            if(!confirm("Are you sure you want to delete this restore point and all of its files?  This cannot be reversed!")){
+            var encode = $("<div/>").html("{{ trans('backups_index.areyousure') }}").text();
+            if(!confirm(encode + "!")){
                 return false;
             }
-            if(!confirm("If you plan on restoring from a backup file of this restore point, you will need the backed up files for the Document/Gallery/Video/Playlist/Model fields from this restore point.  These files are located in storage/app/backup/files/backup_file_name/ ")){
+
+            encode = $("<div/>").html("{{ trans('backups_index.ifyouplan') }}").text();
+            if(!confirm(encode + " storage/app/backup/files/backup_file_name/ ")){
                 return false;
             }
 
@@ -111,11 +112,14 @@
                  location.reload();
                 },
                 error: function(data){
+                    var encode;
                     if(data.status == 422){
-                        alert("You did not select a valid restore point");
+                        encode = ('<div/>').html("{{ trans("backups_index.noselect") }}").text();
+                        alert(encode);
                     }
                     else if(data.status == 500){
-                        alert("The backup could not be deleted.")
+                        encode = ('<div/>').html("{{ trans("backup_project.faileddelete") }}").text();
+                        alert(encode);
                     }
                    location.reload();
                 }
