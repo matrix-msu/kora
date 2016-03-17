@@ -569,10 +569,18 @@
 
 @section('footer')
     <script>
+        /**
+         * Delete all the records of a certain form.
+         * Makes sure the user is REALLY sure they want to do this.
+         */
         function deleteAll() {
-            var resp1 = confirm('{{trans('records_index.areyousure')}}?');
+            var encode = $('<div/>').html("{{ trans('records_index.areyousure') }}").text();
+            var resp1 = confirm(encode);
             if(resp1) {
-                var resp2 = prompt('{{trans('records_index.reallysure')}}!', '{{ trans('records_index.reallysureplaceholder')}}.');
+                var enc1 = $('<div/>').html("{{ trans('records_index.reallysure') }}").text();
+                var enc2 = $('<div/>').html("{{ trans('records_index.reallysureplaceholder') }}").text();
+                var resp2 = prompt(enc1 + '!', enc2 + '.');
+                // User must literally type "DELETE" into a prompt. (Credit to Blizzard Entertainment)
                 if(resp2 === 'DELETE') {
 
                     $("#slideme").slideToggle(2000, function() {
@@ -593,7 +601,8 @@
         }
 
         function cleanUp() {
-            var resp1 = confirm('{{trans('records_index.deletefiles')}}.');
+            var encode = $('<div/>').html('{{ trans('records_index.deletefiles') }}' + '.').text();
+            var resp1 = confirm(encode);
             if (resp1) {
                 $.ajax({
                     url: '{{ action('RecordController@cleanUp', ['pid' => $form->pid, 'fid' => $form->fid]) }}',

@@ -60,7 +60,9 @@
                     console.log("Error in changing metadata visibility");
                     console.log("text status: " + textStatus);
                     console.log("error thrown: "+errorThrown);
-                    alert("{{trans('install_config.problem')}}!");
+
+                    var encode = $('<div/>').html("{{ trans('install_config.problem') }}").text();
+                    alert(encode + "!");
                 }
             });
         }

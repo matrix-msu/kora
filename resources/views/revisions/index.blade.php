@@ -90,7 +90,8 @@
      * @param revision {int} The id of the revision.
      */
     function rollback(revision) {
-        resp = confirm('{{trans('revisions_index.areyousure')}}?');
+        var encode = $('<div/>').html("{{trans('revisions_index.areyousure')}}").text();
+        resp = confirm(encode + '?');
         if(resp) {
 
             showProgress();

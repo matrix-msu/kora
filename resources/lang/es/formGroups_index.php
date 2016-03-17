@@ -16,5 +16,5 @@ return [
 	"dRec" => "Eliminar registro de",
 	"deleteform" => "Grupo de la forma de cancelaci&oacute;n",
 	"createform" => "Crear grupos de forma",
-
+	"deleteconfirm" => "&iquest;Est&aacute; seguro que quiere suprimir este grupo?",
 ];

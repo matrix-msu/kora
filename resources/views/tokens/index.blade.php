@@ -124,7 +124,8 @@
          * @param id {int} The token id.
          */
         function deleteToken(id) {
-            var response = confirm('{{trans('tokens_index.areyousure')}}?');
+            var encode = $('<div/>').html("{{trans('tokens_index.areyousure')}}").text();
+            var response = confirm(encode + '?');
             if (response) {
                 $.ajax({
                     url: '{{ action('TokenController@deleteToken',['']) }}',

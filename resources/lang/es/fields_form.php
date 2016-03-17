@@ -33,5 +33,6 @@ return [
 	"geo" => "Geolocalizador",
 	"assoc" => "Asociador",
     "adv" => "Opciones avanzadas",
+	"confirmchange" => "El cambio del tipo de campa&ntilde;a reinicializar&aacute; sus opciones avanzadas. &iquest;Est&aacute; seguro que quiere seguir?",
 
 ];

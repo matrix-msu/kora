@@ -83,7 +83,8 @@
         });
 
         function deletePreset(presetId) {
-            var response = confirm("{{trans('optionPresets_index.areyousure')}}?");
+            var encode = $('<div/>').html("{{ trans('optionPresets_index.areyousure') }}").text();
+            var response = confirm(encode + "?");
             if (response) {
                 $.ajax({
                     url: '{{ action('OptionPresetController@delete')}}',

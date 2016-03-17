@@ -100,10 +100,13 @@
 
         function deleteRestore(){
 
-            if(!confirm("{{trans('backups_index.areyousure')}}!")){
+            var encode = $("<div/>").html("{{ trans('backups_index.areyousure') }}").text();
+            if(!confirm(encode + "!")){
                 return false;
             }
-            if(!confirm("{{trans('backups_index.ifyouplan')}} storage/app/backup/files/backup_file_name/ ")){
+
+            encode = $("<div/>").html("{{ trans('backups_index.ifyouplan') }}").text();
+            if(!confirm(encode + " storage/app/backup/files/backup_file_name/ ")){
                 return false;
             }
 
@@ -122,7 +125,8 @@
                 },
                 error: function(data){
                     if(data.status == 422){
-                        alert("{{trans('backups_index.noselect')}}");
+                        var encode = $('<div/>').html("{{ trans('backups_index.noselect') }}").text();
+                        alert(encode);
                     }
                    location.reload();
                 }

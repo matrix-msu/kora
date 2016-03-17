@@ -241,7 +241,8 @@
                     console.log(result);
                     //alert("Database, mail, and recaptcha settings saved");
                     if(jqXHRs.status ==301){
-                        alert("{{trans('install_install.problem')}}.");
+                        var encode = $("<div/>").html("{{ trans('install_install.problem') }}").text();
+                        alert(encode + ".");
                     }
                     else{
                         startApplicationConfiguration();

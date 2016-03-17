@@ -33,5 +33,6 @@ return [
 	"geo" => "Geolocator",
 	"assoc" => "Associator",
     "adv" => "Advanced Options",
+	"confirmchange" => "Changing the field type will reset your advanced options. Are you sure you want to proceed?",
 
 ];

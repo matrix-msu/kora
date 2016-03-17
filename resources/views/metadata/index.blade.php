@@ -134,7 +134,8 @@
                     console.log("Error in changing linked to open data visibility");
                     //console.log("text status: " + textStatus);
                     //console.log("error thrown: "+errorThrown);
-                    alert("{{trans('metadata_index.error')}}.");
+                    var encode = $('<div/>').html("{{ trans('metadata_index.error') }}").text();
+                    alert(encode + ".");
                     location.reload()
                 }
             });
