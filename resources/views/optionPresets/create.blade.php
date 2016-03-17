@@ -49,7 +49,7 @@
     <div style="display:none" id="preset_schedule" class="list_option_form form-group sched_events_select">
         <div>
             <label for="preset_schedule_events">{{trans('optionPresets_create.events')}}:</label>
-            <select name="preset_schedule_events" id="preset_schedule_events" multiple class="form-control list_options schedule_events">
+            <select name="preset_schedule_events" id="preset_schedule_events" multiple class="form-control list_options schedule_events" style="overflow:auto">
             </select>
             <button class="btn btn-primary remove_option">{{trans('optionPresets_create.delete')}}</button>
             <button class="btn btn-primary move_option_up">{{trans('optionPresets_create.up')}}</button>
@@ -57,7 +57,7 @@
         </div>
         <div class="form-inline" style="position:relative">
             {!! Form::label('eventname',trans('optionPresets_create.title').': ') !!}
-            <input type="text" class="form-control" id="eventname" />
+            <input type="text" class="form-control" id="eventname" maxlength="24"/>
             {!! Form::label('startdatetime',trans('optionPresets_create.start').': ') !!}
             <input type='text' class="form-control" id='startdatetime' />
             {!! Form::label('enddatetime',trans('optionPresets_create.end').': ') !!}

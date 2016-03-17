@@ -12,7 +12,7 @@
     <div class="list_option_form">
         <div>
             {!! Form::label('default',trans('fields_options_schedule.def').': ') !!}
-            <select multiple class="form-control list_options" name="default[]">
+            <select multiple class="form-control list_options" name="default[]" style="overflow:auto">
                 @foreach(\App\ScheduleField::getDateList($field) as $opt)
                     <option value="{{$opt}}">{{$opt}}</option>
                 @endforeach
@@ -23,7 +23,7 @@
         </div>
         <div class="form-inline" style="position:relative">
             {!! Form::label('eventname',trans('fields_options_schedule.event').': ') !!}
-            <input type="text" class="form-control" id="eventname" />
+            <input type="text" class="form-control" id="eventname" maxlength="24"/>
             {!! Form::label('startdatetime',trans('fields_options_schedule.start').': ') !!}
             <input type='text' class="form-control" id='startdatetime' />
             {!! Form::label('enddatetime',trans('fields_options_schedule.end').': ') !!}

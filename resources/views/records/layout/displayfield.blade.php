@@ -160,6 +160,11 @@
                         <div id='calendar{{$field->flid}}'></div>
                         <script>
                             $('#calendar{{$field->flid}}').fullCalendar({
+                                header: {
+                                    left: 'prev,next today',
+                                    center: 'title',
+                                    right: 'month,agendaWeek,agendaDay'
+                                },
                                 events: [
                                     @foreach(explode('[!]',$sf->events) as $event)
                                         {

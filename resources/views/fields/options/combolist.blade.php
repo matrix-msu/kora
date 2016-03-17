@@ -202,6 +202,16 @@
                 div += '</div>';
 
                 $('#combo_defaults').html($('#combo_defaults').html()+div);
+
+                if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List')
+                    $('#default_one').select2("val", "");
+                else
+                    $('#default_one').val('');
+
+                if(type2=='Multi-Select List' | type2=='Generated List' | type2=='List')
+                    $('#default_two').select2("val", "");
+                else
+                    $('#default_two').val('');
             }
         });
 

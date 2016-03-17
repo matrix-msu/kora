@@ -44,7 +44,7 @@
         <div id="preset_schedule" class="list_option_form form-group sched_events_select">
             <div>
                 <label for="preset_schedule_events">{{trans('optionPresets_edit.events')}}:</label>
-                <select name="preset_schedule_events" id="preset_schedule_events" multiple class="form-control list_options schedule_events">
+                <select name="preset_schedule_events" id="preset_schedule_events" multiple class="form-control list_options schedule_events" style="overflow:auto">
                     @foreach(\App\Http\Controllers\OptionPresetController::getList($preset->id,false) as $opt)
                         <option value="{{$opt}}">{{$opt}}</option>
                     @endforeach
@@ -55,7 +55,7 @@
             </div>
             <div class="form-inline" style="position:relative">
                 {!! Form::label('eventname',trans('optionPresets_edit.title').': ') !!}
-                <input type="text" class="form-control" id="eventname" />
+                <input type="text" class="form-control" id="eventname" maxlength="24"/>
                 {!! Form::label('startdatetime',trans('optionPresets_edit.start').': ') !!}
                 <input type='text' class="form-control" id='startdatetime' />
                 {!! Form::label('enddatetime',trans('optionPresets_edit.end').': ') !!}

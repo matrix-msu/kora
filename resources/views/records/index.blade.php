@@ -232,6 +232,11 @@
                                         <div id='calendar{{$field->flid.'_'.$record->rid}}'></div>
                                         <script>
                                             $('#calendar{{$field->flid.'_'.$record->rid}}').fullCalendar({
+                                                header: {
+                                                    left: 'prev,next today',
+                                                    center: 'title',
+                                                    right: 'month,agendaWeek,agendaDay'
+                                                },
                                                 events: [
                                                     @foreach(explode('[!]',$sf->events) as $event)
                                                         {

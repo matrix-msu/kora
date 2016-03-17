@@ -18,14 +18,14 @@
     <div class="list_option_form{{$field->flid}}">
         <div>
             {!! Form::select($field->flid.'[]',$value2,$value,
-                ['class' => 'form-control list-options'.$field->flid, 'Multiple', 'id' => 'list'.$field->flid]) !!}
+                ['class' => 'form-control list-options'.$field->flid, 'Multiple', 'id' => 'list'.$field->flid, "style" => "overflow:auto"]) !!}
             <button type="button" class="btn btn-primary remove_option{{$field->flid}}">{{trans('records_fieldInput.delete')}}</button>
             <button type="button" class="btn btn-primary move_option_up{{$field->flid}}">{{trans('records_fieldInput.up')}}</button>
             <button type="button" class="btn btn-primary move_option_down{{$field->flid}}">{{trans('records_fieldInput.down')}}</button>
         </div>
         <div class="form-inline" style="position:relative">
             {!! Form::label('eventname'.$field->flid,trans('records_fieldInput.title').': ') !!}
-            <input type="text" class="form-control" id="eventname{{$field->flid}}" />
+            <input type="text" class="form-control" id="eventname{{$field->flid}}" maxlength="24"/>
             {!! Form::label('startdatetime'.$field->flid,trans('records_fieldInput.start').': ') !!}
             <input type='text' class="form-control" id='startdatetime{{$field->flid}}' />
             {!! Form::label('enddatetime'.$field->flid,trans('records_fieldInput.end').': ') !!}

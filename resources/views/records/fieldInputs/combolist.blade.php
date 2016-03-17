@@ -165,6 +165,15 @@
 
                     val1Div.val('');
                     val2Div.val('');
+                    if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List')
+                        val1Div.select2("val", "");
+                    else
+                        val1Div.val('');
+
+                    if(type2=='Multi-Select List' | type2=='Generated List' | type2=='List')
+                        val2Div.select2("val", "");
+                    else
+                        val2Div.val('');
 
                     $('#combo_list_{{$field->flid}}').append(html);
 
