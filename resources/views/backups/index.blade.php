@@ -122,7 +122,7 @@
                 },
                 error: function(data){
                     if(data.status == 422){
-                        alert("{{trans('backups_index.noselect')}}");
+                        alert("{{ App\Services\Translator::html_entities_to_unicode(trans('backups_index.noselect'))}}");
                     }
                    location.reload();
                 }
