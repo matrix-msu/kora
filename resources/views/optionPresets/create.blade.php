@@ -71,7 +71,7 @@
     <div style="display:none" id="preset_geolocator" class="list_option_form">
         <div>
             <label for="preset_geolocator_locations">{{trans('optionPresets_create.loc')}}:</label>
-            <select name="preset_geolocator_locations" id="preset_geolocator_locations" multiple class="form-control list_options geolocator_locations">
+            <select name="preset_geolocator_locations" id="preset_geolocator_locations" multiple class="form-control list_options geolocator_locations" style="overflow:auto">
             </select>
             <button class="btn btn-primary remove_option">{{trans('optionPresets_create.delete')}}</button>
             <button class="btn btn-primary move_option_up">{{trans('optionPresets_create.up')}}</button>

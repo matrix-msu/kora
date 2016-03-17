@@ -46,7 +46,7 @@
                 <label for="preset_schedule_events">{{trans('optionPresets_edit.events')}}:</label>
                 <select name="preset_schedule_events" id="preset_schedule_events" multiple class="form-control list_options schedule_events" style="overflow:auto">
                     @foreach(\App\Http\Controllers\OptionPresetController::getList($preset->id,false) as $opt)
-                        <option value="{{$opt}}">{{$opt}}</option>
+                        <option value="{{$opt}}">Description: {{explode('[Desc]',$opt)[1]}} | LatLon: {{explode('[LatLon]',$opt)[1]}} | UTM: {{explode('[UTM]',$opt)[1]}} | Address: {{explode('[Address]',$opt)[1]}}</option>
                     @endforeach
                 </select>
                 <button class="btn btn-primary remove_option">{{trans('optionPresets_edit.delete')}}</button>
@@ -69,7 +69,7 @@
         <div id="preset_geolocator" class="list_option_form">
             <div>
                 <label for="preset_geolocator_locations">{{trans('optionPresets_edit.loc')}}:</label>
-                <select name="preset_geolocator_locations" id="preset_geolocator_locations" multiple class="form-control list_options geolocator_locations">
+                <select name="preset_geolocator_locations" id="preset_geolocator_locations" multiple class="form-control list_options geolocator_locations" style="overflow:auto">
                     @foreach(\App\Http\Controllers\OptionPresetController::getList($preset->id,false) as $opt)
                         <option value="{{$opt}}">{{$opt}}</option>
                     @endforeach

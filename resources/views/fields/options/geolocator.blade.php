@@ -12,9 +12,9 @@
     <div class="list_option_form">
         <div>
             {!! Form::label('default',trans('fields_options_geolocator.def').': ') !!}
-            <select multiple class="form-control list_options" name="default[]">
+            <select multiple class="form-control list_options" name="default[]" style="overflow:auto">
                 @foreach(\App\GeolocatorField::getLocationList($field) as $opt)
-                    <option value="{{$opt}}">{{$opt}}</option>
+                    <option value="{{$opt}}">Description: {{explode('[Desc]',$opt)[1]}} | LatLon: {{explode('[LatLon]',$opt)[1]}} | UTM: {{explode('[UTM]',$opt)[1]}} | Address: {{explode('[Address]',$opt)[1]}}</option>
                 @endforeach
             </select>
             <button type="button" class="btn btn-primary remove_option">{{trans('fields_options_geolocator.delete')}}</button>
@@ -192,9 +192,13 @@
                 success:function(result) {
                     desc = $('.loc_desc').val();
                     result = '[Desc]'+desc+'[Desc]'+result;
+                    latlon = result.split('[LatLon]');
+                    utm = result.split('[UTM]');
+                    addr = result.split('[Address]');
+                    text = 'Description: '+desc+' | LatLon: '+latlon[1]+' | UTM: '+utm[1]+' | Address: '+addr[1];
                     $('.list_options').append($("<option/>", {
                         value: result,
-                        text: result
+                        text: text
                     }));
                     $('.loc_desc').val('');
                 }
@@ -215,9 +219,13 @@
                 success: function (result) {
                     desc = $('.loc_desc').val();
                     result = '[Desc]'+desc+'[Desc]'+result;
+                    latlon = result.split('[LatLon]');
+                    utm = result.split('[UTM]');
+                    addr = result.split('[Address]');
+                    text = 'Description: '+desc+' | LatLon: '+latlon[1]+' | UTM: '+utm[1]+' | Address: '+addr[1];
                     $('.list_options').append($("<option/>", {
                         value: result,
-                        text: result
+                        text: text
                     }));
                     $('.loc_desc').val('');
                 }
@@ -236,9 +244,13 @@
                 success: function (result) {
                     desc = $('.loc_desc').val();
                     result = '[Desc]'+desc+'[Desc]'+result;
+                    latlon = result.split('[LatLon]');
+                    utm = result.split('[UTM]');
+                    addr = result.split('[Address]');
+                    text = 'Description: '+desc+' | LatLon: '+latlon[1]+' | UTM: '+utm[1]+' | Address: '+addr[1];
                     $('.list_options').append($("<option/>", {
                         value: result,
-                        text: result
+                        text: text
                     }));
                     $('.loc_desc').val('');
                 }

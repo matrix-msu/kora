@@ -6,7 +6,7 @@
     <div class="list_option_form{{$field->flid}}">
         <div>
             {!! Form::select($field->flid.'[]',\App\GeolocatorField::getLocationList($field),
-                explode('[!]',$field->default),['class' => 'form-control list-options'.$field->flid, 'Multiple', 'id' => 'list'.$field->flid]) !!}
+                explode('[!]',$field->default),['class' => 'form-control list-options'.$field->flid, 'Multiple', 'id' => 'list'.$field->flid, "style" => "overflow:auto"]) !!}
             <button type="button" class="btn btn-primary remove_option{{$field->flid}}">{{trans('records_fieldInput.delete')}}</button>
             <button type="button" class="btn btn-primary move_option_up{{$field->flid}}">{{trans('records_fieldInput.up')}}</button>
             <button type="button" class="btn btn-primary move_option_down{{$field->flid}}">{{trans('records_fieldInput.down')}}</button>
@@ -140,9 +140,13 @@
                         success:function(result) {
                             desc = $('.loc_desc{{$field->flid}}').val();
                             result = '[Desc]'+desc+'[Desc]'+result;
+                            latlon = result.split('[LatLon]');
+                            utm = result.split('[UTM]');
+                            addr = result.split('[Address]');
+                            text = 'Description: '+desc+' | LatLon: '+latlon[1]+' | UTM: '+utm[1]+' | Address: '+addr[1];
                             $('#list{{$field->flid}}').append($("<option/>", {
                                 value: result,
-                                text: result,
+                                text: text,
                                 selected: ''
                             }));
                             $('.loc_desc{{$field->flid}}').val('');
@@ -162,9 +166,13 @@
                         success: function (result) {
                             desc = $('.loc_desc{{$field->flid}}').val();
                             result = '[Desc]'+desc+'[Desc]'+result;
+                            latlon = result.split('[LatLon]');
+                            utm = result.split('[UTM]');
+                            addr = result.split('[Address]');
+                            text = 'Description: '+desc+' | LatLon: '+latlon[1]+' | UTM: '+utm[1]+' | Address: '+addr[1];
                             $('#list{{$field->flid}}').append($("<option/>", {
                                 value: result,
-                                text: result,
+                                text: text,
                                 selected: ''
                             }));
                             $('.loc_desc{{$field->flid}}').val('');
@@ -182,9 +190,13 @@
                         success: function (result) {
                             desc = $('.loc_desc{{$field->flid}}').val();
                             result = '[Desc]'+desc+'[Desc]'+result;
+                            latlon = result.split('[LatLon]');
+                            utm = result.split('[UTM]');
+                            addr = result.split('[Address]');
+                            text = 'Description: '+desc+' | LatLon: '+latlon[1]+' | UTM: '+utm[1]+' | Address: '+addr[1];
                             $('#list{{$field->flid}}').append($("<option/>", {
                                 value: result,
-                                text: result,
+                                text: text,
                                 selected: ''
                             }));
                             $('.loc_desc{{$field->flid}}').val('');
