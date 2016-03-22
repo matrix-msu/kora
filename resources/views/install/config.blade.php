@@ -12,7 +12,7 @@
                         <hr>
                         @foreach($configs as $config => $value)
                             <div class="form-group">
-                                <label class="">{{$value[0]}}</label>
+                                <label class="">{{App\Services\Translator::translate($value[0])}}</label>
                                 <input id="{{$config}}"class="form-control" type="text" value="{{$value[1]}}">
                                 <button class="btn btn-primary form-control" onClick="updateEnvConfigs('{{$config}}','{{$value[0]}}')" type="submit">{{trans('install_config.update')}} {{$value[0]}}</button>
                             </div>

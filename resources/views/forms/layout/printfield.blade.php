@@ -1,11 +1,11 @@
-<div class="panel panel-default">
+ <div class="panel panel-default">
     <div class="panel-heading" style="font-size: 1.5em;">
         @if(\Auth::user()->canEditFields($form))
             <a href="{{ action('FieldController@show',['pid' => $field->pid,'fid' => $field->fid, 'flid' => $field->flid]) }}">{{ $field->name }}</a>
         @else
             {{$field->name}}
         @endif
-        <span  class="pull-right">{{ $field->type }}</span>
+        <span  class="pull-right">{{ $field->type }} </span>
     </div>
     <div class="collapseTest" style="display:none">
         <div class="panel-body"><b>{{trans('forms_layout_printfield.desc')}}:</b> {{ $field->desc }}</div>
