@@ -66,7 +66,7 @@
 
 <div class="form-group">
     {!! Form::label('required',trans('fields_form.req').': ') !!}
-    {!! Form::select('required',['false', 'true'], 'false', ['class' => 'form-control']) !!}
+    {!! Form::select('required',[trans('fields_form.false'), trans('fields_form.true')], 'false', ['class' => 'form-control']) !!}
 </div>
 
 <div id="advance_options_div">

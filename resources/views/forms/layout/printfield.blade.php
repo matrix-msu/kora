@@ -5,7 +5,7 @@
         @else
             {{$field->name}}
         @endif
-        <span  class="pull-right">{{ $field->type }} </span>
+        <span  class="pull-right">{{ App\Services\Translator::translate($field->type) }} </span>
     </div>
     <div class="collapseTest" style="display:none">
         <div class="panel-body"><b>{{trans('forms_layout_printfield.desc')}}:</b> {{ $field->desc }}</div>
