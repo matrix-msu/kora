@@ -18,12 +18,6 @@ class DateField extends BaseField {
         // TODO: Implement keyword_search() method.
     }
 
-    protected $primaryKey = "id";
-
-    public function record(){
-        return $this->belongsTo('App\Record');
-    }
-
     public static function validateDate($m,$d,$y){
         if($d!='' && !is_null($d)) {
             if ($m == '' | is_null($m)) {

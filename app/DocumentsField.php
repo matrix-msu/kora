@@ -15,12 +15,6 @@ class DocumentsField extends BaseField {
         // TODO: Implement keyword_search() method.
     }
 
-    protected $primaryKey = "id";
-
-    public function record(){
-        return $this->belongsTo('App\Record');
-    }
-
     public static function getMimeTypes(){
         $types=array();
         foreach(@explode("\n",@file_get_contents('http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types'))as $x)

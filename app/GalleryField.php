@@ -14,11 +14,4 @@ class GalleryField extends BaseField {
     {
         // TODO: Implement keyword_search() method.
     }
-
-    protected $primaryKey = "id";
-
-    public function record(){
-        return $this->belongsTo('App\Record');
-    }
-
 }

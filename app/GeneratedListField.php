@@ -16,12 +16,6 @@ class GeneratedListField extends BaseField {
         // TODO: Implement keyword_search() method.
     }
 
-    protected $primaryKey = "id";
-
-    public function record(){
-        return $this->belongsTo('App\Record');
-    }
-
     public static function getList($field, $blankOpt=false)
     {
         $dbOpt = FieldController::getFieldOption($field, 'Options');
