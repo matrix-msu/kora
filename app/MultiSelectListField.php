@@ -3,7 +3,7 @@
 use App\Http\Controllers\FieldController;
 use Illuminate\Database\Eloquent\Model;
 
-class MultiSelectListField extends Model {
+class MultiSelectListField extends BaseField {
 
     protected $fillable = [
         'rid',
@@ -11,10 +11,9 @@ class MultiSelectListField extends Model {
         'options'
     ];
 
-    protected $primaryKey = "id";
-
-    public function record(){
-        return $this->belongsTo('App\Record');
+    public function keyword_search(array &$args, $partial)
+    {
+        // TODO: Implement keyword_search() method.
     }
 
     public static function getList($field, $blankOpt=false)

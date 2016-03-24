@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class ScheduleField extends Model {
+class ScheduleField extends BaseField {
 
     protected $fillable = [
         'rid',
@@ -10,10 +10,9 @@ class ScheduleField extends Model {
         'events'
     ];
 
-    protected $primaryKey = "id";
-
-    public function record(){
-        return $this->belongsTo('App\Record');
+    public function keyword_search(array &$args, $partial)
+    {
+        // TODO: Implement keyword_search() method.
     }
 
     public static function getDateList($field)

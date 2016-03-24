@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class TextField extends Model {
+class TextField extends BaseField {
 
     protected $fillable = [
         'rid',
@@ -10,9 +10,40 @@ class TextField extends Model {
         'text'
     ];
 
-    protected $primaryKey = "id";
+    /**
+     * Keyword search for a text field. Depending on the value of partial we have two procedures:
+     *  True: find occurrences of any particular argument, including partial results.
+     *  False: find occurrences, matching the exact argument.
+     *
+     * @param array $args, Array of arguments for the search to use passed by reference.
+     * @param bool $partial, True if partial values should be considered in the search.
+     * @return bool, True if the search parameters are satisfied.
+     */
+    public function keyword_search(array &$args, $partial)
+    {
+        $text = $this->text;
 
-    public function record(){
-        return $this->belongsTo('App\Record');
+        if ($partial) {
+
+            foreach ($args as $arg) {
+                $arg = strip_tags($arg);
+
+                if (strpos($text, $arg) !== false)
+                    return true; // Text contains a partial match.
+            }
+
+        }
+        else {
+
+            foreach ($args as $arg) {
+                $arg = strip_tags($arg);
+                $pattern = "/\\b" . $arg . "\\b/i";
+
+                if (preg_match($pattern, $text) !== false)
+                    return true; // Text contains a complete match.
+            }
+        }
+
+        return false; // Text contains no matches.
     }
 }

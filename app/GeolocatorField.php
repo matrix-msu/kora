@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class GeolocatorField extends Model {
+class GeolocatorField extends BaseField {
 
     protected $fillable = [
         'rid',
@@ -10,10 +10,9 @@ class GeolocatorField extends Model {
         'locations'
     ];
 
-    protected $primaryKey = "id";
-
-    public function record(){
-        return $this->belongsTo('App\Record');
+    public function keyword_search(array &$args, $partial)
+    {
+        // TODO: Implement keyword_search() method.
     }
 
     public static function getLocationList($field)
@@ -24,11 +23,11 @@ class GeolocatorField extends Model {
         if ($def == '') {
             //skip
         } else if (!strstr($def, '[!]')) {
-            $options = [$def => 'Description: '.explode('[Desc]',$def)[1].' | LatLon: '.explode('[LatLon]',$def)[1].' | UTM: '.explode('[UTM]',$def)[1].' | Address: '.explode('[Address]',$def)[1]];
+            $options = [$def => $def];
         } else {
             $opts = explode('[!]', $def);
             foreach ($opts as $opt) {
-                $options[$opt] = 'Description: '.explode('[Desc]',$opt)[1].' | LatLon: '.explode('[LatLon]',$opt)[1].' | UTM: '.explode('[UTM]',$opt)[1].' | Address: '.explode('[Address]',$opt)[1];
+                $options[$opt] = $opt;
             }
         }
 

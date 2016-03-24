@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class ModelField extends Model {
+class ModelField extends BaseField {
 
     protected $fillable = [
         'rid',
@@ -10,10 +10,8 @@ class ModelField extends Model {
         'model'
     ];
 
-    protected $primaryKey = "id";
-
-    public function record(){
-        return $this->belongsTo('App\Record');
+    public function keyword_search(array &$args, $partial)
+    {
+        // TODO: Implement keyword_search() method.
     }
-
 }

@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class ComboListField extends Model {
+class ComboListField extends BaseField {
 
     protected $fillable = [
         'rid',
@@ -11,12 +11,6 @@ class ComboListField extends Model {
         'ftype1',
         'ftype2'
     ];
-
-    protected $primaryKey = "id";
-
-    public function record(){
-        return $this->belongsTo('App\Record');
-    }
 
     public static function getComboList($field, $blankOpt=false, $fnum)
     {

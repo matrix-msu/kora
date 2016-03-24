@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class PlaylistField extends Model {
+class PlaylistField extends BaseField {
 
     protected $fillable = [
         'rid',
@@ -10,10 +10,8 @@ class PlaylistField extends Model {
         'audio'
     ];
 
-    protected $primaryKey = "id";
-
-    public function record(){
-        return $this->belongsTo('App\Record');
+    public function keyword_search(array &$args, $partial)
+    {
+        // TODO: Implement keyword_search() method.
     }
-
 }
