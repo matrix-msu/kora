@@ -24,7 +24,6 @@ class TextField extends BaseField {
         $text = $this->text;
 
         if ($partial) {
-
             foreach ($args as $arg) {
                 $arg = strip_tags($arg);
 
@@ -34,13 +33,16 @@ class TextField extends BaseField {
 
         }
         else {
-
             foreach ($args as $arg) {
                 $arg = strip_tags($arg);
-                $pattern = "/\\b" . $arg . "\\b/i";
+                $pattern = "/(\\W|^)" . $arg . "(\\W|$)/i";
 
-                if (preg_match($pattern, $text) !== false)
-                    return true; // Text contains a complete match.
+
+                if (($result = preg_match($pattern, $text)) !== false) { // Continue if preg_match did not error.
+                    if ($result) {
+                        return true; // Text contains an complete match.
+                    }
+                }
             }
         }
 
