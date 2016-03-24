@@ -36,4 +36,5 @@ return [
 	"confirmchange" => "El cambio del tipo de campa&ntilde;a reinicializar&aacute; sus opciones avanzadas. &iquest;Est&aacute; seguro que quiere seguir?",
 	"true" => "verdad",
 	"false" => "falso",
+	"search" => "Disponible para buscar",
 ];

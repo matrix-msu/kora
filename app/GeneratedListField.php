@@ -3,13 +3,18 @@
 use App\Http\Controllers\FieldController;
 use Illuminate\Database\Eloquent\Model;
 
-class GeneratedListField extends Model {
+class GeneratedListField extends BaseField {
 
     protected $fillable = [
         'rid',
         'flid',
         'options'
     ];
+
+    public function keyword_search(array &$args, $partial)
+    {
+        // TODO: Implement keyword_search() method.
+    }
 
     protected $primaryKey = "id";
 

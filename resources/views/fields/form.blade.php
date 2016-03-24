@@ -69,6 +69,11 @@
     {!! Form::select('required',[trans('fields_form.false'), trans('fields_form.true')], 'false', ['class' => 'form-control']) !!}
 </div>
 
+<div class="form-group">
+    {!! Form::label('searchable',trans('fields_form.search').': ') !!}
+    {!! Form::select('searchable',[trans('fields_form.false'), trans('fields_form.true')], 'false', ['class' => 'form-control']) !!}
+</div>
+
 <div id="advance_options_div">
     <div class="form-group">
         <button type="button" id="adv_opt" class="btn form-control">{{trans('fields_form.adv')}}</button>

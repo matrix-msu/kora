@@ -2,13 +2,18 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class DocumentsField extends Model {
+class DocumentsField extends BaseField {
 
     protected $fillable = [
         'rid',
         'flid',
         'documents'
     ];
+
+    public function keyword_search(array &$args, $partial)
+    {
+        // TODO: Implement keyword_search() method.
+    }
 
     protected $primaryKey = "id";
 

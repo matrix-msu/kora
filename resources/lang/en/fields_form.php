@@ -36,5 +36,6 @@ return [
 	"confirmchange" => "Changing the field type will reset your advanced options. Are you sure you want to proceed?",
 	"true" => "true",
 	"false" => "false",
+	"search" => "Searchable",
 
 ];

@@ -23,6 +23,7 @@ class CreateFieldsTable extends Migration {
             $table->string('slug')->unique();
             $table->string('desc');
             $table->boolean('required');
+			$table->boolean('searchable');
             $table->text('default')->nullable();
             $table->text('options')->nullable();
 			$table->timestamps();

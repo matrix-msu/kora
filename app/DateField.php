@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class DateField extends Model {
+class DateField extends BaseField {
 
     protected $fillable = [
         'rid',
@@ -12,6 +12,11 @@ class DateField extends Model {
         'year',
         'era'
     ];
+
+    public function keyword_search(array &$args, $partial)
+    {
+        // TODO: Implement keyword_search() method.
+    }
 
     protected $primaryKey = "id";
 

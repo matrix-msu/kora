@@ -17,7 +17,7 @@ abstract class BaseField extends Model
     }
 
     /**
-     * Keyword search for a general field.
+     * Pure virtual keyword search method for a general field.
      *
      * @param array $args, Array of arguments for the search to use passed by reference.
      * @param bool $partial, True if partial values should be considered in the search.

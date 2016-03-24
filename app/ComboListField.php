@@ -12,6 +12,11 @@ class ComboListField extends BaseField {
         'ftype2'
     ];
 
+    public function keyword_search(array &$args, $partial)
+    {
+        // TODO: Implement keyword_search() method.
+    }
+
     public static function getComboList($field, $blankOpt=false, $fnum)
     {
         $dbOpt = ComboListField::getComboFieldOption($field, 'Options', $fnum);

@@ -12,6 +12,7 @@ class Field extends Model {
         'slug',
         'desc',
         'required',
+        'searchable',
     ];
 
     protected $primaryKey = "flid";
