@@ -10,7 +10,7 @@ class GalleryField extends BaseField {
         'images'
     ];
 
-    public function keyword_search(array &$args, $partial)
+    public function keywordSearch(array &$args, $partial)
     {
         // TODO: Implement keyword_search() method.
     }

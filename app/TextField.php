@@ -19,24 +19,26 @@ class TextField extends BaseField {
      * @param bool $partial, True if partial values should be considered in the search.
      * @return bool, True if the search parameters are satisfied.
      */
-    public function keyword_search(array &$args, $partial)
+    public function keywordSearch(array &$args, $partial)
     {
         $text = $this->text;
+        $text = self::convertCloseChars($text);
 
         if ($partial) {
             foreach ($args as $arg) {
                 $arg = strip_tags($arg);
+                $arg = self::convertCloseChars($arg);
 
                 if (strpos($text, $arg) !== false)
                     return true; // Text contains a partial match.
             }
-
         }
         else {
             foreach ($args as $arg) {
                 $arg = strip_tags($arg);
-                $pattern = "/(\\W|^)" . $arg . "(\\W|$)/i";
+                $arg = self::convertCloseChars($arg);
 
+                $pattern = "/(\\W|^)" . $arg . "(\\W|$)/i";
 
                 if (($result = preg_match($pattern, $text)) !== false) { // Continue if preg_match did not error.
                     if ($result) {
