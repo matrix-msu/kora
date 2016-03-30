@@ -10,28 +10,28 @@
     </div>
 
     <div class="form-group">
+        {!! Form::label('searchable',trans('fields_options_number.search').': ') !!}
+        {!! Form::select('searchable',['false', 'true'], $field->searchable, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
         {!! Form::label('default',trans('fields_options_number.def').': ') !!}
         <input
-                type="number" name="default" class="form-control" value="{{ $field->default }}" id="default"
-                step="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Increment") }}"
-                min="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Min") }}"
-                max="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Max") }}">
+                type="number" name="default" class="form-control" value="{{ $field->default }}" id="default">
     </div>
 
     <div class="form-group">
         {!! Form::label('min',trans('fields_options_number.min').': ') !!}
         <input
                 type="number" name="min" class="form-control" step="any" id="min"
-                value="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Min") }}"
-                max="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Max") }}">
+                value="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Min") }}">
     </div>
 
     <div class="form-group">
         {!! Form::label('max',trans('fields_options_number.max').': ') !!}
         <input
                 type="number" name="max" class="form-control" step="any" id="max"
-                value="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Max") }}"
-                min="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Min") }}">
+                value="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Max") }}">
     </div>
 
     <div class="form-group">
@@ -56,18 +56,6 @@
 
 @section('footer')
     <script>
-        $('.form-group').on('change', '#min', function(){
-            $('#default').attr('min',$(this).val());
-            $('#max').attr('min',$(this).val());
-        });
 
-        $('.form-group').on('change', '#max', function(){
-            $('#default').attr('max',$(this).val());
-            $('#min').attr('max',$(this).val());
-        });
-
-        $('.form-group').on('change', '#inc', function(){
-            $('#default').attr('step',$(this).val());
-        });
     </script>
 @stop

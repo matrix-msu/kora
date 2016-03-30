@@ -3,14 +3,13 @@
 
 <div class="form-group">
     {!! Form::label('default',trans('fields_options_list.def').': ') !!}
-    {!! Form::select('default',[], '',['class' => 'form-control', 'id' => 'default']) !!}
+    {!! Form::select('default',[''], '',['class' => 'form-control', 'id' => 'default']) !!}
 </div>
 
 <div class="list_option_form">
     <div>
         {!! Form::label('options',trans('fields_options_list.options').': ') !!}
-        <select multiple class="form-control list_options" name="options[]">
-        </select>
+        <select multiple class="form-control list_options" name="options[]"></select>
         <button type="button" class="btn btn-primary remove_option">{{trans('fields_options_list.delete')}}</button>
         <button type="button" class="btn btn-primary move_option_up">{{trans('fields_options_list.up')}}</button>
         <button type="button" class="btn btn-primary move_option_down">{{trans('fields_options_list.down')}}</button>
