@@ -10,6 +10,11 @@
     </div>
 
     <div class="form-group">
+        {!! Form::label('searchable',trans('fields_options_genlist.search').': ') !!}
+        {!! Form::select('searchable',['false', 'true'], $field->searchable, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
         {!! Form::label('regex',trans('fields_options_genlist.regex').': ') !!}
         {!! Form::text('regex', \App\Http\Controllers\FieldController::getFieldOption($field,'Regex'), ['class' => 'form-control']) !!}
     </div>

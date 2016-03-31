@@ -10,6 +10,11 @@
     </div>
 
     <div class="form-group">
+        {!! Form::label('searchable',trans('fields_options_richtext.search').': ') !!}
+        {!! Form::select('searchable',['false', 'true'], $field->searchable, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
         {!! Form::label('default',trans('fields_options_richtext.def').': ') !!}
         {!! Form::text('default', $field->default, ['class' => 'form-control']) !!}
     </div>

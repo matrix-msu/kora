@@ -47,37 +47,37 @@ class OptionController extends Controller {
 
     public function updateAdvanced($field,Request $request){
         if($field->type=="Text") {
-            $this->updateText($field->pid,$field->fid,$field->flid,$request,false);
+            return $this->updateText($field->pid,$field->fid,$field->flid,$request,false);
         }else if($field->type=="Rich Text") {
-            $this->updateRichtext($field->pid,$field->fid,$field->flid,$request,false);
+            return $this->updateRichtext($field->pid,$field->fid,$field->flid,$request,false);
         }else if($field->type=="Number") {
-            $this->updateNumber($field->pid,$field->fid,$field->flid,$request,false);
+            return $this->updateNumber($field->pid,$field->fid,$field->flid,$request,false);
         }else if($field->type=="List") {
-            $this->updateList($field->pid,$field->fid,$field->flid,$request,false);
+            return $this->updateList($field->pid,$field->fid,$field->flid,$request,false);
         }else if($field->type=="Multi-Select List") {
-            $this->updateMultilist($field->pid,$field->fid,$field->flid,$request,false);
+            return $this->updateMultilist($field->pid,$field->fid,$field->flid,$request,false);
         }else if($field->type=="Generated List") {
-            $this->updateGenlist($field->pid,$field->fid,$field->flid,$request,false);
+            return $this->updateGenlist($field->pid,$field->fid,$field->flid,$request,false);
         }else if($field->type=="Combo List") {
-            $this->updateCombolist($field->pid,$field->fid,$field->flid,$request,false);
+            return $this->updateCombolist($field->pid,$field->fid,$field->flid,$request,false);
         }else if($field->type=="Date") {
-            $this->updateDate($field->pid,$field->fid,$field->flid,$request,false);
+            return $this->updateDate($field->pid,$field->fid,$field->flid,$request,false);
         }else if($field->type=="Schedule") {
-            $this->updateSchedule($field->pid,$field->fid,$field->flid,$request,false);
+            return $this->updateSchedule($field->pid,$field->fid,$field->flid,$request,false);
         }else if($field->type=="Geolocator") {
-            $this->updateGeolocator($field->pid,$field->fid,$field->flid,$request,false);
+            return $this->updateGeolocator($field->pid,$field->fid,$field->flid,$request,false);
         }else if($field->type=="Documents") {
-            $this->updateDocument($field->pid,$field->fid,$field->flid,$request,false);
+            return $this->updateDocument($field->pid,$field->fid,$field->flid,$request,false);
         }else if($field->type=="Gallery") {
-            $this->updateGallery($field->pid,$field->fid,$field->flid,$request,false);
+            return $this->updateGallery($field->pid,$field->fid,$field->flid,$request,false);
         }else if($field->type=="Playlist") {
-            $this->updatePlaylist($field->pid,$field->fid,$field->flid,$request,false);
+            return $this->updatePlaylist($field->pid,$field->fid,$field->flid,$request,false);
         }else if($field->type=="Video") {
-            $this->updateVideo($field->pid,$field->fid,$field->flid,$request,false);
+            return $this->updateVideo($field->pid,$field->fid,$field->flid,$request,false);
         }else if($field->type=="3D-Model") {
-            $this->updateModel($field->pid,$field->fid,$field->flid,$request,false);
+            return $this->updateModel($field->pid,$field->fid,$field->flid,$request,false);
         }else if($field->type=="Associator") {
-            $this->updateAssociator($field->pid,$field->fid,$field->flid,$request,false);
+            return $this->updateAssociator($field->pid,$field->fid,$field->flid,$request,false);
         }
     }
 
@@ -94,6 +94,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
         FieldController::updateOptions($pid, $fid, $flid, 'FieldSize', $request->filesize);
         FieldController::updateOptions($pid, $fid, $flid, 'FileTypes', $filetype);
 
@@ -101,6 +102,8 @@ class OptionController extends Controller {
             flash()->success(trans('controller_option.updated'));
 
             return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }else{
+            return '';
         }
     }
 
@@ -201,6 +204,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
         FieldController::updateDefault($pid, $fid, $flid, $default);
         FieldController::updateOptions($pid, $fid, $flid, 'Field1', $flopt_one);
         FieldController::updateOptions($pid, $fid, $flid, 'Field2', $flopt_two);
@@ -209,6 +213,8 @@ class OptionController extends Controller {
             flash()->success(trans('controller_option.updated'));
 
             return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }else{
+            return '';
         }
     }
 
@@ -231,6 +237,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
         FieldController::updateDefault($pid, $fid, $flid, $default);
         FieldController::updateOptions($pid, $fid, $flid, 'Format', $request->format);
         FieldController::updateOptions($pid, $fid, $flid, 'Start', $request->start);
@@ -242,6 +249,8 @@ class OptionController extends Controller {
             flash()->success(trans('controller_option.updated'));
 
             return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }else{
+            return '';
         }
     }
 
@@ -261,6 +270,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
         FieldController::updateOptions($pid, $fid, $flid, 'FieldSize', $request->filesize);
         FieldController::updateOptions($pid, $fid, $flid, 'MaxFiles', $request->maxfiles);
         FieldController::updateOptions($pid, $fid, $flid, 'FileTypes', $filetype);
@@ -269,6 +279,8 @@ class OptionController extends Controller {
             flash()->success(trans('controller_option.updated'));
 
             return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }else{
+            return '';
         }
     }
 
@@ -304,6 +316,7 @@ class OptionController extends Controller {
         $large = $lx.'x'.$ly;
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
         FieldController::updateOptions($pid, $fid, $flid, 'FieldSize', $request->filesize);
         FieldController::updateOptions($pid, $fid, $flid, 'MaxFiles', $request->maxfiles);
         FieldController::updateOptions($pid, $fid, $flid, 'FileTypes', $filetype);
@@ -314,6 +327,8 @@ class OptionController extends Controller {
             flash()->success(trans('controller_option.updated'));
 
             return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }else{
+            return '';
         }
     }
 
@@ -339,6 +354,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
         FieldController::updateDefault($pid, $fid, $flid, $default);
         FieldController::updateOptions($pid, $fid, $flid, 'Regex', $request->regex);
         FieldController::updateOptions($pid, $fid, $flid, 'Options', $options);
@@ -347,6 +363,8 @@ class OptionController extends Controller {
             flash()->success(trans('controller_option.updated'));
 
             return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }else{
+            return '';
         }
     }
 
@@ -360,6 +378,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
         FieldController::updateDefault($pid, $fid, $flid, $default);
         FieldController::updateOptions($pid, $fid, $flid, 'Map', $request->map);
         FieldController::updateOptions($pid, $fid, $flid, 'DataView', $request->view);
@@ -368,6 +387,8 @@ class OptionController extends Controller {
             flash()->success(trans('controller_option.updated'));
 
             return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }else{
+            return '';
         }
     }
 
@@ -381,6 +402,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
         FieldController::updateDefault($pid, $fid, $flid, $request->default);
         FieldController::updateOptions($pid, $fid, $flid, 'Options', $options);
 
@@ -388,6 +410,8 @@ class OptionController extends Controller {
             flash()->success(trans('controller_option.updated'));
 
             return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }else{
+            return '';
         }
     }
 
@@ -407,6 +431,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
         FieldController::updateDefault($pid, $fid, $flid, $default);
         FieldController::updateOptions($pid, $fid, $flid, 'Options', $options);
 
@@ -414,13 +439,58 @@ class OptionController extends Controller {
             flash()->success(trans('controller_option.updated'));
 
             return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }else{
+            return '';
         }
     }
 
     public function updateNumber($pid, $fid, $flid, Request $request, $return=true){
         //dd($request);
+        //these are help prevent interruption of correct parameters when error is found in advanced setup
+        $advString = '';
+
+        if($request->min!='' && $request->max!=''){
+            if($request->min >= $request->max){
+                if($return){
+                    flash()->error('The max value is less than or equal to the minimum value. ');
+
+                    return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options')->withInput();
+                }else{
+                    $request->min = '';
+                    $request->max = '';
+                    $advString = 'The max value is less than or equal to the minimum value.';
+                }
+            }
+        }
+
+        if($request->default!='' && $request->max!=''){
+            if($request->default > $request->max) {
+                if($return){
+                    flash()->error('The max value is less than the default value. ');
+
+                    return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options')->withInput();
+                }else{
+                    $request->default = '';
+                    $advString = 'The max value is less than the default value.';
+                }
+            }
+        }
+
+        if($request->default!='' && $request->min!=''){
+            if($request->default < $request->min) {
+                if($return){
+                    flash()->error('The minimum value is greater than the default value. ');
+
+                    return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options')->withInput();
+                }else{
+                    $request->default = '';
+                    $advString = 'The minimum value is greater than the default value.';
+                }
+            }
+        }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
         FieldController::updateDefault($pid, $fid, $flid, $request->default);
         FieldController::updateOptions($pid, $fid, $flid, 'Max', $request->max);
         FieldController::updateOptions($pid, $fid, $flid, 'Min', $request->min);
@@ -431,6 +501,8 @@ class OptionController extends Controller {
             flash()->success(trans('controller_option.updated'));
 
             return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }else{
+            return $advString;
         }
     }
 
@@ -450,6 +522,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
         FieldController::updateOptions($pid, $fid, $flid, 'FieldSize', $request->filesize);
         FieldController::updateOptions($pid, $fid, $flid, 'MaxFiles', $request->maxfiles);
         FieldController::updateOptions($pid, $fid, $flid, 'FileTypes', $filetype);
@@ -458,6 +531,8 @@ class OptionController extends Controller {
             flash()->success(trans('controller_option.updated'));
 
             return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }else{
+            return '';
         }
     }
 
@@ -465,12 +540,15 @@ class OptionController extends Controller {
         //dd($request);
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
         FieldController::updateDefault($pid, $fid, $flid, $request->default);
 
         if($return) {
             flash()->success(trans('controller_option.updated'));
 
             return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }else{
+            return '';
         }
     }
 
@@ -491,6 +569,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
         FieldController::updateDefault($pid, $fid, $flid, $default);
         FieldController::updateOptions($pid, $fid, $flid, 'Start', $request->start);
         FieldController::updateOptions($pid, $fid, $flid, 'End', $request->end);
@@ -500,20 +579,35 @@ class OptionController extends Controller {
             flash()->success(trans('controller_option.updated'));
 
             return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }else{
+            return '';
         }
     }
 
     public function updateText($pid, $fid, $flid, Request $request, $return=true){
         //dd($request);
+        $advString = '';
 
-        if ($request->regex!='' && $request->default!='' && !preg_match($request->regex, $request->default))
-        {
-            flash()->error(trans('controller_option.badregex'));
+        if($request->regex!=''){
+            $regArray = str_split($request->regex);
+            if($regArray[0]!=end($regArray)){
+                $request->regex = '/'.$request->regex.'/';
+            }
+            if ($request->default!='' && !preg_match($request->regex, $request->default))
+            {
+                if($return){
+                    flash()->error('The default value does not match the given regex pattern.');
 
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options')->withInput();
+                    return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options')->withInput();
+                }else{
+                    $request->default = '';
+                    $advString = 'The default value does not match the given regex pattern.';
+                }
+            }
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
         FieldController::updateDefault($pid, $fid, $flid, $request->default);
         FieldController::updateOptions($pid, $fid, $flid, 'Regex', $request->regex);
         FieldController::updateOptions($pid, $fid, $flid, 'MultiLine', $request->multi);
@@ -522,6 +616,8 @@ class OptionController extends Controller {
             flash()->success(trans('controller_option.updated'));
 
             return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }else{
+            return $advString;
         }
     }
 
@@ -541,6 +637,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
         FieldController::updateOptions($pid, $fid, $flid, 'FieldSize', $request->filesize);
         FieldController::updateOptions($pid, $fid, $flid, 'MaxFiles', $request->maxfiles);
         FieldController::updateOptions($pid, $fid, $flid, 'FileTypes', $filetype);
@@ -549,6 +646,8 @@ class OptionController extends Controller {
             flash()->success(trans('controller_option.updated'));
 
             return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }else{
+            return '';
         }
     }
 }

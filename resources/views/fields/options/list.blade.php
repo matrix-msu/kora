@@ -10,6 +10,11 @@
     </div>
 
     <div class="form-group">
+        {!! Form::label('searchable',trans('fields_options_list.search').': ') !!}
+        {!! Form::select('searchable',['false', 'true'], $field->searchable, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
         {!! Form::label('default',trans('fields_options_list.def').': ') !!}
         {!! Form::select('default',\App\ListField::getList($field,true), $field->default,['class' => 'form-control', 'id' => 'default']) !!}
     </div>

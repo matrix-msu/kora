@@ -5,6 +5,7 @@ return [
 	//fields_options_date english translations
 
 	"req" => "Required",
+    "search" => "Searchable",
 	"updatereq" => "Update Required",
 	"month" => "Month",
 	"jan" => "January",

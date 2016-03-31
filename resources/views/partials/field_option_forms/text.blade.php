@@ -12,5 +12,5 @@
 
 <div class="form-group">
     {!! Form::label('multi',trans('fields_options_text.multi').': ') !!}
-    {!! Form::select('multi', ['no'=>trans('fields_options_text.no'),'yes'=>trans('fields_options_text.yes')], 'no', ['class' => 'form-control']) !!}
+    {!! Form::select('multi', [0=>trans('fields_options_text.no'),1=>trans('fields_options_text.yes')], 'no', ['class' => 'form-control']) !!}
 </div>

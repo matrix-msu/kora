@@ -5,6 +5,7 @@ return [
 	//fields_options_combolist english translations
 
 	"req" => "Required",
+    "search" => "Searchable",
 	"updatereq" => "Update Required",
 	"remove" => "Remove",
 	"adddef" => "Add to Default",

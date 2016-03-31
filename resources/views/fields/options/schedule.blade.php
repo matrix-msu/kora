@@ -9,6 +9,11 @@
         {!! Form::select('required',['false', 'true'], $field->required, ['class' => 'form-control']) !!}
     </div>
 
+    <div class="form-group">
+        {!! Form::label('searchable',trans('fields_options_schedule.search').': ') !!}
+        {!! Form::select('searchable',['false', 'true'], $field->searchable, ['class' => 'form-control']) !!}
+    </div>
+
     <div class="list_option_form">
         <div>
             {!! Form::label('default',trans('fields_options_schedule.def').': ') !!}

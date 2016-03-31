@@ -13,6 +13,7 @@ use Geocoder\Provider\NominatimProvider;
 use Geocoder\Provider\YandexProvider;
 use Geocoder\Tests\HttpAdapter\CurlHttpAdapterTest;
 use Illuminate\Http\Request;
+use Laracasts\Flash\Flash;
 use Toin0u\Geocoder\Facade\Geocoder;
 
 class FieldController extends Controller {
@@ -77,15 +78,21 @@ class FieldController extends Controller {
         $form->save();
 
         //if advanced options was selected we should call the correct one
+        $advError = false;
         if($request->advance) {
             $optC = new OptionController();
-            $optC->updateAdvanced($field,$request);
+            $result = $optC->updateAdvanced($field,$request);
+            if($result != ''){
+                $advError = true;
+                flash()->error('There was an error with the advanced options. '.$result.' Please visit the options page of the field.');
+            }
         }
 
         //A field has been changed, so current record rollbacks become invalid.
         RevisionController::wipeRollbacks($form->fid);
 
-        flash()->overlay(trans('controller_field.fieldcreated'), trans('controller_field.goodjob'));
+        if(!$advError) //if we error on the adv page we should hide the success message so error can display
+            flash()->overlay(trans('controller_field.fieldcreated'), trans('controller_field.goodjob'));
 
         return redirect('projects/'.$field->pid.'/forms/'.$field->fid);
 	}
@@ -217,6 +224,25 @@ class FieldController extends Controller {
         $field = FieldController::getField($flid);
 
         $field->required = $req;
+        $field->save();
+
+        //A field has been changed, so current record rollbacks become invalid.
+        RevisionController::wipeRollbacks($fid);
+    }
+
+    public static function updateSearchable($pid, $fid, $flid, $search)
+    {
+        if(!FieldController::validProjFormField($pid, $fid, $flid)){
+            return redirect('projects');
+        }
+
+        if(!FieldController::checkPermissions($fid, 'edit')) {
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
+        }
+
+        $field = FieldController::getField($flid);
+
+        $field->searchable = $search;
         $field->save();
 
         //A field has been changed, so current record rollbacks become invalid.

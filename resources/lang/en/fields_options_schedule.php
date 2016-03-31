@@ -5,6 +5,7 @@ return [
 	//fields_options_schedule english translations
 
 	"req" => "Required",
+    "search" => "Searchable",
 	"updatereq" => "Update Required",
 	"def" => "Default",
 	"delete" => "Delete",

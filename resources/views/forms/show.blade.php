@@ -6,6 +6,8 @@
 @stop
 
 @section('content')
+    @include('errors.list')
+
     <span><h1>{{ $form->name }}</h1></span>
 
     <div><b>{{trans('forms_show.slug')}}:</b> {{ $form->slug }}</div>
@@ -78,7 +80,7 @@
         });
 
         function deleteField(fieldName, flid) {
-            var encode = $('<div/>').html("{{ trans('forms_show.areyousure') }}").text();
+            var encode = $('<div/>').html("{{ trans('forms_show.areyousure') }} ").text();
             var response = confirm(encode + fieldName + "?");
             if (response) {
                 $.ajax({
