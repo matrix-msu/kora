@@ -10,7 +10,7 @@ class VideoField extends BaseField {
         'video'
     ];
 
-    public function keywordSearch(array &$args, $partial)
+    public function keywordSearch(array $args, $partial)
     {
         // TODO: Implement keyword_search() method.
     }

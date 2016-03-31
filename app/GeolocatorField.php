@@ -10,7 +10,7 @@ class GeolocatorField extends BaseField {
         'locations'
     ];
 
-    public function keywordSearch(array &$args, $partial)
+    public function keywordSearch(array $args, $partial)
     {
         // TODO: Implement keyword_search() method.
     }

@@ -19,11 +19,53 @@ abstract class BaseField extends Model
     /**
      * Pure virtual keyword search method for a general field.
      *
-     * @param array $args, Array of arguments for the search to use passed by reference.
+     * @param array $args, Array of arguments for the search to use.
      * @param bool $partial, True if partial values should be considered in the search.
      * @return bool, True if the field has satisfied the search parameters.
      */
-    abstract public function keywordSearch(array &$args, $partial);
+    abstract public function keywordSearch(array $args, $partial);
+
+    /**
+     * The routine that drives the keyword search for most fields.
+     *
+     * @param array $args, Array of arguments for the search routine to use.
+     * @param bool $partial, True if partial values should be considered in the search.
+     * @param string $haystack, The string to be searched through.
+     * @return bool, True if the search parameters are satisfied.
+     */
+    static public function keywordRoutine(array $args, $partial, $haystack) {
+        $text = self::convertCloseChars($haystack);
+
+        if ($partial) {
+            foreach ($args as $arg) {
+                $arg = strip_tags($arg);
+                $arg = self::convertCloseChars($arg);
+                $arg = trim($arg);
+
+                if (strlen($arg) && stripos($text, $arg) !== false) {
+                    return true; // Text contains a partial match.
+                }
+
+            }
+        }
+        else {
+            foreach ($args as $arg) {
+                $arg = strip_tags($arg);
+                $arg = self::convertCloseChars($arg);
+                $arg = trim($arg);
+
+                $pattern = "/(\\W|^)" . $arg . "(\\W|$)/i";
+
+                if (strlen($arg) && ($result = preg_match($pattern, $text)) !== false) { // Continue if preg_match did not error.
+                    if ($result) {
+                        return true; // Text contains a complete match.
+                    }
+                }
+            }
+        }
+
+        return false; // Text contains no matches.
+    }
 
     /**
      * Special characters the user might enter.

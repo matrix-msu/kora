@@ -3,6 +3,10 @@
 use App\TextField as TextField;
 use App\BaseField as BaseField;
 
+/**
+ * Class TextFieldTest
+ * @group field
+ */
 class TextFieldTest extends TestCase {
 
     /**
@@ -15,7 +19,7 @@ sem, rutrum vestibulum pellentesque sit amet, tempor id tellus. Sed dictum porta
 sem et, consequat sapien. Cras ut gravida odio, vel fringilla leo. Integer interdum odio nibh, ut pharetra lectus accumsan
 id. Morbi et quam ex. Proin posuere tellus sit amet ligula mattis, in vestibulum libero volutpat. Integer nec sapien lectus.
 Nam sed velit metus. Praesent eu lacus id lorem commodo accumsan. Vestibulum pretium, augue ut ultrices accumsan, dui mi
-tincidunt purus, vel condimentum libero nisl in justo.
+tincidunt purus, vel condimentum libero nisl in justo. Hello!
 TEXT;
 
     /**
@@ -31,10 +35,12 @@ TEXT;
     /**
      * Test the close character converter.
      * Just one test will suffice for this, as its the same method used for each class derived from App\BaseField.
+     * @group search
      */
     public function test_convertCloseChars() {
         $converted = BaseField::convertCloseChars(self::COMPLEX_TEXT);
 
+        // Hand converted code by observing characters and assigning their "close enough" alternatives.
         $handConverted = <<<TEXT
 Mustby nevrzkote ne vramy mrimi a bes nitli? Frer noni zkede z tini nitrudr sepodi o bafe pekme? I nine vuni uninechu
 vlor, tin stabli hroushrni cesle grucoj tlis bev puni tlysi pre sle. Midi a ti, vevlyst a jousky hlyniv sech clyb
@@ -48,14 +54,13 @@ TEXT;
         for ($i = 0; $i < count($convArr); $i++) {
             $this->assertEquals($convArr[$i], $handArr[$i]);
         }
-
     }
 
 	/**
-	 * Test the search method for a text field.
+	 * Test the keyword search method for a text field.
+     * @group search
 	 */
-	public function test_keywordSearch()
-	{
+	public function test_keywordSearch() {
         $field = new TextField(['rid' => '1', 'flid' => '1', 'text' => self::SIMPLE_TEXT]);
 
         // Most basic case.
@@ -69,6 +74,11 @@ TEXT;
 
         // Test multiple basic cases, some matching some not.
         $args = ['Potato', 'Apple', 'ipsum'];
+        $this->assertTrue($field->keywordSearch($args, false));
+
+        // Test case insensitivity.
+        $args = ['Hello', 'hello', 'Ello', 'ello'];
+        $this->assertTrue($field->keywordSearch($args, true));
         $this->assertTrue($field->keywordSearch($args, false));
 
         //
@@ -99,9 +109,13 @@ TEXT;
         $this->assertFalse($field->keywordSearch($args, false));
         $this->assertFalse($field->keywordSearch($args, true));
 
+        $args = ["", "", ""];
+        $this->assertFalse($field->keywordSearch($args, false));
+        $this->assertFalse($field->keywordSearch($args, true));
+
         $field->text = "";
 
-        $args = ['these', 'are', 'some', 'arguements', 'mřímí'];
+        $args = ['these', 'are', 'some', 'arguments', 'mřímí'];
         $this->assertFalse($field->keywordSearch($args, false));
         $this->assertFalse($field->keywordSearch($args, true));
     }

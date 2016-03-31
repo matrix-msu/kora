@@ -11,7 +11,7 @@ class ListField extends BaseField {
         'option'
     ];
 
-    public function keywordSearch(array &$args, $partial)
+    public function keywordSearch(array $args, $partial)
     {
         // TODO: Implement keyword_search() method.
     }

@@ -15,39 +15,12 @@ class TextField extends BaseField {
      *  True: find occurrences of any particular argument, including partial results.
      *  False: find occurrences, matching the exact argument.
      *
-     * @param array $args, Array of arguments for the search to use passed by reference.
+     * @param array $args, Array of arguments for the search to use.
      * @param bool $partial, True if partial values should be considered in the search.
      * @return bool, True if the search parameters are satisfied.
      */
-    public function keywordSearch(array &$args, $partial)
+    public function keywordSearch(array $args, $partial)
     {
-        $text = $this->text;
-        $text = self::convertCloseChars($text);
-
-        if ($partial) {
-            foreach ($args as $arg) {
-                $arg = strip_tags($arg);
-                $arg = self::convertCloseChars($arg);
-
-                if (strpos($text, $arg) !== false)
-                    return true; // Text contains a partial match.
-            }
-        }
-        else {
-            foreach ($args as $arg) {
-                $arg = strip_tags($arg);
-                $arg = self::convertCloseChars($arg);
-
-                $pattern = "/(\\W|^)" . $arg . "(\\W|$)/i";
-
-                if (($result = preg_match($pattern, $text)) !== false) { // Continue if preg_match did not error.
-                    if ($result) {
-                        return true; // Text contains an complete match.
-                    }
-                }
-            }
-        }
-
-        return false; // Text contains no matches.
+        return self::keywordRoutine($args, $partial, $this->text);
     }
 }

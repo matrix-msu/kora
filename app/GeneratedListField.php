@@ -11,7 +11,7 @@ class GeneratedListField extends BaseField {
         'options'
     ];
 
-    public function keywordSearch(array &$args, $partial)
+    public function keywordSearch(array $args, $partial)
     {
         // TODO: Implement keyword_search() method.
     }
