@@ -36,7 +36,11 @@ class ListFieldTest extends TestCase
 
         $field->option = "";
 
-        $args = [" ", null, [], 0]; //None of these should work.
+        $args = [" ", null, 0]; //None of these should work.
+        $this->assertFalse($field->keywordSearch($args, true));
+        $this->assertFalse($field->keywordSearch($args, false));
+
+        $args = [""]; // This shouldn't work either. Empty searches shouldn't be meaningful.
         $this->assertFalse($field->keywordSearch($args, true));
         $this->assertFalse($field->keywordSearch($args, false));
 

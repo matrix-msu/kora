@@ -626,7 +626,7 @@ class RecordController extends Controller {
                     //$tf = TextField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
                     $tf->delete();
                 }
-                elseif(is_null($tf) && !is_null($value)){
+                elseif(is_null($tf) && !empty($value)){
                     $tf = new TextField();
                     $tf->flid = $field->flid;
                     $tf->rid = $record->rid;
@@ -681,11 +681,13 @@ class RecordController extends Controller {
                     $lf->delete();
                 }
                 else {
-                    $lf = new ListField();
-                    $lf->flid = $field->flid;
-                    $lf->rid = $record->rid;
-                    $lf->option = $value;
-                    $lf->save();
+                    if (!empty($value)) {
+                        $lf = new ListField();
+                        $lf->flid = $field->flid;
+                        $lf->rid = $record->rid;
+                        $lf->option = $value;
+                        $lf->save();
+                    }
                 }
             } else if($field->type=='Multi-Select List'){
                 //we need to check if the field exist first

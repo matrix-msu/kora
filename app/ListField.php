@@ -12,9 +12,11 @@ class ListField extends BaseField {
     ];
 
     /**
-     * @param array $args
-     * @param bool $partial
-     * @return bool
+     * Keyword search on a list field.
+     *
+     * @param array $args, arguments for the search routine.
+     * @param bool $partial, true if the search should return true for partial matches.
+     * @return bool, true if parameters satisfied.
      */
     public function keywordSearch(array $args, $partial)
     {
