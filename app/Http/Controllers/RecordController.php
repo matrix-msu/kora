@@ -643,11 +643,13 @@ class RecordController extends Controller {
                     $rtf->delete();
                 }
                 else {
-                    $rtf = new RichTextField();
-                    $rtf->flid = $field->flid;
-                    $rtf->rid = $record->rid;
-                    $rtf->rawtext = $value;
-                    $rtf->save();
+                    if(!empty($value)) {
+                        $rtf = new RichTextField();
+                        $rtf->flid = $field->flid;
+                        $rtf->rid = $record->rid;
+                        $rtf->rawtext = $value;
+                        $rtf->save();
+                    }
                 }
             } else if($field->type=='Number'){
                 //we need to check if the field exist first
@@ -660,11 +662,13 @@ class RecordController extends Controller {
                     $nf->delete();
                 }
                 else {
-                    $nf = new NumberField();
-                    $nf->flid = $field->flid;
-                    $nf->rid = $record->rid;
-                    $nf->number = $value;
-                    $nf->save();
+                    if (!empty($value)) {
+                        $nf = new NumberField();
+                        $nf->flid = $field->flid;
+                        $nf->rid = $record->rid;
+                        $nf->number = $value;
+                        $nf->save();
+                    }
                 }
             } else if($field->type=='List'){
                 //we need to check if the field exist first
