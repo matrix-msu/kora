@@ -11,9 +11,14 @@ class ListField extends BaseField {
         'option'
     ];
 
+    /**
+     * @param array $args
+     * @param bool $partial
+     * @return bool
+     */
     public function keywordSearch(array $args, $partial)
     {
-        // TODO: Implement keyword_search() method.
+        return self::keywordRoutine($args, $partial, $this->option);
     }
 
     public static function getList($field, $blankOpt=false)

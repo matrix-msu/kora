@@ -11,7 +11,7 @@ class RichTextField extends BaseField {
     ];
 
     /**
-     * Keyword search for a rich text field. Simply uses the text field's search after stripping HTML tags.
+     * Keyword search for a rich text field.
      *
      * @param array $args, Array of arguments for the search to use.
      * @param bool $partial, True if partial values should be considered in the search.
