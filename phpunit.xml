@@ -18,6 +18,6 @@
         <env name="APP_ENV" value="testing"/>
         <env name="CACHE_DRIVER" value="array"/>
         <env name="SESSION_DRIVER" value="array"/>
-        <env name="DB_DEFAULT_CONNECTION" value="testing"/>
+        <env name="DB_DEFAULT" value="testing"/>
     </php>
 </phpunit>

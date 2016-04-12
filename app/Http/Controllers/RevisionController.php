@@ -481,7 +481,7 @@ class RevisionController extends Controller {
         $form = Form::where('fid', '=', $record->fid)->first();
 
 
-        /* Check each field and get the data associated with it.
+        /** Check each field and get the data associated with it.
          *
          * Complexities occur when forming the possibly (probably) large associative array describing a record's fields.
          * For each field, the general case is as follows: the general field type is checked and name is acquired,
