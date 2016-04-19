@@ -127,6 +127,7 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
 		$field->required = 0;
 		$field->searchable = 0;
 		$field->save();
+
 		return $field;
 	}
 

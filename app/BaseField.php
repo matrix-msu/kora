@@ -71,6 +71,7 @@ abstract class BaseField extends Model
 
     /**
      * Special characters the user might enter.
+     *
      * @var array
      */
     protected static $SPECIALS = ['À', 'Á', 'Â', 'Ã', 'Ä', 'Å', 'Æ', 'Ç', 'È', 'É', 'Ê', 'Ë', 'Ì', 'Í', 'Î', 'Ï', 'Ð',
