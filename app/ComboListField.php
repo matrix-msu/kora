@@ -16,7 +16,6 @@ class ComboListField extends BaseField {
      * Keyword search for a combo list field.
      * This search simply uses the already existing search functions of text, number, list, multi-select list, and generated list.
      *
-     *
      * @param array $args, array of arguments for the search to use.
      * @param bool $partial, true if partial values should be considered.
      * @return bool, true if the search found something, false otherwise.
@@ -53,7 +52,7 @@ class ComboListField extends BaseField {
     private static function makeTempField($type, $value) {
         switch($type) {
             case "Text":
-                $field = new TextField(); // We can just concatenate everything into a string for text.
+                $field = new TextField();
                 $field->text = $value;
                 break;
 

@@ -21,8 +21,7 @@ class GeneratedListField extends BaseField {
      * @param bool $partial, True if partial values should be considered in the search.
      * @return bool, True if the search parameters are satisfied.
      */
-    public function keywordSearch(array $args, $partial)
-    {
+    public function keywordSearch(array $args, $partial) {
         $options = explode('[!]', $this->options);
 
         foreach($options as $option) {

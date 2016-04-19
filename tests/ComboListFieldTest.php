@@ -27,10 +27,21 @@ TEXT;
      * @type string
      */
     const LIST_MSL = <<<TEXT
-
+[!f1!]Chicken[!f1!][!f2!]Elm[!]Birch[!]Ash[!f2!][!val!][!f1!]Dolphin[!f1!][!f2!]Maple[!]Cedar[!f2!][!val!][!f1!]Horse[!f1!][!f2!]Oak[!]Cedar[!]Ash[!f2!]
 TEXT;
     const LIST_MSL_OPTIONS = <<<TEXT
+[!Field1!][Type]List[Type][Name]CmbList[Name][Options][!Options!]Cow[!]Chicken[!]Horse[!]Dolphin[!Options!][Options][!Field1!][!Field2!][Type]Multi-Select List[Type][Name]CmbMSL[Name][Options][!Options!]Elm[!]Oak[!]Birch[!]Maple[!]Cedar[!]Ash[!Options!][Options][!Field2!]
+TEXT;
 
+    /**
+     * The combo list field options for a combo field with a generated list and multi-select list field.
+     * @type string
+     */
+    const MSL_GEN = <<<TEXT
+[!f1!]Default(MSL)[!f1!][!f2!]Default(Gen)[!f2!][!val!][!f1!]Fletching[!]Attack[!f1!][!f2!]Merlin's Crystal[!]Chef's Assistant[!f2!][!val!][!f1!]Fletching[!]Fishing[!]Hunter[!f1!][!f2!]Regicide[!f2!]
+TEXT;
+    const MSL_GEN_OPTIONS = <<<TEXT
+[!Field1!][Type]Multi-Select List[Type][Name]Combo Multi-Select List[Name][Options][!Options!]Fletching[!]Attack[!]Fishing[!]Hunter[!]Default(MSL)[!Options!][Options][!Field1!][!Field2!][Type]Generated List[Type][Name]Combo Generated List[Name][Options][!Options!]Merlin's Crystal[!]Recipe for Distaster[!]Zogre Flesh Eaters[!]Legend's Quest[!]Default(Gen)[!Options!][!Regex!][!Regex!][Options][!Field2!]
 TEXT;
 
     /**
@@ -55,7 +66,9 @@ TEXT;
         // Namely, text, number, list, multi-select list, and generated list.
         //
 
+        //
         // Text, Number combination list.
+        //
         $field->options = self::TEXT_NUM_OPTIONS;
         $field->save();
 
@@ -71,11 +84,66 @@ TEXT;
         $this->assertTrue($cmb_field->keywordSearch($args, true));
         $this->assertTrue($cmb_field->keywordSearch($args, false));
 
+        $args = ['9'];
+        $this->assertTrue($cmb_field->keywordSearch($args, true));
+        $this->assertTrue($cmb_field->keywordSearch($args, false));
+
+        $args = [2, null, -1, 0, ""];
+        $this->assertFalse($cmb_field->keywordSearch($args, true));
+        $this->assertFalse($cmb_field->keywordSearch($args, false));
+
+        $args = ["fring", "lao", "biben"]; // Partials
+        $this->assertTrue($cmb_field->keywordSearch($args, true));
+        $this->assertFalse($cmb_field->keywordSearch($args, false));
+
+        //
         // List, Multi-select List
+        //
         $field->options = self::LIST_MSL_OPTIONS;
+        $field->save();
 
         $cmb_field->options = self::LIST_MSL;
+        $cmb_field->save();
 
-        // Multi-select List (why not), Generated List
+        $args = ['ChIcKeN'];
+        $this->assertTrue($cmb_field->keywordSearch($args, true));
+        $this->assertTrue($cmb_field->keywordSearch($args, false));
+
+        $args = ['maple'];
+        $this->assertTrue($cmb_field->keywordSearch($args, true));
+        $this->assertTrue($cmb_field->keywordSearch($args, false));
+
+        $args = ['elm'];
+        $this->assertTrue($cmb_field->keywordSearch($args, true));
+        $this->assertTrue($cmb_field->keywordSearch($args, false));
+
+        $args = ['cow']; // Option that can be selected in the list, but is not in any records.
+        $this->assertFalse($cmb_field->keywordSearch($args, true));
+        $this->assertFalse($cmb_field->keywordSearch($args, false));
+
+        $args = ['icken', 'phin', 'aple', 'edar']; // Partials
+        $this->assertTrue($cmb_field->keywordSearch($args, true));
+        $this->assertFalse($cmb_field->keywordSearch($args, false));
+
+        $args = ['[!]', null, 0, -1, 32418234.098];
+        $this->assertFalse($cmb_field->keywordSearch($args, true));
+        $this->assertFalse($cmb_field->keywordSearch($args, false));
+
+        //
+        // Multi-select List, Generated List
+        //
+        $field->options = self::MSL_GEN_OPTIONS;
+        $field->save();
+
+        $cmb_field->options = self::MSL_GEN;
+        $cmb_field->save();
+
+        $args = ['default(msl)'];
+        $this->assertTrue($cmb_field->keywordSearch($args, true));
+        $this->assertTrue($cmb_field->keywordSearch($args, false));
+
+        $args = ['default(gen)'];
+        $this->assertTrue($cmb_field->keywordSearch($args, true));
+        $this->assertTrue($cmb_field->keywordSearch($args, false));
     }
 }

@@ -26,7 +26,7 @@ TEXT;
      * Some Czech dummy text to test special characters.
      */
     const COMPLEX_TEXT = <<<TEXT
-Muštby něvrzkotě ně vramy mřímí a běš nitlí? Fréř ňoni zkedě z tini nitrudr sepodi o báfé pěkmě? I nině vuni úniněchů
+Muštby něvrzkotě ně vramy (mřímí) a běš nitlí? Fréř&ňoni $3500 zkedě||z tini nitrudr sepodi o báfé pěkmě? I nině vuni úniněchů
 vlor, tiň štabli hroušhrni cešle grůcoj tlis bev puni tlýši pré šle. Midi a ti, vevlyšt a jouský hlyniv šech člyb
 ptyškožra krocavě s nitý. Pipefrý dipyb mufry? Pivředizká niťou šoč pte diniré osař. Zloužlo vrozatich ryšu nišlouj šle
 v ťaskzá očla. V niškou k di cruzrordli lanni, ktuviz pěv z pepy tlůtěš o ktub pěťlkedi.
@@ -42,7 +42,7 @@ TEXT;
 
         // Hand converted code by observing characters and assigning their "close enough" alternatives.
         $handConverted = <<<TEXT
-Mustby nevrzkote ne vramy mrimi a bes nitli? Frer noni zkede z tini nitrudr sepodi o bafe pekme? I nine vuni uninechu
+Mustby nevrzkote ne vramy (mrimi) a bes nitli? Frer&noni $3500 zkede||z tini nitrudr sepodi o bafe pekme? I nine vuni uninechu
 vlor, tin stabli hroushrni cesle grucoj tlis bev puni tlysi pre sle. Midi a ti, vevlyst a jousky hlyniv sech clyb
 ptyskozra krocave s nity. Pipefry dipyb mufry? Pivredizka nitou soc pte dinire osar. Zlouzlo vrozatich rysu nislouj sle
 v taskza ocla. V niskou k di cruzrordli lanni, ktuviz pev z pepy tlutes o ktub petlkedi.
@@ -118,6 +118,26 @@ TEXT;
         $args = ['these', 'are', 'some', 'arguments', 'mřímí'];
         $this->assertFalse($field->keywordSearch($args, false));
         $this->assertFalse($field->keywordSearch($args, true));
+
+        //
+        // A bunch of searches to try to break the regular expression escaping.
+        //
+        $field->text = self::COMPLEX_TEXT;
+
+        $args = ['(mřímí)'];
+        $this->assertTrue($field->keywordSearch($args, false)); // Only need to try the non-partial because it uses regex.
+
+        $args = ['Fréř&ňoni'];
+        $this->assertTrue($field->keywordSearch($args, false));
+
+        $args = ['$3500'];
+        $this->assertTrue($field->keywordSearch($args, false));
+
+        $args = ['zkedě||z'];
+        $this->assertTrue($field->keywordSearch($args, false));
+
+        $args = ['[\^$.|?*+()']; // The regex specials
+        $this->assertFalse($field->keywordSearch($args, false));
     }
 
 }

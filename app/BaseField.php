@@ -53,10 +53,12 @@ abstract class BaseField extends Model
                 $arg = strip_tags($arg);
                 $arg = self::convertCloseChars($arg);
                 $arg = trim($arg);
+                $arg = preg_quote($arg, "\\"); // Escape regular expression characters.
 
                 $pattern = "/(\\W|^)" . $arg . "(\\W|$)/i";
 
-                if (strlen($arg) && ($result = preg_match($pattern, $text)) !== false) { // Continue if preg_match did not error.
+                $result = preg_match($pattern, $text);
+                if (strlen($arg) && $result !== false) { // Continue if preg_match did not error.
                     if ($result) {
                         return true; // Text contains a complete match.
                     }
