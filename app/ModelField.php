@@ -2,16 +2,11 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class ModelField extends BaseField {
+class ModelField extends FileTypeField  {
 
     protected $fillable = [
         'rid',
         'flid',
         'model'
     ];
-
-    public function keywordSearch(array $args, $partial)
-    {
-        // TODO: Implement keyword_search() method.
-    }
 }

@@ -8,6 +8,10 @@
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class BaseField
+ * @package App
+ */
 abstract class BaseField extends Model
 {
     protected $primaryKey = "id";
@@ -38,6 +42,13 @@ abstract class BaseField extends Model
 
         if ($partial) {
             foreach ($args as $arg) {
+                //
+                // TODO: Search Arguement Processing
+                //       Consider moving this arguement processing up to the project or form level when we
+                //       implement search in a more general fashion. I think that will speed things up a little.
+                //       (Just make sure the preg_quote only happens when partial is false.)
+                //       If this change is made, check special field for their processing (see: DateField, ...)
+                //
                 $arg = strip_tags($arg);
                 $arg = self::convertCloseChars($arg);
                 $arg = trim($arg);

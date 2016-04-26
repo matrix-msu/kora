@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class PlaylistField extends BaseField {
+class PlaylistField extends FileTypeField  {
 
     protected $fillable = [
         'rid',
@@ -10,8 +10,4 @@ class PlaylistField extends BaseField {
         'audio'
     ];
 
-    public function keywordSearch(array $args, $partial)
-    {
-        // TODO: Implement keyword_search() method.
-    }
 }

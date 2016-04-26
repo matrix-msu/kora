@@ -101,17 +101,54 @@ TEXT;
         $field->options = self::DATE_CIRCA;
         $field->save();
 
+        $date_field->circa = 0;
+        $date_field->save();
 
+        $args = ['circa', 'CIRCA', 'CiRcA']; // Circa shouldn't work, date field does not have circa set to true.
+        $this->assertFalse($date_field->keywordSearch($args, false));
+
+        $date_field->circa = 1;
+        $date_field->save();
+
+        $this->assertTrue($date_field->keywordSearch($args, false)); // Circa set to true, this should work now.
+
+        $args = ['bce', 'ce', 'BcE', 'Ce']; // Era is off, so these should not work.
+        $this->assertFalse($date_field->keywordSearch($args, false));
 
         //
         // Test with era options on at the field level.
         //
+        $field->options = self::DATE_ERA;
+        $field->save();
 
+        $date_field->era = 'BCE';
+        $date_field->save();
 
+        $args = ['bce', 'BcE', 'bcE'];
+        $this->assertTrue($date_field->keywordSearch($args, false));
+
+        $args = ['ce', 'cE', 'Ce'];
+        $this->assertFalse($date_field->keywordSearch($args, false));
+
+        $date_field->era = 'CE';
+        $date_field->save();
+
+        $args = ['bce', 'BcE', 'bcE'];
+        $this->assertFalse($date_field->keywordSearch($args, false));
+
+        $args = ['ce', 'cE', 'Ce'];
+        $this->assertTrue($date_field->keywordSearch($args, false));
 
         //
         // Test with era and circa option turned on.
         //
+        $field->options = self::DATE_ERA_CIRCA;
+        $field->save();
+
+        $date_field->era = 'BCE';
+        $date_field->circa = 1;
+
+
     }
 
     /**

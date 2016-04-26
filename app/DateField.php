@@ -58,6 +58,7 @@ class DateField extends BaseField {
      * The months of the year in different languages.
      * These are listed without special characters because the input will be converted to close characters.
      * Formatted with regular expression tags to find only the exact month so "march" does not match "marches" for example.
+     *
      * @var array
      */
     private static $months = [

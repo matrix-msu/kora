@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class GalleryField extends BaseField {
+class GalleryField extends FileTypeField  {
 
     protected $fillable = [
         'rid',
@@ -10,8 +10,4 @@ class GalleryField extends BaseField {
         'images'
     ];
 
-    public function keywordSearch(array $args, $partial)
-    {
-        // TODO: Implement keyword_search() method.
-    }
 }

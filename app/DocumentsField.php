@@ -2,18 +2,13 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class DocumentsField extends BaseField {
+class DocumentsField extends FileTypeField {
 
     protected $fillable = [
         'rid',
         'flid',
         'documents'
     ];
-
-    public function keywordSearch(array $args, $partial)
-    {
-        // TODO: Implement keyword_search() method.
-    }
 
     public static function getMimeTypes(){
         $types=array();

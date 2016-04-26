@@ -2,16 +2,11 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class VideoField extends BaseField {
+class VideoField extends FileTypeField {
 
     protected $fillable = [
         'rid',
         'flid',
         'video'
     ];
-
-    public function keywordSearch(array $args, $partial)
-    {
-        // TODO: Implement keyword_search() method.
-    }
 }
