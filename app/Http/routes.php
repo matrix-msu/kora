@@ -189,6 +189,9 @@ Route::get('/backup/project/{pid}','BackupController@projectIndex');
 Route::post('/backup/project/{pid}','BackupController@backupProject');
 Route::post('/backup/project','BackupController@createProject');
 
+//form search routes
+Route::get('/search/project/{pid}/forms/{fid}/{query}{method}', 'FormSearchController@search');
+
 Route::controllers([
 	'auth' => 'Auth\AuthController',
 	'password' => 'Auth\PasswordController',

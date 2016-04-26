@@ -19,6 +19,10 @@
         @endif
     </div>
 
+    <hr/>
+
+    @include('search.bar', ['pid' => $form->pid, 'fid' => $form->fid])
+
     @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
         <hr/>
 

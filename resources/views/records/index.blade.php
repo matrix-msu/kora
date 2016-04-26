@@ -19,6 +19,10 @@
         <a href="{{ action('RecordController@showMassAssignmentView',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_index.mass')}}]</a>
     @endif
 
+    <hr/>
+
+    @include('search.bar', ['pid' => $form->pid, 'fid' => $form->fid])
+
     @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
         <hr/>
 

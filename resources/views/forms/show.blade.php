@@ -6,8 +6,6 @@
 @stop
 
 @section('content')
-    @include('errors.list')
-
     <span><h1>{{ $form->name }}</h1></span>
 
     <div><b>{{trans('forms_show.slug')}}:</b> {{ $form->slug }}</div>
@@ -23,6 +21,11 @@
             <a href="{{ action('RecordController@showMassAssignmentView',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('forms_show.massassign')}}]</a>
         @endif
     </div>
+
+    <hr/>
+
+    @include('search.bar', ['pid' => $form->pid, 'fid' => $form->fid])
+
 
     @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
         <hr/>
@@ -80,7 +83,7 @@
         });
 
         function deleteField(fieldName, flid) {
-            var encode = $('<div/>').html("{{ trans('forms_show.areyousure') }} ").text();
+            var encode = $('<div/>').html("{{ trans('forms_show.areyousure') }}").text();
             var response = confirm(encode + fieldName + "?");
             if (response) {
                 $.ajax({
