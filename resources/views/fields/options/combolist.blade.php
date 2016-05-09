@@ -143,6 +143,8 @@
     </div>
     {!! Form::close() !!}
 
+    @include('partials.combofields.combo_option_preset')
+
     @include('errors.list')
 @stop
 

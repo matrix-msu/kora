@@ -135,7 +135,9 @@ class FieldController extends Controller {
         }else if($field->type=="Generated List") {
             return view('fields.options.genlist', compact('field', 'form', 'proj','presets'));
         }else if($field->type=="Combo List") {
-            return view('fields.options.combolist', compact('field', 'form', 'proj'));
+            $presetsOne = $presets->get("one");
+            $presetsTwo = $presets->get("two");
+            return view('fields.options.combolist', compact('field', 'form', 'proj','presetsOne','presetsTwo'));
         }else if($field->type=="Date") {
             return view('fields.options.date', compact('field', 'form', 'proj'));
         }else if($field->type=="Schedule") {
