@@ -1691,7 +1691,7 @@ class RecordController extends Controller {
                         continue;
                     }
                 } else{
-                    $clf = new ComboListField();;
+                    $clf = new ComboListField();
                     $revision = RevisionController::storeRevision($record->rid,'edit');
                     $clf->flid = $flid;
                     $clf->rid = $record->rid;

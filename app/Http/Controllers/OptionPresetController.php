@@ -15,6 +15,7 @@ use App\RecordPreset;
 use App\RichTextField;
 use App\ScheduleField;
 use App\TextField;
+Use App\ComboListField;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use App\OptionPreset;
@@ -27,6 +28,12 @@ use App\Http\Controllers\ProjectController;
  */
 class OptionPresetController extends Controller
 {
+
+    /*
+     * For new field types, you must update getSupportedPresets() and supportsPresets()
+     *
+     *
+     */
 
     /**
      * User must be logged in to access views in this controller.
@@ -229,20 +236,55 @@ class OptionPresetController extends Controller
         return $all_presets;
     }
 
-    public static function getPresetsSupported($pid,$field){
-
+    public static function supportsPresets($type){
         $preset_field_compatibility = collect(['Text'=>'Text','List'=>'List','Multi-Select List'=>'List','Generated List'=>'List','Geolocator'=>'Geolocator','Schedule'=>'Schedule']);
+        return $preset_field_compatibility->has($type);
+    }
 
-        $all_presets = OptionPresetController::getPresetsIndex($pid);
-        foreach($all_presets as $subset){
-            foreach($subset as $key => $preset){
-                if($preset->type != $preset_field_compatibility->get($field->type)){
-                    $subset->forget($key);
+    public static function getPresetsSupported($pid,$field){
+        //You need to update this if a new field with presets gets added!
+        //Note that combolist is different
+        $comboPresets = new Collection();
+        $preset_field_compatibility = collect(['Text'=>'Text','List'=>'List','Multi-Select List'=>'List','Generated List'=>'List','Geolocator'=>'Geolocator','Schedule'=>'Schedule']);
+        if($field->type == "Combo List") {
+            $oneType = ComboListField::getComboFieldType($field,'one');
+            $twoType = ComboListField::getComboFieldType($field,'two');
+            //ComboList field one
+            $onePresets = OptionPresetController::getPresetsIndex($pid);
+            foreach ($onePresets as $subset) {
+                foreach ($subset as $key => $preset) {
+                    if ($preset->type != $preset_field_compatibility->get($oneType)) {
+                        $subset->forget($key);
+                    }
                 }
             }
+            $comboPresets->put("one",$onePresets);
+            //ComboList field two
+            $twoPresets = OptionPresetController::getPresetsIndex($pid);
+            foreach ($twoPresets as $subset) {
+                foreach ($subset as $key => $preset) {
+                    if ($preset->type != $preset_field_compatibility->get($twoType)) {
+                        $subset->forget($key);
+                    }
+                }
+            }
+            $comboPresets->put("two",$twoPresets);
+
+            return $comboPresets;
+        }
+        else {
+            $all_presets = OptionPresetController::getPresetsIndex($pid);
+            foreach ($all_presets as $subset) {
+                foreach ($subset as $key => $preset) {
+                    if ($preset->type != $preset_field_compatibility->get($field->type)) {
+                        $subset->forget($key);
+                    }
+                }
+            }
+            return $all_presets;
         }
 
-        return $all_presets;
+
     }
 
     public function applyPreset(Request $request,$pid,$fid,$flid){
@@ -261,21 +303,93 @@ class OptionPresetController extends Controller
                     return response()->json(["status"=>false,"message"=>trans('controller_optionpreset.editpermission')],500);
                 }
                 else{
-                    if($preset->type=="Text") {
-                        FieldController::setFieldOptions($field, "Regex", $preset->preset);
+                    if($field->type == "Text" && $preset->type == "Text"){
+                        //FieldController::setFieldOptions($field, "Regex", $preset->preset);
+                        FieldController::updateOptions($pid,$fid,$flid,"Regex",$preset->preset);
                         flash()->overlay(trans('controller_optionpreset.regexapplied'),trans('controller_optionpreset.goodjob'));
                         return response()->json(["status"=>true,"presetval"=>$preset->preset],200);
                     }
-                    else if($preset->type =="List"){
-                        FieldController::setFieldOptions($field,"Options",$preset->preset);
+                    else if(in_array($field->type,["List","Generated List","Multi-Select List"]) && $preset->type=="List"){
+                        FieldController::updateOptions($pid,$fid,$flid,"Options",$preset->preset);
                         flash()->overlay(trans('controller_optionpreset.presetopt'),trans('controller_optionpreset.goodjob'));
                         return response()->json(["status"=>true,"presetval"=>$preset->preset],200);
                     }
-                    else if($preset->type == "Schedule" || $preset->type == "Geolocator"){
+                    elseif(in_array($field->type,["Schedule","Geolocator"]) && in_array($preset->type,["Schedule","Geolocator"])){
                         $field->default = $preset->preset;
                         $field->save();
                         flash()->overlay(trans('controller_optionpreset.presetdef'),trans('controller_optionpreset.goodjob'));
                         return response()->json(["status"=>true,"presetval"=>$preset->preset],200);
+                    }
+                    elseif($field->type == "Combo List" &&  $preset->type == "Text"){
+                        if($request->input("combo_subfield") == "one"){
+                            $subfield = "[!Field1!]";
+                            $options = explode($subfield,$field->options);
+                            $subfield_options = $options[1];
+                            $regex_options = explode('[!Regex!]',$subfield_options);
+                            $new_subfield_options = $regex_options[0] . "[!Regex!]".$preset->preset . "[!Regex!]" . $regex_options[2];
+                            $new_options = $subfield.$new_subfield_options.$subfield.$options[2];
+                            $field->options = $new_options;
+                            $field->save();
+                        }
+                        else{
+                            $subfield = "[!Field2!]";
+                            $options = explode($subfield,$field->options);
+                            $subfield_options = $options[1];
+                            $regex_options = explode('[!Regex!]',$subfield_options);
+                            $new_subfield_options = $regex_options[0] . "[!Regex!]".$preset->preset . "[!Regex!]" . $regex_options[2];
+                            $new_options = $options[0].$subfield.$new_subfield_options.$subfield;
+                            $field->options = $new_options;
+                            $field->save();
+                        }
+
+                    }
+                    elseif($field->type == "Combo List" && $preset->type == "List"){
+                        if($request->input('combo_subfield') == "one"){
+
+                            $subfield = "[!Field1!]";
+                            $options = explode($subfield,$field->options);
+                            $subfield_options = $options[1];
+                            $subfield_type = explode("[Type]",$subfield_options)[1];
+                            if($subfield_type == "Generated List"){
+                                $list_options = explode('[Options]',$subfield_options);
+                                $list_options = explode('[!Options!]',$list_options[1]);
+                                $new_subfield_options = explode('[Options]',$subfield_options)[0]."[Options]".$list_options[0] . "[!Options!]".$preset->preset . "[!Options!]"."[Options]";
+                                $new_options = $subfield.$new_subfield_options.$subfield.$options[2];
+                                $field->options = $new_options;
+                                $field->save();
+                            }
+                            else{
+                                $list_options = explode('[!Options!]',$subfield_options);
+                                $new_subfield_options = $list_options[0] . "[!Options!]".$preset->preset . "[!Options!]";
+                                $new_options = $subfield.$new_subfield_options.$subfield.$options[2];
+                                $field->options = $new_options;
+                                $field->save();
+                            }
+                        }
+                        else{
+                            $subfield = "[!Field2!]";
+                            $options = explode($subfield,$field->options);
+                            $subfield_options = $options[1];
+                            $subfield_type = explode("[Type]",$subfield_options)[1];
+                            if($subfield_type == "Generated List"){
+                                $list_options = explode('[Options]',$subfield_options);
+                                $list_options = explode('[!Options!]',$list_options[1]);
+                                $new_subfield_options = explode('[Options]',$subfield_options)[0]."[Options]".$list_options[0] . "[!Options!]".$preset->preset . "[!Options!]"."[Options]";
+                                $new_options = explode($subfield,$field->options)[0].$subfield.$new_subfield_options.$subfield.$options[2];
+                                $field->options = $new_options;
+                                $field->save();
+                            }
+                            else{
+                                $list_options = explode('[!Options!]',$subfield_options);
+                                $new_subfield_options = $list_options[0] . "[!Options!]".$preset->preset . "[!Options!]";
+                                $new_options = explode($subfield,$field->options)[0].$subfield.$new_subfield_options.$subfield.$options[2];
+                                $field->options = $new_options;
+                                $field->save();
+                            }
+                        }
+                    }
+                    else{
+                        dd($request);
                     }
                 }
             }
