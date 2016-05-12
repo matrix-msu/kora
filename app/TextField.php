@@ -10,6 +10,10 @@ class TextField extends BaseField {
         'text'
     ];
 
+    public function keywordSearchQuery($arg) {
+        // TODO: Implement keywordSearchQuery() method.
+    }
+
     /**
      * Keyword search for a text field. Depending on the value of partial we have two procedures:
      *  True: find occurrences of any particular argument, including partial results.

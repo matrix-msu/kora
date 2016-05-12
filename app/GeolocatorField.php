@@ -10,6 +10,10 @@ class GeolocatorField extends BaseField {
         'locations'
     ];
 
+    public function keywordSearchQuery($arg) {
+        // TODO: Implement keywordSearchQuery() method.
+    }
+
     /**
      * Keyword search for a geolocator field.
      * We search only the address and description of any given location for the given parameters.

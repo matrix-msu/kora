@@ -10,8 +10,13 @@ class DateField extends BaseField {
         'month',
         'day',
         'year',
-        'era'
+        'era',
+        'circa'
     ];
+
+    public function keywordSearchQuery($arg) {
+        // TODO: Implement keywordSearchQuery() method.
+    }
 
     /**
      * Keyword search for a date field. Similarly to number field, this only matches

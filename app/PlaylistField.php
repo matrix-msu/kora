@@ -10,4 +10,8 @@ class PlaylistField extends FileTypeField  {
         'audio'
     ];
 
+    public function keywordSearchQuery($arg) {
+        // TODO: Implement keywordSearchQuery() method.
+    }
+
 }

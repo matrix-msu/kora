@@ -10,6 +10,10 @@ class RichTextField extends BaseField {
         'rawtext'
     ];
 
+    public function keywordSearchQuery($arg) {
+        // TODO: Implement keywordSearchQuery() method.
+    }
+
     /**
      * Keyword search for a rich text field.
      *

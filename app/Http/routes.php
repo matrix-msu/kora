@@ -190,7 +190,7 @@ Route::post('/backup/project/{pid}','BackupController@backupProject');
 Route::post('/backup/project','BackupController@createProject');
 
 //form search routes
-Route::get('/search/project/{pid}/forms/{fid}/{query}{method}', 'FormSearchController@search');
+Route::get('/keywordSearch/project/{pid}/forms/{fid}', 'FormSearchController@keywordSearch');
 
 Route::controllers([
 	'auth' => 'Auth\AuthController',
