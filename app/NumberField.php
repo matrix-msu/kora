@@ -10,7 +10,7 @@ class NumberField extends BaseField {
         'number'
     ];
 
-    public function keywordSearchQuery($arg) {
+   public function keywordSearchQuery($query, $arg) {
         // TODO: Implement keywordSearchQuery() method.
     }
 

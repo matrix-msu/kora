@@ -28,10 +28,11 @@ abstract class BaseField extends Model
     /**
      * Executes the SQL query associated with a keyword search.
      *
+     * @param $query, eloquent query.
      * @param $arg, the arguement to be searched for.
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    abstract public function keywordSearchQuery($arg);
+    abstract public function keywordSearchQuery($query, $arg);
 
     /**
      * Pure virtual keyword search method for a general field.

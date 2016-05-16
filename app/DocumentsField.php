@@ -16,7 +16,7 @@ class DocumentsField extends FileTypeField {
      * @param $arg, the arguement to be searched for.
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function keywordSearchQuery($arg) {
+   public function keywordSearchQuery($query, $arg) {
         if ($arg != "") {
 
         }

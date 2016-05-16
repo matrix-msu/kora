@@ -11,13 +11,20 @@ class ScheduleField extends BaseField {
     ];
 
 
-    public function keywordSearchQuery($arg) {
+    public function keywordSearchQuery($query, $arg) {
         // TODO: Implement keywordSearchQuery() method.
     }
 
+    /**
+     * Keyword search for a schedule field.
+     *
+     * @param array $args, array of arguments for the search to use.
+     * @param bool $partial, does not effect the search.
+     * @return bool, True if the search parameters are satisfied.
+     */
     public function keywordSearch(array $args, $partial)
     {
-        // TODO: Implement keyword_search() method.
+        return self::keywordRoutine($args, $partial, $this->events);
     }
 
     public static function getDateList($field)

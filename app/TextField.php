@@ -10,8 +10,11 @@ class TextField extends BaseField {
         'text'
     ];
 
-    public function keywordSearchQuery($arg) {
-        // TODO: Implement keywordSearchQuery() method.
+   public function keywordSearchQuery($query, $arg) {
+       $query->where(function ($query) use ($arg) {
+           $query->where('text', "LIKE", "%$arg%");
+       });
+       return $query;
     }
 
     /**

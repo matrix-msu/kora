@@ -35,19 +35,20 @@ class FormSearchController extends Controller
      * @param $fid, form id.
      */
     public function keywordSearch($pid, $fid) {
-        $query = Request::input('query');
+        $arg = Request::input('query');
         $method = intval(Request::input('method'));
 
         $results = []; // Results of the search.
 
-        if ($method == Search::SEARCH_EXACT)
-            $query_arr = [$query]; // We only want to search for the exact phrase, so there is only one element here.
-        else
-            $query_arr = explode(" ", $query); // We want to search for each element separately so we explode on spaces.
+// Only testing one query right now.
+//        if ($method == Search::SEARCH_EXACT)
+//            $query_arr = [$query]; // We only want to search for the exact phrase, so there is only one element here.
+//        else
+//            $query_arr = explode(" ", $query); // We want to search for each element separately so we explode on spaces.
 
-        $seeker = new Search($pid, $fid, $query_arr, $method);
-        $results = $seeker->keywordSearch();
+        $seeker = new Search($pid, $fid, $arg, $method);
+        $results = $seeker->formKeywordSearch();
 
-        dd($pid, $fid, $method);
+        dd($pid, $fid, $results);
     }
 }

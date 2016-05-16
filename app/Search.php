@@ -35,16 +35,16 @@ class Search
      * @param $query_arr, the query of the search.
      * @param $method, the method of search, see search operators.
      */
-    public function __construct($pid, $fid, $query_arr, $method) {
+    public function __construct($pid, $fid, $arg, $method) {
         $this->pid = $pid;
         $this->fid = $fid;
-        $this->query_arr = $query_arr;
+        $this->arg = $arg;
         $this->method = $method;
     }
 
     private $pid;           ///< The id of the project we're searching.
     private $fid;           ///< The id of the form we're searching.
-    private $query_arr;     ///< The search query in array form.
+    private $arg;     ///< The search query in array form.
     private $method;        ///< Method of search, see search operators.
 
     /**
@@ -57,28 +57,20 @@ class Search
      *
      * @return array, the results of the search.
      */
-    public function keywordSearch() {
-        $fields = Field::where('fid', '=', $this->fid)->get();
+    public function formKeywordSearch() {
+        $fields = Field::where("fid", "=", $this->fid)->get();
 
         $results = [];
 
         foreach($fields as $field) {
             if ($field->isSearchable()) {
-                foreach ($this->query_arr as $query) {
-                    /*
-                     * This will get all of the sub fields (e.g. TextField) that have the query.
-                     * We should consider "results" as an array of BaseField objects.
-                     */
-                    $results += $field->querySubField($query);
-                }
+                $results += $field->keywordSearchTyped($this->arg)->get();
             }
         }
-
-        return $this->filterResults($results);
     }
 
     public function filterResults(array $results) {
-        
+
     }
 
     /**

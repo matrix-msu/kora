@@ -14,7 +14,7 @@ class AssociatorField extends BaseField {
         // TODO: Implement keywordSearch() method.
     }
 
-    public function keywordSearchQuery($arg) {
+   public static function keywordSearchQuery($arg) {
         // TODO: Implement keywordSearchQuery() method.
     }
 }
