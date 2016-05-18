@@ -1,19 +1,16 @@
-{!! Form::open(['method' => 'GET', 'action' => 'FormSearchController@search']) !!}
-
-    {!! Form::hidden('pid', $pid) !!}
-    {!! Form::hidden('fid', $fid) !!}
+<form method="GET" action="{{action('FormSearchController@keywordSearch',compact('pid','fid'))}}" >
 
     <div class="form-group form-inline">
-        {!! Form::label('query', trans('search_bar.search') . ': ') !!}
-        {!! Form::text('query', null, ['class' => 'form-control']) !!}
+        <label for="query">{{trans('search_bar.search')}} : </label>
+        <input class="form-control" name="query" type="text" id="query">
 
-        {!! Form::select('method', [
-            'and' => trans('search_bar.and'),
-            'or' => trans('search_bar.or'),
-            'exact' => trans('search_bar.exact')],
-            null, ['class' => 'form-control']) !!}
+        <select class="form-control" name="method">
+            <option value="0">{{trans('search_bar.or')}}</option>
+            <option value="1">{{trans('search_bar.and')}}</option>
+            <option value="2">{{trans('search_bar.exact')}}</option>
+        </select>
 
-        {!! Form::submit(trans('search_bar.search'), ['class' => 'btn btn-primary form-control']) !!}
+        <input class="btn btn-primary form-control" type="submit" value="{{trans('search_bar.search')}}">
     </div>
 
-{!! Form::close() !!}
+</form>

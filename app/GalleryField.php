@@ -10,4 +10,8 @@ class GalleryField extends FileTypeField  {
         'images'
     ];
 
+   public function keywordSearchQuery($query, $arg) {
+        // TODO: Implement keywordSearchQuery() method.
+    }
+
 }

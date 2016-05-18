@@ -9,4 +9,8 @@ class ModelField extends FileTypeField  {
         'flid',
         'model'
     ];
+
+   public function keywordSearchQuery($query, $arg) {
+        // TODO: Implement keywordSearchQuery() method.
+    }
 }

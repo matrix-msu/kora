@@ -11,6 +11,10 @@ class GeneratedListField extends BaseField {
         'options'
     ];
 
+   public function keywordSearchQuery($query, $arg) {
+        // TODO: Implement keywordSearchQuery() method.
+    }
+
     /**
      * Keyword search for a generated list field. (Exactly the same as Multi-select list keyword search)
      *  Note: "partial" applies to whole values inside the options, rather than a partial match

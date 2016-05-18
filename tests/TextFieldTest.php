@@ -38,7 +38,7 @@ TEXT;
      * @group search
      */
     public function test_convertCloseChars() {
-        $converted = BaseField::convertCloseChars(self::COMPLEX_TEXT);
+        $converted = \App\Search::convertCloseChars(self::COMPLEX_TEXT);
 
         // Hand converted code by observing characters and assigning their "close enough" alternatives.
         $handConverted = <<<TEXT

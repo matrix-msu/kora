@@ -52,7 +52,7 @@ class FormController extends Controller {
             return redirect('projects');
         }
 
-        if(!FormController::checkPermissions($pid, 'create')){
+        if(!FormController::checkPermissions($pid, 'crFeate')){
             return redirect('projects/'.$pid.'/forms');
         }
 

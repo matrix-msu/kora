@@ -9,4 +9,12 @@ class AssociatorField extends BaseField {
         'flid',
         'records'
     ];
+
+    public function keywordSearch(array $args, $partial) {
+        // TODO: Implement keywordSearch() method.
+    }
+
+   public static function keywordSearchQuery($arg) {
+        // TODO: Implement keywordSearchQuery() method.
+    }
 }

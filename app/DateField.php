@@ -10,8 +10,13 @@ class DateField extends BaseField {
         'month',
         'day',
         'year',
-        'era'
+        'era',
+        'circa'
     ];
+
+   public function keywordSearchQuery($query, $arg) {
+        // TODO: Implement keywordSearchQuery() method.
+    }
 
     /**
      * Keyword search for a date field. Similarly to number field, this only matches
@@ -25,7 +30,7 @@ class DateField extends BaseField {
         $field = Field::where('flid', '=', $this->flid)->first();
         $circa = (explode('[!Circa!]', $field->options)[1]) == "Yes";
 
-        $searchEra = (explode('[!Era!]', $field->options)[1]) == "Yes"; // Boolean to determine if we should search for era.
+        $searchEra = (explode('[!Era!]', $field->options)[1]) == "On"; // Boolean to determine if we should search for era.
         $searchCirca = ($circa && $this->circa); // Boolean to determine if we should search for circa.
 
         foreach ($args as $arg) {
@@ -91,8 +96,8 @@ class DateField extends BaseField {
     /**
      * Converts a month to the number corresponding to the month.
      *
-     * @param $month, the month to be
-     * @return mixed
+     * @param $month, the month to be converted.
+     * @return array, processed collection of months.
      */
     public static function monthToNumber($month) {
         foreach(self::$months as $monthRegex) {
