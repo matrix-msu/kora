@@ -33,6 +33,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use \Illuminate\Support\Facades\App;
 Use \Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 
@@ -77,6 +78,28 @@ class BackupController extends Controller
      * @return view
      */
     public function index(Request $request){
+
+        try {
+            $user_support = DB::table('backup_support')->where('user_id', Auth::user()->id)->where('view', 'backups.index')->first();
+            if ($user_support === null) {
+                $user_support = DB::table('backup_support')->insert(['user_id' => Auth::user()->id, 'view' => 'backups.index', 'hasRun' => Carbon::now(), 'accessed' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
+            }
+            else {
+                if(((Carbon::createFromFormat('Y#m#d G#i#s', ($user_support->updated_at))->diffInMinutes(Carbon::now()) < 2))){
+                    DB::table('backup_support')->where('id', $user_support->id)->update(['accessed' => $user_support->accessed - 1, 'updated_at' => Carbon::now()]);
+                }
+                elseif ((Carbon::createFromFormat('Y#m#d G#i#s', ($user_support->hasRun))->diffInMinutes(Carbon::now()) > 30) && ($user_support->accessed % 10 == 0 && $user_support->accessed != 0)) {
+                    DB::table('backup_support')->where('id', $user_support->id)->update(['hasRun' => Carbon::now(), 'accessed' => 0, 'updated_at' => Carbon::now()]);
+                    $request->session()->flash('user_backup_support',true);
+                } else {
+                    DB::table('backup_support')->where('id', $user_support->id)->update(['accessed' => $user_support->accessed + 1, 'updated_at' => Carbon::now()]);
+                    //dd(['support'=>$user_support,'date'=>Carbon::createFromFormat('Y#m#d G#i#s',($user_support->hasRun))->diffInMinutes(Carbon::now())]);
+                }
+            }
+        }
+        catch(\Exception $e){
+            $user_support = null;
+        }
 
         $available_backups = Storage::files($this->BACKUP_DIRECTORY);
         $saved_backups = new Collection();

@@ -16,6 +16,13 @@
                     </div>
                 @endif
 
+                @if(\Illuminate\Support\Facades\Session::has('user_backup_support'))
+                    <h1 id="user_backup_support_message">( ͡° ͜ʖ ͡°) </h1>
+                    <script>
+                        setTimeout(function(){$("#user_backup_support_message").remove();},3000);
+                    </script>
+                @endif
+
                 <form method="post" action={{action("BackupController@startBackup")}}>
                     <input type="hidden" name="_token" value="{{csrf_token()}}">
                     <div class="panel panel-default">
