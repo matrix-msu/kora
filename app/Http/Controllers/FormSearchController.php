@@ -41,6 +41,8 @@ class FormSearchController extends Controller
 
         $results = []; // Results of the search.
 
+        $arg = Search::convertCloseChars($arg);
+
 // Only testing one query right now.
 //        if ($method == Search::SEARCH_EXACT)
 //            $query_arr = [$query]; // We only want to search for the exact phrase, so there is only one element here.

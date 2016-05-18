@@ -194,7 +194,7 @@ class RevisionController extends Controller {
         // type exists in the database, the data is simply assigned from the old data array as expected in the rollback.
         //
         // Else a new less general field is created for the record and its values are appropriately assigned.
-        // E.g. if a Text field under a certain rid does not exist we create a new one and fill it with necessary data. 
+        // E.g. if a Text field under a certain rid does not exist we create a new one and fill it with necessary data.
         foreach($form->fields()->get() as $field) {
 
             // TODO: Apply some OOP techniques here.

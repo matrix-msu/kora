@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class CreateTextfieldsTable extends Migration {
 
@@ -14,16 +15,20 @@ class CreateTextfieldsTable extends Migration {
 	{
 		Schema::create('text_fields', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+
             $table->increments('id');
 
             $table->integer('rid')->unsigned();
             $table->integer('flid')->unsigned();
-            $table->mediumText('text');
+            $table->text('text');
 			$table->timestamps();
 
             $table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');
             $table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
+
+		DB::statement("ALTER TABLE Kora3_text_fields ADD FULLTEXT search(`text`)");
 	}
 
 	/**
@@ -33,6 +38,9 @@ class CreateTextfieldsTable extends Migration {
 	 */
 	public function down()
 	{
+		Schema::table("text_fields", function($table) {
+			$table->dropIndex("search");
+		});
 		Schema::drop('text_fields');
 	}
 
