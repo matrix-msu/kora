@@ -8,6 +8,8 @@
 
 namespace App;
 
+use Illuminate\Support\Facades\DB;
+
 /**
  * Class Search
  *
@@ -44,7 +46,7 @@ class Search
 
     private $pid;           ///< The id of the project we're searching.
     private $fid;           ///< The id of the form we're searching.
-    private $arg;     ///< The search query in array form.
+    private $arg;           ///< The search query in array form.
     private $method;        ///< Method of search, see search operators.
 
     /**
@@ -64,9 +66,11 @@ class Search
 
         foreach($fields as $field) {
             if ($field->isSearchable()) {
-                $results += $field->keywordSearchTyped($this->arg)->get();
+                $results += $field->keywordSearchTyped($this->arg)->get()->toArray();
             }
         }
+
+        return $results;
     }
 
     public function filterResults(array $results) {

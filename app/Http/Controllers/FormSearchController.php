@@ -10,6 +10,7 @@ namespace App\Http\Controllers;
 
 use App\Search;
 use Illuminate\Support\Facades\Request;
+use App\Record;
 
 class FormSearchController extends Controller
 {
@@ -49,6 +50,6 @@ class FormSearchController extends Controller
         $seeker = new Search($pid, $fid, $arg, $method);
         $results = $seeker->formKeywordSearch();
 
-        dd($pid, $fid, $results);
+        dd($results, Record::where('rid', '=', $results[0]['rid'])->get());
     }
 }

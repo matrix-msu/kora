@@ -154,7 +154,7 @@ class Field extends Model {
     public function keywordSearchTyped($arg) {
         switch($this->type) {
             case Field::_TEXT:
-                return Field::where("flid", "=", $this->flid)->where("text", "like", "%" . $arg . "%");
+                return TextField::where("flid", "=", $this->flid)->where("text", "like", "%" . $arg . "%");
                 break;
 
             case Field::_RICH_TEXT:
