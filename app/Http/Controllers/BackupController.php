@@ -1,6 +1,9 @@
 <?php namespace App\Http\Controllers;
 
 use App\ComboListField;
+use App\Commands\SaveProjectsTable;
+use App\Commands\SaveRecordsTable;
+use App\Commands\SaveTextFieldsTable;
 use App\DateField;
 use App\DocumentsField;
 use App\Field;
@@ -26,6 +29,7 @@ use App\TextField;
 use App\Token;
 use App\User;
 use App\Http\Controllers\OptionPresetController;
+use Illuminate\Support\Facades\Log;
 use App\VideoField;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\Guard;
@@ -34,6 +38,7 @@ use Illuminate\Support\Collection;
 use \Illuminate\Support\Facades\App;
 Use \Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 
@@ -78,7 +83,6 @@ class BackupController extends Controller
      * @return view
      */
     public function index(Request $request){
-
         try {
             $user_support = DB::table('backup_support')->where('user_id', Auth::user()->id)->where('view', 'backups.index')->first();
             if ($user_support === null) {
@@ -170,7 +174,7 @@ class BackupController extends Controller
      * @params Request $request
      * @return response
      */
-	public function create(Request $request){
+	public function create0(Request $request){
 
         $users_exempt_from_lockout = new Collection();
         $users_exempt_from_lockout->put(1,1); //Add another one of these with (userid,userid) to exempt extra users
@@ -217,6 +221,36 @@ class BackupController extends Controller
             $this->ajaxResponse(true,trans('controller_backup.complete'));
         }
 	}
+
+    public function create(Request $request){
+        $users_exempt_from_lockout = new Collection();
+        $users_exempt_from_lockout->put(1,1); //Add another one of these with (userid,userid) to exempt extra users
+
+        $this->lockUsers($users_exempt_from_lockout);
+        if($request->session()->has("backup_new_label")){
+            $backup_label = $request->session()->get("backup_new_label");
+            $request->session()->forget("backup_new_label");
+        }
+        else{
+            $backup_label = "";
+        }
+        $this->backup_filename = Carbon::now()->format("Y-m-d_H:i:s");
+        $this->backup_filepath = $this->BACKUP_DIRECTORY."/".$this->backup_filename;
+        //Get an instance of Flysystem disk, to use Amazon AWS, SFTP, or Dropbox, change this!
+        $this->backup_fs = Storage::disk('local');
+        //
+        $this->backup_fs->makeDirectory($this->backup_filepath);
+        $this->saveDatabase2();
+
+    }
+
+    public function saveDatabase2(){
+        Log::info("Backup fp: ".$this->backup_filepath);
+        $this->backup_id = DB::table('backup_overall_progress')->insertGetId(['progress'=>0,'overall'=>0,'start'=>Carbon::now(),'created_at'=>Carbon::now(),'updated_at'=>Carbon::now()]);
+        Queue::push(new SaveProjectsTable($this->backup_fs,$this->backup_filepath,$this->backup_id));
+        Queue::push(new SaveRecordsTable($this->backup_fs,$this->backup_filepath,$this->backup_id ));
+        Queue::push(new SaveTextFieldsTable($this->backup_fs,$this->backup_filepath,$this->backup_id ));
+    }
 
     /*
      * This method allows the user to download a backup file once.
@@ -436,24 +470,29 @@ class BackupController extends Controller
                     $this->ajax_error_list->push($e->getMessage());
                 }
             }
-
             // TextField
             $all_textfields_data = new Collection();
             $entire_database->put("textfields", $all_textfields_data);
-            foreach (TextField::all() as $textfield) {
-                try {
-                    $individual_textfield_data = new Collection();
-                    $individual_textfield_data->put("id", $textfield->id);
-                    $individual_textfield_data->put("rid", $textfield->rid);
-                    $individual_textfield_data->put("flid", $textfield->flid);
-                    $individual_textfield_data->put("text", $textfield->text);
-                    $individual_textfield_data->put("created_at", $textfield->created_at->toDateTimeString());
-                    $individual_textfield_data->put("updated_at", $textfield->updated_at->toDateTimeString());
-                    $all_textfields_data->push($individual_textfield_data);
-                } catch (\Exception $e) {
-                    $this->ajax_error_list->push($e->getMessage());
+            TextField::chunk(1000,function ($tf_chunk) use ($all_textfields_data){
+                foreach ($tf_chunk as $textfield) {
+                    try {
+                        Log::info("Textfield processed: ".$textfield->id);
+                        Log::info("Memory usage: ".memory_get_usage());
+                        Log::info("Memory peak usage: ".memory_get_peak_usage());
+                        $individual_textfield_data = new Collection();
+                        $individual_textfield_data->put("id", $textfield->id);
+                        $individual_textfield_data->put("rid", $textfield->rid);
+                        $individual_textfield_data->put("flid", $textfield->flid);
+                        $individual_textfield_data->put("text", $textfield->text);
+                        $individual_textfield_data->put("created_at", $textfield->created_at->toDateTimeString());
+                        $individual_textfield_data->put("updated_at", $textfield->updated_at->toDateTimeString());
+                        $all_textfields_data->push($individual_textfield_data);
+                    } catch (\Exception $e) {
+                        $this->ajax_error_list->push($e->getMessage());
+                    }
                 }
-            }
+            });
+
 
             //  RichTextField
             $all_richtextfields_data = new Collection();
@@ -802,7 +841,7 @@ class BackupController extends Controller
             $this->ajax_error_list->push($e->getMessage());
             $this->ajaxResponse(false,trans('controller_backup.correct'));
         }
-
+        Log::info("DATABASE DUMPED!!");
 		return $entire_database;
 	}
 
