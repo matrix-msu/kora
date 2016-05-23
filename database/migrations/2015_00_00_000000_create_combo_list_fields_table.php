@@ -2,8 +2,9 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class CreateGalleryfieldsTable extends Migration {
+class CreateComboListFieldsTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,18 +13,24 @@ class CreateGalleryfieldsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('gallery_fields', function(Blueprint $table)
+		Schema::create('combo_list_fields', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+
 			$table->increments('id');
 
 			$table->integer('rid')->unsigned();
 			$table->integer('flid')->unsigned();
-			$table->mediumText('images');
+			$table->mediumText('options');
+			$table->text('ftype1');
+			$table->text('ftype2');
 			$table->timestamps();
 
 			$table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');
 			$table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
+
+		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."combo_list_fields ADD FULLTEXT search_cmb(`options`)");
 	}
 
 	/**
@@ -33,7 +40,11 @@ class CreateGalleryfieldsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('gallery_fields');
+		Schema::table("combo_list_fields", function($table) {
+			$table->dropIndex("search_cmb");
+		});
+
+		Schema::drop('combo_list_fields');
 	}
 
 }

@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateListfieldsTable extends Migration {
+class CreateDatefieldsTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,14 +12,24 @@ class CreateListfieldsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('list_fields', function(Blueprint $table)
+		Schema::create('date_fields', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+
 			$table->increments('id');
 
 			$table->integer('rid')->unsigned();
 			$table->integer('flid')->unsigned();
-			$table->mediumText('option');
+			$table->boolean('circa');
+			$table->integer('month');
+			$table->integer('day');
+			$table->integer('year');
+			$table->string('era');
 			$table->timestamps();
+
+			$table->index('month');
+			$table->index('day');
+			$table->index('year');
 
 			$table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');
 			$table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
@@ -33,7 +43,7 @@ class CreateListfieldsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('list_fields');
+		Schema::drop('date_fields');
 	}
 
 }

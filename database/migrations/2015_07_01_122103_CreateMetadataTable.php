@@ -14,6 +14,8 @@ class CreateMetadataTable extends Migration {
 	{
         Schema::create('metadatas', function(Blueprint $table)
         {
+			$table->engine = 'MyISAM';
+
            // $table->increments('mid');
             $table->integer('flid')->unsigned();
 

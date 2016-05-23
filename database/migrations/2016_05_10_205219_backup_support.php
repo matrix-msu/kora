@@ -15,6 +15,8 @@ class BackupSupport extends Migration {
 		//
 		Schema::create('backup_support', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+
 			$table->increments('id');
 			$table->integer('user_id')->unsigned();
 			$table->dateTime('hasRun')->nullable();

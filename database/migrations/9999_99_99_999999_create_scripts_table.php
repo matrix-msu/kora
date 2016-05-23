@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class CreateScriptsTable extends Migration {
 
@@ -14,11 +15,14 @@ class CreateScriptsTable extends Migration {
 	{
 		Schema::create('scripts', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+
 			$table->increments('id');
 			$table->string('filename')->unique();
 			$table->boolean('hasRun');
 			$table->timestamps();
 		});
+
 	}
 
 	/**

@@ -14,6 +14,8 @@ class CreateRecordpresetsTable extends Migration {
 	{
 		Schema::create('record_presets', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+
 			$table->increments('id');
             $table->integer('fid')->unsigned();
             $table->integer('rid')->unsigned();

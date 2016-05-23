@@ -2,8 +2,9 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class CreateGeneratedlistfieldsTable extends Migration {
+class CreatePlaylistfieldsTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,18 +13,22 @@ class CreateGeneratedlistfieldsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('generated_list_fields', function(Blueprint $table)
+		Schema::create('playlist_fields', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+
 			$table->increments('id');
 
 			$table->integer('rid')->unsigned();
 			$table->integer('flid')->unsigned();
-			$table->mediumText('options');
+			$table->mediumText('audio');
 			$table->timestamps();
 
 			$table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');
 			$table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
+
+		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."playlist_fields ADD FULLTEXT search_ply(`audio`)");
 	}
 
 	/**
@@ -33,7 +38,12 @@ class CreateGeneratedlistfieldsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('generated_list_fields');
+		Schema::table("playlist_fields", function($table) {
+			$table->dropIndex("search_ply");
+		});
+
+
+		Schema::drop('playlist_fields');
 	}
 
 }

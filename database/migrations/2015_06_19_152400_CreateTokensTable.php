@@ -14,6 +14,8 @@ class CreateTokensTable extends Migration {
 	{
         Schema::create('tokens', function(Blueprint $table)
         {
+            $table->engine = 'MyISAM';
+
             $table->increments('id');
             $table->string('token');
             $table->string('type');
@@ -23,6 +25,8 @@ class CreateTokensTable extends Migration {
         //Project token pivot table.
         Schema::create('project_token', function(Blueprint $table)
         {
+            $table->engine = 'MyISAM';
+
             $table->integer('project_id')->unsigned()->index();
             $table->foreign('project_id')->references('pid')->on('projects')->onDelete('cascade');
 

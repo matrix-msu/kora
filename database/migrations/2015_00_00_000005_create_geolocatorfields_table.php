@@ -2,8 +2,9 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class CreateVideofieldsTable extends Migration {
+class CreateGeolocatorfieldsTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,18 +13,22 @@ class CreateVideofieldsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('video_fields', function(Blueprint $table)
+		Schema::create('geolocator_fields', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+
 			$table->increments('id');
 
 			$table->integer('rid')->unsigned();
 			$table->integer('flid')->unsigned();
-			$table->mediumText('video');
+			$table->mediumText('locations');
 			$table->timestamps();
 
 			$table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');
 			$table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
+
+		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."geolocator_fields ADD FULLTEXT search_geo(`locations`)");
 	}
 
 	/**
@@ -33,7 +38,11 @@ class CreateVideofieldsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('video_fields');
+		Schema::table("geolocator_fields", function($table) {
+			$table->dropIndex("search_geo");
+		});
+
+		Schema::drop('geolocator_fields');
 	}
 
 }

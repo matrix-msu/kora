@@ -2,8 +2,9 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class CreateMultiselectlistfieldsTable extends Migration {
+class CreateNumberfieldsTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,14 +13,18 @@ class CreateMultiselectlistfieldsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('multi_select_list_fields', function(Blueprint $table)
+		Schema::create('number_fields', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+
 			$table->increments('id');
 
 			$table->integer('rid')->unsigned();
 			$table->integer('flid')->unsigned();
-			$table->mediumText('options');
+			$table->decimal('number', 65, 30); // Max possible decimal value.
 			$table->timestamps();
+
+			$table->index('number');
 
 			$table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');
 			$table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
@@ -33,7 +38,7 @@ class CreateMultiselectlistfieldsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('multi_select_list_fields');
+		Schema::drop('number_fields');
 	}
 
 }

@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class CreateRichtextfieldsTable extends Migration {
 
@@ -14,6 +15,8 @@ class CreateRichtextfieldsTable extends Migration {
 	{
 		Schema::create('rich_text_fields', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+
             $table->increments('id');
 
             $table->integer('rid')->unsigned();
@@ -24,6 +27,8 @@ class CreateRichtextfieldsTable extends Migration {
             $table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');
             $table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
+
+		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."rich_text_fields ADD FULLTEXT search(rawtext)");
 	}
 
 	/**
@@ -33,6 +38,9 @@ class CreateRichtextfieldsTable extends Migration {
 	 */
 	public function down()
 	{
+		Schema::table("rich_text_fields", function($table) {
+			$table->dropIndex("search");
+		});
 		Schema::drop('rich_text_fields');
 	}
 

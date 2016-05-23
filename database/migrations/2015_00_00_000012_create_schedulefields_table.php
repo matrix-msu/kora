@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class CreateSchedulefieldsTable extends Migration {
 
@@ -14,6 +15,8 @@ class CreateSchedulefieldsTable extends Migration {
 	{
 		Schema::create('schedule_fields', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+
 			$table->increments('id');
 
 			$table->integer('rid')->unsigned();
@@ -24,6 +27,8 @@ class CreateSchedulefieldsTable extends Migration {
 			$table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');
 			$table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
+
+		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."schedule_fields ADD FULLTEXT search_sch(`events`)");
 	}
 
 	/**
@@ -33,6 +38,9 @@ class CreateSchedulefieldsTable extends Migration {
 	 */
 	public function down()
 	{
+		Schema::table("schedule_fields", function($table) {
+			$table->dropIndex("search_sch");
+		});
 		Schema::drop('schedule_fields');
 	}
 

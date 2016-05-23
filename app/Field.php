@@ -46,8 +46,6 @@ class Field extends Model {
         Field::_3D_MODEL, Field::_PLAYLIST, Field::_VIDEO, Field::_COMBO_LIST
     ];
 
-
-
     protected $primaryKey = "flid";
 
     public function form(){
@@ -146,19 +144,24 @@ class Field extends Model {
 
 
     /**
-     * Buils the query up for a typed field keyword search.\
+     * Buils the query up for a typed field keyword search.
      *
      * @param $arg string, the arguement being searched for.
      * @return ,Query (query builder type).
      */
     public function keywordSearchTyped($arg) {
+        //
+        // TODO: Consider processing the argument with the boolean operators if there are multiple.
+        // (Or do this at the form level.)
+        //
+        $arg = "*" . $arg . "*";
         switch($this->type) {
             case Field::_TEXT:
-                return TextField::where("flid", "=", $this->flid)->where("text", "like", "%" . $arg . "%");
+                return TextField::where("flid", "=", $this->flid)->whereRaw("MATCH (`text`) AGAINST (? IN BOOLEAN MODE)", [$arg]);;
                 break;
 
             case Field::_RICH_TEXT:
-                return RichTextField::where("flid", "=", $this->flid)->where("rawtext", "like", "%" . $arg . "%");
+                return RichTextField::where("flid", "=", $this->flid)->whereRaw("MATCH (`rawtext`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
                 break;
 
             case Field::_NUMBER:
@@ -166,15 +169,15 @@ class Field extends Model {
                 break;
 
             case Field::_LIST:
-                return ListField::where("flid", "=", $this->flid)->where("option", "like", "%" . $arg . "%");
+                return ListField::where("flid", "=", $this->flid)->whereRaw("MATCH (`option`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
                 break;
 
             case Field::_MULTI_SELECT_LIST:
-                return MultiSelectListField::where("flid", "=", $this->flid)->where("options", "like", "%" . $arg . "%");
+                return MultiSelectListField::where("flid", "=", $this->flid)->whereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
                 break;
 
             case Field::_GENERATED_LIST:
-                return GeneratedListField::where("flid", "=", $this->flid)->where("options", "like", "%" . $arg . "%");
+                return GeneratedListField::where("flid", "=", $this->flid)->whereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
                 break;
 
             case Field::_DATE:
@@ -206,35 +209,35 @@ class Field extends Model {
                 break;
 
             case Field::_SCHEDULE:
-                return ScheduleField::where("flid", "=", $this->flid)->where("events", "like", "%" . $arg . "%");
+                return ScheduleField::where("flid", "=", $this->flid)->whereRaw("MATCH (`events`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
                 break;
 
             case Field::_GEOLOCATOR:
-                return GeolocatorField::where("flid", "=", $this->flid)->where("locations", "like", "%" . $arg . "%");
+                return GeolocatorField::where("flid", "=", $this->flid)->whereRaw("MATCH (`locations`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
                 break;
 
             case Field::_DOCUMENTS:
-                return DocumentsField::where("flid", "=", $this->flid)->where("documents", "like", "%" . $arg . "%");
+                return DocumentsField::where("flid", "=", $this->flid)->whereRaw("MATCH (`documents`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
                 break;
 
             case Field::_GALLERY:
-                return GalleryField::where("flid", "=", $this->flid)->where("images", "like", "%" . $arg . "%");
+                return GalleryField::where("flid", "=", $this->flid)->whereRaw("MATCH (`images`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
                 break;
 
             case Field::_3D_MODEL:
-                return ModelField::where("flid", "=", $this->flid)->where("model", "like", "%" . $arg . "%");
+                return ModelField::where("flid", "=", $this->flid)->whereRaw("MATCH (`model`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
                 break;
 
             case Field::_PLAYLIST:
-                return PlaylistField::where("flid", "=", $this->flid)->where("audio", "like", "%" . $arg . "%");
+                return PlaylistField::where("flid", "=", $this->flid)->whereRaw("MATCH (`audio`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
                 break;
 
             case Field::_VIDEO:
-                return VideoField::where("flid", "=", $this->flid)->where("video", "like", "%" . $arg . "%");
+                return VideoField::where("flid", "=", $this->flid)->whereRaw("MATCH (`video`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
                 break;
 
             case Field::_COMBO_LIST:
-                return ComboListField::where("flid", "=", $this->flid)->where("options", "like", "%" . $arg . "%");
+                return ComboListField::where("flid", "=", $this->flid)->whereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
                 break;
 
             default: // Error occurred.

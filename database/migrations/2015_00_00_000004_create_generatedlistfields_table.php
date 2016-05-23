@@ -2,8 +2,9 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class CreateModelfieldsTable extends Migration {
+class CreateGeneratedlistfieldsTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,18 +13,22 @@ class CreateModelfieldsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('model_fields', function(Blueprint $table)
+		Schema::create('generated_list_fields', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+
 			$table->increments('id');
 
 			$table->integer('rid')->unsigned();
 			$table->integer('flid')->unsigned();
-			$table->mediumText('model');
+			$table->mediumText('options');
 			$table->timestamps();
 
 			$table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');
 			$table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
+
+		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."generated_list_fields ADD FULLTEXT search_gen(`options`)");
 	}
 
 	/**
@@ -33,7 +38,11 @@ class CreateModelfieldsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('model_fields');
+		Schema::table("generated_list_fields", function($table) {
+			$table->dropIndex("search_gen");
+		});
+
+		Schema::drop('generated_list_fields');
 	}
 
 }

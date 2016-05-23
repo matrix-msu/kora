@@ -2,8 +2,9 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class CreateDocumentsfieldsTable extends Migration {
+class CreateModelfieldsTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,18 +13,22 @@ class CreateDocumentsfieldsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('documents_fields', function(Blueprint $table)
+		Schema::create('model_fields', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+
 			$table->increments('id');
 
 			$table->integer('rid')->unsigned();
 			$table->integer('flid')->unsigned();
-			$table->mediumText('documents');
+			$table->mediumText('model');
 			$table->timestamps();
 
 			$table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');
 			$table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
+
+		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."model_fields ADD FULLTEXT search_mdl(`model`)");
 	}
 
 	/**
@@ -33,7 +38,11 @@ class CreateDocumentsfieldsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('documents_fields');
+		Schema::table("model_fields", function($table) {
+			$table->dropIndex("search_mdl");
+		});
+
+		Schema::drop('model_fields');
 	}
 
 }

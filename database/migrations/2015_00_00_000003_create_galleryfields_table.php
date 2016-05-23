@@ -2,8 +2,9 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class CreateNumberfieldsTable extends Migration {
+class CreateGalleryfieldsTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,18 +13,22 @@ class CreateNumberfieldsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('number_fields', function(Blueprint $table)
+		Schema::create('gallery_fields', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+
 			$table->increments('id');
 
 			$table->integer('rid')->unsigned();
 			$table->integer('flid')->unsigned();
-			$table->longText('number');
+			$table->mediumText('images');
 			$table->timestamps();
 
 			$table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');
 			$table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
+
+		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."gallery_fields ADD FULLTEXT search_gal(`images`)");
 	}
 
 	/**
@@ -33,7 +38,11 @@ class CreateNumberfieldsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('number_fields');
+		Schema::table("gallery_fields", function($table) {
+			$table->dropIndex("search_gal");
+		});
+
+		Schema::drop('gallery_fields');
 	}
 
 }

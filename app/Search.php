@@ -8,6 +8,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -52,29 +53,44 @@ class Search
     /**
      * Keyword search our database for the queries given in the constructor.
      *
-     * Idea:    Eloquent is a fast system for form model binding and simple dumping of records.
+     *  Idea:    Eloquent is a fast system for form model binding and simple dumping of records.
      *  However it is obvious that in a system with potentially thousands of records (in the mysql sense)
      *  would be overburdened by getting every record and then searching through individually.
-     *  So we let SQL do some work for us and then refine our search with a some extra funcitons.
+     *  So we let SQL do some work for us and then refine our search with a some extra functions.
      *
      * @return array, the results of the search.
      */
     public function formKeywordSearch() {
         $fields = Field::where("fid", "=", $this->fid)->get();
 
-        $results = [];
+        $results = new Collection();
 
         foreach($fields as $field) {
             if ($field->isSearchable()) {
-                $results += $field->keywordSearchTyped($this->arg)->get()->toArray();
+                $results = $results->merge($field->keywordSearchTyped($this->arg)->get());
             }
         }
 
-        return $results;
+        return $this->filterKeywordResults($results);
     }
 
-    public function filterResults(array $results) {
+    /**
+     * Filters the results of a keyword search.
+     *
+     * Typed fields all have a keywordSearch function, so we utilize this and the eloquent
+     * method filter down to a collection of typed fields that all have the desired contents.
+     *
+     * @param Collection $results
+     * @return Collection, the filtered collection.
+     */
+    public function filterKeywordResults(Collection $results) {
+        return $results->filter(function(BaseField $element) {
+            // Determine if the search should be partial at a typed field level.
+            $partial = ($this->method == Search::SEARCH_AND || $this->method == Search::SEARCH_OR) ? true : false;
 
+            // TODO: Consider argument parsing...
+            return $element->keywordSearch([$this->arg], $partial);
+        });
     }
 
     /**

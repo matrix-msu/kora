@@ -2,8 +2,9 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class CreateGeolocatorfieldsTable extends Migration {
+class CreateMultiselectlistfieldsTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,18 +13,22 @@ class CreateGeolocatorfieldsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('geolocator_fields', function(Blueprint $table)
+		Schema::create('multi_select_list_fields', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+
 			$table->increments('id');
 
 			$table->integer('rid')->unsigned();
 			$table->integer('flid')->unsigned();
-			$table->mediumText('locations');
+			$table->mediumText('options');
 			$table->timestamps();
 
 			$table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');
 			$table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
+
+		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."multi_select_list_fields ADD FULLTEXT search_msl(`options`)");
 	}
 
 	/**
@@ -33,7 +38,10 @@ class CreateGeolocatorfieldsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('geolocator_fields');
+		Schema::table("multi_select_list_fields", function($table) {
+			$table->dropIndex("search_msl");
+		});
+		Schema::drop('multi_select_list_fields');
 	}
 
 }

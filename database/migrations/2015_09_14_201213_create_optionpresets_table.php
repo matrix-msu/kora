@@ -14,6 +14,8 @@ class CreateOptionpresetsTable extends Migration {
 	{
         Schema::create('option_presets', function(Blueprint $table)
         {
+			$table->engine = 'MyISAM';
+
             $table->increments('id');
             $table->integer('pid')->unsigned()->nullable();
             $table->string('type');

@@ -14,6 +14,8 @@ class CreateVersionsTable extends Migration {
 	{
 		Schema::create('versions', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+
 			$table->increments('id');
 			$table->string('version');
 			$table->timestamps();

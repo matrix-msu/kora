@@ -14,6 +14,8 @@ class CreateFormsTable extends Migration {
 	{
 		Schema::create('forms', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+
 			$table->increments('fid');
 			$table->integer('pid')->unsigned();
             $table->integer('adminGID')->unsigned();

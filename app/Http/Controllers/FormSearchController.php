@@ -39,10 +39,6 @@ class FormSearchController extends Controller
         $arg = Request::input('query');
         $method = intval(Request::input('method'));
 
-        $results = []; // Results of the search.
-
-        $arg = Search::convertCloseChars($arg);
-
 // Only testing one query right now.
 //        if ($method == Search::SEARCH_EXACT)
 //            $query_arr = [$query]; // We only want to search for the exact phrase, so there is only one element here.
@@ -52,6 +48,6 @@ class FormSearchController extends Controller
         $seeker = new Search($pid, $fid, $arg, $method);
         $results = $seeker->formKeywordSearch();
 
-        dd($results, Record::where('rid', '=', $results[0]['rid'])->get());
+        dd($results);
     }
 }

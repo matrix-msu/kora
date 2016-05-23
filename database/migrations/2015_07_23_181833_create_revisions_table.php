@@ -14,6 +14,8 @@ class CreateRevisionsTable extends Migration {
 	{
 		Schema::create('revisions', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+
 			$table->increments('id');
             $table->integer('fid')->unsigned();
             $table->integer('rid')->unsigned();

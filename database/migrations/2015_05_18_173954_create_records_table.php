@@ -14,6 +14,8 @@ class CreateRecordsTable extends Migration {
 	{
 		Schema::create('records', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+
 			$table->increments('rid');
             $table->string('kid');
             $table->integer('pid')->unsigned();
