@@ -9,8 +9,4 @@ class VideoField extends FileTypeField {
         'flid',
         'video'
     ];
-
-   public function keywordSearchQuery($query, $arg) {
-        // TODO: Implement keywordSearchQuery() method.
-    }
 }

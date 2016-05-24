@@ -11,6 +11,7 @@ namespace App\Http\Controllers;
 use App\Search;
 use Illuminate\Support\Facades\Request;
 use App\Record;
+use Illuminate\Database\Eloquent\Collection;
 
 class FormSearchController extends Controller
 {
@@ -36,7 +37,7 @@ class FormSearchController extends Controller
      * @param $fid, form id.
      */
     public function keywordSearch($pid, $fid) {
-        $arg = Request::input('query');
+        $arg = trim((Request::input('query')));
         $method = intval(Request::input('method'));
 
 // Only testing one query right now.
@@ -45,9 +46,16 @@ class FormSearchController extends Controller
 //        else
 //            $query_arr = explode(" ", $query); // We want to search for each element separately so we explode on spaces.
 
-        $seeker = new Search($pid, $fid, $arg, $method);
-        $results = $seeker->formKeywordSearch();
+        $search = new Search($pid, $fid, $arg, $method);
+        $fields = $search->formKeywordSearch(); // The fields in this form that satisfied the search results.
 
-        dd($results);
+        $f = clone $fields;
+
+        $records = null;
+        if (! $fields->isEmpty()) {
+            $records = $search->gatherRecords($fields); // The records that satisfy the search method and search results.
+        }
+
+        dd($f, $records);
     }
 }

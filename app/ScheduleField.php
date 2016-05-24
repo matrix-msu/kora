@@ -10,11 +10,6 @@ class ScheduleField extends BaseField {
         'events'
     ];
 
-
-    public function keywordSearchQuery($query, $arg) {
-        // TODO: Implement keywordSearchQuery() method.
-    }
-
     /**
      * Keyword search for a schedule field.
      *

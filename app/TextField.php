@@ -10,13 +10,6 @@ class TextField extends BaseField {
         'text'
     ];
 
-   public function keywordSearchQuery($query, $arg) {
-       $query->where(function ($query) use ($arg) {
-           $query->where('text', "LIKE", "%$arg%");
-       });
-       return $query;
-    }
-
     /**
      * Keyword search for a text field. Depending on the value of partial we have two procedures:
      *  True: find occurrences of any particular argument, including partial results.

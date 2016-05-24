@@ -154,10 +154,10 @@ class Field extends Model {
         // TODO: Consider processing the argument with the boolean operators if there are multiple.
         // (Or do this at the form level.)
         //
-        $arg = "*" . $arg . "*";
         switch($this->type) {
             case Field::_TEXT:
-                return TextField::where("flid", "=", $this->flid)->whereRaw("MATCH (`text`) AGAINST (? IN BOOLEAN MODE)", [$arg]);;
+                return TextField::where("flid", "=", $this->flid)->whereRaw("MATCH (`text`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
+
                 break;
 
             case Field::_RICH_TEXT:
@@ -165,6 +165,7 @@ class Field extends Model {
                 break;
 
             case Field::_NUMBER:
+                $arg = substr($arg, 1, -1); // Take off the full text search operators.
                 return NumberField::where("flid", "=", $this->flid)->where("number", "=", $arg);
                 break;
 
@@ -181,6 +182,7 @@ class Field extends Model {
                 break;
 
             case Field::_DATE:
+                $arg = substr($arg, 1, -1); // Take off the full text search operators.
                 // Date field is the bane of my existence.
                 // We have to do some special things depending on if this has era and circa turned on.
 

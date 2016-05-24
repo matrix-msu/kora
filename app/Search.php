@@ -35,7 +35,7 @@ class Search
      *
      * @param $pid, project id.
      * @param $fid, form id.
-     * @param $query_arr, the query of the search.
+     * @param $arg, the query of the search.
      * @param $method, the method of search, see search operators.
      */
     public function __construct($pid, $fid, $arg, $method) {
@@ -51,6 +51,24 @@ class Search
     private $method;        ///< Method of search, see search operators.
 
     /**
+     * Depending on the method, we need to apply some full text operators to the query string.
+     */
+    public function processArgument() {
+        switch($this->method) {
+            case self::SEARCH_OR:
+            case self::SEARCH_AND: // These stars allow for searching finding "apple" inside the word "applet".
+                return "*" . $this->arg . "*";
+                break;
+
+            case self::SEARCH_EXACT:
+                return '"' . $this->arg . '"'; // Double quotes correspond to searching for an exact phrase.
+                break;
+        }
+
+        return $this->arg;
+    }
+
+    /**
      * Keyword search our database for the queries given in the constructor.
      *
      *  Idea:    Eloquent is a fast system for form model binding and simple dumping of records.
@@ -58,20 +76,22 @@ class Search
      *  would be overburdened by getting every record and then searching through individually.
      *  So we let SQL do some work for us and then refine our search with a some extra functions.
      *
-     * @return array, the results of the search.
+     * @return Collection, the results of the search.
      */
     public function formKeywordSearch() {
         $fields = Field::where("fid", "=", $this->fid)->get();
 
         $results = new Collection();
 
+        $this->processArgument();
+
         foreach($fields as $field) {
             if ($field->isSearchable()) {
-                $results = $results->merge($field->keywordSearchTyped($this->arg)->get());
+                $results = $results->merge($field->keywordSearchTyped($this->processArgument())->get());
             }
         }
 
-        return $this->filterKeywordResults($results);
+        return $this->filterKeywordResults($results); // This now has the typed fields that satisfied the search.
     }
 
     /**
@@ -84,13 +104,67 @@ class Search
      * @return Collection, the filtered collection.
      */
     public function filterKeywordResults(Collection $results) {
-        return $results->filter(function(BaseField $element) {
-            // Determine if the search should be partial at a typed field level.
-            $partial = ($this->method == Search::SEARCH_AND || $this->method == Search::SEARCH_OR) ? true : false;
+        // Determine if the search should be partial at a typed field level.
+        $partial = ($this->method == Search::SEARCH_AND || $this->method == Search::SEARCH_OR) ? true : false;
 
-            // TODO: Consider argument parsing...
-            return $element->keywordSearch([$this->arg], $partial);
+        if ($partial) {
+            $arg = explode(" ", $this->arg);
+        }
+        else {
+            $arg = [$this->arg];
+        }
+
+        var_dump($arg);
+
+        return $results->filter( function(BaseField $element, $arg, $partial) {
+            return $element->keywordSearch($arg, $partial); // This is why we use OOP :)
         });
+    }
+
+    /**
+     * Collects the records that are necessary from a collection of fields.
+     * This function depends on the method of search, the distinction is important, see the search operators above for more.
+     *
+     * Exact is treated as OR at this point because the actual search in SQL will deal with exact phrases.
+     *
+     * @param Collection $fields
+     * @return Collection $records
+     */
+    public function gatherRecords(Collection $fields) {
+        $records = new Collection();
+
+        // Sort the fields by record id.
+        $fields->sortBy("rid");
+
+        switch ($this->method) {
+            case self::SEARCH_OR:
+            case self::SEARCH_EXACT:
+                //
+                // The field was flagged by the SQL search, so it is the right field here, we don't need to consider
+                // anything else other than getting the records needed in an efficient fashion.
+                //
+                // The possibly strange loop below assures we only pull records we need once from the database.
+                //
+                $rid = $fields->pop()->rid;
+                $records = $records->merge(Record::where('rid', '=', $rid)->get());
+
+                while(! $fields->isEmpty()) {
+                    $temp = $fields->pop()->rid;
+                    while ($rid == $temp) {
+                        $temp = $fields->pop()->rid;
+                    }
+
+                    // We will have a new record's field by this point.
+                    $rid = $temp;
+                    $records = $records->merge(Record::where('rid', '=', $rid)->get());
+                }
+                break;
+            case self::SEARCH_AND:
+                //TODO: This.
+                break;
+        }
+
+        return $records;
     }
 
     /**

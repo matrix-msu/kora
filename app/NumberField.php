@@ -10,10 +10,6 @@ class NumberField extends BaseField {
         'number'
     ];
 
-   public function keywordSearchQuery($query, $arg) {
-        // TODO: Implement keywordSearchQuery() method.
-    }
-
     /**
      * Keyword search for a number field.
      * Regardless of the partial flag, this matches only the exact number.

@@ -11,10 +11,6 @@ class ListField extends BaseField {
         'option'
     ];
 
-    public function keywordSearchQuery($query, $arg) {
-        // TODO: Implement keywordSearchQuery() method.
-    }
-
     /**
      * Keyword search on a list field.
      *

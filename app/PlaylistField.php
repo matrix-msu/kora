@@ -9,9 +9,4 @@ class PlaylistField extends FileTypeField  {
         'flid',
         'audio'
     ];
-
-   public function keywordSearchQuery($query, $arg) {
-        // TODO: Implement keywordSearchQuery() method.
-    }
-
 }
