@@ -1,6 +1,7 @@
 <?php namespace App\Commands;
 
 use App\Form;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -38,8 +39,8 @@ class SaveFormsTable extends Command implements SelfHandling, ShouldBeQueued {
             "overall" => DB::table("forms")->count(),
             "backup_id" => $this->backup_id,
             "start" => Carbon::now(),
-            "created_at"=>Carbon::now(),
-            "updated_at"=>Carbon::now()
+            "created_at" => Carbon::now(),
+            "updated_at" => Carbon::now()
         ]);
 
         Form::chunk(1000, function($forms) use ($table_path, $row_id) {
