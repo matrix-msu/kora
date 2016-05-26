@@ -19,21 +19,15 @@ class SaveTextFieldsTable extends Command implements SelfHandling, ShouldBeQueue
 
 	use InteractsWithQueue, SerializesModels;
 
-	public $backup_fs;
-	public  $backup_filepath;
-	public $backup_id;
-
 	/**
-	 * Create a new command instance.
+	 * SaveTextFieldsTable constructor.
 	 *
-	 * @return void
+	 * @param $backup_fs
+	 * @param $backup_filepath
+	 * @param $backup_id
 	 */
-	public function __construct($backup_fs,$backup_filepath,$backup_id)
-	{
-		//
-		$this->backup_fs = $backup_fs;
-		$this->backup_filepath = $backup_filepath;
-		$this->backup_id = $backup_id;
+	public function __construct($backup_fs,$backup_filepath,$backup_id) {
+		parent::__construct($backup_fs, $backup_filepath, $backup_id);
 	}
 
 	/**
@@ -48,11 +42,18 @@ class SaveTextFieldsTable extends Command implements SelfHandling, ShouldBeQueue
 		Log::info("Started backing up TextFields table");
 
 		$table_path = $this->backup_filepath."/textfields/";
-		$row_id = DB::table('backup_partial_progress')->insertGetId(['name'=>"Text Fields Table","progress"=>0,"overall"=>DB::table('text_fields')->count(),"backup_id"=>$this->backup_id,"start"=>Carbon::now(),"created_at"=>Carbon::now(),"updated_at"=>Carbon::now()]);
+		$row_id = DB::table('backup_partial_progress')->insertGetId([
+			'name'=>"Text Fields Table",
+			"progress"=>0,
+			"overall"=>DB::table('text_fields')->count(),
+			"backup_id"=>$this->backup_id,
+			"start"=>Carbon::now(),
+			"created_at"=>Carbon::now(),
+			"updated_at"=>Carbon::now()
+		]);
 
 		$this->backup_fs->makeDirectory($table_path);
 		TextField::chunk(1000,function($textfields) use ($table_path,$row_id){
-
 			$count= 0;
 
 			$all_textfields_data = new Collection();
@@ -73,7 +74,7 @@ class SaveTextFieldsTable extends Command implements SelfHandling, ShouldBeQueue
 				}
 			DB::table('backup_partial_progress')->where('id',$row_id)->increment('progress',$count,['updated_at'=>Carbon::now()]);
 			$increment = DB::table('backup_partial_progress')->where('id',$row_id)->pluck('progress');
-			$this->backup_fs->put($table_path.$increment.".json",json_encode($all_textfields_data));
+			$this->backup_fs->put($table_path . $increment . ".json",json_encode($all_textfields_data));
 		});
 
 

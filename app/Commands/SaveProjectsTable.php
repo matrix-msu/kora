@@ -17,21 +17,15 @@ class SaveProjectsTable extends Command implements SelfHandling, ShouldBeQueued 
 
 	use InteractsWithQueue, SerializesModels;
 
-	public $backup_fs;
-	public $backup_filepath;
-	public $backup_id;
-
 	/**
-	 * Create a new command instance.
+	 * SaveProjectsTable constructor.
 	 *
-	 * @return void
+	 * @param $backup_fs
+	 * @param $backup_filepath
+	 * @param $backup_id
 	 */
-	public function __construct($backup_fs,$backup_filepath,$backup_id)
-	{
-		//
-		$this->backup_fs = $backup_fs;
-		$this->backup_filepath = $backup_filepath;
-		$this->backup_id = $backup_id;
+	public function __construct($backup_fs, $backup_filepath, $backup_id) {
+		parent::__construct($backup_fs, $backup_filepath, $backup_id);
 	}
 
 	/**
@@ -49,7 +43,7 @@ class SaveProjectsTable extends Command implements SelfHandling, ShouldBeQueued 
 		$table_id = DB::table('backup_partial_progress')->insertGetId(['name'=>"Projects Table","progress"=>0,"overall"=>DB::table('projects')->count(),"backup_id"=>$this->backup_id,"start"=>Carbon::now(),"created_at"=>Carbon::now(),"updated_at"=>Carbon::now()]);
 
 		$this->backup_fs->makeDirectory($table_path);
-		Project::chunk(1000,function($projects) use ($table_path){
+		Project::chunk(1000, function($projects) use ($table_path) {
 			$all_projects_data = new Collection();
 			foreach ($projects as $project) {
 				//try {
