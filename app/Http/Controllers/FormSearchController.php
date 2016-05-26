@@ -8,11 +8,12 @@
 
 namespace App\Http\Controllers;
 
+use App\DocumentsField;
 use App\Search;
 use Illuminate\Support\Facades\Request;
 use App\Record;
 use Illuminate\Database\Eloquent\Collection;
-
+use Illuminate\Support\Facades\DB;
 class FormSearchController extends Controller
 {
     /**
@@ -37,6 +38,15 @@ class FormSearchController extends Controller
      * @param $fid, form id.
      */
     public function keywordSearch($pid, $fid) {
+        $f = new DocumentsField();
+        $f->rid = 1;
+        $f->flid = 1;
+        $f->documents = "dingus";
+
+        dd($f->toArray());
+
+
+
         $arg = trim((Request::input('query')));
         $method = intval(Request::input('method'));
 

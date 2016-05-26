@@ -114,9 +114,7 @@ class Search
             $arg = [$this->arg];
         }
 
-        var_dump($arg);
-
-        return $results->filter( function(BaseField $element, $arg, $partial) {
+        return $results->filter( function(BaseField $element) use ($arg, $partial) {
             return $element->keywordSearch($arg, $partial); // This is why we use OOP :)
         });
     }

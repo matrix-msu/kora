@@ -176,4 +176,30 @@ TEXT;
             $this->assertEquals($monthNumber, $i + 1);
         }
     }
+
+    /**
+     * Test the is month function in the date field class.
+     */
+    public function test_isMonth() {
+        $englishMonths = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+        $spanishMonths = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+        $frenchMonths = ['janvier', 'fevrier', 'mars', 'avril', 'mai', 'juin', 'juillet', 'aout', 'septembre', 'octobre', 'novembre', 'decembre'];
+
+        foreach ($englishMonths as $month) {
+            $this->assertTrue(DateField::isMonth($month));
+        }
+
+        foreach ($spanishMonths as $month) {
+            $this->assertTrue(DateField::isMonth($month));
+        }
+
+        foreach ($frenchMonths as $month) {
+            $this->assertTrue(DateField::isMonth($month));
+        }
+
+        $this->assertFalse(DateField::isMonth("not a month!"));
+        $this->assertFalse(DateField::isMonth("jannuuuaarrryyy"));
+        $this->assertFalse(DateField::isMonth("^-.&%^@()[]0-9"));
+
+    }
 }

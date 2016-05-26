@@ -19,10 +19,10 @@
         <env name="CACHE_DRIVER" value="array"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="DB_DEFAULT" value="testing"/>
-        <env name="DB_PREFIX" value="Kora3_Test_" />
-        <env name="DB_HOST" value="rush.matrix.msu.edu"/>
-        <env name="DB_USERNAME" value="jaghory_dev"/>
-        <env name="DB_DATABASE" value="jaghory_dev"/>
-        <env name="DB_PASSWORD" value="2yhK27SICN"/>
+        <env name="DB_PREFIX" value="PREFIX_" />
+        <env name="DB_HOST" value="HOST"/>
+        <env name="DB_USERNAME" value="USERNAME"/>
+        <env name="DB_DATABASE" value="DATABASE"/>
+        <env name="DB_PASSWORD" value="PASSWORD"/>
     </php>
 </phpunit>

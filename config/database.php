@@ -47,9 +47,15 @@ return [
 	'connections' => [
 
 		'testing' => [
-			'driver'   => 'sqlite',
-			'database' => ':memory:',
-			'prefix'   => '',
+			'driver'   => 'mysql',
+			'host'      => env('DB_HOST', 'localhost'),
+			'database'  => env('DB_DATABASE', 'forge'),
+			'username'  => env('DB_USERNAME', 'forge'),
+			'password'  => env('DB_PASSWORD', ''),
+			'charset'   => 'utf8',
+			'collation' => 'utf8_unicode_ci',
+			'prefix'    => env('DB_PREFIX','Kora3_'),
+			'strict'    => false,
 		],
 
 		'sqlite' => [

@@ -1,6 +1,7 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
 
 class DateField extends BaseField {
 
@@ -14,8 +15,53 @@ class DateField extends BaseField {
         'circa'
     ];
 
-   public function keywordSearchQuery($query, $arg) {
-        // TODO: Implement keywordSearchQuery() method.
+    /**
+     * Builds the query for a date field.
+     *
+     * @param $search string, the query, a space separated string.
+     * @param $circa bool, should we search for date fields with circa turned on?
+     * @param $era bool, should we search for date fields with era turned on?
+     * @param $flid int, the field id.
+     * @return Builder, the query for the date field.
+     */
+    public static function buildQuery($search, $circa, $era, $flid) {
+        $args = explode(" ", $search);
+
+        $query = DateField::where("flid", "=", $flid);
+
+        foreach ($args as $arg) {
+            if (self::isMonth($arg)) {
+                $query->orWhere("month", "=", self::monthToNumber($arg));
+            }
+
+            $query->orWhere("day", "=", $arg)
+                ->orWhere("year", "=", $arg);
+
+            if ($circa) {
+                $query->orWhere("circa", "=", "1");
+            }
+
+            if ($era) {
+                $query->orWhere("era", "=", strtoupper($arg));
+            }
+        }
+
+        return $query;
+    }
+
+    /**
+     * Determines if a string is a value month name.
+     * Using the month to number function, if the string is turned to a number
+     * we know it is determined to be a valid month name.
+     * The original string should also not be a number itself. As searches for
+     * the numbers 1 through 12 should not return dates based on some month Jan-Dec.
+     *
+     * @param $string string, the string to test.
+     * @return bool, true if the string is a valid month.
+     */
+    public static function isMonth($string) {
+        $monthToNumber = self::monthToNumber($string);
+        return is_numeric($monthToNumber) && $monthToNumber != $string;
     }
 
     /**
@@ -35,11 +81,11 @@ class DateField extends BaseField {
 
         foreach ($args as $arg) {
             $arg = strip_tags($arg);
-            $arg = self::convertCloseChars($arg);
+            $arg = Search::convertCloseChars($arg);
             $arg = strtolower($arg);
 
             if ($searchCirca && $arg == "circa" ||
-                $searchEra && $arg == strtolower($this->era)) {
+                $searchEra && $arg == strtoupper($this->era)) {
                 return true;
             }
 

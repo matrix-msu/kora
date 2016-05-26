@@ -1,6 +1,7 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
 
 class Field extends Model {
 
@@ -146,18 +147,13 @@ class Field extends Model {
     /**
      * Buils the query up for a typed field keyword search.
      *
-     * @param $arg string, the arguement being searched for.
-     * @return ,Query (query builder type).
+     * @param $arg string, the argument being searched for.
+     * @return Builder, query builder type.
      */
     public function keywordSearchTyped($arg) {
-        //
-        // TODO: Consider processing the argument with the boolean operators if there are multiple.
-        // (Or do this at the form level.)
-        //
         switch($this->type) {
             case Field::_TEXT:
                 return TextField::where("flid", "=", $this->flid)->whereRaw("MATCH (`text`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
-
                 break;
 
             case Field::_RICH_TEXT:
@@ -183,11 +179,6 @@ class Field extends Model {
 
             case Field::_DATE:
                 $arg = substr($arg, 1, -1); // Take off the full text search operators.
-                // Date field is the bane of my existence.
-                // We have to do some special things depending on if this has era and circa turned on.
-
-                // TODO: consider how month processing should work.
-                $month = DateField::monthToNumber($arg);
 
                 // Boolean to decide if we should consider circa options.
                 $circa = explode("[!Circa!]", $this->options)[1] == "Yes";
@@ -195,19 +186,7 @@ class Field extends Model {
                 // Boolean to decide if we should consider era.
                 $era = explode("[!Era!]", $this->options)[1] == "On";
 
-                $query = DateField::where("flid", "=", $this->flid)
-                    ->where("month", "=", $month)
-                    ->orWhere("day", "=", $arg)
-                    ->orWhere("year", "=", $arg);
-
-                if ($circa) {
-                    $query->orWhere("circa", "=", "1");
-                }
-
-                if ($era) {
-                    $query->orWhere("era", "=", strtoupper($arg));
-                }
-                return $query;
+                return DateField::buildQuery($arg, $circa, $era, $this->flid);
                 break;
 
             case Field::_SCHEDULE:
