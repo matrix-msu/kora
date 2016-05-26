@@ -17,24 +17,6 @@ use Illuminate\Support\Facades\DB;
 class SaveRecordsTable extends Command implements SelfHandling, ShouldBeQueued {
 
 	use InteractsWithQueue, SerializesModels;
-
-	public $backup_fs;
-	public  $backup_filepath;
-	public $backup_id;
-
-	/**
-	 * Create a new command instance.
-	 *
-	 * @return void
-	 */
-	public function __construct($backup_fs,$backup_filepath,$backup_id)
-	{
-		//
-		$this->backup_fs = $backup_fs;
-		$this->backup_filepath = $backup_filepath;
-		$this->backup_id = $backup_id;
-	}
-
 	/**
 	 * Execute the command.
 	 *

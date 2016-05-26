@@ -19,16 +19,6 @@ class SaveTextFieldsTable extends Command implements SelfHandling, ShouldBeQueue
 
 	use InteractsWithQueue, SerializesModels;
 
-	/**
-	 * SaveTextFieldsTable constructor.
-	 *
-	 * @param $backup_fs
-	 * @param $backup_filepath
-	 * @param $backup_id
-	 */
-	public function __construct($backup_fs,$backup_filepath,$backup_id) {
-		parent::__construct($backup_fs, $backup_filepath, $backup_id);
-	}
 
 	/**
 	 * Execute the command.

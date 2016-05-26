@@ -14,16 +14,6 @@ class SaveFormsTable extends Command implements SelfHandling, ShouldBeQueued {
 
     use InteractsWithQueue, SerializesModels;
 
-    /**
-     * SaveFormsTable constructor.
-     *
-     * @param $backup_fs
-     * @param $backup_filepath
-     * @param $backup_id
-     */
-    public function __construct($backup_fs, $backup_filepath, $backup_id) {
-        parent::__construct($backup_fs, $backup_filepath, $backup_id);
-    }
 
     /**
      * Execute the command.
@@ -60,7 +50,7 @@ class SaveFormsTable extends Command implements SelfHandling, ShouldBeQueued {
                 $form_data->put("preset", $form->preset);
                 $form_data->put("public_metadata", $form->public_metadata);
                 $form_data->put("created_at", $form->created_at->toDateTimeString());
-                $form_data->put("updated_at", $form->update_at->toDateTimeString());
+                $form_data->put("updated_at", $form->updated_at->toDateTimeString());
 
                 $all_forms_data->push($form_data);
                 $count++;

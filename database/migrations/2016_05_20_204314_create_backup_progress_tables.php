@@ -14,6 +14,8 @@ class CreateBackupProgressTables extends Migration {
 	{
 		Schema::create('backup_overall_progress', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+			
 			$table->increments('id');
 			$table->integer('progress');
 			$table->integer('overall');
@@ -24,6 +26,8 @@ class CreateBackupProgressTables extends Migration {
 
 		Schema::create('backup_partial_progress', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+			
 			$table->increments('id');
 			$table->string('name');
 			$table->integer('progress');

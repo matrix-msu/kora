@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\ComboListField;
+use App\Commands\SaveFormsTable;
 use App\Commands\SaveProjectsTable;
 use App\Commands\SaveRecordsTable;
 use App\Commands\SaveTextFieldsTable;
@@ -238,6 +239,7 @@ class BackupController extends Controller
         $this->backup_filepath = $this->BACKUP_DIRECTORY."/".$this->backup_filename;
         //Get an instance of Flysystem disk, to use Amazon AWS, SFTP, or Dropbox, change this!
         $this->backup_fs = Storage::disk('local');
+        $this->backup_disk = "local";
         //
         $this->backup_fs->makeDirectory($this->backup_filepath);
         $this->saveDatabase2();
@@ -247,9 +249,10 @@ class BackupController extends Controller
     public function saveDatabase2(){
         Log::info("Backup fp: ".$this->backup_filepath);
         $this->backup_id = DB::table('backup_overall_progress')->insertGetId(['progress'=>0,'overall'=>0,'start'=>Carbon::now(),'created_at'=>Carbon::now(),'updated_at'=>Carbon::now()]);
-        Queue::push(new SaveProjectsTable($this->backup_fs,$this->backup_filepath,$this->backup_id));
-        Queue::push(new SaveRecordsTable($this->backup_fs,$this->backup_filepath,$this->backup_id ));
-        Queue::push(new SaveTextFieldsTable($this->backup_fs,$this->backup_filepath,$this->backup_id ));
+        Queue::push(new SaveFormsTable($this->backup_disk,$this->backup_filepath,$this->backup_id ));
+        Queue::push(new SaveProjectsTable($this->backup_disk,$this->backup_filepath,$this->backup_id));
+        Queue::push(new SaveRecordsTable($this->backup_disk,$this->backup_filepath,$this->backup_id ));
+        Queue::push(new SaveTextFieldsTable($this->backup_disk,$this->backup_filepath,$this->backup_id ));
     }
 
     /*

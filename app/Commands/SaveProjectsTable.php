@@ -16,17 +16,7 @@ use Illuminate\Support\Facades\DB;
 class SaveProjectsTable extends Command implements SelfHandling, ShouldBeQueued {
 
 	use InteractsWithQueue, SerializesModels;
-
-	/**
-	 * SaveProjectsTable constructor.
-	 *
-	 * @param $backup_fs
-	 * @param $backup_filepath
-	 * @param $backup_id
-	 */
-	public function __construct($backup_fs, $backup_filepath, $backup_id) {
-		parent::__construct($backup_fs, $backup_filepath, $backup_id);
-	}
+	
 
 	/**
 	 * Execute the command.
@@ -40,16 +30,20 @@ class SaveProjectsTable extends Command implements SelfHandling, ShouldBeQueued 
 		Log::info("Started backing up Projects table");
 
 		$table_path = $this->backup_filepath."/projects/";
-		$table_id = DB::table('backup_partial_progress')->insertGetId(['name'=>"Projects Table","progress"=>0,"overall"=>DB::table('projects')->count(),"backup_id"=>$this->backup_id,"start"=>Carbon::now(),"created_at"=>Carbon::now(),"updated_at"=>Carbon::now()]);
+		$row_id = DB::table('backup_partial_progress')->insertGetId(['name'=>"Projects Table","progress"=>0,"overall"=>DB::table('projects')->count(),"backup_id"=>$this->backup_id,"start"=>Carbon::now(),"created_at"=>Carbon::now(),"updated_at"=>Carbon::now()]);
 
 		$this->backup_fs->makeDirectory($table_path);
-		Project::chunk(1000, function($projects) use ($table_path) {
+		Project::chunk(1000,function($projects) use ($table_path, $row_id){
+			$count= 0;
 			$all_projects_data = new Collection();
 			foreach ($projects as $project) {
 				//try {
 				$individual_project_data = new Collection();
 				$individual_project_data->put("pid", $project->pid);
 				$individual_project_data->put("name", $project->name);
+
+
+
 				$individual_project_data->put("slug", $project->slug);
 				$individual_project_data->put("description", $project->description);
 				$individual_project_data->put("adminGID", $project->adminGID);
@@ -57,11 +51,14 @@ class SaveProjectsTable extends Command implements SelfHandling, ShouldBeQueued 
 				$individual_project_data->put("created_at", $project->created_at->toDateTimeString());
 				$individual_project_data->put("updated_at", $project->updated_at->toDateTimeString());
 				$all_projects_data->push($individual_project_data);
+				$count++;
 				//} catch (\Exception $e) {
 				//	$this->ajax_error_list->push($e->getMessage());
 				//}
 			}
-			$this->backup_fs->put($table_path."1.json",json_encode($all_projects_data));
+			DB::table('backup_partial_progress')->where('id',$row_id)->increment('progress',$count,['updated_at'=>Carbon::now()]);
+			$increment = DB::table('backup_partial_progress')->where('id',$row_id)->pluck('progress');
+			$this->backup_fs->put($table_path.$increment.".json",json_encode($all_projects_data));
 		});
 
 
