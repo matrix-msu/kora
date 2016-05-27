@@ -73,15 +73,20 @@ TEXT;
         $field->rawtext = self::COMPLEX_RICH;
 
         // Most basic special character case.
+        /** Special character processing was moved up so it only happens once in a search. */
         $args = ['něvrzkotě'];
+        $args[0] = \App\Search::convertCloseChars($args[0]);
         $this->assertTrue($field->keywordSearch($args, false));
         $this->assertTrue($field->keywordSearch($args, true));
 
         $args = ['zkotě'];
+        $args[0] = \App\Search::convertCloseChars($args[0]);
         $this->assertTrue($field->keywordSearch($args, true));
         $this->assertFalse($field->keywordSearch($args, false));
 
         $args = ['něvrzkotě', 'nině', ''];
+        $args[0] = \App\Search::convertCloseChars($args[0]);
+        $args[1] = \App\Search::convertCloseChars($args[1]);
         $this->assertTrue($field->keywordSearch($args, true));
         $this->assertTrue($field->keywordSearch($args, false));
     }

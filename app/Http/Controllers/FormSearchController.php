@@ -27,45 +27,43 @@ class FormSearchController extends Controller
     }
 
     /**
-     * Executes a keyword search on a particular form.
+     * Displays the results of a keyword search.
      *
-     * This will do the following:
+     * TODO: Make display views (just dumps right now (might be a good task for new person)).
+     *
+     * @param $pid, project id.
+     * @param $fid, form id.
+     */
+    public function keywordSearch($pid, $fid) {
+        $arg = trim((Request::input('query')));
+        $method = intval(Request::input('method'));
+
+        dd($this->keywordRoutine($pid, $fid, $arg, $method));
+    }
+
+    /**
+     *  The actual form search routine, calls App\Search routines with proper parameters.
+     *
+     *  This will do the following:
      *  1. Do an approximate SQL search to quickly gather records that might match the query.
      *  2. Use the built in keywordSearch methods on the fields of a particular record to narrow the search.
      *  3. Return a view identical to the records index page with the results of this process.
      *
      * @param $pid, project id.
      * @param $fid, form id.
+     * @param $arg, arguments of the search.
+     * @param $method, method of the search (see search operators in App\Search).
+     * @return Collection|null, the results of the search.
      */
-    public function keywordSearch($pid, $fid) {
-        $f = new DocumentsField();
-        $f->rid = 1;
-        $f->flid = 1;
-        $f->documents = "dingus";
-
-        dd($f->toArray());
-
-
-
-        $arg = trim((Request::input('query')));
-        $method = intval(Request::input('method'));
-
-// Only testing one query right now.
-//        if ($method == Search::SEARCH_EXACT)
-//            $query_arr = [$query]; // We only want to search for the exact phrase, so there is only one element here.
-//        else
-//            $query_arr = explode(" ", $query); // We want to search for each element separately so we explode on spaces.
-
+    public function keywordRoutine($pid, $fid, $arg, $method) {
         $search = new Search($pid, $fid, $arg, $method);
         $fields = $search->formKeywordSearch(); // The fields in this form that satisfied the search results.
-
-        $f = clone $fields;
 
         $records = null;
         if (! $fields->isEmpty()) {
             $records = $search->gatherRecords($fields); // The records that satisfy the search method and search results.
         }
 
-        dd($f, $records);
+        return $records;
     }
 }

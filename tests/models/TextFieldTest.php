@@ -81,6 +81,7 @@ TEXT;
         $this->assertTrue($field->keywordSearch($args, true));
         $this->assertTrue($field->keywordSearch($args, false));
 
+        /**  Special character processing was moved up so it only happens to characters once. */
         //
         // Test special character searches.
 	    //
@@ -88,10 +89,12 @@ TEXT;
 
         // Most basic special character case.
         $args = ['něvrzkotě'];
+        $args[0] = \App\Search::convertCloseChars($args[0]);
         $this->assertTrue($field->keywordSearch($args, false));
 
         // Test partials.
         $args = ['zkotě'];
+        $args[0] = \App\Search::convertCloseChars($args[0]);
         $this->assertTrue($field->keywordSearch($args, true));
         $this->assertFalse($field->keywordSearch($args, false));
 
@@ -101,6 +104,7 @@ TEXT;
         $this->assertFalse($field->keywordSearch($args, true));
 
         $args = ['poe the poet', 'hawthorne', 'zkotě'];
+        $args[2] = \App\Search::convertCloseChars($args[2]);
         $this->assertTrue($field->keywordSearch($args, true));
         $this->assertFalse($field->keywordSearch($args, false));
 
@@ -116,6 +120,7 @@ TEXT;
         $field->text = "";
 
         $args = ['these', 'are', 'some', 'arguments', 'mřímí'];
+        $args[4] = \App\Search::convertCloseChars($args[4]);
         $this->assertFalse($field->keywordSearch($args, false));
         $this->assertFalse($field->keywordSearch($args, true));
 
@@ -125,15 +130,18 @@ TEXT;
         $field->text = self::COMPLEX_TEXT;
 
         $args = ['(mřímí)'];
+        $args[0] = \App\Search::convertCloseChars($args[0]);
         $this->assertTrue($field->keywordSearch($args, false)); // Only need to try the non-partial because it uses regex.
 
         $args = ['Fréř&ňoni'];
+        $args[0] = \App\Search::convertCloseChars($args[0]);
         $this->assertTrue($field->keywordSearch($args, false));
 
         $args = ['$3500'];
         $this->assertTrue($field->keywordSearch($args, false));
 
         $args = ['zkedě||z'];
+        $args[0] = \App\Search::convertCloseChars($args[0]);
         $this->assertTrue($field->keywordSearch($args, false));
 
         $args = ['[\^$.|?*+()']; // The regex specials

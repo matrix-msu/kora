@@ -1,6 +1,7 @@
 <?php
 
 use App\ListField as ListField;
+use App\Search as Search;
 
 /**
  * Class ListFieldTest
@@ -31,6 +32,10 @@ class ListFieldTest extends TestCase
         $field->option = "něvrzkotě";
 
         $args = ["něvrzkotě"];
+
+        // Arguments are now processed at a higher level than typed fields (so they only happen once).
+        $args[0] = Search::convertCloseChars($args[0]);
+
         $this->assertTrue($field->keywordSearch($args, true));
         $this->assertTrue($field->keywordSearch($args, false));
 

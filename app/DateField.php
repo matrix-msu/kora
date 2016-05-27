@@ -76,16 +76,15 @@ class DateField extends BaseField {
         $field = Field::where('flid', '=', $this->flid)->first();
         $circa = (explode('[!Circa!]', $field->options)[1]) == "Yes";
 
-        $searchEra = (explode('[!Era!]', $field->options)[1]) == "On"; // Boolean to determine if we should search for era.
+        $searchEra = (explode('[!Era!]', $field->options)[1]) == "Yes"; // Boolean to determine if we should search for era.
         $searchCirca = ($circa && $this->circa); // Boolean to determine if we should search for circa.
 
         foreach ($args as $arg) {
             $arg = strip_tags($arg);
             $arg = Search::convertCloseChars($arg);
-            $arg = strtolower($arg);
 
-            if ($searchCirca && $arg == "circa" ||
-                $searchEra && $arg == strtoupper($this->era)) {
+            if ($searchCirca && strtolower($arg) == "circa" ||
+                $searchEra && strtoupper($arg) == strtoupper($this->era)) {
                 return true;
             }
 
