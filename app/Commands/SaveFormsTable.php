@@ -10,10 +10,9 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveFormsTable extends Command implements SelfHandling, ShouldBeQueued {
-
+class SaveFormsTable extends Command implements SelfHandling, ShouldBeQueued
+{
     use InteractsWithQueue, SerializesModels;
-
 
     /**
      * Execute the command.
@@ -23,16 +22,11 @@ class SaveFormsTable extends Command implements SelfHandling, ShouldBeQueued {
 
         $table_path = $this->backup_filepath . "/forms/";
 
-        $row_id = DB::table('backup_partial_progress')->insertGetId([
-            "name" => "Forms Table",
-            "progress" => 0,
-            "overall" => DB::table("forms")->count(),
-            "backup_id" => $this->backup_id,
-            "start" => Carbon::now(),
-            "created_at" => Carbon::now(),
-            "updated_at" => Carbon::now()
-        ]);
+        $row_id = DB::table('backup_partial_progress')->insertGetId(
+            $this->makeBackupTableArray("forms")
+        );
 
+        $this->backup_fs->makeDirectory($table_path);
         Form::chunk(1000, function($forms) use ($table_path, $row_id) {
             $count = 0;
             $all_forms_data = new Collection();

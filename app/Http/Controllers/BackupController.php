@@ -1,10 +1,31 @@
 <?php namespace App\Http\Controllers;
 
 use App\ComboListField;
+use App\Commands\SaveComboListFieldsTable;
+use App\Commands\SaveDateFieldsTable;
+use App\Commands\SaveDocumentsFieldsTable;
+use App\Commands\SaveFieldsTable;
 use App\Commands\SaveFormsTable;
+use App\Commands\SaveGalleryFieldsTable;
+use App\Commands\SaveGeneratedListFieldsTable;
+use App\Commands\SaveGeolocatorFieldsTable;
+use App\Commands\SaveListFieldTable;
+use App\Commands\SaveMetadatasTable;
+use App\Commands\SaveModelFieldsTable;
+use App\Commands\SaveMultiSelectListFieldsTable;
+use App\Commands\SaveNumberFieldsTable;
+use App\Commands\SaveOptionPresetsTable;
+use App\Commands\SavePlaylistFieldsTable;
+use App\Commands\SaveProjectGroupsTable;
 use App\Commands\SaveProjectsTable;
 use App\Commands\SaveRecordsTable;
+use App\Commands\SaveRevisionsTable;
+use App\Commands\SaveRichTextFields;
+use App\Commands\SaveScheduleFieldsTable;
 use App\Commands\SaveTextFieldsTable;
+use App\Commands\SaveTokensTable;
+use App\Commands\SaveUsersTable;
+use App\Commands\SaveVideoFieldsTable;
 use App\DateField;
 use App\DocumentsField;
 use App\Field;
@@ -249,10 +270,35 @@ class BackupController extends Controller
     public function saveDatabase2(){
         Log::info("Backup fp: ".$this->backup_filepath);
         $this->backup_id = DB::table('backup_overall_progress')->insertGetId(['progress'=>0,'overall'=>0,'start'=>Carbon::now(),'created_at'=>Carbon::now(),'updated_at'=>Carbon::now()]);
-        Queue::push(new SaveFormsTable($this->backup_disk,$this->backup_filepath,$this->backup_id ));
-        Queue::push(new SaveProjectsTable($this->backup_disk,$this->backup_filepath,$this->backup_id));
-        Queue::push(new SaveRecordsTable($this->backup_disk,$this->backup_filepath,$this->backup_id ));
-        Queue::push(new SaveTextFieldsTable($this->backup_disk,$this->backup_filepath,$this->backup_id ));
+        Queue::push(new SaveFormsTable($this->backup_disk, $this->backup_filepath, $this->backup_id ));
+        Queue::push(new SaveProjectsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveRecordsTable($this->backup_disk, $this->backup_filepath, $this->backup_id ));
+        Queue::push(new SaveTextFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id ));
+        Queue::push(new SaveComboListFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveDateFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveGeneratedListFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveGeolocatorFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveListFieldTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveMetadatasTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveMultiSelectListFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveNumberFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveOptionPresetsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveProjectGroupsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveRevisionsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveRichTextFields($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveScheduleFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveTokensTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveUsersTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+
+        //
+        // These are not implemented yet, we need to decide how we are handling file backups first...
+        //
+//        Queue::push(new SaveDocumentsFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+//        Queue::push(new SavePlaylistFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+//        Queue::push(new SaveVideoFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+//        Queue::push(new SaveGalleryFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+//        Queue::push(new SaveModelFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
     }
 
     /*
@@ -700,7 +746,7 @@ class BackupController extends Controller
                 }
             }
 
-            // ModelField
+            // Model Field
             $all_modelfield_data = new Collection();
             $entire_database->put('modelfield',$all_modelfield_data);
             foreach(ModelField::all() as $modelfield){
@@ -718,7 +764,7 @@ class BackupController extends Controller
                 }
             }
 
-            // ModelField
+            // Gallery Field
             $all_galleryfield_data = new Collection();
             $entire_database->put('galleryfield',$all_galleryfield_data);
             foreach(GalleryField::all() as $galleryfield){
@@ -736,7 +782,7 @@ class BackupController extends Controller
                 }
             }
 
-            //ComboList Field
+            // ComboList Field
             $all_combolistfield_data = new Collection();
             $entire_database->put('combolistfield',$all_combolistfield_data);
             foreach(ComboListField::all() as $combolistfield){
@@ -757,7 +803,7 @@ class BackupController extends Controller
                 }
             }
 
-            //  Token
+            // Tokens Field
             $all_tokens_data = new Collection();
             $entire_database->put("tokens", $all_tokens_data);
             foreach (Token::all() as $token) {
@@ -817,6 +863,8 @@ class BackupController extends Controller
                     $this->ajax_error_list->push($e->getMessage());
                 }
             }
+
+            // Option Presets
             $all_optionpresets_data = new Collection();
             foreach(OptionPreset::all() as $optionpreset){
                 try {

@@ -30,7 +30,9 @@ class SaveProjectsTable extends Command implements SelfHandling, ShouldBeQueued 
 		Log::info("Started backing up Projects table");
 
 		$table_path = $this->backup_filepath."/projects/";
-		$row_id = DB::table('backup_partial_progress')->insertGetId(['name'=>"Projects Table","progress"=>0,"overall"=>DB::table('projects')->count(),"backup_id"=>$this->backup_id,"start"=>Carbon::now(),"created_at"=>Carbon::now(),"updated_at"=>Carbon::now()]);
+		$row_id = DB::table('backup_partial_progress')->insertGetId(
+			$this->makeBackupTableArray("projects")
+		);
 
 		$this->backup_fs->makeDirectory($table_path);
 		Project::chunk(1000,function($projects) use ($table_path, $row_id){

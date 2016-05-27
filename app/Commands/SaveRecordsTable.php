@@ -29,12 +29,14 @@ class SaveRecordsTable extends Command implements SelfHandling, ShouldBeQueued {
 		Log::info("Started backing up Records table");
 
 		$table_path = $this->backup_filepath."/records/";
-		$row_id = DB::table('backup_partial_progress')->insertGetId(['name'=>"Records Table","progress"=>0,"overall"=>DB::table('records')->count(),"backup_id"=>$this->backup_id,"start"=>Carbon::now(),"created_at"=>Carbon::now(),"updated_at"=>Carbon::now()]);
+		$row_id = DB::table('backup_partial_progress')->insertGetId(
+			$this->makeBackupTableArray("records")
+		);
 
 		$this->backup_fs->makeDirectory($table_path);
 		Record::chunk(1000,function($records) use ($table_path,$row_id){
 
-			$count= 0;
+			$count = 0;
 			$all_records_data = new Collection();
 			foreach ($records as $record) {
 				//try {

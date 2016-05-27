@@ -31,16 +31,10 @@ class SaveTextFieldsTable extends Command implements SelfHandling, ShouldBeQueue
 		//
 		Log::info("Started backing up TextFields table");
 
-		$table_path = $this->backup_filepath."/textfields/";
-		$row_id = DB::table('backup_partial_progress')->insertGetId([
-			'name'=>"Text Fields Table",
-			"progress"=>0,
-			"overall"=>DB::table('text_fields')->count(),
-			"backup_id"=>$this->backup_id,
-			"start"=>Carbon::now(),
-			"created_at"=>Carbon::now(),
-			"updated_at"=>Carbon::now()
-		]);
+		$table_path = $this->backup_filepath."/text_fields/";
+		$row_id = DB::table('backup_partial_progress')->insertGetId(
+			$this->makeBackupTableArray("text_fields")
+		);
 
 		$this->backup_fs->makeDirectory($table_path);
 		TextField::chunk(1000,function($textfields) use ($table_path,$row_id){
