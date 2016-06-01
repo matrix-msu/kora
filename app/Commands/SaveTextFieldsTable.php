@@ -36,8 +36,9 @@ class SaveTextFieldsTable extends Command implements SelfHandling, ShouldBeQueue
 			$this->makeBackupTableArray("text_fields")
 		);
 
+		//ini_set('mysql.connect_timeout',0);
 		$this->backup_fs->makeDirectory($table_path);
-		TextField::chunk(1000,function($textfields) use ($table_path,$row_id){
+		TextField::chunk(500,function($textfields) use ($table_path,$row_id){
 			$count= 0;
 
 			$all_textfields_data = new Collection();
@@ -61,7 +62,7 @@ class SaveTextFieldsTable extends Command implements SelfHandling, ShouldBeQueue
 			$this->backup_fs->put($table_path . $increment . ".json",json_encode($all_textfields_data));
 		});
 
-
+		DB::table("backup_overall_progress")->where("id", $this->backup_id)->increment("progress",1,["updated_at"=>Carbon::now()]);
 
 
 	}
