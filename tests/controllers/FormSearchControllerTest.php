@@ -24,9 +24,4 @@ class FormSearchControllerTest extends TestCase
         parent::__construct();
         self::$controller = new FormSearchController();
     }
-
-    public function test_keywordRoutine() {
-
-    }
-
 }

@@ -9,6 +9,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Debug\Dumper;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -45,9 +46,21 @@ class Search
         $this->method = $method;
     }
 
-    private $pid;           ///< The id of the project we're searching.
-    private $fid;           ///< The id of the form we're searching.
-    private $arg;           ///< The search query in array form.
+    /** Id of the project we're searching in.
+     * @var integer
+     */
+    private $pid;
+    /** Id of the form we're searching in.
+     * @var integer
+     */
+    private $fid;
+    /** The query as input by the user.
+     * @var string
+     */
+    private $arg;
+    /** Method of search, see the search operators.
+     * @var integer
+     */
     private $method;        ///< Method of search, see search operators.
 
     /**
@@ -57,7 +70,14 @@ class Search
         switch($this->method) {
             case self::SEARCH_OR:
             case self::SEARCH_AND: // These stars allow for searching finding "apple" inside the word "applet".
-                return "*" . $this->arg . "*";
+                $processed = "";
+
+                foreach(explode(" ", $this->arg) as $arg) {
+                    $processed .= "*" . $arg . "* ";
+                }
+
+                $processed = trim($processed);
+                return $processed;
                 break;
 
             case self::SEARCH_EXACT:
@@ -80,10 +100,7 @@ class Search
      */
     public function formKeywordSearch() {
         $fields = Field::where("fid", "=", $this->fid)->get();
-
         $results = new Collection();
-
-        $this->processArgument();
 
         foreach($fields as $field) {
             if ($field->isSearchable()) {
@@ -125,11 +142,15 @@ class Search
      *
      * Exact is treated as OR at this point because the actual search in SQL will deal with exact phrases.
      *
-     * @param Collection $fields
-     * @return Collection $records
+     * @param Collection $fields, a collection of BaseFields, assured to be
+     * @return Collection $records, a collection of records associated with the BaseFields.
      */
     public function gatherRecords(Collection $fields) {
         $records = new Collection();
+
+        if ($fields->isEmpty()) {
+            return $records;
+        }
 
         // Sort the fields by record id.
         $fields->sortBy("rid");
@@ -158,11 +179,66 @@ class Search
                 }
                 break;
             case self::SEARCH_AND:
-                //TODO: This.
+                //
+                // Again, the field was flagged by the sql search, however we need to consider a bit more.
+                // For any particular record, all of the arguments in the query need to be in one or
+                // more of the record's typed fields--all the arguments could be spread across all the fields.
+                //
+                // E.g. if a record has two text fields one containing the word "eldritch" and the other containing
+                // "hideous" and an "AND" keyword search is executed the search will return the record if the search argument
+                // was "eldritch hideous" but, will not return the record if the argument was "eldritch hideous Dunwich".
+                //
+                $args = explode(" ", $this->arg);
+                $temp = 0; // Invalid rid for initializing purposes.
+
+                while (! $fields->isEmpty()) {
+                    $field = $fields->pop();
+
+                    // Make sure the field we have is still from the same record as the previous.
+                    if ($temp && $temp != $field->rid) {
+                        $args = explode(" ", $this->arg);
+                    }
+                    $temp = $field->rid;
+
+                    foreach ($args as $arg) {
+                        if ($field->keywordSearch([$arg], false)) {
+                            $args = array_diff($args, [$arg]);
+                        }
+                    }
+
+                    // If all the arguments were found in a particular record's fields.
+                    if (empty($args)) {
+                        $records = $records->merge(Record::where('rid', '=', $field->rid)->get());
+
+                        // Remove the rest of the fields that have the current rid.
+                        while (! $fields->isEmpty() && $fields->last()->rid == $temp) {
+                            $fields->pop();
+                        }
+                    }
+                }
                 break;
         }
 
         return $records;
+    }
+
+    /**
+     * Returns an array of values that will be ignored by the full text index.
+     *
+     * @param $string string, the input to the search.
+     * @return array, the intersection of the input (as an array) and self::$STOP_WORDS.
+     */
+    public static function showIgnoredArguments($string) {
+        $args = explode(" ", $string);
+
+        $short = [];
+        foreach ($args as $arg) {
+            if (strlen($arg) <= 3) {
+                $short[] = $arg;
+            }
+        }
+
+        return array_unique(array_merge(array_values(array_intersect($args, self::$STOP_WORDS)), $short));
     }
 
     /**
@@ -199,6 +275,16 @@ class Search
         'u', 'W', 'w', 'Y', 'y', 'Y', 'Z', 'z', 'Z', 'z', 'Z', 'z', 's', 'f', 'O', 'o', 'U', 'u', 'A', 'a', 'I', 'i',
         'O', 'o', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'A', 'a', 'AE', 'ae', 'O', 'o', 'Α', 'a', 'Ε', 'e',
         'Ο', 'ο', 'O', 'w', 'Ι', 'i', 'i', 'i', 'Υ', 'u', 'u', 'u', 'Η', 'n'];
+
+    /**
+     * Array of MyISAM stopwords.
+     * These words are completely ignored by a search on a field with a fulltext index (CONTAINS statement).
+     *
+     * @var array
+     */
+    public static $STOP_WORDS = [
+        "a's", "able", "about", "above", "according", "accordingly", "across", "actually", "after", "afterwards", "again", "against", "ain't", "all", "allow", "allows", "almost", "alone", "along", "already", "also", "although", "always", "am", "among", "amongst", "an", "and", "another", "any", "anybody", "anyhow", "anyone", "anything", "anyway", "anyways", "anywhere", "apart", "appear", "appreciate", "appropriate", "are", "aren't", "around", "as", "aside", "ask", "asking", "associated", "at", "available", "away", "awfully", "be", "became", "because", "become", "becomes", "becoming", "been", "before", "beforehand", "behind", "being", "believe", "below", "beside", "besides", "best", "better", "between", "beyond", "both", "brief", "but", "by", "c'mon", "c's", "came", "can", "can't", "cannot", "cant", "cause", "causes", "certain", "certainly", "changes", "clearly", "co", "com", "come", "comes", "concerning", "consequently", "consider", "considering", "contain", "containing", "contains", "corresponding", "could", "couldn't", "course", "currently", "definitely", "described", "despite", "did", "didn't", "different", "do", "does", "doesn't", "doing", "don't", "done", "down", "downwards", "during", "each", "edu", "eg", "eight", "either", "else", "elsewhere", "enough", "entirely", "especially", "et", "etc", "even", "ever", "every", "everybody", "everyone", "everything", "everywhere", "ex", "exactly", "example", "except", "far", "few", "fifth", "first", "five", "followed", "following", "follows", "for", "former", "formerly", "forth", "four", "from", "further", "furthermore", "get", "gets", "getting", "given", "gives", "go", "goes", "going", "gone", "got", "gotten", "greetings", "had", "hadn't", "happens", "hardly", "has", "hasn't", "have", "haven't", "having", "he", "he's", "hello", "help", "hence", "her", "here", "here's", "hereafter", "hereby", "herein", "hereupon", "hers", "herself", "hi", "him", "himself", "his", "hither", "hopefully", "how", "howbeit", "however", "i'd", "i'll", "i'm", "i've", "ie", "if", "ignored", "immediate", "in", "inasmuch", "inc", "indeed", "indicate", "indicated", "indicates", "inner", "insofar", "instead", "into", "inward", "is", "isn't", "it", "it'd", "it'll", "it's", "its", "itself", "just", "keep", "keeps", "kept", "know", "known", "knows", "last", "lately", "later", "latter", "latterly", "least", "less", "lest", "let", "let's", "like", "liked", "likely", "little", "look", "looking", "looks", "ltd", "mainly", "many", "may", "maybe", "me", "mean", "meanwhile", "merely", "might", "more", "moreover", "most", "mostly", "much", "must", "my", "myself", "name", "namely", "nd", "near", "nearly", "necessary", "need", "needs", "neither", "never", "nevertheless", "new", "next", "nine", "no", "nobody", "non", "none", "noone", "nor", "normally", "not", "nothing", "novel", "now", "nowhere", "obviously", "of", "off", "often", "oh", "ok", "okay", "old", "on", "once", "one", "ones", "only", "onto", "or", "other", "others", "otherwise", "ought", "our", "ours", "ourselves", "out", "outside", "over", "overall", "own", "particular", "particularly", "per", "perhaps", "placed", "please", "plus", "possible", "presumably", "probably", "provides", "que", "quite", "qv", "rather", "rd", "re", "really", "reasonably", "regarding", "regardless", "regards", "relatively", "respectively", "right", "said", "same", "saw", "say", "saying", "says", "second", "secondly", "see", "seeing", "seem", "seemed", "seeming", "seems", "seen", "self", "selves", "sensible", "sent", "serious", "seriously", "seven", "several", "shall", "she", "should", "shouldn't", "since", "six", "so", "some", "somebody", "somehow", "someone", "something", "sometime", "sometimes", "somewhat", "somewhere", "soon", "sorry", "specified", "specify", "specifying", "still", "sub", "such", "sup", "sure", "t's", "take", "taken", "tell", "tends", "th", "than", "thank", "thanks", "thanx", "that", "that's", "thats", "the", "their", "theirs", "them", "themselves", "then", "thence", "there", "there's", "thereafter", "thereby", "therefore", "therein", "theres", "thereupon", "these", "they", "they'd", "they'll", "they're", "they've", "think", "third", "this", "thorough", "thoroughly", "those", "though", "three", "through", "throughout", "thru", "thus", "to", "together", "too", "took", "toward", "towards", "tried", "tries", "truly", "try", "trying", "twice", "two", "un", "under", "unfortunately", "unless", "unlikely", "until", "unto", "up", "upon", "us", "use", "used", "useful", "uses", "using", "usually", "value", "various", "very", "via", "viz", "vs", "want", "wants", "was", "wasn't", "way", "we", "we'd", "we'll", "we're", "we've", "welcome", "well", "went", "were", "weren't", "what", "what's", "whatever", "when", "whence", "whenever", "where", "where's", "whereafter", "whereas", "whereby", "wherein", "whereupon", "wherever", "whether", "which", "while", "whither", "who", "who's", "whoever", "whole", "whom", "whose", "why", "will", "willing", "wish", "with", "within", "without", "won't", "wonder", "would", "wouldn't", "yes", "yet", "you", "you'd", "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves", "zero"
+    ];
 
     /**
      * Converts characters in a string to their close english only non-accented, non-diacritical matches.

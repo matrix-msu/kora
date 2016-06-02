@@ -38,7 +38,7 @@ class FormSearchController extends Controller
         $arg = trim((Request::input('query')));
         $method = intval(Request::input('method'));
 
-        dd($this->keywordRoutine($pid, $fid, $arg, $method));
+        dd($this->keywordRoutine($pid, $fid, $arg, $method), Search::showIgnoredArguments($arg));
     }
 
     /**
