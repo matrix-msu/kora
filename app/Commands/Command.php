@@ -25,7 +25,6 @@ abstract class Command {
         $this->backup_fs = Storage::disk($backup_fs);
         $this->backup_filepath = $backup_filepath;
         $this->backup_id = $backup_id;
-        DB::table("backup_overall_progress")->where("id", $backup_id)->increment("overall", 1, ["updated_at" => Carbon::now()] );
     }
 
     /**
