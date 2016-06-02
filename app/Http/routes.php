@@ -188,6 +188,7 @@ Route::post('/backup/project/restore/start','BackupController@restoreProject');
 Route::get('/backup/project/{pid}','BackupController@projectIndex');
 Route::post('/backup/project/{pid}','BackupController@backupProject');
 Route::post('/backup/project','BackupController@createProject');
+Route::get('/backup/progress/{backup_id}','BackupController@checkProgress');
 
 //form search routes
 Route::get('/keywordSearch/project/{pid}/forms/{fid}', 'FormSearchController@keywordSearch');

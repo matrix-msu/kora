@@ -53,5 +53,6 @@ class SaveDateFieldsTable extends Command implements SelfHandling, ShouldBeQueue
             $increment = DB::table("backup_partial_progress")->where("id", $row_id)->pluck("progress");
             $this->backup_fs->put($table_path . $increment . ".json", json_encode($all_datefields_data));
         });
+        DB::table("backup_overall_progress")->where("id", $this->backup_id)->increment("progress",1,["updated_at"=>Carbon::now()]);
     }
 }
