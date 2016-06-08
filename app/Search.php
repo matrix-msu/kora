@@ -63,30 +63,6 @@ class Search
      */
     private $method;        ///< Method of search, see search operators.
 
-    /**
-     * Depending on the method, we need to apply some full text operators to the query string.
-     */
-    public function processArgument() {
-        switch($this->method) {
-            case self::SEARCH_OR:
-            case self::SEARCH_AND: // These stars allow for searching finding "apple" inside the word "applet".
-                $processed = "";
-
-                foreach(explode(" ", $this->arg) as $arg) {
-                    $processed .= "*" . $arg . "* ";
-                }
-
-                $processed = trim($processed);
-                return $processed;
-                break;
-
-            case self::SEARCH_EXACT:
-                return '"' . $this->arg . '"'; // Double quotes correspond to searching for an exact phrase.
-                break;
-        }
-
-        return $this->arg;
-    }
 
     /**
      * Keyword search our database for the queries given in the constructor.
@@ -96,20 +72,57 @@ class Search
      *  would be overburdened by getting every record and then searching through individually.
      *  So we let SQL do some work for us and then refine our search with a some extra functions.
      *
-     * @return Collection, the results of the search.
+     * @return Collection, the results of the search, a collection of typed fields (e.g. TextField).
      */
     public function formKeywordSearch() {
         $fields = Field::where("fid", "=", $this->fid)->get();
         $results = new Collection();
 
+
+        $processed = Search::processArgument($this->arg, $this->method);
         foreach($fields as $field) {
             if ($field->isSearchable()) {
-                $results = $results->merge($field->keywordSearchTyped($this->processArgument())->get());
+                $results = $results->merge($field->keywordSearchTyped($processed)->get());
             }
         }
 
-        return $this->filterKeywordResults($results); // This now has the typed fields that satisfied the search.
+        dd($results);
+
+        return $this->gatherRecords($this->filterKeywordResults($results)); // This now has the typed fields that satisfied the search.
     }
+
+    /**
+     * Process the argument for full text searching based on the search method.
+     *
+     * OR and AND: "fish" => "fish*" to match with "fishing". Note: we don't apply an asterisk to the beginning because
+     *         full text indexes do not apply backward due to the structure of the B-Tree.
+     * EXACT: "big fish" => "\"big fish\"" to only match with the phrase "big fish".
+     *
+     * @param $arg, the argument to be processed.
+     * @param $method, the search method (or, and, exact).
+     * @return string, processed arguement.
+     */
+    public static function processArgument($arg, $method) {
+        switch($method) {
+            case Search::SEARCH_OR:
+            case Search::SEARCH_AND:
+                $args = explode(" ", $arg);
+
+                foreach ($args as &$piece) {
+                    $piece .= "* "; // Boolean fulltext wildcard
+                }
+
+                $arg = trim(implode($args));
+                break;
+
+            case Search::SEARCH_EXACT:
+                $arg = "\"" . $arg . "\"";
+                break;
+        }
+
+        return $arg;
+    }
+
 
     /**
      * Filters the results of a keyword search.
@@ -117,10 +130,10 @@ class Search
      * Typed fields all have a keywordSearch function, so we utilize this and the eloquent
      * method filter down to a collection of typed fields that all have the desired contents.
      *
-     * @param Collection $results
-     * @return Collection, the filtered collection.
+     * @param Collection $results, a collection of typed fields.
+     * @return Collection, the filtered collection of typed fields.
      */
-    public function filterKeywordResults(Collection $results) {
+    private function filterKeywordResults(Collection $results) {
         // Determine if the search should be partial at a typed field level.
         $partial = ($this->method == Search::SEARCH_AND || $this->method == Search::SEARCH_OR) ? true : false;
 
@@ -131,6 +144,7 @@ class Search
             $arg = [$this->arg];
         }
 
+        // Only keep the fields that actually have the desired contents.
         return $results->filter( function(BaseField $element) use ($arg, $partial) {
             return $element->keywordSearch($arg, $partial); // This is why we use OOP :)
         });
@@ -145,14 +159,13 @@ class Search
      * @param Collection $fields, a collection of BaseFields, assured to be
      * @return Collection $records, a collection of records associated with the BaseFields.
      */
-    public function gatherRecords(Collection $fields) {
+    private function gatherRecords(Collection $fields) {
         $records = new Collection();
 
         if ($fields->isEmpty()) {
             return $records;
         }
 
-        // Sort the fields by record id.
         $fields->sortBy("rid");
 
         switch ($this->method) {

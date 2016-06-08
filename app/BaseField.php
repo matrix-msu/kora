@@ -47,19 +47,6 @@ abstract class BaseField extends Model
 
         if ($partial) {
             foreach ($args as $arg) {
-                //
-                // TODO: Search Argument Processing
-                //       Consider moving this argument processing up to the project or form level when we
-                //       implement search in a more general fashion. I think that will speed things up a little.
-                //       (Just make sure the preg_quote only happens when partial is false.)
-                //       If this change is made, check special field for their processing (see: DateField, ...)
-                //
-
-//                // Input should be processed already.
-//                $arg = strip_tags($arg);
-//                $arg = Search::convertCloseChars($arg);
-//                $arg = trim($arg);
-
                 if (strlen($arg) && stripos($text, $arg) !== false) {
                     return true; // Text contains a partial match.
                 }
@@ -68,10 +55,6 @@ abstract class BaseField extends Model
         }
         else {
             foreach ($args as $arg) {
-//                // Input should be processed already... Still need to preg_quote though.
-//                $arg = strip_tags($arg);
-//                $arg = self::convertCloseChars($arg);
-//                $arg = trim($arg);
                 $arg = preg_quote($arg, "\\"); // Escape regular expression characters.
 
                 $pattern = "/(\\W|^)" . $arg . "(\\W|$)/i";

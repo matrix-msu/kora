@@ -30,12 +30,13 @@ class DateField extends BaseField {
         $query = DateField::where("flid", "=", $flid);
 
         foreach ($args as $arg) {
+            $query->where("day", "=", intval($arg))
+                ->orWhere("year", "=", intval($arg));
+
             if (self::isMonth($arg)) {
-                $query->orWhere("month", "=", self::monthToNumber($arg));
+                $query->orWhere("month", "=", intval(self::monthToNumber($arg)));
             }
 
-            $query->orWhere("day", "=", $arg)
-                ->orWhere("year", "=", $arg);
 
             if ($circa) {
                 $query->orWhere("circa", "=", "1");

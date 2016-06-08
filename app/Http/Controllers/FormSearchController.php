@@ -38,32 +38,8 @@ class FormSearchController extends Controller
         $arg = trim((Request::input('query')));
         $method = intval(Request::input('method'));
 
-        dd($this->keywordRoutine($pid, $fid, $arg, $method), Search::showIgnoredArguments($arg));
-    }
-
-    /**
-     *  The actual form search routine, calls App\Search routines with proper parameters.
-     *
-     *  This will do the following:
-     *  1. Do an approximate SQL search to quickly gather records that might match the query.
-     *  2. Use the built in keywordSearch methods on the fields of a particular record to narrow the search.
-     *  3. Return a view identical to the records index page with the results of this process.
-     *
-     * @param $pid, project id.
-     * @param $fid, form id.
-     * @param $arg, arguments of the search.
-     * @param $method, method of the search (see search operators in App\Search).
-     * @return Collection|null, the results of the search.
-     */
-    public function keywordRoutine($pid, $fid, $arg, $method) {
         $search = new Search($pid, $fid, $arg, $method);
-        $fields = $search->formKeywordSearch(); // The fields in this form that satisfied the search results.
 
-        $records = null;
-        if (! $fields->isEmpty()) {
-            $records = $search->gatherRecords($fields); // The records that satisfy the search method and search results.
-        }
-
-        return $records;
+        dd($search->formKeywordSearch(), $search::showIgnoredArguments($arg));
     }
 }

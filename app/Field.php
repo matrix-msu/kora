@@ -145,10 +145,13 @@ class Field extends Model {
 
 
     /**
-     * Buils the query up for a typed field keyword search.
+     * Builds the query up for a typed field keyword search.
+     *
+     * *** This expects a processed argument. See Search::processArgument.
      *
      * @param $arg string, the argument being searched for.
-     * @return Builder, query builder type.
+     * @throws \Exception when field does not have a valid field type.
+     * @return Builder | null, query builder type, null if invalid field type.
      */
     public function keywordSearchTyped($arg) {
         switch($this->type) {
@@ -157,11 +160,16 @@ class Field extends Model {
                 break;
 
             case Field::_RICH_TEXT:
-                return RichTextField::where("flid", "=", $this->flid)->whereRaw("MATCH (`rawtext`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
+                // Remove the boolean search operators.
+                $arg_natural = str_replace(["*", "\""], "", $arg);
+
+                return RichTextField::where("flid", "=", $this->flid)->whereRaw("MATCH (`rawtext`) AGAINST (? IN NATURAL LANGUAGE MODE)", [$arg_natural])
+                    ->orWhereRaw("MATCH (`rawtext`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
                 break;
 
             case Field::_NUMBER:
-                $arg = substr($arg, 1, -1); // Take off the full text search operators.
+                $arg = str_replace(["*", "\""], "", $arg);
+
                 return NumberField::where("flid", "=", $this->flid)->where("number", "=", $arg);
                 break;
 
@@ -178,7 +186,7 @@ class Field extends Model {
                 break;
 
             case Field::_DATE:
-                $arg = substr($arg, 1, -1); // Take off the full text search operators.
+                $arg = str_replace(["*", "\""], "", $arg);
 
                 // Boolean to decide if we should consider circa options.
                 $circa = explode("[!Circa!]", $this->options)[1] == "Yes";
@@ -222,7 +230,8 @@ class Field extends Model {
                 break;
 
             default: // Error occurred.
-                return null;
+                throw new \Exception("Invalid field type in field::keywordSearchTyped.");
+                break;
         }
     }
 }

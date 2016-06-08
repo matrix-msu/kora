@@ -25,4 +25,35 @@ class SearchTest extends TestCase
         $this->assertContains("and", Search::showIgnoredArguments($string));
         $this->assertContains("or", Search::showIgnoredArguments($string));
     }
+
+    /**
+     * Test the process argument static method.
+     */
+    public function test_processArgumentStatic() {
+        $method = Search::SEARCH_OR;
+        $argument = "hello";
+
+        $this->assertEquals("*hello*", Search::processArgumentStatic($argument, $method));
+
+        $method = Search::SEARCH_AND;
+
+        $this->assertEquals("*hello*", Search::processArgumentStatic($argument, $method));
+
+        $method = Search::SEARCH_EXACT;
+
+        $this->assertEquals('"hello"', Search::processArgumentStatic($argument, $method));
+
+        $method = Search::SEARCH_OR;
+        $argument = "hello world";
+
+        $this->assertEquals("*hello* *world*", Search::processArgumentStatic($argument, $method));
+
+        $method = Search::SEARCH_AND;
+
+        $this->assertEquals("*hello* *world*", Search::processArgumentStatic($argument, $method));
+
+        $method = Search::SEARCH_EXACT;
+
+        $this->assertEquals('"hello world"', Search::processArgumentStatic($argument, $method));
+    }
 }
