@@ -13,9 +13,8 @@ use Illuminate\Support\Debug\Dumper;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Class Search
- *
- * Utility class to handle some common search things.
+ * Class Search.
+ * Hold the important methods for searching.
  *
  * @package App
  */
@@ -78,15 +77,12 @@ class Search
         $fields = Field::where("fid", "=", $this->fid)->get();
         $results = new Collection();
 
-
         $processed = Search::processArgument($this->arg, $this->method);
         foreach($fields as $field) {
             if ($field->isSearchable()) {
                 $results = $results->merge($field->keywordSearchTyped($processed)->get());
             }
         }
-
-        dd($results);
 
         return $this->gatherRecords($this->filterKeywordResults($results)); // This now has the typed fields that satisfied the search.
     }
@@ -96,7 +92,7 @@ class Search
      *
      * OR and AND: "fish" => "fish*" to match with "fishing". Note: we don't apply an asterisk to the beginning because
      *         full text indexes do not apply backward due to the structure of the B-Tree.
-     * EXACT: "big fish" => "\"big fish\"" to only match with the phrase "big fish".
+     * EXACT: "large fish" => "\"large fish\"" to only match with the phrase "large fish".
      *
      * @param $arg, the argument to be processed.
      * @param $method, the search method (or, and, exact).

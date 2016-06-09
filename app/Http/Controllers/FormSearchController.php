@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Request;
 use App\Record;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+
 class FormSearchController extends Controller
 {
     /**
