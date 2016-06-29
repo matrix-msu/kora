@@ -19,6 +19,7 @@ class CreateDatefieldsTable extends Migration {
 			$table->increments('id');
 
 			$table->integer('rid')->unsigned();
+			$table->integer('fid')->unsigned();
 			$table->integer('flid')->unsigned();
 			$table->boolean('circa');
 			$table->integer('month');

@@ -51,31 +51,38 @@
     {{--<div style="text-align: left">{!! $records->render() !!}</div>--}}
 
     <h2>{{trans('records_index.records')}}</h2>
-    <div>{{trans('records_index.total')}}: {{sizeof(\App\Record::where('fid','=',$form->fid)->get())}}</div>
+    <div>{{trans('records_index.total')}}: {{$rid_paginator->total()}}</div>
     @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
+
+        @if ($rid_paginator->total() > 0)
+        <form action="{{ action('FormSearchController@deleteSubset', ['pid' => $form->pid, 'fid' => $form->fid]) }}">
+            <button type="submit" class="btn btn-danger">{{ trans('search.deleteSubset') }}</button>
+        </form>
+        @endif
+
         <div>
             {{trans('records_index.exportRec')}}:
             <a href="{{ action('ExportController@exportRecords',['pid' => $form->pid, 'fid' => $form->fid, 'type'=>'xml']) }}">[XML]</a>
             <a href="{{ action('ExportController@exportRecords',['pid' => $form->pid, 'fid' => $form->fid, 'type'=>'json']) }}">[JSON]</a>
             <a href="{{ action('ExportController@exportRecords',['pid' => $form->pid, 'fid' => $form->fid, 'type'=>'csv']) }}">[CSV]</a>
             @if(file_exists(env('BASE_PATH') . 'storage/app/files/p'.$form->pid.'/f'.$form->fid.'/'))
-            <a href="{{ action('ExportController@exportRecordFiles',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_index.exportFiles')}}]</a>
+                <a href="{{ action('ExportController@exportRecordFiles',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_index.exportFiles')}}]</a>
             @endif
         </div> <br>
     @endif
 
     <div id="slideme">
 
-    @include('pagination.records', ['object' => $records])
+        @include('pagination.records', ['object' => $rid_paginator])
 
-    @foreach($records as $record)
-        <div class="panel panel-default">
-            <div>
-                <b>{{trans('records_index.record')}}:</b> <a href="{{ action('RecordController@show',['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid]) }}">{{ $record->kid }}</a>
-            </div>
-            @foreach($form->fields as $field)
+        @foreach($records as $record)
+            <div class="panel panel-default">
                 <div>
-                    <span><b>{{ $field->name }}:</b> </span>
+                    <b>{{trans('records_index.record')}}:</b> <a href="{{ action('RecordController@show',['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid]) }}">{{ $record->kid }}</a>
+                </div>
+                @foreach($form->fields as $field)
+                    <div>
+                        <span><b>{{ $field->name }}:</b> </span>
                     <span>
                         @if($field->type=='Text')
                             @foreach($record->textfields as $tf)
@@ -98,7 +105,7 @@
                             @foreach($record->numberfields as $nf)
                                 @if($nf->flid == $field->flid)
                                     <?php
-                                    echo round($nf->number, 2);
+                                    echo $nf->number;
                                     if($nf->number!='')
                                         echo ' '.\App\Http\Controllers\FieldController::getFieldOption($field,'Unit');
                                     ?>
@@ -242,25 +249,25 @@
                                                     right: 'month,agendaWeek,agendaDay'
                                                 },
                                                 events: [
-                                                    @foreach(explode('[!]',$sf->events) as $event)
-                                                        {
-                                                            <?php
+                                                        @foreach(explode('[!]',$sf->events) as $event)
+                                                    {
+                                                        <?php
                                                                 $nameTime = explode(': ',$event);
                                                                 $times = explode(' - ',$nameTime[1]);
                                                                 $allDay = true;
                                                                 if(strpos($nameTime[1],'PM') | strpos($nameTime[1],'AM')){
                                                                     $allDay = false;
                                                                 }
-                                                            ?>
-                                                            title: '{{ $nameTime[0] }}',
-                                                            start: '{{ $times[0] }}',
-                                                            end: '{{ $times[1] }}',
-                                                            @if($allDay)
-                                                                allDay: true
-                                                            @else
-                                                                allDay: false
-                                                            @endif
-                                                        },
+                                                                ?>
+                                                        title: '{{ $nameTime[0] }}',
+                                                        start: '{{ $times[0] }}',
+                                                        end: '{{ $times[1] }}',
+                                                        @if($allDay)
+                                                        allDay: true
+                                                        @else
+                                                        allDay: false
+                                                        @endif
+                                                    },
                                                     @endforeach
                                                 ]
                                             });
@@ -305,9 +312,9 @@
                                         <script>
                                             var map{{$field->flid.'_'.$record->rid}} = L.map('map{{$field->flid.'_'.$record->rid}}').setView([{{$locs[0]['x']}}, {{$locs[0]['y']}}], 13);
                                             L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(map{{$field->flid.'_'.$record->rid}});
-                                            @foreach($locs as $loc)
-                                                var marker = L.marker([{{$loc['x']}}, {{$loc['y']}}]).addTo(map{{$field->flid.'_'.$record->rid}});
-                                                marker.bindPopup("{{$loc['desc']}}");
+                                                    @foreach($locs as $loc)
+                                            var marker = L.marker([{{$loc['x']}}, {{$loc['y']}}]).addTo(map{{$field->flid.'_'.$record->rid}});
+                                            marker.bindPopup("{{$loc['desc']}}");
                                             @endforeach
                                         </script>
                                     @endif
@@ -319,8 +326,8 @@
                                     @foreach(explode('[!]',$df->documents) as $opt)
                                         @if($opt != '')
                                             <?php
-                                                $name = explode('[Name]',$opt)[1];
-                                                $link = action('FieldAjaxController@getFileDownload',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name]);
+                                            $name = explode('[Name]',$opt)[1];
+                                            $link = action('FieldAjaxController@getFileDownload',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name]);
                                             ?>
                                             <div><a href="{{$link}}">{{$name}}</a></div>
                                         @endif
@@ -409,24 +416,24 @@
                                         var cssSelector = { jPlayer: "#jquery_jplayer_{{$field->flid.'_'.$record->rid}}", cssSelectorAncestor: "#jp_container_{{$field->flid.'_'.$record->rid}}" };
                                         var playlist = [
                                                 @foreach(explode('[!]',$pf->audio) as $key => $aud)
-                                                    @if($aud != '')
-                                                        <?php
-                                                        $name = explode('[Name]',$aud)[1];
-                                                        $link = env('BASE_URL').'storage/app/files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$name;
-                                                        ?>
-                                                        {
+                                                @if($aud != '')
+                                                <?php
+                                                $name = explode('[Name]',$aud)[1];
+                                                $link = env('BASE_URL').'storage/app/files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$name;
+                                                ?>
+                                            {
                                                 title: "{{$name}}",
                                                 @if(explode('[Type]',$aud)[1]=="audio/mpeg")
-                                                    mp3: "{{$link}}"
+                                                mp3: "{{$link}}"
                                                 @elseif(explode('[Type]',$aud)[1]=="audio/ogg")
-                                                    oga: "{{$link}}"
+                                                oga: "{{$link}}"
                                                 @elseif(explode('[Type]',$aud)[1]=="audio/x-wav")
-                                                    wav: "{{$link}}"
+                                                wav: "{{$link}}"
                                                 @endif
                                             },
                                             @endif
-                                        @endforeach
-                                    ];
+                                            @endforeach
+                                        ];
                                         var options = {
                                             swfPath: "{{env('BASE_PATH')}}public/jplayer/jquery.jplayer.swf",
                                             supplied: "mp3, oga, wav"
@@ -492,22 +499,22 @@
                                         var cssSelector = { jPlayer: "#jquery_jplayer_{{$field->flid.'_'.$record->rid}}", cssSelectorAncestor: "#jp_container_{{$field->flid.'_'.$record->rid}}" };
                                         var playlist = [
                                                 @foreach(explode('[!]',$vf->video) as $key => $vid)
-                                                    @if($vid != '')
-                                                        <?php
-                                                        $name = explode('[Name]',$vid)[1];
-                                                        $link = env('BASE_URL').'storage/app/files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$name;
-                                                        ?>
-                                                        {
+                                                @if($vid != '')
+                                                <?php
+                                                $name = explode('[Name]',$vid)[1];
+                                                $link = env('BASE_URL').'storage/app/files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$name;
+                                                ?>
+                                            {
                                                 title: "{{$name}}",
                                                 @if(explode('[Type]',$vid)[1]=="video/mp4")
-                                                    m4v: "{{$link}}"
+                                                m4v: "{{$link}}"
                                                 @elseif(explode('[Type]',$vid)[1]=="video/ogg")
-                                                    ogv: "{{$link}}"
+                                                ogv: "{{$link}}"
                                                 @endif
                                             },
                                             @endif
-                                        @endforeach
-                                    ];
+                                            @endforeach
+                                        ];
                                         var options = {
                                             swfPath: "{{env('BASE_PATH')}}public/jplayer/jquery.jplayer.swf",
                                             supplied: "m4v, ogv"
@@ -555,12 +562,12 @@
                             @endforeach
                         @endif
                     </span>
-                </div>
-            @endforeach
-        </div>
-    @endforeach
+                    </div>
+                @endforeach
+            </div>
+        @endforeach
 
-    @include('pagination.records', ['object' => $records])
+        @include('pagination.records', ['object' => $rid_paginator])
 
     </div>
 

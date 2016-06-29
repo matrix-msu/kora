@@ -7,7 +7,8 @@ class RichTextField extends BaseField {
     protected $fillable = [
         'rid',
         'flid',
-        'rawtext'
+        'rawtext',
+        'searchable_rawtext'
     ];
 
     /**
@@ -24,5 +25,19 @@ class RichTextField extends BaseField {
         $text = html_entity_decode($text); // Some entities get encoded, some don't! PHP! What a language! So we'll just decode the ones that did.
 
         return self::keywordRoutine($args, $partial, $text);
+    }
+
+    /**
+     * Saves the model.
+     *
+     * Instead of putting this everywhere the rawtext member is assigned we'll just override the member function.
+     *
+     * @param array $options
+     * @return bool
+     */
+    public function save(array $options = array()) {
+        $this->searchable_rawtext = strip_tags($this->rawtext);
+
+        return parent::save($options);
     }
 }

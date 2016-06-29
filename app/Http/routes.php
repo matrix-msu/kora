@@ -4,9 +4,6 @@ Route::get('/', 'WelcomeController@index');
 Route::get('/home', 'WelcomeController@index');
 Route::post('/language','WelcomeController@setTemporaryLanguage');
 
-
-
-
 //project routes
 Route::get('/projects/import','ProjectController@importProjectView');
 Route::post('/projects/import','ImportController@importProject');
@@ -188,10 +185,13 @@ Route::post('/backup/project/restore/start','BackupController@restoreProject');
 Route::get('/backup/project/{pid}','BackupController@projectIndex');
 Route::post('/backup/project/{pid}','BackupController@backupProject');
 Route::post('/backup/project','BackupController@createProject');
-Route::get('/backup/progress/{backup_id}','BackupController@checkProgress');
 
 //form search routes
 Route::get('/keywordSearch/project/{pid}/forms/{fid}', 'FormSearchController@keywordSearch');
+Route::get('/keywordSearch/project/{pid}/forms/{fid}/delete', 'FormSearchController@deleteSubset');
+
+// help routes
+Route::get("/help/search", "HelpController@search");
 
 Route::controllers([
 	'auth' => 'Auth\AuthController',

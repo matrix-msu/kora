@@ -21,14 +21,16 @@ class CreateRichtextfieldsTable extends Migration {
 
             $table->integer('rid')->unsigned();
             $table->integer('flid')->unsigned();
+			$table->integer('fid')->unsigned();
             $table->longText('rawtext');
+			$table->longText('searchable_rawtext');
             $table->timestamps();
 
             $table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');
             $table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
 
-		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."rich_text_fields ADD FULLTEXT search(rawtext)");
+		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."rich_text_fields ADD FULLTEXT search(searchable_rawtext)");
 	}
 
 	/**

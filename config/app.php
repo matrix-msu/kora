@@ -210,8 +210,8 @@ return [
 		'View'      => 'Illuminate\Support\Facades\View',
 		'Form'      => 'Illuminate\Html\FormFacade',
 		'Html'      => 'Illuminate\Html\HtmlFacade',
-		'Flash'      => 'Laracasts\Flash\Flash',
-		'Geocoder' => 'Toin0u\Geocoder\Facade\Geocoder',
+		'Flash'     => 'Laracasts\Flash\Flash',
+		'Geocoder'  => 'Toin0u\Geocoder\Facade\Geocoder',
 	],
 
 ];

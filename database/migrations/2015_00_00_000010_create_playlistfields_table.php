@@ -20,6 +20,7 @@ class CreatePlaylistfieldsTable extends Migration {
 			$table->increments('id');
 
 			$table->integer('rid')->unsigned();
+			$table->integer('fid')->unsigned();
 			$table->integer('flid')->unsigned();
 			$table->mediumText('audio');
 			$table->timestamps();

@@ -1,6 +1,7 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Token extends Model {
 
@@ -29,5 +30,14 @@ class Token extends Model {
     {
         $thisProjects = $this->projects()->get();
         return $thisProjects->contains($project);
+    }
+
+    /**
+     * Because the MyISAM engine doesn't support foreign keys we have to emulate cascading.
+     */
+    public function delete() {
+        DB::table("project_token")->where("token_id", "=", $this->id)->delete();
+
+        parent::delete();
     }
 }

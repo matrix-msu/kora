@@ -20,6 +20,7 @@ class CreateAssociatorfieldsTable extends Migration {
 
 			$table->integer('rid')->unsigned();
 			$table->integer('flid')->unsigned();
+			$table->integer('fid')->unsigned();
 			$table->mediumText('records');
 			$table->timestamps();
 

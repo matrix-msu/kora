@@ -79,7 +79,7 @@
                     @if(!is_null($new))
                         @for($i = 0; $i < count($new); $i++)
                             @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
-                                <span><b>{{$new[$i]['name']}}:</b> {{$new[$i]['data']['number']}} {{$new[$i]['data']['unit']}}</span>
+                                <span><b>{{$new[$i]['name']}}:</b> {{$new[$i]['data']['number'] + 0}} {{$new[$i]['data']['unit']}}</span>
                                 <br/>
                             @endif
                         @endfor
@@ -521,11 +521,11 @@
                         @for($i = 0; $i < count($old); $i++)
                             @if(isset($new[$i]))
                                 @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
-                                    <span><b>{{$old[$i]['name']}}:</b> {{$old[$i]['data']['number']}} {{$old[$i]['data']['unit']}}</span>
+                                    <span><b>{{$old[$i]['name']}}:</b> {{$old[$i]['data']['number'] + 0}} {{$old[$i]['data']['unit']}}</span>
                                     <br/>
                                 @endif
                             @elseif (!isset($new[$i]) && isset($old[$i]))
-                                <span><b>{{$old[$i]['name']}}:</b> {{$old[$i]['data']['number']}} {{$old[$i]['data']['unit']}}</span>
+                                <span><b>{{$old[$i]['name']}}:</b> {{$old[$i]['data']['number'] + 0}} {{$old[$i]['data']['unit']}}</span>
                                 <br/>
                             @endif
                         @endfor

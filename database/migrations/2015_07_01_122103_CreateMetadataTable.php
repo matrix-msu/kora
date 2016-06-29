@@ -27,7 +27,7 @@ class CreateMetadataTable extends Migration {
 
             $table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
         });
-}
+	}
 
 	/**
 	 * Reverse the migrations.
@@ -37,7 +37,5 @@ class CreateMetadataTable extends Migration {
 	public function down()
 	{
 		Schema::drop('metadatas');
-
-
 	}
 }

@@ -57,7 +57,7 @@
                             {{$record['pid']}}-{{$record['fid']}}-{{$record['rid']}}
                         </a>
                         <span class="pull-right">{{$record['updated_at']}}</span>
-                        @include('forms.layout.logic',['form' => \App\Http\Controllers\FormController::getForm($record['fid']), 'fieldview' => 'records.layout.displayfield'])
+                        {{--@include('forms.layout.logic',['form' => \App\Http\Controllers\FormController::getForm($record['fid']), 'fieldview' => 'records.layout.displayfield'])--}}
                     </li>
                 @endforeach
             </ul>

@@ -22,7 +22,7 @@
             @foreach($record->numberfields as $nf)
                 @if($nf->flid == $field->flid)
                     <?php
-                        echo $nf->number;
+                        echo $nf->number + 0;
                         if($nf->number!='')
                             echo ' '.\App\Http\Controllers\FieldController::getFieldOption($field,'Unit');
                     ?>

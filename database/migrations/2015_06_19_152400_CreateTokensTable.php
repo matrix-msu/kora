@@ -44,7 +44,5 @@ class CreateTokensTable extends Migration {
 	{
         Schema::drop('project_token');
 		Schema::drop('tokens');
-
-
 	}
 }

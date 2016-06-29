@@ -49,7 +49,5 @@ class CreateProjectGroupsTable extends Migration {
 	{
         Schema::drop('project_group_user');
 		Schema::drop('project_groups');
-
-
 	}
 }

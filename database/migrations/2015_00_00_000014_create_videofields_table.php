@@ -20,6 +20,7 @@ class CreateVideofieldsTable extends Migration {
 			$table->increments('id');
 
 			$table->integer('rid')->unsigned();
+			$table->integer('fid')->unsigned();
 			$table->integer('flid')->unsigned();
 			$table->mediumText('video');
 			$table->timestamps();

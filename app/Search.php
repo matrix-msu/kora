@@ -60,7 +60,7 @@ class Search
     /** Method of search, see the search operators.
      * @var integer
      */
-    private $method;        ///< Method of search, see search operators.
+    private $method;
 
 
     /**
@@ -84,7 +84,79 @@ class Search
             }
         }
 
-        return $this->gatherRecords($this->filterKeywordResults($results)); // This now has the typed fields that satisfied the search.
+        if (! $results->isEmpty()) {
+            return $this->gatherRecords($this->filterKeywordResults($results)); // This now has the typed fields that satisfied the search.
+        }
+        else {
+            return $results;
+        }
+    }
+
+    /*
+     * Testing new keyword search function.
+     */
+    public function formKeywordSearch2() {
+        if ($this->arg == "") {
+            return [];
+        }
+
+        $used_types = []; // Array to keep track of types of fields we have searched already.
+
+        $fields = Field::where("fid", "=", $this->fid)->get();
+        $rids = [];
+
+        $processed = Search::processArgument($this->arg, $this->method);
+
+        if ($this->method != Search::SEARCH_AND) {
+            foreach ($fields as $field) {
+                if (! isset($used_types[$field->type]) && $field->isSearchable()) {
+                    $used_types[$field->type] = true;
+
+                    $rids += $field->keywordSearchTyped2($processed, $this->method)->get();
+                }
+            }
+
+            // For some reason the query returns all the rids in an stdObject, this extracts the rid.
+            $rids = array_map(function ($result) {
+                return $result->rid;
+            }, $rids);
+        }
+        else {
+            $rids_array = []; // Stores the results of each individual search.
+
+            foreach($fields as $field) {
+                if (! isset($used_types[$field->type]) && $field->isSearchable()) {
+                    $used_types[$field->type] = true;
+
+                    foreach(explode(" ", $processed) as $arg) {
+                        $rids_array[] = $field->keywordSearchTyped2($arg)->get();
+                    }
+                }
+            }
+
+            foreach($rids_array as &$rid_array) {
+                $rid_array = array_map(function ($result) {
+                    return $result->rid;
+                }, $rid_array);
+            }
+
+            // Sorting by size of the array should make the intersection faster.
+            usort($rids_array, function($a, $b) {
+                $c_a = count($a);
+                $c_b = count($b);
+
+                if ($c_a == $c_b) return 0;
+                return ($c_a < $c_b) ? -1 : 1;
+            });
+
+            $rids = array_shift($rids_array); // Get the first array.
+
+            foreach($rids_array as $rid_array) { // Intersect until there are none left, this functions are the "and" portion of the search.
+                $rids = array_intersect($rids, $rid_array);
+            }
+        }
+
+        return array_unique($rids);
     }
 
     /**
@@ -178,7 +250,7 @@ class Search
 
                 while(! $fields->isEmpty()) {
                     $temp = $fields->pop()->rid;
-                    while ($rid == $temp) {
+                    while (! $fields->isEmpty() && $rid == $temp) {
                         $temp = $fields->pop()->rid;
                     }
 
@@ -305,5 +377,14 @@ class Search
      */
     static public function convertCloseChars($string) {
         return str_replace(self::$SPECIALS, self::$CLOSE_ASCII, $string);
+    }
+
+    /**
+     * Prints the help link for the flash message.
+     *
+     * @return string
+     */
+    static public function searchHelpLink() {
+        return "<span class='pull-right'><a href='" . action("HelpController@search") . "' target='_blank'>Help</a>&nbsp;</span>";
     }
 }

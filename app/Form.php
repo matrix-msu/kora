@@ -1,6 +1,7 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Form extends Model {
 
@@ -61,5 +62,23 @@ class Form extends Model {
 
     public function revisions(){
         return $this->hasMany('App\Revision','fid');
+    }
+
+    /**
+     * Because the MyISAM engine doesn't support foreign keys we have to emulate cascading.
+     */
+    public function delete() {
+        DB::table("record_presets")->where("fid", "=", $this->fid)->delete();
+        DB::table("associations")->where("dataForm", "=", $this->fid)->orWhere("assocForm", "=", $this->fid)->delete();
+        DB::table("revisions")->where("fid", "=", $this->fid)->delete();
+
+        $to_delete = Record::where("fid", "=", $this->fid)->get();
+        $to_delete = $to_delete->merge(Field::where("fid", "=", $this->fid)->get());
+
+        foreach($to_delete as $delete_me) {
+            $delete_me->delete();
+        }
+
+        parent::delete();
     }
 }

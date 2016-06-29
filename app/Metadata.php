@@ -17,8 +17,4 @@ class Metadata extends Model {
     public function field(){
         return $this->belongsTo('App\Field','flid','flid');
     }
-
-
-
-
 }

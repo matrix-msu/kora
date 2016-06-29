@@ -90,5 +90,14 @@ class Record extends Model {
         return $this->hasOne('App\User', 'owner');
     }
 
+    /**
+     * Because the MyISAM engine doesn't support foreign keys we have to emulate cascading.
+     */
+    public function delete() {
+        BaseField::deleteBaseFields($this->rid);
+
+        parent::delete();
+    }
+
 }
 

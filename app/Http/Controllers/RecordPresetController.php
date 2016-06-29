@@ -519,7 +519,7 @@ class RecordPresetController extends Controller {
      * @param $dst, destination directory.
      * @author gimmicklessgpt, from php.net.
      */
-    static public function recurse_copy($src,$dst) {
+    static public function recurse_copy($src, $dst) {
         $dir = opendir($src);
 
         if (!is_dir($dst) && !is_file($dst)) {

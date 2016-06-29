@@ -59,6 +59,7 @@ In proident sausage velit, tri-tip cillum beef ribs lorem tenderloin kielbasa ex
 	</li>
 </ol>
 <p><b>large</b> fish</p>
+<h1><strong>bright</strong> <i>lights</i> above</h1>
 TEXT;
 
     /** Data for a multi-select field.
@@ -400,6 +401,41 @@ TEXT;
     }
 
     /**
+     * Test the text field portion of Field::keywordSearchTyped2
+     */
+    public function test_keywordSearchTyped2_textField() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_TEXT, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $text_field = new \App\TextField();
+        $text_field->rid = $record->rid;
+        $text_field->fid = $form->fid;
+        $text_field->flid = $field->flid;
+        $text_field->text = self::TEXT_FIELD_DATA;
+        $text_field->save();
+
+        $arg = Search::processArgument("mucluc", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("mucluc transfuse lord gusty", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("nonmutability transfuse comprehensiveness", Search::SEARCH_EXACT);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("resent", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("resent", Search::SEARCH_EXACT);
+        $this->assertEmpty($field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get());
+
+        $arg = Search::processArgument("transfuse comprehensiveness muntin", Search::SEARCH_EXACT);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+    }
+
+    /**
      * Test the rich text field portion of Field::keywordSearchTyped.
      *
      * The nuance with rich text is that the user should be able to search for things while neglecting the html tags.
@@ -468,6 +504,35 @@ TEXT;
         $result = $results->pop();
 
         $this->assertInstanceOf("App\\RichTextField", $result);
+    }
+
+    /**
+     * Test the rich text field portion of Field::keywordSearchTyped2.
+     */
+    public function test_keywordSearchTyped2_richTextField() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_RICH_TEXT, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $rt_field = new App\RichTextField();
+        $rt_field->rid = $record->rid;
+        $rt_field->flid = $field->flid;
+        $rt_field->fid = $form->fid;
+        $rt_field->rawtext = self::RICH_TEXT_FIELD_DATA;
+        $rt_field->save();
+
+        $arg = Search::processArgument("venison", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("vension leberkas ribs", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("large fish", Search::SEARCH_EXACT);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("bright lights above", Search::SEARCH_EXACT);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
     }
 
     /**
@@ -571,6 +636,68 @@ TEXT;
     }
 
     /**
+     * Test the number field portion of Field::keywordSearchTyped2.
+     */
+    public function test_keywordSearchTyped2_numberField() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_NUMBER, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $num_field = new \App\NumberField();
+        $num_field->rid = $record->rid;
+        $num_field->flid = $field->flid;
+        $num_field->fid = $form->fid;
+        $num_field->number = 0;
+        $num_field->save();
+
+        // Whole numbers
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2(0, Search::SEARCH_OR)->get()[0]->rid);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2(0.0000000000000000000000000000000, Search::SEARCH_OR)->get()[0]->rid);
+
+        $num_field->number = -1;
+        $num_field->save();
+
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2(-1, Search::SEARCH_OR)->get()[0]->rid);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2(-1.0000000000000000000000000000000, Search::SEARCH_OR)->get()[0]->rid);
+
+        $num_field->number = 1;
+        $num_field->save();
+
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2(1, Search::SEARCH_OR)->get()[0]->rid);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2(1.0000000000000000000000000000000, Search::SEARCH_OR)->get()[0]->rid);
+
+        // Rational numbers
+        $num_field->number = 1/2;
+        $num_field->save();
+
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2(1/2, Search::SEARCH_OR)->get()[0]->rid);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2('0.5', Search::SEARCH_OR)->get()[0]->rid);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2(0.5000000000000000000000000000000, Search::SEARCH_OR)->get()[0]->rid);
+
+        $num_field->number = 1/3;
+        $num_field->save();
+
+        $this->assertEmpty($field->keywordSearchTyped2(0.3, Search::SEARCH_OR)->get());
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2(1/3, Search::SEARCH_OR)->get()[0]->rid);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2(0.3333333333333333333333333333333, Search::SEARCH_OR)->get()[0]->rid);
+
+        // Irrationals
+        $num_field->number = 3.141592653589793238462643383279; // Pi to 30 places
+        $num_field->save();
+
+        $this->assertEmpty($field->keywordSearchTyped2(3.1, Search::SEARCH_OR)->get());
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2(M_PI, Search::SEARCH_OR)->get()[0]->rid);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2(3.1416, Search::SEARCH_OR)->get()[0]->rid);
+
+        $num_field->number = 2.718281828459045235360287471352; // e to 30 places
+        $num_field->save();
+
+        $this->assertEmpty($field->keywordSearchTyped2(2.7, Search::SEARCH_OR)->get());
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2(M_E, Search::SEARCH_OR)->get()[0]->rid);
+    }
+
+    /**
      * Test the list field portion of Field::keywordSearchTyped.
      *
      * Full text indexing seems like overkill for the list field because it is only ever going to be one(ish) word but its here anyway.
@@ -602,6 +729,29 @@ TEXT;
         $result = $results->pop();
 
         $this->assertInstanceOf("App\\ListField", $result);
+    }
+
+    /**
+     * Test the list field portion of Field::keywordSearchTyped2.
+     */
+    public function test_keywordSearchTyped2_listField() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_LIST, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $list_field = new \App\ListField();
+        $list_field->rid = $record->rid;
+        $list_field->flid = $field->flid;
+        $list_field->fid = $form->fid;
+        $list_field->option = "Durangus";
+        $list_field->save();
+
+        $arg = Search::processArgument("nothing", Search::SEARCH_OR);
+        $this->assertEmpty($field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get());
+
+        $arg = Search::processArgument("Durangus", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
     }
 
     /**
@@ -662,6 +812,38 @@ TEXT;
     }
 
     /**
+     * Test the list field portion of Field::keywordSearchTyped2.
+     */
+    public function test_keywordSearchTyped2_multiSelectListField() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_MULTI_SELECT_LIST, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $msl_field = new \App\MultiSelectListField();
+        $msl_field->rid = $record->rid;
+        $msl_field->flid = $field->flid;
+        $msl_field->fid = $form->fid;
+        $msl_field->options = self::MULTI_SELECT_FIELD_DATA;
+        $msl_field->save();
+
+        $arg = Search::processArgument("Attack", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("strength defence", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("strength ranged", Search::SEARCH_EXACT);
+        $this->assertEmpty($field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get());
+
+        $arg = Search::processArgument("attack strength defence ranged", Search::SEARCH_EXACT);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("prayer", Search::SEARCH_EXACT);
+        $this->assertEmpty($field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get());
+    }
+
+    /**
      * Test the generated list field portion of Field::keywordSearchTyped.
      */
     public function test_keywordSearchTyped_generatedListField() {
@@ -718,6 +900,40 @@ TEXT;
         $result = $results->pop();
 
         $this->assertNull($result);
+    }
+
+    /**
+     * Test the generated list field portion of Field::keywordSearchTyped2.
+     */
+    public function test_keywordSearchTyped2_generatedListField() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_GENERATED_LIST, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        // Should work exactly the same as multi-select list field.
+
+        $gen_field = new \App\GeneratedListField();
+        $gen_field->rid = $record->rid;
+        $gen_field->flid = $field->flid;
+        $gen_field->fid = $form->fid;
+        $gen_field->options = self::MULTI_SELECT_FIELD_DATA;
+        $gen_field->save();
+
+        $arg = Search::processArgument("Attack", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("strength defence", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("strength ranged", Search::SEARCH_EXACT);
+        $this->assertEmpty($field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get());
+
+        $arg = Search::processArgument("attack strength defence ranged", Search::SEARCH_EXACT);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("prayer", Search::SEARCH_EXACT);
+        $this->assertEmpty($field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get());
     }
 
     /**
@@ -798,6 +1014,48 @@ TEXT;
     }
 
     /**
+     * Test the date field portion of Field::keywordSearchTyped2.
+     */
+    public function test_keywordSearchTyped2_dateField() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_DATE, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $field->options = "[!Circa!]No[!Circa!][!Start!]1900[!Start!][!End!]2020[!End!][!Format!]MMDDYYYY[!Format!][!Era!]Off[!Era!]";
+        $field->save();
+
+        $date_field = new \App\DateField();
+        $date_field->rid = $record->rid;
+        $date_field->flid = $field->flid;
+        $date_field->fid = $form->fid;
+        $date_field->month = 10;
+        $date_field->day = 9;
+        $date_field->year = 1994;
+        $date_field->era = "BCE";
+        $date_field->circa = 0;
+        $date_field->save();
+
+        $arg = Search::processArgument("October", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument(9, Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("9", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument(94, Search::SEARCH_OR);
+        $this->assertEmpty($field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get());
+
+        $arg = Search::processArgument(1994, Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("10 9 1994", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+    }
+
+    /**
      * Test the schedule field portion of Field::keywordSearchTyped.
      */
     public function test_keywordSearchTyped_scheduleField() {
@@ -836,6 +1094,32 @@ TEXT;
         $result = $results->pop();
 
         $this->assertInstanceOf("App\\ScheduleField", $result);
+    }
+
+    /**
+     * Test the schedule field portion of Field::keywordSearchTyped2.
+     */
+    public function test_keywordSearchTyped2_scheduleField() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_SCHEDULE, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $sched_field = new \App\ScheduleField();
+        $sched_field->rid = $record->rid;
+        $sched_field->flid = $field->flid;
+        $sched_field->fid = $form->fid;
+        $sched_field->events = self::SCHEDULE_FIELD_DATA;
+        $sched_field->save();
+
+        $arg = Search::processArgument("Hannah", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("My Birthday", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("Manila Major", Search::SEARCH_EXACT);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
     }
 
     /**
@@ -885,6 +1169,42 @@ TEXT;
         $result = $results->pop();
 
         $this->assertInstanceOf("App\\GeolocatorField", $result);
+    }
+
+    /**
+     * Test the geolocator field portion of Field::keywordSearchTyped2.
+     */
+    public function test_keywordSearchTyped2_geolocatorField() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_GEOLOCATOR, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $geo_field = new \App\GeolocatorField();
+        $geo_field->rid = $record->rid;
+        $geo_field->flid = $field->flid;
+        $geo_field->fid = $form->fid;
+        $geo_field->locations = self::GEOLOCATOR_FIELD_DATA;
+        $geo_field->save();
+
+        $arg = Search::processArgument("London", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("London, England", Search::SEARCH_EXACT);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_EXACT)->get()[0]->rid);
+
+        // Test if the separators are ignored.
+        $arg = Search::processArgument("Desc", Search::SEARCH_EXACT);
+        $this->assertEmpty($field->keywordSearchTyped2($arg, Search::SEARCH_EXACT)->get());
+
+        $arg = Search::processArgument("Address", Search::SEARCH_EXACT);
+        $this->assertEmpty($field->keywordSearchTyped2($arg, Search::SEARCH_EXACT)->get());
+
+        $arg = Search::processArgument("Cape Town", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("Helsinki", Search::SEARCH_EXACT);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_EXACT)->get()[0]->rid);
     }
 
     /**
@@ -944,6 +1264,41 @@ TEXT;
     }
 
     /**
+     * Test the documents field portion of Field::keywordSearchTyped2.
+     */
+    public function test_keywordSearchTyped2_documentsField() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_DOCUMENTS, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $doc_field = new \App\DocumentsField();
+        $doc_field->rid = $record->rid;
+        $doc_field->flid = $field->flid;
+        $doc_field->fid = $form->fid;
+        $doc_field->documents = self::DOCUMENTS_FIELD_DATA;
+        $doc_field->save();
+
+        $arg = Search::processArgument("steal", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("stealme", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("stealme.txt", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("stealme", Search::SEARCH_EXACT);
+        $this->assertEmpty($field->keywordSearchTyped2($arg, Search::SEARCH_EXACT)->get());
+
+        $arg = Search::processArgument("stealme.txt", Search::SEARCH_EXACT);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_EXACT)->get()[0]->rid);
+
+        $arg = Search::processArgument("lose.html", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+    }
+
+    /**
      * Test the gallery field portion of Field::keywordSearchTyped.
      */
     public function test_keywordSearchTyped_galleryField() {
@@ -984,6 +1339,41 @@ TEXT;
     }
 
     /**
+     * Test the gallery field portion of Field::keywordSearchTyped.
+     */
+    public function test_keywordSearchTyped2_galleryField() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_GALLERY, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $gal_field = new \App\GalleryField();
+        $gal_field->rid = $record->rid;
+        $gal_field->flid = $field->flid;
+        $gal_field->fid = $form->fid;
+        $gal_field->images = self::GALLERY_FIELD_DATA;
+        $gal_field->save();
+
+        $arg = Search::processArgument("penguins", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("penguins.jpg", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("penguins", Search::SEARCH_EXACT);
+        $this->assertEmpty($field->keywordSearchTyped2($arg, Search::SEARCH_EXACT)->get());
+
+        $arg = Search::processArgument("penguins.jpg", Search::SEARCH_EXACT);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_EXACT)->get()[0]->rid);
+
+        $arg = Search::processArgument("Jellyfish.jpg", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("Jellyfish.jpg", Search::SEARCH_EXACT);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_EXACT)->get()[0]->rid);
+    }
+
+    /**
      * Test the model field portion of Field::keywordSearchTyped.
      */
     public function test_keywordSearchTyped_modelField() {
@@ -1020,6 +1410,36 @@ TEXT;
         $results = $field->keywordSearchTyped($arg)->get();
 
         $this->assertEmpty($results);
+    }
+
+    /**
+     * Test the model field portion of Field::keywordSearchTyped2.
+     */
+    public function test_keywordSearchTyped2_modelField() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_3D_MODEL, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $mod_field = new \App\ModelField();
+        $mod_field->rid = $record->rid;
+        $mod_field->flid = $field->flid;
+        $mod_field->fid = $form->fid;
+        $mod_field->model = self::MODEL_FIELD_DATA;
+        $mod_field->save();
+
+        $arg = Search::processArgument("airboat", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("airboat.obj", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("airboat.obj", Search::SEARCH_EXACT);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_EXACT)->get()[0]->rid);
+
+
+        $arg = Search::processArgument("nothing at all", Search::SEARCH_OR);
+        $this->assertEmpty($field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get());
     }
 
     /**
@@ -1068,6 +1488,47 @@ TEXT;
         $result = $results->pop();
 
         $this->assertInstanceOf("App\\PlaylistField", $result);
+    }
+
+    /**
+     * Test the model field portion of Field::keywordSearchTyped2.
+     */
+    public function test_keywordSearchTyped2_playlistField() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_PLAYLIST, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $play_field = new \App\PlaylistField();
+        $play_field->rid = $record->rid;
+        $play_field->flid = $field->flid;
+        $play_field->fid = $form->fid;
+        $play_field->audio = self::PLAYLIST_FIELD_DATA;
+        $play_field->save();
+
+        $arg = Search::processArgument("Flaxen Hair", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("Flaxen Hair", Search::SEARCH_EXACT);
+        $this->assertEmpty($field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get());
+
+        $arg = Search::processArgument("Maid with the Flaxen Hair", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("Maid with the Flaxen Hair.mp3", Search::SEARCH_EXACT);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_EXACT)->get()[0]->rid);
+
+        $arg = Search::processArgument("Kalimba", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("Kalimba", Search::SEARCH_EXACT);
+        $this->assertEmpty($field->keywordSearchTyped2($arg, Search::SEARCH_EXACT)->get());
+
+        $arg = Search::processArgument("Kalimba.mp3", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("Kalimba.mp3", Search::SEARCH_EXACT);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_EXACT)->get()[0]->rid);
     }
 
     /**
@@ -1127,6 +1588,38 @@ TEXT;
     }
 
     /**
+     * Test the video field portion of Field::keywordSearchTyped2.
+     */
+    public function test_keywordSearchTyped2_videoField() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_VIDEO, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $vid_field = new \App\VideoField();
+        $vid_field->rid = $record->rid;
+        $vid_field->flid = $field->flid;
+        $vid_field->fid = $form->fid;
+        $vid_field->video = self::VIDEO_FIELD_DATA;
+        $vid_field->save();
+
+        $arg = Search::processArgument("sample video", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("sample video", Search::SEARCH_EXACT);
+        $this->assertEmpty($field->keywordSearchTyped2($arg, Search::SEARCH_EXACT)->get());
+
+        $arg = Search::processArgument("sample_number_one", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("sample_number_one.mp4", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("sample_number_one.mp4", Search::SEARCH_EXACT);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_EXACT)->get()[0]->rid);
+    }
+
+    /**
      * Test the combo list field portion of Field::keywordSearchTyped.
      */
     public function test_keywordSearchTyped_comboListField() {
@@ -1172,5 +1665,34 @@ TEXT;
         $result = $results->pop();
 
         $this->assertInstanceOf("App\\ComboListField", $result);
+    }
+
+    /**
+     * Test the combo list field portion of Field::keywordSearchTyped2.
+     */
+    public function test_keywordSearchTyped2_comboListField() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_COMBO_LIST, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $combo_field = new App\ComboListField();
+        $combo_field->rid = $record->rid;
+        $combo_field->flid = $field->flid;
+        $combo_field->fid = $form->fid;
+        $combo_field->options = self::COMBO_LIST_FIELD_DATA;
+        $combo_field->save();
+
+        $arg = Search::processArgument("Dragon", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("Dragon Pickaxe", Search::SEARCH_EXACT);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_EXACT)->get()[0]->rid);
+
+        $arg = Search::processArgument("Dragon Pickaxe", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("Warhammer", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
     }
 }

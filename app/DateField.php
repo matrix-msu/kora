@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 
 class DateField extends BaseField {
 
@@ -30,24 +31,72 @@ class DateField extends BaseField {
         $query = DateField::where("flid", "=", $flid);
 
         foreach ($args as $arg) {
-            $query->where("day", "=", intval($arg))
+            $query->orWhere("day", "=", intval($arg))
+                ->where("flid", "=", $flid)
                 ->orWhere("year", "=", intval($arg));
 
             if (self::isMonth($arg)) {
-                $query->orWhere("month", "=", intval(self::monthToNumber($arg)));
+                $query->where("flid", "=", $flid)
+                    ->orWhere("month", "=", intval(self::monthToNumber($arg)));
             }
 
 
             if ($circa) {
-                $query->orWhere("circa", "=", "1");
+                $query->where("flid", "=", $flid)
+                    ->orWhere("circa", "=", "1");
             }
 
             if ($era) {
-                $query->orWhere("era", "=", strtoupper($arg));
+                $query->where("flid", "=", $flid)
+                    ->orWhere("era", "=", strtoupper($arg));
             }
         }
 
         return $query;
+    }
+
+    /*
+     *
+     */
+    public static function buildQuery2($search, $circa, $era, $fid) {
+        $args = explode(" ", $search);
+
+        $query = DB::table("date_fields")
+            ->select("rid")
+            ->where("fid", "=", $fid);
+
+        // This function acts as parenthesis around the or's of the date field requirements.
+        $query->where(function($query) use ($args, $circa, $era) {
+            foreach($args as $arg) {
+                $query->orWhere("day", "=", intval($arg))
+                    ->orWhere("year", "=", intval($arg));
+
+                if (self::isMonth($arg)) {
+                    $query->orWhere("month", "=", intval(self::monthToNumber($arg)));
+                }
+
+                if ($era && self::isValidEra($arg)) {
+                    $query->orWhere("era", "=", strtoupper($arg));
+                }
+            }
+
+            if ($circa) {
+                $query->orWhere("circa", "=", 1);
+            }
+        });
+
+        return $query->distinct();
+    }
+
+    /**
+     * Tests if a string is a valid era.
+     *
+     * @param $string
+     * @return bool, true if valid.
+     */
+    public static function isValidEra($string) {
+        $string = strtoupper($string);
+        return ($string == "BCE" || $string == "CE");
     }
 
     /**

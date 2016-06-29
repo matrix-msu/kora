@@ -20,6 +20,7 @@ class CreateNumberfieldsTable extends Migration {
 			$table->increments('id');
 
 			$table->integer('rid')->unsigned();
+			$table->integer('fid')->unsigned();
 			$table->integer('flid')->unsigned();
 			$table->decimal('number', 65, 30); // Max possible decimal value.
 			$table->timestamps();

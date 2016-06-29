@@ -34,11 +34,11 @@ class CreateFormGroupsTable extends Migration {
         {
 			$table->engine = 'MyISAM';
 
-           $table->integer('form_group_id')->unsigned()->index();
-           $table->foreign('form_group_id')->references('id')->on('form_groups')->onDelete('cascade');
+			$table->integer('form_group_id')->unsigned()->index();
+            $table->foreign('form_group_id')->references('id')->on('form_groups')->onDelete('cascade');
 
-           $table->integer('user_id')->unsigned()->index();
-           $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->integer('user_id')->unsigned()->index();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
 	}
 
@@ -51,7 +51,5 @@ class CreateFormGroupsTable extends Migration {
 	{
         Schema::drop('form_group_user');
 		Schema::drop('form_groups');
-
-
 	}
 }

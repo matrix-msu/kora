@@ -1,6 +1,7 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Project extends Model {
 
@@ -54,4 +55,19 @@ class Project extends Model {
         return $this->hasMany('App\OptionPreset','pid');
     }
 
+    /**
+     * Because the MyISAM engine doesn't support foreign keys we have to emulate cascading.
+     */
+    public function delete() {
+        DB::table("project_token")->where("pid", "=", $this->pid)->delete();
+        DB::table("option_presets")->where("pid", "=", $this->pid)->delete();
+        DB::table("project_groups")->where("pid", "=", $this->pid)->delete();
+
+        $forms = Form::where("pid", "=", $this->pid)->get();
+        foreach($forms as $form) {
+            $form->delete();
+        }
+
+        parent::delete();
+    }
 }

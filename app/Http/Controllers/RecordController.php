@@ -37,6 +37,11 @@ use Illuminate\Support\Facades\DB;
 class RecordController extends Controller {
 
     /**
+     * @type int
+     */
+    const RECORDS_PER_PAGE = 10;
+
+    /**
      * User must be logged in to access views in this controller.
      */
     public function __construct()
@@ -63,7 +68,7 @@ class RecordController extends Controller {
 
         $form = FormController::getForm($fid);
         $filesize = RecordController::getFormFilesize($fid);
-        $records = Record::where('fid', '=', $fid)->paginate(10);
+        $records = Record::where('fid', '=', $fid)->paginate(self::RECORDS_PER_PAGE);
         $records->setPath(env('BASE_URL').'public/projects/'.$pid.'/forms/'.$fid.'/records');
 
         return view('records.index', compact('form', 'filesize', 'records'));
@@ -162,6 +167,7 @@ class RecordController extends Controller {
                         $tf = new TextField();
                         $tf->flid = $field->flid;
                         $tf->rid = $record->rid;
+                        $tf->fid = $fid;
                         $tf->text = $value;
                         $tf->save();
                     }
@@ -170,6 +176,7 @@ class RecordController extends Controller {
                         $rtf = new RichTextField();
                         $rtf->flid = $field->flid;
                         $rtf->rid = $record->rid;
+                        $rtf->fid = $fid;
                         $rtf->rawtext = $value;
                         $rtf->save();
                     }
@@ -178,6 +185,7 @@ class RecordController extends Controller {
                         $nf = new NumberField();
                         $nf->flid = $field->flid;
                         $nf->rid = $record->rid;
+                        $nf->fid = $fid;
                         $nf->number = $value;
                         $nf->save();
                     }
@@ -185,24 +193,28 @@ class RecordController extends Controller {
                     $lf = new ListField();
                     $lf->flid = $field->flid;
                     $lf->rid = $record->rid;
+                    $lf->fid = $fid;
                     $lf->option = $value;
                     $lf->save();
                 } else if ($field->type == 'Multi-Select List') {
                     $mslf = new MultiSelectListField();
                     $mslf->flid = $field->flid;
                     $mslf->rid = $record->rid;
+                    $mslf->fid = $fid;
                     $mslf->options = FieldController::listArrayToString($value);
                     $mslf->save();
                 } else if ($field->type == 'Generated List') {
                     $glf = new GeneratedListField();
                     $glf->flid = $field->flid;
                     $glf->rid = $record->rid;
+                    $glf->fid = $fid;
                     $glf->options = FieldController::listArrayToString($value);
                     $glf->save();
                 } else if($field->type == 'Combo List' && $request->input($field->flid.'_val') != null){
                     $clf = new ComboListField();
                     $clf->flid = $field->flid;
                     $clf->rid = $record->rid;
+                    $clf->fid = $fid;
                     $clf->options = $request->input($field->flid.'_val')[0];
                     for($j=1;$j<sizeof($request->input($field->flid.'_val'));$j++){
                         $clf->options .= '[!val!]'.$request->input($field->flid.'_val')[$j];
@@ -212,6 +224,7 @@ class RecordController extends Controller {
                     $df = new DateField();
                     $df->flid = $field->flid;
                     $df->rid = $record->rid;
+                    $df->fid = $fid;
                     $df->circa = $request->input('circa_' . $field->flid, '');
                     $df->month = $request->input('month_' . $field->flid);
                     $df->day = $request->input('day_' . $field->flid);
@@ -222,18 +235,21 @@ class RecordController extends Controller {
                     $sf = new ScheduleField();
                     $sf->flid = $field->flid;
                     $sf->rid = $record->rid;
+                    $sf->fid = $fid;
                     $sf->events = FieldController::listArrayToString($value);
                     $sf->save();
                 } else if ($field->type == 'Geolocator') {
                     $gf = new GeolocatorField();
                     $gf->flid = $field->flid;
                     $gf->rid = $record->rid;
+                    $gf->fid = $fid;
                     $gf->locations = FieldController::listArrayToString($value);
                     $gf->save();
                 } else if ($field->type == 'Documents' && glob(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/*.*') != false) {
                     $df = new DocumentsField();
                     $df->flid = $field->flid;
                     $df->rid = $record->rid;
+                    $df->fid = $fid;
                     $infoString = '';
                     $infoArray = array();
                     $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
@@ -268,6 +284,7 @@ class RecordController extends Controller {
                     $gf = new GalleryField();
                     $gf->flid = $field->flid;
                     $gf->rid = $record->rid;
+                    $gf->fid = $fid;
                     $infoString = '';
                     $infoArray = array();
                     $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
@@ -309,6 +326,7 @@ class RecordController extends Controller {
                     $pf = new PlaylistField();
                     $pf->flid = $field->flid;
                     $pf->rid = $record->rid;
+                    $pf->fid = $fid;
                     $infoString = '';
                     $infoArray = array();
                     $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
@@ -343,6 +361,7 @@ class RecordController extends Controller {
                     $vf = new VideoField();
                     $vf->flid = $field->flid;
                     $vf->rid = $record->rid;
+                    $vf->fid = $fid;
                     $infoString = '';
                     $infoArray = array();
                     $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
@@ -377,6 +396,7 @@ class RecordController extends Controller {
                     $mf = new ModelField();
                     $mf->flid = $field->flid;
                     $mf->rid = $record->rid;
+                    $mf->fid = $fid;
                     $infoString = '';
                     $infoArray = array();
                     $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
@@ -411,6 +431,7 @@ class RecordController extends Controller {
                     $af = new AssociatorField();
                     $af->flid = $field->flid;
                     $af->rid = $record->rid;
+                    $af->fid = $fid;
                     $af->records = FieldController::listArrayToString($value);
                     $af->save();
                 }

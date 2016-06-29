@@ -296,4 +296,56 @@ class SearchTest extends TestCase
         $this->assertEmpty($results);
     }
 
+    /**
+     * Test the new form keyword search method.
+     */
+    public function test_formKeywordSearch2() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+
+        $field1 = self::dummyField(Field::_TEXT, $project->pid, $form->fid);
+        $field2 = self::dummyField(Field::_TEXT, $project->pid, $form->fid);
+        $field3 = self::dummyField(Field::_TEXT, $project->pid, $form->fid);
+
+        $record1 = self::dummyRecord($project->pid, $form->fid);
+        $record2 = self::dummyRecord($project->pid, $form->fid);
+
+        $text_field1 = new App\TextField();
+        $text_field1->rid = $record1->rid;
+        $text_field1->flid = $field1->flid;
+        $text_field1->text = "bourgeois dinners audemars tickers";
+        $text_field1->save();
+
+        $text_field2 = new App\TextField();
+        $text_field2->rid = $record1->rid;
+        $text_field2->flid = $field2->flid;
+        $text_field2->text = "nine light years away just outside the Kepler solar system";
+        $text_field2->save();
+
+        $text_field3 = new App\TextField();
+        $text_field3->rid = $record1->rid;
+        $text_field3->flid = $field3->flid;
+        $text_field3->text = "the 2016 full loaded Dodge Durangus";
+        $text_field3->save();
+
+        $text_field4 = new App\TextField();
+        $text_field4->rid = $record2->rid;
+        $text_field4->flid = $field1->flid;
+        $text_field4->text = "recipe for disaster";
+        $text_field4->save();
+
+        $text_field5 = new App\TextField();
+        $text_field5->rid = $record2->rid;
+        $text_field5->flid = $field2->flid;
+        $text_field5->text = "asus g75vw";
+        $text_field5->save();
+
+        $text_field6 = new App\TextField();
+        $text_field6->rid = $record2->rid;
+        $text_field6->flid = $field3->flid;
+        $text_field6->text = "thunderstruck highway to hell let there be rock";
+        $text_field6->save();
+
+
+    }
 }

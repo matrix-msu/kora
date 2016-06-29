@@ -7,6 +7,7 @@
  */
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class BaseField
@@ -69,6 +70,51 @@ abstract class BaseField extends Model
         }
 
         return false; // Text contains no matches.
+    }
+
+    /**
+     * Names of the base fields in the database.
+     *
+     * @var array
+     */
+    public static $TABLE_NAMES = ["text_fields", "rich_text_fields", "number_fields", "list_fields",
+        "multi_select_list_fields", "generated_list_fields", "combo_list_fields",
+        "date_fields", "schedule_fields", "geolocator_fields", "documents_fields",
+        "gallery_fields", "playlist_fields", "video_fields", "model_fields", "associator_fields"];
+
+    /**
+     * Maps field constant names to table names.
+     *
+     * @var array
+     */
+    public static $MAPPED_FIELD_TYPES = [
+        Field::_TEXT => "text_fields",
+        Field::_RICH_TEXT => "rich_text_fields",
+        Field::_NUMBER => "number_fields",
+        Field::_LIST => "list_fields",
+        Field::_MULTI_SELECT_LIST => "multi_select_list_fields",
+        Field::_GENERATED_LIST => "generated_list_fields",
+        Field::_COMBO_LIST => "combo_list_fields",
+        Field::_DATE => "date_fields",
+        Field::_SCHEDULE => "schedule_fields",
+        Field::_GEOLOCATOR => "geolocator_fields",
+        Field::_DOCUMENTS => "documents_fields",
+        Field::_GALLERY => "gallery_fields",
+        Field::_PLAYLIST => "playlist_fields",
+        Field::_VIDEO => "video_fields",
+        Field::_3D_MODEL => "model_fields",
+        Field::_ASSOCIATOR => "associator_fields"
+    ];
+
+    /**
+     * Deletes all the BaseFields with a certain rid in a clean way.
+     *
+     * @param $value int, the value of the id.
+     */
+    static public function deleteBaseFields($value) {
+        foreach (self::$TABLE_NAMES as $table_name) {
+            DB::table($table_name)->where("rid", "=", $value)->delete();
+        }
     }
 
     /****************************************************************
