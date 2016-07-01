@@ -190,6 +190,10 @@ Route::post('/backup/project','BackupController@createProject');
 Route::get('/keywordSearch/project/{pid}/forms/{fid}', 'FormSearchController@keywordSearch');
 Route::get('/keywordSearch/project/{pid}/forms/{fid}/delete', 'FormSearchController@deleteSubset');
 
+//project search routes
+Route::get("keywordSearch", 'ProjectSearchController@keywordSearch');
+Route::get("keywordSearch/project/{pid}", "ProjectSearchController@keywordSearch");
+
 // help routes
 Route::get("/help/search", "HelpController@search");
 

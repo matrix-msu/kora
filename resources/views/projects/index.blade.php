@@ -3,6 +3,10 @@
 @section('content')
     <h1>{{trans('projects_index.dash')}}</h1>
 
+    <hr/>
+
+    @include('projectSearch.bar', ['projectArrays' => $projectArrays])
+
     @include('partials.adminpanel')
 
     <hr/>

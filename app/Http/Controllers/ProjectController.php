@@ -30,8 +30,12 @@ class ProjectController extends Controller {
 	{
         $projects = Project::all();
 
+        $projectArrays = [];
+        foreach($projects as $project) {
+            $projectArrays[] = $project->buildFormSelectorArray();
+        }
 
-        return view('projects.index', compact('projects'));
+        return view('projects.index', compact('projects', 'projectArrays'));
 	}
 
 	/**
@@ -82,7 +86,9 @@ class ProjectController extends Controller {
         }
 
         $project = ProjectController::getProject($id);
-        return view('projects.show', compact('project'));
+        $projectArrays = [$project->buildFormSelectorArray()];
+
+        return view('projects.show', compact('project', 'projectArrays'));
 	}
 
 	/**

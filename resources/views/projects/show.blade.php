@@ -10,6 +10,10 @@
     <div><b>{{trans('projects_show.name')}}:</b> {{ $project->slug }}</div>
     <div><b>{{trans('projects_show.desc')}}:</b> {{ $project->description }}</div>
 
+    <hr/>
+
+    @include('projectSearch.bar', ['projectArrays' => $projectArrays])
+
     @if (\Auth::user()->admin ||  \Auth::user()->isProjectAdmin($project))
         <hr/>
 

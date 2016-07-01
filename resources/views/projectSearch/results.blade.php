@@ -1,81 +1,40 @@
 @extends('app')
-
-@section('leftNavLinks')
-    @include('partials.menu.project', ['pid' => $form->pid])
-    @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
-@stop
+<?php $forms = []; ?>
+@if($pid != 0)
+    @section('leftNavLinks')
+        @include('partials.menu.project', ['pid' => $pid])
+    @stop
+@endif
 
 @section('content')
-    <span><h1>{{ $form->name }}</h1></span>
-
-    <div><b>{{trans('records_index.name')}}:</b> {{ $form->slug }}</div>
-    <div><b>{{trans('records_index.desc')}}:</b> {{ $form->description }}</div>
-
-    @if(\Auth::user()->canIngestRecords($form))
-        <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_index.new')}}]</a>
-        <a href="{{ action('RecordController@importRecordsView',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('forms_show.import')}}]</a>
-    @endif
-    @if(\Auth::user()->canModifyRecords($form))
-        <a href="{{ action('RecordController@showMassAssignmentView',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_index.mass')}}]</a>
-    @endif
-
-    <hr/>
-
-    @include('search.bar', ['pid' => $form->pid, 'fid' => $form->fid])
-
-    @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
-        <hr/>
-
-        <h4> {{trans('records_index.panel')}}</h4>
-        <form action="{{action('FormGroupController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
-            <button type="submit" class="btn btn-default">{{trans('records_index.groups')}}</button>
-        </form>
-        <form action="{{action('AssociationController@index', ['fid'=>$form->fid, 'pid'=>$form->pid])}}" style="display: inline">
-            <button type="submit" class="btn btn-default">{{trans('records_index.assoc')}}</button>
-        </form>
-        <form action="{{action('RevisionController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
-            <button type="submit" class="btn btn-default">{{trans('records_index.revisions')}}</button>
-        </form>
-        <form action="{{action('RecordPresetController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
-            <button type="submit" class="btn btn-default">{{trans('records_index.presets')}}</button>
-        </form>
-        <div>
-            <button class="btn btn-danger" onclick="deleteAll()">{{trans('records_index.delete')}}</button>
-            <button class="btn btn-danger" onclick="cleanUp()">{{trans('records_index.cleanup')}}</button>
-            <span><b>{{trans('records_index.size')}}:</b> {{$filesize}}</span>
-        </div>
-    @endif
-
-    <hr/>
-
-    {{--<div style="text-align: left">{!! $records->render() !!}</div>--}}
 
     <h2>{{trans('records_index.records')}}</h2>
     <div>{{trans('records_index.total')}}: {{$rid_paginator->total()}}</div>
-    @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
 
-        @if ($rid_paginator->total() > 0)
-        <form action="{{ action('FormSearchController@deleteSubset', ['pid' => $form->pid, 'fid' => $form->fid]) }}">
-            <button type="submit" class="btn btn-danger">{{ trans('search.deleteSubset') }}</button>
-        </form>
-        @endif
+    <hr/>
 
-        <div>
-            {{trans('records_index.exportRec')}}:
-            <a href="{{ action('ExportController@exportRecords',['pid' => $form->pid, 'fid' => $form->fid, 'type'=>'xml']) }}">[XML]</a>
-            <a href="{{ action('ExportController@exportRecords',['pid' => $form->pid, 'fid' => $form->fid, 'type'=>'json']) }}">[JSON]</a>
-            <a href="{{ action('ExportController@exportRecords',['pid' => $form->pid, 'fid' => $form->fid, 'type'=>'csv']) }}">[CSV]</a>
-            @if(file_exists(env('BASE_PATH') . 'storage/app/files/p'.$form->pid.'/f'.$form->fid.'/'))
-                <a href="{{ action('ExportController@exportRecordFiles',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_index.exportFiles')}}]</a>
-            @endif
-        </div> <br>
-    @endif
+    @include('projectSearch.bar', ['projectArrays' => $projectArrays])
+
+    @include('partials.adminpanel')
+
+    <hr/>
 
     <div id="slideme">
 
         @include('pagination.records', ['object' => $rid_paginator])
 
         @foreach($records as $record)
+
+            <?php
+                if (isset($forms[$record->fid])) {
+                    $form = $forms[$record->fid];
+                }
+                else {
+                    $form = App\Form::where("fid", "=", $record->fid)->first();
+                    $forms[$record->fid] = $form;
+                }
+            ?>
+
             <div class="panel panel-default">
                 <div>
                     <b>{{trans('records_index.record')}}:</b> <a href="{{ action('RecordController@show',['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid]) }}">{{ $record->kid }}</a>

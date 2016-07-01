@@ -70,4 +70,24 @@ class Project extends Model {
 
         parent::delete();
     }
+
+    /**
+     * Builds up and array of a project and its forms to be send to Javascript.
+     *
+     * @return array
+     */
+    public function buildFormSelectorArray() {
+        $forms = $this->forms()->get();
+
+        $arr = ["pid" => $this->pid,
+            "name" => $this->name,
+            "forms" => []];
+
+        foreach($forms as $form) {
+            $arr["forms"][] = ["fid" => $form->fid,
+                "name" => $form->name];
+        }
+
+        return $arr;
+    }
 }
