@@ -1663,7 +1663,7 @@ class RecordController extends Controller {
                     return false;
                 }
                 return true;
-            default:
+            default: // "Read Only"
                 if(!(\Auth::user()->inAFormGroup(FormController::getForm($fid))))
                 {
                     flash()->overlay(trans('controller_record.viewper'), trans('controller_record.whoops'));
@@ -1698,7 +1698,6 @@ class RecordController extends Controller {
      * Recursively builds up fileszie of directories, their subdirectories, and any files.
      *
      * @param $dir
-     * @param $filesize
      * @return int
      */
     function dirCrawl($dir) {

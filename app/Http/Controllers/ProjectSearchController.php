@@ -4,6 +4,7 @@ use App\Form;
 use App\Project;
 use App\Record;
 use App\Search;
+use App\User;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
@@ -61,7 +62,7 @@ class ProjectSearchController extends Controller
             $ignored = implode(" ", $ignored);
 
             if ($ignored) {
-                flash(self::HELP_MESSAGE . $ignored . '. ');
+                flash(FormSearchController::HELP_MESSAGE . $ignored . '. ');
             }
 
             $forms = Form::where(function($query) use($fids) {
@@ -92,12 +93,16 @@ class ProjectSearchController extends Controller
         $record_count = $page * RecordController::RECORDS_PER_PAGE;
         $slice = array_slice($rids, $record_count - RecordController::RECORDS_PER_PAGE, $record_count);
 
-        $records = Record::where(function($query) use ($slice) {
-           foreach($slice as $rid) {
-               $query->orWhere("rid", "=", $rid);
-           }
-        })->get();
-
+        if (empty($rids)) {
+            $records = [];
+        }
+        else {
+            $records = Record::where(function($query) use ($slice) {
+                foreach($slice as $rid) {
+                    $query->orWhere("rid", "=", $rid);
+                }
+            })->get();
+        }
         $rid_paginator = new LengthAwarePaginator($rids, count($rids), RecordController::RECORDS_PER_PAGE, $page);
         $rid_paginator->appends([
             "query" => $arg,
@@ -121,9 +126,116 @@ class ProjectSearchController extends Controller
         else {
             $project = ProjectController::getProject($pid);
             $projectArrays = [$project->buildFormSelectorArray()];
-
         }
         return view("projectSearch.results", compact("records", "ignored", "rid_paginator", "pid", "projectArrays"));
     }
 
+    /**
+     * Global search executed by the navbar search box.
+     * Executes as an exact search on every form in the system.
+     * If the input is in the form of a KID, it will redirect to the Record's show page if it exists.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function globalSearch() {
+        $query = trim(Request::input("query"));
+        $method = "GLOBAL";
+
+        $page = (isset($_GET['page'])) ? intval(strip_tags($_GET['page'])) : $page = 1;
+
+        if (Record::isKIDPattern($query) && count(explode(" ", $query)) == 1) { // Query is a KID and only a single query was entered.
+            $kid_array = explode("-", $query);
+
+            if (RecordController::validProjFormRecord($kid_array[0], $kid_array[1], $kid_array[2])) {
+                if (\Auth::user()->inAFormGroup(FormController::getForm($kid_array[1]))) {
+                    return redirect("/projects/" . $kid_array[0] . "/forms/" . $kid_array[1] . "/records/" . $kid_array[2]);
+                }
+                else { // User did not have permission to view the record.
+                    flash()->overlay(trans('controller_record.viewper'), trans('controller_record.whoops'));
+                    return redirect()->back();
+                }
+            }
+            else { // Record does not exist.
+                flash()->overlay(trans("records_show.exist"), trans('controller_record.whoops'));
+                return redirect()->back();
+            }
+        }
+
+        $do_query = true;
+        if (Session::has("query") && Session::has("method") ) {
+            $session_query = Session::get("query");
+            $session_method = Session::get("method");
+
+            if ($query == $session_query && $method == $session_method) {
+                $rids = unserialize(Session::get("rids"));
+            }
+            else {
+                $do_query = true;
+            }
+        }
+        else {
+            $do_query = true;
+        }
+
+        if ($do_query) {
+            // Inform the user about arguments that will be ignored.
+            $ignored = Search::showIgnoredArguments($query);
+            $query_pieces = explode(" ", $query);
+            $query_pieces = array_diff($query_pieces, $ignored);
+            $query = implode(" ", $query_pieces);
+
+            $ignored = implode(" ", $ignored);
+
+            if ($ignored) {
+                flash(FormSearchController::HELP_MESSAGE . $ignored . '. ');
+            }
+
+            $projects = Project::all();
+
+            $rids = [];
+            foreach($projects as $project) {
+                $forms = $project->forms()->get();
+
+                foreach($forms as $form) {
+                    // Global search is always an exact search.
+                    $search = new Search($form->pid, $form->fid, $query, Search::SEARCH_EXACT);
+                    $rids = array_merge($search->formKeywordSearch2(), $rids);
+                }
+            }
+
+            Session::put("rids", serialize($rids));
+        }
+
+        Session::put("query", $query);
+        Session::put("method", $method);
+
+        $record_count = $page * RecordController::RECORDS_PER_PAGE;
+        $slice = array_slice($rids, $record_count - RecordController::RECORDS_PER_PAGE, $record_count);
+
+        if (empty($rids)) {
+            $records = [];
+        }
+        else {
+            $records = Record::where(function($builder) use ($slice) {
+                foreach($slice as $rid) {
+                    $builder->orWhere("rid", "=", $rid);
+                }
+            })->get();
+        }
+        $rid_paginator = new LengthAwarePaginator($rids, count($rids), RecordController::RECORDS_PER_PAGE, $page);
+        $rid_paginator->appends([
+            "query" => $query,
+            "method" => $method,
+        ]);
+        $rid_paginator->setPath( env('BASE_URL') . 'public/globalSearch/');
+
+        $projects = Project::all();
+        $projectArrays = [];
+        foreach ($projects as $project) {
+            $projectArrays[] = $project->buildFormSelectorArray();
+        }
+
+        $pid = 0;
+        return view("projectSearch.results", compact("records", "ignored", "rid_paginator", "pid", "projectArrays"));
+    }
 }

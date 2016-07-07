@@ -194,6 +194,9 @@ Route::get('/keywordSearch/project/{pid}/forms/{fid}/delete', 'FormSearchControl
 Route::get("keywordSearch", 'ProjectSearchController@keywordSearch');
 Route::get("keywordSearch/project/{pid}", "ProjectSearchController@keywordSearch");
 
+//global search route
+Route::get("globalSearch", "ProjectSearchController@globalSearch");
+
 // help routes
 Route::get("/help/search", "HelpController@search");
 

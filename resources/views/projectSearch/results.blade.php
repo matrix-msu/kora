@@ -537,6 +537,7 @@
     </div>
 @stop
 
+@if(isset($form))
 @section('footer')
     <script>
         /**
@@ -587,3 +588,4 @@
         }
     </script>
 @stop
+@endif

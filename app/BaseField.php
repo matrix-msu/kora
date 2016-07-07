@@ -109,11 +109,11 @@ abstract class BaseField extends Model
     /**
      * Deletes all the BaseFields with a certain rid in a clean way.
      *
-     * @param $value int, the value of the id.
+     * @param $rid int, record id.
      */
-    static public function deleteBaseFields($value) {
+    static public function deleteBaseFields($rid) {
         foreach (self::$TABLE_NAMES as $table_name) {
-            DB::table($table_name)->where("rid", "=", $value)->delete();
+            DB::table($table_name)->where("rid", "=", $rid)->delete();
         }
     }
 

@@ -27,13 +27,22 @@
 				<li><a href="{{ url('/auth/register') }}">{{trans('partials_nav.register')}}</a></li>
                 <li><a href="{{ action('Auth\UserController@activateshow') }}">{{trans('partials_nav.activation')}}</a></li>
 			@else
-				<li class="dropdown">
+				<li class="dropdown pull-right">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{ Auth::user()->username }} <span class="caret"></span></a>
 					<ul class="dropdown-menu" role="menu">
 						<li><a href="{{ url('/user') }}">{{trans('partials_nav.viewprofile')}}</a></li>
 						<li><a href="{{ url('/auth/logout') }}">{{trans('partials_nav.logout')}}</a></li>
 					</ul>
 				</li>
+                  <!-- Search bar (In opposite order purposefully) -->
+                  <form class="navbar-form pull-right" role="search" method="GET" action="{{ action("ProjectSearchController@globalSearch") }}">
+                          <input type="text" class="form-control" placeholder="Global Search" name="query">
+                          <span>
+                              <button class="btn btn-default" type="submit">
+                                  <span class="glyphicon glyphicon-search"></span>
+                              </button>
+                          </span>
+                  </form>
               @if (!\Auth::user()->active)
                   <li><a href="{{ action('Auth\UserController@activateshow') }}">{{trans('partials_nav.activation')}}</a></li>
               @endif

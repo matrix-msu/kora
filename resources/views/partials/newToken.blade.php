@@ -15,3 +15,7 @@
     </div>
 
 {!! Form::close() !!}
+
+<script>
+    $("#type").select2({ width: 'hybrid' });
+</script>

@@ -23,5 +23,5 @@ return [
 	"areyousure" => "Est&aacute; seguro que desea eliminar",
 	"mustenter" => "Debe introducir un nombre v&aacute;lido",
 	"clone" => "Clona",
-
+	"exist" => "Ese registro no existi&oacute;.",
 ];

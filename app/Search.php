@@ -22,6 +22,7 @@ class Search
 {
     /**
      * Search operators.
+     *
      * OR: at least one argument must be in some record's field.
      * AND: all arguments must be in a particular record's fields.
      * EXACT: the whole phrase must be in some field.

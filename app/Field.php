@@ -358,12 +358,6 @@ class Field extends Model {
                         ->distinct();
                 }
                 else {
-                    $q = DB::table("geolocator_fields")
-                        ->select("rid")
-                        ->where("fid", "=", $this->fid)
-                        ->whereRaw("MATCH (`locations`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                        ->distinct();
-
                     return DB::table("geolocator_fields")
                         ->select("rid")
                         ->where("fid", "=", $this->fid)

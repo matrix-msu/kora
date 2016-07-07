@@ -77,7 +77,7 @@ class DateField extends BaseField {
                 }
             }
 
-            if ($circa) {
+            if ($circa && self::isCirca($arg)) {
                 $query->orWhere("circa", "=", 1);
             }
         });
@@ -94,6 +94,17 @@ class DateField extends BaseField {
     public static function isValidEra($string) {
         $string = strtoupper($string);
         return ($string == "BCE" || $string == "CE");
+    }
+
+    /**
+     * Test if a string is equal to circa.
+     *
+     * @param $string
+     * @return bool, true if valid.
+     */
+    public static function isCirca($string) {
+        $string = strtoupper($string);
+        return ($string == "CIRCA");
     }
 
     /**
