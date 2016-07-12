@@ -6,6 +6,7 @@ use App\Record;
 use App\Search;
 use App\User;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 
@@ -190,11 +191,13 @@ class ProjectSearchController extends Controller
                 flash(FormSearchController::HELP_MESSAGE . $ignored . '. ');
             }
 
-            $projects = Project::all();
+            $user = Auth::user();
+
+            $projects = $user->allowedProjects();
 
             $rids = [];
             foreach($projects as $project) {
-                $forms = $project->forms()->get();
+                $forms = $user->allowedForms($project->pid);
 
                 foreach($forms as $form) {
                     // Global search is always an exact search.

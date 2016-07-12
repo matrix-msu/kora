@@ -21,7 +21,14 @@
                         </div>
                         <br>
 
-                        @include('forms.layout.logic',['form'=>$form,'fieldview' => 'metadata.fieldview'])
+                        <div id="field_content">
+                            @include('forms.layout.logic',['form'=>$form,'fieldview' => 'metadata.fieldview'])
+                        </div>
+                        <div id="loading" style="display: none" class="progress">
+                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
+                                {{trans('update_index.loading')}}
+                            </div>
+                        </div>
 
                         <hr>
                         <div class="checkbox">
@@ -87,6 +94,10 @@
             massAssignMeta();
         });
 
+        $("#assign").on("click", function() {
+           loading();
+        });
+
         function deleteMeta(flid){
            var deleteURL ="{{action('MetadataController@destroy',compact('pid','fid'))}}";
             $.ajax({
@@ -102,6 +113,10 @@
             });
         }
         function massAssignMeta(){
+            $("#field_content").slideToggle(600, function() {
+                $('#loading').slideToggle(400);
+            });
+
             var deleteURL ="{{action('MetadataController@massAssign',compact('pid','fid'))}}";
             $.ajax({
                 url:deleteURL,

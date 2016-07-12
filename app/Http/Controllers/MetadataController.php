@@ -263,7 +263,7 @@ class MetadataController extends Controller {
         }
         return $jsRecord;
     }
-    /*
+    /**
      * Takes form layout and modifies it from a flat array to an array of arrays
      * so metadata can be displayed with the correct layout.  This method calls
      * itself recursively until all nodes are completed
@@ -424,7 +424,6 @@ class MetadataController extends Controller {
             return true;
         }
     }
-
 
     public function massAssign($pid,$fid,Request $request){
         $fields = Form::find($fid)->fields()->get();
