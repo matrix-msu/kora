@@ -10,6 +10,8 @@ class Token extends Model {
         'type'
     ];
 
+    // TODO: add constants for the token types.
+
     /**
      * Get the projects associated to with a token.
      *
@@ -18,7 +20,6 @@ class Token extends Model {
     public function projects(){
         return $this->belongsToMany('App\Project');
     }
-
 
     /**
      * Determines if a token belongs to a certain project.

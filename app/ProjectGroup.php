@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\DB;
 
 class ProjectGroup extends Model {
 
-	protected $fillable = ['name', 'create', 'edit', 'delete'];
+	protected $fillable = ['name', 'pid', 'create', 'edit', 'delete'];
 
     /**
      * Returns projects associated with a project group.

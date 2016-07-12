@@ -1,6 +1,7 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class Form extends Model {
@@ -71,12 +72,17 @@ class Form extends Model {
         DB::table("record_presets")->where("fid", "=", $this->fid)->delete();
         DB::table("associations")->where("dataForm", "=", $this->fid)->orWhere("assocForm", "=", $this->fid)->delete();
         DB::table("revisions")->where("fid", "=", $this->fid)->delete();
+        FormGroup::where("fid", "=", $this->fid)->delete();
 
-        $to_delete = Record::where("fid", "=", $this->fid)->get();
-        $to_delete = $to_delete->merge(Field::where("fid", "=", $this->fid)->get());
+        $records = Record::where("fid", "=", $this->fid)->get();
+        $fields = Field::where("fid", "=", $this->fid)->get();
 
-        foreach($to_delete as $delete_me) {
-            $delete_me->delete();
+        foreach($records as $record) {
+            $record->delete();
+        }
+
+        foreach($fields as $field) {
+            $field->delete();
         }
 
         parent::delete();

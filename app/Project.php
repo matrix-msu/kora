@@ -59,10 +59,11 @@ class Project extends Model {
      * Because the MyISAM engine doesn't support foreign keys we have to emulate cascading.
      */
     public function delete() {
-        DB::table("project_token")->where("pid", "=", $this->pid)->delete();
+        DB::table("project_token")->where("project_id", "=", $this->pid)->delete();
         DB::table("option_presets")->where("pid", "=", $this->pid)->delete();
         DB::table("project_groups")->where("pid", "=", $this->pid)->delete();
 
+        // We don't delete the forms as above because we need their delete methods to be called.
         $forms = Form::where("pid", "=", $this->pid)->get();
         foreach($forms as $form) {
             $form->delete();

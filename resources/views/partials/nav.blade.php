@@ -1,4 +1,4 @@
-<nav class="navbar navbar-inverse navbar-fixed-top" style="background-image: inherit">
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" style="background-image: inherit">
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -27,22 +27,15 @@
 				<li><a href="{{ url('/auth/register') }}">{{trans('partials_nav.register')}}</a></li>
                 <li><a href="{{ action('Auth\UserController@activateshow') }}">{{trans('partials_nav.activation')}}</a></li>
 			@else
-				<li class="dropdown pull-right">
-					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{ Auth::user()->username }} <span class="caret"></span></a>
-					<ul class="dropdown-menu" role="menu">
-						<li><a href="{{ url('/user') }}">{{trans('partials_nav.viewprofile')}}</a></li>
-						<li><a href="{{ url('/auth/logout') }}">{{trans('partials_nav.logout')}}</a></li>
-					</ul>
-				</li>
-                  <!-- Search bar (In opposite order purposefully) -->
-                  <form class="navbar-form pull-right" role="search" method="GET" action="{{ action("ProjectSearchController@globalSearch") }}">
-                          <input type="text" class="form-control" placeholder="Global Search" name="query">
-                          <span>
-                              <button class="btn btn-default" type="submit">
-                                  <span class="glyphicon glyphicon-search"></span>
-                              </button>
-                          </span>
-                  </form>
+
+
+                  <li class="dropdown pull-right">
+                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{ Auth::user()->username }} <span class="caret"></span></a>
+                      <ul class="dropdown-menu" role="menu">
+                          <li><a href="{{ url('/user') }}">{{trans('partials_nav.viewprofile')}}</a></li>
+                          <li><a href="{{ url('/auth/logout') }}">{{trans('partials_nav.logout')}}</a></li>
+                      </ul>
+                  </li>
               @if (!\Auth::user()->active)
                   <li><a href="{{ action('Auth\UserController@activateshow') }}">{{trans('partials_nav.activation')}}</a></li>
               @endif

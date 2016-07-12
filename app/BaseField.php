@@ -84,6 +84,7 @@ abstract class BaseField extends Model
 
     /**
      * Maps field constant names to table names.
+     * Used with the DB::table method.
      *
      * @var array
      */
@@ -105,6 +106,20 @@ abstract class BaseField extends Model
         Field::_3D_MODEL => "model_fields",
         Field::_ASSOCIATOR => "associator_fields"
     ];
+
+    /**
+     * Maps a typed field name to its table's name in the database.
+     *
+     * @param $string
+     * @return bool | string.
+     */
+    public static function getDBName($string) {
+        if (isset(Field::$ENUM_TYPED_FIELDS[$string])) {
+            return self::$MAPPED_FIELD_TYPES[$string];
+        }
+
+        return false;
+    }
 
     /**
      * Deletes all the BaseFields with a certain rid in a clean way.

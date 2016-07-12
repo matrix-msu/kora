@@ -109,6 +109,204 @@ TEXT;
     const COMBO_LIST_FIELD_DATA = "[!f1!]1[!f1!][!f2!]Dragon Warhammer[!f2!][!val!][!f1!]2[!f1!][!f2!]Dragon Pickaxe[!f2!][!val!][!f1!]3[!f1!][!f2!]Dragon Axe[!f2!][!val!][!f1!]4[!f1!][!f2!]Dragon Staff[!f2!]";
 
     /**
+     * Test the delete method.
+     *
+     * When a field is deleted the following should be deleted:
+     *      -Metadata associated with the project.
+     *      -All BaseFields associated with the field.
+     *          I.e., if a field is type "_TEXT" all TextFields with the Field's flid will be deleted.
+     */
+    public function test_delete() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+
+        $field = self::dummyField(Field::_TEXT, $project->pid, $form->fid);
+        $text_field = new \App\TextField();
+        $text_field->rid = 0;
+        $text_field->flid = $field->flid;
+        $text_field->text = "asdf";
+        $text_field->save();
+
+        $flid = $field->flid;
+
+        $field->delete();
+        $this->assertEmpty(\App\TextField::where("flid", "=", $flid)->get());
+
+        $field = self::dummyField(Field::_RICH_TEXT, $project->pid, $form->fid);
+        $rich_text_field = new \App\RichTextField();
+        $rich_text_field->rid = 0;
+        $rich_text_field->flid = $field->flid;
+        $rich_text_field->rawtext = "asdf";
+        $rich_text_field->save();
+
+        $flid = $field->flid;
+
+        $field->delete();
+        $this->assertEmpty(\App\RichTextField::where("flid", "=", $flid)->get());
+
+        $field = self::dummyField(Field::_NUMBER, $project->pid, $form->fid);
+        $number_field = new \App\NumberField();
+        $number_field->rid = 0;
+        $number_field->flid = $field->flid;
+        $number_field->number = 0;
+        $number_field->save();
+
+        $flid = $field->flid;
+
+        $field->delete();
+        $this->assertEmpty(\App\NumberField::where("flid", "=", $flid)->get());
+
+        $field = self::dummyField(Field::_LIST, $project->pid, $form->fid);
+        $list_field = new App\ListField();
+        $list_field->rid = 0;
+        $list_field->flid = $field->flid;
+        $list_field->option = "asdf";
+        $list_field->save();
+
+        $flid = $field->flid;
+
+        $field->delete();
+        $this->assertEmpty(\App\ListField::where("flid", "=", $flid)->get());
+
+        $field = self::dummyField(Field::_MULTI_SELECT_LIST, $project->pid, $form->fid);
+        $msl_field = new \App\MultiSelectListField();
+        $msl_field->rid = 0;
+        $msl_field->flid = $field->flid;
+        $msl_field->options = "asdf";
+        $msl_field->save();
+
+        $flid = $field->flid;
+
+        $field->delete();
+        $this->assertEmpty(\App\MultiSelectListField::where("flid", "=", $flid)->get());
+
+        $field = self::dummyField(Field::_DATE, $project->pid, $form->fid);
+        $date_field = new \App\DateField();
+        $date_field->rid = 0;
+        $date_field->flid = $field->flid;
+        $date_field->month = 0;
+        $date_field->day = 0;
+        $date_field->month = 0;
+        $date_field->year = 0;
+        $date_field->era = "era";
+        $date_field->circa = 0;
+        $date_field->save();
+
+        $flid = $field->flid;
+
+        $field->delete();
+        $this->assertEmpty(\App\DateField::where("flid", "=", $flid)->get());
+
+        $field = self::dummyField(Field::_SCHEDULE, $project->pid, $form->fid);
+        $schedule_field = new \App\ScheduleField();
+        $schedule_field->rid = 0;
+        $schedule_field->flid = $field->flid;
+        $schedule_field->events = "asdf";
+        $schedule_field->save();
+
+        $flid = $field->flid;
+
+        $field->delete();
+        $this->assertEmpty(\App\ScheduleField::where("flid", "=", $flid)->get());
+
+        $field = self::dummyField(Field::_GEOLOCATOR, $project->pid, $form->fid);
+        $geolocator_field = new \App\GeolocatorField();
+        $geolocator_field->rid = 0;
+        $geolocator_field->flid = $field->flid;
+        $geolocator_field->locations = "asdf";
+        $geolocator_field->save();
+
+        $flid = $field->flid;
+
+        $field->delete();
+        $this->assertEmpty(\App\GeolocatorField::where("flid", "=", $flid)->get());
+
+        $field = self::dummyField(Field::_DOCUMENTS, $project->pid, $form->fid);
+        $documents_field = new \App\DocumentsField();
+        $documents_field->rid = 0;
+        $documents_field->flid = $field->flid;
+        $documents_field->documents = "asdf";
+        $documents_field->save();
+
+        $flid = $field->flid;
+
+        $field->delete();
+        $this->assertEmpty(App\DocumentsField::where("flid", "=", $flid)->get());
+
+        $field = self::dummyField(Field::_GALLERY, $project->pid, $form->fid);
+        $gallery_field = new \App\GalleryField();
+        $gallery_field->rid = 0;
+        $gallery_field->flid = $field->flid;
+        $gallery_field->images = "asdf";
+        $gallery_field->save();
+
+        $flid = $field->flid;
+
+        $field->delete();
+        $this->assertEmpty(App\DocumentsField::where("flid", "=", $flid)->get());
+
+        $field = self::dummyField(Field::_3D_MODEL, $project->pid, $form->fid);
+        $model_field = new \App\ModelField();
+        $model_field->rid = 0;
+        $model_field->flid = $field->flid;
+        $model_field->model = "asdf";
+        $model_field->save();
+
+        $flid = $field->flid;
+
+        $field->delete();
+        $this->assertEmpty(App\ModelField::where("flid", "=", $flid)->get());
+
+        $field = self::dummyField(Field::_PLAYLIST, $project->pid, $form->fid);
+        $playlist_field = new \App\PlaylistField();
+        $playlist_field->rid = 0;
+        $playlist_field->flid = $field->flid;
+        $playlist_field->audio = "asdf";
+        $playlist_field->save();
+
+        $flid = $field->flid;
+
+        $field->delete();
+        $this->assertEmpty(App\PlaylistField::where("flid", "=", $flid)->get());
+
+        $field = self::dummyField(Field::_VIDEO, $project->pid, $form->fid);
+        $video_field = new \App\VideoField();
+        $video_field->rid = 0;
+        $video_field->flid = $field->flid;
+        $video_field->video = "asdf";
+        $video_field->save();
+
+        $flid = $field->flid;
+
+        $field->delete();
+        $this->assertEmpty(App\VideoField::where("flid", "=", $flid)->get());
+
+        $field = self::dummyField(Field::_COMBO_LIST, $project->pid, $form->fid);
+        $combo_list_field = new \App\ComboListField();
+        $combo_list_field->rid = 0;
+        $combo_list_field->flid = $field->flid;
+        $combo_list_field->options = "asdf";
+        $combo_list_field->save();
+
+        $flid = $field->flid;
+
+        $field->delete();
+        $this->assertEmpty(App\ComboListField::where("flid", "=", $flid)->get());
+
+        $field = self::dummyField(Field::_ASSOCIATOR, $project->pid, $form->fid);
+        $associator = new \App\AssociatorField();
+        $associator->rid = 0;
+        $associator->flid = $field->flid;
+        $associator->records = "asdf";
+        $associator->save();
+
+        $flid = $field->flid;
+
+        $field->delete();
+        $this->assertEmpty(App\AssociatorField::where("flid", "=", $flid)->get());
+    }
+
+    /**
      * Test Field::getTypedField.
      */
     public function test_getTypedField() {

@@ -45,7 +45,7 @@ class FormGroup extends Model {
     }
 
     public function delete() {
-        DB::table("form_groups")->where("form_group_id", "=", $this->id)->delete();
+        DB::table("form_group_user")->where("form_group_id", "=", $this->id)->delete();
 
         parent::delete();
     }
