@@ -15,5 +15,8 @@ return [
 	"automass" => "Automatiquement Masse Attribuer Linked Open Data",
 	"massassign" => "Masse Attribuer Linked Open Data",
 	"error" => "D&eacute;sol&eacute;, il y a une erreur lorsque vous tentez de modifier le Linked Open Data de la visibilit&eacute;",
+	"click" => "Cliquez",
+	"here" => "sur ici",
+	"to_view" => "pour regarder ceci des donn&eacute;es ouvertes li&eacute;es",
 
 ];

@@ -15,6 +15,9 @@
                         <span><h3>{{trans('metadata_index.lod')}}</h3></span>
                         <hr>
 
+                        <p>{{ trans("metadata_index.click") }} <a target="_blank" href="{{ url("/projects/" . $form->pid . "/forms/" . $form->fid . "/metadata") }}">{{ trans("metadata_index.here") }}</a> {{ trans("metadata_index.to_view") }}</p>
+
+                        <hr/>
                         <div>
                             <b class="pull-left">{{trans('metadata_index.field')}}</b>
                             <b class="pull-right">{{trans('metadata_index.lod')}}</b>
@@ -66,9 +69,11 @@
                             {!! Form::select('field',$fields,'',array('class'=>'form-control')) !!}
                         </div>
 
-                        {!! Form::submit(trans('metadata_index.assign'),array('class'=>'btn btn-primary form-control')) !!}
+                        <?php $disabled = (!!count($fields)) ? "" : "disabled"; // If there are no fields the assign LOD button is disabled. ?>
 
+                        {!! Form::submit(trans('metadata_index.assign'),array('class'=>'btn btn-primary form-control', $disabled)) !!}
                         {!! Form::close() !!}
+
                         <hr>
                         <p><strong>{{trans('metadata_index.automass')}}</strong></p>
                         <button id="massAssign" class="btn btn-primary form-control">{{trans('metadata_index.massassign')}}</button>

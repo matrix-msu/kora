@@ -330,7 +330,6 @@ class MetadataController extends Controller {
      * @params int $pid, int $fid
      * @return Response
      */
-
     public function index($pid,$fid)
     {
         if(!FormController::validProjForm($pid,$fid)){
@@ -351,13 +350,14 @@ class MetadataController extends Controller {
     }
 
     /**
-    /**
      * Process the form submission and add metadata to field or change visibility
      *
-     * @param Request $request, int $pid, int $fid
+     * @param Request $request
+     * @param int $pid, project id.
+     * @param int $fid, form id.
      * @return Response
      */
-    public function store(Request $request,$pid,$fid)
+    public function store(Request $request, $pid, $fid)
     {
         //Changing metadata visibility or adding metadata to a field?
         $this->validate($request,[
@@ -409,49 +409,55 @@ class MetadataController extends Controller {
 
     }
 
-    public function isUniqueToForm($fid,$name){
-        $fields = Form::find($fid)->fields()->get();
-        $metas = new Collection();
-        foreach($fields as $field) {
-            if (!is_null($field->metadata()->first())) {
-                $metas->put($field->metadata()->first()->name,true);
-            }
-        }
-        if($metas->has($name)){
-            return false;
-        }
-        else{
-            return true;
-        }
+    /**
+     * Determines if a particular name is unique in the metadata table.
+     * This is constrained to a particular form.
+     *
+     * @param $fid int, form id.
+     * @param $name string, the name to be tested.
+     * @return bool, true if the name is unique.
+     */
+    public function isUniqueToForm($fid, $name) {
+        $count = Metadata::where("fid", "=", $fid)
+            ->where("name", "=", $name)
+            ->count();
+
+        return $count <= 1;
     }
 
-    public function massAssign($pid,$fid,Request $request){
-        $fields = Form::find($fid)->fields()->get();
-        $metas = new Collection();
+    /**
+     * Attaches a linked open data association to all fields in a form.
+     * Ensures that the name will be unique to the form.
+     *
+     * @param $pid int, project id.
+     * @param $fid int, form id.
+     */
+    public function massAssign($pid, $fid) {
+        $fields = Field::where("fid", "=", $fid)->get();
         foreach($fields as $field){
-            if(is_null($field->metadata()->first())){
-                //$metas->push($field->metadata()->first());
-                if($this->isUniqueToForm($fid,$field->name)){
-                    $metadata = new Metadata(['pid'=>$pid,'fid'=>$fid, 'name'=>$field->name]);
-                }
-                else{
-                    if($this->isUniqueToForm($fid,$field->name."_".$field->slug)){
-                        $metadata = new Metadata(['pid'=>$pid,'fid'=>$fid, 'name'=>$field->name."_".$field->slug]);
+                if(is_null($field->metadata()->first())) { // Only associate a new metadata if it does not exist already.
+                    if ($this->isUniqueToForm($fid,$field->name)) {
+                        $metadata = new Metadata(['pid'=>$pid,'fid'=>$fid, 'name'=>$field->name]);
                     }
-                    else{
-                        $count = 0;
-                        $name = $field->name."_".$field->slug."0";
-                        while(!$this->isUniqueToForm($fid,$name)){
-                            $name = $field->name."_".$field->slug.$count;
-                            $count++;
+                    else {
+                        if($this->isUniqueToForm($fid,$field->name."_".$field->slug)) {
+                            $metadata = new Metadata(['pid'=>$pid,'fid'=>$fid, 'name'=>$field->name."_".$field->slug]);
                         }
-                        $metadata = new Metadata(['pid'=>$pid,'fid'=>$fid, 'name'=>$name]);
+
+                        else {
+                            $count = 0;
+                            $name = $field->name."_".$field->slug."0";
+                            while(!$this->isUniqueToForm($fid,$name)){
+                                $name = $field->name."_".$field->slug.$count;
+                                $count++;
+                            }
+                            $metadata = new Metadata(['pid'=>$pid,'fid'=>$fid, 'name'=>$name]);
+                        }
                     }
-                }
+
                 $metadata->field()->associate($field);
                 $field->metadata()->save($metadata);
             }
         }
     }
-
 }

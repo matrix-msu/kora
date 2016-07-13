@@ -15,5 +15,7 @@ return [
 	"automass" => "Automatically Mass Assign Linked Open Data",
 	"massassign" => "Mass Assign Linked Open Data",
 	"error" => "Sorry, there was an error when trying to change the Linked Open Data's visibility",
-
+	"click" => "Click",
+	"here" => "here",
+	"to_view" => "to view this linked open data",
 ];
