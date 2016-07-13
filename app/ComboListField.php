@@ -12,10 +12,6 @@ class ComboListField extends BaseField {
         'ftype2'
     ];
 
-   public function keywordSearchQuery($query, $arg) {
-        // TODO: Implement keywordSearchQuery() method.
-    }
-
     /**
      * Keyword search for a combo list field.
      * This search simply uses the already existing search functions of text, number, list, multi-select list, and generated list.

@@ -14,6 +14,8 @@ class CreateUsersTable extends Migration {
     {
         Schema::create('users', function(Blueprint $table)
         {
+            $table->engine = 'MyISAM';
+
             $table->increments('id');
             $table->boolean('admin');
             $table->boolean('active');

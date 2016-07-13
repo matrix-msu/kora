@@ -14,10 +14,13 @@ class CreateAssociatorfieldsTable extends Migration {
 	{
 		Schema::create('associator_fields', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+
 			$table->increments('id');
 
 			$table->integer('rid')->unsigned();
 			$table->integer('flid')->unsigned();
+			$table->integer('fid')->unsigned();
 			$table->mediumText('records');
 			$table->timestamps();
 

@@ -1,6 +1,7 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class FormGroup extends Model {
 
@@ -43,4 +44,9 @@ class FormGroup extends Model {
         return $thisUsers->contains($user);
     }
 
+    public function delete() {
+        DB::table("form_group_user")->where("form_group_id", "=", $this->id)->delete();
+
+        parent::delete();
+    }
 }

@@ -4,15 +4,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class NumberField extends BaseField {
 
+    /**
+     * Epsilon value for comparison purposes.
+     * Used to match between values in MySQL.
+     *
+     * @type float
+     */
+    CONST EPSILON = 0.0001;
+
     protected $fillable = [
         'rid',
         'flid',
         'number'
     ];
-
-   public function keywordSearchQuery($query, $arg) {
-        // TODO: Implement keywordSearchQuery() method.
-    }
 
     /**
      * Keyword search for a number field.

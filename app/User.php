@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Support\Facades\DB;
 
 class User extends Model implements AuthenticatableContract, CanResetPasswordContract {
 
@@ -335,5 +336,16 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         }
 
         return $forms;
+    }
+
+    /**
+     * Because the MyISAM engine doesn't support foreign keys we have to emulate cascading.
+     */
+    public function delete() {
+        DB::table("project_group_user")->where("user_id", "=", $this->id)->delete();
+        DB::table("form_group_user")->where("user_id", "=", $this->id)->delete();
+        DB::table("backup_support")->where("user_id", "=", $this->id)->delete();
+
+        parent::delete();
     }
 }

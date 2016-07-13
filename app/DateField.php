@@ -1,6 +1,8 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 
 class DateField extends BaseField {
 
@@ -14,8 +16,110 @@ class DateField extends BaseField {
         'circa'
     ];
 
-   public function keywordSearchQuery($query, $arg) {
-        // TODO: Implement keywordSearchQuery() method.
+    /**
+     * Builds the query for a date field.
+     *
+     * @param $search string, the query, a space separated string.
+     * @param $circa bool, should we search for date fields with circa turned on?
+     * @param $era bool, should we search for date fields with era turned on?
+     * @param $flid int, the field id.
+     * @return Builder, the query for the date field.
+     */
+    public static function buildQuery($search, $circa, $era, $flid) {
+        $args = explode(" ", $search);
+
+        $query = DateField::where("flid", "=", $flid);
+
+        $query->where(function($query) use($args, $circa, $era) {
+            foreach($args as $arg) {
+                $query->orWhere("day", "=", intval($arg))
+                    ->orWhere("year", "=", intval($arg));
+
+                if (self::isMonth($arg)) {
+                    $query->orWhere("month", "=", intval(self::monthToNumber($arg)));
+                }
+
+                if ($era && self::isValidEra($arg)) {
+                    $query->orWhere("era", "=", strtoupper($arg));
+                }
+            }
+
+            if ($circa) {
+                $query->orWhere("circa", "=", 1);
+            }
+        });
+
+        return $query;
+    }
+
+    /*
+     *
+     */
+    public static function buildQuery2($search, $circa, $era, $fid) {
+        $args = explode(" ", $search);
+
+        $query = DB::table("date_fields")
+            ->select("rid")
+            ->where("fid", "=", $fid);
+
+        // This function acts as parenthesis around the or's of the date field requirements.
+        $query->where(function($query) use ($args, $circa, $era) {
+            foreach($args as $arg) {
+                $query->orWhere("day", "=", intval($arg))
+                    ->orWhere("year", "=", intval($arg));
+
+                if (self::isMonth($arg)) {
+                    $query->orWhere("month", "=", intval(self::monthToNumber($arg)));
+                }
+
+                if ($era && self::isValidEra($arg)) {
+                    $query->orWhere("era", "=", strtoupper($arg));
+                }
+            }
+
+            if ($circa && self::isCirca($arg)) {
+                $query->orWhere("circa", "=", 1);
+            }
+        });
+
+        return $query->distinct();
+    }
+
+    /**
+     * Tests if a string is a valid era.
+     *
+     * @param $string
+     * @return bool, true if valid.
+     */
+    public static function isValidEra($string) {
+        $string = strtoupper($string);
+        return ($string == "BCE" || $string == "CE");
+    }
+
+    /**
+     * Test if a string is equal to circa.
+     *
+     * @param $string
+     * @return bool, true if valid.
+     */
+    public static function isCirca($string) {
+        $string = strtoupper($string);
+        return ($string == "CIRCA");
+    }
+
+    /**
+     * Determines if a string is a value month name.
+     * Using the month to number function, if the string is turned to a number
+     * we know it is determined to be a valid month name.
+     * The original string should also not be a number itself. As searches for
+     * the numbers 1 through 12 should not return dates based on some month Jan-Dec.
+     *
+     * @param $string string, the string to test.
+     * @return bool, true if the string is a valid month.
+     */
+    public static function isMonth($string) {
+        $monthToNumber = self::monthToNumber($string);
+        return is_numeric($monthToNumber) && $monthToNumber != $string;
     }
 
     /**
@@ -30,16 +134,15 @@ class DateField extends BaseField {
         $field = Field::where('flid', '=', $this->flid)->first();
         $circa = (explode('[!Circa!]', $field->options)[1]) == "Yes";
 
-        $searchEra = (explode('[!Era!]', $field->options)[1]) == "On"; // Boolean to determine if we should search for era.
+        $searchEra = (explode('[!Era!]', $field->options)[1]) == "Yes"; // Boolean to determine if we should search for era.
         $searchCirca = ($circa && $this->circa); // Boolean to determine if we should search for circa.
 
         foreach ($args as $arg) {
             $arg = strip_tags($arg);
-            $arg = self::convertCloseChars($arg);
-            $arg = strtolower($arg);
+            $arg = Search::convertCloseChars($arg);
 
-            if ($searchCirca && $arg == "circa" ||
-                $searchEra && $arg == strtolower($this->era)) {
+            if ($searchCirca && strtolower($arg) == "circa" ||
+                $searchEra && strtoupper($arg) == strtoupper($this->era)) {
                 return true;
             }
 

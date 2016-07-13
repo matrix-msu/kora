@@ -7,6 +7,7 @@
  */
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class BaseField
@@ -26,15 +27,6 @@ abstract class BaseField extends Model
     }
 
     /**
-     * Executes the SQL query associated with a keyword search.
-     *
-     * @param $query, eloquent query.
-     * @param $arg, the arguement to be searched for.
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    abstract public function keywordSearchQuery($query, $arg);
-
-    /**
      * Pure virtual keyword search method for a general field.
      *
      * @param array $args, Array of arguments for the search to use.
@@ -52,21 +44,10 @@ abstract class BaseField extends Model
      * @return bool, True if the search parameters are satisfied.
      */
     static public function keywordRoutine(array $args, $partial, $haystack) {
-        $text = self::convertCloseChars($haystack);
+        $text = Search::convertCloseChars($haystack);
 
         if ($partial) {
             foreach ($args as $arg) {
-                //
-                // TODO: Search Arguement Processing
-                //       Consider moving this argument processing up to the project or form level when we
-                //       implement search in a more general fashion. I think that will speed things up a little.
-                //       (Just make sure the preg_quote only happens when partial is false.)
-                //       If this change is made, check special field for their processing (see: DateField, ...)
-                //
-                $arg = strip_tags($arg);
-                $arg = self::convertCloseChars($arg);
-                $arg = trim($arg);
-
                 if (strlen($arg) && stripos($text, $arg) !== false) {
                     return true; // Text contains a partial match.
                 }
@@ -75,9 +56,6 @@ abstract class BaseField extends Model
         }
         else {
             foreach ($args as $arg) {
-                $arg = strip_tags($arg);
-                $arg = self::convertCloseChars($arg);
-                $arg = trim($arg);
                 $arg = preg_quote($arg, "\\"); // Escape regular expression characters.
 
                 $pattern = "/(\\W|^)" . $arg . "(\\W|$)/i";
@@ -95,49 +73,66 @@ abstract class BaseField extends Model
     }
 
     /**
-     * Special characters the user might enter.
+     * Names of the base fields in the database.
      *
      * @var array
      */
-    protected static $SPECIALS = ['À', 'Á', 'Â', 'Ã', 'Ä', 'Å', 'Æ', 'Ç', 'È', 'É', 'Ê', 'Ë', 'Ì', 'Í', 'Î', 'Ï', 'Ð',
-        'Ñ', 'Ò', 'Ó', 'Ô', 'Õ', 'Ö', 'Ø', 'Ù', 'Ú', 'Û', 'Ü', 'Ý', 'ß', 'à', 'á', 'â', 'ã', 'ä', 'å', 'æ', 'ç', 'è',
-        'é', 'ê', 'ë', 'ì', 'í', 'î', 'ï', 'ñ', 'ò', 'ó', 'ô', 'õ', 'ö', 'ø', 'ù', 'ú', 'û', 'ü', 'ý', 'ÿ', 'Ā', 'ā',
-        'Ă', 'ă', 'Ą', 'ą', 'Ć', 'ć', 'Ĉ', 'ĉ', 'Ċ', 'ċ', 'Č', 'č', 'Ď', 'ď', 'Đ', 'đ', 'Ē', 'ē', 'Ĕ', 'ĕ', 'Ė', 'ė',
-        'Ę', 'ę', 'Ě', 'ě', 'Ĝ', 'ĝ', 'Ğ', 'ğ', 'Ġ', 'ġ', 'Ģ', 'ģ', 'Ĥ', 'ĥ', 'Ħ', 'ħ', 'Ĩ', 'ĩ', 'Ī', 'ī', 'Ĭ', 'ĭ',
-        'Į', 'į', 'İ', 'ı', 'Ĳ', 'ĳ', 'Ĵ', 'ĵ', 'Ķ', 'ķ', 'Ĺ', 'ĺ', 'Ļ', 'ļ', 'Ľ', 'ľ', 'Ŀ', 'ŀ', 'Ł', 'ł', 'Ń', 'ń',
-        'Ņ', 'ņ', 'Ň', 'ň', 'ŉ', 'Ō', 'ō', 'Ŏ', 'ŏ', 'Ő', 'ő', 'Œ', 'œ', 'Ŕ', 'ŕ', 'Ŗ', 'ŗ', 'Ř', 'ř', 'Ś', 'ś', 'Ŝ',
-        'ŝ', 'Ş', 'ş', 'Š', 'š', 'Ţ', 'ţ', 'Ť', 'ť', 'Ŧ', 'ŧ', 'Ũ', 'ũ', 'Ū', 'ū', 'Ŭ', 'ŭ', 'Ů', 'ů', 'Ű', 'ű', 'Ų',
-        'ų', 'Ŵ', 'ŵ', 'Ŷ', 'ŷ', 'Ÿ', 'Ź', 'ź', 'Ż', 'ż', 'Ž', 'ž', 'ſ', 'ƒ', 'Ơ', 'ơ', 'Ư', 'ư', 'Ǎ', 'ǎ', 'Ǐ', 'ǐ',
-        'Ǒ', 'ǒ', 'Ǔ', 'ǔ', 'Ǖ', 'ǖ', 'Ǘ', 'ǘ', 'Ǚ', 'ǚ', 'Ǜ', 'ǜ', 'Ǻ', 'ǻ', 'Ǽ', 'ǽ', 'Ǿ', 'ǿ', 'Ά', 'ά', 'Έ', 'έ',
-        'Ό', 'ό', 'Ώ', 'ώ', 'Ί', 'ί', 'ϊ', 'ΐ', 'Ύ', 'ύ', 'ϋ', 'ΰ', 'Ή', 'ή'];
+    public static $TABLE_NAMES = ["text_fields", "rich_text_fields", "number_fields", "list_fields",
+        "multi_select_list_fields", "generated_list_fields", "combo_list_fields",
+        "date_fields", "schedule_fields", "geolocator_fields", "documents_fields",
+        "gallery_fields", "playlist_fields", "video_fields", "model_fields", "associator_fields"];
 
     /**
-     * Their translations deemed "close" by a skilled observer.
+     * Maps field constant names to table names.
+     * Used with the DB::table method.
      *
-     * Anything that does not get converted properly could just be added here.
      * @var array
      */
-    protected static $CLOSE_ASCII = ['A', 'A', 'A', 'A', 'A', 'A', 'AE', 'C', 'E', 'E', 'E', 'E', 'I', 'I', 'I', 'I', 'D',
-        'N', 'O', 'O', 'O', 'O', 'O', 'O', 'U', 'U', 'U', 'U', 'Y', 's', 'a', 'a', 'a', 'a', 'a', 'a', 'ae', 'c', 'e',
-        'e', 'e', 'e', 'i', 'i', 'i', 'i', 'n', 'o', 'o', 'o', 'o', 'o', 'o', 'u', 'u', 'u', 'u', 'y', 'y', 'A', 'a',
-        'A', 'a', 'A', 'a', 'C', 'c', 'C', 'c', 'C', 'c', 'C', 'c', 'D', 'd', 'D', 'd', 'E', 'e', 'E', 'e', 'E', 'e',
-        'E', 'e', 'E', 'e', 'G', 'g', 'G', 'g', 'G', 'g', 'G', 'g', 'H', 'h', 'H', 'h', 'I', 'i', 'I', 'i', 'I', 'i',
-        'I', 'i', 'I', 'i', 'IJ', 'ij', 'J', 'j', 'K', 'k', 'L', 'l', 'L', 'l', 'L', 'l', 'L', 'l', 'l', 'l', 'N', 'n',
-        'N', 'n', 'N', 'n', 'n', 'O', 'o', 'O', 'o', 'O', 'o', 'OE', 'oe', 'R', 'r', 'R', 'r', 'R', 'r', 'S', 's', 'S',
-        's', 'S', 's', 'S', 's', 'T', 't', 'T', 't', 'T', 't', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U',
-        'u', 'W', 'w', 'Y', 'y', 'Y', 'Z', 'z', 'Z', 'z', 'Z', 'z', 's', 'f', 'O', 'o', 'U', 'u', 'A', 'a', 'I', 'i',
-        'O', 'o', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'A', 'a', 'AE', 'ae', 'O', 'o', 'Α', 'a', 'Ε', 'e',
-        'Ο', 'ο', 'O', 'w', 'Ι', 'i', 'i', 'i', 'Υ', 'u', 'u', 'u', 'Η', 'n'];
+    public static $MAPPED_FIELD_TYPES = [
+        Field::_TEXT => "text_fields",
+        Field::_RICH_TEXT => "rich_text_fields",
+        Field::_NUMBER => "number_fields",
+        Field::_LIST => "list_fields",
+        Field::_MULTI_SELECT_LIST => "multi_select_list_fields",
+        Field::_GENERATED_LIST => "generated_list_fields",
+        Field::_COMBO_LIST => "combo_list_fields",
+        Field::_DATE => "date_fields",
+        Field::_SCHEDULE => "schedule_fields",
+        Field::_GEOLOCATOR => "geolocator_fields",
+        Field::_DOCUMENTS => "documents_fields",
+        Field::_GALLERY => "gallery_fields",
+        Field::_PLAYLIST => "playlist_fields",
+        Field::_VIDEO => "video_fields",
+        Field::_3D_MODEL => "model_fields",
+        Field::_ASSOCIATOR => "associator_fields"
+    ];
 
     /**
-     * Converts characters in a string to their close english only non-accented, non-diacritical matches.
-     * The actual conversion is not super important, however consistency is, this is used to ensure a word like
-     * "manana" matches what the search probably meant, "mañana".
+     * Maps a typed field name to its table's name in the database.
      *
-     * @param string $string
-     * @return string, the converted string.
+     * @param $string
+     * @return bool | string.
      */
-    static public function convertCloseChars($string) {
-        return str_replace(self::$SPECIALS, self::$CLOSE_ASCII, $string);
+    public static function getDBName($string) {
+        if (isset(Field::$ENUM_TYPED_FIELDS[$string])) {
+            return self::$MAPPED_FIELD_TYPES[$string];
+        }
+
+        return false;
     }
+
+    /**
+     * Deletes all the BaseFields with a certain rid in a clean way.
+     *
+     * @param $rid int, record id.
+     */
+    static public function deleteBaseFields($rid) {
+        foreach (self::$TABLE_NAMES as $table_name) {
+            DB::table($table_name)->where("rid", "=", $rid)->delete();
+        }
+    }
+
+    /****************************************************************
+     *            Moved convertCloseChars to App/Search             *
+     ****************************************************************/
 }

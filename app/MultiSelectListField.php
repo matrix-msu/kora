@@ -11,11 +11,6 @@ class MultiSelectListField extends BaseField {
         'options'
     ];
 
-
-   public function keywordSearchQuery($query, $arg) {
-        // TODO: Implement keywordSearchQuery() method.
-    }
-
     /**
      * Keyword search for a multi-select list field.
      *  Note: "partial" applies to whole values inside the options, rather than a partial match

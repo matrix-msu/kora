@@ -23,5 +23,5 @@ return [
 	"areyousure" => "&Ecirc;tes-vous s&ucirc;r de que vouloir supprimer",
 	"mustenter" => "Vous devez saisir un nom valide",
 	"clone" => "Cloner",
-
+	"exist" => "Ce disque n'a pas exist&eacute;.",
 ];

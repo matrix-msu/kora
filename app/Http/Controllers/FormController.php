@@ -292,7 +292,7 @@ class FormController extends Controller {
      * Get form object for use in controller.
      *
      * @param $fid
-     * @return mixed
+     * @return Form | null.
      */
     public static function getForm($fid)
     {

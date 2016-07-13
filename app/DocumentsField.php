@@ -10,18 +10,6 @@ class DocumentsField extends FileTypeField {
         'documents'
     ];
 
-    /**
-     * Executes the SQL query associated with a keyword search.
-     *
-     * @param $arg, the arguement to be searched for.
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-   public function keywordSearchQuery($query, $arg) {
-        if ($arg != "") {
-
-        }
-    }
-
     public static function getMimeTypes(){
         $types=array();
         foreach(@explode("\n",@file_get_contents('http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types'))as $x)

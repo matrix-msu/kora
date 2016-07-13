@@ -80,8 +80,6 @@ class RevisionController extends Controller {
         }
         $message = 'Recent';
 
-        //dd($revisions);
-
         return view('revisions.index', compact('revisions', 'records', 'form', 'message'));
     }
 
@@ -194,8 +192,12 @@ class RevisionController extends Controller {
         // type exists in the database, the data is simply assigned from the old data array as expected in the rollback.
         //
         // Else a new less general field is created for the record and its values are appropriately assigned.
-        //
+        // E.g. if a Text field under a certain rid does not exist we create a new one and fill it with necessary data.
         foreach($form->fields()->get() as $field) {
+
+            // TODO: Apply some OOP techniques here.
+            //  Maybe?
+
             switch($field->type) {
                 // Text Assignment
                 case 'Text':
@@ -207,6 +209,7 @@ class RevisionController extends Controller {
                         $textfield = new TextField();
                         $textfield->flid = $field->flid;
                         $textfield->rid = $record->rid;
+                        $textfield->fid = $form->fid;
                         $textfield->text = $data['textfields'][$field->flid]['data'];
                         $textfield->save();
                     }
@@ -222,6 +225,7 @@ class RevisionController extends Controller {
                         $rtfield = new RichTextField();
                         $rtfield->flid = $field->flid;
                         $rtfield->rid = $record->rid;
+                        $rtfield->fid = $form->fid;
                         $rtfield->rawtext = $data['richtextfields'][$field->flid]['data'];
                         $rtfield->save();
                     }
@@ -237,6 +241,7 @@ class RevisionController extends Controller {
                         $numberfield = new NumberField();
                         $numberfield->flid = $field->flid;
                         $numberfield->rid = $record->rid;
+                        $numberfield->fid = $form->fid;
                         $numberfield->number = $data['numberfields'][$field->flid]['data']['number'];
                         $numberfield->save();
                     }
@@ -252,6 +257,7 @@ class RevisionController extends Controller {
                         $listfield = new ListField();
                         $listfield->flid = $field->flid;
                         $listfield->rid = $record->rid;
+                        $listfield->fid = $form->fid;
                         $listfield->option = $data['listfields'][$field->flid]['data'];
                         $listfield->save();
                     }
@@ -267,6 +273,7 @@ class RevisionController extends Controller {
                         $mslfield = new MultiSelectListField();
                         $mslfield->flid = $field->flid;
                         $mslfield->rid = $record->rid;
+                        $mslfield->fid = $form->fid;
                         $mslfield->options = $data['multiselectlistfields'][$field->flid]['data'];
                         $mslfield->save();
                     }
@@ -282,6 +289,7 @@ class RevisionController extends Controller {
                         $genlistfield = new GeneratedListField();
                         $genlistfield->flid = $field->flid;
                         $genlistfield->rid = $record->rid;
+                        $genlistfield->fid = $form->fid;
                         $genlistfield->options = $data['generatedlistfields'][$field->flid]['data'];
                         $genlistfield->save();
                     }
@@ -301,6 +309,7 @@ class RevisionController extends Controller {
                         $datefield = new DateField();
                         $datefield->flid = $field->flid;
                         $datefield->rid = $record->rid;
+                        $datefield->fid = $form->fid;
                         $datefield->circa = $data['datefields'][$field->flid]['data']['circa'];
                         $datefield->month = $data['datefields'][$field->flid]['data']['month'];
                         $datefield->day = $data['datefields'][$field->flid]['data']['day'];
@@ -320,6 +329,7 @@ class RevisionController extends Controller {
                         $schedulefield = new ScheduleField();
                         $schedulefield->flid = $field->flid;
                         $schedulefield->rid = $record->rid;
+                        $schedulefield->fid = $form->fid;
                         $schedulefield->events = $data['schedulefields'][$field->flid]['data'];
                         $schedulefield->save();
                     }
@@ -335,6 +345,7 @@ class RevisionController extends Controller {
                         $geolocatorfield = new GeolocatorField();
                         $geolocatorfield->flid = $field->flid;
                         $geolocatorfield->rid = $record->rid;
+                        $geolocatorfield->fid = $form->fid;
                         $geolocatorfield->locations = $data['geolocatorfields'][$field->flid]['data'];
                         $geolocatorfield->save();
                     }
@@ -350,6 +361,7 @@ class RevisionController extends Controller {
                         $documentsfield = new DocumentsField();
                         $documentsfield->flid = $field->flid;
                         $documentsfield->rid = $record->rid;
+                        $documentsfield->fid = $form->fid;
                         $documentsfield->documents = $data['documentsfields'][$field->flid]['data'];
                         $documentsfield->save();
                     }
@@ -365,6 +377,7 @@ class RevisionController extends Controller {
                         $galleryfield = new GalleryField();
                         $galleryfield->flid = $field->flid;
                         $galleryfield->rid = $record->rid;
+                        $galleryfield->fid = $form->fid;
                         $galleryfield->images = $data['galleryfields'][$field->flid]['data'];
                         $galleryfield->save();
                     }
@@ -380,6 +393,7 @@ class RevisionController extends Controller {
                         $modelfield = new ModelField();
                         $modelfield->flid = $field->flid;
                         $modelfield->rid = $record->rid;
+                        $modelfield->fid = $form->fid;
                         $modelfield->model = $data['modelfields'][$field->flid]['data'];
                         $modelfield->save();
                     }
@@ -395,6 +409,7 @@ class RevisionController extends Controller {
                         $playfield = new PlaylistField();
                         $playfield->flid = $field->flid;
                         $playfield->rid = $record->rid;
+                        $playfield->fid = $form->fid;
                         $playfield->audio = $data['playlistfields'][$field->flid]['data'];
                         $playfield->save();
                     }
@@ -410,6 +425,7 @@ class RevisionController extends Controller {
                         $vidfield = new PlaylistField();
                         $vidfield->flid = $field->flid;
                         $vidfield->rid = $record->rid;
+                        $vidfield->fid = $form->fid;
                         $vidfield->video = $data['videofields'][$field->flid]['data'];
                         $vidfield->save();
                     }
@@ -434,6 +450,7 @@ class RevisionController extends Controller {
                         $cmbfield = new ComboListField();
                         $cmbfield->flid = $field->flid;
                         $cmbfield->rid = $record->rid;
+                        $cmbfield->fid = $form->fid;
                         $cmbfield->options = $values;
                         $cmbfield->save();
                     }
@@ -489,6 +506,10 @@ class RevisionController extends Controller {
          * else null is assigned.
          */
         foreach($form->fields()->get() as $field) {
+
+            // TODO: Apply some OOP techniques here.
+            //  Maybe?
+
             switch ($field->type)
             {
                 case 'Text':

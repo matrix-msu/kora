@@ -6,6 +6,8 @@ class Revision extends Model {
 
     protected $fillable = ['id','fid','rid','userId','type','data','oldData','rollback'];
 
+    // TODO: add valid revision types and enum.
+
     /**
      * Gets record associated with a revision.
      *

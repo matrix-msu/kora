@@ -14,6 +14,8 @@ class CreateFieldsTable extends Migration {
 	{
 		Schema::create('fields', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+
             $table->increments('flid');
             $table->integer('pid')->unsigned();
             $table->integer('fid')->unsigned();

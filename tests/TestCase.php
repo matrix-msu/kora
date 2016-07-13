@@ -125,7 +125,7 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
 		$field->slug = $type . "test " . self::randomString();
 		$field->desc = "dummy";
 		$field->required = 0;
-		$field->searchable = 0;
+		$field->searchable = 1;
 		$field->save();
 
 		return $field;

@@ -72,6 +72,11 @@ class TokenController extends Controller {
         $instance->projects()->attach($request['pid']);
     }
 
+    /**
+     * Deletes a token.
+     *
+     * @param Request $request
+     */
     public function deleteToken(Request $request)
     {
         $instance = TokenController::getToken($request->id);

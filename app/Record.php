@@ -90,5 +90,26 @@ class Record extends Model {
         return $this->hasOne('App\User', 'owner');
     }
 
+    /**
+     * Because the MyISAM engine does not support foreign keys we have to emulate cascading.
+     */
+    public function delete() {
+        BaseField::deleteBaseFields($this->rid);
+
+        parent::delete();
+    }
+
+
+    /**
+     * Determines if a string is a KID pattern.
+     * For reference, the KID pattern is PID-FID-RID, i.e. three sets of integers separated by hyphens.
+     *
+     * @param $string
+     * @return bool
+     */
+    public static function isKIDPattern($string) {
+        $pattern = "/^([0-9]+)-([0-9]+)-([0-9]+)/"; // Match exactly with KID pattern.
+        return preg_match($pattern, $string) != false;
+    }
 }
 

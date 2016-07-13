@@ -1,0 +1,53 @@
+<?php namespace App\Commands;
+
+use App\ListField;
+use Carbon\Carbon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Bus\SelfHandling;
+use Illuminate\Contracts\Queue\ShouldBeQueued;
+
+class SaveListFieldTable extends Command implements SelfHandling, ShouldBeQueued
+{
+    use InteractsWithQueue, SerializesModels;
+
+    /**
+     * Execute the command.
+     */
+    public function handle() {
+        Log::info("Started backing up the List Fields table.");
+
+        $table_path = $this->backup_filepath . "/list_fields/";
+
+        $row_id = DB::table('backup_partial_progress')->insertGetId(
+            $this->makeBackupTableArray("list_fields")
+        );
+
+        $this->backup_fs->makeDirectory($table_path);
+        ListField::chunk(1000, function($listfields) use ($table_path, $row_id) {
+            $count = 0;
+            $all_listfields_data = new Collection();
+
+            foreach($listfields as $listfield) {
+                $individual_listfield_data = new Collection();
+
+                $individual_listfield_data->put("id", $listfield->id);
+                $individual_listfield_data->put("rid", $listfield->rid);
+                $individual_listfield_data->put("flid", $listfield->flid);
+                $individual_listfield_data->put("option", $listfield->option);
+                $individual_listfield_data->put("created_at", $listfield->created_at->toDateTimeString());
+                $individual_listfield_data->put("updated_at", $listfield->updated_at->toDateTimeString());
+
+                $all_listfields_data->push($individual_listfield_data);
+                $count++;
+            }
+
+            DB::table("backup_partial_progress")->where("id", $row_id)->increment("progress", $count, ["updated_at" => Carbon::now()] );
+            $increment = DB::table("backup_partial_progress")->where("id", $row_id)->pluck("progress");
+            $this->backup_fs->put($table_path . $increment . ".json", json_encode($all_listfields_data));
+        });
+    }
+}

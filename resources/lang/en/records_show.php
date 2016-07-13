@@ -23,5 +23,5 @@ return [
 	"areyousure" => "Are you sure you want to delete",
 	"mustenter" => "You must enter a valid name",
 	"clone" => "Clone",
-
+	"exist" => "That record did not exist.",
 ];

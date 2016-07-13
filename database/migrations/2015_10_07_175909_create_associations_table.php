@@ -14,6 +14,8 @@ class CreateAssociationsTable extends Migration {
 	{
 		Schema::create('associations', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
+
 			$table->increments('id');
 			$table->integer('dataForm')->unsigned();
 			$table->integer('assocForm')->unsigned();

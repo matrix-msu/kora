@@ -1,6 +1,31 @@
 <?php namespace App\Http\Controllers;
 
 use App\ComboListField;
+use App\Commands\SaveComboListFieldsTable;
+use App\Commands\SaveDateFieldsTable;
+use App\Commands\SaveDocumentsFieldsTable;
+use App\Commands\SaveFieldsTable;
+use App\Commands\SaveFormsTable;
+use App\Commands\SaveGalleryFieldsTable;
+use App\Commands\SaveGeneratedListFieldsTable;
+use App\Commands\SaveGeolocatorFieldsTable;
+use App\Commands\SaveListFieldTable;
+use App\Commands\SaveMetadatasTable;
+use App\Commands\SaveModelFieldsTable;
+use App\Commands\SaveMultiSelectListFieldsTable;
+use App\Commands\SaveNumberFieldsTable;
+use App\Commands\SaveOptionPresetsTable;
+use App\Commands\SavePlaylistFieldsTable;
+use App\Commands\SaveProjectGroupsTable;
+use App\Commands\SaveProjectsTable;
+use App\Commands\SaveRecordsTable;
+use App\Commands\SaveRevisionsTable;
+use App\Commands\SaveRichTextFields;
+use App\Commands\SaveScheduleFieldsTable;
+use App\Commands\SaveTextFieldsTable;
+use App\Commands\SaveTokensTable;
+use App\Commands\SaveUsersTable;
+use App\Commands\SaveVideoFieldsTable;
 use App\DateField;
 use App\DocumentsField;
 use App\Field;
@@ -26,6 +51,7 @@ use App\TextField;
 use App\Token;
 use App\User;
 use App\Http\Controllers\OptionPresetController;
+use Illuminate\Support\Facades\Log;
 use App\VideoField;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\Guard;
@@ -33,6 +59,8 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use \Illuminate\Support\Facades\App;
 Use \Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 
@@ -77,6 +105,27 @@ class BackupController extends Controller
      * @return view
      */
     public function index(Request $request){
+        try {
+            $user_support = DB::table('backup_support')->where('user_id', Auth::user()->id)->where('view', 'backups.index')->first();
+            if ($user_support === null) {
+                $user_support = DB::table('backup_support')->insert(['user_id' => Auth::user()->id, 'view' => 'backups.index', 'hasRun' => Carbon::now(), 'accessed' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
+            }
+            else {
+                if(((Carbon::createFromFormat('Y#m#d G#i#s', ($user_support->updated_at))->diffInMinutes(Carbon::now()) < 2))){
+                    DB::table('backup_support')->where('id', $user_support->id)->update(['accessed' => $user_support->accessed - 1, 'updated_at' => Carbon::now()]);
+                }
+                elseif ((Carbon::createFromFormat('Y#m#d G#i#s', ($user_support->hasRun))->diffInMinutes(Carbon::now()) > 30) && ($user_support->accessed % 10 == 0 && $user_support->accessed != 0)) {
+                    DB::table('backup_support')->where('id', $user_support->id)->update(['hasRun' => Carbon::now(), 'accessed' => 0, 'updated_at' => Carbon::now()]);
+                    $request->session()->flash('user_backup_support',true);
+                } else {
+                    DB::table('backup_support')->where('id', $user_support->id)->update(['accessed' => $user_support->accessed + 1, 'updated_at' => Carbon::now()]);
+                    //dd(['support'=>$user_support,'date'=>Carbon::createFromFormat('Y#m#d G#i#s',($user_support->hasRun))->diffInMinutes(Carbon::now())]);
+                }
+            }
+        }
+        catch(\Exception $e){
+            $user_support = null;
+        }
 
         $available_backups = Storage::files($this->BACKUP_DIRECTORY);
         $saved_backups = new Collection();
@@ -147,7 +196,7 @@ class BackupController extends Controller
      * @params Request $request
      * @return response
      */
-	public function create(Request $request){
+	public function create0(Request $request){
 
         $users_exempt_from_lockout = new Collection();
         $users_exempt_from_lockout->put(1,1); //Add another one of these with (userid,userid) to exempt extra users
@@ -194,6 +243,63 @@ class BackupController extends Controller
             $this->ajaxResponse(true,trans('controller_backup.complete'));
         }
 	}
+
+    public function create(Request $request){
+        $users_exempt_from_lockout = new Collection();
+        $users_exempt_from_lockout->put(1,1); //Add another one of these with (userid,userid) to exempt extra users
+
+        $this->lockUsers($users_exempt_from_lockout);
+        if($request->session()->has("backup_new_label")){
+            $backup_label = $request->session()->get("backup_new_label");
+            $request->session()->forget("backup_new_label");
+        }
+        else{
+            $backup_label = "";
+        }
+        $this->backup_filename = Carbon::now()->format("Y-m-d_H:i:s");
+        $this->backup_filepath = $this->BACKUP_DIRECTORY."/".$this->backup_filename;
+        //Get an instance of Flysystem disk, to use Amazon AWS, SFTP, or Dropbox, change this!
+        $this->backup_fs = Storage::disk('local');
+        $this->backup_disk = "local";
+        //
+        $this->backup_fs->makeDirectory($this->backup_filepath);
+        $this->saveDatabase2();
+
+    }
+
+    public function saveDatabase2(){
+        Log::info("Backup fp: ".$this->backup_filepath);
+        $this->backup_id = DB::table('backup_overall_progress')->insertGetId(['progress'=>0,'overall'=>0,'start'=>Carbon::now(),'created_at'=>Carbon::now(),'updated_at'=>Carbon::now()]);
+        Queue::push(new SaveFormsTable($this->backup_disk, $this->backup_filepath, $this->backup_id ));
+        Queue::push(new SaveProjectsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveRecordsTable($this->backup_disk, $this->backup_filepath, $this->backup_id ));
+        Queue::push(new SaveTextFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id ));
+        Queue::push(new SaveComboListFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveDateFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveGeneratedListFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveGeolocatorFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveListFieldTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveMetadatasTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveMultiSelectListFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveNumberFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveOptionPresetsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveProjectGroupsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveRevisionsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveRichTextFields($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveScheduleFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveTokensTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        Queue::push(new SaveUsersTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+
+        //
+        // These are not implemented yet, we need to decide how we are handling file backups first...
+        //
+//        Queue::push(new SaveDocumentsFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+//        Queue::push(new SavePlaylistFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+//        Queue::push(new SaveVideoFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+//        Queue::push(new SaveGalleryFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+//        Queue::push(new SaveModelFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+    }
 
     /*
      * This method allows the user to download a backup file once.
@@ -413,24 +519,29 @@ class BackupController extends Controller
                     $this->ajax_error_list->push($e->getMessage());
                 }
             }
-
             // TextField
             $all_textfields_data = new Collection();
             $entire_database->put("textfields", $all_textfields_data);
-            foreach (TextField::all() as $textfield) {
-                try {
-                    $individual_textfield_data = new Collection();
-                    $individual_textfield_data->put("id", $textfield->id);
-                    $individual_textfield_data->put("rid", $textfield->rid);
-                    $individual_textfield_data->put("flid", $textfield->flid);
-                    $individual_textfield_data->put("text", $textfield->text);
-                    $individual_textfield_data->put("created_at", $textfield->created_at->toDateTimeString());
-                    $individual_textfield_data->put("updated_at", $textfield->updated_at->toDateTimeString());
-                    $all_textfields_data->push($individual_textfield_data);
-                } catch (\Exception $e) {
-                    $this->ajax_error_list->push($e->getMessage());
+            TextField::chunk(1000,function ($tf_chunk) use ($all_textfields_data){
+                foreach ($tf_chunk as $textfield) {
+                    try {
+                        Log::info("Textfield processed: ".$textfield->id);
+                        Log::info("Memory usage: ".memory_get_usage());
+                        Log::info("Memory peak usage: ".memory_get_peak_usage());
+                        $individual_textfield_data = new Collection();
+                        $individual_textfield_data->put("id", $textfield->id);
+                        $individual_textfield_data->put("rid", $textfield->rid);
+                        $individual_textfield_data->put("flid", $textfield->flid);
+                        $individual_textfield_data->put("text", $textfield->text);
+                        $individual_textfield_data->put("created_at", $textfield->created_at->toDateTimeString());
+                        $individual_textfield_data->put("updated_at", $textfield->updated_at->toDateTimeString());
+                        $all_textfields_data->push($individual_textfield_data);
+                    } catch (\Exception $e) {
+                        $this->ajax_error_list->push($e->getMessage());
+                    }
                 }
-            }
+            });
+
 
             //  RichTextField
             $all_richtextfields_data = new Collection();
@@ -635,7 +746,7 @@ class BackupController extends Controller
                 }
             }
 
-            // ModelField
+            // Model Field
             $all_modelfield_data = new Collection();
             $entire_database->put('modelfield',$all_modelfield_data);
             foreach(ModelField::all() as $modelfield){
@@ -653,7 +764,7 @@ class BackupController extends Controller
                 }
             }
 
-            // ModelField
+            // Gallery Field
             $all_galleryfield_data = new Collection();
             $entire_database->put('galleryfield',$all_galleryfield_data);
             foreach(GalleryField::all() as $galleryfield){
@@ -671,7 +782,7 @@ class BackupController extends Controller
                 }
             }
 
-            //ComboList Field
+            // ComboList Field
             $all_combolistfield_data = new Collection();
             $entire_database->put('combolistfield',$all_combolistfield_data);
             foreach(ComboListField::all() as $combolistfield){
@@ -692,7 +803,7 @@ class BackupController extends Controller
                 }
             }
 
-            //  Token
+            // Tokens Field
             $all_tokens_data = new Collection();
             $entire_database->put("tokens", $all_tokens_data);
             foreach (Token::all() as $token) {
@@ -752,6 +863,8 @@ class BackupController extends Controller
                     $this->ajax_error_list->push($e->getMessage());
                 }
             }
+
+            // Option Presets
             $all_optionpresets_data = new Collection();
             foreach(OptionPreset::all() as $optionpreset){
                 try {
@@ -779,7 +892,7 @@ class BackupController extends Controller
             $this->ajax_error_list->push($e->getMessage());
             $this->ajaxResponse(false,trans('controller_backup.correct'));
         }
-
+        Log::info("DATABASE DUMPED!!");
 		return $entire_database;
 	}
 

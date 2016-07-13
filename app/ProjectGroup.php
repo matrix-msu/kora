@@ -1,10 +1,11 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class ProjectGroup extends Model {
 
-	protected $fillable = ['name', 'create', 'edit', 'delete'];
+	protected $fillable = ['name', 'pid', 'create', 'edit', 'delete'];
 
     /**
      * Returns projects associated with a project group.
@@ -33,5 +34,11 @@ class ProjectGroup extends Model {
     public function hasUser(User $user){
         $thisUsers = $this->users()->get();
         return $thisUsers->contains($user);
+    }
+
+    public function delete() {
+        DB::table("project_group_user")->where("project_group_id", "=", $this->id)->delete();
+
+        parent::delete();
     }
 }

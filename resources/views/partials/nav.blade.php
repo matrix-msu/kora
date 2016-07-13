@@ -1,4 +1,4 @@
-<nav class="navbar navbar-inverse navbar-fixed-top" style="background-image: inherit">
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" style="background-image: inherit">
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -20,6 +20,7 @@
               @endif
               @yield('leftNavLinks')
           </ul>
+
 		  <ul class="nav navbar-nav navbar-right">
 		    <!-- Right justified links -->
 			@if (Auth::guest())
@@ -27,18 +28,29 @@
 				<li><a href="{{ url('/auth/register') }}">{{trans('partials_nav.register')}}</a></li>
                 <li><a href="{{ action('Auth\UserController@activateshow') }}">{{trans('partials_nav.activation')}}</a></li>
 			@else
-				<li class="dropdown">
-					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{ Auth::user()->username }} <span class="caret"></span></a>
-					<ul class="dropdown-menu" role="menu">
-						<li><a href="{{ url('/user') }}">{{trans('partials_nav.viewprofile')}}</a></li>
-						<li><a href="{{ url('/auth/logout') }}">{{trans('partials_nav.logout')}}</a></li>
-					</ul>
-				</li>
+                  <li class="dropdown">
+                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{ Auth::user()->username }} <span class="caret"></span></a>
+                      <ul class="dropdown-menu" role="menu">
+                          <li><a href="{{ url('/user') }}">{{trans('partials_nav.viewprofile')}}</a></li>
+                          <li><a href="{{ url('/auth/logout') }}">{{trans('partials_nav.logout')}}</a></li>
+                      </ul>
+                  </li>
               @if (!\Auth::user()->active)
                   <li><a href="{{ action('Auth\UserController@activateshow') }}">{{trans('partials_nav.activation')}}</a></li>
               @endif
 			@endif
 		</ul>
+            <ul class="nav navbar-nav navbar-right">
+                <form class="navbar-form" role="search" style="margin-left: 0.5em; margin-right: 0.5em;" action="{{action("ProjectSearchController@globalSearch")}}">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Global Search" name="query">
+                        <div class="input-group-btn">
+                            <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search" style="height: 1.4em; vertical-align: middle"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </ul>
+
         </div><!--/.nav-collapse -->
       </div>
 </nav>

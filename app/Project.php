@@ -1,6 +1,7 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Project extends Model {
 
@@ -54,4 +55,40 @@ class Project extends Model {
         return $this->hasMany('App\OptionPreset','pid');
     }
 
+    /**
+     * Because the MyISAM engine doesn't support foreign keys we have to emulate cascading.
+     */
+    public function delete() {
+        DB::table("project_token")->where("project_id", "=", $this->pid)->delete();
+        DB::table("option_presets")->where("pid", "=", $this->pid)->delete();
+        DB::table("project_groups")->where("pid", "=", $this->pid)->delete();
+
+        // We don't delete the forms as above because we need their delete methods to be called.
+        $forms = Form::where("pid", "=", $this->pid)->get();
+        foreach($forms as $form) {
+            $form->delete();
+        }
+
+        parent::delete();
+    }
+
+    /**
+     * Builds up and array of a project and its forms to be send to Javascript.
+     *
+     * @return array
+     */
+    public function buildFormSelectorArray() {
+        $forms = $this->forms()->get();
+
+        $arr = ["pid" => $this->pid,
+            "name" => $this->name,
+            "forms" => []];
+
+        foreach($forms as $form) {
+            $arr["forms"][] = ["fid" => $form->fid,
+                "name" => $form->name];
+        }
+
+        return $arr;
+    }
 }

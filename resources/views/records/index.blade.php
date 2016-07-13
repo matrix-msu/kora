@@ -98,7 +98,7 @@
                             @foreach($record->numberfields as $nf)
                                 @if($nf->flid == $field->flid)
                                     <?php
-                                    echo $nf->number;
+                                    echo $nf->number + 0;
                                     if($nf->number!='')
                                         echo ' '.\App\Http\Controllers\FieldController::getFieldOption($field,'Unit');
                                     ?>
@@ -596,7 +596,7 @@
                         type: 'DELETE',
                         data: {
                             "_token": "{{ csrf_token() }}"
-                        }, success: function () {
+                        }, success: function (response) {
                             location.reload();
                         }
                     });
