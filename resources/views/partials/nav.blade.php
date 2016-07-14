@@ -40,8 +40,8 @@
               @endif
 			@endif
 		</ul>
-            <ul class="nav navbar-nav navbar-right">
-                <form class="navbar-form" role="search" style="margin-left: 0.5em; margin-right: 0.5em;" action="{{action("ProjectSearchController@globalSearch")}}">
+            <ul class="nav navbar-nav navbar-right" style="width: 30%">
+                <form class="navbar-form" role="search" style="margin-left: 0.5em; margin-right: 0.5em; float: right;" action="{{action("ProjectSearchController@globalSearch")}}">
                     <div class="input-group">
                         <input type="text" class="form-control" placeholder="Global Search" name="query">
                         <div class="input-group-btn">

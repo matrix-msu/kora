@@ -16,12 +16,9 @@ class CreateMetadataTable extends Migration {
         {
 			$table->engine = 'MyISAM';
 
-           // $table->increments('mid');
             $table->integer('flid')->unsigned();
-
             $table->integer('pid')->unsigned();
             $table->integer('fid')->unsigned();
-
             $table->string('name');
             $table->timestamps();
 

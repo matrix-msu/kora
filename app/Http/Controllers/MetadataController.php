@@ -5,6 +5,8 @@ use App\Http\Requests;
 Use App\Metadata;
 Use App\Field;
 Use App\Form;
+use App\Record;
+use App\Search;
 use Illuminate\Bus\MarshalException;
 Use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -30,7 +32,8 @@ class MetadataController extends Controller {
     /**
      * Display metadata for all records in JSON format, even to public if enabled
      *
-     * @params int $pid, int $fid
+     * @param $pid
+     * @param $fid
      * @return Response
      */
     public function records($pid,$fid){
@@ -39,16 +42,16 @@ class MetadataController extends Controller {
         }
 
         //if public metadata is enabled OR if the user is signed in, display JSON
-        $form = Form::find($fid);
+        $form = FormController::getForm($fid);
         if($form->public_metadata || Auth::check()) {
             $form_layout_tags = \App\Http\Controllers\FormController::xmlToArray($form->layout);
-            $this->form_records = $form->records($pid, $fid)->get();
+            $records = Record::where("fid", "=", $form->fid)->get();
             $node_and_field_order = $this->layout($form_layout_tags);
 
             $metadata_and_records = new Collection();
-            foreach ($this->form_records as $record) {
+            foreach ($records as $record) {
                 $record_field_metadata = $this->matchRecordsAndMetadata($node_and_field_order, $record);
-                if($record_field_metadata->count() >0) {
+                if($record_field_metadata->count() > 0) {
                     $metadata_and_records->push($record_field_metadata);
                 }
             }
@@ -62,7 +65,8 @@ class MetadataController extends Controller {
     /**
      * Match the parts of a record with the metadata for their respective field
      *
-     * @params String $items, Record $record
+     * @param $items
+     * @param $record
      * @return Collection
      */
     public function matchRecordsAndMetadata($items,$record){
@@ -71,19 +75,23 @@ class MetadataController extends Controller {
             if(is_string($item)){
                 foreach($record->textfields as $tf){
                     $field = Field::find($tf->flid);
-                    if($item==$tf->flid && count($field->metadata)>0 && ($tf->text != "" && $tf->text !== null)) $jsRecord->put($field->metadata()->first()->name,$tf->text);
+                    if($item==$tf->flid && count($field->metadata)>0 && ($tf->text != "" && $tf->text !== null))
+                        $jsRecord->put($field->metadata()->first()->name,$tf->text);
                 }
                 foreach($record->numberfields as $nf){
                     $field = Field::find($nf->flid);
-                    if($item==$nf->flid && count($field->metadata)>0 && ($nf->number != "" && $nf->number !== null)) $jsRecord->put($field->metadata()->first()->name,$nf->number);
+                    if($item==$nf->flid && count($field->metadata)>0 && ($nf->number != "" && $nf->number !== null))
+                        $jsRecord->put($field->metadata()->first()->name,$nf->number);
                 }
                 foreach($record->richtextfields as $rtf){
                     $field = Field::find($rtf->flid);
-                    if($item==$rtf->flid && count($field->metadata)>0 && ($rtf->rawtext != "" && $rtf->rawtext !== null)) $jsRecord->put($field->metadata()->first()->name,$rtf->rawtext);
+                    if($item==$rtf->flid && count($field->metadata)>0 && ($rtf->rawtext != "" && $rtf->rawtext !== null))
+                        $jsRecord->put($field->metadata()->first()->name,$rtf->rawtext);
                 }
                 foreach($record->listfields as $lf){
                     $field = Field::find($lf->flid);
-                    if($item==$lf->flid && count($field->metadata)>0 && ($lf->option != "" && $lf->option !== null)) $jsRecord->put($field->metadata()->first()->name,$lf->option);
+                    if($item==$lf->flid && count($field->metadata)>0 && ($lf->option != "" && $lf->option !== null))
+                        $jsRecord->put($field->metadata()->first()->name,$lf->option);
                 }
                 foreach($record->multiselectlistfields as $mslf){
                     $field = Field::find($mslf->flid);
@@ -152,6 +160,7 @@ class MetadataController extends Controller {
                         $jsRecord->put($field->metadata()->first()->name,$date_string);
                     }
                 }
+
                 foreach($record->schedulefields as $sf){
                     $field = Field::find($sf->flid);
                     if($item==$sf->flid && count($field->metadata)>0){
@@ -263,6 +272,33 @@ class MetadataController extends Controller {
         }
         return $jsRecord;
     }
+
+    /**
+     * Search through a metadata result.
+     *
+     * @param $pid int, project id.
+     * @param $fid int, form id.
+     * @param $query string, comma separated query string.
+     */
+    public function search($pid, $fid, $query) {
+        $query = explode(",", $query);
+        $query_str = implode(" ", $query);
+
+        $query = array_diff($query, Search::showIgnoredArguments($query_str));
+        $query = implode(" ", $query);
+
+        $search = new Search($pid, $fid, $query, Search::SEARCH_OR);
+        $rids = $search->formKeywordSearch2();
+
+        $records = Record::where(function($query) use ($rids) {
+           foreach($rids as $rid) {
+               $query->where("rid", "=", $rid);
+           }
+        })->get();
+
+        dd($records); // TODO: extract current functionality to a function and pass these records to it.
+    }
+
     /**
      * Takes form layout and modifies it from a flat array to an array of arrays
      * so metadata can be displayed with the correct layout.  This method calls
@@ -272,7 +308,6 @@ class MetadataController extends Controller {
      * @return Collection
      */
     public function layout($tags){
-
         $count_node_open_tags = 0; //How many <node> tags have been encountered
         $node_contents = new Collection(); //The current node and it's sub-nodes
         $subnode_contents = new Collection(); //A complete sub-node
@@ -308,7 +343,7 @@ class MetadataController extends Controller {
                     $count_node_open_tags--;
                     //If all <node> tags have been closed, then recursively call this function on the $subnode_contents
                     if($count_node_open_tags == 0){
-                        $node_contents->put($subnode_name,$this->layout($subnode_contents));
+                        $node_contents->put($subnode_name, $this->layout($subnode_contents));
                         $subnode_contents = new Collection();
                         $subnode_name = "";
                     }
@@ -422,7 +457,7 @@ class MetadataController extends Controller {
             ->where("name", "=", $name)
             ->count();
 
-        return $count <= 1;
+        return $count == 0;
     }
 
     /**

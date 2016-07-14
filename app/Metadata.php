@@ -8,6 +8,7 @@ class Metadata extends Model {
     protected $fillable = [
         'pid',
         'fid',
+        'flid',
         'name',
     ];
 
