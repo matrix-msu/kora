@@ -40,8 +40,20 @@
               @endif
 			@endif
 		</ul>
-            <ul class="nav navbar-nav navbar-right" style="width: 30%">
-                <form class="navbar-form" role="search" style="margin-left: 0.5em; margin-right: 0.5em; float: right;" action="{{action("ProjectSearchController@globalSearch")}}">
+            <style scoped>
+                #global_search {
+                    width: 200px
+                }
+
+                @media (max-width: 767px) {
+                    #global_search {
+                        width: 100%;
+                        margin: 0 0.5em 0 0.5em;
+                    }
+                }
+            </style>
+            <ul class="nav navbar-nav navbar-right" id="navbar_container">
+                <form class="navbar-form" role="search" id="global_search" action="{{action("ProjectSearchController@globalSearch")}}">
                     <div class="input-group">
                         <input type="text" class="form-control" placeholder="Global Search" name="query">
                         <div class="input-group-btn">
