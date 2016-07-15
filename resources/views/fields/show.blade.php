@@ -2,8 +2,7 @@
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $field->pid])
-    @include('partials.menu.form', ['pid' => $field->pid, 'fid' => $field->fid])
-    @include('partials.menu.options', ['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid])
+    @include('partials.menu.form', ['pid' => $field->pid, 'fid' => $field->fid, 'passed_field' => $field])
 @stop
 
 @section('content')

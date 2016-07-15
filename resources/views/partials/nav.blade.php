@@ -18,6 +18,15 @@
               @else
                   <li><a href="{{ url('/projects') }}">{{trans('partials_nav.dashboard')}}</a></li>
               @endif
+
+              <style scoped>
+                  .scrollable-submenu {
+                      height: auto;
+                      max-height: 300px;
+                      overflow-x: hidden;
+                  }
+              </style>
+
               @yield('leftNavLinks')
           </ul>
 

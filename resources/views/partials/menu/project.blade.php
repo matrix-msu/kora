@@ -5,7 +5,7 @@
         <?php $allowed_projects = \Auth::user()->allowedProjects() ?>
         @if(sizeof($allowed_projects) > 1)
             <li class="dropdown-submenu" id="project-submenu"> <a href='#' data-toggle="dropdown">{{trans('partials_menu_project.jump')}}</a>
-                <ul class="dropdown-menu">
+                <ul class="dropdown-menu scrollable-submenu">
                     @foreach($allowed_projects as $project)
                         @if($project->pid != $pid)
                             <li><a href="{{ url('/projects/'.$project->pid) }}">{{ $project->name }}</a></li>

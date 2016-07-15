@@ -5,7 +5,7 @@
         <?php $allowed_forms = \Auth::user()->allowedForms($pid) ?>
         @if(sizeof($allowed_forms) > 1)
             <li class="dropdown-submenu" id="form-submenu"> <a href="#" data-toggle="dropdown">{{trans('partials_menu_form.jump')}}</a>
-                <ul class="dropdown-menu">
+                <ul class="dropdown-menu scrollable-submenu">
                     @foreach($allowed_forms as $form)
                         @if($form->fid != $fid)
                             <li><a href="{{ url('/projects/'.$pid).'/forms/'.$form->fid }}">{{ $form->name }}</a></li>
@@ -14,6 +14,25 @@
                 </ul>
             </li>
         @endif
+
+        @if(isset($passed_field))
+            <?php
+            $fieldsInForm = \App\Field::where('fid', '=', $fid)->get()->all();
+            $cnt = sizeof($fieldsInForm);
+            ?>
+            @if($cnt > 1)
+                <li class="dropdown-submenu" id="field-submenu"> <a href="#" data-toggle="dropdown">{{trans('partials_menu_options.jump')}}</a>
+                    <ul class="dropdown-menu scrollable-submenu">
+                        @foreach($fieldsInForm as $field)
+                            @if($field->flid != $passed_field->flid)
+                                <li><a href="{{ url('/projects/'.$pid).'/forms/'.$field->fid .'/fields/'.$field->flid.'/options'}}">{{ $field->name }}</a></li>
+                            @endif
+                        @endforeach
+                    </ul>
+                </li>
+            @endif
+        @endif
+
         <li class="divider"></li>
         <li><a href="{{ url('/projects/'.$pid).'/forms/'.$fid.'/records'}}">{{trans('partials_menu_form.records')}}</a></li>
         @if(\Auth::user()->canIngestRecords(\App\Http\Controllers\FormController::getForm($fid)))
