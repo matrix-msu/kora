@@ -13,7 +13,7 @@
         {!! Form::label('searchable',trans('fields_options_mslist.search').': ') !!}
         {!! Form::select('searchable',['false', 'true'], $field->searchable, ['class' => 'form-control']) !!}
     </div>
-    
+
     <div class="form-group">
         {!! Form::label('default',trans('fields_options_mslist.def').': ') !!}
         {!! Form::select('default[]',\App\MultiSelectListField::getList($field,false), explode('[!]',$field->default),['class' => 'form-control', 'multiple', 'id' => 'default']) !!}
