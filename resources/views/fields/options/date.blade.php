@@ -10,6 +10,11 @@
     </div>
 
     <div class="form-group">
+        {!! Form::label('searchable',trans('fields_options_date.search').': ') !!}
+        {!! Form::select('searchable',['false', 'true'], $field->searchable, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
         {!! Form::label('default_month','Default '.trans('fields_options_date.month').': ') !!}
         {!! Form::select('default_month',['' => '',
             '1' => '01 - '.trans('fields_options_date.jan'), '2' => '02 - '.trans('fields_options_date.feb'),
