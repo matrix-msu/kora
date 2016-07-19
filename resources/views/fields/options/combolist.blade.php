@@ -23,6 +23,11 @@
     </div>
 
     <div class="form-group">
+        {!! Form::label('searchable',trans('fields_options_combolist.search').': ') !!}
+        {!! Form::select('searchable',['false', 'true'], $field->searchable, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
         {!! Form::label('nameone',trans('fields_options_combolist.nameone').': ') !!}
         {!! Form::text('nameone',$oneName, ['class' => 'form-control']) !!}
     </div>

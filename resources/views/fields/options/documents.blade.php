@@ -10,6 +10,11 @@
     </div>
 
     <div class="form-group">
+        {!! Form::label('searchable',trans('fields_options_documents.search').': ') !!}
+        {!! Form::select('searchable',['false', 'true'], $field->searchable, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
         {!! Form::label('filesize',trans('fields_options_documents.maxsize').' (kb): ') !!}
         <input type="number" name="filesize" class="form-control" step="1"
                value="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "FieldSize") }}" min="0">
