@@ -1,6 +1,7 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class ComboListField extends BaseField {
 
@@ -147,4 +148,33 @@ class ComboListField extends BaseField {
         return $type;
     }
 
+    /**
+     * Determine if to metadata can be called on the combo list field.
+     *
+     * @return bool
+     */
+    public function isMetafiable() {
+        return ! empty($this->options);
+    }
+
+    /**
+     * Returns a collection of the combo list field indexed by field name => field data.
+     *
+     * @param Field $field
+     * @return Collection
+     */
+    public function toMetadata(Field $field) {
+        $options = explode("[!val!]", $this->options);
+
+        $combo_col = new Collection();
+        foreach($options as $option) {
+            $field_1 = explode("[!f1!]", $option)[1];
+            $field_2 = explode("[!f2!]", $option)[1];
+
+            $combo_col->put(self::getComboFieldName($field, "one"), $field_1);
+            $combo_col->put(self::getComboFieldName($field, "two"), $field_2);
+        }
+
+        return $combo_col;
+    }
 }

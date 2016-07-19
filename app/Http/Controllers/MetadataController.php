@@ -11,6 +11,7 @@ use Illuminate\Bus\MarshalException;
 Use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class MetadataController extends Controller {
     /*
@@ -37,7 +38,7 @@ class MetadataController extends Controller {
      * @return Response
      */
     public function records($pid,$fid){
-        if(!FormController::validProjForm($pid,$fid)){
+        if(!FormController::validProjForm($pid, $fid)){
             return redirect('projects/'.$pid.'/forms');
         }
 
@@ -57,9 +58,78 @@ class MetadataController extends Controller {
             }
             return response()->json($metadata_and_records);
         }
-        else{
+        else {
             return redirect("/");
         }
+    }
+
+    /*
+     * Attempting meta data function again.
+     */
+    public function records2($pid, $fid) {
+        if ( ! FormController::validProjForm($pid, $fid)){
+            return redirect('projects/' . $pid . '/forms');
+        }
+
+        $rids = DB::table("records")->where("fid", "=", $fid)->select("rid")->get();
+
+        // The DB call returns an array of StdObj so we get the rids out of the objects.
+        $rids = array_map( function($obj) {
+            return $obj->rid;
+        }, $rids);
+
+        $form = FormController::getForm($fid);
+        $output = new Collection();
+
+        // User is logged in or the form's metadata is public.
+        if ($form->public_metadata || Auth::check()) {
+            $layout = $this->layout(FormController::xmlToArray($form->layout)); // Generate the layout for our json object.
+
+            foreach ($rids as $rid) {
+                $data = $this->matchRecordsAndMetadata2($form, $rid, $layout);
+
+                if ($data->count() > 0) {
+                    $output->push($data);
+                }
+            }
+        }
+
+        return response()->json($output);
+    }
+
+    /*
+     * Attempting to redo the record and meta data method.
+     */
+    public function matchRecordsAndMetadata2($form, $rid, $layout) {
+        $json_record = new Collection();
+
+        foreach($layout as $key => $value) { // Either an flid or node title.
+            if (is_int($key)) { // Is an flid.
+                if (Field::hasMetadata($value)) {
+                    $field = FieldController::getField($value);
+                    $typed_field = $field->getTypedField($rid);
+                    $meta_name = Metadata::where("flid", "=", $field->flid)->select("name")->first()->name;
+
+                    if (!is_null($typed_field) && $typed_field->isMetafiable()) {
+                        $json_record->put($meta_name, $typed_field->toMetadata($field));
+                    }
+                }
+            }
+            else { // Is a node title.
+
+                //
+                // Since we are at a node title, we recurse the function to continue building
+                // the record as above.
+                //
+                $node_fields = $this->matchRecordsAndMetadata2($form, $rid, $value); // $value here will be the sub_array representing a node.
+
+                if ($node_fields->count() > 0) {
+                    $json_record->put($key, $node_fields); // $key here will be the title of the node.
+                }
+            }
+        }
+
+        return $json_record;
     }
 
     /**
@@ -76,28 +146,28 @@ class MetadataController extends Controller {
                 foreach($record->textfields as $tf){
                     $field = Field::find($tf->flid);
                     if($item==$tf->flid && count($field->metadata)>0 && ($tf->text != "" && $tf->text !== null))
-                        $jsRecord->put($field->metadata()->first()->name,$tf->text);
+                        $jsRecord->put($field->metadata()->first()->name, $tf->text);
                 }
                 foreach($record->numberfields as $nf){
                     $field = Field::find($nf->flid);
                     if($item==$nf->flid && count($field->metadata)>0 && ($nf->number != "" && $nf->number !== null))
-                        $jsRecord->put($field->metadata()->first()->name,$nf->number);
+                        $jsRecord->put($field->metadata()->first()->name, $nf->number);
                 }
                 foreach($record->richtextfields as $rtf){
                     $field = Field::find($rtf->flid);
                     if($item==$rtf->flid && count($field->metadata)>0 && ($rtf->rawtext != "" && $rtf->rawtext !== null))
-                        $jsRecord->put($field->metadata()->first()->name,$rtf->rawtext);
+                        $jsRecord->put($field->metadata()->first()->name, $rtf->rawtext);
                 }
                 foreach($record->listfields as $lf){
                     $field = Field::find($lf->flid);
                     if($item==$lf->flid && count($field->metadata)>0 && ($lf->option != "" && $lf->option !== null))
-                        $jsRecord->put($field->metadata()->first()->name,$lf->option);
+                        $jsRecord->put($field->metadata()->first()->name, $lf->option);
                 }
                 foreach($record->multiselectlistfields as $mslf){
                     $field = Field::find($mslf->flid);
                     if($item==$mslf->flid && count($field->metadata)>0 && ($mslf->options != "" && $mslf->options !== null)){
                         $options_array = explode("[!]",$mslf->options);
-                        $jsRecord->put($field->metadata()->first()->name,$options_array);
+                        $jsRecord->put($field->metadata()->first()->name, $options_array);
                     }
                 }
                 foreach($record->generatedlistfields as $glf){
@@ -147,7 +217,7 @@ class MetadataController extends Controller {
                         }
                         //Check format of date
                         if ($option_values[3] == "MMDDYYYY") {
-                            $date_string = $date_string . $df->month . "-" . $df->day . ", " . $df->year;
+                            $date_string = $date_string . $df->month . "-" . $df->day . "-" . $df->year;
                         } elseif ($option_values[3] == "DDMMYYYY") {
                             $date_string = $date_string . $df->day . "-" .$df->month . "-" . $df->year;
                         } elseif ($option_values[3] == "YYYYMMDD") {
@@ -262,7 +332,7 @@ class MetadataController extends Controller {
                 }
 
             }
-            else{
+            else {
                 $node_fields = $this->matchRecordsAndMetadata($item,$record);
                 if($node_fields->count() >0) //Exclude if there were no fields with data in that node
                 {
@@ -290,13 +360,7 @@ class MetadataController extends Controller {
         $search = new Search($pid, $fid, $query, Search::SEARCH_OR);
         $rids = $search->formKeywordSearch2();
 
-        $records = Record::where(function($query) use ($rids) {
-           foreach($rids as $rid) {
-               $query->where("rid", "=", $rid);
-           }
-        })->get();
-
-        dd($records); // TODO: extract current functionality to a function and pass these records to it.
+        dd($rids);
     }
 
     /**
@@ -322,7 +386,7 @@ class MetadataController extends Controller {
                 continue;
             }
             //If we hit a <node> open, then put this aside for further processing
-            elseif($tag_kind == "ID" && $count_node_open_tags >0){
+            elseif($tag_kind == "ID" && $count_node_open_tags > 0){
                 $subnode_contents->push($tag);
                 continue;
             }
@@ -355,8 +419,8 @@ class MetadataController extends Controller {
             }
 
         }
-        return $node_contents; //Return this node, including the contents of any sub-nodes it may have had
 
+        return $node_contents; //Return this node, including the contents of any sub-nodes it may have had
     }
 
     /**

@@ -38,4 +38,23 @@ class NumberField extends BaseField {
 
         return false; // No matches
     }
+
+    /**
+     * Determines if to metadata can be called on the NumberField.
+     *
+     * @return bool
+     */
+    public function isMetafiable() {
+        return ! empty($this->number);
+    }
+
+    /**
+     * Returns the field's number while removing trailing zeros.
+     *
+     * @param Field $field, unneeded.
+     * @return double
+     */
+    public function toMetadata(Field $field) {
+        return $this->number + 0; // + 0 to remove trailing zeros.
+    }
 }

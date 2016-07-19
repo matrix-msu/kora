@@ -1893,4 +1893,24 @@ TEXT;
         $arg = Search::processArgument("Warhammer", Search::SEARCH_OR);
         $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
     }
+
+    /**
+     * Test the has metadata static function.
+     */
+    public function test_hasMetadata() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_TEXT, $project->pid, $form->fid);
+
+        $this->assertFalse(Field::hasMetadata($field->flid));
+
+        $meta = new \App\Metadata();
+        $meta->flid = $field->flid;
+        $meta->save();
+
+        $this->assertTrue(Field::hasMetadata($field->flid));
+
+        // Try with a different flid (should be false).
+        $this->assertFalse(Field::hasMetadata($field->flid + 1));
+    }
 }

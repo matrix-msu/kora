@@ -20,11 +20,7 @@ class RichTextField extends BaseField {
      */
     public function keywordSearch(array $args, $partial)
     {
-        $text = $this->rawtext;
-        $text = strip_tags($text); // We don't care to search the HTML tags and the user probably doesn't want to either.
-        $text = html_entity_decode($text); // Some entities get encoded, some don't! PHP! What a language! So we'll just decode the ones that did.
-
-        return self::keywordRoutine($args, $partial, $text);
+        return self::keywordRoutine($args, $partial, $this->searchable_rawtext);
     }
 
     /**
@@ -39,5 +35,24 @@ class RichTextField extends BaseField {
         $this->searchable_rawtext = strip_tags($this->rawtext);
 
         return parent::save($options);
+    }
+
+    /**
+     * Determine if to metadata can be called on this field.
+     *
+     * @return bool
+     */
+    public function isMetafiable() {
+        return ! empty($this->rawtext);
+    }
+
+    /**
+     * Simply returns the rawtext.
+     *
+     * @param Field $field, unneeded.
+     * @return string
+     */
+    public function toMetadata(Field $field) {
+        return $this->rawtext;
     }
 }

@@ -327,10 +327,10 @@ class FieldController extends Controller {
 	}
 
     /**
-     * Get field object for use in controller.
+     * Get field object.
      *
      * @param $flid
-     * @return mixed
+     * @return Field
      */
     public static function getField($flid)
     {

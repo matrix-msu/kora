@@ -23,4 +23,23 @@ class TextField extends BaseField {
     {
         return self::keywordRoutine($args, $partial, $this->text);
     }
+
+    /**
+     * Determines if to metadata is allowed to be called on the TextField.
+     *
+     * @return bool, true if to metadata can be called on the TextField.
+     */
+    public function isMetafiable() {
+        return ! empty($this->text);
+    }
+
+    /**
+     * Simply returns the text of the field.
+     *
+     * @param Field $field, unneeded.
+     * @return string
+     */
+    public function toMetadata(Field $field) {
+        return $this->text;
+    }
 }

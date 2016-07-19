@@ -324,6 +324,12 @@ class FormController extends Controller {
             return false;
     }
 
+    /**
+     * Converts a form layout to an array.
+     *
+     * @param $layout
+     * @return mixed
+     */
     public static function xmlToArray($layout){
         $xml = xml_parser_create();
         xml_parse_into_struct($xml,$layout, $vals, $index);

@@ -157,7 +157,7 @@ Route::post('/user/profile','Auth\UserController@changeprofile');
 Route::get('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@index');
 Route::post('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@store');
 Route::delete('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@destroy');
-Route::get('/projects/{pid}/forms/{fid}/metadata','MetadataController@records');
+Route::get('/projects/{pid}/forms/{fid}/metadata','MetadataController@records2');
 Route::post('/projects/{pid}/forms/{fid}/metadata/massassign','MetadataController@massAssign');
 Route::get('/projects/{pid}/forms/{fid}/metadata/search/{query}', 'MetadataController@search');
 

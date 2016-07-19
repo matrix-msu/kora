@@ -1,6 +1,7 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class GeolocatorField extends BaseField {
 
@@ -81,5 +82,32 @@ class GeolocatorField extends BaseField {
         }
 
         return $options;
+    }
+
+    /**
+     * Geolocator fields are always metafiable.
+     *
+     * @return bool
+     */
+    public function isMetafiable() {
+        return true;
+    }
+
+    public function toMetadata(Field $field) {
+        $locations = explode("[!]", $this->locations);
+
+        $locations_and_info = [];
+        foreach ($locations as $location) {
+            $info_collection = new Collection();
+
+            $info_collection->put("Desc", explode("[Desc]", $location)[1]);
+            $info_collection->put("LatLon", explode("[LatLon]", $location)[1]);
+            $info_collection->put("UTM", explode("[UTM]", $location)[1]);
+            $info_collection->put("Address", explode("[Address]", $location)[1]);
+
+            $locations_and_info[] = $info_collection;
+        }
+
+        return $locations_and_info;
     }
 }

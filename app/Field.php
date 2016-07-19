@@ -78,7 +78,6 @@ class Field extends Model {
      * @return \App\BaseField | null, some typed field or null if the typed field does not exist.
      */
     public function getTypedField($rid) {
-        // Here goes nothing...
         switch($this->type) {
             case Field::_TEXT:
                 return TextField::where("flid", "=", $this->flid)->where("rid", "=", $rid)->first();
@@ -249,184 +248,184 @@ class Field extends Model {
      */
     public function keywordSearchTyped2($arg, $method) {
         switch($this->type) {
-            case Field::_TEXT:
-                return DB::table("text_fields")
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`text`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
-
-            case Field::_RICH_TEXT:
-                return DB::table("rich_text_fields")
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`searchable_rawtext`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
-
-            case Field::_NUMBER:
-                $arg = str_replace(["*", "\""], "", $arg);
-
-                if (is_numeric($arg)) { // Only search if we're working with a number.
-                    $arg = floatval($arg);
-
-                    return DB::table("number_fields")
+                case Field::_TEXT:
+                    return DB::table("text_fields")
                         ->select("rid")
                         ->where("fid", "=", $this->fid)
-                        ->whereBetween("number", [$arg - NumberField::EPSILON, $arg + NumberField::EPSILON])
+                        ->whereRaw("MATCH (`text`) AGAINST (? IN BOOLEAN MODE)", [$arg])
                         ->distinct();
-                }
-                else {
-                    return DB::table("number_fields")
+                    break;
+
+                case Field::_RICH_TEXT:
+                    return DB::table("rich_text_fields")
                         ->select("rid")
-                        ->where("id", "<", -1); // Purposefully impossible.
-                }
-                break;
+                        ->where("fid", "=", $this->fid)
+                        ->whereRaw("MATCH (`searchable_rawtext`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+                        ->distinct();
+                    break;
 
-            case Field::_LIST:
-                return DB::table("list_fields")
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`option`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
+                case Field::_NUMBER:
+                    $arg = str_replace(["*", "\""], "", $arg);
 
-            case Field::_MULTI_SELECT_LIST:
-                return DB::table("multi_select_list_fields")
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
+                    if (is_numeric($arg)) { // Only search if we're working with a number.
+                        $arg = floatval($arg);
 
-            case Field::_GENERATED_LIST:
-                return DB::table("generated_list_fields")
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
-
-            case Field::_DATE:
-                $arg = str_replace(["*", "\""], "", $arg);
-
-                // Boolean to decide if we should consider circa options.
-                $circa = explode("[!Circa!]", $this->options)[1] == "Yes";
-
-                // Boolean to decide if we should consider era.
-                $era = explode("[!Era!]", $this->options)[1] == "On";
-
-                return DateField::buildQuery2($arg, $circa, $era, $this->fid);
-                break;
-
-            case Field::_SCHEDULE:
-                return DB::table("schedule_fields")
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`events`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
-
-            case Field::_GEOLOCATOR:
-                // We need to make sure only the actual words in the data are matched with, not the separators.
-                $args = explode(" ", $arg);
-                $args = array_filter($args, function($element) {
-                    $element = str_replace(["*", "\""], "", $element);
-                    return (ucwords($element) != "Address" && ucwords($element) != "Desc");
-                });
-
-                $arg = implode(" ", $args);
-
-                if ($method != Search::SEARCH_EXACT) {
-                    $args_description = explode(" ", $arg);
-                    $args_address = $args_description;
-
-                    for ($i = 0; $i < count($args_description); $i++) {
-                        $args_description[$i] .= "[Desc]";
-                        $args_address[$i] .= "[Address]";
+                        return DB::table("number_fields")
+                            ->select("rid")
+                            ->where("fid", "=", $this->fid)
+                            ->whereBetween("number", [$arg - NumberField::EPSILON, $arg + NumberField::EPSILON])
+                            ->distinct();
                     }
+                    else {
+                        return DB::table("number_fields")
+                            ->select("rid")
+                            ->where("id", "<", -1); // Purposefully impossible.
+                    }
+                    break;
 
-                    $args_description = implode($args_description);
-                    $args_address = implode($args_address);
-
-                    return DB::table("geolocator_fields")
+                case Field::_LIST:
+                    return DB::table("list_fields")
                         ->select("rid")
                         ->where("fid", "=", $this->fid)
-                        ->whereRaw("MATCH (`locations`) AGAINST (? IN BOOLEAN MODE)", [$args_description])
-                        ->whereRaw("MATCH (`locations`) AGAINST (? IN BOOLEAN MODE)", [$args_address])
+                        ->whereRaw("MATCH (`option`) AGAINST (? IN BOOLEAN MODE)", [$arg])
                         ->distinct();
-                }
-                else {
-                    return DB::table("geolocator_fields")
+                    break;
+
+                case Field::_MULTI_SELECT_LIST:
+                    return DB::table("multi_select_list_fields")
                         ->select("rid")
                         ->where("fid", "=", $this->fid)
-                        ->whereRaw("MATCH (`locations`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+                        ->whereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)", [$arg])
                         ->distinct();
-                }
-                break;
+                    break;
 
-            case Field::_DOCUMENTS:
-                $arg = self::processArgumentForFileField($arg, $method);
+                case Field::_GENERATED_LIST:
+                    return DB::table("generated_list_fields")
+                        ->select("rid")
+                        ->where("fid", "=", $this->fid)
+                        ->whereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+                        ->distinct();
+                    break;
 
-                return DB::table("documents_fields")
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`documents`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
+                case Field::_DATE:
+                    $arg = str_replace(["*", "\""], "", $arg);
 
-            case Field::_GALLERY:
-                $arg = self::processArgumentForFileField($arg, $method);
+                    // Boolean to decide if we should consider circa options.
+                    $circa = explode("[!Circa!]", $this->options)[1] == "Yes";
 
-                return DB::table("gallery_fields")
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`images`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
+                    // Boolean to decide if we should consider era.
+                    $era = explode("[!Era!]", $this->options)[1] == "On";
 
-            case Field::_3D_MODEL:
-                $arg = self::processArgumentForFileField($arg, $method);
+                    return DateField::buildQuery2($arg, $circa, $era, $this->fid);
+                    break;
 
-                return DB::table("model_fields")
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`model`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
+                case Field::_SCHEDULE:
+                    return DB::table("schedule_fields")
+                        ->select("rid")
+                        ->where("fid", "=", $this->fid)
+                        ->whereRaw("MATCH (`events`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+                        ->distinct();
+                    break;
 
-            case Field::_PLAYLIST:
-                $arg = self::processArgumentForFileField($arg, $method);
+                case Field::_GEOLOCATOR:
+                    // We need to make sure only the actual words in the data are matched with, not the separators.
+                    $args = explode(" ", $arg);
+                    $args = array_filter($args, function($element) {
+                        $element = str_replace(["*", "\""], "", $element);
+                        return (ucwords($element) != "Address" && ucwords($element) != "Desc");
+                    });
 
-                return DB::table("playlist_fields")
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`audio`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
+                    $arg = implode(" ", $args);
 
-            case Field::_VIDEO:
-                $arg = self::processArgumentForFileField($arg, $method);
+                    if ($method != Search::SEARCH_EXACT) {
+                        $args_description = explode(" ", $arg);
+                        $args_address = $args_description;
 
-                return DB::table("video_fields")
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`video`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
+                        for ($i = 0; $i < count($args_description); $i++) {
+                            $args_description[$i] .= "[Desc]";
+                            $args_address[$i] .= "[Address]";
+                        }
 
-            case Field::_COMBO_LIST:
-                return DB::table("combo_list_fields")
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
+                        $args_description = implode($args_description);
+                        $args_address = implode($args_address);
 
-            default: // Error occurred.
-                throw new \Exception("Invalid field type in field::keywordSearchTyped2.");
-                break;
+                        return DB::table("geolocator_fields")
+                            ->select("rid")
+                            ->where("fid", "=", $this->fid)
+                            ->whereRaw("MATCH (`locations`) AGAINST (? IN BOOLEAN MODE)", [$args_description])
+                            ->whereRaw("MATCH (`locations`) AGAINST (? IN BOOLEAN MODE)", [$args_address])
+                            ->distinct();
+                    }
+                    else {
+                        return DB::table("geolocator_fields")
+                            ->select("rid")
+                            ->where("fid", "=", $this->fid)
+                            ->whereRaw("MATCH (`locations`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+                            ->distinct();
+                    }
+                    break;
+
+                case Field::_DOCUMENTS:
+                    $arg = self::processArgumentForFileField($arg, $method);
+
+                    return DB::table("documents_fields")
+                        ->select("rid")
+                        ->where("fid", "=", $this->fid)
+                        ->whereRaw("MATCH (`documents`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+                        ->distinct();
+                    break;
+
+                case Field::_GALLERY:
+                    $arg = self::processArgumentForFileField($arg, $method);
+
+                    return DB::table("gallery_fields")
+                        ->select("rid")
+                        ->where("fid", "=", $this->fid)
+                        ->whereRaw("MATCH (`images`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+                        ->distinct();
+                    break;
+
+                case Field::_3D_MODEL:
+                    $arg = self::processArgumentForFileField($arg, $method);
+
+                    return DB::table("model_fields")
+                        ->select("rid")
+                        ->where("fid", "=", $this->fid)
+                        ->whereRaw("MATCH (`model`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+                        ->distinct();
+                    break;
+
+                case Field::_PLAYLIST:
+                    $arg = self::processArgumentForFileField($arg, $method);
+
+                    return DB::table("playlist_fields")
+                        ->select("rid")
+                        ->where("fid", "=", $this->fid)
+                        ->whereRaw("MATCH (`audio`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+                        ->distinct();
+                    break;
+
+                case Field::_VIDEO:
+                    $arg = self::processArgumentForFileField($arg, $method);
+
+                    return DB::table("video_fields")
+                        ->select("rid")
+                        ->where("fid", "=", $this->fid)
+                        ->whereRaw("MATCH (`video`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+                        ->distinct();
+                    break;
+
+                case Field::_COMBO_LIST:
+                    return DB::table("combo_list_fields")
+                        ->select("rid")
+                        ->where("fid", "=", $this->fid)
+                        ->whereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+                        ->distinct();
+                    break;
+
+                default: // Error occurred.
+                    throw new \Exception("Invalid field type in field::keywordSearchTyped2.");
+                    break;
         }
     }
 
@@ -463,6 +462,16 @@ class Field extends Model {
         DB::table("metadatas")->where("flid", "=", $this->flid)->delete();
 
         parent::delete();
+    }
+
+    /**
+     * Determine if a field has a metadata association.
+     *
+     * @param $flid
+     * @return bool
+     */
+    public static function hasMetadata($flid) {
+        return !! Metadata::where("flid", "=", $flid)->count();
     }
 }
 

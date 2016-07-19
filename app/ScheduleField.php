@@ -41,4 +41,22 @@ class ScheduleField extends BaseField {
         return $options;
     }
 
+    /**
+     * Schedule fields are always metafiable.
+     *
+     * @return bool
+     */
+    public function isMetafiable() {
+        return true;
+    }
+
+    /**
+     * Returns the events of the field as an array.
+     *
+     * @param Field $field, unneeded.
+     * @return array
+     */
+    public function toMetadata(Field $field) {
+        return explode("[!]", $this->events);
+    }
 }

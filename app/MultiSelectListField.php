@@ -57,4 +57,22 @@ class MultiSelectListField extends BaseField {
         return $options;
     }
 
+    /**
+     * Determines if to metadata can be called on the msl field.
+     *
+     * @return bool
+     */
+    public function isMetafiable() {
+        return ! empty($this->options);
+    }
+
+    /**
+     * Returns the msl field's options as an array.
+     *
+     * @param Field $field, unneeded.
+     * @return array
+     */
+    public function toMetadata(Field $field) {
+        return explode("[!]", $this->options);
+    }
 }

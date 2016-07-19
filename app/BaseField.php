@@ -8,6 +8,7 @@
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use phpDocumentor\Reflection\DocBlock\Type\Collection;
 
 /**
  * Class BaseField
@@ -34,6 +35,23 @@ abstract class BaseField extends Model
      * @return bool, True if the field has satisfied the search parameters.
      */
     abstract public function keywordSearch(array $args, $partial);
+
+    /**
+     * Determines if to metadata is allowed to be called on the field.
+     *
+     * @return bool, true if to metadata can be called on the field.
+     */
+    abstract public function isMetafiable();
+
+
+    /**
+     * Returns the metadata representation of a field.
+     * Simple fields like TextField will return a string, more complex like DocumentsField will return arrays.
+     *
+     * @param Field $field, a field to get certain options that will be needed.
+     * @return string | array | Collection, string or array depending on the field.
+     */
+    abstract public function toMetadata(Field $field);
 
     /**
      * The routine that drives the keyword search for most fields.
