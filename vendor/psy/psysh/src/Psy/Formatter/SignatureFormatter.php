@@ -1,9 +1,9 @@
 <?php
 
 /*
- * This file is part of Psy Shell
+ * This file is part of Psy Shell.
  *
- * (c) 2012-2014 Justin Hileman
+ * (c) 2012-2015 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,8 +11,8 @@
 
 namespace Psy\Formatter;
 
-use Psy\Util\Json;
 use Psy\Reflection\ReflectionConstant;
+use Psy\Util\Json;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
 /**
@@ -111,6 +111,8 @@ class SignatureFormatter implements Formatter
 
         $interfaces = $reflector->getInterfaceNames();
         if (!empty($interfaces)) {
+            sort($interfaces);
+
             $chunks[] = 'implements';
             $chunks[] = implode(', ', array_map(function ($name) {
                 return sprintf('<class>%s</class>', $name);
@@ -143,6 +145,7 @@ class SignatureFormatter implements Formatter
 
     /**
      * Helper for getting output style for a given value's type.
+     *
      * @param mixed $value
      *
      * @return string

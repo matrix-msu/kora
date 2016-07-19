@@ -1,9 +1,9 @@
 <?php
 
 /*
- * This file is part of Psy Shell
+ * This file is part of Psy Shell.
  *
- * (c) 2012-2014 Justin Hileman
+ * (c) 2012-2015 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -47,7 +47,7 @@ class GNUReadline implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function addHistory($line)
     {
@@ -59,7 +59,7 @@ class GNUReadline implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function clearHistory()
     {
@@ -71,7 +71,7 @@ class GNUReadline implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function listHistory()
     {
@@ -79,18 +79,27 @@ class GNUReadline implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function readHistory()
     {
-        readline_read_history();
+        // Workaround PHP bug #69054
+        //
+        // If open_basedir is set, readline_read_history() segfaults. This will be fixed in 5.6.7:
+        //
+        //     https://github.com/php/php-src/blob/423a057023ef3c00d2ffc16a6b43ba01d0f71796/NEWS#L19-L21
+        //
+        // TODO: add a PHP version check after next point release
+        if (!ini_get('open_basedir')) {
+            readline_read_history();
+        }
         readline_clear_history();
 
         return readline_read_history($this->historyFile);
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function readline($prompt = null)
     {
@@ -98,7 +107,7 @@ class GNUReadline implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function redisplay()
     {
@@ -106,7 +115,7 @@ class GNUReadline implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function writeHistory()
     {

@@ -33,7 +33,7 @@ class ProjectGroupController extends Controller {
         }
 
         $projectGroups = $project->groups()->get();
-        $users = User::lists('username', 'id');
+        $users = User::lists('username', 'id')->all();
         $all_users = User::all();
         return view('projectGroups.index', compact('project', 'projectGroups', 'users', 'all_users'));
     }

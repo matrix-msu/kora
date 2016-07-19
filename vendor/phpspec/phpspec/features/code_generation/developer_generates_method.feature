@@ -262,6 +262,67 @@ Feature: Developer generates a method
 
       """
 
+  Scenario: Generating a method in a class with existing methods containing anonymous functions
+    Given the spec file "spec/MyNamespace/ExistingMethodAnonymousFunctionSpec.php" contains:
+      """
+      <?php
+
+      namespace spec\MyNamespace;
+
+      use PhpSpec\ObjectBehavior;
+      use Prophecy\Argument;
+
+      class ExistingMethodAnonymousFunctionSpec extends ObjectBehavior
+      {
+          function it_should_do_something()
+          {
+              $this->foo()->shouldReturn('bar');
+          }
+      }
+      """
+    And the class file "src/MyNamespace/ExistingMethodAnonymousFunction.php" contains:
+      """
+      <?php
+
+      namespace MyNamespace;
+
+      class ExistingMethodAnonymousFunction
+      {
+          public function existing()
+          {
+              return function () {
+                  return 'something';
+              };
+          }
+
+      }
+
+      """
+    When I run phpspec and answer "y" when asked if I want to generate the code
+    Then the class in "src/MyNamespace/ExistingMethodAnonymousFunction.php" should contain:
+      """
+      <?php
+
+      namespace MyNamespace;
+
+      class ExistingMethodAnonymousFunction
+      {
+          public function existing()
+          {
+              return function () {
+                  return 'something';
+              };
+          }
+
+          public function foo()
+          {
+              // TODO: write logic here
+          }
+
+      }
+
+      """
+
   Scenario: Generating a constructor in a file with no methods
     Given the spec file "spec/MyNamespace/CommentMethodSpec.php" contains:
       """
@@ -272,7 +333,7 @@ Feature: Developer generates a method
       use PhpSpec\ObjectBehavior;
       use Prophecy\Argument;
 
-      class CommentmethodSpec extends ObjectBehavior
+      class CommentMethodSpec extends ObjectBehavior
       {
           function it_should_do_something()
           {
@@ -307,6 +368,50 @@ Feature: Developer generates a method
           {
               // TODO: write logic here
           }
+      }
+
+      """
+
+  Scenario: Generating a method named with a restricted keyword
+    Given the spec file "spec/MyNamespace/RestrictedSpec.php" contains:
+      """
+      <?php
+
+      namespace spec\MyNamespace;
+
+      use PhpSpec\ObjectBehavior;
+      use Prophecy\Argument;
+
+      class RestrictedSpec extends ObjectBehavior
+      {
+          function it_tries_to_call_wrong_method()
+          {
+              $this->throw()->shouldReturn();
+          }
+      }
+
+      """
+    And the class file "src/MyNamespace/Restricted.php" contains:
+      """
+      <?php
+
+      namespace MyNamespace;
+
+      class Restricted
+      {
+      }
+
+      """
+    When I run phpspec interactively
+    Then I should see "I cannot generate the method 'throw' for you"
+    And the class in "src/MyNamespace/Restricted.php" should contain:
+      """
+      <?php
+
+      namespace MyNamespace;
+
+      class Restricted
+      {
       }
 
       """

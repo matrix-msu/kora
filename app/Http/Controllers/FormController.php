@@ -57,7 +57,7 @@ class FormController extends Controller {
         }
 
         $project = ProjectController::getProject($pid);
-        $users = User::lists('username', 'id');
+        $users = User::lists('username', 'id')->all();
 
         $presets = array();
         foreach(Form::where('preset', '=', 1, 'and', 'pid', '=', $pid)->get() as $form)

@@ -1,26 +1,58 @@
+2.5.1 / 2016-07-16
+==================
+
+* [fixed] Describing a class providing a namespace with leading backslash (@mheki)
+* [fixed] bug where rerun test suite was uncoloured (@ciaranmcnulty)
+* [fixed] Bug in DotFormatter when number of rows is multiple of column width (@bendavies)
+
+2.5.0 / 2016-03-20
+==================
+
+* Fixed bug with typehints in classes defined in spec file
+* Supports grouped Use statements
+* Now shows path in error message when spec file doesn't contain a class
+* Supports catching PHP 7 Errors in shouldThrow
+* No longer attempts to generate methods with reserved names
+* Fixed bug where bootstrapped classes could not be loaded after class generation
+* Fixed bug where line numbers were incorrectly reported on PHP 7
+* Fixed new methods being inserted incorrectly when strings included closing brace
+* Dot formatter now shows spec count on last line
+
+2.4.1 / 2016-01-01
+==================
+
+* Correctly handle nested class definitions 
+* Correctly handle anonymous functions in code generation
+* Fixed rerunning on Windows platform
+* Fixed code generation on Windows platform
+* Fixed issue with fatal errors being suppressed
+* Handle underscores correctly when using PSR-4
+* Fixed HTML formatter
+
+2.4.0 / 2015-11-28
+==================
+
+* Improved docblock for beConstructedThrough()
+* Handle and present fatal errors
+* Fixed edge case with partial use statements
+* Initial support for typehinted doubles in PHP7
+* Specs can now be run by specifying a fully qualified class name
+* New shouldContain matcher for strings
+* Warning added when trying to typehint scalars or callable in spec
+* No longer truncates strings when diffing arrays in verbose mode 
+* New %resource_name% placeholder for generated specs
+* Fixed case error in class name that triggered strictness warnings on some platforms
+* Fixed undefined index error in some versions of Windows
+* Clarified in composer that ext-tokenizer is required
+* Supported installation with Symfony 3.0
+* Fixed error when spec and src paths are the same
+* New event is fired when phpspec creates a file
+* Internal refactoring of Presenter objects
+
 2.3.0 / 2015-09-07
 ==================
 
-* No changes from rc1
-
-2.3.0-rc1 / 2015-08-28
-======================
-
-* No changes from beta3
-
-2.3.0-beta3 / 2015-08-08
-========================
-
-* Fixed broken dependency in beta2
-
-2.3.0-beta2 / 2015-08-08
-========================
-
 * Fixed bugs when generating methods in class with unusual whitespace
-
-2.3.0-beta / 2015-07-04
-========================
-
 * Adds `duringInstantiation()` to more easily test constructor exceptions
 * Adds `beConstructedThrough*()` and `beConstructed*()` shortcuts for named constructors
 * Generated constructors are now placed at the start of the class
@@ -38,33 +70,15 @@
 2.2.0 / 2015-04-18
 ==================
 
-* No changes from rc1
-
-2.2.0-rc1 / 2015-04-13
-======================
-
-* No changes from beta2
-
-2.2.0-beta2 / 2015-04-03
-========================
-
  * Better diffs when presenting unexpected method arguments
  * Better handling of methods delclared inside Traits when faking
-
-2.2.0-beta / 2015-03-28
-=======================
-
  * Offer to generate interfaces for missing typehinted collaborators
  * Support for TAP format output
  * Remove deprecated usage of Symfony DialogHelper
  * New array `shouldHaveKeyWithValue` matcher
  * Clearer error message when specs have incorrect namespace prefix
  * Fix suite rerunning for HHVM
-
-Backward Compatibility
-----------------------
-
- * The unused `ask` and `askAndValidate` methods on `Console\IO` have been removed
+ * [BC break] The unused `ask` and `askAndValidate` methods on `Console\IO` have been removed
 
 2.1.1 / 2015-01-09
 ==================
@@ -78,25 +92,11 @@ Backward Compatibility
 2.1.0 / 2014-12-14
 ==================
 
- * No changes from RC3
-
-2.1.0-RC3 / 2014-12-04
-======================
-
- * Removed minor BC break introduced in RC2
-
-2.1.0-RC2 / 2014-11-14
-======================
-
   * Specify bootstrap file via configuration
   * Correct error codes while using --stop-on-failure
   * Better detection of empty specs
   * Fixed issue where non-spec files in spec folder caused errors
   * Better PSR-4 support
-
-2.1.0-RC1 / 2014-09-14
-======================
-
   * Allow objects to be instantiated via static factory methods
   * Automatic generation of return statements using '--fake'
   * Test suite is automatically rerun when classes or methods have been generated
@@ -131,10 +131,6 @@ Backward Compatibility
   * Improve support to windows
   * Improve support to hhvm
   * Improve acceptance tests coverage with Behat
-
-2.0.0-RC4 / 2014-02-21
-======================
-
   * Revamped junit formatter
   * Fixed #269 Problem with exception masking and generation for not found class
   * HHVM is officially supported
@@ -144,22 +140,10 @@ Backward Compatibility
   * Fixed a problem with generating a constructor when it is first time added
   * Improved help
   * Fixed the suite runner in fast machines
-
-2.0.0-RC3 / 2014-01-01
-======================
-
   * Fixed the Prophecy constraint as the new release is 1.1
   * Refactored formatters to be defined as services
-
-2.0.0-RC2 / 2013-12-30
-======================
-
   * Fixed the invocation of methods expecting an argument passed by reference
   * Fixed the instantiation of the wrapped object in shouldThrow
-
-2.0.0-RC1 / 2013-12-26
-======================
-
   * Bump the Prophecy requirement to ``~1.0.5@dev``
   * Added a JUnit formatter
   * Added the ``--stop-on-failure`` option
@@ -171,23 +155,11 @@ Backward Compatibility
   * Added a constructor generator
   * Added a HTML formatter
   * Added a nyan cat formatter
-
-2.0.0beta4 / 2013-05-19
-=======================
-
   * Add collaborator constructor setter
   * Fix couple of bugs in Prophecy integration layer
   * New (old) dot formatter
-
-2.0.0beta3 / 2013-05-01
-=======================
-
   * Prevent loading of unexisting PHP files
   * Fix typos in the error messages
-
-2.0.0beta2 / 2013-04-30
-=======================
-
   * Bump required Prophecy version to 1.0.1
   * Support non-string values with ArrayContain matcher
   * Create `src` folder if does not exist

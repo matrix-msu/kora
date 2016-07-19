@@ -103,6 +103,8 @@ class MetadataController extends Controller {
     public function matchRecordsAndMetadata2($form, $rid, $layout) {
         $json_record = new Collection();
 
+        set_time_limit(30);
+
         foreach($layout as $key => $value) { // Either an flid or node title.
             if (is_int($key)) { // Is an flid.
                 if (Field::hasMetadata($value)) {

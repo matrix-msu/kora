@@ -70,7 +70,7 @@ class RevisionController extends Controller {
         $pid = $form->pid;
         $records = array();
 
-        $temp = array_values(array_unique(Revision::lists('rid')));
+        $temp = array_values(array_unique(Revision::lists('rid')->all()));
 
         for($i=0; $i < count($temp); $i++)
         {
@@ -111,7 +111,7 @@ class RevisionController extends Controller {
         $pid = $form->pid;
         $records = array();
 
-        $temp = array_values(array_unique(Revision::lists('rid')));
+        $temp = array_values(array_unique(Revision::lists('rid')->all()));
 
         for($i=0; $i < count($temp); $i++)
         {

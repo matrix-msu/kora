@@ -235,7 +235,7 @@ class Search
             return $records;
         }
 
-        $fields->sortBy("rid");
+        $fields = $fields->sortBy("rid");
 
         switch ($this->method) {
             case self::SEARCH_OR:

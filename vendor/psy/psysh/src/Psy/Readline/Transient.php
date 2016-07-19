@@ -1,15 +1,17 @@
 <?php
 
 /*
- * This file is part of Psy Shell
+ * This file is part of Psy Shell.
  *
- * (c) 2012-2014 Justin Hileman
+ * (c) 2012-2015 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
 namespace Psy\Readline;
+
+use Psy\Exception\BreakException;
 
 /**
  * An array-based Readline emulation implementation.
@@ -23,7 +25,7 @@ class Transient implements Readline
     /**
      * Transient Readline is always supported.
      *
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public static function isSupported()
     {
@@ -42,7 +44,7 @@ class Transient implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function addHistory($line)
     {
@@ -67,7 +69,7 @@ class Transient implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function clearHistory()
     {
@@ -77,7 +79,7 @@ class Transient implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function listHistory()
     {
@@ -85,7 +87,7 @@ class Transient implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function readHistory()
     {
@@ -93,7 +95,11 @@ class Transient implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
+     *
+     * @throws BreakException if user hits Ctrl+D
+     *
+     * @return string
      */
     public function readline($prompt = null)
     {
@@ -103,7 +109,7 @@ class Transient implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function redisplay()
     {
@@ -111,7 +117,7 @@ class Transient implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function writeHistory()
     {
@@ -121,12 +127,18 @@ class Transient implements Readline
     /**
      * Get a STDIN file handle.
      *
+     * @throws BreakException if user hits Ctrl+D
+     *
      * @return resource
      */
     private function getStdin()
     {
         if (!isset($this->stdin)) {
             $this->stdin = fopen('php://stdin', 'r');
+        }
+
+        if (feof($this->stdin)) {
+            throw new BreakException('Ctrl+D');
         }
 
         return $this->stdin;

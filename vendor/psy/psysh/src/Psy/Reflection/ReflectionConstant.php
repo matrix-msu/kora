@@ -1,9 +1,9 @@
 <?php
 
 /*
- * This file is part of Psy Shell
+ * This file is part of Psy Shell.
  *
- * (c) 2012-2014 Justin Hileman
+ * (c) 2012-2015 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -30,7 +30,7 @@ class ReflectionConstant implements \Reflector
      */
     public function __construct($class, $name)
     {
-        if (! $class instanceof \ReflectionClass) {
+        if (!$class instanceof \ReflectionClass) {
             $class = new \ReflectionClass($class);
         }
 
@@ -80,8 +80,6 @@ class ReflectionConstant implements \Reflector
      *
      * Currently returns null, because if it returns a file name the signature
      * formatter will barf.
-     *
-     * @return null
      */
     public function getFileName()
     {
@@ -93,8 +91,6 @@ class ReflectionConstant implements \Reflector
      * Get the code start line.
      *
      * @throws \RuntimeException
-     *
-     * @return void
      */
     public function getStartLine()
     {
@@ -105,8 +101,6 @@ class ReflectionConstant implements \Reflector
      * Get the code end line.
      *
      * @throws \RuntimeException
-     *
-     * @return void
      */
     public function getEndLine()
     {
@@ -127,8 +121,6 @@ class ReflectionConstant implements \Reflector
      * Export the constant? I don't think this is possible.
      *
      * @throws \RuntimeException
-     *
-     * @return void
      */
     public static function export()
     {

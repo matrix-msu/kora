@@ -24,5 +24,6 @@
         <env name="DB_USERNAME" value="USERNAME"/>
         <env name="DB_DATABASE" value="DATABASE"/>
         <env name="DB_PASSWORD" value="PASSWORD"/>
+        <env name="BASE_URL" value="http://localhost"/>
     </php>
 </phpunit>

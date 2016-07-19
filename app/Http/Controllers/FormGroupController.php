@@ -45,7 +45,7 @@ class FormGroupController extends Controller {
         }
 
         $formGroups = $form->groups()->get();
-        $users = User::lists('username', 'id');
+        $users = User::lists('username', 'id')->all();
         $all_users = User::all();
         return view('formGroups.index', compact('form', 'formGroups', 'users', 'all_users', 'project'));
     }

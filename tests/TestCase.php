@@ -3,6 +3,12 @@
 use \Illuminate\Support\Facades\Artisan;
 
 class TestCase extends Illuminate\Foundation\Testing\TestCase {
+
+	/**
+	 * @var
+	 */
+	protected $baseUrl = "http://localhost";
+
 	/**
 	 * Creates the application.
 	 *
@@ -174,22 +180,13 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
 	}
 
 	/**
-	 * Valid field types.
-	 * @date 4/7/2016, these types are subject to change!
-	 * @type array
-	 */
-	const FIELD_TYPES = ["Text", "Rich Text", "Number", "List", "Multi-Select List", "Generated List",
-						 "Date", "Schedule", "Documents", "Gallery", "Playlist", "Video", "3D-Model",
-						 "Geolocator", "Combo List"];
-
-	/**
 	 * Determines the validity of a field type given.
 	 *
 	 * @param string $type, must determine validity of this.
 	 * @return bool, true if the type was valid.
 	 */
 	static private function isValidFieldType($type) {
-		return in_array($type, self::FIELD_TYPES);
+		return in_array($type, App\Field::$ENUM_TYPED_FIELDS);
 	}
 
 	/**

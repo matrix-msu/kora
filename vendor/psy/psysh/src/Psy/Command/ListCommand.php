@@ -1,9 +1,9 @@
 <?php
 
 /*
- * This file is part of Psy Shell
+ * This file is part of Psy Shell.
  *
- * (c) 2012-2014 Justin Hileman
+ * (c) 2012-2015 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -22,31 +22,31 @@ use Psy\Command\ListCommand\PropertyEnumerator;
 use Psy\Command\ListCommand\TraitEnumerator;
 use Psy\Command\ListCommand\VariableEnumerator;
 use Psy\Exception\RuntimeException;
-use Psy\Presenter\PresenterManager;
-use Psy\Presenter\PresenterManagerAware;
+use Psy\VarDumper\Presenter;
+use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Formatter\OutputFormatter;
+use Symfony\Component\Console\Helper\TableHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Helper\TableHelper;
 
 /**
  * List available local variables, object properties, etc.
  */
-class ListCommand extends ReflectingCommand implements PresenterManagerAware
+class ListCommand extends ReflectingCommand implements PresenterAware
 {
-    protected $presenterManager;
+    protected $presenter;
     protected $enumerators;
 
     /**
-     * PresenterManagerAware interface.
+     * PresenterAware interface.
      *
-     * @param PresenterManager $manager
+     * @param Presenter $manager
      */
-    public function setPresenterManager(PresenterManager $manager)
+    public function setPresenter(Presenter $presenter)
     {
-        $this->presenterManager = $manager;
+        $this->presenter = $presenter;
     }
 
     /**
@@ -84,7 +84,7 @@ class ListCommand extends ReflectingCommand implements PresenterManagerAware
             ))
             ->setDescription('List local, instance or class variables, methods and constants.')
             ->setHelp(
-                <<<HELP
+                <<<'HELP'
 List variables, constants, classes, interfaces, traits, functions, methods,
 and properties.
 
@@ -96,7 +96,7 @@ and methods on that class.
 
 e.g.
 <return>>>> ls</return>
-<return>>>> ls \$foo</return>
+<return>>>> ls $foo</return>
 <return>>>> ls -k --grep mongo -i</return>
 <return>>>> ls -al ReflectionClass</return>
 <return>>>> ls --constants --category date</return>
@@ -141,7 +141,7 @@ HELP
     protected function initEnumerators()
     {
         if (!isset($this->enumerators)) {
-            $mgr = $this->presenterManager;
+            $mgr = $this->presenter;
 
             $this->enumerators = array(
                 new ClassConstantEnumerator($mgr),
@@ -190,7 +190,7 @@ HELP
             return;
         }
 
-        $table = $this->getTable();
+        $table = $this->getTable($output);
 
         foreach ($result as $label => $items) {
             $output->writeln('');
@@ -201,7 +201,11 @@ HELP
                 $table->addRow(array($this->formatItemName($item), $item['value']));
             }
 
-            $table->render($output);
+            if ($table instanceof TableHelper) {
+                $table->render($output);
+            } else {
+                $table->render();
+            }
         }
     }
 
@@ -270,23 +274,5 @@ HELP
             $input->setOption('properties', true);
             $input->setOption('methods',    true);
         }
-    }
-
-    /**
-     * Get a TableHelper instance.
-     *
-     * @return TableHelper
-     */
-    private function getTable()
-    {
-        $old = error_reporting();
-        error_reporting($old & ~E_USER_DEPRECATED);
-        $table = $this->getApplication()->getHelperSet()->get('table');
-        error_reporting($old);
-
-        return $table
-            ->setLayout(TableHelper::LAYOUT_BORDERLESS)
-            ->setHorizontalBorderChar('')
-            ->setCrossingChar('');
     }
 }

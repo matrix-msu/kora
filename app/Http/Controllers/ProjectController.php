@@ -47,7 +47,7 @@ class ProjectController extends Controller {
 	{
         if(\Auth::user()->admin);
 
-        $users = User::lists('username', 'id');
+        $users = User::lists('username', 'id')->all();
         return view('projects.create', compact('users'));
 	}
 
