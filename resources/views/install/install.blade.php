@@ -192,7 +192,7 @@
 
         </div>
    <!-- </div> -->
-@endsection
+@stop
 
 
 @section('footer')
@@ -316,7 +316,6 @@
 
 
 </script>
-@stop
 
 @stop
 

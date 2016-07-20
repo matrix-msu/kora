@@ -45,7 +45,12 @@ trait AuthenticatesUsers
             return $this->sendLockoutResponse($request);
         }
 
-        $credentials = $this->getCredentials($request);
+        $credentials = $request->only('email', 'password');
+        if (strpos($credentials['email'], '@') == false) {
+            //logging in with username not email, so change the column-name
+            $credentials['username'] = $credentials['email'];
+            unset($credentials['email']);
+        }
 
         if (Auth::attempt($credentials, $request->has('remember'))) {
             return $this->handleUserWasAuthenticated($request, $throttles);
