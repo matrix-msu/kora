@@ -10,5 +10,6 @@ return [
 	"backups" => "Manage Backups",
 	"env" => "Manage ENV File",
 	"update" => "Update",
+    "plugin" => "Manage Plugins",
 
 ];

@@ -21,6 +21,10 @@
         <button type="submit" class="btn btn-default"> {{trans('partials_adminpanel.env')}}</button>
     </form>
 
+    <form action="{{ action('PluginController@index') }}" style="display: inline">
+        <button type="submit" class="btn btn-default"> {{trans('partials_adminpanel.plugin')}} </button>
+    </form>
+
     <form action="{{ action('UpdateController@index') }}" style="display: inline">
         <button type="submit" class="btn btn-default"> {{trans('partials_adminpanel.update')}} </button>
     </form>
