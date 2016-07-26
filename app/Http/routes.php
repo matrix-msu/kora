@@ -38,6 +38,9 @@ Route::patch('/tokens/deleteProject', 'TokenController@deleteProject');
 Route::patch('/tokens/addProject', 'TokenController@addProject');
 Route::delete('/tokens/deleteToken', 'TokenController@deleteToken');
 
+//plugin routes
+Route::get('/plugins', 'PluginController@index');
+
 //association routes
 Route::get('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@index');
 Route::post('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@create');
