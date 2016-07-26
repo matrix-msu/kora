@@ -61,7 +61,12 @@ class Project extends Model {
     public function delete() {
         DB::table("project_token")->where("project_id", "=", $this->pid)->delete();
         DB::table("option_presets")->where("pid", "=", $this->pid)->delete();
-        DB::table("project_groups")->where("pid", "=", $this->pid)->delete();
+
+        $project_groups = ProjectGroup::where("pid", "=", $this->pid)->get();
+
+        foreach($project_groups as $project_group) {
+            $project_group->delete();
+        }
 
         // We don't delete the forms as above because we need their delete methods to be called.
         $forms = Form::where("pid", "=", $this->pid)->get();
