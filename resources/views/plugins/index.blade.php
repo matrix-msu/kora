@@ -5,49 +5,49 @@
 
     <hr/>
 
+    @foreach($plugins as $plug)
     <div class="panel panel-default">
         <div class="panel-heading">
-            <span>PLUGIN NAME</span>
-            <span>Active: <input type="checkbox" id="active"></span>
+            <span>{{strtoupper($plug->name)}}</span>
+            <span>Active: @if($plug->active==1)<input type="checkbox" id="{{$plug->id}}" class="active" checked>@else<input type="checkbox" id="{{$plug->id}}" class="active">@endif</span>
         </div>
         <div class="collapseTest" style="display:none">
-            <div class="panel-body">
+            <div class="panel-body" plugid="{{$plug->id}}">
                 <div>Settings</div><hr>
                 <div>
                     <ul>
-                        <li>Option: <input type="text" id="option_id" name="option_name"></li>
-                        <li>Option: <input type="text" id="option_id" name="option_name"></li>
-                        <li>Option: <input type="text" id="option_id" name="option_name"></li>
+                        @foreach($plug->options() as $opt)
+                        <li>{{$opt->option}}: <input type="text" class="form-control plugin_option" option="{{$opt->option}}" value="{{$opt->value}}"></li>
+                        @endforeach
                     </ul>
                 </div>
                 <div>Users</div><hr>
-                <div>
-                    <ul>
-                        <li>User <a>[X]</a></li>
-                        <li>User <a>[X]</a></li>
-                        <li>User <a>[X]</a></li>
-                        <li><select id="user_select">
-                                <option value="user_id">User</option>
-                                <option value="user_id">User</option>
-                                <option value="user_id">User</option>
-                            </select>
-                            <input type="button" value="Add User">
-                        </li>
-                    </ul>
+                <div id="user_list">
+                    @foreach($plug->users() as $user)
+                    <div id="user">{{$user->username}} <a uid="{{$user->id}}" username="{{$user->username}}" id="remove_user" class="user_info">[X]</a></div>
+                    @endforeach
+                    <select id="user_select">
+                        @foreach($plug->new_users() as $user)
+                        <option value="{{$user->id}}">{{$user->username}}</option>
+                        @endforeach
+                    </select>
+                    <input type="button" value="Add User" id="add_user" class="btn">
                 </div>
             </div>
             <div class="panel-footer">
-                <a>[Save Plugin]</a>
+                <a id="save_plugin">[Save Plugin]</a>
             </div>
         </div>
     </div>
-
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <span>PLUGIN NAME</span>
-            <span><a>[install]</a></span>
+    @endforeach
+    @foreach($newPlugs as $plug)
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <span>{{$plug}}</span>
+                <span><a pName="{{$plug}}" id="install_plugin">[install]</a></span>
+            </div>
         </div>
-    </div>
+    @endforeach
 @stop
 
 @section('footer')
@@ -58,6 +58,101 @@
             }else {
                 $(this).siblings('.collapseTest').slideUp();
             }
+        });
+
+        $( ".panel-heading" ).on( "click", "#install_plugin",function() {
+            name = $(this).attr('pName');
+            $.ajax({
+                //We manually create the link in a cheap way because the JS isn't aware of the pid until runtime
+                //We pass in a blank project to the action array and then manually add the id
+                url: '{{ action('PluginController@install',['']) }}/'+name,
+                type: 'POST',
+                data: {
+                    "_token": "{{ csrf_token() }}"
+                },
+                success: function (result) {
+                    location.reload();
+                }
+            });
+        });
+
+        $( "#user_list" ).on( "click", "#add_user",function() {
+            select = $(this).siblings('#user_select');
+            opt = select.find(":selected");
+
+            uid = opt.val();
+            name = opt.text();
+
+            newDiv = '<div id="user">'+name+' <a uid="'+uid+'" username="'+name+'" id="remove_user" class="user_info">[X]</a></div>';
+            select.before(newDiv);
+
+            opt.remove();
+            select.val('');
+        });
+
+        $( "#user_list" ).on( "click", "#remove_user",function() {
+            uid = $(this).attr('uid');
+            name = $(this).attr('username');
+
+            div = $(this).parent('#user');
+            select = div.siblings('#user_select');
+
+            curr = select.html();
+            curr += '<option value="'+uid+'">'+name+'</option>';
+            select.html(curr);
+            div.remove();
+        });
+
+        $( ".panel-footer" ).on( "click", "#save_plugin",function() {
+            var options = {};
+            var users = [];
+            body = $(this).parent(".panel-footer").siblings(".panel-body");
+            plugin_id = body.attr('plugid');
+
+            body.find('.plugin_option').each(function () {
+                opt = $(this).attr("option");
+                value = $(this).val();
+
+                options[opt] =value;
+            });
+
+            body.find('.user_info').each(function () {
+                uid = $(this).attr('uid');
+                users.push(uid);
+            });
+
+            //we have the info, make the call!!!
+            $.ajax({
+                url: '{{ action('PluginController@update') }}',
+                type: 'PATCH',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "options": options,
+                    "users": users,
+                    "plugin_id": plugin_id
+                },
+                success: function (result) {
+                    location.reload();
+                }
+            });
+        });
+
+        $( ".panel-heading" ).on( "click", ".active",function() {
+            plid = $(this).attr("id");
+            checked = $(this).is(":checked");
+
+            $.ajax({
+                url: '{{ action('PluginController@activate') }}',
+                type: 'POST',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "plid": plid,
+                    "checked": checked
+                },
+                success: function (result) {
+
+                }
+            });
         });
     </script>
 @stop

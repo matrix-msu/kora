@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class Plugin extends Migration
+class PluginsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -17,17 +17,20 @@ class Plugin extends Migration
             $table->engine = 'MyISAM';
 
             $table->increments('id');
+            $table->integer('pid');
             $table->string('name');
             $table->boolean('active');
             $table->string('url');
             $table->timestamps();
 
+            $table->foreign('pid')->references('pid')->on('projects')->onDelete('cascade');
         });
 
         Schema::create('plugin_settings', function(Blueprint $table)
         {
             $table->engine = 'MyISAM';
 
+            $table->increments('id');
             $table->integer('plugin_id');
             $table->string('option');
             $table->string('value');
@@ -41,17 +44,20 @@ class Plugin extends Migration
             $table->engine = 'MyISAM';
 
             $table->integer('plugin_id');
-            $table->integer('uid');
+            $table->integer('gid');
             $table->timestamps();
 
             $table->foreign('plugin_id')->references('id')->on('plugins')->onDelete('cascade');
-            $table->foreign('uid')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('gid')->references('id')->on('project_groups')->onDelete('cascade');
+
+            $table->index(['plugin_id', 'gid']);
         });
 
         Schema::create('plugin_menus', function(Blueprint $table)
         {
             $table->engine = 'MyISAM';
 
+            $table->increments('id');
             $table->integer('plugin_id');
             $table->string('name');
             $table->string('url');
