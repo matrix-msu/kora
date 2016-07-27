@@ -723,12 +723,6 @@ class RevisionController extends Controller {
      */
     public static function wipeRollbacks($fid)
     {
-        $revisions = Revision::where('fid','=',$fid)->get();
-
-        foreach($revisions as $revision)
-        {
-            $revision->rollback = 0;
-            $revision->save();
-        }
+        Revision::where('fid','=',$fid)->update(["rollback" => 0]);
     }
 }

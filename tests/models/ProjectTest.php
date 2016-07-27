@@ -42,10 +42,17 @@ class ProjectTest extends TestCase
         $project_group->pid = $project->pid;
         $project_group->save();
 
+        $user = new App\User();
+        $user->save();
+
+        $project_group->users()->attach($user->id);
+
+        $project_group_id = $project_group->id;
         $pid = $project->pid;
         $project->delete();
 
         $this->assertEmpty(DB::table("project_token")->where("project_id", "=", $pid)->get());
+        $this->assertEmpty(DB::table("project_group_user")->where("project_group_id", "=", $project_group_id)->get());
         $this->assertNotEmpty(\App\Token::where("id", "=", $token_id)->get());
         $this->assertEmpty(\App\OptionPreset::where("pid", "=", $pid)->get());
         $this->assertEmpty(\App\ProjectGroup::where("pid", "=", $pid)->get());
