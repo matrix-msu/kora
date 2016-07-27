@@ -109,7 +109,7 @@
         $( ".panel-footer" ).on( "click", "#save_plugin",function() {
             var options = {};
             var users = [];
-            body = $(this).parent(".panel-footer").siblings(".panel-body");
+            body = $(this).parent("span").parent(".panel-footer").siblings(".panel-body");
             plugin_id = body.attr('plugid');
 
             body.find('.plugin_option').each(function () {
