@@ -53,7 +53,9 @@
 
 @section('footer')
     <script>
-        $( ".panel-heading" ).on( "click", function() {
+        $( ".panel-heading" ).on( "click", function(e) {
+            if($(e.target).is(".active")) return;
+
             if ($(this).siblings('.collapseTest').css('display') == 'none' ){
                 $(this).siblings('.collapseTest').slideDown();
             }else {
