@@ -348,4 +348,20 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
         parent::delete();
     }
+
+    public function getActivePlugins(){
+        $plugins = Plugin::where('active','=',1)->get();
+        $myPlugins = array();
+
+        foreach($plugins as $plug){
+            $project = ProjectController::getProject($plug->pid);
+            $group = ProjectGroup::where('id','=',$project->adminGID)->get()->first();
+
+            if(\Auth::user()->admin | $group->hasUser(\Auth::user())){
+                array_push($myPlugins,$plug);
+            }
+        }
+
+        return $myPlugins;
+    }
 }

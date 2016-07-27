@@ -183,6 +183,16 @@ class PluginController extends Controller
         $plugin->save();
     }
 
+    public function destroy($plid){
+        $plugin = PluginController::getPlugin($plid);
+        $project = ProjectController::getProject($plugin->pid);
+
+        $project->delete();
+        $plugin->delete();
+
+        flash()->overlay(trans('controller_plugin.deleted'),trans('controller_plugin.goodjob'));
+    }
+
     public static function getPlugin($id){
         $plugin = Plugin::where('id','=',$id)->first();
 

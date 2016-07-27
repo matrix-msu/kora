@@ -42,4 +42,17 @@ class Plugin extends Model
 
         return array_diff($all,$curr);
     }
+
+    public function menus(){
+        return DB::select("select name,url from ".env('DB_PREFIX')."plugin_menus where plugin_id=? order by `order` ASC", [$this->id]);
+    }
+
+    public function delete() {
+        DB::table("plugin_menus")->where("plugin_id", "=", $this->id)->delete();
+        DB::table("plugin_settings")->where("plugin_id", "=", $this->id)->delete();
+        DB::table("plugin_users")->where("plugin_id", "=", $this->id)->delete();
+        DB::table("plugins")->where("id", "=", $this->id)->delete();
+
+        parent::delete();
+    }
 }

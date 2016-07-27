@@ -9,11 +9,11 @@
     <div class="panel panel-default">
         <div class="panel-heading">
             <span>{{strtoupper($plug->name)}}</span>
-            <span>Active: @if($plug->active==1)<input type="checkbox" id="{{$plug->id}}" class="active" checked>@else<input type="checkbox" id="{{$plug->id}}" class="active">@endif</span>
+            <span>{{trans('plugins_index.active')}}: @if($plug->active==1)<input type="checkbox" id="{{$plug->id}}" class="active" checked>@else<input type="checkbox" id="{{$plug->id}}" class="active">@endif</span>
         </div>
         <div class="collapseTest" style="display:none">
             <div class="panel-body" plugid="{{$plug->id}}">
-                <div>Settings</div><hr>
+                <div>{{trans('plugins_index.settings')}}</div><hr>
                 <div>
                     <ul>
                         @foreach($plug->options() as $opt)
@@ -35,7 +35,8 @@
                 </div>
             </div>
             <div class="panel-footer">
-                <a id="save_plugin">[Save Plugin]</a>
+                <span><a id="save_plugin">[{{trans('plugins_index.save')}}]</a></span>
+                <span><a onclick="deletePlugin('{{ $plug->name }}', {{ $plug->id }})" href="javascript:void(0)">[{{trans('plugins_index.delete')}}]</a></span>
             </div>
         </div>
     </div>
@@ -44,7 +45,7 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <span>{{$plug}}</span>
-                <span><a pName="{{$plug}}" id="install_plugin">[install]</a></span>
+                <span><a pName="{{$plug}}" id="install_plugin">[{{trans('plugins_index.install')}}]</a></span>
             </div>
         </div>
     @endforeach
@@ -150,9 +151,28 @@
                     "checked": checked
                 },
                 success: function (result) {
-
+                    location.reload();
                 }
             });
         });
+
+        function deletePlugin(pluginName,plid) {
+            var encode = $('<div/>').html("{{trans('plugin_index.areyousure')}}").text();
+            var response = confirm(encode + pluginName + "?");
+            if (response) {
+                $.ajax({
+                    //We manually create the link in a cheap way because the JS isn't aware of the pid until runtime
+                    //We pass in a blank project to the action array and then manually add the id
+                    url: '{{ action('PluginController@destroy',['']) }}/'+plid,
+                    type: 'DELETE',
+                    data: {
+                        "_token": "{{ csrf_token() }}"
+                    },
+                    success: function (result) {
+                        location.reload();
+                    }
+                });
+            }
+        }
     </script>
 @stop

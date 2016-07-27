@@ -28,6 +28,10 @@
               </style>
 
               @yield('leftNavLinks')
+
+              @if( sizeof(\Auth::user()->getActivePlugins()) > 0 )
+              @include('partials.menu.plugins')
+              @endif
           </ul>
 
 		  <ul class="nav navbar-nav navbar-right">
