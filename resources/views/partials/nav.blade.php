@@ -29,7 +29,7 @@
 
               @yield('leftNavLinks')
 
-              @if( sizeof(\Auth::user()->getActivePlugins()) > 0 )
+              @if(\Auth::user() != null && sizeof(\Auth::user()->getActivePlugins()) > 0 )
               @include('partials.menu.plugins')
               @endif
           </ul>
