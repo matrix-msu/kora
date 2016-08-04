@@ -22,6 +22,10 @@ class Record extends Model {
         return $this->belongsTo('App\Form', 'fid');
     }
 
+    public function typedFields() {
+        return $this->hasMany('App\TextField', 'rid');
+    }
+
     public function textfields(){
         return $this->hasMany('App\TextField', 'rid');
     }

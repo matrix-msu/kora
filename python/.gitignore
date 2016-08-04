@@ -1,0 +1,4 @@
+env.json
+.idea/*
+exports/*
+test.py
