@@ -109,7 +109,6 @@ class TokenController extends Controller {
      */
     public static function getToken($id)
     {
-        $token = Token::where('id', '=', $id)->first();
-        return $token;
+        return Token::where('id', '=', $id)->first();
     }
 }

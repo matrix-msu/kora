@@ -1,5 +1,7 @@
 <?php
 
+use \Illuminate\Support\Collection;
+
 class MetadataControllerTest extends TestCase
 {
     /**
