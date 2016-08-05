@@ -12,5 +12,6 @@ return [
 	"exists" => "Cannot recreate a record that already exists.",
 	"rollback" => " has been rolled back.",
 	"recent" => "Recent",
+	"none" => "There is no revision history for this record.",
 
 ];
