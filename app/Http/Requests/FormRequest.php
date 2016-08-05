@@ -1,5 +1,6 @@
 <?php namespace App\Http\Requests;
 
+use App\Http\Controllers\FormController;
 use App\Http\Requests\Request;
 
 class FormRequest extends Request {
@@ -21,16 +22,31 @@ class FormRequest extends Request {
      */
     public function rules()
     {
-        $messages = [
-            'email.required' => trans('request_all.email'),
-        ];
+        $id = $this->route('fid');
+        $form = FormController::getForm($id);
 
-        return [
-            'pid' => 'required|numeric',
-            'name' => 'required|min:3',
-            'slug' => 'required|alpha_num|min:3|unique:forms',
-            'description' => 'required',
-        ];
+        switch($this->method())
+        {
+            case 'POST':
+            {
+                return [
+                    'pid' => 'required|numeric',
+                    'name' => 'required|min:3',
+                    'slug' => 'required|alpha_num|min:3|unique:forms',
+                    'description' => 'required',
+                ];
+            }
+            case 'PATCH':
+            {
+                return [
+                    'pid' => 'required|numeric',
+                    'name' => 'required|min:3',
+                    'slug' => 'required|alpha_num|min:3|unique:forms,slug,'.$form->fid.',fid',
+                    'description' => 'required',
+                ];
+            }
+            default:break;
+        }
     }
 
     public function messages()
