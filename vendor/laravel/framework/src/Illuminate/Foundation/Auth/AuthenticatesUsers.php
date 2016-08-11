@@ -109,8 +109,8 @@ trait AuthenticatesUsers
     protected function getFailedLoginMessage()
     {
         return Lang::has('auth.failed')
-                ? Lang::get('auth.failed')
-                : 'These credentials do not match our records.';
+            ? Lang::get('auth.failed')
+            : 'These credentials do not match our records.';
     }
 
     /**
