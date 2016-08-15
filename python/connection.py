@@ -3,6 +3,11 @@ from MySQLdb import cursors
 from env import env
 from table import BaseFieldTypes
 
+##
+## Connection: functions as a MySQL Database connection to guard from making mistakes.
+## Cursor: function as a MySQL Cursor, with custom methods to limit global cursors.
+##
+
 class Connection:
     """
     Adapter for the MySQLdb interface.

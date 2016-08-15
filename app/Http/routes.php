@@ -40,10 +40,6 @@ Route::delete('/tokens/deleteToken', 'TokenController@deleteToken');
 
 //plugin routes
 Route::get('/plugins', 'PluginController@index');
-Route::post('/plugins/install/{name}', 'PluginController@install');
-Route::patch('/plugins/update', 'PluginController@update');
-Route::post('/plugins/activate', 'PluginController@activate');
-Route::delete('/plugins/{plid}', 'PluginController@destroy');
 
 //association routes
 Route::get('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@index');

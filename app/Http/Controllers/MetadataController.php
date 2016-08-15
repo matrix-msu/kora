@@ -71,21 +71,36 @@ class MetadataController extends Controller {
      * Attempting meta data function again.
      */
     public function records2($pid, $fid) {
-        $rids = DB::table("records")->select("rid")->get();
+        // Exporter example.
+//        if ( ! FormController::validProjForm($pid, $fid)) {
+//            return json_encode("Invalid project id and form id combination.");
+//        }
+//
+//        $rids = DB::table("records")->select("rid")->where("fid", "=", $fid)->limit(100)->get();
+//
+//        $rids = array_map(function($obj) {
+//            return $obj->rid;
+//        }, $rids);
+//
+//        $encoded = json_encode($rids);
+//
+//        $exec = env("BASE_PATH") . "python/export.py \"$encoded\" \"JSON\"";
+//
+//        exec($exec, $output);
+//
+//        $output = $output[0];
+//
+//        if (file_exists($output)) {
+//            readfile($output);
+//            return;
+//        }
+//        else {
+//            return $output;
+//        }
+//
 
-        $rids = array_map(function($obj) {
-            return $obj->rid;
-        }, $rids);
 
-        $encoded = json_encode($rids);
-
-        echo $encoded;
-        die();
-
-        $exec = env("BASE_PATH") . "python/export.py \"$encoded\"";
-
-        echo shell_exec($exec);
-
+        // Old meta data method
 //        if ( ! FormController::validProjForm($pid, $fid)){
 //            return redirect('projects/' . $pid . '/forms');
 //        }
@@ -104,6 +119,9 @@ class MetadataController extends Controller {
 //        if ($form->public_metadata || Auth::check()) {
 //            $layout = $this->layout(FormController::xmlToArray($form->layout)); // Generate the layout for our json object.
 //
+//
+//            dd($layout);
+//
 //            foreach ($rids as $rid) {
 //                $data = $this->matchRecordsAndMetadata2($form, $rid, $layout);
 //
@@ -121,8 +139,6 @@ class MetadataController extends Controller {
      */
     public function matchRecordsAndMetadata2($form, $rid, $layout) {
         $json_record = new Collection();
-
-        set_time_limit(30);
 
         foreach($layout as $key => $value) { // Either an flid or node title.
             if (is_int($key)) { // Is an flid.

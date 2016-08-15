@@ -30,6 +30,13 @@ use Illuminate\Http\Request;
 
 class ExportController extends Controller {
 
+    /**
+     * Standard output formats.
+     */
+    const JSON = "JSON";
+    const CSV = "CSV";
+    const XML = "XML";
+
     public function exportRecords($pid, $fid, $type){
         if(!FormController::validProjForm($pid,$fid)){
             return redirect('projects');
