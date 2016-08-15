@@ -58,11 +58,11 @@ abstract class Kernel implements KernelInterface, TerminableInterface
     protected $startTime;
     protected $loadClassCache;
 
-    const VERSION = '2.7.15';
-    const VERSION_ID = 20715;
+    const VERSION = '2.7.16';
+    const VERSION_ID = 20716;
     const MAJOR_VERSION = 2;
     const MINOR_VERSION = 7;
-    const RELEASE_VERSION = 15;
+    const RELEASE_VERSION = 16;
     const EXTRA_VERSION = '';
 
     const END_OF_MAINTENANCE = '05/2018';
@@ -149,14 +149,6 @@ abstract class Kernel implements KernelInterface, TerminableInterface
         }
 
         if ($this->getHttpKernel() instanceof TerminableInterface) {
-            if (!$this->debug) {
-                if (function_exists('fastcgi_finish_request')) {
-                    fastcgi_finish_request();
-                } elseif ('cli' !== PHP_SAPI) {
-                    Response::closeOutputBuffers(0, true);
-                }
-            }
-
             $this->getHttpKernel()->terminate($request, $response);
         }
     }

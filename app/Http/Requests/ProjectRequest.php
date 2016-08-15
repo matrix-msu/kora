@@ -1,6 +1,8 @@
 <?php namespace App\Http\Requests;
 
+use App\Http\Controllers\ProjectController;
 use App\Http\Requests\Request;
+use Illuminate\Support\Facades\Route;
 
 class ProjectRequest extends Request {
 
@@ -21,12 +23,31 @@ class ProjectRequest extends Request {
 	 */
 	public function rules()
 	{
-		return [
-            'name' => 'required|min:3',
-            'slug' => 'required|alpha_num|min:3|unique:projects',
-            'description' => 'required',
-            'active' => 'required',
-		];
+        $id = $this->route('projects');
+        $project = ProjectController::getProject($id);
+
+        switch($this->method())
+        {
+            case 'POST':
+            {
+                return [
+                    'name' => 'required|min:3',
+                    'slug' => 'required|alpha_num|min:3|unique:projects',
+                    'description' => 'required',
+                    'active' => 'required',
+                ];
+            }
+            case 'PATCH':
+            {
+                return [
+                    'name' => 'required|min:3',
+                    'slug' => 'required|alpha_num|min:3|unique:projects,slug,'.$project->pid.',pid',
+                    'description' => 'required',
+                    'active' => 'required',
+                ];
+            }
+            default:break;
+        }
 	}
 
 	public function messages()

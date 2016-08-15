@@ -149,5 +149,3 @@
     </script>
 @endsection
 
-@stop
-

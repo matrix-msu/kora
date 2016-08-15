@@ -97,6 +97,11 @@ class RevisionController extends Controller {
             return redirect('projects/'.$pid.'/forms');
         }
 
+        $firstRevision = DB::table('revisions')->where('rid', '=', $rid)->orderBy('created_at','desc')->first();
+        if(is_null($firstRevision)){
+            flash()->overlay(trans('controller_revision.none'), trans('controller_revision.whoops'));
+            return $this->index($pid,$fid);
+        }
         $owner = DB::table('revisions')->where('rid', '=', $rid)->orderBy('created_at','desc')->first()->owner;
 
         if(!\Auth::user()->admin && !\Auth::user()->isFormAdmin(FormController::getForm($fid)) && \Auth::user()->id != $owner)

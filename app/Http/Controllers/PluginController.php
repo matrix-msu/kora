@@ -10,11 +10,11 @@ use App\Plugin;
 use App\Project;
 use App\ProjectGroup;
 use App\RecordPreset;
-use Illuminate\Http\Request;
 
-use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\View;
 
 class PluginController extends Controller
 {
@@ -59,6 +59,7 @@ class PluginController extends Controller
         if ($handle) {
             $values['name'] = $name;
             while (($buffer = fgets($handle, 4096)) !== false) {
+                $buffer = trim($buffer);
                 $index = explode('=',$buffer)[0];
                 $value = explode('=',$buffer)[1];
 
@@ -347,5 +348,31 @@ class PluginController extends Controller
         $adminGroup->save();
 
         return $adminGroup;
+    }
+
+    public function loadView($name, $view){
+        $fullName = Plugin::where('url','=',$name)->first()->name;
+
+        include(env('BASE_PATH').'storage/app/plugins/'.$fullName.'/'.$name.'.php');
+
+        $namespace = "App\\Http\\Controllers\\";
+        $nameClass = "{$namespace}".$name;
+
+        $controller = new $nameClass();
+
+        return $controller->loadView($view);
+    }
+
+    public function action($name, $action, Request $request){
+        $fullName = Plugin::where('url','=',$name)->first()->name;
+
+        include(env('BASE_PATH').'storage/app/plugins/'.$fullName.'/'.$name.'.php');
+
+        $namespace = "App\\Http\\Controllers\\";
+        $nameClass = "{$namespace}".$name;
+
+        $controller = new $nameClass();
+
+        return $controller->action($name, $action, $request);
     }
 }

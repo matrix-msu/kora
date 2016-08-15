@@ -1,5 +1,6 @@
 <?php namespace App\Http\Requests;
 
+use App\Http\Controllers\FieldController;
 use App\Http\Requests\Request;
 
 class FieldRequest extends Request {
@@ -21,14 +22,35 @@ class FieldRequest extends Request {
      */
     public function rules()
     {
-        return [
-            'pid' => 'required|numeric',
-            'fid' => 'required|numeric',
-            'type' => 'required',
-            'name' => 'required|min:3',
-            'slug' => 'required|unique:fields|alpha_num|min:3',
-            'desc' => 'required'
-        ];
+        $id = $this->route('flid');
+        $field = FieldController::getField($id);
+
+        switch($this->method())
+        {
+            case 'POST':
+            {
+                return [
+                    'pid' => 'required|numeric',
+                    'fid' => 'required|numeric',
+                    'type' => 'required',
+                    'name' => 'required|min:3',
+                    'slug' => 'required|alpha_num|min:3|unique:fields',
+                    'desc' => 'required'
+                ];
+            }
+            case 'PATCH':
+            {
+                return [
+                    'pid' => 'required|numeric',
+                    'fid' => 'required|numeric',
+                    'type' => 'required',
+                    'name' => 'required|min:3',
+                    'slug' => 'required|alpha_num|min:3|unique:fields,slug,'.$field->flid.',flid',
+                    'desc' => 'required'
+                ];
+            }
+            default:break;
+        }
     }
 
     public function messages()
