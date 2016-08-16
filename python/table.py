@@ -39,6 +39,10 @@ class Table:
     Association = "associations"
     Version = "versions"
     Script = "scripts"
+    Plugins = "plugins"
+    PluginsSettings = "plugin_settings"
+    PluginsUsers = "plugin_users"
+    PluginMenus = "plugin_menus"
 
 class BaseFieldTypes:
     """

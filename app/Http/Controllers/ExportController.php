@@ -838,15 +838,15 @@ class ExportController extends Controller {
 
     /**
      * Simplifies export to work with an array of rids.
-     * Makes an external call to the python exporter to speed things up.
+     * Makes an external call to the python exporter to speed things up (see: app/python).
      *
      * @param array $rids, array of rids to export.
      * @param string $format, the desired output format, defaults to JSON.
-     * @return string, if the format is valid, will return the absolute path of the file the rids were exported to.
+     * @return string | null, if the format is valid, will return the absolute path of the file the rids were exported to.
      */
     public static function exportWithRids(array $rids, $format = self::JSON) {
         if ( ! self::isValidFormat($format)) {
-            return "Invalid format.";
+            return null;
         }
 
         $rids = json_encode($rids);
@@ -858,8 +858,8 @@ class ExportController extends Controller {
     }
 
     /**
-     * @param $format
-     * @return bool
+     * @param string $format
+     * @return bool, true if valid.
      */
     public static function isValidFormat($format) {
         return in_array($format, self::VALID_FORMATS);
