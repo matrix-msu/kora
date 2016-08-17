@@ -1,3 +1,43 @@
+<style scoped>
+    @media (max-width: 992px) {
+        .navbar-header {
+            float: none;
+        }
+        .navbar-toggle {
+            display: block;
+        }
+        .navbar-collapse {
+            border-top: 1px solid transparent;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        .navbar-collapse.collapse {
+            display: none!important;
+        }
+        .navbar-nav {
+            float: none!important;
+            margin: 7.5px -15px;
+        }
+        .navbar-nav>li {
+            float: none;
+        }
+        .navbar-nav>li>a {
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+        .navbar-text {
+            float: none;
+            margin: 15px 0;
+        }
+        /* since 3.1.0 */
+        .navbar-collapse.collapse.in {
+            display: block!important;
+        }
+        .collapsing {
+            overflow: hidden!important;
+        }
+    }
+</style>
+
 <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" style="background-image: inherit">
       <div class="container">
         <div class="navbar-header">
@@ -58,10 +98,14 @@
                     width: 200px
                 }
 
-                @media (max-width: 767px) {
+                @media (max-width: 992px) {
                     #global_search {
                         width: 100%;
                         margin: 0 0.5em 0 0.5em;
+                    }
+
+                    #global_search > .input-group {
+                        width: 100%;
                     }
                 }
             </style>
