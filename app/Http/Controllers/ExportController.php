@@ -869,4 +869,33 @@ class ExportController extends Controller {
 
         echo json_encode($projArray);
     }
+
+    /**
+     * Simplifies export to work with an array of rids.
+     * Makes an external call to the python exporter to speed things up (see: app/python).
+     *
+     * @param array $rids, array of rids to export.
+     * @param string $format, the desired output format, defaults to JSON.
+     * @return string | null, if the format is valid, will return the absolute path of the file the rids were exported to.
+     */
+    public static function exportWithRids(array $rids, $format = self::JSON) {
+        if ( ! self::isValidFormat($format)) {
+            return null;
+        }
+
+        $rids = json_encode($rids);
+
+        $exec_string = env("BASE_PATH") . "python/export.py \"$rids\" \"$format\"";
+        exec($exec_string, $output);
+
+        return $output[0];
+    }
+
+    /**
+     * @param string $format
+     * @return bool, true if valid.
+     */
+    public static function isValidFormat($format) {
+        return in_array($format, self::VALID_FORMATS);
+    }
 }
