@@ -1507,7 +1507,8 @@ class RecordController extends Controller {
         $revision->oldData = RevisionController::buildDataArray($record);
         $revision->save();
 
-        RecordPresetController::updateIfExists($record->rid);
+        $preset = new RecordPresetController();
+        $preset->updateIfExists($record->rid);
 
         flash()->overlay(trans('controller_record.updated'), trans('controller_record.goodjob'));
 
