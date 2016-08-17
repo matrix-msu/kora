@@ -16,6 +16,12 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
 	 */
 	public function createApplication()
 	{
+		$a = new CreateScriptsTable();
+		$b = new PluginsTable();
+
+		$a->up();
+		$b->up();
+
 		putenv("DB_DEFAULT=testing"); // Make sure our environment uses the SQLite database.
 
 		$app = require __DIR__.'/../bootstrap/app.php';

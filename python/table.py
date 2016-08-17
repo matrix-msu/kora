@@ -39,6 +39,10 @@ class Table:
     Association = "associations"
     Version = "versions"
     Script = "scripts"
+    Plugins = "plugins"
+    PluginsSettings = "plugin_settings"
+    PluginsUsers = "plugin_users"
+    PluginMenus = "plugin_menus"
 
 class BaseFieldTypes:
     """
@@ -62,6 +66,9 @@ class BaseFieldTypes:
     AssociatorField = Table.AssociatorField
 
 def get_base_field_types():
+    """
+    :return list: all the non-magic attributes of BaseFieldTypes
+    """
     types = []
 
     for field_name in vars(BaseFieldTypes).items():
@@ -69,3 +76,16 @@ def get_base_field_types():
             types.append(field_name[1])
 
     return types
+
+def get_all_tables():
+    """
+    :return list: all the non-magic attributes of Table
+    """
+
+    tables = []
+
+    for table in vars(Table).items():
+        if not table[0].startswith("__"):
+            tables.append(table[1])
+
+    return tables

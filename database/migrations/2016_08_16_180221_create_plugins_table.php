@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class PluginsTable extends Migration
+class CreatePluginsTable extends Migration
 {
     /**
      * Run the migrations.

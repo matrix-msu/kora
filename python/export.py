@@ -3,44 +3,49 @@
 import multiprocessing
 from table import get_base_field_types
 from exporter import FieldExporter, collapse_files
-from writer import JSONWriter
+from writer import JSONWriter, XMLWriter, CSVWriter
+from sys import argv
+from json import loads
+from startup import startup
+
+##
+## Main entry point, this script should be called from a PHP shell_exec, or preferred method.
+##
 
 def main():
     """
     From the command line (or PHP shell_exec)
     Expected values in argv:
         argv[1]: JSON array of rids to export.
-        argv[2]: output type (JSON, CSV, or XML)
+        argv[2]: desired output type (JSON, CSV, or XML)
     """
-    # try:
-    #     data = loads(argv[1])
-    #
-    # except IndexError:
-    #     return "No arguments given!"
 
-    # try:
-    #     out_type = argv[2]
-    #
-    # except IndexError:
-    #     return "No output format given!"
+    startup()
 
-    # python_dir = os.path.dirname(os.path.abspath(__file__))
-    # sys.stdout = open(os.path.join(python_dir, "out.json"), "w")
-    #
-    # cnx = Connection()
-    # cursor = Cursor(cnx)
-    #
-    # data = []
-    # for i in range(1, 10000):
-    #     data.append(i)
-    #
-    # print "[",
-    # for text_field in cursor.get_typed_fields(data, BaseFieldTypes.TextField):
-    #     print dumps(text_field, cls = DBEncoder), ",",
-    # print "]"
+    try:
+        data = loads(argv[1])
 
-    writer = JSONWriter() #$ Should be depend on user input.
-    data = [ i for i in range(1, 10001) ]
+    except IndexError:
+        return "No arguments given!"
+
+    try:
+        writer_type = argv[2]
+
+    except IndexError:
+        return "No output format given!"
+
+    if writer_type == "JSON":
+        writer = JSONWriter()
+
+    elif writer_type == "XML":
+        writer = XMLWriter()
+
+    elif writer_type == "CSV":
+        writer = CSVWriter()
+
+    else:
+        writer = JSONWriter() ## Default to JSON.
+
     pool = multiprocessing.Pool(processes = 8)
 
     for table in get_base_field_types():
@@ -59,9 +64,7 @@ def main():
     pool.close()
     pool.join() ## Wait for processes to complete.
 
-    collapse_files(writer.file_extension())
-
-    return 1
+    return collapse_files(writer)
 
 if __name__ == "__main__":
-    main()
+    print main()
