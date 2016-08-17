@@ -63,62 +63,64 @@ class ExportController extends Controller {
 
                 $tf = TextField::where('rid', '=', $record->rid)->get();
                 foreach($tf as $f) {
-                    $xml .= '<' . htmlentities($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
+                    $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
                     $value = $f->text;
                     $xml .= htmlentities($value);
-                    $xml .= '</' . htmlentities($fieldsInfo[$f->flid]['slug']) . '>';
+                    $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
                 }
                 $rf = RichTextField::where('rid', '=', $record->rid)->get();
                 foreach($rf as $f) {
-                    $xml .= '<' . htmlentities($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
+                    $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
                     $value = $f->rawtext;
                     $xml .= htmlentities($value);
-                    $xml .= '</' . htmlentities($fieldsInfo[$f->flid]['slug']) . '>';
+                    $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
                 }
                 $nf = NumberField::where('rid', '=', $record->rid)->get();
                 foreach($nf as $f) {
-                    $xml .= '<' . htmlentities($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
-                    $value = $f->number;
+                    $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
+                    $value = (float)$f->number;
                     $xml .= htmlentities($value);
-                    $xml .= '</' . htmlentities($fieldsInfo[$f->flid]['slug']) . '>';
+                    $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
                 }
                 $lf = ListField::where('rid', '=', $record->rid)->get();
                 foreach($lf as $f) {
-                    $xml .= '<' . htmlentities($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
+                    $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
                     $value = $f->option;
                     $xml .= htmlentities($value);
-                    $xml .= '</' . htmlentities($fieldsInfo[$f->flid]['slug']) . '>';
+                    $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
                 }
                 $msf = MultiSelectListField::where('rid', '=', $record->rid)->get();
                 foreach($msf as $f) {
-                    $xml .= '<' . htmlentities($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
+                    $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
                     $options = explode('[!]', $f->options);
                     foreach ($options as $opt) {
                         $xml .= '<value>' . htmlentities($opt) . '</value>';
                     }
-                    $xml .= '</' . htmlentities($fieldsInfo[$f->flid]['slug']) . '>';
+                    $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
                 }
                 $glf = GeneratedListField::where('rid', '=', $record->rid)->get();
                 foreach($glf as $f) {
-                    $xml .= '<' . htmlentities($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
+                    $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
                     $options = explode('[!]', $f->options);
                     foreach ($options as $opt) {
                         $xml .= '<value>' . htmlentities($opt) . '</value>';
                     }
-                    $xml .= '</' . htmlentities($fieldsInfo[$f->flid]['slug']) . '>';
+                    $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
                 }
                 $clf = ComboListField::where('rid', '=', $record->rid)->get();
                 foreach($clf as $f) {
-                    $xml .= '<' . htmlentities($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
+                    $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
                     $field = FieldController::getField($f->flid);
                     $typeone = ComboListField::getComboFieldType($field, 'one');
                     $typetwo = ComboListField::getComboFieldType($field, 'two');
+                    $nameone = ComboListField::getComboFieldName($field, 'one');
+                    $nametwo = ComboListField::getComboFieldName($field, 'two');
                     $vals = explode('[!val!]', $f->options);
                     foreach ($vals as $val) {
                         $valone = explode('[!f1!]', $val)[1];
                         $valtwo = explode('[!f2!]', $val)[1];
                         $xml .= '<Value>';
-                        $xml .= '<Field_One>';
+                        $xml .= '<' . $this->xmlTagClear($nameone) . '>';
                         if ($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List')
                             $xml .= htmlentities($valone);
                         else if ($typeone == 'Multi-Select List' | $typeone == 'Generated List') {
@@ -127,8 +129,8 @@ class ExportController extends Controller {
                                 $xml .= '<value>' . htmlentities($vone) . '</value>';
                             }
                         }
-                        $xml .= '</Field_One>';
-                        $xml .= '<Field_Two>';
+                        $xml .= '</' . $this->xmlTagClear($nameone) . '>';
+                        $xml .= '<' . $this->xmlTagClear($nametwo) . '>';
                         if ($typetwo == 'Text' | $typetwo == 'Number' | $typetwo == 'List')
                             $xml .= htmlentities($valtwo);
                         else if ($typetwo == 'Multi-Select List' | $typetwo == 'Generated List') {
@@ -137,25 +139,25 @@ class ExportController extends Controller {
                                 $xml .= '<value>' . htmlentities($vtwo) . '</value>';
                             }
                         }
-                        $xml .= '</Field_Two>';
+                        $xml .= '</' . $this->xmlTagClear($nametwo) . '>';
                         $xml .= '</Value>';
                     }
-                    $xml .= '</' . htmlentities($fieldsInfo[$f->flid]['slug']) . '>';
+                    $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
                 }
                 $df = DateField::where('rid', '=', $record->rid)->get();
                 foreach($df as $f) {
-                    $xml .= '<' . htmlentities($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
+                    $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
                     $value = '<Circa>' . htmlentities($f->circa) . '</Circa>';
                     $value .= '<Month>' . htmlentities($f->month) . '</Month>';
                     $value .= '<Day>' . htmlentities($f->day) . '</Day>';
                     $value .= '<Year>' . htmlentities($f->year) . '</Year>';
                     $value .= '<Era>' . htmlentities($f->era) . '</Era>';
                     $xml .= $value;
-                    $xml .= '</' . htmlentities($fieldsInfo[$f->flid]['slug']) . '>';
+                    $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
                 }
                 $sf = ScheduleField::where('rid', '=', $record->rid)->get();
                 foreach($sf as $f) {
-                    $xml .= '<' . htmlentities($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
+                    $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
                     $value = '';
                     $events = explode('[!]', $f->events);
                     foreach ($events as $event) {
@@ -177,11 +179,11 @@ class ExportController extends Controller {
                         }
                     }
                     $xml .= $value;
-                    $xml .= '</' . htmlentities($fieldsInfo[$f->flid]['slug']) . '>';
+                    $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
                 }
                 $df = DocumentsField::where('rid', '=', $record->rid)->get();
                 foreach($df as $f) {
-                    $xml .= '<' . htmlentities($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
+                    $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
                     $files = explode('[!]', $f->documents);
                     foreach ($files as $file) {
                         $xml .= '<File>';
@@ -190,11 +192,11 @@ class ExportController extends Controller {
                         $xml .= '<Type>' . htmlentities(explode('[Type]', $file)[1]) . '</Type>';
                         $xml .= '</File>';
                     }
-                    $xml .= '</' . htmlentities($fieldsInfo[$f->flid]['slug']) . '>';
+                    $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
                 }
                 $gf = GalleryField::where('rid', '=', $record->rid)->get();
                 foreach($gf as $f) {
-                    $xml .= '<' . htmlentities($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
+                    $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
                     $files = explode('[!]', $f->images);
                     foreach ($files as $file) {
                         $xml .= '<File>';
@@ -203,11 +205,11 @@ class ExportController extends Controller {
                         $xml .= '<Type>' . htmlentities(explode('[Type]', $file)[1]) . '</Type>';
                         $xml .= '</File>';
                     }
-                    $xml .= '</' . htmlentities($fieldsInfo[$f->flid]['slug']) . '>';
+                    $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
                 }
                 $pf = PlaylistField::where('rid', '=', $record->rid)->get();
                 foreach($pf as $f) {
-                    $xml .= '<' . htmlentities($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
+                    $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
                     $files = explode('[!]', $f->audio);
                     foreach ($files as $file) {
                         $xml .= '<File>';
@@ -216,11 +218,11 @@ class ExportController extends Controller {
                         $xml .= '<Type>' . htmlentities(explode('[Type]', $file)[1]) . '</Type>';
                         $xml .= '</File>';
                     }
-                    $xml .= '</' . htmlentities($fieldsInfo[$f->flid]['slug']) . '>';
+                    $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
                 }
                 $vf = VideoField::where('rid', '=', $record->rid)->get();
                 foreach($vf as $f) {
-                    $xml .= '<' . htmlentities($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
+                    $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
                     $files = explode('[!]', $f->video);
                     foreach ($files as $file) {
                         $xml .= '<File>';
@@ -229,22 +231,22 @@ class ExportController extends Controller {
                         $xml .= '<Type>' . htmlentities(explode('[Type]', $file)[1]) . '</Type>';
                         $xml .= '</File>';
                     }
-                    $xml .= '</' . htmlentities($fieldsInfo[$f->flid]['slug']) . '>';
+                    $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
                 }
                 $mf = ModelField::where('rid', '=', $record->rid)->get();
                 foreach($mf as $f) {
-                    $xml .= '<' . htmlentities($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
+                    $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
                     $value = $f->model;
                     $xml .= '<File>';
                     $xml .= '<Name>' . htmlentities(explode('[Name]', $value)[1]) . '</Name>';
                     $xml .= '<Size>' . htmlentities(explode('[Size]', $value)[1]) . '</Size>';
                     $xml .= '<Type>' . htmlentities(explode('[Type]', $value)[1]) . '</Type>';
                     $xml .= '</File>';
-                    $xml .= '</' . htmlentities($fieldsInfo[$f->flid]['slug']) . '>';
+                    $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
                 }
                 $gf = GeolocatorField::where('rid', '=', $record->rid)->get();
                 foreach($gf as $f) {
-                    $xml .= '<' . htmlentities($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
+                    $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
                     $locations = explode('[!]', $f->locations);
                     foreach ($locations as $loc) {
                         $latlon = explode('[LatLon]', $loc)[1];
@@ -260,7 +262,7 @@ class ExportController extends Controller {
                         $xml .= '<Address>' . htmlentities(explode('[Address]', $loc)[1]) . '</Address>';
                         $xml .= '</Location>';
                     }
-                    $xml .= '</' . htmlentities($fieldsInfo[$f->flid]['slug']) . '>';
+                    $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
                 }
 
                 $xml .= '</Record>';
@@ -483,6 +485,7 @@ class ExportController extends Controller {
 
             echo $json;
         } else if($type=='csv'){
+
             $csv=array();
 
             foreach ($records as $record) {
@@ -693,11 +696,18 @@ class ExportController extends Controller {
             $parser = new Parser();
             $csvfa = $parser->fromArray($csv);
 
-            header("Content-Disposition: attachment; filename=".$form->name.'_recordData_'.Carbon::now().'.csv');
-            header("Content-Type: application/octet-stream; ");
+            //header("Content-Disposition: attachment; filename=".$form->name.'_recordData_'.Carbon::now().'.csv');
+            //header("Content-Type: application/octet-stream; ");
 
             echo $parser->toString($csvfa);
         }
+    }
+
+    private function xmlTagClear($value){
+        $value = htmlentities($value);
+        $value = str_replace(' ','_',$value);
+
+        return $value;
     }
 
     public function exportRecordFiles($pid, $fid){
