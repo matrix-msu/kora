@@ -1,11 +1,28 @@
+import os
+import time
 from encoder import DBEncoder
 from json import dumps
-from os import SEEK_END
+
 
 class Writer:
     """
     Base class for writer types.
     """
+    def __init__(self, start_time):
+        """
+        Writer constructor.
+        :param temp_path: path to temporary file where writing should occur.
+        """
+        self.start_time = start_time
+
+    @staticmethod
+    def set_up():
+        """
+        Creates the initial time stamp all other files will use for uniqueness.
+        :return string:
+        """
+        return str(round(time.time(), 2))
+
     def write(self, item):
         """
         Base method.
@@ -58,24 +75,28 @@ class JSONWriter(Writer):
 
     def header(self, filepath):
         """
-        Returns the file header.
+        Writes the header to a file. Should be an empty file, else it will be truncated.
         :param filepath: string, absolute path to set up the file header in.
-        :return string:
         """
         with open(filepath, "w") as target:
             target.write("[")
 
     def footer(self, filepath):
         """
-        Returns the file footer.
+        Writes the footer to a file.
         :param filepath: string, absolute path to file to append footer to.
-        :return string:
         """
         with open(filepath, "rb+") as target: ## rb+ ; reading and writing.
-            ## Remove the trailing comma and space from the end of the file.
-            target.seek(-2, SEEK_END)
-            target.truncate()
-            target.write("]")
+            ## Remove the trailing comma and space from the end of the file if there is
+            ## something other than the opening bracket in the file.
+            try:
+                target.seek(-2, os.SEEK_END)
+                target.truncate()
+                target.write("]")
+
+            except IOError:
+                target.seek(os.SEEK_END)
+                target.write("]")
 
 class XMLWriter(Writer):
     """
@@ -106,3 +127,22 @@ class CSVWriter(Writer):
         """
         return ".csv"
 
+def make_writer(format, temp_path):
+    """
+    Create a writer object based on desired output format.
+
+    :param format: string, desired output.
+    :param temp_path: string, file path of temporary output folder.
+    :return Writer:
+    """
+    if format == "JSON":
+        return JSONWriter(temp_path)
+
+    elif format == "XML":
+        return XMLWriter(temp_path)
+
+    elif format == "CSV":
+        return CSVWriter(temp_path)
+
+
+    return JSONWriter(temp_path) ## Default to JSON.

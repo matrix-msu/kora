@@ -52,10 +52,11 @@ TEXT;
     public function test_keywordSearch() {
         $field = new RichTextField();
         $field->rawtext = self::SIMPLE_RICH;
+        $field->save();
 
         // Basic case, any text should obviously be found.
         $args = ['nato', 'penatib']; // Partial values
-       // $this->assertTrue($field->keywordSearch($args, true));
+        $this->assertTrue($field->keywordSearch($args, true));
         $this->assertFalse($field->keywordSearch($args, false));
 
         $args = ['Lorem', 'justo', 'sodales', 'justo']; // Complete values
@@ -71,11 +72,13 @@ TEXT;
         // Test special character searches.
         //
         $field->rawtext = self::COMPLEX_RICH;
+        $field->save();
 
         // Most basic special character case.
         /** Special character processing was moved up so it only happens once in a search. */
         $args = ['něvrzkotě'];
         $args[0] = \App\Search::convertCloseChars($args[0]);
+
         $this->assertTrue($field->keywordSearch($args, false));
         $this->assertTrue($field->keywordSearch($args, true));
 

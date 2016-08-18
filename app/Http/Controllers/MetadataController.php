@@ -71,7 +71,6 @@ class MetadataController extends Controller {
      * Attempting meta data function again.
      */
     public function records2($pid, $fid) {
-        // Exporter example.
 //        if ( ! FormController::validProjForm($pid, $fid)) {
 //            return json_encode("Invalid project id and form id combination.");
 //        }
@@ -84,7 +83,7 @@ class MetadataController extends Controller {
 //
 //        $encoded = json_encode($rids);
 //
-//        $exec = env("BASE_PATH") . "python/export.py \"$encoded\" \"JSON\"";
+//        $exec = env("BASE_PATH") . "python/export.py \"$encoded\" \"JSON\" 2>&1";
 //
 //        exec($exec, $output);
 //
@@ -97,9 +96,7 @@ class MetadataController extends Controller {
 //        else {
 //            return $output;
 //        }
-//
-
-
+        
         // Old meta data method
 //        if ( ! FormController::validProjForm($pid, $fid)){
 //            return redirect('projects/' . $pid . '/forms');
