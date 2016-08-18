@@ -98,7 +98,7 @@ class RecordPresetController extends Controller {
      *
      * @param $rid, record id.
      */
-    static public function updateIfExists($rid) {
+    public function updateIfExists($rid) {
         $pre = RecordPreset::where("rid", '=', $rid)->first();
 
         if(is_null($pre)) {
