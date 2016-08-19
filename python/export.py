@@ -3,13 +3,13 @@
 import multiprocessing
 from table import get_base_field_types
 from exporter import FieldExporter, collapse_files
-from writer import JSONWriter, XMLWriter, CSVWriter
+from writer import make_writer, Writer
 from sys import argv
 from json import loads
 from startup import startup
 
 ##
-## Main entry point, this script should be called from a PHP shell_exec, or preferred method.
+## Main entry point, this script should be called from a PHP exec, or preferred method.
 ##
 
 def main():
@@ -20,7 +20,7 @@ def main():
         argv[2]: desired output type (JSON, CSV, or XML)
     """
 
-    startup()
+    startup() ## Initialize file structure.
 
     try:
         data = loads(argv[1])
@@ -34,17 +34,7 @@ def main():
     except IndexError:
         return "No output format given!"
 
-    if writer_type == "JSON":
-        writer = JSONWriter()
-
-    elif writer_type == "XML":
-        writer = XMLWriter()
-
-    elif writer_type == "CSV":
-        writer = CSVWriter()
-
-    else:
-        writer = JSONWriter() ## Default to JSON.
+    writer = make_writer(writer_type, Writer.set_up())
 
     pool = multiprocessing.Pool(processes = 8)
 

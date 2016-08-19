@@ -17,7 +17,7 @@ class FieldExporter:
         Constructor.
         :param table: the table name to export (in BaseFieldTable).
         :param rids: the rids to export.
-        :param writer_type: string, which kind of writer should be used.
+        :param writer: Writer object.
         """
 
         if not isinstance(writer, Writer):
@@ -36,7 +36,11 @@ class FieldExporter:
         cursor = self._connect_to_database()
 
         ## Unique file name to eliminate any possible writing collisions.
-        file_name = self._table + "_" + str(self._rids[0]) + "to" + str(self._rids[-1]) + self._writer.file_extension()
+        file_name = self._table + \
+                    str(self._rids[0]) + "_" + \
+                    str(self._rids[-1]) + "_" + \
+                    self._writer.start_time
+
         python_dir = os.path.dirname(os.path.abspath(__file__))
         sys.stdout = open(os.path.join(python_dir, "temp", file_name), "w")
 
@@ -56,25 +60,32 @@ class FieldExporter:
 
 def collapse_files(writer):
     """
-    Concatenates all the files in the /exports directory into one file.
+    Concatenates all the files in the writer's temporary directory into one file.
 
-    :param file_extension: string, the desired file extension.
+    :param writer: Writer object.
     :return string: absolute path of the out*.* file.
     """
-    temp_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "temp")
+    start_time = writer.start_time
     exports_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "exports")
+    temp_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "temp")
 
     stamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S')
-
     out_file = os.path.join(exports_path, "out" + stamp + writer.file_extension())
+
+    ## Make sure the outfile name is unique.
+    while os.path.exists(out_file):
+        stamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S')
+        out_file = os.path.join(exports_path, "out" + stamp + writer.file_extension())
 
     writer.header(out_file)
 
-    ## Concatenate all temporary files into one.
-    call("cat " + os.path.join(temp_path, "*") + " >> " + out_file, shell=True)
+    ## If there are files in the temp directory.
+    if len([ name for name in os.listdir(temp_path) if start_time in name ]):
+        ## Concatenate all temporary files into one.
+        call("cat " + os.path.join(temp_path, "*" + start_time) + " >> " + out_file, shell=True)
 
-    ## Remove temporary files.
-    call("rm " + os.path.join(temp_path, "* -f"), shell=True)
+        ## Remove temporary files.
+        call("rm " + os.path.join(temp_path, "* -f"), shell=True)
 
     writer.footer(out_file)
 
