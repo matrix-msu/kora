@@ -161,22 +161,23 @@ class ExportController extends Controller {
                     $value = '';
                     $events = explode('[!]', $f->events);
                     foreach ($events as $event) {
-                        $parts = explode(' ', $event);
-                        if (sizeof($parts) == 8) {
-                            $value .= '<Event>';
-                            $value .= '<Title>' . htmlentities(substr($parts[0], 0, -1)) . '</Title>';
-                            $value .= '<Start>' . htmlentities($parts[1] . ' ' . $parts[2] . ' ' . $parts[3]) . '</Start>';
-                            $value .= '<End>' . htmlentities($parts[5] . ' ' . $parts[6] . ' ' . $parts[7]) . '</End>';
-                            $value .= '<All_Day>' . htmlentities(0) . '</All_Day>';
-                            $value .= '</Event>';
-                        } else { //all day event
-                            $value .= '<Event>';
-                            $value .= '<Title>' . htmlentities(substr($parts[0], 0, -1)) . '</Title>';
-                            $value .= '<Start>' . htmlentities($parts[1]) . '</Start>';
-                            $value .= '<End>' . htmlentities($parts[3]) . '</End>';
+                        $titleTime = explode(': ', $event);
+                        $startEnd = explode(' - ',$titleTime[1]);
+                        $start = explode(' ', $startEnd[0]);
+                        $end = explode(' ', $startEnd[1]);
+
+                        $value .= '<Event>';
+                        $value .= '<Title>' . $titleTime[0] . '</Title>';
+                        if(sizeof($start)==1) {
+                            $value .= '<Start>' . $start[0] . '</Start>';
+                            $value .= '<End>' . $end[0] . '</End>';
                             $value .= '<All_Day>' . htmlentities(1) . '</All_Day>';
-                            $value .= '</Event>';
+                        }else{
+                            $value .= '<Start>' . $start[0] .' '. $start[1] .' '. $start[2] . '</Start>';
+                            $value .= '<End>' . $end[0] .' '. $end[1] .' '. $end[2] . '</End>';
+                            $value .= '<All_Day>' . htmlentities(0) . '</All_Day>';
                         }
+                        $value .= '</Event>';
                     }
                     $xml .= $value;
                     $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
@@ -369,18 +370,21 @@ class ExportController extends Controller {
                     $events = explode('[!]', $f->events);
                     $fieldArray['events'] = array();
                     foreach ($events as $event) {
-                        $parts = explode(' ', $event);
+                        $titleTime = explode(': ', $event);
+                        $startEnd = explode(' - ',$titleTime[1]);
+                        $start = explode(' ', $startEnd[0]);
+                        $end = explode(' ', $startEnd[1]);
+
                         $eventArray = array();
-                        if (sizeof($parts) == 8) {
-                            $eventArray['title'] = substr($parts[0], 0, -1);
-                            $eventArray['start'] = $parts[1] . ' ' . $parts[2] . ' ' . $parts[3];
-                            $eventArray['end'] = $parts[5] . ' ' . $parts[6] . ' ' . $parts[7];
-                            $eventArray['allday'] = 0;
-                        } else { //all day event
-                            $eventArray['title'] = substr($parts[0], 0, -1);
-                            $eventArray['start'] = $parts[1];
-                            $eventArray['end'] = $parts[3];
+                        $eventArray['title'] = $titleTime[0];
+                        if (sizeof($start) == 1) {
+                            $eventArray['start'] = $start[0];
+                            $eventArray['end'] = $end[0];
                             $eventArray['allday'] = 1;
+                        } else {
+                            $eventArray['start'] = $start[0] .' '. $start[1] .' '. $start[2];
+                            $eventArray['end'] = $end[0] .' '. $end[1] .' '. $end[2];
+                            $eventArray['allday'] = 0;
                         }
                         array_push($fieldArray['events'],$eventArray);
                     }
