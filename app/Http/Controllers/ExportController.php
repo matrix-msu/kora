@@ -55,7 +55,7 @@ class ExportController extends Controller {
         //dd($records);
 
         if($type=='xml') {
-            $xml='<Records>';
+            $xml='<?xml version="1.0" encoding="utf-8"?><Records>';
 
             foreach ($records as $record) {
 
@@ -65,28 +65,28 @@ class ExportController extends Controller {
                 foreach($tf as $f) {
                     $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
                     $value = $f->text;
-                    $xml .= htmlentities($value);
+                    $xml .= utf8_encode($value);
                     $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
                 }
                 $rf = RichTextField::where('rid', '=', $record->rid)->get();
                 foreach($rf as $f) {
                     $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
                     $value = $f->rawtext;
-                    $xml .= htmlentities($value);
+                    $xml .= utf8_encode($value);
                     $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
                 }
                 $nf = NumberField::where('rid', '=', $record->rid)->get();
                 foreach($nf as $f) {
                     $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
                     $value = (float)$f->number;
-                    $xml .= htmlentities($value);
+                    $xml .= utf8_encode($value);
                     $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
                 }
                 $lf = ListField::where('rid', '=', $record->rid)->get();
                 foreach($lf as $f) {
                     $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
                     $value = $f->option;
-                    $xml .= htmlentities($value);
+                    $xml .= utf8_encode($value);
                     $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
                 }
                 $msf = MultiSelectListField::where('rid', '=', $record->rid)->get();
@@ -94,7 +94,7 @@ class ExportController extends Controller {
                     $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
                     $options = explode('[!]', $f->options);
                     foreach ($options as $opt) {
-                        $xml .= '<value>' . htmlentities($opt) . '</value>';
+                        $xml .= '<value>' . utf8_encode($opt) . '</value>';
                     }
                     $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
                 }
@@ -103,7 +103,7 @@ class ExportController extends Controller {
                     $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
                     $options = explode('[!]', $f->options);
                     foreach ($options as $opt) {
-                        $xml .= '<value>' . htmlentities($opt) . '</value>';
+                        $xml .= '<value>' . utf8_encode($opt) . '</value>';
                     }
                     $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
                 }
@@ -122,11 +122,11 @@ class ExportController extends Controller {
                         $xml .= '<Value>';
                         $xml .= '<' . $this->xmlTagClear($nameone) . '>';
                         if ($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List')
-                            $xml .= htmlentities($valone);
+                            $xml .= utf8_encode($valone);
                         else if ($typeone == 'Multi-Select List' | $typeone == 'Generated List') {
                             $valone = explode('[!]', $valone);
                             foreach ($valone as $vone) {
-                                $xml .= '<value>' . htmlentities($vone) . '</value>';
+                                $xml .= '<value>' . utf8_encode($vone) . '</value>';
                             }
                         }
                         $xml .= '</' . $this->xmlTagClear($nameone) . '>';
@@ -136,7 +136,7 @@ class ExportController extends Controller {
                         else if ($typetwo == 'Multi-Select List' | $typetwo == 'Generated List') {
                             $valtwo = explode('[!]', $valtwo);
                             foreach ($valtwo as $vtwo) {
-                                $xml .= '<value>' . htmlentities($vtwo) . '</value>';
+                                $xml .= '<value>' . utf8_encode($vtwo) . '</value>';
                             }
                         }
                         $xml .= '</' . $this->xmlTagClear($nametwo) . '>';
@@ -147,11 +147,11 @@ class ExportController extends Controller {
                 $df = DateField::where('rid', '=', $record->rid)->get();
                 foreach($df as $f) {
                     $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
-                    $value = '<Circa>' . htmlentities($f->circa) . '</Circa>';
-                    $value .= '<Month>' . htmlentities($f->month) . '</Month>';
-                    $value .= '<Day>' . htmlentities($f->day) . '</Day>';
-                    $value .= '<Year>' . htmlentities($f->year) . '</Year>';
-                    $value .= '<Era>' . htmlentities($f->era) . '</Era>';
+                    $value = '<Circa>' . utf8_encode($f->circa) . '</Circa>';
+                    $value .= '<Month>' . utf8_encode($f->month) . '</Month>';
+                    $value .= '<Day>' . utf8_encode($f->day) . '</Day>';
+                    $value .= '<Year>' . utf8_encode($f->year) . '</Year>';
+                    $value .= '<Era>' . utf8_encode($f->era) . '</Era>';
                     $xml .= $value;
                     $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
                 }
@@ -171,11 +171,11 @@ class ExportController extends Controller {
                         if(sizeof($start)==1) {
                             $value .= '<Start>' . $start[0] . '</Start>';
                             $value .= '<End>' . $end[0] . '</End>';
-                            $value .= '<All_Day>' . htmlentities(1) . '</All_Day>';
+                            $value .= '<All_Day>' . utf8_encode(1) . '</All_Day>';
                         }else{
                             $value .= '<Start>' . $start[0] .' '. $start[1] .' '. $start[2] . '</Start>';
                             $value .= '<End>' . $end[0] .' '. $end[1] .' '. $end[2] . '</End>';
-                            $value .= '<All_Day>' . htmlentities(0) . '</All_Day>';
+                            $value .= '<All_Day>' . utf8_encode(0) . '</All_Day>';
                         }
                         $value .= '</Event>';
                     }
@@ -188,9 +188,9 @@ class ExportController extends Controller {
                     $files = explode('[!]', $f->documents);
                     foreach ($files as $file) {
                         $xml .= '<File>';
-                        $xml .= '<Name>' . htmlentities(explode('[Name]', $file)[1]) . '</Name>';
-                        $xml .= '<Size>' . htmlentities(explode('[Size]', $file)[1]/1000) . ' mb</Size>';
-                        $xml .= '<Type>' . htmlentities(explode('[Type]', $file)[1]) . '</Type>';
+                        $xml .= '<Name>' . utf8_encode(explode('[Name]', $file)[1]) . '</Name>';
+                        $xml .= '<Size>' . utf8_encode(explode('[Size]', $file)[1]/1000) . ' mb</Size>';
+                        $xml .= '<Type>' . utf8_encode(explode('[Type]', $file)[1]) . '</Type>';
                         $xml .= '</File>';
                     }
                     $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
@@ -201,9 +201,9 @@ class ExportController extends Controller {
                     $files = explode('[!]', $f->images);
                     foreach ($files as $file) {
                         $xml .= '<File>';
-                        $xml .= '<Name>' . htmlentities(explode('[Name]', $file)[1]) . '</Name>';
-                        $xml .= '<Size>' . htmlentities(explode('[Size]', $file)[1]/1000) . ' mb</Size>';
-                        $xml .= '<Type>' . htmlentities(explode('[Type]', $file)[1]) . '</Type>';
+                        $xml .= '<Name>' . utf8_encode(explode('[Name]', $file)[1]) . '</Name>';
+                        $xml .= '<Size>' . utf8_encode(explode('[Size]', $file)[1]/1000) . ' mb</Size>';
+                        $xml .= '<Type>' . utf8_encode(explode('[Type]', $file)[1]) . '</Type>';
                         $xml .= '</File>';
                     }
                     $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
@@ -214,9 +214,9 @@ class ExportController extends Controller {
                     $files = explode('[!]', $f->audio);
                     foreach ($files as $file) {
                         $xml .= '<File>';
-                        $xml .= '<Name>' . htmlentities(explode('[Name]', $file)[1]) . '</Name>';
-                        $xml .= '<Size>' . htmlentities(explode('[Size]', $file)[1]/1000) . ' mb</Size>';
-                        $xml .= '<Type>' . htmlentities(explode('[Type]', $file)[1]) . '</Type>';
+                        $xml .= '<Name>' . utf8_encode(explode('[Name]', $file)[1]) . '</Name>';
+                        $xml .= '<Size>' . utf8_encode(explode('[Size]', $file)[1]/1000) . ' mb</Size>';
+                        $xml .= '<Type>' . utf8_encode(explode('[Type]', $file)[1]) . '</Type>';
                         $xml .= '</File>';
                     }
                     $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
@@ -227,9 +227,9 @@ class ExportController extends Controller {
                     $files = explode('[!]', $f->video);
                     foreach ($files as $file) {
                         $xml .= '<File>';
-                        $xml .= '<Name>' . htmlentities(explode('[Name]', $file)[1]) . '</Name>';
-                        $xml .= '<Size>' . htmlentities(explode('[Size]', $file)[1]/1000) . ' mb</Size>';
-                        $xml .= '<Type>' . htmlentities(explode('[Type]', $file)[1]) . '</Type>';
+                        $xml .= '<Name>' . utf8_encode(explode('[Name]', $file)[1]) . '</Name>';
+                        $xml .= '<Size>' . utf8_encode(explode('[Size]', $file)[1]/1000) . ' mb</Size>';
+                        $xml .= '<Type>' . utf8_encode(explode('[Type]', $file)[1]) . '</Type>';
                         $xml .= '</File>';
                     }
                     $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
@@ -239,9 +239,9 @@ class ExportController extends Controller {
                     $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';
                     $value = $f->model;
                     $xml .= '<File>';
-                    $xml .= '<Name>' . htmlentities(explode('[Name]', $value)[1]) . '</Name>';
-                    $xml .= '<Size>' . htmlentities(explode('[Size]', $value)[1]/1000) . ' mb</Size>';
-                    $xml .= '<Type>' . htmlentities(explode('[Type]', $value)[1]) . '</Type>';
+                    $xml .= '<Name>' . utf8_encode(explode('[Name]', $value)[1]) . '</Name>';
+                    $xml .= '<Size>' . utf8_encode(explode('[Size]', $value)[1]/1000) . ' mb</Size>';
+                    $xml .= '<Type>' . utf8_encode(explode('[Type]', $value)[1]) . '</Type>';
                     $xml .= '</File>';
                     $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
                 }
@@ -254,13 +254,13 @@ class ExportController extends Controller {
                         $utm = explode('[UTM]', $loc)[1];
                         $utm_coor = explode(':', $utm)[1];
                         $xml .= '<Location>';
-                        $xml .= '<Desc>' . htmlentities(explode('[Desc]', $loc)[1]) . '</Desc>';
-                        $xml .= '<Lat>' . htmlentities(explode(',', $latlon)[0]) . '</Lat>';
-                        $xml .= '<Lon>' . htmlentities(explode(',', $latlon)[1]) . '</Lon>';
-                        $xml .= '<Zone>' . htmlentities(explode(':', $utm)[0]) . '</Zone>';
-                        $xml .= '<East>' . htmlentities(explode(',', $utm_coor)[0]) . '</East>';
-                        $xml .= '<North>' . htmlentities(explode(',', $utm_coor)[1]) . '</North>';
-                        $xml .= '<Address>' . htmlentities(explode('[Address]', $loc)[1]) . '</Address>';
+                        $xml .= '<Desc>' . utf8_encode(explode('[Desc]', $loc)[1]) . '</Desc>';
+                        $xml .= '<Lat>' . utf8_encode(explode(',', $latlon)[0]) . '</Lat>';
+                        $xml .= '<Lon>' . utf8_encode(explode(',', $latlon)[1]) . '</Lon>';
+                        $xml .= '<Zone>' . utf8_encode(explode(':', $utm)[0]) . '</Zone>';
+                        $xml .= '<East>' . utf8_encode(explode(',', $utm_coor)[0]) . '</East>';
+                        $xml .= '<North>' . utf8_encode(explode(',', $utm_coor)[1]) . '</North>';
+                        $xml .= '<Address>' . utf8_encode(explode('[Address]', $loc)[1]) . '</Address>';
                         $xml .= '</Location>';
                     }
                     $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
