@@ -188,7 +188,7 @@ class ExportController extends Controller {
                     foreach ($files as $file) {
                         $xml .= '<File>';
                         $xml .= '<Name>' . htmlentities(explode('[Name]', $file)[1]) . '</Name>';
-                        $xml .= '<Size>' . htmlentities(explode('[Size]', $file)[1]) . '</Size>';
+                        $xml .= '<Size>' . htmlentities(explode('[Size]', $file)[1]/1000) . ' mb</Size>';
                         $xml .= '<Type>' . htmlentities(explode('[Type]', $file)[1]) . '</Type>';
                         $xml .= '</File>';
                     }
@@ -201,7 +201,7 @@ class ExportController extends Controller {
                     foreach ($files as $file) {
                         $xml .= '<File>';
                         $xml .= '<Name>' . htmlentities(explode('[Name]', $file)[1]) . '</Name>';
-                        $xml .= '<Size>' . htmlentities(explode('[Size]', $file)[1]) . '</Size>';
+                        $xml .= '<Size>' . htmlentities(explode('[Size]', $file)[1]/1000) . ' mb</Size>';
                         $xml .= '<Type>' . htmlentities(explode('[Type]', $file)[1]) . '</Type>';
                         $xml .= '</File>';
                     }
@@ -214,7 +214,7 @@ class ExportController extends Controller {
                     foreach ($files as $file) {
                         $xml .= '<File>';
                         $xml .= '<Name>' . htmlentities(explode('[Name]', $file)[1]) . '</Name>';
-                        $xml .= '<Size>' . htmlentities(explode('[Size]', $file)[1]) . '</Size>';
+                        $xml .= '<Size>' . htmlentities(explode('[Size]', $file)[1]/1000) . ' mb</Size>';
                         $xml .= '<Type>' . htmlentities(explode('[Type]', $file)[1]) . '</Type>';
                         $xml .= '</File>';
                     }
@@ -227,7 +227,7 @@ class ExportController extends Controller {
                     foreach ($files as $file) {
                         $xml .= '<File>';
                         $xml .= '<Name>' . htmlentities(explode('[Name]', $file)[1]) . '</Name>';
-                        $xml .= '<Size>' . htmlentities(explode('[Size]', $file)[1]) . '</Size>';
+                        $xml .= '<Size>' . htmlentities(explode('[Size]', $file)[1]/1000) . ' mb</Size>';
                         $xml .= '<Type>' . htmlentities(explode('[Type]', $file)[1]) . '</Type>';
                         $xml .= '</File>';
                     }
@@ -239,7 +239,7 @@ class ExportController extends Controller {
                     $value = $f->model;
                     $xml .= '<File>';
                     $xml .= '<Name>' . htmlentities(explode('[Name]', $value)[1]) . '</Name>';
-                    $xml .= '<Size>' . htmlentities(explode('[Size]', $value)[1]) . '</Size>';
+                    $xml .= '<Size>' . htmlentities(explode('[Size]', $value)[1]/1000) . ' mb</Size>';
                     $xml .= '<Type>' . htmlentities(explode('[Type]', $value)[1]) . '</Type>';
                     $xml .= '</File>';
                     $xml .= '</' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . '>';
@@ -327,6 +327,8 @@ class ExportController extends Controller {
                     $field = FieldController::getField($f->flid);
                     $typeone = ComboListField::getComboFieldType($field, 'one');
                     $typetwo = ComboListField::getComboFieldType($field, 'two');
+                    $nameone = ComboListField::getComboFieldName($field, 'one');
+                    $nametwo = ComboListField::getComboFieldName($field, 'two');
                     $vals = explode('[!val!]', $f->options);
                     $fieldArray['values'] = array();
                     foreach ($vals as $val) {
@@ -335,15 +337,15 @@ class ExportController extends Controller {
                         $valtwo = explode('[!f2!]', $val)[1];
 
                         if ($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List')
-                            $valArray['field_one'] = $valone;
+                            $valArray[$nameone] = $valone;
                         else if ($typeone == 'Multi-Select List' | $typeone == 'Generated List') {
-                            $valArray['field_one'] = explode('[!]', $valone);
+                            $valArray[$nameone] = explode('[!]', $valone);
                         }
 
                         if ($typetwo == 'Text' | $typetwo == 'Number' | $typetwo == 'List')
-                            $valArray['field_two'] = $valtwo;
+                            $valArray[$nametwo] = $valtwo;
                         else if ($typetwo == 'Multi-Select List' | $typetwo == 'Generated List') {
-                            $valArray['field_two'] = explode('[!]', $valtwo);
+                            $valArray[$nametwo] = explode('[!]', $valtwo);
                         }
 
                         array_push($fieldArray['values'],$valArray);
@@ -392,7 +394,7 @@ class ExportController extends Controller {
                     foreach ($files as $file) {
                         $fileArray = array();
                         $fileArray['name'] = explode('[Name]', $file)[1];
-                        $fileArray['size'] = explode('[Size]', $file)[1];
+                        $fileArray['size'] = (explode('[Size]', $file)[1]/1000).' mb';
                         $fileArray['type'] = explode('[Type]', $file)[1];
                         array_push($fieldArray['files'],$fileArray);
                     }
@@ -406,7 +408,7 @@ class ExportController extends Controller {
                     foreach ($files as $file) {
                         $fileArray = array();
                         $fileArray['name'] = explode('[Name]', $file)[1];
-                        $fileArray['size'] = explode('[Size]', $file)[1];
+                        $fileArray['size'] = (explode('[Size]', $file)[1]/1000).' mb';
                         $fileArray['type'] = explode('[Type]', $file)[1];
                         array_push($fieldArray['files'],$fileArray);
                     }
@@ -420,7 +422,7 @@ class ExportController extends Controller {
                     foreach ($files as $file) {
                         $fileArray = array();
                         $fileArray['name'] = explode('[Name]', $file)[1];
-                        $fileArray['size'] = explode('[Size]', $file)[1];
+                        $fileArray['size'] = (explode('[Size]', $file)[1]/1000).' mb';
                         $fileArray['type'] = explode('[Type]', $file)[1];
                         array_push($fieldArray['files'],$fileArray);
                     }
@@ -434,7 +436,7 @@ class ExportController extends Controller {
                     foreach ($files as $file) {
                         $fileArray = array();
                         $fileArray['name'] = explode('[Name]', $file)[1];
-                        $fileArray['size'] = explode('[Size]', $file)[1];
+                        $fileArray['size'] = (explode('[Size]', $file)[1]/1000).' mb';
                         $fileArray['type'] = explode('[Type]', $file)[1];
                         array_push($fieldArray['files'],$fileArray);
                     }
@@ -447,7 +449,7 @@ class ExportController extends Controller {
                     $fieldArray['files'] = array();
                     $fileArray = array();
                     $fileArray['name'] = explode('[Name]', $file)[1];
-                    $fileArray['size'] = explode('[Size]', $file)[1];
+                    $fileArray['size'] = (explode('[Size]', $file)[1]/1000).' mb';
                     $fileArray['type'] = explode('[Type]', $file)[1];
                     array_push($fieldArray['files'],$fileArray);
                     array_push($recArray['Fields'], $fieldArray);
@@ -484,222 +486,6 @@ class ExportController extends Controller {
             header("Content-Type: application/octet-stream; ");
 
             echo $json;
-        } else if($type=='csv'){
-
-            $csv=array();
-
-            foreach ($records as $record) {
-
-                $recArray = array('records'=>$record->kid);
-                array_push($csv,$recArray);
-
-                $tf = TextField::where('rid', '=', $record->rid)->get();
-                foreach($tf as $f) {
-                    $fieldArray = array(0 => $fieldsInfo[$f->flid]['slug'], 1 => $fieldsInfo[$f->flid]['type']);
-                    array_push($fieldArray,$f->text);
-                    array_push($csv, $fieldArray);
-                }
-                $rtf = RichTextField::where('rid', '=', $record->rid)->get();
-                foreach($rtf as $f) {
-                    $fieldArray = array(0 => $fieldsInfo[$f->flid]['slug'], 1 => $fieldsInfo[$f->flid]['type']);
-                    array_push($fieldArray,$f->rawtext);
-                    array_push($csv, $fieldArray);
-                }
-                $nf = NumberField::where('rid', '=', $record->rid)->get();
-                foreach($nf as $f) {
-                    $fieldArray = array(0 => $fieldsInfo[$f->flid]['slug'], 1 => $fieldsInfo[$f->flid]['type']);
-                    array_push($fieldArray,$f->number);
-                    array_push($csv, $fieldArray);
-                }
-                $lf = ListField::where('rid', '=', $record->rid)->get();
-                foreach($lf as $f) {
-                    $fieldArray = array(0 => $fieldsInfo[$f->flid]['slug'], 1 => $fieldsInfo[$f->flid]['type']);
-                    array_push($fieldArray,$f->option);
-                    array_push($csv, $fieldArray);
-                }
-                $mlf = MultiSelectListField::where('rid', '=', $record->rid)->get();
-                foreach($mlf as $f) {
-                    $fieldArray = array(0 => $fieldsInfo[$f->flid]['slug'], 1 => $fieldsInfo[$f->flid]['type']);
-                    $options = explode('[!]', $f->options);
-                    foreach($options as $opt){
-                        array_push($fieldArray,$opt);
-                    }
-                    array_push($csv, $fieldArray);
-                }
-                $glf = GeneratedListField::where('rid', '=', $record->rid)->get();
-                foreach($glf as $f) {
-                    $fieldArray = array(0 => $fieldsInfo[$f->flid]['slug'], 1 => $fieldsInfo[$f->flid]['type']);
-                    $options = explode('[!]', $f->options);
-                    foreach($options as $opt){
-                        array_push($fieldArray,$opt);
-                    }
-                    array_push($csv, $fieldArray);
-                }
-                $clf = ComboListField::where('rid', '=', $record->rid)->get();
-                foreach($clf as $f) {
-                    $fieldArray = array(0 => $fieldsInfo[$f->flid]['slug'], 1 => $fieldsInfo[$f->flid]['type']);
-                    $field = FieldController::getField($f->flid);
-                    $typeone = ComboListField::getComboFieldType($field, 'one');
-                    $typetwo = ComboListField::getComboFieldType($field, 'two');
-                    $vals = explode('[!val!]', $f->options);
-                    foreach ($vals as $val) {
-                        $valArray = array();
-                        $valone = explode('[!f1!]', $val)[1];
-                        $valtwo = explode('[!f2!]', $val)[1];
-
-                        array_push($fieldArray, '[CF_1]');
-                        if ($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List') {
-
-                            array_push($fieldArray, $valone);
-                        }
-                        else if ($typeone == 'Multi-Select List' | $typeone == 'Generated List') {
-                            $valone = explode('[!]',$valone);
-                            foreach($valone as $vone){
-                                array_push($fieldArray, $vone);
-                            }
-                        }
-
-                        array_push($fieldArray, '[CF_2]');
-                        if ($typetwo == 'Text' | $typetwo == 'Number' | $typetwo == 'List'){
-                            array_push($fieldArray, $valtwo);
-                        }
-                        else if ($typetwo == 'Multi-Select List' | $typetwo == 'Generated List') {
-                            $valtwo = explode('[!]',$valtwo);
-                            foreach($valtwo as $vtwo){
-                                array_push($fieldArray, $vtwo);
-                            }
-                        }
-                    }
-                    array_push($csv, $fieldArray);
-                }
-                $df = DateField::where('rid', '=', $record->rid)->get();
-                foreach($df as $f) {
-                    $fieldArray = array(0 => $fieldsInfo[$f->flid]['slug'], 1 => $fieldsInfo[$f->flid]['type']);
-                    array_push($fieldArray,$f->circa);
-                    array_push($fieldArray,$f->month);
-                    array_push($fieldArray,$f->day);
-                    array_push($fieldArray,$f->year);
-                    array_push($fieldArray,$f->era);
-                    array_push($csv, $fieldArray);
-                }
-                $sf = ScheduleField::where('rid', '=', $record->rid)->get();
-                foreach($sf as $f) {
-                    $fieldArray = array(0 => $fieldsInfo[$f->flid]['slug'], 1 => $fieldsInfo[$f->flid]['type']);
-                    $events = explode('[!]', $f->events);
-                    foreach ($events as $event) {
-                        $parts = explode(' ', $event);
-                        if (sizeof($parts) == 8) {
-                            $title = substr($parts[0], 0, -1);
-                            $start = $parts[1] . ' ' . $parts[2] . ' ' . $parts[3];
-                            $end = $parts[5] . ' ' . $parts[6] . ' ' . $parts[7];
-                            $allday = 0;
-                        } else { //all day event
-                            $title = substr($parts[0], 0, -1);
-                            $start = $parts[1];
-                            $end = $parts[3];
-                            $allday = 1;
-                        }
-                        array_push($fieldArray,$title);
-                        array_push($fieldArray,$start);
-                        array_push($fieldArray,$end);
-                        array_push($fieldArray,$allday);
-                    }
-                    array_push($csv, $fieldArray);
-                }
-                $df = DocumentsField::where('rid', '=', $record->rid)->get();
-                foreach($df as $f) {
-                    $fieldArray = array(0 => $fieldsInfo[$f->flid]['slug'], 1 => $fieldsInfo[$f->flid]['type']);
-                    $files = explode('[!]', $f->documents);
-                    $fieldArray['files'] = array();
-                    foreach ($files as $file) {
-                        $fileArray = array();
-                        $fileArray['name'] = explode('[Name]', $file)[1];
-                        $fileArray['size'] = explode('[Size]', $file)[1];
-                        $fileArray['type'] = explode('[Type]', $file)[1];
-                        array_push($fieldArray['files'],$fileArray);
-                    }
-                    array_push($csv, $fieldArray);
-                }
-                $gf = GalleryField::where('rid', '=', $record->rid)->get();
-                foreach($gf as $f) {
-                    $fieldArray = array(0 => $fieldsInfo[$f->flid]['slug'], 1 => $fieldsInfo[$f->flid]['type']);
-                    $files = explode('[!]', $f->images);
-                    $fieldArray['files'] = array();
-                    foreach ($files as $file) {
-                        $fileArray = array();
-                        $fileArray['name'] = explode('[Name]', $file)[1];
-                        $fileArray['size'] = explode('[Size]', $file)[1];
-                        $fileArray['type'] = explode('[Type]', $file)[1];
-                        array_push($fieldArray['files'],$fileArray);
-                    }
-                    array_push($csv, $fieldArray);
-                }
-                $pf = PlaylistField::where('rid', '=', $record->rid)->get();
-                foreach($pf as $f) {
-                    $fieldArray = array(0 => $fieldsInfo[$f->flid]['slug'], 1 => $fieldsInfo[$f->flid]['type']);
-                    $files = explode('[!]', $f->audio);
-                    $fieldArray['files'] = array();
-                    foreach ($files as $file) {
-                        $fileArray = array();
-                        $fileArray['name'] = explode('[Name]', $file)[1];
-                        $fileArray['size'] = explode('[Size]', $file)[1];
-                        $fileArray['type'] = explode('[Type]', $file)[1];
-                        array_push($fieldArray['files'],$fileArray);
-                    }
-                    array_push($csv, $fieldArray);
-                }
-                $vf = VideoField::where('rid', '=', $record->rid)->get();
-                foreach($vf as $f) {
-                    $fieldArray = array(0 => $fieldsInfo[$f->flid]['slug'], 1 => $fieldsInfo[$f->flid]['type']);
-                    $files = explode('[!]', $f->video);
-                    $fieldArray['files'] = array();
-                    foreach ($files as $file) {
-                        $fileArray = array();
-                        $fileArray['name'] = explode('[Name]', $file)[1];
-                        $fileArray['size'] = explode('[Size]', $file)[1];
-                        $fileArray['type'] = explode('[Type]', $file)[1];
-                        array_push($fieldArray['files'],$fileArray);
-                    }
-                    array_push($csv, $fieldArray);
-                }
-                $mf = ModelField::where('rid', '=', $record->rid)->get();
-                foreach($mf as $f) {
-                    $fieldArray = array(0 => $fieldsInfo[$f->flid]['slug'], 1 => $fieldsInfo[$f->flid]['type']);
-                    $file = $f->model;
-                    $fieldArray['files'] = array();
-                    $fileArray = array();
-                    $fileArray['name'] = explode('[Name]', $file)[1];
-                    $fileArray['size'] = explode('[Size]', $file)[1];
-                    $fileArray['type'] = explode('[Type]', $file)[1];
-                    array_push($fieldArray['files'],$fileArray);
-                    array_push($csv, $fieldArray);
-                }
-                $gf = GeolocatorField::where('rid', '=', $record->rid)->get();
-                foreach($gf as $f) {
-                    $fieldArray = array(0 => $fieldsInfo[$f->flid]['slug'], 1 => $fieldsInfo[$f->flid]['type']);
-                    $locations = explode('[!]', $f->locations);
-                    foreach ($locations as $loc) {
-                        $latlon = explode('[LatLon]', $loc)[1];
-                        $utm = explode('[UTM]', $loc)[1];
-                        $desc = explode('[Desc]', $loc)[1];
-                        $address = explode('[Address]', $loc)[1];
-
-                        array_push($fieldArray,$desc);
-                        array_push($fieldArray,$latlon);
-                        array_push($fieldArray,$utm);
-                        array_push($fieldArray,$address);
-                    }
-                    array_push($csv, $fieldArray);
-                }
-            }
-
-            $parser = new Parser();
-            $csvfa = $parser->fromArray($csv);
-
-            //header("Content-Disposition: attachment; filename=".$form->name.'_recordData_'.Carbon::now().'.csv');
-            //header("Content-Type: application/octet-stream; ");
-
-            echo $parser->toString($csvfa);
         }
     }
 
