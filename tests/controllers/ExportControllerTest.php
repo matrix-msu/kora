@@ -110,6 +110,11 @@ class ExportControllerTest extends TestCase
 
         $filepath = ExportController::exportWithRids([$rid]);
 
-        var_dump($filepath);
+        $this->assertEquals("json", pathinfo($filepath, PATHINFO_EXTENSION));
+
+        var_dump(readfile($filepath));
+
+        unlink($filepath);
+        $this->assertFalse(file_exists($filepath));
     }
 }

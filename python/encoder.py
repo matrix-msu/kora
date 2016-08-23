@@ -1,5 +1,5 @@
+import simplejson
 from json import JSONEncoder
-from simplejson import JSONEncoderForHTML
 from datetime import datetime
 
 ##
@@ -12,13 +12,12 @@ class DBEncoder(JSONEncoder):
     Extends the JSONEncoder class to deal with date time errors.
     """
 
-    def default(self, obj, to_file = True):
+    def default(self, obj):
         """
         Extends the functionality of the JSONEncoder to deal with datetime objects.
         Datetime objects will be output in YYYY-MM-DD HH:MM:SS format (where HH is 24-hr).
 
         :param obj: the element to be encoded.
-        :param to_file: bool, if the object is being encoded to a file.
         :return string: the encoded json string.
         """
         if isinstance(obj, datetime):

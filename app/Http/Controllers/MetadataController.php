@@ -71,64 +71,35 @@ class MetadataController extends Controller {
      * Attempting meta data function again.
      */
     public function records2($pid, $fid) {
-//        if ( ! FormController::validProjForm($pid, $fid)) {
-//            return json_encode("Invalid project id and form id combination.");
-//        }
-//
-//        $rids = DB::table("records")->select("rid")->where("fid", "=", $fid)->limit(100)->get();
-//
-//        $rids = array_map(function($obj) {
-//            return $obj->rid;
-//        }, $rids);
-//
-//        $encoded = json_encode($rids);
-//
-//        $exec = env("BASE_PATH") . "python/export.py \"$encoded\" \"JSON\" 2>&1";
-//
-//        exec($exec, $output);
-//
-//        $output = $output[0];
-//
-//        if (file_exists($output)) {
-//            readfile($output);
-//            return;
-//        }
-//        else {
-//            return $output;
-//        }
-        
         // Old meta data method
-//        if ( ! FormController::validProjForm($pid, $fid)){
-//            return redirect('projects/' . $pid . '/forms');
-//        }
-//
-//        $rids = DB::table("records")->where("fid", "=", $fid)->select("rid")->get();
-//
-//        // The DB call returns an array of StdObj so we get the rids out of the objects.
-//        $rids = array_map( function($obj) {
-//            return $obj->rid;
-//        }, $rids);
-//
-//        $form = FormController::getForm($fid);
-//        $output = new Collection();
-//
-//        // User is logged in or the form's metadata is public.
-//        if ($form->public_metadata || Auth::check()) {
-//            $layout = $this->layout(FormController::xmlToArray($form->layout)); // Generate the layout for our json object.
-//
-//
-//            dd($layout);
-//
-//            foreach ($rids as $rid) {
-//                $data = $this->matchRecordsAndMetadata2($form, $rid, $layout);
-//
-//                if ($data->count() > 0) {
-//                    $output->push($data);
-//                }
-//            }
-//        }
-//
-//        return response()->json($output);
+        if ( ! FormController::validProjForm($pid, $fid)){
+            return redirect('projects/' . $pid . '/forms');
+        }
+
+        $rids = DB::table("records")->where("fid", "=", $fid)->select("rid")->get();
+
+        // The DB call returns an array of StdObj so we get the rids out of the objects.
+        $rids = array_map( function($obj) {
+            return $obj->rid;
+        }, $rids);
+
+        $form = FormController::getForm($fid);
+        $output = new Collection();
+
+        // User is logged in or the form's metadata is public.
+        if ($form->public_metadata || Auth::check()) {
+            $layout = $this->layout(FormController::xmlToArray($form->layout)); // Generate the layout for our json object.
+
+            foreach ($rids as $rid) {
+                $data = $this->matchRecordsAndMetadata2($form, $rid, $layout);
+
+                if ($data->count() > 0) {
+                    $output->push($data);
+                }
+            }
+        }
+
+        return response()->json($output);
     }
 
     /*

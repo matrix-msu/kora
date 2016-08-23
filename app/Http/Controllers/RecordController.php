@@ -1110,10 +1110,10 @@ class RecordController extends Controller {
                     $gf->locations = FieldController::listArrayToString($value);
                     $gf->save();
                 }
-                elseif(!is_null($gf) && is_null($gf)){
+                elseif(!is_null($gf) && is_null($value)){
                     $gf->delete();
                 }
-                elseif(is_null($gf) && !is_null($gf)) {
+                elseif(is_null($gf) && !is_null($value)) {
                     $gf = new GeolocatorField();
                     $gf->flid = $field->flid;
                     $gf->rid = $record->rid;
@@ -1507,8 +1507,7 @@ class RecordController extends Controller {
         $revision->oldData = RevisionController::buildDataArray($record);
         $revision->save();
 
-        $preset = new RecordPresetController();
-        $preset->updateIfExists($record->rid);
+        RecordPresetController::updateIfExists($record->rid);
 
         flash()->overlay(trans('controller_record.updated'), trans('controller_record.goodjob'));
 

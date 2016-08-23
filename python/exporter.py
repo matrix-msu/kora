@@ -1,5 +1,4 @@
 import os
-import sys
 import datetime
 import time
 from connection import Connection, Cursor
@@ -42,10 +41,12 @@ class FieldExporter:
                     self._writer.start_time
 
         python_dir = os.path.dirname(os.path.abspath(__file__))
-        sys.stdout = open(os.path.join(python_dir, "temp", file_name), "w")
+        target = open(os.path.join(python_dir, "temp", file_name), "w")
 
         for item in cursor.get_typed_fields(self._rids, self._table):
-            print self._writer.write(item)
+            target.write(self._writer.write(item))
+
+
 
     def _connect_to_database(self):
         """

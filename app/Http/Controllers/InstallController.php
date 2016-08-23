@@ -25,7 +25,18 @@ class InstallController extends Controller {
 	*/
 
     //Any directory in this array will be created for you during install with 0644 permission
-    public $DIRECTORIES = ["storage/app/backups","storage/app/backups/user_upload","storage/app/backups/files","storage/app/tmpFiles","storage/app/tmpImport","storage/app/files","storage/app/plugins"];
+    public $DIRECTORIES = ["storage/app/backups",
+		"storage/app/backups/user_upload",
+		"storage/app/backups/files",
+		"storage/app/tmpFiles",
+		"storage/app/tmpImport",
+		"storage/app/files",
+		"storage/app/plugins"
+	];
+
+	/*****************************************************
+	 * TODO: Add python .env file to installation process.
+	 *****************************************************/
 
 	public function index(Request $request)
 	{

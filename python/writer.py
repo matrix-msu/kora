@@ -1,4 +1,5 @@
 import os
+import simplejson
 import time
 from encoder import DBEncoder
 from json import dumps
@@ -64,7 +65,7 @@ class JSONWriter(Writer):
         :param item: thing to be written to json.
         :return string: json object.
         """
-        return dumps(item, cls = DBEncoder) + "," ## Note special datetime encoding.
+        return dumps(item, cls = DBEncoder, separators=(',', ':')) + "," ## Note special datetime encoding.
 
     def file_extension(self):
         """
@@ -90,7 +91,7 @@ class JSONWriter(Writer):
             ## Remove the trailing comma and space from the end of the file if there is
             ## something other than the opening bracket in the file.
             try:
-                target.seek(-2, os.SEEK_END)
+                target.seek(-1, os.SEEK_END)
                 target.truncate()
                 target.write("]")
 
@@ -112,6 +113,19 @@ class XMLWriter(Writer):
         """
         return ".xml"
 
+    def header(self, filepath): ## TODO: Implement
+        """
+        Writes the header to a file. Should be an empty file, else it will be truncated.
+        :param filepath: string, absolute path to set up the file header in.
+        """
+        pass
+
+    def footer(self, filepath): ## TODO: Implement
+        """
+        Writes the footer to a file.
+        :param filepath: string, absolute path to file to append footer to.
+        """
+        pass
 
 class CSVWriter(Writer):
     """
@@ -126,6 +140,20 @@ class CSVWriter(Writer):
         :return string:
         """
         return ".csv"
+
+    def header(self, filepath): ## TODO: Implement
+        """
+        Writes the header to a file. Should be an empty file, else it will be truncated.
+        :param filepath: string, absolute path to set up the file header in.
+        """
+        pass
+
+    def footer(self, filepath): ## TODO: Implement
+        """
+        Writes the footer to a file.
+        :param filepath: string, absolute path to file to append footer to.
+        """
+        pass
 
 def make_writer(format, temp_path):
     """
