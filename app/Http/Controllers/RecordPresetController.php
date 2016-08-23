@@ -25,7 +25,6 @@ use RecursiveIteratorIterator;
 use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
 
 class RecordPresetController extends Controller {
-
     /**
      * User must be logged in to access views in this controller.
      */
