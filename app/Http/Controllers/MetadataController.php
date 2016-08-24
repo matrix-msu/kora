@@ -86,12 +86,21 @@ class MetadataController extends Controller {
         $form = FormController::getForm($fid);
         $output = new Collection();
 
+        // Stash fields in an array indexed by their flids, this prevents overhead caused by getting the fields over and over.
+        $stash = [];
+
+        $fields = Field::where("fid", "=", $form->fid)->get();
+
+        foreach($fields as $field) {
+            $stash[$field->flid] = $field;
+        }
+
         // User is logged in or the form's metadata is public.
         if ($form->public_metadata || Auth::check()) {
             $layout = $this->layout(FormController::xmlToArray($form->layout)); // Generate the layout for our json object.
 
             foreach ($rids as $rid) {
-                $data = $this->matchRecordsAndMetadata2($form, $rid, $layout);
+                $data = $this->matchRecordsAndMetadata2($form, $rid, $layout, $stash);
 
                 if ($data->count() > 0) {
                     $output->push($data);
@@ -105,17 +114,17 @@ class MetadataController extends Controller {
     /*
      * Attempting to redo the record and meta data method.
      */
-    public function matchRecordsAndMetadata2($form, $rid, $layout) {
+    public function matchRecordsAndMetadata2($form, $rid, $layout, array $stash) {
         $json_record = new Collection();
 
         foreach($layout as $key => $value) { // Either an flid or node title.
             if (is_int($key)) { // Is an flid.
                 if (Field::hasMetadata($value)) {
-                    $field = FieldController::getField($value);
+                    $field = $stash[$value];
                     $typed_field = $field->getTypedField($rid);
                     $meta_name = Metadata::where("flid", "=", $field->flid)->select("name")->first()->name;
 
-                    if (!is_null($typed_field) && $typed_field->isMetafiable()) {
+                    if ( ! is_null($typed_field) && $typed_field->isMetafiable()) {
                         $json_record->put($meta_name, $typed_field->toMetadata($field));
                     }
                 }
@@ -126,7 +135,7 @@ class MetadataController extends Controller {
                 // Since we are at a node title, we recurse the function to continue building
                 // the record as above.
                 //
-                $node_fields = $this->matchRecordsAndMetadata2($form, $rid, $value); // $value here will be the sub_array representing a node.
+                $node_fields = $this->matchRecordsAndMetadata2($form, $rid, $value, $stash); // $value here will be the sub_array representing a node.
 
                 if ($node_fields->count() > 0) {
                     $json_record->put($key, $node_fields); // $key here will be the title of the node.

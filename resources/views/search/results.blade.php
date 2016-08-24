@@ -12,6 +12,7 @@
     <div><b>{{trans('records_index.desc')}}:</b> {{ $form->description }}</div>
 
     @if(\Auth::user()->canIngestRecords($form))
+        <a href="{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_index.records')}}]</a>
         <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_index.new')}}]</a>
         <a href="{{ action('RecordController@importRecordsView',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('forms_show.import')}}]</a>
     @endif
@@ -51,8 +52,15 @@
     {{--<div style="text-align: left">{!! $records->render() !!}</div>--}}
 
     <h2>{{trans('records_index.records')}}</h2>
-    <div>{{trans('records_index.total')}}: {{sizeof($rids)}}</div>
+    <div>{{trans('records_index.total')}}: {{$rid_paginator->total()}}</div>
     @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
+
+        @if ($rid_paginator->total() > 0)
+        <form action="{{ action('FormSearchController@deleteSubset', ['pid' => $form->pid, 'fid' => $form->fid]) }}">
+            <button type="submit" class="btn btn-danger">{{ trans('search.deleteSubset') }}</button>
+        </form>
+        @endif
+
         <div>
             {{trans('records_index.exportRec')}}:
             <a href="{{ action('ExportController@exportRecords',['pid' => $form->pid, 'fid' => $form->fid, 'type'=>'xml']) }}">[XML]</a>
@@ -65,7 +73,7 @@
 
     <div id="slideme">
 
-        @include('pagination.records', ['object' => $records])
+        @include('pagination.records', ['object' => $rid_paginator])
 
         @foreach($records as $record)
             <div class="panel panel-default">
@@ -559,7 +567,7 @@
             </div>
         @endforeach
 
-        @include('pagination.records', ['object' => $records])
+        @include('pagination.records', ['object' => $rid_paginator])
 
     </div>
 

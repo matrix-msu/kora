@@ -9,6 +9,18 @@
 
     <hr/>
 
+    @if($preset->shared == true)
+        <div class="form-group">
+            <label for="preset_shared">{{trans('optionPresets_edit.share')}}:</label>
+            <input id="preset_shared" type="checkbox" name="preset_shared" checked>
+        </div>
+    @else
+        <div class="form-group">
+            <label for="preset_shared">{{trans('optionPresets_edit.share')}}:</label>
+            <input id="preset_shared" type="checkbox" name="preset_shared">
+        </div>
+    @endif
+
     <div class="form-group">
         <label for="preset_name">{{trans('optionPresets_edit.name')}}:</label>
         <input name="preset_name" id="preset_name" class="form-control" type="text" value="{{$preset->name}}">
@@ -78,47 +90,40 @@
                 <button class="btn btn-primary move_option_up">{{trans('optionPresets_edit.up')}}</button>
                 <button class="btn btn-primary move_option_down">{{trans('optionPresets_edit.down')}}</button>
             </div>
+
+            <div>
+                {!! Form::label('type', trans('fields_options_geolocator.type').': ') !!}
+                {!! Form::select('loc_type', ['LatLon' => 'LatLon','UTM' => 'UTM','Address' => trans('fields_options_geolocator.addr')], 'LatLon', ['class' => 'form-control loc_type']) !!}
+            </div>
+
             <div class="latlon_container">
                 <label>{{trans('optionPresets_edit.loc')}}:</label>
-                <span><input type="text" class="latlon_desc"></span>
+                <input type="text" class="form-control latlon_desc">
                 <label>{{trans('optionPresets_edit.lat')}}:</label>
-                <span><input type="number" class="latlon_lat" min=-90 max=90 step=".000001"></span>
+                <input type="number" class="form-control latlon_lat" min=-90 max=90 step=".000001">
                 <label>{{trans('optionPresets_edit.lon')}}:</label>
-                <span><input type="number" class="latlon_lon" min=-180 max=180 step=".000001"></span>
-                <span><button class="btn btn-primary add_latlon">{{trans('optionPresets_edit.add')}}</button></span>
+                <input type="number" class="form-control latlon_lon" min=-180 max=180 step=".000001">
+                <button class="btn btn-primary add_latlon">{{trans('optionPresets_edit.add')}}</button>
             </div>
             <div class="utm_container" style="display:none">
                 <label>{{trans('optionPresets_edit.desc')}}:</label>
-                <span><input type="text" class="utm_desc"></span>
+                <input type="text" class="form-control utm_desc">
                 <label>{{trans('optionPresets_edit.zone')}}:</label>
-                <span><input type="text" class="utm_zone"></span>
+                <input type="text" class="form-control utm_zone">
                 <label>{{trans('optionPresets_edit.east')}}:</label>
-                <span><input type="text" class="utm_east"></span>
+                <input type="text" class="form-control utm_east">
                 <label>{{trans('optionPresets_edit.north')}}:</label>
-                <span><input type="text" class="utm_north"></span>
-                <span><button class="btn btn-primary add_utm">{{trans('optionPresets_edit.add')}}</button></span>
+                <input type="text" class="form-control utm_north">
+                <button class="btn btn-primary add_utm">{{trans('optionPresets_edit.add')}}</button>
             </div>
             <div class="text_container" style="display:none">
                 <label>{{trans('optionPresets_edit.desc')}}:</label>
-                <span><input type="text" class="text_desc"></span>
+                <input type="text" class="form-control text_desc">
                 <label>{{trans('optionPresets_edit.addr')}}:</label>
-                <span><input type="text" class="text_addr"></span>
-                <span><button class="btn btn-primary add_text">{{trans('optionPresets_edit.add')}}</button></span>
+                <input type="text" class="form-control text_addr">
+                <button class="btn btn-primary add_text">{{trans('optionPresets_edit.add')}}</button>
             </div>
         </div>
-    @endif
-
-    @if($preset->shared == true)
-        <div class="form-group">
-            <label for="preset_shared">{{trans('optionPresets_edit.share')}}:</label>
-            <input id="preset_shared" type="checkbox" name="preset_shared" checked>
-        </div>
-    @else
-        <div class="form-group">
-            <label for="preset_shared">{{trans('optionPresets_edit.share')}}:</label>
-            <input id="preset_shared" type="checkbox" name="preset_shared">
-        </div>
-
     @endif
 
 
@@ -167,6 +172,7 @@
                 defOpt.insertBefore(defOpt.prev());
                 SaveList();
             });
+
             $('.list_option_form').on('click', '.move_option_down', function(){
                 val = $('option:selected', '.list_options').val();
                 defOpt = $("#default option[value='"+val+"']");
@@ -177,6 +183,7 @@
                 defOpt.insertAfter(defOpt.next());
                 SaveList();
             });
+
             $('.list_option_form').on('click', '.add_option', function(){
                 val = $('.new_list_option').val();
                 val = val.trim();
@@ -196,7 +203,7 @@
             });
 
             function SaveList() {
-                options = new Array();
+                options = [];
                 $(".list_options option").each(function(){
                     options.push($(this).val());
                 });
@@ -208,9 +215,6 @@
                         "_token": "{{ csrf_token() }}",
                         action: 'SaveList',
                         options: options
-                    },
-                    success: function (result) {
-                        //location.reload();
                     },
                     error: function(result){
                         location.reload();
@@ -286,21 +290,133 @@
             lon = lon.trim();
 
             if(desc!='' && lat!='' && lon!='') {
-                $('.list_options').append($('<option/>', {
-                    value: desc + ': ' + lat + ', ' + lon,
-                    text: desc + ': ' + lat + ', ' + lon
-                }));
-                SaveList();
+
+                // Properly format the geolocator information.
+                $.ajax({
+                    url: '{{ action('FieldAjaxController@geoConvert',['pid' => 0, 'fid' => 0, 'flid' => 0]) }}',
+                    type: 'POST',
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        lat: lat,
+                        lon: lon,
+                        type: 'latlon'
+                    },
+                    success:function(result) {
+                        result = '[Desc]'+desc+'[Desc]'+result;
+                        $('.list_options').append($("<option/>", {
+                            value: result,
+                            text: result
+                        }));
+
+                        SaveList();
+                    }
+                });
                 $('.latlon_desc').val('');
                 $('.latlon_lat').val('');
                 $('.latlon_lon').val('');
             }
+            else {
+                $('.latlon_desc').attr('style','border: 1px solid red;');
+                $('.latlon_lat').attr('style','border: 1px solid red;');
+                $('.latlon_lon').attr('style','border: 1px solid red;');
+            }
         });
+
         $('.utm_container').on('click', '.add_utm', function() {
-            console.log("utm");
+            desc = $(".utm_desc").val().trim();
+            zone = $(".utm_zone").val().trim();
+            east = $(".utm_east").val().trim();
+            north  = $(".utm_north").val().trim();
+
+            if (desc != "" && zone != "" && east != "" && north != "") {
+                // Properly format geolocator information.
+                $.ajax({
+                    url: '{{ action('FieldAjaxController@geoConvert',['pid' => 0, 'fid' => 0, 'flid' => 0]) }}',
+                    type: 'POST',
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        zone: zone,
+                        east: east,
+                        north: north,
+                        type: 'utm'
+                    },
+                    success: function (result) {
+                        result = '[Desc]'+desc+'[Desc]'+result;
+                        $('.list_options').append($("<option/>", {
+                            value: result,
+                            text: result
+                        }));
+
+                        SaveList();
+                    }
+                });
+
+                $(".utm_desc").val("");
+                $(".utm_zone").val("");
+                $(".utm_east").val("");
+                $(".utm_north").val("");
+            }
+            else {
+                $(".utm_desc").attr('style','border: 1px solid red;');
+                $(".utm_zone").attr('style','border: 1px solid red;');
+                $(".utm_east").attr('style','border: 1px solid red;');
+                $(".utm_north").attr('style','border: 1px solid red;');
+            }
+
         });
+
         $('.text_container').on('click', '.add_text', function() {
-            console.log("text");
+            desc = $(".text_desc").val().trim();
+            addr = $(".text_addr").val().trim();
+
+            if (desc != "" && addr != "") {
+                // Properly format geolocator information.
+                $.ajax({
+                    url: '{{ action('FieldAjaxController@geoConvert',['pid' => 0, 'fid' => 0, 'flid' => 0]) }}',
+                    type: 'POST',
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        addr: addr,
+                        type: 'geo'
+                    },
+                    success: function (result) {
+                        result = '[Desc]'+desc+'[Desc]'+result;
+                        $('.list_options').append($("<option/>", {
+                            value: result,
+                            text: result
+                        }));
+
+                        SaveList();
+                    }
+                });
+
+                $(".text_desc").val("");
+                $(".text_addr").val("");
+            }
+            else {
+                $(".text_desc").attr('style','border: 1px solid red;');
+                $(".text_addr").attr('style','border: 1px solid red;');
+            }
+        });
+
+        /**
+         * Changes the geolocator form inputs.
+         */
+        $('.list_option_form').on('change', '.loc_type', function(){
+            newType = $('.loc_type').val();
+            if(newType=='LatLon'){
+                $('.latlon_container').show();
+                $('.utm_container').hide();
+                $('.text_container').hide();
+            }else if(newType=='UTM'){
+                $('.latlon_container').hide();
+                $('.utm_container').show();
+                $('.text_container').hide();
+            }else if(newType=='Address'){
+                $('.latlon_container').hide();
+                $('.utm_container').hide();
+                $('.text_container').show();
+            }
         });
 
         //End

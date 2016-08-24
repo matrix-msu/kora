@@ -35,13 +35,12 @@ class ExportController extends Controller {
      * @var string.
      */
     const JSON = "JSON";
-    const CSV = "CSV";
     const XML = "XML";
 
     /**
      * @var array
      */
-    const VALID_FORMATS = [ self::JSON, self::CSV, self::XML ];
+    const VALID_FORMATS = [ self::JSON, self::XML ];
 
     public function exportRecords($pid, $fid, $type){
         if(!FormController::validProjForm($pid,$fid)){
@@ -72,7 +71,6 @@ class ExportController extends Controller {
             foreach ($records as $record) {
 
                 $xml .= '<Record kid="' . $record->kid . '">';
-
                 $tf = TextField::where('rid', '=', $record->rid)->get();
                 foreach($tf as $f) {
                     $xml .= '<' . $this->xmlTagClear($fieldsInfo[$f->flid]['slug']) . ' type="' . $fieldsInfo[$f->flid]['type'] . '">';

@@ -109,16 +109,21 @@
                     }
                 }
             </style>
-            <ul class="nav navbar-nav navbar-right" id="navbar_container">
-                <form class="navbar-form" role="search" id="global_search" action="{{action("ProjectSearchController@globalSearch")}}">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Global Search" name="query">
-                        <div class="input-group-btn">
-                            <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search" style="height: 1.4em; vertical-align: middle"></i></button>
+
+            @if ( ! is_null(\Auth::user()))
+                <ul class="nav navbar-nav navbar-right" id="navbar_container">
+                    <form class="navbar-form" role="search" id="global_search" action="{{action("ProjectSearchController@globalSearch")}}">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Global Search" name="query">
+                            <div class="input-group-btn">
+                                <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search" style="height: 1.4em; vertical-align: middle"></i></button>
+                            </div>
                         </div>
-                    </div>
-                </form>
-            </ul>
+                    </form>
+                </ul>
+            @endif
+
+
 
         </div><!--/.nav-collapse -->
       </div>
