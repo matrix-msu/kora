@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\ComboListField;
 use App\Field;
 use App\Form;
 use App\FormGroup;
@@ -29,17 +30,17 @@ class ImportController extends Controller {
             $res = $zip->open($request->file('files'));
             if($res){
                 $dir = env('BASE_PATH').'storage/app/tmpFiles/impU'.\Auth::user()->id;
-                //clear import directory
-                $files = new \RecursiveIteratorIterator(
-                    new \RecursiveDirectoryIterator($dir),
-                    \RecursiveIteratorIterator::LEAVES_ONLY
-                );
-                foreach ($files as $file)
-                {
-                    // Skip directories (they would be added automatically)
-                    if (!$file->isDir())
-                    {
-                        unlink($file);
+                if(file_exists($dir)) {
+                    //clear import directory
+                    $files = new \RecursiveIteratorIterator(
+                        new \RecursiveDirectoryIterator($dir),
+                        \RecursiveIteratorIterator::LEAVES_ONLY
+                    );
+                    foreach ($files as $file) {
+                        // Skip directories (they would be added automatically)
+                        if (!$file->isDir()) {
+                            unlink($file);
+                        }
                     }
                 }
                 $zip->extractTo($dir.'/');
@@ -147,21 +148,23 @@ class ImportController extends Controller {
                     $recRequest[$flid] = (array)$field->value;
                 } else if ($type == 'Combo List') {
                     $values = array();
+                    $nameone = str_replace(" ","_",ComboListField::getComboFieldName(FieldController::getField($flid), 'one'));
+                    $nametwo = str_replace(" ","_",ComboListField::getComboFieldName(FieldController::getField($flid), 'two'));
                     foreach ($field->Value as $val) {
-                        if ((string)$val->Field_One != '')
-                            $fone = '[!f1!]' . (string)$val->Field_One . '[!f1!]';
-                        else if (sizeof($val->Field_One->value) == 1)
-                            $fone = '[!f1!]' . (string)$val->Field_One->value . '[!f1!]';
+                        if ((string)$val->{$nameone} != '')
+                            $fone = '[!f1!]' . (string)$val->{$nameone} . '[!f1!]';
+                        else if (sizeof($val->{$nameone}->value) == 1)
+                            $fone = '[!f1!]' . (string)$val->{$nameone}->value . '[!f1!]';
                         else
-                            $fone = '[!f1!]' . FieldController::listArrayToString((array)$val->Field_One->value) . '[!f1!]';
+                            $fone = '[!f1!]' . FieldController::listArrayToString((array)$val->{$nameone}->value) . '[!f1!]';
 
 
-                        if ((string)$val->Field_Two != '')
-                            $ftwo = '[!f2!]' . (string)$val->Field_Two . '[!f2!]';
-                        else if (sizeof($val->Field_Two->value) == 1)
-                            $ftwo = '[!f2!]' . (string)$val->Field_Two->value . '[!f2!]';
+                        if ((string)$val->{$nametwo} != '')
+                            $ftwo = '[!f2!]' . (string)$val->{$nametwo} . '[!f2!]';
+                        else if (sizeof($val->{$nametwo}->value) == 1)
+                            $ftwo = '[!f2!]' . (string)$val->{$nametwo}->value . '[!f2!]';
                         else
-                            $ftwo = '[!f2!]' . FieldController::listArrayToString((array)$val->Field_Two->value) . '[!f2!]';
+                            $ftwo = '[!f2!]' . FieldController::listArrayToString((array)$val->{$nametwo}->value) . '[!f2!]';
 
                         array_push($values, $fone . $ftwo);
                     }
@@ -278,17 +281,19 @@ class ImportController extends Controller {
                     $recRequest[$flid] = $field['options'];
                 } else if ($type == 'Combo List') {
                     $values = array();
+                    $nameone = ComboListField::getComboFieldName(FieldController::getField($flid), 'one');
+                    $nametwo = ComboListField::getComboFieldName(FieldController::getField($flid), 'two');
                     foreach ($field['values'] as $val) {
-                        if (!is_array($val['field_one']))
-                            $fone = '[!f1!]' . $val['field_one'] . '[!f1!]';
+                        if (!is_array($val[$nameone]))
+                            $fone = '[!f1!]' . $val[$nameone] . '[!f1!]';
                         else
-                            $fone = '[!f1!]' . FieldController::listArrayToString($val['field_one']) . '[!f1!]';
+                            $fone = '[!f1!]' . FieldController::listArrayToString($val[$nameone]) . '[!f1!]';
 
 
-                        if (!is_array($val['field_two']))
-                            $ftwo = '[!f2!]' . $val['field_two'] . '[!f2!]';
+                        if (!is_array($val[$nametwo]))
+                            $ftwo = '[!f2!]' . $val[$nametwo] . '[!f2!]';
                         else
-                            $ftwo = '[!f2!]' . FieldController::listArrayToString($val['field_two']) . '[!f2!]';
+                            $ftwo = '[!f2!]' . FieldController::listArrayToString($val[$nametwo]) . '[!f2!]';
 
                         array_push($values, $fone . $ftwo);
                     }
