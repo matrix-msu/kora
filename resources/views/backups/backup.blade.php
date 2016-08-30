@@ -24,12 +24,12 @@
                         </div>
 
                         <div class="panel-body">
-                            <div style="" id="progress">
+                            <div style="" id="summary">
                                 <p>
                                     {{trans('backups_backup.backupnotes')}}.
                                 </p>
                                 <div class="progress">
-                                    <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                                    <div id="progress" class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
                                         <span class="sr-only">{{trans('backups_backup.almostdone')}}</span>
                                     </div>
                                 </div>
@@ -115,12 +115,39 @@
                 }
             });
         }
-        function download(){
-                window.location ='{{action("BackupController@download")}}';
+        function checkProgress(){
+            $.ajax({
+                    url:"{{action('BackupController@checkProgress',compact('backup_id'))}}",
+                    method:'GET',
+                    data:{
+                "_token":"{{csrf_token()}}"
+                },
+            success: function(data){
+                console.log(data);
+                $("#progress").removeClass('progress-bar-danger');
+                $("#progress").css('width',(((data.overall.progress / data.overall.overall) * 100)+"%"));
+                setTimeout(function () {
+                    checkProgress();
+                    },5000);
+                },
+            error: function(data){
+                console.log("error checking progress!");
+                $("#progress").addClass('progress-bar-danger');
+                setTimeout(function () {
+                    checkProgress();
+                    },5000);
+                }
+            });
         }
-$(backup);
+
+        function download(){
+            window.location ='{{action("BackupController@download")}}';
+        }
+
+        $(backup);
+        setTimeout(function(){
+            checkProgress();
+        },10000);
     </script>
 @endsection
-
-@stop
 

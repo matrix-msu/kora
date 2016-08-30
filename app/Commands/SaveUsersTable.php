@@ -27,6 +27,8 @@ class SaveUsersTable extends Command implements SelfHandling, ShouldBeQueued
             $this->makeBackupTableArray("users")
         );
 
+        DB::table('backup_partial_progress')->where('id',$row_id)->decrement("overall",1);
+
         $this->backup_fs->makeDirectory($table_path);
         User::chunk(1000, function($users) use ($table_path, $row_id) {
             $count = 0;
@@ -58,5 +60,6 @@ class SaveUsersTable extends Command implements SelfHandling, ShouldBeQueued
             $increment = DB::table("backup_partial_progress")->where("id", $row_id)->pluck("progress");
             $this->backup_fs->put($table_path . $increment . ".json", json_encode($all_users_data));
         });
+        DB::table("backup_overall_progress")->where("id", $this->backup_id)->increment("progress",1,["updated_at"=>Carbon::now()]);
     }
 }

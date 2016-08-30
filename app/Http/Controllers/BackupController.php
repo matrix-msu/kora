@@ -268,28 +268,33 @@ class BackupController extends Controller
     }
 
     public function saveDatabase2(){
+        ini_set('max_execution_time',0);
         Log::info("Backup fp: ".$this->backup_filepath);
         $this->backup_id = DB::table('backup_overall_progress')->insertGetId(['progress'=>0,'overall'=>0,'start'=>Carbon::now(),'created_at'=>Carbon::now(),'updated_at'=>Carbon::now()]);
-        Queue::push(new SaveFormsTable($this->backup_disk, $this->backup_filepath, $this->backup_id ));
-        Queue::push(new SaveProjectsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
-        Queue::push(new SaveRecordsTable($this->backup_disk, $this->backup_filepath, $this->backup_id ));
-        Queue::push(new SaveTextFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id ));
-        Queue::push(new SaveComboListFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
-        Queue::push(new SaveDateFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
-        Queue::push(new SaveFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
-        Queue::push(new SaveGeneratedListFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
-        Queue::push(new SaveGeolocatorFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
-        Queue::push(new SaveListFieldTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
-        Queue::push(new SaveMetadatasTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
-        Queue::push(new SaveMultiSelectListFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
-        Queue::push(new SaveNumberFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
-        Queue::push(new SaveOptionPresetsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
-        Queue::push(new SaveProjectGroupsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
-        Queue::push(new SaveRevisionsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
-        Queue::push(new SaveRichTextFields($this->backup_disk, $this->backup_filepath, $this->backup_id));
-        Queue::push(new SaveScheduleFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
-        Queue::push(new SaveTokensTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
-        Queue::push(new SaveUsersTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+        $jobs = [new SaveFormsTable($this->backup_disk, $this->backup_filepath, $this->backup_id ),
+            new SaveProjectsTable($this->backup_disk, $this->backup_filepath, $this->backup_id),
+            new SaveRecordsTable($this->backup_disk, $this->backup_filepath, $this->backup_id ),
+            new SaveTextFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id ),
+            new SaveComboListFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id),
+            new SaveDateFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id),
+            new SaveFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id),
+            new SaveGeneratedListFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id),
+            new SaveGeolocatorFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id),
+            new SaveListFieldTable($this->backup_disk, $this->backup_filepath, $this->backup_id),
+            new SaveMetadatasTable($this->backup_disk, $this->backup_filepath, $this->backup_id),
+            new SaveMultiSelectListFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id),
+            new SaveNumberFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id),
+            new SaveOptionPresetsTable($this->backup_disk, $this->backup_filepath, $this->backup_id),
+            new SaveProjectGroupsTable($this->backup_disk, $this->backup_filepath, $this->backup_id),
+            new SaveRevisionsTable($this->backup_disk, $this->backup_filepath, $this->backup_id),
+            new SaveRichTextFields($this->backup_disk, $this->backup_filepath, $this->backup_id),
+            new SaveScheduleFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id),
+            new SaveTokensTable($this->backup_disk, $this->backup_filepath, $this->backup_id),
+            new SaveUsersTable($this->backup_disk, $this->backup_filepath, $this->backup_id)];
+
+        foreach($jobs as $job){
+            Queue::push($job);
+        }
 
         //
         // These are not implemented yet, we need to decide how we are handling file backups first...
@@ -299,6 +304,12 @@ class BackupController extends Controller
 //        Queue::push(new SaveVideoFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
 //        Queue::push(new SaveGalleryFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
 //        Queue::push(new SaveModelFieldsTable($this->backup_disk, $this->backup_filepath, $this->backup_id));
+    }
+
+    public function checkProgress(){
+        $overall = DB::table('backup_overall_progress')->where('created_at',DB::table('backup_overall_progress')->max('created_at'))->first();
+        $partial = DB::table('backup_partial_progress')->where('backup_id',$overall->id)->get();
+        return response()->json(["overall"=>$overall,"partial"=>$partial],200);
     }
 
     /*
