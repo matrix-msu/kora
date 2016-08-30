@@ -21,6 +21,7 @@ class BackupSupport extends Migration {
 			$table->integer('user_id')->unsigned();
 			$table->dateTime('hasRun')->nullable();
 			$table->integer('accessed');
+			$table->text('view');
 			$table->timestamps();
 
 			$table->foreign('user_id')->references('id')->on('users');
