@@ -17,6 +17,403 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ImportController extends Controller {
 
+    public function exportSample($pid, $fid, $type){
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+
+        $form = FormController::getForm($fid);
+
+        if(!\Auth::user()->isFormAdmin($form)){
+            return redirect('projects/'.$pid.'/forms/'.$fid);
+        }
+
+        $fields = Field::where('fid', '=', $fid)->get();
+
+        if($type=='XML') {
+            $xml = '<?xml version="1.0" encoding="utf-8"?><Records>';
+            $xml .= '<Record kid="OPTIONAL KID FOR RECORD. USE TO COMPLETE ASSOCIATED REFERENCES">';
+
+            foreach ($fields as $field) {
+                if ($field->type == "Text") {
+                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                    $xml .= utf8_encode('TEXT VALUE');
+                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
+                }
+                else if ($field->type == "Rich Text") {
+                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                    $xml .= utf8_encode('<b>RICH TEXT VALUE</b>');
+                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
+                }
+                else if ($field->type == "Number") {
+                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                    $xml .= utf8_encode('1337');
+                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
+                }
+                else if ($field->type == "List") {
+                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                    $xml .= utf8_encode('LIST VALUE');
+                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
+                }
+                else if ($field->type == "Multi-Select List") {
+                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                    $xml .= '<value>' . utf8_encode('LIST VALUE 1') . '</value>';
+                    $xml .= '<value>' . utf8_encode('LIST VALUE 2') . '</value>';
+                    $xml .= '<value>' . utf8_encode('so on...') . '</value>';
+                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
+                }
+                else if ($field->type == "Generated List") {
+                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                    $xml .= '<value>' . utf8_encode('LIST VALUE 1') . '</value>';
+                    $xml .= '<value>' . utf8_encode('LIST VALUE 2') . '</value>';
+                    $xml .= '<value>' . utf8_encode('so on...') . '</value>';
+                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
+                }
+                else if ($field->type == "Combo List") {
+                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                    $typeone = ComboListField::getComboFieldType($field, 'one');
+                    $typetwo = ComboListField::getComboFieldType($field, 'two');
+                    $nameone = ComboListField::getComboFieldName($field, 'one');
+                    $nametwo = ComboListField::getComboFieldName($field, 'two');
+                    $xml .= '<Value>';
+                    $xml .= '<' . $this->xmlTagClear($nameone) . '>';
+                    if ($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List')
+                        $xml .= utf8_encode('VALUE');
+                    else if ($typeone == 'Multi-Select List' | $typeone == 'Generated List') {
+                        $xml .= '<value>'.utf8_encode('VALUE 1').'</value>';
+                        $xml .= '<value>'.utf8_encode('VALUE 2').'</value>';
+                        $xml .= '<value>'.utf8_encode('so on..').'</value>';
+                    }
+                    $xml .= '</' . $this->xmlTagClear($nameone) . '>';
+                    $xml .= '<' . $this->xmlTagClear($nametwo) . '>';
+                    if ($typetwo == 'Text' | $typetwo == 'Number' | $typetwo == 'List')
+                        $xml .= utf8_encode('VALUE');
+                    else if ($typetwo == 'Multi-Select List' | $typetwo == 'Generated List') {
+                        $xml .= '<value>'.utf8_encode('VALUE 1').'</value>';
+                        $xml .= '<value>'.utf8_encode('VALUE 2').'</value>';
+                        $xml .= '<value>'.utf8_encode('so on..').'</value>';
+                    }
+                    $xml .= '</' . $this->xmlTagClear($nametwo) . '>';
+                    $xml .= '</Value>';
+                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
+                }
+                else if ($field->type == "Date") {
+                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                    $value = '<Circa>' . utf8_encode('1 IF CIRCA. 0 IF NOT') . '</Circa>';
+                    $value .= '<Month>' . utf8_encode('NUMERIC VALUE OF MONTH (i.e. 08)') . '</Month>';
+                    $value .= '<Day>' . utf8_encode('19') . '</Day>';
+                    $value .= '<Year>' . utf8_encode('1990') . '</Year>';
+                    $value .= '<Era>' . utf8_encode('CE OR BCE') . '</Era>';
+                    $xml .= $value;
+                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
+                }
+                else if ($field->type == "Schedule") {
+                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                    $value = '<Event>';
+                    $value .= '<Title>' . utf8_encode('EVENT TITLE 1') . '</Title>';
+                    $value .= '<Start>' . '08/19/1990 12:00 AM' . '</Start>';
+                    $value .= '<End>' . '08/19/1990 12:30 AM' . '</End>';
+                    $value .= '<All_Day>' . utf8_encode('0 FOR TIMED EVENT') . '</All_Day>';
+                    $value .= '</Event>';
+                    $value .= '<Event>';
+                    $value .= '<Title>' . utf8_encode('EVENT TITLE 2') . '</Title>';
+                    $value .= '<Start>' . '08/19/1990' . '</Start>';
+                    $value .= '<End>' . '08/20/1990' . '</End>';
+                    $value .= '<All_Day>' . utf8_encode('1 FOR ALL DAY EVENT') . '</All_Day>';
+                    $value .= '</Event>';
+                    $xml .= $value;
+                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
+                }
+                else if ($field->type == "Documents") {
+                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                    $xml .= '<File>';
+                    $xml .= '<Name>' . utf8_encode('FILENAME 1') . '</Name>';
+                    $xml .= '</File>';
+                    $xml .= '<File>';
+                    $xml .= '<Name>' . utf8_encode('FILENAME 2') . '</Name>';
+                    $xml .= '</File>';
+                    $xml .= '<File>';
+                    $xml .= '<Name>' . utf8_encode('so on...') . '</Name>';
+                    $xml .= '</File>';
+                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
+                }
+                else if ($field->type == "Gallery") {
+                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                    $xml .= '<File>';
+                    $xml .= '<Name>' . utf8_encode('FILENAME 1') . '</Name>';
+                    $xml .= '</File>';
+                    $xml .= '<File>';
+                    $xml .= '<Name>' . utf8_encode('FILENAME 2') . '</Name>';
+                    $xml .= '</File>';
+                    $xml .= '<File>';
+                    $xml .= '<Name>' . utf8_encode('so on...') . '</Name>';
+                    $xml .= '</File>';
+                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
+                }
+                else if ($field->type == "Playlist") {
+                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                    $xml .= '<File>';
+                    $xml .= '<Name>' . utf8_encode('FILENAME 1') . '</Name>';
+                    $xml .= '</File>';
+                    $xml .= '<File>';
+                    $xml .= '<Name>' . utf8_encode('FILENAME 2') . '</Name>';
+                    $xml .= '</File>';
+                    $xml .= '<File>';
+                    $xml .= '<Name>' . utf8_encode('so on...') . '</Name>';
+                    $xml .= '</File>';
+                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
+                }
+                else if ($field->type == "Video") {
+                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                    $xml .= '<File>';
+                    $xml .= '<Name>' . utf8_encode('FILENAME 1') . '</Name>';
+                    $xml .= '</File>';
+                    $xml .= '<File>';
+                    $xml .= '<Name>' . utf8_encode('FILENAME 2') . '</Name>';
+                    $xml .= '</File>';
+                    $xml .= '<File>';
+                    $xml .= '<Name>' . utf8_encode('so on...') . '</Name>';
+                    $xml .= '</File>';
+                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
+                }
+                else if ($field->type == "3D-Model") {
+                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                    $xml .= '<File>';
+                    $xml .= '<Name>' . utf8_encode('FILENAME') . '</Name>';
+                    $xml .= '</File>';
+                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
+                }
+                else if ($field->type == "Geolocator") {
+                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                    $xml .= '<Location>';
+                    $xml .= '<Desc>' . utf8_encode('LOCATION DESCRIPTION') . '</Desc>';
+                    $xml .= '<Lat>' . utf8_encode('i.e. 13') . '</Lat>';
+                    $xml .= '<Lon>' . utf8_encode('i.e. 14.5') . '</Lon>';
+                    $xml .= '<Zone>' . utf8_encode('i.e. 38T') . '</Zone>';
+                    $xml .= '<East>' . utf8_encode('i.e. 59233.235234') . '</East>';
+                    $xml .= '<North>' . utf8_encode('i.e. 52833.265454') . '</North>';
+                    $xml .= '<Address>' . utf8_encode('TEXTUAL REPRESENTATION OF LOCATION') . '</Address>';
+                    $xml .= '</Location>';
+                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
+                }
+            }
+
+            $xml .= '</Record></Records>';
+
+            header("Content-Disposition: attachment; filename=" . $form->name . '_exampleData.xml');
+            header("Content-Type: application/octet-stream; ");
+
+            echo $xml;
+        } else if($type=='JSON') {
+            $json=array('Records'=>array());
+            $recArray = array('kid'=>"OPTIONAL KID FOR RECORD. USE TO COMPLETE ASSOCIATED REFERENCES", 'Fields'=>array());
+
+            foreach ($fields as $field) {
+                if ($field->type == "Text") {
+                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                    $fieldArray['text'] = 'TEXT VALUE';
+                    array_push($recArray['Fields'], $fieldArray);
+                }
+                else if ($field->type == "Rich Text") {
+                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                    $fieldArray['richtext'] = '<b>RICH TEXT VALUE</b>';
+                    array_push($recArray['Fields'], $fieldArray);
+                }
+                else if ($field->type == "Number") {
+                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                    $fieldArray['number'] = 1337;
+                    array_push($recArray['Fields'], $fieldArray);
+                }
+                else if ($field->type == "List") {
+                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                    $fieldArray['option'] = 'VALUE';
+                    array_push($recArray['Fields'], $fieldArray);
+                }
+                else if ($field->type == "Multi-Select List") {
+                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                    $options = array('LIST VALUE 1','LIST VALUE 2','so on...');
+                    $fieldArray['options'] = $options;
+                    array_push($recArray['Fields'], $fieldArray);
+                }
+                else if ($field->type == "Generated List") {
+                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                    $options = array('LIST VALUE 1','LIST VALUE 2','so on...');
+                    $fieldArray['options'] = $options;
+                    array_push($recArray['Fields'], $fieldArray);
+                }
+                else if ($field->type == "Combo List") {
+                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                    $typeone = ComboListField::getComboFieldType($field, 'one');
+                    $typetwo = ComboListField::getComboFieldType($field, 'two');
+                    $nameone = ComboListField::getComboFieldName($field, 'one');
+                    $nametwo = ComboListField::getComboFieldName($field, 'two');
+
+                    $fieldArray['values'] = array();
+                    $valArray = array();
+
+                    if ($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List')
+                        $valArray[$nameone] = 'VALUE';
+                    else if ($typeone == 'Multi-Select List' | $typeone == 'Generated List') {
+                        $valArray[$nameone] = array('VALUE 1','VALUE 2','so on...');
+                    }
+
+                    if ($typetwo == 'Text' | $typetwo == 'Number' | $typetwo == 'List')
+                        $valArray[$nametwo] = 'VALUE';
+                    else if ($typetwo == 'Multi-Select List' | $typetwo == 'Generated List') {
+                        $valArray[$nametwo] = array('VALUE 1','VALUE 2','so on...');
+                    }
+
+                    array_push($fieldArray['values'], $valArray);
+
+                    array_push($recArray['Fields'], $fieldArray);
+                }
+                else if ($field->type == "Date") {
+                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                    $fieldArray['circa'] = '1 IF CIRCA. 0 IF NOT';
+                    $fieldArray['month'] = 'NUMERIC VALUE OF MONTH (i.e. 08)';
+                    $fieldArray['day'] = 19;
+                    $fieldArray['year'] = 1990;
+                    $fieldArray['era'] = 'CE OR BCE';
+                    array_push($recArray['Fields'], $fieldArray);
+                }
+                else if ($field->type == "Schedule") {
+                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                    $fieldArray['events'] = array();
+
+                    $eventArray = array();
+                    $eventArray['title'] = 'EVENT TITLE 1';
+                    $eventArray['start'] = '08/19/1990 12:00 AM';
+                    $eventArray['end'] = '08/19/1990 12:30 AM';
+                    $eventArray['allday'] = '0 FOR TIMED EVENT';
+                    array_push($fieldArray['events'], $eventArray);
+
+                    $eventArray = array();
+                    $eventArray['title'] = 'EVENT TITLE 2';
+                    $eventArray['start'] = '08/19/1990';
+                    $eventArray['end'] = '08/20/1990';
+                    $eventArray['allday'] = '1 FOR ALL DAY EVENT';
+                    array_push($fieldArray['events'], $eventArray);
+
+                    array_push($recArray['Fields'], $fieldArray);
+                }
+                else if ($field->type == "Documents") {
+                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                    $fieldArray['files'] = array();
+
+                    $fileArray = array();
+                    $fileArray['name'] = 'FILENAME 1';
+                    array_push($fieldArray['files'], $fileArray);
+
+                    $fileArray = array();
+                    $fileArray['name'] = 'FILENAME2';
+                    array_push($fieldArray['files'], $fileArray);
+
+                    $fileArray = array();
+                    $fileArray['name'] = 'so on...';
+                    array_push($fieldArray['files'], $fileArray);
+
+                    array_push($recArray['Fields'], $fieldArray);
+                }
+                else if ($field->type == "Gallery") {
+                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                    $fieldArray['files'] = array();
+
+                    $fileArray = array();
+                    $fileArray['name'] = 'FILENAME 1';
+                    array_push($fieldArray['files'], $fileArray);
+
+                    $fileArray = array();
+                    $fileArray['name'] = 'FILENAME2';
+                    array_push($fieldArray['files'], $fileArray);
+
+                    $fileArray = array();
+                    $fileArray['name'] = 'so on...';
+                    array_push($fieldArray['files'], $fileArray);
+
+                    array_push($recArray['Fields'], $fieldArray);
+                }
+                else if ($field->type == "Playlist") {
+                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                    $fieldArray['files'] = array();
+
+                    $fileArray = array();
+                    $fileArray['name'] = 'FILENAME 1';
+                    array_push($fieldArray['files'], $fileArray);
+
+                    $fileArray = array();
+                    $fileArray['name'] = 'FILENAME2';
+                    array_push($fieldArray['files'], $fileArray);
+
+                    $fileArray = array();
+                    $fileArray['name'] = 'so on...';
+                    array_push($fieldArray['files'], $fileArray);
+
+                    array_push($recArray['Fields'], $fieldArray);
+                }
+                else if ($field->type == "Video") {
+                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                    $fieldArray['files'] = array();
+
+                    $fileArray = array();
+                    $fileArray['name'] = 'FILENAME 1';
+                    array_push($fieldArray['files'], $fileArray);
+
+                    $fileArray = array();
+                    $fileArray['name'] = 'FILENAME2';
+                    array_push($fieldArray['files'], $fileArray);
+
+                    $fileArray = array();
+                    $fileArray['name'] = 'so on...';
+                    array_push($fieldArray['files'], $fileArray);
+
+                    array_push($recArray['Fields'], $fieldArray);
+                }
+                else if ($field->type == "Model") {
+                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                    $fieldArray['files'] = array();
+
+                    $fileArray = array();
+                    $fileArray['name'] = 'FILENAME 1';
+                    array_push($fieldArray['files'], $fileArray);
+
+                    array_push($recArray['Fields'], $fieldArray);
+                }
+                else if ($field->type == "Geolocator") {
+                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                    $fieldArray['locations'] = array();
+                    $locArray = array();
+
+                    $locArray['desc'] = 'LOCATION DESCRIPTION';
+                    $locArray['lat'] = 'i.e. 13';
+                    $locArray['lon'] = 'i.e. 14.5';
+                    $locArray['zone'] = 'i.e. 38T';
+                    $locArray['east'] = 'i.e. 59233.235234';
+                    $locArray['north'] = 'i.e. 52833.265454';
+                    $locArray['address'] = 'TEXTUAL REPRESENTATION OF LOCATION';
+                    array_push($fieldArray['locations'], $locArray);
+
+                    array_push($recArray['Fields'], $fieldArray);
+                }
+            }
+
+            array_push($json['Records'],$recArray);
+
+            $json = json_encode($json);
+
+            header("Content-Disposition: attachment; filename=".$form->name.'_exampleData.json');
+            header("Content-Type: application/octet-stream; ");
+
+            echo $json;
+        }
+    }
+
+    private function xmlTagClear($value){
+        $value = htmlentities($value);
+        $value = str_replace(' ','_',$value);
+
+        return $value;
+    }
+
     public function matchupFields($pid, $fid, Request $request){
         $form = FormController::getForm($fid);
 

@@ -11,6 +11,11 @@
     <hr>
 
     <div id="upload_div">
+        <div>
+            <a href="{{ action('ImportController@exportSample',['pid' => $form->pid, 'fid' => $form->fid, 'type' => 'XML']) }}">[{{trans('forms_show.samplexml')}}]</a>
+            <a href="{{ action('ImportController@exportSample',['pid' => $form->pid, 'fid' => $form->fid, 'type' => 'JSON']) }}">[{{trans('forms_show.samplejson')}}]</a>
+        </div>
+
         <div class="form-group">
             {!! Form::label('xml', trans('forms_show.xml').': ') !!}
             {!! Form::file('xml', ['class' => 'form-control', 'id' => 'upload_xml', 'accept' => '.xml,.json']) !!}

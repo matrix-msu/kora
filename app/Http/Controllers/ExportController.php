@@ -376,7 +376,6 @@ class ExportController extends Controller {
                 $sf = ScheduleField::where('rid', '=', $record->rid)->get();
                 foreach($sf as $f) {
                     $fieldArray = array('name' => $fieldsInfo[$f->flid]['slug'], 'type' => $fieldsInfo[$f->flid]['type']);
-                    $value = '';
                     $events = explode('[!]', $f->events);
                     $fieldArray['events'] = array();
                     foreach ($events as $event) {
