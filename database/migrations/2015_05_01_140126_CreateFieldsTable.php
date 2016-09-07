@@ -26,6 +26,10 @@ class CreateFieldsTable extends Migration {
             $table->string('desc');
             $table->boolean('required');
 			$table->boolean('searchable');
+			$table->boolean('extsearch');
+			$table->boolean('viewable');
+			$table->boolean('viewresults');
+			$table->boolean('extview');
             $table->text('default')->nullable();
             $table->text('options')->nullable();
 			$table->timestamps();

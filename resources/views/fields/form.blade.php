@@ -66,12 +66,32 @@
 
 <div class="form-group">
     {!! Form::label('required',trans('fields_form.req').': ') !!}
-    {!! Form::select('required',[trans('fields_form.false'), trans('fields_form.true')], 'false', ['class' => 'form-control']) !!}
+    {!! Form::select('required',[trans('fields_form.false'), trans('fields_form.true')], false, ['class' => 'form-control']) !!}
 </div>
 
 <div class="form-group">
     {!! Form::label('searchable',trans('fields_form.search').': ') !!}
-    {!! Form::select('searchable',[trans('fields_form.false'), trans('fields_form.true')], 'false', ['class' => 'form-control']) !!}
+    {!! Form::select('searchable',[trans('fields_form.false'), trans('fields_form.true')], true, ['class' => 'form-control']) !!}
+</div>
+
+<div class="form-group">
+    {!! Form::label('extsearch',trans('fields_form.extsearch').': ') !!}
+    {!! Form::select('extsearch',[trans('fields_form.false'), trans('fields_form.true')], false, ['class' => 'form-control']) !!}
+</div>
+
+<div class="form-group">
+    {!! Form::label('viewable',trans('fields_form.viewable').': ') !!}
+    {!! Form::select('viewable',[trans('fields_form.false'), trans('fields_form.true')], true, ['class' => 'form-control']) !!}
+</div>
+
+<div class="form-group">
+    {!! Form::label('viewresults',trans('fields_form.viewresults').': ') !!}
+    {!! Form::select('viewresults',[trans('fields_form.false'), trans('fields_form.true')], true, ['class' => 'form-control']) !!}
+</div>
+
+<div class="form-group">
+    {!! Form::label('extview',trans('fields_form.extview').': ') !!}
+    {!! Form::select('extview',[trans('fields_form.false'), trans('fields_form.true')], false, ['class' => 'form-control']) !!}
 </div>
 
 <div id="advance_options_div">

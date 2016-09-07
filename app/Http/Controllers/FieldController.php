@@ -232,7 +232,7 @@ class FieldController extends Controller {
         RevisionController::wipeRollbacks($fid);
     }
 
-    public static function updateSearchable($pid, $fid, $flid, $search)
+    public static function updateSearchable($pid, $fid, $flid, Request $request)
     {
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
             return redirect('projects');
@@ -244,7 +244,11 @@ class FieldController extends Controller {
 
         $field = FieldController::getField($flid);
 
-        $field->searchable = $search;
+        $field->searchable = $request->searchable;
+        $field->extsearch = $request->extsearch;
+        $field->viewable = $request->viewable;
+        $field->viewresults = $request->viewresults;
+        $field->extview = $request->extview;
         $field->save();
 
         //A field has been changed, so current record rollbacks become invalid.

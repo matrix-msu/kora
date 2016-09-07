@@ -15,6 +15,10 @@ class Field extends Model {
         'desc',
         'required',
         'searchable',
+        'extsearch',
+        'viewable',
+        'viewresults',
+        'extview',
     ];
 
     /**
