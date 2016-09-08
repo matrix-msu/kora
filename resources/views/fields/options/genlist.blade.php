@@ -15,6 +15,28 @@
     </div>
 
     <div class="form-group">
+        {!! Form::label('extsearch',trans('fields_options_genlist.extsearch').': ') !!}
+        {!! Form::select('extsearch',['false', 'true'], $field->extsearch, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
+        {!! Form::label('viewable',trans('fields_options_genlist.viewable').': ') !!}
+        {!! Form::select('viewable',['false', 'true'], $field->viewable, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
+        {!! Form::label('viewresults',trans('fields_options_genlist.viewresults').': ') !!}
+        {!! Form::select('viewresults',['false', 'true'], $field->viewresults, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
+        {!! Form::label('extview',trans('fields_options_genlist.extview').': ') !!}
+        {!! Form::select('extview',['false', 'true'], $field->extview, ['class' => 'form-control']) !!}
+    </div>
+
+    <hr>
+
+    <div class="form-group">
         {!! Form::label('regex',trans('fields_options_genlist.regex').': ') !!}
         {!! Form::text('regex', \App\Http\Controllers\FieldController::getFieldOption($field,'Regex'), ['class' => 'form-control']) !!}
     </div>

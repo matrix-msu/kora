@@ -28,6 +28,28 @@
     </div>
 
     <div class="form-group">
+        {!! Form::label('extsearch',trans('fields_options_combolist.extsearch').': ') !!}
+        {!! Form::select('extsearch',['false', 'true'], $field->extsearch, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
+        {!! Form::label('viewable',trans('fields_options_combolist.viewable').': ') !!}
+        {!! Form::select('viewable',['false', 'true'], $field->viewable, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
+        {!! Form::label('viewresults',trans('fields_options_combolist.viewresults').': ') !!}
+        {!! Form::select('viewresults',['false', 'true'], $field->viewresults, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
+        {!! Form::label('extview',trans('fields_options_combolist.extview').': ') !!}
+        {!! Form::select('extview',['false', 'true'], $field->extview, ['class' => 'form-control']) !!}
+    </div>
+
+    <hr>
+
+    <div class="form-group">
         {!! Form::label('nameone',trans('fields_options_combolist.nameone').': ') !!}
         {!! Form::text('nameone',$oneName, ['class' => 'form-control']) !!}
     </div>

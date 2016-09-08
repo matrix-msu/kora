@@ -15,6 +15,28 @@
     </div>
 
     <div class="form-group">
+        {!! Form::label('extsearch',trans('fields_options_3dmodel.extsearch').': ') !!}
+        {!! Form::select('extsearch',['false', 'true'], $field->extsearch, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
+        {!! Form::label('viewable',trans('fields_options_3dmodel.viewable').': ') !!}
+        {!! Form::select('viewable',['false', 'true'], $field->viewable, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
+        {!! Form::label('viewresults',trans('fields_options_3dmodel.viewresults').': ') !!}
+        {!! Form::select('viewresults',['false', 'true'], $field->viewresults, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
+        {!! Form::label('extview',trans('fields_options_3dmodel.extview').': ') !!}
+        {!! Form::select('extview',['false', 'true'], $field->extview, ['class' => 'form-control']) !!}
+    </div>
+
+    <hr>
+
+    <div class="form-group">
         {!! Form::label('filesize',trans('fields_options_3dmodel.maxsize').' (kb): ') !!}
         <input type="number" name="filesize" class="form-control" step="1"
                value="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "FieldSize") }}" min="0">

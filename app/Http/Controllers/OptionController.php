@@ -94,7 +94,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
-        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
         FieldController::updateOptions($pid, $fid, $flid, 'FieldSize', $request->filesize);
         FieldController::updateOptions($pid, $fid, $flid, 'FileTypes', $filetype);
 
@@ -204,7 +204,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
-        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
         FieldController::updateDefault($pid, $fid, $flid, $default);
         FieldController::updateOptions($pid, $fid, $flid, 'Field1', $flopt_one);
         FieldController::updateOptions($pid, $fid, $flid, 'Field2', $flopt_two);
@@ -237,7 +237,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
-        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
         FieldController::updateDefault($pid, $fid, $flid, $default);
         FieldController::updateOptions($pid, $fid, $flid, 'Format', $request->format);
         FieldController::updateOptions($pid, $fid, $flid, 'Start', $request->start);
@@ -270,7 +270,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
-        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
         FieldController::updateOptions($pid, $fid, $flid, 'FieldSize', $request->filesize);
         FieldController::updateOptions($pid, $fid, $flid, 'MaxFiles', $request->maxfiles);
         FieldController::updateOptions($pid, $fid, $flid, 'FileTypes', $filetype);
@@ -316,7 +316,7 @@ class OptionController extends Controller {
         $large = $lx.'x'.$ly;
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
-        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
         FieldController::updateOptions($pid, $fid, $flid, 'FieldSize', $request->filesize);
         FieldController::updateOptions($pid, $fid, $flid, 'MaxFiles', $request->maxfiles);
         FieldController::updateOptions($pid, $fid, $flid, 'FileTypes', $filetype);
@@ -354,7 +354,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
-        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
         FieldController::updateDefault($pid, $fid, $flid, $default);
         FieldController::updateOptions($pid, $fid, $flid, 'Regex', $request->regex);
         FieldController::updateOptions($pid, $fid, $flid, 'Options', $options);
@@ -378,7 +378,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
-        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
         FieldController::updateDefault($pid, $fid, $flid, $default);
         FieldController::updateOptions($pid, $fid, $flid, 'Map', $request->map);
         FieldController::updateOptions($pid, $fid, $flid, 'DataView', $request->view);
@@ -402,7 +402,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
-        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
         FieldController::updateDefault($pid, $fid, $flid, $request->default);
         FieldController::updateOptions($pid, $fid, $flid, 'Options', $options);
 
@@ -431,7 +431,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
-        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
         FieldController::updateDefault($pid, $fid, $flid, $default);
         FieldController::updateOptions($pid, $fid, $flid, 'Options', $options);
 
@@ -490,7 +490,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
-        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
         FieldController::updateDefault($pid, $fid, $flid, $request->default);
         FieldController::updateOptions($pid, $fid, $flid, 'Max', $request->max);
         FieldController::updateOptions($pid, $fid, $flid, 'Min', $request->min);
@@ -522,7 +522,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
-        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
         FieldController::updateOptions($pid, $fid, $flid, 'FieldSize', $request->filesize);
         FieldController::updateOptions($pid, $fid, $flid, 'MaxFiles', $request->maxfiles);
         FieldController::updateOptions($pid, $fid, $flid, 'FileTypes', $filetype);
@@ -540,7 +540,7 @@ class OptionController extends Controller {
         //dd($request);
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
-        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
         FieldController::updateDefault($pid, $fid, $flid, $request->default);
 
         if($return) {
@@ -569,7 +569,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
-        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
         FieldController::updateDefault($pid, $fid, $flid, $default);
         FieldController::updateOptions($pid, $fid, $flid, 'Start', $request->start);
         FieldController::updateOptions($pid, $fid, $flid, 'End', $request->end);
@@ -607,7 +607,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
-        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
         FieldController::updateDefault($pid, $fid, $flid, $request->default);
         FieldController::updateOptions($pid, $fid, $flid, 'Regex', $request->regex);
         FieldController::updateOptions($pid, $fid, $flid, 'MultiLine', $request->multi);
@@ -637,7 +637,7 @@ class OptionController extends Controller {
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);
-        FieldController::updateSearchable($pid, $fid, $flid, $request->searchable);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
         FieldController::updateOptions($pid, $fid, $flid, 'FieldSize', $request->filesize);
         FieldController::updateOptions($pid, $fid, $flid, 'MaxFiles', $request->maxfiles);
         FieldController::updateOptions($pid, $fid, $flid, 'FileTypes', $filetype);

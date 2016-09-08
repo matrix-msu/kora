@@ -1,3 +1,4 @@
+@if($field->viewable)
 <div>
     <span><b>{{ $field->name }}:</b> </span>
     <span>
@@ -480,3 +481,4 @@
         @endif
     </span>
 </div>
+@endif

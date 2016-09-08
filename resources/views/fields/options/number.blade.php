@@ -15,6 +15,28 @@
     </div>
 
     <div class="form-group">
+        {!! Form::label('extsearch',trans('fields_options_number.extsearch').': ') !!}
+        {!! Form::select('extsearch',['false', 'true'], $field->extsearch, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
+        {!! Form::label('viewable',trans('fields_options_number.viewable').': ') !!}
+        {!! Form::select('viewable',['false', 'true'], $field->viewable, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
+        {!! Form::label('viewresults',trans('fields_options_number.viewresults').': ') !!}
+        {!! Form::select('viewresults',['false', 'true'], $field->viewresults, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
+        {!! Form::label('extview',trans('fields_options_number.extview').': ') !!}
+        {!! Form::select('extview',['false', 'true'], $field->extview, ['class' => 'form-control']) !!}
+    </div>
+
+    <hr>
+
+    <div class="form-group">
         {!! Form::label('default',trans('fields_options_number.def').': ') !!}
         <input
                 type="number" name="default" class="form-control" value="{{ $field->default }}" id="default">

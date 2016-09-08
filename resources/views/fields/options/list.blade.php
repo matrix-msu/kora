@@ -15,6 +15,28 @@
     </div>
 
     <div class="form-group">
+        {!! Form::label('extsearch',trans('fields_options_list.extsearch').': ') !!}
+        {!! Form::select('extsearch',['false', 'true'], $field->extsearch, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
+        {!! Form::label('viewable',trans('fields_options_list.viewable').': ') !!}
+        {!! Form::select('viewable',['false', 'true'], $field->viewable, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
+        {!! Form::label('viewresults',trans('fields_options_list.viewresults').': ') !!}
+        {!! Form::select('viewresults',['false', 'true'], $field->viewresults, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
+        {!! Form::label('extview',trans('fields_options_list.extview').': ') !!}
+        {!! Form::select('extview',['false', 'true'], $field->extview, ['class' => 'form-control']) !!}
+    </div>
+
+    <hr>
+
+    <div class="form-group">
         {!! Form::label('default',trans('fields_options_list.def').': ') !!}
         {!! Form::select('default',\App\ListField::getList($field,true), $field->default,['class' => 'form-control', 'id' => 'default']) !!}
     </div>
