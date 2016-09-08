@@ -89,3 +89,47 @@ class Cursor:
             yield row
 
         cursor.close()
+
+    def get_field_stash(self, fid):
+        """
+        Creates a field information stash.
+
+        :param fid: form id
+        :return dict: dictionary containing the field stash with indexing:
+                stash[flid]['slug'] = field slug
+                stash[flid]['type'] = field type (Text, Rich Text, etc.)
+        """
+
+        ## Initialize cursor.
+        cursor = self._cnx.cursor()
+
+        stmt = "SELECT `flid`, `slug`, `type` FROM " + self._prefix + "fields WHERE `fid` = %s"
+
+        cursor.execute(stmt, [fid])
+
+        stash = dict()
+        for row in cursor:
+            stash[row["flid"]] = {"slug": row["slug"], "type": row["type"]}
+
+        cursor.close()
+
+        return stash
+
+    def fid_from_rid(self, rid):
+        """
+        Gets the form id associated with any particular record id.
+        :param rid: record id.
+        :return int: form id.
+        """
+        cursor = self._cnx.cursor()
+
+        stmt = "SELECT `fid` FROM " + self._prefix + "records WHERE `rid` = %s"
+
+        cursor.execute(stmt, [rid])
+
+        for row in cursor:
+            fid = row["fid"]
+
+        cursor.close()
+
+        return fid

@@ -8,6 +8,7 @@ Use App\Field;
 Use App\Form;
 use App\Record;
 use App\Search;
+use App\TextField;
 use Illuminate\Bus\MarshalException;
 use Illuminate\Support\Facades\Artisan;
 Use Illuminate\Support\Facades\Auth;
@@ -72,43 +73,46 @@ class MetadataController extends Controller {
      */
     public function records2($pid, $fid) {
         // Old meta data method
-        if ( ! FormController::validProjForm($pid, $fid)){
-            return redirect('projects/' . $pid . '/forms');
-        }
 
-        $rids = DB::table("records")->where("fid", "=", $fid)->select("rid")->get();
 
-        // The DB call returns an array of StdObj so we get the rids out of the objects.
-        $rids = array_map( function($obj) {
-            return $obj->rid;
-        }, $rids);
 
-        $form = FormController::getForm($fid);
-        $output = new Collection();
-
-        // Stash fields in an array indexed by their flids, this prevents overhead caused by getting the fields over and over.
-        $stash = [];
-
-        $fields = Field::where("fid", "=", $form->fid)->get();
-
-        foreach($fields as $field) {
-            $stash[$field->flid] = $field;
-        }
-
-        // User is logged in or the form's metadata is public.
-        if ($form->public_metadata || Auth::check()) {
-            $layout = $this->layout(FormController::xmlToArray($form->layout)); // Generate the layout for our json object.
-
-            foreach ($rids as $rid) {
-                $data = $this->matchRecordsAndMetadata2($form, $rid, $layout, $stash);
-
-                if ($data->count() > 0) {
-                    $output->push($data);
-                }
-            }
-        }
-
-        return response()->json($output);
+//        if ( ! FormController::validProjForm($pid, $fid)){
+//            return redirect('projects/' . $pid . '/forms');
+//        }
+//
+//        $rids = DB::table("records")->where("fid", "=", $fid)->select("rid")->get();
+//
+//        // The DB call returns an array of StdObj so we get the rids out of the objects.
+//        $rids = array_map( function($obj) {
+//            return $obj->rid;
+//        }, $rids);
+//
+//        $form = FormController::getForm($fid);
+//        $output = new Collection();
+//
+//        // Stash fields in an array indexed by their flids, this prevents overhead caused by getting the fields over and over.
+//        $stash = [];
+//
+//        $fields = Field::where("fid", "=", $form->fid)->get();
+//
+//        foreach($fields as $field) {
+//            $stash[$field->flid] = $field;
+//        }
+//
+//        // User is logged in or the form's metadata is public.
+//        if ($form->public_metadata || Auth::check()) {
+//            $layout = $this->layout(FormController::xmlToArray($form->layout)); // Generate the layout for our json object.
+//
+//            foreach ($rids as $rid) {
+//                $data = $this->matchRecordsAndMetadata2($form, $rid, $layout, $stash);
+//
+//                if ($data->count() > 0) {
+//                    $output->push($data);
+//                }
+//            }
+//        }
+//
+//        return response()->json($output);
     }
 
     /*

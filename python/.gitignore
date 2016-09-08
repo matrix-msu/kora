@@ -4,4 +4,3 @@ exports/*
 metadata/*
 temp/*
 test.py
-*.pyc

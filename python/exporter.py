@@ -4,12 +4,52 @@ import time
 from connection import Connection, Cursor
 from subprocess import call
 from writer import Writer
+from env import env
 
-class FieldExporter:
+class Exporter:
+    """
+    Exporter base class.
+    """
+    def _connect_to_database(self):
+        """
+        Get a cursor from a connection.Connection object. (Private)
+
+        Database connections are not picklable (serializable) so we must create
+        the connection once the __call__ method is used by apply_async (used in a pool).
+        :return connection.Cursor:
+        """
+
+        return Cursor(Connection())
+
+class RecordExporter(Exporter):
+    """
+    Exports on a per record basis, rather than a per field basis like FieldExporter.
+    """
+    def __init__(self, rids, output = "JSON"):
+        """
+        Constructor.
+        :param rids: array of rids to export.
+        :param output: output format default is JSON.
+        """
+
+        if output not in ["JSON", "XML"]:
+            raise TypeError("Invalid output type.")
+
+        self._rids = rids
+        self._output = output
+
+    def __call__(self):
+        """
+        Call magic method.
+
+        This is used when the object is passed through a pool to a process.
+        """
+        cursor = self._connect_to_database()
+        fid = cursor.fid_from_rid(self._rids[0])
+
+class FieldExporter(Exporter):
     """
     Exporter does the actual logic of exporting a table.
-        1. Spawns one thread to "produce"; format the database records.
-        2. Spawns one thread to "consume"; write records to a file.
     """
     def __init__(self, table, rids, writer):
         """
@@ -45,19 +85,6 @@ class FieldExporter:
 
         for item in cursor.get_typed_fields(self._rids, self._table):
             target.write(self._writer.write(item))
-
-
-
-    def _connect_to_database(self):
-        """
-        Get a cursor from a connection.Connection object. (Private)
-
-        Database connections are not picklable (serializable) so we must create
-        the connection once the __call__ method is used by apply_async.
-        :return connection.Cursor:
-        """
-
-        return Cursor(Connection())
 
 def collapse_files(writer):
     """
