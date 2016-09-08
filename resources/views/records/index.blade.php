@@ -73,6 +73,7 @@
                 <b>{{trans('records_index.record')}}:</b> <a href="{{ action('RecordController@show',['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid]) }}">{{ $record->kid }}</a>
             </div>
             @foreach($form->fields as $field)
+                @if($field->viewresults)
                 <div>
                     <span><b>{{ $field->name }}:</b> </span>
                     <span>
@@ -555,6 +556,7 @@
                         @endif
                     </span>
                 </div>
+                @endif
             @endforeach
         </div>
     @endforeach
