@@ -122,14 +122,18 @@
                     data:{
                 "_token":"{{csrf_token()}}"
                 },
-            success: function(data){
+            success: function(data) {
                 console.log(data);
                 $("#progress").removeClass('progress-bar-danger');
-                $("#progress").css('width',(((data.overall.progress / data.overall.overall) * 100)+"%"));
-                setTimeout(function () {
-                    checkProgress();
-                    },5000);
-                },
+                $("#progress").css('width', (((data.overall.progress / data.overall.overall) * 100) + "%"));
+                if (data.overall.progress == data.overall.overall) {
+                    console.log('done done');
+                } else {
+                    setTimeout(function () {
+                        checkProgress();
+                    }, 5000);
+                }
+            },
             error: function(data){
                 console.log("error checking progress!");
                 $("#progress").addClass('progress-bar-danger');

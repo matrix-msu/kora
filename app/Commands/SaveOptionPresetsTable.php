@@ -3,6 +3,7 @@
 
 use App\OptionPreset;
 use Carbon\Carbon;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -12,7 +13,7 @@ use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldBeQueued;
 
 
-class SaveOptionPresetsTable extends Command implements SelfHandling, ShouldBeQueued
+class SaveOptionPresetsTable extends Command implements SelfHandling, ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -29,7 +30,7 @@ class SaveOptionPresetsTable extends Command implements SelfHandling, ShouldBeQu
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        OptionPreset::chunk(1000, function($optionpresets) use ($table_path, $row_id) {
+        OptionPreset::chunk(500, function($optionpresets) use ($table_path, $row_id) {
             $count = 0;
             $all_optionpresets_data = new Collection();
 

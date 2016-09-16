@@ -6,6 +6,7 @@ use App\Project;
 use App\Field;
 use App\Record;
 use Carbon\Carbon;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
@@ -14,7 +15,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
-class SaveRecordsTable extends Command implements SelfHandling, ShouldBeQueued {
+class SaveRecordsTable extends Command implements SelfHandling, ShouldQueue {
 
 	use InteractsWithQueue, SerializesModels;
 	/**
@@ -34,7 +35,7 @@ class SaveRecordsTable extends Command implements SelfHandling, ShouldBeQueued {
 		);
 
 		$this->backup_fs->makeDirectory($table_path);
-		Record::chunk(1000,function($records) use ($table_path,$row_id){
+		Record::chunk(500,function($records) use ($table_path,$row_id){
 
 			$count = 0;
 			$all_records_data = new Collection();

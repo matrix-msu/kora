@@ -7,6 +7,7 @@ use App\Field;
 use App\Record;
 use App\TextField;
 use Carbon\Carbon;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
@@ -15,7 +16,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
-class SaveTextFieldsTable extends Command implements SelfHandling, ShouldBeQueued {
+class SaveTextFieldsTable extends Command implements SelfHandling, ShouldQueue {
 
 	use InteractsWithQueue, SerializesModels;
 
@@ -37,7 +38,7 @@ class SaveTextFieldsTable extends Command implements SelfHandling, ShouldBeQueue
 		);
 
 		$this->backup_fs->makeDirectory($table_path);
-		TextField::chunk(1000,function($textfields) use ($table_path,$row_id){
+		TextField::chunk(500,function($textfields) use ($table_path,$row_id){
 			$count= 0;
 
 			$all_textfields_data = new Collection();

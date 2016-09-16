@@ -2,6 +2,7 @@
 
 use App\FormGroup;
 use Carbon\Carbon;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -10,7 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveFormGroupsTable extends Command implements SelfHandling, ShouldBeQueued {
+class SaveFormGroupsTable extends Command implements SelfHandling, ShouldQueue {
 
     use InteractsWithQueue, SerializesModels;
 
@@ -27,7 +28,7 @@ class SaveFormGroupsTable extends Command implements SelfHandling, ShouldBeQueue
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        FormGroup::chunk(1000, function($formgroups) use ($table_path, $row_id) {
+        FormGroup::chunk(500, function($formgroups) use ($table_path, $row_id) {
             $count = 0;
             $all_formgroup_data = new Collection();
 

@@ -1,10 +1,13 @@
 <?php namespace App\Commands;
 
 use Carbon\Carbon;
+use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 abstract class Command {
+
+    use Queueable;
 
     /*************************************************************************************
      * Children must use InteractsWithQueue and SerializesModels from the Queue library. *

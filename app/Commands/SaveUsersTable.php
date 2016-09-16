@@ -2,6 +2,7 @@
 
 use App\User;
 use Carbon\Carbon;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -10,7 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveUsersTable extends Command implements SelfHandling, ShouldBeQueued
+class SaveUsersTable extends Command implements SelfHandling, ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -30,7 +31,7 @@ class SaveUsersTable extends Command implements SelfHandling, ShouldBeQueued
         DB::table('backup_partial_progress')->where('id',$row_id)->decrement("overall",1);
 
         $this->backup_fs->makeDirectory($table_path);
-        User::chunk(1000, function($users) use ($table_path, $row_id) {
+        User::chunk(500, function($users) use ($table_path, $row_id) {
             $count = 0;
             $all_users_data = new Collection();
 

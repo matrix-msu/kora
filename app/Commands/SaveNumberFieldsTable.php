@@ -2,6 +2,7 @@
 
 use App\NumberField;
 use Carbon\Carbon;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -11,7 +12,7 @@ use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldBeQueued;
 
 
-class SaveNumberFieldsTable extends Command implements SelfHandling, ShouldBeQueued
+class SaveNumberFieldsTable extends Command implements SelfHandling, ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -28,7 +29,7 @@ class SaveNumberFieldsTable extends Command implements SelfHandling, ShouldBeQue
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        NumberField::chunk(1000, function($numfields) use ($table_path, $row_id) {
+        NumberField::chunk(500, function($numfields) use ($table_path, $row_id) {
             $count = 0;
             $all_numberfields_data = new Collection();
 

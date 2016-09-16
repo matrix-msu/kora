@@ -2,6 +2,7 @@
 
 use Carbon\Carbon;
 use App\ComboListField;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -10,7 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveComboListFieldsTable extends Command implements SelfHandling, ShouldBeQueued
+class SaveComboListFieldsTable extends Command implements SelfHandling, ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -27,7 +28,7 @@ class SaveComboListFieldsTable extends Command implements SelfHandling, ShouldBe
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        ComboListField::chunk(1000, function($combolistfields) use ($table_path, $row_id) {
+        ComboListField::chunk(500, function($combolistfields) use ($table_path, $row_id) {
             $count = 0;
             $all_combolistfield_data = new Collection();
 

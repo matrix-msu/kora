@@ -1,5 +1,9 @@
 @extends('app')
 
+@section('leftNavLinks')
+    @include('partials.menu.project', ['pid' => $project->pid])
+@stop
+
 @section('content')
     <div class="container">
         <div class="row">

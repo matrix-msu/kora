@@ -14,12 +14,15 @@
     @if(\Auth::user()->admin)
         <div>
             <a href="{{ action('ProjectController@importProjectView') }}">[{{trans('projects_index.import')}}]</a>
-        </div> <br>
+        </div>
     @endif
+    <div id="toggle_proj">
+        Toggle Inactive: <input type="checkbox" id="toggle_proj_check">
+    </div> <br>
     @foreach ($projects as $project)
         @if((\Auth::user()->admin || \Auth::user()->inAProjectGroup($project)))
-            <div class="panel panel-default">
             @if($project->active==1)
+            <div class="panel panel-default">
                 <div class="panel-heading">
                     <a href="{{ action('ProjectController@show',[$project->pid]) }}" style="font-size: 1.5em;">{{ $project->name }}</a>
                 </div>
@@ -30,6 +33,7 @@
                     <div><b>{{trans('projects_index.desc')}}:</b> {{ $project->description }}</div>
                 </div>
             @else
+            <div class="panel panel-default inactiveProj" style="display:none">
                 <div class="panel-heading" style="font-size: 1.5em;">
                     {{ $project->name }}
                 </div>
@@ -69,6 +73,18 @@
             }else {
                 $(this).siblings('.collapseTest').slideUp();
             }
+        });
+
+        $( "#toggle_proj" ).on( "click", "#toggle_proj_check", function() {
+            var checked = $(this).is(":checked");
+
+            $('.inactiveProj').each(function () {
+                if (checked){
+                    $(this).slideDown();
+                }else {
+                    $(this).slideUp();
+                }
+            });
         });
 
         function deleteProject(projName,pid) {

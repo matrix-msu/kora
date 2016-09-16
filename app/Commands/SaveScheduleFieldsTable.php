@@ -2,6 +2,7 @@
 
 use Carbon\Carbon;
 use App\ScheduleField;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -10,7 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveScheduleFieldsTable extends Command implements SelfHandling, ShouldBeQueued
+class SaveScheduleFieldsTable extends Command implements SelfHandling, ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -27,7 +28,7 @@ class SaveScheduleFieldsTable extends Command implements SelfHandling, ShouldBeQ
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        ScheduleField::chunk(1000, function($schedulefields) use ($table_path, $row_id) {
+        ScheduleField::chunk(500, function($schedulefields) use ($table_path, $row_id) {
             $count = 0;
             $all_schedulefields_data = new Collection();
 

@@ -2,6 +2,7 @@
 
 use App\ListField;
 use Carbon\Carbon;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -10,7 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveListFieldTable extends Command implements SelfHandling, ShouldBeQueued
+class SaveListFieldTable extends Command implements SelfHandling, ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -27,7 +28,7 @@ class SaveListFieldTable extends Command implements SelfHandling, ShouldBeQueued
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        ListField::chunk(1000, function($listfields) use ($table_path, $row_id) {
+        ListField::chunk(500, function($listfields) use ($table_path, $row_id) {
             $count = 0;
             $all_listfields_data = new Collection();
 

@@ -2,6 +2,7 @@
 
 use Carbon\Carbon;
 use App\RichTextField;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -10,7 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveRichTextFields extends Command implements SelfHandling, ShouldBeQueued
+class SaveRichTextFields extends Command implements SelfHandling, ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -27,7 +28,7 @@ class SaveRichTextFields extends Command implements SelfHandling, ShouldBeQueued
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        RichTextField::chunk(1000, function($rtfields) use ($table_path, $row_id) {
+        RichTextField::chunk(500, function($rtfields) use ($table_path, $row_id) {
             $count = 0;
             $all_richtextfields_data = new Collection();
 

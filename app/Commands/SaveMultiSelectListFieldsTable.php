@@ -2,6 +2,7 @@
 
 use Carbon\Carbon;
 use App\MultiSelectListField;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -10,7 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveMultiSelectListFieldsTable extends Command implements SelfHandling, ShouldBeQueued
+class SaveMultiSelectListFieldsTable extends Command implements SelfHandling, ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -27,7 +28,7 @@ class SaveMultiSelectListFieldsTable extends Command implements SelfHandling, Sh
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        MultiSelectListField::chunk(1000, function($mslfields) use ($table_path, $row_id) {
+        MultiSelectListField::chunk(500, function($mslfields) use ($table_path, $row_id) {
             $count = 0;
             $all_multiselectlistfields_data = new Collection();
 

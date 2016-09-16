@@ -2,6 +2,7 @@
 
 use App\Field;
 use Carbon\Carbon;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -10,7 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveFieldsTable extends Command implements SelfHandling, ShouldBeQueued
+class SaveFieldsTable extends Command implements SelfHandling, ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -27,7 +28,7 @@ class SaveFieldsTable extends Command implements SelfHandling, ShouldBeQueued
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        Field::chunk(1000, function($fields) use ($table_path, $row_id) {
+        Field::chunk(500, function($fields) use ($table_path, $row_id) {
             $count = 0;
             $all_fields_data = new Collection();
 

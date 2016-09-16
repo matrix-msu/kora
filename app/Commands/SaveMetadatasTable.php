@@ -2,6 +2,7 @@
 
 use App\Metadata;
 use Carbon\Carbon;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -10,7 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveMetadatasTable extends Command implements SelfHandling, ShouldBeQueued
+class SaveMetadatasTable extends Command implements SelfHandling, ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -27,7 +28,7 @@ class SaveMetadatasTable extends Command implements SelfHandling, ShouldBeQueued
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        Metadata::chunk(1000, function($metadatas) use ($table_path, $row_id) {
+        Metadata::chunk(500, function($metadatas) use ($table_path, $row_id) {
             $count = 0;
             $all_metadatas_data = new Collection();
 

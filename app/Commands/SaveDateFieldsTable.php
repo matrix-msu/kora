@@ -2,6 +2,7 @@
 
 use App\DateField;
 use Carbon\Carbon;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -10,7 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveDateFieldsTable extends Command implements SelfHandling, ShouldBeQueued
+class SaveDateFieldsTable extends Command implements SelfHandling, ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -27,7 +28,7 @@ class SaveDateFieldsTable extends Command implements SelfHandling, ShouldBeQueue
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        DateField::chunk(1000, function($datefields) use ($table_path, $row_id) {
+        DateField::chunk(500, function($datefields) use ($table_path, $row_id) {
             $count = 0;
             $all_datefields_data = new Collection();
 

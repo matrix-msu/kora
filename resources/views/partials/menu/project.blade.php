@@ -18,6 +18,7 @@
             <li class="divider"></li>
             <li><a href="{{action('ProjectGroupController@index', ['pid'=>$pid])}}">{{trans('partials_menu_project.groups')}}</a></li>
             <li><a href="{{action('OptionPresetController@index', ['pid'=>$pid])}}">{{trans('partials_menu_project.presets')}}</a></li>
+            <li><a href="{{action('BackupController@projectIndex', ['pid'=>$pid])}}">{{trans('partials_menu_project.backup')}}</a></li>
         @endif
     </ul>
 </li>

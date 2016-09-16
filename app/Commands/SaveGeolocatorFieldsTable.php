@@ -2,6 +2,7 @@
 
 use App\GeolocatorField;
 use Carbon\Carbon;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -10,7 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveGeolocatorFieldsTable extends Command implements SelfHandling, ShouldBeQueued
+class SaveGeolocatorFieldsTable extends Command implements SelfHandling, ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -27,7 +28,7 @@ class SaveGeolocatorFieldsTable extends Command implements SelfHandling, ShouldB
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        GeolocatorField::chunk(1000, function($geolocatorfields) use ($table_path, $row_id) {
+        GeolocatorField::chunk(500, function($geolocatorfields) use ($table_path, $row_id) {
             $count = 0;
             $all_geolocatorfields_data = new Collection();
 

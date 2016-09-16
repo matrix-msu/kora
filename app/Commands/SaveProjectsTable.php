@@ -5,6 +5,7 @@ use App\Commands\Command;
 use App\Project;
 use App\Field;
 use Carbon\Carbon;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
@@ -13,7 +14,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
-class SaveProjectsTable extends Command implements SelfHandling, ShouldBeQueued {
+class SaveProjectsTable extends Command implements SelfHandling, ShouldQueue {
 
 	use InteractsWithQueue, SerializesModels;
 	
@@ -35,7 +36,7 @@ class SaveProjectsTable extends Command implements SelfHandling, ShouldBeQueued 
 		);
 
 		$this->backup_fs->makeDirectory($table_path);
-		Project::chunk(1000,function($projects) use ($table_path, $row_id){
+		Project::chunk(500,function($projects) use ($table_path, $row_id){
 			$count= 0;
 			$all_projects_data = new Collection();
 			foreach ($projects as $project) {

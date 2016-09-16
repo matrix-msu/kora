@@ -2,6 +2,7 @@
 
 use App\GeneratedListField;
 use Carbon\Carbon;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -10,7 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveGeneratedListFieldsTable extends Command implements SelfHandling, ShouldBeQueued
+class SaveGeneratedListFieldsTable extends Command implements SelfHandling, ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -27,7 +28,7 @@ class SaveGeneratedListFieldsTable extends Command implements SelfHandling, Shou
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        GeneratedListField::chunk(1000, function($generatedlistfields) use ($table_path, $row_id) {
+        GeneratedListField::chunk(500, function($generatedlistfields) use ($table_path, $row_id) {
             $count = 0;
             $all_generatedlistfields_data = new Collection();
 

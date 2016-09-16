@@ -51,6 +51,7 @@ use App\TextField;
 use App\Token;
 use App\User;
 use App\Http\Controllers\OptionPresetController;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 use App\VideoField;
 use Carbon\Carbon;
@@ -294,8 +295,14 @@ class BackupController extends Controller
             new SaveUsersTable($this->backup_disk, $this->backup_filepath, $this->backup_id)];
 
         foreach($jobs as $job){
-            Queue::push($job);
+            //Queue::push($job);
+            $this->dispatch($job->onQueue('backup'));
         }
+
+        Artisan::call('queue:listen', [
+            '--queue' => 'backup',
+            '--timeout' => 1800
+        ]);
 
         //
         // These are not implemented yet, we need to decide how we are handling file backups first...

@@ -9,6 +9,7 @@ return [
 	"admin" => "Project Admin Panel",
 	"groups" => "Manage Groups",
 	"presets" => "Manage Option Presets",
+	"backup" => "Manage Project Backups",
 	"forms" => "Forms",
 	"export" => "Export Project",
 	"import" => "Import Form",

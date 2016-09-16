@@ -8,5 +8,6 @@ return [
 	"jump" => "Jump to Project",
 	"groups" => "Manage Groups",
 	"presets" => "Manage Option Presets",
+	"backup" => "Manage Project Backups",
 
 ];

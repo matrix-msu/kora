@@ -3,6 +3,7 @@
 
 use App\Token;
 use Carbon\Carbon;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -12,7 +13,7 @@ use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldBeQueued;;
 
 
-class SaveTokensTable extends Command implements SelfHandling, ShouldBeQueued
+class SaveTokensTable extends Command implements SelfHandling, ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -29,7 +30,7 @@ class SaveTokensTable extends Command implements SelfHandling, ShouldBeQueued
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        Token::chunk(1000, function($tokens) use ($table_path, $row_id) {
+        Token::chunk(500, function($tokens) use ($table_path, $row_id) {
             $count = 0;
             $all_tokens_data = new Collection();
 
