@@ -704,6 +704,10 @@ class RevisionController extends Controller {
                         $data['combofields'][$field->flid]['data'] = $combodata;
                     }
                     else {
+                        $data['combofields'][$field->flid]['first'] = null;
+                        $data['combofields'][$field->flid]['second'] = null;
+                        $data['combofields'][$field->flid]['values'] = null;
+                        $data['combofields'][$field->flid]['options'] = null;
                         $data['combofields'][$field->flid]['data'] = null;
                     }
                     break;
