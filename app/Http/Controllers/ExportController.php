@@ -376,6 +376,7 @@ class ExportController extends Controller {
                 $sf = ScheduleField::where('rid', '=', $record->rid)->get();
                 foreach($sf as $f) {
                     $fieldArray = array('name' => $fieldsInfo[$f->flid]['slug'], 'type' => $fieldsInfo[$f->flid]['type']);
+                    $value = '';
                     $events = explode('[!]', $f->events);
                     $fieldArray['events'] = array();
                     foreach ($events as $event) {
@@ -672,6 +673,8 @@ class ExportController extends Controller {
     /**
      * Simplifies export to work with an array of rids.
      * Makes an external call to the python exporter to speed things up (see: app/python).
+     *
+     * Note: unit tests are not possible for this function as the python exporter does not know about the test database.
      *
      * @param array $rids, array of rids to export.
      * @param string $format, the desired output format, defaults to JSON.

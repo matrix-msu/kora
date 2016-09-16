@@ -86,10 +86,17 @@ class JSONWriter(Writer):
         Writes the footer to a file.
         :param filepath: string, absolute path to file to append footer to.
         """
-        with open(filepath, "rb+") as target: #a to append
+        with open(filepath, "rb+") as target:
+            ## If any records are written, there will be a trailing comma.
+            ## This is invalid in JSON, so we just remove it.
             target.seek(-1, os.SEEK_END)
-            target.truncate()
-            target.write("]}")
+
+            if target.read() == ",":
+                target.truncate()
+                target.write("]}")
+            else:
+                target.write("]}")
+
 
 class XMLWriter(Writer):
     """
