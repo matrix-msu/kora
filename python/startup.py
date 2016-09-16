@@ -8,9 +8,13 @@ def startup():
 
     exports_path = os.path.join(python_dir, "exports")
     metadata_path = os.path.join(python_dir, "metadata")
+    temp_path = os.path.join(python_dir, "temp")
 
     if not os.path.exists(exports_path):
         os.makedirs(exports_path, 0775)
 
     if not os.path.exists(metadata_path):
         os.makedirs(metadata_path, 0775)
+
+    if not os.path.exists(temp_path):
+        os.makedirs(temp_path, 0775)

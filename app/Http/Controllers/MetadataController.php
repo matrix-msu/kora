@@ -74,7 +74,19 @@ class MetadataController extends Controller {
     public function records2($pid, $fid) {
         // Old meta data method
 
+        $format = "JSON";
 
+        $rids = [];
+        for ($i = 1; $i < 10001; $i++) {
+            $rids[] = $i;
+        }
+
+        $rids = json_encode($rids);
+
+        $exec_string = env("BASE_PATH") . "python/export.py \"$rids\" \"$format\" 2>&1";
+        exec($exec_string, $output);
+
+        dd($output);
 
 //        if ( ! FormController::validProjForm($pid, $fid)){
 //            return redirect('projects/' . $pid . '/forms');
