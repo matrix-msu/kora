@@ -1,7 +1,7 @@
 import MySQLdb
 from MySQLdb import cursors
 from env import env
-from table import BaseFieldTypes
+from table import BaseFieldTypes, get_data_names
 
 ##
 ## Connection: functions as a MySQL Database connection to guard from making mistakes.
@@ -103,13 +103,13 @@ class Cursor:
         ## Initialize cursor.
         cursor = self._cnx.cursor()
 
-        stmt = "SELECT `flid`, `slug`, `type` FROM " + self._prefix + "fields WHERE `fid` = %s"
+        stmt = "SELECT `flid`, `slug`, `type`, `options` FROM " + self._prefix + "fields WHERE `fid` = %s"
 
         cursor.execute(stmt, [fid])
 
         stash = dict()
         for row in cursor:
-            stash[row["flid"]] = {"slug": row["slug"], "type": row["type"]}
+            stash[row["flid"]] = {"slug": row["slug"], "type": row["type"], "options": row["options"]}
 
         cursor.close()
 
@@ -127,9 +127,52 @@ class Cursor:
 
         cursor.execute(stmt, [rid])
 
-        for row in cursor:
-            fid = row["fid"]
+        row = cursor.fetchone()
+        fid = row["fid"]
 
         cursor.close()
 
         return fid
+
+    def kid_from_rid(self, rid):
+        """
+        Gets the kid associated with any particular record id.
+        :param rid: record id.
+        :return string: kid
+        """
+        cursor = self._cnx.cursor()
+
+        stmt = "SELECT `kid` FROM " + self._prefix + "records WHERE `rid` = %s"
+
+        cursor.execute(stmt, [rid])
+
+        row = cursor.fetchone()
+        kid = row["kid"]
+
+        cursor.close()
+
+        return kid
+
+
+    def get_field_data(self, table, rid):
+        """
+        Gets the data from a particular table based on an rid, yielded by a generator.
+
+        :param table: BaseField table name.
+        :param rid: record id.
+        :return dict: row from the database.
+        """
+
+        cursor = self._cnx.cursor()
+
+        stmt = "SELECT `flid`, " + get_data_names(table) + " FROM " + self._prefix + table + " WHERE `rid` = %s"
+
+        cursor.execute(stmt, [rid])
+
+        if cursor.rowcount < 1: ## No fields were found.
+            raise StopIteration
+
+        for row in cursor:
+            yield row
+
+        cursor.close()

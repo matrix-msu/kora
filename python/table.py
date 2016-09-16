@@ -8,7 +8,7 @@ class Table:
     DateField = "date_fields"
     DocumentsField = "documents_fields"
     GalleryField = "gallery_fields"
-    GeneratorListField = "generated_list_fields"
+    GeneratedListField = "generated_list_fields"
     GeolocatorField = "geolocator_fields"
     ListField = "list_fields"
     ModelField = "model_fields"
@@ -23,7 +23,7 @@ class Table:
     Project = "projects"
     PasswordReset = "password_resets"
     Form = "forms"
-    Field = "fields"
+    Field = "rm 1"
     Record = "records"
     User = "users"
     Token = "tokens"
@@ -52,7 +52,7 @@ class BaseFieldTypes:
     DateField = Table.DateField
     DocumentsField = Table.DocumentsField
     GalleryField = Table.GalleryField
-    GeneratorListField = Table.GeneratorListField
+    GeneratedListField = Table.GeneratedListField
     GeolocatorField = Table.GeolocatorField
     ListField = Table.ListField
     ModelField = Table.ModelField
@@ -76,6 +76,33 @@ def get_base_field_types():
             types.append(field_name[1])
 
     return types
+
+def get_data_names(table):
+    """
+    Gets the name(s) of the important data in a certain BaseField, formatted for MySQL.
+
+    :param table: a valid BaseField table name.
+    :return string:
+    """
+
+    return {
+        BaseFieldTypes.ComboListField: "`options`, `ftype1`, `ftype2`",
+        BaseFieldTypes.DateField: "`circa`, `month`, `day`, `year`, `era`",
+        BaseFieldTypes.DocumentsField: "`documents`",
+        BaseFieldTypes.GalleryField: "`images`",
+        BaseFieldTypes.GeneratedListField: "`options`",
+        BaseFieldTypes.GeolocatorField: "`locations`",
+        BaseFieldTypes.ListField: "`option`",
+        BaseFieldTypes.ModelField: "`model`",
+        BaseFieldTypes.MultiSelectListField: "`options`",
+        BaseFieldTypes.NumberField: "`number`",
+        BaseFieldTypes.PlaylistField: "`audio`",
+        BaseFieldTypes.RichTextField: "`rawtext`",
+        BaseFieldTypes.ScheduleField: "`events`",
+        BaseFieldTypes.TextField: "`text`",
+        BaseFieldTypes.VideoField: "`video`",
+        BaseFieldTypes.AssociatorField: "`records`"
+    }[table]
 
 def get_all_tables():
     """

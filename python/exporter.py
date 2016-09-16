@@ -4,7 +4,9 @@ import time
 from connection import Connection, Cursor
 from subprocess import call
 from writer import Writer
-from env import env
+from table import get_base_field_types
+from formatter import get_field_formatters
+from json import dumps
 
 class Exporter:
     """
@@ -25,7 +27,7 @@ class RecordExporter(Exporter):
     """
     Exports on a per record basis, rather than a per field basis like FieldExporter.
     """
-    def __init__(self, rids, output = "JSON"):
+    def __init__(self, rids, start_time, output = "JSON"):
         """
         Constructor.
         :param rids: array of rids to export.
@@ -37,6 +39,7 @@ class RecordExporter(Exporter):
 
         self._rids = rids
         self._output = output
+        self._start_time = start_time
 
     def __call__(self):
         """
@@ -46,6 +49,40 @@ class RecordExporter(Exporter):
         """
         cursor = self._connect_to_database()
         fid = cursor.fid_from_rid(self._rids[0])
+
+        stash = cursor.get_field_stash(fid)
+
+        file_name = str(self._rids[0]) + "_" + \
+                    str(self._rids[-1]) + "_" + \
+                    self._start_time
+
+        python_dir = os.path.dirname(os.path.abspath(__file__))
+        target = open(os.path.join(python_dir, "temp", file_name), "w")
+
+        field_formatters = get_field_formatters(self._output)
+
+        for rid in self._rids:
+
+            record_dict = {
+                "kid": cursor.kid_from_rid(rid),
+                "Fields": []
+            }
+
+            for table in get_base_field_types():
+                for field in cursor.get_field_data(table, rid):
+                    field_dict = {
+                        "name": stash[field["flid"]]["slug"],
+                        "type": stash[field["flid"]]["type"],
+                    }
+
+                    ## Pass the field and field options to the appropriate field formatter based on its type.
+                    field_dict.update(field_formatters[table]( field, stash[field["flid"]]["options"]))
+
+                    record_dict["Fields"].append(field_dict)
+
+            target.write(dumps(record_dict, separators=(',', ':')) + ",")
+
+        target.close()
 
 class FieldExporter(Exporter):
     """

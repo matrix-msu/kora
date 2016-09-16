@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 import multiprocessing
-from table import get_base_field_types
-from exporter import FieldExporter, collapse_files
+from exporter import RecordExporter, collapse_files
 from writer import make_writer, Writer
 from sys import argv
 from json import loads
@@ -17,7 +16,7 @@ def main():
     From the command line (or PHP shell_exec)
     Expected values in argv:
         argv[1]: JSON array of rids to export.
-        argv[2]: desired output type (JSON, CSV, or XML)
+        argv[2]: desired output type (JSON or XML)
     """
 
     startup() ## Initialize file structure.
@@ -38,18 +37,19 @@ def main():
 
     pool = multiprocessing.Pool(processes = 8)
 
-    for table in get_base_field_types():
-        ## Get 1000 rids at a time.
-        i = 1000
-        chunk = data[i - 1000 : i]
+    ## Get "slice_on" rids at a time.
+    slice_on = 500
 
-        while i - 1000 < len(data):
-            exporter = FieldExporter(table, chunk, writer)
+    i = slice_on
+    chunk = data[i - slice_on : i]
 
-            pool.apply_async(exporter)
+    while i - slice_on < len(data):
+        exporter = RecordExporter(chunk, writer.start_time, writer_type)
 
-            i += 1000
-            chunk = data[i - 1000 : i]
+        pool.apply_async(exporter)
+
+        i += slice_on
+        chunk = data[i - slice_on : i]
 
     pool.close()
     pool.join() ## Wait for processes to complete.

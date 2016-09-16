@@ -1,4 +1,3 @@
-import simplejson
 from json import JSONEncoder
 from datetime import datetime
 

@@ -1,6 +1,5 @@
-import os
-import simplejson
 import time
+import os
 from encoder import DBEncoder
 from json import dumps
 
@@ -22,7 +21,7 @@ class Writer:
         Creates the initial time stamp all other files will use for uniqueness.
         :return string:
         """
-        return str(round(time.time(), 2))
+        return str(time.time())
 
     def write(self, item):
         """
@@ -80,14 +79,16 @@ class JSONWriter(Writer):
         :param filepath: string, absolute path to set up the file header in.
         """
         with open(filepath, "w") as target:
-            target.write("[\"Records:{\"")
+            target.write("{\"Records\":[")
 
     def footer(self, filepath):
         """
         Writes the footer to a file.
         :param filepath: string, absolute path to file to append footer to.
         """
-        with open(filepath, "a") as target: #a to append
+        with open(filepath, "rb+") as target: #a to append
+            target.seek(-1, os.SEEK_END)
+            target.truncate()
             target.write("]}")
 
 class XMLWriter(Writer):
