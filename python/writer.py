@@ -80,24 +80,15 @@ class JSONWriter(Writer):
         :param filepath: string, absolute path to set up the file header in.
         """
         with open(filepath, "w") as target:
-            target.write("[")
+            target.write("[\"Records:{\"")
 
     def footer(self, filepath):
         """
         Writes the footer to a file.
         :param filepath: string, absolute path to file to append footer to.
         """
-        with open(filepath, "rb+") as target: ## rb+ ; reading and writing.
-            ## Remove the trailing comma and space from the end of the file if there is
-            ## something other than the opening bracket in the file.
-            try:
-                target.seek(-1, os.SEEK_END)
-                target.truncate()
-                target.write("]")
-
-            except IOError:
-                target.seek(os.SEEK_END)
-                target.write("]")
+        with open(filepath, "a") as target: #a to append
+            target.write("]}")
 
 class XMLWriter(Writer):
     """
@@ -127,34 +118,6 @@ class XMLWriter(Writer):
         """
         pass
 
-class CSVWriter(Writer):
-    """
-    CSV writer class.
-    """
-    def write(self, item): ## TODO: Implement.
-        return
-
-    def file_extension(self):
-        """
-        Returns the appropriate file extension.
-        :return string:
-        """
-        return ".csv"
-
-    def header(self, filepath): ## TODO: Implement
-        """
-        Writes the header to a file. Should be an empty file, else it will be truncated.
-        :param filepath: string, absolute path to set up the file header in.
-        """
-        pass
-
-    def footer(self, filepath): ## TODO: Implement
-        """
-        Writes the footer to a file.
-        :param filepath: string, absolute path to file to append footer to.
-        """
-        pass
-
 def make_writer(format, temp_path):
     """
     Create a writer object based on desired output format.
@@ -168,9 +131,5 @@ def make_writer(format, temp_path):
 
     elif format == "XML":
         return XMLWriter(temp_path)
-
-    elif format == "CSV":
-        return CSVWriter(temp_path)
-
 
     return JSONWriter(temp_path) ## Default to JSON.

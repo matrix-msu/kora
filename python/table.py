@@ -89,3 +89,21 @@ def get_all_tables():
             tables.append(table[1])
 
     return tables
+
+def is_valid_table(table):
+    """
+    Determine if a string is a valid table name.
+
+    :param table: string to test
+    :return bool: true if valid
+    """
+    return table in get_all_tables()
+
+def is_valid_base_field(table):
+    """
+    Determine if a string is a valid base field name.
+
+    :param table: string to test
+    :return bool: true if valid
+    """
+    return table in get_base_field_types()

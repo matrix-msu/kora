@@ -41,15 +41,15 @@ def main():
     for table in get_base_field_types():
         ## Get 1000 rids at a time.
         i = 1000
-        slice = data[i - 1000 : i]
+        chunk = data[i - 1000 : i]
 
         while i - 1000 < len(data):
-            exporter = FieldExporter(table, slice, writer)
+            exporter = FieldExporter(table, chunk, writer)
 
             pool.apply_async(exporter)
 
             i += 1000
-            slice = data[i - 1000 : i]
+            chunk = data[i - 1000 : i]
 
     pool.close()
     pool.join() ## Wait for processes to complete.
