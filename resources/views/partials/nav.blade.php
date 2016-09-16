@@ -77,7 +77,6 @@
 		  <ul class="nav navbar-nav navbar-right">
 		    <!-- Right justified links -->
 			@if (Auth::guest())
-				<li><a href="{{ url('/auth/login') }}">{{trans('partials_nav.login')}}</a></li>
 				<li><a href="{{ url('/auth/register') }}">{{trans('partials_nav.register')}}</a></li>
                 <li><a href="{{ action('Auth\UserController@activateshow') }}">{{trans('partials_nav.activation')}}</a></li>
 			@else

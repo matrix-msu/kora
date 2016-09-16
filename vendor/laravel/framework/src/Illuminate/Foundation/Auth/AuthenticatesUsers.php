@@ -4,6 +4,7 @@ namespace Illuminate\Foundation\Auth;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Lang;
 
 trait AuthenticatesUsers
@@ -21,7 +22,14 @@ trait AuthenticatesUsers
             return view('auth.authenticate');
         }
 
-        return view('auth.login');
+        $languages_available = Config::get('app.locales_supported');
+        $not_installed = true;
+        if(!file_exists("../.env")){
+            return view('welcome',compact('languages_available','not_installed'));
+        }
+        else{
+            return view('welcome',compact('languages_available'));
+        }
     }
 
     /**
