@@ -1,11 +1,14 @@
 <?php namespace App\Http\Controllers;
 
+use App\Http\Controllers\Auth\UserController;
 use App\User;
 use App\Project;
 use App\ProjectGroup;
 use App\Http\Requests;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 
 class ProjectGroupController extends Controller {
@@ -54,8 +57,13 @@ class ProjectGroupController extends Controller {
 
         $group = ProjectGroupController::buildGroup($pid, $request);
 
-        if(!is_null($request['users']))
+        if(!is_null($request['users'])) {
             $group->users()->attach($request['users']);
+
+            foreach($request['users'] as $uid){
+                $this->emailUserProject("added",$uid,$group->id);
+            }
+        }
 
         flash()->overlay(trans('controller_projectgroup.create'), trans('controller_projectgroup.success'));
         return redirect('projects/'.$pid.'/manage/projectgroups');
@@ -74,6 +82,8 @@ class ProjectGroupController extends Controller {
             ProjectGroupController::wipeAdminRights($request, $request['pid']);
 
         $instance->users()->detach($request['userId']);
+
+        $this->emailUserProject("removed",$request['userId'],$instance->id);
     }
 
     /**
@@ -85,6 +95,8 @@ class ProjectGroupController extends Controller {
     {
         $instance = ProjectGroup::where('id', '=', $request['projectGroup'])->first();
         $instance->users()->attach($request['userId']);
+
+        $this->emailUserProject("added",$request['userId'],$instance->id);
     }
 
     /**
@@ -95,6 +107,12 @@ class ProjectGroupController extends Controller {
     public function deleteProjectGroup(Request $request)
     {
         $instance = ProjectGroup::where('id', '=', $request['projectGroup'])->first();
+
+        $users = $instance->users()->get();
+        foreach($users as $user){
+            $this->emailUserProject("removed",$user->id,$instance->id);
+        }
+
         $instance->delete();
 
         flash()->overlay(trans('controller_projectgroup.delete'), trans('controller_projectgroup.success'));
@@ -108,6 +126,11 @@ class ProjectGroupController extends Controller {
     public function updatePermissions(Request $request)
     {
         $instance = ProjectGroup::where('id', '=', $request['projectGroup'])->first();
+
+        $users = $instance->users()->get();
+        foreach($users as $user){
+            $this->emailUserProject("changed",$user->id,$instance->id);
+        }
 
         if($request['permCreate'])
             $instance->create = 1;
@@ -165,5 +188,26 @@ class ProjectGroupController extends Controller {
             $adminGroup = $form->adminGroup()->first();
             $adminGroup->users()->detach($user);
         }
+    }
+
+    private function emailUserProject($type, $uid, $pgid){
+        $userMail = DB::table('users')->where('id', $uid)->value('email');
+        $name = DB::table('users')->where('id', $uid)->value('name');
+        $group = ProjectGroup::where('id', '=', $pgid)->first();
+        $project = ProjectController::getProject($group->pid);
+
+        if($type=="added"){
+            $email = 'emails.project.added';
+        }else if($type=="removed"){
+            $email = 'emails.project.removed';
+        }else if($type=="changed"){
+            $email = 'emails.project.changed';
+        }
+
+        Mail::send($email, compact('project', 'name'), function ($message) use($userMail) {
+            $message->from(env('MAIL_FROM_ADDRESS'));
+            $message->to($userMail);
+            $message->subject('Kora Project Permissions');
+        });
     }
 }

@@ -19,8 +19,37 @@
     <div id="toggle_proj">
         Toggle Inactive: <input type="checkbox" id="toggle_proj_check">
     </div> <br>
+    @if(sizeof($requestProjects)>0)
+        @if(!$hasProjects)
+            <div id="access_div">
+                You currently don't have permissions to work on any projects, would you like to <a id="access">request access to a project</a>?
+            </div>
+        @else
+            <div id="access_div">
+                Don't see the project you need to work on? <a id="access">Request access to a project</a>.
+            </div>
+        @endif
+        <div id="request_project_div" style="display:none">
+            {!! Form::open(['action' => 'ProjectController@request']) !!}
+            <select multiple class="form-control" id="request_project" name="pid[]" style="width:100%">
+                @foreach($requestProjects as $name=>$pid)
+                    <option value="{{$pid}}">{{$name}}</option>
+                @endforeach
+            </select>
+            <button type="submit" class="btn btn-primary">Request Access</button>
+            {!! Form::close() !!}
+        </div>
+        <br>
+    @elseif(\Auth::user()->id!=1)
+        @if(!$hasProjects)
+            <div>You currently don't have permissions to work on any projects. There are currently no projects for you to request. Please contact your Kora administrator to request project creation. </div>
+        @else
+            <div>Don't see the project you need to work on? There are currently no projects for you to request. Please contact your Kora administrator to request project creation.</div>
+        @endif
+        <br>
+    @endif
+
     @foreach ($projects as $project)
-        @if((\Auth::user()->admin || \Auth::user()->inAProjectGroup($project)))
             @if($project->active==1)
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -54,7 +83,6 @@
                 </span>
             </div></div><!-- this is the close tag for the collapseTest div -->
         </div>
-        @endif
     @endforeach
 
     <br/>
@@ -85,6 +113,13 @@
                     $(this).slideUp();
                 }
             });
+        });
+
+        $('#request_project').select2();
+
+        $( "#access_div" ).on( "click", "#access", function() {
+            $("#access_div").slideUp();
+            $("#request_project_div").slideDown();
         });
 
         function deleteProject(projName,pid) {

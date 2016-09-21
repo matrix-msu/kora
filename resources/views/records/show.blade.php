@@ -52,9 +52,33 @@
     </div>
 
     <div class="panel panel-default">
-        @include('forms.layout.logic',['form' => $form, 'fieldview' => 'records.layout.displayfield'])
-        <div><b>{{trans('records_show.owner')}}:</b> {{ $owner->username }}</div>
-        <div><b>{{trans('records_show.created')}}:</b> {{ $record->created_at }}</div>
+        <div class="panel-heading">
+            <span>
+                @if(\Auth::user()->canModifyRecords($form) || \Auth::user()->isOwner($record))
+                    <a href="{{ action('RecordController@edit',['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid]) }}">[{{trans('records_show.edit')}}]</a>
+                @endif
+            </span>
+            <span>
+                @if(\Auth::user()->canDestroyRecords($form) || \Auth::user()->isOwner($record))
+                    <a onclick="deleteRecord()" href="javascript:void(0)">[{{trans('records_show.delete')}}]</a>
+                @endif
+            </span>
+            <span>
+                @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form) || \Auth::user()->isOwner($record))
+                    <a href='{{action('RevisionController@show', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid])}}'>[{{trans('records_show.history')}}]</a>
+                @endif
+            </span>
+            <span>
+                @if(\Auth::user()->CanIngestRecords($form) || \Auth::user()->isOwner($record))
+                    <a href='{{action('RecordController@cloneRecord', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid])}}'>[{{trans('records_show.clone')}}]</a>
+                @endif
+            </span>
+        </div>
+        <div class="panel-body">
+            @include('forms.layout.logic',['form' => $form, 'fieldview' => 'records.layout.displayfield'])
+            <div><b>{{trans('records_show.owner')}}:</b> {{ $owner->username }}</div>
+            <div><b>{{trans('records_show.created')}}:</b> {{ $record->created_at }}</div>
+        </div>
         <div class="panel-footer">
             <span>
                 @if(\Auth::user()->canModifyRecords($form) || \Auth::user()->isOwner($record))

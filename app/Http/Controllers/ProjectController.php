@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ProjectRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class ProjectController extends Controller {
 
@@ -18,7 +19,7 @@ class ProjectController extends Controller {
     {
         $this->middleware('auth');
         $this->middleware('active');
-        $this->middleware('admin', ['except' => ['index', 'show']]);
+        $this->middleware('admin', ['except' => ['index', 'show', 'request']]);
     }
 
 	/**
@@ -28,15 +29,57 @@ class ProjectController extends Controller {
 	 */
 	public function index()
 	{
-        $projects = Project::all();
+        $projectCollections = Project::all();
 
         $projectArrays = [];
-        foreach($projects as $project) {
-            $projectArrays[] = $project->buildFormSelectorArray();
+        $projects = array();
+        $hasProjects = false;
+        $requestProjects = array();
+        foreach($projectCollections as $project) {
+            if(\Auth::user()->admin || \Auth::user()->inAProjectGroup($project)){
+                $projectArrays[] = $project->buildFormSelectorArray();
+                array_push($projects,$project);
+                $hasProjects = true;
+            }else if($project->active){
+                $requestProjects[$project->name] = $project->pid;
+            }
         }
 
-        return view('projects.index', compact('projects', 'projectArrays'));
+        return view('projects.index', compact('projects', 'projectArrays', 'hasProjects','requestProjects'));
 	}
+
+    public function request(Request $request){
+        $projects = array();
+        if(!is_null($request->pid)) {
+            foreach ($request->pid as $pid) {
+                $project = ProjectController::getProject($pid);
+                if (!is_null($project))
+                    array_push($projects, $project);
+            }
+        }
+
+        if(sizeof($projects)==0){
+            flash()->overlay(trans('controller_project.requestfail'),trans('controller_project.whoops'));
+
+            return redirect('projects');
+        }else{
+            foreach($projects as $project){
+                $admins = $this->getProjectAdminNames($project);
+
+                foreach($admins as $user){
+                    Mail::send('emails.request.access', compact('project'), function ($message) use($user) {
+                        $message->from(env('MAIL_FROM_ADDRESS'));
+                        $message->to($user->email);
+                        $message->subject('Kora Project Request');
+                    });
+                }
+            }
+
+            flash()->overlay(trans('controller_project.requestsuccess'),trans('controller_project.whoops'));
+
+            return redirect('projects');
+        }
+    }
 
 	/**
 	 * Show the form for creating a new resource.
@@ -228,5 +271,12 @@ class ProjectController extends Controller {
 
     public function importProjectView(){
         return view('projects.import');
+    }
+
+    private function getProjectAdminNames($project){
+        $group = $project->adminGroup()->first();
+        $users = $group->users()->get();
+
+        return $users;
     }
 }
