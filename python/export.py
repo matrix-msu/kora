@@ -37,6 +37,8 @@ def main():
 
     pool = multiprocessing.Pool(processes = 8)
 
+    data = [i for i in range(1, 10001)]
+
     ## Get "slice_on" rids at a time.
     slice_on = 500
 
