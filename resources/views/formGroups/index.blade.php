@@ -26,7 +26,7 @@
                                             <span>{{trans('formGroups_index.users')}}:</span>
                                             <ul class="list-group" id="list{{$formGroup->id}}">
                                                 @foreach($formGroup->users()->get() as $user)
-                                                    <li class="list-group-item" id="list-element{{$formGroup->id}}{{$user->id}}" name="{{$user->name}}">
+                                                    <li class="list-group-item" id="list-element{{$formGroup->id}}{{$user->id}}" name="{{$user->username}}">
                                                         {{$user->username}} @if(\Auth::user()->id != $user->id)
                                                             <a href="javascript:void(0)" onclick="removeUser({{$formGroup->id}}, {{$user->id}})">[X]</a>
                                                         @endif
@@ -63,14 +63,26 @@
                         @foreach($formGroups as $formGroup)
                             @if($form->adminGID != $formGroup->id)
                                 <div class="panel panel-default">
-                                    <div class="panel-heading">{{$formGroup->name}}</div>
+                                    <div class="panel-heading">
+                                        @if($formGroup->name == $form->name." Default Group")
+                                            {{$formGroup->name}}
+                                        @else
+                                        <div class="formGroupName">
+                                            {{$formGroup->name}} <a class="nameEdit">[EDIT]</a>
+                                        </div>
+                                        <div class="formGroupEdit" style="display:none">
+                                            <input type="text" class="newGroupName" placeholder="{{$formGroup->name}}" gid="{{$formGroup->id}}">
+                                            <a class="nameSave">[SAVE]</a> <a class="nameRevert">[X]</a>
+                                        </div>
+                                        @endif
+                                    </div>
 
                                     <div class="collapseTest" style="display: none">
                                         <div class="panel-body">
                                             <span>{{trans('formGroups_index.users')}}:</span>
                                             <ul class="list-group" id="list{{$formGroup->id}}">
                                                 @foreach($formGroup->users()->get() as $user)
-                                                    <li class="list-group-item" id="list-element{{$formGroup->id}}{{$user->id}}" name="{{$user->name}}">
+                                                    <li class="list-group-item" id="list-element{{$formGroup->id}}{{$user->id}}" name="{{$user->username}}">
                                                         {{$user->username}} <a href="javascript:void(0)" onclick="removeUser({{$formGroup->id}}, {{$user->id}})">[X]</a>
                                                     </li>
                                                 @endforeach
@@ -110,9 +122,11 @@
                                                 </ul>
                                             </div>
                                         </div>
+                                        @if($formGroup->name != $form->name." Default Group")
                                         <div class="panel-footer">
                                             <a href="javascript:void(0)" onclick="deleteFormGroup({{$formGroup->id}})">[{{trans('formGroups_index.deleteform')}}]</a>
                                         </div>
+                                        @endif
                                     </div>
                                 </div>
                             @endif
@@ -133,13 +147,101 @@
 
 @section('footer')
     <script>
-        $(".panel-heading").on("click", function(){
+        $(".panel-heading").on("click", function(e){
+            if($(e.target).is(".nameEdit")) return;
+            if($(e.target).is(".nameSave")) return;
+            if($(e.target).is(".nameRevert")) return;
+            if($(e.target).is(".newGroupName")) return;
+
             if ($(this).siblings('.collapseTest').css('display') == 'none') {
                 $(this).siblings('.collapseTest').slideDown();
             } else {
                 $(this).siblings('.collapseTest').slideUp();
             }
         });
+
+        $(".panel-heading").on("click", ".nameEdit", function(){
+            editButton = $(this);
+
+            mainDiv = editButton.parent();
+            editDiv = mainDiv.siblings(".formGroupEdit");
+
+            mainDiv.slideUp();
+            editDiv.slideDown();
+
+            textBox = editDiv.children('.newGroupName');
+            textBox.focus();
+        });
+
+        $(".panel-heading").on("click", ".nameSave", function() {
+            saveBtn = $(this);
+            textBox = saveBtn.siblings(".newGroupName");
+
+            changeGroupName(textBox);
+        });
+
+        $(".panel-heading").on("click", ".nameRevert", function() {
+            revertBtn = $(this);
+
+            editDiv = revertBtn.parent();
+            mainDiv = editDiv.siblings(".formGroupName");
+
+            mainDiv.slideDown();
+            editDiv.slideUp();
+        });
+
+        $('.newGroupName').keypress(function (e) {
+            textBox = $(this);
+
+            if(e.which == 13)  // the enter key code
+            {
+                changeGroupName(textBox);
+            }else if(e.keyCode==27){
+                editDiv = textBox.parent();
+                mainDiv = editDiv.siblings(".formGroupName");
+
+                editDiv.slideUp();
+                mainDiv.slideDown();
+            }
+        });
+
+        function changeGroupName(textBox){
+            textBox.attr('style','');
+            newName = textBox.val();
+            gid = textBox.attr('gid');
+            pid = {{$form->pid}};
+            fid = {{$form->fid}};
+
+            editDiv = textBox.parent();
+            mainDiv = editDiv.siblings(".formGroupName");
+
+            if(newName==''){
+                textBox.attr('style','border:3px solid red');
+                return;
+            }else {
+                $.ajax({
+                    url: '{{action('FormGroupController@updateName')}}',
+                    type: 'PATCH',
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        "gid": gid,
+                        "name": newName,
+                        "pid" : pid,
+                        "fid" : fid
+                    },
+                    success: function (response) {
+                        divText = newName+" <a class='nameEdit'>[EDIT]</a>";
+                        mainDiv.html(divText);
+
+                        textBox.val('');
+                        textBox.attr('placeholder',newName);
+
+                        editDiv.slideUp();
+                        mainDiv.slideDown();
+                    }
+                });
+            }
+        }
 
         function removeUser(formGroup, userId){
             var username = $("#list-element"+formGroup+userId).attr('name');
@@ -175,7 +277,18 @@
                     "userId": userId,
                     "formGroup": formGroup
                 },
-                success: function(){
+                success: function(data){
+                    if(data!=''){
+                        $('#list'+data).children().each(function(){
+                            //remove from list
+                            if($(this).attr('name')==username){
+                                $(this).remove();
+                            }
+                        });
+
+                        $('#dropdown'+data).append("<option id='"+userId+"'>"+username+"</option>");
+                    }
+
                     $("#list"+formGroup).append('<li class="list-group-item" id="list-element'+formGroup+userId+'" name="'+username+'">'
                     +username+' <a href="javascript:void(0)" onclick="removeUser('+formGroup+', '+userId+')">[X]</a></li>');
                     $("#dropdown"+formGroup+" option[id='"+userId+"']").remove();

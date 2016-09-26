@@ -79,6 +79,7 @@ class FormController extends Controller {
         $form->save();
 
         $adminGroup = FormController::makeAdminGroup($form, $request);
+        FormController::makeDefaultGroup($form);
         $form->adminGID = $adminGroup->id;
         $form->save();
 
@@ -155,6 +156,8 @@ class FormController extends Controller {
         }
 
         $form->update($request->all());
+
+        FormGroupController::updateMainGroupNames($form);
 
         flash()->overlay(trans('controller_form.update'),trans('controller_form.goodjob'));
 
@@ -468,6 +471,33 @@ class FormController extends Controller {
         $adminGroup->save();
 
         return $adminGroup;
+    }
+
+    /**
+     * Creates the form's admin Group.
+     *
+     * @param $project
+     * @param $request
+     * @return FormGroup
+     */
+    private function makeDefaultGroup(Form $form)
+    {
+        $groupName = $form->name;
+        $groupName .= ' Default Group';
+
+        $defaultGroup = new FormGroup();
+        $defaultGroup->name = $groupName;
+        $defaultGroup->fid = $form->fid;
+        $defaultGroup->save();
+
+        $defaultGroup->create = 0;
+        $defaultGroup->edit = 0;
+        $defaultGroup->delete = 0;
+        $defaultGroup->ingest = 0;
+        $defaultGroup->modify = 0;
+        $defaultGroup->destroy = 0;
+
+        $defaultGroup->save();
     }
 
     /**

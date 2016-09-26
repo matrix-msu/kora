@@ -104,6 +104,7 @@ class ProjectController extends Controller {
         $project = Project::create($request->all());
 
         $adminGroup = ProjectController::makeAdminGroup($project, $request);
+        ProjectController::makeDefaultGroup($project, $request);
         $project->adminGID = $adminGroup->id;
         $project->save();
 
@@ -167,6 +168,9 @@ class ProjectController extends Controller {
 	{
         $project = ProjectController::getProject($id);
         $project->update($request->all());
+
+        ProjectGroupController::updateMainGroupNames($project);
+
         flash()->overlay(trans('controller_project.updated'),trans('controller_project.goodjob'));
 
         return redirect('projects');
@@ -242,6 +246,32 @@ class ProjectController extends Controller {
         $adminGroup->save();
 
         return $adminGroup;
+    }
+
+    /**
+     * Creates the project's default Group.
+     *
+     * @param $project
+     * @param $request
+     * @return Group
+     */
+    private function makeDefaultGroup($project, $request)
+    {
+        $groupName = $project->name;
+        $groupName .= ' Default Group';
+
+        $defaultGroup = new ProjectGroup();
+        $defaultGroup->name = $groupName;
+        $defaultGroup->pid = $project->pid;
+        $defaultGroup->save();
+
+        $defaultGroup->create = 0;
+        $defaultGroup->edit = 0;
+        $defaultGroup->delete = 0;
+
+        $defaultGroup->save();
+
+        return $defaultGroup;
     }
 
     /**

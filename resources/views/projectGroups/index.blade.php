@@ -27,7 +27,7 @@
                                                 <span>{{trans('projectGroups_index.users')}}:</span>
                                                     <ul class="list-group" id="list{{$projectGroup->id}}">
                                                 @foreach($projectGroup->users()->get() as $user)
-                                                        <li class="list-group-item" id="list-element{{$projectGroup->id}}{{$user->id}}" name="{{$user->name}}">
+                                                        <li class="list-group-item" id="list-element{{$projectGroup->id}}{{$user->id}}" name="{{$user->username}}">
                                                             {{$user->username}} @if(\Auth::user()->id != $user->id)
                                                                 <a href="javascript:void(0)" onclick="removeUser({{$projectGroup->id}}, {{$user->id}}, {{$project->pid}})">[X]</a>
                                                                                 @endif
@@ -63,14 +63,26 @@
                             @foreach($projectGroups as $projectGroup)
                                 @if($project->adminGID != $projectGroup->id)
                                     <div class="panel panel-default">
-                                        <div class="panel-heading">{{$projectGroup->name}}</div>
+                                        <div class="panel-heading">
+                                            @if($projectGroup->name == $project->name." Default Group")
+                                                {{$projectGroup->name}}
+                                            @else
+                                            <div class="projectGroupName">
+                                                {{$projectGroup->name}} <a class="nameEdit">[EDIT]</a>
+                                            </div>
+                                            <div class="projectGroupEdit" style="display:none">
+                                                <input type="text" class="newGroupName" placeholder="{{$projectGroup->name}}" gid="{{$projectGroup->id}}">
+                                                <a class="nameSave">[SAVE]</a> <a class="nameRevert">[X]</a>
+                                            </div>
+                                            @endif
+                                        </div>
 
                                         <div class="collapseTest" style="display: none">
                                             <div class="panel-body">
                                                 <span>{{trans('projectGroups_index.users')}}:</span>
                                                 <ul class="list-group" id="list{{$projectGroup->id}}">
                                                     @foreach($projectGroup->users()->get() as $user)
-                                                        <li class="list-group-item" id="list-element{{$projectGroup->id}}{{$user->id}}" name="{{$user->name}}">
+                                                        <li class="list-group-item" id="list-element{{$projectGroup->id}}{{$user->id}}" name="{{$user->username}}">
                                                             {{$user->username}} <a href="javascript:void(0)" onclick="removeUser({{$projectGroup->id}}, {{$user->id}}, {{$project->pid}})">[X]</a>
                                                         </li>
                                                     @endforeach
@@ -103,9 +115,11 @@
                                                 </ul>
                                             </div>
                                         </div>
+                                            @if($projectGroup->name != $project->name." Default Group")
                                             <div class="panel-footer">
                                                 <a href="javascript:void(0)" onclick="deleteProjectGroup({{$projectGroup->id}})">[{{trans('projectGroups_index.deleteproj')}}]</a>
                                             </div>
+                                            @endif
                                         </div>
                                     </div>
                                 @endif
@@ -130,13 +144,99 @@
         /**
          * The collapsing display jQuery.
          */
-        $(".panel-heading").on("click", function(){
+        $(".panel-heading").on("click", function(e){
+            if($(e.target).is(".nameEdit")) return;
+            if($(e.target).is(".nameSave")) return;
+            if($(e.target).is(".nameRevert")) return;
+            if($(e.target).is(".newGroupName")) return;
+
             if ($(this).siblings('.collapseTest').css('display') == 'none') {
                 $(this).siblings('.collapseTest').slideDown();
             } else {
                 $(this).siblings('.collapseTest').slideUp();
             }
         });
+
+        $(".panel-heading").on("click", ".nameEdit", function(){
+            editButton = $(this);
+
+            mainDiv = editButton.parent();
+            editDiv = mainDiv.siblings(".projectGroupEdit");
+
+            mainDiv.slideUp();
+            editDiv.slideDown();
+
+            textBox = editDiv.children('.newGroupName');
+            textBox.focus();
+        });
+
+        $(".panel-heading").on("click", ".nameSave", function() {
+            saveBtn = $(this);
+            textBox = saveBtn.siblings(".newGroupName");
+
+            changeGroupName(textBox);
+        });
+
+        $(".panel-heading").on("click", ".nameRevert", function() {
+            revertBtn = $(this);
+
+            editDiv = revertBtn.parent();
+            mainDiv = editDiv.siblings(".projectGroupName");
+
+            mainDiv.slideDown();
+            editDiv.slideUp();
+        });
+
+        $('.newGroupName').keypress(function (e) {
+            textBox = $(this);
+
+            if(e.which == 13)  // the enter key code
+            {
+                changeGroupName(textBox);
+            }else if(e.keyCode==27){
+                editDiv = textBox.parent();
+                mainDiv = editDiv.siblings(".projectGroupName");
+
+                editDiv.slideUp();
+                mainDiv.slideDown();
+            }
+        });
+
+        function changeGroupName(textBox){
+            textBox.attr('style','');
+            newName = textBox.val();
+            gid = textBox.attr('gid');
+            pid = {{$project->pid}};
+
+            editDiv = textBox.parent();
+            mainDiv = editDiv.siblings(".projectGroupName");
+
+            if(newName==''){
+                textBox.attr('style','border:3px solid red');
+                return;
+            }else {
+                $.ajax({
+                    url: '{{action('ProjectGroupController@updateName')}}',
+                    type: 'PATCH',
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        "gid": gid,
+                        "name": newName,
+                        "pid" : pid
+                    },
+                    success: function (response) {
+                        divText = newName+" <a class='nameEdit'>[EDIT]</a>";
+                        mainDiv.html(divText);
+
+                        textBox.val('');
+                        textBox.attr('placeholder',newName);
+
+                        editDiv.slideUp();
+                        mainDiv.slideDown();
+                    }
+                });
+            }
+        }
 
         /**
          * The Ajax to remove a user from a particular project's project group.
@@ -191,7 +291,18 @@
                     "userId": userId,
                     "projectGroup": projectGroup
                 },
-                success: function(){
+                success: function(data){
+                    if(data!=''){
+                        $('#list'+data).children().each(function(){
+                            //remove from list
+                            if($(this).attr('name')==username){
+                                $(this).remove();
+                            }
+                        });
+
+                        $('#dropdown'+data).append("<option id='"+userId+"'>"+username+"</option>");
+                    }
+
                     //
                     // Add the user to the users currently in the group.
                     // Then remove the user from the list that can be added to the group.
