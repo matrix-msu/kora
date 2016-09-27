@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
 
 import multiprocessing
 from exporter import RecordExporter, collapse_files
@@ -36,8 +36,6 @@ def main():
     writer = make_writer(writer_type, Writer.set_up())
 
     pool = multiprocessing.Pool(processes = 8)
-
-    data = [i for i in range(1, 10001)]
 
     ## Get "slice_on" rids at a time.
     slice_on = 500

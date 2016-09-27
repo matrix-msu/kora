@@ -123,6 +123,8 @@ class FieldExporter(Exporter):
         for item in cursor.get_typed_fields(self._rids, self._table):
             target.write(self._writer.write(item))
 
+        target.close()
+
 def collapse_files(writer):
     """
     Concatenates all the files in the writer's temporary directory into one file.

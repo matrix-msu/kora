@@ -84,17 +84,26 @@ class JSONWriter(Writer):
     def footer(self, filepath):
         """
         Writes the footer to a file.
+        We have to open the file twice to see if there was anything written to the file.
+        Then truncate in "a" mode if that is the case (truncate() only works in append mode for some systems).
         :param filepath: string, absolute path to file to append footer to.
         """
-        with open(filepath, "rb+") as target:
-            ## If any records are written, there will be a trailing comma.
-            ## This is invalid in JSON, so we just remove it.
+        records_written = False
+
+        with open(filepath, "r+") as target:
             target.seek(-1, os.SEEK_END)
 
             if target.read() == ",":
-                target.truncate()
-                target.write("]}")
+                records_written = True
+
             else:
+                target.write("]}")
+
+        if records_written:
+            with open(filepath, "a") as target:
+                target.seek(-1, os.SEEK_END)
+
+                target.truncate() ## Remove trailing ",".
                 target.write("]}")
 
 
