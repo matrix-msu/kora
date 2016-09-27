@@ -55,13 +55,20 @@
     @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
         <div>
             {{trans('records_index.exportRec')}}:
-            <a href="{{ action('ExportController@exportRecords',['pid' => $form->pid, 'fid' => $form->fid, 'type'=>'xml']) }}">[XML]</a>
-            <a href="{{ action('ExportController@exportRecords',['pid' => $form->pid, 'fid' => $form->fid, 'type'=>'json']) }}">[JSON]</a>
+            <a id="export_xml" href="{{ action('ExportController@exportRecords',['pid' => $form->pid, 'fid' => $form->fid, 'type'=>'xml']) }}">[XML]</a>
+            <a id="export_json" href="{{ action('ExportController@exportRecords',['pid' => $form->pid, 'fid' => $form->fid, 'type'=>'json']) }}">[JSON]</a>
             @if(file_exists(env('BASE_PATH') . 'storage/app/files/p'.$form->pid.'/f'.$form->fid.'/'))
-            <a href="{{ action('ExportController@exportRecordFiles',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_index.exportFiles')}}]</a>
+            <a id="export_file" href="{{ action('ExportController@exportRecordFiles',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_index.exportFiles')}}]</a>
             @endif
         </div> <br>
     @endif
+
+
+    <div style="display:none;" id="export_progress" class="progress">
+        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
+            {{trans('update_index.loading')}}
+        </div>
+    </div>
 
     <div id="slideme">
 
@@ -565,7 +572,7 @@
 
     </div>
 
-    <div style="display:none; margin-top: 1em;" id="progress" class="progress">
+    <div style="display:none;" id="progress" class="progress">
         <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
             {{trans('update_index.loading')}}
         </div>
@@ -574,6 +581,18 @@
 
 @section('footer')
     <script>
+        $("#export_json").click( function(e) {
+            $("#export_progress").slideDown();
+        });
+
+        $("#export_xml").click( function(e) {
+            $("#export_progress").slideDown();
+        });
+
+        $("#export_files").click( function (e) {
+            $("#export_progress").slideDown();
+        });
+
         /**
          * Delete all the records of a certain form.
          * Makes sure the user is REALLY sure they want to do this.
@@ -585,7 +604,7 @@
                 var enc1 = $('<div/>').html("{{ trans('records_index.reallysure') }}").text();
                 var enc2 = $('<div/>').html("{{ trans('records_index.reallysureplaceholder') }}").text();
                 var resp2 = prompt(enc1 + '!', enc2 + '.');
-                // User must literally type "DELETE" into a prompt. (Credit to Blizzard Entertainment)
+                // User must literally type "DELETE" into a prompt.
                 if(resp2 === 'DELETE') {
 
                     $("#slideme").slideToggle(2000, function() {

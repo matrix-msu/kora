@@ -24,6 +24,7 @@ return [
 	"areyousure" => "Est&aacute;s seguro",
 	"reallysure" => "&iquest;Est&aacute; realmente seguro? Esto borrar&aacute; todos los registros",
 	"deletefiles" => "&iquest;Est&aacute;s seguro? Esto borrar&aacute; todos los archivos con registros que no existen",
-	"reallysureplaceholder" => "Escriba DELETE aqu&iacute; si desea continuar."
+	"reallysureplaceholder" => "Escriba DELETE aqu&iacute; si desea continuar.",
+	"exporterror" => "&iexcl;Hab&iacute;a un error durante la exportaci&oacute;n!"
 
 ];

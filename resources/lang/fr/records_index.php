@@ -24,5 +24,7 @@ return [
 	"areyousure" => "Es-tu s&ucirc;r",
 	"reallysure" => "&Ecirc;tes-vous vraiment s&ucirc;r ? Cela supprimera tous les enregistrements",
 	"deletefiles" => "Es-tu s&ucirc;r? Cela supprimera tous les fichiers avec les dossiers qui n'existent pas actuellement",
-	"reallysureplaceholder" => "Dactylographiez la DELETE ici si vous voulez continuer"
+	"reallysureplaceholder" => "Dactylographiez la DELETE ici si vous voulez continuer",
+	"exporterror" => "Il y avait une erreur pendant l'exportation !"
+
 ];
