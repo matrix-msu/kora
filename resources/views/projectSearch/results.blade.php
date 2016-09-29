@@ -8,8 +8,7 @@
 
 @section('content')
 
-    <h2>{{trans('records_index.records')}}</h2>
-    <div>{{trans('records_index.total')}}: {{$rid_paginator->total()}}</div>
+    <h2>{{trans('records_index.search')}}</h2>
 
     <hr/>
 
@@ -18,6 +17,9 @@
     @include('partials.adminpanel')
 
     <hr/>
+
+    <h2>{{trans('records_index.records')}}</h2>
+    <div>{{trans('records_index.total')}}: {{$rid_paginator->total()}}</div>
 
     <div id="slideme">
 

@@ -25,6 +25,7 @@ return [
 	"reallysure" => "Are you really sure? This will delete all records",
 	"deletefiles" => "Are you sure? This will delete all files with records that do not currently exist",
 	"reallysureplaceholder" => "Type DELETE here if you want to continue",
-	"exporterror" => "There was an error during exporting!"
+	"exporterror" => "There was an error during exporting!",
+	"search" => "Search Results",
 
 ];
