@@ -7,7 +7,7 @@ else {
     $url = action('ProjectSearchController@keywordSearch');
 }
 
-echo '<form method="GET" action="'. $url .'">';
+echo '<form id="project_search" method="GET" action="'. $url .'">';
 
 ?>
 
@@ -36,6 +36,12 @@ echo '<form method="GET" action="'. $url .'">';
         <input class="btn btn-primary form-control" type="submit" value="{{trans('search_bar.search')}}">
     </div>
 
+    <div style="display:none;" id="search_progress" class="progress">
+        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
+            {{trans('update_index.loading')}}
+        </div>
+    </div>
+
 </form>
 
 <script>
@@ -46,4 +52,6 @@ echo '<form method="GET" action="'. $url .'">';
     });
 
     select.select2("val", "");
+
+    $("#project_search").submit(function(e) {$("#search_progress").slideDown(200);});
 </script>

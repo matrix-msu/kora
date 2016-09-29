@@ -107,6 +107,43 @@
                         width: 100%;
                     }
                 }
+
+                .spin {
+                    -webkit-animation: spin 1s infinite linear;
+                    -moz-animation: spin 1s infinite linear;
+                    -o-animation: spin 1s infinite linear;
+                    animation: spin 1s infinite linear;
+                    -webkit-transform-origin: 50% 38%;
+                    transform-origin:50% 38%;
+                    -ms-transform-origin:50% 38%; /* IE 9 */
+                }
+                @-moz-keyframes spin {
+                    from {
+                        -moz-transform: rotate(0deg);
+                    }
+                    to {
+                        -moz-transform: rotate(360deg);
+                    }
+                }
+
+                @-webkit-keyframes spin {
+                    from {
+                        -webkit-transform: rotate(0deg);
+                    }
+                    to {
+                        -webkit-transform: rotate(360deg);
+                    }
+                }
+
+                @keyframes spin {
+                    from {
+                        transform: rotate(0deg);
+                    }
+                    to {
+                        transform: rotate(360deg);
+                    }
+                }
+
             </style>
 
             @if ( ! is_null(\Auth::user()))
@@ -115,15 +152,16 @@
                         <div class="input-group">
                             <input type="text" class="form-control" placeholder="Global Search" name="query">
                             <div class="input-group-btn">
-                                <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search" style="height: 1.4em; vertical-align: middle"></i></button>
+                                <button class="btn btn-default" id="global_submit" type="submit"><i class="glyphicon glyphicon-search" style="height: 1.4em; vertical-align: middle"></i></button>
+                                <button style="display:none" id="global_loading" class="btn btn-default" disabled><i class="glyphicon glyphicon-refresh spin" style="height: 1.4em; vertical-align: middle"></i></button>
                             </div>
                         </div>
                     </form>
                 </ul>
             @endif
 
-
+            <script> $("#global_search").submit( function() {$("#global_submit").hide(); $("#global_loading").show(); } );</script>
 
         </div><!--/.nav-collapse -->
-      </div>
 </nav>
+</div>
