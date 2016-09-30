@@ -74,6 +74,7 @@ Route::get('/projects/{pid}/forms/{fid}/exportRecords/{type}','ExportController@
 Route::get('/projects/{pid}/forms/{fid}/exportFiles','ExportController@exportRecordFiles');
 Route::get('/projects/{pid}/forms/{fid}/exportForm','ExportController@exportForm');
 Route::get('/projects/{pid}/exportProj','ExportController@exportProject');
+Route::get('/checkRecordExport/{fid}', 'ExportController@checkRecordExport');
 
 //field routes
 Route::get('/projects/{pid}/forms/{fid}/fields','FormController@show'); //alias for form/{id}
@@ -209,8 +210,11 @@ Route::get('/keywordSearch/project/{pid}/forms/{fid}/delete', 'FormSearchControl
 Route::get("keywordSearch", 'ProjectSearchController@keywordSearch');
 Route::get("keywordSearch/project/{pid}", "ProjectSearchController@keywordSearch");
 
-//global search route
+//global search routes
 Route::get("globalSearch", "ProjectSearchController@globalSearch");
+
+//advanced search routes
+Route::get("/projects/{pid}/forms/{fid}/advancedSearch", "AdvancedSearchController@index");
 
 // help routes
 Route::get("/help/search", "HelpController@search");
