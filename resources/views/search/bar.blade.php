@@ -11,6 +11,8 @@
         </select>
 
         <input class="btn btn-primary form-control" type="submit" value="{{trans('search_bar.search')}}">
+
+
     </div>
 
     <div style="display:none;" id="search_progress" class="progress">
@@ -20,6 +22,8 @@
     </div>
 
 </form>
+
+<a class="btn btn-primary" href="{{action("AdvancedSearchController@index", compact("pid", "fid"))}}">Advanced Search</a>
 
 <script>
     $("#search_form").submit(function(e) { $("#search_progress").slideDown(200); });

@@ -316,7 +316,7 @@
         /**
          * Encodes a string for a url.
          *
-         * Javascript's encode funciton wasn't playing nice with our system so I wrote this based off of
+         * Javascript's encode function wasn't playing nice with our system so I wrote this based off of
          * a post on the PHP.net user contributions on the urlencode() page davis dot pexioto at gmail dot com
          *
          */
