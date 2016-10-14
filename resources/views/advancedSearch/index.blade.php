@@ -21,9 +21,23 @@
 
 @section("footer")
 <script>
+    $(window).bind("pageshow", function() {
+        $("[name$=dropdown]").each(function() {
+            var flid = this.name.split("_")[0];
+            var collapser = $("#input_collapse_" + flid);
+            var checker = $("[name=" + flid + "_dropdown]");
+
+            if (checker.is(":checked")) {
+                console.log("is checked");
+
+                collapser.slideDown();
+            }
+        });
+    });
+
     $("[name$=dropdown]").change(function() {
-        flid = this.name.split("_")[0];
-        collapser = $("#input_collapse_" + flid);
+        var flid = this.name.split("_")[0];
+        var collapser = $("#input_collapse_" + flid);
         if (this.checked){
             collapser.slideDown();
         }
