@@ -12,9 +12,10 @@
                 Invert: <input id="{{$field->flid}}_invert" type="checkbox" name="{{$field->flid}}_invert">
             </div>
             <div style="margin-top: 1em" id="{{$field->flid}}_info">
-                Current search interval: <span id="{{$field->flid}}_interval">(-&infin;,&infin;)</span>
+                Current search interval: <span id="{{$field->flid}}_interval">invalid</span>
             </div>
         </div>
+        <input type="hidden" id="{{$field->flid}}_valid" name="{{$field->flid}}_valid" value="0">
     </div>
 </div>
 

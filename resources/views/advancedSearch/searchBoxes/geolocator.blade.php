@@ -30,15 +30,15 @@
             </div>
             <label for="{{$field->flid}}_range">Range (in kilometers):</label>
             <input type="number" class="form-control" name="{{$field->flid}}_range">
+            Input is: <span id="{{$field->flid}}_valid_text">invalid</span>.
         </div>
+        <input type="hidden" id="{{$field->flid}}_valid" name="{{$field->flid}}_valid" value="0">
     </div>
 </div>
 
 <script>
     $("#{{$field->flid}}_type").on('change', function(){
         var newType = $('#{{$field->flid}}_type').val();
-
-        console.log(newType);
 
         if(newType=='LatLon'){
             $('.latlon_container{{$field->flid}}').show();
@@ -53,5 +53,52 @@
             $('.utm_container{{$field->flid}}').hide();
             $('.text_container{{$field->flid}}').show();
         }
+        validate_{{$field->flid}}(newType);
     });
+
+    $("[name={{$field->flid}}_range]").keyup(function() {validate_{{$field->flid}}($('#{{$field->flid}}_type').val())});
+    $("[name={{$field->flid}}_lat]").keyup(function() {validate_{{$field->flid}}("LatLon")});
+    $("[name={{$field->flid}}_lon]").keyup(function() {validate_{{$field->flid}}("LatLon")});
+    $("[name={{$field->flid}}_zone]").keyup(function() {validate_{{$field->flid}}("UTM")});
+    $("[name={{$field->flid}}_east]").keyup(function() {validate_{{$field->flid}}("UTM")});
+    $("[name={{$field->flid}}_north]").keyup(function() {validate_{{$field->flid}}("UTM")});
+    $("[name={{$field->flid}}_address]").keyup(function() {validate_{{$field->flid}}("Address")});
+
+    function validate_{{$field->flid}}(type) {
+        var valid = true;
+
+        var range = $("[name={{$field->flid}}_range]").val();
+        if (range == "" || parseInt(range) < 0) {
+            // Search range cannot be negative.
+            valid = false;
+        }
+        else if (type == "LatLon") {
+            // Latitude in [-90, 90] and Longitude in [-180, 180].
+            var lat = parseInt($("[name={{$field->flid}}_lat]").val());
+            var lon = parseInt($("[name={{$field->flid}}_lon]").val());
+
+            valid = (lat >= -90 && lat <= 90) && (lon >= -180 && lon <= 180);
+        }
+        else if (type == "UTM") {
+            // Make sure zone is non-empty and east/northing values are nonnegative.
+            var zone = $("[name={{$field->flid}}_zone]").val();
+            var easting = parseInt($("[name={{$field->flid}}_east]").val());
+            var northing = parseInt($("[name={{$field->flid}}_north]").val());
+
+            valid = (zone != "") && (easting >= 0) && (northing >= 0);
+        }
+        else {
+            // Address is only invalid if it is empty.
+            valid = $("[name={{$field->flid}}_address]").val() != "";
+        }
+
+        if (valid) {
+            $("#{{$field->flid}}_valid_text").html("valid");
+            $("#{{$field->flid}}_valid").val("1")
+        }
+        else {
+            $("#{{$field->flid}}_valid_text").html("invalid");
+            $("#{{$field->flid}}_valid").val("0");
+        }
+    }
 </script>

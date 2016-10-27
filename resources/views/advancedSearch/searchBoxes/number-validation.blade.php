@@ -1,15 +1,13 @@
 <script>
-    window.onload = function() {
-        updateInterval();
-        $("#{{$prefix}}_left").keyup(function() {updateInterval();});
-        $("#{{$prefix}}_right").keyup(function() {updateInterval();});
-        $("#{{$prefix}}_invert").click(function() {updateInterval();});
-    };
+    updateInterval_{{$prefix}}();
+    $("#{{$prefix}}_left").keyup(function() {updateInterval_{{$prefix}}();});
+    $("#{{$prefix}}_right").keyup(function() {updateInterval_{{$prefix}}();});
+    $("#{{$prefix}}_invert").click(function() {updateInterval_{{$prefix}}();});
 
     /**
      * Lets the user know what the interval they will be searching over.
      */
-    function updateInterval() {
+    function updateInterval_{{$prefix}}() {
         var selector = $("#{{$prefix}}_interval");
 
         var left_val = $("#{{$prefix}}_left").val();
@@ -19,7 +17,8 @@
         var right_string;
 
         if (left_val != "" && right_val != "" && parseFloat(left_val) > parseFloat(right_val)) { // Invalid range.
-            selector.html("Invalid!");
+            selector.html("invalid");
+            $("#{{$prefix}}_valid").val("0");
         }
         else {
             left_string = (left_val == "") ? "-&infin;" : parseFloat(left_val).toString();
@@ -27,6 +26,12 @@
 
             var left_infinity = left_string.indexOf("infin") !== -1;
             var right_infinity = right_string.indexOf("infin") !== -1;
+
+            if (left_infinity && right_infinity) { // Don't allow both inputs to be infinity.
+                selector.html("invalid.");
+                $("#{{$prefix}}_valid").val("0");
+                return;
+            }
 
             var left_bound = (left_infinity) ? "(" : "[";
             var right_bound = (right_infinity) ? ")" : "]";
@@ -54,6 +59,7 @@
                 }
             }
 
+            $("#{{$prefix}}_valid").val("1");
         }
     }
 </script>

@@ -32,6 +32,23 @@ $options = [
                 @if($type == "Text")
                     <label for="{{$field->flid}}_{{$field_num}}_input">Search text for {{$names[$field_num]}}:</label>
                     <input class="form-control" type="text" name="{{$field->flid}}_{{$field_num}}_input">
+
+                    Input is: <span id="{{$field->flid}}_{{$field_num}}_valid_text">invalid</span>.
+                    <input type="hidden" id="{{$field->flid}}_{{$field_num}}_valid" name="{{$field->flid}}_{{$field_num}}_valid" value="0">
+
+                    <script>
+                        $("[name={{$field->flid}}_{{$field_num}}_input]").keyup(function() {
+                            if (this.value != "") {
+                                $("#{{$field->flid}}_{{$field_num}}_valid_text").html("valid");
+                                $("#{{$field->flid}}_{{$field_num}}_valid").val("1")
+                            }
+                            else {
+                                $("#{{$field->flid}}_{{$field_num}}_valid_text").html("invalid");
+                                $("#{{$field->flid}}_{{$field_num}}_valid").val("0");
+                            }
+                        });
+                    </script>
+
                 @elseif($type == "Number")
                     <label>Search range for {{$names[$field_num]}}:</label>
                     <div class="form-inline">
@@ -40,8 +57,10 @@ $options = [
                         Invert: <input id="{{$field->flid}}_{{$field_num}}_invert" type="checkbox" name="{{$field->flid}}_{{$field_num}}_invert">
 
                         <div style="margin-top: 1em" id="{{$field->flid}}_{{$field_num}}_info">
-                            Current search interval: <span id="{{$field->flid}}_{{$field_num}}_interval">(-&infin;,&infin;)</span>
+                            Current search interval: <span id="{{$field->flid}}_{{$field_num}}_interval">invalid</span>
                         </div>
+
+                        <input type="hidden" id="{{$field->flid}}_{{$field_num}}_valid" name="{{$field->flid}}_{{$field_num}}_valid" value="0">
 
                         @include("advancedSearch.searchBoxes.number-validation", ["prefix" => strval($field->flid) . "_" . strval($field_num)])
                     </div>
@@ -51,6 +70,9 @@ $options = [
                     <label for={{$field->flid}}_{{$field_num}}_input">Search option{{($multiple) ? "s" : ""}} for {{$names[$field_num]}}:</label><br/>
                     {!! Form::select( $field->flid . "_"  . $field_num . "_input" . ($multiple) ? "[]" : "", $options[$field_num], "", ["class" => "form-control", ($multiple) ? "Multiple" : "", 'id' => $field->flid . "_" . $field_num ."_input", "style" => "width: 100%"]) !!}
 
+                    Input is: <span id="{{$field->flid}}_{{$field_num}}_valid_selection">invalid</span>.
+                    <input type="hidden" id="{{$field->flid}}_{{$field_num}}_valid" name="{{$field->flid}}_{{$field_num}}_valid" value="0">
+
                     @if($multiple)
                         <script>
                             var multiple = {{$multiple}};
@@ -58,10 +80,22 @@ $options = [
                             if (multiple) {
                                 var generated = Boolean({{ $types[$field_num] == "Generated List" }});
 
-                                var selector = $("#{{$field->flid}}_{{$field_num}}_input")
+                                var selector = $("#{{$field->flid}}_{{$field_num}}_input");
                                 selector.empty();
                                 selector.select2({tags:generated});
                             }
+
+
+                            $("#{{$field->flid}}_{{$field_num}}_input").change(function() {
+                                if (this.value == "") {
+                                    $("#{{$field->flid}}_{{$field_num}}_valid_selection").html("invalid");
+                                    $("#{{$field->flid}}_{{$field_num}}_valid").val("0");
+                                }
+                                else {
+                                    $("#{{$field->flid}}_{{$field_num}}_valid_selection").html("valid");
+                                    $("#{{$field->flid}}_{{$field_num}}_valid").val("1");
+                                }
+                            });
                         </script>
                     @endif
                 @endif
