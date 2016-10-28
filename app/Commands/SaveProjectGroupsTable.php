@@ -22,9 +22,11 @@ class SaveProjectGroupsTable extends Command implements SelfHandling, ShouldQueu
         Log::info("Started backing up Project Groups Table.");
 
         $table_path = $this->backup_filepath . "/project_groups/";
+        $table_array = $this->makeBackupTableArray("project_groups");
+        if($table_array == false) { return;}
 
         $row_id = DB::table('backup_partial_progress')->insertGetId(
-            $this->makeBackupTableArray("project_groups")
+            $table_array
         );
 
         $this->backup_fs->makeDirectory($table_path);

@@ -22,9 +22,11 @@ class SaveMultiSelectListFieldsTable extends Command implements SelfHandling, Sh
         Log::info("Started backing up the Multi Select List Fields table.");
 
         $table_path = $this->backup_filepath . "/multi_select_list_fields/";
+        $table_array = $this->makeBackupTableArray("multi_select_list_fields");
+        if($table_array == false) { return;}
 
         $row_id = DB::table('backup_partial_progress')->insertGetId(
-            $this->makeBackupTableArray("multi_select_list_fields")
+            $table_array
         );
 
         $this->backup_fs->makeDirectory($table_path);

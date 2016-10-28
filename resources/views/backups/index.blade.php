@@ -67,7 +67,7 @@
                                 <select id="restore_point" name="restore_point" class="form-control">
 
                                     @foreach($saved_backups as $backup)
-                                        <option value={{$backup->get("index")}}>{{$backup->get("date")}} | {{$backup->get("name")}}</option>
+                                        <option value="{{$backup->get("filename")}}">{{$backup->get("date")}} | {{$backup->get("name")}}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -118,14 +118,15 @@
             }
 
             var deleteURL = "{{action('BackupController@delete')}}";
-            var deleteIndex = $("#restore_point").val();
+            var filename = $("#restore_point").val();
             $.ajax({
                 url:deleteURL,
                 method:'POST',
                 data: {
                     "_token": "{{ csrf_token() }}",
-                    "restore_point": deleteIndex,
                     "backup_source": "server",
+                    "backup_type": "system",
+                    "filename": filename
                 },
                 success: function(data){
                  location.reload();

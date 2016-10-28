@@ -186,20 +186,18 @@ Route::get('/update', 'UpdateController@index');
 Route::get('/update/runScripts', 'UpdateController@runScripts');
 
 //backup routes
-Route::get('/backup','BackupController@index');
-Route::post('/backup/start','BackupController@create');
-Route::get('/backup/download','BackupController@download');
+Route::get('/backup','BackupController@index'); //
+Route::post('/backup/start','BackupController@create'); //
+Route::post('/backup/finish','BackupController@finishBackup'); //
+Route::get('/backup/download/{path}','BackupController@download'); //
 Route::post('/backup/restore/start','BackupController@restoreData');
-Route::post('/backup','BackupController@startBackup');
-Route::post('/backup/restore','BackupController@startRestore');
-Route::post('/backup/unlock','BackupController@unlockUsers');
-Route::post('/backup/delete','BackupController@delete');
-Route::post('/backup/project/restore','BackupController@startRestoreProject');
-Route::post('/backup/project/restore/start','BackupController@restoreProject');
-Route::get('/backup/project/{pid}','BackupController@projectIndex');
-Route::post('/backup/project/{pid}','BackupController@backupProject');
-Route::post('/backup/project','BackupController@createProject');
-Route::get('/backup/progress/{backup_id}','BackupController@checkProgress');
+Route::post('/backup','BackupController@startBackup'); //
+Route::post('/backup/restore','BackupController@startRestore'); //
+Route::post('/backup/restore/finish','BackupController@finishRestore'); //
+Route::post('/backup/user/unlock','BackupController@unlockUsers'); //
+Route::post('/backup/delete','BackupController@delete'); //
+Route::get('/backup/progress/{backup_id}','BackupController@checkProgress'); //
+Route::get('/backup/restore/progress/{backup_id}','BackupController@checkRestoreProgress'); //
 
 //form search routes
 Route::get('/keywordSearch/project/{pid}/forms/{fid}', 'FormSearchController@keywordSearch');

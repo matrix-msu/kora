@@ -24,9 +24,11 @@ class SaveOptionPresetsTable extends Command implements SelfHandling, ShouldQueu
         Log::info("Started backing up the Option Presets table.");
 
         $table_path = $this->backup_filepath . "/option_presets/";
+        $table_array = $this->makeBackupTableArray("option_presets");
+        if($table_array == false) { return;}
 
         $row_id = DB::table('backup_partial_progress')->insertGetId(
-            $this->makeBackupTableArray("option_presets")
+            $table_array
         );
 
         $this->backup_fs->makeDirectory($table_path);

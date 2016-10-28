@@ -22,9 +22,11 @@ class SaveListFieldTable extends Command implements SelfHandling, ShouldQueue
         Log::info("Started backing up the List Fields table.");
 
         $table_path = $this->backup_filepath . "/list_fields/";
+        $table_array = $this->makeBackupTableArray("list_fields");
+        if($table_array == false) { return;}
 
         $row_id = DB::table('backup_partial_progress')->insertGetId(
-            $this->makeBackupTableArray("list_fields")
+            $table_array
         );
 
         $this->backup_fs->makeDirectory($table_path);

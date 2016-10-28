@@ -22,9 +22,11 @@ class SaveMetadatasTable extends Command implements SelfHandling, ShouldQueue
         Log::info("Started backing up the Metadatas table.");
 
         $table_path = $this->backup_filepath . "/metadatas/";
+        $table_array = $this->makeBackupTableArray("metadatas");
+        if($table_array == false) { return;}
 
         $row_id = DB::table('backup_partial_progress')->insertGetId(
-            $this->makeBackupTableArray("metadatas")
+            $table_array
         );
 
         $this->backup_fs->makeDirectory($table_path);

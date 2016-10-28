@@ -24,9 +24,11 @@ class SaveTokensTable extends Command implements SelfHandling, ShouldQueue
         Log::info("Started backing up the Token ");
 
         $table_path = $this->backup_filepath . "/tokens/";
+        $table_array = $this->makeBackupTableArray("tokens");
+        if($table_array == false) { return;}
 
         $row_id = DB::table('backup_partial_progress')->insertGetId(
-            $this->makeBackupTableArray("tokens")
+            $table_array
         );
 
         $this->backup_fs->makeDirectory($table_path);

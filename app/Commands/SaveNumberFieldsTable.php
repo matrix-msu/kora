@@ -23,9 +23,11 @@ class SaveNumberFieldsTable extends Command implements SelfHandling, ShouldQueue
         Log::info("Started backing up the Number Fields table.");
 
         $table_path = $this->backup_filepath . "/number_fields/";
+        $table_array = $this->makeBackupTableArray("number_fields");
+        if($table_array == false) { return;}
 
         $row_id = DB::table('backup_partial_progress')->insertGetId(
-            $this->makeBackupTableArray("number_fields")
+            $table_array
         );
 
         $this->backup_fs->makeDirectory($table_path);

@@ -24,9 +24,6 @@
     <form action="{{action('OptionPresetController@index', ['pid'=>$project->pid])}}" style="display: inline">
         <button type="submit" class="btn btn-default">{{trans('projects_show.presets')}}</button>
     </form>
-    <form action="{{action('BackupController@projectIndex', ['pid'=>$project->pid])}}" style="display: inline">
-        <button type="submit" class="btn btn-default">{{trans('projects_show.backup')}}</button>
-    </form>
     @endif
     <hr/>
     <h2>{{trans('projects_show.forms')}}</h2>

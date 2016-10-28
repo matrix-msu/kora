@@ -30,8 +30,11 @@ class SaveRecordsTable extends Command implements SelfHandling, ShouldQueue {
 		Log::info("Started backing up Records table");
 
 		$table_path = $this->backup_filepath."/records/";
+        $table_array = $this->makeBackupTableArray("records");
+        if($table_array == false) { return;}
+
 		$row_id = DB::table('backup_partial_progress')->insertGetId(
-			$this->makeBackupTableArray("records")
+            $table_array
 		);
 
 		$this->backup_fs->makeDirectory($table_path);

@@ -22,9 +22,11 @@ class SaveGeolocatorFieldsTable extends Command implements SelfHandling, ShouldQ
         Log::info("Started backing up the Geolocator Fields table.");
 
         $table_path = $this->backup_filepath . "/geolocator_fields/";
+        $table_array = $this->makeBackupTableArray("geolocator_fields");
+        if($table_array == false) { return;}
 
         $row_id = DB::table('backup_partial_progress')->insertGetId(
-            $this->makeBackupTableArray("geolocator_fields")
+            $table_array
         );
 
         $this->backup_fs->makeDirectory($table_path);

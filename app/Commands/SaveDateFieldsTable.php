@@ -22,9 +22,11 @@ class SaveDateFieldsTable extends Command implements SelfHandling, ShouldQueue
         Log::info("Started backing up the Date Fields table.");
 
         $table_path = $this->backup_filepath . "/date_fields/";
+        $table_array = $this->makeBackupTableArray("date_fields");
+        if($table_array == false) { return;}
 
         $row_id = DB::table('backup_partial_progress')->insertGetId(
-            $this->makeBackupTableArray("date_fields")
+            $table_array
         );
 
         $this->backup_fs->makeDirectory($table_path);

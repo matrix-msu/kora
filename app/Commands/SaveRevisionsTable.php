@@ -22,9 +22,11 @@ class SaveRevisionsTable extends Command implements SelfHandling, ShouldQueue
         Log::info("Started backing up the Revisions table.");
 
         $table_path = $this->backup_filepath . "/revisions/";
+        $table_array = $this->makeBackupTableArray("revisions");
+        if($table_array == false) { return;}
 
         $row_id = DB::table('backup_partial_progress')->insertGetId(
-            $this->makeBackupTableArray("revisions")
+            $table_array
         );
 
         $this->backup_fs->makeDirectory($table_path);

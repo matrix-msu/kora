@@ -22,9 +22,11 @@ class SaveComboListFieldsTable extends Command implements SelfHandling, ShouldQu
         Log::info("Started backing up the Combo List Fields table.");
 
         $table_path = $this->backup_filepath . "/combo_list_fields/";
+        $table_array = $this->makeBackupTableArray("combo_list_fields");
+        if($table_array == false) { return;}
 
         $row_id = DB::table('backup_partial_progress')->insertGetId(
-            $this->makeBackupTableArray("combo_list_fields")
+            $table_array
         );
 
         $this->backup_fs->makeDirectory($table_path);

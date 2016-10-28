@@ -33,35 +33,39 @@ class SaveTextFieldsTable extends Command implements SelfHandling, ShouldQueue {
 		Log::info("Started backing up TextFields table");
 
 		$table_path = $this->backup_filepath."/text_fields/";
-		$row_id = DB::table('backup_partial_progress')->insertGetId(
-			$this->makeBackupTableArray("text_fields")
-		);
+        $table_array = $this->makeBackupTableArray("text_fields");
+        if($table_array == false) { return;}
 
-		$this->backup_fs->makeDirectory($table_path);
-		TextField::chunk(500,function($textfields) use ($table_path,$row_id){
-			$count= 0;
+        $row_id = DB::table('backup_partial_progress')->insertGetId(
+            $table_array
+        );
 
-			$all_textfields_data = new Collection();
-				foreach ($textfields as $textfield) {
-				//	try {
-						$individual_textfield_data = new Collection();
-						$individual_textfield_data->put("id", $textfield->id);
-						$individual_textfield_data->put("rid", $textfield->rid);
-						$individual_textfield_data->put("flid", $textfield->flid);
-						$individual_textfield_data->put("text", $textfield->text);
-						$individual_textfield_data->put("created_at", $textfield->created_at->toDateTimeString());
-						$individual_textfield_data->put("updated_at", $textfield->updated_at->toDateTimeString());
-						$all_textfields_data->push($individual_textfield_data);
-						$count++;
-					//} catch (\Exception $e) {
-					//	$this->ajax_error_list->push($e->getMessage());
-					//}
-				}
-			DB::table('backup_partial_progress')->where('id',$row_id)->increment('progress',$count,['updated_at'=>Carbon::now()]);
-			$increment = DB::table('backup_partial_progress')->where('id',$row_id)->pluck('progress');
-			$this->backup_fs->put($table_path . $increment . ".json",json_encode($all_textfields_data));
-		});
-        DB::table("backup_overall_progress")->where("id", $this->backup_id)->increment("progress",1,["updated_at"=>Carbon::now()]);
+        $this->backup_fs->makeDirectory($table_path);
+        TextField::chunk(500, function ($textfields) use ($table_path, $row_id) {
+            $count = 0;
+
+            $all_textfields_data = new Collection();
+            foreach ($textfields as $textfield) {
+                //	try {
+                $individual_textfield_data = new Collection();
+                $individual_textfield_data->put("id", $textfield->id);
+                $individual_textfield_data->put("rid", $textfield->rid);
+                $individual_textfield_data->put("flid", $textfield->flid);
+                $individual_textfield_data->put("text", $textfield->text);
+                $individual_textfield_data->put("created_at", $textfield->created_at->toDateTimeString());
+                $individual_textfield_data->put("updated_at", $textfield->updated_at->toDateTimeString());
+                $all_textfields_data->push($individual_textfield_data);
+                $count++;
+                //} catch (\Exception $e) {
+                //	$this->ajax_error_list->push($e->getMessage());
+                //}
+            }
+            DB::table('backup_partial_progress')->where('id', $row_id)->increment('progress', $count, ['updated_at' => Carbon::now()]);
+            $increment = DB::table('backup_partial_progress')->where('id', $row_id)->pluck('progress');
+            $this->backup_fs->put($table_path . $increment . ".json", json_encode($all_textfields_data));
+        });
+        DB::table("backup_overall_progress")->where("id", $this->backup_id)->increment("progress", 1, ["updated_at" => Carbon::now()]);
+
 	}
 
 }

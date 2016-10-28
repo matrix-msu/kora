@@ -16,6 +16,10 @@
                     </div>
                 @endif
 
+                <div style="display:none" id="user_lockout_notice" class="alert alert-danger" role="alert">
+                    <strong>{{trans('backups_restore.userslocked')}}.</strong> <a id="link_unlock_users" href="#" class="alert-link">{{trans('backups_restore.unlockusers')}}</a>
+                </div>
+
                 <form method="get" action={{action("BackupController@create")}}>
                     <input type="hidden" name="_token" value="{{csrf_token()}}">
                     <div class="panel panel-default">
@@ -34,7 +38,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div style="display:none" id="summary">
+                            <div style="display:none" id="summary_done">
                                 <p>
                                     {{trans('backups_backup.success')}}.
                                 </p>
@@ -55,11 +59,6 @@
                                         <strong class="list-group-item-heading">{{trans('backups_backup.errors')}}</strong>
                                     </li>
                                 </ul>
-                                @if($type == "system")
-                                    <button id="download_btn_for_error" style="display:none" onclick="download()" type="button" class="btn btn-default">
-                                        <span class="glyphicon glyphicon-save" aria-hidden="true"></span> Download
-                                    </button>
-                                @endif
                             </div>
                         </div>
                     </div>
@@ -76,11 +75,8 @@
             window.onbeforeunload = function() {
                 return "{{trans('backups_backup.dontleave')}}!";
             }
-
             @if($type == "system")
                 var backupURL ="{{action('BackupController@create')}}";
-            @elseif($type == "project")
-                var backupURL = "{{action('BackupController@createProject')}}";
             @endif
             $.ajax({
                 url:backupURL,
@@ -91,8 +87,8 @@
                 },
                 success: function(data){
                     console.log(data);
-                   $("#progress").css("display","none");
-                   $("#summary").css("display","inline");
+                    $("#progress").css("display","none");
+                    $("#summary").css("display","inline");
                     console.log("done");
                     window.onbeforeunload = null;
                 },
@@ -117,17 +113,29 @@
         }
         function checkProgress(){
             $.ajax({
-                    url:"{{action('BackupController@checkProgress',compact('backup_id'))}}",
-                    method:'GET',
-                    data:{
-                "_token":"{{csrf_token()}}"
+                url:"{{action('BackupController@checkProgress',compact('backup_id'))}}",
+                method:'GET',
+                data:{
+                    "_token":"{{csrf_token()}}",
+                    "backup_label": "{{$backup_label}}"
                 },
             success: function(data) {
                 console.log(data);
                 $("#progress").removeClass('progress-bar-danger');
                 $("#progress").css('width', (((data.overall.progress / data.overall.overall) * 100) + "%"));
                 if (data.overall.progress == data.overall.overall) {
-                    console.log('done done');
+                    $.ajax({
+                        url: "{{action('BackupController@finishBackup')}}",
+                        method:'POST',
+                        data: {
+                            "_token": "{{ csrf_token() }}",
+                            "backup_label": "{{$backup_label}}"
+                        },
+                        success: function(data){
+                            $('#summary').slideUp();
+                            $('#summary_done').slideDown();
+                        }
+                    });
                 } else {
                     setTimeout(function () {
                         checkProgress();
@@ -145,8 +153,29 @@
         }
 
         function download(){
-            window.location ='{{action("BackupController@download")}}';
+            window.location ='{{action("BackupController@download",['path'=>$backup_label])}}';
         }
+
+        $("#link_unlock_users").click(function(){
+            var unlockURL = "{{action('BackupController@unlockUsers')}}";
+            $.ajax({
+                url:unlockURL,
+                method:'POST',
+                data: {
+                    "_token": "{{ csrf_token() }}"
+                },
+                success: function(data){
+                    //alert("Users are now able to access Kora 3");
+                    $("#user_lockout_notice").removeClass("alert-danger").addClass("alert-success");
+                    $("#user_lockout_notice").text("Success- users unlocked");
+                    $("#user_lockout_notice").fadeOut(1000);
+                },
+                error: function(data){
+                    var encode = $('<div/>').html("{{ trans('backups_restore.unablerestore') }}").text();
+                    alert(encode + ".");
+                }
+            })
+        });
 
         $(backup);
         setTimeout(function(){

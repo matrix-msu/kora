@@ -22,9 +22,11 @@ class SaveRichTextFields extends Command implements SelfHandling, ShouldQueue
         Log::info("Started backing up the Rich Text Fields table.");
 
         $table_path = $this->backup_filepath . "/rich_text_fields/";
+        $table_array = $this->makeBackupTableArray("rich_text_fields");
+        if($table_array == false) { return;}
 
         $row_id = DB::table('backup_partial_progress')->insertGetId(
-            $this->makeBackupTableArray("rich_text_fields")
+            $table_array
         );
 
         $this->backup_fs->makeDirectory($table_path);

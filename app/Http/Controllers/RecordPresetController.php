@@ -85,7 +85,7 @@ class RecordPresetController extends Controller {
 
             $this->presetID = $preset->id;
 
-            $preset->preset = json_encode(RecordPresetController::getRecordArray($rid));
+            $preset->preset = json_encode($this->getRecordArray($rid));
             $preset->save();
 
             flash()->overlay(trans('controller_record.presetsaved'), trans('controller_record.success'));
@@ -104,7 +104,8 @@ class RecordPresetController extends Controller {
             return;
         }
         else {
-            $pre->preset = RecordPresetController::getRecordArray($rid);
+            $rpc = new RecordPresetController();
+            $pre->preset = $rpc->getRecordArray($rid);
         }
     }
 

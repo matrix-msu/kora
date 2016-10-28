@@ -20,14 +20,17 @@ class SaveUsersTable extends Command implements SelfHandling, ShouldQueue
      */
 
     public function handle() {
-        Log::info("Started backing up the Forms table.");
+        Log::info("Started backing up the Users table.");
 
         $table_path = $this->backup_filepath . "/users/";
+        $table_array = $this->makeBackupTableArray("users");
+        if($table_array == false) { return;}
 
         $row_id = DB::table('backup_partial_progress')->insertGetId(
-            $this->makeBackupTableArray("users")
+            $table_array
         );
 
+        //We don't save the sysadmin row. If we ever needed to restore this row, we couldn't get to the backup page
         DB::table('backup_partial_progress')->where('id',$row_id)->decrement("overall",1);
 
         $this->backup_fs->makeDirectory($table_path);

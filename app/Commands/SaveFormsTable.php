@@ -22,9 +22,11 @@ class SaveFormsTable extends Command implements SelfHandling, ShouldQueue
         Log::info("Started backing up the Forms table.");
 
         $table_path = $this->backup_filepath . "/forms/";
+        $table_array = $this->makeBackupTableArray("forms");
+        if($table_array == false) { return;}
 
         $row_id = DB::table('backup_partial_progress')->insertGetId(
-            $this->makeBackupTableArray("forms")
+            $table_array
         );
 
         $this->backup_fs->makeDirectory($table_path);

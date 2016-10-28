@@ -11,9 +11,9 @@ return [
 	"almostdone" => "99% Complete",
 	"success" => "The backup has completed successfully",
 	"download" => "Download",
-	"restoreerror" => "There was an error during the restore, no error information is available",
+	"restoreerror" => "There was an error during the backup, no error information is available",
 	"unknown" => "Unknown",
 	"errors" => "Errors",
-	"dontleave" => "Do not leave this page, the restore process will be interrupted",
+	"dontleave" => "Do not leave this page, the backup process will be interrupted",
 
 ];

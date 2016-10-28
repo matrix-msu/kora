@@ -38,6 +38,7 @@ return array(
     'CreateProjectsTable' => $baseDir . '/database/migrations/2015_04_03_151510_CreateProjectsTable.php',
     'CreateRecordpresetsTable' => $baseDir . '/database/migrations/2015_08_21_154839_create_recordpresets_table.php',
     'CreateRecordsTable' => $baseDir . '/database/migrations/2015_05_18_173954_create_records_table.php',
+    'CreateRestoreProgressTables' => $baseDir . '/database/migrations/2016_10_27_193957_CreateRestoreProgressTables.php',
     'CreateRevisionsTable' => $baseDir . '/database/migrations/2015_07_23_181833_create_revisions_table.php',
     'CreateRichtextfieldsTable' => $baseDir . '/database/migrations/2015_00_00_000011_create_richtextfields_table.php',
     'CreateSchedulefieldsTable' => $baseDir . '/database/migrations/2015_00_00_000012_create_schedulefields_table.php',
