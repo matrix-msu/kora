@@ -3,6 +3,7 @@
 use App\ComboListField;
 use App\DateField;
 use App\DocumentsField;
+use App\DownloadTracker;
 use App\Field;
 use App\Form;
 use App\GalleryField;
@@ -10,7 +11,8 @@ use App\GeneratedListField;
 use App\GeolocatorField;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-
+use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\DB;
 use App\ListField;
 use App\Metadata;
 use App\ModelField;
@@ -42,6 +44,14 @@ class ExportController extends Controller {
      */
     const VALID_FORMATS = [ self::JSON, self::XML ];
 
+    /**
+     * Export records of a particular form.
+     *
+     * @param int $pid, project id.
+     * @param int $fid, form id.
+     * @param string $type, type of the output.
+     * @return mixed
+     */
     public function exportRecords($pid, $fid, $type){
         if(!FormController::validProjForm($pid,$fid)){
             return redirect('projects');
@@ -53,9 +63,38 @@ class ExportController extends Controller {
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
+        $rids = DB::table("records")->where("fid", "=", $fid)->select("rid")->get();
+
+        // The DB call returns an array of StdObj so we get the rids out of the objects.
+        $rids = array_map( function($obj) {
+            return $obj->rid;
+        }, $rids);
+
+        // Download tracker to stop the loading bar when finished.
+        $tracker = new DownloadTracker();
+        $tracker->fid = $form->fid;
+        $tracker->save();
+
+        $output = self::exportWithRids($rids, $type);
+
+        if (file_exists($output)) { // File exists, so we download it.
+            header("Content-Disposition: attachment; filename=\"" . basename($output) . "\"");
+            header("Content-Type: application/octet-stream");
+            header("Content-Length: " . filesize($output));
+
+            readfile($output);
+
+            $tracker->delete();
+        }
+        else { // File does not exist, so some kind of error occurred, and we redirect.
+            $tracker->delete();
+
+            flash()->overlay(trans("records_index.exporterror"), trans("controller_admin.whoops"));
+            return redirect("projects/" . $pid . "/forms/" . $fid . "/records");
+        }
 
 
-        $records = Record::where('fid', '=', $fid)->get();
+/*        $records = Record::where('fid', '=', $fid)->get();
         $fields = Field::where('fid', '=', $fid)->get();
 
         $fieldsInfo = array();
@@ -501,6 +540,16 @@ class ExportController extends Controller {
 
             echo $json;
         }
+*/
+    }
+
+    /**
+     * Checks if there is an active export for the form.
+     * @param $fid, int
+     * @return string, json object.
+     */
+    public function checkRecordExport($fid) {
+        return json_encode(["finished" => !! DB::table("download_trackers")->where("fid", "=", $fid)->count()]);
     }
 
     private function xmlTagClear($value){
@@ -681,6 +730,8 @@ class ExportController extends Controller {
      * @return string | null, if the format is valid, will return the absolute path of the file the rids were exported to.
      */
     public static function exportWithRids(array $rids, $format = self::JSON) {
+        $format = strtoupper($format);
+
         if ( ! self::isValidFormat($format)) {
             return null;
         }
@@ -698,6 +749,6 @@ class ExportController extends Controller {
      * @return bool, true if valid.
      */
     public static function isValidFormat($format) {
-        return in_array($format, self::VALID_FORMATS);
+        return in_array(($format), self::VALID_FORMATS);
     }
 }

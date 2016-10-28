@@ -583,15 +583,42 @@
     <script>
         $("#export_json").click( function(e) {
             $("#export_progress").slideDown();
+            checkExport();
         });
 
         $("#export_xml").click( function(e) {
             $("#export_progress").slideDown();
+            checkExport();
         });
 
         $("#export_files").click( function (e) {
             $("#export_progress").slideDown();
+            checkExport();
         });
+
+        /**
+         * Incrementally checks if the download is done, hides the loading bar when finished.
+         */
+        function checkExport() {
+            $.ajax({
+                url: "{{ action("ExportController@checkRecordExport", ["fid" => $form->fid]) }}",
+                type: "GET",
+                data: {
+                    "_token": "{{ csrf_token() }}"
+                }, success: function(response) {
+                    response = JSON.parse(response);
+
+                    console.log(response.finished);
+
+                    if (response.finished) {
+                        $("#export_progress").slideUp();
+                    }
+                    else {
+                        setTimeout(checkExport, 3000); // Run again in 3 seconds.
+                    }
+                }
+            });
+        }
 
         /**
          * Delete all the records of a certain form.

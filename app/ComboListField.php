@@ -87,6 +87,11 @@ class ComboListField extends BaseField {
     public static function getComboList($field, $blankOpt=false, $fnum)
     {
         $dbOpt = ComboListField::getComboFieldOption($field, 'Options', $fnum);
+
+        if($dbOpt === null) {
+            return [];
+        }
+
         $options = array();
 
         if ($dbOpt == '') {
@@ -115,6 +120,13 @@ class ComboListField extends BaseField {
             $opt = explode('[!Field2!]',$options)[1];
 
         $tag = '[!'.$key.'!]';
+
+        $exploded = explode($tag, $opt);
+
+        if (sizeof($exploded) < 2) {
+            return null;
+        }
+
         $value = explode($tag,$opt)[1];
 
         return $value;
