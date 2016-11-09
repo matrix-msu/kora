@@ -1,5 +1,6 @@
 <?php namespace App;
 
+use DateTime;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -31,7 +32,8 @@ class DateField extends BaseField {
         'day',
         'year',
         'era',
-        'circa'
+        'circa',
+        'date_object'
     ];
 
     /**
@@ -292,5 +294,45 @@ class DateField extends BaseField {
         }
 
         return $date_string;
+    }
+
+    /**
+     * Override the save method to allow for storing the date as an object.
+     *
+     * @param array $options
+     * @return bool
+     */
+    public function save(array $options = array()) {
+        $date = DateTime::createFromFormat("Y-m-d", $this->year."-".$this->month."-".$this->day);
+        $this->date_object = date_format($date, "Y-m-d");
+
+        return parent::save($options);
+    }
+
+    public static function getAdvancedSearchQuery($flid, $query) {
+        $begin_month = ($query[$flid."_begin_month"] == "") ? 1 : intval($query[$flid."_begin_month"]);
+        $begin_day = ($query[$flid."_begin_day"] == "") ? 1 : intval($query[$flid."_begin_day"]);
+        $begin_year = ($query[$flid."_begin_year"] == "") ? 1 : intval($query[$flid."_begin_year"]);
+        $begin_era = $query[$flid."_begin_era"];
+
+        $end_month = ($query[$flid."_end_month"] == "") ? 1 : intval($query[$flid."_end_month"]);
+        $end_day = ($query[$flid."_end_day"] == "") ? 1 : intval($query[$flid."_end_day"]);
+        $end_year = ($query[$flid."_end_year"] == "") ? 1 : intval($query[$flid."_end_year"]);
+        $end_era = $query[$flid."_end_era"];
+
+        $query = DB::table("date_fields")
+            ->select("rid")
+            ->where("flid", "=", $flid);
+
+        if ($begin_era == "BCE" && $end_era == "BCE") { // Date interval flipped, dates are decreasing.
+        }
+        else if ($begin_era == "BCE" && $end_era == "CE") { // Have to use two interval and era clauses.
+
+        }
+        else { // Normal case, both are CE, the other choice of CE then BCE is invalid.
+
+        }
+        
+        return $query->distinct();
     }
 }

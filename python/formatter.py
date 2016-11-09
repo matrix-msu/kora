@@ -143,7 +143,8 @@ def date_to_JSONable(row, field_options = ""):
         "month": row["month"],
         "day": row["day"],
         "year": row["year"],
-        "era": row["era"]
+        "era": row["era"],
+        "date_object": row["date_object"]
     }
 
 def schedule_to_JSONable(row, field_options = ""):

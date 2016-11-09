@@ -26,6 +26,8 @@ class CreateDatefieldsTable extends Migration {
 			$table->integer('day');
 			$table->integer('year');
 			$table->string('era');
+			$table->date("date_object");
+
 			$table->timestamps();
 
 			$table->index('month');

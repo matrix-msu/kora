@@ -87,7 +87,7 @@ def get_data_names(table):
 
     return {
         BaseFieldTypes.ComboListField: "`options`, `ftype1`, `ftype2`",
-        BaseFieldTypes.DateField: "`circa`, `month`, `day`, `year`, `era`",
+        BaseFieldTypes.DateField: "`circa`, `month`, `day`, `year`, `era`, `date_object`",
         BaseFieldTypes.DocumentsField: "`documents`",
         BaseFieldTypes.GalleryField: "`images`",
         BaseFieldTypes.GeneratedListField: "`options`",

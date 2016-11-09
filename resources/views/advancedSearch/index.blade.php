@@ -21,8 +21,14 @@
 
 @section("footer")
 <script>
+    var formSelector = $("[name=advanced_search]");
+
+
     // If the form is being auto-completed, we should slide down the collapsers that are checked.
     $(window).bind("pageshow", function() {
+
+        validateForm(formSelector);
+
         $("[name$=dropdown]").each(function() {
             var flid = this.name.split("_")[0];
             var collapser = $("#input_collapse_" + flid);
@@ -45,9 +51,7 @@
             collapser.slideUp();
         }
     });
-
     // Make sure that all the search fields that are in use are also valid.
-    var formSelector = $("[name=advanced_search]");
     formSelector.on("change keyup paste", function() {
         validateForm(this);
     });
@@ -58,7 +62,6 @@
         var checked_dropdowns = [];
         $("[name$=dropdown]").each(function() {
             if(this.checked) {
-                console.log(this);
                 checked_dropdowns.push(this)
             }
         });
