@@ -15,7 +15,8 @@ return [
 	"updatedef" => "Update Default",
 	"assoc" => "Associated Forms",
 	"form" => "Form Name",
-	"search" => "Searchable",
+	"fsearch" => "Searchable",
 	"preview" => "Preview Fields",
+	"noRecords" => "No records? Activate an associated form to be searchable in the options page!",
 
 ];

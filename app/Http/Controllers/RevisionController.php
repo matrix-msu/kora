@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\AssociatorField;
 use App\ComboListField;
 use App\DocumentsField;
 use App\Form;
@@ -423,7 +424,7 @@ class RevisionController extends Controller {
                 // Video Assignment
                 case 'Video':
                     $vidfield = VideoField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
-                    if ($revision->type != 'delete') {
+                    if ($revision->type != 'delete' && !is_null($vidfield)) {
                         $vidfield->video = $data['videofields'][$field->flid]['data'];
                         $vidfield->save();
                     } else {
@@ -433,6 +434,21 @@ class RevisionController extends Controller {
                         $vidfield->fid = $form->fid;
                         $vidfield->video = $data['videofields'][$field->flid]['data'];
                         $vidfield->save();
+                    }
+                    break;
+
+                case 'Associator':
+                    $assocfield = AssociatorField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
+                    if ($revision->type != 'delete' && !is_null($assocfield)) {
+                        $assocfield->records = $data['assocfields'][$field->flid]['data'];
+                        $assocfield->save();
+                    } else {
+                        $assocfield = new AssociatorField();
+                        $assocfield->flid = $field->flid;
+                        $assocfield->rid = $record->rid;
+                        $assocfield->fid = $form->fid;
+                        $assocfield->records = $data['assocfields'][$field->flid]['data'];
+                        $assocfield->save();
                     }
                     break;
 
@@ -671,6 +687,15 @@ class RevisionController extends Controller {
                         $data['videofields'][$field->flid]['data'] = $videofield->video;
                     else
                         $data['videofields'][$field->flid]['data'] = null;
+                    break;
+
+                case 'Associator':
+                    $data['assocfields'][$field->flid]['name'] = $field->name;
+                    $assocfield = AssociatorField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
+                    if(!is_null($assocfield))
+                        $data['assocfields'][$field->flid]['data'] = $assocfield->records;
+                    else
+                        $data['assocfields'][$field->flid]['data'] = null;
                     break;
 
                 case 'Combo List':

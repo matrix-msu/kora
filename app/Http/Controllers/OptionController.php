@@ -110,12 +110,24 @@ class OptionController extends Controller {
     public function updateAssociator($pid, $fid, $flid, Request $request, $return=true){
         //dd($request);
 
-        $reqDefs = $request->default;
-        $def = $reqDefs[0];
+        $reqDefs = array_values(array_unique($request->default));
+        $default = $reqDefs[0];
         for($i=1;$i<sizeof($reqDefs);$i++){
-            $def .= '[!]'.$reqDefs[$i];
+            $default .= '[!]'.$reqDefs[$i];
         }
 
+        FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
+        FieldController::updateDefault($pid, $fid, $flid, $default);
+        FieldController::updateOptions($pid, $fid, $flid, 'SearchForms', $request->searchforms);
+
+        if($return) {
+            flash()->success(trans('controller_option.updated'));
+
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        }else{
+            return '';
+        }
     }
 
     public function updateCombolist($pid, $fid, $flid, Request $request, $return=true){

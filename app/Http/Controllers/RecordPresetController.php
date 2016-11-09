@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\AssociatorField;
 use App\ComboListField;
 use App\DateField;
 use App\DocumentsField;
@@ -419,6 +420,20 @@ class RecordPresetController extends Controller {
                     }
                     else {
                         $data['model'] = null;
+                    }
+
+                    $flid_array[] = $field->flid;
+                    $fileFields = true;
+                    break;
+
+                case 'Associator':
+                    $assocfield = AssociatorField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
+
+                    if (!empty($assocfield->records)) {
+                        $data['records'] = $assocfield->records;
+                    }
+                    else {
+                        $data['records'] = null;
                     }
 
                     $flid_array[] = $field->flid;

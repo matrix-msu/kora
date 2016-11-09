@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Commands\RestoreTable;
+use App\Commands\SaveAssociatorFieldsTable;
 use App\Commands\SaveComboListFieldsTable;
 use App\Commands\SaveDateFieldsTable;
 use App\Commands\SaveDocumentsFieldsTable;
@@ -227,6 +228,7 @@ class BackupController extends Controller
             new SaveVideoFieldsTable($backup_disk, $path, $backup_id),
             new SaveGalleryFieldsTable($backup_disk, $path, $backup_id),
             new SaveModelFieldsTable($backup_disk, $path, $backup_id),
+            new SaveAssociatorFieldsTable($backup_disk, $path, $backup_id),
             new SaveTokensTable($backup_disk, $path, $backup_id),
             new SaveProjectTokensTable($backup_disk, $path, $backup_id),
             new SavePluginsTable($backup_disk, $path, $backup_id),
@@ -434,6 +436,7 @@ class BackupController extends Controller
             DB::table('video_fields')->delete();
             DB::table('playlist_fields')->delete();
             DB::table('combo_list_fields')->delete();
+            DB::table('associator_fields')->delete();
             DB::table('option_presets')->delete();
             DB::table('record_presets')->delete();
             DB::table('plugins')->delete();
@@ -480,6 +483,7 @@ class BackupController extends Controller
             new RestoreTable('video_fields',$dir, $restore_id),
             new RestoreTable('playlist_fields',$dir, $restore_id),
             new RestoreTable('combo_list_fields',$dir, $restore_id),
+            new RestoreTable('associator_fields',$dir, $restore_id),
             new RestoreTable('option_presets',$dir, $restore_id),
             new RestoreTable('record_presets',$dir, $restore_id),
             new RestoreTable('plugins',$dir, $restore_id),
