@@ -19,4 +19,8 @@ class GalleryField extends FileTypeField  {
     public function toMetadata(Field $field) {
         return self::filesToMetadata(explode("[!]", $this->images));
     }
+
+    public static function getAdvancedSearchQuery($flid, $query) {
+        return FileTypeField::getAdvancedSearchQuery($flid, $query, "images", isset($query[$flid."_extension"]));
+    }
 }

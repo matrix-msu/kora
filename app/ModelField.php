@@ -19,4 +19,8 @@ class ModelField extends FileTypeField  {
     public function toMetadata(Field $field) {
         return self::filesToMetadata(explode("[!]", $this->model));
     }
+
+    public static function getAdvancedSearchQuery($flid, $query) {
+        return FileTypeField::getAdvancedSearchQuery($flid, $query, "model", isset($query[$flid."_extension"]));
+    }
 }

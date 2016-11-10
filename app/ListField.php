@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\FieldController;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Query\Builder;
 
 class ListField extends BaseField {
 
@@ -63,5 +65,21 @@ class ListField extends BaseField {
      */
     public function toMetadata(Field $field) {
         return $this->option;
+    }
+
+    /**
+     * Build the advanced query for a list field.
+     *
+     * @param $flid, field id.
+     * @param $query, query array.
+     * @return Builder
+     */
+    public static function getAdvancedSearchQuery($flid, $query) {
+        return DB::table("list_fields")
+            ->select("rid")
+            ->where("flid", "=", $flid)
+            ->whereRaw("MATCH (`option`) AGAINST (? IN BOOLEAN MODE)",
+                [Search::processArgument($query[$flid . "_input"], Search::ADVANCED_METHOD)])
+            ->distinct();
     }
 }

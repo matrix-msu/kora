@@ -247,7 +247,7 @@ class Field extends Model {
      *
      * @param $arg string, the argument of the search
      * @param $method int, type of search.
-     * @return \stdClass[], unfortunately an array of stdObjects are returned, with one member, and integer called "rid"
+     * @return Builder
      * @throws \Exception if the field type is invalid.
      */
     public function keywordSearchTyped2($arg, $method) {
@@ -430,6 +430,80 @@ class Field extends Model {
                 default: // Error occurred.
                     throw new \Exception("Invalid field type in field::keywordSearchTyped2.");
                     break;
+        }
+    }
+
+    /**
+     * Execute an advanced search.
+     *
+     * @param $flid, field id
+     * @param $field_type, field type
+     * @param array $query, search query
+     * @throws \Exception on invalid field type.
+     * @return Builder
+     */
+    public static function advancedSearch($flid, $field_type, array $query) {
+        switch($field_type) {
+            case Field::_TEXT:
+                return TextField::getAdvancedSearchQuery($flid, $query);
+                break;
+
+            case Field::_RICH_TEXT:
+                return RichTextField::getAdvancedSearchQuery($flid, $query);
+                break;
+
+            case Field::_NUMBER:
+                return NumberField::getAdvancedSearchQuery($flid, $query);
+                break;
+
+            case Field::_LIST:
+                return ListField::getAdvancedSearchQuery($flid, $query);
+                break;
+
+            case Field::_MULTI_SELECT_LIST:
+                return MultiSelectListField::getAdvancedSearchQuery($flid, $query);
+                break;
+
+            case Field::_GENERATED_LIST:
+                return GeneratedListField::getAdvancedSearchQuery($flid, $query);
+                break;
+
+            case Field::_DATE:
+                return DateField::getAdvancedSearchQuery($flid, $query);
+                break;
+
+            case Field::_SCHEDULE: // 7
+                break;
+
+            case Field::_GEOLOCATOR: // 10
+                break;
+
+            case Field::_DOCUMENTS:
+                return DocumentsField::getAdvancedSearchQuery($flid, $query);
+                break;
+
+            case Field::_GALLERY:
+                return GalleryField::getAdvancedSearchQuery($flid, $query);
+                break;
+
+            case Field::_3D_MODEL:
+                return ModelField::getAdvancedSearchQuery($flid, $query);
+                break;
+
+            case Field::_PLAYLIST:
+                return PlaylistField::getAdvancedSearchQuery($flid, $query);
+                break;
+
+            case Field::_VIDEO:
+                return VideoField::getAdvancedSearchQuery($flid, $query);
+                break;
+
+            case Field::_COMBO_LIST: // 7
+                break;
+
+            default: // Error occurred.
+                throw new \Exception("Invalid field type in field::advancedSearch.");
+                break;
         }
     }
 

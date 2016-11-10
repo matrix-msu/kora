@@ -107,4 +107,13 @@ abstract class FileTypeField extends BaseField
 
         return $files_and_info;
     }
+
+    public static function getAdvancedSearchQuery($flid, $query, $data_name, $with_extension = false) {
+        $input = explode(".", $query[$flid."_input"]);
+
+        if (!$with_extension && count($input) > 1) {
+            $input = implode(array_pop($input)); // Pop off the file extension.
+        }
+
+    }
 }

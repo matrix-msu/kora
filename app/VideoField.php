@@ -19,4 +19,8 @@ class VideoField extends FileTypeField {
     public function toMetadata(Field $field) {
         return self::filesToMetadata(explode("[!]", $this->video));
     }
+
+    public static function getAdvancedSearchQuery($flid, $query) {
+        return FileTypeField::getAdvancedSearchQuery($flid, $query, "video", isset($query[$flid."_extension"]));
+    }
 }

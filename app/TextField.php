@@ -1,6 +1,8 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 
 class TextField extends BaseField {
 
@@ -41,5 +43,21 @@ class TextField extends BaseField {
      */
     public function toMetadata(Field $field) {
         return $this->text;
+    }
+
+    /**
+     * Build the advanced query for a text field.
+     *
+     * @param $flid, field id
+     * @param $query, contents of query.
+     * @return Builder
+     */
+    public static function getAdvancedSearchQuery($flid, $query) {
+        return DB::table("text_fields")
+            ->select("rid")
+            ->where("flid", "=", $flid)
+            ->whereRaw("MATCH (`text`) AGAINST (? IN BOOLEAN MODE)",
+                [Search::processArgument($query[$flid . "_input"], Search::ADVANCED_METHOD)])
+            ->distinct();
     }
 }

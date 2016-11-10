@@ -28,4 +28,8 @@ class DocumentsField extends FileTypeField {
     public function toMetadata(Field $field) {
         return self::filesToMetadata(explode("[!]", $this->documents));
     }
+
+    public static function getAdvancedSearchQuery($flid, $query) {
+        return FileTypeField::getAdvancedSearchQuery($flid, $query, "documents", isset($query[$flid."_extension"]));
+    }
 }

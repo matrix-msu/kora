@@ -119,6 +119,9 @@
         begin.setFullYear(begin_year);
         end.setFullYear(end_year);
 
+        if (begin_era == "BCE" && end_era == "BCE") { // Dates are decreasing in BCE.
+            return begin >= end;
+        }
         return begin <= end;
     }
 </script>

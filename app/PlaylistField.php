@@ -19,4 +19,8 @@ class PlaylistField extends FileTypeField  {
     public function toMetadata(Field $field) {
         return self::filesToMetadata(explode("[!]", $this->audio));
     }
+
+    public static function getAdvancedSearchQuery($flid, $query) {
+        return FileTypeField::getAdvancedSearchQuery($flid, $query, "audio", isset($query[$flid."_extension"]));
+    }
 }
