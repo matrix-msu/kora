@@ -5,59 +5,46 @@
     <?php
             //we are building an array about the association permissions to populate the layout
             $option = \App\Http\Controllers\FieldController::getFieldOption($field,'SearchForms');
-            $options = explode('[!]',$option);
             $opt_layout = array();
+            if($option!=''){
+                $options = explode('[!]',$option);
 
-            foreach($options as $opt){
-                $opt_fid = explode('[fid]',$opt)[1];
-                $opt_search = explode('[search]',$opt)[1];
-                $opt_flids = explode('[flids]',$opt)[1];
-                $opt_flids = explode('-',$opt_flids);
+                foreach($options as $opt){
+                    $opt_fid = explode('[fid]',$opt)[1];
+                    $opt_search = explode('[search]',$opt)[1];
+                    $opt_flids = explode('[flids]',$opt)[1];
+                    $opt_flids = explode('-',$opt_flids);
 
-                $opt_layout[$opt_fid] = ['search' => $opt_search, 'flids' => $opt_flids];
+                    $opt_layout[$opt_fid] = ['search' => $opt_search, 'flids' => $opt_flids];
+                }
             }
     ?>
 
-    {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@updateRequired', $field->pid, $field->fid, $field->flid]]) !!}
+    {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['OptionController@updateAssociator', $field->pid, $field->fid, $field->flid], 'onsubmit' => 'saveAssocList()']) !!}
     @include('fields.options.hiddens')
     <div class="form-group">
         {!! Form::label('required',trans('fields_options_associator.req').': ') !!}
         {!! Form::select('required',['false', 'true'], $field->required, ['class' => 'form-control']) !!}
     </div>
-    <div class="form-group">
-        {!! Form::submit(trans('fields_options_associator.updatereq'),['class' => 'btn btn-primary form-control']) !!}
-    </div>
-    {!! Form::close() !!}
-
-    {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@updateDefault', $field->pid, $field->fid, $field->flid]]) !!}
-    @include('fields.options.hiddens')
-    <?php
-            $assocRecords = array();
-
-            $assocs = \App\Http\Controllers\AssociationController::getAvailableAssociations($field->fid);
-            foreach($assocs as $a){
-                $records = \App\Record::where('fid','=',$a->dataForm)->get()->all();
-                $kids = array();
-                foreach($records as $rec){
-                    $kids[$rec->kid] = $rec->kid;
-                }
-                $assocRecords = array_merge($assocRecords,$kids);
-            }
-    ?>
-    <div class="form-group">
+    <div class="form-group default_div">
         {!! Form::label('default',trans('fields_options_associator.def').': ') !!}
-        {!! Form::select('default[]',$assocRecords, explode('[!]',$field->default), ['class' => 'form-control', 'multiple', 'id' => 'default']) !!}
+        <input type="text" id="assocSearch" class="form-control" placeholder="Enter search term to find records..."/>
+        <div id="assocPages">
+        </div>
+        <div id="assocSearchResults">
+        </div>
+        {!! Form::select('default[]',\App\AssociatorField::getDefault($field->default,false),  null, ['class' => 'form-control', 'multiple', 'id' => 'default']) !!}
+        <button type="button" class="btn btn-primary remove_option">{{trans('fields_options_list.delete')}}</button>
+        <button type="button" class="btn btn-primary move_option_up">{{trans('fields_options_list.up')}}</button>
+        <button type="button" class="btn btn-primary move_option_down">{{trans('fields_options_list.down')}}</button>
     </div>
-    <div class="form-group">
-        {!! Form::submit(trans('fields_options_associator.updatedef'),['class' => 'btn btn-primary form-control']) !!}
-    </div>
-    {!! Form::close() !!}
 
     <div id="assoc_permissions">
         {!! Form::label('forms',trans('fields_options_associator.assoc').': ') !!}
+        {!! Form::hidden('searchforms','', ['id' => 'assocValue']) !!}
         <div class="assoc_item_titles">
             <span style="float: left; width: 33%;"><b>{{trans('fields_options_associator.form')}}</b></span>
-            <span style="display: inline-block; width: 33%;"><b>{{trans('fields_options_associator.search')}}</b></span>
+            <span style="display: inline-block; width: 33%;"><b>{{trans('fields_options_associator.fsearch')}}</b></span>
             <span style="float: right; width: 33%;"><b>{{trans('fields_options_associator.preview')}}</b></span>
         </div>
         @foreach(\App\Http\Controllers\AssociationController::getAvailableAssociations($field->fid) as $a)
@@ -92,26 +79,142 @@
             </script>
         @endforeach
     </div>
+    <br>
+    <div class="form-group">
+        {!! Form::submit(trans('field_options_generic.submit',['field'=>$field->name]),['class' => 'btn btn-primary form-control']) !!}
+    </div>
+    {!! Form::close() !!}
 
     @include('errors.list')
 @stop
 
 @section('footer')
-
     <script>
-        $('#default').select2();
+        $('#assocSearch').on('keypress', function(e) {
+            var keyCode = e.keyCode || e.which;
+            if (keyCode === 13) {
+                e.preventDefault();
 
-        $('.assoc_item').on('click','.assoc_search', function(){
-            saveAssocList();
+                //get value
+                var keyword = $('#assocSearch').val();
+                //send it to ajax
+                $.ajax({
+                    url: "{{ action('FieldAjaxController@assocSearch',['pid' => $field->pid,'fid'=>$field->fid, 'flid'=>$field->flid]) }}",
+                    type: 'POST',
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        "keyword": keyword
+                    },
+                    success: function (result) {
+                        console.log(result);
+                        //var records = {'1-1-1': 'Test','1-1-2': 'Test','1-1-3': 'Test','1-1-4': 'Test','1-1-5': 'Test','1-1-6': 'Test','1-1-7': 'Test','1-1-8': 'Test','1-1-9': 'Test','1-1-10': 'Test','1-1-11': 'Test'};
+                        var records = result;
+                        var html = '';
+
+                        var cnt = 0;
+                        var page = 1;
+                        for (var index in records) {
+                            //close pagination
+                            if(cnt==10){
+                                html += "</div>";
+                                //next page
+                                cnt = 0;
+                                page++;
+                            }
+
+                            cnt++;
+
+                            //setup pagination
+                            if(cnt == 1 && page==1){
+                                html += "<div id='pg1' class='aPage'>";
+                            }else if(cnt == 1){
+                                html += "<div id='pg"+page+"' class='aPage' style='display:none'>";
+                            }
+                            //print out results
+                            if(cnt%2==1)
+                                html += "<div class='result_div'>";
+                            else
+                                html += "<div class='result_div' style='background-color: lightgrey'>";
+                            html += "<span class='result_kid' style='float: left; width: 33%;'>"+index+"</span>";
+                            //html += "<span style='display: inline-block; width: 33%;'>"+records[index]+"</span>";
+                            var preview = records[index];
+                            html += "<span style='display: inline-block; width: 33%;'>"+preview[0];
+                            for(var j=1;j<preview.length;j++) {
+                                html += "<br>"+preview[j];
+                            }
+                            html += "</span>";
+                            html += "<span class='result_add' style='float: right; width: 33%;'><a>Add</a></span></div>";
+                        }
+                        //case where the last page has less than 10 records
+                        if(cnt != 1){html += '</div>';}
+
+                        //case where no results
+                        if(cnt==0 && page==1){
+                            html += "<div id='pg1' class='aPage'>No results found...</div>";
+                        }
+
+                        $('#assocSearchResults').html(html);
+
+                        //adding the pagination links if more than one page
+                        if(page>1){
+                            pageHTML = '';
+                            for(var i=1;i<page+1;i++){
+                                pageHTML += "<button type='button' class='page' style='margin-right:5px'>"+i+"</button>";
+                            }
+                            $('#assocPages').html(pageHTML);
+                        }else{
+                            $('#assocPages').html('');
+                        }
+                    }
+                });
+
+                return false;
+            }
         });
 
-        $('.assoc_item').on('change','.assoc_preview', function(){
-            saveAssocList();
+        $('#assocPages').on('click', '.page', function() {
+            var page = 'pg'+$(this).text();
+            $('.aPage').each(function(){
+                var pgid = $(this).attr('id');
+                if(pgid==page){
+                    $(this).attr('style','');
+                }else{
+                    $(this).attr('style','display:none');
+                }
+            });
+        });
+
+        $('#assocSearchResults').on('click', '.result_add', function() {
+            var kid = $(this).siblings('.result_kid').text();
+
+            var html = "<option value='"+kid+"' selected>"+kid+"</option>";
+            var options = $('#default').html()+html;
+
+            $('#default').html(options);
+        });
+        $('.default_div').on('click', '.remove_option', function(){
+            val = $('option:selected', '#default').val();
+
+            $('option:selected', '#default').remove();
+        });
+        $('.default_div').on('click', '.move_option_up', function(){
+            val = $('option:selected', '#default').val();
+
+            $('#default').find('option:selected').each(function() {
+                $(this).insertBefore($(this).prev());
+            });
+        });
+        $('.default_div').on('click', '.move_option_down', function(){
+            val = $('option:selected', '#default').val();
+
+            $('#default').find('option:selected').each(function() {
+                $(this).insertAfter($(this).next());
+            });
         });
 
         function saveAssocList(){
             //foreach assoc_item
-            list = '';
+            var list = '';
             $('.assoc_item').each(function( index, element ) {
                 fid = $(this).attr('id');
                 //if checked or if preview fields has selections
@@ -147,20 +250,11 @@
                     }
                 }
             });
-            //send array to updateOptions url
-            $.ajax({
-                //We manually create the link in a cheap way because the JS isn't aware of the pid until runtime
-                //We pass in a blank project to the action array and then manually add the id
-                url: '{{ action('FieldController@updateOptions',[$field->pid, $field->fid, $field->flid]) }}',
-                type: 'PATCH',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    option: "SearchForms",
-                    value: list
-                },
-                success: function (result) {
-                    console.log('success');
-                }
+
+            $('#assocValue').val(list);
+
+            $("#default > option").each(function() {
+                $(this).attr('selected','selected');
             });
         }
     </script>

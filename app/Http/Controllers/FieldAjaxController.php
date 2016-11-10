@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\ComboListField;
+use App\FieldHelpers\AssociatorSearch;
 use App\FieldHelpers\gPoint;
 use App\FieldHelpers\UploadHandler;
 use App\Http\Requests;
@@ -346,6 +347,12 @@ class FieldAjaxController extends Controller {
             // Error
             exit(trans('controller_field.nofile'));
         }
+    }
+
+    public function assocSearch($pid, $fid, $flid, Request $request){
+        $field = FieldController::getField($flid);
+
+        return AssociatorSearch::keywordSearch($request->keyword, $field);
     }
 
 }

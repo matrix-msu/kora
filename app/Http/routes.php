@@ -99,9 +99,11 @@ Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/number','OptionC
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/playlist','OptionController@updatePlaylist');
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/richtext','OptionController@updateRichtext');
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/schedule','OptionController@updateSchedule');
+Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/assoc','OptionController@updateAssociator');
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/video','OptionController@updateVideo');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/validateCombo','FieldAjaxController@validateComboListOpt');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/geoConvert','FieldAjaxController@geoConvert');
+Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/assoc','FieldAjaxController@assocSearch');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/clearRecency', 'FieldController@clearRecency');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/checkRecency', 'FieldController@checkRecency');
 Route::post('/projects/{pid}/forms/{fid}','FieldController@store');
