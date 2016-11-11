@@ -49,8 +49,9 @@ class FormSearchController extends Controller
         if (Session::has("query")) { // Have we ever searched before?
             $session_query = Session::get("query");
             $session_method = Session::get("method");
+            $session_ids = Session::get("searchids");
 
-            if ($session_query == $arg && $session_method == $method) { // This is the same search so we shouldn't re-execute the query.
+            if ($session_query == $arg && $session_method == $method && $session_ids == $pid.' '.$fid) { // This is the same search so we shouldn't re-execute the query.
                 $rids = unserialize(Session::get("rids"));
             }
             else { // This is a new search, so we have to execute again.
@@ -89,6 +90,7 @@ class FormSearchController extends Controller
 
         Session::put("query", $arg);
         Session::put("method", $method);
+        Session::put("searchids",$pid.' '.$fid);
 
        // $results = $search->formKeywordSearch();
 

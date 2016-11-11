@@ -9,5 +9,7 @@ return [
 	"addallowed" => "Add Allowed Associations",
 	"allowedassoc" => "Allowed Associations by this Form",
 	"formsassoc" => "Forms that this Form Associates",
+	"requestfull" => "Request Form Access",
+	"request" => "Request",
 
 ];

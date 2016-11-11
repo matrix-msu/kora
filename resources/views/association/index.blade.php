@@ -18,7 +18,10 @@
                             <select id="selected_assoc">
                                 @foreach(\App\Form::all() as $f)
                                     @if(!in_array($f->fid,$associds) && $f->fid != $form->fid)
-                                        <option value="{{$f->fid}}">{{$f->name}}</option>
+                                        <?php
+                                        $p = \App\Http\Controllers\ProjectController::getProject($f->pid);
+                                        ?>
+                                        <option value="{{$f->fid}}">{{$p->name}} | {{$f->name}}</option>
                                     @endif
                                 @endforeach
                             </select>
@@ -42,10 +45,24 @@
                             @foreach(\App\Http\Controllers\AssociationController::getAvailableAssociations($form->fid) as $a)
                                 <?php
                                 $f = \App\Form::where('fid','=',$a->dataForm)->first();
+                                $p = \App\Http\Controllers\ProjectController::getProject($f->pid);
                                 ?>
-                                <p id="assoc_to_listitem">{{$f->name}}</p>
+                                <p id="assoc_to_listitem">{{$p->name}} | {{$f->name}}</p>
                             @endforeach
                         </div>
+                        {!! Form::open(['action'=>['AssociationController@requestAccess',$form->pid,$form->fid]]) !!}
+                        <div id="request_select">{{trans('association_index.requestfull')}}:
+                            <select id="req_avail_assoc" name="rfid">
+                                @foreach(\App\Http\Controllers\AssociationController::getRequestableAssociations($form->fid) as $f)
+                                    <?php
+                                    $p = \App\Http\Controllers\ProjectController::getProject($f->pid);
+                                    ?>
+                                    <option value="{{$f->fid}}">{{$p->name}} | {{$f->name}}</option>
+                                @endforeach
+                            </select>
+                            <button id="request_assoc" class="btn btn-primary">{{trans('association_index.request')}}</button>
+                        </div>
+                        {!! Form::close() !!}
                     </div>
                 </div>
             </div>
@@ -77,6 +94,8 @@
         $('#form_allowed').on('click','.delete_assoc', function(){
             var assocfid = $(this).attr('fid');
             var listitem = $(this).parent();
+            var namelink = listitem.text();
+            var name = namelink.split(" [X]")[0];
 
             $.ajax({
                 //Same method as deleteProject
@@ -88,6 +107,9 @@
                 },
                 success: function(){
                     listitem.remove();
+                    html = "<option value='"+assocfid+"'>"+name+"</option>";
+                    curr = $('#selected_assoc').html();
+                    $('#selected_assoc').html(curr+html);
                 }
             });
         });
