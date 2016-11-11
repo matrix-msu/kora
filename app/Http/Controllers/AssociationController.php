@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Association;
+use App\AssociatorField;
 use App\Form;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -193,5 +194,17 @@ class AssociationController extends Controller {
         $form=$myForm;
         $project=$myProj;
         return view('association.index', compact('form', 'assocs', 'associds', 'project'));
+    }
+
+    public static function getAssociatedRecords($record){
+        $assoc = AssociatorField::where('records','LIKE','%'.$record->kid.'%')->get();
+        $records = array();
+        foreach($assoc as $af){
+            $rid = $af->rid;
+            $rec = RecordController::getRecord($rid);
+            array_push($records,$rec);
+        }
+
+        return $records;
     }
 }
