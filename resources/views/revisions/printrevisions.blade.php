@@ -234,6 +234,28 @@
                     @endif
 
                     <?php
+                    if(isset($data['assocfields']))
+                        $new = array_values($data['assocfields']);
+                    else
+                        $new = null;
+                    if(isset($oldData['assocfields']))
+                        $old = array_values($oldData['assocfields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($new))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                <span><b>{{$new[$i]['name']}}:</b></span>
+                                @foreach(explode('[!]', $new[$i]['data']) as $arecords)
+                                    <div>{{$arecords}}</div>
+                                @endforeach
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
                     if(isset($data['documentsfields']))
                         $new = array_values($data['documentsfields']);
                     else
@@ -719,6 +741,28 @@
                                 <span><b>{{$old[$i]['name']}}:</b></span>
                                 @foreach(explode('[!]', $old[$i]['data']) as $location)
                                     <div>{{$location}}</div>
+                                @endforeach
+                            @endif
+                        @endfor
+                    @endif
+
+                    <?php
+                    if(isset($data['assocfields']))
+                        $new = array_values($data['assocfields']);
+                    else
+                        $new = null;
+                    if(isset($oldData['assocfields']))
+                        $old = array_values($oldData['assocfields']);
+                    else
+                        $old = null;
+                    ?>
+
+                    @if(!is_null($new))
+                        @for($i = 0; $i < count($new); $i++)
+                            @if($new[$i]['data'] != $old[$i]['data'] || $revision->type == 'create' || $revision->type == 'delete')
+                                <span><b>{{$new[$i]['name']}}:</b></span>
+                                @foreach(explode('[!]', $new[$i]['data']) as $arecords)
+                                    <div>{{$arecords}}</div>
                                 @endforeach
                             @endif
                         @endfor

@@ -41,7 +41,7 @@ class SaveAssociatorFieldsTable extends Command implements SelfHandling
                 $individual_associatorfields_data->put("id", $associatorfield->id);
                 $individual_associatorfields_data->put("rid", $associatorfield->rid);
                 $individual_associatorfields_data->put("flid", $associatorfield->flid);
-                $individual_associatorfields_data->put("records", $associatorfield->rawtext);
+                $individual_associatorfields_data->put("records", $associatorfield->records);
                 $individual_associatorfields_data->put("created_at", $associatorfield->created_at->toDateTimeString());
                 $individual_associatorfields_data->put("updated_at", $associatorfield->updated_at->toDateTimeString());
 
