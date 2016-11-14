@@ -402,7 +402,7 @@ class RecordPresetController extends Controller {
                     $vidfield = VideoField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
 
                     if (!empty($vidfield->video)) {
-                        $data['video'] = $vidfield->video;
+                        $data['video'] = explode('[!]', $vidfield->video);
                     }
                     else {
                         $data['video'] = null;
@@ -430,14 +430,13 @@ class RecordPresetController extends Controller {
                     $assocfield = AssociatorField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
 
                     if (!empty($assocfield->records)) {
-                        $data['records'] = $assocfield->records;
+                        $data['records'] = explode('[!]', $assocfield->records);
                     }
                     else {
                         $data['records'] = null;
                     }
 
                     $flid_array[] = $field->flid;
-                    $fileFields = true;
                     break;
 
                 default:

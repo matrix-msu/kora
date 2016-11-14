@@ -267,6 +267,20 @@
                         }
                         break;
 
+                    case 'Associator':
+                        var r, records = field['records'];
+                        var selector = $('#'+flid);
+                        $('#'+flid+' option[value!="0"]').remove();
+
+                        for (r=0; r < records.length; r++) {
+                            selector.append($('<option/>', {
+                                value: records[r],
+                                text: records[r],
+                                selected: 'selected'
+                            }));
+                        }
+                        break;
+
                 }
             }
         }
