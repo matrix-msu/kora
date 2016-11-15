@@ -129,7 +129,7 @@
         // Store the current value on focus and on change
         previous = $(this).val();
     }).on('change','.field_types',function(){
-        if($(this).val()=='Combo List'){
+        if($(this).val()=='Combo List' | $(this).val()=='Associator'){
             $('#adv_opt').attr('disabled','disabled');
         }else{
             $('#adv_opt').removeAttr('disabled');

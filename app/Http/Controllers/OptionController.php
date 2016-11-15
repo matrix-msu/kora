@@ -110,10 +110,14 @@ class OptionController extends Controller {
     public function updateAssociator($pid, $fid, $flid, Request $request, $return=true){
         //dd($request);
 
-        $reqDefs = array_values(array_unique($request->default));
-        $default = $reqDefs[0];
-        for($i=1;$i<sizeof($reqDefs);$i++){
-            $default .= '[!]'.$reqDefs[$i];
+        if(is_null($request->default)){
+            $default = '';
+        }else {
+            $reqDefs = array_values(array_unique($request->default));
+            $default = $reqDefs[0];
+            for ($i = 1; $i < sizeof($reqDefs); $i++) {
+                $default .= '[!]' . $reqDefs[$i];
+            }
         }
 
         FieldController::updateRequired($pid, $fid, $flid, $request->required);

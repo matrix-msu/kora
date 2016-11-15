@@ -78,8 +78,9 @@ class AssociatorSearch
             if (Session::has("query_assoc")) { // Have we ever searched before?
                 $session_query = Session::get("query_assoc");
                 $session_method = Session::get("method_assoc");
+                $session_ids = Session::get("ids_assoc");
 
-                if ($session_query == $arg && $session_method == $method) { // This is the same search so we shouldn't re-execute the query.
+                if ($session_query == $arg && $session_method == $method && $session_ids == $pid.' '.$fid) { // This is the same search so we shouldn't re-execute the query.
                     $rids = unserialize(Session::get("rids_assoc"));
                 }
                 else { // This is a new search, so we have to execute again.
@@ -108,6 +109,7 @@ class AssociatorSearch
 
             Session::put("query_assoc", $arg);
             Session::put("method_assoc", $method);
+            Session::put("ids_assoc", $pid.' '.$fid);
 
             return $rids;
         }

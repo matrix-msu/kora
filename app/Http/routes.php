@@ -53,6 +53,7 @@ Route::post('/plugins/{name}/{action}', 'PluginController@action');
 //association routes
 Route::get('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@index');
 Route::post('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@create');
+Route::post('/projects/{pid}/forms/{fid}/assoc/request', 'AssociationController@requestAccess');
 Route::delete('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@destroy');
 
 //form routes

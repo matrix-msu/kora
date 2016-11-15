@@ -37,6 +37,59 @@ class AssociatorField extends BaseField {
         return $options;
     }
 
+    public function getPreviewValues($kid){
+        //individual kid elements
+        $pieces = explode('-',$kid);
+        $pid = $pieces[0];
+        $fid = $pieces[1];
+        $rid = $pieces[2];
+
+        //get the preview flid structure of this associator
+        $activeForms = array();
+        $field = FieldController::getField($this->flid);
+        $option = FieldController::getFieldOption($field,'SearchForms');
+        if($option!=''){
+            $options = explode('[!]',$option);
+
+            foreach($options as $opt){
+                $opt_fid = explode('[fid]',$opt)[1];
+                $opt_search = explode('[search]',$opt)[1];
+                $opt_flids = explode('[flids]',$opt)[1];
+                $opt_flids = explode('-',$opt_flids);
+
+                if($opt_search == 1)
+                    $flids = array();
+                foreach($opt_flids as $flid){
+                    $field = FieldController::getField($flid);
+                    $flids[$flid] = $field->type;
+                }
+                $activeForms[$opt_fid] = ['flids' => $flids];
+            }
+        }
+
+        //grab the preview fields associated with the form of this kid
+        $details = $activeForms[$fid];
+        $preview = array();
+        foreach($details['flids'] as $flid=>$type){
+            if($type=='Text'){
+                $text = TextField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
+                if($text->text != '')
+                    array_push($preview,$text->text);
+            }else if($type=='List'){
+                $list = ListField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
+                if($list->option != '')
+                    array_push($preview,$list->option);
+            }
+        }
+
+        $html = "<a href='".env('BASE_URL')."public/projects/".$pid."/forms/".$fid."/records/".$rid."'>".$kid."</a>";
+        foreach($preview as $val){
+            $html .= " | ".$val;
+        }
+
+        return $html;
+    }
+
     public function isMetafiable() {
         // TODO: Implement isMetafiable() method.
         return false; // I think this will never need to be metafied.

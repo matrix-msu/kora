@@ -24,4 +24,5 @@ return [
 	"mustenter" => "You must enter a valid name",
 	"clone" => "Clone",
 	"exist" => "That record did not exist.",
+	"assoc" => "Records that Associate",
 ];
