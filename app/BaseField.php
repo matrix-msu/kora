@@ -148,6 +148,9 @@ abstract class BaseField extends Model
         foreach (self::$TABLE_NAMES as $table_name) {
             DB::table($table_name)->where("rid", "=", $rid)->delete();
         }
+
+        // Delete support tables.
+        DB::table("schedule_support")->where("rid", "=", $rid)->delete();
     }
 
     /****************************************************************

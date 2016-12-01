@@ -1707,6 +1707,15 @@ TEXT;
         $arg = Search::processArgument("Flaxen Hair", Search::SEARCH_OR);
         $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
 
+        $arg = Search::processArgument("Flaxen", Search::SEARCH_OR);
+
+        $q =  $field->keywordSearchTyped2($arg, Search::SEARCH_OR);
+        var_dump($q->toSql());
+        var_dump($q->getBindings());
+
+
+        $this->assertEquals($record->rid, $q->get()[0]->rid);
+
         $arg = Search::processArgument("Flaxen Hair", Search::SEARCH_EXACT);
         $this->assertEmpty($field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get());
 

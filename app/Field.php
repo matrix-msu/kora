@@ -473,6 +473,7 @@ class Field extends Model {
                 break;
 
             case Field::_SCHEDULE: // 7
+                return ScheduleField::getAdvancedSearchQuery($flid, $query);
                 break;
 
             case Field::_GEOLOCATOR: // 10
@@ -537,6 +538,11 @@ class Field extends Model {
      */
     public function delete() {
         DB::table(BaseField::$MAPPED_FIELD_TYPES[$this->type])->where("flid", "=", $this->flid)->delete();
+
+        if ($this->type == Field::_SCHEDULE) {
+            DB::table("schedule_support")->where("flid", "=", $this->flid)->delete();
+        }
+
         DB::table("metadatas")->where("flid", "=", $this->flid)->delete();
 
         parent::delete();
@@ -551,5 +557,6 @@ class Field extends Model {
     public static function hasMetadata($flid) {
         return !! Metadata::where("flid", "=", $flid)->count();
     }
+
 }
 
