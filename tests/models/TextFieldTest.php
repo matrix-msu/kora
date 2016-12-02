@@ -1,5 +1,6 @@
 <?php
 
+use App\Field;
 use App\TextField as TextField;
 use App\BaseField as BaseField;
 
@@ -148,4 +149,23 @@ TEXT;
         $this->assertFalse($field->keywordSearch($args, false));
     }
 
+    public function test_getAdvancedSearchQuery() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_TEXT, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $text_field = new App\TextField();
+        $text_field->rid = $record->rid;
+        $text_field->flid = $field->flid;
+        $text_field->text = "wow what a unit test!";
+        $text_field->save();
+
+        $dummy_query = [$field->flid . "_input" => "unit test"];
+
+        $query = TextField::getAdvancedSearchQuery($field->flid, $dummy_query);
+        $rid = $query->first();
+
+        $this->assertEquals($rid->rid, $record->rid);
+    }
 }

@@ -88,11 +88,28 @@ class Form extends Model {
         parent::delete();
     }
 
-    public static function slugExists($slug){
-        $form = Form::where('slug','=',$slug)->get()->first();
-        if(is_null($form))
+    public static function slugExists($slug)
+    {
+        $form = Form::where('slug', '=', $slug)->get()->first();
+        if (is_null($form))
             return false;
         else
             return true;
+    }
+
+    /**
+     * Creates a lookup table that is useful for quickly typing fields multiple times.
+     *
+     * @return array
+     */
+    public function getFieldStash() {
+        $stash = [];
+
+        foreach($this->fields()->get() as $field) {
+            $stash[$field->flid]["slug"] = $field->slug;
+            $stash[$field->flid]["type"] = $field->type;
+        }
+
+        return $stash;
     }
 }

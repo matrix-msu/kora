@@ -1,6 +1,8 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Schema\Builder;
+use Illuminate\Support\Facades\DB;
 
 class RichTextField extends BaseField {
 
@@ -54,5 +56,21 @@ class RichTextField extends BaseField {
      */
     public function toMetadata(Field $field) {
         return $this->rawtext;
+    }
+
+    /**
+     * Builds the advanced search query for a rich text field.
+     *
+     * @param $flid
+     * @param array $query
+     * @return Builder
+     */
+    public static function getAdvancedSearchQuery($flid, array $query) {
+        return DB::table("rich_text_fields")
+            ->select("rid")
+            ->where("flid", "=", $flid)
+            ->whereRaw("MATCH (`searchable_rawtext`) AGAINST (? IN BOOLEAN MODE)",
+                [Search::processArgument($query[$flid . "_input"], Search::ADVANCED_METHOD)])
+            ->distinct();
     }
 }

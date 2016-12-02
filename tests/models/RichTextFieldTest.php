@@ -1,5 +1,6 @@
 <?php
 
+use App\Field;
 use App\RichTextField as RichTextField;
 
 /**
@@ -92,5 +93,25 @@ TEXT;
         $args[1] = \App\Search::convertCloseChars($args[1]);
         $this->assertTrue($field->keywordSearch($args, true));
         $this->assertTrue($field->keywordSearch($args, false));
+    }
+
+    public function test_getAdvancedSearchQuery() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_RICH_TEXT, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $rich_field = new RichTextField();
+        $rich_field->rid = $record->rid;
+        $rich_field->flid = $field->flid;
+        $rich_field->rawtext = self::SIMPLE_RICH;
+        $rich_field->save(); // Saves the searchable rawtext as well.
+
+        $dummy_query = [$field->flid . "_input" => "Pellentesque vehicula"];
+
+        $query = RichTextField::getAdvancedSearchQuery($field->flid, $dummy_query);
+        $rid = $query->first()->rid;
+
+        $this->assertEquals($rid, $record->rid);
     }
 }

@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\FieldController;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 
 class MultiSelectListField extends BaseField {
 
@@ -74,5 +76,30 @@ class MultiSelectListField extends BaseField {
      */
     public function toMetadata(Field $field) {
         return explode("[!]", $this->options);
+    }
+
+    /**
+     * Build the advanced search query.
+     * Advanced queries for MSL Fields accept any record that has at least one of the desired parameters.
+     *
+     * @param $flid
+     * @param $query
+     * @return Builder
+     */
+    public static function getAdvancedSearchQuery($flid, $query) {
+        $inputs = $query[$flid."_input"];
+
+        $query = DB::table("multi_select_list_fields")
+            ->select("rid")
+            ->where("flid", "=", $flid);
+
+        $query->where(function($query) use($inputs) {
+            foreach($inputs as $input) {
+                $query->orWhereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)",
+                    [Search::processArgument($input, Search::ADVANCED_METHOD)]);
+            }
+        });
+
+        return $query;
     }
 }

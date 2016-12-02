@@ -1,6 +1,8 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 
 class DocumentsField extends FileTypeField {
 
@@ -27,5 +29,22 @@ class DocumentsField extends FileTypeField {
      */
     public function toMetadata(Field $field) {
         return self::filesToMetadata(explode("[!]", $this->documents));
+    }
+
+    /**
+     * Build the advanced search query.
+     *
+     * @param $flid
+     * @param $query
+     * @return Builder
+     */
+    public static function getAdvancedSearchQuery($flid, $query) {
+        $processed = self::processAdvancedSearchInput($query[$flid."_input"]);
+
+        return DB::table("documents_fields")
+            ->select("rid")
+            ->where("flid", "=", $flid)
+            ->whereRaw("MATCH (`documents`) AGAINST (? IN BOOLEAN MODE)", [$processed])
+            ->distinct();
     }
 }

@@ -30,6 +30,21 @@ class CreateSchedulefieldsTable extends Migration {
 		});
 
 		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."schedule_fields ADD FULLTEXT search_sch(`events`)");
+
+		Schema::create('schedule_support', function(Blueprint $table)
+		{
+			$table->engine = "MyISAM";
+
+			$table->increments('id');
+			$table->integer('rid')->unsigned();
+			$table->integer('flid')->unsigned();
+			$table->date('begin');
+			$table->date('end');
+			$table->text('desc');
+			$table->timestamps();
+		});
+
+		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."schedule_support ADD FULLTEXT search_supp(`desc`)");
 	}
 
 	/**
@@ -43,6 +58,7 @@ class CreateSchedulefieldsTable extends Migration {
 			$table->dropIndex("search_sch");
 		});
 		Schema::drop('schedule_fields');
+		Schema::drop('schedule_support');
 	}
 
 }

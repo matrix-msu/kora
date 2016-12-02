@@ -309,6 +309,13 @@ class DateField extends BaseField {
         return parent::save($options);
     }
 
+    /**
+     * Build the advanced search query.
+     *
+     * @param $flid, field id.
+     * @param $query
+     * @return Builder
+     */
     public static function getAdvancedSearchQuery($flid, $query) {
         $begin_month = ($query[$flid."_begin_month"] == "") ? 1 : intval($query[$flid."_begin_month"]);
         $begin_day = ($query[$flid."_begin_day"] == "") ? 1 : intval($query[$flid."_begin_day"]);
@@ -325,14 +332,35 @@ class DateField extends BaseField {
             ->where("flid", "=", $flid);
 
         if ($begin_era == "BCE" && $end_era == "BCE") { // Date interval flipped, dates are decreasing.
+            $begin = DateTime::createFromFormat("Y-m-d", $end_year."-".$end_month."-".$end_day); // End is beginning now.
+            $end = DateTime::createFromFormat("Y-m-d", $begin_year."-".$begin_month."-".$begin_day); // Begin is end now.
+
+            $query->where("era", "=", "BCE")
+                ->whereBetween("date_object", [$begin, $end]);
         }
         else if ($begin_era == "BCE" && $end_era == "CE") { // Have to use two interval and era clauses.
+            $begin = DateTime::createFromFormat("Y-m-d", $begin_year."-".$begin_month."-".$begin_day);
+            $era_bound = DateTime::createFromFormat("Y-m-d", "1-1-1"); // There is no year 0 on Gregorian calendar.
+            $end = DateTime::createFromFormat("Y-m-d", $end_year."-".$end_month."-".$end_day);
 
+            $query->where(function($query) use($begin, $era_bound, $end) {
+                $query->where("era", "=", "BCE")
+                    ->whereBetween("date_object", [$era_bound, $begin]);
+
+                $query->orWhere(function($query) use($era_bound, $end) {
+                   $query->where("era", "=", "CE")
+                       ->whereBetween("date_object", [$era_bound, $end]);
+                });
+            });
         }
         else { // Normal case, both are CE, the other choice of CE then BCE is invalid.
+            $begin = DateTime::createFromFormat("Y-m-d", $begin_year."-".$begin_month."-".$begin_day);
+            $end = DateTime::createFromFormat("Y-m-d", $end_year."-".$end_month."-".$end_day);
 
+            $query->where("era", "=", "CE")
+                ->whereBetween("date_object", [$begin, $end]);
         }
-        
+
         return $query->distinct();
     }
 }
