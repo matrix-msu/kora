@@ -88,6 +88,14 @@ class Form extends Model {
         parent::delete();
     }
 
+    public static function slugExists($slug)
+    {
+        $form = Form::where('slug', '=', $slug)->get()->first();
+        if (is_null($form))
+            return false;
+        else
+            return true;
+    }
 
     /**
      * Creates a lookup table that is useful for quickly typing fields multiple times.

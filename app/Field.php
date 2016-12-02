@@ -558,5 +558,12 @@ class Field extends Model {
         return !! Metadata::where("flid", "=", $flid)->count();
     }
 
+    public static function slugExists($slug){
+        $field = Field::where('slug','=',$slug)->get()->first();
+        if(is_null($field))
+            return false;
+        else
+            return true;
+    }
 }
 

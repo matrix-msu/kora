@@ -18,6 +18,7 @@
             <li class="divider"></li>
             <li><a href="{{action('ProjectGroupController@index', ['pid'=>$pid])}}">{{trans('partials_menu_project.groups')}}</a></li>
             <li><a href="{{action('OptionPresetController@index', ['pid'=>$pid])}}">{{trans('partials_menu_project.presets')}}</a></li>
+            <li><a href="{{action('FormController@importFormViewK2',['pid' => $pid])}}">{{trans('partials_menu_project.k2import')}}</a></li>
         @endif
     </ul>
 </li>
