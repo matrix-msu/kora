@@ -13,6 +13,7 @@ return [
 	"forms" => "Forms",
 	"export" => "Export Project",
 	"import" => "Import Form",
+	"importk2" => "Kora 2 Importer",
 	"importsubmit" => "Submit Form",
 	"edit" => "Edit",
 	"delete" => "Delete",

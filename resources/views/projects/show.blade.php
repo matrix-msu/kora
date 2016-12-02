@@ -24,6 +24,9 @@
     <form action="{{action('OptionPresetController@index', ['pid'=>$project->pid])}}" style="display: inline">
         <button type="submit" class="btn btn-default">{{trans('projects_show.presets')}}</button>
     </form>
+    <form action="{{action('FormController@importFormViewK2',['pid' => $project->pid])}}" style="display: inline">
+        <button type="submit" class="btn btn-default">{{trans('projects_show.importk2')}}</button>
+    </form>
     @endif
     <hr/>
     <h2>{{trans('projects_show.forms')}}</h2>

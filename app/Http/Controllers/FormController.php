@@ -291,6 +291,20 @@ class FormController extends Controller {
         return view('forms.import',compact('proj','pid'));
     }
 
+    public function importFormViewK2($pid){
+        if(!ProjectController::validProj($pid)){
+            return redirect('projects');
+        }
+
+        if(!FormController::checkPermissions($pid, 'ingest')) {
+            return redirect('projects/'.$pid);
+        }
+
+        $proj = ProjectController::getProject($pid);
+
+        return view('forms.importk2',compact('proj','pid'));
+    }
+
     /**
      * Get form object for use in controller.
      *

@@ -9,5 +9,6 @@ return [
 	"groups" => "Manage Groups",
 	"presets" => "Manage Option Presets",
 	"backup" => "Manage Project Backups",
+	"k2import" => "Kora 2 Importer",
 
 ];
