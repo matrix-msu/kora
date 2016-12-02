@@ -124,6 +124,17 @@ class ScheduleField extends BaseField {
     }
 
     /**
+     * The query for events in a schedule field.
+     * Use ->get() to obtain all events.
+     * @return Builder
+     */
+    public function events() {
+        return DB::table("schedule_support")->select("*")
+            ->where("flid", "=", $this->flid)
+            ->where("rid", "=", $this->rid);
+    }
+
+    /**
      * Get the support fields of a schedule field with a particular rid.
      *
      * @param $rid
