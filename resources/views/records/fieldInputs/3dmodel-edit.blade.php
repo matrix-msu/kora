@@ -10,6 +10,8 @@ if(file_exists($dirTmp)) {
             unlink($dirTmp.'/'.$file->getFilename());
         }
     }
+}else{
+    mkdir($dirTmp,0775,true);
 }
 if(!is_null($model)){
     $names = explode('[!]',$model->model);

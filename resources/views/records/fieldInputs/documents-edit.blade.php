@@ -10,6 +10,8 @@
                 unlink($dirTmp.'/'.$file->getFilename());
             }
         }
+    }else{
+        mkdir($dirTmp,0775,true);
     }
     if(!is_null($documents)){
         $names = explode('[!]',$documents->documents);

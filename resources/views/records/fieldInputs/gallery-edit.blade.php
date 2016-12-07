@@ -10,6 +10,10 @@ if(file_exists($dirTmp)) {
             unlink($dirTmp.'/'.$file->getFilename());
         }
     }
+}else{
+    mkdir($dirTmp,0775,true);
+    mkdir($dirTmp.'/thumbnail/',0775,true);
+    mkdir($dirTmp.'/medium/',0775,true);
 }
 if(!is_null($gallery)){
     $names = explode('[!]',$gallery->images);
