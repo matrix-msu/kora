@@ -1,7 +1,7 @@
 <div class="form-group">
     <?php
         if($associator==null){
-            $value = '';
+            $options = array();
         }else{
             $options = array();
             $values = explode('[!]',$associator->records);

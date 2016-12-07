@@ -11,5 +11,6 @@
         <li><a href="{{ url('/install/config') }}">{{trans('partials_menu_dashboard.env')}}</a></li>
         <li><a href="{{ url('/plugins') }}">{{trans('partials_menu_dashboard.plugin')}}</a></li>
         <li><a href="{{ url('/update') }}">{{trans('partials_menu_dashboard.update')}}</a></li>
+        <li><a href="{{ url('/exodus') }}">{{trans('partials_menu_dashboard.exodus')}}</a></li>
     </ul>
 </li>

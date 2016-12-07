@@ -1639,6 +1639,7 @@ class ImportController extends Controller {
 
         //make admin group
         $admin = $this->makeProjAdminGroup($proj);
+        $this->makeProjAdminGroup($proj);
         $proj->adminGID = $admin->id;
         $proj->save();
 
@@ -1686,6 +1687,30 @@ class ImportController extends Controller {
         $adminGroup->save();
 
         return $adminGroup;
+    }
+
+    /**
+     * Creates the form's admin Group.
+     *
+     * @param $project
+     * @param $request
+     * @return FormGroup
+     */
+    private function makeProjectDefaultGroup($project)
+    {
+        $groupName = $project->name;
+        $groupName .= ' Default Group';
+
+        $defaultGroup = new ProjectGroup();
+        $defaultGroup->name = $groupName;
+        $defaultGroup->pid = $project->pid;
+        $defaultGroup->save();
+
+        $defaultGroup->create = 0;
+        $defaultGroup->edit = 0;
+        $defaultGroup->delete = 0;
+
+        $defaultGroup->save();
     }
 
 }

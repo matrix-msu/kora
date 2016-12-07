@@ -34,6 +34,10 @@ Route::patch('/admin/update', 'AdminController@update');
 Route::patch('/admin/batch', 'AdminController@batch');
 Route::delete('admin/deleteUser/{id}', 'AdminController@deleteUser');
 
+//Kora Exodus routes
+Route::get('/exodus', 'ExodusController@index');
+Route::post('/exodus/migrate', 'ExodusController@migrate');
+
 //token routes
 Route::get('/tokens', 'TokenController@index');
 Route::post('/tokens/create', 'TokenController@create');

@@ -11,5 +11,6 @@ return [
 	"env" => "Manage ENV File",
 	"update" => "Update",
 	"plugin" => "Manage Plugins",
+	"exodus" => "Kora Exodus",
 
 ];
