@@ -68,8 +68,22 @@ class ScheduleFieldTest extends TestCase
         $query = ScheduleField::getAdvancedSearchQuery($field->flid, $dummy_query);
         $this->assertEquals($query->get()[0]->rid, $record->rid);
 
-        // Test some queries that shouldn't return any results.
+        // Test a search on an event with hour/min/sec information.
+        $sched_field->addEvent("Something or other: 1/5/1 11:15:00 AM - 1/5/1 11:30:30 AM");
 
+        $dummy_query = [
+            $field->flid."_begin_month" => "1",
+            $field->flid."_begin_day" => "5",
+            $field->flid."_begin_year" => "1",
+            $field->flid."_end_month" => "1",
+            $field->flid."_end_day" => "6",
+            $field->flid."_end_year" => "1"
+        ];
+
+        $query = ScheduleField::getAdvancedSearchQuery($field->flid, $dummy_query);
+        $this->assertEquals($query->get()[0]->rid, $record->rid);
+
+        // Test some queries that shouldn't return any results.
         $dummy_query = [
             $field->flid."_begin_month" => "10",
             $field->flid."_begin_day" => "31",
@@ -152,5 +166,79 @@ class ScheduleFieldTest extends TestCase
             ->whereBetween("begin", [$date_begin, $date_end])->get();
 
         $this->assertEquals($record->rid, $rids[0]->rid);
+
+        // Try with a time entry.
+        $sched_field->addEvent("Today: 1/5/1 11:15:00 AM - 5/22/2 11:30:30 AM");
+
+        $date_begin = DateTime::createFromFormat("m/d/Y H:i:s", "1/5/1 00:00:00");
+        $date_end = DateTime::createFromFormat("m/d/Y H:i:s", "1/5/2 23:59:59");
+
+        $rids = DB::table("schedule_support")->select("rid")
+            ->whereBetween("begin", [$date_begin, $date_end])->get();
+
+        $this->assertEquals($record->rid, $rids[0]->rid);
+
+    }
+
+    public function test_events() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_SCHEDULE, $project->pid, $form->fid);
+        $r1 = self::dummyRecord($project->pid, $form->fid);
+        $r2 = self::dummyRecord($project->pid, $form->fid);
+        $r3 = self::dummyRecord($project->pid, $form->fid);
+        $r4 = self::dummyRecord($project->pid, $form->fid);
+
+        $s1 = new ScheduleField();
+        $s1->rid = $r1->rid;
+        $s1->flid = $field->flid;
+        $s1->events = "";
+        $s1->save();
+
+        $s1->addEvent("Today: 12/2/2016 - 12/2/2016");
+        $s1->addEvent("Tomorrow: 12/3/2016 - 12/3/2016");
+
+        $s2 = new ScheduleField();
+        $s2->rid = $r2->rid;
+        $s2->flid = $field->flid;
+        $s2->events = "";
+        $s2->save();
+
+        $s2->addEvent("Christmas: 12/25/2016 - 12/25/2016");
+        $s2->addEvent("New Years Eve: 12/31/2016 - 12/31/2016");
+        $s2->addEvent("Something Else: 1/25/2017  - 5/1/2018");
+
+        $s3 = new ScheduleField();
+        $s3->rid = $r3->rid;
+        $s3->flid = $field->flid;
+        $s3->events = "";
+        $s3->save();
+
+        $s3->addEvent("Now: 12/1/2016 12:07 PM - 12/1/2016 12:07 PM");
+
+        $s4 = new ScheduleField();
+        $s4->rid = $r4->rid;
+        $s4->flid = $field->flid;
+        $s4->events = "";
+        $s4->save();
+
+        // No events...
+
+        $events1 = $s1->events()->get();
+        $this->assertEquals(sizeof($events1), 2);
+        $this->assertEquals($events1[0]->desc, "Today");
+
+        $events2 = $s2->events()->get();
+        $this->assertEquals(sizeof($events2), 3);
+        $this->assertEquals($events2[1]->desc, "New Years Eve");
+
+        $this->assertNotEquals($events1, $events2);
+
+        $events3 = $s3->events()->get();
+        $this->assertEquals(sizeof($events3), 1);
+        $this->assertEquals($events3[0]->desc, "Now");
+
+        $events4 = $s4->events()->get();
+        $this->assertEquals(sizeof($events4), 0);
     }
 }
