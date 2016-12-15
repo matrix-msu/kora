@@ -1,4 +1,7 @@
 <?php
+use App\GeolocatorField;
+use App\Field;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class GeolocatorFieldTest
@@ -115,5 +118,67 @@ TEXT;
         foreach($geo->getLocations() as $location) {
             $this->assertTrue(count($location) == 4);
         }
+    }
+
+    /**
+     * Test the add locations function.
+     */
+    public function test_addLocations() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_GEOLOCATOR, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $geo = new GeolocatorField();
+        $geo->rid = $record->rid;
+        $geo->flid = $field->flid;
+        $geo->locations = "";
+        $geo->save();
+
+        $geo->addLocations(
+            [
+                "[Desc]afsdaf[Desc][LatLon]11,11[LatLon][UTM]32P:718529.11253281,1216707.4085526[UTM][Address]  Caloocan [Address]",
+                "[Desc]jangus[Desc][LatLon]-11.445678,45.12345[LatLon][UTM]38L:513465.49707984,8734738.1327539[UTM][Address]   [Address]"
+            ]);
+
+        $this->assertNotEmpty(DB::table('geolocator_support')->select("*")->where("id", ">", 0)->get());
+
+        $location = DB::table('geolocator_support')->select("*")->where("rid", "=", $record->rid)->get()[1];
+
+        $this->assertEquals('jangus', $location->desc);
+        $this->assertEquals(-11.445678, $location->lat);
+        $this->assertEquals(45.12345, $location->lon);
+        $this->assertEquals('38L', $location->zone);
+        $this->assertEquals(513465.497, $location->easting, "", 0.01);
+        $this->assertEquals(8734738.132, $location->northing, "", 0.01);
+        $this->assertEquals("", $location->address);
+    }
+
+    /**
+     * Test the locations function.
+     */
+    public function test_locations() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_GEOLOCATOR, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $geo = new GeolocatorField();
+        $geo->rid = $record->rid;
+        $geo->flid = $field->flid;
+        $geo->locations = "";
+        $geo->save();
+
+        $geo->addLocations(
+            [
+                "[Desc]afsdaf[Desc][LatLon]11,11[LatLon][UTM]32P:718529.11253281,1216707.4085526[UTM][Address]  Caloocan [Address]",
+                "[Desc]jangus[Desc][LatLon]-11.445678,45.12345[LatLon][UTM]38L:513465.49707984,8734738.1327539[UTM][Address]   [Address]"
+            ]);
+
+        $locations = $geo->locations()->get();
+        $this->assertNotEmpty($locations);
+
+        $this->assertEquals("afsdaf", $locations[0]->desc);
+        $this->assertEquals("jangus", $locations[1]->desc);
     }
 }

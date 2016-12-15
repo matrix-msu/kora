@@ -30,6 +30,23 @@ class CreateGeolocatorfieldsTable extends Migration {
 		});
 
 		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."geolocator_fields ADD FULLTEXT search_geo(`locations`)");
+
+		Schema::create('geolocator_support', function(Blueprint $table)
+		{
+			$table->engine = 'MyISAM';
+
+			$table->increments('id');
+			$table->integer('rid')->unsigned();
+			$table->integer('flid')->unsigned();
+			$table->string('desc');
+			$table->float('lat', 10, 7); // Millimeter precision for Lat/Lon coordinates.
+			$table->float('lon', 10, 7);
+			$table->string('zone');
+			$table->float('easting', 10, 3); // Millimeter precision for UTM.
+			$table->float('northing', 10, 3);
+			$table->text('address');
+			$table->timestamps();
+		});
 	}
 
 	/**
@@ -43,6 +60,7 @@ class CreateGeolocatorfieldsTable extends Migration {
 			$table->dropIndex("search_geo");
 		});
 
+		Schema::drop('geolocator_support');
 		Schema::drop('geolocator_fields');
 	}
 

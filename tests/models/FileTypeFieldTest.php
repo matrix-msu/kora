@@ -208,20 +208,4 @@ TEXT;
         $args = ['[Name]', 'application/x-tgif', '[Type]', '[Size]'];
         $this->assertFalse($mod_field->keywordSearch($args, true));
     }
-
-    public function test_processAdvancedSearchInput() {
-        $input = "image.jpg";
-        $processed = FileTypeField::processAdvancedSearchInput($input, true);
-        $this->assertEquals("\"image.jpg[Name]\"", $processed);
-
-        $processed = FileTypeField::processAdvancedSearchInput($input, false);
-        $this->assertEquals("\"image.\"", $processed);
-
-        $input = ".jpg";
-        $processed = FileTypeField::processAdvancedSearchInput($input, true);
-        $this->assertEquals("\".jpg[Name]\"", $processed);
-
-        $processed = FileTypeField::processAdvancedSearchInput($input, false);
-        $this->assertEquals("\".jpg[Name]\"", $processed);
-    }
 }

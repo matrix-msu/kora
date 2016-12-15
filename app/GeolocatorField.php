@@ -1,7 +1,9 @@
 <?php namespace App;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class GeolocatorField extends BaseField {
 
@@ -109,5 +111,56 @@ class GeolocatorField extends BaseField {
         }
 
         return $locations_and_info;
+    }
+
+    /**
+     * The query for locations in a geolocator field.
+     * Use ->get() to obtain all locations.
+     * @return Builder
+     */
+    public function locations() {
+        return DB::table("geolocator_support")->select("*")
+            ->where("flid", "=", $this->flid)
+            ->where("rid", "=", $this->rid);
+    }
+
+    /**
+     * Adds locations to the geolocator support table.
+     *
+     * @param array $locations, array of locations as they are given from the create/edit form javascript.
+     *      [Desc]*[Desc][LatLon]*[LatLon][UTM]*[UTM][Address]*[Address] Format
+     */
+    public function addLocations(array $locations) {
+        $now = date("Y-m-d H:i:s");
+
+        foreach($locations as $location) {
+            $desc = explode('[Desc]', $location)[1];
+            $latlon = explode('[LatLon]', $location)[1];
+            $utm = explode('[UTM]', $location)[1];
+            $address = trim(explode('[Address]', $location)[1]);
+
+            $lat = floatval(explode(',', $latlon)[0]);
+            $lon = floatval(explode(',', $latlon)[1]);
+
+            $utm_arr = explode(':', $utm);
+
+            $zone = $utm_arr[0];
+            $easting = explode(',', $utm_arr[1])[0];
+            $northing = explode(',', $utm_arr[1])[1];
+
+            DB::table('geolocator_support')->insert([
+                'rid' => $this->rid,
+                'flid' => $this->flid,
+                'desc' => $desc,
+                'lat' => $lat,
+                'lon' => $lon,
+                'zone' => $zone,
+                'easting' => $easting,
+                'northing' => $northing,
+                'address' => $address,
+                'created_at' => $now,
+                'updated_at' => $now
+            ]);
+        }
     }
 }
