@@ -303,6 +303,7 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
     );
 
     public static $classMap = array (
+        'App\\FieldHelpers\\AssociatorSearch' => __DIR__ . '/../..' . '/app/FieldHelpers/AssociatorSearch.php',
         'App\\FieldHelpers\\FieldDefaults' => __DIR__ . '/../..' . '/app/FieldHelpers/FieldDefaults.php',
         'App\\FieldHelpers\\FieldValidation' => __DIR__ . '/../..' . '/app/FieldHelpers/FieldValidation.php',
         'App\\FieldHelpers\\UploadHandler' => __DIR__ . '/../..' . '/app/FieldHelpers/UploadHelper.php',
@@ -314,6 +315,8 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         'CreateComboListFieldsTable' => __DIR__ . '/../..' . '/database/migrations/2015_00_00_000000_create_combo_list_fields_table.php',
         'CreateDatefieldsTable' => __DIR__ . '/../..' . '/database/migrations/2015_00_00_000001_create_datefields_table.php',
         'CreateDocumentsfieldsTable' => __DIR__ . '/../..' . '/database/migrations/2015_00_00_000002_create_documentsfields_table.php',
+        'CreateDownloadTrackersTable' => __DIR__ . '/../..' . '/database/migrations/2016_09_23_162317_create_download_trackers_table.php',
+        'CreateExodusProgressTables' => __DIR__ . '/../..' . '/database/migrations/2016_12_08_171347_CreateExodusProgressTables.php',
         'CreateFailedJobsTable' => __DIR__ . '/../..' . '/database/migrations/2016_05_23_204859_create_failed_jobs_table.php',
         'CreateFieldsTable' => __DIR__ . '/../..' . '/database/migrations/2015_05_01_140126_CreateFieldsTable.php',
         'CreateFormGroupsTable' => __DIR__ . '/../..' . '/database/migrations/2015_07_15_172743_create_form_groups_table.php',

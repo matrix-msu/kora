@@ -6,6 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'App\\FieldHelpers\\AssociatorSearch' => $baseDir . '/app/FieldHelpers/AssociatorSearch.php',
     'App\\FieldHelpers\\FieldDefaults' => $baseDir . '/app/FieldHelpers/FieldDefaults.php',
     'App\\FieldHelpers\\FieldValidation' => $baseDir . '/app/FieldHelpers/FieldValidation.php',
     'App\\FieldHelpers\\UploadHandler' => $baseDir . '/app/FieldHelpers/UploadHelper.php',
@@ -17,6 +18,8 @@ return array(
     'CreateComboListFieldsTable' => $baseDir . '/database/migrations/2015_00_00_000000_create_combo_list_fields_table.php',
     'CreateDatefieldsTable' => $baseDir . '/database/migrations/2015_00_00_000001_create_datefields_table.php',
     'CreateDocumentsfieldsTable' => $baseDir . '/database/migrations/2015_00_00_000002_create_documentsfields_table.php',
+    'CreateDownloadTrackersTable' => $baseDir . '/database/migrations/2016_09_23_162317_create_download_trackers_table.php',
+    'CreateExodusProgressTables' => $baseDir . '/database/migrations/2016_12_08_171347_CreateExodusProgressTables.php',
     'CreateFailedJobsTable' => $baseDir . '/database/migrations/2016_05_23_204859_create_failed_jobs_table.php',
     'CreateFieldsTable' => $baseDir . '/database/migrations/2015_05_01_140126_CreateFieldsTable.php',
     'CreateFormGroupsTable' => $baseDir . '/database/migrations/2015_07_15_172743_create_form_groups_table.php',

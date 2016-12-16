@@ -9,7 +9,7 @@
         {{trans('exodus_index.warning')}}
     </div>
 
-    {!! Form::open(['url' => action('ExodusController@migrate')]) !!}
+    {!! Form::open(['url' => action('ExodusController@migrate'), 'id' => 'k2_form']) !!}
 
     <div class="form-group">
         {!! Form::label('host', trans('exodus_index.host').': ') !!}
@@ -32,12 +32,18 @@
     </div>
 
     <div class="form-group">
-        {!! Form::label('files', trans('exodus_index.files').': ') !!}
-        {!! Form::text('files','', ['class' => 'form-control', 'placeholder' => '/{system_path}/{Kora2}/files']) !!}
+        {!! Form::label('filePath', trans('exodus_index.files').': ') !!}
+        {!! Form::text('filePath','', ['class' => 'form-control', 'placeholder' => '/{system_path}/{Kora2}/files']) !!}
     </div>
 
-    <div class="form-group">
+    <div class="form-group" id="k2_submit">
         <button class="form-control btn btn-primary">{{trans('exodus_index.begin')}}</button>
+    </div>
+
+    <div style="display:none;" id="search_progress" class="progress">
+        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
+            {{trans('update_index.loading')}}
+        </div>
     </div>
 
     {!! Form::close() !!}
@@ -45,5 +51,7 @@
 @stop
 
 @section('footer')
-
+    <script>
+        $("#k2_form").submit(function(e) { $("#search_progress").slideDown(200); $("#k2_submit").slideUp(200);});
+    </script>
 @stop
