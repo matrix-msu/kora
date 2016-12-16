@@ -245,8 +245,8 @@ class OptionController extends Controller {
             return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options')->withInput();
         }
 
-        if($request->start==''){
-            $request->start = 0;
+        if($request->start=='' | $request->start==0){
+            $request->start = 1;
         }
         if($request->end==''){
             $request->end = 9999;
@@ -577,8 +577,8 @@ class OptionController extends Controller {
             $default .= '[!]'.$reqDefs[$i];
         }
 
-        if($request->start==''){
-            $request->start = 0;
+        if($request->start=='' | $request->start == 0){
+            $request->start = 1;
         }
         if($request->end==''){
             $request->end = 9999;
