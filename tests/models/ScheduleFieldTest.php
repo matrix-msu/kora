@@ -22,9 +22,9 @@ class ScheduleFieldTest extends TestCase
         $sched_field->events = "Today: 11/15/2016 - 11/15/2016[!]Tomorrow: 11/16/2016 - 11/16/2016[!]Forever: 11/17/2016 - 11/17/2016";
         $sched_field->save();
 
-        $sched_field->addEvent("Today: 11/15/2016 - 11/15/2016");
-        $sched_field->addEvent("Tomorrow: 11/16/2016 - 11/16/2016");
-        $sched_field->addEvent("Forever: 11/17/2016 - 11/17/2016");
+        $sched_field->addEvents(["Today: 11/15/2016 - 11/15/2016",
+                "Tomorrow: 11/16/2016 - 11/16/2016",
+                "Forever: 11/17/2016 - 11/17/2016"]);
 
         $dummy_query = [
             $field->flid."_begin_month" => "11",
@@ -40,7 +40,7 @@ class ScheduleFieldTest extends TestCase
 
         // Test a non-four digit date.
 
-        $sched_field->addEvent("Sometime: 10/31/444 - 11/15/456");
+        $sched_field->addEvents(["Sometime: 10/31/444 - 11/15/456"]);
 
         $dummy_query = [
             $field->flid."_begin_month" => "10",
@@ -54,7 +54,7 @@ class ScheduleFieldTest extends TestCase
         $query = ScheduleField::getAdvancedSearchQuery($field->flid, $dummy_query);
         $this->assertEquals($query->get()[0]->rid, $record->rid);
 
-        $sched_field->addEvent("Some other time: 1/1/30 - 12/31/30");
+        $sched_field->addEvents(["Some other time: 1/1/30 - 12/31/30"]);
 
         $dummy_query = [
             $field->flid."_begin_month" => "4",
@@ -69,7 +69,7 @@ class ScheduleFieldTest extends TestCase
         $this->assertEquals($query->get()[0]->rid, $record->rid);
 
         // Test a search on an event with hour/min/sec information.
-        $sched_field->addEvent("Something or other: 1/5/1 11:15:00 AM - 1/5/1 11:30:30 AM");
+        $sched_field->addEvents(["Something or other: 1/5/1 11:15:00 AM - 1/5/1 11:30:30 AM"]);
 
         $dummy_query = [
             $field->flid."_begin_month" => "1",
@@ -133,7 +133,7 @@ class ScheduleFieldTest extends TestCase
         $this->assertEmpty($query->get());
     }
 
-    public function test_addEvent() {
+    public function test_addEvents() {
         $project = self::dummyProject();
         $form = self::dummyForm($project->pid);
         $field = self::dummyField(Field::_SCHEDULE, $project->pid, $form->fid);
@@ -145,7 +145,7 @@ class ScheduleFieldTest extends TestCase
         $sched_field->events = "Today: 11/15/2016 - 11/15/2016[!]Tomorrow: 11/16/2016 - 11/16/2016[!]Forever: 11/17/2016 - 11/17/2016";
         $sched_field->save();
 
-        $sched_field->addEvent("Today: 11/15/2016 - 11/15/2016");
+        $sched_field->addEvents(["Today: 11/15/2016 - 11/15/2016"]);
 
         // Check date search.
         $date_begin = DateTime::createFromFormat("m/d/Y H:i:s", "11/15/2016 00:00:00");
@@ -157,7 +157,7 @@ class ScheduleFieldTest extends TestCase
         $this->assertEquals($record->rid, $rids[0]->rid);
 
         // Try non-four digit date.
-        $sched_field->addEvent("Today: 1/5/346 - 5/22/346");
+        $sched_field->addEvents(["Today: 1/5/346 - 5/22/346"]);
 
         $date_begin = DateTime::createFromFormat("m/d/Y H:i:s", "1/5/346 00:00:00");
         $date_end = DateTime::createFromFormat("m/d/Y H:i:s", "1/5/346 23:59:59");
@@ -168,7 +168,7 @@ class ScheduleFieldTest extends TestCase
         $this->assertEquals($record->rid, $rids[0]->rid);
 
         // Try with a time entry.
-        $sched_field->addEvent("Today: 1/5/1 11:15:00 AM - 5/22/2 11:30:30 AM");
+        $sched_field->addEvents(["Today: 1/5/1 11:15:00 AM - 5/22/2 11:30:30 AM"]);
 
         $date_begin = DateTime::createFromFormat("m/d/Y H:i:s", "1/5/1 00:00:00");
         $date_end = DateTime::createFromFormat("m/d/Y H:i:s", "1/5/2 23:59:59");
@@ -195,8 +195,8 @@ class ScheduleFieldTest extends TestCase
         $s1->events = "";
         $s1->save();
 
-        $s1->addEvent("Today: 12/2/2016 - 12/2/2016");
-        $s1->addEvent("Tomorrow: 12/3/2016 - 12/3/2016");
+        $s1->addEvents(["Today: 12/2/2016 - 12/2/2016",
+                "Tomorrow: 12/3/2016 - 12/3/2016"]);
 
         $s2 = new ScheduleField();
         $s2->rid = $r2->rid;
@@ -204,9 +204,9 @@ class ScheduleFieldTest extends TestCase
         $s2->events = "";
         $s2->save();
 
-        $s2->addEvent("Christmas: 12/25/2016 - 12/25/2016");
-        $s2->addEvent("New Years Eve: 12/31/2016 - 12/31/2016");
-        $s2->addEvent("Something Else: 1/25/2017  - 5/1/2018");
+        $s2->addEvents(["Christmas: 12/25/2016 - 12/25/2016",
+                "New Years Eve: 12/31/2016 - 12/31/2016",
+                "Something Else: 1/25/2017  - 5/1/2018"]);
 
         $s3 = new ScheduleField();
         $s3->rid = $r3->rid;
@@ -214,7 +214,7 @@ class ScheduleFieldTest extends TestCase
         $s3->events = "";
         $s3->save();
 
-        $s3->addEvent("Now: 12/1/2016 12:07 PM - 12/1/2016 12:07 PM");
+        $s3->addEvents(["Now: 12/1/2016 12:07 PM - 12/1/2016 12:07 PM"]);
 
         $s4 = new ScheduleField();
         $s4->rid = $r4->rid;

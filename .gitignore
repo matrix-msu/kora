@@ -3,3 +3,4 @@
 /public/.htaccess
 .idea/
 phpunit.xml
+*.pyc

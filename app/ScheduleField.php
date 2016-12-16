@@ -44,8 +44,14 @@ class ScheduleField extends BaseField {
         return $options;
     }
 
+    /**
+     * Delete a schedule field, we must also delete its support fields.
+     * @throws \Exception
+     */
     public function delete() {
-        DB::table("schedule_support")->where("project_id", "=", $this->pid)->delete();
+        DB::table("schedule_support")
+            ->where("rid", "=", $this->rid)
+            ->delete();
 
         parent::delete();
     }
@@ -84,43 +90,45 @@ class ScheduleField extends BaseField {
 
     /**
      * Adds an event to the schedule_support table.
-     * @param string $event an event represented in the following format:
+     * @param array $events an array of events, each specified in the following format:
      *      "description: mm/dd/yyyy - mm/dd/yyyy"
      *      or if there is a time specified
      *      "description: mm/dd/yyyy hh:mm A/PM - mm/dd/yyyy hh:mm A/PM"
-     * This is how the form builds the strings.
+     *      Note: This is how the form builds the strings.
      */
-    public function addEvent($event) {
-        $event = explode(": ", $event);
-        $desc = $event[0];
-
-        $event = explode(" - ", $event[1]);
-
-        $begin = trim($event[0]);
-        $end = trim($event[1]);
-
-        if (strpos($begin, ":") === false) { // No time specified.
-            $begin = DateTime::createFromFormat("m/d/Y", $begin);
-            $end = DateTime::createFromFormat("m/d/Y", $end);
-        }
-        else {
-            $begin = DateTime::createFromFormat("m/d/Y g:i A", $begin);
-            $end = DateTime::createFromFormat("m/d/Y g:i A", $end);
-        }
-
+    public function addEvents(array $events) {
         $now = date("Y-m-d H:i:s");
 
-        DB::table("schedule_support")->insert(
-            [
-                'rid' => $this->rid,
-                'flid' => $this->flid,
-                'begin' => $begin,
-                'end' => $end,
-                'desc' => $desc,
-                'created_at' => $now,
-                'updated_at' => $now
-            ]
-        );
+        foreach($events as $event) {
+            $event = explode(": ", $event);
+            $desc = $event[0];
+
+            $event = explode(" - ", $event[1]);
+
+            $begin = trim($event[0]);
+            $end = trim($event[1]);
+
+            if (strpos($begin, ":") === false) { // No time specified.
+                $begin = DateTime::createFromFormat("m/d/Y", $begin);
+                $end = DateTime::createFromFormat("m/d/Y", $end);
+            }
+            else {
+                $begin = DateTime::createFromFormat("m/d/Y g:i A", $begin);
+                $end = DateTime::createFromFormat("m/d/Y g:i A", $end);
+            }
+
+            DB::table("schedule_support")->insert(
+                [
+                    'rid' => $this->rid,
+                    'flid' => $this->flid,
+                    'begin' => $begin,
+                    'end' => $end,
+                    'desc' => $desc,
+                    'created_at' => $now,
+                    'updated_at' => $now
+                ]
+            );
+        }
     }
 
     /**
@@ -162,7 +170,7 @@ class ScheduleField extends BaseField {
 
         //
         // Advanced Search for schedule doesn't allow for time search, but we do store the time in some schedules entries.
-        // So we search from 0:00:00 to 23:59:59 on the begin and end day respectively
+        // So we search from 0:00:00 to 23:59:59 on the begin and end day respectively.
         //
         $begin = DateTime::createFromFormat("Y-m-d H:i:s", $begin_year."-".$begin_month."-".$begin_day." 00:00:00");
         $end = DateTime::createFromFormat("Y-m-d H:i:s", $end_year."-".$end_month."-".$end_day." 23:59:59");
