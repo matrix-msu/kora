@@ -303,6 +303,7 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
     );
 
     public static $classMap = array (
+        'App\\FieldHelpers\\AssociatorSearch' => __DIR__ . '/../..' . '/app/FieldHelpers/AssociatorSearch.php',
         'App\\Association' => __DIR__ . '/../..' . '/app/Association.php',
         'App\\AssociatorField' => __DIR__ . '/../..' . '/app/AssociatorField.php',
         'App\\BaseField' => __DIR__ . '/../..' . '/app/BaseField.php',
@@ -315,6 +316,8 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         'App\\Commands\\SaveDocumentsFieldsTable' => __DIR__ . '/../..' . '/app/Commands/SaveDocumentsFieldsTable.php',
         'App\\Commands\\SaveFieldsTable' => __DIR__ . '/../..' . '/app/Commands/SaveFieldsTable.php',
         'App\\Commands\\SaveFormGroupUsersTable' => __DIR__ . '/../..' . '/app/Commands/SaveFormGroupUsersTable.php',
+        'CreateDownloadTrackersTable' => __DIR__ . '/../..' . '/database/migrations/2016_09_23_162317_create_download_trackers_table.php',
+        'CreateExodusProgressTables' => __DIR__ . '/../..' . '/database/migrations/2016_12_08_171347_CreateExodusProgressTables.php',
         'App\\Commands\\SaveFormGroupsTable' => __DIR__ . '/../..' . '/app/Commands/SaveFormGroupsTable.php',
         'App\\Commands\\SaveFormsTable' => __DIR__ . '/../..' . '/app/Commands/SaveFormsTable.php',
         'App\\Commands\\SaveGalleryFieldsTable' => __DIR__ . '/../..' . '/app/Commands/SaveGalleryFieldsTable.php',

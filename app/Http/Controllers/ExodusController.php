@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Commands\SaveKora2Scheme;
+use App\Field;
 use App\Form;
 use App\FormGroup;
 use App\OptionPreset;
@@ -10,7 +11,8 @@ use App\Project;
 use App\ProjectGroup;
 use App\Token;
 use App\User;
-use Illuminate\Contracts\Logging\Log;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 use Illuminate\Http\Request;
 
@@ -61,19 +63,37 @@ class ExodusController extends Controller{
         $users_exempt_from_lockout->put(1,1); //Add another one of these with (userid,userid) to exempt extra users
         $this->lockUsers($users_exempt_from_lockout);
 
+        //TODO: Remove after testing
+        $this->deleteAll();
+
         //MySQL Info
         $host = $request->host;
         $name = $request->name;
         $user = $request->user;
         $pass = $request->pass;
 
-        $con = mysqli_connect($host,$user,$pass,$name);
+        $filePath = $request->filePath;
+
+
+        return view('exodus.progress',compact('host', 'name', 'user', 'pass', 'filePath'));
+    }
+
+    public function startExodus(Request $request){
+        $con = mysqli_connect($request->host,$request->user,$request->pass,$request->name);
+        $dbInfo = array();
+        $dbInfo['host'] = $request->host;
+        $dbInfo['user'] = $request->user;
+        $dbInfo['name'] = $request->name;
+        $dbInfo['pass'] = $request->pass;
+
         $userArray = array();
         $projectArray = array();
         $formArray = array();
         $pairArray = array();
         $permArray = array();
         $tokenArray = array();
+
+        $filePath = $request->filePath;
 
         //we should do the user table and project related tables and then divide all the scheme tasks into queued jobs
 
@@ -350,31 +370,31 @@ class ExodusController extends Controller{
         }
 
         mysqli_close($con);
-        $dbInfo = array();
-        $dbInfo['host'] = $host;
-        $dbInfo['user'] = $user;
-        $dbInfo['name'] = $name;
-        $dbInfo['pass'] = $pass;
 
-        //ini_set('max_execution_time',0);
-        //Log::info("Begin Exodus");
+        ini_set('max_execution_time',0);
+        Log::info("Begin Exodus");
+        $exodus_id = DB::table('exodus_overall_progress')->insertGetId(['progress'=>0,'overall'=>0,'start'=>Carbon::now(),'created_at'=>Carbon::now(),'updated_at'=>Carbon::now()]);
         foreach($formArray as $sid=>$fid){
-            //$job = new SaveKora2Scheme($sid,$fid,$pairArray, $dbInfo);
-            //$this->dispatch($job->onQueue('exodus'));
-
+            $job = new SaveKora2Scheme($sid,$fid,$pairArray, $dbInfo, $filePath, $exodus_id);
+            $this->dispatch($job->onQueue('exodus'));
         }
 
-        /*Artisan::call('queue:listen', [
+        Artisan::call('queue:listen', [
             '--queue' => 'exodus',
             '--timeout' => 1800
-        ]);*/
+        ]);
 
-        $this->unlockUsers(); //TODO: Move this eventually
+        return '';
     }
 
-    //test function to test commands for queuing
-    private function saveKora2Test($sid,$fid,$pairArray, $dbInfo){
-        //$colls = $con->query("select * from collection where schemeid=".$sid);
+    public function checkProgress(Request $request){
+        $overall = DB::table('exodus_overall_progress')->where('created_at',DB::table('exodus_overall_progress')->max('created_at'))->first();
+        if(is_null($overall)){
+            return 'inprogress';
+        }
+        $partial = DB::table('exodus_partial_progress')->where('exodus_id',$overall->id)->get();
+
+        return response()->json(["overall"=>$overall,"partial"=>$partial],200);
     }
 
     /**
@@ -477,5 +497,56 @@ class ExodusController extends Controller{
             return response("error",500);
         }
         return response("success",200);
+    }
+
+    //Strictly for testing purposes
+    private function deleteAll(){
+        try {
+            foreach (User::all() as $User) {
+                if ($User->id == 1) { //Do not delete the default admin user
+                    continue;
+                } else {
+                    $User->delete();
+                }
+            }
+            DB::table('projects')->delete();
+            DB::table('forms')->delete();
+            DB::table('fields')->delete();
+            DB::table('records')->delete();
+            DB::table('metadatas')->delete();
+            DB::table('tokens')->delete();
+            DB::table('project_token')->delete();
+            DB::table('revisions')->delete();
+            DB::table('date_fields')->delete();
+            DB::table('form_groups')->delete();
+            DB::table('form_group_user')->delete();
+            DB::table('generated_list_fields')->delete();
+            DB::table('geolocator_fields')->delete();
+            DB::table('list_fields')->delete();
+            DB::table('multi_select_list_fields')->delete();
+            DB::table('number_fields')->delete();
+            DB::table('project_groups')->delete();
+            DB::table('project_group_user')->delete();
+            DB::table('rich_text_fields')->delete();
+            DB::table('schedule_fields')->delete();
+            DB::table('text_fields')->delete();
+            DB::table('documents_fields')->delete();
+            DB::table('model_fields')->delete();
+            DB::table('gallery_fields')->delete();
+            DB::table('video_fields')->delete();
+            DB::table('playlist_fields')->delete();
+            DB::table('combo_list_fields')->delete();
+            DB::table('associator_fields')->delete();
+            DB::table('option_presets')->delete();
+            DB::table('record_presets')->delete();
+            DB::table('plugins')->delete();
+            DB::table('plugin_menus')->delete();
+            DB::table('plugin_settings')->delete();
+            DB::table('plugin_users')->delete();
+
+
+        }catch(\Exception $e){
+            $this->ajaxResponse(false, trans('controller_backup.dbpermission'));
+        }
     }
 }

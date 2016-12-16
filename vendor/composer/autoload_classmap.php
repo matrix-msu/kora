@@ -6,6 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'App\\FieldHelpers\\AssociatorSearch' => $baseDir . '/app/FieldHelpers/AssociatorSearch.php',
     'App\\Association' => $baseDir . '/app/Association.php',
     'App\\AssociatorField' => $baseDir . '/app/AssociatorField.php',
     'App\\BaseField' => $baseDir . '/app/BaseField.php',
@@ -17,6 +18,8 @@ return array(
     'App\\Commands\\SaveDateFieldsTable' => $baseDir . '/app/Commands/SaveDateFieldsTable.php',
     'App\\Commands\\SaveDocumentsFieldsTable' => $baseDir . '/app/Commands/SaveDocumentsFieldsTable.php',
     'App\\Commands\\SaveFieldsTable' => $baseDir . '/app/Commands/SaveFieldsTable.php',
+    'CreateDownloadTrackersTable' => $baseDir . '/database/migrations/2016_09_23_162317_create_download_trackers_table.php',
+    'CreateExodusProgressTables' => $baseDir . '/database/migrations/2016_12_08_171347_CreateExodusProgressTables.php',
     'App\\Commands\\SaveFormGroupUsersTable' => $baseDir . '/app/Commands/SaveFormGroupUsersTable.php',
     'App\\Commands\\SaveFormGroupsTable' => $baseDir . '/app/Commands/SaveFormGroupsTable.php',
     'App\\Commands\\SaveFormsTable' => $baseDir . '/app/Commands/SaveFormsTable.php',
