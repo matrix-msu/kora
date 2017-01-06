@@ -1,7 +1,7 @@
 <li class="dropdown">
-    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{trans('partials_menu_dashboard.dash')}}<b class="caret"></b></a>
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{trans('partials_menu_dashboard.projects')}}<b class="caret"></b></a>
     <ul class="dropdown-menu">
-        <li><a href="{{ url('/projects') }}">{{trans('partials_nav.dashboard')}}</a></li>
+        <li><a href="{{ url('/projects') }}">{{trans('partials_nav.projects')}}</a></li>
         <li class="divider"></li>
         <li><a href="{{ url('/admin/users') }}">{{trans('partials_menu_dashboard.users')}}</a></li>
         <li><a href="{{ url('/tokens') }}">{{trans('partials_menu_dashboard.tokens')}}</a></li>

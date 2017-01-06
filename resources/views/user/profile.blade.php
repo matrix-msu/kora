@@ -44,6 +44,10 @@
             changeProfile("lang",selected_lang);
         }
 
+        function updateHomePage(dash){
+            changeProfile("dash",dash);
+        }
+
        function updateOrganization(){
            changeProfile("org",$("#organization").val());
        }

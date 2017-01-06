@@ -56,7 +56,7 @@
               @if (\Auth::user() != null && \Auth::user()->admin)
                   @include('partials.menu.dashboard')
               @else
-                  <li><a href="{{ url('/projects') }}">{{trans('partials_nav.dashboard')}}</a></li>
+                  <li><a href="{{ url('/projects') }}">{{trans('partials_nav.projects')}}</a></li>
               @endif
 
               <style scoped>

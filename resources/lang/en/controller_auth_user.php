@@ -6,6 +6,8 @@ return [
 
 	"whoops" => "Whoops.",
 	"selectlan" => "You must select a language",
+	"selectdash" => "You must select a homepage type",
+    "dashupdate" => "Your home page preference has been updated",
 	"success" => "Success!",
 	"lanupdate" => "Your language preference has been updated",
 	"entername" => "You must enter a name",

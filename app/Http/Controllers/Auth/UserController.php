@@ -81,6 +81,20 @@ class UserController extends Controller {
                // return redirect('user/profile');
             }
         }
+        elseif($type == "dash"){
+            $dash = $request->input("field");
+
+            if($dash!="0" && $dash!="1"){
+                flash()->overlay(trans('controller_auth_user.selectdash'),trans('controller_auth_user.whoops'));
+                //return redirect('user/profile');
+            }
+            else{
+                $user->dash = $dash;
+                $user->save();
+                flash()->overlay(trans('controller_auth_user.dashupdate'),trans('controller_auth_user.success'));
+                // return redirect('user/profile');
+            }
+        }
         elseif($type == "name"){
             $realname = $request->input("field");
 
