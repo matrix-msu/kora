@@ -1,5 +1,9 @@
 <?php namespace App;
 
+use App\FieldHelpers\gPoint;
+use Geocoder\Geocoder;
+use Geocoder\HttpAdapter\CurlHttpAdapter;
+use Geocoder\Provider\NominatimProvider;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -163,4 +167,117 @@ class GeolocatorField extends BaseField {
             ]);
         }
     }
+
+    /**
+     * Build an advanced search query for a geolocator field.
+     *
+     * @param $flid, field id.
+     * @param $query, query array.
+     * @return Builder
+     */
+    public static function getAdvancedSearchQuery($flid, $query) {
+        //
+        // TODO: Error checking on UTM values and address.
+        //       The advanced search form only checks the following:
+        //              -Range is positive.
+        //              -Latitude in [-90, 90], longitude in [-180, 180].
+        //              -Zone is not empty.
+        //              -Easting and northing are positive or zero.
+        //
+        //       We need to check:
+        //              -Address validity.
+        //              -UTM Zone validity.
+        //
+
+        $range = $query[$flid.'_range'];
+
+        // Depending on the search type, we must convert the input to latitude and longitude.
+        switch($query[$flid.'_type']) {
+            case "LatLon":
+                $lat = $query[$flid."_lat"];
+                $lon = $query[$flid."_lon"];
+                break;
+            case "UTM":
+                $point = self::UTMToPoint($query[$flid."_zone"],
+                                           $query[$flid."_east"],
+                                           $query[$flid."_north"]);
+                $lat = $point->Lat();
+                $lon = $point->Long();
+                break;
+            case "Address":
+                $point = self::addressToPoint($query[$flid."_address"]);
+                $lat = $point->Lat();
+                $lon = $point->Long();
+                break;
+        }
+
+        $query = DB::table("geolocator_support");
+
+        $distance = <<<SQL
+(
+  6371 * acos(cos(radians(?))
+  * cos(radians(lat))
+  * cos(radians(lon) - radians(?))
+  + sin(radians(?))
+  * sin( radians(lat)))
+)
+SQL;
+        return $query->select(
+            DB::raw("rid, {$distance} AS distance"))
+            ->whereRaw("`flid` = ?")
+            ->havingRaw("`distance` < ?")
+            ->distinct()
+            ->setBindings([$lat, $lon, $lat, $flid, $range]);
+    }
+
+    /**
+     * Convert UTM to gPoint instance.
+     *
+     * @param string $zone, valid UTM zone.
+     * @param float $easting, easting UTM value (meters east).
+     * @param float $northing, northing UTM value (meters north).
+     * @return gPoint, point with converted latitude and longitude values in member variables.
+     *                 Use ->Lat() and ->Long() to obtain converted values.
+     */
+    public static function UTMToPoint($zone, $easting, $northing) {
+        //
+        // TODO: Error checking on zone.
+        //
+
+        $point = new gPoint();
+        $point->gPoint();
+        $point->setUTM($easting, $northing, $zone);
+        $point->convertTMtoLL();
+        return $point;
+    }
+
+    /**
+     * Convert address to gPoint instance.
+     *
+     * @param string $address
+     * @return gPoint, point with converted latitude and longitude values in member variables.
+     *                 Use ->Lat() and ->Long() to obtain converted values.
+     */
+    public static function addressToPoint($address) {
+        //
+        // TODO: Error checking address.
+        //
+
+        $coder = new Geocoder();
+        $coder->registerProviders([
+            new NominatimProvider(
+                new CurlHttpAdapter(),
+                'http://nominatim.openstreetmap.org/',
+                'en'
+            )
+        ]);
+
+        $result = $coder->geocode($address);
+        $point = new gPoint();
+        $point->gPoint();
+        $point->setLongLat($result->getLongitude(), $result->getLatitude());
+
+        return $point;
+    }
+
 }
