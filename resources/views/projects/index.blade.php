@@ -1,7 +1,7 @@
 @extends('app')
 
 @section('content')
-    <h1>{{trans('projects_index.dash')}}</h1>
+    <h1>{{trans('projects_index.projects')}}</h1>
 
     <hr/>
 
@@ -10,7 +10,6 @@
     @include('partials.adminpanel')
 
     <hr/>
-    <h2>{{trans('projects_index.title')}}</h2>
     @if(\Auth::user()->admin)
         <div>
             <a href="{{ action('ProjectController@importProjectView') }}">[{{trans('projects_index.import')}}]</a>

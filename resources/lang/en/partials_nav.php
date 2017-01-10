@@ -11,7 +11,7 @@ return [
     |
     */
 
-    "dashboard" => "Dashboard",
+    "projects" => "Projects",
     "login" => "Login",
     "register" => "Register",
     "activation" => "Activation",

@@ -46,10 +46,14 @@ class WelcomeController extends Controller {
 		$not_installed = true;
 		if(!file_exists("../.env")){
 			return view('welcome',compact('languages_available','not_installed'));
-		}
-		else{
-			return view('welcome',compact('languages_available'));
-		}
+		}else if(\Auth::guest()){
+            return view('welcome',compact('languages_available'));
+        }
+		else if (\Auth::user()->dash){
+			return view('dashboard');
+		}else{
+            return redirect('/projects');
+        }
 	}
 
     public  function setTemporaryLanguage(Request $request){
