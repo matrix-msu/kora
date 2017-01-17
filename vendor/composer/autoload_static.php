@@ -313,6 +313,7 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         'CreateAssociatorfieldsTable' => __DIR__ . '/../..' . '/database/migrations/2015_08_21_194838_create_associatorfields_table.php',
         'CreateBackupProgressTables' => __DIR__ . '/../..' . '/database/migrations/2016_05_20_204314_create_backup_progress_tables.php',
         'CreateComboListFieldsTable' => __DIR__ . '/../..' . '/database/migrations/2015_00_00_000000_create_combo_list_fields_table.php',
+        'CreateDashboardTables' => __DIR__ . '/../..' . '/database/migrations/2017_01_12_190618_CreateDashboardTables.php',
         'CreateDatefieldsTable' => __DIR__ . '/../..' . '/database/migrations/2015_00_00_000001_create_datefields_table.php',
         'CreateDocumentsfieldsTable' => __DIR__ . '/../..' . '/database/migrations/2015_00_00_000002_create_documentsfields_table.php',
         'CreateDownloadTrackersTable' => __DIR__ . '/../..' . '/database/migrations/2016_09_23_162317_create_download_trackers_table.php',
