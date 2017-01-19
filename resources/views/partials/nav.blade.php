@@ -53,11 +53,7 @@
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <!-- Left justified links -->
-              @if (\Auth::user() != null && \Auth::user()->admin)
-                  @include('partials.menu.dashboard')
-              @else
-                  <li><a href="{{ url('/projects') }}">{{trans('partials_nav.projects')}}</a></li>
-              @endif
+              @include('partials.menu.dashboard')
 
               <style scoped>
                   .scrollable-submenu {

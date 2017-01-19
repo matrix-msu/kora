@@ -12,5 +12,6 @@ return [
 	"update" => "Update",
     "plugin" => "Manage Plugins",
     "exodus" => "Kora Exodus",
+    "dashboard" => "Dashboard",
 
 ];

@@ -5,7 +5,7 @@
 
     <hr/>
 
-    {{dd($sections)}}
+    
 
 @stop
 
