@@ -176,19 +176,6 @@ class GeolocatorField extends BaseField {
      * @return Builder
      */
     public static function getAdvancedSearchQuery($flid, $query) {
-        //
-        // TODO: Error checking on UTM values and address.
-        //       The advanced search form only checks the following:
-        //              -Range is positive.
-        //              -Latitude in [-90, 90], longitude in [-180, 180].
-        //              -Zone is not empty.
-        //              -Easting and northing are positive or zero.
-        //
-        //       We need to check:
-        //              -Address validity.
-        //              -UTM Zone validity.
-        //
-
         $range = $query[$flid.'_range'];
 
         // Depending on the search type, we must convert the input to latitude and longitude.
@@ -259,10 +246,6 @@ SQL;
      *                 Use ->Lat() and ->Long() to obtain converted values.
      */
     public static function addressToPoint($address) {
-        //
-        // TODO: Error checking address.
-        //
-
         $coder = new Geocoder();
         $coder->registerProviders([
             new NominatimProvider(
