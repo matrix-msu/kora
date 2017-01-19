@@ -2,7 +2,10 @@
 
 
 use App\Field;
+use Geocoder\Geocoder;
 use Illuminate\Http\Request;
+use Geocoder\Provider\NominatimProvider;
+use Geocoder\HttpAdapter\CurlHttpAdapter;
 
 class AdvancedSearchController extends Controller {
 
@@ -73,9 +76,37 @@ class AdvancedSearchController extends Controller {
     }
 
     /**
+     * Determines validity of an address.
+     *
+     * @param Request $request
+     * @return bool, true if valid.
+     */
+    public function validateAddress(Request $request) {
+        $address = $request['address'];
+
+        $coder = new Geocoder();
+        $coder->registerProviders([
+            new NominatimProvider(
+                new CurlHttpAdapter(),
+                'http://nominatim.openstreetmap.org/',
+                'en'
+            )
+        ]);
+
+        try {
+            $coder->geocode($address);
+        }
+        catch (\Exception $e) {
+            return json_encode(false);
+        }
+
+        return json_encode(true);
+    }
+
+    /**
      * Processes the request into a associative array with the following format:
      *      $processed[flid] => search query
-     * Ensures all inputs are valid.
+     * Ensures all inputs are marked as valid (validity determined in searchBoxes/geolocator.blade.php.
      *
      * @param array $request
      * @return array $processed

@@ -62,7 +62,20 @@
     $("[name={{$field->flid}}_zone]").keyup(function() {validate_{{$field->flid}}("UTM")});
     $("[name={{$field->flid}}_east]").keyup(function() {validate_{{$field->flid}}("UTM")});
     $("[name={{$field->flid}}_north]").keyup(function() {validate_{{$field->flid}}("UTM")});
-    $("[name={{$field->flid}}_address]").keyup(function() {validate_{{$field->flid}}("Address")});
+
+    // Add a timer to only check address validity if the user has stopped typing for 2 seconds.
+    var typingTimer{{$field->flid}};
+
+    $("[name={{$field->flid}}_address]").keyup(function() {
+        clearTimeout(typingTimer{{$field->flid}});
+        if ($("[name={{$field->flid}}_address]").val()) {
+            typingTimer{{$field->flid}} = setTimeout(doneTyping{{$field->flid}}, 1500);
+        }
+    });
+
+    function doneTyping{{$field->flid}}() {
+        validate_{{$field->flid}}("Address");
+    }
 
     function validate_{{$field->flid}}(type) {
         var valid = true;
@@ -85,11 +98,49 @@
             var easting = parseInt($("[name={{$field->flid}}_east]").val());
             var northing = parseInt($("[name={{$field->flid}}_north]").val());
 
-            valid = (zone != "") && (easting >= 0) && (northing >= 0);
+            zone = zone.replace(/\s+/g, ''); // replace spaces with empty string
+
+            var zone_valid = true;
+
+            if (!(zone.length == 2 || zone.length == 3)) {
+                zone_valid = false;
+            }
+            else {
+                var zone_number = zone.slice(0, -1);
+                var zone_letter = zone.slice(-1).toUpperCase();
+
+                if (zone_number === String(Number(zone_number)) && zone_letter.match(/[C-X]/)) {
+                    console.log("Zone Letter: " + zone_letter + " " + typeof(zone_letter));
+                    console.log("Zone Number: " + parseInt(zone_number) + " " + typeof(parseInt(zone_number)));
+
+                    zone_valid = (0 < parseInt(zone_number) &&  parseInt(zone_number) < 61);
+                }
+                else {
+                    zone_valid = false;
+                }
+            }
+
+            valid = zone_valid && (easting >= 0) && (northing >= 0);
         }
         else {
-            // Address is only invalid if it is empty.
-            valid = $("[name={{$field->flid}}_address]").val() != "";
+            if ($("[name={{$field->flid}}_address]").val()) {
+                console.log("Doing address validation...");
+                $.ajax({
+                    url: '{{ action('AdvancedSearchController@validateAddress') }}',
+                    type: 'GET',
+                    data: {
+                        '_token': '{{ csrf_token() }}',
+                        address: $("[name={{$field->flid}}_address]").val()
+                    },
+                    success: function(response) {
+                        console.log(response);
+                        valid = response;
+                    }
+                });
+            }
+            else {
+                valid = false;
+            }
         }
 
         if (valid) {
