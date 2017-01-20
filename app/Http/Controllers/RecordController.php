@@ -2110,4 +2110,267 @@ class RecordController extends Controller {
         flash()->overlay(trans('controller_record.recupdate'),trans('controller_record.goodjob'));
         return redirect()->action('RecordController@index',compact('pid','fid'));
     }
+
+    public function createTest($pid, $fid, Request $request){
+        $numRecs = $request->test_records_num;
+
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+
+        $form = FormController::getForm($fid);
+        $fields = $form->fields()->get();
+
+        for ($i = 0; $i < $numRecs ; $i++) {
+            $record = new Record();
+            $record->pid = $pid;
+            $record->fid = $fid;
+            $record->owner = Auth::user()->id;
+            $record->save(); //need to save to create rid needed to make kid
+            $record->kid = $pid . '-' . $fid . '-' . $record->rid;
+            $record->save();
+
+            foreach ($fields as $field) {
+                if ($field->type == 'Text') {
+                    $tf = new TextField();
+                    $tf->flid = $field->flid;
+                    $tf->rid = $record->rid;
+                    $tf->fid = $fid;
+                    $tf->text = 'K3TR: This is a test record';
+                    $tf->save();
+                } else if ($field->type == 'Rich Text') {
+                    $rtf = new RichTextField();
+                    $rtf->flid = $field->flid;
+                    $rtf->rid = $record->rid;
+                    $rtf->fid = $fid;
+                    $rtf->rawtext = '<b>K3TR</b>: This is a <i>test</i> record';
+                    $rtf->save();
+                } else if ($field->type == 'Number') {
+                    $nf = new NumberField();
+                    $nf->flid = $field->flid;
+                    $nf->rid = $record->rid;
+                    $nf->fid = $fid;
+                    $nf->number = 1337;
+                    $nf->save();
+                } else if ($field->type == 'List') {
+                    $lf = new ListField();
+                    $lf->flid = $field->flid;
+                    $lf->rid = $record->rid;
+                    $lf->fid = $fid;
+                    $lf->option = 'K3TR';
+                    $lf->save();
+                } else if ($field->type == 'Multi-Select List') {
+                    $mslf = new MultiSelectListField();
+                    $mslf->flid = $field->flid;
+                    $mslf->rid = $record->rid;
+                    $mslf->fid = $fid;
+                    $mslf->options = 'K3TR[!]1337[!]Test[!]Record';
+                    $mslf->save();
+                } else if ($field->type == 'Generated List') {
+                    $glf = new GeneratedListField();
+                    $glf->flid = $field->flid;
+                    $glf->rid = $record->rid;
+                    $glf->fid = $fid;
+                    $glf->options = 'K3TR[!]1337[!]Test[!]Record';
+                    $glf->save();
+                } else if($field->type == 'Combo List'){
+                    $clf = new ComboListField();
+                    $clf->flid = $field->flid;
+                    $clf->rid = $record->rid;
+                    $clf->fid = $fid;
+                    $val1 = '';
+                    $val2 = '';
+                    $type1 = ComboListField::getComboFieldType($field,'one');
+                    $type2 = ComboListField::getComboFieldType($field,'two');
+                    switch($type1){
+                        case 'Text':
+                            $val1 = 'K3TR: This is a test record';
+                            break;
+                        case 'List':
+                            $val1 = 'K3TR';
+                            break;
+                        case 'Number':
+                            $val1 = 1337;
+                            break;
+                        case 'Multi-Select List'||'Generated List':
+                            $val1 = 'K3TR[!]1337[!]Test[!]Record';
+                            break;
+                    }
+                    switch($type2){
+                        case 'Text':
+                            $val2 = 'K3TR: This is a test record';
+                            break;
+                        case 'List':
+                            $val2 = 'K3TR';
+                            break;
+                        case 'Number':
+                            $val2 = 1337;
+                            break;
+                        case 'Multi-Select List'||'Generated List':
+                            $val2 = 'K3TR[!]1337[!]Test[!]Record';
+                            break;
+                    }
+                    $clf->options = "[!f1!]".$val1."[!f1!][!f2!]".$val2."[!f2!][!val!][!f1!]".$val1."[!f1!][!f2!]".$val2."[!f2!]";
+                    $clf->save();
+                } else if ($field->type == 'Date') {
+                    $df = new DateField();
+                    $df->flid = $field->flid;
+                    $df->rid = $record->rid;
+                    $df->fid = $fid;
+                    $df->circa = 1;
+                    $df->month = 1;
+                    $df->day = 3;
+                    $df->year = 1937;
+                    $df->era = 'CE';
+                    $df->save();
+                } else if ($field->type == 'Schedule') {
+                    $sf = new ScheduleField();
+                    $sf->flid = $field->flid;
+                    $sf->rid = $record->rid;
+                    $sf->fid = $fid;
+                    $sf->events = 'K3TR: 01/03/1937 - 01/03/1937';
+                    $sf->save();
+                } else if ($field->type == 'Geolocator') {
+                    $gf = new GeolocatorField();
+                    $gf->flid = $field->flid;
+                    $gf->rid = $record->rid;
+                    $gf->fid = $fid;
+                    $gf->locations = '[Desc]K3TR[Desc][LatLon]13,37[LatLon][UTM]37P:283077.41182513,1437987.6443346[UTM][Address] Appelstraße Hanover Lower Saxony[Address]';
+                    $gf->save();
+                } else if ($field->type == 'Documents') {
+                    $df = new DocumentsField();
+                    $df->flid = $field->flid;
+                    $df->rid = $record->rid;
+                    $df->fid = $fid;
+                    $infoArray = array();
+                    $maxfiles = FieldController::getFieldOption($field,'MaxFiles');
+                    if($maxfiles==0){$maxfiles=1;}
+                    $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
+                    mkdir($newPath, 0775, true);
+                    for ($q=0;$q<$maxfiles;$q++) {
+                        $types = DocumentsField::getMimeTypes();
+                        if (!array_key_exists('txt', $types))
+                            $type = 'application/octet-stream';
+                        else
+                            $type = $types['txt'];
+                        $info = '[Name]documents' . $q . '.txt[Name][Size]24[Size][Type]' . $type . '[Type]';
+                        $infoArray['documents' . $q . '.txt'] = $info;
+                        copy(env('BASE_PATH') . 'public/testFiles/documents.txt',
+                            $newPath . '/documents' . $q . '.txt');
+                    }
+                    $infoString = implode('[!]',$infoArray);
+                    $df->documents = $infoString;
+                    $df->save();
+                } else if ($field->type == 'Gallery') {
+                    $gf = new GalleryField();
+                    $gf->flid = $field->flid;
+                    $gf->rid = $record->rid;
+                    $gf->fid = $fid;
+                    $infoArray = array();
+                    $maxfiles = FieldController::getFieldOption($field,'MaxFiles');
+                    if($maxfiles==0){$maxfiles=1;}
+                    $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
+                    //make the three directories
+                    mkdir($newPath, 0775, true);
+                    mkdir($newPath . '/thumbnail', 0775, true);
+                    mkdir($newPath . '/medium', 0775, true);
+                    for ($q=0;$q<$maxfiles;$q++) {
+                        $types = DocumentsField::getMimeTypes();
+                        if (!array_key_exists('png', $types))
+                            $type = 'application/octet-stream';
+                        else
+                            $type = $types['png'];
+                        $info = '[Name]gallery' . $q . '.png[Name][Size]54827[Size][Type]' . $type . '[Type]';
+                        $infoArray['gallery' . $q . '.png'] = $info;
+                        copy(env('BASE_PATH') . 'public/testFiles/gallery.png',
+                            $newPath . '/gallery' . $q . '.png');
+                        copy(env('BASE_PATH') . 'public/testFiles/medium/gallery.png',
+                            $newPath . '/medium/gallery' . $q . '.png');
+                        copy(env('BASE_PATH') . 'public/testFiles/thumbnail/gallery.png',
+                            $newPath . '/thumbnail/gallery' . $q . '.png');
+                    }
+                    $infoString = implode('[!]',$infoArray);
+                    $gf->images = $infoString;
+                    $gf->save();
+                } else if ($field->type == 'Playlist') {
+                    $pf = new PlaylistField();
+                    $pf->flid = $field->flid;
+                    $pf->rid = $record->rid;
+                    $pf->fid = $fid;
+                    $infoArray = array();
+                    $maxfiles = FieldController::getFieldOption($field,'MaxFiles');
+                    if($maxfiles==0){$maxfiles=1;}
+                    $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
+                    mkdir($newPath, 0775, true);
+                    for ($q=0;$q<$maxfiles;$q++) {
+                        $types = DocumentsField::getMimeTypes();
+                        if (!array_key_exists('mp3', $types))
+                            $type = 'application/octet-stream';
+                        else
+                            $type = $types['mp3'];
+                        $info = '[Name]playlist' . $q . '.mp3[Name][Size]198658[Size][Type]' . $type . '[Type]';
+                        $infoArray['playlist' . $q . '.mp3'] = $info;
+                        copy(env('BASE_PATH') . 'public/testFiles/playlist.mp3',
+                            $newPath . '/playlist' . $q . '.mp3');
+                    }
+                    $infoString = implode('[!]',$infoArray);
+                    $pf->audio = $infoString;
+                    $pf->save();
+                } else if ($field->type == 'Video') {
+                    $vf = new VideoField();
+                    $vf->flid = $field->flid;
+                    $vf->rid = $record->rid;
+                    $vf->fid = $fid;
+                    $infoArray = array();
+                    $maxfiles = FieldController::getFieldOption($field,'MaxFiles');
+                    if($maxfiles==0){$maxfiles=1;}
+                    $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
+                    mkdir($newPath, 0775, true);
+                    for ($q=0;$q<$maxfiles;$q++) {
+                        $types = DocumentsField::getMimeTypes();
+                        if (!array_key_exists('mp4', $types))
+                            $type = 'application/octet-stream';
+                        else
+                            $type = $types['mp4'];
+                        $info = '[Name]video' . $q . '.mp4[Name][Size]1055736[Size][Type]' . $type . '[Type]';
+                        $infoArray['video' . $q . '.mp4'] = $info;
+                        copy(env('BASE_PATH') . 'public/testFiles/video.mp4',
+                            $newPath . '/video' . $q . '.mp4');
+                    }
+                    $infoString = implode('[!]',$infoArray);
+                    $vf->video = $infoString;
+                    $vf->save();
+                } else if ($field->type == '3D-Model') {
+                    $mf = new ModelField();
+                    $mf->flid = $field->flid;
+                    $mf->rid = $record->rid;
+                    $mf->fid = $fid;
+                    $newPath = env('BASE_PATH') . 'storage/app/files/p' . $pid . '/f' . $fid . '/r' . $record->rid . '/fl' . $field->flid;
+                    mkdir($newPath, 0775, true);
+
+                    $types = DocumentsField::getMimeTypes();
+                    if (!array_key_exists('stl', $types))
+                        $type = 'application/octet-stream';
+                    else
+                        $type = $types['stl'];
+                    $infoString = '[Name]model' . $q . '.stl[Name][Size]9484[Size][Type]' . $type . '[Type]';
+                    copy(env('BASE_PATH') . 'public/testFiles/model.stl',
+                        $newPath . '/model' . $q . '.stl');
+
+                    $mf->model = $infoString;
+                    $mf->save();
+                } else if ($field->type == 'Associator') {
+                    $af = new AssociatorField();
+                    $af->flid = $field->flid;
+                    $af->rid = $record->rid;
+                    $af->fid = $fid;
+                    $af->records = '1-3-37[!]1-3-37[!]1-3-37[!]1-3-37';
+                    $af->save();
+                }
+            }
+        }
+
+        flash()->overlay('Created test records.',trans('controller_record.goodjob'));
+        return redirect()->action('RecordController@index',compact('pid','fid'));
+    }
 }

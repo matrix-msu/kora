@@ -46,6 +46,12 @@
         <div>
             <span>{{trans('forms_show.makepreset')}}: </span><input type="checkbox" onchange="presetForm()" id="preset" @if($form->preset) checked @endif>
         </div>
+        <form method="post" action="{{action('RecordController@createTest', ['pid'=>$form->pid, 'fid'=>$form->fid])}}" style="display: inline">
+            <input type="hidden" value="{{ csrf_token() }}" name="_token">
+            <div><b>Create Test Records ({{trans('records_create.max')}} 1000):</b></div>
+            <input type="number" name="test_records_num" value="1" step="1" max="1000" min="1">
+            <button type="submit" class="btn btn-default">Create</button>
+        </form>
     @endif
     <hr/>
     <h2>{{trans('forms_show.fields')}}</h2>

@@ -149,6 +149,7 @@ Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/applyPreset','OptionPrese
 
 //record routes
 Route::get('/projects/{pid}/forms/{fid}/records','RecordController@index');
+Route::post('/projects/{pid}/forms/{fid}/records/createTest','RecordController@createTest');
 Route::get('projects/{pid}/forms/{fid}/records/massAssignRecords','RecordController@showMassAssignmentView');
 Route::post('projects/{pid}/forms/{fid}/records/massAssignRecords','RecordController@massAssignRecords');
 Route::patch('/projects/{pid}/forms/{fid}/records/{rid}','RecordController@update');
@@ -227,7 +228,6 @@ Route::get("globalSearch", "ProjectSearchController@globalSearch");
 
 //advanced search routes
 Route::get("/projects/{pid}/forms/{fid}/advancedSearch", "AdvancedSearchController@index");
-Route::get("/advancedSearch/validateAddress", "AdvancedSearchController@validateAddress");
 Route::post("/project/{pid}/forms/{fid}/advancedSearch/search", "AdvancedSearchController@search");
 
 // help routes
