@@ -117,7 +117,8 @@ class BackupController extends Controller
         foreach (new \DirectoryIterator(env('BASE_PATH')."storage/app/".$this->BACKUP_DIRECTORY."/") as $dir) {
             $name = $dir->getFilename();
             if($name!='.' && $name!='..' && $dir->isDir()){
-                array_push($available_backups,$this->BACKUP_DIRECTORY.'/'.$name.'/.kora3_backup');
+                if(file_exists(env('BASE_PATH')."storage/app/".$this->BACKUP_DIRECTORY.'/'.$name.'/.kora3_backup'))
+                    array_push($available_backups,$this->BACKUP_DIRECTORY.'/'.$name.'/.kora3_backup');
             }
         }
         $saved_backups = new Collection();
@@ -256,10 +257,39 @@ class BackupController extends Controller
     }
 
     public function finishBackup(Request $request){
+        ini_set('max_execution_time',0);
         $label = $request->backup_label;
         $labelParts = explode('___',$label);
         $name = $labelParts[0];
         $time = $labelParts[1];
+
+        //time to move the files
+        $filepath = env('BASE_PATH')."storage/app/files/";
+        $newfilepath = env('BASE_PATH')."storage/app/".$this->BACKUP_DIRECTORY."/".$label."/files/";
+        mkdir($newfilepath, 0775, true);
+        $directory = new \RecursiveDirectoryIterator($filepath);
+        $iterator = new \RecursiveIteratorIterator($directory);
+        foreach ($iterator as $file) {
+            if($file->isFile()) {
+                //get file name and sub directories
+                $fPath = $file->getRealPath();
+                $subPath = explode($filepath,$fPath)[1]; //sub directory + filename
+                $fname = $file->getFilename(); //filename
+                $fext = $file->getExtension(); //TODO: remove
+                //if that files sub directory doesn't exist, make it
+                //$subDir = preg_replace('/'.$fname.'$/', '', $subPath); //just the sub directory
+                $subDirArr = explode($fname,$subPath);
+                $loopSize = sizeof($subDirArr)-1;
+                $subDir = ''; //just the sub directory
+                for($i=0;$i<$loopSize;$i++){
+                    $subDir .= $subDirArr[$i];
+                }
+                if (!file_exists($newfilepath.$subDir))
+                    mkdir($newfilepath.$subDir, 0775, true);
+                //copy file over
+                copy($filepath.$subPath, $newfilepath.$subPath);
+            }
+        }
 
         //set up initial json
         $data = array();
@@ -449,6 +479,10 @@ class BackupController extends Controller
             $this->ajaxResponse(false, trans('controller_backup.dbpermission'));
         }
 
+        //Delete the files directory
+        if(file_exists(env('BASE_PATH')."storage/app/files/")) //this check is to see if it was deleted in a failed restore
+            $this->recursiveRemoveDirectory(env('BASE_PATH')."storage/app/files/");
+
         //NEW PROCESS For restore using jobs
         ini_set('max_execution_time',0);
         Log::info("Restore in progress...");
@@ -512,7 +546,49 @@ class BackupController extends Controller
     }
 
     public function finishRestore(Request $request){
+        $filepath = env('BASE_PATH').'storage/app/'.$request->filename.'/files/';
+        $newfilepath = env('BASE_PATH')."storage/app/files/";
+
+        //time to move the files
+        mkdir($newfilepath, 0775, true);
+        $directory = new \RecursiveDirectoryIterator($filepath);
+        $iterator = new \RecursiveIteratorIterator($directory);
+        foreach ($iterator as $file) {
+            if($file->isFile()) {
+                //get file name and sub directories
+                $fPath = $file->getRealPath();
+                $subPath = explode($filepath,$fPath)[1]; //sub directory + filename
+                $fname = $file->getFilename(); //filename
+                $fext = $file->getExtension(); //TODO: remove
+                //if that files sub directory doesn't exist, make it
+                //$subDir = preg_replace('/'.$fname.'$/', '', $subPath); //just the sub directory
+                $subDirArr = explode($fname,$subPath);
+                $loopSize = sizeof($subDirArr)-1;
+                $subDir = ''; //just the sub directory
+                for($i=0;$i<$loopSize;$i++){
+                    $subDir .= $subDirArr[$i];
+                }
+                if (!file_exists($newfilepath.$subDir))
+                    mkdir($newfilepath.$subDir, 0775, true);
+                //copy file over
+                copy($filepath.$subPath, $newfilepath.$subPath);
+            }
+        }
+
         dd("finished restore");
+    }
+
+    private function recursiveRemoveDirectory($directory)
+    {
+        foreach(glob("{$directory}/*") as $file)
+        {
+            if(is_dir($file)) {
+                $this->recursiveRemoveDirectory($file);
+            } else {
+                unlink($file);
+            }
+        }
+        rmdir($directory);
     }
 
     /*

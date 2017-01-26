@@ -37,6 +37,9 @@
                                         <span class="sr-only">{{trans('backups_backup.almostdone')}}</span>
                                     </div>
                                 </div>
+                                <div id="type_message">
+                                    Backing up the database...
+                                </div>
                             </div>
                             <div style="display:none" id="summary_done">
                                 <p>
@@ -122,8 +125,9 @@
             success: function(data) {
                 console.log(data);
                 $("#progress").removeClass('progress-bar-danger');
-                $("#progress").css('width', (((data.overall.progress / data.overall.overall) * 100) + "%"));
+                $("#progress").css('width', (((data.overall.progress / (data.overall.overall+ +1)) * 100) + "%"));
                 if (data.overall.progress == data.overall.overall) {
+                    $('#type_message').text('Backing up your files. This may take a while...');
                     $.ajax({
                         url: "{{action('BackupController@finishBackup')}}",
                         method:'POST',

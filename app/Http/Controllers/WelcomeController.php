@@ -135,7 +135,12 @@ class WelcomeController extends Controller {
                         $blkrecords = array();
                         foreach($blkResults as $rec){
                             $recMod = RecordController::getRecord($rec->rid);
-                            $kid = $recMod->kid;
+                            if(!is_null($recMod)) {
+                                $kid = $recMod->kid;
+                            }else{
+                                $formMod = FormController::getForm($rec->fid);
+                                $kid = $formMod->pid.'-'.$rec->fid.'-'.$rec->rid;
+                            }
 
                             if(!in_array($kid,$blkrecords))
                                 array_push($blkrecords,$kid);
@@ -152,7 +157,12 @@ class WelcomeController extends Controller {
                         $blkrecords = array();
                         foreach($blkResults as $rec){
                             $recMod = RecordController::getRecord($rec->rid);
-                            $kid = $recMod->kid;
+                            if(!is_null($recMod)) {
+                                $kid = $recMod->kid;
+                            }else{
+                                $formMod = FormController::getForm($rec->fid);
+                                $kid = $formMod->pid.'-'.$rec->fid.'-'.$rec->rid;
+                            }
 
                             if(!in_array($kid,$blkrecords))
                                 array_push($blkrecords,$kid);
