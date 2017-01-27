@@ -534,23 +534,24 @@ class RecordPresetController extends Controller {
      * @author gimmicklessgpt, from php.net.
      */
     static public function recurse_copy($src, $dst) {
-        $dir = opendir($src);
+        if(file_exists($src)) {
+            $dir = opendir($src);
 
-        if (!is_dir($dst) && !is_file($dst)) {
-            mkdir($dst, 0755, true);
-        }
+            if (!is_dir($dst) && !is_file($dst)) {
+                mkdir($dst, 0755, true);
+            }
 
-        while(false !== ( $file = readdir($dir)) ) {
-            if (( $file != '.' ) && ( $file != '..' )) {
-                if ( is_dir($src . '/' . $file) ) {
-                    RecordPresetController::recurse_copy($src . '/' . $file,$dst . '/' . $file);
-                }
-                else {
-                    copy($src . '/' . $file,$dst . '/' . $file);
+            while (false !== ($file = readdir($dir))) {
+                if (($file != '.') && ($file != '..')) {
+                    if (is_dir($src . '/' . $file)) {
+                        RecordPresetController::recurse_copy($src . '/' . $file, $dst . '/' . $file);
+                    } else {
+                        copy($src . '/' . $file, $dst . '/' . $file);
+                    }
                 }
             }
+            closedir($dir);
         }
-        closedir($dir);
     }
 
     private $presetID = -1; //The id of the preset we are currently working with. (-1 if we don't care)
