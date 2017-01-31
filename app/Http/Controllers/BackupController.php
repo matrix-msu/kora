@@ -1,8 +1,11 @@
 <?php namespace App\Http\Controllers;
 
 use App\Commands\RestoreTable;
+use App\Commands\SaveAssociationsTable;
 use App\Commands\SaveAssociatorFieldsTable;
 use App\Commands\SaveComboListFieldsTable;
+use App\Commands\SaveDashboardBlocksTable;
+use App\Commands\SaveDashboardSectionsTable;
 use App\Commands\SaveDateFieldsTable;
 use App\Commands\SaveDocumentsFieldsTable;
 use App\Commands\SaveFieldsTable;
@@ -12,6 +15,7 @@ use App\Commands\SaveFormsTable;
 use App\Commands\SaveGalleryFieldsTable;
 use App\Commands\SaveGeneratedListFieldsTable;
 use App\Commands\SaveGeolocatorFieldsTable;
+use App\Commands\SaveGeolocatorSupportTable;
 use App\Commands\SaveListFieldTable;
 use App\Commands\SaveMetadatasTable;
 use App\Commands\SaveModelFieldsTable;
@@ -32,6 +36,7 @@ use App\Commands\SaveRecordsTable;
 use App\Commands\SaveRevisionsTable;
 use App\Commands\SaveRichTextFields;
 use App\Commands\SaveScheduleFieldsTable;
+use App\Commands\SaveScheduleSupportTable;
 use App\Commands\SaveTextFieldsTable;
 use App\Commands\SaveTokensTable;
 use App\Commands\SaveUsersTable;
@@ -117,7 +122,8 @@ class BackupController extends Controller
         foreach (new \DirectoryIterator(env('BASE_PATH')."storage/app/".$this->BACKUP_DIRECTORY."/") as $dir) {
             $name = $dir->getFilename();
             if($name!='.' && $name!='..' && $dir->isDir()){
-                array_push($available_backups,$this->BACKUP_DIRECTORY.'/'.$name.'/.kora3_backup');
+                if(file_exists(env('BASE_PATH')."storage/app/".$this->BACKUP_DIRECTORY.'/'.$name.'/.kora3_backup'))
+                    array_push($available_backups,$this->BACKUP_DIRECTORY.'/'.$name.'/.kora3_backup');
             }
         }
         $saved_backups = new Collection();
@@ -210,6 +216,7 @@ class BackupController extends Controller
             new SaveFieldsTable($backup_disk, $path, $backup_id),
             new SaveGeneratedListFieldsTable($backup_disk, $path, $backup_id),
             new SaveGeolocatorFieldsTable($backup_disk, $path, $backup_id),
+            new SaveGeolocatorSupportTable($backup_disk, $path, $backup_id),
             new SaveListFieldTable($backup_disk, $path, $backup_id),
             new SaveMetadatasTable($backup_disk, $path, $backup_id),
             new SaveMultiSelectListFieldsTable($backup_disk, $path, $backup_id),
@@ -223,18 +230,22 @@ class BackupController extends Controller
             new SaveRevisionsTable($backup_disk, $path, $backup_id),
             new SaveRichTextFields($backup_disk, $path, $backup_id),
             new SaveScheduleFieldsTable($backup_disk, $path, $backup_id),
+            new SaveScheduleSupportTable($backup_disk, $path, $backup_id),
             new SaveDocumentsFieldsTable($backup_disk, $path, $backup_id),
             new SavePlaylistFieldsTable($backup_disk, $path, $backup_id),
             new SaveVideoFieldsTable($backup_disk, $path, $backup_id),
             new SaveGalleryFieldsTable($backup_disk, $path, $backup_id),
             new SaveModelFieldsTable($backup_disk, $path, $backup_id),
             new SaveAssociatorFieldsTable($backup_disk, $path, $backup_id),
+            new SaveAssociationsTable($backup_disk, $path, $backup_id),
             new SaveTokensTable($backup_disk, $path, $backup_id),
             new SaveProjectTokensTable($backup_disk, $path, $backup_id),
             new SavePluginsTable($backup_disk, $path, $backup_id),
             new SavePluginMenusTable($backup_disk, $path, $backup_id),
             new SavePluginSettingsTable($backup_disk, $path, $backup_id),
             new SavePluginUsersTable($backup_disk, $path, $backup_id),
+            new SaveDashboardBlocksTable($backup_disk, $path, $backup_id),
+            new SaveDashboardSectionsTable($backup_disk, $path, $backup_id),
             new SaveUsersTable($backup_disk, $path, $backup_id)];
 
         foreach($jobs as $job){
@@ -256,10 +267,39 @@ class BackupController extends Controller
     }
 
     public function finishBackup(Request $request){
+        ini_set('max_execution_time',0);
         $label = $request->backup_label;
         $labelParts = explode('___',$label);
         $name = $labelParts[0];
         $time = $labelParts[1];
+
+        //time to move the files
+        $filepath = env('BASE_PATH')."storage/app/files/";
+        $newfilepath = env('BASE_PATH')."storage/app/".$this->BACKUP_DIRECTORY."/".$label."/files/";
+        mkdir($newfilepath, 0775, true);
+        $directory = new \RecursiveDirectoryIterator($filepath);
+        $iterator = new \RecursiveIteratorIterator($directory);
+        foreach ($iterator as $file) {
+            if($file->isFile()) {
+                //get file name and sub directories
+                $fPath = $file->getRealPath();
+                $subPath = explode($filepath,$fPath)[1]; //sub directory + filename
+                $fname = $file->getFilename(); //filename
+                $fext = $file->getExtension(); //TODO: remove
+                //if that files sub directory doesn't exist, make it
+                //$subDir = preg_replace('/'.$fname.'$/', '', $subPath); //just the sub directory
+                $subDirArr = explode($fname,$subPath);
+                $loopSize = sizeof($subDirArr)-1;
+                $subDir = ''; //just the sub directory
+                for($i=0;$i<$loopSize;$i++){
+                    $subDir .= $subDirArr[$i];
+                }
+                if (!file_exists($newfilepath.$subDir))
+                    mkdir($newfilepath.$subDir, 0775, true);
+                //copy file over
+                copy($filepath.$subPath, $newfilepath.$subPath);
+            }
+        }
 
         //set up initial json
         $data = array();
@@ -422,6 +462,7 @@ class BackupController extends Controller
             DB::table('form_group_user')->delete();
             DB::table('generated_list_fields')->delete();
             DB::table('geolocator_fields')->delete();
+            DB::table('geolocator_support')->delete();
             DB::table('list_fields')->delete();
             DB::table('multi_select_list_fields')->delete();
             DB::table('number_fields')->delete();
@@ -429,6 +470,7 @@ class BackupController extends Controller
             DB::table('project_group_user')->delete();
             DB::table('rich_text_fields')->delete();
             DB::table('schedule_fields')->delete();
+            DB::table('schedule_support')->delete();
             DB::table('text_fields')->delete();
             DB::table('documents_fields')->delete();
             DB::table('model_fields')->delete();
@@ -437,17 +479,24 @@ class BackupController extends Controller
             DB::table('playlist_fields')->delete();
             DB::table('combo_list_fields')->delete();
             DB::table('associator_fields')->delete();
+            DB::table('associations')->delete();
             DB::table('option_presets')->delete();
             DB::table('record_presets')->delete();
             DB::table('plugins')->delete();
             DB::table('plugin_menus')->delete();
             DB::table('plugin_settings')->delete();
             DB::table('plugin_users')->delete();
+            DB::table('dashboard_sections')->delete();
+            DB::table('dashboard_blocks')->delete();
 
 
         }catch(\Exception $e){
             $this->ajaxResponse(false, trans('controller_backup.dbpermission'));
         }
+
+        //Delete the files directory
+        if(file_exists(env('BASE_PATH')."storage/app/files/")) //this check is to see if it was deleted in a failed restore
+            $this->recursiveRemoveDirectory(env('BASE_PATH')."storage/app/files/");
 
         //NEW PROCESS For restore using jobs
         ini_set('max_execution_time',0);
@@ -469,6 +518,7 @@ class BackupController extends Controller
             new RestoreTable('form_group_user',$dir, $restore_id),
             new RestoreTable('generated_list_fields',$dir, $restore_id),
             new RestoreTable('geolocator_fields',$dir, $restore_id),
+            new RestoreTable('geolocator_support',$dir, $restore_id),
             new RestoreTable('list_fields',$dir, $restore_id),
             new RestoreTable('multi_select_list_fields',$dir, $restore_id),
             new RestoreTable('number_fields',$dir, $restore_id),
@@ -476,6 +526,7 @@ class BackupController extends Controller
             new RestoreTable('project_group_user',$dir, $restore_id),
             new RestoreTable('rich_text_fields',$dir, $restore_id),
             new RestoreTable('schedule_fields',$dir, $restore_id),
+            new RestoreTable('schedule_support',$dir, $restore_id),
             new RestoreTable('text_fields',$dir, $restore_id),
             new RestoreTable('documents_fields',$dir, $restore_id),
             new RestoreTable('model_fields',$dir, $restore_id),
@@ -484,12 +535,15 @@ class BackupController extends Controller
             new RestoreTable('playlist_fields',$dir, $restore_id),
             new RestoreTable('combo_list_fields',$dir, $restore_id),
             new RestoreTable('associator_fields',$dir, $restore_id),
+            new RestoreTable('associations',$dir, $restore_id),
             new RestoreTable('option_presets',$dir, $restore_id),
             new RestoreTable('record_presets',$dir, $restore_id),
             new RestoreTable('plugins',$dir, $restore_id),
             new RestoreTable('plugin_menus',$dir, $restore_id),
             new RestoreTable('plugin_settings',$dir, $restore_id),
-            new RestoreTable('plugin_users',$dir, $restore_id),];
+            new RestoreTable('plugin_users',$dir, $restore_id),
+            new RestoreTable('dashboard_sections',$dir, $restore_id),
+            new RestoreTable('dashboard_blocks',$dir, $restore_id),];
 
         foreach($jobs as $job){
             $this->dispatch($job->onQueue('restore'));
@@ -512,7 +566,49 @@ class BackupController extends Controller
     }
 
     public function finishRestore(Request $request){
+        $filepath = env('BASE_PATH').'storage/app/'.$request->filename.'/files/';
+        $newfilepath = env('BASE_PATH')."storage/app/files/";
+
+        //time to move the files
+        mkdir($newfilepath, 0775, true);
+        $directory = new \RecursiveDirectoryIterator($filepath);
+        $iterator = new \RecursiveIteratorIterator($directory);
+        foreach ($iterator as $file) {
+            if($file->isFile()) {
+                //get file name and sub directories
+                $fPath = $file->getRealPath();
+                $subPath = explode($filepath,$fPath)[1]; //sub directory + filename
+                $fname = $file->getFilename(); //filename
+                $fext = $file->getExtension(); //TODO: remove
+                //if that files sub directory doesn't exist, make it
+                //$subDir = preg_replace('/'.$fname.'$/', '', $subPath); //just the sub directory
+                $subDirArr = explode($fname,$subPath);
+                $loopSize = sizeof($subDirArr)-1;
+                $subDir = ''; //just the sub directory
+                for($i=0;$i<$loopSize;$i++){
+                    $subDir .= $subDirArr[$i];
+                }
+                if (!file_exists($newfilepath.$subDir))
+                    mkdir($newfilepath.$subDir, 0775, true);
+                //copy file over
+                copy($filepath.$subPath, $newfilepath.$subPath);
+            }
+        }
+
         dd("finished restore");
+    }
+
+    private function recursiveRemoveDirectory($directory)
+    {
+        foreach(glob("{$directory}/*") as $file)
+        {
+            if(is_dir($file)) {
+                $this->recursiveRemoveDirectory($file);
+            } else {
+                unlink($file);
+            }
+        }
+        rmdir($directory);
     }
 
     /*

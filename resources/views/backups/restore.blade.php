@@ -37,6 +37,9 @@
                                         <span class="sr-only">{{trans('backups_restore.almostdone')}}</span>
                                     </div>
                                 </div>
+                                <div id="type_message">
+                                    Restoring the database...
+                                </div>
                             </div>
                             <div style="display:none" id="summary_done">
                                 <p>
@@ -115,8 +118,9 @@
                 success: function(data) {
                     console.log(data);
                     $("#progress").removeClass('progress-bar-danger');
-                    $("#progress").css('width', (((data.overall.progress / data.overall.overall) * 100) + "%"));
+                    $("#progress").css('width', (((data.overall.progress / (data.overall.overall+ +1)) * 100) + "%"));
                     if (data.overall.progress == data.overall.overall) {
+                        $('#type_message').text('Restoring your files. This may take a while...');
                         $.ajax({
                             url: "{{action('BackupController@finishRestore')}}",
                             method:'POST',
@@ -145,12 +149,31 @@
             });
         }
 
-
+        $("#link_unlock_users").click(function(){
+            var unlockURL = "{{action('BackupController@unlockUsers')}}";
+            $.ajax({
+                url:unlockURL,
+                method:'POST',
+                data: {
+                    "_token": "{{ csrf_token() }}"
+                },
+                success: function(data){
+                    //alert("Users are now able to access Kora 3");
+                    $("#user_lockout_notice").removeClass("alert-danger").addClass("alert-success");
+                    $("#user_lockout_notice").text("Success- users unlocked");
+                    $("#user_lockout_notice").fadeOut(1000);
+                },
+                error: function(data){
+                    var encode = $('<div/>').html("{{ trans('backups_restore.unablerestore') }}").text();
+                    alert(encode + ".");
+                }
+            })
+        });
 
         $(restore);
         setTimeout(function(){
             checkProgress();
-        },10000);
+        },15000);
     </script>
 @endsection
 

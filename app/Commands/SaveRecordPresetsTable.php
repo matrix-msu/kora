@@ -1,5 +1,6 @@
 <?php namespace App\Commands;
 
+use App\RecordPreset;
 use Carbon\Carbon;
 use App\RichTextField;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -30,7 +31,7 @@ class SaveRecordPresetsTable extends Command implements SelfHandling, ShouldQueu
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        DB::table('record_presets')->chunk(500, function($recPresets) use ($table_path, $row_id) {
+        RecordPreset::chunk(500, function($recPresets) use ($table_path, $row_id) {
             $count = 0;
             $all_recordpresets_data = new Collection();
 
