@@ -733,9 +733,13 @@ class RecordController extends Controller {
 //
 //        }
 
-        flash()->overlay(trans('controller_record.created'), trans('controller_record.goodjob'));
+        if($request->api){
+            return $record->kid;
+        }else {
+            flash()->overlay(trans('controller_record.created'), trans('controller_record.goodjob'));
 
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/records');
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/records');
+        }
 	}
 
 	/**
@@ -1509,9 +1513,11 @@ class RecordController extends Controller {
 
         RecordPresetController::updateIfExists($record->rid);
 
-        flash()->overlay(trans('controller_record.updated'), trans('controller_record.goodjob'));
+        if(!$request->api) {
+            flash()->overlay(trans('controller_record.updated'), trans('controller_record.goodjob'));
 
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/records/'.$rid);
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/records/' . $rid);
+        }
 	}
 
 
@@ -1592,6 +1598,19 @@ class RecordController extends Controller {
     public static function getRecord($rid)
     {
         $record = Record::where('rid', '=', $rid)->first();
+
+        return $record;
+    }
+
+    /**
+     * Gets a record.
+     *
+     * @param $rid
+     * @return mixed
+     */
+    public static function getRecordByKID($kid)
+    {
+        $record = Record::where('kid', '=', $kid)->first();
 
         return $record;
     }

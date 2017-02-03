@@ -5,6 +5,16 @@ Route::get('/home', 'WelcomeController@index');
 Route::get('/dashboard', 'WelcomeController@dashboard');
 Route::post('/language','WelcomeController@setTemporaryLanguage');
 
+//api routes
+Route::get('/api/version','RestfulController@getKoraVersion');
+Route::get('/api/projects/{pid}/forms','RestfulController@getProjectForms');
+Route::get('/api/projects/{pid}/forms/{fid}/fields','RestfulController@getFormFields');
+Route::get('/api/projects/{pid}/forms/{fid}/recordCount','RestfulController@getFormRecordCount');
+Route::post('/api/search','RestfulController@search');
+Route::delete('/api/delete','RestfulController@delete');
+Route::post('/api/create','RestfulController@create');
+Route::patch('/api/edit','RestfulController@edit');
+
 //project routes
 Route::get('/projects/import','ProjectController@importProjectView');
 Route::post('/projects/import','ImportController@importProject');
