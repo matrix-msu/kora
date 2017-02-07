@@ -496,7 +496,10 @@ class RevisionController extends Controller {
         $revision->fid = $fid;
         $revision->rid = $record->rid;
         $revision->owner = $record->owner;
-        $revision->userId = \Auth::user()->id;
+        if(\Auth::guest())
+            $revision->userId = 1;
+        else
+            $revision->userId = \Auth::user()->id;
         $revision->type = $type;
 
         $revision->data = RevisionController::buildDataArray($record);
