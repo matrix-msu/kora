@@ -1,9 +1,9 @@
 #!/usr/bin/env python2.7
 
 import multiprocessing
+import sys
 from exporter import RecordExporter, collapse_files
 from writer import make_writer, Writer
-from sys import argv
 from json import loads
 from startup import startup
 
@@ -11,7 +11,7 @@ from startup import startup
 ## Main entry point, this script should be called from a PHP exec, or preferred method.
 ##
 
-def main():
+def export_routine(argv):
     """
     From the command line (or PHP shell_exec)
     Expected values in argv:
@@ -57,4 +57,4 @@ def main():
     return collapse_files(writer)
 
 if __name__ == "__main__":
-    print main()
+    print export_routine(sys.argv)
