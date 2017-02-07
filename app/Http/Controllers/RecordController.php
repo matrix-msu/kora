@@ -2235,7 +2235,7 @@ class RecordController extends Controller {
                     $gf->flid = $field->flid;
                     $gf->rid = $record->rid;
                     $gf->fid = $fid;
-                    $gf->locations = '[Desc]K3TR[Desc][LatLon]13,37[LatLon][UTM]37P:283077.41182513,1437987.6443346[UTM][Address] Appelstraße Hanover Lower Saxony[Address]';
+                    $gf->locations = '[Desc]K3TR[Desc][LatLon]13,37[LatLon][UTM]37P:283077.41182513,1437987.6443346[UTM][Address] Appelstraï¿½e Hanover Lower Saxony[Address]';
                     $gf->save();
                 } else if ($field->type == 'Documents') {
                     $df = new DocumentsField();

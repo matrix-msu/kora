@@ -228,6 +228,7 @@ Route::get("globalSearch", "ProjectSearchController@globalSearch");
 
 //advanced search routes
 Route::get("/projects/{pid}/forms/{fid}/advancedSearch", "AdvancedSearchController@index");
+Route::get("/advancedSearch/validateAddress", "AdvancedSearchController@validateAddress");
 Route::post("/project/{pid}/forms/{fid}/advancedSearch/search", "AdvancedSearchController@search");
 
 // help routes

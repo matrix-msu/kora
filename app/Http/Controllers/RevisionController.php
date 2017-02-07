@@ -719,11 +719,6 @@ class RevisionController extends Controller {
                         // Get the options of the field
                         $options = $field->options;
 
-                        $combodata['ftype1'] = $combofield->ftype1;
-                        $combodata['ftype2'] = $combofield->ftype2;
-
-                        $data['combofields'][$field->flid]['first'] = $first;
-                        $data['combofields'][$field->flid]['second'] = $second;
                         $data['combofields'][$field->flid]['values'] = $valArray;
                         $data['combofields'][$field->flid]['options'] = $options;
                         $data['combofields'][$field->flid]['data'] = $combodata;
