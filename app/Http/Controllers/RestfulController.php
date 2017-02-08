@@ -612,12 +612,17 @@ class RestfulController extends Controller
             return null;
         }
 
+        if($filters['fields'] == "ALL"){
+            $fields = json_encode(array());
+        }else{
+            $fields = json_encode($filters['fields']);
+        }
         $rids = json_encode($rids);
 
-        $exec_string = env("BASE_PATH") . "python/export.py \"$rids\" \"$format\"";
+        $exec_string = env("BASE_PATH") . "python/api.py \"$rids\" \"$format\" '$fields'";
         exec($exec_string, $output);
 
-        return file_get_contents($output[0]);
+        return $output[0];
     }
 
     /**

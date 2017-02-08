@@ -27,11 +27,12 @@ class RecordExporter(Exporter):
     """
     Exports on a per record basis, rather than a per field basis like FieldExporter.
     """
-    def __init__(self, rids, start_time, output = "JSON"):
+    def __init__(self, rids, start_time, output = "JSON", fields_displayed = []):
         """
         Constructor.
         :param rids: array of rids to export.
         :param output: output format default is JSON.
+        :param fields_displayed: fields to display.
         """
 
         if output not in ["JSON", "XML"]:
@@ -39,6 +40,7 @@ class RecordExporter(Exporter):
 
         self._rids = rids
         self._output = output
+        self._fields_displayed = fields_displayed
         self._start_time = start_time
 
     def __call__(self):
@@ -75,10 +77,11 @@ class RecordExporter(Exporter):
                         "type": stash[field["flid"]]["type"],
                     }
 
-                    ## Pass the field and field options to the appropriate field formatter based on its type.
-                    field_dict.update(field_formatters[table]( field, stash[field["flid"]]["options"]))
+                    if (not self._fields_displayed or field_dict["name"] in self._fields_displayed):
+                        ## Pass the field and field options to the appropriate field formatter based on its type.
+                        field_dict.update(field_formatters[table]( field, stash[field["flid"]]["options"]))
 
-                    record_dict["Fields"].append(field_dict)
+                        record_dict["Fields"].append(field_dict)
 
             target.write(dumps(record_dict, separators=(',', ':')) + ",")
 
