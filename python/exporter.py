@@ -67,6 +67,7 @@ class RecordExporter(Exporter):
 
             record_dict = {
                 "kid": cursor.kid_from_rid(rid),
+                "owner": cursor.owner_from_rid(rid),
                 "Fields": []
             }
 

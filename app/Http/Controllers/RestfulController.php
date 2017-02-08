@@ -135,12 +135,12 @@ class RestfulController extends Controller
             $form = FormController::getForm($f->form);
             //things we will be returning
             $filters = array();
-            $filters['data'] = isset($f->data) ? $f->data : true;
-            $filters['meta'] = isset($f->meta) ? $f->meta : false;
-            $filters['size'] = isset($f->size) ? $f->size : false;
-            $filters['assoc'] = isset($f->assoc) ? $f->assoc : false;
-            $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL';
-            $filters['sort'] = isset($f->sort) ? $f->sort : false;
+            $filters['data'] = isset($f->data) ? $f->data : true; //TODO: do we want data, or just info about the records themeselves
+            $filters['meta'] = isset($f->meta) ? $f->meta : false; //TODO: do we want the field info sorted by it's metadata tag
+            $filters['size'] = isset($f->size) ? $f->size : false; //do we want the number of records in the search result returned instead of data
+            $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //TODO: do we want information back about associated records
+            $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for
+            $filters['sort'] = isset($f->sort) ? $f->sort : false; //TODO: how should the data be sorted
 
             //parse the query
             $query = $f->query;
@@ -162,7 +162,10 @@ class RestfulController extends Controller
 
                         $rids = $search->formKeywordSearch2();
 
-                        return $this->populateRecords($rids,$filters);
+                        if($filters['size'])
+                            return sizeof($rids);
+                        else
+                            return $this->populateRecords($rids,$filters);
                         break;
                     case 'advanced':
                         //do an advanced search

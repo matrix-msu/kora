@@ -153,6 +153,35 @@ class Cursor:
 
         return kid
 
+    def owner_from_rid(self, rid):
+        """
+        Gets the owner associated with any particular record id.
+        :param rid: record id.
+        :return string: owner
+        """
+        cursor = self._cnx.cursor()
+
+        stmt = "SELECT `owner` FROM " + self._prefix + "records WHERE `rid` = %s"
+
+        cursor.execute(stmt, [rid])
+
+        row = cursor.fetchone()
+        owner = row["owner"]
+
+        cursor.close()
+
+        cursor2 = self._cnx.cursor()
+
+        stmt = "SELECT `username` FROM " + self._prefix + "users WHERE `id` = %s"
+
+        cursor2.execute(stmt, [owner])
+
+        row = cursor2.fetchone()
+        username = row["username"]
+
+        cursor.close()
+
+        return username
 
     def get_field_data(self, table, rid):
         """

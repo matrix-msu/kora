@@ -64,7 +64,7 @@ class ExodusController extends Controller{
         $this->lockUsers($users_exempt_from_lockout);
 
         //TODO: Remove after testing
-        $this->deleteAll();
+        //$this->deleteAll();
 
         //MySQL Info
         $host = $request->host;
