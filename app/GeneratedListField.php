@@ -92,13 +92,8 @@ class GeneratedListField extends BaseField {
             ->select("rid")
             ->where("flid", "=", $flid);
 
-        $query->where(function($query) use($inputs) {
-            foreach($inputs as $input) {
-                $query->orWhereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)",
-                    [Search::processArgument($input, Search::ADVANCED_METHOD)]);
-            }
-        });
+        MultiSelectListField::buildAdvancedMultiSelectListQuery($query, $inputs);
 
-        return $query;
+        return $query->distinct();
     }
 }

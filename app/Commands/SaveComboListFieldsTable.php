@@ -41,8 +41,6 @@ class SaveComboListFieldsTable extends Command implements SelfHandling, ShouldQu
                 $individual_combolistfield_data->put('rid',$combolistfield->rid);
                 $individual_combolistfield_data->put('flid',$combolistfield->flid);
                 $individual_combolistfield_data->put('options',$combolistfield->options);
-                $individual_combolistfield_data->put('ftype1',$combolistfield->ftype1);
-                $individual_combolistfield_data->put('ftype2',$combolistfield->ftype2);
                 $individual_combolistfield_data->put("created_at", $combolistfield->created_at->toDateTimeString());
                 $individual_combolistfield_data->put("updated_at", $combolistfield->updated_at->toDateTimeString());
 

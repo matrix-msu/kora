@@ -75,11 +75,24 @@ class ListField extends BaseField {
      * @return Builder
      */
     public static function getAdvancedSearchQuery($flid, $query) {
-        return DB::table("list_fields")
+        $db_query = DB::table("list_fields")
             ->select("rid")
-            ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`option`) AGAINST (? IN BOOLEAN MODE)",
-                [Search::processArgument($query[$flid . "_input"], Search::ADVANCED_METHOD)])
-            ->distinct();
+            ->where("flid", "=", $flid);
+        $input = $query[$flid . "_input"];
+
+        self::buildAdvancedListQuery($db_query, $input);
+
+        return $db_query->distinct();
+    }
+
+    /**
+     * Build and advanced query for list field.
+     *
+     * @param Builder $db_query, reference to query to build.
+     * @param string $input, input value from form.
+     */
+    public static function buildAdvancedListQuery(Builder &$db_query, $input) {
+        $db_query->whereRaw("MATCH (`option`) AGAINST (? IN BOOLEAN MODE)",
+            [Search::processArgument($input, Search::ADVANCED_METHOD)]);
     }
 }

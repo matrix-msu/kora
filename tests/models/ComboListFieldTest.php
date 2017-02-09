@@ -4,6 +4,7 @@ use App\ComboListField as ComboListField;
 use App\Field as Field;
 use App\Project as Project;
 use App\Form as Form;
+use \Illuminate\Support\Facades\DB;
 
 /**
  * Class ComboListFieldTest
@@ -44,6 +45,11 @@ TEXT;
 [!Field1!][Type]Multi-Select List[Type][Name]Combo Multi-Select List[Name][Options][!Options!]Fletching[!]Attack[!]Fishing[!]Hunter[!]Default(MSL)[!Options!][Options][!Field1!][!Field2!][Type]Generated List[Type][Name]Combo Generated List[Name][Options][!Options!]Merlin's Crystal[!]Recipe for Distaster[!]Zogre Flesh Eaters[!]Legend's Quest[!]Default(Gen)[!Options!][!Regex!][!Regex!][Options][!Field2!]
 TEXT;
 
+    const NUM_GEN_OPTIONS = <<<TEXT
+[!Field1!][Type]Number[Type][Name]Combo Number[Name][Options][!Max!]9999[!Max!][!Min!]1[!Min!][!Increment!]1[!Increment!][!Unit!][!Unit!][Options][!Field1!][!Field2!][Type]Generated List[Type][Name]Combo Generated[Name][Options][!Options!]Apple[!]Google[!]Microsoft[!]Amazon[!Options!][!Regex!][!Regex!][Options][!Field2!]
+TEXT;
+
+
     /**
      * Test keyword search.
      * @group search
@@ -76,8 +82,6 @@ TEXT;
         $cmb_field->rid = $record->rid;
         $cmb_field->flid = $field->flid;
         $cmb_field->options = self::TEXT_NUM;
-        $cmb_field->ftype1 = "";
-        $cmb_field->ftype2 = "";
         $cmb_field->save();
 
         $args = ['LoReM'];
@@ -110,7 +114,7 @@ TEXT;
         $this->assertTrue($cmb_field->keywordSearch($args, false));
 
         $args = ['maple'];
-        $this->assertTrue($cmb_field->keywordSearch($args, true));
+        $this->assertTrue($cmb_field->keyworrdSearch($args, true));
         $this->assertTrue($cmb_field->keywordSearch($args, false));
 
         $args = ['elm'];
@@ -145,5 +149,337 @@ TEXT;
         $args = ['default(gen)'];
         $this->assertTrue($cmb_field->keywordSearch($args, true));
         $this->assertTrue($cmb_field->keywordSearch($args, false));
+    }
+
+    public function test_addData() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_COMBO_LIST, $project->pid, $form->fid);
+        $r1 = self::dummyRecord($project->pid, $form->fid);
+
+        $field->options = self::NUM_GEN_OPTIONS;
+        $field->save();
+
+        $c1 = new ComboListField();
+        $c1->flid = $field->flid;
+        $c1->rid = $r1->rid;
+        $c1->options = "";
+        $c1->save();
+
+        $c1->addData([
+            "[!f1!]1[!f1!][!f2!]Apple[!]Google[!f2!]",
+            "[!f1!]2[!f1!][!f2!]Microsoft[!]Amazon[!f2!]",
+            "[!f1!]3[!f1!][!f2!]Google[!]Sentient[!f2!]"
+        ], Field::_NUMBER, Field::_GENERATED_LIST);
+
+        $rid = DB::table("combo_support")->select("rid")
+            ->where("data", "=", "Apple[!]Google")->get();
+
+        $this->assertEquals($rid[0]->rid, $r1->rid);
+
+        $rid = DB::table("combo_support")->select("rid")
+            ->where("field_num", "=", 1)->where("number", "=", 2)->get();
+
+        $this->assertEquals($rid[0]->rid, $r1->rid);
+
+        $rid = DB::table("combo_support")->select("rid")
+            ->whereRaw("MATCH (`data`) AGAINST (? IN BOOLEAN MODE)", ["Microsoft"])->get();
+
+        $this->assertEquals($rid[0]->rid, $r1->rid);
+
+        $rids = DB::table("combo_support")->select("rid")
+            ->where("field_num", "=", 1)->whereBetween("number", [1,3])->get();
+
+        $this->assertEquals(sizeof($rids), 3);
+    }
+
+    public function test_data() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_COMBO_LIST, $project->pid, $form->fid);
+        $r1 = self::dummyRecord($project->pid, $form->fid);
+        $r2 = self::dummyRecord($project->pid, $form->fid);
+
+        $field->options = self::NUM_GEN_OPTIONS;
+        $field->save();
+
+        $c1 = new ComboListField();
+        $c1->flid = $field->flid;
+        $c1->rid = $r1->rid;
+        $c1->options = "";
+        $c1->save();
+
+        $c2 = new ComboListField();
+        $c2->flid = $field->flid;
+        $c2->rid = $r2->rid;
+        $c2->options = "";
+        $c2->save();
+
+        $c1->addData([
+            "[!f1!]1[!f1!][!f2!]Apple[!]Google[!f2!]",
+            "[!f1!]2[!f1!][!f2!]Microsoft[!]Amazon[!f2!]",
+            "[!f1!]3[!f1!][!f2!]Google[!]Sentient[!f2!]"
+        ], Field::_NUMBER, Field::_GENERATED_LIST);
+
+        $c2->addData([
+            "[!f1!]55[!f1!][!f2!]Techsmith[!]Google[!f2!]",
+            "[!f1!]42[!f1!][!f2!]Google[!]Amazon[!f2!]",
+        ], Field::_NUMBER, Field::_GENERATED_LIST);
+
+        $data = $c1->data()->get();
+        $this->assertEquals(sizeof($data), 6); // 2 * 3 rows returned.
+
+        $data = $c2->data()->get();
+        $this->assertEquals(sizeof($data), 4);
+    }
+
+    public function test_getAdvancedSearchQuery() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $f1 = self::dummyField(Field::_COMBO_LIST, $project->pid, $form->fid);
+        $r1 = self::dummyRecord($project->pid, $form->fid);
+
+        //
+        // Number, Generated Field.
+        //
+        $flid = $f1->flid;
+
+        $f1->options = self::NUM_GEN_OPTIONS;
+        $f1->save();
+
+        $c1 = new ComboListField();
+        $c1->flid = $f1->flid;
+        $c1->rid = $r1->rid;
+        $c1->options = "";
+        $c1->save();
+
+        $c1->addData([
+            "[!f1!]1[!f1!][!f2!]Apple[!]Google[!f2!]",
+            "[!f1!]2[!f1!][!f2!]Microsoft[!]Amazon[!f2!]",
+            "[!f1!]3[!f1!][!f2!]Google[!]Sentient[!f2!]"
+        ], Field::_NUMBER, Field::_GENERATED_LIST);
+
+        $query = [ // Query: number is greater or equal to 2.
+            $flid."_1_left" => "2",
+            $flid."_1_right" => "",
+            $flid."_1_valid" => "1",
+            $flid."_2_valid" => "0"
+        ];
+
+        $q = $c1::getAdvancedSearchQuery($c1->flid, $query);
+        $rid = $q->get();
+
+        $this->assertEquals($rid[0]->rid, $r1->rid);
+
+        $query = [ // Query: generated list contains Google.
+            $flid."_1_valid" => 0,
+            $flid."_2_valid" => 1,
+            $flid."_2_input" => [
+                0 => "Google"
+            ]
+        ];
+
+        $q = $c1::getAdvancedSearchQuery($c1->flid, $query);
+        $rid = $q->get();
+
+        $this->assertEquals($rid[0]->rid, $r1->rid);
+
+        $query = [ // Query: number equals 1 OR generated list contains Uber.
+            $flid."_1_valid" => 1,
+            $flid."_2_valid" => 1,
+            $flid."_1_left" => 1,
+            $flid."_1_right" => 1,
+            $flid."_2_input" => [
+                0 => "Uber"
+            ],
+            $flid."_operator" => "or"
+        ];
+
+        $q = $c1::getAdvancedSearchQuery($c1->flid, $query);
+        $rid = $q->get();
+
+        $this->assertEquals($rid[0]->rid, $r1->rid);
+
+        $query = [ // Query: number equals 1 AND generated list contains Uber (should be empty).
+            $flid."_1_valid" => 1,
+            $flid."_2_valid" => 1,
+            $flid."_1_left" => 1,
+            $flid."_1_right" => 1,
+            $flid."_2_input" => [
+                0 => "Uber"
+            ],
+            $flid."_operator" => "and"
+        ];
+
+        $q = $c1::getAdvancedSearchQuery($c1->flid, $query);
+        $result = $q->get();
+
+        $this->assertEmpty($result);
+
+        //
+        // Text, Number.
+        //
+        $f2 = self::dummyField(Field::_COMBO_LIST, $project->pid, $form->fid);
+        $r2 = self::dummyRecord($project->pid, $form->fid);
+
+        $flid = $f2->flid;
+
+        $f2->options = self::TEXT_NUM_OPTIONS;
+        $f2->save();
+
+        $c2 = new ComboListField();
+        $c2->flid = $f2->flid;
+        $c2->rid = $r2->rid;
+        $c2->options = "";
+        $c2->save();
+
+        $c2->addData([
+            "[!f1!]Raise a ruckus tonight.[!f1!][!f2!]9[!f2!]",
+            "[!f1!]The quick brown fox jumped over the lazy dog.[!f1!][!f2!]100[!f2!]",
+            "[!f1!]Evolution of Color Vision in Butterflies.[!f1!][!f2!]342[!f2!]"
+        ], Field::_TEXT, Field::_NUMBER);
+
+        $query = [ // Query: text contains "tonight".
+            $flid."_1_valid" => 1,
+            $flid."_2_valid" => 0,
+            $flid."_1_input" => "tonight"
+        ];
+
+        $q = $c2::getAdvancedSearchQuery($c2->flid, $query);
+        $rid = $q->get();
+
+        $this->assertEquals($rid[0]->rid, $r2->rid);
+
+        $query = [ // Query: number greater than 200 AND text contains "vision".
+            $flid."_1_valid" => 1,
+            $flid."_2_valid" => 1,
+            $flid."_1_input" => "vision",
+            $flid."_2_left" => 200,
+            $flid."_2_right" => "",
+            $flid."_operator" => "and"
+        ];
+
+        $q = $c2::getAdvancedSearchQuery($c2->flid, $query);
+        $rid = $q->get();
+
+        $this->assertEquals($rid[0]->rid, $r2->rid);
+
+        $query = [ // Query: number less than 110 AND text contains "sphinx" (empty).
+            $flid."_1_valid" => 1,
+            $flid."_2_valid" => 1,
+            $flid."_1_input" => "sphinx",
+            $flid."_2_left" => "",
+            $flid."_2_right" => 110,
+            $flid."_operator" => "and"
+        ];
+
+        $q = $c2::getAdvancedSearchQuery($c2->flid, $query);
+        $rid = $q->get();
+
+        $this->assertEmpty($rid);
+
+        $query = [ // Query: number less than 110 OR text contains "Albert".
+            $flid."_1_valid" => 1,
+            $flid."_2_valid" => 1,
+            $flid."_1_input" => "Albert",
+            $flid."_2_left" => "",
+            $flid."_2_right" => 110,
+            $flid."_operator" => "or"
+        ];
+
+        $q = $c2::getAdvancedSearchQuery($c2->flid, $query);
+        $rid = $q->get();
+
+        $this->assertEquals($rid[0]->rid, $r2->rid);
+
+        //
+        // Mutli Selection, Number.
+        //
+        $f3 = self::dummyField(Field::_COMBO_LIST, $project->pid, $form->fid);
+        $r3 = self::dummyRecord($project->pid, $form->fid);
+
+        $flid = $f3->flid;
+
+        $f3->options = self::LIST_MSL_OPTIONS;
+        $f3->save();
+
+        $c3 = new ComboListField();
+        $c3->flid = $f3->flid;
+        $c3->rid = $r3->rid;
+        $c3->options = "";
+        $c3->save();
+
+        $c3->addData([
+            "[!f1!]Chicken[!f1!][!f2!]Attack[!]Strength[!]Defence[!f2!]",
+            "[!f1!]Turkey[!f1!][!f2!]Slayer[!]Runecrafting[!]Farming[!f2!]",
+            "[!f1!]Pork[!f1!][!f2!]Fishing[!]Woodcutting[!]Mining[!f2!]"
+        ], Field::_LIST, Field::_MULTI_SELECT_LIST);
+
+
+        $query = [ // Query: List is beef (empty).
+            $flid."_1_valid" => 1,
+            $flid."_1_input" => "beef",
+            $flid."_2_valid" => 0
+        ];
+
+        $q = $c3::getAdvancedSearchQuery($flid, $query);
+        $rid = $q->get();
+
+        $this->assertEmpty($rid);
+
+        $query = [ // Query: List is turkey.
+            $flid."_1_valid" => 1,
+            $flid."_1_input" => "turkey",
+            $flid."_2_valid" => 0
+        ];
+
+        $q = $c3::getAdvancedSearchQuery($flid, $query);
+        $rid = $q->get();
+
+        $this->assertEquals($rid[0]->rid, $r3->rid);
+
+        $query = [ // Query: Multi Select contains Farming.
+            $flid."_1_valid" => 0,
+            $flid."_2_input" => ["Farming"],
+            $flid."_2_valid" => 1
+        ];
+
+        $q = $c3::getAdvancedSearchQuery($flid, $query);
+        $rid = $q->get();
+
+        $this->assertEquals($rid[0]->rid, $r3->rid);
+
+        $query = [ // Query: List is beef OR Multi Select contains Attack or Fletching.
+            $flid."_1_valid" => 1,
+            $flid."_1_input" => "beef",
+            $flid."_2_valid" => 1,
+            $flid."_2_input" => [
+                0 => "Attack",
+                1 => "Fletching"
+            ],
+            $flid."_operator" => "or"
+        ];
+
+        $q = $c3::getAdvancedSearchQuery($flid, $query);
+        $rid = $q->get();
+
+        $this->assertEquals($rid[0]->rid, $r3->rid);
+
+        $query = [ // Query: List is beef OR Multi Select contains Magic or Fletching (empty).
+            $flid."_1_valid" => 1,
+            $flid."_1_input" => "beef",
+            $flid."_2_valid" => 1,
+            $flid."_2_input" => [
+                0 => "Magic",
+                1 => "Fletching"
+            ],
+            $flid."_operator" => "or"
+        ];
+
+        $q = $c3::getAdvancedSearchQuery($flid, $query);
+        $rid = $q->get();
+
+        $this->assertEmpty($rid);
+
     }
 }

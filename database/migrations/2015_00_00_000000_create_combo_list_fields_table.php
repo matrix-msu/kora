@@ -23,15 +23,27 @@ class CreateComboListFieldsTable extends Migration {
 			$table->integer('fid')->unsigned();
 			$table->integer('flid')->unsigned();
 			$table->mediumText('options');
-			$table->text('ftype1');
-			$table->text('ftype2');
 			$table->timestamps();
 
 			$table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');
 			$table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
 
-		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."combo_list_fields ADD FULLTEXT search_cmb(`options`)");
+		Schema::create('combo_support', function(Blueprint $table) {
+			$table->engine = 'MyISAM';
+
+			$table->increments('id');
+			$table->integer('rid')->unsigned();
+			$table->integer('flid')->unsigned();
+			$table->integer('list_index')->unsigned();
+			$table->integer('field_num')->unsigned();
+			$table->mediumText('data')->nullable();
+			$table->decimal('number', 65, 30)->nullable(); // Max possible decimal value.
+			$table->timestamps();
+		});
+
+		DB::statement("ALTER TABLE " . env("DB_PREFIX") . "combo_list_fields ADD FULLTEXT search_cmb(`options`)");
+		DB::statement("ALTER TABLE " . env('DB_PREFIX') . "combo_support ADD FULLTEXT search_sup(`data`)");
 	}
 
 	/**
@@ -41,11 +53,8 @@ class CreateComboListFieldsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::table("combo_list_fields", function($table) {
-			$table->dropIndex("search_cmb");
-		});
-
 		Schema::drop('combo_list_fields');
+		Schema::drop('combo_support');
 	}
 
 }
