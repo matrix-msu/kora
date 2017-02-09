@@ -135,8 +135,8 @@ class RestfulController extends Controller
             $form = FormController::getForm($f->form);
             //things we will be returning
             $filters = array();
-            $filters['data'] = isset($f->data) ? $f->data : true; //TODO: do we want data, or just info about the records themeselves
-            $filters['meta'] = isset($f->meta) ? $f->meta : false; //TODO: get meta data about record
+            $filters['data'] = isset($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves
+            $filters['meta'] = isset($f->meta) ? $f->meta : false; //get meta data about record
             $filters['size'] = isset($f->size) ? $f->size : false; //do we want the number of records in the search result returned instead of data
             $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //TODO: do we want information back about associated records
             $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for
@@ -168,7 +168,7 @@ class RestfulController extends Controller
                             return $this->populateRecords($rids,$filters);
                         break;
                     case 'advanced':
-                        //do an advanced search
+                        //TODO: do an advanced search
                         break;
                     case 'kid':
                         //do a kid search
@@ -624,9 +624,14 @@ class RestfulController extends Controller
             $meta = 'True';
         else
             $meta = 'False';
+
+        if($filters['data'])
+            $data = 'True';
+        else
+            $data = 'False';
         $rids = json_encode($rids);
 
-        $exec_string = env("BASE_PATH") . "python/api.py \"$rids\" \"$format\" '$fields' \"$meta\"";
+        $exec_string = env("BASE_PATH") . "python/api.py \"$rids\" \"$format\" '$fields' \"$meta\" \"$data\"";
         exec($exec_string, $output);
 
         return $output[0];

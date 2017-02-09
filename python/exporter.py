@@ -27,13 +27,14 @@ class RecordExporter(Exporter):
     """
     Exports on a per record basis, rather than a per field basis like FieldExporter.
     """
-    def __init__(self, rids, start_time, output = "JSON", fields_displayed = [], meta = "False"):
+    def __init__(self, rids, start_time, output = "JSON", fields_displayed = [], meta = "False", show_data = "True"):
         """
         Constructor.
         :param rids: array of rids to export.
         :param output: output format default is JSON.
         :param fields_displayed: fields to display.
         :param meta: gather record meta.
+        :param show_data: should we show the data? or just record stuff.
         """
 
         if output not in ["JSON", "XML"]:
@@ -43,6 +44,7 @@ class RecordExporter(Exporter):
         self._output = output
         self._fields_displayed = fields_displayed
         self._meta = meta
+        self._show_data = show_data
         self._start_time = start_time
 
     def __call__(self):
@@ -75,18 +77,21 @@ class RecordExporter(Exporter):
             if self._meta == "True":
                 record_dict["meta"] = cursor.meta_from_rid(rid)
 
-            for table in get_base_field_types():
-                for field in cursor.get_field_data(table, rid):
-                    field_dict = {
-                        "name": stash[field["flid"]]["slug"],
-                        "type": stash[field["flid"]]["type"],
-                    }
+            if self._show_data == "True":
+                for table in get_base_field_types():
+                    for field in cursor.get_field_data(table, rid):
+                        field_dict = {
+                            "name": stash[field["flid"]]["slug"],
+                            "type": stash[field["flid"]]["type"],
+                        }
 
-                    if (not self._fields_displayed or field_dict["name"] in self._fields_displayed):
-                        ## Pass the field and field options to the appropriate field formatter based on its type.
-                        field_dict.update(field_formatters[table]( field, stash[field["flid"]]["options"]))
+                        if (not self._fields_displayed or field_dict["name"] in self._fields_displayed):
+                            ## Pass the field and field options to the appropriate field formatter based on its type.
+                            field_dict.update(field_formatters[table]( field, stash[field["flid"]]["options"]))
 
-                        record_dict["Fields"].append(field_dict)
+                            record_dict["Fields"].append(field_dict)
+            else:
+                record_dict.pop("Fields")
 
             target.write(dumps(record_dict, separators=(',', ':')) + ",")
 
