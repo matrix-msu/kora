@@ -18,6 +18,7 @@ def export_routine(argv):
         argv[1]: JSON array of rids to export.
         argv[2]: desired output type (JSON or XML)
         argv[3]: JSON array of fields to display
+        argv[4]: Gather record meta
     """
 
     startup() ## Initialize file structure.
@@ -40,6 +41,12 @@ def export_routine(argv):
     except IndexError:
         fields_displayed = []
 
+    try:
+        meta = argv[4]
+
+    except IndexError:
+        meta = False
+
     writer = make_writer(writer_type, Writer.set_up())
 
     pool = multiprocessing.Pool(processes = 8)
@@ -51,7 +58,7 @@ def export_routine(argv):
     chunk = data[i - slice_on : i]
 
     while i - slice_on < len(data):
-        exporter = RecordExporter(chunk, writer.start_time, writer_type, fields_displayed)
+        exporter = RecordExporter(chunk, writer.start_time, writer_type, fields_displayed, meta)
 
         pool.apply_async(exporter)
 

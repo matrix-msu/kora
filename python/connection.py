@@ -153,20 +153,23 @@ class Cursor:
 
         return kid
 
-    def owner_from_rid(self, rid):
+    def meta_from_rid(self, rid):
         """
         Gets the owner associated with any particular record id.
         :param rid: record id.
-        :return string: owner
+        :return dict: meta
         """
         cursor = self._cnx.cursor()
 
-        stmt = "SELECT `owner` FROM " + self._prefix + "records WHERE `rid` = %s"
+        stmt = "SELECT `owner`,`created_at`,`updated_at` FROM " + self._prefix + "records WHERE `rid` = %s"
 
         cursor.execute(stmt, [rid])
 
         row = cursor.fetchone()
         owner = row["owner"]
+        meta = {}
+        meta["created"] = row["created_at"].strftime("%Y-%m-%d %H:%M:%S")
+        meta["updated"] = row["updated_at"].strftime("%Y-%m-%d %H:%M:%S")
 
         cursor.close()
 
@@ -176,12 +179,12 @@ class Cursor:
 
         cursor2.execute(stmt, [owner])
 
-        row = cursor2.fetchone()
-        username = row["username"]
+        row2 = cursor2.fetchone()
+        meta["owner"] = row2["username"]
 
         cursor.close()
 
-        return username
+        return meta
 
     def get_field_data(self, table, rid):
         """

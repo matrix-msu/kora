@@ -27,12 +27,13 @@ class RecordExporter(Exporter):
     """
     Exports on a per record basis, rather than a per field basis like FieldExporter.
     """
-    def __init__(self, rids, start_time, output = "JSON", fields_displayed = []):
+    def __init__(self, rids, start_time, output = "JSON", fields_displayed = [], meta = "False"):
         """
         Constructor.
         :param rids: array of rids to export.
         :param output: output format default is JSON.
         :param fields_displayed: fields to display.
+        :param meta: gather record meta.
         """
 
         if output not in ["JSON", "XML"]:
@@ -41,6 +42,7 @@ class RecordExporter(Exporter):
         self._rids = rids
         self._output = output
         self._fields_displayed = fields_displayed
+        self._meta = meta
         self._start_time = start_time
 
     def __call__(self):
@@ -67,9 +69,11 @@ class RecordExporter(Exporter):
 
             record_dict = {
                 "kid": cursor.kid_from_rid(rid),
-                "owner": cursor.owner_from_rid(rid),
                 "Fields": []
             }
+
+            if self._meta == "True":
+                record_dict["meta"] = cursor.meta_from_rid(rid)
 
             for table in get_base_field_types():
                 for field in cursor.get_field_data(table, rid):
