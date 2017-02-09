@@ -65,10 +65,16 @@ $options = [
                         @include("advancedSearch.searchBoxes.number-validation", ["prefix" => strval($field->flid) . "_" . strval($field_num)])
                     </div>
                 @else
-                    <?php $multiple = ($types[$field_num] != "List") ? true : false; ?>
+                    <?php $multiple = ($types[$field_num] != "List") ?>
 
                     <label for={{$field->flid}}_{{$field_num}}_input">Search option{{($multiple) ? "s" : ""}} for {{$names[$field_num]}}:</label><br/>
-                    {!! Form::select( $field->flid . "_"  . $field_num . "_input" . ($multiple) ? "[]" : "", $options[$field_num], "", ["class" => "form-control", ($multiple) ? "Multiple" : "", 'id' => $field->flid . "_" . $field_num ."_input", "style" => "width: 100%"]) !!}
+                    {!! Form::select( $field->flid . "_"  . $field_num . "_input" . (($multiple) ? "[]" : ""), $options[$field_num], "", ["class" => "form-control", ($multiple) ? "Multiple" : "", 'id' => $field->flid . "_" . $field_num ."_input", "style" => "width: 100%"]) !!}
+
+                    <label for="{{$field->flid}}_operator">Search operator (only has effect if both fields are completed):</label>
+                    <select class="form-control" name="{{$field->flid}}_operator">
+                        <option value="and" selected>AND</option>
+                        <option value="or">OR</option>
+                    </select>
 
                     Input is: <span id="{{$field->flid}}_{{$field_num}}_valid_selection">invalid</span>.
                     <input type="hidden" id="{{$field->flid}}_{{$field_num}}_valid" name="{{$field->flid}}_{{$field_num}}_valid" value="0">

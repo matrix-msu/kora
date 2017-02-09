@@ -517,8 +517,6 @@ TEXT;
         $cmb_field->rid = $record->rid;
         $cmb_field->flid = $field->flid;
         $cmb_field->options = "";
-        $cmb_field->ftype1 = "";
-        $cmb_field->ftype2 = "";
         $cmb_field->save();
 
         $this->assertInstanceOf("App\\BaseField", $field->getTypedField($record->rid));
@@ -1710,8 +1708,8 @@ TEXT;
         $arg = Search::processArgument("Flaxen", Search::SEARCH_OR);
 
         $q =  $field->keywordSearchTyped2($arg, Search::SEARCH_OR);
-        var_dump($q->toSql());
-        var_dump($q->getBindings());
+        //var_dump($q->toSql());
+        //var_dump($q->getBindings());
 
 
         $this->assertEquals($record->rid, $q->get()[0]->rid);

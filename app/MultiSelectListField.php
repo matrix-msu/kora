@@ -93,13 +93,23 @@ class MultiSelectListField extends BaseField {
             ->select("rid")
             ->where("flid", "=", $flid);
 
-        $query->where(function($query) use($inputs) {
+        self::buildAdvancedMultiSelectListQuery($query, $inputs);
+
+        return $query->distinct();
+    }
+
+    /**
+     * Build the advanced search query for a multi select list. (Works for Generated List too.)
+     *
+     * @param Builder $db_query
+     * @param array $inputs, input values
+     */
+    public static function buildAdvancedMultiSelectListQuery(Builder &$db_query, $inputs) {
+        $db_query->where(function($db_query) use ($inputs) {
             foreach($inputs as $input) {
-                $query->orWhereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)",
+                $db_query->orWhereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)",
                     [Search::processArgument($input, Search::ADVANCED_METHOD)]);
             }
         });
-
-        return $query;
     }
 }

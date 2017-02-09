@@ -10,6 +10,8 @@ use App\Http\Controllers\Controller;
 
 class UpdateController extends Controller {
 
+    const UPDATE_PAGE = 'http://matrix-msu.github.io/Kora3/';
+
     /**
      * User must be logged in and admin to access views in this controller.
      */
@@ -60,7 +62,7 @@ class UpdateController extends Controller {
         // Get the html of the github page, then find the current version in the html.
         //
         $search = "Current Kora Version: ";
-        $html = file_get_contents('http://matrix-msu.github.io/Kora3/');
+        $html = file_get_contents(self::UPDATE_PAGE);
 
         $pos = strpos($html, $search) + strlen($search); //Position of the version string.
         $sub = substr($html, $pos);

@@ -472,11 +472,12 @@ class Field extends Model {
                 return DateField::getAdvancedSearchQuery($flid, $query);
                 break;
 
-            case Field::_SCHEDULE: // 7
+            case Field::_SCHEDULE:
                 return ScheduleField::getAdvancedSearchQuery($flid, $query);
                 break;
 
-            case Field::_GEOLOCATOR: // 10
+            case Field::_GEOLOCATOR:
+                return GeolocatorField::getAdvancedSearchQuery($flid, $query);
                 break;
 
             case Field::_DOCUMENTS:
@@ -499,7 +500,8 @@ class Field extends Model {
                 return VideoField::getAdvancedSearchQuery($flid, $query);
                 break;
 
-            case Field::_COMBO_LIST: // 7
+            case Field::_COMBO_LIST:
+                return ComboListField::getAdvancedSearchQuery($flid, $query);
                 break;
 
             default: // Error occurred.

@@ -1,6 +1,6 @@
 <?php namespace App;
 
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -77,34 +77,47 @@ class NumberField extends BaseField {
             ->select("rid")
             ->where("flid", "=", $flid);
 
+        self::buildAdvancedNumberQuery($query, $left, $right, $invert);
+
+        return $query->distinct();
+    }
+
+    /**
+     * Build an advanced search number field query.
+     *
+     * @param Builder $query, query to build upon.
+     * @param string $left, input from the form, left index.
+     * @param string $right, input from the form, right index.
+     * @param string $invert, inverts the search range if true.
+     * @param string $prefix, for dealing with joined tables.
+     */
+    public static function buildAdvancedNumberQuery(Builder &$query, $left, $right, $invert, $prefix = "") {
         // Determine the interval we should search over. With epsilons to account for float rounding.
         if ($left == "") {
             if ($invert) { // (right, inf)
-                $query->where("number", ">", floatval($right) - NumberField::EPSILON);
+                $query->where($prefix . "number", ">", floatval($right) - NumberField::EPSILON);
             }
             else { // (-inf, right]
-                $query->where("number", "<=", floatval($right) + NumberField::EPSILON);
+                $query->where($prefix . "number", "<=", floatval($right) + NumberField::EPSILON);
             }
         }
         else if ($right == "") {
             if ($invert) { // (-inf, left)
-                $query->where("number", "<", floatval($left) + NumberField::EPSILON);
+                $query->where($prefix . "number", "<", floatval($left) + NumberField::EPSILON);
             }
             else { // [left, inf)
-                $query->where("number", ">=", floatval($left) - NumberField::EPSILON);
+                $query->where($prefix . "number", ">=", floatval($left) - NumberField::EPSILON);
             }
         }
         else {
             if ($invert) { // (-inf, left) union (right, inf)
-                $query->whereNotBetween("number", [floatval($left) - NumberField::EPSILON,
-                                                   floatval($right) + NumberField::EPSILON]);
+                $query->whereNotBetween($prefix . "number", [floatval($left) - NumberField::EPSILON,
+                    floatval($right) + NumberField::EPSILON]);
             }
             else { // [left, right]
-                $query->whereBetween("number", [floatval($left) - NumberField::EPSILON,
-                                                floatval($right) + NumberField::EPSILON]);
+                $query->whereBetween($prefix . "number", [floatval($left) - NumberField::EPSILON,
+                    floatval($right) + NumberField::EPSILON]);
             }
         }
-
-        return $query;
     }
 }
