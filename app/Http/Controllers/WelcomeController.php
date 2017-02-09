@@ -59,6 +59,9 @@ class WelcomeController extends Controller {
 	}
 
     public function dashboard(){
+        if(\Auth::guest()) {
+            return redirect('/');
+        }
         //gather all sections for the dashboard and their blocks
         $sections = array();
 

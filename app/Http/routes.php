@@ -13,7 +13,7 @@ Route::get('/api/projects/{pid}/forms/{fid}/recordCount','RestfulController@getF
 Route::post('/api/search','RestfulController@search');
 Route::delete('/api/delete','RestfulController@delete');
 Route::post('/api/create','RestfulController@create');
-Route::patch('/api/edit','RestfulController@edit');
+Route::put('/api/edit','RestfulController@edit');
 
 //project routes
 Route::get('/projects/import','ProjectController@importProjectView');
