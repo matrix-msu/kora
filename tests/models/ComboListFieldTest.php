@@ -4,6 +4,7 @@ use App\ComboListField as ComboListField;
 use App\Field as Field;
 use App\Project as Project;
 use App\Form as Form;
+use App\Search as Search;
 use \Illuminate\Support\Facades\DB;
 
 /**
@@ -49,6 +50,32 @@ TEXT;
 [!Field1!][Type]Number[Type][Name]Combo Number[Name][Options][!Max!]9999[!Max!][!Min!]1[!Min!][!Increment!]1[!Increment!][!Unit!][!Unit!][Options][!Field1!][!Field2!][Type]Generated List[Type][Name]Combo Generated[Name][Options][!Options!]Apple[!]Google[!]Microsoft[!]Amazon[!Options!][!Regex!][!Regex!][Options][!Field2!]
 TEXT;
 
+
+    public function test_keywordSearchTyped2() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_COMBO_LIST, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $combo_field = new App\ComboListField();
+        $combo_field->fid = $field->fid;
+        $combo_field->rid = $record->rid;
+        $combo_field->flid = $field->flid;
+        $combo_field->fid = $form->fid;
+        $combo_field->save();
+
+        $combo_field->addData([
+            "[!f1!]1[!f1!][!f2!]Apple[!]Google[!f2!]",
+            "[!f1!]2[!f1!][!f2!]Microsoft[!]Amazon[!f2!]",
+            "[!f1!]3[!f1!][!f2!]Google[!]Sentient[!f2!]"
+        ], Field::_NUMBER, Field::_GENERATED_LIST);
+
+        $arg = Search::processArgument("Google", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument(2, Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+    }
 
     /**
      * Test keyword search.

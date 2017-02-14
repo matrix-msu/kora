@@ -1294,29 +1294,8 @@ TEXT;
 
     /**
      * Test the schedule field portion of Field::keywordSearchTyped2.
+     * See schedule field test...
      */
-    public function test_keywordSearchTyped2_scheduleField() {
-        $project = self::dummyProject();
-        $form = self::dummyForm($project->pid);
-        $field = self::dummyField(Field::_SCHEDULE, $project->pid, $form->fid);
-        $record = self::dummyRecord($project->pid, $form->fid);
-
-        $sched_field = new \App\ScheduleField();
-        $sched_field->rid = $record->rid;
-        $sched_field->flid = $field->flid;
-        $sched_field->fid = $form->fid;
-        $sched_field->events = self::SCHEDULE_FIELD_DATA;
-        $sched_field->save();
-
-        $arg = Search::processArgument("Hannah", Search::SEARCH_OR);
-        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
-
-        $arg = Search::processArgument("My Birthday", Search::SEARCH_OR);
-        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
-
-        $arg = Search::processArgument("Manila Major", Search::SEARCH_EXACT);
-        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
-    }
 
     /**
      * Test the geolocator field portion of Field::keywordSearchTyped.
@@ -1369,6 +1348,7 @@ TEXT;
 
     /**
      * Test the geolocator field portion of Field::keywordSearchTyped2.
+     * See geolocator field test...
      */
     public function test_keywordSearchTyped2_geolocatorField() {
         $project = self::dummyProject();

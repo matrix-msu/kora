@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\DB;
 use App\ScheduleField;
 use App\Field;
+use App\Search;
 
 /**
  * Class ScheduleFieldTest
@@ -10,6 +11,29 @@ use App\Field;
  */
 class ScheduleFieldTest extends TestCase
 {
+    public function test_keywordSearchTyped2() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_SCHEDULE, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $sched = new ScheduleField();
+        $sched->fid = $field->fid;
+        $sched->rid = $record->rid;
+        $sched->flid = $field->flid;
+        $sched->save();
+
+        $sched->addEvents(["Chance: 11/15/2016 - 11/15/2016",
+            "The Rapper: 11/16/2016 - 11/16/2016",
+            "Crust: 11/17/2016 - 11/17/2016"]);
+
+        $arg = Search::processArgument("crust", Search::SEARCH_OR);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument("The Rapper", Search::SEARCH_EXACT);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_EXACT)->get()[0]->rid);
+    }
+
     public function test_getAdvancedSearchQuery() {
         $project = self::dummyProject();
         $form = self::dummyForm($project->pid);
@@ -17,6 +41,7 @@ class ScheduleFieldTest extends TestCase
         $record = self::dummyRecord($project->pid, $form->fid);
 
         $sched_field = new ScheduleField();
+        $sched_field->fid = $field->fid;
         $sched_field->rid = $record->rid;
         $sched_field->flid = $field->flid;
         $sched_field->events = "Today: 11/15/2016 - 11/15/2016[!]Tomorrow: 11/16/2016 - 11/16/2016[!]Forever: 11/17/2016 - 11/17/2016";
@@ -140,6 +165,7 @@ class ScheduleFieldTest extends TestCase
         $record = self::dummyRecord($project->pid, $form->fid);
 
         $sched_field = new ScheduleField();
+        $sched_field->fid = $field->fid;
         $sched_field->rid = $record->rid;
         $sched_field->flid = $field->flid;
         $sched_field->events = "Today: 11/15/2016 - 11/15/2016[!]Tomorrow: 11/16/2016 - 11/16/2016[!]Forever: 11/17/2016 - 11/17/2016";
@@ -190,6 +216,7 @@ class ScheduleFieldTest extends TestCase
         $r4 = self::dummyRecord($project->pid, $form->fid);
 
         $s1 = new ScheduleField();
+        $s1->fid = $field->fid;
         $s1->rid = $r1->rid;
         $s1->flid = $field->flid;
         $s1->events = "";
@@ -199,6 +226,7 @@ class ScheduleFieldTest extends TestCase
                 "Tomorrow: 12/3/2016 - 12/3/2016"]);
 
         $s2 = new ScheduleField();
+        $s2->fid = $field->fid;
         $s2->rid = $r2->rid;
         $s2->flid = $field->flid;
         $s2->events = "";
@@ -209,6 +237,7 @@ class ScheduleFieldTest extends TestCase
                 "Something Else: 1/25/2017  - 5/1/2018"]);
 
         $s3 = new ScheduleField();
+        $s3->fid = $field->fid;
         $s3->rid = $r3->rid;
         $s3->flid = $field->flid;
         $s3->events = "";
@@ -217,6 +246,7 @@ class ScheduleFieldTest extends TestCase
         $s3->addEvents(["Now: 12/1/2016 12:07 PM - 12/1/2016 12:07 PM"]);
 
         $s4 = new ScheduleField();
+        $s4->fid = $field->fid;
         $s4->rid = $r4->rid;
         $s4->flid = $field->flid;
         $s4->events = "";

@@ -76,19 +76,6 @@ class ScheduleField extends BaseField {
     }
 
     /**
-     * @param array $options
-     * @return bool
-     */
-    public function save(array $options = []) {
-        // TODO: This is now how we should save these... see self::addEvent
-        foreach(explode("[!]", $this->events) as $event) {
-
-        }
-        // unset($this->events); TODO: Consider how to properly save these things...
-        return parent::save($options);
-    }
-
-    /**
      * Adds an event to the schedule_support table.
      * @param array $events an array of events, each specified in the following format:
      *      "description: mm/dd/yyyy - mm/dd/yyyy"
@@ -120,6 +107,7 @@ class ScheduleField extends BaseField {
             DB::table("schedule_support")->insert(
                 [
                     'rid' => $this->rid,
+                    'fid' => $this->fid,
                     'flid' => $this->flid,
                     'begin' => $begin,
                     'end' => $end,

@@ -1,6 +1,7 @@
 <?php
 use App\GeolocatorField;
 use App\Field;
+use App\Search;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -21,6 +22,29 @@ TEXT;
     const FIELD_OPTIONS = <<<TEXT
 [!Map!]No[!Map!][!DataView!]LatLon[!DataView!]
 TEXT;
+
+    public function test_keywordSearchTyped2() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_GEOLOCATOR, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $geo_field = new \App\GeolocatorField();
+        $geo_field->rid = $record->rid;
+        $geo_field->flid = $field->flid;
+        $geo_field->fid = $field->fid;
+        $geo_field->save();
+
+        $geo_field->addLocations(["[Desc]Hannah's![Desc][LatLon]41.972359,-87.690095[LatLon][UTM]16T:442823.09811405,4646937.5690537[UTM][Address]5001 North Lincoln Avenue Chicago Illinois[Address]"]);
+
+        $arg = Search::processArgument("Hannah", Search::SEARCH_OR);
+        $q = $field->keywordSearchTyped2($arg, Search::SEARCH_OR);
+        $this->assertEquals($record->rid,$q->get()[0]->rid);
+
+        $arg = Search::processArgument("Chicago", Search::SEARCH_OR);
+        $q = $field->keywordSearchTyped2($arg, Search::SEARCH_OR);
+        $this->assertEquals($record->rid,$q->get()[0]->rid);
+    }
 
     /**
      * Test the keyword search function.

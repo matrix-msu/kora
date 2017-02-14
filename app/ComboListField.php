@@ -213,6 +213,7 @@ class ComboListField extends BaseField {
             $field_2_data = explode('[!f2!]', $entry)[1];
 
             $inserts[] = [
+                'fid' => $this->fid,
                 'rid' => $this->rid,
                 'flid' => $this->flid,
                 'field_num' => 1,
@@ -224,6 +225,7 @@ class ComboListField extends BaseField {
             ];
 
             $inserts[] = [
+                'fid' => $this->fid,
                 'rid' => $this->rid,
                 'flid' => $this->flid,
                 'list_index' => $i,
