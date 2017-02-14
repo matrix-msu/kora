@@ -1853,35 +1853,6 @@ TEXT;
     }
 
     /**
-     * Test the combo list field portion of Field::keywordSearchTyped2.
-     */
-    public function test_keywordSearchTyped2_comboListField() {
-        $project = self::dummyProject();
-        $form = self::dummyForm($project->pid);
-        $field = self::dummyField(Field::_COMBO_LIST, $project->pid, $form->fid);
-        $record = self::dummyRecord($project->pid, $form->fid);
-
-        $combo_field = new App\ComboListField();
-        $combo_field->rid = $record->rid;
-        $combo_field->flid = $field->flid;
-        $combo_field->fid = $form->fid;
-        $combo_field->options = self::COMBO_LIST_FIELD_DATA;
-        $combo_field->save();
-
-        $arg = Search::processArgument("Dragon", Search::SEARCH_OR);
-        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
-
-        $arg = Search::processArgument("Dragon Pickaxe", Search::SEARCH_EXACT);
-        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_EXACT)->get()[0]->rid);
-
-        $arg = Search::processArgument("Dragon Pickaxe", Search::SEARCH_OR);
-        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
-
-        $arg = Search::processArgument("Warhammer", Search::SEARCH_OR);
-        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
-    }
-
-    /**
      * Test the has metadata static function.
      */
     public function test_hasMetadata() {
