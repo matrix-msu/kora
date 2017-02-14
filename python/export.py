@@ -19,6 +19,7 @@ def export_routine(argv):
         argv[2]: desired output type (JSON or XML)
         argv[3]: JSON array of fields to display
         argv[4]: Gather record meta
+        argv[5]: Outright hide the field data if we just want record data
     """
 
     startup() ## Initialize file structure.
@@ -45,7 +46,13 @@ def export_routine(argv):
         meta = argv[4]
 
     except IndexError:
-        meta = False
+        meta = "False"
+
+    try:
+        show_data = argv[5]
+
+    except IndexError:
+        show_data = "True"
 
     writer = make_writer(writer_type, Writer.set_up())
 
@@ -58,7 +65,7 @@ def export_routine(argv):
     chunk = data[i - slice_on : i]
 
     while i - slice_on < len(data):
-        exporter = RecordExporter(chunk, writer.start_time, writer_type, fields_displayed, meta)
+        exporter = RecordExporter(chunk, writer.start_time, writer_type, fields_displayed, meta, show_data)
 
         pool.apply_async(exporter)
 
