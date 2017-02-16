@@ -12,9 +12,9 @@ $names = [
     2 =>\App\ComboListField::getComboFieldName($field,'two')
 ];
 
-$options = [
-    1 => \App\ComboListField::getComboList($field, true, "one"),
-    2 => \App\ComboListField::getComboList($field, true, "two"),
+$_options = [
+    1 => \App\ComboListField::getComboList($field, false, "one"),
+    2 => \App\ComboListField::getComboList($field, false, "two"),
 ];
 
 ?>
@@ -68,7 +68,7 @@ $options = [
                     <?php $multiple = ($types[$field_num] != "List") ?>
 
                     <label for={{$field->flid}}_{{$field_num}}_input">Search option{{($multiple) ? "s" : ""}} for {{$names[$field_num]}}:</label><br/>
-                    {!! Form::select( $field->flid . "_"  . $field_num . "_input" . (($multiple) ? "[]" : ""), $options[$field_num], "", ["class" => "form-control", ($multiple) ? "Multiple" : "", 'id' => $field->flid . "_" . $field_num ."_input", "style" => "width: 100%"]) !!}
+                    {!! Form::select( $field->flid . "_"  . $field_num . "_input" . (($multiple) ? "[]" : ""), $_options[$field_num], "", ["class" => "form-control", ($multiple) ? "Multiple" : "", 'id' => $field->flid . "_" . $field_num ."_input", "style" => "width: 100%"]) !!}
 
                     <label for="{{$field->flid}}_operator">Search operator (only has effect if both fields are completed):</label>
                     <select class="form-control" name="{{$field->flid}}_operator">
@@ -87,7 +87,6 @@ $options = [
                                 var generated = Boolean({{ $types[$field_num] == "Generated List" }});
 
                                 var selector = $("#{{$field->flid}}_{{$field_num}}_input");
-                                selector.empty();
                                 selector.select2({tags:generated});
                             }
 

@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 
 class ScheduleField extends BaseField {
 
+    const SUPPORT_NAME = "schedule_support";
+
     protected $fillable = [
         'rid',
         'flid',
@@ -49,10 +51,7 @@ class ScheduleField extends BaseField {
      * @throws \Exception
      */
     public function delete() {
-        DB::table("schedule_support")
-            ->where("rid", "=", $this->rid)
-            ->delete();
-
+        $this->deleteEvents();
         parent::delete();
     }
 
@@ -76,19 +75,6 @@ class ScheduleField extends BaseField {
     }
 
     /**
-     * @param array $options
-     * @return bool
-     */
-    public function save(array $options = []) {
-        // TODO: This is now how we should save these... see self::addEvent
-        foreach(explode("[!]", $this->events) as $event) {
-
-        }
-        // unset($this->events); TODO: Consider how to properly save these things...
-        return parent::save($options);
-    }
-
-    /**
      * Adds an event to the schedule_support table.
      * @param array $events an array of events, each specified in the following format:
      *      "description: mm/dd/yyyy - mm/dd/yyyy"
@@ -100,26 +86,12 @@ class ScheduleField extends BaseField {
         $now = date("Y-m-d H:i:s");
 
         foreach($events as $event) {
-            $event = explode(": ", $event);
-            $desc = $event[0];
+            list($begin, $end, $desc) = self::processEvent($event);
 
-            $event = explode(" - ", $event[1]);
-
-            $begin = trim($event[0]);
-            $end = trim($event[1]);
-
-            if (strpos($begin, ":") === false) { // No time specified.
-                $begin = DateTime::createFromFormat("m/d/Y", $begin);
-                $end = DateTime::createFromFormat("m/d/Y", $end);
-            }
-            else {
-                $begin = DateTime::createFromFormat("m/d/Y g:i A", $begin);
-                $end = DateTime::createFromFormat("m/d/Y g:i A", $end);
-            }
-
-            DB::table("schedule_support")->insert(
+            DB::table(self::SUPPORT_NAME)->insert(
                 [
                     'rid' => $this->rid,
+                    'fid' => $this->fid,
                     'flid' => $this->flid,
                     'begin' => $begin,
                     'end' => $end,
@@ -132,12 +104,59 @@ class ScheduleField extends BaseField {
     }
 
     /**
+     * Extract the logic to get the necessary information from the event string to the database.
+     *
+     * @param $event
+     * @return array
+     */
+    private static function processEvent($event) {
+        $event = explode(": ", $event);
+        $desc = $event[0];
+
+        $event = explode(" - ", $event[1]);
+
+        $begin = trim($event[0]);
+        $end = trim($event[1]);
+
+        if (strpos($begin, ":") === false) { // No time specified.
+            $begin = DateTime::createFromFormat("m/d/Y", $begin);
+            $end = DateTime::createFromFormat("m/d/Y", $end);
+        }
+        else {
+            $begin = DateTime::createFromFormat("m/d/Y g:i A", $begin);
+            $end = DateTime::createFromFormat("m/d/Y g:i A", $end);
+        }
+        return [$begin, $end, $desc];
+    }
+
+    /**
+     * Update events using the same method as add events.
+     * The only reliable way to actually update is to delete all previous events and just add the updated versions.
+     *
+     * @param array $events
+     */
+    public function updateEvents(array $events) {
+        $this->deleteEvents();
+        $this->addEvents($events);
+    }
+
+    /**
+     * Deletes all events associated with the schedule field.
+     */
+    public function deleteEvents() {
+        DB::table(self::SUPPORT_NAME)
+            ->where("rid", "=", $this->rid)
+            ->where("flid", "=", $this->flid)
+            ->delete();
+    }
+
+    /**
      * The query for events in a schedule field.
      * Use ->get() to obtain all events.
      * @return Builder
      */
     public function events() {
-        return DB::table("schedule_support")->select("*")
+        return DB::table(self::SUPPORT_NAME)->select("*")
             ->where("flid", "=", $this->flid)
             ->where("rid", "=", $this->rid);
     }
@@ -149,7 +168,7 @@ class ScheduleField extends BaseField {
      * @return Builder
      */
     public static function supportFields($rid) {
-        return DB::table("schedule_support")->where("rid", "=", $rid);
+        return DB::table(self::SUPPORT_NAME)->where("rid", "=", $rid);
     }
 
     /**
@@ -175,7 +194,7 @@ class ScheduleField extends BaseField {
         $begin = DateTime::createFromFormat("Y-m-d H:i:s", $begin_year."-".$begin_month."-".$begin_day." 00:00:00");
         $end = DateTime::createFromFormat("Y-m-d H:i:s", $end_year."-".$end_month."-".$end_day." 23:59:59");
 
-        $query = DB::table("schedule_support")
+        $query = DB::table(self::SUPPORT_NAME)
             ->select("rid")
             ->where("flid", "=", $flid);
 

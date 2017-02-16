@@ -324,49 +324,22 @@ class Field extends Model {
                     break;
 
                 case Field::_SCHEDULE:
-                    return DB::table("schedule_fields")
+                    return DB::table("schedule_support")
                         ->select("rid")
                         ->where("fid", "=", $this->fid)
-                        ->whereRaw("MATCH (`events`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+                        ->whereRaw("MATCH (`desc`) AGAINST (? IN BOOLEAN MODE)", [$arg])
                         ->distinct();
                     break;
 
                 case Field::_GEOLOCATOR:
-                    // We need to make sure only the actual words in the data are matched with, not the separators.
-                    $args = explode(" ", $arg);
-                    $args = array_filter($args, function($element) {
-                        $element = str_replace(["*", "\""], "", $element);
-                        return (ucwords($element) != "Address" && ucwords($element) != "Desc");
-                    });
-
-                    $arg = implode(" ", $args);
-
-                    if ($method != Search::SEARCH_EXACT) {
-                        $args_description = explode(" ", $arg);
-                        $args_address = $args_description;
-
-                        for ($i = 0; $i < count($args_description); $i++) {
-                            $args_description[$i] .= "[Desc]";
-                            $args_address[$i] .= "[Address]";
-                        }
-
-                        $args_description = implode($args_description);
-                        $args_address = implode($args_address);
-
-                        return DB::table("geolocator_fields")
-                            ->select("rid")
-                            ->where("fid", "=", $this->fid)
-                            ->whereRaw("MATCH (`locations`) AGAINST (? IN BOOLEAN MODE)", [$args_description])
-                            ->whereRaw("MATCH (`locations`) AGAINST (? IN BOOLEAN MODE)", [$args_address])
-                            ->distinct();
-                    }
-                    else {
-                        return DB::table("geolocator_fields")
-                            ->select("rid")
-                            ->where("fid", "=", $this->fid)
-                            ->whereRaw("MATCH (`locations`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                            ->distinct();
-                    }
+                    return DB::table("geolocator_support")
+                        ->select("rid")
+                        ->where("fid", "=", $this->fid)
+                        ->where(function($query) use ($arg) {
+                            $query->whereRaw("MATCH (`desc`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+                                ->orWhereRaw("MATCH (`address`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
+                        })
+                        ->distinct();
                     break;
 
                 case Field::_DOCUMENTS:
@@ -420,10 +393,16 @@ class Field extends Model {
                     break;
 
                 case Field::_COMBO_LIST:
-                    return DB::table("combo_list_fields")
+                    return DB::table("combo_support")
                         ->select("rid")
                         ->where("fid", "=", $this->fid)
-                        ->whereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+                        ->where(function($query) use ($arg) {
+                            $num = $arg = str_replace(["*", "\""], "", $arg);
+                            $num = floatval($num);
+
+                            $query->whereRaw("MATCH (`data`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+                                ->orWhereBetween("number", [$num - NumberField::EPSILON, $num + NumberField::EPSILON]);
+                        })
                         ->distinct();
                     break;
 

@@ -1294,29 +1294,8 @@ TEXT;
 
     /**
      * Test the schedule field portion of Field::keywordSearchTyped2.
+     * See schedule field test...
      */
-    public function test_keywordSearchTyped2_scheduleField() {
-        $project = self::dummyProject();
-        $form = self::dummyForm($project->pid);
-        $field = self::dummyField(Field::_SCHEDULE, $project->pid, $form->fid);
-        $record = self::dummyRecord($project->pid, $form->fid);
-
-        $sched_field = new \App\ScheduleField();
-        $sched_field->rid = $record->rid;
-        $sched_field->flid = $field->flid;
-        $sched_field->fid = $form->fid;
-        $sched_field->events = self::SCHEDULE_FIELD_DATA;
-        $sched_field->save();
-
-        $arg = Search::processArgument("Hannah", Search::SEARCH_OR);
-        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
-
-        $arg = Search::processArgument("My Birthday", Search::SEARCH_OR);
-        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
-
-        $arg = Search::processArgument("Manila Major", Search::SEARCH_EXACT);
-        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
-    }
 
     /**
      * Test the geolocator field portion of Field::keywordSearchTyped.
@@ -1369,6 +1348,7 @@ TEXT;
 
     /**
      * Test the geolocator field portion of Field::keywordSearchTyped2.
+     * See geolocator field test...
      */
     public function test_keywordSearchTyped2_geolocatorField() {
         $project = self::dummyProject();
@@ -1870,35 +1850,6 @@ TEXT;
         $result = $results->pop();
 
         $this->assertInstanceOf("App\\ComboListField", $result);
-    }
-
-    /**
-     * Test the combo list field portion of Field::keywordSearchTyped2.
-     */
-    public function test_keywordSearchTyped2_comboListField() {
-        $project = self::dummyProject();
-        $form = self::dummyForm($project->pid);
-        $field = self::dummyField(Field::_COMBO_LIST, $project->pid, $form->fid);
-        $record = self::dummyRecord($project->pid, $form->fid);
-
-        $combo_field = new App\ComboListField();
-        $combo_field->rid = $record->rid;
-        $combo_field->flid = $field->flid;
-        $combo_field->fid = $form->fid;
-        $combo_field->options = self::COMBO_LIST_FIELD_DATA;
-        $combo_field->save();
-
-        $arg = Search::processArgument("Dragon", Search::SEARCH_OR);
-        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
-
-        $arg = Search::processArgument("Dragon Pickaxe", Search::SEARCH_EXACT);
-        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_EXACT)->get()[0]->rid);
-
-        $arg = Search::processArgument("Dragon Pickaxe", Search::SEARCH_OR);
-        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
-
-        $arg = Search::processArgument("Warhammer", Search::SEARCH_OR);
-        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
     }
 
     /**

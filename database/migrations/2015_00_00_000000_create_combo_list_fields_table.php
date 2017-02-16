@@ -33,6 +33,7 @@ class CreateComboListFieldsTable extends Migration {
 			$table->engine = 'MyISAM';
 
 			$table->increments('id');
+			$table->integer('fid')->unsigned();
 			$table->integer('rid')->unsigned();
 			$table->integer('flid')->unsigned();
 			$table->integer('list_index')->unsigned();

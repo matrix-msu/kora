@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 
 class ComboListField extends BaseField {
 
+    const SUPPORT_NAME = "combo_support";
+
     protected $fillable = [
         'rid',
         'flid',
@@ -213,6 +215,7 @@ class ComboListField extends BaseField {
             $field_2_data = explode('[!f2!]', $entry)[1];
 
             $inserts[] = [
+                'fid' => $this->fid,
                 'rid' => $this->rid,
                 'flid' => $this->flid,
                 'field_num' => 1,
@@ -224,6 +227,7 @@ class ComboListField extends BaseField {
             ];
 
             $inserts[] = [
+                'fid' => $this->fid,
                 'rid' => $this->rid,
                 'flid' => $this->flid,
                 'list_index' => $i,
@@ -246,10 +250,32 @@ class ComboListField extends BaseField {
      * @return Builder
      */
     public function data() {
-        return DB::table("combo_support")->select("*")
+        return DB::table(self::SUPPORT_NAME)->select("*")
             ->where("rid", "=", $this->rid)
             ->where("flid", "=", $this->flid)
             ->orderBy('list_index');
+    }
+
+    /**
+     * Delete data associated with this field.
+     */
+    public function deleteData() {
+        DB::table(self::SUPPORT_NAME)
+            ->where("rid", "=", $this->rid)
+            ->where("flid", "=", $this->flid)
+            ->delete();
+    }
+
+    /**
+     * Updates a combo list's data.
+     *
+     * @param array $data
+     * @param $type_1
+     * @param $type_2
+     */
+    public function updateData(array $data, $type_1, $type_2) {
+        $this->deleteData();
+        $this->addData($data, $type_1, $type_2);
     }
 
     /**
@@ -270,7 +296,7 @@ class ComboListField extends BaseField {
         // Return an impossible query if the two fields are somehow both invalid.
         // May seem extraneous, but this is required for chaining calls elsewhere.
         if (! ($one_valid || $two_valid)) {
-            return DB::table("combo_support")->select("*")->where("id", "<", 0);
+            return DB::table(self::SUPPORT_NAME)->select("*")->where("id", "<", 0);
         }
         else if ($one_valid && $two_valid) {
             if ($query[$flid . "_operator"] == "and") {
@@ -351,7 +377,7 @@ class ComboListField extends BaseField {
 
             // Since we're using a raw query, we have to get the database prefix to match our alias.
             $db_prefix = DB::getTablePrefix();
-            $prefix = ($prefix == "") ? "combo_support" : substr($prefix, 0, -1);
+            $prefix = ($prefix == "") ? self::SUPPORT_NAME : substr($prefix, 0, -1);
             $db_query->where(function($db_query) use ($inputs, $prefix, $db_prefix) {
                 foreach($inputs as $input) {
                     $db_query->orWhereRaw("MATCH (`" . $db_prefix . $prefix . "`.`data`) AGAINST (? IN BOOLEAN MODE)",
@@ -367,7 +393,7 @@ class ComboListField extends BaseField {
      * @return Builder, initial query.
      */
     public static function makeAdvancedQueryRoutine($flid) {
-        return DB::table("combo_support")
+        return DB::table(self::SUPPORT_NAME)
             ->select("rid")
             ->where("flid", "=", $flid);
     }

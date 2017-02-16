@@ -36,6 +36,7 @@ class CreateGeolocatorfieldsTable extends Migration {
 			$table->engine = 'MyISAM';
 
 			$table->increments('id');
+			$table->integer('fid')->unsigned();
 			$table->integer('rid')->unsigned();
 			$table->integer('flid')->unsigned();
 			$table->string('desc');
@@ -47,6 +48,9 @@ class CreateGeolocatorfieldsTable extends Migration {
 			$table->text('address');
 			$table->timestamps();
 		});
+
+		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."geolocator_support ADD FULLTEXT search_geo_desc(`desc`)");
+		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."geolocator_support ADD FULLTEXT search_geo_address(`address`)");
 	}
 
 	/**
