@@ -1,6 +1,8 @@
  <div class="panel panel-default">
     <div class="panel-heading" style="font-size: 1.5em;">
-        @if(\Auth::user()->canEditFields($form))
+        @if($field->type=='Associator' and sizeof(\App\Http\Controllers\AssociationController::getAvailableAssociations($field->fid))==0)
+            <font color="red">{{$field->name}}</font>
+        @elseif(\Auth::user()->canEditFields($form))
             <a href="{{ action('FieldController@show',['pid' => $field->pid,'fid' => $field->fid, 'flid' => $field->flid]) }}">{{ $field->name }}</a>
         @else
             {{$field->name}}
