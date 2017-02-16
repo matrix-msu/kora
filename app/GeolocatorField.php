@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 
 class GeolocatorField extends BaseField {
 
+    const SUPPORT_NAME = "geolocator_support";
+
     protected $fillable = [
         'rid',
         'flid',
@@ -123,7 +125,7 @@ class GeolocatorField extends BaseField {
      * @return Builder
      */
     public function locations() {
-        return DB::table("geolocator_support")->select("*")
+        return DB::table(self::SUPPORT_NAME)->select("*")
             ->where("flid", "=", $this->flid)
             ->where("rid", "=", $this->rid);
     }
@@ -153,6 +155,7 @@ class GeolocatorField extends BaseField {
             $northing = explode(',', $utm_arr[1])[1];
 
             DB::table('geolocator_support')->insert([
+                'fid' => $this->fid,
                 'rid' => $this->rid,
                 'flid' => $this->flid,
                 'desc' => $desc,
@@ -166,6 +169,26 @@ class GeolocatorField extends BaseField {
                 'updated_at' => $now
             ]);
         }
+    }
+
+    /**
+     * Updates locations associated with this field.
+     *
+     * @param array $locations
+     */
+    public function updateLocations(array $locations) {
+        $this->deleteLocations();
+        $this->addLocations($locations);
+    }
+
+    /**
+     * Deletes locations associated with this geolocator field.
+     */
+    public function deleteLocations() {
+        DB::table(self::SUPPORT_NAME)
+            ->where("flid", "=", $this->flid)
+            ->where("rid", "=", $this->rid)
+            ->delete();
     }
 
     /**
@@ -198,7 +221,7 @@ class GeolocatorField extends BaseField {
                 break;
         }
 
-        $query = DB::table("geolocator_support");
+        $query = DB::table(self::SUPPORT_NAME);
 
         $distance = <<<SQL
 (
@@ -227,10 +250,6 @@ SQL;
      *                 Use ->Lat() and ->Long() to obtain converted values.
      */
     public static function UTMToPoint($zone, $easting, $northing) {
-        //
-        // TODO: Error checking on zone.
-        //
-
         $point = new gPoint();
         $point->gPoint();
         $point->setUTM($easting, $northing, $zone);
@@ -263,4 +282,12 @@ SQL;
         return $point;
     }
 
+    /**
+     * Delete the geolocator field.
+     * @throws \Exception
+     */
+    public function delete() {
+        $this->deleteLocations();
+        parent::delete();
+    }
 }

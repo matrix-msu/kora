@@ -188,9 +188,9 @@ TEXT;
         $record = self::dummyRecord($project->pid, $form->fid);
 
         $geo = new GeolocatorField();
+        $geo->fid = $field->fid;
         $geo->rid = $record->rid;
         $geo->flid = $field->flid;
-        $geo->locations = "";
         $geo->save();
 
         $geo->addLocations(
@@ -204,6 +204,72 @@ TEXT;
 
         $this->assertEquals("afsdaf", $locations[0]->desc);
         $this->assertEquals("jangus", $locations[1]->desc);
+    }
+
+    public function test_updateLocations() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_GEOLOCATOR, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $geo = new GeolocatorField();
+        $geo->fid = $field->fid;
+        $geo->rid = $record->rid;
+        $geo->flid = $field->flid;
+        $geo->save();
+
+        $geo->addLocations(
+            [
+                "[Desc]Somewhere Over the Rainbow[Desc][LatLon]11,11[LatLon][UTM]32P:718529.11253281,1216707.4085526[UTM][Address]  Caloocan [Address]",
+                "[Desc]The Krusty Krab[Desc][LatLon]-11.445678,45.12345[LatLon][UTM]38L:513465.49707984,8734738.1327539[UTM][Address]   [Address]"
+            ]);
+
+        $descs = ["Somewhere Over the Rainbow", "The Krusty Krab"];
+        $retrieved = array_map(function($element) {
+            return $element->desc;
+        }, $geo->locations()->get());
+        foreach($descs as $desc) {
+            $this->assertContains($desc, $retrieved);
+        }
+
+        $geo->updateLocations(
+            [
+                "[Desc]Bikini Bottom[Desc][LatLon]11,11[LatLon][UTM]32P:718529.11253281,1216707.4085526[UTM][Address]  Caloocan [Address]",
+                "[Desc]The Krusty Krab[Desc][LatLon]-11.445678,45.12345[LatLon][UTM]38L:513465.49707984,8734738.1327539[UTM][Address]   [Address]"
+            ]);
+
+        $descs = ["Bikini Bottom", "The Krusty Krab"];
+        $retrieved = array_map(function($element) {
+            return $element->desc;
+        }, $geo->locations()->get());
+        foreach($descs as $desc) {
+            $this->assertContains($desc, $retrieved);
+        }
+    }
+
+    public function test_deleteLocations() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_GEOLOCATOR, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $geo = new GeolocatorField();
+        $geo->fid = $field->fid;
+        $geo->rid = $record->rid;
+        $geo->flid = $field->flid;
+        $geo->save();
+
+        $geo->addLocations(
+            [
+                "[Desc]Somewhere Over the Rainbow[Desc][LatLon]11,11[LatLon][UTM]32P:718529.11253281,1216707.4085526[UTM][Address]  Caloocan [Address]",
+                "[Desc]The Krusty Krab[Desc][LatLon]-11.445678,45.12345[LatLon][UTM]38L:513465.49707984,8734738.1327539[UTM][Address]   [Address]"
+            ]);
+
+        $this->assertEquals(2, $geo->locations()->count());
+
+        $geo->deleteLocations();
+
+        $this->assertEquals(0, $geo->locations()->count());
     }
 
     /**
@@ -260,7 +326,7 @@ TEXT;
         $geo1 = new GeolocatorField();
         $geo1->flid = $field->flid;
         $geo1->rid = $record1->rid;
-        $geo1->locations = "";
+        $geo1->fid = $field->fid;
         $geo1->save();
 
         $geo1->addLocations(["[Desc]Somewhere![Desc][LatLon]41.972359,-87.690095[LatLon][UTM]16T:442823.09811405,4646937.5690537[UTM][Address]5001 North Lincoln Avenue Chicago Illinois[Address]"]);
@@ -284,7 +350,7 @@ TEXT;
         $geo2 = new GeolocatorField();
         $geo2->flid = $field->flid;
         $geo2->rid = $record2->rid;
-        $geo2->locations = "";
+        $geo2->fid = $field->fid;
         $geo2->save();
 
         $geo2->addLocations(["[Desc]Planalto Palace Palácio do Planalto[Desc][LatLon]-15.799167,-47.860833[LatLon][UTM]23L:193501.89147454,8251194.8450127[UTM][Address] Via N1 Leste Brasília Federal District[Address]"]);

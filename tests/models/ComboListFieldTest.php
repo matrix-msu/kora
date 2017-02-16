@@ -233,12 +233,14 @@ TEXT;
         $c1 = new ComboListField();
         $c1->flid = $field->flid;
         $c1->rid = $r1->rid;
+        $c1->fid = $field->fid;
         $c1->options = "";
         $c1->save();
 
         $c2 = new ComboListField();
         $c2->flid = $field->flid;
         $c2->rid = $r2->rid;
+        $c2->fid = $field->fid;
         $c2->options = "";
         $c2->save();
 
@@ -258,6 +260,88 @@ TEXT;
 
         $data = $c2->data()->get();
         $this->assertEquals(sizeof($data), 4);
+    }
+
+    public function test_deleteData() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_COMBO_LIST, $project->pid, $form->fid);
+        $r1 = self::dummyRecord($project->pid, $form->fid);
+
+        $field->options = self::NUM_GEN_OPTIONS;
+        $field->save();
+
+        $c1 = new ComboListField();
+        $c1->flid = $field->flid;
+        $c1->rid = $r1->rid;
+        $c1->fid = $field->fid;
+        $c1->options = "";
+        $c1->save();
+
+        $c1->addData([
+            "[!f1!]1[!f1!][!f2!]Apple[!]Google[!f2!]",
+            "[!f1!]2[!f1!][!f2!]Microsoft[!]Amazon[!f2!]",
+            "[!f1!]3[!f1!][!f2!]Google[!]Sentient[!f2!]"
+        ], Field::_NUMBER, Field::_GENERATED_LIST);
+
+        $this->assertEquals(3 * 2, $c1->data()->count());
+
+        $c1->deleteData();
+
+        $this->assertEquals(0, $c1->data()->count());
+    }
+
+    public function test_updateData() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_COMBO_LIST, $project->pid, $form->fid);
+        $r1 = self::dummyRecord($project->pid, $form->fid);
+
+        $field->options = self::NUM_GEN_OPTIONS;
+        $field->save();
+
+        $c1 = new ComboListField();
+        $c1->flid = $field->flid;
+        $c1->rid = $r1->rid;
+        $c1->fid = $field->fid;
+        $c1->options = "";
+        $c1->save();
+
+        $c1->addData([
+            "[!f1!]1[!f1!][!f2!]Apple[!]Google[!f2!]",
+            "[!f1!]2[!f1!][!f2!]Microsoft[!]Amazon[!f2!]",
+            "[!f1!]3[!f1!][!f2!]Google[!]Sentient[!f2!]"
+        ], Field::_NUMBER, Field::_GENERATED_LIST);
+
+        $res = $c1->data()->get();
+
+        $data = [];
+        foreach($res as $elem) {
+            $data[] = (is_null($elem->data)) ? $elem->number : $elem->data;
+        }
+
+        $elements = [1,2,3,"Apple[!]Google","Microsoft[!]Amazon", "Google[!]Sentient"];
+        foreach($elements as $element) {
+            $this->assertContains($element, $data);
+        }
+
+        $c1->updateData([
+            "[!f1!]4[!f1!][!f2!]Apple[!]Google[!f2!]",
+            "[!f1!]5[!f1!][!f2!]Microsoft[!]Uber[!f2!]",
+            "[!f1!]3[!f1!][!f2!]Sentient[!f2!]"
+            ], Field::_NUMBER, Field::_GENERATED_LIST);
+
+        $res = $c1->data()->get();
+
+        $data = [];
+        foreach($res as $elem) {
+            $data[] = (is_null($elem->data)) ? $elem->number : $elem->data;
+        }
+
+        $elements = [4,5,3,"Apple[!]Google","Microsoft[!]Uber", "Sentient"];
+        foreach($elements as $element) {
+            $this->assertContains($element, $data);
+        }
     }
 
     public function test_getAdvancedSearchQuery() {

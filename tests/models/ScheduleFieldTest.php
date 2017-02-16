@@ -34,6 +34,70 @@ class ScheduleFieldTest extends TestCase
         $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_EXACT)->get()[0]->rid);
     }
 
+    public function test_deleteEvents() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_SCHEDULE, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $sched = new ScheduleField();
+        $sched->fid = $field->fid;
+        $sched->rid = $record->rid;
+        $sched->flid = $field->flid;
+        $sched->save();
+
+        $sched->addEvents(["Chance: 11/15/2016 - 11/15/2016",
+            "The Rapper: 11/16/2016 - 11/16/2016",
+            "Crust: 11/17/2016 - 11/17/2016"]);
+
+        $this->assertEquals(3, $sched->events()->count());
+
+        $sched->deleteEvents();
+
+        $this->assertEquals(0, $sched->events()->count());
+    }
+
+    public function test_updateEvents() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_SCHEDULE, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $sched = new ScheduleField();
+        $sched->fid = $field->fid;
+        $sched->rid = $record->rid;
+        $sched->flid = $field->flid;
+        $sched->save();
+
+        $sched->addEvents(["Chance: 11/15/2016 - 11/15/2016",
+            "The Rapper: 11/16/2016 - 11/16/2016",
+            "Crust: 11/17/2016 - 11/17/2016"]);
+
+        $events = $sched->events()->get();
+
+        $descriptions = ['Chance', 'The Rapper', 'Crust'];
+        $retrieved = array_map(function($element) {
+            return $element->desc;
+        }, $events);
+        foreach($descriptions as $description) {
+            $this->assertContains($description, $retrieved);
+        }
+
+        $sched->updateEvents(["Star Wars: 11/15/2016 - 11/15/2016",
+            "Oblivion: 11/16/2016 - 11/16/2016",
+            "Crust: 11/17/2016 - 11/17/2016"]);
+
+        $events = $sched->events()->get();
+
+        $descriptions = ['Star Wars', 'Oblivion', 'Crust'];
+        $retrieved = array_map(function($element) {
+            return $element->desc;
+        }, $events);
+        foreach($descriptions as $description) {
+            $this->assertContains($description, $retrieved);
+        }
+    }
+
     public function test_getAdvancedSearchQuery() {
         $project = self::dummyProject();
         $form = self::dummyForm($project->pid);
