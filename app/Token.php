@@ -7,7 +7,11 @@ class Token extends Model {
 
 	protected $fillable = [
         'token',
-        'type'
+        'title',
+        'search',
+        'create',
+        'edit',
+        'delete',
     ];
 
     // TODO: add constants for the token types.

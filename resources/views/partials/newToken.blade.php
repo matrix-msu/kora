@@ -1,8 +1,18 @@
 {!! Form::open(['method' => 'POST', 'action' => 'TokenController@create']) !!}
 
     <div class="form-group">
-        {!! Form::label('type', trans('partials_newToken.type').': ') !!}
-        {!! Form::select('type', ['search' => 'Search', 'edit' => 'Edit', 'create' => 'Create', 'delete' => 'Delete']) !!}
+        {!! Form::label('title', 'Title: ') !!}
+        {!! Form::text('title', '', ['id' => 'title', 'class' => 'form-control']) !!}
+    </div>
+
+    <div id="checkboxes">
+        <span><b>Token Permissions:</b></span>
+        <ul class="list-group" id="token_permissions">
+            <li class="list-group-item">Search: <input type="checkbox" id="search" name="search"></li>
+            <li class="list-group-item">Create: <input type="checkbox" id="create" name="create"></li>
+            <li class="list-group-item">Edit: <input type="checkbox" id="edit" name="edit"></li>
+            <li class="list-group-item">Delete: <input type="checkbox" id="delete" name="delete"></li>
+        </ul>
     </div>
 
     <div class="form-group">

@@ -103,25 +103,12 @@ class RestfulController extends Controller
 
         //next, we authenticate each form
         foreach($forms as $f){
-            $validated = false;
-
-            //Get all the projects tokens
+            //next, we authenticate the form
             $form = FormController::getForm($f->form);
             if(is_null($form)){
                 return 'Illegal form provided: '.$f->form;
             }
-            $project = ProjectController::getProject($form->pid);
-            $tokens = $project->tokens()->get();
-
-            //user provided token
-            $token = $f->token;
-
-            //compare
-            foreach($tokens as $t){
-                if($t->token == $token && $t->type == "search"){
-                    $validated = true;
-                }
-            }
+            $validated = $this->validateToken($form,$f->token,"search");
 
             //Authentication failed
             if(!$validated){
@@ -199,25 +186,11 @@ class RestfulController extends Controller
         $f = $request->form;
 
         //next, we authenticate the form
-        $validated = false;
-
-        //Get all the projects tokens
         $form = FormController::getForm($f);
         if(is_null($form)){
-            return 'Illegal form provided: '.$f;
+            return 'Illegal form provided: '.$f->form;
         }
-        $project = ProjectController::getProject($form->pid);
-        $tokens = $project->tokens()->get();
-
-        //user provided token
-        $token = $request->token;
-
-        //compare
-        foreach($tokens as $t){
-            if($t->token == $token && $t->type == "create"){
-                $validated = true;
-            }
-        }
+        $validated = $this->validateToken($form,$request->token,"create");
 
         //Authentication failed
         if(!$validated){
@@ -373,25 +346,11 @@ class RestfulController extends Controller
         $f = $request->form;
 
         //next, we authenticate the form
-        $validated = false;
-
-        //Get all the projects tokens
         $form = FormController::getForm($f);
         if(is_null($form)){
-            return 'Illegal form provided: '.$f;
+            return 'Illegal form provided: '.$f->form;
         }
-        $project = ProjectController::getProject($form->pid);
-        $tokens = $project->tokens()->get();
-
-        //user provided token
-        $token = $request->token;
-
-        //compare
-        foreach($tokens as $t){
-            if($t->token == $token && $t->type == "edit"){
-                $validated = true;
-            }
-        }
+        $validated = $this->validateToken($form,$request->token,"edit");
 
         //Authentication failed
         if(!$validated){
@@ -557,25 +516,11 @@ class RestfulController extends Controller
         $f = $request->form;
 
         //next, we authenticate the form
-        $validated = false;
-
-        //Get all the projects tokens
         $form = FormController::getForm($f);
         if(is_null($form)){
-            return 'Illegal form provided: '.$f;
+            return 'Illegal form provided: '.$f->form;
         }
-        $project = ProjectController::getProject($form->pid);
-        $tokens = $project->tokens()->get();
-
-        //user provided token
-        $token = $request->token;
-
-        //compare
-        foreach($tokens as $t){
-            if($t->token == $token && $t->type == "delete"){
-                $validated = true;
-            }
-        }
+        $validated = $this->validateToken($form,$request->token,"delete");
 
         //Authentication failed
         if(!$validated){
@@ -643,5 +588,20 @@ class RestfulController extends Controller
      */
     private function isValidFormat($format) {
         return in_array(($format), self::VALID_FORMATS);
+    }
+
+    private function validateToken($form,$token,$permission){
+        //Get all the projects tokens
+        $project = ProjectController::getProject($form->pid);
+        $tokens = $project->tokens()->get();
+
+        //compare
+        foreach($tokens as $t){
+            if($t->token == $token && $t->$permission){
+                return true;
+            }
+        }
+
+        return false;
     }
 }

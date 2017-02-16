@@ -18,7 +18,11 @@ class CreateTokensTable extends Migration {
 
             $table->increments('id');
             $table->string('token');
-            $table->string('type');
+            $table->string('title');
+            $table->boolean('search');
+            $table->boolean('create');
+            $table->boolean('edit');
+            $table->boolean('delete');
             $table->timestamps();
         });
 

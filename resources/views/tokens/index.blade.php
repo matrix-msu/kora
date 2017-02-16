@@ -9,49 +9,53 @@
                         <h3>{{trans('tokens_index.manage')}}</h3>
                     </div>
                     <div class="panel-body">
-                        @foreach(array('Search', 'Edit', 'Create', 'Delete') as $type)
-                            <table class="table table-striped">
-                                <thead>
-                                <tr style="border-bottom: 2px solid #ddd">
-                                    <th>{{$type}} {{trans('tokens_index.tokens')}}</th>
-                                    <th class="pull-right" style="border-bottom: 0px">{{trans('tokens_index.projects')}}</th>
-                                </tr>
-                                </thead>
+                    <table class="table table-striped">
+                        <thead>
+                        <tr style="border-bottom: 2px solid #ddd">
+                            <th>{{trans('tokens_index.tokens')}}</th>
+                            <th class="pull-right" style="border-bottom: 0px">{{trans('tokens_index.projects')}}</th>
+                        </tr>
+                        </thead>
 
-                                <tbody>
-                                @foreach ($tokens as $token)
-                                    @if ($token->type == strtolower($type))
-                                        <tr>
-                                            <td>{{$token->token}} <a onclick="deleteToken({{$token->id}})" href="javascript:void(0)">[{{trans('tokens_index.delete')}}]</a></td>
-                                            <td>
-                                                <ul class="pull-right" style="list-style-type: none; padding: 0;">
-                                                    @foreach ($token->projects()->get() as $project)
-                                                        <li>
-                                                            {{$project->name}} <a onclick="deleteProject({{$project->pid}}, {{$token->id}})" href="javascript:void(0)">[X]</a>
-                                                        </li>
-                                                    @endforeach
+                        <tbody>
+                        @foreach ($tokens as $token)
+                            <tr>
+                                <td>
+                                    {{$token->title}}: {{$token->token}} <a onclick="deleteToken({{$token->id}})" href="javascript:void(0)">[{{trans('tokens_index.delete')}}]</a>
+                                    <br>
+                                    Permissions:
+                                    @if($token->search)<b>Search</b>@else<i>search</i>@endif
+                                    @if($token->create)<b>Create</b>@else<i>create</i>@endif
+                                    @if($token->edit)<b>Edit</b>@else<i>edit</i>@endif
+                                    @if($token->delete)<b>Delete</b>@else<i>delete</i>@endif
+                                </td>
+                                <td>
+                                    <ul class="pull-right" style="list-style-type: none; padding: 0;">
+                                        @foreach ($token->projects()->get() as $project)
+                                            <li>
+                                                {{$project->name}} <a onclick="deleteProject({{$project->pid}}, {{$token->id}})" href="javascript:void(0)">[X]</a>
+                                            </li>
+                                        @endforeach
 
-                                                    <li>
-                                                        <select onchange="addProject({{$token->id}})" id="dropdown{{$token->id}}">
-                                                            <option selected disabled>{{trans('tokens_index.add')}}</option>
-                                                            @foreach ($all_projects as $project)
-                                                                @if($token->hasProject($project))
-                                                                @else
-                                                                    <option id="{{$project->pid}}" token="{{$token->id}}">
-                                                                        {{$project->name}}
-                                                                    </option>
-                                                                @endif
-                                                            @endforeach
-                                                        </select>
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                    @endif
-                                @endforeach
-                                </tbody>
-                            </table>
+                                        <li>
+                                            <select onchange="addProject({{$token->id}})" id="dropdown{{$token->id}}">
+                                                <option selected disabled>{{trans('tokens_index.add')}}</option>
+                                                @foreach ($all_projects as $project)
+                                                    @if($token->hasProject($project))
+                                                    @else
+                                                        <option id="{{$project->pid}}" token="{{$token->id}}">
+                                                            {{$project->name}}
+                                                        </option>
+                                                    @endif
+                                                @endforeach
+                                            </select>
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
                         @endforeach
+                        </tbody>
+                    </table>
 
                         <hr/>
 

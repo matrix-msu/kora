@@ -41,7 +41,11 @@ class TokenController extends Controller {
     {
         $instance = new Token();
         $instance->token = TokenController::tokenGen();
-        $instance->type = $request['type'];
+        $instance->title = $request['title'];
+        $instance->search = isset($request['search']) ? true : false;
+        $instance->create = isset($request['create']) ? true : false;
+        $instance->edit = isset($request['edit']) ? true : false;
+        $instance->delete = isset($request['delete']) ? true : false;
         $instance->save();
 
         if (!is_null($request['projects']))

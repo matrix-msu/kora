@@ -350,7 +350,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     public function getActivePlugins(){
-        /*$plugins = Plugin::where('active','=',1)->get();
+        $plugins = Plugin::where('active','=',1)->get();
         $myPlugins = array();
 
         foreach($plugins as $plug){
@@ -362,6 +362,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             }
         }
 
-        return $myPlugins;*/
+        return $myPlugins;
     }
 }
