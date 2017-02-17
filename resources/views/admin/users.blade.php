@@ -7,6 +7,8 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">
 
+                        <img id="current_profile_pic" style="width:auto;height:200px" src="{{env('BASE_URL') . 'public/logos/blank_profile.jpg'}}">
+
                         @include('admin.form')
 
                         <hr/>
@@ -64,6 +66,7 @@
 
             var admin = selector.attr('admin');
             var active = selector.attr('active');
+            var picurl = selector.attr('picurl');
 
             // If they are an admin, check the admin box.
             if (admin==1)
@@ -78,6 +81,8 @@
 
             else
                 $('#active').prop('checked', false);
+
+            $('#current_profile_pic').attr('src',picurl);
         }
 
     </script>

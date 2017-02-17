@@ -57,6 +57,20 @@ trait RegistersUsers
         //This will not error because of the statement above.
         $token = \Auth::user()->token;
 
+        //save profile pic
+        if( !is_null($request->file('profile')) ) {
+            //get the file object
+            $file = $request->file('profile');
+            $filename = $file->getClientOriginalName();
+            //path where file will be stored
+            $destinationPath = env('BASE_PATH') . 'storage/app/profiles/'.\Auth::user()->id.'/';
+            //store filename in user model
+            \Auth::user()->profile = $filename;
+            \Auth::user()->save();
+            //move the file
+            $file->move($destinationPath,$filename);
+        }
+
         Mail::send('emails.activation', compact('token'), function($message)
         {
             $message->from(env('MAIL_FROM_ADDRESS'));

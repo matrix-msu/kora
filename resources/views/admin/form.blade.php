@@ -9,7 +9,7 @@
                 @elseif( \Auth::user()->id == $user->id)
                     <!-- Do nothing, we don't want the current user to view their own username -->
                 @else
-                    <option value="{{$user->id}}" admin="{{$user->admin}}" active="{{$user->active}}">{{$user->username}}</option>
+                    <option picurl="{{$user->getProfilePicUrl()}}" value="{{$user->id}}" admin="{{$user->admin}}" active="{{$user->active}}">{{$user->username}}</option>
                 @endif
             @endforeach
         </select>

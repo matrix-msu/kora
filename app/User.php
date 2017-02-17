@@ -364,4 +364,12 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
         return $myPlugins;
     }
+
+    public function getProfilePicUrl(){
+        if(!is_null($this->profile)){
+            return env('BASE_URL') . 'storage/app/profiles/'.$this->id.'/'.$this->profile;
+        }else{
+            return env('BASE_URL') . 'public/logos/blank_profile.jpg';
+        }
+    }
 }

@@ -18,7 +18,7 @@
 						</div>
 					@endif
 
-					<form class="form-horizontal" role="form" method="POST" action="{{ url('/auth/register') }}">
+					<form class="form-horizontal" role="form" method="POST" enctype="multipart/form-data" action="{{ url('/auth/register') }}">
 						<input type="hidden" name="_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="regtoken" value="{{\App\Http\Controllers\Auth\AuthController::makeRegToken()}}">
 
@@ -28,6 +28,13 @@
 								<input type="text" class="form-control" name="username" value="{{ old('username') }}">
 							</div>
 						</div>
+
+                        <div class="form-group">
+                            <label class="col-md-4 control-label">Profile Picture</label>
+                            <div class="col-md-6">
+                                <input type="file" accept=".jpeg,.png,.bmp,.gif,.jpg" class="form-control" name="profile" value="profile">
+                            </div>
+                        </div>
 
 						<div class="form-group">
 							<label class="col-md-4 control-label">{{trans('auth_register.email')}}</label>

@@ -21,6 +21,7 @@ class CreateUsersTable extends Migration {
             $table->boolean('active');
             $table->string('username')->unique();
             $table->string('name');
+            $table->string('profile')->nullable();
             $table->string('email')->unique();
             $table->string('password', 60);
             $table->string('organization');

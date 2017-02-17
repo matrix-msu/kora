@@ -191,6 +191,7 @@ Route::get('/auth/activate', 'Auth\UserController@activateshow');
 Route::get('/user/activate/{token}', 'Auth\UserController@activate');
 Route::post('/auth/activator', 'Auth\UserController@activator');
 Route::post('/user/profile','Auth\UserController@changeprofile');
+Route::post('/user/picture','Auth\UserController@changepicture');
 
 //metadata routes
 Route::get('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@index');

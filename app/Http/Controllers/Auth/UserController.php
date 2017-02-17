@@ -43,10 +43,12 @@ class UserController extends Controller {
 
         $user = Auth::user();
 
+        $profile = $user->profile;
+
         if($user->admin){
             $admin = 1;
             $records = Record::where('owner', '=', $user->id)->orderBy('updated_at', 'desc')->take(30)->get();
-            return view('user/profile',compact('languages_available', 'admin', 'records'));
+            return view('user/profile',compact('languages_available', 'admin', 'records', 'profile'));
         }
         else{
             $admin = 0;
@@ -54,8 +56,28 @@ class UserController extends Controller {
             $forms = UserController::buildFormsArray($user);
             $records = Record::where('owner', '=', $user->id)->orderBy('updated_at', 'desc')->get();
 
-            return view('user/profile',compact('languages_available', 'admin', 'projects', 'forms', 'records'));
+            return view('user/profile',compact('languages_available', 'admin', 'projects', 'forms', 'records', 'profile'));
         }
+    }
+
+    public function changepicture(Request $request){
+        $file = $request->file('profile');
+        $pDir = env('BASE_PATH') . 'storage/app/profiles/'.\Auth::user()->id.'/';
+        $pURL = env('BASE_URL') . 'storage/app/profiles/'.\Auth::user()->id.'/';
+
+        //remove old pic
+        $oldFile = $pDir.\Auth::user()->profile;
+        unlink($oldFile);
+
+        //set new pic to db
+        $newFilename = $file->getClientOriginalName();
+        \Auth::user()->profile = $newFilename;
+        \Auth::user()->save();
+
+        //move photo and return new path
+        $file->move($pDir,$newFilename);
+
+        return $pURL.$newFilename;
     }
 
     /**
