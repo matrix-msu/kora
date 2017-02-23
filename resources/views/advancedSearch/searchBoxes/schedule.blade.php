@@ -7,7 +7,7 @@
     <div id="input_collapse_{{$field->flid}}" style="display: none;">
         <div class="panel-body">
             @foreach(["begin", "end"] as $index)
-                <label for="{{$field->flid}}_begin">{{title_case($index)}} date:</label>
+                <label for="{{$field->flid}}_begin">{{trans('advanced_search.date_'.$index)}}:</label>
                 <div class="form-group form-inline">
                     {!! Form::label($field->flid."_". $index ."_month",trans('records_fieldInput.month').': ') !!}
                     {!! Form::select($field->flid."_". $index ."_month",['' => '',
@@ -46,7 +46,7 @@
                     </select>
                 </div>
             @endforeach
-            Search range: <span id="{{$field->flid}}_range">invalid</span>.
+                {{trans('advanced_search.range_text')}}: <span id="{{$field->flid}}_range">{{trans('advanced_search.invalid')}}</span>.
         </div>
         <input type="hidden" id="{{$field->flid}}_valid" name="{{$field->flid}}_valid" value="0">
     </div>
@@ -54,11 +54,11 @@
 <script>
     $("[name^={{$field->flid}}_]").change(function() {
         if(validDates_{{$field->flid}}()) {
-            $("#{{$field->flid}}_range").html("valid");
+            $("#{{$field->flid}}_range").html("{{trans('advanced_search.valid')}}");
             $("#{{$field->flid}}_valid").val("1")
         }
         else {
-            $("#{{$field->flid}}_range").html("invalid");
+            $("#{{$field->flid}}_range").html("{{trans('advanced_search.invalid')}}");
             $("#{{$field->flid}}_valid").val("0")
         }
     });

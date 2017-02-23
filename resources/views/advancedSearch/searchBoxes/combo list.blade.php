@@ -57,7 +57,7 @@ $_options = [
                         Invert: <input id="{{$field->flid}}_{{$field_num}}_invert" type="checkbox" name="{{$field->flid}}_{{$field_num}}_invert">
 
                         <div style="margin-top: 1em" id="{{$field->flid}}_{{$field_num}}_info">
-                            Current search interval: <span id="{{$field->flid}}_{{$field_num}}_interval">invalid</span>
+                            {{trans('advanced_search.interval_text')}}: <span id="{{$field->flid}}_{{$field_num}}_interval">{{trans('advanced_search.invalid')}}}</span>
                         </div>
 
                         <input type="hidden" id="{{$field->flid}}_{{$field_num}}_valid" name="{{$field->flid}}_{{$field_num}}_valid" value="0">
@@ -65,18 +65,21 @@ $_options = [
                         @include("advancedSearch.searchBoxes.number-validation", ["prefix" => strval($field->flid) . "_" . strval($field_num)])
                     </div>
                 @else
-                    <?php $multiple = ($types[$field_num] != "List") ?>
+                    <?php
+                        $multiple = ($types[$field_num] != "List");
+                        $trans = ($multiple) ? 'advanced_search.search_options_text' : 'advanced_search.search_option_text';
+                    ?>
 
-                    <label for={{$field->flid}}_{{$field_num}}_input">Search option{{($multiple) ? "s" : ""}} for {{$names[$field_num]}}:</label><br/>
+                    <label for={{$field->flid}}_{{$field_num}}_input">{{trans($trans)}} {{$names[$field_num]}}:</label><br/>
                     {!! Form::select( $field->flid . "_"  . $field_num . "_input" . (($multiple) ? "[]" : ""), $_options[$field_num], "", ["class" => "form-control", ($multiple) ? "Multiple" : "", 'id' => $field->flid . "_" . $field_num ."_input", "style" => "width: 100%"]) !!}
 
-                    <label for="{{$field->flid}}_operator">Search operator (only has effect if both fields are completed):</label>
+                    <label for="{{$field->flid}}_operator">{{trans("advanced_search.search_operator_text")}}:</label>
                     <select class="form-control" name="{{$field->flid}}_operator">
-                        <option value="and" selected>AND</option>
-                        <option value="or">OR</option>
+                        <option value="and" selected>{{trans('advanced_search.and')}}</option>
+                        <option value="or">{{trans('advanced_search.or')}}</option>
                     </select>
 
-                    Input is: <span id="{{$field->flid}}_{{$field_num}}_valid_selection">invalid</span>.
+                    {{trans('advanced_search.input_text')}}: <span id="{{$field->flid}}_{{$field_num}}_valid_selection">{{trans('advanced_search.invalid')}}</span>.
                     <input type="hidden" id="{{$field->flid}}_{{$field_num}}_valid" name="{{$field->flid}}_{{$field_num}}_valid" value="0">
 
                     @if($multiple)
@@ -93,11 +96,11 @@ $_options = [
 
                             $("#{{$field->flid}}_{{$field_num}}_input").change(function() {
                                 if (this.value == "") {
-                                    $("#{{$field->flid}}_{{$field_num}}_valid_selection").html("invalid");
+                                    $("#{{$field->flid}}_{{$field_num}}_valid_selection").html("{{trans('advanced_search.invalid')}}");
                                     $("#{{$field->flid}}_{{$field_num}}_valid").val("0");
                                 }
                                 else {
-                                    $("#{{$field->flid}}_{{$field_num}}_valid_selection").html("valid");
+                                    $("#{{$field->flid}}_{{$field_num}}_valid_selection").html("{{trans('advanced_search.valid')}}");
                                     $("#{{$field->flid}}_{{$field_num}}_valid").val("1");
                                 }
                             });

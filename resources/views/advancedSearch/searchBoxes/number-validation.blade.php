@@ -17,7 +17,7 @@
         var right_string;
 
         if (left_val != "" && right_val != "" && parseFloat(left_val) > parseFloat(right_val)) { // Invalid range.
-            selector.html("invalid");
+            selector.html("{{trans('advanced_search.invalid')}}");
             $("#{{$prefix}}_valid").val("0");
         }
         else {
@@ -28,7 +28,7 @@
             var right_infinity = right_string.indexOf("infin") !== -1;
 
             if (left_infinity && right_infinity) { // Don't allow both inputs to be infinity.
-                selector.html("invalid.");
+                selector.html("{{trans('advanced_search.invalid')}}");
                 $("#{{$prefix}}_valid").val("0");
                 return;
             }

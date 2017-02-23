@@ -28,9 +28,9 @@
                 {!! Form::label($field->flid . "_address", trans('records_fieldInput.addr').': ') !!}
                 <input type="text" class="form-control text_addr{{$field->flid}}" name="{{$field->flid}}_address">
             </div>
-            <label for="{{$field->flid}}_range">Range (in kilometers):</label>
+            <label for="{{$field->flid}}_range">{{trans('advanced_search.range_km')}}:</label>
             <input type="number" class="form-control" name="{{$field->flid}}_range">
-            Input is: <span id="{{$field->flid}}_valid_text">invalid</span>.
+            {{trans('advanced_search.input_text')}}: <span id="{{$field->flid}}_valid_text">{{trans('advanced_search.invalid')}}</span>.
         </div>
         <input type="hidden" id="{{$field->flid}}_valid" name="{{$field->flid}}_valid" value="0">
     </div>
@@ -144,11 +144,11 @@
         }
 
         if (valid) {
-            $("#{{$field->flid}}_valid_text").html("valid");
+            $("#{{$field->flid}}_valid_text").html("{{trans('advanced_search.valid')}}");
             $("#{{$field->flid}}_valid").val("1")
         }
         else {
-            $("#{{$field->flid}}_valid_text").html("invalid");
+            $("#{{$field->flid}}_valid_text").html("{{trans('advanced_search.invalid')}}");
             $("#{{$field->flid}}_valid").val("0");
         }
     }

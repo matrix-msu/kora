@@ -6,9 +6,9 @@
     </div>
     <div id="input_collapse_{{$field->flid}}" style="display: none;">
         <div class="panel-body">
-            <label for="{{$field->flid}}_input">Select option:</label></br>
+            <label for="{{$field->flid}}_input">{{trans('advanced_search.search_option_text')}}:</label></br>
             {!! Form::select( $field->flid . "_input", \App\ListField::getList($field, true), $field->default, ["class" => "form-control", "style" => "width: 100%"]) !!}
-            Input is: <span id="{{$field->flid}}_valid_selection">invalid</span>.
+            {{trans('advanced_search.input_text')}}: <span id="{{$field->flid}}_valid_selection">{{trans('advanced_search.invalid')}}</span>.
         </div>
     </div>
     <input type="hidden" id="{{$field->flid}}_valid" name="{{$field->flid}}_valid" value="0">
@@ -17,11 +17,11 @@
     $("[name={{$field->flid}}_input]").select2();
     $("[name={{$field->flid}}_input]").change(function() {
        if (this.value == "") {
-           $("#{{$field->flid}}_valid_selection").html("invalid");
+           $("#{{$field->flid}}_valid_selection").html("{{trans('advanced_search.invalid')}}");
            $("#{{$field->flid}}_valid").val("0");
        }
        else {
-           $("#{{$field->flid}}_valid_selection").html("valid");
+           $("#{{$field->flid}}_valid_selection").html("{{trans('advanced_search.valid')}}");
            $("#{{$field->flid}}_valid").val("1");
        }
     });
