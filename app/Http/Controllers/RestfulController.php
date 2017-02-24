@@ -3,9 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\ComboListField;
+use App\DateField;
 use App\Field;
+use App\ListField;
+use App\NumberField;
+use App\Record;
 use App\Search;
+use App\TextField;
 use App\Token;
+use App\User;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -26,6 +32,7 @@ class RestfulController extends Controller
      * @var array
      */
     const VALID_FORMATS = [ self::JSON, self::XML ];
+    const VALID_SORT = ['Text','List','Number','Date'];
 
     public function getKoraVersion(){
         $instInfo = DB::table("versions")->first();
@@ -127,58 +134,450 @@ class RestfulController extends Controller
             $filters['size'] = isset($f->size) ? $f->size : false; //do we want the number of records in the search result returned instead of data
             $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //TODO: do we want information back about associated records
             $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for
-            $filters['sort'] = isset($f->sort) ? $f->sort : false; //TODO: how should the data be sorted
+            $filters['sort'] = isset($f->sort) ? $f->sort : null; //how should the data be sorted
 
             //parse the query
-            $query = $f->query;
-            if(!isset($query)){
-                //return all records...
-            }else{
-                //determine our search type
-                switch($query->search){
-                    case 'keyword':
-                        //do a keyword search
-                        if(!isset($query->keys)){
-                            return "You must provide keywords in a keyword search for form: ".$form->name;
-                        }
+            if(!isset($f->query)){
+                //return all records
+                $returnRIDS = Record::where("fid","=",$form->fid)->lists('rid')->all();
 
-                        $keys = $query->keys;
-                        $method = isset($query->method) ? $query->method : 'OR';
+                if(!is_null($filters['sort'])){
+                    $sortArray = explode(',',$filters['sort']);
+                    $returnRIDS = $this->sort_rids($returnRIDS,$sortArray);
 
-                        $search = new Search($form->pid, $form->fid, $keys, $method);
+                    if(!$returnRIDS)
+                        return "Illegal field type or invalid field provided for sort in form: " . $form->name;
+                }
 
-                        $rids = $search->formKeywordSearch2();
+                //see if we are returning the
+                if ($filters['size'])
+                    return sizeof($returnRIDS);
+                else
+                    return $this->populateRecords($returnRIDS, $filters);
+            }else {
+                $queries = $f->query;
+                $resultSets = array();
 
-                        if($filters['size'])
-                            return sizeof($rids);
+                foreach ($queries as $query) {
+                    //determine our search type
+                    switch ($query->search) {
+                        case 'keyword':
+                            //do a keyword search
+                            if (!isset($query->keys)) {
+                                return "You must provide keywords in a keyword search for form: " . $form->name;
+                            }
+
+                            $keys = $query->keys;
+                            $method = isset($query->method) ? $query->method : 'OR';
+
+                            $search = new Search($form->pid, $form->fid, $keys, $method);
+
+                            $rids = $search->formKeywordSearch2();
+
+                            array_push($resultSets,$rids);
+                            break;
+                        case 'advanced':
+                            //do an advanced search
+                            if (!isset($query->fields)) {
+                                return "You must provide fields in an advanced search for form: " . $form->name;
+                            }
+
+                            $fields = $query->fields;
+
+                            foreach($fields as $flid => $data) {
+                                $field = FieldController::getField($flid);
+                                $id = $field->flid;
+
+                                $request->request->add([$id.'_dropdown' => 'on']);
+                                $request->request->add([$id.'_valid' => 1]);
+
+                                switch($field->type){
+                                    case 'Text':
+                                        $request->request->add([$id.'_input' => $data->input]);
+                                        break;
+                                    case 'Rich Text':
+                                        $request->request->add([$id.'_input' => $data->input]);
+                                        break;
+                                    case 'Number':
+                                        if(isset($data->left))
+                                            $leftNum = $data->left;
+                                        else
+                                            $leftNum = '';
+                                        $request->request->add([$id.'_left' => $leftNum]);
+                                        if(isset($data->right))
+                                            $rightNum = $data->right;
+                                        else
+                                            $rightNum = '';
+                                        $request->request->add([$id.'_right' => $rightNum]);
+                                        if(isset($data->invert))
+                                            $invert = $data->invert;
+                                        else
+                                            $invert = 0;
+                                        $request->request->add([$id.'_' => $invert]);
+                                        break;
+                                    case 'List':
+                                        $request->request->add([$id.'_input' => $data->input]);
+                                        break;
+                                    case 'Multi-Select List':
+                                        $request->request->add([$id.'_input' => $data->input]);
+                                        break;
+                                    case 'Generated List':
+                                        $request->request->add([$id.'_input' => $data->input]);
+                                        break;
+                                    case 'Combo List':
+                                        //TODO
+                                        break;
+                                    case 'Date':
+                                        if(isset($data->begin_month))
+                                            $beginMonth = $data->begin_month;
+                                        else
+                                            $beginMonth = '';
+                                        if(isset($data->begin_day))
+                                            $beginDay = $data->begin_day;
+                                        else
+                                            $beginDay = '';
+                                        if(isset($data->begin_year))
+                                            $beginYear = $data->begin_year;
+                                        else
+                                            $beginYear = '';
+                                        $request->request->add([$id.'_begin_month' => $beginMonth]);
+                                        $request->request->add([$id.'_begin_day' => $beginDay]);
+                                        $request->request->add([$id.'_begin_year' => $beginYear]);
+
+                                        if(isset($data->end_month))
+                                            $endMonth = $data->end_month;
+                                        else
+                                            $endMonth = '';
+                                        if(isset($data->end_day))
+                                            $endDay = $data->end_day;
+                                        else
+                                            $endDay = '';
+                                        if(isset($data->end_year))
+                                            $endYear = $data->end_year;
+                                        else
+                                            $endYear = '';
+                                        $request->request->add([$id.'_end_month' => $endMonth]);
+                                        $request->request->add([$id.'_end_day' => $endDay]);
+                                        $request->request->add([$id.'_end_year' => $endYear]);
+
+                                        break;
+                                    case 'Schedule':
+                                        if(isset($data->begin_month))
+                                            $beginMonth = $data->begin_month;
+                                        else
+                                            $beginMonth = '';
+                                        if(isset($data->begin_day))
+                                            $beginDay = $data->begin_day;
+                                        else
+                                            $beginDay = '';
+                                        if(isset($data->begin_year))
+                                            $beginYear = $data->begin_year;
+                                        else
+                                            $beginYear = '';
+                                        $request->request->add([$id.'_begin_month' => $beginMonth]);
+                                        $request->request->add([$id.'_begin_day' => $beginDay]);
+                                        $request->request->add([$id.'_begin_year' => $beginYear]);
+
+                                        if(isset($data->end_month))
+                                            $endMonth = $data->end_month;
+                                        else
+                                            $endMonth = '';
+                                        if(isset($data->end_day))
+                                            $endDay = $data->end_day;
+                                        else
+                                            $endDay = '';
+                                        if(isset($data->end_year))
+                                            $endYear = $data->end_year;
+                                        else
+                                            $endYear = '';
+                                        $request->request->add([$id.'_end_month' => $endMonth]);
+                                        $request->request->add([$id.'_end_day' => $endDay]);
+                                        $request->request->add([$id.'_end_year' => $endYear]);
+
+                                        break;
+                                    case 'Documents' | 'Gallery'  | 'Playlist' | 'Video' | '3D-Model':
+                                        $request->request->add([$id.'_input' => $data->input]);
+                                        break;
+                                    case 'Geolocator':
+                                        $request->request->add([$id.'_type' => $data->type]);
+
+                                        if(isset($data->lat))
+                                            $lat = $data->lat;
+                                        else
+                                            $lat = '';
+                                        $request->request->add([$id.'_lat' => $lat]);
+                                        if(isset($data->lon))
+                                            $lon = $data->lon;
+                                        else
+                                            $lon = '';
+                                        $request->request->add([$id.'_lon' => $lon]);
+                                        if(isset($data->zone))
+                                            $zone = $data->zone;
+                                        else
+                                            $zone = '';
+                                        $request->request->add([$id.'_zone' => $zone]);
+                                        if(isset($data->east))
+                                            $east = $data->east;
+                                        else
+                                            $east = '';
+                                        $request->request->add([$id.'_east' => $east]);
+                                        if(isset($data->north))
+                                            $north = $data->north;
+                                        else
+                                            $north = '';
+                                        $request->request->add([$id.'_north' => $north]);
+                                        if(isset($data->address))
+                                            $address = $data->address;
+                                        else
+                                            $address = '';
+                                        $request->request->add([$id.'_address' => $address]);
+
+                                        $request->request->add([$id.'_range' => $data->range]);
+                                        break;
+                                    case 'Associator':
+                                        //TODO
+                                        break;
+                                    default:
+                                        break;
+                                }
+
+                                $advSearch = new AdvancedSearchController();
+
+                                $rids = $advSearch->search($form->pid, $form->fid, $request);
+                            }
+                            break;
+                        case 'kid':
+                            //do a kid search
+                            if (!isset($query->kids)) {
+                                return "You must provide KIDs in a KID search for form: " . $form->name;
+                            }
+
+                            $kids = explode(",", $query->kids);
+                            $rids = array();
+                            for ($i = 0; $i < sizeof($kids); $i++) {
+                                $rids[$i] = explode("-", $kids[$i])[2];
+                            }
+
+                            array_push($resultSets,$rids);
+                            break;
+                        default:
+                            return "You must provide a search query type for form: " . $form->name;
+                            break;
+                    }
+                }
+
+                //perform all the and/or logic for search types
+                $returnRIDS = array();
+
+                if(!isset($f->logic)){
+                    //OR IT ALL TOGETHER
+                    foreach($resultSets as $result){
+                        $returnRIDS = array_merge($returnRIDS,$result);
+                    }
+                    $returnRIDS = array_unique($returnRIDS);
+                }else {
+                    //do the work!!!!
+                    $logic = $f->logic;
+
+                    $returnRIDS = $this->logic_recursive($logic,$resultSets);
+                }
+
+                //sort
+                if(!is_null($filters['sort'])){
+                    $sortArray = explode(',',$filters['sort']);
+                    $returnRIDS = $this->sort_rids($returnRIDS,$sortArray);
+
+                    if(!$returnRIDS)
+                        return "Illegal field type or invalid field provided for sort in form: " . $form->name;
+                }
+
+                //see if we are returning the
+                if ($filters['size'])
+                    return sizeof($returnRIDS);
+                else
+                    return $this->populateRecords($returnRIDS, $filters);
+            }
+        }
+
+        return 'Successful search!';
+    }
+
+    private function sort_rids($rids, $sortFields){
+        //get field
+        $fieldSlug = $sortFields[0];
+        $direction = $sortFields[1];
+
+        $newOrderArray = array();
+        $noSortValue = array();
+
+        if($fieldSlug=="kora_meta_owner"){
+            foreach ($rids as $rid) {
+                $record = RecordController::getRecord($rid);
+                $owner = User::where('id','=',$record->owner)->first();
+
+                $newOrderArray[$rid] = $owner->username;
+            }
+        }else if($fieldSlug=="kora_meta_created"){
+            foreach ($rids as $rid) {
+                $record = RecordController::getRecord($rid);
+                $created = $record->created_at;
+
+                $newOrderArray[$rid] = $created;
+            }
+        }else if($fieldSlug=="kora_meta_updated"){
+            foreach ($rids as $rid) {
+                $record = RecordController::getRecord($rid);
+                $updated = $record->updated_at;
+
+                $newOrderArray[$rid] = $updated;
+            }
+        }else if($fieldSlug=="kora_meta_kid"){
+            foreach ($rids as $rid) {
+                $newOrderArray[$rid] = $rid;
+            }
+        }else {
+            $field = FieldController::getField($fieldSlug);
+            if (!in_array(($field->type), self::VALID_SORT)) {
+                return false;
+            }
+
+            //for each rid
+            foreach ($rids as $rid) {
+                //based on type
+                switch ($field->type) {
+                    case 'Text':
+                        $tf = TextField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                        if (is_null($tf))
+                            array_push($noSortValue, $rid);
                         else
-                            return $this->populateRecords($rids,$filters);
+                            $newOrderArray[$rid] = $tf->text;
                         break;
-                    case 'advanced':
-                        //TODO: do an advanced search
+                    case 'List':
+                        $lf = ListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                        if (is_null($lf))
+                            array_push($noSortValue, $rid);
+                        else
+                            $newOrderArray[$rid] = $lf->option;
                         break;
-                    case 'kid':
-                        //do a kid search
-                        if(!isset($query->kids)){
-                            return "You must provide KIDs in a KID search for form: ".$form->name;
-                        }
-
-                        $kids = explode(",",$query->kids);
-                        $rids = array();
-                        for($i=0;$i<sizeof($kids);$i++){
-                            $rids[$i] = explode("-",$kids[$i])[2];
-                        }
-
-                        return $this->populateRecords($rids,$filters);
+                    case 'Number':
+                        $nf = NumberField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                        if (is_null($nf))
+                            array_push($noSortValue, $rid);
+                        else
+                            $newOrderArray[$rid] = $nf->number;
+                        break;
+                    case 'Date':
+                        $df = DateField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                        if (is_null($df))
+                            array_push($noSortValue, $rid);
+                        else
+                            $newOrderArray[$rid] = \DateTime::createFromFormat("Y-m-d", $df->year . "-" . $df->month . "-" . $df->day);;
                         break;
                     default:
-                        return "You must provide a search query type for form: ".$form->name;
+                        return false;
                         break;
                 }
             }
         }
 
-        return 'Successful search!';
+        //sort new array
+        $extraData = array($sortFields,$direction,$newOrderArray);
+        uksort($newOrderArray, function($a_key,$b_key) use ($extraData){
+            $sortArray = $extraData[0]; //we need to remove the original sort term and direction to determine if we have tiebreakers defined
+            $copySort = $sortArray;
+            array_shift($copySort); //this removes the first sort field
+            array_shift($copySort); //this removes the first direction
+
+            //determine direction to know if we should flip the result
+            $dir = $extraData[1];
+            if($dir=="ASC")
+                $dir = 1;
+            else if("DESC")
+                $dir = -1;
+            else
+                $dir = 1;
+
+            //using a key sort, but we really want compare the values (like a uasort)
+            //this is the only way we can have both the keys and the values in the compare function
+            $copyArray = $extraData[2]; //a copy of the newOrderArray
+            $a = $copyArray[$a_key];
+            $b = $copyArray[$b_key];
+            if(is_a($a,'DateTime') | (is_numeric($a) && is_numeric($b))){
+                if($a==$b){
+                    if(!empty($sortArray)){
+                        //do things to tiebreak
+                        //get the rids were working with
+                        $recurRids = array($a_key,$b_key);
+                        //run through sort again passing rids and new sort array
+                        $tiebreaker = $this->sort_rids($recurRids,$copySort);
+                        //we know the answer will be an array of a and b's rid
+                        //if a is first
+                        if($tiebreaker[0]==$a_key)
+                            return -1*$dir;
+                        else
+                            return 1*$dir;
+                    }
+                    else
+                        return 0;
+                } else if($a>$b){
+                    return 1*$dir;
+                } else if($a<$b){
+                    return -1*$dir;
+                }
+            }else{
+                $answer = strcmp($a, $b)*$dir;
+                if($answer==0 && !empty($sortArray)){
+                    //do things to tiebreak
+                    //get the rids were working with
+                    $recurRids = array($a_key,$b_key);
+                    //run through sort again passing rids and new sort array
+                    $tiebreaker = $this->sort_rids($recurRids,$copySort);
+                    //we know the answer will be an array of a and b's rid
+                    //if a is first
+                    if($tiebreaker[0]==$a_key)
+                        return -1*$dir;
+                    else
+                        return 1*$dir;
+                }
+                else
+                    return $answer;
+            }
+        });
+
+        //convert to plain array of rids
+        $finalResult = array_keys($newOrderArray);
+
+        return $finalResult;
+    }
+
+    private function logic_recursive($logicArray, $ridSets){
+        $returnRIDS = array();
+        $firstRIDS = array();
+        $secondRIDS = array();
+
+        //get first array of rids, or recurse till it becomes array
+        if(is_array($logicArray[0]))
+            $firstRIDS = $this->logic_recursive($logicArray[0],$ridSets);
+        else{
+            $firstRIDS = $ridSets[$logicArray[0]];
+        }
+
+        //get second array of rids, or recurse till it becomes array
+        if(is_array($logicArray[2]))
+            $secondRIDS = $this->logic_recursive($logicArray[2],$ridSets);
+        else{
+            $secondRIDS = $ridSets[$logicArray[2]];
+        }
+
+        $operator = $logicArray[1];
+
+        if($operator=="AND"){
+            $returnRIDS = array_intersect($firstRIDS,$secondRIDS);
+        }else if($operator=="OR"){
+            $returnRIDS = array_merge($firstRIDS,$secondRIDS);
+        }
+
+        return array_unique($returnRIDS);
     }
 
     public function create(Request $request){
