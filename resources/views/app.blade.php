@@ -63,7 +63,7 @@
 
     <div id="app_container" class="container">
 		@include('flash::message')
-	
+
         @yield('content')
     </div>
 

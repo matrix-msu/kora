@@ -211,6 +211,9 @@ class RecordController extends Controller {
                     $glf->options = FieldController::listArrayToString($value);
                     $glf->save();
                 } else if($field->type == 'Combo List' && $request->input($field->flid.'_val') != null){
+
+                    // TODO: Update with support fields.
+
                     $clf = new ComboListField();
                     $clf->flid = $field->flid;
                     $clf->rid = $record->rid;
@@ -221,6 +224,9 @@ class RecordController extends Controller {
                     }
                     $clf->save();
                 } else if ($field->type == 'Date' && $request->input('year_' . $field->flid) != '') {
+
+                    // TODO: Update with date object.
+
                     $df = new DateField();
                     $df->flid = $field->flid;
                     $df->rid = $record->rid;
@@ -232,6 +238,9 @@ class RecordController extends Controller {
                     $df->era = $request->input('era_' . $field->flid, 'CE');
                     $df->save();
                 } else if ($field->type == 'Schedule') {
+
+                    // TODO: Update with support fields.
+
                     $sf = new ScheduleField();
                     $sf->flid = $field->flid;
                     $sf->rid = $record->rid;
@@ -239,6 +248,9 @@ class RecordController extends Controller {
                     $sf->events = FieldController::listArrayToString($value);
                     $sf->save();
                 } else if ($field->type == 'Geolocator') {
+
+                    // TODO: Update with support fields.
+
                     $gf = new GeolocatorField();
                     $gf->flid = $field->flid;
                     $gf->rid = $record->rid;
@@ -428,6 +440,9 @@ class RecordController extends Controller {
                     $mf->model = $infoString;
                     $mf->save();
                 } else if ($field->type == 'Associator') {
+
+                    // TODO: Review this.
+
                     $af = new AssociatorField();
                     $af->flid = $field->flid;
                     $af->rid = $record->rid;
@@ -1042,6 +1057,9 @@ class RecordController extends Controller {
                     $glf->save();
                 }
             } else if($field->type=='Combo List'){
+
+                // TODO: Update with support fields.
+
                 //we need to check if the field exist first
                 $clf = ComboListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
                 if(!is_null($clf) && !is_null($request->input($field->flid.'_val'))){
@@ -1089,6 +1107,9 @@ class RecordController extends Controller {
                     $df->save();
                 }
             } else if($field->type=='Schedule'){
+
+                // TODO: Update with schedule support.
+
                 //we need to check if the field exist first
                 $sf = ScheduleField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
                 if(!is_null($sf) && !is_null($value)){
@@ -1107,6 +1128,9 @@ class RecordController extends Controller {
                     $sf->save();
                 }
             } else if($field->type=='Geolocator'){
+
+                // TODO: Update with geolocator support.
+
                 //we need to check if the field exist first
                 $gf = GeolocatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
                 if(!is_null($gf) && !is_null($value)){
@@ -1493,6 +1517,9 @@ class RecordController extends Controller {
                     $mf->delete();
                 }
             } else if($field->type=='Associator'){
+
+                // TODO: Review this.
+
                 //we need to check if the field exist first
                 if(AssociatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
                     $af = AssociatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
@@ -2379,6 +2406,9 @@ class RecordController extends Controller {
                     $mf->model = $infoString;
                     $mf->save();
                 } else if ($field->type == 'Associator') {
+
+                    // TODO: Review this.
+
                     $af = new AssociatorField();
                     $af->flid = $field->flid;
                     $af->rid = $record->rid;

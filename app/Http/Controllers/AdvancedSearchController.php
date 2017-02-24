@@ -72,6 +72,8 @@ class AdvancedSearchController extends Controller {
             $rids = array_intersect($rids, $result);
         }
 
+
+
         return $rids;
     }
 

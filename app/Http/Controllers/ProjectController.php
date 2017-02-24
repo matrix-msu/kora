@@ -45,6 +45,12 @@ class ProjectController extends Controller {
             }
         }
 
+        $c = new UpdateController();
+        if ($c->checkVersion() && !session('notified_of_update')) {
+            session(['notified_of_update' => true]);
+            flash()->overlay(trans('controller_update.updateneeded'), trans('controller_update.updateheader'));
+        }
+
         return view('projects.index', compact('projects', 'projectArrays', 'hasProjects','requestProjects'));
 	}
 

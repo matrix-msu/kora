@@ -1,5 +1,6 @@
 <?php namespace App\Commands;
 
+use App\GeolocatorField;
 use Carbon\Carbon;
 use App\RichTextField;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -30,15 +31,25 @@ class SaveGeolocatorSupportTable extends Command implements SelfHandling, Should
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        DB::table('geolocator_support')->chunk(500, function($geosups) use ($table_path, $row_id) {
+        DB::table(GeolocatorField::SUPPORT_NAME)->chunk(500, function($geosups) use ($table_path, $row_id) {
             $count = 0;
             $all_geolocatorsupport_data = new Collection();
 
             foreach($geosups as $geolocatorsupport) {
                 $individual_geolocatorsupport_data = new Collection();
 
-                $individual_geolocatorsupport_data->put("form_group_id", $geolocatorsupport->form_group_id);
-                $individual_geolocatorsupport_data->put("user_id", $geolocatorsupport->user_id);
+                $individual_geolocatorsupport_data->put("id", $geolocatorsupport->id);
+                $individual_geolocatorsupport_data->put("rid", $geolocatorsupport->fid);
+                $individual_geolocatorsupport_data->put("flid", $geolocatorsupport->flid);
+                $individual_geolocatorsupport_data->put("desc", $geolocatorsupport->desc);
+                $individual_geolocatorsupport_data->put("lat", $geolocatorsupport->lat);
+                $individual_geolocatorsupport_data->put("lon", $geolocatorsupport->lon);
+                $individual_geolocatorsupport_data->put("zone", $geolocatorsupport->zone);
+                $individual_geolocatorsupport_data->put("easting", $geolocatorsupport->easting);
+                $individual_geolocatorsupport_data->put("northing", $geolocatorsupport->northing);
+                $individual_geolocatorsupport_data->put("address", $geolocatorsupport->address);
+                $individual_geolocatorsupport_data->put("created_at", $geolocatorsupport->created_at); // Don't format, already string.
+                $individual_geolocatorsupport_data->put("updated_at", $geolocatorsupport->updated_at);
 
                 $all_geolocatorsupport_data->push($individual_geolocatorsupport_data);
                 $count++;

@@ -7,7 +7,7 @@
 
 @section("content")
 
-<span><h1>Advanced Search</h1></span>
+<span><h1>{{trans('advanced_search.title')}}</h1></span>
 <form method="POST" name="advanced_search" action="{{action("AdvancedSearchController@search", ["pid" => $pid, "fid" => $fid])}}">
 @foreach($fields as $field)
     @if($field->searchable)
@@ -15,14 +15,13 @@
     @endif
 @endforeach
     <input type="hidden" name="_token" value="{{csrf_token()}}">
-    <input type="submit" id="advanced_submit" value="Search" class="btn btn-primary form-control" disabled>
+    <input type="submit" id="advanced_submit" value="{{trans('advanced_search.search_btn')}}" class="btn btn-primary form-control" disabled>
 </form>
 @stop
 
 @section("footer")
 <script>
     var formSelector = $("[name=advanced_search]");
-
 
     // If the form is being auto-completed, we should slide down the collapsers that are checked.
     $(window).bind("pageshow", function() {

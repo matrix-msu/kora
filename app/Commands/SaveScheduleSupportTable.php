@@ -1,5 +1,6 @@
 <?php namespace App\Commands;
 
+use App\ScheduleField;
 use Carbon\Carbon;
 use App\RichTextField;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -30,15 +31,22 @@ class SaveScheduleSupportTable extends Command implements SelfHandling, ShouldQu
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        DB::table('schedule_support')->chunk(500, function($schedsups) use ($table_path, $row_id) {
+        DB::table(ScheduleField::SUPPORT_NAME)->chunk(500, function($schedsups) use ($table_path, $row_id) {
             $count = 0;
             $all_schedulesupport_data = new Collection();
 
             foreach($schedsups as $schedulesupport) {
                 $individual_schedulesupport_data = new Collection();
 
-                $individual_schedulesupport_data->put("form_group_id", $schedulesupport->form_group_id);
-                $individual_schedulesupport_data->put("user_id", $schedulesupport->user_id);
+                $individual_schedulesupport_data->put("id", $schedulesupport->id);
+                $individual_schedulesupport_data->put("fid", $schedulesupport->fid);
+                $individual_schedulesupport_data->put("rid", $schedulesupport->rid);
+                $individual_schedulesupport_data->put("flid", $schedulesupport->flid);
+                $individual_schedulesupport_data->put("begin", $schedulesupport->begin);
+                $individual_schedulesupport_data->put("end", $schedulesupport->end);
+                $individual_schedulesupport_data->put("desc", $schedulesupport->desc);
+                $individual_schedulesupport_data->put("created_at", $schedulesupport->created_at); // Already a string, don't format.
+                $individual_schedulesupport_data->put("updated_at", $schedulesupport->updated_at);
 
                 $all_schedulesupport_data->push($individual_schedulesupport_data);
                 $count++;

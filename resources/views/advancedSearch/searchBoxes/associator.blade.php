@@ -7,6 +7,9 @@
     <div id="input_collapse_{{$field->flid}}" style="display: none;">
         <div class="panel-body">
             Form Inputs...
+
+             {{--TODO: add associator panel to advnaced search (and validation).--}}
+
         </div>
     </div>
 </div>
