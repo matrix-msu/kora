@@ -174,6 +174,11 @@ class RestfulController extends Controller
 
                             $rids = $search->formKeywordSearch2();
 
+                            $negative = isset($query->not) ? $query->not : false;
+                            if($negative){
+                                $rids = $this->negative_results($form,$rids);
+                            }
+
                             array_push($resultSets,$rids);
                             break;
                         case 'advanced':
@@ -344,6 +349,13 @@ class RestfulController extends Controller
                                 $advSearch = new AdvancedSearchController();
 
                                 $rids = $advSearch->search($form->pid, $form->fid, $request);
+
+                                $negative = isset($query->not) ? $query->not : false;
+                                if($negative){
+                                    $rids = $this->negative_results($form,$rids);
+                                }
+
+                                array_push($resultSets,$rids);
                             }
                             break;
                         case 'kid':
@@ -356,6 +368,11 @@ class RestfulController extends Controller
                             $rids = array();
                             for ($i = 0; $i < sizeof($kids); $i++) {
                                 $rids[$i] = explode("-", $kids[$i])[2];
+                            }
+
+                            $negative = isset($query->not) ? $query->not : false;
+                            if($negative){
+                                $rids = $this->negative_results($form,$rids);
                             }
 
                             array_push($resultSets,$rids);
@@ -400,6 +417,11 @@ class RestfulController extends Controller
         }
 
         return 'Successful search!';
+    }
+
+    private function negative_results($form, $rids){
+        $negatives = Record::where('fid','=',$form->fid)->whereNotIn('rid',$rids)->lists('rid')->all();
+        return $negatives;
     }
 
     private function sort_rids($rids, $sortFields){
@@ -504,7 +526,7 @@ class RestfulController extends Controller
             $b = $copyArray[$b_key];
             if(is_a($a,'DateTime') | (is_numeric($a) && is_numeric($b))){
                 if($a==$b){
-                    if(!empty($sortArray)){
+                    if(!empty($copySort)){
                         //do things to tiebreak
                         //get the rids were working with
                         $recurRids = array($a_key,$b_key);
@@ -526,7 +548,7 @@ class RestfulController extends Controller
                 }
             }else{
                 $answer = strcmp($a, $b)*$dir;
-                if($answer==0 && !empty($sortArray)){
+                if($answer==0 && !empty($copySort)){
                     //do things to tiebreak
                     //get the rids were working with
                     $recurRids = array($a_key,$b_key);
