@@ -22,6 +22,8 @@ class CreateSchedulefieldsTable extends Migration {
 			$table->integer('rid')->unsigned();
 			$table->integer('fid')->unsigned();
 			$table->integer('flid')->unsigned();
+
+			// TODO: Remove use of events.
 			$table->mediumText('events');
 			$table->timestamps();
 

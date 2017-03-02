@@ -1,5 +1,6 @@
+import decimal
 from json import JSONEncoder
-from datetime import datetime
+from datetime import datetime, date
 
 ##
 ## DBEncoder: extends the JSONEncoder to deal with datetime objects.
@@ -21,5 +22,11 @@ class DBEncoder(JSONEncoder):
         """
         if isinstance(obj, datetime):
             return obj.strftime("%Y-%m-%d %H:%m:%S")
+
+        if isinstance(obj, date):
+            return obj.strftime("%Y-%m-%d")
+
+        if isinstance(obj, decimal.Decimal):
+            return float(obj)
 
         return JSONEncoder.default(self, obj)

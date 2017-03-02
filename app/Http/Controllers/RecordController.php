@@ -212,7 +212,7 @@ class RecordController extends Controller {
                     $glf->save();
                 } else if($field->type == 'Combo List' && $request->input($field->flid.'_val') != null){
 
-                    // TODO: Update with support fields.
+                    // TODO: Remove use of ->options (remove from DB first).
 
                     $clf = new ComboListField();
                     $clf->flid = $field->flid;
@@ -223,10 +223,13 @@ class RecordController extends Controller {
                         $clf->options .= '[!val!]'.$request->input($field->flid.'_val')[$j];
                     }
                     $clf->save();
+
+                    $type_1 = ComboListField::getComboFieldType($field, 'one');
+                    $type_2 = ComboListField::getComboFieldType($field, 'two');
+
+                    // Add combo data to support table.
+                    $clf->addData($request->input($field->flid.'_val'), $type_1, $type_2);
                 } else if ($field->type == 'Date' && $request->input('year_' . $field->flid) != '') {
-
-                    // TODO: Update with date object.
-
                     $df = new DateField();
                     $df->flid = $field->flid;
                     $df->rid = $record->rid;
@@ -239,7 +242,7 @@ class RecordController extends Controller {
                     $df->save();
                 } else if ($field->type == 'Schedule') {
 
-                    // TODO: Update with support fields.
+                    // TODO: Remove use of ->events (remove from DB firt).
 
                     $sf = new ScheduleField();
                     $sf->flid = $field->flid;
@@ -247,9 +250,11 @@ class RecordController extends Controller {
                     $sf->fid = $fid;
                     $sf->events = FieldController::listArrayToString($value);
                     $sf->save();
+
+                    $sf->addEvents($value);
                 } else if ($field->type == 'Geolocator') {
 
-                    // TODO: Update with support fields.
+                    // TODO: Remove use of ->locations (remove from DB first).
 
                     $gf = new GeolocatorField();
                     $gf->flid = $field->flid;
@@ -257,6 +262,8 @@ class RecordController extends Controller {
                     $gf->fid = $fid;
                     $gf->locations = FieldController::listArrayToString($value);
                     $gf->save();
+
+                    $gf->addLocations($value);
                 } else if ($field->type == 'Documents' && glob(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/*.*') != false) {
                     $df = new DocumentsField();
                     $df->flid = $field->flid;
@@ -441,7 +448,7 @@ class RecordController extends Controller {
                     $mf->save();
                 } else if ($field->type == 'Associator') {
 
-                    // TODO: Review this.
+                    // TODO: Review this (associator).
 
                     $af = new AssociatorField();
                     $af->flid = $field->flid;
@@ -1058,7 +1065,7 @@ class RecordController extends Controller {
                 }
             } else if($field->type=='Combo List'){
 
-                // TODO: Update with support fields.
+                // TODO: Remove use of ->options (remove in DB first).
 
                 //we need to check if the field exist first
                 $clf = ComboListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
@@ -1068,8 +1075,14 @@ class RecordController extends Controller {
                         $clf->options .= '[!val!]'.$_REQUEST[$field->flid.'_val'][$i];
                     }
                     $clf->save();
+
+                    $type_1 = ComboListField::getComboFieldType($field, 'one');
+                    $type_2 = ComboListField::getComboFieldType($field, 'two');
+
+                    $clf->updateData($_REQUEST[$field->flid.'_val'], $type_1, $type_2);
                 }elseif(!is_null($clf) && is_null($request->input($field->flid.'_val'))){
                     $clf->delete();
+                    $clf->deleteData();
                 }
                 elseif(is_null($clf) && !is_null($request->input($field->flid.'_val'))) {
                     $clf = new ComboListField();
@@ -1080,6 +1093,11 @@ class RecordController extends Controller {
                         $clf->options .= '[!val!]'.$_REQUEST[$field->flid.'_val'][$i];
                     }
                     $clf->save();
+
+                    $type_1 = ComboListField::getComboFieldType($field, 'one');
+                    $type_2 = ComboListField::getComboFieldType($field, 'two');
+
+                    $clf->addData($_REQUEST[$field->flid.'_val'], $type_1, $type_2);
                 }
             }else if($field->type=='Date'){
                 //we need to check if the field exist first
@@ -1108,16 +1126,19 @@ class RecordController extends Controller {
                 }
             } else if($field->type=='Schedule'){
 
-                // TODO: Update with schedule support.
+                // TODO: Remove use of ->events (remove in DB first).
 
                 //we need to check if the field exist first
                 $sf = ScheduleField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
                 if(!is_null($sf) && !is_null($value)){
                     $sf->events = FieldController::listArrayToString($value);
                     $sf->save();
+
+                    $sf->updateEvents($value);
                 }
                 elseif(!is_null($sf) && is_null($value)){
                     $sf->delete();
+                    $sf->deleteEvents();
                 }
 
                 elseif(is_null($sf) && !is_null($value)) {
@@ -1126,10 +1147,12 @@ class RecordController extends Controller {
                     $sf->rid = $record->rid;
                     $sf->events = FieldController::listArrayToString($value);
                     $sf->save();
+
+                    $sf->addEvents($value);
                 }
             } else if($field->type=='Geolocator'){
 
-                // TODO: Update with geolocator support.
+                // TODO: Remove use of ->locations (remove in DB first).
 
                 //we need to check if the field exist first
                 $gf = GeolocatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
@@ -1137,9 +1160,12 @@ class RecordController extends Controller {
                     $gf = GeolocatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
                     $gf->locations = FieldController::listArrayToString($value);
                     $gf->save();
+
+                    $gf->updateLocations($value);
                 }
                 elseif(!is_null($gf) && is_null($value)){
                     $gf->delete();
+                    $gf->deleteLocations();
                 }
                 elseif(is_null($gf) && !is_null($value)) {
                     $gf = new GeolocatorField();
@@ -1147,6 +1173,8 @@ class RecordController extends Controller {
                     $gf->rid = $record->rid;
                     $gf->locations = FieldController::listArrayToString($value);
                     $gf->save();
+
+                    $gf->addLocations($value);
                 }
             } else if($field->type=='Documents'
                     && (DocumentsField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null
@@ -1518,7 +1546,7 @@ class RecordController extends Controller {
                 }
             } else if($field->type=='Associator'){
 
-                // TODO: Review this.
+                // TODO: Review this (associator).
 
                 //we need to check if the field exist first
                 if(AssociatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
@@ -2407,7 +2435,7 @@ class RecordController extends Controller {
                     $mf->save();
                 } else if ($field->type == 'Associator') {
 
-                    // TODO: Review this.
+                    // TODO: Review this (associator).
 
                     $af = new AssociatorField();
                     $af->flid = $field->flid;

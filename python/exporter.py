@@ -7,6 +7,7 @@ from writer import Writer
 from table import get_base_field_types
 from formatter import get_field_formatters
 from json import dumps
+from encoder import DBEncoder
 
 class Exporter:
     """
@@ -85,7 +86,7 @@ class RecordExporter(Exporter):
                             "type": stash[field["flid"]]["type"],
                         }
 
-                        if (not self._fields_displayed or field_dict["name"] in self._fields_displayed):
+                        if not self._fields_displayed or field_dict["name"] in self._fields_displayed:
                             ## Pass the field and field options to the appropriate field formatter based on its type.
                             field_dict.update(field_formatters[table]( field, stash[field["flid"]]["options"]))
 
@@ -93,7 +94,7 @@ class RecordExporter(Exporter):
             else:
                 record_dict.pop("Fields")
 
-            target.write(dumps(record_dict, separators=(',', ':')) + ",")
+            target.write(dumps(record_dict, separators=(',', ':'), cls=DBEncoder) + ",")
 
         target.close()
 

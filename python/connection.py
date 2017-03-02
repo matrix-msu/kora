@@ -1,7 +1,7 @@
 import MySQLdb
 from MySQLdb import cursors
 from env import env
-from table import BaseFieldTypes, get_data_names
+from table import Table, BaseFieldTypes, get_data_names
 
 ##
 ## Connection: functions as a MySQL Database connection to guard from making mistakes.
@@ -197,7 +197,7 @@ class Cursor:
 
         cursor = self._cnx.cursor()
 
-        stmt = "SELECT `flid`, " + get_data_names(table) + " FROM " + self._prefix + table + " WHERE `rid` = %s"
+        stmt = "SELECT `flid`, `rid`, " + get_data_names(table) + " FROM " + self._prefix + table + " WHERE `rid` = %s"
 
         cursor.execute(stmt, [rid])
 
@@ -208,3 +208,40 @@ class Cursor:
             yield row
 
         cursor.close()
+
+    @staticmethod
+    def get_support_fields(support_type, rid, flid):
+        """
+        Gets the support fields for a particular record.
+
+        :param string support_type: the support field type.
+        :param int|string rid: record id.
+        :param int|string flid: field id.
+        :return dict:
+        """
+        cnx = Connection()
+        cursor = cnx.cursor()
+
+        if support_type == Table.ScheduleSupport:
+            stmt = "SELECT `begin`, `end`, `desc` FROM " + env("DB_PREFIX") + Table.ScheduleSupport \
+                   + " WHERE `rid` = %s AND `flid` = %s"
+
+        elif support_type == Table.GeolocatorSupport:
+            stmt = "SELECT `desc`, `lat`, `lon`, `zone`, `easting`, `northing`, `address` " \
+            + "FROM " + env("DB_PREFIX") + Table.GeolocatorSupport + " WHERE `rid` = %s AND `flid` = %s"
+
+        else: # Combo Support
+            stmt = "SELECT `list_index`, `field_num`, `data`, `number` " \
+            + "FROM " + env("DB_PREFIX") + Table.ComboSupport + " WHERE `rid` = %s AND `flid` = %s " \
+            + "ORDER BY `list_index` ASC"
+
+        cursor.execute(stmt, [rid, flid])
+
+        if cursor.rowcount < 1:
+            raise StopIteration
+
+        for row in cursor:
+            yield row
+
+        cursor.close()
+        del cnx

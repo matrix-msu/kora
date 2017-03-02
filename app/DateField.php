@@ -320,12 +320,12 @@ class DateField extends BaseField {
         $begin_month = ($query[$flid."_begin_month"] == "") ? 1 : intval($query[$flid."_begin_month"]);
         $begin_day = ($query[$flid."_begin_day"] == "") ? 1 : intval($query[$flid."_begin_day"]);
         $begin_year = ($query[$flid."_begin_year"] == "") ? 1 : intval($query[$flid."_begin_year"]);
-        $begin_era = $query[$flid."_begin_era"];
+        $begin_era = isset($query[$flid."_begin_era"]) ? $query[$flid."_begin_era"] : "CE";
 
         $end_month = ($query[$flid."_end_month"] == "") ? 1 : intval($query[$flid."_end_month"]);
         $end_day = ($query[$flid."_end_day"] == "") ? 1 : intval($query[$flid."_end_day"]);
         $end_year = ($query[$flid."_end_year"] == "") ? 1 : intval($query[$flid."_end_year"]);
-        $end_era = $query[$flid."_end_era"];
+        $end_era = isset($query[$flid."_end_era"]) ? $query[$flid."_end_era"] : "CE";
 
         $query = DB::table("date_fields")
             ->select("rid")

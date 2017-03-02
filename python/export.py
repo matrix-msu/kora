@@ -67,7 +67,8 @@ def export_routine(argv):
     while i - slice_on < len(data):
         exporter = RecordExporter(chunk, writer.start_time, writer_type, fields_displayed, meta, show_data)
 
-        pool.apply_async(exporter)
+        exporter()
+        ## pool.apply_async(exporter)
 
         i += slice_on
         chunk = data[i - slice_on : i]

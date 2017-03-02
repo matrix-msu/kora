@@ -1,4 +1,6 @@
-from table import BaseFieldTypes
+from table import Table, BaseFieldTypes
+from connection import Cursor
+from datetime import date
 
 def get_field_formatters(format):
     """
@@ -110,27 +112,29 @@ def combo_list_to_JSONable(row, field_options = ""):
     name_two = field_options.split("[!Field2!]")[1].split("[Name]")[1]
     type_two = field_options.split("[!Field2!]")[1].split("[Type]")[1]
 
-    for item in row["options"].split("[!val!]"):
-        val_one = item.split("[!f1!]")
-        val_two = item.split("[!f2!]")
+    # We want the data from the combo field to be returned two at a time.
+    iterator = Cursor.get_support_fields(Table.ComboSupport, row['rid'], row['flid'])
+    for data_1 in iterator:
+        data_2 = iterator.next()
 
-        ## If the combo fields have array-type, we have to split them apart.
         if type_one == "Multi-Select List" or type_one == "Generated List":
-            val_one = val_one[1].split("[!]")
+            val_one = data_1['data'].split('[!]')
         else:
-            val_one = val_one[1]
+            val_one = data_1['data'] if data_1['data'] is not None else data_1['number']
 
         if type_two == "Multi-Select List" or type_two == "Generated List":
-            val_two = val_two[1].split("[!]")
+            val_two = data_2['data'].split('[!]')
         else:
-            val_two = val_two[1]
+            val_two = data_2['data'] if data_2['data'] is not None else data_2['number']
 
-        values.append({
+        val = {
             name_one: val_one,
             name_two: val_two
-        })
+        }
 
-    return values
+        values.append(val)
+
+    return {"options": values}
 
 def date_to_JSONable(row, field_options = ""):
     """
@@ -155,23 +159,19 @@ def schedule_to_JSONable(row, field_options = ""):
     """
     events = []
 
-    for item in row["events"].split("[!]"):
-        title_date = item.split(": ") ## An array with the title at [0] and the date range at [1].
-
-        ## Two arrays that vary based on if the dates are "all day" instances.
-        start = title_date[1].split(" - ")[0].split(" ")
-        end = title_date[1].split(" - ")[1].split(" ")
-
-        if len(start) == 1: ## "All day".
+    for result in Cursor.get_support_fields(Table.ScheduleSupport, row['rid'], row['flid']):
+        if isinstance(result['begin'], date): # "All day" event.
             event_dict = {
-                "start": start[0],
-                "end": end[0],
+                "desc": result['desc'],
+                "start": result['begin'],
+                "end": result['end'],
                 "allday": 1
             }
-        else: ## Has a start and end time.
+        else:
             event_dict = {
-                "start": start[0] + start[1] + start[2],
-                "end": end[0] + end[1] + end[2],
+                "description": result['desc'],
+                "start": result['begin'],
+                "end": result['end'],
                 "allday": 0
             }
 
@@ -224,16 +224,18 @@ def model_to_JSONable(row, field_options = ""):
 def geolocator_to_JSONable(row, field_options = ""):
     locations = []
 
-    for location in row["locations"].split("[!]"):
-        locations.append({
-            "desc": location.split("[Desc]")[1],
-            "lat": location.split("[LatLon]")[1].split(",")[0],
-            "lon": location.split("[LatLon]")[1].split(",")[1],
-            "zone": location.split("[UTM]")[1].split(":")[0],
-            "east": location.split("[UTM]")[1].split(":")[1].split(",")[0],
-            "north": location.split("[UTM]")[1].split(":")[1].split(",")[1],
-            "address": location.split("[Address]")[1]
-        })
+    for location in Cursor.get_support_fields(Table.GeolocatorSupport, row['rid'], row['flid']):
+        locations.append(
+            {
+                "desc": location['desc'],
+                "lat": location['lat'],
+                "lon": location['lon'],
+                "zone": location['zone'],
+                "east": location['easting'],
+                "north": location['northing'],
+                "address": location['address']
+            }
+        )
 
     return { "locations": locations }
 

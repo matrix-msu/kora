@@ -22,6 +22,8 @@ class CreateComboListFieldsTable extends Migration {
 			$table->integer('rid')->unsigned();
 			$table->integer('fid')->unsigned();
 			$table->integer('flid')->unsigned();
+
+			//TODO: Remove use of options.
 			$table->mediumText('options');
 			$table->timestamps();
 

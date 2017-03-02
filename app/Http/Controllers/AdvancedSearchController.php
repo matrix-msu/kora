@@ -6,6 +6,8 @@ use Geocoder\Geocoder;
 use Illuminate\Http\Request;
 use Geocoder\Provider\NominatimProvider;
 use Geocoder\HttpAdapter\CurlHttpAdapter;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Session;
 
 class AdvancedSearchController extends Controller {
 
@@ -55,10 +57,9 @@ class AdvancedSearchController extends Controller {
 
         $results = [];
 
-        dd($this->processRequest($request));
-
         foreach ($this->processRequest($request) as $flid => $query) {
             // Result will be returned as an array of stdObjects so we have to extract the rid.
+
             $result = array_map(function($returned) {
                 return $returned->rid;
             }, Field::advancedSearch($flid, $stash[$flid]["type"], $query)->get());
@@ -72,9 +73,16 @@ class AdvancedSearchController extends Controller {
             $rids = array_intersect($rids, $result);
         }
 
+        return redirect('projects/'.$pid.'/forms'.$fid.'/advancedSearch/results');
+    }
 
-
-        return $rids;
+    public function results($pid, $fid) {
+        if (Session::has("adv_rids")) {
+            $rids = Session::get("rids");
+        }
+        else {
+            $rids = [];
+        }
     }
 
     /**

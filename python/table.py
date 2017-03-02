@@ -23,7 +23,7 @@ class Table:
     Project = "projects"
     PasswordReset = "password_resets"
     Form = "forms"
-    Field = "rm 1"
+    Field = "fields"
     Record = "records"
     User = "users"
     Token = "tokens"
@@ -43,6 +43,9 @@ class Table:
     PluginsSettings = "plugin_settings"
     PluginsUsers = "plugin_users"
     PluginMenus = "plugin_menus"
+    ScheduleSupport = "schedule_support"
+    GeolocatorSupport = "geolocator_support"
+    ComboSupport = "combo_support"
 
 class BaseFieldTypes:
     """
@@ -86,12 +89,12 @@ def get_data_names(table):
     """
 
     return {
-        BaseFieldTypes.ComboListField: "`options`",
+        BaseFieldTypes.ComboListField: "`options`", # TODO: Change to "" when removed from DB.
         BaseFieldTypes.DateField: "`circa`, `month`, `day`, `year`, `era`, `date_object`",
         BaseFieldTypes.DocumentsField: "`documents`",
         BaseFieldTypes.GalleryField: "`images`",
-        BaseFieldTypes.GeneratedListField: "`options`",
-        BaseFieldTypes.GeolocatorField: "`locations`",
+        BaseFieldTypes.GeneratedListField: "`options`", # TODO: Change to "" when removed from DB.
+        BaseFieldTypes.GeolocatorField: "`locations`", # TODO: Change to "" when removed from DB.
         BaseFieldTypes.ListField: "`option`",
         BaseFieldTypes.ModelField: "`model`",
         BaseFieldTypes.MultiSelectListField: "`options`",
