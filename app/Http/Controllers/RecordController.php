@@ -968,6 +968,7 @@ class RecordController extends Controller {
                     $tf = new TextField();
                     $tf->flid = $field->flid;
                     $tf->rid = $record->rid;
+                    $tf->fid = $record->fid;
                     $tf->text = $value;
                     $tf->save();
                 }
@@ -985,6 +986,7 @@ class RecordController extends Controller {
                         $rtf = new RichTextField();
                         $rtf->flid = $field->flid;
                         $rtf->rid = $record->rid;
+                        $rtf->fid = $record->fid;
                         $rtf->rawtext = $value;
                         $rtf->save();
                     }
@@ -1004,6 +1006,7 @@ class RecordController extends Controller {
                         $nf = new NumberField();
                         $nf->flid = $field->flid;
                         $nf->rid = $record->rid;
+                        $nf->fid = $record->fid;
                         $nf->number = $value;
                         $nf->save();
                     }
@@ -1023,6 +1026,7 @@ class RecordController extends Controller {
                         $lf = new ListField();
                         $lf->flid = $field->flid;
                         $lf->rid = $record->rid;
+                        $lf->fid = $record->fid;
                         $lf->option = $value;
                         $lf->save();
                     }
@@ -1043,6 +1047,7 @@ class RecordController extends Controller {
                     $mslf = new MultiSelectListField();
                     $mslf->flid = $field->flid;
                     $mslf->rid = $record->rid;
+                    $mslf->fid = $record->fid;
                     $mslf->options = FieldController::listArrayToString($value);
                     $mslf->save();
                 }
@@ -1060,6 +1065,7 @@ class RecordController extends Controller {
                     $glf = new GeneratedListField();
                     $glf->flid = $field->flid;
                     $glf->rid = $record->rid;
+                    $glf->fid = $record->fid;
                     $glf->options = FieldController::listArrayToString($value);
                     $glf->save();
                 }
@@ -1088,6 +1094,7 @@ class RecordController extends Controller {
                     $clf = new ComboListField();
                     $clf->flid = $field->flid;
                     $clf->rid = $record->rid;
+                    $clf->fid = $record->fid;
                     $clf->options = $_REQUEST[$field->flid.'_val'][0];
                     for($i=1;$i<sizeof($_REQUEST[$field->flid.'_val']);$i++){
                         $clf->options .= '[!val!]'.$_REQUEST[$field->flid.'_val'][$i];
@@ -1117,6 +1124,7 @@ class RecordController extends Controller {
                     $df = new DateField();
                     $df->flid = $field->flid;
                     $df->rid = $record->rid;
+                    $df->fid = $record->fid;
                     $df->circa = $request->input('circa_'.$field->flid, '');
                     $df->month = $request->input('month_'.$field->flid);
                     $df->day = $request->input('day_'.$field->flid);
@@ -1145,6 +1153,7 @@ class RecordController extends Controller {
                     $sf = new ScheduleField();
                     $sf->flid = $field->flid;
                     $sf->rid = $record->rid;
+                    $sf->fid = $record->fid;
                     $sf->events = FieldController::listArrayToString($value);
                     $sf->save();
 
@@ -1171,6 +1180,7 @@ class RecordController extends Controller {
                     $gf = new GeolocatorField();
                     $gf->flid = $field->flid;
                     $gf->rid = $record->rid;
+                    $gf->fid = $record->fid;
                     $gf->locations = FieldController::listArrayToString($value);
                     $gf->save();
 
@@ -1191,6 +1201,7 @@ class RecordController extends Controller {
                     $df = new DocumentsField();
                     $df->flid = $field->flid;
                     $df->rid = $record->rid;
+                    $df->fid = $record->fid;
                     $newPath = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid;
 
                     if(!file_exists($newPath)) {
@@ -1266,6 +1277,7 @@ class RecordController extends Controller {
                     $gf = new GalleryField();
                     $gf->flid = $field->flid;
                     $gf->rid = $record->rid;
+                    $gf->fid = $record->fid;
                     $newPath = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid;
 
                     if(!file_exists($newPath)) {
@@ -1349,6 +1361,7 @@ class RecordController extends Controller {
                     $pf = new PlaylistField();
                     $pf->flid = $field->flid;
                     $pf->rid = $record->rid;
+                    $pf->fid = $record->fid;
                     $newPath = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid;
                     if(!file_exists($newPath)) {
                         mkdir($newPath, 0775, true);
@@ -1419,6 +1432,7 @@ class RecordController extends Controller {
                     $vf = new VideoField();
                     $vf->flid = $field->flid;
                     $vf->rid = $record->rid;
+                    $vf->fid = $record->fid;
                     $newPath = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid;
                     if(!file_exists($newPath)) {
                         mkdir($newPath, 0775, true);
@@ -1489,6 +1503,7 @@ class RecordController extends Controller {
                     $mf = new Modelfield();
                     $mf->flid = $field->flid;
                     $mf->rid = $record->rid;
+                    $mf->fid = $record->fid;
                     $newPath = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid.'/r'.$record->rid.'/fl'.$field->flid;
                     if(!file_exists($newPath)) {
                         mkdir($newPath, 0775, true);
@@ -1557,6 +1572,7 @@ class RecordController extends Controller {
                     $af = new AssociatorField();
                     $af->flid = $field->flid;
                     $af->rid = $record->rid;
+                    $af->fid = $record->fid;
                     $af->records = FieldController::listArrayToString($value);
                     $af->save();
                 }
