@@ -826,6 +826,12 @@ class RestfulController extends Controller
         $uToken = $this->fileToken(); //need a temp user id to interact, specifically for files
         $recRequest['userId'] = $uToken; //the new record will ultimately be owned by the root/sytem
 
+        //Basically this determines if we keep data for fields we don't mention in the request
+        //if true, we keep the data
+        //by default, we delete data from unmentioned fields
+        $keepFields = isset($request->keepFields) ? $request->keepFields : "false";
+        $fieldsToEditArray = array(); //These are the fields that are allowed to be editted if we are doing keepfields
+
         if( !is_null($request->file("zipFile")) ){
             $file = $request->file("zipFile");
             $zipPath = $file->move(env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken);
@@ -845,6 +851,10 @@ class RestfulController extends Controller
             $fieldSlug = $field->name;
             $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
             $type = $field->type;
+
+            //if keepfields scenario, keep track of this field that will be edited
+            if($keepFields=="true")
+                array_push($fieldsToEditArray,$flid);
 
             if ($type == 'Text'){
                 $recRequest[$flid] = $field->text;
@@ -968,6 +978,8 @@ class RestfulController extends Controller
 
         //dd($recRequest);
         $recRequest['api'] = true;
+        $recRequest['keepFields'] = $keepFields; //whether we keep unmentioned fields
+        $recRequest['fieldsToEdit'] = $fieldsToEditArray; //what fields can be modified if keepfields
         $recCon = new RecordController();
         $recCon->update($form->pid,$form->fid,$record->rid,$recRequest);
 

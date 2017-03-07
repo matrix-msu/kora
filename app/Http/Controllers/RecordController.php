@@ -655,9 +655,22 @@ class RecordController extends Controller {
 
         $form_fields_expected = Form::find($fid)->fields()->get();
 
+        //api uses these, but we'll initialize them for error sake
+        $keepFields = "false";
+        $fieldsToEdit = array();
+        if($request->api){
+            $keepFields = $request->keepFields;
+            $fieldsToEdit = $request->fieldsToEdit;
+        }
+
         foreach($form_fields_expected as $expected_field){
 
             $key = $expected_field->flid;
+
+            //api check to see if field needs to be bothered
+            if($keepFields=="true" && !in_array($key,$fieldsToEdit)){
+                continue;
+            }
 
             if($request->has($key)){
                 $value = $request->input($key);
