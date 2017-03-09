@@ -1,6 +1,7 @@
 from table import Table, BaseFieldTypes
 from connection import Cursor
 from datetime import date
+from env import env
 
 def get_field_formatters(format):
     """
@@ -179,7 +180,7 @@ def schedule_to_JSONable(row, field_options = ""):
 
     return { "events": events }
 
-def file_formatter(files):
+def file_formatter(files, url):
     """
     Formats file field data.
 
@@ -194,32 +195,44 @@ def file_formatter(files):
         file_list.append({
             "name": file.split("[Name]")[1],
             "size": str(int(file.split("[Size]")[1]) / 1000) + " mb",
-            "type": file.split("[Type]")[1]
+            "type": file.split("[Type]")[1],
+            "url": url+file.split("[Name]")[1]
         })
     return file_list
 
 def documents_to_JSONable(row, field_options = ""):
     files = row["documents"].split("[!]")
 
-    return { "files": file_formatter(files) }
+    curr_pid = Cursor.pid_from_fid(row["fid"])
+    url = env("BASE_URL")+"storage/app/files/p"+str(curr_pid)+"/f"+str(row["fid"])+"/r"+str(row["rid"])+"/fl"+str(row["flid"])+"/"
+
+    return { "files": file_formatter(files,url) }
 
 def gallery_to_JSONable(row, field_options = ""):
     files = row["images"].split("[!]")
 
-    return { "files": file_formatter(files) }
+    url = env("BASE_URL")+"storage/app/files/p"+str(curr_pid)+"/f"+str(row["fid"])+"/r"+str(row["rid"])+"/fl"+str(row["flid"])+"/"
+
+    return { "files": file_formatter(files,url) }
 
 def playlist_to_JSONable(row, field_options = ""):
     files = row["audio"].split("[!]")
 
-    return { "files": file_formatter(files) }
+    url = env("BASE_URL")+"storage/app/files/p"+str(curr_pid)+"/f"+str(row["fid"])+"/r"+str(row["rid"])+"/fl"+str(row["flid"])+"/"
+
+    return { "files": file_formatter(files,url) }
 
 def video_to_JSONable(row, field_options = ""):
     files = row["video"].split("[!]")
 
-    return { "files": file_formatter(files) }
+    url = env("BASE_URL")+"storage/app/files/p"+str(curr_pid)+"/f"+str(row["fid"])+"/r"+str(row["rid"])+"/fl"+str(row["flid"])+"/"
+
+    return { "files": file_formatter(files,url) }
 
 def model_to_JSONable(row, field_options = ""):
-    return { "files": file_formatter([ row["model"] ]) }
+    url = env("BASE_URL")+"storage/app/files/p"+str(curr_pid)+"/f"+str(row["fid"])+"/r"+str(row["rid"])+"/fl"+str(row["flid"])+"/"
+
+    return { "files": file_formatter([ row["model"] ],url) }
 
 def geolocator_to_JSONable(row, field_options = ""):
     locations = []
