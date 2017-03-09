@@ -63,9 +63,6 @@ class ExodusController extends Controller{
         $users_exempt_from_lockout->put(1,1); //Add another one of these with (userid,userid) to exempt extra users
         $this->lockUsers($users_exempt_from_lockout);
 
-        //TODO: Remove after testing
-        //$this->deleteAll();
-
         //MySQL Info
         $host = $request->host;
         $name = $request->name;

@@ -498,8 +498,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue
                                 continue;
                             }
 
-                            //Move file TODO
-                            //rename($oldDir.$localname,$newPath.$realname);
+                            copy($oldDir.$localname,$newPath.$realname);
 
                             //Get file info
                             $mimes = DocumentsField::getMimeTypes();

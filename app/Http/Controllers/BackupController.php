@@ -285,9 +285,7 @@ class BackupController extends Controller
                 $fPath = $file->getRealPath();
                 $subPath = explode($filepath,$fPath)[1]; //sub directory + filename
                 $fname = $file->getFilename(); //filename
-                $fext = $file->getExtension(); //TODO: remove
                 //if that files sub directory doesn't exist, make it
-                //$subDir = preg_replace('/'.$fname.'$/', '', $subPath); //just the sub directory
                 $subDirArr = explode($fname,$subPath);
                 $loopSize = sizeof($subDirArr)-1;
                 $subDir = ''; //just the sub directory
