@@ -1,6 +1,6 @@
 from table import Table, BaseFieldTypes
 from connection import Cursor
-from datetime import date
+from collections import OrderedDict
 
 def get_field_formatters(format):
     """
@@ -127,10 +127,12 @@ def combo_list_to_JSONable(row, field_options = ""):
         else:
             val_two = data_2['data'] if data_2['data'] is not None else data_2['number']
 
-        val = {
-            name_one: val_one,
-            name_two: val_two
-        }
+        val = OrderedDict(
+            [
+                (name_one, val_one),
+                (name_two, val_two)
+            ]
+        )
 
         values.append(val)
 
@@ -160,20 +162,13 @@ def schedule_to_JSONable(row, field_options = ""):
     events = []
 
     for result in Cursor.get_support_fields(Table.ScheduleSupport, row['rid'], row['flid']):
-        if isinstance(result['begin'], date): # "All day" event.
-            event_dict = {
-                "desc": result['desc'],
-                "start": result['begin'],
-                "end": result['end'],
-                "allday": 1
-            }
-        else:
-            event_dict = {
-                "description": result['desc'],
-                "start": result['begin'],
-                "end": result['end'],
-                "allday": 0
-            }
+
+        event_dict = {
+            "desc": result['desc'],
+            "start": result['begin'],
+            "end": result['end'],
+            "allday": result['allday']
+        }
 
         events.append(event_dict)
 

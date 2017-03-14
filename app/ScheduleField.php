@@ -86,7 +86,7 @@ class ScheduleField extends BaseField {
         $now = date("Y-m-d H:i:s");
 
         foreach($events as $event) {
-            list($begin, $end, $desc) = self::processEvent($event);
+            list($begin, $end, $desc, $allday) = self::processEvent($event);
 
             DB::table(self::SUPPORT_NAME)->insert(
                 [
@@ -96,6 +96,7 @@ class ScheduleField extends BaseField {
                     'begin' => $begin,
                     'end' => $end,
                     'desc' => $desc,
+                    'allday' => $allday,
                     'created_at' => $now,
                     'updated_at' => $now
                 ]
@@ -121,12 +122,14 @@ class ScheduleField extends BaseField {
         if (strpos($begin, ":") === false) { // No time specified.
             $begin = DateTime::createFromFormat("m/d/Y", $begin);
             $end = DateTime::createFromFormat("m/d/Y", $end);
+            $allday = true;
         }
         else {
             $begin = DateTime::createFromFormat("m/d/Y g:i A", $begin);
             $end = DateTime::createFromFormat("m/d/Y g:i A", $end);
+            $allday = false;
         }
-        return [$begin, $end, $desc];
+        return [$begin, $end, $desc, $allday];
     }
 
     /**

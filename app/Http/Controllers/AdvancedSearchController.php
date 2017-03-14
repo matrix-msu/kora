@@ -2,6 +2,8 @@
 
 
 use App\Field;
+use App\Form;
+use App\Record;
 use Geocoder\Geocoder;
 use Illuminate\Http\Request;
 use Geocoder\Provider\NominatimProvider;
@@ -73,16 +75,45 @@ class AdvancedSearchController extends Controller {
             $rids = array_intersect($rids, $result);
         }
 
-        return redirect('projects/'.$pid.'/forms'.$fid.'/advancedSearch/results');
+        Session::put("rids", $rids);
+
+        return redirect('projects/'.$pid.'/forms/'.$fid.'/advancedSearch/results');
     }
 
+    /**
+     * Returns the results page based on a search result.
+     *
+     * @param $pid, project id
+     * @param $fid, form id
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function results($pid, $fid) {
-        if (Session::has("adv_rids")) {
+        $page = (isset($_GET['page'])) ? intval(strip_tags($_GET['page'])) : $page = 1;
+
+        if (Session::has("rids")) {
             $rids = Session::get("rids");
         }
         else {
             $rids = [];
         }
+
+        $controller = new RecordController();
+        $filesize = $controller->getFormFilesize($fid);
+
+        $record_count = $page * RecordController::RECORDS_PER_PAGE;
+        $slice = array_slice($rids, $record_count - RecordController::RECORDS_PER_PAGE, $record_count);
+
+        $query = Record::where("rid", "=", array_shift($slice));
+        foreach($slice as $rid) {
+            $query->orWhere("rid", "=", $rid);
+        }
+        $records = $query->get();
+
+        $rid_paginator = new LengthAwarePaginator($rids, count($rids), RecordController::RECORDS_PER_PAGE, $page);
+        $rid_paginator->setPath( env('BASE_URL') . 'public/projects/' . $pid . '/forms/' . $fid . '/advancedSearch/results');
+
+        $form = Form::where("fid", "=", $fid)->first();
+        return view('search.results', compact("form", "filesize", "records", "rid_paginator"));
     }
 
     /**

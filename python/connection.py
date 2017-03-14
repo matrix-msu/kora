@@ -223,7 +223,7 @@ class Cursor:
         cursor = cnx.cursor()
 
         if support_type == Table.ScheduleSupport:
-            stmt = "SELECT `begin`, `end`, `desc` FROM " + env("DB_PREFIX") + Table.ScheduleSupport \
+            stmt = "SELECT `begin`, `end`, `desc`, `allday` FROM " + env("DB_PREFIX") + Table.ScheduleSupport \
                    + " WHERE `rid` = %s AND `flid` = %s"
 
         elif support_type == Table.GeolocatorSupport:

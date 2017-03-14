@@ -41,8 +41,9 @@ class CreateSchedulefieldsTable extends Migration {
 			$table->integer('fid')->unsigned();
 			$table->integer('rid')->unsigned();
 			$table->integer('flid')->unsigned();
-			$table->date('begin');
-			$table->date('end');
+			$table->dateTime('begin');
+			$table->dateTime('end');
+			$table->boolean('allday');
 			$table->text('desc');
 			$table->timestamps();
 		});
