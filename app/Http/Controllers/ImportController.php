@@ -674,12 +674,18 @@ class ImportController extends Controller {
                         if (file_exists($currDir . '/thumbnail'))
                             copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                         else{
-                            //TODO: make thumb
+                            $smallParts = explode('x',FieldController::getFieldOption($field,'ThumbSmall'));
+                            $tImage = new \Imagick($newDir . '/' . $name);
+                            $tImage->thumbnailImage($smallParts[0],$smallParts[1],true);
+                            $tImage->writeImage($newDir . '/thumbnail/' . $name);
                         }
                         if (file_exists($currDir . '/medium'))
                             copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
                         else{
-                            //TODO: make thumb
+                            $largeParts = explode('x',FieldController::getFieldOption($field,'ThumbLarge'));
+                            $mImage = new \Imagick($newDir . '/' . $name);
+                            $mImage->thumbnailImage($largeParts[0],$largeParts[1],true);
+                            $mImage->writeImage($newDir . '/medium/' . $name);
                         }
                         //add input for this file
                         array_push($files, $name);
@@ -825,12 +831,18 @@ class ImportController extends Controller {
                         if (file_exists($currDir . '/thumbnail'))
                             copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                         else{
-                            //TODO: make thumb
+                            $smallParts = explode('x',FieldController::getFieldOption($field,'ThumbSmall'));
+                            $tImage = new \Imagick($newDir . '/' . $name);
+                            $tImage->thumbnailImage($smallParts[0],$smallParts[1],true);
+                            $tImage->writeImage($newDir . '/thumbnail/' . $name);
                         }
                         if (file_exists($currDir . '/medium'))
                             copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
                         else{
-                            //TODO: make thumb
+                            $largeParts = explode('x',FieldController::getFieldOption($field,'ThumbLarge'));
+                            $mImage = new \Imagick($newDir . '/' . $name);
+                            $mImage->thumbnailImage($largeParts[0],$largeParts[1],true);
+                            $mImage->writeImage($newDir . '/medium/' . $name);
                         }
                         //add input for this file
                         array_push($files, $name);

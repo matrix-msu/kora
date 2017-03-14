@@ -760,7 +760,14 @@ class RestfulController extends Controller
                     $name = $file->name;
                     //move file from imp temp to tmp files
                     copy($currDir . '/' . $name, $newDir . '/' . $name);
-                    //TODO: create thumbs
+                    $smallParts = explode('x',FieldController::getFieldOption($field,'ThumbSmall'));
+                    $tImage = new \Imagick($newDir . '/' . $name);
+                    $tImage->thumbnailImage($smallParts[0],$smallParts[1],true);
+                    $tImage->writeImage($newDir . '/thumbnail/' . $name);
+                    $largeParts = explode('x',FieldController::getFieldOption($field,'ThumbLarge'));
+                    $mImage = new \Imagick($newDir . '/' . $name);
+                    $mImage->thumbnailImage($largeParts[0],$largeParts[1],true);
+                    $mImage->writeImage($newDir . '/medium/' . $name);
                     //add input for this file
                     array_push($files, $name);
                 }
@@ -967,7 +974,14 @@ class RestfulController extends Controller
                     $name = $file->name;
                     //move file from imp temp to tmp files
                     copy($currDir . '/' . $name, $newDir . '/' . $name);
-                    //TODO: create thumbs
+                    $smallParts = explode('x',FieldController::getFieldOption($field,'ThumbSmall'));
+                    $tImage = new \Imagick($newDir . '/' . $name);
+                    $tImage->thumbnailImage($smallParts[0],$smallParts[1],true);
+                    $tImage->writeImage($newDir . '/thumbnail/' . $name);
+                    $largeParts = explode('x',FieldController::getFieldOption($field,'ThumbLarge'));
+                    $mImage = new \Imagick($newDir . '/' . $name);
+                    $mImage->thumbnailImage($largeParts[0],$largeParts[1],true);
+                    $mImage->writeImage($newDir . '/medium/' . $name);
                     //add input for this file
                     array_push($files, $name);
                 }
