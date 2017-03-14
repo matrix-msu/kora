@@ -329,16 +329,10 @@ def schedule_to_XML(row, field_options = ""):
 
     for result in Cursor.get_support_fields(Table.ScheduleSupport, row['rid'], row['flid']):
         events_xml += "<Event>"
-        if isinstance(result['begin'], date): # "All day" event.
-            events_xml += "<Title>"+escape(result['desc'])+"</Title>"
-            events_xml += "<Start>"+str(result['begin'])+"</Start>"
-            events_xml += "<End>"+str(result['end'])+"</End>"
-            events_xml += "<All_Day>1</All_Day>"
-        else:
-            events_xml += "<Title>"+escape(result['desc'])+"</Title>"
-            events_xml += "<Start>"+str(result['begin'])+"</Start>"
-            events_xml += "<End>"+str(result['end'])+"</End>"
-            events_xml += "<All_Day>1</All_Day>"
+        events_xml += "<Title>"+escape(result['desc'])+"</Title>"
+        events_xml += "<Start>"+str(result['begin'])+"</Start>"
+        events_xml += "<End>"+str(result['end'])+"</End>"
+        events_xml += "<All_Day>"+str(result['allday'])+"</All_Day>"
         events_xml += "</Event>"
 
     return events_xml
@@ -387,7 +381,10 @@ def file_formatter_xml(files, url):
 def documents_to_JSONable(row, field_options = ""):
     files = row["documents"].split("[!]")
 
-    return { "files": file_formatter(files) }
+    curr_pid = Cursor.pid_from_fid(row["fid"])
+    url = env("BASE_URL")+"storage/app/files/p"+str(curr_pid)+"/f"+str(row["fid"])+"/r"+str(row["rid"])+"/fl"+str(row["flid"])+"/"
+
+    return { "files": file_formatter(files,url) }
 
 def documents_to_XML(row, field_options = ""):
     files = row["documents"].split("[!]")
