@@ -3,6 +3,7 @@ from connection import Cursor
 from datetime import date
 from env import env
 from xml.sax.saxutils import escape
+from collections import OrderedDict
 
 def get_field_formatters(format):
     """
@@ -210,6 +211,13 @@ def combo_list_to_JSONable(row, field_options = ""):
         else:
             val_two = data_2['data'] if data_2['data'] is not None else data_2['number']
 
+        val = OrderedDict(
+            [
+                (name_one, val_one),
+                (name_two, val_two)
+            ]
+        )
+
         val = {
             name_one: val_one,
             name_two: val_two
@@ -299,20 +307,13 @@ def schedule_to_JSONable(row, field_options = ""):
     events = []
 
     for result in Cursor.get_support_fields(Table.ScheduleSupport, row['rid'], row['flid']):
-        if isinstance(result['begin'], date): # "All day" event.
-            event_dict = {
-                "desc": result['desc'],
-                "start": result['begin'],
-                "end": result['end'],
-                "allday": 1
-            }
-        else:
-            event_dict = {
-                "description": result['desc'],
-                "start": result['begin'],
-                "end": result['end'],
-                "allday": 0
-            }
+
+        event_dict = {
+            "desc": result['desc'],
+            "start": result['begin'],
+            "end": result['end'],
+            "allday": result['allday']
+        }
 
         events.append(event_dict)
 
@@ -386,10 +387,7 @@ def file_formatter_xml(files, url):
 def documents_to_JSONable(row, field_options = ""):
     files = row["documents"].split("[!]")
 
-    curr_pid = Cursor.pid_from_fid(row["fid"])
-    url = env("BASE_URL")+"storage/app/files/p"+str(curr_pid)+"/f"+str(row["fid"])+"/r"+str(row["rid"])+"/fl"+str(row["flid"])+"/"
-
-    return { "files": file_formatter(files,url) }
+    return { "files": file_formatter(files) }
 
 def documents_to_XML(row, field_options = ""):
     files = row["documents"].split("[!]")
