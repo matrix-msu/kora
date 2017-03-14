@@ -115,6 +115,27 @@ class Cursor:
 
         return stash
 
+    @staticmethod
+    def pid_from_fid(fid):
+            """
+            Gets the form id associated with any particular record id.
+            :param fid: form id.
+            :return int: project id.
+            """
+            cnx = Connection()
+            cursor = cnx.cursor()
+
+            stmt = "SELECT `pid` FROM " + env("DB_PREFIX") + "forms WHERE `fid` = %s"
+
+            cursor.execute(stmt, [fid])
+
+            row = cursor.fetchone()
+            pid = row["pid"]
+
+            cursor.close()
+
+            return pid
+
     def fid_from_rid(self, rid):
         """
         Gets the form id associated with any particular record id.
@@ -197,7 +218,7 @@ class Cursor:
 
         cursor = self._cnx.cursor()
 
-        stmt = "SELECT `flid`, `rid`, " + get_data_names(table) + " FROM " + self._prefix + table + " WHERE `rid` = %s"
+        stmt = "SELECT `fid`, `flid`, `rid`, " + get_data_names(table) + " FROM " + self._prefix + table + " WHERE `rid` = %s"
 
         cursor.execute(stmt, [rid])
 

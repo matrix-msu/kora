@@ -1,5 +1,7 @@
 from table import Table, BaseFieldTypes
 from connection import Cursor
+from datetime import date
+from env import env
 from collections import OrderedDict
 
 def get_field_formatters(format):
@@ -133,6 +135,11 @@ def combo_list_to_JSONable(row, field_options = ""):
                 (name_two, val_two)
             ]
         )
+
+        val = {
+            name_one: val_one,
+            name_two: val_two
+        }
 
         values.append(val)
 
