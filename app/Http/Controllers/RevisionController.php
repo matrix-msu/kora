@@ -94,7 +94,7 @@ class RevisionController extends Controller {
      */
     public function show($pid, $fid, $rid)
     {
-        if(!FormController::validProjForm($pid, $fid)){
+        if(!RecordController::validProjFormRecord($pid, $fid, $rid)){
             return redirect('projects/'.$pid.'/forms');
         }
 

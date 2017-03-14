@@ -88,6 +88,10 @@ class AdvancedSearchController extends Controller {
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function results($pid, $fid) {
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+        
         $page = (isset($_GET['page'])) ? intval(strip_tags($_GET['page'])) : $page = 1;
 
         if (Session::has("rids")) {

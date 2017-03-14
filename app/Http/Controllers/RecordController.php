@@ -1592,7 +1592,9 @@ class RecordController extends Controller {
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
      */
     public function showMassAssignmentView($pid,$fid){
-
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
 
         if(!$this->checkPermissions($fid,'modify')){
             return redirect()->back();

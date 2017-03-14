@@ -40,6 +40,10 @@ class FormSearchController extends Controller
      * @return \Illuminate\View\View
      */
     public function keywordSearch($pid, $fid) {
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+
         $arg = trim((Request::input('query')));
         $method = intval(Request::input('method'));
 
@@ -143,6 +147,10 @@ class FormSearchController extends Controller
      * @return Response, redirects to the record index.
      */
     public function deleteSubset ($pid, $fid) {
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects');
+        }
+
         $rids = unserialize(Session::get("rids"));
 
         $query = Record::where("rid", "=", array_shift($rids));

@@ -73,6 +73,9 @@ class MetadataController extends Controller {
      */
     public function records2($pid, $fid) {
         // Old meta data method
+        if(!FormController::validProjForm($pid, $fid)){
+            return redirect('projects/'.$pid.'/forms');
+        }
 
         $format = "JSON";
 
@@ -381,6 +384,10 @@ class MetadataController extends Controller {
      * @param $query string, comma separated query string.
      */
     public function search($pid, $fid, $query) {
+        if(!FormController::validProjForm($pid, $fid)){
+            return redirect('projects/'.$pid.'/forms');
+        }
+
         $query = explode(",", $query);
         $query_str = implode(" ", $query);
 
