@@ -525,7 +525,13 @@ class Field extends Model {
         DB::table(BaseField::$MAPPED_FIELD_TYPES[$this->type])->where("flid", "=", $this->flid)->delete();
 
         if ($this->type == Field::_SCHEDULE) {
-            DB::table("schedule_support")->where("flid", "=", $this->flid)->delete();
+            DB::table(ScheduleField::SUPPORT_NAME)->where("flid", "=", $this->flid)->delete();
+        }
+        else if ($this->type == Field::_GEOLOCATOR) {
+            DB::table(GeolocatorField::SUPPORT_NAME)->where("flid", "=", $this->flid)->delete();
+        }
+        else if ($this->type == Field::_COMBO_LIST) {
+            DB::table(ComboListField::SUPPORT_NAME)->where("flid", "=", $this->flid)->delete();
         }
 
         DB::table("metadatas")->where("flid", "=", $this->flid)->delete();
