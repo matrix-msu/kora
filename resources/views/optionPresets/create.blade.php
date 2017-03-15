@@ -77,32 +77,34 @@
             <button class="btn btn-primary move_option_up">{{trans('optionPresets_create.up')}}</button>
             <button class="btn btn-primary move_option_down">{{trans('optionPresets_create.down')}}</button>
         </div>
-        <div class="latlon_container">
+        <div>
+            {!! Form::label('loc_type', trans('fields_options_geolocator.type').': ') !!}
+            {!! Form::select('loc_type', ['LatLon' => 'LatLon','UTM' => 'UTM','Address' => trans('fields_options_geolocator.addr')], 'LatLon', ['class' => 'form-control loc_type']) !!}
+        </div>
+        <div>
             <label>{{trans('optionPresets_create.loc')}}:</label>
-            <span><input type="text" class="latlon_desc"></span>
+            <span><input type="text" class="loc_desc"></span>
+        </div>
+        <div class="latlon_container">
             <label>{{trans('optionPresets_create.lat')}}:</label>
             <span><input type="number" class="latlon_lat" min=-90 max=90 step=".000001"></span>
             <label>{{trans('optionPresets_create.lon')}}:</label>
             <span><input type="number" class="latlon_lon" min=-180 max=180 step=".000001"></span>
-            <span><button class="btn btn-primary add_latlon">{{trans('optionPresets_create.add')}}</button></span>
+            <span><button class="btn btn-primary add_geo">{{trans('optionPresets_create.add')}}</button></span>
         </div>
         <div class="utm_container" style="display:none">
-            <label>{{trans('optionPresets_create.desc')}}:</label>
-            <span><input type="text" class="utm_desc"></span>
             <label>{{trans('optionPresets_create.zone')}}:</label>
             <span><input type="text" class="utm_zone"></span>
             <label>{{trans('optionPresets_create.east')}}:</label>
             <span><input type="text" class="utm_east"></span>
             <label>{{trans('optionPresets_create.north')}}:</label>
             <span><input type="text" class="utm_north"></span>
-            <span><button class="btn btn-primary add_utm">{{trans('optionPresets_create.add')}}</button></span>
+            <span><button class="btn btn-primary add_geo">{{trans('optionPresets_create.add')}}</button></span>
         </div>
         <div class="text_container" style="display:none">
-            <label>{{trans('optionPresets_create.desc')}}:</label>
-            <span><input type="text" class="text_desc"></span>
             <label>{{trans('optionPresets_create.addr')}}:</label>
             <span><input type="text" class="text_addr"></span>
-            <span><button class="btn btn-primary add_text">{{trans('optionPresets_create.add')}}</button></span>
+            <span><button class="btn btn-primary add_geo">{{trans('optionPresets_create.add')}}</button></span>
         </div>
     </div>
 
@@ -240,31 +242,172 @@
          * This is slightly modified so that it conflicts less when on the same page
          * as types like lists and schedule
         **********/
-        $('.latlon_container').on('click', '.add_latlon', function() {
-            desc = $('.latlon_desc').val();
-            desc = desc.trim();
-            lat = $('.latlon_lat').val();
-            lat = lat.trim();
-            lon = $('.latlon_lon').val();
-            lon = lon.trim();
+        $('.list_option_form').on('click', '.add_geo', function() {
+            //clear errors
+            $('.latlon_lat').attr('style','');
+            $('.latlon_lon').attr('style','');
+            $('.utm_zone').attr('style','');
+            $('.utm_east').attr('style','');
+            $('.utm_north').attr('style','');
+            $('.text_addr').attr('style','');
+            $('.loc_desc').attr('style','');
 
-            if(desc!='' && lat!='' && lon!='') {
-                $('.list_options').append($('<option/>', {
-                    value: desc + ': ' + lat + ', ' + lon,
-                    text: desc + ': ' + lat + ', ' + lon
-                }));
-                SaveList();
-                $('.latlon_desc').val('');
-                $('.latlon_lat').val('');
-                $('.latlon_lon').val('');
+            //check to see if description provided
+            var desc = $('.loc_desc').val();
+            //if blank
+            if(desc=='') {
+                $('.loc_desc').attr('style','border: 1px solid red;');
+                console.log('bad description');
+            }else {
+                //check what type
+                var type = $('.loc_type').val();
+
+                //determine if info is good for that type
+                var valid = true;
+                if (type == 'LatLon') {
+                    var lat = $('.latlon_lat').val();
+                    var lon = $('.latlon_lon').val();
+
+                    if (lat == '' | lon == '') {
+                        $('.latlon_lat').attr('style','border: 1px solid red;');
+                        $('.latlon_lon').attr('style','border: 1px solid red;');
+                        valid = false;
+                    }
+                }else if(type == 'UTM'){
+                    var zone = $('.utm_zone').val();
+                    var east = $('.utm_east').val();
+                    var north = $('.utm_north').val();
+
+                    if (zone == '' | east == '' | north == '') {
+                        $('.utm_zone').attr('style','border: 1px solid red;');
+                        $('.utm_east').attr('style','border: 1px solid red;');
+                        $('.utm_north').attr('style','border: 1px solid red;');
+                        valid = false;
+                    }
+                }else if(type == 'Address'){
+                    var addr = $('.text_addr').val();
+
+                    if(addr == ''){
+                        $('.text_addr').attr('style','border: 1px solid red;');
+                        valid = false;
+                    }
+                }
+
+                //if still valid
+                if (valid) {
+                    //find info for other loc types
+                    if (type == 'LatLon') {
+                        latLonConvert(lat,lon);
+                    }else if(type == 'UTM'){
+                        utmConvert(zone,east,north);
+                    }else if(type == 'Address'){
+                        addrConvert(addr);
+                    }
+                    $('.latlon_lat').val('');
+                    $('.latlon_lon').val('');
+                    $('.utm_zone').val('');
+                    $('.utm_east').val('');
+                    $('.utm_north').val('');
+                    $('.text_addr').val('');
+                } else {
+                    console.log('invalid');
+                }
             }
         });
-        $('.utm_container').on('click', '.add_utm', function() {
-            console.log("utm");
+        $('.list_option_form').on('change', '.loc_type', function(){
+            newType = $('.loc_type').val();
+            if(newType=='LatLon'){
+                $('.latlon_container').show();
+                $('.utm_container').hide();
+                $('.text_container').hide();
+            }else if(newType=='UTM'){
+                $('.latlon_container').hide();
+                $('.utm_container').show();
+                $('.text_container').hide();
+            }else if(newType=='Address'){
+                $('.latlon_container').hide();
+                $('.utm_container').hide();
+                $('.text_container').show();
+            }
         });
-        $('.text_container').on('click', '.add_text', function() {
-            console.log("text");
-        });
+
+        function latLonConvert(lat,lon){
+            $.ajax({
+                url: '{{ action('FieldAjaxController@geoConvert',['pid' => $project->pid, 'fid' => 0, 'flid' => 0]) }}',
+                type: 'POST',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    lat: lat,
+                    lon: lon,
+                    type: 'latlon'
+                },
+                success:function(result) {
+                    desc = $('.loc_desc').val();
+                    result = '[Desc]'+desc+'[Desc]'+result;
+                    latlon = result.split('[LatLon]');
+                    utm = result.split('[UTM]');
+                    addr = result.split('[Address]');
+                    text = 'Description: '+desc+' | LatLon: '+latlon[1]+' | UTM: '+utm[1]+' | Address: '+addr[1];
+                    $('.list_options').append($("<option/>", {
+                        value: result,
+                        text: text
+                    }));
+                    $('.loc_desc').val('');
+                }
+            });
+        }
+
+        function utmConvert(zone,east,north){
+            $.ajax({
+                url: '{{ action('FieldAjaxController@geoConvert',['pid' => $project->pid, 'fid' => 0, 'flid' => 0]) }}',
+                type: 'POST',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    zone: zone,
+                    east: east,
+                    north: north,
+                    type: 'utm'
+                },
+                success: function (result) {
+                    desc = $('.loc_desc').val();
+                    result = '[Desc]'+desc+'[Desc]'+result;
+                    latlon = result.split('[LatLon]');
+                    utm = result.split('[UTM]');
+                    addr = result.split('[Address]');
+                    text = 'Description: '+desc+' | LatLon: '+latlon[1]+' | UTM: '+utm[1]+' | Address: '+addr[1];
+                    $('.list_options').append($("<option/>", {
+                        value: result,
+                        text: text
+                    }));
+                    $('.loc_desc').val('');
+                }
+            });
+        }
+
+        function addrConvert(addr){
+            $.ajax({
+                url: '{{ action('FieldAjaxController@geoConvert',['pid' => $project->pid, 'fid' => 0, 'flid' => 0]) }}',
+                type: 'POST',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    addr: addr,
+                    type: 'geo'
+                },
+                success: function (result) {
+                    desc = $('.loc_desc').val();
+                    result = '[Desc]'+desc+'[Desc]'+result;
+                    latlon = result.split('[LatLon]');
+                    utm = result.split('[UTM]');
+                    addr = result.split('[Address]');
+                    text = 'Description: '+desc+' | LatLon: '+latlon[1]+' | UTM: '+utm[1]+' | Address: '+addr[1];
+                    $('.list_options').append($("<option/>", {
+                        value: result,
+                        text: text
+                    }));
+                    $('.loc_desc').val('');
+                }
+            });
+        }
 
         /**************
          This part handles switching the displayed div based on the value of the selected DIv
