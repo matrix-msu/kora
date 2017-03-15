@@ -100,7 +100,7 @@ class FormController extends Controller {
 	public function show($pid, $fid)
 	{
         if(!FormController::validProjForm($pid,$fid)){
-            return redirect('projects');
+            return redirect('projects/'.$pid);
         }
 
         if(!FormController::checkPermissions($pid)){
@@ -123,7 +123,7 @@ class FormController extends Controller {
 	public function edit($pid, $fid)
     {
         if(!FormController::validProjForm($pid,$fid)){
-            return redirect('projects');
+            return redirect('projects/'.$pid);
         }
 
         if(!FormController::checkPermissions($pid, 'edit')){
@@ -146,7 +146,7 @@ class FormController extends Controller {
 	public function update($pid, $fid, FormRequest $request)
 	{
         if(!FormController::validProjForm($pid,$fid)){
-            return redirect('projects');
+            return redirect('projects/'.$pid);
         }
 
         $form = FormController::getForm($fid);
@@ -173,7 +173,7 @@ class FormController extends Controller {
 	public function destroy($pid, $fid)
 	{
         if(!FormController::validProjForm($pid,$fid)){
-            return redirect('projects');
+            return redirect('projects/'.$pid);
         }
 
         if(!FormController::checkPermissions($pid, 'delete')){
@@ -188,7 +188,7 @@ class FormController extends Controller {
 
     public function addNode($pid,$fid, Request $request){
         if(!FormController::validProjForm($pid,$fid)){
-            return redirect('projects');
+            return redirect('projects/'.$pid);
         }
 
         $form = FormController::getForm($fid);
@@ -216,7 +216,7 @@ class FormController extends Controller {
 
     public function deleteNode($pid,$fid,$title, Request $request){
         if(!FormController::validProjForm($pid,$fid)){
-            return redirect('projects');
+            return redirect('projects/'.$pid);
         }
 
         $form = FormController::getForm($fid);
@@ -266,7 +266,7 @@ class FormController extends Controller {
     public function preset($pid, $fid, Request $request)
     {
         if(!FormController::validProjForm($pid,$fid)){
-            return redirect('projects');
+            return redirect('projects/'.$pid);
         }
 
         $form = FormController::getForm($fid);

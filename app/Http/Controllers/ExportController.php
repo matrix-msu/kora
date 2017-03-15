@@ -54,7 +54,7 @@ class ExportController extends Controller {
      */
     public function exportRecords($pid, $fid, $type){
         if(!FormController::validProjForm($pid,$fid)){
-            return redirect('projects');
+            return redirect('projects/'.$pid);
         }
 
         $form = FormController::getForm($fid);
@@ -561,7 +561,7 @@ class ExportController extends Controller {
 
     public function exportRecordFiles($pid, $fid){
         if(!FormController::validProjForm($pid,$fid)){
-            return redirect('projects');
+            return redirect('projects/'.$pid);
         }
 
         $form = FormController::getForm($fid);
@@ -610,7 +610,7 @@ class ExportController extends Controller {
     public function exportForm($pid, $fid, $download=true)
     {
         if (!FormController::validProjForm($pid, $fid)) {
-            return redirect('projects');
+            return redirect('projects/'.$pid);
         }
 
         $form = FormController::getForm($fid);

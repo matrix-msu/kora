@@ -49,7 +49,7 @@ class RevisionController extends Controller {
     public function index($pid, $fid){
 
         if(!FormController::validProjForm($pid,$fid)){
-            return redirect('projects/'.$pid.'/forms');
+            return redirect('projects/'.$pid);
         }
 
         if(!\Auth::user()->admin && !\Auth::user()->isFormAdmin(FormController::getForm($fid)))

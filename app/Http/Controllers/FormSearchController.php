@@ -41,7 +41,7 @@ class FormSearchController extends Controller
      */
     public function keywordSearch($pid, $fid) {
         if(!FormController::validProjForm($pid,$fid)){
-            return redirect('projects');
+            return redirect('projects/'.$pid);
         }
 
         $arg = trim((Request::input('query')));
@@ -148,7 +148,7 @@ class FormSearchController extends Controller
      */
     public function deleteSubset ($pid, $fid) {
         if(!FormController::validProjForm($pid,$fid)){
-            return redirect('projects');
+            return redirect('projects/'.$pid);
         }
 
         $rids = unserialize(Session::get("rids"));

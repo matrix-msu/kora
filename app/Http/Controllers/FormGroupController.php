@@ -35,7 +35,7 @@ class FormGroupController extends Controller {
     public function index($pid, $fid)
     {
         if(!FormController::validProjForm($pid,$fid)){
-            return redirect('projects');
+            return redirect('projects/'.$pid);
         }
 
         $form = FormController::getForm($fid);
@@ -61,7 +61,7 @@ class FormGroupController extends Controller {
     public function create($pid, $fid, Request $request)
     {
         if(!FormController::validProjForm($pid,$fid)){
-            return redirect('projects');
+            return redirect('projects/'.$pid);
         }
 
         $form = FormController::getForm($fid);

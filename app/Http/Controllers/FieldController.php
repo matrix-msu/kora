@@ -38,7 +38,7 @@ class FieldController extends Controller {
 	public function create($pid, $fid)
 	{
         if(!FormController::validProjForm($pid, $fid)){
-            return redirect('projects');
+            return redirect('projects/'.$pid);
         }
 
         if(!FieldController::checkPermissions($fid, 'create')) {
@@ -109,7 +109,7 @@ class FieldController extends Controller {
 	public function show($pid, $fid, $flid)
 	{
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
-            return redirect('projects');
+            return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
         if(!FieldController::checkPermissions($fid, 'edit')) {
@@ -171,7 +171,7 @@ class FieldController extends Controller {
 	public function edit($pid, $fid, $flid)
 	{
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
-            return redirect('projects');
+            return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
         if(!FieldController::checkPermissions($fid, 'edit')) {
@@ -194,7 +194,7 @@ class FieldController extends Controller {
 	public function update($pid, $fid, $flid, FieldRequest $request)
 	{
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
-            return redirect('projects');
+            return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
         if(!FieldController::checkPermissions($fid, 'edit')) {
@@ -216,7 +216,7 @@ class FieldController extends Controller {
     public static function updateRequired($pid, $fid, $flid, $req)
     {
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
-            return redirect('projects');
+            return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
         if(!FieldController::checkPermissions($fid, 'edit')) {
@@ -235,7 +235,7 @@ class FieldController extends Controller {
     public static function updateSearchable($pid, $fid, $flid, Request $request)
     {
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
-            return redirect('projects');
+            return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
         if(!FieldController::checkPermissions($fid, 'edit')) {
@@ -258,7 +258,7 @@ class FieldController extends Controller {
     public static function updateDefault($pid, $fid, $flid, $def)
     {
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
-            return redirect('projects');
+            return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
         if(!FieldController::checkPermissions($fid, 'edit')) {
@@ -278,7 +278,7 @@ class FieldController extends Controller {
     public static function updateOptions($pid, $fid, $flid, $opt, $value)
     {
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
-            return redirect('projects');
+            return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
         if(!FieldController::checkPermissions($fid, 'edit')) {
@@ -310,7 +310,7 @@ class FieldController extends Controller {
 	public function destroy($pid, $fid, $flid)
 	{
         if(!FieldController::validProjFormField($pid, $fid, $flid)){
-            return redirect('projects/'.$pid.'forms/');
+            return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
         if(!FieldController::checkPermissions($fid, 'delete')) {
