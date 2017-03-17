@@ -69,10 +69,26 @@ class ExodusController extends Controller{
         $user = $request->user;
         $pass = $request->pass;
 
+        $migrateUsers = isset($request->users) ? 1 : 0;
+        $migrateTokens = isset($request->tokens) ? 1 : 0;
+        $projects = $request->projects;
         $filePath = $request->filePath;
 
+        return view('exodus.progress',compact('host', 'name', 'user', 'pass', 'migrateUsers', 'migrateTokens', 'projects', 'filePath'));
+    }
 
-        return view('exodus.progress',compact('host', 'name', 'user', 'pass', 'filePath'));
+    public function getProjectList(Request $request)
+    {
+        $con = mysqli_connect($request->host, $request->user, $request->pass, $request->name);
+
+        $projectArray = array();
+
+        $projects = $con->query("select * from project");
+        while ($p = $projects->fetch_assoc()) {
+            $projectArray[$p['pid']] = $p['name'];
+        }
+
+        return $projectArray;
     }
 
     public function startExodus(Request $request){
@@ -82,6 +98,14 @@ class ExodusController extends Controller{
         $dbInfo['user'] = $request->user;
         $dbInfo['name'] = $request->name;
         $dbInfo['pass'] = $request->pass;
+
+        //migrate booleans
+        $migrateUsers = $request->migrateUsers;
+        $migrateTokens = $request->migrateTokens;
+        //list of projects to migrate
+        $migratedProjects = explode(",",$request->projects);
+        //file path of kora files
+        $filePath = $request->filePath;
 
         $userArray = array();
         $projectArray = array();
@@ -97,7 +121,7 @@ class ExodusController extends Controller{
         //Users
         $users = $con->query("select * from user where username!='koraadmin'");
         while ($u = $users->fetch_assoc()) {
-            if($u['salt']!=0) {
+            if($u['salt']!=0 && $migrateUsers) {
                 $email = $u['email'];
                 if (!$this->emailExists($email)) {
                     $username = explode('@', $email)[0];
@@ -150,7 +174,8 @@ class ExodusController extends Controller{
                 $projects = array();
                 $pids = $con->query("select * from member where uid=".$tid);
                 while ($pid = $pids->fetch_assoc()) {
-                    array_push($projects,$pid['pid']);
+                    if(in_array($pid['pid'],$migratedProjects))
+                        array_push($projects,$pid['pid']);
                 }
                 //save for later because we need to build new projects first
                 $tokenArray[$token] = $projects;
@@ -160,86 +185,92 @@ class ExodusController extends Controller{
         //Projects
         $projects = $con->query("select * from project");
         while ($p = $projects->fetch_assoc()) {
-            //make project
-            $proj = new Project();
-            $proj->name = $p['name'];
-            $slug = str_replace(' ','_',$p['name']);
-            if (Project::where('slug', '=', $slug)->exists()) {
-                $unique = false;
-                $i=1;
-                while(!$unique){
-                    if(Project::where('slug', '=', $slug.$i)->exists()){
-                        $i++;
-                    }else{
-                        $proj->slug = $slug.$i;
-                        $unique = true;
+            if(in_array($p['pid'],$migratedProjects)) {
+                //make project
+                $proj = new Project();
+                $proj->name = $p['name'];
+                $slug = str_replace(' ', '_', $p['name']);
+                if (Project::where('slug', '=', $slug)->exists()) {
+                    $unique = false;
+                    $i = 1;
+                    while (!$unique) {
+                        if (Project::where('slug', '=', $slug . $i)->exists()) {
+                            $i++;
+                        } else {
+                            $proj->slug = $slug . $i;
+                            $unique = true;
+                        }
                     }
+                } else {
+                    $proj->slug = $slug;
                 }
-            }else{
-                $proj->slug = $slug;
-            }
-            $proj->description = $p['description'];
-            $proj->active = $p['active'];
-            $proj->save();
+                $proj->description = $p['description'];
+                $proj->active = $p['active'];
+                $proj->save();
 
-            //add to project conversion array
-            $projectArray[$p['pid']] = $proj->pid;
+                //add to project conversion array
+                $projectArray[$p['pid']] = $proj->pid;
 
-            //create permission groups
-            $permGroups = $con->query("select * from permGroup where pid=".$p['pid']);
-            while ($pg = $permGroups->fetch_assoc()) {
-                $admin = false;
-                $k3Group = new ProjectGroup();
-                if($pg['name'] == 'Administrators'){
-                    $k3Group->name = $proj->name.' Admin Group';
-                    $admin = true;
-                } else if($pg['name'] == 'Default'){
-                    $k3Group->name = $proj->name.' Default Group';
-                } else{
-                    $k3Group->name = $pg['name'];
+                //create permission groups
+                $permGroups = $con->query("select * from permGroup where pid=" . $p['pid']);
+                while ($pg = $permGroups->fetch_assoc()) {
+                    $admin = false;
+                    $k3Group = new ProjectGroup();
+                    if ($pg['name'] == 'Administrators') {
+                        $k3Group->name = $proj->name . ' Admin Group';
+                        $admin = true;
+                    } else if ($pg['name'] == 'Default') {
+                        $k3Group->name = $proj->name . ' Default Group';
+                    } else {
+                        $k3Group->name = $pg['name'];
+                    }
+                    $k3Group->pid = $proj->pid;
+                    $k3Group->save();
+
+                    //this group is the admin group so save that info to the project
+                    if ($admin) {
+                        $proj->adminGID = $k3Group->id;
+                        $proj->save();
+                    }
+
+                    //add all the members to their appropriate groups
+                    if ($migrateUsers) {
+                        $groupUsers = array();
+                        $members = $con->query("select * from member where gid=" . $pg['gid']);
+                        while ($m = $members->fetch_assoc()) {
+                            $gu = $userArray[$m['uid']];
+                            array_push($groupUsers, $gu);
+                        }
+                        $k3Group->users()->attach($groupUsers);
+                    }
+
+                    //this part is going to be interesting. especially at the form level
+                    $perms = $this->k2tok3Perms($pg['permissions']);
+                    //lets pair these permissions with their group id so we can reference it when we make the form groups
+                    $permArray[$k3Group->id] = $perms;
+                    $k3Group->create = $perms['pCreate'];
+                    $k3Group->edit = $perms['pEdit'];
+                    $k3Group->delete = $perms['pDelete'];
+                    $k3Group->save();
                 }
-                $k3Group->pid = $proj->pid;
-                $k3Group->save();
-
-                //this group is the admin group so save that info to the project
-                if($admin){
-                    $proj->adminGID=$k3Group->id;
-                    $proj->save();
-                }
-
-                //add all the members to their appropriate groups
-                $groupUsers = array();
-                $members = $con->query("select * from member where gid=".$pg['gid']);
-                while ($m = $members->fetch_assoc()) {
-                    $gu = $userArray[$m['uid']];
-                    array_push($groupUsers,$gu);
-                }
-                $k3Group->users()->attach($groupUsers);
-
-                //this part is going to be interesting. especially at the form level
-                $perms = $this->k2tok3Perms($pg['permissions']);
-                //lets pair these permissions with their group id so we can reference it when we make the form groups
-                $permArray[$k3Group->id] = $perms;
-                $k3Group->create = $perms['pCreate'];
-                $k3Group->edit = $perms['pEdit'];
-                $k3Group->delete = $perms['pDelete'];
-                $k3Group->save();
             }
         }
 
         //Back to tokens
-        foreach($tokenArray as $t=>$tokenProjs){
-            $token = new Token();
-            $token->token = $t;
-            $token->type = 'search';
-            $token->save();
+        if($migrateTokens) {
+            foreach ($tokenArray as $t => $tokenProjs) {
+                $token = new Token();
+                $token->token = $t;
+                $token->type = 'search';
+                $token->save();
 
-            //add all it's projects
-            foreach($tokenProjs as $tpid){
-                $newPid = $projectArray[$tpid];
-                DB::table('project_token')->insert(
-                    ['project_id' => $newPid, 'token_id' => $token->id]
-                );
+                //add all it's projects
+                foreach ($tokenProjs as $tpid) {
+                    $newPid = $projectArray[$tpid];
+                    DB::table('project_token')->insert(
+                        ['project_id' => $newPid, 'token_id' => $token->id]
+                    );
+                }
             }
         }
 
@@ -247,10 +278,11 @@ class ExodusController extends Controller{
         $optPresets = $con->query("select * from controlPreset");
         while ($o = $optPresets->fetch_assoc()) {
             if($o['project']==0 | !isset($projectArray[$o['project']])){
-                $optionPID = 0;
-            }else{
-                $optionPID = $projectArray[$o['project']];
+                continue; //this is either an old global preset, or doesn't belong to a migrated project
             }
+
+            $optionPID = $projectArray[$o['project']];
+
             switch($o['class']) {
                 case 'TextControl':
                     if($o['value']!=''){
@@ -290,79 +322,83 @@ class ExodusController extends Controller{
         //Forms
         $forms = $con->query("select * from scheme");
         while ($f = $forms->fetch_assoc()) {
-            //make form
-            $form = new Form();
-            $form->pid = $projectArray[$f['pid']];
-            $form->name = $f['schemeName'];
-            $slug = str_replace(' ','_',$f['schemeName']);
-            if (Form::where('slug', '=', $slug)->exists()) {
-                $unique = false;
-                $i=1;
-                while(!$unique){
-                    if(Form::where('slug', '=', $slug.$i)->exists()){
-                        $i++;
-                    }else{
-                        $form->slug = $slug.$i;
-                        $unique = true;
+            if(in_array($f['pid'],$migratedProjects)) {
+                //make form
+                $form = new Form();
+                $form->pid = $projectArray[$f['pid']];
+                $form->name = $f['schemeName'];
+                $slug = str_replace(' ', '_', $f['schemeName']);
+                if (Form::where('slug', '=', $slug)->exists()) {
+                    $unique = false;
+                    $i = 1;
+                    while (!$unique) {
+                        if (Form::where('slug', '=', $slug . $i)->exists()) {
+                            $i++;
+                        } else {
+                            $form->slug = $slug . $i;
+                            $unique = true;
+                        }
                     }
+                } else {
+                    $form->slug = $slug;
                 }
-            }else{
-                $form->slug = $slug;
-            }
-            $form->description = $f['description'];
-            $form->layout = '<LAYOUT></LAYOUT>';
-            $form->preset = $f['allowPreset'];;
-            $form->public_metadata = 0;
-            $form->save();
+                $form->description = $f['description'];
+                $form->layout = '<LAYOUT></LAYOUT>';
+                $form->preset = $f['allowPreset'];;
+                $form->public_metadata = 0;
+                $form->save();
 
-            //add to form conversion array
-            $formArray[$f['schemeid']] = $form->fid;
-            //add to old sid/pid array
-            $pairArray[$f['schemeid']] = $f['pid'];
+                //add to form conversion array
+                $formArray[$f['schemeid']] = $form->fid;
+                //add to old sid/pid array
+                $pairArray[$f['schemeid']] = $f['pid'];
 
-            //create admin/default groups based on project groups
-            $permGroups = $con->query("select * from permGroup where pid=".$f['pid']);
-            while ($pg = $permGroups->fetch_assoc()) {
-                $admin = false;
-                $k3Group = new FormGroup();
-                if($pg['name'] == 'Administrators'){
-                    $k3Group->name = $form->name.' Admin Group';
-                    $nameOfProjectGroup = ProjectController::getProject($form->pid)->name.' Admin Group';
-                    $admin = true;
-                } else if($pg['name'] == 'Default'){
-                    $k3Group->name = $form->name.' Default Group';
-                    $nameOfProjectGroup = ProjectController::getProject($form->pid)->name.' Default Group';
-                } else{
-                    $k3Group->name = $pg['name'];
-                    $nameOfProjectGroup = $pg['name'];
+                //create admin/default groups based on project groups
+                $permGroups = $con->query("select * from permGroup where pid=" . $f['pid']);
+                while ($pg = $permGroups->fetch_assoc()) {
+                    $admin = false;
+                    $k3Group = new FormGroup();
+                    if ($pg['name'] == 'Administrators') {
+                        $k3Group->name = $form->name . ' Admin Group';
+                        $nameOfProjectGroup = ProjectController::getProject($form->pid)->name . ' Admin Group';
+                        $admin = true;
+                    } else if ($pg['name'] == 'Default') {
+                        $k3Group->name = $form->name . ' Default Group';
+                        $nameOfProjectGroup = ProjectController::getProject($form->pid)->name . ' Default Group';
+                    } else {
+                        $k3Group->name = $pg['name'];
+                        $nameOfProjectGroup = $pg['name'];
+                    }
+                    $k3Group->fid = $form->fid;
+                    $k3Group->save();
+
+                    //this group is the admin group so save that info to the project
+                    if ($admin) {
+                        $form->adminGID = $k3Group->id;
+                        $form->save();
+                    }
+
+                    //add all the members from the newly created project group to the respective form group
+                    $groupUsers = array();
+                    $projGroup = ProjectGroup::where('name', '=', $nameOfProjectGroup)->where('pid', '=', $form->pid)->first();
+                    if ($migrateUsers) {
+                        foreach ($projGroup->users()->get() as $user) {
+                            array_push($groupUsers, $user->id);
+                        }
+                        $k3Group->users()->attach($groupUsers);
+                    }
+
+                    //get the perms from earlier
+                    $perms = $permArray[$projGroup->id];
+                    //lets pair these permissions with their group id so we can reference it when we make the form groups
+                    $k3Group->create = $perms['fCreate'];
+                    $k3Group->edit = $perms['fEdit'];
+                    $k3Group->delete = $perms['fDelete'];
+                    $k3Group->ingest = $perms['ingest'];
+                    $k3Group->modify = $perms['modify'];
+                    $k3Group->destroy = $perms['destroy'];
+                    $k3Group->save();
                 }
-                $k3Group->fid = $form->fid;
-                $k3Group->save();
-
-                //this group is the admin group so save that info to the project
-                if($admin){
-                    $form->adminGID=$k3Group->id;
-                    $form->save();
-                }
-
-                //add all the members from the newly created project group to the respective form group
-                $groupUsers = array();
-                $projGroup = ProjectGroup::where('name','=',$nameOfProjectGroup)->where('pid','=',$form->pid)->first();
-                foreach($projGroup->users()->get() as $user){
-                    array_push($groupUsers,$user->id);
-                }
-                $k3Group->users()->attach($groupUsers);
-
-                //get the perms from earlier
-                $perms = $permArray[$projGroup->id];
-                //lets pair these permissions with their group id so we can reference it when we make the form groups
-                $k3Group->create = $perms['fCreate'];
-                $k3Group->edit = $perms['fEdit'];
-                $k3Group->delete = $perms['fDelete'];
-                $k3Group->ingest = $perms['ingest'];
-                $k3Group->modify = $perms['modify'];
-                $k3Group->destroy = $perms['destroy'];
-                $k3Group->save();
             }
         }
 

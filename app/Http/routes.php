@@ -47,6 +47,7 @@ Route::delete('admin/deleteUser/{id}', 'AdminController@deleteUser');
 
 //Kora Exodus routes
 Route::get('/exodus', 'ExodusController@index');
+Route::post('/exodus/projects', 'ExodusController@getProjectList');
 Route::post('/exodus/migrate', 'ExodusController@migrate');
 Route::get('/exodus/progress','ExodusController@checkProgress');
 Route::post('/exodus/user/unlock','ExodusController@unlockUsers');

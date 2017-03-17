@@ -544,7 +544,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue
                             }
 
                             //Move files
-                            //rename($oldDir.$localname,$newPath.$realname);
+                            copy($oldDir.$localname,$newPath.$realname);
 
                             //Create thumbs
                             $smallParts = explode('x',FieldController::getFieldOption($field,'ThumbSmall'));
