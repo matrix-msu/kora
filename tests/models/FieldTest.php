@@ -201,7 +201,6 @@ TEXT;
         $schedule_field = new \App\ScheduleField();
         $schedule_field->rid = 0;
         $schedule_field->flid = $field->flid;
-        $schedule_field->events = "asdf";
         $schedule_field->save();
 
         $flid = $field->flid;
@@ -423,7 +422,6 @@ TEXT;
         $sched_field = new \App\ScheduleField();
         $sched_field->rid = $record->rid;
         $sched_field->flid = $field->flid;
-        $sched_field->events = "";
         $sched_field->save();
 
         $this->assertInstanceOf("App\\BaseField", $field->getTypedField($record->rid));
@@ -1250,47 +1248,6 @@ TEXT;
     }
 
     /**
-     * Test the schedule field portion of Field::keywordSearchTyped.
-     */
-    public function test_keywordSearchTyped_scheduleField() {
-        $project = self::dummyProject();
-        $form = self::dummyForm($project->pid);
-        $field = self::dummyField(Field::_SCHEDULE, $project->pid, $form->fid);
-        $record = self::dummyRecord($project->pid, $form->fid);
-
-        $sched_field = new \App\ScheduleField();
-        $sched_field->rid = $record->rid;
-        $sched_field->flid = $field->flid;
-        $sched_field->events = self::SCHEDULE_FIELD_DATA;
-        $sched_field->save();
-
-        $arg = "Hannah";
-        $arg = Search::processArgument($arg, Search::SEARCH_OR);
-
-        $results = $field->keywordSearchTyped($arg)->get();
-        $result = $results->pop();
-
-        $this->assertInstanceOf("App\\ScheduleField", $result);
-
-        $arg = "My Birthday";
-        $arg = Search::processArgument($arg, Search::SEARCH_OR);
-
-        $results = $field->keywordSearchTyped($arg)->get();
-        $result = $results->pop();
-
-        $this->assertInstanceOf("App\\ScheduleField", $result);
-        $this->assertEmpty($results); // Should have only gotten one thing.
-
-        $arg = "Manila Major";
-        $arg = Search::processArgument($arg, Search::SEARCH_EXACT);
-
-        $results = $field->keywordSearchTyped($arg)->get();
-        $result = $results->pop();
-
-        $this->assertInstanceOf("App\\ScheduleField", $result);
-    }
-
-    /**
      * Test the schedule field portion of Field::keywordSearchTyped2.
      * See schedule field test...
      */
@@ -1349,9 +1306,6 @@ TEXT;
      * See geolocator field test...
      */
     public function test_keywordSearchTyped2_geolocatorField() {
-        //
-        // TODO: Update this test to consider support fields.
-        //
         $project = self::dummyProject();
         $form = self::dummyForm($project->pid);
         $field = self::dummyField(Field::_GEOLOCATOR, $project->pid, $form->fid);
@@ -1361,8 +1315,9 @@ TEXT;
         $geo_field->rid = $record->rid;
         $geo_field->flid = $field->flid;
         $geo_field->fid = $form->fid;
-        $geo_field->locations = self::GEOLOCATOR_FIELD_DATA;
         $geo_field->save();
+
+        $geo_field->addLocations(explode("[!]", self::GEOLOCATOR_FIELD_DATA));
 
         $arg = Search::processArgument("London", Search::SEARCH_OR);
         $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);

@@ -8,6 +8,7 @@ Use App\Metadata;
 Use App\Field;
 Use App\Form;
 use App\Record;
+use App\ScheduleField;
 use App\Search;
 use App\TextField;
 use Illuminate\Bus\MarshalException;
@@ -268,7 +269,7 @@ class MetadataController extends Controller {
                 foreach($record->schedulefields as $sf){
                     $field = Field::find($sf->flid);
                     if($item==$sf->flid && count($field->metadata)>0){
-                        $events_array = explode("[!]",$sf->events);
+                        $events_array = ScheduleField::eventsToOldFormat($sf->events()->get());
                         $jsRecord->put($field->metadata()->first()->name,$events_array);
                     }
                 }

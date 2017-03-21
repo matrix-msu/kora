@@ -1341,8 +1341,9 @@ class ImportController extends Controller {
                                     $sched->rid = $recModel->rid;
                                     $sched->fid = $recModel->fid;
                                     $sched->flid = $field->flid;
-                                    $sched->events = $eventStr;
                                     $sched->save();
+
+                                    $sched->addEvents(explode("[!]", $eventStr));
                                 }
                                 break;
                             case 'Documents':

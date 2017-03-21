@@ -67,7 +67,6 @@ class RecordTest extends TestCase
         $schedule_field = new \App\ScheduleField();
         $schedule_field->rid = $rid;
         $schedule_field->flid = 0;
-        $schedule_field->events = "asdf";
         $schedule_field->save();
 
         $geolocator_field = new \App\GeolocatorField();
@@ -108,7 +107,6 @@ class RecordTest extends TestCase
         $combo_list_field = new \App\ComboListField();
         $combo_list_field->rid = $rid;
         $combo_list_field->flid = 0;
-        $combo_list_field->options = "asdf";
         $combo_list_field->save();
 
         $associator = new \App\AssociatorField();

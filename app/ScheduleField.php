@@ -4,6 +4,7 @@ use DateTime;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
+use PhpSpec\Exception\Exception;
 
 class ScheduleField extends BaseField {
 
@@ -64,14 +65,11 @@ class ScheduleField extends BaseField {
         return true;
     }
 
-    /**
-     * Returns the events of the field as an array.
-     *
-     * @param Field $field, unneeded.
-     * @return array
-     */
     public function toMetadata(Field $field) {
-        return explode("[!]", $this->events);
+        //
+        // TODO: Implement me.
+        //
+        throw new Exception("Method not implemented...");
     }
 
     /**
@@ -162,6 +160,39 @@ class ScheduleField extends BaseField {
         return DB::table(self::SUPPORT_NAME)->select("*")
             ->where("flid", "=", $this->flid)
             ->where("rid", "=", $this->rid);
+    }
+
+    /**
+     * True if there are events associated with a particular Schedule field.
+     *
+     * @return bool
+     */
+    public function hasEvents() {
+        return !! $this->events()->count();
+    }
+
+    /**
+     * Puts an array of events into the old format.
+     *      - "Old Format" meaning, an array of the events formatted as
+     *      <Description>: <Begin> - <End>
+     *
+     * @param array $events, array of StdObjects representing events.
+     * @param bool $array_string, should this be in the old *[!]*[!]...[!]* format?
+     * @return array | string
+     */
+    public static function eventsToOldFormat(array $events, $array_string = false) {
+        $formatted = [];
+        foreach($events as $event) {
+            $formatted[] = $event->desc . ": "
+                . $event->begin . " - "
+                . $event->end;
+        }
+
+        if ($array_string) {
+            return implode("[!]", $formatted);
+        }
+
+        return $formatted;
     }
 
     /**

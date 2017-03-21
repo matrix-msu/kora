@@ -108,7 +108,6 @@ class ScheduleFieldTest extends TestCase
         $sched_field->fid = $field->fid;
         $sched_field->rid = $record->rid;
         $sched_field->flid = $field->flid;
-        $sched_field->events = "Today: 11/15/2016 - 11/15/2016[!]Tomorrow: 11/16/2016 - 11/16/2016[!]Forever: 11/17/2016 - 11/17/2016";
         $sched_field->save();
 
         $sched_field->addEvents(["Today: 11/15/2016 - 11/15/2016",
@@ -232,7 +231,6 @@ class ScheduleFieldTest extends TestCase
         $sched_field->fid = $field->fid;
         $sched_field->rid = $record->rid;
         $sched_field->flid = $field->flid;
-        $sched_field->events = "Today: 11/15/2016 - 11/15/2016[!]Tomorrow: 11/16/2016 - 11/16/2016[!]Forever: 11/17/2016 - 11/17/2016";
         $sched_field->save();
 
         $sched_field->addEvents(["Today: 11/15/2016 - 11/15/2016"]);
@@ -283,7 +281,6 @@ class ScheduleFieldTest extends TestCase
         $s1->fid = $field->fid;
         $s1->rid = $r1->rid;
         $s1->flid = $field->flid;
-        $s1->events = "";
         $s1->save();
 
         $s1->addEvents(["Today: 12/2/2016 - 12/2/2016",
@@ -293,7 +290,6 @@ class ScheduleFieldTest extends TestCase
         $s2->fid = $field->fid;
         $s2->rid = $r2->rid;
         $s2->flid = $field->flid;
-        $s2->events = "";
         $s2->save();
 
         $s2->addEvents(["Christmas: 12/25/2016 - 12/25/2016",
@@ -304,7 +300,6 @@ class ScheduleFieldTest extends TestCase
         $s3->fid = $field->fid;
         $s3->rid = $r3->rid;
         $s3->flid = $field->flid;
-        $s3->events = "";
         $s3->save();
 
         $s3->addEvents(["Now: 12/1/2016 12:07 PM - 12/1/2016 12:07 PM"]);
@@ -313,7 +308,6 @@ class ScheduleFieldTest extends TestCase
         $s4->fid = $field->fid;
         $s4->rid = $r4->rid;
         $s4->flid = $field->flid;
-        $s4->events = "";
         $s4->save();
 
         // No events...

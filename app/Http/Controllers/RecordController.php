@@ -248,7 +248,6 @@ class RecordController extends Controller {
                     $sf->flid = $field->flid;
                     $sf->rid = $record->rid;
                     $sf->fid = $fid;
-                    $sf->events = FieldController::listArrayToString($value);
                     $sf->save();
 
                     $sf->addEvents($value);
@@ -851,7 +850,6 @@ class RecordController extends Controller {
                 //we need to check if the field exist first
                 $sf = ScheduleField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
                 if(!is_null($sf) && !is_null($value)){
-                    $sf->events = FieldController::listArrayToString($value);
                     $sf->save();
 
                     $sf->updateEvents($value);
@@ -866,7 +864,6 @@ class RecordController extends Controller {
                     $sf->flid = $field->flid;
                     $sf->rid = $record->rid;
                     $sf->fid = $record->fid;
-                    $sf->events = FieldController::listArrayToString($value);
                     $sf->save();
 
                     $sf->addEvents($value);
@@ -1858,9 +1855,9 @@ class RecordController extends Controller {
                 $record->save();
                 if ($matching_record_fields->count() > 0) {
                     $schedulefield = $matching_record_fields->first();
-                    if ($overwrite == true || $schedulefield->events == "" || is_null($schedulefield->events)) {
+                    if ($overwrite == true || $schedulefield->hasEvents()) {
                         $revision = RevisionController::storeRevision($record->rid, 'edit');
-                        $schedulefield->events = implode("[!]", $form_field_value);
+                        $schedulefield->updateEvents($form_field_value);
                         $schedulefield->save();
                         $revision->oldData = RevisionController::buildDataArray($record);
                         $revision->save();
@@ -1872,8 +1869,10 @@ class RecordController extends Controller {
                     $revision = RevisionController::storeRevision($record->rid, 'edit');
                     $sf->flid = $field->flid;
                     $sf->rid = $record->rid;
-                    $sf->events = implode("[!]", $form_field_value);
                     $sf->save();
+
+                    $sf->addEvents($form_field_value);
+
                     $revision->oldData = RevisionController::buildDataArray($record);
                     $revision->save();
                 }
@@ -2028,8 +2027,9 @@ class RecordController extends Controller {
                     $sf->flid = $field->flid;
                     $sf->rid = $record->rid;
                     $sf->fid = $fid;
-                    $sf->events = 'K3TR: 01/03/1937 - 01/03/1937';
                     $sf->save();
+
+                    $sf->addEvents(['K3TR: 01/03/1937 - 01/03/1937']);
                 } else if ($field->type == 'Geolocator') {
                     $gf = new GeolocatorField();
                     $gf->flid = $field->flid;

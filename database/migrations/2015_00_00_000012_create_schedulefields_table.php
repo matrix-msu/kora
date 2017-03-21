@@ -22,16 +22,11 @@ class CreateSchedulefieldsTable extends Migration {
 			$table->integer('rid')->unsigned();
 			$table->integer('fid')->unsigned();
 			$table->integer('flid')->unsigned();
-
-			// TODO: Remove use of events.
-			$table->mediumText('events');
 			$table->timestamps();
 
 			$table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');
 			$table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
-
-		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."schedule_fields ADD FULLTEXT search_sch(`events`)");
 
 		Schema::create('schedule_support', function(Blueprint $table)
 		{
@@ -58,9 +53,6 @@ class CreateSchedulefieldsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::table("schedule_fields", function($table) {
-			$table->dropIndex("search_sch");
-		});
 		Schema::drop('schedule_fields');
 		Schema::drop('schedule_support');
 	}
