@@ -259,7 +259,7 @@ class ImportController extends Controller {
                     $nameone = ComboListField::getComboFieldName($field, 'one');
                     $nametwo = ComboListField::getComboFieldName($field, 'two');
 
-                    $fieldArray['options'] = array();
+                    $fieldArray['values'] = array();
                     $valArray = array();
 
                     if ($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List')
@@ -274,7 +274,7 @@ class ImportController extends Controller {
                         $valArray[$nametwo] = array('VALUE 1','VALUE 2','so on...');
                     }
 
-                    array_push($fieldArray['options'], $valArray);
+                    array_push($fieldArray['values'], $valArray);
 
                     array_push($recArray['Fields'], $fieldArray);
                 }
@@ -292,14 +292,14 @@ class ImportController extends Controller {
                     $fieldArray['events'] = array();
 
                     $eventArray = array();
-                    $eventArray['desc'] = 'EVENT TITLE 1';
+                    $eventArray['title'] = 'EVENT TITLE 1';
                     $eventArray['start'] = '08/19/1990 12:00 AM';
                     $eventArray['end'] = '08/19/1990 12:30 AM';
                     $eventArray['allday'] = '0 FOR TIMED EVENT';
                     array_push($fieldArray['events'], $eventArray);
 
                     $eventArray = array();
-                    $eventArray['desc'] = 'EVENT TITLE 2';
+                    $eventArray['title'] = 'EVENT TITLE 2';
                     $eventArray['start'] = '08/19/1990';
                     $eventArray['end'] = '08/20/1990';
                     $eventArray['allday'] = '1 FOR ALL DAY EVENT';
@@ -540,12 +540,8 @@ class ImportController extends Controller {
         if($request->type=='xml') {
             $record = simplexml_load_string($record);
 
-            if(isset($record->attributes()->kid)) {
-                $originKid = $record->attributes()->kid;
-                $originRid = explode('-', $originKid)[2];
-            }else{
-                $originRid = '';
-            }
+            $originKid = $record->attributes()->kid;
+            $originRid = explode('-', $originKid)[2];
 
             foreach ($record->children() as $key => $field) {
                 $fieldSlug = $matchup[$key];
@@ -608,12 +604,7 @@ class ImportController extends Controller {
                     $recRequest[$flid] = $geo;
                 } else if ($type == 'Documents' | $type == 'Playlist' | $type == 'Video' | $type == '3D-Model') {
                     $files = array();
-                    // if there was a kid associated with the record or the zip is structured from a kora3 file output...
-                    // then it's file is in the folder structure
-                    if($originRid != '')
-                        $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
-                    else //file is in root of zip
-                        $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                    $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
                     $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id;
                     if (file_exists($newDir)) {
                         foreach (new \DirectoryIterator($newDir) as $file) {
@@ -635,12 +626,7 @@ class ImportController extends Controller {
                     $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;
                 } else if ($type == 'Gallery') {
                     $files = array();
-                    // if there was a kid associated with the record or the zip is structured from a kora3 file output...
-                    // then it's file is in the folder structure
-                    if($originRid != '')
-                        $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
-                    else //file is in root of zip
-                        $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                    $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
                     $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id;
                     if (file_exists($newDir)) {
                         foreach (new \DirectoryIterator($newDir) as $file) {
@@ -671,16 +657,8 @@ class ImportController extends Controller {
                         $name = (string)$file->Name;
                         //move file from imp temp to tmp files
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
-                        if (file_exists($currDir . '/thumbnail'))
-                            copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
-                        else{
-                            //TODO: make thumb
-                        }
-                        if (file_exists($currDir . '/medium'))
-                            copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
-                        else{
-                            //TODO: make thumb
-                        }
+                        copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
+                        copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
                         //add input for this file
                         array_push($files, $name);
                     }
@@ -689,12 +667,8 @@ class ImportController extends Controller {
                 }
             }
         }else if($request->type=='json'){
-            if(isset($record['kid'])) {
-                $originKid = $record['kid'];
-                $originRid = explode('-', $originKid)[2];
-            }else{
-                $originRid = '';
-            }
+            $originKid = $record['kid'];
+            $originRid = explode('-', $originKid)[2];
 
             foreach ($record['Fields'] as $field) {
                 $fieldSlug = $matchup[$field['name']];
@@ -717,7 +691,7 @@ class ImportController extends Controller {
                     $values = array();
                     $nameone = ComboListField::getComboFieldName(FieldController::getField($flid), 'one');
                     $nametwo = ComboListField::getComboFieldName(FieldController::getField($flid), 'two');
-                    foreach ($field['options'] as $val) {
+                    foreach ($field['values'] as $val) {
                         if (!is_array($val[$nameone]))
                             $fone = '[!f1!]' . $val[$nameone] . '[!f1!]';
                         else
@@ -743,7 +717,7 @@ class ImportController extends Controller {
                 } else if ($type == 'Schedule') {
                     $events = array();
                     foreach ($field['events'] as $event) {
-                        $string = $event['desc'] . ': ' . $event['start'] . ' - ' . $event['end'];
+                        $string = $event['title'] . ': ' . $event['start'] . ' - ' . $event['end'];
                         array_push($events, $string);
                     }
                     $recRequest[$flid] = $events;
@@ -759,12 +733,7 @@ class ImportController extends Controller {
                     $recRequest[$flid] = $geo;
                 } else if ($type == 'Documents' | $type == 'Playlist' | $type == 'Video' | $type == '3D-Model') {
                     $files = array();
-                    // if there was a kid associated with the record or the zip is structured from a kora3 file output...
-                    // then it's file is in the folder structure
-                    if($originRid != '')
-                        $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
-                    else //file is in root of zip
-                        $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                    $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
                     $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id;
                     if (file_exists($newDir)) {
                         foreach (new \DirectoryIterator($newDir) as $file) {
@@ -786,12 +755,7 @@ class ImportController extends Controller {
                     $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;
                 } else if ($type == 'Gallery') {
                     $files = array();
-                    // if there was a kid associated with the record or the zip is structured from a kora3 file output...
-                    // then it's file is in the folder structure
-                    if($originRid != '')
-                        $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
-                    else //file is in root of zip
-                        $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                    $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
                     $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id;
                     if (file_exists($newDir)) {
                         foreach (new \DirectoryIterator($newDir) as $file) {
@@ -822,16 +786,8 @@ class ImportController extends Controller {
                         $name = $file['name'];
                         //move file from imp temp to tmp files
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
-                        if (file_exists($currDir . '/thumbnail'))
-                            copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
-                        else{
-                            //TODO: make thumb
-                        }
-                        if (file_exists($currDir . '/medium'))
-                            copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
-                        else{
-                            //TODO: make thumb
-                        }
+                        copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
+                        copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
                         //add input for this file
                         array_push($files, $name);
                     }

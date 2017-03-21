@@ -821,8 +821,8 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue
                 case 'Geolocator':
                     $geofield = GeolocatorField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
 
-                    if (!empty($geofield->locations)) {
-                        $data['locations'] = explode('[!]', $geofield->locations);
+                    if ($geofield->hasLocations()) {
+                        $data['locations'] = GeolocatorField::locationsToOldFormat($geofield->locations()->get());
                     }
                     else {
                         $data['locations'] = null;

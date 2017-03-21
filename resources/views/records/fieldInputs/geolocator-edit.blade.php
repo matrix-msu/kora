@@ -4,7 +4,7 @@
         $value = '';
         $value2 = \App\GeolocatorField::getLocationList($field);
     }else{
-        $value = explode('[!]',$geolocator->locations);
+        $value = App\GeolocatorField::locationsToOldFormat($geolocator->locations()->get());
         $value2 = array();
         foreach($value as $val){
             $value2[$val] = 'Description: '.explode('[Desc]',$val)[1].' | LatLon: '.explode('[LatLon]',$val)[1].' | UTM: '.explode('[UTM]',$val)[1].' | Address: '.explode('[Address]',$val)[1];

@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\ComboListField;
+use App\GeolocatorField;
 use App\Http\Requests;
 use App\Jobs\TestJob;
 Use App\Metadata;
@@ -272,7 +273,7 @@ class MetadataController extends Controller {
                 foreach($record->geolocatorfields as $gf){
                     $field = Field::find($gf->flid);
                     if($item==$gf->flid && count($field->metadata)>0){
-                        $locations_array = explode("[!]",$gf->locations);
+                        $locations_array = GeolocatorField::locationsToOldFormat($gf->locations()->get());
                         $locations_and_description_array = new Collection();
                         foreach($locations_array as $location){
                             $locations_and_description_array->push(explode(":",$location));

@@ -40,7 +40,6 @@ class SaveGeolocatorFieldsTable extends Command implements SelfHandling, ShouldQ
                 $individual_geolocatorfield_data->put("id", $geolocatorfield->id);
                 $individual_geolocatorfield_data->put("rid", $geolocatorfield->rid);
                 $individual_geolocatorfield_data->put("flid", $geolocatorfield->flid);
-                $individual_geolocatorfield_data->put("locations",$geolocatorfield->locations);
                 $individual_geolocatorfield_data->put("created_at", $geolocatorfield->created_at->toDateTimeString());
                 $individual_geolocatorfield_data->put("updated_at", $geolocatorfield->updated_at->toDateTimeString());
 

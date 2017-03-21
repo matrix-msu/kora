@@ -22,16 +22,11 @@ class CreateGeolocatorfieldsTable extends Migration {
 			$table->integer('rid')->unsigned();
 			$table->integer('fid')->unsigned();
 			$table->integer('flid')->unsigned();
-
-			// TODO: Remove use of locations.
-			$table->mediumText('locations');
 			$table->timestamps();
 
 			$table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');
 			$table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
-
-		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."geolocator_fields ADD FULLTEXT search_geo(`locations`)");
 
 		Schema::create('geolocator_support', function(Blueprint $table)
 		{
@@ -62,10 +57,6 @@ class CreateGeolocatorfieldsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::table("geolocator_fields", function($table) {
-			$table->dropIndex("search_geo");
-		});
-
 		Schema::drop('geolocator_support');
 		Schema::drop('geolocator_fields');
 	}

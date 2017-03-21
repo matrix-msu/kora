@@ -143,7 +143,8 @@ class FormSearchController extends Controller
      * @return Response, redirects to the record index.
      */
     public function deleteSubset ($pid, $fid) {
-        $rids = unserialize(Session::get("rids"));
+        $rids = Session::get("rids");
+        $rids = is_array($rids) ? $rids : unserialize($rids);
 
         $query = Record::where("rid", "=", array_shift($rids));
         foreach ($rids as $rid) {
