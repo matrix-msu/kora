@@ -21,6 +21,10 @@
                             {!! Form::file('profile', ['class' => 'form-control', 'accept' => '.jpeg,.png,.bmp,.gif,.jpg', 'id' => 'profile_pic']) !!}
                             <button type="button" id="submit_profile_pic" class="btn btn-default">Update Profile Picture</button>
                         </div>
+
+                        <div class="form-group">
+                            <button type="button" id="order_66" class="btn btn-default btn-danger">Order 66</button>
+                        </div>
                         
                         <h3>{{trans('user_profile.info')}}:</h3>
 
@@ -67,6 +71,34 @@
                     $("#current_profile_pic").attr("src",data);
                 }
             });
+        });
+
+        $( "#order_66" ).on( "click", function() {
+            var encode = $('<div/>').html("Are you sure, Emperor?").text();
+            var resp1 = confirm(encode);
+            if(resp1) {
+                var enc1 = $('<div/>').html("This is your last warning!").text();
+                var enc2 = $('<div/>').html("Type DELETE to execute Order 66").text();
+                var resp2 = prompt(enc1 + '!', enc2 + '.');
+                // User must literally type "DELETE" into a prompt.
+                if(resp2 === 'DELETE') {
+
+                    $("#slideme").slideToggle(2000, function() {
+                        $('#progress').slideToggle(400);
+                    });
+                    $.ajax({
+                        url: "{{action('AdminController@deleteData')}}",
+                        method:'POST',
+                        data: {
+                            "_token": "{{ csrf_token() }}",
+                            "order_66": "EXECUTE"
+                        },
+                        success: function(data){
+                            console.log(data);
+                        }
+                    });
+                }
+            }
         });
 
         function updateLanguage(selected_lang){

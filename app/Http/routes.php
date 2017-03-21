@@ -44,6 +44,7 @@ Route::get('/admin/users', 'AdminController@users');
 Route::patch('/admin/update', 'AdminController@update');
 Route::patch('/admin/batch', 'AdminController@batch');
 Route::delete('admin/deleteUser/{id}', 'AdminController@deleteUser');
+Route::post('/admin/order66','AdminController@deleteData');
 
 //Kora Exodus routes
 Route::get('/exodus', 'ExodusController@index');
@@ -51,7 +52,7 @@ Route::post('/exodus/projects', 'ExodusController@getProjectList');
 Route::post('/exodus/migrate', 'ExodusController@migrate');
 Route::get('/exodus/progress','ExodusController@checkProgress');
 Route::post('/exodus/user/unlock','ExodusController@unlockUsers');
-Route::post('/exodus/start','ExodusController@startExodus'); //
+Route::post('/exodus/start','ExodusController@startExodus');
 
 
 //token routes

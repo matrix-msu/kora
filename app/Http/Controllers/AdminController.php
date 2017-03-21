@@ -3,6 +3,8 @@
 use App\User;
 use App\Http\Requests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
@@ -180,6 +182,68 @@ class AdminController extends Controller {
                 flash()->overlay($created . trans('controller_admin.created'), trans('controller_admin.success'));
             return redirect('admin/users');
         }
+    }
+
+    public function deleteData(){
+        if(Auth::check()){
+            if(Auth::user()->id != 1){
+                flash()->overlay("There can only be one highlander!","Get out!");
+                return redirect("/projects")->send();
+            }
+        }
+
+        try {
+            foreach (User::all() as $User) {
+                if ($User->id == 1) { //Do not delete the default admin user
+                    continue;
+                } else {
+                    $User->delete();
+                }
+            }
+            DB::table('projects')->delete();
+            DB::table('forms')->delete();
+            DB::table('fields')->delete();
+            DB::table('records')->delete();
+            DB::table('metadatas')->delete();
+            DB::table('tokens')->delete();
+            DB::table('project_token')->delete();
+            DB::table('revisions')->delete();
+            DB::table('date_fields')->delete();
+            DB::table('form_groups')->delete();
+            DB::table('form_group_user')->delete();
+            DB::table('generated_list_fields')->delete();
+            DB::table('geolocator_fields')->delete();
+            DB::table('list_fields')->delete();
+            DB::table('multi_select_list_fields')->delete();
+            DB::table('number_fields')->delete();
+            DB::table('project_groups')->delete();
+            DB::table('project_group_user')->delete();
+            DB::table('rich_text_fields')->delete();
+            DB::table('schedule_fields')->delete();
+            DB::table('text_fields')->delete();
+            DB::table('documents_fields')->delete();
+            DB::table('model_fields')->delete();
+            DB::table('gallery_fields')->delete();
+            DB::table('video_fields')->delete();
+            DB::table('playlist_fields')->delete();
+            DB::table('combo_list_fields')->delete();
+            DB::table('associator_fields')->delete();
+            DB::table('option_presets')->delete();
+            DB::table('record_presets')->delete();
+            DB::table('plugins')->delete();
+            DB::table('plugin_menus')->delete();
+            DB::table('plugin_settings')->delete();
+            DB::table('plugin_users')->delete();
+            DB::table('associations')->delete();
+            DB::table('combo_support')->delete();
+            DB::table('geolocator_support')->delete();
+            DB::table('schedule_support')->delete();
+
+        }catch(\Exception $e){
+            $this->ajaxResponse(false, "Error removing from database");
+        }
+
+        return "The force is strong with this one :)";
     }
 
     /**
