@@ -184,8 +184,8 @@ class ScheduleField extends BaseField {
         $formatted = [];
         foreach($events as $event) {
             $formatted[] = $event->desc . ": "
-                . $event->begin . " - "
-                . $event->end;
+                . str_replace("-", "/", $event->begin) . " - "
+                . str_replace("-", "/", $event->end);
         }
 
         if ($array_string) {
