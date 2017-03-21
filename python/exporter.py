@@ -68,10 +68,6 @@ class RecordExporter(Exporter):
 
         field_formatters = get_field_formatters(self._output)
 
-        ## This will only be relevant for XML
-        if  self._output == "XML":
-            target.write("<?xml version=\"1.0\" encoding=\"utf-8\"?><Records>")
-
         for rid in self._rids:
 
             if  self._output == "JSON":
@@ -114,10 +110,6 @@ class RecordExporter(Exporter):
                 record_xml += "</Record>"
 
                 target.write(record_xml)
-
-        ## This will only be relevant for XML
-        if  self._output == "XML":
-            target.write("</Records>")
 
         target.close()
 

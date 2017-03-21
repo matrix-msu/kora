@@ -121,19 +121,21 @@ class XMLWriter(Writer):
         """
         return ".xml"
 
-    def header(self, filepath): ## TODO: Implement
+    def header(self, filepath):
         """
         Writes the header to a file. Should be an empty file, else it will be truncated.
         :param filepath: string, absolute path to set up the file header in.
         """
-        pass
+        with open(filepath, "w") as target:
+                    target.write("<?xml version=\"1.0\" encoding=\"utf-8\"?><Records>")
 
-    def footer(self, filepath): ## TODO: Implement
+    def footer(self, filepath):
         """
         Writes the footer to a file.
         :param filepath: string, absolute path to file to append footer to.
         """
-        pass
+        with open(filepath, "a") as target:
+                    target.write("</Records>")
 
 def make_writer(format, temp_path):
     """
