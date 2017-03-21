@@ -233,7 +233,7 @@ class Cursor:
         else: # Combo Support
             stmt = "SELECT `list_index`, `field_num`, `data`, `number` " \
             + "FROM " + env("DB_PREFIX") + Table.ComboSupport + " WHERE `rid` = %s AND `flid` = %s " \
-            + "ORDER BY `list_index` ASC"
+            + "ORDER BY `id` ASC"
 
         cursor.execute(stmt, [rid, flid])
 

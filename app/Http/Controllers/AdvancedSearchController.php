@@ -31,7 +31,7 @@ class AdvancedSearchController extends Controller {
      */
     public function index($pid, $fid) {
         if (! FormController::validProjForm($pid, $fid)) {
-            return redirect("projects/". $pid);
+            return redirect('projects/'.$pid);
         }
 
         $fields = Field::where("fid", "=", $fid)->get();
@@ -88,6 +88,10 @@ class AdvancedSearchController extends Controller {
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function results($pid, $fid) {
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects/'.$pid);
+        }
+
         $page = (isset($_GET['page'])) ? intval(strip_tags($_GET['page'])) : $page = 1;
 
         if (Session::has("rids")) {

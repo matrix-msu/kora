@@ -65,6 +65,9 @@
                     "user": '{{ $user }}',
                     "name": '{{ $name }}',
                     "pass": '{{ $pass }}',
+                    "migrateUsers": {{ $migrateUsers }},
+                    "migrateTokens": {{ $migrateTokens }},
+                    "projects": '{{ implode(',',$projects) }}',
                     "filePath": '{{ $filePath }}'
                 },
                 success: function(data){

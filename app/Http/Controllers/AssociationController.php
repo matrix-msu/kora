@@ -27,6 +27,10 @@ class AssociationController extends Controller {
 	 */
 	public function index($pid, $fid)
 	{
+        if(!FormController::validProjForm($pid,$fid)){
+            return redirect('projects/'.$pid);
+        }
+
 		$form = FormController::getForm($fid);
 		$project = $form->project()->first();
 

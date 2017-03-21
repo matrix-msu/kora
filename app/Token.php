@@ -14,8 +14,6 @@ class Token extends Model {
         'delete',
     ];
 
-    // TODO: add constants for the token types.
-
     /**
      * Get the projects associated to with a token.
      *

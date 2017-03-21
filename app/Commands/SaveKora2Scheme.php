@@ -17,6 +17,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RecordController;
 use App\Http\Controllers\RecordPresetController;
 use App\ListField;
+use App\Metadata;
 use App\ModelField;
 use App\MultiSelectListField;
 use App\PlaylistField;
@@ -345,6 +346,35 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue
         $newForm->layout = $newLay;
         $newForm->save();
 
+        //Dublin Core stuff//////////////////////////////////////////
+        $dublins = $con->query("select dublinCoreFields from scheme where schemeid=".$this->sid);
+        $dubs = $dublins->fetch_assoc(); //only one possible row
+        if(!is_null($dubs['dublinCoreFields'])){
+            //load the xml
+            $xml = simplexml_load_string($dubs['dublinCoreFields']);
+
+            //for each element
+            foreach($xml->children() as $node){
+                //get element name
+                $name = $node->getName();
+                //get cid
+                $cid = (int)$node->id->__toString();
+                //convert to new flid
+                $dcflid = $oldControlInfo[$cid];
+
+                //create metadata tag
+                $field = FieldController::getField($dcflid);
+                $meta = new Metadata();
+                $meta->name = $name;
+                $meta->flid = $dcflid;
+                $meta->fid = $field->fid;
+                $meta->pid = $field->pid;
+
+                $meta->save();
+            }
+        }
+
+
         //time to build the records
         Log::info('Iterating through data');
 
@@ -498,8 +528,8 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue
                                 continue;
                             }
 
-                            //Move file TODO
-                            //rename($oldDir.$localname,$newPath.$realname);
+                            //Move files
+                            copy($oldDir.$localname,$newPath.$realname);
 
                             //Get file info
                             $mimes = DocumentsField::getMimeTypes();
@@ -545,7 +575,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue
                             }
 
                             //Move files
-                            //rename($oldDir.$localname,$newPath.$realname);
+                            copy($oldDir.$localname,$newPath.$realname);
 
                             //Create thumbs
                             $smallParts = explode('x',FieldController::getFieldOption($field,'ThumbSmall'));
