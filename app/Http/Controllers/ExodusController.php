@@ -576,6 +576,10 @@ class ExodusController extends Controller{
             DB::table('plugin_menus')->delete();
             DB::table('plugin_settings')->delete();
             DB::table('plugin_users')->delete();
+            DB::table('associations')->delete();
+            DB::table('combo_support')->delete();
+            DB::table('geolocator_support')->delete();
+            DB::table('schedule_support')->delete();
 
 
         }catch(\Exception $e){

@@ -67,7 +67,8 @@ class UserController extends Controller {
 
         //remove old pic
         $oldFile = $pDir.\Auth::user()->profile;
-        unlink($oldFile);
+        if(file_exists($oldFile))
+            unlink($oldFile);
 
         //set new pic to db
         $newFilename = $file->getClientOriginalName();
