@@ -173,6 +173,15 @@ class ComboListField extends BaseField {
         return ! empty($this->options);
     }
 
+
+    /**
+     * @throws \Exception
+     */
+    public function delete() {
+        $this->deleteData();
+        parent::delete();
+    }
+
     /**
      * Returns a collection of the combo list field indexed by field name => field data.
      *

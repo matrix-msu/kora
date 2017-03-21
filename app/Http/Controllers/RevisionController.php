@@ -343,6 +343,9 @@ class RevisionController extends Controller {
 
                 // Geolocator Assignment
                 case 'Geolocator':
+
+                    // TODO: update this with support fields, geolocator is a mess though so maybe just wait for the refactor.
+
                     $geolocatorfield = GeolocatorField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
                     if ($revision->type != 'delete' && !is_null($geolocatorfield)) {
                         $geolocatorfield->locations = $data['geolocatorfields'][$field->flid]['data'];
@@ -630,6 +633,9 @@ class RevisionController extends Controller {
                     break;
 
                 case 'Schedule':
+
+                    ## TODO: Update with support fields.
+
                     $data['schedulefields'][$field->flid]['name'] = $field->name;
                     $schedulefield = ScheduleField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
                     if(!is_null($schedulefield))
@@ -639,10 +645,13 @@ class RevisionController extends Controller {
                     break;
 
                 case 'Geolocator':
+
+                    ## TODO: Update with support fields.
+
                     $data['geolocatorfields'][$field->flid]['name'] = $field->name;
                     $geofield = GeolocatorField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
                     if(!is_null($geofield))
-                        $data['geolocatorfields'][$field->flid]['data'] = $geofield->locations;
+                        $data['geolocatorfields'][$field->flid]['data'] = null; // $geofield->locations; maybe use old format?
                     else
                         $data['geolocatorfields'][$field->flid]['data'] = null;
                     break;
@@ -702,6 +711,9 @@ class RevisionController extends Controller {
                     break;
 
                 case 'Combo List':
+
+                    ## TODO: Update with support fields.
+
                     $data['combofields'][$field->flid]['name'] = $field->name;
 
                     $combofield = ComboListField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();

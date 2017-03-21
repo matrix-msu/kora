@@ -47,104 +47,6 @@ TEXT;
     }
 
     /**
-     * Test the keyword search function.
-     * @group search
-     */
-    public function test_keywordSearch() {
-        $project = self::dummyProject();
-        $this->assertInstanceOf('App\Project', $project);
-
-        $form = self::dummyForm($project->pid);
-        $this->assertInstanceOf('App\Form', $form);
-
-        $field = self::dummyField("Geolocator", $project->pid, $form->fid);
-        $this->assertInstanceOf('App\Field', $field);
-
-        $record = self::dummyRecord($project->pid, $form->fid);
-        $this->assertInstanceOf('App\Record', $record);
-
-        $field->default = self::FIELD_DEFAULT;
-        $field->options = self::FIELD_OPTIONS;
-        $field->save();
-
-        $geo = new \App\GeolocatorField();
-        $geo->rid = $record->rid;
-        $geo->flid = $field->flid;
-        $geo->locations = self::LOCATIONS;
-        $geo->save();
-
-        $args = ['hey there!'];
-        $this->assertTrue($geo->keywordSearch($args, true));
-        $this->assertTrue($geo->keywordSearch($args, false));
-
-        // Test search on default values (not in the location string of the actual geolocator field).
-        $args = ['default location desc'];
-        $this->assertTrue($geo->keywordSearch($args, true));
-        $this->assertTrue($geo->keywordSearch($args, false));
-
-        $args = ['easy', 'street'];
-        $this->assertTrue($geo->keywordSearch($args, true));
-        $this->assertTrue($geo->keywordSearch($args, false));
-
-        $args = ['ocation']; // Partial
-        $this->assertTrue($geo->keywordSearch($args, true));
-        $this->assertFalse($geo->keywordSearch($args, false));
-
-        // Test values in the actual geolocator's locations.
-
-        $args = ['&ňoni $3500 zkedě||z', 'ere'];
-        $this->assertTrue($geo->keywordSearch($args, true));
-        $this->assertFalse($geo->keywordSearch($args, false));
-
-        $args = ['$3500', 'Fréř&ňoni', '(mřímí)', 'zkedě||z']; // Try to break the regex.
-        $this->assertTrue($geo->keywordSearch($args, true));
-        $this->assertTrue($geo->keywordSearch($args, false));
-
-        $args = ['201 Milford'];
-        $this->assertTrue($geo->keywordSearch($args, true));
-        $this->assertTrue($geo->keywordSearch($args, false));
-
-        $args = ['15029 161st'];
-        $this->assertTrue($geo->keywordSearch($args, true));
-        $this->assertTrue($geo->keywordSearch($args, false));
-
-        $args = [1234, -1, null];
-        $this->assertFalse($geo->keywordSearch($args, true));
-        $this->assertFalse($geo->keywordSearch($args, false));
-    }
-
-    /**
-     * Test the get locations function.
-     */
-    public function test_getLocations() {
-        $project = self::dummyProject();
-        $this->assertInstanceOf('App\Project', $project);
-
-        $form = self::dummyForm($project->pid);
-        $this->assertInstanceOf('App\Form', $form);
-
-        $field = self::dummyField("Geolocator", $project->pid, $form->fid);
-        $this->assertInstanceOf('App\Field', $field);
-
-        $record = self::dummyRecord($project->pid, $form->fid);
-        $this->assertInstanceOf('App\Record', $record);
-
-        $field->default = self::FIELD_DEFAULT;
-        $field->options = self::FIELD_OPTIONS;
-        $field->save();
-
-        $geo = new \App\GeolocatorField();
-        $geo->rid = $record->rid;
-        $geo->flid = $field->flid;
-        $geo->locations = self::LOCATIONS;
-        $geo->save();
-
-        foreach($geo->getLocations() as $location) {
-            $this->assertTrue(count($location) == 4);
-        }
-    }
-
-    /**
      * Test the add locations function.
      */
     public function test_addLocations() {
@@ -154,9 +56,9 @@ TEXT;
         $record = self::dummyRecord($project->pid, $form->fid);
 
         $geo = new GeolocatorField();
+        $geo->fid = $field->fid;
         $geo->rid = $record->rid;
         $geo->flid = $field->flid;
-        $geo->locations = "";
         $geo->save();
 
         $geo->addLocations(
@@ -299,13 +201,6 @@ TEXT;
      * Test the Address to Lat Lon static function.
      */
     public function test_addressToPoint() {
-        $address = "288 Farm Ln #409, East Lansing, MI 48823";
-
-        $point = GeolocatorField::addressToPoint($address);
-
-        $this->assertEquals($point->Lat(), 42.731328, "", 0.1);
-        $this->assertEquals($point->Long(), -84.476290, "", 0.1);
-
         $address = "Buckingham Palace, London SW1A 1AA, UK";
 
         $point = GeolocatorField::addressToPoint($address);

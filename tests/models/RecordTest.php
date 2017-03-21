@@ -73,7 +73,6 @@ class RecordTest extends TestCase
         $geolocator_field = new \App\GeolocatorField();
         $geolocator_field->rid = $rid;
         $geolocator_field->flid = 0;
-        $geolocator_field->locations = "asdf";
         $geolocator_field->save();
 
         $documents_field = new \App\DocumentsField();

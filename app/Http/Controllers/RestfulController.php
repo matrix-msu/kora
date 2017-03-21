@@ -626,23 +626,7 @@ class RestfulController extends Controller
         $fields = json_decode($request->fields);
 
         $recRequest = new Request();
-        $uToken = $this->fileToken(); //need a temp user id to interact, specifically for files
-        $recRequest['userId'] = $uToken; //the new record will ultimately be owned by the root/sytem
-
-        if( !is_null($request->file("zipFile")) ){
-            $file = $request->file("zipFile");
-            $zipPath = $file->move(env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken);
-
-            $zip = new \ZipArchive();
-            $res = $zip->open($zipPath);
-
-            if ($res === TRUE) {
-                $zip->extractTo(env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken);
-                $zip->close();
-            } else {
-                return "There was an error extracting the provided zip";
-            }
-        }
+        $recRequest['userId'] = 1;
 
         foreach ($fields as $field) {
             $fieldSlug = $field->name;
@@ -705,10 +689,10 @@ class RestfulController extends Controller
                     array_push($geo, $string);
                 }
                 $recRequest[$flid] = $geo;
-            } else if ($type == 'Documents' | $type == 'Playlist' | $type == 'Video' | $type == '3D-Model') {
+            }/* else if ($type == 'Documents' | $type == 'Playlist' | $type == 'Video' | $type == '3D-Model') {
                 $files = array();
-                $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken;
-                $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . $uToken;
+                $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
+                $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id;
                 if (file_exists($newDir)) {
                     foreach (new \DirectoryIterator($newDir) as $file) {
                         if ($file->isFile()) {
@@ -718,19 +702,19 @@ class RestfulController extends Controller
                 } else {
                     mkdir($newDir, 0775, true);
                 }
-                foreach ($field->files as $file) {
-                    $name = $file->name;
+                foreach ($field['files'] as $file) {
+                    $name = $file['name'];
                     //move file from imp temp to tmp files
                     copy($currDir . '/' . $name, $newDir . '/' . $name);
                     //add input for this file
                     array_push($files, $name);
                 }
                 $recRequest['file' . $flid] = $files;
-                $recRequest[$flid] = 'f' . $flid . 'u' . $uToken;
-            }else if ($type == 'Gallery') {
+                $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;
+            } else if ($type == 'Gallery') {
                 $files = array();
-                $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken;
-                $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . $uToken;
+                $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
+                $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id;
                 if (file_exists($newDir)) {
                     foreach (new \DirectoryIterator($newDir) as $file) {
                         if ($file->isFile()) {
@@ -756,10 +740,14 @@ class RestfulController extends Controller
                     mkdir($newDir . '/thumbnail', 0775, true);
                     mkdir($newDir . '/medium', 0775, true);
                 }
-                foreach ($field->files as $file) {
-                    $name = $file->name;
+                foreach ($field['files'] as $file) {
+                    $name = $file['name'];
                     //move file from imp temp to tmp files
                     copy($currDir . '/' . $name, $newDir . '/' . $name);
+<<<<<<< HEAD
+                    copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
+                    copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
+=======
                     $smallParts = explode('x',FieldController::getFieldOption($field,'ThumbSmall'));
                     $tImage = new \Imagick($newDir . '/' . $name);
                     $tImage->thumbnailImage($smallParts[0],$smallParts[1],true);
@@ -768,12 +756,13 @@ class RestfulController extends Controller
                     $mImage = new \Imagick($newDir . '/' . $name);
                     $mImage->thumbnailImage($largeParts[0],$largeParts[1],true);
                     $mImage->writeImage($newDir . '/medium/' . $name);
+>>>>>>> 48230995e5ed2496d95699ba3c490b87c383c26e
                     //add input for this file
                     array_push($files, $name);
                 }
                 $recRequest['file' . $flid] = $files;
-                $recRequest[$flid] = 'f' . $flid . 'u' . $uToken;
-            }
+                $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;
+            }*/
         }
 
         //dd($recRequest);
@@ -782,18 +771,6 @@ class RestfulController extends Controller
         $response = $recCon->store($form->pid,$form->fid,$recRequest);
 
         return 'Created record: '.$response;
-    }
-
-    private function fileToken(){
-        $valid = 'abcdefghijklmnopqrstuvwxyz';
-        $valid .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $valid .= '0123456789';
-
-        $token = '';
-        for ($i = 0; $i < 12; $i++){
-            $token .= $valid[( rand() % 62 )];
-        }
-        return $token;
     }
 
     public function edit(Request $request){
@@ -830,38 +807,12 @@ class RestfulController extends Controller
         }
 
         $recRequest = new Request();
-        $uToken = $this->fileToken(); //need a temp user id to interact, specifically for files
-        $recRequest['userId'] = $uToken; //the new record will ultimately be owned by the root/sytem
-
-        //Basically this determines if we keep data for fields we don't mention in the request
-        //if true, we keep the data
-        //by default, we delete data from unmentioned fields
-        $keepFields = isset($request->keepFields) ? $request->keepFields : "false";
-        $fieldsToEditArray = array(); //These are the fields that are allowed to be editted if we are doing keepfields
-
-        if( !is_null($request->file("zipFile")) ){
-            $file = $request->file("zipFile");
-            $zipPath = $file->move(env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken);
-
-            $zip = new \ZipArchive();
-            $res = $zip->open($zipPath);
-
-            if ($res === TRUE) {
-                $zip->extractTo(env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken);
-                $zip->close();
-            } else {
-                return "There was an error extracting the provided zip";
-            }
-        }
+        $recRequest['userId'] = 1;
 
         foreach ($fields as $field) {
             $fieldSlug = $field->name;
             $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
             $type = $field->type;
-
-            //if keepfields scenario, keep track of this field that will be edited
-            if($keepFields=="true")
-                array_push($fieldsToEditArray,$flid);
 
             if ($type == 'Text'){
                 $recRequest[$flid] = $field->text;
@@ -919,10 +870,10 @@ class RestfulController extends Controller
                     array_push($geo, $string);
                 }
                 $recRequest[$flid] = $geo;
-            }else if ($type == 'Documents' | $type == 'Playlist' | $type == 'Video' | $type == '3D-Model') {
+            }/* else if ($type == 'Documents' | $type == 'Playlist' | $type == 'Video' | $type == '3D-Model') {
                 $files = array();
-                $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken;
-                $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . $uToken;
+                $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
+                $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id;
                 if (file_exists($newDir)) {
                     foreach (new \DirectoryIterator($newDir) as $file) {
                         if ($file->isFile()) {
@@ -932,19 +883,19 @@ class RestfulController extends Controller
                 } else {
                     mkdir($newDir, 0775, true);
                 }
-                foreach ($field->files as $file) {
-                    $name = $file->name;
+                foreach ($field['files'] as $file) {
+                    $name = $file['name'];
                     //move file from imp temp to tmp files
                     copy($currDir . '/' . $name, $newDir . '/' . $name);
                     //add input for this file
                     array_push($files, $name);
                 }
                 $recRequest['file' . $flid] = $files;
-                $recRequest[$flid] = 'f' . $flid . 'u' . $uToken;
+                $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;
             } else if ($type == 'Gallery') {
                 $files = array();
-                $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken;
-                $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . $uToken;
+                $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
+                $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id;
                 if (file_exists($newDir)) {
                     foreach (new \DirectoryIterator($newDir) as $file) {
                         if ($file->isFile()) {
@@ -970,10 +921,12 @@ class RestfulController extends Controller
                     mkdir($newDir . '/thumbnail', 0775, true);
                     mkdir($newDir . '/medium', 0775, true);
                 }
-                foreach ($field->files as $file) {
-                    $name = $file->name;
+                foreach ($field['files'] as $file) {
+                    $name = $file['name'];
                     //move file from imp temp to tmp files
                     copy($currDir . '/' . $name, $newDir . '/' . $name);
+                    copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
+                    copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
                     $smallParts = explode('x',FieldController::getFieldOption($field,'ThumbSmall'));
                     $tImage = new \Imagick($newDir . '/' . $name);
                     $tImage->thumbnailImage($smallParts[0],$smallParts[1],true);
@@ -986,14 +939,12 @@ class RestfulController extends Controller
                     array_push($files, $name);
                 }
                 $recRequest['file' . $flid] = $files;
-                $recRequest[$flid] = 'f' . $flid . 'u' . $uToken;
-            }
+                $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;
+            }*/
         }
 
         //dd($recRequest);
         $recRequest['api'] = true;
-        $recRequest['keepFields'] = $keepFields; //whether we keep unmentioned fields
-        $recRequest['fieldsToEdit'] = $fieldsToEditArray; //what fields can be modified if keepfields
         $recCon = new RecordController();
         $recCon->update($form->pid,$form->fid,$record->rid,$recRequest);
 

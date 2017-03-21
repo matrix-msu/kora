@@ -152,10 +152,7 @@ class RecordController extends Controller {
             $record = new Record();
             $record->pid = $pid;
             $record->fid = $fid;
-            if($request->api) //if dealing with the api, record belongs to the root
-                $record->owner = 1;
-            else
-                $record->owner = $request->userId;
+            $record->owner = $request->userId;
             $record->save(); //need to save to create rid needed to make kid
             $record->kid = $pid . '-' . $fid . '-' . $record->rid;
             $record->save();
@@ -263,7 +260,6 @@ class RecordController extends Controller {
                     $gf->flid = $field->flid;
                     $gf->rid = $record->rid;
                     $gf->fid = $fid;
-                    $gf->locations = FieldController::listArrayToString($value);
                     $gf->save();
 
                     $gf->addLocations($value);
@@ -655,22 +651,9 @@ class RecordController extends Controller {
 
         $form_fields_expected = Form::find($fid)->fields()->get();
 
-        //api uses these, but we'll initialize them for error sake
-        $keepFields = "false";
-        $fieldsToEdit = array();
-        if($request->api){
-            $keepFields = $request->keepFields;
-            $fieldsToEdit = $request->fieldsToEdit;
-        }
-
         foreach($form_fields_expected as $expected_field){
 
             $key = $expected_field->flid;
-
-            //api check to see if field needs to be bothered
-            if($keepFields=="true" && !in_array($key,$fieldsToEdit)){
-                continue;
-            }
 
             if($request->has($key)){
                 $value = $request->input($key);
@@ -889,14 +872,10 @@ class RecordController extends Controller {
                     $sf->addEvents($value);
                 }
             } else if($field->type=='Geolocator'){
-
-                // TODO: Remove use of ->locations (remove in DB first).
-
                 //we need to check if the field exist first
                 $gf = GeolocatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
                 if(!is_null($gf) && !is_null($value)){
                     $gf = GeolocatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
-                    $gf->locations = FieldController::listArrayToString($value);
                     $gf->save();
 
                     $gf->updateLocations($value);
@@ -910,7 +889,6 @@ class RecordController extends Controller {
                     $gf->flid = $field->flid;
                     $gf->rid = $record->rid;
                     $gf->fid = $record->fid;
-                    $gf->locations = FieldController::listArrayToString($value);
                     $gf->save();
 
                     $gf->addLocations($value);
@@ -972,7 +950,7 @@ class RecordController extends Controller {
                             $doc_files_exist = true;
                         }
                     }
-                    foreach($request->input('file'.$field->flid) as $fName){
+                    foreach($_REQUEST['file'.$field->flid] as $fName){
                         if($fName!=''){
                             if ($infoString == '') {
                                 $infoString = $infoArray[$fName];
@@ -1058,7 +1036,7 @@ class RecordController extends Controller {
                             //$gfcount += 1;
                         }
                     }
-                    foreach($request->input('file'.$field->flid) as $fName){
+                    foreach($_REQUEST['file'.$field->flid] as $fName){
                         if($fName!=''){
                             if ($infoString == '') {
                                 $infoString = $infoArray[$fName];
@@ -1906,10 +1884,9 @@ class RecordController extends Controller {
                 $record->save();
                 if ($matching_record_fields->count() > 0) {
                     $geolocatorfield = $matching_record_fields->first();
-                    if ($overwrite == true || $geolocatorfield->locations == "" || is_null($geolocatorfield->locations)) {
+                    if ($overwrite == true || ! $geolocatorfield->hasLocations()) {
                         $revision = RevisionController::storeRevision($record->rid, 'edit');
-                        $geolocatorfield->locations = implode("[!]", $form_field_value);
-                        $geolocatorfield->save();
+                        $geolocatorfield->updateLocations($form_field_value);
                         $revision->oldData = RevisionController::buildDataArray($record);
                         $revision->save();
                     } else {
@@ -1920,8 +1897,10 @@ class RecordController extends Controller {
                     $revision = RevisionController::storeRevision($record->rid, 'edit');
                     $gf->flid = $field->flid;
                     $gf->rid = $record->rid;
-                    $gf->locations = implode("[!]", $form_field_value);
                     $gf->save();
+
+                    $gf->addLocations($form_field_value);
+
                     $revision->oldData = RevisionController::buildDataArray($record);
                     $revision->save();
                 }
@@ -2056,8 +2035,9 @@ class RecordController extends Controller {
                     $gf->flid = $field->flid;
                     $gf->rid = $record->rid;
                     $gf->fid = $fid;
-                    $gf->locations = '[Desc]K3TR[Desc][LatLon]13,37[LatLon][UTM]37P:283077.41182513,1437987.6443346[UTM][Address] Appelstra�e Hanover Lower Saxony[Address]';
                     $gf->save();
+
+                    $gf->addLocations(['[Desc]K3TR[Desc][LatLon]13,37[LatLon][UTM]37P:283077.41182513,1437987.6443346[UTM][Address] Appelstra�e Hanover Lower Saxony[Address]']);
                 } else if ($field->type == 'Documents') {
                     $df = new DocumentsField();
                     $df->flid = $field->flid;

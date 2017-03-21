@@ -251,6 +251,11 @@ class Field extends Model {
      * @throws \Exception if the field type is invalid.
      */
     public function keywordSearchTyped2($arg, $method) {
+
+        //
+        // TODO: Update with support fields.
+        //
+
         switch($this->type) {
             case Field::_TEXT:
                 return DB::table("text_fields")
@@ -324,6 +329,9 @@ class Field extends Model {
                 break;
 
             case Field::_SCHEDULE:
+                //
+                // TODO: Update with support fields.
+                //
                 return DB::table("schedule_support")
                     ->select("rid")
                     ->where("fid", "=", $this->fid)
@@ -332,6 +340,9 @@ class Field extends Model {
                 break;
 
             case Field::_GEOLOCATOR:
+                //
+                // TODO: Update with support fields.
+                //
                 return DB::table("geolocator_support")
                     ->select("rid")
                     ->where("fid", "=", $this->fid)
@@ -393,6 +404,9 @@ class Field extends Model {
                 break;
 
             case Field::_COMBO_LIST:
+                //
+                // TODO: Update with support fields.
+                //
                 return DB::table("combo_support")
                     ->select("rid")
                     ->where("fid", "=", $this->fid)
@@ -525,7 +539,13 @@ class Field extends Model {
         DB::table(BaseField::$MAPPED_FIELD_TYPES[$this->type])->where("flid", "=", $this->flid)->delete();
 
         if ($this->type == Field::_SCHEDULE) {
-            DB::table("schedule_support")->where("flid", "=", $this->flid)->delete();
+            DB::table(ScheduleField::SUPPORT_NAME)->where("flid", "=", $this->flid)->delete();
+        }
+        else if ($this->type == Field::_GEOLOCATOR) {
+            DB::table(GeolocatorField::SUPPORT_NAME)->where("flid", "=", $this->flid)->delete();
+        }
+        else if ($this->type == Field::_COMBO_LIST) {
+            DB::table(ComboListField::SUPPORT_NAME)->where("flid", "=", $this->flid)->delete();
         }
 
         DB::table("metadatas")->where("flid", "=", $this->flid)->delete();

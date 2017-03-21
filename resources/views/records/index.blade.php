@@ -279,7 +279,7 @@
                             @if(\App\Http\Controllers\FieldController::getFieldOption($field,'Map')=='No')
                                 @foreach($record->geolocatorfields as $gf)
                                     @if($gf->flid == $field->flid)
-                                        @foreach(explode('[!]',$gf->locations) as $opt)
+                                        @foreach(App\GeolocatorField::locationsToOldFormat($gf->locations()->get()) as $opt)
                                             @if(\App\Http\Controllers\FieldController::getFieldOption($field,'DataView')=='LatLon')
                                                 <div>{{ explode('[Desc]',$opt)[1].': '.explode('[LatLon]',$opt)[1] }}</div>
                                             @elseif(\App\Http\Controllers\FieldController::getFieldOption($field,'DataView')=='UTM')
@@ -295,8 +295,9 @@
                                     @if($gf->flid == $field->flid)
                                         <div id="map{{$field->flid.'_'.$record->rid}}" style="height:270px;"></div>
                                         <?php $locs = array(); ?>
-                                        @foreach(explode('[!]',$gf->locations) as $location)
+                                        @foreach(App\GeolocatorField::locationsToOldFormat($gf->locations()->get()) as $location)
                                             <?php
+
                                             $loc = array();
                                             $desc = explode('[Desc]',$location)[1];
                                             $x = explode(',', explode('[LatLon]',$location)[1])[0];
