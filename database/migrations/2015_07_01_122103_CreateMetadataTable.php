@@ -20,6 +20,7 @@ class CreateMetadataTable extends Migration {
             $table->integer('pid')->unsigned();
             $table->integer('fid')->unsigned();
             $table->string('name');
+            $table->boolean('primary');
             $table->timestamps();
 
             $table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');

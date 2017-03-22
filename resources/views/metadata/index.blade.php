@@ -15,9 +15,38 @@
                         <span><h3>{{trans('metadata_index.lod')}}</h3></span>
                         <hr>
 
-                        <p>{{ trans("metadata_index.click") }} <a target="_blank" href="{{ url("/projects/" . $form->pid . "/forms/" . $form->fid . "/metadata") }}">{{ trans("metadata_index.here") }}</a> {{ trans("metadata_index.to_view") }}</p>
+                        <!-- Go To Metadata -->
+                        <p>{{ trans("metadata_index.click") }} <a target="_blank" href="{{ url("/projects/" . $form->pid . "/forms/" . $form->fid . "/metadata/public") }}">{{ trans("metadata_index.here") }}</a> {{ trans("metadata_index.to_view") }}</p>
 
                         <hr/>
+
+                        <!-- Activate Metadata -->
+                        <div class="checkbox">
+                            <label>
+                                @if ($form->public_metadata == true)
+                                    <input id="public_metadata" name="public_metadata" type="checkbox" value="true" checked>
+                                @else
+                                    <input id="public_metadata" name="public_metadata" type="checkbox" value="true">
+                                @endif
+                                {{trans('metadata_index.viewable')}}
+                            </label>
+                        </div>
+
+                        <hr>
+
+                        <!-- Resource Title -->
+                        {!! Form::open(array('method'=>'post','action'=>array('MetadataController@updateResource',$pid,$fid))) !!}
+                        {!! Form::token() !!}
+                        <div class="form-group">
+                            {!! Form::label('title','Resource Title') !!}
+                            {!! Form::text('title',$resource_title,array('class'=>'form-control')) !!}
+                        </div>
+                        {!! Form::submit('Update Resource Title',array('class'=>'btn btn-primary form-control')) !!}
+                        {!! Form::close() !!}
+
+                        <hr/>
+
+                        <!-- Field to Metadata Pairs -->
                         <div>
                             <b class="pull-left">{{trans('metadata_index.field')}}</b>
                             <b class="pull-right">{{trans('metadata_index.lod')}}</b>
@@ -25,28 +54,27 @@
                         <br>
 
                         <div id="field_content">
-                            @include('forms.layout.logic',['form'=>$form,'fieldview' => 'metadata.fieldview'])
-                        </div>
-                        <div id="loading" style="display: none" class="progress">
-                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
-                                {{trans('update_index.loading')}}
-                            </div>
-                        </div>
-
-                        <hr>
-                        <div class="checkbox">
-                            <label>
-                            @if ($form->public_metadata == true)
-                                <input id="public_metadata" name="public_metadata" type="checkbox" value="true" checked>
-                            @else
-                                <input id="public_metadata" name="public_metadata" type="checkbox" value="true">
-                            @endif
-                                {{trans('metadata_index.viewable')}}
-                            </label>
+                            @foreach($assigned_fields as $f)
+                                <hr style="margin-top: 10px;margin-bottom: 10px">
+                                <div>
+                                    <div>
+                                        @if($f->metadata()->first()->primary)
+                                            <b>{{ $f->name }}</b> (Primary Index)
+                                        @elseif($f->type=="Text")
+                                            {{ $f->name }} <input type="button" flid="{{$f->flid}}" class="btn-primary index_select" style="height:25px;" value="Make Primary">
+                                        @else
+                                            {{ $f->name }}
+                                        @endif
+                                        <a href="#"  onclick="deleteMeta({{$f->flid}})" class="pull-right">[X]</a>
+                                        <span style="padding-right:5px"  class="pull-right">{{$f->metadata()->first()->name }}</span>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
 
                         <hr>
 
+                        <!-- Set Field Metadata Pairs -->
                         @if (count($errors) > 0)
                             <div class="alert alert-danger">
                                 <strong>{{trans('metadata_index.whoops')}}!</strong>  {{trans('metadata_index.makesure')}}<br><br>
@@ -75,6 +103,8 @@
                         {!! Form::close() !!}
 
                         <hr>
+
+                        <!-- Auto-assign Metadata Pairs -->
                         <p><strong>{{trans('metadata_index.automass')}}</strong></p>
                         <button id="massAssign" class="btn btn-primary form-control">{{trans('metadata_index.massassign')}}</button>
                     </div>
@@ -99,6 +129,11 @@
             massAssignMeta();
         });
 
+        $('.index_select').on("click", function() {
+            var flid = $(this).attr('flid');
+            makePrimary(flid);
+        });
+
         $("#assign").on("click", function() {
            loading();
         });
@@ -117,6 +152,22 @@
                 }
             });
         }
+
+        function makePrimary(flid){
+            var primaryURL ="{{action('MetadataController@makePrimary',compact('pid','fid'))}}";
+            $.ajax({
+                url:primaryURL,
+                method:'POST',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "flid": flid
+                },
+                success: function(data){
+                    location.reload();
+                }
+            });
+        }
+
         function massAssignMeta(){
             $("#field_content").slideToggle(600, function() {
                 $('#loading').slideToggle(400);
