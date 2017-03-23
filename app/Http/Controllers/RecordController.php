@@ -211,17 +211,10 @@ class RecordController extends Controller {
                     $glf->options = FieldController::listArrayToString($value);
                     $glf->save();
                 } else if($field->type == 'Combo List' && $request->input($field->flid.'_val') != null){
-
-                    // TODO: Remove use of ->options (remove from DB first).
-
                     $clf = new ComboListField();
                     $clf->flid = $field->flid;
                     $clf->rid = $record->rid;
                     $clf->fid = $fid;
-                    $clf->options = $request->input($field->flid.'_val')[0];
-                    for($j=1;$j<sizeof($request->input($field->flid.'_val'));$j++){
-                        $clf->options .= '[!val!]'.$request->input($field->flid.'_val')[$j];
-                    }
                     $clf->save();
 
                     $type_1 = ComboListField::getComboFieldType($field, 'one');
@@ -241,9 +234,6 @@ class RecordController extends Controller {
                     $df->era = $request->input('era_' . $field->flid, 'CE');
                     $df->save();
                 } else if ($field->type == 'Schedule') {
-
-                    // TODO: Remove use of ->events (remove from DB firt).
-
                     $sf = new ScheduleField();
                     $sf->flid = $field->flid;
                     $sf->rid = $record->rid;
@@ -252,9 +242,6 @@ class RecordController extends Controller {
 
                     $sf->addEvents($value);
                 } else if ($field->type == 'Geolocator') {
-
-                    // TODO: Remove use of ->locations (remove from DB first).
-
                     $gf = new GeolocatorField();
                     $gf->flid = $field->flid;
                     $gf->rid = $record->rid;
@@ -781,18 +768,9 @@ class RecordController extends Controller {
                     $glf->save();
                 }
             } else if($field->type=='Combo List'){
-
-                // TODO: Remove use of ->options (remove in DB first).
-
                 //we need to check if the field exist first
                 $clf = ComboListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
                 if(!is_null($clf) && !is_null($request->input($field->flid.'_val'))){
-                    $clf->options = $_REQUEST[$field->flid.'_val'][0];
-                    for($i=1;$i<sizeof($_REQUEST[$field->flid.'_val']);$i++){
-                        $clf->options .= '[!val!]'.$_REQUEST[$field->flid.'_val'][$i];
-                    }
-                    $clf->save();
-
                     $type_1 = ComboListField::getComboFieldType($field, 'one');
                     $type_2 = ComboListField::getComboFieldType($field, 'two');
 
@@ -806,10 +784,6 @@ class RecordController extends Controller {
                     $clf->flid = $field->flid;
                     $clf->rid = $record->rid;
                     $clf->fid = $record->fid;
-                    $clf->options = $_REQUEST[$field->flid.'_val'][0];
-                    for($i=1;$i<sizeof($_REQUEST[$field->flid.'_val']);$i++){
-                        $clf->options .= '[!val!]'.$_REQUEST[$field->flid.'_val'][$i];
-                    }
                     $clf->save();
 
                     $type_1 = ComboListField::getComboFieldType($field, 'one');
@@ -844,21 +818,15 @@ class RecordController extends Controller {
                     $df->save();
                 }
             } else if($field->type=='Schedule'){
-
-                // TODO: Remove use of ->events (remove in DB first).
-
                 //we need to check if the field exist first
                 $sf = ScheduleField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
                 if(!is_null($sf) && !is_null($value)){
-                    $sf->save();
-
                     $sf->updateEvents($value);
                 }
                 elseif(!is_null($sf) && is_null($value)){
                     $sf->delete();
                     $sf->deleteEvents();
                 }
-
                 elseif(is_null($sf) && !is_null($value)) {
                     $sf = new ScheduleField();
                     $sf->flid = $field->flid;
@@ -872,9 +840,6 @@ class RecordController extends Controller {
                 //we need to check if the field exist first
                 $gf = GeolocatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
                 if(!is_null($gf) && !is_null($value)){
-                    $gf = GeolocatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
-                    $gf->save();
-
                     $gf->updateLocations($value);
                 }
                 elseif(!is_null($gf) && is_null($value)){
@@ -1788,12 +1753,9 @@ class RecordController extends Controller {
                     $combolistfield = $matching_record_fields->first();
                     if($overwrite == true || $combolistfield->options == "" || is_null($combolistfield->options)){
                         $revision = RevisionController::storeRevision($record->rid,'edit');
-                        //$combolistfield->options = implode("[!]",$form_field_value);
-                        $combolistfield->options = $_REQUEST[$flid.'_val'][0];
-                        for($i=1;$i<sizeof($_REQUEST[$flid.'_val']);$i++){
-                            $combolistfield->options .= '[!val!]'.$_REQUEST[$flid.'_val'][$i];
-                        }
-                        $combolistfield->save();
+
+                        $combolistfield->updateData($_REQUEST[$flid . "_val"]);
+
                         $revision->oldData = RevisionController::buildDataArray($record);
                         $revision->save();
                     }
@@ -2009,8 +1971,9 @@ class RecordController extends Controller {
                             $val2 = 'K3TR[!]1337[!]Test[!]Record';
                             break;
                     }
-                    $clf->options = "[!f1!]".$val1."[!f1!][!f2!]".$val2."[!f2!][!val!][!f1!]".$val1."[!f1!][!f2!]".$val2."[!f2!]";
                     $clf->save();
+
+                    $clf->addData(["[!f1!]".$val1."[!f1!][!f2!]".$val2."[!f2!]", "[!f1!]".$val1."[!f1!][!f2!]".$val2."[!f2!]"], $type1, $type2);
                 } else if ($field->type == 'Date') {
                     $df = new DateField();
                     $df->flid = $field->flid;

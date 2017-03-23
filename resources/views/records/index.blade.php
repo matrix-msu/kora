@@ -143,7 +143,7 @@
                                     $oneType = \App\ComboListField::getComboFieldType($field,'one');
                                     $twoType = \App\ComboListField::getComboFieldType($field,'two');
 
-                                    $valArray = explode('[!val!]',$clf->options);
+                                    $valArray = \App\ComboListField::dataToOldFormat($clf->data()->get());
                                     ?>
                                     <div style="overflow: auto">
                                         <div>

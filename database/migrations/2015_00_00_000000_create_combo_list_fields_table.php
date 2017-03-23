@@ -22,9 +22,6 @@ class CreateComboListFieldsTable extends Migration {
 			$table->integer('rid')->unsigned();
 			$table->integer('fid')->unsigned();
 			$table->integer('flid')->unsigned();
-
-			//TODO: Remove use of options.
-			$table->mediumText('options');
 			$table->timestamps();
 
 			$table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');
@@ -45,7 +42,6 @@ class CreateComboListFieldsTable extends Migration {
 			$table->timestamps();
 		});
 
-		DB::statement("ALTER TABLE " . env("DB_PREFIX") . "combo_list_fields ADD FULLTEXT search_cmb(`options`)");
 		DB::statement("ALTER TABLE " . env('DB_PREFIX') . "combo_support ADD FULLTEXT search_sup(`data`)");
 	}
 

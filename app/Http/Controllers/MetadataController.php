@@ -215,7 +215,7 @@ class MetadataController extends Controller {
                 foreach($record->combolistfields as $clf){
                     $field = Field::find($clf->flid);
                     if($item==$clf->flid && count($field->metadata)>0 && ($clf->options  != "" && $clf->options !== null)){
-                        $options_array = explode("[!val!]",$clf->options);
+                        $options_array = ComboListField::dataToOldFormat($clf->data()->get());
                         $combo_array = new Collection();
                         foreach($options_array as $option){
                             $f1 = explode("[!f1!]",$option)[1];

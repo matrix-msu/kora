@@ -864,7 +864,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue
                     $cmbfield = ComboListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
 
                     if (!empty($cmbfield->options)) {
-                        $data['combolists'] = explode('[!val!]', $cmbfield->options);
+                        $data['combolists'] = ComboListField::dataToOldFormat($cmbfield->data()->get());
                     }
                     else {
                         $data['combolists'] = null;

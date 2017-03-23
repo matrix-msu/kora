@@ -322,7 +322,7 @@ class RecordPresetController extends Controller {
                     $schedfield = ScheduleField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
 
                     if($schedfield->hasEvents()) {
-                        $data['events'] = ScheduleField::eventsToOldFormat($schedfield->locations()->get());
+                        $data['events'] = ScheduleField::eventsToOldFormat($schedfield->events()->get());
                     }
                     else {
                         $data['events'] = null;
@@ -349,7 +349,7 @@ class RecordPresetController extends Controller {
                     $cmbfield = ComboListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
 
                     if (!empty($cmbfield->options)) {
-                        $data['combolists'] = explode('[!val!]', $cmbfield->options);
+                        $data['combolists'] = ComboListField::dataToOldFormat($cmbfield->data()->get());
                     }
                     else {
                         $data['combolists'] = null;

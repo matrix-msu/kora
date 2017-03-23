@@ -459,6 +459,10 @@ class RevisionController extends Controller {
                     break;
 
                 case 'Combo List':
+                    //
+                    // TODO: update this with support fields, revisions is a mess though so maybe just wait for the refactor.
+                    //
+
                     $cmbfield = ComboListField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
 
                     $valuesArray = $data['combofields'][$field->flid]['values'];

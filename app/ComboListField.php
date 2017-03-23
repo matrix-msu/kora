@@ -266,6 +266,66 @@ class ComboListField extends BaseField {
     }
 
     /**
+     * True if there is data associated with a particular Combo List field.
+     *
+     * @return bool
+     */
+    public function hasData() {
+        return !! $this->data()->count();
+    }
+
+    /**
+     * Puts an array of data into the old format.
+     *      - "Old Format" meaning, and array of the data options formatted as
+     *        [!f1!]<Field 1 Data>[!f1!][!f2!]<Field 2 Data>[!f2!]
+     *
+     * @param array $data, array of StdObjects representing data options.
+     * @param bool $array_string, should this be in the old *[!val!]*[!val!]...[!val!]* format?
+     * @return array | string
+     */
+    public static function dataToOldFormat(array $data, $array_string = false) {
+        $formatted = [];
+        for($i = 0; $i < count($data); $i++) {
+            $op1 = $data[$i];
+            $op2 = $data[++$i];
+
+            if ($op1->field_num == 2) {
+                $tmp = $op1;
+                $op1 = $op2;
+                $op2 = $tmp;
+            }
+
+            if (! is_null($op1->data)) {
+                $val1 = $op1->data;
+            }
+            else {
+                $val1 = $op1->number + 0;
+            }
+
+            if (! is_null($op2->data)) {
+                $val2 = $op2->data;
+            }
+            else {
+                $val2 = $op2->number + 0;
+            }
+
+
+            $formatted[] = "[!f1!]"
+                . $val1
+                . "[!f1!]"
+                . "[!f2!]"
+                . $val2
+                . "[!f2!]";
+        }
+
+        if($array_string) {
+            return implode("[!val!]", $formatted);
+        }
+
+        return $formatted;
+    }
+
+    /**
      * Delete data associated with this field.
      */
     public function deleteData() {
@@ -314,7 +374,6 @@ class ComboListField extends BaseField {
                 // Since each entry represents one sub-field in the combo list, an "and" operation
                 // on a combo list would be impossible without two copies of everything.
                 //
-
                 $first_prefix = "one.";
                 $second_prefix = "two.";
 

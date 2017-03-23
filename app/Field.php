@@ -143,6 +143,8 @@ class Field extends Model {
                 return ComboListField::where("flid", "=", $this->flid)->where("rid", "=", $rid)->first();
                 break;
 
+            // TODO: Associator.
+
             default: // Error occurred.
                 return null;
         }

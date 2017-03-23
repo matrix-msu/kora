@@ -1,9 +1,9 @@
 <div class="form-group">
     <?php
-    if($combolist==null){
+    if(is_null($combolist)){
         $valArray = array();
     }else{
-        $valArray = explode('[!val!]',$combolist->options);
+        $valArray = \App\ComboListField::dataToOldFormat($combolist->data()->get());
     }
     ?>
     {!! Form::label($field->flid, $field->name.': ') !!}

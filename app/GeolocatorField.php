@@ -121,7 +121,7 @@ class GeolocatorField extends BaseField {
      * Adds locations to the geolocator support table.
      *
      * @param array $locations, array of locations as they are given from the create/edit form javascript.
-     *      [Desc]*[Desc][LatLon]*[LatLon][UTM]*[UTM][Address]*[Address] Format
+     *      Format: [Desc]<Description>[Desc][LatLon]<Latitude,Longitude>[LatLon][UTM]<Zone:Easting,Northing>[UTM][Address]<Address>[Address]
      */
     public function addLocations(array $locations) {
         $now = date("Y-m-d H:i:s");
