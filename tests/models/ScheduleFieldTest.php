@@ -11,7 +11,7 @@ use App\Search;
  */
 class ScheduleFieldTest extends TestCase
 {
-    public function test_keywordSearchTyped2() {
+    public function test_keywordSearchTyped() {
         $project = self::dummyProject();
         $form = self::dummyForm($project->pid);
         $field = self::dummyField(Field::_SCHEDULE, $project->pid, $form->fid);
@@ -28,10 +28,10 @@ class ScheduleFieldTest extends TestCase
             "Crust: 11/17/2016 - 11/17/2016"]);
 
         $arg = Search::processArgument("crust", Search::SEARCH_OR);
-        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped($arg, Search::SEARCH_OR)->get()[0]->rid);
 
         $arg = Search::processArgument("The Rapper", Search::SEARCH_EXACT);
-        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_EXACT)->get()[0]->rid);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped($arg, Search::SEARCH_EXACT)->get()[0]->rid);
     }
 
     public function test_deleteEvents() {

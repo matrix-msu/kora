@@ -172,7 +172,7 @@ class RestfulController extends Controller
 
                             $search = new Search($form->pid, $form->fid, $keys, $method);
 
-                            $rids = $search->formKeywordSearch2();
+                            $rids = $search->formKeywordSearch();
 
                             $negative = isset($query->not) ? $query->not : false;
                             if($negative){

@@ -1,16 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Ian Whalen
- * Date: 5/9/2016
- * Time: 1:15 PM
- */
-
 namespace App;
-
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Debug\Dumper;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Class Search.
@@ -69,40 +58,12 @@ class Search
      */
     private $method;
 
-
     /**
-     * Keyword search our database for the queries given in the constructor.
+     * Runs the keyword search routine on all field types.
      *
-     *  Idea:    Eloquent is a fast system for form model binding and simple dumping of records.
-     *  However it is obvious that in a system with potentially thousands of records (in the mysql sense)
-     *  would be overburdened by getting every record and then searching through individually.
-     *  So we let SQL do some work for us and then refine our search with a some extra functions.
-     *
-     * @return Collection, the results of the search, a collection of typed fields (e.g. TextField).
+     * @return array, array of rids satisfying search parameters.
      */
     public function formKeywordSearch() {
-        $fields = Field::where("fid", "=", $this->fid)->get();
-        $results = new Collection();
-
-        $processed = Search::processArgument($this->arg, $this->method);
-        foreach($fields as $field) {
-            if ($field->isSearchable()) {
-                $results = $results->merge($field->keywordSearchTyped($processed)->get());
-            }
-        }
-
-        if (! $results->isEmpty()) {
-            return $this->gatherRecords($this->filterKeywordResults($results)); // This now has the typed fields that satisfied the search.
-        }
-        else {
-            return $results;
-        }
-    }
-
-    /*
-     * Testing new keyword search function.
-     */
-    public function formKeywordSearch2() {
         if ($this->arg == "") {
             return [];
         }
@@ -119,7 +80,7 @@ class Search
                 if (! isset($used_types[$field->type]) && $field->isSearchable()) {
                     $used_types[$field->type] = true;
 
-                    $rids += $field->keywordSearchTyped2($processed, $this->method)->get();
+                    $rids += $field->keywordSearchTyped($processed, $this->method)->get();
                 }
             }
 
@@ -136,7 +97,7 @@ class Search
                     $used_types[$field->type] = true;
 
                     foreach(explode(" ", $processed) as $arg) {
-                        $rids_array[] = $field->keywordSearchTyped2($arg)->get();
+                        $rids_array[] = $field->keywordSearchTyped($arg)->get();
                     }
                 }
             }
@@ -196,118 +157,6 @@ class Search
         }
 
         return $arg;
-    }
-
-
-    /**
-     * Filters the results of a keyword search.
-     *
-     * Typed fields all have a keywordSearch function, so we utilize this and the eloquent
-     * method filter down to a collection of typed fields that all have the desired contents.
-     *
-     * @param Collection $results, a collection of typed fields.
-     * @return Collection, the filtered collection of typed fields.
-     */
-    private function filterKeywordResults(Collection $results) {
-        // Determine if the search should be partial at a typed field level.
-        $partial = ($this->method == Search::SEARCH_AND || $this->method == Search::SEARCH_OR) ? true : false;
-
-        if ($partial) {
-            $arg = explode(" ", $this->arg);
-        }
-        else {
-            $arg = [$this->arg];
-        }
-
-        // Only keep the fields that actually have the desired contents.
-        return $results->filter( function(BaseField $element) use ($arg, $partial) {
-            return $element->keywordSearch($arg, $partial); // This is why we use OOP :)
-        });
-    }
-
-    /**
-     * Collects the records that are necessary from a collection of fields.
-     * This function depends on the method of search, the distinction is important, see the search operators above for more.
-     *
-     * Exact is treated as OR at this point because the actual search in SQL will deal with exact phrases.
-     *
-     * @param Collection $fields, a collection of BaseFields, assured to be
-     * @return Collection $records, a collection of records associated with the BaseFields.
-     */
-    private function gatherRecords(Collection $fields) {
-        $records = new Collection();
-
-        if ($fields->isEmpty()) {
-            return $records;
-        }
-
-        $fields = $fields->sortBy("rid");
-
-        switch ($this->method) {
-            case self::SEARCH_OR:
-            case self::SEARCH_EXACT:
-                //
-                // The field was flagged by the SQL search, so it is the right field here, we don't need to consider
-                // anything else other than getting the records needed in an efficient fashion.
-                //
-                // The possibly strange loop below assures we only pull records we need once from the database.
-                //
-                $rid = $fields->pop()->rid;
-                $records = $records->merge(Record::where('rid', '=', $rid)->get());
-
-                while(! $fields->isEmpty()) {
-                    $temp = $fields->pop()->rid;
-                    while (! $fields->isEmpty() && $rid == $temp) {
-                        $temp = $fields->pop()->rid;
-                    }
-
-                    // We will have a new record's field by this point.
-                    $rid = $temp;
-                    $records = $records->merge(Record::where('rid', '=', $rid)->get());
-                }
-                break;
-            case self::SEARCH_AND:
-                //
-                // Again, the field was flagged by the sql search, however we need to consider a bit more.
-                // For any particular record, all of the arguments in the query need to be in one or
-                // more of the record's typed fields--all the arguments could be spread across all the fields.
-                //
-                // E.g. if a record has two text fields one containing the word "eldritch" and the other containing
-                // "hideous" and an "AND" keyword search is executed the search will return the record if the search argument
-                // was "eldritch hideous" but, will not return the record if the argument was "eldritch hideous Dunwich".
-                //
-                $args = explode(" ", $this->arg);
-                $temp = 0; // Invalid rid for initializing purposes.
-
-                while (! $fields->isEmpty()) {
-                    $field = $fields->pop();
-
-                    // Make sure the field we have is still from the same record as the previous.
-                    if ($temp && $temp != $field->rid) {
-                        $args = explode(" ", $this->arg);
-                    }
-                    $temp = $field->rid;
-
-                    foreach ($args as $arg) {
-                        if ($field->keywordSearch([$arg], false)) {
-                            $args = array_diff($args, [$arg]);
-                        }
-                    }
-
-                    // If all the arguments were found in a particular record's fields.
-                    if (empty($args)) {
-                        $records = $records->merge(Record::where('rid', '=', $field->rid)->get());
-
-                        // Remove the rest of the fields that have the current rid.
-                        while (! $fields->isEmpty() && $fields->last()->rid == $temp) {
-                            $fields->pop();
-                        }
-                    }
-                }
-                break;
-        }
-
-        return $records;
     }
 
     /**

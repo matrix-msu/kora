@@ -397,7 +397,7 @@ class MetadataController extends Controller {
         $query = implode(" ", $query);
 
         $search = new Search($pid, $fid, $query, Search::SEARCH_OR);
-        $rids = $search->formKeywordSearch2();
+        $rids = $search->formKeywordSearch();
 
         dd($rids);
     }

@@ -23,7 +23,7 @@ TEXT;
 [!Map!]No[!Map!][!DataView!]LatLon[!DataView!]
 TEXT;
 
-    public function test_keywordSearchTyped2() {
+    public function test_keywordSearchTyped() {
         $project = self::dummyProject();
         $form = self::dummyForm($project->pid);
         $field = self::dummyField(Field::_GEOLOCATOR, $project->pid, $form->fid);
@@ -38,11 +38,11 @@ TEXT;
         $geo_field->addLocations(["[Desc]Hannah's![Desc][LatLon]41.972359,-87.690095[LatLon][UTM]16T:442823.09811405,4646937.5690537[UTM][Address]5001 North Lincoln Avenue Chicago Illinois[Address]"]);
 
         $arg = Search::processArgument("Hannah", Search::SEARCH_OR);
-        $q = $field->keywordSearchTyped2($arg, Search::SEARCH_OR);
+        $q = $field->keywordSearchTyped($arg, Search::SEARCH_OR);
         $this->assertEquals($record->rid,$q->get()[0]->rid);
 
         $arg = Search::processArgument("Chicago", Search::SEARCH_OR);
-        $q = $field->keywordSearchTyped2($arg, Search::SEARCH_OR);
+        $q = $field->keywordSearchTyped($arg, Search::SEARCH_OR);
         $this->assertEquals($record->rid,$q->get()[0]->rid);
     }
 

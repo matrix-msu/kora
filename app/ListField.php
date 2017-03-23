@@ -13,18 +13,6 @@ class ListField extends BaseField {
         'option'
     ];
 
-    /**
-     * Keyword search on a list field.
-     *
-     * @param array $args, arguments for the search routine.
-     * @param bool $partial, true if the search should return true for partial matches.
-     * @return bool, true if parameters satisfied.
-     */
-    public function keywordSearch(array $args, $partial)
-    {
-        return self::keywordRoutine($args, $partial, $this->option);
-    }
-
     public static function getList($field, $blankOpt=false)
     {
         $dbOpt = FieldController::getFieldOption($field, 'Options');

@@ -100,7 +100,7 @@ class AssociatorSearch
 
                 $search = new Search($pid, $fid, $arg, $method);
 
-                $rids = $search->formKeywordSearch2();
+                $rids = $search->formKeywordSearch();
 
                 sort($rids);
 

@@ -151,99 +151,6 @@ class Field extends Model {
         // Hopefully this will solve something.
     }
 
-
-    /**
-     * Builds the query up for a typed field keyword search.
-     *
-     * *** This expects a processed argument. See Search::processArgument.
-     *
-     * @param $arg string, the argument being searched for.
-     * @throws \Exception when field does not have a valid field type.
-     * @return Builder | null, query builder type, null if invalid field type.
-     */
-    public function keywordSearchTyped($arg) {
-        switch($this->type) {
-            case Field::_TEXT:
-                $arg_natural = str_replace(["*", "\""], "", $arg);
-                $q = TextField::where("flid", "=", $this->flid)
-                    ->whereRaw("MATCH (`text`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
-                    //->whereRaw("MATCH (`text`) AGAINST (? IN NATURAL LANGUAGE MODE)", [$arg_natural]);
-
-                return $q;
-                break;
-
-            case Field::_RICH_TEXT:
-                return RichTextField::where("flid", "=", $this->flid)->whereRaw("MATCH (`searchable_rawtext`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
-                break;
-
-            case Field::_NUMBER:
-                $arg = str_replace(["*", "\""], "", $arg);
-
-                return NumberField::where("flid", "=", $this->flid)->where("number", "=", $arg);
-                break;
-
-            case Field::_LIST:
-                return ListField::where("flid", "=", $this->flid)->whereRaw("MATCH (`option`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
-                break;
-
-            case Field::_MULTI_SELECT_LIST:
-                return MultiSelectListField::where("flid", "=", $this->flid)->whereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
-                break;
-
-            case Field::_GENERATED_LIST:
-                return GeneratedListField::where("flid", "=", $this->flid)->whereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
-                break;
-
-            case Field::_DATE:
-                $arg = str_replace(["*", "\""], "", $arg);
-
-                // Boolean to decide if we should consider circa options.
-                $circa = explode("[!Circa!]", $this->options)[1] == "Yes";
-
-                // Boolean to decide if we should consider era.
-                $era = explode("[!Era!]", $this->options)[1] == "On";
-
-                return DateField::buildQuery($arg, $circa, $era, $this->flid);
-                break;
-
-            case Field::_SCHEDULE:
-                return ScheduleField::where("flid", "=", $this->flid)->whereRaw("MATCH (`events`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
-                break;
-
-            case Field::_GEOLOCATOR:
-                return GeolocatorField::where("flid", "=", $this->flid)->whereRaw("MATCH (`locations`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
-                break;
-
-            case Field::_DOCUMENTS:
-                return DocumentsField::where("flid", "=", $this->flid)->whereRaw("MATCH (`documents`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
-                break;
-
-            case Field::_GALLERY:
-                return GalleryField::where("flid", "=", $this->flid)->whereRaw("MATCH (`images`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
-                break;
-
-            case Field::_3D_MODEL:
-                return ModelField::where("flid", "=", $this->flid)->whereRaw("MATCH (`model`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
-                break;
-
-            case Field::_PLAYLIST:
-                return PlaylistField::where("flid", "=", $this->flid)->whereRaw("MATCH (`audio`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
-                break;
-
-            case Field::_VIDEO:
-                return VideoField::where("flid", "=", $this->flid)->whereRaw("MATCH (`video`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
-                break;
-
-            case Field::_COMBO_LIST:
-                return ComboListField::where("flid", "=", $this->flid)->whereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
-                break;
-
-            default: // Error occurred.
-                throw new \Exception("Invalid field type in field::keywordSearchTyped.");
-                break;
-        }
-    }
-
     /**
      *
      *
@@ -252,12 +159,7 @@ class Field extends Model {
      * @return Builder
      * @throws \Exception if the field type is invalid.
      */
-    public function keywordSearchTyped2($arg, $method) {
-
-        //
-        // TODO: Update with support fields.
-        //
-
+    public function keywordSearchTyped($arg, $method) {
         switch($this->type) {
             case Field::_TEXT:
                 return DB::table("text_fields")
@@ -331,10 +233,7 @@ class Field extends Model {
                 break;
 
             case Field::_SCHEDULE:
-                //
-                // TODO: Update with support fields.
-                //
-                return DB::table("schedule_support")
+                return DB::table(ScheduleField::SUPPORT_NAME)
                     ->select("rid")
                     ->where("fid", "=", $this->fid)
                     ->whereRaw("MATCH (`desc`) AGAINST (? IN BOOLEAN MODE)", [$arg])
@@ -342,10 +241,7 @@ class Field extends Model {
                 break;
 
             case Field::_GEOLOCATOR:
-                //
-                // TODO: Update with support fields.
-                //
-                return DB::table("geolocator_support")
+                return DB::table(GeolocatorField::SUPPORT_NAME)
                     ->select("rid")
                     ->where("fid", "=", $this->fid)
                     ->where(function($query) use ($arg) {
@@ -427,7 +323,7 @@ class Field extends Model {
                 return DB::table("video_fields")->select("rid")->where("id", "<", 0); // Nothing...
 
             default: // Error occurred.
-                throw new \Exception("Invalid field type in field::keywordSearchTyped2.");
+                throw new \Exception("Invalid field type in field::keywordSearchTyped.");
                 break;
         }
     }

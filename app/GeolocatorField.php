@@ -21,18 +21,6 @@ class GeolocatorField extends BaseField {
     ];
 
     /**
-     * Keyword search for a geolocator field.
-     * We search only the address and description of any given location for the given parameters.
-     *
-     * @param array $args, the values to search for.
-     * @param bool $partial, true if we should consider partial matches.
-     * @return bool, true if an argument was found, false otherwise.
-     */
-    public function keywordSearch(array $args, $partial) {
-        return false;
-    }
-
-    /**
      * Geolocator fields are always metafiable.
      *
      * @return bool
