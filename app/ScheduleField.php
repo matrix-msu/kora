@@ -82,7 +82,6 @@ class ScheduleField extends BaseField {
      */
     public function addEvents(array $events) {
         $now = date("Y-m-d H:i:s");
-
         foreach($events as $event) {
             list($begin, $end, $desc, $allday) = self::processEvent($event);
 
@@ -154,6 +153,11 @@ class ScheduleField extends BaseField {
     /**
      * The query for events in a schedule field.
      * Use ->get() to obtain all events.
+     *
+     * Events will be in "Y-m-d H:i:s" format.
+     *      For all day events use "m/d/Y" format.
+     *      For non-all day use "m/d/Y g:i A" format.
+     *
      * @return Builder
      */
     public function events() {
@@ -183,9 +187,18 @@ class ScheduleField extends BaseField {
     public static function eventsToOldFormat(array $events, $array_string = false) {
         $formatted = [];
         foreach($events as $event) {
+            if ($event->allday) {
+                $begin = DateTime::createFromFormat("Y-m-d H:i:s", $event->begin)->format("m/d/Y");
+                $end = DateTime::createFromFormat("Y-m-d H:i:s", $event->end)->format("m/d/Y");
+            }
+            else {
+                $begin = DateTime::createFromFormat("Y-m-d H:i:s", $event->begin)->format("m/d/Y g:i A");
+                $end = DateTime::createFromFormat("Y-m-d H:i:s", $event->end)->format("m/d/Y g:i A");
+            }
+
             $formatted[] = $event->desc . ": "
-                . str_replace("-", "/", $event->begin) . " - "
-                . str_replace("-", "/", $event->end);
+                . $begin . " - "
+                . $end;
         }
 
         if ($array_string) {

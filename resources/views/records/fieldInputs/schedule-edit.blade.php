@@ -4,7 +4,7 @@
         $value = '';
         $value2 = \App\ScheduleField::getDateList($field);
     }else{
-        $value = App\ScheduleField::eventsToOldFormat($field->events()->get());
+        $value = App\ScheduleField::eventsToOldFormat($schedule->events()->get());
         $value2 = array();
         foreach($value as $val){
             $value2[$val] = $val;
