@@ -25,6 +25,7 @@ class CreateFormsTable extends Migration {
             $table->text('layout');
             $table->boolean('preset');
             $table->boolean('public_metadata');
+            $table->string('lod_resource')->default('');
 			$table->timestamps();
 
             $table->foreign('pid')->references('pid')->on('projects')->onDelete('cascade');

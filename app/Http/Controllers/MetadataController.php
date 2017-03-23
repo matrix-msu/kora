@@ -475,16 +475,24 @@ class MetadataController extends Controller {
         }
         //Fields that already have metadata do not get sent to the view to be listed
         $all_fields = Field::where('pid',$pid)->where('fid',$fid)->get();
-        $available_fields = new \Illuminate\Support\Collection;
+        $available_fields = new \Illuminate\Support\Collection; //fields without a tag
+        $assigned_fields = array(); //fields with a tag
         foreach ($all_fields as $field)
         {
-            if($field->metadata()->first() !== null) continue;
-            else $available_fields->push($field);
+            if($field->metadata()->first() !== null){
+                array_push($assigned_fields,$field);
+            }
+            else {
+                $available_fields->push($field);
+            }
         }
 
         $fields = $available_fields->lists('name','flid');
         $form = Form::find($fid);
-        return view('metadata.index',compact('pid','fid','form','fields'));
+
+        $resource_title = $form->lod_resource;
+
+        return view('metadata.index',compact('pid','fid','form','fields','assigned_fields','resource_title'));
     }
 
     /**
@@ -524,6 +532,7 @@ class MetadataController extends Controller {
 
             $field = Field::where('pid',$pid)->where('fid',$fid)->where('flid','=',$request->input('field'))->first();
             $metadata = new Metadata(['pid'=>$pid,'fid'=>$fid, 'name'=>$request->input('name')]);
+            $metadata->primary = 0;
             $metadata->field()->associate($field);
             $field->metadata()->save($metadata);
 
@@ -531,6 +540,31 @@ class MetadataController extends Controller {
         }
     }
 
+    public function updateResource($pid,$fid,Request $request){
+        $form = FormController::getForm($fid);
+        $title = $request->title;
+
+        $form->lod_resource = $title;
+        $form->save();
+
+        flash()->overlay('Resource Title updated', trans('controller_metadata.success'));
+        return redirect()->action('MetadataController@index',compact('pid','fid')); //Laravel form submission needs this
+    }
+
+    public function makePrimary($pid, $fid, Request $request){
+        $metadatas = Metadata::where('fid','=',$fid)->get();
+        $pFlid = $request->flid;
+
+        foreach($metadatas as $meta){
+            if($meta->flid==$pFlid){
+                $meta->primary = 1;
+            }else{
+                $meta->primary = 0;
+            }
+
+            $meta->save();
+        }
+    }
 
     /**
      * Remove metadata from a field

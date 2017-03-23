@@ -198,8 +198,10 @@ Route::post('/user/picture','Auth\UserController@changepicture');
 //metadata routes
 Route::get('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@index');
 Route::post('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@store');
+Route::post('/projects/{pid}/forms/{fid}/metadata/setup/resource','MetadataController@updateResource');
+Route::post('/projects/{pid}/forms/{fid}/metadata/setup/primary','MetadataController@makePrimary');
 Route::delete('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@destroy');
-Route::get('/projects/{pid}/forms/{fid}/metadata','MetadataController@records2');
+Route::get('/projects/{pid}/forms/{fid}/metadata/public','MetadataController@records2');
 Route::post('/projects/{pid}/forms/{fid}/metadata/massassign','MetadataController@massAssign');
 Route::get('/projects/{pid}/forms/{fid}/metadata/search/{query}', 'MetadataController@search');
 
