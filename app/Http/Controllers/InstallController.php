@@ -34,7 +34,9 @@ class InstallController extends Controller {
 		"storage/app/profiles",
 		"storage/app/presetFiles",
 		"storage/app/plugins",
-        "python/"
+        "python",
+        "python/exports",
+        "python/temp"
 	];
 
     public $STOCKPRESETS = ["URL_URI" => ["type"=>"Text","preset"=>"/^(http|ftp|https):\/\//"],

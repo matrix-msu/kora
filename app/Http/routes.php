@@ -202,6 +202,7 @@ Route::post('/projects/{pid}/forms/{fid}/metadata/setup/resource','MetadataContr
 Route::post('/projects/{pid}/forms/{fid}/metadata/setup/primary','MetadataController@makePrimary');
 Route::delete('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@destroy');
 Route::get('/projects/{pid}/forms/{fid}/metadata/public','MetadataController@records2');
+Route::get('/projects/{pid}/forms/{fid}/metadata/public/{resource}','MetadataController@singleRecord');
 Route::post('/projects/{pid}/forms/{fid}/metadata/massassign','MetadataController@massAssign');
 Route::get('/projects/{pid}/forms/{fid}/metadata/search/{query}', 'MetadataController@search');
 

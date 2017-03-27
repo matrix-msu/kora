@@ -115,6 +115,77 @@ class Cursor:
 
         return stash
 
+    def get_form_resource_title(self, fid):
+        """
+        Gets the forms resource title
+        :param fid: form id
+        :return string: metadata resource title
+        """
+        cursor = self._cnx.cursor()
+
+        stmt = "SELECT `lod_resource` FROM " + self._prefix + "forms WHERE `fid` = %s"
+
+        cursor.execute(stmt, [fid])
+
+        row = cursor.fetchone()
+        resource = row["lod_resource"]
+
+        cursor.close()
+
+        return resource
+
+    def get_resource_index_value(self, fid, rid):
+        """
+        Gets a records value for primary index field
+        :param fid: form id
+        :param rid: record id
+        :return string: resource value
+        """
+        cursor = self._cnx.cursor()
+
+        ## gets the primary field
+        stmt = "SELECT `flid` FROM " + self._prefix + "metadatas WHERE `fid` = %s and `primary` = 1"
+
+        cursor.execute(stmt, [fid])
+
+        row = cursor.fetchone()
+        flid = row["flid"]
+
+        cursor.close()
+
+        cursor2 = self._cnx.cursor()
+
+        ##gets the textfields value, since primary field must be text
+        stmt2 = "SELECT `text` FROM " + self._prefix + "text_fields WHERE `flid` = %s AND `rid` = %s"
+
+        cursor2.execute(stmt2, [flid,rid])
+
+        row = cursor2.fetchone()
+        text = row["text"]
+
+        cursor2.close()
+
+        return text
+
+    def pid_from_fid(self, fid):
+        """
+        Gets the project id associated with any particular form id.
+        :param fid: form id.
+        :return int: project id.
+        """
+        cursor = self._cnx.cursor()
+
+        stmt = "SELECT `pid` FROM " + self._prefix + "forms WHERE `fid` = %s"
+
+        cursor.execute(stmt, [fid])
+
+        row = cursor.fetchone()
+        pid = row["pid"]
+
+        cursor.close()
+
+        return pid
+
     def fid_from_rid(self, rid):
         """
         Gets the form id associated with any particular record id.
@@ -182,7 +253,7 @@ class Cursor:
         row2 = cursor2.fetchone()
         meta["owner"] = row2["username"]
 
-        cursor.close()
+        cursor2.close()
 
         return meta
 
@@ -198,6 +269,29 @@ class Cursor:
         cursor = self._cnx.cursor()
 
         stmt = "SELECT `flid`, `rid`, " + get_data_names(table) + " FROM " + self._prefix + table + " WHERE `rid` = %s"
+
+        cursor.execute(stmt, [rid])
+
+        if cursor.rowcount < 1: ## No fields were found.
+            raise StopIteration
+
+        for row in cursor:
+            yield row
+
+        cursor.close()
+
+    def get_field_data_lod(self, table, rid):
+        """
+        Gets the data from a particular table based on an rid, yielded by a generator.
+
+        :param table: BaseField table name.
+        :param rid: record id.
+        :return dict: row from the database.
+        """
+
+        cursor = self._cnx.cursor()
+
+        stmt = "SELECT data.`flid`, data.`rid`, meta.`name`, " + get_data_names(table) + " FROM " + self._prefix + table + " data LEFT JOIN " + self._prefix + "metadatas meta ON data.`flid` = meta.`flid` WHERE data.`rid` = %s and meta.`primary`=0"
 
         cursor.execute(stmt, [rid])
 

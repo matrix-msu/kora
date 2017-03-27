@@ -6,6 +6,7 @@ from exporter import RecordExporter, collapse_files
 from writer import make_writer, Writer
 from json import loads
 from startup import startup
+from connection import Connection, Cursor
 
 ##
 ## Main entry point, this script should be called from a PHP exec, or preferred method.
@@ -54,7 +55,11 @@ def export_routine(argv):
     except IndexError:
         show_data = "True"
 
-    writer = make_writer(writer_type, Writer.set_up())
+    cursor = connect_to_database()
+    fid = cursor.fid_from_rid(data[0])
+    pid = cursor.pid_from_fid(fid)
+
+    writer = make_writer(writer_type, Writer.set_up(), fid, pid)
 
     pool = multiprocessing.Pool(processes = 8)
 
@@ -77,6 +82,17 @@ def export_routine(argv):
     pool.join() ## Wait for processes to complete.
 
     return collapse_files(writer)
+
+def connect_to_database():
+    """
+    Get a cursor from a connection.Connection object. (Private)
+
+    Database connections are not picklable (serializable) so we must create
+    the connection once the __call__ method is used by apply_async (used in a pool).
+    :return connection.Cursor:
+    """
+
+    return Cursor(Connection())
 
 if __name__ == "__main__":
     print export_routine(sys.argv)

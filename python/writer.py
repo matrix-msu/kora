@@ -2,18 +2,21 @@ import time
 import os
 from encoder import DBEncoder
 from json import dumps
-
+from env import env
+from connection import Connection, Cursor
 
 class Writer:
     """
     Base class for writer types.
     """
-    def __init__(self, start_time):
+    def __init__(self, start_time, fid, pid):
         """
         Writer constructor.
         :param temp_path: path to temporary file where writing should occur.
         """
         self.start_time = start_time
+        self.fid = fid
+        self.pid = pid
 
     @staticmethod
     def set_up():
@@ -137,7 +140,56 @@ class XMLWriter(Writer):
         with open(filepath, "a") as target:
                     target.write("</Records>")
 
-def make_writer(format, temp_path):
+
+class METAWriter(Writer):
+    """
+    META Writer class.
+    """
+    def write(self, item): ## TODO: Implement.
+        return
+
+    def file_extension(self):
+        """
+        Returns the appropriate file extension.
+        :return string:
+        """
+        return ".xml"
+
+    def header(self, filepath): ## TODO: Implement.
+        """
+        Writes the header to a file. Should be an empty file, else it will be truncated.
+        :param filepath: string, absolute path to set up the file header in.
+        """
+        cursor = self._connect_to_database()
+
+        resource_title = cursor.get_form_resource_title(self.fid)
+
+        with open(filepath, "w") as target:
+                    header = "<?xml version=\"1.0\"?><rdf:RDF "
+                    header += "xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" "
+                    header += "xmlns:"+resource_title+"=\""+env("BASE_URL")+"public/projects/"+str(self.pid)+"/forms/"+str(self.fid)+"/metadata/public#\">"
+                    target.write(header)
+
+    def footer(self, filepath):
+        """
+        Writes the footer to a file.
+        :param filepath: string, absolute path to file to append footer to.
+        """
+        with open(filepath, "a") as target:
+                    target.write("</rdf:RDF>")
+
+    def _connect_to_database(self):
+        """
+        Get a cursor from a connection.Connection object. (Private)
+
+        Database connections are not picklable (serializable) so we must create
+        the connection once the __call__ method is used by apply_async (used in a pool).
+        :return connection.Cursor:
+        """
+
+        return Cursor(Connection())
+
+def make_writer(format, temp_path, fid=0, pid=0):
     """
     Create a writer object based on desired output format.
 
@@ -146,9 +198,12 @@ def make_writer(format, temp_path):
     :return Writer:
     """
     if format == "JSON":
-        return JSONWriter(temp_path)
+        return JSONWriter(temp_path,fid,pid)
 
     elif format == "XML":
-        return XMLWriter(temp_path)
+        return XMLWriter(temp_path,fid,pid)
 
-    return JSONWriter(temp_path) ## Default to JSON.
+    elif format == "META":
+            return METAWriter(temp_path,fid,pid)
+
+    return JSONWriter(temp_path,fid,pid) ## Default to JSON.

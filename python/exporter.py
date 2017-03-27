@@ -1,6 +1,7 @@
 import os
 import datetime
 import time
+from env import env
 from connection import Connection, Cursor
 from subprocess import call
 from writer import Writer
@@ -38,7 +39,7 @@ class RecordExporter(Exporter):
         :param show_data: should we show the data? or just record stuff.
         """
 
-        if output not in ["JSON", "XML"]:
+        if output not in ["JSON", "XML", "META"]:
             raise TypeError("Invalid output type.")
 
         self._rids = rids
@@ -56,6 +57,8 @@ class RecordExporter(Exporter):
         """
         cursor = self._connect_to_database()
         fid = cursor.fid_from_rid(self._rids[0])
+        pid = cursor.pid_from_fid(fid)
+        lod_resource_title = cursor.get_form_resource_title(fid)
 
         stash = cursor.get_field_stash(fid)
 
@@ -110,6 +113,22 @@ class RecordExporter(Exporter):
                 record_xml += "</Record>"
 
                 target.write(record_xml)
+
+            if  self._output == "META":
+                resource = "<rdf:Description "
+
+                resource_index_value = cursor.get_resource_index_value(fid, rid)
+                resource += "rdf:about=\""+env("BASE_URL")+"public/projects/"+str(pid)+"/forms/"+str(fid)+"/metadata/public/"+resource_index_value+"\">"
+
+                for table in get_base_field_types():
+                    for field in cursor.get_field_data_lod(table, rid):
+                        resource += "<"+lod_resource_title+":"+field["name"]+">"
+                        resource += field_formatters[table]( field, stash[field["flid"]]["options"])
+                        resource += "</"+lod_resource_title+":"+field["name"]+">"
+
+                resource += "</rdf:Description>"
+
+                target.write(resource);
 
         target.close()
 
