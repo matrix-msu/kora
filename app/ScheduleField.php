@@ -4,6 +4,7 @@ use DateTime;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
+use PhpSpec\Exception\Exception;
 
 class ScheduleField extends BaseField {
 
@@ -14,18 +15,6 @@ class ScheduleField extends BaseField {
         'flid',
         'events'
     ];
-
-    /**
-     * Keyword search for a schedule field.
-     *
-     * @param array $args, array of arguments for the search to use.
-     * @param bool $partial, does not effect the search.
-     * @return bool, True if the search parameters are satisfied.
-     */
-    public function keywordSearch(array $args, $partial)
-    {
-        return self::keywordRoutine($args, $partial, $this->events);
-    }
 
     public static function getDateList($field)
     {
@@ -64,14 +53,11 @@ class ScheduleField extends BaseField {
         return true;
     }
 
-    /**
-     * Returns the events of the field as an array.
-     *
-     * @param Field $field, unneeded.
-     * @return array
-     */
     public function toMetadata(Field $field) {
-        return explode("[!]", $this->events);
+        //
+        // TODO: Implement me.
+        //
+        throw new Exception("Method not implemented...");
     }
 
     /**
@@ -84,7 +70,6 @@ class ScheduleField extends BaseField {
      */
     public function addEvents(array $events) {
         $now = date("Y-m-d H:i:s");
-
         foreach($events as $event) {
             list($begin, $end, $desc, $allday) = self::processEvent($event);
 
@@ -156,12 +141,59 @@ class ScheduleField extends BaseField {
     /**
      * The query for events in a schedule field.
      * Use ->get() to obtain all events.
+     *
+     * Events will be in "Y-m-d H:i:s" format.
+     *      For all day events use "m/d/Y" format.
+     *      For non-all day use "m/d/Y g:i A" format.
+     *
      * @return Builder
      */
     public function events() {
         return DB::table(self::SUPPORT_NAME)->select("*")
             ->where("flid", "=", $this->flid)
             ->where("rid", "=", $this->rid);
+    }
+
+    /**
+     * True if there are events associated with a particular Schedule field.
+     *
+     * @return bool
+     */
+    public function hasEvents() {
+        return !! $this->events()->count();
+    }
+
+    /**
+     * Puts an array of events into the old format.
+     *      - "Old Format" meaning, an array of the events formatted as
+     *      <Description>: <Begin> - <End>
+     *
+     * @param array $events, array of StdObjects representing events.
+     * @param bool $array_string, should this be in the old *[!]*[!]...[!]* format?
+     * @return array | string
+     */
+    public static function eventsToOldFormat(array $events, $array_string = false) {
+        $formatted = [];
+        foreach($events as $event) {
+            if ($event->allday) {
+                $begin = DateTime::createFromFormat("Y-m-d H:i:s", $event->begin)->format("m/d/Y");
+                $end = DateTime::createFromFormat("Y-m-d H:i:s", $event->end)->format("m/d/Y");
+            }
+            else {
+                $begin = DateTime::createFromFormat("Y-m-d H:i:s", $event->begin)->format("m/d/Y g:i A");
+                $end = DateTime::createFromFormat("Y-m-d H:i:s", $event->end)->format("m/d/Y g:i A");
+            }
+
+            $formatted[] = $event->desc . ": "
+                . $begin . " - "
+                . $end;
+        }
+
+        if ($array_string) {
+            return implode("[!]", $formatted);
+        }
+
+        return $formatted;
     }
 
     /**

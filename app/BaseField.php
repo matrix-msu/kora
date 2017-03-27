@@ -28,15 +28,6 @@ abstract class BaseField extends Model
     }
 
     /**
-     * Pure virtual keyword search method for a general field.
-     *
-     * @param array $args, Array of arguments for the search to use.
-     * @param bool $partial, True if partial values should be considered in the search.
-     * @return bool, True if the field has satisfied the search parameters.
-     */
-    abstract public function keywordSearch(array $args, $partial);
-
-    /**
      * Determines if to metadata is allowed to be called on the field.
      *
      * @return bool, true if to metadata can be called on the field.

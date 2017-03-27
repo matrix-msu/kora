@@ -14,18 +14,6 @@ class RichTextField extends BaseField {
     ];
 
     /**
-     * Keyword search for a rich text field.
-     *
-     * @param array $args, Array of arguments for the search to use.
-     * @param bool $partial, True if partial values should be considered in the search.
-     * @return bool, True if the search parameters are satisfied.
-     */
-    public function keywordSearch(array $args, $partial)
-    {
-        return self::keywordRoutine($args, $partial, $this->searchable_rawtext);
-    }
-
-    /**
      * Saves the model.
      *
      * Instead of putting this everywhere the rawtext member is assigned we'll just override the member function.

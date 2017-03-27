@@ -22,8 +22,10 @@ use App\ScheduleField;
 use App\TextField;
 use App\VideoField;
 use Illuminate\Http\Request;
+use Psy\Command\ShowCommand;
 use RecursiveIteratorIterator;
 use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
+use Symfony\Component\Finder\Shell\Shell;
 
 class RecordPresetController extends Controller {
     /**
@@ -319,8 +321,8 @@ class RecordPresetController extends Controller {
                 case 'Schedule':
                     $schedfield = ScheduleField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
 
-                    if(!empty($schedfield->events)) {
-                        $data['events'] = explode('[!]', $schedfield->events);
+                    if($schedfield->hasEvents()) {
+                        $data['events'] = ScheduleField::eventsToOldFormat($schedfield->events()->get());
                     }
                     else {
                         $data['events'] = null;
@@ -347,7 +349,7 @@ class RecordPresetController extends Controller {
                     $cmbfield = ComboListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
 
                     if (!empty($cmbfield->options)) {
-                        $data['combolists'] = explode('[!val!]', $cmbfield->options);
+                        $data['combolists'] = ComboListField::dataToOldFormat($cmbfield->data()->get());
                     }
                     else {
                         $data['combolists'] = null;

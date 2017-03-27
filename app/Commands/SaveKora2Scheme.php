@@ -496,14 +496,13 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue
                             $i++;
                         }
 
-                        $eventStr = implode('[!]',$formattedDates);
-
                         $sched = new ScheduleField();
                         $sched->rid = $recModel->rid;
                         $sched->fid = $recModel->fid;
                         $sched->flid = $field->flid;
-                        $sched->events = $eventStr;
                         $sched->save();
+
+                        $sched->addEvents($formattedDates);
 
                         break;
                     case 'Documents':
@@ -837,8 +836,8 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue
                 case 'Schedule':
                     $schedfield = ScheduleField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
 
-                    if(!empty($schedfield->events)) {
-                        $data['events'] = explode('[!]', $schedfield->events);
+                    if($schedfield->hasEvents()) {
+                        $data['events'] = ScheduleField::eventsToOldFormat($schedfield->events()->get());
                     }
                     else {
                         $data['events'] = null;
@@ -865,7 +864,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue
                     $cmbfield = ComboListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
 
                     if (!empty($cmbfield->options)) {
-                        $data['combolists'] = explode('[!val!]', $cmbfield->options);
+                        $data['combolists'] = ComboListField::dataToOldFormat($cmbfield->data()->get());
                     }
                     else {
                         $data['combolists'] = null;

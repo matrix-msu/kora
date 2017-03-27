@@ -327,6 +327,9 @@ class RevisionController extends Controller {
 
                 // Schedule Assignment
                 case 'Schedule':
+
+                    // TODO: update this with support fields, revisions is a mess though so maybe just wait for the refactor.
+
                     $schedulefield = ScheduleField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
                     if ($revision->type != 'delete' && !is_null($schedulefield)) {
                         $schedulefield->events = $data['schedulefields'][$field->flid]['data'];
@@ -344,7 +347,7 @@ class RevisionController extends Controller {
                 // Geolocator Assignment
                 case 'Geolocator':
 
-                    // TODO: update this with support fields, geolocator is a mess though so maybe just wait for the refactor.
+                    // TODO: update this with support fields, revisions is a mess though so maybe just wait for the refactor.
 
                     $geolocatorfield = GeolocatorField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
                     if ($revision->type != 'delete' && !is_null($geolocatorfield)) {
@@ -456,6 +459,10 @@ class RevisionController extends Controller {
                     break;
 
                 case 'Combo List':
+                    //
+                    // TODO: update this with support fields, revisions is a mess though so maybe just wait for the refactor.
+                    //
+
                     $cmbfield = ComboListField::where('flid', '=', $field->flid)->where('rid', '=', $record->rid)->first();
 
                     $valuesArray = $data['combofields'][$field->flid]['values'];

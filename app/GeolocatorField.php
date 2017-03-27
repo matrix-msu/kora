@@ -21,18 +21,6 @@ class GeolocatorField extends BaseField {
     ];
 
     /**
-     * Keyword search for a geolocator field.
-     * We search only the address and description of any given location for the given parameters.
-     *
-     * @param array $args, the values to search for.
-     * @param bool $partial, true if we should consider partial matches.
-     * @return bool, true if an argument was found, false otherwise.
-     */
-    public function keywordSearch(array $args, $partial) {
-        return false;
-    }
-
-    /**
      * Geolocator fields are always metafiable.
      *
      * @return bool
@@ -42,6 +30,9 @@ class GeolocatorField extends BaseField {
     }
 
     public function toMetadata(Field $field) {
+        //
+        // TODO: Implement me.
+        //
         throw new Exception("Method not implemented...");
     }
 
@@ -80,7 +71,7 @@ class GeolocatorField extends BaseField {
     }
 
     /**
-     * True is there are locations associated with a particular Geolocator field.
+     * True if there are locations associated with a particular Geolocator field.
      *
      * @return bool
      */
@@ -90,11 +81,11 @@ class GeolocatorField extends BaseField {
 
 
     /**
-     * Puts the locations retrieved from the support field in the old format.
+     * Puts an array of events into the old format.
      *      - "Old Format" meaning, an array of the locations formatted as
-     *        [Desc]*[Desc][LatLon]*[LatLon][UTM]*[UTM][Address]*[Address]
+     *        [Desc]<Description>[Desc][LatLon]<Latitude,Longitude>[LatLon][UTM]<Zone:Easting,Northing>[UTM][Address]<Address>[Address]
      *
-     * @param array $locations, array of StdObjects representing
+     * @param array $locations, array of StdObjects representing locations.
      * @param bool $array_string, should this be in the old *[!]*[!]...[!]* format?
      * @return array | string
      */
@@ -118,7 +109,7 @@ class GeolocatorField extends BaseField {
      * Adds locations to the geolocator support table.
      *
      * @param array $locations, array of locations as they are given from the create/edit form javascript.
-     *      [Desc]*[Desc][LatLon]*[LatLon][UTM]*[UTM][Address]*[Address] Format
+     *      Format: [Desc]<Description>[Desc][LatLon]<Latitude,Longitude>[LatLon][UTM]<Zone:Easting,Northing>[UTM][Address]<Address>[Address]
      */
     public function addLocations(array $locations) {
         $now = date("Y-m-d H:i:s");

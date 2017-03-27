@@ -143,7 +143,7 @@
                                     $oneType = \App\ComboListField::getComboFieldType($field,'one');
                                     $twoType = \App\ComboListField::getComboFieldType($field,'two');
 
-                                    $valArray = explode('[!val!]',$clf->options);
+                                    $valArray = \App\ComboListField::dataToOldFormat($clf->data()->get());
                                     ?>
                                     <div style="overflow: auto">
                                         <div>
@@ -232,7 +232,7 @@
                             @if(\App\Http\Controllers\FieldController::getFieldOption($field,'Calendar')=='No')
                                 @foreach($record->schedulefields as $sf)
                                     @if($sf->flid == $field->flid)
-                                        @foreach(explode('[!]',$sf->events) as $event)
+                                        @foreach(App\ScheduleField::eventsToOldFormat($sf->events()->get()) as $event)
                                             <div>{{ $event }}</div>
                                         @endforeach
                                     @endif
@@ -249,7 +249,7 @@
                                                     right: 'month,agendaWeek,agendaDay'
                                                 },
                                                 events: [
-                                                    @foreach(explode('[!]',$sf->events) as $event)
+                                                    @foreach(App\ScheduleField::eventsToOldFormat($sf->events()->get()) as $event)
                                                         {
                                                             <?php
                                                                 $nameTime = explode(': ',$event);

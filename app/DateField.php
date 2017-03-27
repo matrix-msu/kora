@@ -143,46 +143,6 @@ class DateField extends BaseField {
     }
 
     /**
-     * Keyword search for a date field. Similarly to number field, this only matches
-     *  exact dates.
-     *
-     * @param array $args, array of arguments for the search to use.
-     * @param bool $partial, does not effect the search.
-     * @return bool, True if the search parameters are satisfied.
-     */
-    public function keywordSearch(array $args, $partial) {
-        $field = Field::where('flid', '=', $this->flid)->first();
-        $circa = (explode('[!Circa!]', $field->options)[1]) == "Yes";
-
-        $searchEra = (explode('[!Era!]', $field->options)[1]) == "Yes"; // Boolean to determine if we should search for era.
-        $searchCirca = ($circa && $this->circa); // Boolean to determine if we should search for circa.
-
-        foreach ($args as $arg) {
-            $arg = strip_tags($arg);
-            $arg = Search::convertCloseChars($arg);
-
-            if ($searchCirca && strtolower($arg) == "circa" ||
-                $searchEra && strtoupper($arg) == strtoupper($this->era)) {
-                return true;
-            }
-
-            if (self::monthToNumber($arg) == $this->month) {
-                return true;
-            }
-
-            if ($arg == $this->day) {
-                return true;
-            }
-
-            if ($arg == $this->year) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * The months of the year in different languages.
      * These are listed without special characters because the input will be converted to close characters.
      * Formatted with regular expression tags to find only the exact month so "march" does not match "marches" for example.

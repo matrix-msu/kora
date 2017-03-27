@@ -81,7 +81,7 @@ class FormSearchController extends Controller
 
             $search = new Search($pid, $fid, $arg, $method);
 
-            $rids = $search->formKeywordSearch2();
+            $rids = $search->formKeywordSearch();
 
             if (empty($rids)) {
                 $rids = [];
@@ -96,28 +96,10 @@ class FormSearchController extends Controller
         Session::put("method", $method);
         Session::put("searchids",$pid.' '.$fid);
 
-       // $results = $search->formKeywordSearch();
-
         $form = FormController::getForm($fid);
 
         $controller = new RecordController();
         $filesize = $controller->getFormFilesize($fid);
-
-//        $results->sortBy("rid");
-//
-//        $rids = [];
-//        foreach($results as $record) {
-//            $rids[] = $record->rid;
-//        }
-//
-//        $records = new LengthAwarePaginator($results, $results->count(), 10, $page);
-//        $records->appends([
-//            "query" => $arg,
-//            "method" => $method
-//        ]);
-//        $records->setPath( env('BASE_URL') . 'public/keywordSearch/project/' . $pid . '/forms/' . $fid);
-
-        //dd($form, $filesize, $records, $search_results, $ignored, $rids);
 
         $record_count = $page * RecordController::RECORDS_PER_PAGE;
 

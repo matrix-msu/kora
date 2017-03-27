@@ -11,10 +11,6 @@ class AssociatorField extends BaseField {
         'records'
     ];
 
-    public function keywordSearch(array $args, $partial) {
-        // TODO: Implement keywordSearch() method.
-    }
-
     public static function getDefault($default, $blankOpt=false)
     {
         $options = array();

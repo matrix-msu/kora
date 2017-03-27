@@ -75,7 +75,7 @@ class ProjectSearchController extends Controller
             $rids = [];
             foreach($forms as $form) {
                 $search = new Search($form->pid, $form->fid, $arg, $method);
-                $rids = array_merge($search->formKeywordSearch2(), $rids);
+                $rids = array_merge($search->formKeywordSearch(), $rids);
             }
 
             if (empty($rids)) {
@@ -202,7 +202,7 @@ class ProjectSearchController extends Controller
                 foreach($forms as $form) {
                     // Global search is always an exact search.
                     $search = new Search($form->pid, $form->fid, $query, Search::SEARCH_EXACT);
-                    $rids = array_merge($search->formKeywordSearch2(), $rids);
+                    $rids = array_merge($search->formKeywordSearch(), $rids);
                 }
             }
 

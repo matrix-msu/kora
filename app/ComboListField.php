@@ -17,77 +17,6 @@ class ComboListField extends BaseField {
         'ftype2'
     ];
 
-    /**
-     * Keyword search for a combo list field.
-     * This search simply uses the already existing search functions of text, number, list, multi-select list, and generated list.
-     *
-     * @param array $args, array of arguments for the search to use.
-     * @param bool $partial, true if partial values should be considered.
-     * @return bool, true if the search found something, false otherwise.
-     */
-    public function keywordSearch(array $args, $partial) {
-        $field = Field::where('flid', '=', $this->flid)->first();
-        $type1 = self::getComboFieldType($field, 'one');
-        $type2 = self::getComboFieldType($field, 'two');
-
-        $f1vals = explode("[!f1!]", $this->options);
-        $f2vals = explode("[!f2!]", $this->options);
-
-        //
-        // Iterate through the field values and search them.
-        //
-        for ($i = 1; $i < count($f1vals); $i += 2) { // Every other value in the array will hold what we're interested in.
-            $field = self::makeTempField($type1, $f1vals[$i]);
-            if ($field->keywordSearch($args, $partial) == true) return true;
-
-            $field = self::makeTempField($type2, $f2vals[$i]);
-            if ($field->keywordSearch($args, $partial) == true) return true;
-        }
-
-        return false; // We didn't find anything.
-    }
-
-    /**
-     * Creates a temporary field that we can execute keyword search on.
-     *
-     * @param string $type, the type of the field we are to create.
-     * @param string $value, the value associated with the field.
-     * @return BaseField, a field that we can execute keyword search on.
-     */
-    private static function makeTempField($type, $value) {
-        switch($type) {
-            case "Text":
-                $field = new TextField();
-                $field->text = $value;
-                break;
-
-            case "Number":
-                $field = new NumberField();
-                $field->number = $value;
-                break;
-
-            case "List":
-                $field = new ListField();
-                $field->option = $value;
-                break;
-
-            case "Multi-Select List":
-                $field = new MultiSelectListField();
-                $field->options = $value;
-                break;
-
-            case "Generated List":
-                $field = new GeneratedListField();
-                $field->options = $value;
-                break;
-
-            default:
-                return null; // Something went wrong.
-        }
-
-        return $field;
-    }
-
     public static function getComboList($field, $blankOpt=false, $fnum)
     {
         $dbOpt = ComboListField::getComboFieldOption($field, 'Options', $fnum);
@@ -266,6 +195,66 @@ class ComboListField extends BaseField {
     }
 
     /**
+     * True if there is data associated with a particular Combo List field.
+     *
+     * @return bool
+     */
+    public function hasData() {
+        return !! $this->data()->count();
+    }
+
+    /**
+     * Puts an array of data into the old format.
+     *      - "Old Format" meaning, and array of the data options formatted as
+     *        [!f1!]<Field 1 Data>[!f1!][!f2!]<Field 2 Data>[!f2!]
+     *
+     * @param array $data, array of StdObjects representing data options.
+     * @param bool $array_string, should this be in the old *[!val!]*[!val!]...[!val!]* format?
+     * @return array | string
+     */
+    public static function dataToOldFormat(array $data, $array_string = false) {
+        $formatted = [];
+        for($i = 0; $i < count($data); $i++) {
+            $op1 = $data[$i];
+            $op2 = $data[++$i];
+
+            if ($op1->field_num == 2) {
+                $tmp = $op1;
+                $op1 = $op2;
+                $op2 = $tmp;
+            }
+
+            if (! is_null($op1->data)) {
+                $val1 = $op1->data;
+            }
+            else {
+                $val1 = $op1->number + 0;
+            }
+
+            if (! is_null($op2->data)) {
+                $val2 = $op2->data;
+            }
+            else {
+                $val2 = $op2->number + 0;
+            }
+
+
+            $formatted[] = "[!f1!]"
+                . $val1
+                . "[!f1!]"
+                . "[!f2!]"
+                . $val2
+                . "[!f2!]";
+        }
+
+        if($array_string) {
+            return implode("[!val!]", $formatted);
+        }
+
+        return $formatted;
+    }
+
+    /**
      * Delete data associated with this field.
      */
     public function deleteData() {
@@ -314,7 +303,6 @@ class ComboListField extends BaseField {
                 // Since each entry represents one sub-field in the combo list, an "and" operation
                 // on a combo list would be impossible without two copies of everything.
                 //
-
                 $first_prefix = "one.";
                 $second_prefix = "two.";
 

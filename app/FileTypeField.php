@@ -17,24 +17,6 @@ use League\Flysystem\Util\MimeType;
 abstract class FileTypeField extends BaseField
 {
     /**
-     * Keyword search for a file type field.
-     *
-     * @param array $args
-     * @param bool $partial
-     * @return bool
-     */
-    public function keywordSearch(array $args, $partial) {
-        $fileNames = $this->getFileNames();
-
-        foreach($fileNames as $fileName) {
-            // File type search will always be partial no matter what the user enters.
-            if(self::keywordRoutine($args, true, $fileName)) return true;
-        }
-
-        return false;
-    }
-
-    /**
      * Parses the string representing all the files that a field has and returns an array of the file names.
      *
      * @return array, empty if there was an error, else it will have the names of the files associated with the field.

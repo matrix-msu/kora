@@ -51,7 +51,7 @@ TEXT;
 TEXT;
 
 
-    public function test_keywordSearchTyped2() {
+    public function test_keywordSearchTyped() {
         $project = self::dummyProject();
         $form = self::dummyForm($project->pid);
         $field = self::dummyField(Field::_COMBO_LIST, $project->pid, $form->fid);
@@ -71,111 +71,10 @@ TEXT;
         ], Field::_NUMBER, Field::_GENERATED_LIST);
 
         $arg = Search::processArgument("Google", Search::SEARCH_OR);
-        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
+        $this->assertEquals($record->rid, $field->keywordSearchTyped($arg, Search::SEARCH_OR)->get()[0]->rid);
 
         $arg = Search::processArgument(2, Search::SEARCH_OR);
-        $this->assertEquals($record->rid, $field->keywordSearchTyped2($arg, Search::SEARCH_OR)->get()[0]->rid);
-    }
-
-    /**
-     * Test keyword search.
-     * @group search
-     */
-    public function test_keywordSearch() {
-        $project = self::dummyProject();
-        $this->assertInstanceOf('App\Project', $project);
-
-        $form = self::dummyForm($project->pid);
-        $this->assertInstanceOf('App\Form', $form);
-
-        $field = self::dummyField("Combo List", $project->pid, $form->fid);
-        $this->assertInstanceOf('App\Field', $field);
-
-        $record = self::dummyRecord($project->pid, $form->fid);
-        $this->assertInstanceOf('App\Record', $record);
-
-        //
-        // Test all the fields that can be under a combo list.
-        // Namely, text, number, list, multi-select list, and generated list.
-        //
-
-        //
-        // Text, Number combination list.
-        //
-        $field->options = self::TEXT_NUM_OPTIONS;
-        $field->save();
-
-        $cmb_field = new \App\ComboListField();
-        $cmb_field->rid = $record->rid;
-        $cmb_field->flid = $field->flid;
-        $cmb_field->options = self::TEXT_NUM;
-        $cmb_field->save();
-
-        $args = ['LoReM'];
-        $this->assertTrue($cmb_field->keywordSearch($args, true));
-        $this->assertTrue($cmb_field->keywordSearch($args, false));
-
-        $args = ['9'];
-        $this->assertTrue($cmb_field->keywordSearch($args, true));
-        $this->assertTrue($cmb_field->keywordSearch($args, false));
-
-        $args = [2, null, -1, 0, ""];
-        $this->assertFalse($cmb_field->keywordSearch($args, true));
-        $this->assertFalse($cmb_field->keywordSearch($args, false));
-
-        $args = ["fring", "lao", "biben"]; // Partials
-        $this->assertTrue($cmb_field->keywordSearch($args, true));
-        $this->assertFalse($cmb_field->keywordSearch($args, false));
-
-        //
-        // List, Multi-select List
-        //
-        $field->options = self::LIST_MSL_OPTIONS;
-        $field->save();
-
-        $cmb_field->options = self::LIST_MSL;
-        $cmb_field->save();
-
-        $args = ['ChIcKeN'];
-        $this->assertTrue($cmb_field->keywordSearch($args, true));
-        $this->assertTrue($cmb_field->keywordSearch($args, false));
-
-        $args = ['maple'];
-        $this->assertTrue($cmb_field->keyworrdSearch($args, true));
-        $this->assertTrue($cmb_field->keywordSearch($args, false));
-
-        $args = ['elm'];
-        $this->assertTrue($cmb_field->keywordSearch($args, true));
-        $this->assertTrue($cmb_field->keywordSearch($args, false));
-
-        $args = ['cow']; // Option that can be selected in the list, but is not in any records.
-        $this->assertFalse($cmb_field->keywordSearch($args, true));
-        $this->assertFalse($cmb_field->keywordSearch($args, false));
-
-        $args = ['icken', 'phin', 'aple', 'edar']; // Partials
-        $this->assertTrue($cmb_field->keywordSearch($args, true));
-        $this->assertFalse($cmb_field->keywordSearch($args, false));
-
-        $args = ['[!]', null, 0, -1, 32418234.098];
-        $this->assertFalse($cmb_field->keywordSearch($args, true));
-        $this->assertFalse($cmb_field->keywordSearch($args, false));
-
-        //
-        // Multi-select List, Generated List
-        //
-        $field->options = self::MSL_GEN_OPTIONS;
-        $field->save();
-
-        $cmb_field->options = self::MSL_GEN;
-        $cmb_field->save();
-
-        $args = ['default(msl)'];
-        $this->assertTrue($cmb_field->keywordSearch($args, true));
-        $this->assertTrue($cmb_field->keywordSearch($args, false));
-
-        $args = ['default(gen)'];
-        $this->assertTrue($cmb_field->keywordSearch($args, true));
-        $this->assertTrue($cmb_field->keywordSearch($args, false));
+        $this->assertEquals($record->rid, $field->keywordSearchTyped($arg, Search::SEARCH_OR)->get()[0]->rid);
     }
 
     public function test_addData() {
@@ -190,7 +89,6 @@ TEXT;
         $c1 = new ComboListField();
         $c1->flid = $field->flid;
         $c1->rid = $r1->rid;
-        $c1->options = "";
         $c1->save();
 
         $c1->addData([
@@ -234,14 +132,12 @@ TEXT;
         $c1->flid = $field->flid;
         $c1->rid = $r1->rid;
         $c1->fid = $field->fid;
-        $c1->options = "";
         $c1->save();
 
         $c2 = new ComboListField();
         $c2->flid = $field->flid;
         $c2->rid = $r2->rid;
         $c2->fid = $field->fid;
-        $c2->options = "";
         $c2->save();
 
         $c1->addData([
@@ -275,7 +171,6 @@ TEXT;
         $c1->flid = $field->flid;
         $c1->rid = $r1->rid;
         $c1->fid = $field->fid;
-        $c1->options = "";
         $c1->save();
 
         $c1->addData([
@@ -304,7 +199,6 @@ TEXT;
         $c1->flid = $field->flid;
         $c1->rid = $r1->rid;
         $c1->fid = $field->fid;
-        $c1->options = "";
         $c1->save();
 
         $c1->addData([
@@ -361,7 +255,6 @@ TEXT;
         $c1 = new ComboListField();
         $c1->flid = $f1->flid;
         $c1->rid = $r1->rid;
-        $c1->options = "";
         $c1->save();
 
         $c1->addData([
@@ -441,7 +334,6 @@ TEXT;
         $c2 = new ComboListField();
         $c2->flid = $f2->flid;
         $c2->rid = $r2->rid;
-        $c2->options = "";
         $c2->save();
 
         $c2->addData([
@@ -517,7 +409,6 @@ TEXT;
         $c3 = new ComboListField();
         $c3->flid = $f3->flid;
         $c3->rid = $r3->rid;
-        $c3->options = "";
         $c3->save();
 
         $c3->addData([

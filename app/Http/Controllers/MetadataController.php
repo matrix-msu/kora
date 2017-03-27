@@ -8,6 +8,7 @@ Use App\Metadata;
 Use App\Field;
 Use App\Form;
 use App\Record;
+use App\ScheduleField;
 use App\Search;
 use App\TextField;
 use Illuminate\Bus\MarshalException;
@@ -110,7 +111,7 @@ class MetadataController extends Controller {
         $query = implode(" ", $query);
 
         $search = new Search($pid, $fid, $query, Search::SEARCH_OR);
-        $rids = $search->formKeywordSearch2();
+        $rids = $search->formKeywordSearch();
 
         dd($rids);
     }
