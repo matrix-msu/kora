@@ -34,6 +34,13 @@ class Writer:
         """
         return ""
 
+    def file_name(self):
+        """
+        Base method.
+        :return string: empty.
+        """
+        return ""
+
     def file_extension(self):
         """
         Base method.
@@ -68,6 +75,18 @@ class JSONWriter(Writer):
         :return string: json object.
         """
         return dumps(item, cls = DBEncoder, separators=(',', ':')) + "," ## Note special datetime encoding.
+
+    def file_name(self):
+        """
+        Returns the appropriate file extension.
+        :return string:
+        """
+        cursor = self._connect_to_database()
+
+        project_slug = cursor.get_project_slug(self.pid)
+        form_slug = cursor.get_form_slug(self.fid)
+
+        return project_slug+"_"+form_slug+"_"
 
     def file_extension(self):
         """
@@ -109,6 +128,16 @@ class JSONWriter(Writer):
                 target.truncate() ## Remove trailing ",".
                 target.write("]}")
 
+    def _connect_to_database(self):
+        """
+        Get a cursor from a connection.Connection object. (Private)
+
+        Database connections are not picklable (serializable) so we must create
+        the connection once the __call__ method is used by apply_async (used in a pool).
+        :return connection.Cursor:
+        """
+
+        return Cursor(Connection())
 
 class XMLWriter(Writer):
     """
@@ -116,6 +145,18 @@ class XMLWriter(Writer):
     """
     def write(self, item): ## TODO: Implement.
         return
+
+    def file_name(self):
+        """
+        Returns the appropriate file extension.
+        :return string:
+        """
+        cursor = self._connect_to_database()
+
+        project_slug = cursor.get_project_slug(self.pid)
+        form_slug = cursor.get_form_slug(self.fid)
+
+        return project_slug+"_"+form_slug+"_"
 
     def file_extension(self):
         """
@@ -140,6 +181,16 @@ class XMLWriter(Writer):
         with open(filepath, "a") as target:
                     target.write("</Records>")
 
+    def _connect_to_database(self):
+        """
+        Get a cursor from a connection.Connection object. (Private)
+
+        Database connections are not picklable (serializable) so we must create
+        the connection once the __call__ method is used by apply_async (used in a pool).
+        :return connection.Cursor:
+        """
+
+        return Cursor(Connection())
 
 class METAWriter(Writer):
     """
@@ -147,6 +198,18 @@ class METAWriter(Writer):
     """
     def write(self, item): ## TODO: Implement.
         return
+
+    def file_name(self):
+        """
+        Returns the appropriate file extension.
+        :return string:
+        """
+        cursor = self._connect_to_database()
+
+        project_slug = cursor.get_project_slug(self.pid)
+        form_slug = cursor.get_form_slug(self.fid)
+
+        return project_slug+"_"+form_slug+"_"
 
     def file_extension(self):
         """

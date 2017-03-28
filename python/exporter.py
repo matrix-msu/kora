@@ -185,12 +185,12 @@ def collapse_files(writer):
     temp_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "temp")
 
     stamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S')
-    out_file = os.path.join(exports_path, "out" + stamp + writer.file_extension())
+    out_file = os.path.join(exports_path, writer.file_name() + stamp + writer.file_extension())
 
     ## Make sure the outfile name is unique.
     while os.path.exists(out_file):
         stamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S')
-        out_file = os.path.join(exports_path, "out" + stamp + writer.file_extension())
+        out_file = os.path.join(exports_path, writer.file_name() + stamp + writer.file_extension())
 
     writer.header(out_file)
 
