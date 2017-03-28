@@ -75,6 +75,12 @@ TEXT;
 
         $arg = Search::processArgument(2, Search::SEARCH_OR);
         $this->assertEquals($record->rid, $field->keywordSearchTyped($arg, Search::SEARCH_OR)->get()[0]->rid);
+
+        $arg = Search::processArgument(5, Search::SEARCH_OR);
+        $this->assertEmpty($field->keywordSearchTyped($arg, Search::SEARCH_OR)->get());
+
+        $arg = Search::processArgument("Uber", Search::SEARCH_OR);
+        $this->assertEmpty($field->keywordSearchTyped($arg, Search::SEARCH_OR)->get());
     }
 
     public function test_addData() {
