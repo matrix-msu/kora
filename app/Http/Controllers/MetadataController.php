@@ -57,7 +57,7 @@ class MetadataController extends Controller {
 
         if (file_exists($output_file)) {
             header("Content-Disposition: attachment; filename=\"" . basename($output_file) . "\"");
-            header("Content-Type: application/octet-stream");
+            header("Content-Type: application/rdf+xml");
             header("Content-Length: " . filesize($output_file));
 
             readfile($output_file);
@@ -85,7 +85,7 @@ class MetadataController extends Controller {
 
         if (file_exists($output_file)) {
             header("Content-Disposition: attachment; filename=\"" . basename($output_file) . "\"");
-            header("Content-Type: application/octet-stream");
+            header("Content-Type: application/rdf+xml");
             header("Content-Length: " . filesize($output_file));
 
             readfile($output_file);

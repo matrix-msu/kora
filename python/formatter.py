@@ -31,11 +31,11 @@ def get_META_formatters():
         BaseFieldTypes.DateField: date_to_META, #TODO
         BaseFieldTypes.DocumentsField: documents_to_META, #TODO
         BaseFieldTypes.GalleryField: gallery_to_META, #TODO
-        BaseFieldTypes.GeneratedListField: generated_to_META, #TODO
+        BaseFieldTypes.GeneratedListField: generated_to_META,
         BaseFieldTypes.GeolocatorField: geolocator_to_META, #TODO
         BaseFieldTypes.ListField: list_to_META,
         BaseFieldTypes.ModelField: model_to_META, #TODO
-        BaseFieldTypes.MultiSelectListField: multi_select_list_to_META, #TODO
+        BaseFieldTypes.MultiSelectListField: multi_select_list_to_META,
         BaseFieldTypes.NumberField: number_to_META,
         BaseFieldTypes.PlaylistField: playlist_to_META, #TODO
         BaseFieldTypes.RichTextField: rich_text_to_META, #TODO
@@ -225,10 +225,12 @@ def multi_select_list_to_META(row, field_options = ""):
     :return dict:
     """
     options = row['options'].split("[!]")
-    options_xml = ""
+    options_xml = "<rdf:Seq>"
 
     for val in options:
-        options_xml += "<value>"+escape(val)+"</value>"
+        options_xml += "<rdf:li>"+escape(val)+"</rdf:li>"
+
+    options_xml += "</rdf:Seq>"
 
     return options_xml
 
@@ -262,10 +264,12 @@ def generated_to_META(row, field_options = ""):
     :return dict:
     """
     options = row['options'].split("[!]")
-    options_xml = ""
+    options_xml = "<rdf:Seq>"
 
     for val in options:
-        options_xml += "<value>"+escape(val)+"</value>"
+        options_xml += "<rdf:li>"+escape(val)+"</rdf:li>"
+
+    options_xml += "</rdf:Seq>"
 
     return options_xml
 
