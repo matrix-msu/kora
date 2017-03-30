@@ -1,8 +1,9 @@
 <?php
 
 use App\Field;
+use App\Revision;
 use App\TextField as TextField;
-use App\BaseField as BaseField;
+use App\Http\Controllers\RevisionController;
 
 /**
  * Class TextFieldTest
@@ -75,5 +76,29 @@ TEXT;
         $rid = $query->first();
 
         $this->assertEquals($rid->rid, $record->rid);
+    }
+
+    public function test_rollback() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_TEXT, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $old_text = "wow what a unit test!";
+
+        $text_field = new App\TextField();
+        $text_field->rid = $record->rid;
+        $text_field->flid = $field->flid;
+        $text_field->text = $old_text;
+        $text_field->save();
+
+        $revision = RevisionController::storeRevision($record->rid, Revision::CREATE);
+
+        $new_text = "some new text";
+        $text_field->text = $new_text;
+        $text_field->save();
+
+        TextField::rollback($revision, $field);
+        $this->assertEquals($text_field->text, $old_text);
     }
 }

@@ -34,7 +34,6 @@ abstract class BaseField extends Model
      */
     abstract public function isMetafiable();
 
-
     /**
      * Returns the metadata representation of a field.
      * Simple fields like TextField will return a string, more complex like DocumentsField will return arrays.
@@ -45,41 +44,12 @@ abstract class BaseField extends Model
     abstract public function toMetadata(Field $field);
 
     /**
-     * The routine that drives the keyword search for most fields.
+     * Get the required information for a revision data array.
      *
-     * @param array $args, Array of arguments for the search routine to use.
-     * @param bool $partial, True if partial values should be considered in the search.
-     * @param string $haystack, The string to be searched through.
-     * @return bool, True if the search parameters are satisfied.
+     * @param Field | null $field, optional field to get storage options for certain typed fields.
+     * @return array | string
      */
-    static public function keywordRoutine(array $args, $partial, $haystack) {
-        $text = Search::convertCloseChars($haystack);
-
-        if ($partial) {
-            foreach ($args as $arg) {
-                if (strlen($arg) && stripos($text, $arg) !== false) {
-                    return true; // Text contains a partial match.
-                }
-
-            }
-        }
-        else {
-            foreach ($args as $arg) {
-                $arg = preg_quote($arg, "\\"); // Escape regular expression characters.
-
-                $pattern = "/(\\W|^)" . $arg . "(\\W|$)/i";
-
-                $result = preg_match($pattern, $text);
-                if (strlen($arg) && $result !== false) { // Continue if preg_match did not error.
-                    if ($result) {
-                        return true; // Text contains a complete match.
-                    }
-                }
-            }
-        }
-
-        return false; // Text contains no matches.
-    }
+    abstract public function getRevisionData($field = null);
 
     /**
      * Names of the base fields in the database.

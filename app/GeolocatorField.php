@@ -167,6 +167,37 @@ class GeolocatorField extends BaseField {
     }
 
     /**
+     * @param null $field
+     * @return array
+     */
+    public function getRevisionData($field = null) {
+        return self::locationsToOldFormat($this->locations()->get());
+    }
+
+    /**
+     * Rollback a geolocator field based on a revision.
+     *
+     * ** Assumes $revision->data is json decoded. **
+     *
+     * @param Revision $revision
+     * @param Field $field
+     */
+    public static function rollback(Revision $revision, Field $field) {
+        $geofield = GeolocatorField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+
+        // If the field doesn't exist or was explicitly deleted, we create a new one.
+        if ($revision->type == Revision::DELETE || is_null($geofield)) {
+            $geofield = new GeolocatorField();
+            $geofield->flid = $field->flid;
+            $geofield->fid = $revision->fid;
+            $geofield->rid = $revision->rid;
+        }
+
+        $geofield->save();
+        $geofield->updateLocations($revision->data[Field::_GEOLOCATOR][$field->flid]);
+    }
+
+    /**
      * Build an advanced search query for a geolocator field.
      *
      * @param $flid, field id.

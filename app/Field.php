@@ -146,8 +146,7 @@ class Field extends Model {
                 break;
 
             case Field::_ASSOCIATOR:
-                // TODO: Implement me (associator).
-                return null;
+                return AssociatorField::where("flid", "=", $this->flid)->where("rid", "=", $rid)->first();
                 break;
 
             default:

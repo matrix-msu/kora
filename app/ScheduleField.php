@@ -164,6 +164,37 @@ class ScheduleField extends BaseField {
     }
 
     /**
+     * @param null $field
+     * @return array
+     */
+    public function getRevisionData($field = null) {
+        return self::eventsToOldFormat($this->events()->get());
+    }
+
+    /**
+     * Rollback a schedule field based on a revision.
+     *
+     * ** Assumes $revision->data is json decoded. **
+     *
+     * @param Revision $revision
+     * @param Field $field
+     */
+    public static function rollback(Revision $revision, Field $field) {
+        $schedulefield = ScheduleField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+
+        // If the field doesn't exist or was explicitly deleted, we create a new one.
+        if ($revision->type == Revision::DELETE || is_null($schedulefield)) {
+            $schedulefield = new ScheduleField();
+            $schedulefield->flid = $field->flid;
+            $schedulefield->fid = $revision->fid;
+            $schedulefield->rid = $revision->rid;
+        }
+
+        $schedulefield->save();
+        $schedulefield->updateEvents($revision->data[Field::_SCHEDULE][$field->flid]);
+    }
+
+    /**
      * Puts an array of events into the old format.
      *      - "Old Format" meaning, an array of the events formatted as
      *      <Description>: <Begin> - <End>

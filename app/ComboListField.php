@@ -204,6 +204,41 @@ class ComboListField extends BaseField {
     }
 
     /**
+     * @param null $field
+     * @return array
+     */
+    public function getRevisionData($field = null) {
+        return self::dataToOldFormat($this->data()->get());
+    }
+
+    /**
+     * Rollback a combo list field based on a revision.
+     *
+     * ** Assumes $revision->data is json decoded. **
+     *
+     * @param Revision $revision
+     * @param Field $field
+     */
+    public static function rollback(Revision $revision, Field $field) {
+        $combolistfield = ComboListField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+
+        // If the field doesn't exist or was explicitly deleted, we create a new one.
+        if ($revision->type == Revision::DELETE || is_null($combolistfield)) {
+            $combolistfield = new ComboListField();
+            $combolistfield->flid = $field->flid;
+            $combolistfield->fid = $revision->fid;
+            $combolistfield->rid = $revision->rid;
+        }
+
+        $combolistfield->save();
+
+        $type_1 = ComboListField::getComboFieldType($field, "one");
+        $type_2 = ComboListField::getComboFieldName($field, "two");
+
+        $combolistfield->updateData($revision->data[Field::_COMBO_LIST][$field->flid], $type_1, $type_2);
+    }
+
+    /**
      * Puts an array of data into the old format.
      *      - "Old Format" meaning, and array of the data options formatted as
      *        [!f1!]<Field 1 Data>[!f1!][!f2!]<Field 2 Data>[!f2!]

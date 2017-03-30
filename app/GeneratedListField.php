@@ -56,6 +56,37 @@ class GeneratedListField extends BaseField {
     }
 
     /**
+     * @param null $field
+     * @return string
+     */
+    public function getRevisionData($field = null) {
+        return $this->options;
+    }
+
+    /**
+     * Rollback a generated list field based on a revision.
+     *
+     * ** Assumes $revision->data is json decoded. **
+     *
+     * @param Revision $revision
+     * @param Field $field
+     */
+    public static function rollback(Revision $revision, Field $field) {
+        $genfield = GeneratedListField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+
+        // // If the field doesn't exist or was explicitly deleted, we create a new one.
+        if ($revision->type == Revision::DELETE || is_null($genfield)) {
+            $genfield = new GeneratedListField();
+            $genfield->flid = $field->flid;
+            $genfield->rid = $revision->rid;
+            $genfield->fid = $revision->fid;
+        }
+
+        $genfield->options = $revision->data[Field::_GENERATED_LIST][$field->flid];
+        $genfield->save();
+    }
+
+    /**
      * Builds the advanced search query.
      * Advanced queries for Gen List Fields accept any record that has at least one of the desired parameters.
      *

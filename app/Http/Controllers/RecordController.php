@@ -573,7 +573,7 @@ class RecordController extends Controller {
         foreach($rids as $rid){
             // If a record's most recent revision is a deletion...
             $revision = Revision::where('rid', '=', $rid)->orderBy('created_at', 'desc')->first();
-            if($revision->type == 'delete'){
+            if($revision->type == Revision::DELETE){
                 $revisions[] = $revision; // ... add to the array.
             }
         }
@@ -1264,7 +1264,7 @@ class RecordController extends Controller {
     /**
      * @param int $pid The project ID
      * @param int $fid The form ID
-     * @param int $rid The recrod ID
+     * @param int $rid The record ID
      * @param bool $mass Is this is a mass deletion?
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
@@ -1345,7 +1345,7 @@ class RecordController extends Controller {
     /**
      * Gets a record.
      *
-     * @param $rid
+     * @param $kid
      * @return mixed
      */
     public static function getRecordByKID($kid)

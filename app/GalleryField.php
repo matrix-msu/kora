@@ -23,6 +23,37 @@ class GalleryField extends FileTypeField  {
     }
 
     /**
+     * @param null $field
+     * @return string
+     */
+    public function getRevisionData($field = null) {
+        return $this->images;
+    }
+
+    /**
+     * Rollback a gallery field based on a revision.
+     *
+     * ** Assumes $revision->data is json decoded. **
+     *
+     * @param Revision $revision
+     * @param Field $field
+     */
+    public static function rollback(Revision $revision, Field $field) {
+        $galleryfield = GalleryField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+
+        // If the field doesn't exist or was explicitly deleted, we create a new one.
+        if ($revision->type == Revision::DELETE || is_null($galleryfield)) {
+            $galleryfield = new GalleryField();
+            $galleryfield->flid = $field->flid;
+            $galleryfield->fid = $revision->fid;
+            $galleryfield->rid = $revision->rid;
+        }
+
+        $galleryfield->images = $revision->data[Field::_GALLERY][$field->flid];
+        $galleryfield->save();
+    }
+
+    /**
      * Build the advanced search query.
      *
      * @param $flid
