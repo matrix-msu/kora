@@ -35,6 +35,7 @@ return array(
     'CreateMultiselectlistfieldsTable' => $baseDir . '/database/migrations/2015_00_00_000008_create_multiselectlistfields_table.php',
     'CreateNumberfieldsTable' => $baseDir . '/database/migrations/2015_00_00_000009_create_numberfields_table.php',
     'CreateOptionpresetsTable' => $baseDir . '/database/migrations/2015_09_14_201213_create_optionpresets_table.php',
+    'CreatePagesTable' => $baseDir . '/database/migrations/2017_03_28_185021_CreatePagesTable.php',
     'CreatePasswordResetsTable' => $baseDir . '/database/migrations/2015_04_03_151648_create_password_resets_table.php',
     'CreatePlaylistfieldsTable' => $baseDir . '/database/migrations/2015_00_00_000010_create_playlistfields_table.php',
     'CreatePluginsTable' => $baseDir . '/database/migrations/2016_08_16_180221_create_plugins_table.php',

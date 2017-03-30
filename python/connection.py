@@ -303,6 +303,44 @@ class Cursor:
 
         cursor.close()
 
+    def get_project_slug(self, pid):
+        """
+        Gets project slug from its ID
+        :param pid: project id.
+        :return string: slug of project
+        """
+        cursor = self._cnx.cursor()
+
+        stmt = "SELECT `slug` FROM " + self._prefix + "projects WHERE `pid` = %s"
+
+        cursor.execute(stmt, [pid])
+
+        row = cursor.fetchone()
+        slug = row["slug"]
+
+        cursor.close()
+
+        return slug
+
+    def get_form_slug(self, fid):
+        """
+        Gets form slug from its ID
+        :param fid: form id.
+        :return string: slug of form
+        """
+        cursor = self._cnx.cursor()
+
+        stmt = "SELECT `slug` FROM " + self._prefix + "forms WHERE `fid` = %s"
+
+        cursor.execute(stmt, [fid])
+
+        row = cursor.fetchone()
+        slug = row["slug"]
+
+        cursor.close()
+
+        return slug
+
     @staticmethod
     def get_support_fields(support_type, rid, flid):
         """

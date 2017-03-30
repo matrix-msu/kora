@@ -332,6 +332,7 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         'CreateMultiselectlistfieldsTable' => __DIR__ . '/../..' . '/database/migrations/2015_00_00_000008_create_multiselectlistfields_table.php',
         'CreateNumberfieldsTable' => __DIR__ . '/../..' . '/database/migrations/2015_00_00_000009_create_numberfields_table.php',
         'CreateOptionpresetsTable' => __DIR__ . '/../..' . '/database/migrations/2015_09_14_201213_create_optionpresets_table.php',
+        'CreatePagesTable' => __DIR__ . '/../..' . '/database/migrations/2017_03_28_185021_CreatePagesTable.php',
         'CreatePasswordResetsTable' => __DIR__ . '/../..' . '/database/migrations/2015_04_03_151648_create_password_resets_table.php',
         'CreatePlaylistfieldsTable' => __DIR__ . '/../..' . '/database/migrations/2015_00_00_000010_create_playlistfields_table.php',
         'CreatePluginsTable' => __DIR__ . '/../..' . '/database/migrations/2016_08_16_180221_create_plugins_table.php',
