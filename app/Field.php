@@ -3,6 +3,7 @@
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
+use PhpSpec\Exception\Exception;
 
 class Field extends Model {
 
@@ -76,8 +77,9 @@ class Field extends Model {
      * E.g. if this->type == "Text" it will find the TextField it is associated with in the database.
      *
      * This function is the most necessary evil the way our database is set up, but we should transition to using this
-     * function rather than having our huge case like the one in this function statements all over our app.
+     * function rather than having our huge switch like the one in this function statements all over our app.
      *
+     * @throws \Exception if the field type is invalid.
      * @param $rid int, the id of the record associated with the typed field.
      * @return \App\BaseField | null, some typed field or null if the typed field does not exist.
      */
@@ -143,12 +145,13 @@ class Field extends Model {
                 return ComboListField::where("flid", "=", $this->flid)->where("rid", "=", $rid)->first();
                 break;
 
-            // TODO: Associator.
+            case Field::_ASSOCIATOR:
+                return AssociatorField::where("flid", "=", $this->flid)->where("rid", "=", $rid)->first();
+                break;
 
-            default: // Error occurred.
-                return null;
+            default:
+                throw new \Exception("Invalid field type in field::getTypedField.");
         }
-        // Hopefully this will solve something.
     }
 
     /**
@@ -302,9 +305,6 @@ class Field extends Model {
                 break;
 
             case Field::_COMBO_LIST:
-                //
-                // TODO: Update with support fields.
-                //
                 return DB::table("combo_support")
                     ->select("rid")
                     ->where("fid", "=", $this->fid)

@@ -23,6 +23,37 @@ class PlaylistField extends FileTypeField  {
     }
 
     /**
+     * @param null $field
+     * @return string
+     */
+    public function getRevisionData($field = null) {
+        return $this->audio;
+    }
+
+    /**
+     * Rollback a playlist field based on a revision.
+     *
+     * ** Assumes $revision->data is json decoded. **
+     *
+     * @param Revision $revision
+     * @param Field $field
+     */
+    public static function rollback(Revision $revision, Field $field) {
+        $playlistfield = PlaylistField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+
+        // If the field doesn't exist or was explicitly deleted, we create a new one.
+        if ($revision->type == Revision::DELETE || is_null($playlistfield)) {
+            $playlistfield = new PlaylistField();
+            $playlistfield->flid = $field->flid;
+            $playlistfield->fid = $revision->fid;
+            $playlistfield->rid = $revision->rid;
+        }
+
+        $playlistfield->playlist = $revision->data[Field::_PLAYLIST][$field->flid];
+        $playlistfield->save();
+    }
+
+    /**
      * Build the advanced search query.
      *
      * @param $flid

@@ -6,7 +6,17 @@ class Revision extends Model {
 
     protected $fillable = ['id','fid','rid','userId','type','data','oldData','rollback'];
 
-    // TODO: add valid revision types and enum.
+    const EDIT = "edit";
+    const CREATE = "create";
+    const DELETE = "delete";
+    const ROLLBACK = "rollback";
+
+    static public $REVISION_TYPES = [
+        self::EDIT,
+        self::CREATE,
+        self::DELETE,
+        self::ROLLBACK
+    ];
 
     /**
      * Gets record associated with a revision.

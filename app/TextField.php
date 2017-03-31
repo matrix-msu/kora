@@ -13,20 +13,6 @@ class TextField extends BaseField {
     ];
 
     /**
-     * Keyword search for a text field. Depending on the value of partial we have two procedures:
-     *  True: find occurrences of any particular argument, including partial results.
-     *  False: find occurrences, matching the exact argument.
-     *
-     * @param array $args, Array of arguments for the search to use.
-     * @param bool $partial, True if partial values should be considered in the search.
-     * @return bool, True if the search parameters are satisfied.
-     */
-    public function keywordSearch(array $args, $partial)
-    {
-        return self::keywordRoutine($args, $partial, $this->text);
-    }
-
-    /**
      * Determines if to metadata is allowed to be called on the TextField.
      *
      * @return bool, true if to metadata can be called on the TextField.
@@ -43,6 +29,37 @@ class TextField extends BaseField {
      */
     public function toMetadata(Field $field) {
         return $this->text;
+    }
+
+    /**
+     * @param Field | null $field
+     * @return string
+     */
+    public function getRevisionData($field = null) {
+        return $this->text;
+    }
+
+    /**
+     * Rollback a text field based on a revision.
+     *
+     * ** Assumes $revision->data is json decoded. **
+     *
+     * @param Revision $revision
+     * @param Field $field
+     */
+    public static function rollback(Revision $revision, Field $field) {
+        $textfield = self::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+
+        // If the field doesn't exist or was explicitly deleted, we create a new one.
+        if ($revision->type == Revision::DELETE || is_null($textfield)) {
+            $textfield = new TextField();
+            $textfield->flid = $field->flid;
+            $textfield->rid = $revision->rid;
+            $textfield->fid = $revision->fid;
+        }
+
+        $textfield->text = $revision->data[Field::_TEXT][$field->flid];
+        $textfield->save();
     }
 
     /**

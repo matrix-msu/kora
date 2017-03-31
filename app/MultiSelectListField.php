@@ -56,6 +56,37 @@ class MultiSelectListField extends BaseField {
     }
 
     /**
+     * @param null $field
+     * @return string
+     */
+    public function getRevisionData($field = null) {
+        return $this->options;
+    }
+
+    /**
+     * Rollback a multiselect list field based on a revision.
+     *
+     * ** Assumes $revision->data is json decoded. **
+     *
+     * @param Revision $revision
+     * @param Field $field
+     */
+    public static function rollback(Revision $revision, Field $field) {
+        $mslfield = MultiSelectListField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+
+        // If the field doesn't exist or was explicitly deleted, we create a new one.
+        if ($revision->type != Revision::DELETE && !is_null($mslfield)) {
+            $mslfield = new MultiSelectListField();
+            $mslfield->flid = $field->flid;
+            $mslfield->rid = $revision->rid;
+            $mslfield->fid = $revision->fid;
+        }
+
+        $mslfield->options = $revision->data[Field::_MULTI_SELECT_LIST][$field->flid];
+        $mslfield->save();
+    }
+
+    /**
      * Build the advanced search query.
      * Advanced queries for MSL Fields accept any record that has at least one of the desired parameters.
      *
