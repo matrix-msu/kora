@@ -133,8 +133,22 @@ class RestfulController extends Controller
                             }
                             $keys = $query->keys;
                             $method = isset($query->method) ? $query->method : 'OR';
+                            switch($method){
+                                case 'OR':
+                                    $method = Search::SEARCH_OR;
+                                    break;
+                                case 'AND':
+                                    $method = Search::SEARCH_AND;
+                                    break;
+                                case 'EXACT':
+                                    $method = Search::SEARCH_EXACT;
+                                    break;
+                                default:
+                                    return "Illegal method, ".$method.", provided for keyword search for form: " . $form->name;
+                                    break;
+                            }
                             $search = new Search($form->pid, $form->fid, $keys, $method);
-                            $rids = $search->formKeywordSearch2();
+                            $rids = $search->formKeywordSearch();
                             $negative = isset($query->not) ? $query->not : false;
                             if($negative){
                                 $rids = $this->negative_results($form,$rids);
