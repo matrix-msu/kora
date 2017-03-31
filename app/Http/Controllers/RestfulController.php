@@ -323,7 +323,7 @@ class RestfulController extends Controller
                             if (!isset($query->kids)) {
                                 return "You must provide KIDs in a KID search for form: " . $form->name;
                             }
-                            $kids = explode(",", $query->kids);
+                            $kids = $query->kids;
                             $rids = array();
                             for ($i = 0; $i < sizeof($kids); $i++) {
                                 $rids[$i] = explode("-", $kids[$i])[2];
@@ -354,8 +354,7 @@ class RestfulController extends Controller
                 }
                 //sort
                 if(!is_null($filters['sort'])){
-                    $sortArray = explode(',',$filters['sort']);
-                    $returnRIDS = $this->sort_rids($returnRIDS,$sortArray);
+                    $returnRIDS = $this->sort_rids($returnRIDS,$filters['sort']);
                     if(!$returnRIDS)
                         return "Illegal field type or invalid field provided for sort in form: " . $form->name;
                 }
