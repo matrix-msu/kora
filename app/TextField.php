@@ -42,13 +42,16 @@ class TextField extends BaseField {
     /**
      * Rollback a text field based on a revision.
      *
-     * ** Assumes $revision->data is json decoded. **
-     *
      * @param Revision $revision
      * @param Field $field
+     * @return TextField
      */
     public static function rollback(Revision $revision, Field $field) {
         $textfield = self::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+
+        if (!is_array($revision->data)) {
+            $revision->data = json_decode($revision->data, true);
+        }
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($textfield)) {
@@ -60,6 +63,8 @@ class TextField extends BaseField {
 
         $textfield->text = $revision->data[Field::_TEXT][$field->flid];
         $textfield->save();
+
+        return $textfield;
     }
 
     /**

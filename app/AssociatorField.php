@@ -97,13 +97,16 @@ class AssociatorField extends BaseField {
     /**
      * Rollback a associator field based on a revision.
      *
-     * ** Assumes $revision->data is json decoded. **
-     *
      * @param Revision $revision
      * @param Field $field
+     * @return AssociatorField
      */
     public static function rollback(Revision $revision, Field $field) {
         $associatorfield = AssociatorField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+
+        if (!is_array($revision->data)) {
+            $revision->data = json_decode($revision->data, true);
+        }
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($associatorfield)) {
@@ -115,6 +118,8 @@ class AssociatorField extends BaseField {
 
         $associatorfield->records = $revision->data[Field::_ASSOCIATOR][$field->flid];
         $associatorfield->save();
+
+        return $associatorfield;
     }
 
     public function isMetafiable() {

@@ -1,9 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use App\ScheduleField;
 use App\Field;
 use App\Search;
+use App\Revision;
+use App\ScheduleField;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\RevisionController;
 
 /**
  * Class ScheduleFieldTest
@@ -328,5 +330,39 @@ class ScheduleFieldTest extends TestCase
 
         $events4 = $s4->events()->get();
         $this->assertEquals(sizeof($events4), 0);
+    }
+
+    public function test_rollback() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_SCHEDULE, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $old = ["Chance: 11/15/2016 - 11/15/2016",
+            "The Rapper: 11/16/2016 - 11/16/2016",
+            "Crust: 11/17/2016 - 11/17/2016"];
+
+        $sched = new ScheduleField();
+        $sched->fid = $field->fid;
+        $sched->rid = $record->rid;
+        $sched->flid = $field->flid;
+        $sched->save();
+
+        $sched->addEvents($old);
+
+        $revision = RevisionController::storeRevision($record->rid, Revision::CREATE);
+
+        $new = ["Star Wars: 11/15/2016 - 11/15/2016",
+            "Oblivion: 11/16/2016 - 11/16/2016",
+            "Crust: 11/17/2016 - 11/17/2016"];
+
+        $sched->updateEvents($new);
+
+        ScheduleField::rollback($revision, $field);
+
+        $events = ScheduleField::eventsToOldFormat($sched->events()->get());
+        foreach ($old as $event_str) {
+            $this->assertContains($event_str, $events);
+        }
     }
 }

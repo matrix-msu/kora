@@ -66,13 +66,16 @@ class MultiSelectListField extends BaseField {
     /**
      * Rollback a multiselect list field based on a revision.
      *
-     * ** Assumes $revision->data is json decoded. **
-     *
      * @param Revision $revision
      * @param Field $field
+     * @return MultiSelectListField
      */
     public static function rollback(Revision $revision, Field $field) {
         $mslfield = MultiSelectListField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+
+        if (!is_array($revision->data)) {
+            $revision->data = json_decode($revision->data, true);
+        }
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type != Revision::DELETE && !is_null($mslfield)) {
@@ -84,6 +87,8 @@ class MultiSelectListField extends BaseField {
 
         $mslfield->options = $revision->data[Field::_MULTI_SELECT_LIST][$field->flid];
         $mslfield->save();
+
+        return $mslfield;
     }
 
     /**

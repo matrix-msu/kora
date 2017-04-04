@@ -70,11 +70,16 @@ class GeneratedListField extends BaseField {
      *
      * @param Revision $revision
      * @param Field $field
+     * @return GeneratedListField
      */
     public static function rollback(Revision $revision, Field $field) {
         $genfield = GeneratedListField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
 
-        // // If the field doesn't exist or was explicitly deleted, we create a new one.
+        if (!is_array($revision->data)) {
+            $revision->data = json_decode($revision->data, true);
+        }
+
+        // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($genfield)) {
             $genfield = new GeneratedListField();
             $genfield->flid = $field->flid;
@@ -84,6 +89,8 @@ class GeneratedListField extends BaseField {
 
         $genfield->options = $revision->data[Field::_GENERATED_LIST][$field->flid];
         $genfield->save();
+
+        return $genfield;
     }
 
     /**

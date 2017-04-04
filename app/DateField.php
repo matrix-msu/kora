@@ -288,9 +288,14 @@ class DateField extends BaseField {
      *
      * @param Revision $revision
      * @param Field $field
+     * @return DateField
      */
     public static function rollback(Revision $revision, Field $field) {
         $datefield = DateField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+
+        if (!is_array($revision->data)) {
+            $revision->data = json_decode($revision->data, true);
+        }
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($datefield)) {
@@ -306,6 +311,8 @@ class DateField extends BaseField {
         $datefield->year = $revision->data[Field::_DATE][$field->flid]['year'];
         $datefield->era = $revision->data[Field::_DATE][$field->flid]['era'];
         $datefield->save();
+
+        return $datefield;
     }
 
     /**

@@ -21,7 +21,6 @@ class ProjectTest extends TestCase
 
         $token = new App\Token();
         $token->token = \App\Http\Controllers\TokenController::tokenGen();
-        $token->type = "Type";
         $token->save();
         $token->projects()->attach($project->pid);
 

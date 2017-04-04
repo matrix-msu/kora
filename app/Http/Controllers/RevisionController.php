@@ -183,7 +183,7 @@ class RevisionController extends Controller {
     public static function rollback_routine(Record $record, Form $form, Revision $revision, $is_rollback)
     {
         // Since we'll be passing around the revision object, we decode its data now.
-        // This won't be saved and is just done for efficiency.
+        // This won't be saved and is done for efficiency.
         $revision->data = json_decode($revision->data, true);
 
         if($is_rollback) {

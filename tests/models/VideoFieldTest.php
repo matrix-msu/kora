@@ -2,6 +2,8 @@
 
 use App\VideoField;
 use App\Field;
+use App\Revision;
+use App\Http\Controllers\RevisionController;
 
 /**
  * Class VideoFieldTest
@@ -13,6 +15,9 @@ class VideoFieldTest extends TestCase
 [Name]blueimage.jpg[Name][Size]3478[Size][Type]text/csv[Type][Name]whalenia%40msu.edu.csv[Name][Size]3478[Size][Type]text/csv[Type][!][Name]Proj_Layout_2016-02-18 18-08-58.xml[Name][Size]87[Size][Type]application/xml[Type][!][Name]postmessageRelay.html[Name][Size]4087[Size][Type]text/html[Type]
 TEXT;
 
+    const OTHER_FILEINFO = <<<TEXT
+[Name]redimage.jpg[Name][Size]3478[Size][Type]text/csv[Type][Name]whalenia%40msu.edu.csv[Name][Size]3478[Size][Type]text/csv[Type][!][Name]some_fine_xml.xml[Name][Size]87[Size][Type]application/xml[Type][!][Name]premessageRelay.html[Name][Size]4087[Size][Type]text/html[Type]
+TEXT;
 
     public function test_getAdvancedSearchQuery() {
         $project = self::dummyProject();
@@ -55,5 +60,26 @@ TEXT;
 
         $rid = $query->first()->rid;
         $this->assertEquals($record->rid, $rid);
+    }
+
+    public function test_rollback() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_VIDEO, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $video_field = new VideoField();
+        $video_field->rid = $record->rid;
+        $video_field->flid = $field->flid;
+        $video_field->video = self::FILEINFO;
+        $video_field->save();
+
+        $revision = RevisionController::storeRevision($record->rid, Revision::CREATE);
+
+        $video_field->video = self::OTHER_FILEINFO;
+        $video_field->save();
+
+        $video_field = VideoField::rollback($revision, $field);
+        $this->assertEquals(self::FILEINFO, $video_field->video);
     }
 }

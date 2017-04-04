@@ -1,7 +1,9 @@
 <?php
 
 use App\Field;
-use App\GeneratedListField as GeneratedListField;
+use App\Revision;
+use App\GeneratedListField;
+use App\Http\Controllers\RevisionController;
 
 /**
  * Class GeneratedListFieldTest
@@ -58,5 +60,30 @@ class GeneratedListFieldTest extends TestCase
         $query = GeneratedListField::getAdvancedSearchQuery($field->flid, $dummy_query)->get();
 
         $this->assertEmpty($query);
+    }
+
+    public function test_rollback() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_GENERATED_LIST, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $old = "apple[!]banana[!]pear[!]peach";
+
+        $list_field = new GeneratedListField();
+        $list_field->rid = $record->rid;
+        $list_field->flid = $field->flid;
+        $list_field->options = $old;
+        $list_field->save();
+
+        $revision = RevisionController::storeRevision($record->rid, Revision::CREATE);
+
+        $new = "pineapple[!]blueberry[!]blackberry";
+
+        $list_field->options = $new;
+        $list_field->save();
+
+        $list_field = GeneratedListField::rollback($revision, $field);
+        $this->assertEquals($old, $list_field->options);
     }
 }

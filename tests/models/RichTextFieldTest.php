@@ -1,7 +1,9 @@
 <?php
 
 use App\Field;
-use App\RichTextField as RichTextField;
+use App\Revision;
+use App\RichTextField;
+use App\Http\Controllers\RevisionController;
 
 /**
  * Class RichTextFieldTest
@@ -64,5 +66,26 @@ TEXT;
         $rid = $query->first()->rid;
 
         $this->assertEquals($rid, $record->rid);
+    }
+
+    public function test_rollback() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_RICH_TEXT, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $rich_field = new RichTextField();
+        $rich_field->rid = $record->rid;
+        $rich_field->flid = $field->flid;
+        $rich_field->rawtext = self::SIMPLE_RICH;
+        $rich_field->save();
+
+        $revision = RevisionController::storeRevision($record->rid, Revision::CREATE);
+
+        $rich_field->rawtext = self::COMPLEX_RICH;
+        $rich_field->save();
+
+        $rich_field = RichTextField::rollback($revision, $field);
+        $this->assertEquals($rich_field->rawtext, self::SIMPLE_RICH);
     }
 }

@@ -89,6 +89,7 @@ TEXT;
         $text_field = new App\TextField();
         $text_field->rid = $record->rid;
         $text_field->flid = $field->flid;
+        $text_field->fid = $form->fid;
         $text_field->text = $old_text;
         $text_field->save();
 
@@ -98,7 +99,7 @@ TEXT;
         $text_field->text = $new_text;
         $text_field->save();
 
-        TextField::rollback($revision, $field);
+        $text_field = TextField::rollback($revision, $field);
         $this->assertEquals($text_field->text, $old_text);
     }
 }

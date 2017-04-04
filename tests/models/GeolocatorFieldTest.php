@@ -1,8 +1,10 @@
 <?php
-use App\GeolocatorField;
-use App\Field;
 use App\Search;
+use App\Field;
+use App\Revision;
+use App\GeolocatorField;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\RevisionController;
 
 /**
  * Class GeolocatorFieldTest
@@ -354,5 +356,41 @@ TEXT;
         $query = $geo1->getAdvancedSearchQuery($geo1->flid, $dummy_query);
 
         $this->assertEmpty($query->get());
+    }
+
+    public function test_rollback() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_GEOLOCATOR, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $old = [
+            "[Desc]afsdaf[Desc][LatLon]11,11[LatLon][UTM]32P:718529.113,1216707.409[UTM][Address]Caloocan[Address]",
+            "[Desc]jangus[Desc][LatLon]-11.445678,45.12345[LatLon][UTM]38L:513465.497,8734738.133[UTM][Address][Address]"
+        ];
+
+        $geo = new GeolocatorField();
+        $geo->fid = $field->fid;
+        $geo->rid = $record->rid;
+        $geo->flid = $field->flid;
+        $geo->save();
+
+        $geo->addLocations($old);
+
+        $revision = RevisionController::storeRevision($record->rid, Revision::CREATE);
+
+        $new = [
+            "[Desc]Bikini Bottom[Desc][LatLon]11,11[LatLon][UTM]32P:718529.11253281,1216707.4085526[UTM][Address]Caloocan[Address]",
+            "[Desc]The Krusty Krab[Desc][LatLon]-11.445678,45.12345[LatLon][UTM]38L:513465.49707984,8734738.1327539[UTM][Address]   [Address]"
+        ];
+
+        $geo->updateLocations($new);
+
+        GeolocatorField::rollback($revision, $field);
+
+        $locations = GeolocatorField::locationsToOldFormat($geo->locations()->get());
+        foreach($old as $location_str) {
+            $this->assertContains($location_str, $locations);
+        }
     }
 }
