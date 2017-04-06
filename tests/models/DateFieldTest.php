@@ -1,7 +1,9 @@
 <?php
 
-use App\DateField as DateField;
 use App\Field;
+use App\Revision;
+use App\DateField;
+use App\Http\Controllers\RevisionController;
 
 /**
  * Class DateFieldTest
@@ -271,5 +273,41 @@ TEXT;
         $query = DateField::getAdvancedSearchQuery($field->flid, $dummy_query)->get();
 
         $this->assertEmpty($query);
+    }
+
+    public function test_rollback() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_DATE, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $field->options = "[!Format!]MM/DD/YYYY[!Format!][!Circa!]Yes[!Circa!][!Era!]Yes[!Era!]";
+        $field->save();
+
+        $date = new DateField();
+        $date->rid = $record->rid;
+        $date->flid = $field->flid;
+        $date->day = 25;
+        $date->month = 1;
+        $date->year = 1995;
+        $date->era = "CE";
+        $date->circa = 1; // Circa doesn't actually matter for advanced search.
+        $date->save();
+
+        $revision = RevisionController::storeRevision($record->rid, Revision::CREATE);
+
+        $date->day = 2;
+        $date->month = 2;
+        $date->year = 2017;
+        $date->era = "BCE";
+        $date->circa = 0; // Circa doesn't actually matter for advanced search.
+        $date->save();
+
+        $date = DateField::rollback($revision, $field);
+        $this->assertEquals(25, $date->day);
+        $this->assertEquals(1, $date->month);
+        $this->assertEquals(1995, $date->year);
+        $this->assertEquals("CE", $date->era);
+        $this->assertEquals(1, $date->circa);
     }
 }

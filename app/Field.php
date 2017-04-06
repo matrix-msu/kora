@@ -150,7 +150,7 @@ class Field extends Model {
                 break;
 
             default:
-                throw new \Exception("Invalid field type in field::getTypedField.");
+                throw new \Exception("Invalid field type in Field::getTypedField.");
         }
     }
 

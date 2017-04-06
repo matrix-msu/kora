@@ -1,7 +1,9 @@
 <?php
 
 use App\Field;
-use App\NumberField as NumberField;
+use App\Http\Controllers\RevisionController;
+use App\NumberField;
+use App\Revision;
 
 /**
  * Class NumberFieldTest
@@ -129,5 +131,33 @@ class NumberFieldTest extends TestCase
         $query = NumberField::getAdvancedSearchQuery($field->flid, $dummy_query)->get();
 
         $this->assertEmpty($query);
+    }
+
+    public function test_rollback() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_NUMBER, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $field->options = "[!Unit!]m[!Unit]";
+        $field->save();
+
+        $old = M_PI;
+
+        $number_field = new NumberField();
+        $number_field->rid = $record->rid;
+        $number_field->flid = $field->flid;
+        $number_field->number = $old;
+        $number_field->save();
+
+        $revision = RevisionController::storeRevision($record->rid, Revision::CREATE);
+
+        $new = M_E;
+
+        $number_field->number = $new;
+        $number_field->save();
+
+        $number_field = NumberField::rollback($revision, $field);
+        $this->assertEquals($old, $number_field->number);
     }
 }

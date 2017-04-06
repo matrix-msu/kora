@@ -33,13 +33,16 @@ class ModelField extends FileTypeField  {
     /**
      * Rollback a model field based on a revision.
      *
-     * ** Assumes $revision->data is json decoded. **
-     *
      * @param Revision $revision
      * @param Field $field
+     * @return ModelField
      */
     public static function rollback(Revision $revision, Field $field) {
-        $modelfield = DocumentsField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+        $modelfield = ModelField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+
+        if (!is_array($revision->data)) {
+            $revision->data = json_decode($revision->data, true);
+        }
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($modelfield)) {
@@ -51,6 +54,8 @@ class ModelField extends FileTypeField  {
 
         $modelfield->model = $revision->data[Field::_3D_MODEL][$field->flid];
         $modelfield->save();
+
+        return $modelfield;
     }
 
     /**

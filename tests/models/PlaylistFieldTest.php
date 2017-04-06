@@ -2,6 +2,8 @@
 
 use App\PlaylistField;
 use App\Field;
+use App\Revision;
+use App\Http\Controllers\RevisionController;
 
 /**
  * Class PlaylistFieldTest
@@ -11,6 +13,10 @@ class PlaylistFieldTest extends TestCase
 {
     const FILEINFO = <<<TEXT
 [Name]blueimage.jpg[Name][Size]3478[Size][Type]text/csv[Type][Name]whalenia%40msu.edu.csv[Name][Size]3478[Size][Type]text/csv[Type][!][Name]Proj_Layout_2016-02-18 18-08-58.xml[Name][Size]87[Size][Type]application/xml[Type][!][Name]postmessageRelay.html[Name][Size]4087[Size][Type]text/html[Type]
+TEXT;
+
+    const OTHER_FILEINFO = <<<TEXT
+[Name]redimage.jpg[Name][Size]3478[Size][Type]text/csv[Type][Name]whalenia%40msu.edu.csv[Name][Size]3478[Size][Type]text/csv[Type][!][Name]some_fine_xml.xml[Name][Size]87[Size][Type]application/xml[Type][!][Name]premessageRelay.html[Name][Size]4087[Size][Type]text/html[Type]
 TEXT;
 
 
@@ -55,5 +61,27 @@ TEXT;
 
         $rid = $query->first()->rid;
         $this->assertEquals($record->rid, $rid);
+    }
+
+    public function test_rollback() {
+        $project = self::dummyProject();
+        $form = self::dummyForm($project->pid);
+        $field = self::dummyField(Field::_PLAYLIST, $project->pid, $form->fid);
+        $record = self::dummyRecord($project->pid, $form->fid);
+
+        $play_field = new PlaylistField();
+        $play_field->rid = $record->rid;
+        $play_field->flid = $field->flid;
+        $play_field->audio = self::FILEINFO;
+        $play_field->save();
+
+        $revision = RevisionController::storeRevision($record->rid, Revision::CREATE);
+
+        $play_field->audio = self::OTHER_FILEINFO;
+        $play_field->save();
+
+        $play_field = PlaylistField::rollback($revision, $field);
+
+        $this->assertEquals(self::FILEINFO, $play_field->audio);
     }
 }

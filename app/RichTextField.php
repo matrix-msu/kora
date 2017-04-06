@@ -57,13 +57,16 @@ class RichTextField extends BaseField {
     /**
      * Rollback a rich text field based on a revision.
      *
-     * ** Assumes $revision->data is json decoded. **
-     *
      * @param Revision $revision
      * @param Field $field
+     * @return RichTextField
      */
     public static function rollback(Revision $revision, Field $field) {
         $richtextfield = RichTextField::where('flid', '=', $field->flid)->where('rid', '=', $revision->rid)->first();
+
+        if (!is_array($revision->data)) {
+            $revision->data = json_decode($revision->data, true);
+        }
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($richtextfield)) {
@@ -75,6 +78,8 @@ class RichTextField extends BaseField {
 
         $richtextfield->rawtext = $revision->data[Field::_RICH_TEXT][$field->flid];
         $richtextfield->save();
+
+        return $richtextfield;
     }
 
     /**

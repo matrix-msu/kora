@@ -33,13 +33,16 @@ class VideoField extends FileTypeField {
     /**
      * Rollback a video field based on a revision.
      *
-     * ** Assumes $revision->data is json decoded. **
-     *
      * @param Revision $revision
      * @param Field $field
+     * @return VideoField
      */
     public static function rollback(Revision $revision, Field $field) {
         $videofield = VideoField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+
+        if (!is_array($revision->data)) {
+            $revision->data = json_decode($revision->data, true);
+        }
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($videofield)) {
@@ -51,6 +54,8 @@ class VideoField extends FileTypeField {
 
         $videofield->video = $revision->data[Field::_VIDEO][$field->flid];
         $videofield->save();
+
+        return $videofield;
     }
 
     /**

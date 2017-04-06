@@ -54,13 +54,16 @@ class NumberField extends BaseField {
     /**
      * Rollback a number field based on a revision.
      *
-     * ** Assumes $revision->data is json decoded. **
-     *
      * @param Revision $revision
      * @param Field $field
+     * @return NumberField
      */
     public static function rollback(Revision $revision, Field $field) {
         $numberfield = NumberField::where('flid', '=', $field->flid)->where('rid', '=', $revision->rid)->first();
+
+        if (!is_array($revision->data)) {
+            $revision->data = json_decode($revision->data, true);
+        }
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type != Revision::DELETE && !is_null($numberfield)) {
@@ -72,6 +75,8 @@ class NumberField extends BaseField {
 
         $numberfield->number = $revision->data[Field::_NUMBER][$field->flid]['number'];
         $numberfield->save();
+
+        return $numberfield;
     }
 
     /**

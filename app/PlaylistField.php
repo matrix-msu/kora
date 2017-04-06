@@ -33,13 +33,16 @@ class PlaylistField extends FileTypeField  {
     /**
      * Rollback a playlist field based on a revision.
      *
-     * ** Assumes $revision->data is json decoded. **
-     *
      * @param Revision $revision
      * @param Field $field
+     * @return PlaylistField
      */
     public static function rollback(Revision $revision, Field $field) {
         $playlistfield = PlaylistField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+
+        if (!is_array($revision->data)) {
+            $revision->data = json_decode($revision->data, true);
+        }
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($playlistfield)) {
@@ -49,8 +52,10 @@ class PlaylistField extends FileTypeField  {
             $playlistfield->rid = $revision->rid;
         }
 
-        $playlistfield->playlist = $revision->data[Field::_PLAYLIST][$field->flid];
+        $playlistfield->audio = $revision->data[Field::_PLAYLIST][$field->flid];
         $playlistfield->save();
+
+        return $playlistfield;
     }
 
     /**

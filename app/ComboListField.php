@@ -214,13 +214,16 @@ class ComboListField extends BaseField {
     /**
      * Rollback a combo list field based on a revision.
      *
-     * ** Assumes $revision->data is json decoded. **
-     *
      * @param Revision $revision
      * @param Field $field
+     * @return ComboListField
      */
     public static function rollback(Revision $revision, Field $field) {
         $combolistfield = ComboListField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+
+        if (!is_array($revision->data)) {
+            $revision->data = json_decode($revision->data, true);
+        }
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($combolistfield)) {
@@ -236,6 +239,8 @@ class ComboListField extends BaseField {
         $type_2 = ComboListField::getComboFieldName($field, "two");
 
         $combolistfield->updateData($revision->data[Field::_COMBO_LIST][$field->flid], $type_1, $type_2);
+
+        return $combolistfield;
     }
 
     /**
