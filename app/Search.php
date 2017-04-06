@@ -63,14 +63,17 @@ class Search
      *
      * @return array, array of rids satisfying search parameters.
      */
-    public function formKeywordSearch() {
+    public function formKeywordSearch($flids=null) {
         if ($this->arg == "") {
             return [];
         }
 
         $used_types = []; // Array to keep track of types of fields we have searched already.
 
-        $fields = Field::where("fid", "=", $this->fid)->get();
+        if(is_null($flids))
+            $fields = Field::where("fid", "=", $this->fid)->get();
+        else
+            $fields = Field::where("flid", "IN", $flids)->get();
         $rids = [];
 
         $processed = Search::processArgument($this->arg, $this->method);

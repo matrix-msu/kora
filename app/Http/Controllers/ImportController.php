@@ -1469,7 +1469,8 @@ class ImportController extends Controller {
             }
 
             //clean tmp folder
-            rmdir($zipDir);
+            if(file_exists($zipDir))
+                rmdir($zipDir);
         }
 
         flash()->overlay(trans('controller_form.create'),trans('controller_form.goodjob'));

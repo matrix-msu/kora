@@ -95,6 +95,7 @@ class RestfulController extends Controller
         }
         //now we actually do searches per form
         foreach($forms as $f){
+            //TODO: Implement index/count variables, then add to koraSearch
             //initialize form
             $form = FormController::getForm($f->form);
             //things we will be returning
