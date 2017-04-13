@@ -1,0 +1,1 @@
+@include('revisions.displays.multi-select list', ['data' => $data])

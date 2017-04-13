@@ -232,7 +232,7 @@ class Field extends Model {
                 // Boolean to decide if we should consider era.
                 $era = explode("[!Era!]", $this->options)[1] == "On";
 
-                return DateField::buildQuery2($arg, $circa, $era, $this->fid);
+                return DateField::buildQuery($arg, $circa, $era, $this->fid);
                 break;
 
             case Field::_SCHEDULE:

@@ -38,11 +38,15 @@ class ModelField extends FileTypeField  {
      * @return ModelField
      */
     public static function rollback(Revision $revision, Field $field) {
-        $modelfield = ModelField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
-
         if (!is_array($revision->data)) {
             $revision->data = json_decode($revision->data, true);
         }
+
+        if (is_null($revision->data[Field::_3D_MODEL][$field->flid]['data'])) {
+            return null;
+        }
+
+        $modelfield = ModelField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($modelfield)) {
@@ -52,7 +56,7 @@ class ModelField extends FileTypeField  {
             $modelfield->rid = $revision->rid;
         }
 
-        $modelfield->model = $revision->data[Field::_3D_MODEL][$field->flid];
+        $modelfield->model = $revision->data[Field::_3D_MODEL][$field->flid]['data'];
         $modelfield->save();
 
         return $modelfield;

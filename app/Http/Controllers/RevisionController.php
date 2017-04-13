@@ -182,15 +182,15 @@ class RevisionController extends Controller {
      */
     public static function rollback_routine(Record $record, Form $form, Revision $revision, $is_rollback)
     {
-        // Since we'll be passing around the revision object, we decode its data now.
-        // This won't be saved and is done for efficiency.
-        $revision->data = json_decode($revision->data, true);
-
         if($is_rollback) {
             $new_revision = RevisionController::storeRevision($record->rid, Revision::ROLLBACK);
             $new_revision->oldData = $revision->data;
             $new_revision->save();
         }
+
+        // Since we'll be passing around the revision object, we decode its data now.
+        // This won't be saved and is done for efficiency.
+        $revision->data = json_decode($revision->data, true);
 
         foreach($form->fields()->get() as $field) {
             switch($field->type) {
@@ -308,10 +308,10 @@ class RevisionController extends Controller {
 
             $data[$field->type][$field->flid]['name'] = $field->name;
             if (is_null($typed_field)) {
-                $data[$field->type][$field->flid] = null;
+                $data[$field->type][$field->flid]['data'] = null;
             }
             else {
-                $data[$field->type][$field->flid] = $typed_field->getRevisionData($field);
+                $data[$field->type][$field->flid]['data'] = $typed_field->getRevisionData($field);
             }
         }
 

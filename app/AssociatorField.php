@@ -102,11 +102,15 @@ class AssociatorField extends BaseField {
      * @return AssociatorField
      */
     public static function rollback(Revision $revision, Field $field) {
-        $associatorfield = AssociatorField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
-
         if (!is_array($revision->data)) {
             $revision->data = json_decode($revision->data, true);
         }
+
+        if (is_null($revision->data[Field::_ASSOCIATOR][$field->flid]['data'])) {
+            return null;
+        }
+
+        $associatorfield = AssociatorField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($associatorfield)) {
@@ -116,7 +120,7 @@ class AssociatorField extends BaseField {
             $associatorfield->rid = $revision->rid;
         }
 
-        $associatorfield->records = $revision->data[Field::_ASSOCIATOR][$field->flid];
+        $associatorfield->records = $revision->data[Field::_ASSOCIATOR][$field->flid]['data'];
         $associatorfield->save();
 
         return $associatorfield;
