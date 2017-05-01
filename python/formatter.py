@@ -708,12 +708,30 @@ def geolocator_to_META(row, field_options = ""):
     return locations_xml
 
 def associator_to_JSONable(row, field_options = ""):
-    ## TODO: Figure out if associator is even a thing.
-    return {}
+    """
+    :param row:
+    :param field_options:
+    :return:
+    """
+    records = []
+
+    for result in Cursor.get_support_fields(Table.AssociatorSupport, row['rid'], row['flid']):
+        records.append(str(result['record']))
+
+    return { "records": records }
 
 def associator_to_XML(row, field_options = ""):
-    ## TODO: Figure out if associator is even a thing.
-    return ""
+    """
+    :param row:
+    :param field_options:
+    :return:
+    """
+    assoc_xml = ""
+
+    for result in Cursor.get_support_fields(Table.AssociatorSupport, row['rid'], row['flid']):
+        assoc_xml += "<Record>"+escape(str(result['record']))+"</Record>"
+
+    return assoc_xml
 
 def associator_to_META(row, field_options = ""):
     ## TODO: Figure out if associator is even a thing.

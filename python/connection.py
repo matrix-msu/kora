@@ -268,7 +268,7 @@ class Cursor:
 
         cursor = self._cnx.cursor()
 
-        stmt = "SELECT `flid`, `rid`, " + get_data_names(table) + " FROM " + self._prefix + table + " WHERE `rid` = %s"
+        stmt = "SELECT `flid`, `rid`" + get_data_names(table) + " FROM " + self._prefix + table + " WHERE `rid` = %s"
 
         cursor.execute(stmt, [rid])
 
@@ -291,7 +291,7 @@ class Cursor:
 
         cursor = self._cnx.cursor()
 
-        stmt = "SELECT data.`flid`, data.`rid`, meta.`name`, " + get_data_names(table) + " FROM " + self._prefix + table + " data LEFT JOIN " + self._prefix + "metadatas meta ON data.`flid` = meta.`flid` WHERE data.`rid` = %s and meta.`primary`=0"
+        stmt = "SELECT data.`flid`, data.`rid`, meta.`name`" + get_data_names(table) + " FROM " + self._prefix + table + " data LEFT JOIN " + self._prefix + "metadatas meta ON data.`flid` = meta.`flid` WHERE data.`rid` = %s and meta.`primary`=0"
 
         cursor.execute(stmt, [rid])
 
@@ -361,6 +361,10 @@ class Cursor:
         elif support_type == Table.GeolocatorSupport:
             stmt = "SELECT `desc`, `lat`, `lon`, `zone`, `easting`, `northing`, `address` " \
             + "FROM " + env("DB_PREFIX") + Table.GeolocatorSupport + " WHERE `rid` = %s AND `flid` = %s"
+
+        elif support_type == Table.AssociatorSupport:
+            stmt = "SELECT `record` " \
+            + "FROM " + env("DB_PREFIX") + Table.AssociatorSupport + " WHERE `rid` = %s AND `flid` = %s"
 
         else: # Combo Support
             stmt = "SELECT `list_index`, `field_num`, `data`, `number` " \

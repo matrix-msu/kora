@@ -45,6 +45,7 @@ class Table:
     PluginMenus = "plugin_menus"
     ScheduleSupport = "schedule_support"
     GeolocatorSupport = "geolocator_support"
+    AssociatorSupport = "associator_support"
     ComboSupport = "combo_support"
 
 class BaseFieldTypes:
@@ -89,22 +90,22 @@ def get_data_names(table):
     """
 
     return {
-        BaseFieldTypes.ComboListField: "`options`", # TODO: Change to "" when removed from DB.
-        BaseFieldTypes.DateField: "`circa`, `month`, `day`, `year`, `era`, `date_object`",
-        BaseFieldTypes.DocumentsField: "`documents`",
-        BaseFieldTypes.GalleryField: "`images`",
-        BaseFieldTypes.GeneratedListField: "`options`", # TODO: Change to "" when removed from DB.
-        BaseFieldTypes.GeolocatorField: "`locations`", # TODO: Change to "" when removed from DB.
-        BaseFieldTypes.ListField: "`option`",
-        BaseFieldTypes.ModelField: "`model`",
-        BaseFieldTypes.MultiSelectListField: "`options`",
-        BaseFieldTypes.NumberField: "`number`",
-        BaseFieldTypes.PlaylistField: "`audio`",
-        BaseFieldTypes.RichTextField: "`rawtext`",
-        BaseFieldTypes.ScheduleField: "`events`",
-        BaseFieldTypes.TextField: "`text`",
-        BaseFieldTypes.VideoField: "`video`",
-        BaseFieldTypes.AssociatorField: "`records`"
+        BaseFieldTypes.ComboListField: "",
+        BaseFieldTypes.DateField: ", `circa`, `month`, `day`, `year`, `era`, `date_object`",
+        BaseFieldTypes.DocumentsField: ", `documents`",
+        BaseFieldTypes.GalleryField: ", `images`",
+        BaseFieldTypes.GeneratedListField: "",
+        BaseFieldTypes.GeolocatorField: "",
+        BaseFieldTypes.ListField: ", `option`",
+        BaseFieldTypes.ModelField: ", `model`",
+        BaseFieldTypes.MultiSelectListField: ", `options`",
+        BaseFieldTypes.NumberField: ", `number`",
+        BaseFieldTypes.PlaylistField: ", `audio`",
+        BaseFieldTypes.RichTextField: ", `rawtext`",
+        BaseFieldTypes.ScheduleField: ", `events`",
+        BaseFieldTypes.TextField: ", `text`",
+        BaseFieldTypes.VideoField: ", `video`",
+        BaseFieldTypes.AssociatorField: ""
     }[table]
 
 def get_all_tables():
