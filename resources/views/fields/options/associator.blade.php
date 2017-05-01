@@ -26,6 +26,34 @@
         {!! Form::label('required',trans('fields_options_associator.req').': ') !!}
         {!! Form::select('required',['false', 'true'], $field->required, ['class' => 'form-control']) !!}
     </div>
+
+    <div class="form-group">
+        {!! Form::label('searchable',trans('fields_options_associator.search').': ') !!}
+        {!! Form::select('searchable',['false', 'true'], $field->searchable, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
+        {!! Form::label('extsearch',trans('fields_options_associator.extsearch').': ') !!}
+        {!! Form::select('extsearch',['false', 'true'], $field->extsearch, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
+        {!! Form::label('viewable',trans('fields_options_associator.viewable').': ') !!}
+        {!! Form::select('viewable',['false', 'true'], $field->viewable, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
+        {!! Form::label('viewresults',trans('fields_options_associator.viewresults').': ') !!}
+        {!! Form::select('viewresults',['false', 'true'], $field->viewresults, ['class' => 'form-control']) !!}
+    </div>
+
+    <div class="form-group">
+        {!! Form::label('extview',trans('fields_options_associator.extview').': ') !!}
+        {!! Form::select('extview',['false', 'true'], $field->extview, ['class' => 'form-control']) !!}
+    </div>
+
+    <hr>
+
     <div class="form-group default_div">
         {!! Form::label('default',trans('fields_options_associator.def').': ') !!}
         <input type="text" id="assocSearch" class="form-control" placeholder="Enter search term to find records..."/>
@@ -107,7 +135,6 @@
                     },
                     success: function (result) {
                         console.log(result);
-                        //var records = {'1-1-1': 'Test','1-1-2': 'Test','1-1-3': 'Test','1-1-4': 'Test','1-1-5': 'Test','1-1-6': 'Test','1-1-7': 'Test','1-1-8': 'Test','1-1-9': 'Test','1-1-10': 'Test','1-1-11': 'Test'};
                         var records = result;
                         var html = '';
 

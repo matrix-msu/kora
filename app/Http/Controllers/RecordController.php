@@ -432,15 +432,12 @@ class RecordController extends Controller {
                     $mf->model = $infoString;
                     $mf->save();
                 } else if ($field->type == 'Associator') {
-
-                    // TODO: Review this (associator).
-
                     $af = new AssociatorField();
                     $af->flid = $field->flid;
                     $af->rid = $record->rid;
                     $af->fid = $fid;
-                    $af->records = FieldController::listArrayToString($value);
                     $af->save();
+                    $af->addRecords($value);
                 }
             }
 
@@ -1233,17 +1230,22 @@ class RecordController extends Controller {
                 // TODO: Review this (associator).
 
                 //we need to check if the field exist first
-                if(AssociatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first() != null){
-                    $af = AssociatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
-                    $af->records = FieldController::listArrayToString($value);
-                    $af->save();
-                }else {
+                $af = AssociatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                if(!is_null($af) && !is_null($value)){
+                    $af->updateRecords($value);
+                }
+                elseif(!is_null($af) && is_null($value)){
+                    $af->delete();
+                    $af->deleteRecords();
+                }
+                elseif(is_null($af) && !is_null($value)) {
                     $af = new AssociatorField();
                     $af->flid = $field->flid;
                     $af->rid = $record->rid;
                     $af->fid = $record->fid;
-                    $af->records = FieldController::listArrayToString($value);
                     $af->save();
+
+                    $af->addRecords($value);
                 }
             }
         }

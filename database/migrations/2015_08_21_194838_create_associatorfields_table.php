@@ -21,12 +21,23 @@ class CreateAssociatorfieldsTable extends Migration {
 			$table->integer('rid')->unsigned();
 			$table->integer('flid')->unsigned();
 			$table->integer('fid')->unsigned();
-			$table->mediumText('records');
 			$table->timestamps();
 
 			$table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');
 			$table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
+
+        Schema::create('associator_support', function(Blueprint $table)
+        {
+            $table->engine = "MyISAM";
+
+            $table->increments('id');
+            $table->integer('fid')->unsigned();
+            $table->integer('rid')->unsigned();
+            $table->integer('flid')->unsigned();
+            $table->integer('record')->unsigned();
+            $table->timestamps();
+        });
 	}
 
 	/**
@@ -37,6 +48,7 @@ class CreateAssociatorfieldsTable extends Migration {
 	public function down()
 	{
 		Schema::drop('associator_fields');
+		Schema::drop('associator_support');
 	}
 
 }

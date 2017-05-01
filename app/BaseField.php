@@ -111,7 +111,7 @@ abstract class BaseField extends Model
         }
 
         // Delete support tables.
-        $support_tables = [ScheduleField::SUPPORT_NAME, GeolocatorField::SUPPORT_NAME, ComboListField::SUPPORT_NAME];
+        $support_tables = [ScheduleField::SUPPORT_NAME, GeolocatorField::SUPPORT_NAME, ComboListField::SUPPORT_NAME, AssociatorField::SUPPORT_NAME];
 
         foreach($support_tables as $support_table) {
             DB::table($support_table)->where("rid", "=", $rid)->delete();

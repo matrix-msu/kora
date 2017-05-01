@@ -4,9 +4,10 @@
             $options = array();
         }else{
             $options = array();
-            $values = explode('[!]',$associator->records);
+            $values = $associator->records()->get();
             foreach($values as $value){
-                $options[$value] = $value;
+                $aRec = \App\Http\Controllers\RecordController::getRecord($value->record);
+                $options[$aRec->kid] = $aRec->kid;
             }
         }
     ?>

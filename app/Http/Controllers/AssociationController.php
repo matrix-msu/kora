@@ -7,6 +7,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 class AssociationController extends Controller {
@@ -201,7 +202,10 @@ class AssociationController extends Controller {
     }
 
     public static function getAssociatedRecords($record){
-        $assoc = AssociatorField::where('records','LIKE','%'.$record->kid.'%')->get();
+        $assoc = DB::table(AssociatorField::SUPPORT_NAME)
+            ->select("rid")
+            ->distinct()
+            ->where('record','=',$record->rid)->get();
         $records = array();
         foreach($assoc as $af){
             $rid = $af->rid;

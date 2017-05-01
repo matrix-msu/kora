@@ -14,6 +14,7 @@ use App\Http\Controllers\AssociationController;
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\FormController;
 use App\ListField;
+use App\Record;
 use App\Search;
 use App\TextField;
 use Illuminate\Support\Facades\Session;
@@ -98,9 +99,14 @@ class AssociatorSearch
                 $args = array_diff($args, $ignored);
                 $arg = implode(" ", $args);
 
-                $search = new Search($pid, $fid, $arg, $method);
+                if($arg!="") {
+                    $search = new Search($pid, $fid, $arg, $method);
 
-                $rids = $search->formKeywordSearch();
+                    $rids = $search->formKeywordSearch();
+                }else{
+                    //If no search term given, return everything!!!!
+                    $rids = Record::where("fid","=",$fid)->lists('rid')->all();
+                }
 
                 sort($rids);
 
