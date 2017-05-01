@@ -16,6 +16,11 @@
         <b style="color:red;font-size:20px">*</b>
     @endif
     <input type="text" id="assocSearch{{$field->flid}}" class="form-control" placeholder="Enter search term to find records..."/>
+    <div style="display:none;" id="search_progress_{{$field->flid}}" class="progress">
+        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
+            {{trans('update_index.loading')}}
+        </div>
+    </div>
     <div id="assocPages{{$field->flid}}">
     </div>
     <div id="assocSearchResults{{$field->flid}}">
@@ -32,8 +37,16 @@
         if (keyCode === 13) {
             e.preventDefault();
 
+            var assocText = $('#assocSearch{{$field->flid}}');
+            var loadbar = $('#search_progress_{{$field->flid}}');
+
             //get value
-            var keyword = $('#assocSearch{{$field->flid}}').val();
+            var keyword = assocText.val();
+
+            //hide value and display loading
+            assocText.hide();
+            loadbar.show();
+
             //send it to ajax
             $.ajax({
                 url: "{{ action('FieldAjaxController@assocSearch',['pid' => $field->pid,'fid'=>$field->fid, 'flid'=>$field->flid]) }}",
@@ -43,7 +56,9 @@
                     "keyword": keyword
                 },
                 success: function (result) {
-                    console.log(result);
+                    assocText.show();
+                    loadbar.hide();
+
                     var records = result;
                     var html = '';
 

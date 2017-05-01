@@ -57,6 +57,11 @@
     <div class="form-group default_div">
         {!! Form::label('default',trans('fields_options_associator.def').': ') !!}
         <input type="text" id="assocSearch" class="form-control" placeholder="Enter search term to find records..."/>
+        <div style="display:none;" id="search_progress" class="progress">
+            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
+                {{trans('update_index.loading')}}
+            </div>
+        </div>
         <div id="assocPages">
         </div>
         <div id="assocSearchResults">
@@ -123,8 +128,16 @@
             if (keyCode === 13) {
                 e.preventDefault();
 
+                var assocText = $('#assocSearch');
+                var loadbar = $('#search_progress');
+
                 //get value
-                var keyword = $('#assocSearch').val();
+                var keyword = assocText.val();
+
+                //hide value and display loading
+                assocText.hide();
+                loadbar.show();
+
                 //send it to ajax
                 $.ajax({
                     url: "{{ action('FieldAjaxController@assocSearch',['pid' => $field->pid,'fid'=>$field->fid, 'flid'=>$field->flid]) }}",
@@ -134,7 +147,9 @@
                         "keyword": keyword
                     },
                     success: function (result) {
-                        console.log(result);
+                        assocText.show();
+                        loadbar.hide();
+
                         var records = result;
                         var html = '';
 
