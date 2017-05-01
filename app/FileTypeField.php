@@ -61,37 +61,6 @@ abstract class FileTypeField extends BaseField
     }
 
     /**
-     * File type fields are always metafiable.
-     *
-     * @return bool
-     */
-    public function isMetafiable() {
-        return true;
-    }
-
-    /**
-     * Formats the files for metadata display.
-     *
-     * @param array $files
-     * @return array
-     */
-    protected function filesToMetadata(array $files) {
-        $files_and_info = [];
-
-        foreach ($files as $file) {
-            $info_collection = new Collection();
-
-            $info_collection->put("Name", explode("[Name]", $file)[1]);
-            $info_collection->put("Size", explode("[Size]", $file)[1]);
-            $info_collection->put("Type", explode("[Type]", $file)[1]);
-
-            $files_and_info[] = $info_collection;
-        }
-
-        return $files_and_info;
-    }
-
-    /**
      * Processes the input string for searching in an advanced search query.
      *
      * @param $input

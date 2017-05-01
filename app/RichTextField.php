@@ -28,25 +28,6 @@ class RichTextField extends BaseField {
     }
 
     /**
-     * Determine if to metadata can be called on this field.
-     *
-     * @return bool
-     */
-    public function isMetafiable() {
-        return ! empty($this->rawtext);
-    }
-
-    /**
-     * Simply returns the rawtext.
-     *
-     * @param Field $field, unneeded.
-     * @return string
-     */
-    public function toMetadata(Field $field) {
-        return $this->rawtext;
-    }
-
-    /**
      * @param Field | null $field
      * @return string
      */

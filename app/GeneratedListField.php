@@ -37,25 +37,6 @@ class GeneratedListField extends BaseField {
     }
 
     /**
-     * Determines if to metadata can be called on the generated list field.
-     *
-     * @return bool
-     */
-    public function isMetafiable() {
-        return ! empty($this->options);
-    }
-
-    /**
-     * Returns the generated list's options as an array.
-     *
-     * @param Field $field, unneeded.
-     * @return Builder
-     */
-    public function toMetadata(Field $field) {
-        return explode("[!]", $this->options);
-    }
-
-    /**
      * @param null $field
      * @return string
      */

@@ -37,25 +37,6 @@ class ListField extends BaseField {
     }
 
     /**
-     * Determines if to metadata can be called on the list field.
-     *
-     * @return bool
-     */
-    public function isMetafiable() {
-        return ! empty($this->option);
-    }
-
-    /**
-     * Simply returns the option.
-     *
-     * @param Field $field, unneeded.
-     * @return string
-     */
-    public function toMetadata(Field $field) {
-        return $this->option;
-    }
-
-    /**
      * @param null $field
      * @return string
      */

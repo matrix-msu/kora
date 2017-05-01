@@ -45,22 +45,6 @@ class ScheduleField extends BaseField {
     }
 
     /**
-     * Schedule fields are always metafiable.
-     *
-     * @return bool
-     */
-    public function isMetafiable() {
-        return true;
-    }
-
-    public function toMetadata(Field $field) {
-        //
-        // TODO: Implement me.
-        //
-        throw new Exception("Method not implemented...");
-    }
-
-    /**
      * Adds an event to the schedule_support table.
      * @param array $events an array of events, each specified in the following format:
      *      "description: mm/dd/yyyy - mm/dd/yyyy"

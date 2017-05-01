@@ -203,14 +203,4 @@ class AssociatorField extends BaseField {
         $associatorfield->records = $revision->data[Field::_ASSOCIATOR][$field->flid]['data'];
         $associatorfield->save();
     }
-
-    public function isMetafiable() {
-        // TODO: Implement isMetafiable() method.
-        return false; // I think this will never need to be metafied.
-    }
-
-    public function toMetadata(Field $field) {
-        // TODO: Implement toMetadata() method.
-        return null;
-    }
 }

@@ -176,58 +176,6 @@ class DateField extends BaseField {
     }
 
     /**
-     * Determine if to metadata can be called on the field.
-     *
-     * @return bool
-     */
-    public function isMetafiable() {
-        return $this->month > 0;
-    }
-
-    /**
-     * Returns the date in the proper format accounting for circa and era.
-     *
-     * @param Field $field
-     * @return string
-     */
-    public function toMetadata(Field $field) {
-        $options = $field->options;
-
-        $circa = explode("[!Circa!]", $options)[1] == "Yes";
-        $era = explode("[!Era!]", $options)[1] == "On";
-        $format = explode("[!Format!]", $options)[1];
-
-        $date_string = "";
-
-        if ($circa) {
-            $date_string .= "Circa ";
-        }
-
-        switch($format) {
-            case self::MONTH_DAY_YEAR:
-                $date_string .= $this->month . "-" . $this->day . "-" . $this->year;
-                break;
-
-            case self::DAY_MONTH_YEAR:
-                $date_string .= $this->day . "-" . $this->month . "-" . $this->year;
-                break;
-
-            case self::YEAR_MONTH_DAY:
-                $date_string .= $this->year . "-" . $this->month . "-" . $this->day;
-                break;
-
-            default:
-                break;
-        }
-
-        if ($era) {
-            $date_string .= " " . $this->era;
-        }
-
-        return $date_string;
-    }
-
-    /**
      * Override the save method to allow for storing the date as an object.
      *
      * @param array $options

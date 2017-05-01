@@ -21,22 +21,6 @@ class GeolocatorField extends BaseField {
     ];
 
     /**
-     * Geolocator fields are always metafiable.
-     *
-     * @return bool
-     */
-    public function isMetafiable() {
-        return true;
-    }
-
-    public function toMetadata(Field $field) {
-        //
-        // TODO: Implement me.
-        //
-        throw new Exception("Method not implemented...");
-    }
-
-    /**
      * Gets the default locations from the field options.
      *
      * @param $field

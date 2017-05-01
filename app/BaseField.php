@@ -28,22 +28,6 @@ abstract class BaseField extends Model
     }
 
     /**
-     * Determines if to metadata is allowed to be called on the field.
-     *
-     * @return bool, true if to metadata can be called on the field.
-     */
-    abstract public function isMetafiable();
-
-    /**
-     * Returns the metadata representation of a field.
-     * Simple fields like TextField will return a string, more complex like DocumentsField will return arrays.
-     *
-     * @param Field $field, a field to get certain options that will be needed.
-     * @return string | array | Collection, string or array depending on the field.
-     */
-    abstract public function toMetadata(Field $field);
-
-    /**
      * Get the required information for a revision data array.
      *
      * @param Field | null $field, optional field to get storage options for certain typed fields.

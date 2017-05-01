@@ -218,7 +218,7 @@ class METAWriter(Writer):
         """
         return ".xml"
 
-    def header(self, filepath): ## TODO: Implement.
+    def header(self, filepath):
         """
         Writes the header to a file. Should be an empty file, else it will be truncated.
         :param filepath: string, absolute path to set up the file header in.

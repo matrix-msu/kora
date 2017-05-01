@@ -22,16 +22,6 @@ class DocumentsField extends FileTypeField {
     }
 
     /**
-     * Pass the fields file array to the files to metadata method.
-     *
-     * @param Field $field, unneeded.
-     * @return array
-     */
-    public function toMetadata(Field $field) {
-        return self::filesToMetadata(explode("[!]", $this->documents));
-    }
-
-    /**
      * @param null $field
      * @return string
      */
