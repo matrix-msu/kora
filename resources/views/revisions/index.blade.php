@@ -6,7 +6,6 @@
 @stop
 
 @section('content')
-
     <div class="container">
         <div class="row">
             <div class="col-md-10 col-md-offset-1">
@@ -24,7 +23,6 @@
                     </div>
 
                     <div class="panel-body">
-
                         {!! Form::label('search', trans('revisions_index.search').': ') !!}
                         {!! Form::select('search', $records, ['class'=>'form-control']) !!}
                         <button class="btn btn-primary" onclick="showRecordRevisions(1, '')">{{trans('revisions_index.showrev')}}</button>
@@ -44,15 +42,11 @@
                                 {{trans('update_index.loading')}}
                             </div>
                         </div>
-
                     </div>
-
                 </div>
             </div>
         </div>
     </div>
-
-
 @stop
 
 @section('footer')

@@ -62,11 +62,15 @@ class RichTextField extends BaseField {
      * @return RichTextField
      */
     public static function rollback(Revision $revision, Field $field) {
-        $richtextfield = RichTextField::where('flid', '=', $field->flid)->where('rid', '=', $revision->rid)->first();
-
         if (!is_array($revision->data)) {
             $revision->data = json_decode($revision->data, true);
         }
+
+        if (is_null($revision->data[Field::_RICH_TEXT][$field->flid]['data'])) {
+            return null;
+        }
+
+        $richtextfield = RichTextField::where('flid', '=', $field->flid)->where('rid', '=', $revision->rid)->first();
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($richtextfield)) {
@@ -76,7 +80,7 @@ class RichTextField extends BaseField {
             $richtextfield->fid = $revision->fid;
         }
 
-        $richtextfield->rawtext = $revision->data[Field::_RICH_TEXT][$field->flid];
+        $richtextfield->rawtext = $revision->data[Field::_RICH_TEXT][$field->flid]['data'];
         $richtextfield->save();
 
         return $richtextfield;

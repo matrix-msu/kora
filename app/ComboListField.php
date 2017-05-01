@@ -12,7 +12,6 @@ class ComboListField extends BaseField {
     protected $fillable = [
         'rid',
         'flid',
-        'options',
         'ftype1',
         'ftype2'
     ];
@@ -208,7 +207,16 @@ class ComboListField extends BaseField {
      * @return array
      */
     public function getRevisionData($field = null) {
-        return self::dataToOldFormat($this->data()->get());
+        $field = Field::where('flid', '=', $this->flid)->first();
+
+        $name_1 = self::getComboFieldName($field, 'one');
+        $name_2 = self::getComboFieldName($field, 'two');
+
+        return [
+            'options' => self::dataToOldFormat($this->data()->get()),
+            'name_1' => $name_1,
+            'name_2' => $name_2
+        ];
     }
 
     /**
@@ -219,11 +227,15 @@ class ComboListField extends BaseField {
      * @return ComboListField
      */
     public static function rollback(Revision $revision, Field $field) {
-        $combolistfield = ComboListField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
-
         if (!is_array($revision->data)) {
             $revision->data = json_decode($revision->data, true);
         }
+
+        if (is_null($revision->data[Field::_COMBO_LIST][$field->flid]['data'])) {
+            return null;
+        }
+
+        $combolistfield = ComboListField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($combolistfield)) {
@@ -238,7 +250,7 @@ class ComboListField extends BaseField {
         $type_1 = ComboListField::getComboFieldType($field, "one");
         $type_2 = ComboListField::getComboFieldName($field, "two");
 
-        $combolistfield->updateData($revision->data[Field::_COMBO_LIST][$field->flid], $type_1, $type_2);
+        $combolistfield->updateData($revision->data[Field::_COMBO_LIST][$field->flid]['data']['options'], $type_1, $type_2);
 
         return $combolistfield;
     }

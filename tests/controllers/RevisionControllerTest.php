@@ -29,7 +29,7 @@ class RevisionControllerTest extends TestCase
 
         $data = json_decode(RevisionController::buildDataArray($record), true);
 
-        $this->assertEquals($data[Field::_TEXT][$field->flid], $text);
+        $this->assertEquals($data[Field::_TEXT][$field->flid]['data'], $text);
 
         //
         // Rich Text Field.
@@ -49,7 +49,7 @@ class RevisionControllerTest extends TestCase
 
         $data = json_decode(RevisionController::buildDataArray($record), true);
 
-        $this->assertEquals($data[Field::_RICH_TEXT][$field->flid], $rich_text);
+        $this->assertEquals($data[Field::_RICH_TEXT][$field->flid]['data'], $rich_text);
 
         //
         // Number Field.
@@ -72,7 +72,7 @@ class RevisionControllerTest extends TestCase
 
         $data = json_decode(RevisionController::buildDataArray($record), true);
 
-        $this->assertEquals($data[Field::_NUMBER][$field->flid]['number'], $number, '', 0.001);
+        $this->assertEquals($data[Field::_NUMBER][$field->flid]['data']['number'], $number, '', 0.001);
 
         //
         // List Field.
@@ -92,7 +92,7 @@ class RevisionControllerTest extends TestCase
 
         $data = json_decode(RevisionController::buildDataArray($record), true);
 
-        $this->assertEquals($data[Field::_LIST][$field->flid], $option);
+        $this->assertEquals($data[Field::_LIST][$field->flid]['data'], $option);
 
         //
         // Multi Select List Field.
@@ -112,7 +112,7 @@ class RevisionControllerTest extends TestCase
 
         $data = json_decode(RevisionController::buildDataArray($record), true);
 
-        $this->assertEquals($data[Field::_MULTI_SELECT_LIST][$field->flid], $options);
+        $this->assertEquals($data[Field::_MULTI_SELECT_LIST][$field->flid]['data'], $options);
 
         //
         // Date Field.
@@ -144,7 +144,7 @@ class RevisionControllerTest extends TestCase
 
         $data = json_decode(RevisionController::buildDataArray($record), true);
 
-        $this->assertEquals($data[Field::_DATE][$field->flid]['day'], $day);
+        $this->assertEquals($data[Field::_DATE][$field->flid]['data']['day'], $day);
 
         //
         // Schedule Field.
@@ -167,7 +167,7 @@ class RevisionControllerTest extends TestCase
 
         $data = json_decode(RevisionController::buildDataArray($record), true);
 
-        $this->assertEquals($data[Field::_SCHEDULE][$field->flid], $events);
+        $this->assertEquals($data[Field::_SCHEDULE][$field->flid]['data'], $events);
 
         //
         // Documents Field.
@@ -187,7 +187,7 @@ class RevisionControllerTest extends TestCase
 
         $data = json_decode(RevisionController::buildDataArray($record), true);
 
-        $this->assertEquals($data[Field::_DOCUMENTS][$field->flid], $documents);
+        $this->assertEquals($data[Field::_DOCUMENTS][$field->flid]['data'], $documents);
 
         //
         // Gallery Field.
@@ -207,7 +207,7 @@ class RevisionControllerTest extends TestCase
 
         $data = json_decode(RevisionController::buildDataArray($record), true);
 
-        $this->assertEquals($data[Field::_GALLERY][$field->flid], $gallery);
+        $this->assertEquals($data[Field::_GALLERY][$field->flid]['data'], $gallery);
 
         //
         // Model Field.
@@ -227,7 +227,7 @@ class RevisionControllerTest extends TestCase
 
         $data = json_decode(RevisionController::buildDataArray($record), true);
 
-        $this->assertEquals($data[Field::_3D_MODEL][$field->flid], $model);
+        $this->assertEquals($data[Field::_3D_MODEL][$field->flid]['data'], $model);
 
         //
         // Playlist Field.
@@ -247,7 +247,7 @@ class RevisionControllerTest extends TestCase
 
         $data = json_decode(RevisionController::buildDataArray($record), true);
 
-        $this->assertEquals($data[Field::_PLAYLIST][$field->flid], $playlist);
+        $this->assertEquals($data[Field::_PLAYLIST][$field->flid]['data'], $playlist);
 
         //
         // Video Field.
@@ -267,7 +267,7 @@ class RevisionControllerTest extends TestCase
 
         $data = json_decode(RevisionController::buildDataArray($record), true);
 
-        $this->assertEquals($data[Field::_VIDEO][$field->flid], $video);
+        $this->assertEquals($data[Field::_VIDEO][$field->flid]['data'], $video);
 
         //
         // Associator Field.
@@ -287,7 +287,7 @@ class RevisionControllerTest extends TestCase
 
         $data = json_decode(RevisionController::buildDataArray($record), true);
 
-        $this->assertEquals($data[Field::_ASSOCIATOR][$field->flid], $records);
+        $this->assertEquals($data[Field::_ASSOCIATOR][$field->flid]['data'], $records);
 
         //
         // Combo List Field.
@@ -295,6 +295,9 @@ class RevisionControllerTest extends TestCase
         $form = self::dummyForm($project->pid);
         $field = self::dummyField(Field::_COMBO_LIST, $project->pid, $form->fid);
         $record = self::dummyRecord($project->pid, $form->fid);
+
+        $field->options = "[!Field1!][Name]Name1[Name][!Field1!][!Field2!][Name]Name2[Name][!Field2!]";
+        $field->save();
 
         $combos = [
             "[!f1!]1[!f1!][!f2!]Apple[!]Google[!f2!]",
@@ -312,7 +315,7 @@ class RevisionControllerTest extends TestCase
 
         $data = json_decode(RevisionController::buildDataArray($record), true);
 
-        $this->assertEquals($data[Field::_COMBO_LIST][$field->flid], $combos);
+        $this->assertEquals($data[Field::_COMBO_LIST][$field->flid]['data']['options'], $combos);
     }
 
     /**

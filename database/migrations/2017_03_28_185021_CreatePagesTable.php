@@ -25,7 +25,6 @@ class CreatePagesTable extends Migration
             $table->foreign('fid')->references('fid')->on('forms')->onDelete('cascade');
         });
 
-        //Project token pivot table.
         Schema::create('page_field', function(Blueprint $table)
         {
             $table->engine = 'MyISAM';

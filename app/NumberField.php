@@ -59,21 +59,25 @@ class NumberField extends BaseField {
      * @return NumberField
      */
     public static function rollback(Revision $revision, Field $field) {
-        $numberfield = NumberField::where('flid', '=', $field->flid)->where('rid', '=', $revision->rid)->first();
-
         if (!is_array($revision->data)) {
             $revision->data = json_decode($revision->data, true);
         }
 
+        if (is_null($revision->data[Field::_NUMBER][$field->flid]['data']['number'])) {
+            return null;
+        }
+
+        $numberfield = NumberField::where('flid', '=', $field->flid)->where('rid', '=', $revision->rid)->first();
+
         // If the field doesn't exist or was explicitly deleted, we create a new one.
-        if ($revision->type != Revision::DELETE && !is_null($numberfield)) {
+        if ($revision->type == Revision::DELETE || is_null($numberfield)) {
             $numberfield = new NumberField();
             $numberfield->flid = $field->flid;
             $numberfield->rid = $revision->rid;
             $numberfield->fid = $revision->fid;
         }
 
-        $numberfield->number = $revision->data[Field::_NUMBER][$field->flid]['number'];
+        $numberfield->number = $revision->data[Field::_NUMBER][$field->flid]['data']['number'];
         $numberfield->save();
 
         return $numberfield;

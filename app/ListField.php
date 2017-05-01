@@ -71,21 +71,25 @@ class ListField extends BaseField {
      * @return ListField
      */
     public static function rollback(Revision $revision, Field $field) {
-        $listfield = ListField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
-
         if (!is_array($revision->data)) {
             $revision->data = json_decode($revision->data, true);
         }
 
+        if (is_null($revision->data[Field::_LIST][$field->flid]['data'])) {
+            return null;
+        }
+
+        $listfield = ListField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+
         // If the field doesn't exist or was explicitly deleted, we create a new one.
-        if ($revision->type != Revision::DELETE && !is_null($listfield)) {
+        if ($revision->type == Revision::DELETE || is_null($listfield)) {
             $listfield = new ListField();
             $listfield->flid = $field->flid;
             $listfield->rid = $revision->rid;
             $listfield->fid = $revision->fid;
         }
 
-        $listfield->option = $revision->data[Field::_LIST][$field->flid];
+        $listfield->option = $revision->data[Field::_LIST][$field->flid]['data'];
         $listfield->save();
 
         return $listfield;

@@ -47,11 +47,15 @@ class DocumentsField extends FileTypeField {
      * @return DocumentsField
      */
     public static function rollback(Revision $revision, Field $field) {
-        $documentsfield = DocumentsField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
-
         if (!is_array($revision->data)) {
             $revision->data = json_decode($revision->data, true);
         }
+
+        if (is_null($revision->data[Field::_DOCUMENTS][$field->flid]['data'])) {
+            return null;
+        }
+
+        $documentsfield = DocumentsField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($documentsfield)) {
@@ -61,7 +65,7 @@ class DocumentsField extends FileTypeField {
             $documentsfield->rid = $revision->rid;
         }
 
-        $documentsfield->documents = $revision->data[Field::_DOCUMENTS][$field->flid];
+        $documentsfield->documents = $revision->data[Field::_DOCUMENTS][$field->flid]['data'];
         $documentsfield->save();
 
         return $documentsfield;

@@ -43,40 +43,10 @@ class DateField extends BaseField {
      * @param $search string, the query, a space separated string.
      * @param $circa bool, should we search for date fields with circa turned on?
      * @param $era bool, should we search for date fields with era turned on?
-     * @param $flid int, the field id.
+     * @param $fid int, form id
      * @return Builder, the query for the date field.
      */
-    public static function buildQuery($search, $circa, $era, $flid) {
-        $args = explode(" ", $search);
-
-        $query = DateField::where("flid", "=", $flid);
-
-        $query->where(function($query) use($args, $circa, $era) {
-            foreach($args as $arg) {
-                $query->orWhere("day", "=", intval($arg))
-                    ->orWhere("year", "=", intval($arg));
-
-                if (self::isMonth($arg)) {
-                    $query->orWhere("month", "=", intval(self::monthToNumber($arg)));
-                }
-
-                if ($era && self::isValidEra($arg)) {
-                    $query->orWhere("era", "=", strtoupper($arg));
-                }
-            }
-
-            if ($circa) {
-                $query->orWhere("circa", "=", 1);
-            }
-        });
-
-        return $query;
-    }
-
-    /*
-     *
-     */
-    public static function buildQuery2($search, $circa, $era, $fid) {
+    public static function buildQuery($search, $circa, $era, $fid) {
         $args = explode(" ", $search);
 
         $query = DB::table("date_fields")
@@ -291,11 +261,15 @@ class DateField extends BaseField {
      * @return DateField
      */
     public static function rollback(Revision $revision, Field $field) {
-        $datefield = DateField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
-
         if (!is_array($revision->data)) {
             $revision->data = json_decode($revision->data, true);
         }
+
+        if(is_null($revision->data[Field::_DATE][$field->flid]['data'])) {
+            return null;
+        }
+
+        $datefield = DateField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($datefield)) {
@@ -305,11 +279,11 @@ class DateField extends BaseField {
             $datefield->rid = $revision->rid;
         }
 
-        $datefield->circa = $revision->data[Field::_DATE][$field->flid]['circa'];
-        $datefield->month = $revision->data[Field::_DATE][$field->flid]['month'];
-        $datefield->day = $revision->data[Field::_DATE][$field->flid]['day'];
-        $datefield->year = $revision->data[Field::_DATE][$field->flid]['year'];
-        $datefield->era = $revision->data[Field::_DATE][$field->flid]['era'];
+        $datefield->circa = $revision->data[Field::_DATE][$field->flid]['data']['circa'];
+        $datefield->month = $revision->data[Field::_DATE][$field->flid]['data']['month'];
+        $datefield->day = $revision->data[Field::_DATE][$field->flid]['data']['day'];
+        $datefield->year = $revision->data[Field::_DATE][$field->flid]['data']['year'];
+        $datefield->era = $revision->data[Field::_DATE][$field->flid]['data']['era'];
         $datefield->save();
 
         return $datefield;

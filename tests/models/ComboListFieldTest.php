@@ -512,7 +512,7 @@ TEXT;
             "[!f1!]6[!f1!][!f2!]Uber[!]Sentient[!f2!]"
         ];
 
-        $combo->update($new);
+        $combo->updateData($new, Field::_NUMBER, Field::_GENERATED_LIST);
 
         ComboListField::rollback($revision, $field);
 
