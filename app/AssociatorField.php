@@ -170,7 +170,16 @@ class AssociatorField extends BaseField {
      * @return string
      */
     public function getRevisionData($field = null) {
-        //TODO::return $this->records;
+        $pieces = array();
+        $records = $this->records()->get();
+        foreach($records as $record){
+            $rid = $record->record;
+            $model = RecordController::getRecord($rid);
+            array_push($pieces,$model->kid);
+        }
+
+        $formatted = implode("[!]", $pieces);
+        return $formatted;
     }
 
     /**
@@ -200,7 +209,10 @@ class AssociatorField extends BaseField {
             $associatorfield->rid = $revision->rid;
         }
 
-        $associatorfield->records = $revision->data[Field::_ASSOCIATOR][$field->flid]['data'];
         $associatorfield->save();
+        $updated = explode('[!]',$revision->data[Field::_ASSOCIATOR][$field->flid]['data']);
+        $associatorfield->updateRecords($updated);
+
+        return $associatorfield;
     }
 }
