@@ -3,7 +3,9 @@
 use App\Commands\RestoreTable;
 use App\Commands\SaveAssociationsTable;
 use App\Commands\SaveAssociatorFieldsTable;
+use App\Commands\SaveAssociatorSupportTable;
 use App\Commands\SaveComboListFieldsTable;
+use App\Commands\SaveComboSupportTable;
 use App\Commands\SaveDashboardBlocksTable;
 use App\Commands\SaveDashboardSectionsTable;
 use App\Commands\SaveDateFieldsTable;
@@ -212,6 +214,7 @@ class BackupController extends Controller
             new SaveRecordsTable($backup_disk, $path, $backup_id ),
             new SaveTextFieldsTable($backup_disk, $path, $backup_id ),
             new SaveComboListFieldsTable($backup_disk, $path, $backup_id),
+            new SaveComboSupportTable($backup_disk, $path, $backup_id),
             new SaveDateFieldsTable($backup_disk, $path, $backup_id),
             new SaveFieldsTable($backup_disk, $path, $backup_id),
             new SaveGeneratedListFieldsTable($backup_disk, $path, $backup_id),
@@ -237,6 +240,7 @@ class BackupController extends Controller
             new SaveGalleryFieldsTable($backup_disk, $path, $backup_id),
             new SaveModelFieldsTable($backup_disk, $path, $backup_id),
             new SaveAssociatorFieldsTable($backup_disk, $path, $backup_id),
+            new SaveAssociatorSupportTable($backup_disk, $path, $backup_id),
             new SaveAssociationsTable($backup_disk, $path, $backup_id),
             new SaveTokensTable($backup_disk, $path, $backup_id),
             new SaveProjectTokensTable($backup_disk, $path, $backup_id),
@@ -476,7 +480,9 @@ class BackupController extends Controller
             DB::table('video_fields')->delete();
             DB::table('playlist_fields')->delete();
             DB::table('combo_list_fields')->delete();
+            DB::table('combo_support')->delete();
             DB::table('associator_fields')->delete();
+            DB::table('associator_support')->delete();
             DB::table('associations')->delete();
             DB::table('option_presets')->delete();
             DB::table('record_presets')->delete();
@@ -532,7 +538,9 @@ class BackupController extends Controller
             new RestoreTable('video_fields',$dir, $restore_id),
             new RestoreTable('playlist_fields',$dir, $restore_id),
             new RestoreTable('combo_list_fields',$dir, $restore_id),
+            new RestoreTable('combo_support',$dir, $restore_id),
             new RestoreTable('associator_fields',$dir, $restore_id),
+            new RestoreTable('associator_support',$dir, $restore_id),
             new RestoreTable('associations',$dir, $restore_id),
             new RestoreTable('option_presets',$dir, $restore_id),
             new RestoreTable('record_presets',$dir, $restore_id),

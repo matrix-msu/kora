@@ -1227,8 +1227,6 @@ class RecordController extends Controller {
                 }
             } else if($field->type=='Associator'){
 
-                // TODO: Review this (associator).
-
                 //we need to check if the field exist first
                 $af = AssociatorField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
                 if(!is_null($af) && !is_null($value)){
@@ -2126,15 +2124,13 @@ class RecordController extends Controller {
                     $mf->model = $infoString;
                     $mf->save();
                 } else if ($field->type == 'Associator') {
-
-                    // TODO: Review this (associator).
-
                     $af = new AssociatorField();
                     $af->flid = $field->flid;
                     $af->rid = $record->rid;
                     $af->fid = $fid;
-                    $af->records = '1-3-37[!]1-3-37[!]1-3-37[!]1-3-37';
                     $af->save();
+
+                    $af->addRecords(array('1-3-37','1-3-37','1-3-37','1-3-37'));
                 }
             }
         }

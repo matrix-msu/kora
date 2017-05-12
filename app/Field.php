@@ -399,6 +399,11 @@ class Field extends Model {
                 return ComboListField::getAdvancedSearchQuery($flid, $query);
                 break;
 
+            case Field::_ASSOCIATOR:
+                // TODO: Implement associator functionality.
+                return AssociatorField::getAdvancedSearchQuery($flid, $query);
+                break;
+
             default: // Error occurred.
                 throw new \Exception("Invalid field type in field::advancedSearch.");
                 break;
@@ -444,6 +449,9 @@ class Field extends Model {
         }
         else if ($this->type == Field::_COMBO_LIST) {
             DB::table(ComboListField::SUPPORT_NAME)->where("flid", "=", $this->flid)->delete();
+        }
+        else if ($this->type == Field::_ASSOCIATOR) {
+            DB::table(AssociatorField::SUPPORT_NAME)->where("flid", "=", $this->flid)->delete();
         }
 
         DB::table("metadatas")->where("flid", "=", $this->flid)->delete();
