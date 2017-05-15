@@ -29,7 +29,7 @@ class RecordExporter(Exporter):
     """
     Exports on a per record basis, rather than a per field basis like FieldExporter.
     """
-    def __init__(self, rids, start_time, output = "JSON", fields_displayed = [], meta = "False", show_data = "True"):
+    def __init__(self, rids, start_time, output = "JSON", fields_displayed = [], meta = "False", show_data = "True", assoc_data = "False"):
         """
         Constructor.
         :param rids: array of rids to export.
@@ -47,6 +47,7 @@ class RecordExporter(Exporter):
         self._fields_displayed = fields_displayed
         self._meta = meta
         self._show_data = show_data
+        self._assoc_data = assoc_data
         self._start_time = start_time
 
     def __call__(self):
@@ -92,7 +93,10 @@ class RecordExporter(Exporter):
 
                             if not self._fields_displayed or field_dict["name"] in self._fields_displayed:
                                 ## Pass the field and field options to the appropriate field formatter based on its type.
-                                field_dict.update(field_formatters[table]( field, stash[field["flid"]]["options"]))
+                                if table == "associator_fields":
+                                    field_dict.update(field_formatters[table]( field, stash[field["flid"]]["options"], self._assoc_data))
+                                else:
+                                    field_dict.update(field_formatters[table]( field, stash[field["flid"]]["options"]))
 
                                 record_dict["Fields"].append(field_dict)
                 else:
@@ -107,7 +111,10 @@ class RecordExporter(Exporter):
                     for field in cursor.get_field_data(table, rid):
                         ## Pass the field and field options to the appropriate field formatter based on its type.
                         record_xml += "<"+stash[field["flid"]]["slug"]+" type=\""+stash[field["flid"]]["type"]+"\">"
-                        record_xml += field_formatters[table]( field, stash[field["flid"]]["options"])
+                        if table == "associator_fields":
+                            record_xml += field_formatters[table]( field, stash[field["flid"]]["options"], self._assoc_data)
+                        else:
+                            record_xml += field_formatters[table]( field, stash[field["flid"]]["options"])
                         record_xml += "</"+stash[field["flid"]]["slug"]+">"
 
                 record_xml += "</Record>"

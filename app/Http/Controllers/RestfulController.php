@@ -944,8 +944,12 @@ class RestfulController extends Controller
             $data = 'True';
         else
             $data = 'False';
+        if($filters['assoc'])
+            $assoc = 'True';
+        else
+            $assoc = 'False';
         $rids = json_encode($rids);
-        $exec_string = env("BASE_PATH") . "python/api.py \"$rids\" \"$format\" '$fields' \"$meta\" \"$data\"";
+        $exec_string = env("BASE_PATH") . "python/api.py \"$rids\" \"$format\" '$fields' \"$meta\" \"$data\" \"$assoc\"";
         exec($exec_string, $output);
         return $output[0];
     }

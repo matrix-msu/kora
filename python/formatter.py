@@ -1,9 +1,10 @@
 from table import Table, BaseFieldTypes
-from connection import Cursor
+from connection import Cursor, Connection
 from datetime import date
 from env import env
 from xml.sax.saxutils import escape
 from collections import OrderedDict
+from table import get_base_field_types
 
 def get_field_formatters(format):
     """
@@ -707,32 +708,87 @@ def geolocator_to_META(row, field_options = ""):
 
     return locations_xml
 
-def associator_to_JSONable(row, field_options = ""):
+def associator_to_JSONable(row, field_options = "", assoc_data = "False"):
     """
     :param row:
     :param field_options:
     :return:
     """
     records = []
+    cursor = Cursor(Connection())
 
     for result in Cursor.get_support_fields(Table.AssociatorSupport, row['rid'], row['flid']):
-        records.append(str(result['record']))
+        record = result['record']
+        if assoc_data == "True":
+            rec_data = associator_data_helper_json(record,cursor)
+            records.append(rec_data)
+        else:
+            kid = cursor.kid_from_rid(record)
+            records.append(kid)
 
     return { "records": records }
 
-def associator_to_XML(row, field_options = ""):
+def associator_to_XML(row, field_options = "", assoc_data = "False"):
     """
     :param row:
     :param field_options:
     :return:
     """
     assoc_xml = ""
+    cursor = Cursor(Connection())
 
     for result in Cursor.get_support_fields(Table.AssociatorSupport, row['rid'], row['flid']):
-        assoc_xml += "<Record>"+escape(str(result['record']))+"</Record>"
+        record = result['record']
+        kid = cursor.kid_from_rid(record)
+        if assoc_data == "True":
+            rec_data = associator_data_helper_xml(record,cursor)
+            assoc_xml += "<Record kid=\""+kid+"\">"+rec_data+"</Record>"
+        else:
+            assoc_xml += "<Record>"+escape(kid)+"</Record>"
 
     return assoc_xml
 
 def associator_to_META(row, field_options = ""):
     ## TODO: Figure out if associator is even a thing.
     return ""
+
+def associator_data_helper_json(rid,cursor):
+    fid = cursor.fid_from_rid(rid)
+    stash = cursor.get_field_stash(fid)
+
+    record_dict = {
+        "kid": cursor.kid_from_rid(rid),
+        "Fields": []
+    }
+
+    field_formatters = get_field_formatters("JSON")
+
+    for table in get_base_field_types():
+        for field in cursor.get_field_data(table, rid):
+            field_dict = {
+                "name": stash[field["flid"]]["slug"],
+                "type": stash[field["flid"]]["type"],
+            }
+
+            ## Pass the field and field options to the appropriate field formatter based on its type.
+            field_dict.update(field_formatters[table]( field, stash[field["flid"]]["options"]))
+
+            record_dict["Fields"].append(field_dict)
+
+    return record_dict
+
+def associator_data_helper_xml(rid,cursor):
+    fid = cursor.fid_from_rid(rid)
+    stash = cursor.get_field_stash(fid)
+
+    field_formatters = get_field_formatters("XML")
+    record_xml = ""
+
+    for table in get_base_field_types():
+        for field in cursor.get_field_data(table, rid):
+            ## Pass the field and field options to the appropriate field formatter based on its type.
+            record_xml += "<"+stash[field["flid"]]["slug"]+" type=\""+stash[field["flid"]]["type"]+"\">"
+            record_xml += field_formatters[table]( field, stash[field["flid"]]["options"])
+            record_xml += "</"+stash[field["flid"]]["slug"]+">"
+
+    return record_xml

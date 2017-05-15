@@ -55,6 +55,12 @@ def export_routine(argv):
     except IndexError:
         show_data = "True"
 
+    try:
+        assoc_data = argv[6]
+
+    except IndexError:
+        assoc_data = "False"
+
     cursor = connect_to_database()
     fid = cursor.fid_from_rid(data[0])
     pid = cursor.pid_from_fid(fid)
@@ -70,7 +76,7 @@ def export_routine(argv):
     chunk = data[i - slice_on : i]
 
     while i - slice_on < len(data):
-        exporter = RecordExporter(chunk, writer.start_time, writer_type, fields_displayed, meta, show_data)
+        exporter = RecordExporter(chunk, writer.start_time, writer_type, fields_displayed, meta, show_data, assoc_data)
 
         exporter()
         ## pool.apply_async(exporter)
