@@ -3,6 +3,7 @@
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RecordController;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
 class AssociatorField extends BaseField {
@@ -217,44 +218,38 @@ class AssociatorField extends BaseField {
     }
 
     /**
-     * Build an advanced search query for a schedule field.
+     * Build the advanced search query.
+     * Advanced queries for MSL Fields accept any record that has at least one of the desired parameters.
      *
-     * @param $flid, field id.
-     * @param $query, query array.
+     * @param $flid
+     * @param $query
      * @return Builder
      */
     public static function getAdvancedSearchQuery($flid, $query) {
-        /*$begin_month = ($query[$flid."_begin_month"] == "") ? 1 : intval($query[$flid."_begin_month"]);
-        $begin_day = ($query[$flid."_begin_day"] == "") ? 1 : intval($query[$flid."_begin_day"]);
-        $begin_year = ($query[$flid."_begin_year"] == "") ? 1 : intval($query[$flid."_begin_year"]);
-
-        $end_month = ($query[$flid."_end_month"] == "") ? 1 : intval($query[$flid."_end_month"]);
-        $end_day = ($query[$flid."_end_day"] == "") ? 1 : intval($query[$flid."_end_day"]);
-        $end_year = ($query[$flid."_end_year"] == "") ? 1 : intval($query[$flid."_end_year"]);
-
-        //
-        // Advanced Search for schedule doesn't allow for time search, but we do store the time in some schedules entries.
-        // So we search from 0:00:00 to 23:59:59 on the begin and end day respectively.
-        //
-        $begin = DateTime::createFromFormat("Y-m-d H:i:s", $begin_year."-".$begin_month."-".$begin_day." 00:00:00");
-        $end = DateTime::createFromFormat("Y-m-d H:i:s", $end_year."-".$end_month."-".$end_day." 23:59:59");
+        $inputs = $query[$flid."_input"];
 
         $query = DB::table(self::SUPPORT_NAME)
             ->select("rid")
             ->where("flid", "=", $flid);
 
-        $query->where(function($query) use ($begin, $end) {
-            // We search over [search_begin, search_end] and return results if
-            // the intersection of [search_begin, search_end] and [begin, end] is non-empty.
-            $query->whereBetween("begin", [$begin, $end])
-                ->orWhereBetween("end", [$begin, $end]);
+        self::buildAdvancedAssociatorQuery($query, $inputs);
 
-            $query->orWhere(function($query) use($begin, $end) {
-                $query->where("begin", "<=", $begin)
-                    ->where("end", ">=", $end);
-            });
+        return $query->distinct();
+    }
+
+    /**
+     * Build the advanced search query for a multi select list. (Works for Generated List too.)
+     *
+     * @param Builder $db_query
+     * @param array $inputs, input values
+     */
+    public static function buildAdvancedAssociatorQuery(Builder &$db_query, $inputs) {
+        $db_query->where(function($db_query) use ($inputs) {
+            foreach($inputs as $input) {
+                $rid = explode('-',$input)[2];
+                $db_query->orWhereRaw("MATCH (`record`) AGAINST (? IN BOOLEAN MODE)",
+                    [Search::processArgument($rid, Search::ADVANCED_METHOD)]);
+            }
         });
-
-        return $query->distinct();*/
     }
 }

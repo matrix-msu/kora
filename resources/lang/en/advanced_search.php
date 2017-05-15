@@ -9,6 +9,7 @@ return [
     "search_option_text" => "Search option for",
     "search_options_text" => "Search options for",
     "search_operator_text" => "Search operator (only has effect if both fields are completed)",
+    "search_assoc" => "Search for associated records",
     "input_text" => "Input is",
     "and" => "AND",
     "or" => "OR",

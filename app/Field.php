@@ -404,7 +404,6 @@ class Field extends Model {
                 break;
 
             case Field::_ASSOCIATOR:
-                // TODO: Implement associator functionality.
                 return AssociatorField::getAdvancedSearchQuery($flid, $query);
                 break;
 
