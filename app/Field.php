@@ -319,8 +319,12 @@ class Field extends Model {
                 break;
 
             case Field::_ASSOCIATOR:
-                // TODO: Implement associator functionality.
-                return DB::table("video_fields")->select("rid")->where("id", "<", 0); // Nothing...
+                return DB::table(AssociatorField::SUPPORT_NAME)
+                    ->select("rid")
+                    ->where("fid", "=", $this->fid)
+                    ->whereRaw("MATCH (`record`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+                    ->distinct();
+                break;
 
             default: // Error occurred.
                 throw new \Exception("Invalid field type in field::keywordSearchTyped.");

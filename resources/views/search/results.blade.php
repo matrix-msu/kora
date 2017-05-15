@@ -556,8 +556,8 @@
                         @elseif($field->type=='Associator')
                             @foreach($record->associatorfields as $af)
                                 @if($af->flid == $field->flid)
-                                    @foreach(explode('[!]',$af->records) as $opt)
-                                        <div>{{ $opt }}</div>
+                                    @foreach($af->records()->get() as $opt)
+                                        <div>{!! $af->getPreviewValues($opt->record) !!}</div>
                                     @endforeach
                                 @endif
                             @endforeach

@@ -103,7 +103,7 @@ class RestfulController extends Controller
             $filters['data'] = isset($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves
             $filters['meta'] = isset($f->meta) ? $f->meta : false; //get meta data about record
             $filters['size'] = isset($f->size) ? $f->size : false; //do we want the number of records in the search result returned instead of data
-            $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //TODO: do we want information back about associated records
+            $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records
             $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for
             $filters['sort'] = isset($f->sort) ? $f->sort : null; //how should the data be sorted
             //parse the query
