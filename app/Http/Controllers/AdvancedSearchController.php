@@ -61,7 +61,6 @@ class AdvancedSearchController extends Controller {
 
         foreach ($this->processRequest($request) as $flid => $query) {
             // Result will be returned as an array of stdObjects so we have to extract the rid.
-
             $result = array_map(function($returned) {
                 return $returned->rid;
             }, Field::advancedSearch($flid, $stash[$flid]["type"], $query)->get());
@@ -78,6 +77,44 @@ class AdvancedSearchController extends Controller {
         Session::put("rids", $rids);
 
         return redirect('projects/'.$pid.'/forms/'.$fid.'/advancedSearch/results');
+    }
+
+    /**
+     * Execute an advanced search.
+     *
+     * @param $pid, project id
+     * @param $fid, form id
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse |\Illuminate\Routing\Redirector
+     */
+    public function apisearch($pid, $fid, Request $request) {
+        if (! FormController::validProjForm($pid, $fid)) {
+            return redirect("projects/". $pid);
+        }
+
+        $form = FormController::getForm($fid);
+        $stash = $form->getFieldStash();
+
+        $request = $request->all();
+
+        $results = [];
+
+        foreach ($this->processRequest($request) as $flid => $query) {
+            // Result will be returned as an array of stdObjects so we have to extract the rid.
+            $result = array_map(function($returned) {
+                return $returned->rid;
+            }, Field::advancedSearch($flid, $stash[$flid]["type"], $query)->get());
+            $results[] = $result;
+        }
+
+        $rids = array_pop($results);
+
+        // This functions to make sure that a record satisfies all search parameters.
+        foreach($results as $result) {
+            $rids = array_intersect($rids, $result);
+        }
+
+        return $rids;
     }
 
     /**

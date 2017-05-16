@@ -305,13 +305,13 @@ class RestfulController extends Controller
                                         $request->request->add([$id.'_range' => $data->range]);
                                         break;
                                     case 'Associator':
-                                        //TODO
+                                        $request->request->add([$id.'_input' => $data->input]);
                                         break;
                                     default:
                                         break;
                                 }
                                 $advSearch = new AdvancedSearchController();
-                                $rids = $advSearch->search($form->pid, $form->fid, $request);
+                                $rids = $advSearch->apisearch($form->pid, $form->fid, $request);
                                 $negative = isset($query->not) ? $query->not : false;
                                 if($negative){
                                     $rids = $this->negative_results($form,$rids);
@@ -690,6 +690,8 @@ class RestfulController extends Controller
                 }
                 $recRequest['file' . $flid] = $files;
                 $recRequest[$flid] = 'f' . $flid . 'u' . $uToken;
+            } else if ($type == 'Associator') {
+                $recRequest[$flid] = $field->records;
             }
         }
         //dd($recRequest);
@@ -882,6 +884,8 @@ class RestfulController extends Controller
                 }
                 $recRequest['file' . $flid] = $files;
                 $recRequest[$flid] = 'f' . $flid . 'u' . $uToken;
+            } else if ($type == 'Associator') {
+                $recRequest[$flid] = $field->records;
             }
         }
         //dd($recRequest);
