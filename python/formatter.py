@@ -43,7 +43,7 @@ def get_META_formatters():
         BaseFieldTypes.ScheduleField: schedule_to_META, #TODO
         BaseFieldTypes.TextField: text_to_META,
         BaseFieldTypes.VideoField: video_to_META, #TODO
-        BaseFieldTypes.AssociatorField: associator_to_META #TODO
+        BaseFieldTypes.AssociatorField: associator_to_META
     }
 
 def get_XML_formatters():
@@ -749,8 +749,27 @@ def associator_to_XML(row, field_options = "", assoc_data = "False"):
     return assoc_xml
 
 def associator_to_META(row, field_options = ""):
-    ## TODO: Figure out if associator is even a thing.
-    return ""
+    """
+    :param row:
+    :param field_options:
+    :return:
+    """
+
+    assoc_xml = ""
+    cursor = Cursor(Connection())
+
+    for result in Cursor.get_support_fields(Table.AssociatorSupport, row['rid'], row['flid']):
+        record = result['record']
+        kid = cursor.kid_from_rid(record)
+        aPid = kid.split("-")[0]
+        aFid = kid.split("-")[1]
+
+        assoc_xml += "<rdf:Description rdf:about=\""+env("BASE_URL")+"public/"
+        assoc_xml += "projects/"+aPid+"/forms/"+aFid+"/metadata/public/"
+        assoc_xml += associator_data_helper_meta(record,aFid,cursor)
+        assoc_xml += "\" />"
+
+    return assoc_xml
 
 def associator_data_helper_json(rid,cursor):
     fid = cursor.fid_from_rid(rid)
@@ -792,3 +811,8 @@ def associator_data_helper_xml(rid,cursor):
             record_xml += "</"+stash[field["flid"]]["slug"]+">"
 
     return record_xml
+
+def associator_data_helper_meta(rid,fid,cursor):
+    resource_index_value = cursor.get_resource_index_value(fid, rid)
+
+    return resource_index_value

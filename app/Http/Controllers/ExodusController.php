@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Session;
 
 class ExodusController extends Controller{
 
@@ -428,6 +429,12 @@ class ExodusController extends Controller{
         $partial = DB::table('exodus_partial_progress')->where('exodus_id',$overall->id)->get();
 
         return response()->json(["overall"=>$overall,"partial"=>$partial],200);
+    }
+
+    public function finishExodus(Request $request){
+        //TODO: Associate things!!!
+        $session = Session::all();
+        dd($session);
     }
 
     /**

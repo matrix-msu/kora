@@ -129,7 +129,10 @@ class RecordExporter(Exporter):
 
                 for table in get_base_field_types():
                     for field in cursor.get_field_data_lod(table, rid):
-                        resource += "<"+lod_resource_title+":"+field["name"]+">"
+                        if table == "associator_fields":
+                            resource += "<"+lod_resource_title+":"+field["name"]+" rdf:parseType=\"Collection\">"
+                        else:
+                            resource += "<"+lod_resource_title+":"+field["name"]+">"
                         resource += field_formatters[table]( field, stash[field["flid"]]["options"])
                         resource += "</"+lod_resource_title+":"+field["name"]+">"
 

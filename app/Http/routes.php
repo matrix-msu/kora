@@ -53,6 +53,7 @@ Route::post('/exodus/migrate', 'ExodusController@migrate');
 Route::get('/exodus/progress','ExodusController@checkProgress');
 Route::post('/exodus/user/unlock','ExodusController@unlockUsers');
 Route::post('/exodus/start','ExodusController@startExodus');
+Route::post('/exodus/finish','ExodusController@finishExodus'); //
 
 
 //token routes

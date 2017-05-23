@@ -114,9 +114,19 @@
                     }
                     $("#progress").css('width', (((data.overall.progress / data.overall.overall) * 100) + "%"));
                     if (data.overall.progress == data.overall.overall && data.overall.overall!=0) {
-                        $('#summary').slideUp();
-                        $('#summary_done').slideDown();
-                        unlockUsers();
+                        $('#type_message').text('Converting record associations. This may take a while...');
+                        $.ajax({
+                            url: "{{action('ExodusController@finishExodus')}}",
+                            method:'POST',
+                            data: {
+                                "_token": "{{ csrf_token() }}"
+                            },
+                            success: function(data){
+                                $('#summary').slideUp();
+                                $('#summary_done').slideDown();
+                                unlockUsers();
+                            }
+                        });
                     } else {
                         setTimeout(function () {
                             checkProgress();

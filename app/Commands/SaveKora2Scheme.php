@@ -35,6 +35,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue
 {
@@ -651,9 +652,21 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue
                         $msl->save();
 
                         break;
+                    case 'Associator':
+                        $kids = (array)simplexml_load_string(utf8_encode($value))->kid;
+
+                        $assoc = new AssociatorField();
+                        $assoc->rid = $recModel->rid;
+                        $assoc->fid = $recModel->fid;
+                        $assoc->flid = $field->flid;
+                        $assoc->save();
+
+                        Session::put("assoc_".$recModel->rid, serialize($kids));
                 }
             }
         }
+
+        Session::put("kid_to_rid_".$this->sid, serialize($oldKidToNewRid));
 
         //Last but not least, record presets!!!!!!!!!
         //TODO: I don't think were passing the right IDs
