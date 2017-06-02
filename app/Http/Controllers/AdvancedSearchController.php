@@ -47,8 +47,6 @@ class AdvancedSearchController extends Controller {
      * @return \Illuminate\Http\RedirectResponse |\Illuminate\Routing\Redirector
      */
     public function search($pid, $fid, Request $request) {
-        dd($request);
-
         if (! FormController::validProjForm($pid, $fid)) {
             return redirect("projects/". $pid);
         }
