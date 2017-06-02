@@ -95,7 +95,6 @@ class RestfulController extends Controller
         }
         //now we actually do searches per form
         foreach($forms as $f){
-            //TODO: Implement index/count variables, then add to koraSearch
             //initialize form
             $form = FormController::getForm($f->form);
             //things we will be returning
@@ -106,6 +105,8 @@ class RestfulController extends Controller
             $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records
             $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for
             $filters['sort'] = isset($f->sort) ? $f->sort : null; //how should the data be sorted
+            $filters['index'] = isset($f->index) ? $f->index : null; //where the array of results should start
+            $filters['count'] = isset($f->count) ? $f->count : null; //how many records we should grab from that index
             //parse the query
             if(!isset($f->query)){
                 //return all records
@@ -955,6 +956,18 @@ class RestfulController extends Controller
             $assoc = 'True';
         else
             $assoc = 'False';
+
+        //Slice up array of RIDs to get the correct subset
+        //There are done down here to ensure sorting has already taken place
+
+        if(!is_null($filters['index'])){
+            $rids = array_slice($rids,$filters['index']);
+        }
+
+        if(!is_null($filters['count'])){
+            $rids = array_slice($rids,0,$filters['count']);
+        }
+
         $rids = json_encode($rids);
         $exec_string = env("BASE_PATH") . "python/api.py \"$rids\" \"$format\" '$fields' \"$meta\" \"$data\" \"$assoc\"";
         exec($exec_string, $output);
