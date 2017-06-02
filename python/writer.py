@@ -216,7 +216,7 @@ class METAWriter(Writer):
         Returns the appropriate file extension.
         :return string:
         """
-        return ".xml"
+        return ".rdf"
 
     def header(self, filepath):
         """
