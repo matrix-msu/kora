@@ -5,6 +5,7 @@ from env import env
 from xml.sax.saxutils import escape
 from collections import OrderedDict
 from table import get_base_field_types
+import calendar
 
 def get_field_formatters(format):
     """
@@ -28,21 +29,21 @@ def get_META_formatters():
     :return dict: function dictionary indexed as dict[table_name] = pointer to formatter function.
     """
     return {
-        BaseFieldTypes.ComboListField: combo_list_to_META, #TODO
-        BaseFieldTypes.DateField: date_to_META, #TODO
-        BaseFieldTypes.DocumentsField: documents_to_META, #TODO
-        BaseFieldTypes.GalleryField: gallery_to_META, #TODO
+        BaseFieldTypes.ComboListField: combo_list_to_META, #TODO: Is it worth it?
+        BaseFieldTypes.DateField: date_to_META,
+        BaseFieldTypes.DocumentsField: documents_to_META, #TODO: Is it worth it?
+        BaseFieldTypes.GalleryField: gallery_to_META, #TODO: Is it worth it?
         BaseFieldTypes.GeneratedListField: generated_to_META,
-        BaseFieldTypes.GeolocatorField: geolocator_to_META, #TODO
+        BaseFieldTypes.GeolocatorField: geolocator_to_META,
         BaseFieldTypes.ListField: list_to_META,
-        BaseFieldTypes.ModelField: model_to_META, #TODO
+        BaseFieldTypes.ModelField: model_to_META, #TODO: Is it worth it?
         BaseFieldTypes.MultiSelectListField: multi_select_list_to_META,
         BaseFieldTypes.NumberField: number_to_META,
-        BaseFieldTypes.PlaylistField: playlist_to_META, #TODO
-        BaseFieldTypes.RichTextField: rich_text_to_META, #TODO
-        BaseFieldTypes.ScheduleField: schedule_to_META, #TODO
+        BaseFieldTypes.PlaylistField: playlist_to_META, #TODO: Is it worth it?
+        BaseFieldTypes.RichTextField: rich_text_to_META, #TODO: Is it worth it?
+        BaseFieldTypes.ScheduleField: schedule_to_META, #TODO: Is it worth it?
         BaseFieldTypes.TextField: text_to_META,
-        BaseFieldTypes.VideoField: video_to_META, #TODO
+        BaseFieldTypes.VideoField: video_to_META, #TODO: Is it worth it?
         BaseFieldTypes.AssociatorField: associator_to_META
     }
 
@@ -437,14 +438,20 @@ def date_to_META(row, field_options = ""):
     :param field_options:
     :return dict:
     """
+    date_string = ""
 
-    date_string = "<Circa>"+str(row["circa"])+"</Circa>"
-    date_string += "<Month>"+str(row["month"])+"</Month>"
-    date_string += "<Day>"+str(row["day"])+"</Day>"
-    date_string += "<Year>"+str(row["year"])+"</Year>"
-    date_string += "<Era>"+str(row["era"])+"</Era>"
+    if row["circa"]==1:
+        date_string = "circa "
+    if row["month"]!="":
+        date_string += calendar.month_name[row["month"]]+" "
+    if row["day"]!="":
+        date_string += str(row["day"])+" "
+    if row["year"]!="":
+        date_string += str(row["year"])+" "
+    if row["era"]!="":
+        date_string += str(row["era"])
 
-    return date_string
+    return escape(date_string.strip())
 
 def schedule_to_JSONable(row, field_options = ""):
     """
@@ -693,20 +700,16 @@ def geolocator_to_XML(row, field_options = ""):
     return locations_xml
 
 def geolocator_to_META(row, field_options = ""):
-    locations_xml = ""
+    options_xml = "<rdf:Seq>"
 
     for location in Cursor.get_support_fields(Table.GeolocatorSupport, row['rid'], row['flid']):
-        locations_xml += "<Location>"
-        locations_xml += "<Desc>" + escape(location['desc']) + "</Desc>"
-        locations_xml += "<Lat>" + str(location['lat']) + "</Lat>"
-        locations_xml += "<Lon>" + str(location['lon']) + "</Lon>"
-        locations_xml += "<Zone>" + location['zone'] + "</Zone>"
-        locations_xml += "<East>" + str(location['easting']) + "</East>"
-        locations_xml += "<North>" + str(location['northing']) + "</North>"
-        locations_xml += "<Address>" + escape(location['address']) + "</Address>"
-        locations_xml += "</Location>"
+        lat = "<geo:lat>"+str(location['lat'])+"</geo:lat>"
+        long = "<geo:long>"+str(location['lon'])+"</geo:long>"
+        options_xml += "<geo:Point>"+lat+long+"</geo:Point>"
 
-    return locations_xml
+    options_xml += "</rdf:Seq>"
+
+    return options_xml
 
 def associator_to_JSONable(row, field_options = "", assoc_data = "False"):
     """
