@@ -63,7 +63,7 @@ class kora3ApiExternalTool{
     }
 
     //builds the entire json structure of a form search for the api
-    static function formSearchBuilder($fid,$token,$flags,$fields,$sort,$queries,$qLogic){
+    static function formSearchBuilder($fid,$token,$flags,$fields,$sort,$queries,$qLogic,$index=null,$count=null){
         $form = array();
         $form["form"] = $fid;
         $form["token"] = $token;
@@ -71,6 +71,9 @@ class kora3ApiExternalTool{
         $form["data"] = in_array("data",$flags) ? in_array("data",$flags) : false;
         $form["meta"] = in_array("meta",$flags) ? in_array("meta",$flags) : false;
         $form["size"] = in_array("size",$flags) ? in_array("size",$flags) : false;
+
+        $form["index"] = $index;
+        $form["count"] = $count;
 
         if(is_array($fields) && empty($fields))
             $form["fields"] = "ALL";
@@ -214,7 +217,7 @@ class KORA_Clause{
 }
 
 //convertor function
-function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=0,$number=0,$userInfo = array()){
+function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=null,$number=null,$userInfo = array()){
     if (!$koraClause instanceof KORA_Clause) {
         die("The query clause you provided must be an object of class KORA_Clause");
     }
@@ -240,7 +243,9 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
         $fields,
         $newOrder,
         $koraClause->getQueries(),
-        $koraClause->getLogic()
+        $koraClause->getLogic(),
+        $start,
+        $number
     );
 
     array_push($output,$fsArray);
