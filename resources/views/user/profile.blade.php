@@ -22,9 +22,11 @@
                             <button type="button" id="submit_profile_pic" class="btn btn-default">Update Profile Picture</button>
                         </div>
 
+                        @if(\Auth::user()->id == 1)
                         <div class="form-group">
                             <button type="button" id="order_66" class="btn btn-default btn-danger">Order 66</button>
                         </div>
+                        @endif
                         
                         <h3>{{trans('user_profile.info')}}:</h3>
 
@@ -73,11 +75,12 @@
             });
         });
 
+        @if(\Auth::user()->id == 1)
         $( "#order_66" ).on( "click", function() {
             var encode = $('<div/>').html("Are you sure, Emperor?").text();
             var resp1 = confirm(encode);
             if(resp1) {
-                var enc1 = $('<div/>').html("This is your last warning!").text();
+                var enc1 = $('<div/>').html("This is your last warning! EVERYTHING in Kora will be removed permanently!!!").text();
                 var enc2 = $('<div/>').html("Type DELETE to execute Order 66").text();
                 var resp2 = prompt(enc1 + '!', enc2 + '.');
                 // User must literally type "DELETE" into a prompt.
@@ -100,6 +103,7 @@
                 }
             }
         });
+        @endif
 
         function updateLanguage(selected_lang){
             changeProfile("lang",selected_lang);

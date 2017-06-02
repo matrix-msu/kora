@@ -238,6 +238,7 @@ class AdminController extends Controller {
             DB::table('combo_support')->delete();
             DB::table('geolocator_support')->delete();
             DB::table('schedule_support')->delete();
+            DB::table('associator_support')->delete();
 
         }catch(\Exception $e){
             $this->ajaxResponse(false, "Error removing from database");
