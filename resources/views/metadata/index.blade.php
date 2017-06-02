@@ -198,14 +198,17 @@
                     "state": state
                 },
                 success: function(data){
-                    //location.reload();
-                    console.log("Linked Open Data was changed");
+                    if(data!='success'){
+                        var encode = $('<div/>').html(data).text();
+                        alert(encode);
+                        $('#public_metadata').attr('checked', false);
+                    }
                 },
                 error: function(jqxhr, textStatus, errorThrown){
                     console.log("Error in changing linked to open data visibility");
                     //console.log("text status: " + textStatus);
                     //console.log("error thrown: "+errorThrown);
-                    var encode = $('<div/>').html("{{ trans('metadata_index.error') }}").text();
+                    var encode = $('<div/>').html(textStatus).text();
                     alert(encode + ".");
                     location.reload()
                 }

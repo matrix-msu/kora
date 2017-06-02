@@ -167,6 +167,18 @@ class MetadataController extends Controller {
         //Make the metadata public or private
         if($request->input('type')=='visibility'){
             $form = Form::find($fid);
+
+            //Couple checks to make sure things are set up right
+            $resourceTitle = $form->lod_resource;
+            if(is_null($resourceTitle) || $resourceTitle==''){
+                return response("You must give your resource a title.",200);
+            }
+
+            $primeIndex = Metadata::where('fid','=',$fid)->where('primary','=',1)->get()->count();
+            if($primeIndex!=1){
+                return response("You must select a primary index for this form metadata.",200);
+            }
+
             if($request->input('state') == 'true') $form->public_metadata = true;
             else $form->public_metadata = false;
             $form->save();

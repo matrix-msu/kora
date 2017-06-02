@@ -10,6 +10,7 @@ class Metadata extends Model {
         'fid',
         'flid',
         'name',
+        'primary'
     ];
 
     protected $primaryKey = "flid";
