@@ -143,7 +143,7 @@ class XMLWriter(Writer):
     """
     XML Writer class.
     """
-    def write(self, item): ## TODO: Implement.
+    def write(self, item):
         return
 
     def file_name(self):
@@ -196,7 +196,7 @@ class METAWriter(Writer):
     """
     META Writer class.
     """
-    def write(self, item): ## TODO: Implement.
+    def write(self, item):
         return
 
     def file_name(self):

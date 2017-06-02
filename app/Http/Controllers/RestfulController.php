@@ -193,7 +193,7 @@ class RestfulController extends Controller
                                             $invert = $data->invert;
                                         else
                                             $invert = 0;
-                                        $request->request->add([$id.'_' => $invert]);
+                                        $request->request->add([$id.'_invert' => $invert]);
                                         break;
                                     case 'List':
                                         $request->request->add([$id.'_input' => $data->input]);
@@ -205,7 +205,51 @@ class RestfulController extends Controller
                                         $request->request->add([$id.'_input' => $data->input]);
                                         break;
                                     case 'Combo List':
-                                        //TODO
+                                        $type1 = ComboListField::getComboFieldType($field,'one');
+                                        switch($type1){
+                                            case 'Number':
+                                                if(isset($data->left_one))
+                                                    $leftNum = $data->left_one;
+                                                else
+                                                    $leftNum = '';
+                                                $request->request->add([$id.'_1_left' => $leftNum]);
+                                                if(isset($data->right_one))
+                                                    $rightNum = $data->right_one;
+                                                else
+                                                    $rightNum = '';
+                                                $request->request->add([$id.'_1_right' => $rightNum]);
+                                                if(isset($data->invert_one))
+                                                    $invert = $data->invert_one;
+                                                else
+                                                    $invert = 0;
+                                                $request->request->add([$id.'_1_invert' => $invert]);
+                                            default:
+                                                $request->request->add([$id.'_1_input' => $data->input_one]);
+                                                break;
+                                        }
+                                        $type2 = ComboListField::getComboFieldType($field,'two');
+                                        switch($type2){
+                                            case 'Number':
+                                                if(isset($data->left_two))
+                                                    $leftNum = $data->left_two;
+                                                else
+                                                    $leftNum = '';
+                                                $request->request->add([$id.'_2_left' => $leftNum]);
+                                                if(isset($data->right_two))
+                                                    $rightNum = $data->right_two;
+                                                else
+                                                    $rightNum = '';
+                                                $request->request->add([$id.'_2_right' => $rightNum]);
+                                                if(isset($data->invert_two))
+                                                    $invert = $data->invert_two;
+                                                else
+                                                    $invert = 0;
+                                                $request->request->add([$id.'_2_invert' => $invert]);
+                                            default:
+                                                $request->request->add([$id.'_2_input' => $data->input_two]);
+                                                break;
+                                        }
+                                        $request->request->add([$id.'_operator' => $data->operator]);
                                         break;
                                     case 'Date':
                                         if(isset($data->begin_month))
