@@ -149,7 +149,7 @@ class RestfulController extends Controller
                                     break;
                             }
                             $search = new Search($form->pid, $form->fid, $keys, $method);
-                            $rids = $search->formKeywordSearch();
+                            $rids = $search->formKeywordSearch(null,true);
                             $negative = isset($query->not) ? $query->not : false;
                             if($negative){
                                 $rids = $this->negative_results($form,$rids);
@@ -164,6 +164,9 @@ class RestfulController extends Controller
                             $fields = $query->fields;
                             foreach($fields as $flid => $data) {
                                 $field = FieldController::getField($flid);
+                                //Check permission to search externally
+                                if(!$field->isExternalSearchable())
+                                    continue;
                                 $id = $field->flid;
                                 $request->request->add([$id.'_dropdown' => 'on']);
                                 $request->request->add([$id.'_valid' => 1]);

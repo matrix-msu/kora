@@ -73,6 +73,13 @@ class Field extends Model {
     }
 
     /**
+     * Searchable variable getter.
+     */
+    public function isExternalSearchable() {
+        return $this->extsearch;
+    }
+
+    /**
      * Gets the typed field governed by this field.
      * E.g. if this->type == "Text" it will find the TextField it is associated with in the database.
      *

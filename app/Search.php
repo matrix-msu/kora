@@ -63,7 +63,7 @@ class Search
      *
      * @return array, array of rids satisfying search parameters.
      */
-    public function formKeywordSearch($flids=null) {
+    public function formKeywordSearch($flids=null, $external=false) {
         if ($this->arg == "") {
             return [];
         }
@@ -80,8 +80,12 @@ class Search
 
         if ($this->method != Search::SEARCH_AND) {
             foreach ($fields as $field) {
-                if (! isset($used_types[$field->type]) && $field->isSearchable()) {
-                    $used_types[$field->type] = true;
+                //This will account for both cases:
+                // If internal and searchable
+                // If external (api, korasearch) and ext-searchable
+                if ( (!$external && $field->isSearchable()) | ($external && $field->isExternalSearchable()) ) {
+                    if(!isset($used_types[$field->type]))
+                        $used_types[$field->type] = true;
 
                     $rids += $field->keywordSearchTyped($processed, $this->method)->get();
                 }
@@ -96,10 +100,14 @@ class Search
             $rids_array = []; // Stores the results of each individual search.
 
             foreach($fields as $field) {
-                if (! isset($used_types[$field->type]) && $field->isSearchable()) {
-                    $used_types[$field->type] = true;
+                //This will account for both cases:
+                // If internal and searchable
+                // If external (api, korasearch) and ext-searchable
+                if ( (!$external && $field->isSearchable()) | ($external && $field->isExternalSearchable()) ) {
+                    if(!isset($used_types[$field->type]))
+                        $used_types[$field->type] = true;
 
-                    foreach(explode(" ", $processed) as $arg) {
+                    foreach (explode(" ", $processed) as $arg) {
                         $rids_array[] = $field->keywordSearchTyped($arg)->get();
                     }
                 }
