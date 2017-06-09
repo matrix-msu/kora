@@ -94,7 +94,7 @@ def get_data_names(table):
         BaseFieldTypes.DateField: ", `circa`, `month`, `day`, `year`, `era`, `date_object`",
         BaseFieldTypes.DocumentsField: ", `documents`",
         BaseFieldTypes.GalleryField: ", `images`",
-        BaseFieldTypes.GeneratedListField: "",
+        BaseFieldTypes.GeneratedListField: ", `options`",
         BaseFieldTypes.GeolocatorField: "",
         BaseFieldTypes.ListField: ", `option`",
         BaseFieldTypes.ModelField: ", `model`",
