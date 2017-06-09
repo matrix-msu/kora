@@ -112,8 +112,7 @@ class RestfulController extends Controller
                 //return all records
                 $returnRIDS = Record::where("fid","=",$form->fid)->lists('rid')->all();
                 if(!is_null($filters['sort'])){
-                    $sortArray = explode(',',$filters['sort']);
-                    $returnRIDS = $this->sort_rids($returnRIDS,$sortArray);
+                    $returnRIDS = $this->sort_rids($returnRIDS,$filters['sort']);
                     if(!$returnRIDS)
                         return "Illegal field type or invalid field provided for sort in form: " . $form->name;
                 }
