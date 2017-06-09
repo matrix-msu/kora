@@ -553,114 +553,129 @@ def file_formatter_xml(files, url):
 
 def documents_to_JSONable(row, field_options = ""):
     files = row["documents"].split("[!]")
+    cursor = Cursor(Connection())
 
-    curr_pid = Cursor.pid_from_fid(row["fid"])
+    curr_pid = cursor.pid_from_fid(row["fid"])
     url = env("BASE_URL")+"storage/app/files/p"+str(curr_pid)+"/f"+str(row["fid"])+"/r"+str(row["rid"])+"/fl"+str(row["flid"])+"/"
 
     return { "files": file_formatter(files,url) }
 
 def documents_to_XML(row, field_options = ""):
     files = row["documents"].split("[!]")
+    cursor = Cursor(Connection())
 
-    curr_pid = Cursor.pid_from_fid(row["fid"])
+    curr_pid = cursor.pid_from_fid(row["fid"])
     url = env("BASE_URL")+"storage/app/files/p"+str(curr_pid)+"/f"+str(row["fid"])+"/r"+str(row["rid"])+"/fl"+str(row["flid"])+"/"
 
     return file_formatter_xml(files,url)
 
 def documents_to_META(row, field_options = ""):
     files = row["documents"].split("[!]")
+    cursor = Cursor(Connection())
 
-    curr_pid = Cursor.pid_from_fid(row["fid"])
+    curr_pid = cursor.pid_from_fid(row["fid"])
     url = env("BASE_URL")+"storage/app/files/p"+str(curr_pid)+"/f"+str(row["fid"])+"/r"+str(row["rid"])+"/fl"+str(row["flid"])+"/"
 
     return file_formatter_xml(files,url)
 
 def gallery_to_JSONable(row, field_options = ""):
     files = row["images"].split("[!]")
+    cursor = Cursor(Connection())
 
-    curr_pid = Cursor.pid_from_fid(row["fid"])
+    curr_pid = cursor.pid_from_fid(row["fid"])
     url = env("BASE_URL")+"storage/app/files/p"+str(curr_pid)+"/f"+str(row["fid"])+"/r"+str(row["rid"])+"/fl"+str(row["flid"])+"/"
 
     return { "files": file_formatter(files,url) }
 
 def gallery_to_XML(row, field_options = ""):
     files = row["documents"].split("[!]")
+    cursor = Cursor(Connection())
 
-    curr_pid = Cursor.pid_from_fid(row["fid"])
+    curr_pid = cursor.pid_from_fid(row["fid"])
     url = env("BASE_URL")+"storage/app/files/p"+str(curr_pid)+"/f"+str(row["fid"])+"/r"+str(row["rid"])+"/fl"+str(row["flid"])+"/"
 
     return file_formatter_xml(files,url)
 
 def gallery_to_META(row, field_options = ""):
     files = row["documents"].split("[!]")
+    cursor = Cursor(Connection())
 
-    curr_pid = Cursor.pid_from_fid(row["fid"])
+    curr_pid = cursor.pid_from_fid(row["fid"])
     url = env("BASE_URL")+"storage/app/files/p"+str(curr_pid)+"/f"+str(row["fid"])+"/r"+str(row["rid"])+"/fl"+str(row["flid"])+"/"
 
     return file_formatter_xml(files,url)
 
 def playlist_to_JSONable(row, field_options = ""):
     files = row["audio"].split("[!]")
+    cursor = Cursor(Connection())
 
-    curr_pid = Cursor.pid_from_fid(row["fid"])
+    curr_pid = cursor.pid_from_fid(row["fid"])
     url = env("BASE_URL")+"storage/app/files/p"+str(curr_pid)+"/f"+str(row["fid"])+"/r"+str(row["rid"])+"/fl"+str(row["flid"])+"/"
 
     return { "files": file_formatter(files,url) }
 
 def playlist_to_XML(row, field_options = ""):
     files = row["documents"].split("[!]")
+    cursor = Cursor(Connection())
 
-    curr_pid = Cursor.pid_from_fid(row["fid"])
+    curr_pid = cursor.pid_from_fid(row["fid"])
     url = env("BASE_URL")+"storage/app/files/p"+str(curr_pid)+"/f"+str(row["fid"])+"/r"+str(row["rid"])+"/fl"+str(row["flid"])+"/"
 
     return file_formatter_xml(files,url)
 
 def playlist_to_META(row, field_options = ""):
     files = row["documents"].split("[!]")
+    cursor = Cursor(Connection())
 
-    curr_pid = Cursor.pid_from_fid(row["fid"])
+    curr_pid = cursor.pid_from_fid(row["fid"])
     url = env("BASE_URL")+"storage/app/files/p"+str(curr_pid)+"/f"+str(row["fid"])+"/r"+str(row["rid"])+"/fl"+str(row["flid"])+"/"
 
     return file_formatter_xml(files,url)
 
 def video_to_JSONable(row, field_options = ""):
     files = row["video"].split("[!]")
+    cursor = Cursor(Connection())
 
-    curr_pid = Cursor.pid_from_fid(row["fid"])
+    curr_pid = cursor.pid_from_fid(row["fid"])
     url = env("BASE_URL")+"storage/app/files/p"+str(curr_pid)+"/f"+str(row["fid"])+"/r"+str(row["rid"])+"/fl"+str(row["flid"])+"/"
 
     return { "files": file_formatter(files,url) }
 
 def video_to_XML(row, field_options = ""):
     files = row["documents"].split("[!]")
+    cursor = Cursor(Connection())
 
-    curr_pid = Cursor.pid_from_fid(row["fid"])
+    curr_pid = cursor.pid_from_fid(row["fid"])
     url = env("BASE_URL")+"storage/app/files/p"+str(curr_pid)+"/f"+str(row["fid"])+"/r"+str(row["rid"])+"/fl"+str(row["flid"])+"/"
 
     return file_formatter_xml(files,url)
 
 def video_to_META(row, field_options = ""):
     files = row["documents"].split("[!]")
+    cursor = Cursor(Connection())
 
-    curr_pid = Cursor.pid_from_fid(row["fid"])
+    curr_pid = cursor.pid_from_fid(row["fid"])
     url = env("BASE_URL")+"storage/app/files/p"+str(curr_pid)+"/f"+str(row["fid"])+"/r"+str(row["rid"])+"/fl"+str(row["flid"])+"/"
 
     return file_formatter_xml(files,url)
 
 def model_to_JSONable(row, field_options = ""):
-    curr_pid = Cursor.pid_from_fid(row["fid"])
+    cursor = Cursor(Connection())
+    curr_pid = cursor.pid_from_fid(row["fid"])
     url = env("BASE_URL")+"storage/app/files/p"+str(curr_pid)+"/f"+str(row["fid"])+"/r"+str(row["rid"])+"/fl"+str(row["flid"])+"/"
 
     return { "files": file_formatter([ row["model"] ],url) }
 
 def model_to_XML(row, field_options = ""):
-    curr_pid = Cursor.pid_from_fid(row["fid"])
+    cursor = Cursor(Connection())
+    curr_pid = cursor.pid_from_fid(row["fid"])
     url = env("BASE_URL")+"storage/app/files/p"+str(curr_pid)+"/f"+str(row["fid"])+"/r"+str(row["rid"])+"/fl"+str(row["flid"])+"/"
 
     return file_formatter_xml([ row["model"] ],url)
 
 def model_to_META(row, field_options = ""):
-    curr_pid = Cursor.pid_from_fid(row["fid"])
+    cursor = Cursor(Connection())
+    curr_pid = cursor.pid_from_fid(row["fid"])
     url = env("BASE_URL")+"storage/app/files/p"+str(curr_pid)+"/f"+str(row["fid"])+"/r"+str(row["rid"])+"/fl"+str(row["flid"])+"/"
 
     return file_formatter_xml([ row["model"] ],url)

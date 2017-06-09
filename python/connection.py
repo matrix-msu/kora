@@ -268,7 +268,7 @@ class Cursor:
 
         cursor = self._cnx.cursor()
 
-        stmt = "SELECT `flid`, `rid`" + get_data_names(table) + " FROM " + self._prefix + table + " WHERE `rid` = %s"
+        stmt = "SELECT `fid`, `flid`, `rid`" + get_data_names(table) + " FROM " + self._prefix + table + " WHERE `rid` = %s"
 
         cursor.execute(stmt, [rid])
 

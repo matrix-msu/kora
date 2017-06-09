@@ -102,7 +102,7 @@ def get_data_names(table):
         BaseFieldTypes.NumberField: ", `number`",
         BaseFieldTypes.PlaylistField: ", `audio`",
         BaseFieldTypes.RichTextField: ", `rawtext`",
-        BaseFieldTypes.ScheduleField: ", `events`",
+        BaseFieldTypes.ScheduleField: "",
         BaseFieldTypes.TextField: ", `text`",
         BaseFieldTypes.VideoField: ", `video`",
         BaseFieldTypes.AssociatorField: ""
