@@ -38,7 +38,7 @@
 
     <div class="form-group">
         {!! Form::label('default_month','Default '.trans('fields_options_date.month').': ') !!}
-        {!! Form::select('default_month',['' => '',
+        {!! Form::select('default_month',['' => '', '0' => 'Current Month',
             '1' => '01 - '.trans('fields_options_date.jan'), '2' => '02 - '.trans('fields_options_date.feb'),
             '3' => '03 - '.trans('fields_options_date.mar'), '4' => '04 - '.trans('fields_options_date.apr'),
             '5' => '05 - '.trans('fields_options_date.may'), '6' => '06 - '.trans('fields_options_date.june'),
@@ -50,6 +50,11 @@
         <select name="default_day" class="form-control">
             <option value=""></option>
             <?php
+                if(explode('[D]',$field->default)[1]==0){
+                    echo "<option value=" . 0 . " selected>Current Day</option>";
+                }else{
+                    echo "<option value=" . 0 . ">Current Day</option>";
+                }
                 $i = 1;
                 while ($i <= 31)
                 {
@@ -66,6 +71,11 @@
         <select name="default_year" class="form-control" id="default_year">
             <option value=""></option>
             <?php
+            if(explode('[Y]',$field->default)[1]==0){
+                echo "<option value=" . 0 . " selected>Current Year</option>";
+            }else{
+                echo "<option value=" . 0 . ">Current Year</option>";
+            }
             $i = \App\Http\Controllers\FieldController::getFieldOption($field, 'Start');
             $j = \App\Http\Controllers\FieldController::getFieldOption($field, 'End');
             while ($i <= $j)

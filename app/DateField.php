@@ -162,11 +162,11 @@ class DateField extends BaseField {
     }
 
     public static function validateDate($m,$d,$y){
-        if($d!='' && !is_null($d)) {
-            if ($m == '' | is_null($m)) {
+        if($d!='' && !is_null($d) && $d!=0) {
+            if ($m == '' | is_null($m) | $m==0) {
                 return false;
             } else {
-                if($y=='')
+                if($y=='' | $y==0)
                     $y=1;
                 return checkdate($m, $d, $y);
             }
