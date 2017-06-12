@@ -43,7 +43,10 @@
                 <a href="{{ action('FormController@show',['pid' => $project->pid,'fid' => $form->fid]) }}">{{ $form->name }}</a>
             </div>
             <div class="collapseTest" style="display:none">
-                <div class="panel-body"><b>{{trans('projects_show.desc')}}:</b> {{ $form->description }}</div>
+                <div class="panel-body">
+                    <b>{{trans('projects_show.name')}}:</b> {{ $form->slug }}<br>
+                    <b>{{trans('projects_show.desc')}}:</b> {{ $form->description }}
+                </div>
                 <div class="panel-footer">
                     @if(\Auth::user()->canEditForms($project))
                     <span>

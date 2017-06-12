@@ -10,7 +10,10 @@
         <span  class="pull-right">{{ App\Services\Translator::translate($field->type) }} </span>
     </div>
     <div class="collapseTest" style="display:none">
-        <div class="panel-body"><b>{{trans('forms_layout_printfield.desc')}}:</b> {{ $field->desc }}</div>
+        <div class="panel-body">
+            <b>{{trans('projects_show.name')}}:</b> {{ $field->slug }}<br>
+            <b>{{trans('forms_layout_printfield.desc')}}:</b> {{ $field->desc }}
+        </div>
         <div class="panel-footer">
 
             @if(\Auth::user()->canEditFields($form))
