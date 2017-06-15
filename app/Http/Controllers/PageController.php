@@ -76,6 +76,20 @@ class PageController extends Controller
         return $layout;
     }
 
+    public static function restructurePageSequence($pageID){
+        $page = self::getPage($pageID);
+
+        $fields = $page->fields()->get();
+        $index = 0;
+
+        //TODO:: subpages and stuff
+        foreach($fields as $field){
+            $field->sequence = $index;
+            $field->save();
+            $index++;
+        }
+    }
+
     /**
      * Get form object for use in controller.
      *

@@ -318,11 +318,12 @@ class FieldController extends Controller {
         }
 
         $field = FieldController::getField($flid);
+        $form = FormController::getForm($fid);
+        $pageID = $field->page_id; //capture before delete
         $field->delete();
 
-        $form = FormController::getForm($fid);
-        //TODO::we need to restructure page sequence on delete
-        $form->save();
+        //we need to restructure page sequence on delete
+        PageController::restructurePageSequence($pageID);
 
         RevisionController::wipeRollbacks($form->fid);
 
