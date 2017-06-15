@@ -22,7 +22,6 @@ class CreateFormsTable extends Migration {
 			$table->string('name');
 			$table->string('slug')->unique();
 			$table->string('description');
-            $table->text('layout');
             $table->boolean('preset');
             $table->boolean('public_metadata');
             $table->string('lod_resource')->default('');

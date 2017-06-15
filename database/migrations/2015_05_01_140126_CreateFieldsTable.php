@@ -19,7 +19,8 @@ class CreateFieldsTable extends Migration {
             $table->increments('flid');
             $table->integer('pid')->unsigned();
             $table->integer('fid')->unsigned();
-            $table->string('order');
+            $table->integer('page_id')->unsigned();
+            $table->integer('sequence')->unsigned();
             $table->string('type');
             $table->string('name');
             $table->string('slug')->unique();
@@ -35,6 +36,7 @@ class CreateFieldsTable extends Migration {
 			$table->timestamps();
 
             $table->foreign(['pid', 'fid'])->references(['pid', 'fid'])->on('forms')->onDelete('cascade');
+            $table->foreign('page_id')->references('id')->on('pages')->onDelete('cascade');
 		});
 	}
 

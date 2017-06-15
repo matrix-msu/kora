@@ -89,10 +89,9 @@ Route::post('/projects/{pid}/forms/importk2','ImportController@importFormK2');
 Route::get('/projects/{pid}/forms/{fid}','FormController@show');
 Route::delete('/projects/{pid}/forms/{fid}','FormController@destroy');
 Route::get('/projects/{pid}/forms/{fid}/edit','FormController@edit');
-Route::post('/projects/{pid}/forms/{fid}/createNode','FormController@addNode');
-Route::post('/projects/{pid}/forms/{fid}/deleteNode/{title}','FormController@deleteNode');
 Route::post('/projects/{pid}/forms/{fid}/preset', 'FormController@preset');
 Route::post('/projects/{pid}','FormController@store');
+Route::post('/projects/{pid}/forms/{fid}/pages/modify', 'PageController@modifyFormPage');
 
 //export routes
 Route::get('/projects/{pid}/forms/{fid}/exportRecords/{type}','ExportController@exportRecords');
@@ -132,7 +131,6 @@ Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/assoc','FieldAjax
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/clearRecency', 'FieldController@clearRecency');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/checkRecency', 'FieldController@checkRecency');
 Route::post('/projects/{pid}/forms/{fid}','FieldController@store');
-Route::post('/field/move', 'FieldNavController@index');
 Route::post('/saveTmpFile/{flid}', 'FieldAjaxController@saveTmpFile');
 Route::patch('/saveTmpFile/{flid}', 'FieldAjaxController@saveTmpFile');
 Route::delete('/deleteTmpFile/{flid}/{filename}', 'FieldAjaxController@delTmpFile');

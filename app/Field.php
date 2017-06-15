@@ -10,6 +10,8 @@ class Field extends Model {
     protected $fillable = [
         'pid',
         'fid',
+        'page_id',
+        'sequence',
         'type',
         'name',
         'slug',

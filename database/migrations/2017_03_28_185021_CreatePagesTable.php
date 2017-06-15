@@ -17,25 +17,14 @@ class CreatePagesTable extends Migration
             $table->engine = 'MyISAM';
 
             $table->increments('id');
-            $table->integer('fid')->unsigned();
+            $table->string('parent_type');
+            $table->integer('fid')->unsigned()->nullable();
+            $table->foreign('fid')->references('fid')->on('forms')->onDelete('cascade');
+            $table->integer('page_id')->unsigned()->nullable();
+            $table->foreign('page_id')->references('id')->on('pages')->onDelete('cascade');
             $table->string('title');
             $table->integer('sequence')->unsigned();
             $table->timestamps();
-
-            $table->foreign('fid')->references('fid')->on('forms')->onDelete('cascade');
-        });
-
-        Schema::create('page_field', function(Blueprint $table)
-        {
-            $table->engine = 'MyISAM';
-
-            $table->integer('page_id')->unsigned()->index();
-            $table->foreign('page_id')->references('id')->on('pages')->onDelete('cascade');
-
-            $table->integer('flid')->unsigned()->index();
-            $table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
-
-            $table->integer('sequence')->unsigned();
         });
     }
 
@@ -46,7 +35,6 @@ class CreatePagesTable extends Migration
      */
     public function down()
     {
-        Schema::drop('page_field');
         Schema::drop('pages');
     }
 }

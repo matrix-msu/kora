@@ -71,12 +71,6 @@ class FieldController extends Controller {
         $field->default = FieldDefaults::getDefault($field->type);
         $field->save();
 
-        //need to add field to layout xml
-        $form = FormController::getForm($field->fid);
-        $layout = explode('</LAYOUT>',$form->layout);
-        $form->layout = $layout[0].'<ID>'.$field->flid.'</ID></LAYOUT>';
-        $form->save();
-
         //if advanced options was selected we should call the correct one
         $advError = false;
         if($request->advance) {
@@ -89,6 +83,7 @@ class FieldController extends Controller {
         }
 
         //A field has been changed, so current record rollbacks become invalid.
+        $form = FormController::getForm($field->fid);
         RevisionController::wipeRollbacks($form->fid);
 
         if(!$advError) //if we error on the adv page we should hide the success message so error can display

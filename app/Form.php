@@ -1,5 +1,6 @@
 <?php namespace App;
 
+use App\Http\Controllers\PageController;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -32,6 +33,15 @@ class Form extends Model {
      */
     public function fields(){
         return $this->hasMany('App\Field', 'fid');
+    }
+
+    /**
+     * Returns the pages associtated with a form
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function pages(){
+        return $this->hasMany('App\Page', 'fid')->orderBy('sequence');
     }
 
     /**
@@ -72,11 +82,12 @@ class Form extends Model {
         DB::table("record_presets")->where("fid", "=", $this->fid)->delete();
         DB::table("associations")->where("dataForm", "=", $this->fid)->orWhere("assocForm", "=", $this->fid)->delete();
         DB::table("revisions")->where("fid", "=", $this->fid)->delete();
-        DB::table("pages")->where("fid", "=", $this->fid)->delete();
+
         FormGroup::where("fid", "=", $this->fid)->delete();
 
         $records = Record::where("fid", "=", $this->fid)->get();
         $fields = Field::where("fid", "=", $this->fid)->get();
+        $pages = Page::where("fid", "=", $this->fid)->get();
 
         foreach($records as $record) {
             $record->delete();
@@ -84,6 +95,10 @@ class Form extends Model {
 
         foreach($fields as $field) {
             $field->delete();
+        }
+
+        foreach($pages as $page) {
+            $page->delete();
         }
 
         parent::delete();

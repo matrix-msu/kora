@@ -75,8 +75,9 @@ class FormController extends Controller {
 	{
         $form = Form::create($request->all());
 
-        $form->layout = '<LAYOUT></LAYOUT>';
         $form->save();
+
+        PageController::makePageOnForm($form->fid,$form->slug." Default Page");
 
         $adminGroup = FormController::makeAdminGroup($form, $request);
         FormController::makeDefaultGroup($form);
@@ -111,7 +112,9 @@ class FormController extends Controller {
         $proj = ProjectController::getProject($pid);
         $projName = $proj->name;
 
-        return view('forms.show', compact('form','projName'));
+        $pageLayout = PageController::getFormLayout($fid);
+
+        return view('forms.show', compact('form','projName','pageLayout'));
 	}
 
 	/**
@@ -185,75 +188,6 @@ class FormController extends Controller {
 
         flash()->overlay(trans('controller_form.delete'),trans('controller_form.goodjob'));
 	}
-
-    public function addNode($pid,$fid, Request $request){
-        if(!FormController::validProjForm($pid,$fid)){
-            return redirect('projects/'.$pid);
-        }
-
-        $form = FormController::getForm($fid);
-        $name = $request->name;
-
-        if(is_null($request->nodeTitle)) {
-            $layout = explode('</LAYOUT>', $form->layout)[0];
-
-            $layout .= "<NODE title='" . $name . "'></NODE></LAYOUT>";
-        }else{
-            $newNode = "<NODE title='" . $name . "'></NODE>";
-            $containerNode = "<NODE title='" . $request->nodeTitle . "'>";
-            $parts = explode($containerNode,$form->layout);
-
-            $layout = $parts[0].$containerNode.$newNode.$parts[1];
-        }
-
-        $form->layout = $layout;
-        $form->save();
-
-        flash()->overlay(trans('controller_form.createnode'),trans('controller_form.goodjob'));
-
-        return redirect('projects/'.$form->pid.'/forms/'.$form->fid);
-    }
-
-    public function deleteNode($pid,$fid,$title, Request $request){
-        if(!FormController::validProjForm($pid,$fid)){
-            return redirect('projects/'.$pid);
-        }
-
-        $form = FormController::getForm($fid);
-
-        $layout = FormController::xmlToArray($form->layout);
-
-        $nodeStart=0;
-        for($i=0;$i<sizeof($layout);$i++){
-            if($layout[$i]['tag']=='NODE' && $layout[$i]['type']=='open' && $layout[$i]['attributes']['TITLE']==$title){
-                $nodeStart = $i;
-                break;
-            }
-        }
-
-        for($j=$nodeStart+1;$j<sizeof($layout);$j++){
-            if(isset($layout[$j]) && $layout[$j]['tag']=='NODE' && $layout[$j]['type']=='close' && $layout[$j]['level']==$layout[$nodeStart]['level']){
-                $nodeEnd = $j;
-                break;
-            }
-        }
-
-        $newLayout = array();
-
-        for($k=0;$k<sizeof($layout);$k++){
-            if($k!=$i && $k!=$j){
-                array_push($newLayout,$layout[$k]);
-            }
-        }
-
-        $fNav = new FieldNavController();
-        $form->layout = $fNav->valsToXML($newLayout);
-        $form->save();
-
-        flash()->overlay(trans('controller_form.deletenode'),trans('controller_form.goodjob'));
-
-        return redirect('projects/'.$form->pid.'/forms/'.$form->fid);
-    }
 
     /**
      * Sets a form as a preset.
@@ -339,65 +273,6 @@ class FormController extends Controller {
             return true;
         else
             return false;
-    }
-
-    /**
-     * Converts a form layout to an array.
-     *
-     * @param $layout
-     * @return mixed
-     */
-    public static function xmlToArray($layout){
-        $xml = xml_parser_create();
-        xml_parse_into_struct($xml,$layout, $vals, $index);
-
-        for($i=0;$i<sizeof($vals);$i++){
-            if($vals[$i]['tag']=='NODE' && $vals[$i]['type']=='complete'){
-                $j = $i;
-                $first = true;
-                for($k=sizeof($vals)-1;$k>$j;$k--){
-                    if($k==$j+1 && $first){
-                        //push k to end of array
-                        array_push($vals,$vals[$k]);
-                        //gather variables
-                        $lvl = $vals[$j]['level'];
-                        $title = $vals[$j]['attributes']['TITLE'];
-                        //add open to j
-                        $open = ['tag'=>'NODE', 'type'=>'open', 'level'=>$lvl, 'attributes'=>['TITLE'=>$title]];
-                        $vals[$j] = $open;
-                        //add close to k
-                        $close = ['tag'=>'NODE', 'type'=>'close', 'level'=>$lvl];
-                        $vals[$k] = $close;
-                        //break
-                        break;
-                    }else if ($k==$j+1){
-                        //move k to k+1
-                        $vals[$k+1] = $vals[$k];
-                        //gather variables
-                        $lvl = $vals[$j]['level'];
-                        $title = $vals[$j]['attributes']['TITLE'];
-                        //add open to j
-                        $open = ['tag'=>'NODE', 'type'=>'open', 'level'=>$lvl, 'attributes'=>['TITLE'=>$title]];
-                        $vals[$j] = $open;
-                        //add close to k
-                        $close = ['tag'=>'NODE', 'type'=>'close', 'level'=>$lvl];
-                        $vals[$k] = $close;
-                        //break
-                        break;
-                    }else if ($first){
-                        //push k to end of array
-                        array_push($vals,$vals[$k]);
-                        //first = false
-                        $first = false;
-                    }else{
-                        //move k to k+1
-                        $vals[$k+1] = $vals[$k];
-                    }
-                }
-            }
-        }
-
-        return $vals;
     }
 
     /**
@@ -547,19 +422,8 @@ class FormController extends Controller {
             $field_assoc[$field->flid] = $new->flid;
         }
 
-        $xmlArray = FormController::xmlToArray($form->layout);
-        for($i=0; $i<sizeof($xmlArray); $i++)
-        {
-            if($xmlArray[$i]['tag'] == 'ID')
-            {
-                $temp = $field_assoc[$xmlArray[$i]['value']];
-                $xmlArray[$i]['value'] = $temp;
-            }
-        }
+        //TODO::recreate pages for the form being a preset
 
-        $x = new FieldNavController();
-        $xmlString = $x->valsToXML($xmlArray);
-        $form->layout = $xmlString;
         $form->save();
     }
 }

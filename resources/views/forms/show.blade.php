@@ -62,19 +62,26 @@
         </div> <br>
     @endif
 
-    @include('forms.layout.logic',['form' => $form, 'fieldview' => 'forms.layout.printfield', 'layoutPage' => true])
+    <div id="form_pages">
+    @foreach($pageLayout as $page)
+        <h2>{{$page["title"]}}</h2>
 
-    @if(\Auth::user()->canCreateFields($form))
-        <form action="{{action('FormController@addNode', ['pid' => $form->pid, 'fid' => $form->fid]) }}"
-              method="POST" class="form-group form-inline">
-            <input type="hidden" value="{{ csrf_token() }}" name="_token">
-            <input type="text" name="name" class = "form-control" required/>
-            <input type="submit" value="{{trans('forms_show.createnode')}}" class="btn form-control">
-        </form>
-        <form action="{{action('FieldController@create', ['pid' => $form->pid, 'fid' => $form->fid]) }}">
-            <input type="submit" value="{{trans('forms_show.createfield')}}" class="btn btn-primary form-control">
-        </form>
-    @endif
+        <hr>
+
+        <button type="button" class="move_pageUp" pageid="{{$page["id"]}}">UP</button>
+        <button type="button" class="move_pageDown" pageid="{{$page["id"]}}">DOWN</button>
+        <button type="button" class="delete_page" pageid="{{$page["id"]}}">DELETE</button>
+
+        <div>THE FIELD CONTENT WILL BE HERE</div>
+
+        <hr>
+
+        <button type="button" class="add_page" pageid="{{$page["id"]}}">ADD PAGE</button>
+        {!! Form::text("pagetext_".$page["id"], null, ['id' => "pagetext_".$page["id"]]) !!}
+
+        <br><br>
+    @endforeach
+    </div>
 
 @stop
 
@@ -86,6 +93,84 @@
             }else {
                 $(this).siblings('.collapseTest').slideUp();
             }
+        });
+
+        $( "#form_pages" ).on( "click", ".move_pageUp", function() {
+            var page_id = $(this).attr('pageid');
+
+            $.ajax({
+                //We manually create the link in a cheap way because our JS isn't aware of the fid until runtime
+                //We pass in a blank project to the action array and then manually add the id
+                url: '{{ action('PageController@modifyFormPage', ['pid' => $form->pid, 'fid' => $form->fid]) }}',
+                type: 'POST',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "method": "{{\App\Http\Controllers\PageController::_UP}}",
+                    "pageID": page_id
+                },
+                success: function (result) {
+                    location.reload();
+                }
+            });
+        });
+
+        $( "#form_pages" ).on( "click", ".move_pageDown", function() {
+            var page_id = $(this).attr('pageid');
+
+            $.ajax({
+                //We manually create the link in a cheap way because our JS isn't aware of the fid until runtime
+                //We pass in a blank project to the action array and then manually add the id
+                url: '{{ action('PageController@modifyFormPage', ['pid' => $form->pid, 'fid' => $form->fid]) }}',
+                type: 'POST',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "method": "{{\App\Http\Controllers\PageController::_DOWN}}",
+                    "pageID": page_id
+                },
+                success: function (result) {
+                    location.reload();
+                }
+            });
+        });
+
+        $( "#form_pages" ).on( "click", ".delete_page", function() {
+            var page_id = $(this).attr('pageid');
+
+            $.ajax({
+                //We manually create the link in a cheap way because our JS isn't aware of the fid until runtime
+                //We pass in a blank project to the action array and then manually add the id
+                url: '{{ action('PageController@modifyFormPage', ['pid' => $form->pid, 'fid' => $form->fid]) }}',
+                type: 'POST',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "method": "{{\App\Http\Controllers\PageController::_DELETE}}",
+                    "pageID": page_id
+                },
+                success: function (result) {
+                    location.reload();
+                }
+            });
+        });
+
+        $( "#form_pages" ).on( "click", ".add_page", function() {
+            var page_id = $(this).attr('pageid');
+            var title = $("#pagetext_"+page_id).val();
+
+            $.ajax({
+                //We manually create the link in a cheap way because our JS isn't aware of the fid until runtime
+                //We pass in a blank project to the action array and then manually add the id
+                url: '{{ action('PageController@modifyFormPage', ['pid' => $form->pid, 'fid' => $form->fid]) }}',
+                type: 'POST',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "method": "{{\App\Http\Controllers\PageController::_ADD}}",
+                    "aboveID": page_id,
+                    "newPageName": title
+                },
+                success: function (result) {
+                    location.reload();
+                }
+            });
         });
 
         function deleteField(fieldName, flid) {
@@ -105,50 +190,6 @@
                     }
                 });
             }
-        }
-
-        var fieldNavAjax = '{{ action('FieldNavController@index') }}';
-
-        function moveFieldUp(flid){
-            $.post(fieldNavAjax, { action:'moveFieldUp', flid:flid, _token: "{{ csrf_token() }}", _method:'POST'},
-                    function(resp){
-                        location.reload();
-                    }, 'html');
-        }
-
-        function moveFieldDown(flid){
-            $.post(fieldNavAjax, { action:'moveFieldDown', flid:flid, _token: "{{ csrf_token() }}", _method:'POST'},
-                    function(resp){
-                        location.reload();
-                    }, 'html');
-        }
-
-        function moveFieldUpIn(flid){
-            $.post(fieldNavAjax, { action:'moveFieldUpIn', flid:flid, _token: "{{ csrf_token() }}", _method:'POST'},
-                    function(resp){
-                        location.reload();
-                    }, 'html');
-        }
-
-        function moveFieldDownIn(flid){
-            $.post(fieldNavAjax, { action:'moveFieldDownIn', flid:flid, _token: "{{ csrf_token() }}", _method:'POST'},
-                    function(resp){
-                        location.reload();
-                    }, 'html');
-        }
-
-        function moveFieldUpOut(flid){
-            $.post(fieldNavAjax, { action:'moveFieldUpOut', flid:flid, _token: "{{ csrf_token() }}", _method:'POST'},
-                    function(resp){
-                        location.reload();
-                    }, 'html');
-        }
-
-        function moveFieldDownOut(flid){
-            $.post(fieldNavAjax, { action:'moveFieldDownOut', flid:flid, _token: "{{ csrf_token() }}", _method:'POST'},
-                    function(resp){
-                        location.reload();
-                    }, 'html');
         }
 
         function presetForm(){
