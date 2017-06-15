@@ -66,18 +66,29 @@
     @foreach($pageLayout as $page)
         <h2>{{$page["title"]}}</h2>
 
-        <hr>
-
+        @if(\Auth::user()->canCreateFields($form))
         <button type="button" class="move_pageUp" pageid="{{$page["id"]}}">UP</button>
         <button type="button" class="move_pageDown" pageid="{{$page["id"]}}">DOWN</button>
         <button type="button" class="delete_page" pageid="{{$page["id"]}}">DELETE</button>
-
-        <div>THE FIELD CONTENT WILL BE HERE</div>
+        @endif
 
         <hr>
 
+        @foreach($page["fields"] as $field)
+            @include('forms.layout.printfield', ['field' => $field])
+        @endforeach
+
+        <hr>
+
+        @if(\Auth::user()->canCreateFields($form))
+        <form method="POST" action="{{action('FieldController@create', ['pid' => $form->pid, 'fid' => $form->fid]) }}">
+            <input type="hidden" value="{{$page["id"]}}" name="rootPage"/>
+            <input type="hidden" value="{{ csrf_token() }}" name="_token"/>
+            <input type="submit" value="{{trans('forms_show.createfield')}}" class="btn btn-primary">
+        </form>
         <button type="button" class="add_page" pageid="{{$page["id"]}}">ADD PAGE</button>
         {!! Form::text("pagetext_".$page["id"], null, ['id' => "pagetext_".$page["id"]]) !!}
+        @endif
 
         <br><br>
     @endforeach

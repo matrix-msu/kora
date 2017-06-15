@@ -86,15 +86,10 @@ class Form extends Model {
         FormGroup::where("fid", "=", $this->fid)->delete();
 
         $records = Record::where("fid", "=", $this->fid)->get();
-        $fields = Field::where("fid", "=", $this->fid)->get();
         $pages = Page::where("fid", "=", $this->fid)->get();
 
         foreach($records as $record) {
             $record->delete();
-        }
-
-        foreach($fields as $field) {
-            $field->delete();
         }
 
         foreach($pages as $page) {

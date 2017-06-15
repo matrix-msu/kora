@@ -35,7 +35,7 @@ class FieldController extends Controller {
      * @param $fid
      * @return Response
      */
-	public function create($pid, $fid)
+	public function create($pid, $fid, Request $request)
 	{
         if(!FormController::validProjForm($pid, $fid)){
             return redirect('projects/'.$pid);
@@ -46,7 +46,8 @@ class FieldController extends Controller {
         }
 
 		$form = FormController::getForm($fid);
-        return view('fields.create', compact('form'));
+        $rootPage = $request->rootPage;
+        return view('fields.create', compact('form','rootPage'));
 	}
 
     /**
@@ -58,6 +59,7 @@ class FieldController extends Controller {
 	public function store(FieldRequest $request)
     {
         //dd($request);
+        $seq = PageController::getNewPageFieldSequence($request->page_id); //we do this before anything so the new field isnt counted in it's logic
         $field = Field::Create($request->all());
 
         //special error check for combo list field
@@ -69,6 +71,9 @@ class FieldController extends Controller {
 
         $field->options = FieldDefaults::getOptions($field->type);
         $field->default = FieldDefaults::getDefault($field->type);
+
+        $field->sequence = $seq;
+
         $field->save();
 
         //if advanced options was selected we should call the correct one
@@ -316,8 +321,7 @@ class FieldController extends Controller {
         $field->delete();
 
         $form = FormController::getForm($fid);
-        $layout = explode('<ID>'.$field->flid.'</ID>',$form->layout);
-        $form->layout = $layout[0].$layout[1];
+        //TODO::we need to restructure page sequence on delete
         $form->save();
 
         RevisionController::wipeRollbacks($form->fid);

@@ -468,8 +468,6 @@ class Field extends Model {
 
         DB::table("metadatas")->where("flid", "=", $this->flid)->delete();
 
-        DB::table("page_field")->where("flid", "=", $this->flid)->delete();
-
         parent::delete();
     }
 

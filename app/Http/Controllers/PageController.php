@@ -26,7 +26,7 @@ class PageController extends Controller
         $page = new Page();
 
         $page->title = $name;
-        $page->parent_type = PageController::_FORM;
+        $page->parent_type = self::_FORM;
         $page->fid = $fid;
 
         $form = FormController::getForm($fid);
@@ -63,7 +63,8 @@ class PageController extends Controller
         foreach($pages as $page){
             $pArr = array();
 
-            //TODO:: some stuff about fields and subpages
+            //TODO:: some stuff about subpages
+            $pArr["fields"] = $page->fields()->get();
 
             $pArr["title"] = $page->title;
             $pArr["id"] = $page->id;
@@ -88,6 +89,18 @@ class PageController extends Controller
         return $page;
     }
 
+    public static function getNewPageFieldSequence($pageID){
+        //TODO:: should consider sub pages eventually
+        $page = self::getPage($pageID);
+
+        $lField = $page->fields()->get()->last();
+
+        if(is_null($lField)){
+            return 0;
+        }else
+            return $lField->sequence+1;
+    }
+
 
     public function modifyFormPage($pid, $fid, Request $request){
         $method = $request->method;
@@ -95,9 +108,9 @@ class PageController extends Controller
         $pages = $form->pages()->get();
 
         switch($method){
-            case PageController::_UP:
+            case self::_UP:
                 $id = $request->pageID;
-                $page = PageController::getPage($id);
+                $page = self::getPage($id);
                 $currSeq = $page->sequence;
 
                 if($currSeq != 0){
@@ -111,9 +124,9 @@ class PageController extends Controller
                 }
 
                 break;
-            case PageController::_DOWN:
+            case self::_DOWN:
                 $id = $request->pageID;
-                $page = PageController::getPage($id);
+                $page = self::getPage($id);
                 $currSeq = $page->sequence;
 
                 if($currSeq != ($pages->count()-1)){
@@ -127,7 +140,7 @@ class PageController extends Controller
                 }
 
                 break;
-            case PageController::_DELETE:
+            case self::_DELETE:
                 $id = $request->pageID;
 
                 $found = false;
@@ -151,7 +164,7 @@ class PageController extends Controller
                 if(!is_null($delPage))
                     $delPage->delete();
                 break;
-            case PageController::_ADD:
+            case self::_ADD:
                 $name = $request->newPageName;
                 $aboveID = $request->aboveID;
 
@@ -169,7 +182,7 @@ class PageController extends Controller
                         $nPage = new Page();
 
                         $nPage->title = $name;
-                        $nPage->parent_type = PageController::_FORM;
+                        $nPage->parent_type = self::_FORM;
                         $nPage->fid = $fid;
                         $nPage->sequence = $page->sequence + 1;
 
@@ -177,10 +190,10 @@ class PageController extends Controller
                     }
                 }
                 break;
-            case PageController::_RENAME:
+            case self::_RENAME:
                 $id = $request->pageID;
                 $name = $request->updatedName;
-                $page = PageController::getPage($id);
+                $page = self::getPage($id);
 
                 $page->title = $name;
                 $page->save();

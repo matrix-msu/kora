@@ -103,7 +103,7 @@ Route::get('/checkRecordExport/{fid}', 'ExportController@checkRecordExport');
 //field routes
 Route::get('/projects/{pid}/forms/{fid}/fields','FormController@show'); //alias for form/{id}
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}','FieldController@update');
-Route::get('/projects/{pid}/forms/{fid}/fields/create','FieldController@create');
+Route::post('/projects/{pid}/forms/{fid}/fields/create','FieldController@create');
 Route::get('/projects/{pid}/forms/{fid}/fields/{flid}','FieldController@show');
 Route::delete('/projects/{pid}/forms/{fid}/fields/{flid}','FieldController@destroy');
 Route::get('/projects/{pid}/forms/{fid}/fields/{flid}/edit','FieldController@edit');

@@ -1,5 +1,6 @@
 {!! Form::hidden('pid',$pid) !!}
 {!! Form::hidden('fid',$fid) !!}
+{!! Form::hidden('page_id',$rootPage) !!}
 <div class="form-group">
     {!! Form::label('name',trans('fields_form.name').': ') !!}
     {!! Form::text('name',null,['class' => 'form-control']) !!}

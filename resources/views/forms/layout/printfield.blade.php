@@ -29,9 +29,6 @@
                     <a onclick="deleteField('{{ $field->name }}', {{ $field->flid }})" href="javascript:void(0)">[{{trans('forms_layout_printfield.delete')}}]</a>
                 </span>
             @endif
-                <span  class="pull-right">
-                    @include('forms.layout.navbuttons',['layout'=>\App\Http\Controllers\FieldNavController::navButtonsAllowed($form->layout, $field->flid)])
-                </span>
         </div>
     </div>
 </div>
