@@ -75,7 +75,14 @@
             </span>
         </div>
         <div class="panel-body">
-            @include('forms.layout.logic',['form' => $form, 'fieldview' => 'records.layout.displayfield'])
+            @foreach(\App\Http\Controllers\PageController::getFormLayout($form->fid) as $page)
+                <h4>{{$page["title"]}}</h4>
+                <hr>
+                @foreach($page["fields"] as $field)
+                    @include('records.layout.displayfield', ['field' => $field])
+                @endforeach
+                <hr>
+            @endforeach
             <div><b>{{trans('records_show.owner')}}:</b> {{ $owner->username }}</div>
             <div><b>{{trans('records_show.created')}}:</b> {{ $record->created_at }}</div>
             <div><b>{{trans('records_show.assoc')}}:</b>
