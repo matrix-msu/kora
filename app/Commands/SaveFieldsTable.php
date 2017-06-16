@@ -40,12 +40,17 @@ class SaveFieldsTable extends Command implements SelfHandling, ShouldQueue
                 $individual_field_data->put("flid", $field->flid);
                 $individual_field_data->put("pid", $field->pid);
                 $individual_field_data->put("fid", $field->fid);
-                $individual_field_data->put("order", $field->order);
+                $individual_field_data->put("page_id", $field->page_id);
+                $individual_field_data->put("sequence", $field->sequence);
                 $individual_field_data->put("type", $field->type);
                 $individual_field_data->put("name", $field->name);
                 $individual_field_data->put("slug", $field->slug);
                 $individual_field_data->put("desc", $field->desc);
                 $individual_field_data->put("required", $field->required);
+                $individual_field_data->put("searchable", $field->searchable);
+                $individual_field_data->put("extsearch", $field->extsearch);
+                $individual_field_data->put("viewable", $field->viewable);
+                $individual_field_data->put("extview", $field->extview);
                 $individual_field_data->put("default", $field->default);
                 $individual_field_data->put("options", $field->options);
                 $individual_field_data->put("created_at", $field->created_at->toDateTimeString());

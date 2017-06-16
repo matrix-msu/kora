@@ -401,7 +401,7 @@ class FormController extends Controller {
 
         $field_assoc = array();
 
-        $form->layout = $preset->layout;
+        $form->layout = $preset->layout; //TODO::layout
 
         //Duplicate fields
         foreach($preset->fields()->get() as $field)

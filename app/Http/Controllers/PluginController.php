@@ -242,7 +242,7 @@ class PluginController extends Controller
             $form->slug = $fileArray->slug;
         }
         $form->description = $fileArray->desc;
-        $form->layout = $fileArray->layout;
+        $form->layout = $fileArray->layout; //TODO::layout
         $form->preset = $fileArray->preset;
         $form->public_metadata = $fileArray->metadata;
 
@@ -296,7 +296,7 @@ class PluginController extends Controller
 
             $field->save();
 
-            //fix layout
+            //fix layout //TODO::layout
             $form->layout = str_replace('<ID>'.$fieldArray->slug.'</ID>','<ID>'.$field->flid.'</ID>',$form->layout);
             $form->save();
 

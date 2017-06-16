@@ -43,7 +43,7 @@ class SaveFormsTable extends Command implements SelfHandling, ShouldQueue
                 $form_data->put("name", $form->name);
                 $form_data->put("slug", $form->slug);
                 $form_data->put("description", $form->description);
-                $form_data->put("layout", $form->layout);
+                $form_data->put("lod_resource", $form->description);
                 $form_data->put("preset", $form->preset);
                 $form_data->put("public_metadata", $form->public_metadata);
                 $form_data->put("created_at", $form->created_at->toDateTimeString());

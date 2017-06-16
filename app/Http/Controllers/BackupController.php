@@ -24,6 +24,7 @@ use App\Commands\SaveModelFieldsTable;
 use App\Commands\SaveMultiSelectListFieldsTable;
 use App\Commands\SaveNumberFieldsTable;
 use App\Commands\SaveOptionPresetsTable;
+use App\Commands\SavePagesTable;
 use App\Commands\SavePlaylistFieldsTable;
 use App\Commands\SavePluginMenusTable;
 use App\Commands\SavePluginSettingsTable;
@@ -250,7 +251,8 @@ class BackupController extends Controller
             new SavePluginUsersTable($backup_disk, $path, $backup_id),
             new SaveDashboardBlocksTable($backup_disk, $path, $backup_id),
             new SaveDashboardSectionsTable($backup_disk, $path, $backup_id),
-            new SaveUsersTable($backup_disk, $path, $backup_id)];
+            new SaveUsersTable($backup_disk, $path, $backup_id),
+            new SavePagesTable($backup_disk, $path, $backup_id)];
 
         foreach($jobs as $job){
             //Queue::push($job);
@@ -453,6 +455,7 @@ class BackupController extends Controller
             }
             DB::table('projects')->delete();
             DB::table('forms')->delete();
+            DB::table('pages')->delete();
             DB::table('fields')->delete();
             DB::table('records')->delete();
             DB::table('metadatas')->delete();
@@ -511,6 +514,7 @@ class BackupController extends Controller
         $jobs = [new RestoreTable("users",$dir, $restore_id),
             new RestoreTable('projects',$dir, $restore_id),
             new RestoreTable('forms',$dir, $restore_id),
+            new RestoreTable('pages',$dir, $restore_id),
             new RestoreTable('fields',$dir, $restore_id),
             new RestoreTable('records',$dir, $restore_id),
             new RestoreTable('metadatas',$dir, $restore_id),

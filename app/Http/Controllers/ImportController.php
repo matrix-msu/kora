@@ -872,7 +872,7 @@ class ImportController extends Controller {
             $form->slug = $fileArray->slug;
         }
         $form->description = $fileArray->desc;
-        $form->layout = $fileArray->layout;
+        $form->layout = $fileArray->layout; //TODO::layout
         $form->preset = $fileArray->preset;
         $form->public_metadata = $fileArray->metadata;
 
@@ -927,7 +927,7 @@ class ImportController extends Controller {
 
             $field->save();
 
-            //fix layout
+            //fix layout //TODO::layout
             $form->layout = str_replace('<ID>'.$fieldArray->slug.'</ID>','<ID>'.$field->flid.'</ID>',$form->layout);
             $form->save();
 
@@ -965,7 +965,7 @@ class ImportController extends Controller {
         $form->pid = $pid;
         $form->preset = 0;
         $form->public_metadata = 0;
-        $form->layout = '<LAYOUT></LAYOUT>';
+        $form->layout = '<LAYOUT></LAYOUT>'; //TODO::layout
         $form->save();
 
         $admin = $this->makeFormAdminGroup($form);
@@ -1201,7 +1201,7 @@ class ImportController extends Controller {
         }
 
         //update form layout
-        $newLay = '<LAYOUT>';
+        $newLay = '<LAYOUT>'; //TODO::layout
         foreach($nodes as $node){
             $newLay .= "<NODE title='".$node['name']."'>";
             foreach($node['fields'] as $fid){
@@ -1502,7 +1502,7 @@ class ImportController extends Controller {
             $form->slug = $fileArray->slug;
         }
         $form->description = $fileArray->desc;
-        $form->layout = $fileArray->layout;
+        $form->layout = $fileArray->layout; //TODO::layout
         $form->preset = $fileArray->preset;
         $form->public_metadata = $fileArray->metadata;
 
@@ -1557,7 +1557,7 @@ class ImportController extends Controller {
 
             $field->save();
 
-            //fix layout
+            //fix layout //TODO::layout
             $form->layout = str_replace('<ID>'.$fieldArray->slug.'</ID>','<ID>'.$field->flid.'</ID>',$form->layout);
             $form->save();
 

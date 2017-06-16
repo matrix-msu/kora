@@ -176,7 +176,7 @@ class ExportController extends Controller {
         $formArray['name'] = $form->name;
         $formArray['slug'] = $form->slug;
         $formArray['desc'] = $form->description;
-        $formArray['layout'] = $form->layout;
+        $formArray['layout'] = $form->layout; //TODO::layout
         $formArray['preset'] = $form->preset;
         $formArray['metadata'] = $form->public_metadata;
 
@@ -215,7 +215,7 @@ class ExportController extends Controller {
             array_push($formArray['fields'],$fieldArray);
 
             //swap layout flid with slug for import
-
+            //TODO::layout
             $formArray['layout'] = str_replace('<ID>'.$field->flid.'</ID>','<ID>'.$field->slug.'</ID>',$formArray['layout']);
         }
 
