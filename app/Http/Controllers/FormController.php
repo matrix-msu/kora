@@ -11,6 +11,7 @@ use App\ListField;
 use App\ModelField;
 use App\MultiSelectListField;
 use App\NumberField;
+use App\Page;
 use App\PlaylistField;
 use App\Record;
 use App\RichTextField;
@@ -77,7 +78,8 @@ class FormController extends Controller {
 
         $form->save();
 
-        PageController::makePageOnForm($form->fid,$form->slug." Default Page");
+        if(!isset($request['preset'])) //Since the preset is copying the target form, no need to make a default page
+            PageController::makePageOnForm($form->fid,$form->slug." Default Page");
 
         $adminGroup = FormController::makeAdminGroup($form, $request);
         FormController::makeDefaultGroup($form);
@@ -400,8 +402,18 @@ class FormController extends Controller {
         $preset = Form::where('fid', '=', $fid)->first();
 
         $field_assoc = array();
+        $pageConvert = array();
 
-        $form->layout = $preset->layout; //TODO::layout
+        foreach($preset->pages()->get() as $page){
+            $newP = new Page();
+            $newP->parent_type = $page->parent_type;
+            $newP->fid = $form->fid; //TODO::eventually figure out sub pages
+            $newP->title = $page->title;
+            $newP->sequence = $page->sequence;
+            $newP->save();
+
+            $pageConvert[$page->id] = $newP->id;
+        }
 
         //Duplicate fields
         foreach($preset->fields()->get() as $field)
@@ -409,12 +421,18 @@ class FormController extends Controller {
             $new = new Field();
             $new->pid = $form->pid;
             $new->fid = $form->fid;
-            $new->order = $field->order;
+            $new->page_id = $pageConvert[$field->page_id];
+            $new->sequence = $field->sequence;
             $new->type = $field->type;
             $new->name = $field->name;
             $new->slug = $field->slug.'_'.$form->slug;
             $new->desc = $field->desc;
             $new->required = $field->required;
+            $new->searchable = $field->searchable;
+            $new->extsearch = $field->extsearch;
+            $new->viewable = $field->viewable;
+            $new->viewresults = $field->viewresults;
+            $new->extview = $field->extview;
             $new->default = $field->default;
             $new->options = $field->options;
             $new->save();
