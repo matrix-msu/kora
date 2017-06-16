@@ -176,9 +176,22 @@ class ExportController extends Controller {
         $formArray['name'] = $form->name;
         $formArray['slug'] = $form->slug;
         $formArray['desc'] = $form->description;
-        $formArray['layout'] = $form->layout; //TODO::layout
         $formArray['preset'] = $form->preset;
         $formArray['metadata'] = $form->public_metadata;
+
+        //Page
+        $pages = $form->pages()->get();
+        $formArray['pages'] = array();
+        foreach($pages as $page){
+            $p = array();
+            $p['id'] = $page->id;
+            $p['parent_type'] = $page->parent_type;
+            //TODO::sub pages
+            $p['title'] = $page->title;
+            $p['sequence'] = $page->sequence;
+
+            array_push($formArray['pages'],$p);
+        }
 
         //record presets
         $recPresets = RecordPreset::where('fid','=',$fid)->get();
@@ -198,11 +211,18 @@ class ExportController extends Controller {
             $fieldArray = array();
 
             $fieldArray['flid'] = $field->flid;
+            $fieldArray['page_id'] = $field->page_id;
+            $fieldArray['sequence'] = $field->sequence;
             $fieldArray['type'] = $field->type;
             $fieldArray['name'] = $field->name;
             $fieldArray['slug'] = $field->slug;
             $fieldArray['desc'] = $field->desc;
             $fieldArray['required'] = $field->required;
+            $fieldArray['searchable'] = $field->searchable;
+            $fieldArray['extsearch'] = $field->extsearch;
+            $fieldArray['viewable'] = $field->viewable;
+            $fieldArray['viewresults'] = $field->viewresults;
+            $fieldArray['extview'] = $field->extview;
             $fieldArray['default'] = $field->default;
             $fieldArray['options'] = $field->options;
 
@@ -213,10 +233,6 @@ class ExportController extends Controller {
                 $fieldArray['metadata'] = '';
 
             array_push($formArray['fields'],$fieldArray);
-
-            //swap layout flid with slug for import
-            //TODO::layout
-            $formArray['layout'] = str_replace('<ID>'.$field->flid.'</ID>','<ID>'.$field->slug.'</ID>',$formArray['layout']);
         }
 
         if($download) {

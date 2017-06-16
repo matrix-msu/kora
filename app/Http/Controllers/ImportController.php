@@ -15,6 +15,7 @@ use App\ListField;
 use App\Metadata;
 use App\MultiSelectListField;
 use App\OptionPreset;
+use App\Page;
 use App\Project;
 use App\ProjectGroup;
 use App\Record;
@@ -872,7 +873,6 @@ class ImportController extends Controller {
             $form->slug = $fileArray->slug;
         }
         $form->description = $fileArray->desc;
-        $form->layout = $fileArray->layout; //TODO::layout
         $form->preset = $fileArray->preset;
         $form->public_metadata = $fileArray->metadata;
 
@@ -883,6 +883,23 @@ class ImportController extends Controller {
         $this->makeFormDefaultGroup($form);
         $form->adminGID = $admin->id;
         $form->save();
+
+        //pages
+        $pages = $fileArray->pages;
+        $pConvert = array();
+
+        foreach($pages as $page){
+            $p = new Page();
+
+            $p->parent_type = $page->parent_type;
+            $p->fid = $form->fid; //TODO:: subPAGES!!!
+            $p->title = $page->title;
+            $p->sequence = $page->sequence;
+
+            $p->save();
+
+            $pConvert[$page->id] = $p->id;
+        }
 
         //record presets
         $recPresets = $fileArray->recPresets;
@@ -904,6 +921,8 @@ class ImportController extends Controller {
 
             $field->pid = $project->pid;
             $field->fid = $form->fid;
+            $field->page_id = $fieldArray->page_id;
+            $field->sequence = $fieldArray->sequence;
             $field->type = $fieldArray->type;
             $field->name = $fieldArray->name;
             if (Field::where('slug', '=', $fieldArray->slug)->exists()) {
@@ -922,14 +941,15 @@ class ImportController extends Controller {
             }
             $field->desc = $fieldArray->desc;
             $field->required = $fieldArray->required;
+            $field->searchable = $fieldArray->searchable;
+            $field->extsearch = $fieldArray->extsearch;
+            $field->viewable = $fieldArray->viewable;
+            $field->viewresults = $fieldArray->viewresults;
+            $field->extview = $fieldArray->extview;
             $field->default = $fieldArray->default;
             $field->options = $fieldArray->options;
 
             $field->save();
-
-            //fix layout //TODO::layout
-            $form->layout = str_replace('<ID>'.$fieldArray->slug.'</ID>','<ID>'.$field->flid.'</ID>',$form->layout);
-            $form->save();
 
             //metadata
             if($fieldArray->metadata!=""){
@@ -956,7 +976,7 @@ class ImportController extends Controller {
 
         $file = $request->file('form');
         $scheme = simplexml_load_file($file);
-        $nodes = array();
+        $collToPage = array();
         $fieldNameArrayForRecordInsert = array();
 
         //init form
@@ -965,7 +985,6 @@ class ImportController extends Controller {
         $form->pid = $pid;
         $form->preset = 0;
         $form->public_metadata = 0;
-        $form->layout = '<LAYOUT></LAYOUT>'; //TODO::layout
         $form->save();
 
         $admin = $this->makeFormAdminGroup($form);
@@ -990,12 +1009,20 @@ class ImportController extends Controller {
                 $form->description = $desc;
                 $form->save();
             }else if($category=='Collections'){
+                $pIndex = 0;
                 foreach($value->children() as $collection){
-                    $coll = array();
-                    $coll['id'] = (int)$collection->id;
-                    $coll['name'] = $collection->Name->__toString();
-                    $coll['fields'] = array();
-                    array_push($nodes,$coll);
+                    $page = new Page();
+                    $page->parent_type=PageController::_FORM;
+                    $page->fid = $form->fid;
+                    $page->title = $collection->Name->__toString();
+                    $page->sequence = $pIndex;
+                    $pIndex++;
+
+                    $page->save();
+
+                    $collToPage[(int)$collection->id] = $page->id;
+                    //Each page needs to keep track of its own sequence for fields
+                    $collToPage[(int)$collection->id."_seq"] = 0;
                 }
             }else if($category=='Controls'){
                 foreach($value->children() as $name => $control) {
@@ -1166,6 +1193,9 @@ class ImportController extends Controller {
                         $field = new Field();
                         $field->pid = $form->pid;
                         $field->fid = $form->fid;
+                        $field->page_id = $collToPage[$collid];
+                        $field->sequence = $collToPage[$collid."_seq"];
+                        $collToPage[$collid."_seq"] += 1;
                         $field->type = $newType;
                         $field->name = $name;
                         $slug = str_replace(' ','_',$name);
@@ -1186,32 +1216,10 @@ class ImportController extends Controller {
                         $field->default = $newDef;
                         $field->options = $newOpts;
                         $field->save();
-
-                        //place in appropriate node
-                        foreach($nodes as $key => $node){
-                            if($collid == $node['id']) {
-                                $collFields = $node['fields'];
-                                array_push($collFields, $field->flid);
-                                $nodes[$key]['fields'] = $collFields;
-                            }
-                        }
                     }
                 }
             }
         }
-
-        //update form layout
-        $newLay = '<LAYOUT>'; //TODO::layout
-        foreach($nodes as $node){
-            $newLay .= "<NODE title='".$node['name']."'>";
-            foreach($node['fields'] as $fid){
-                $newLay .= '<ID>'.$fid.'</ID>';
-            }
-            $newLay .= '</NODE>';
-        }
-        $newLay .= '</LAYOUT>';
-        $form->layout = $newLay;
-        $form->save();
 
         //NOW WE LOOK FOR RECORDS
         if(!is_null($request->file('records'))) {
@@ -1502,7 +1510,6 @@ class ImportController extends Controller {
             $form->slug = $fileArray->slug;
         }
         $form->description = $fileArray->desc;
-        $form->layout = $fileArray->layout; //TODO::layout
         $form->preset = $fileArray->preset;
         $form->public_metadata = $fileArray->metadata;
 
@@ -1513,6 +1520,23 @@ class ImportController extends Controller {
         $this->makeFormDefaultGroup($form);
         $form->adminGID = $admin->id;
         $form->save();
+
+        //pages
+        $pages = $fileArray->pages;
+        $pConvert = array();
+
+        foreach($pages as $page){
+            $p = new Page();
+
+            $p->parent_type = $page->parent_type;
+            $p->fid = $form->fid; //TODO:: subPAGES!!!
+            $p->title = $page->title;
+            $p->sequence = $page->sequence;
+
+            $p->save();
+
+            $pConvert[$page->id] = $p->id;
+        }
 
         //record presets
         $recPresets = $fileArray->recPresets;
@@ -1534,6 +1558,8 @@ class ImportController extends Controller {
 
             $field->pid = $project->pid;
             $field->fid = $form->fid;
+            $field->page_id = $fieldArray->page_id;
+            $field->sequence = $fieldArray->sequence;
             $field->type = $fieldArray->type;
             $field->name = $fieldArray->name;
             if (Field::where('slug', '=', $fieldArray->slug)->exists()) {
@@ -1552,14 +1578,15 @@ class ImportController extends Controller {
             }
             $field->desc = $fieldArray->desc;
             $field->required = $fieldArray->required;
+            $field->searchable = $fieldArray->searchable;
+            $field->extsearch = $fieldArray->extsearch;
+            $field->viewable = $fieldArray->viewable;
+            $field->viewresults = $fieldArray->viewresults;
+            $field->extview = $fieldArray->extview;
             $field->default = $fieldArray->default;
             $field->options = $fieldArray->options;
 
             $field->save();
-
-            //fix layout //TODO::layout
-            $form->layout = str_replace('<ID>'.$fieldArray->slug.'</ID>','<ID>'.$field->flid.'</ID>',$form->layout);
-            $form->save();
 
             //metadata
             if($fieldArray->metadata!=""){

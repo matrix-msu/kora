@@ -242,7 +242,6 @@ class PluginController extends Controller
             $form->slug = $fileArray->slug;
         }
         $form->description = $fileArray->desc;
-        $form->layout = $fileArray->layout; //TODO::layout
         $form->preset = $fileArray->preset;
         $form->public_metadata = $fileArray->metadata;
 
@@ -252,6 +251,23 @@ class PluginController extends Controller
         $admin = $this->makeFormAdminGroup($form);
         $form->adminGID = $admin->id;
         $form->save();
+
+        //pages
+        $pages = $fileArray->pages;
+        $pConvert = array();
+
+        foreach($pages as $page){
+            $p = new Page();
+
+            $p->parent_type = $page->parent_type;
+            $p->fid = $form->fid; //TODO:: subPAGES!!!
+            $p->title = $page->title;
+            $p->sequence = $page->sequence;
+
+            $p->save();
+
+            $pConvert[$page->id] = $p->id;
+        }
 
         //record presets
         $recPresets = $fileArray->recPresets;
@@ -273,6 +289,8 @@ class PluginController extends Controller
 
             $field->pid = $project->pid;
             $field->fid = $form->fid;
+            $field->page_id = $fieldArray->page_id;
+            $field->sequence = $fieldArray->sequence;
             $field->type = $fieldArray->type;
             $field->name = $fieldArray->name;
             if (Field::where('slug', '=', $fieldArray->slug)->exists()) {
@@ -291,14 +309,15 @@ class PluginController extends Controller
             }
             $field->desc = $fieldArray->desc;
             $field->required = $fieldArray->required;
+            $field->searchable = $fieldArray->searchable;
+            $field->extsearch = $fieldArray->extsearch;
+            $field->viewable = $fieldArray->viewable;
+            $field->viewresults = $fieldArray->viewresults;
+            $field->extview = $fieldArray->extview;
             $field->default = $fieldArray->default;
             $field->options = $fieldArray->options;
 
             $field->save();
-
-            //fix layout //TODO::layout
-            $form->layout = str_replace('<ID>'.$fieldArray->slug.'</ID>','<ID>'.$field->flid.'</ID>',$form->layout);
-            $form->save();
 
             //metadata
             if($fieldArray->metadata!=""){
