@@ -13,6 +13,7 @@ use App\GalleryField;
 use App\GeneratedListField;
 use App\GeolocatorField;
 use App\Http\Controllers\FieldController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RecordController;
 use App\Http\Controllers\RecordPresetController;
@@ -20,6 +21,7 @@ use App\ListField;
 use App\Metadata;
 use App\ModelField;
 use App\MultiSelectListField;
+use App\Page;
 use App\PlaylistField;
 use App\Record;
 use App\RecordPreset;
@@ -46,7 +48,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue
         $con = mysqli_connect($this->dbInfo['host'],$this->dbInfo['user'],$this->dbInfo['pass'],$this->dbInfo['name']);
         $newForm = $this->form;
         $oldPid = $this->pairArray[$this->sid];
-        $nodes = array();
+        $collToPage = array();
         $oldControlInfo = array();
         $numRecords = $con->query("select distinct id from p".$oldPid."Data where schemeid=".$this->sid)->num_rows;
 
@@ -60,12 +62,20 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue
 
         //build nodes based off of collections
         $colls = $con->query("select * from collection where schemeid=".$this->sid." order by sequence");
+        $pIndex = 0;
         while ($c = $colls->fetch_assoc()) {
-            $coll = array();
-            $coll['id'] = $c['collid'];
-            $coll['name'] = $c['name'];
-            $coll['fields'] = array();
-            array_push($nodes,$coll);
+            $page = new Page();
+            $page->parent_type=PageController::_FORM;
+            $page->fid = $newForm->fid;
+            $page->title = $c['name'];
+            $page->sequence = $pIndex;
+            $pIndex++;
+
+            $page->save();
+
+            $collToPage[$c['collid']] = $page->id;
+            //Each page needs to keep track of its own sequence for fields
+            $collToPage[$c['collid']."_seq"] = 0;
         }
 
         //build all the fields for the form
@@ -303,6 +313,8 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue
                 $field = new Field();
                 $field->pid = $newForm->pid;
                 $field->fid = $newForm->fid;
+                $field->page_id = $collToPage[$collid];
+                $field->sequence = $collToPage[$collid."_seq"];
                 $field->type = $newType;
                 $field->name = $c['name'];
                 $slug = str_replace(' ','_',$c['name']);
@@ -322,30 +334,8 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue
                 $field->save();
 
                 $oldControlInfo[$c['cid']] = $field->flid;
-
-                //place field in appropriate node
-                foreach($nodes as $key => $node){
-                    if($collid == $node['id']) {
-                        $collFields = $node['fields'];
-                        array_push($collFields, $field->flid);
-                        $nodes[$key]['fields'] = $collFields;
-                    }
-                }
             }
         }
-
-        //update form layout
-        $newLay = '<LAYOUT>';
-        foreach($nodes as $node){
-            $newLay .= "<NODE title='".$node['name']."'>";
-            foreach($node['fields'] as $fid){
-                $newLay .= '<ID>'.$fid.'</ID>';
-            }
-            $newLay .= '</NODE>';
-        }
-        $newLay .= '</LAYOUT>';
-        $newForm->layout = $newLay;
-        $newForm->save();
 
         //Dublin Core stuff//////////////////////////////////////////
         $dublins = $con->query("select dublinCoreFields from scheme where schemeid=".$this->sid);
