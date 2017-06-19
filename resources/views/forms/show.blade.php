@@ -203,6 +203,25 @@
             }
         }
 
+        function moveField(direction, flid){
+            var move_url = '{{ action('PageController@moveField', ['pid' => $form->pid, 'fid' => $form->fid, 'flid' => 'FLID']) }}';
+            move_url = move_url.replace("FLID",flid);
+            $.ajax({
+                url: move_url,
+                type: 'POST',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "direction": direction
+                },
+                success: function (result) {
+                    console.log(result);
+                    if(result=="success"){
+                        location.reload();
+                    }
+                }
+            });
+        }
+
         function presetForm(){
             var preset;
             if($('#preset').is(':checked'))

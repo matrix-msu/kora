@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Field;
 use App\Form;
 use App\Page;
 use Illuminate\Http\Request;
@@ -215,5 +216,57 @@ class PageController extends Controller
         }
 
         return "success";
+    }
+
+    public function moveField($pid,$fid,$flid,Request $request){
+        $direction = $request->direction;
+        $field = FieldController::getField($flid);
+        $seq = $field->sequence;
+
+        $page = self::getPage($field->page_id);
+        $fieldsInPage = Field::where("page_id","=",$page->id)->max("sequence");
+
+        //We will need to see if we can move to a new page so we wan
+        $form = FormController::getForm($fid);
+        $pages = $form->pages()->get();
+
+        switch ($direction){
+            case self::_UP:
+                if($seq == 0){
+                    //We need to move to a new page potentially
+                    return "Up to new page";
+                }else{
+                    //Move it on up
+                    $aFieldSeq = $seq-1;
+                    $aField = Field::where('sequence','=',$aFieldSeq)->where('page_id','=',$field->page_id)->first();
+
+                    $field->sequence = $seq-1;
+                    $aField->sequence = $seq;
+                    $field->save();
+                    $aField->save();
+
+                    return "success";
+                }
+                break;
+            case self::_DOWN:
+                if($seq == $fieldsInPage){
+                    //We need to move to a new page potentially
+                    return "Down to new page";
+                }else{
+                    //Move it on down
+                    $aFieldSeq = $seq+1;
+                    $aField = Field::where('sequence','=',$aFieldSeq)->where('page_id','=',$field->page_id)->first();
+
+                    $field->sequence = $seq+1;
+                    $aField->sequence = $seq;
+                    $field->save();
+                    $aField->save();
+
+                    return "success";
+                }
+                break;
+            default:
+                break;
+        }
     }
 }

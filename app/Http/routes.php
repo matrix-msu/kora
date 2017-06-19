@@ -130,6 +130,7 @@ Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/geoConvert','Fiel
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/assoc','FieldAjaxController@assocSearch');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/clearRecency', 'FieldController@clearRecency');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/checkRecency', 'FieldController@checkRecency');
+Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/move', 'PageController@moveField');
 Route::post('/projects/{pid}/forms/{fid}','FieldController@store');
 Route::post('/saveTmpFile/{flid}', 'FieldAjaxController@saveTmpFile');
 Route::patch('/saveTmpFile/{flid}', 'FieldAjaxController@saveTmpFile');

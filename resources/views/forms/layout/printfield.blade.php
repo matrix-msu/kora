@@ -29,6 +29,15 @@
                     <a onclick="deleteField('{{ $field->name }}', {{ $field->flid }})" href="javascript:void(0)">[{{trans('forms_layout_printfield.delete')}}]</a>
                 </span>
             @endif
+
+            @if(\Auth::user()->canEditForms(\App\Http\Controllers\ProjectController::getProject($field->pid)))
+                <span style="float:right">
+                    <a onclick="moveField('{{ \App\Http\Controllers\PageController::_DOWN }}', {{ $field->flid }})" href="javascript:void(0)">[DOWN]</a>
+                </span>
+                <span style="float:right">
+                    <a onclick="moveField('{{ \App\Http\Controllers\PageController::_UP }}', {{ $field->flid }})" href="javascript:void(0)">[UP]</a>
+                </span>
+            @endif
         </div>
     </div>
 </div>
