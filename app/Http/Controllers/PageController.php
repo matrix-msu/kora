@@ -228,13 +228,32 @@ class PageController extends Controller
 
         //We will need to see if we can move to a new page so we wan
         $form = FormController::getForm($fid);
-        $pages = $form->pages()->get();
+        $numPagesInForm = $form->pages()->count();
 
         switch ($direction){
             case self::_UP:
                 if($seq == 0){
                     //We need to move to a new page potentially
-                    return "Up to new page";
+                    $pageSeq = $page->sequence;
+                    if($pageSeq==0){
+                        return "No page above";
+                    }else{
+                        $nPage = Page::where('sequence','=',$pageSeq-1)->where('fid','=',$fid)->first();
+                        $field->page_id = $nPage->id;
+                        $field->sequence = self::getNewPageFieldSequence($nPage->id);
+                        $field->save();
+
+                        //get fields from old page ordered by sequence
+                        $oldFields = $page->fields()->get();
+                        $index = 0;
+                        foreach($oldFields as $f) {
+                            $f->sequence = $index;
+                            $f->save();
+                            $index++;
+                        }
+
+                        return "success";
+                    }
                 }else{
                     //Move it on up
                     $aFieldSeq = $seq-1;
@@ -251,7 +270,27 @@ class PageController extends Controller
             case self::_DOWN:
                 if($seq == $fieldsInPage){
                     //We need to move to a new page potentially
-                    return "Down to new page";
+                    $pageSeq = $page->sequence;
+                    $maxPageSeq = Page::where("fid","=",$fid)->max("sequence");;
+                    if($pageSeq==$maxPageSeq){
+                        return "No page below";
+                    }else{
+                        $nPage = Page::where('sequence','=',$pageSeq+1)->where('fid','=',$fid)->first();
+                        $field->page_id = $nPage->id;
+                        $field->sequence = self::getNewPageFieldSequence($nPage->id);
+                        $field->save();
+
+                        //get fields from old page ordered by sequence
+                        $oldFields = $page->fields()->get();
+                        $index = 0;
+                        foreach($oldFields as $f) {
+                            $f->sequence = $index;
+                            $f->save();
+                            $index++;
+                        }
+
+                        return "success";
+                    }
                 }else{
                     //Move it on down
                     $aFieldSeq = $seq+1;
