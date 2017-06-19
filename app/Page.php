@@ -9,7 +9,6 @@ class Page extends Model
     protected $fillable = [
         'parent_type',
         'fid',
-        'page_id',
         'title',
         'sequence'
     ];
@@ -27,7 +26,6 @@ class Page extends Model
      * Because the MyISAM engine doesn't support foreign keys we have to emulate cascading.
      */
     public function delete() {
-        //TODO:: eventually we will delete sub pages within this page
         $fields = Field::where("page_id", "=", $this->id)->get();
 
         foreach($fields as $field) {

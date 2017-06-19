@@ -20,8 +20,6 @@ class CreatePagesTable extends Migration
             $table->string('parent_type');
             $table->integer('fid')->unsigned()->nullable();
             $table->foreign('fid')->references('fid')->on('forms')->onDelete('cascade');
-            $table->integer('page_id')->unsigned()->nullable();
-            $table->foreign('page_id')->references('id')->on('pages')->onDelete('cascade');
             $table->string('title');
             $table->integer('sequence')->unsigned();
             $table->timestamps();

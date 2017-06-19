@@ -40,7 +40,6 @@ class SavePagesTable extends Command implements SelfHandling, ShouldQueue
                 $page_data->put("id", $page->id);
                 $page_data->put("parent_type", $page->parent_type);
                 $page_data->put("fid", $page->fid);
-                $page_data->put("page_id", $page->page_id);
                 $page_data->put("title", $page->title);
                 $page_data->put("sequence", $page->sequence);
                 $page_data->put("created_at", $page->created_at->toDateTimeString());

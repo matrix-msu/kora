@@ -63,7 +63,6 @@ class PageController extends Controller
         foreach($pages as $page){
             $pArr = array();
 
-            //TODO:: some stuff about subpages
             $pArr["fields"] = $page->fields()->get();
 
             $pArr["title"] = $page->title;
@@ -82,7 +81,6 @@ class PageController extends Controller
         $fields = $page->fields()->get();
         $index = 0;
 
-        //TODO:: subpages and stuff
         foreach($fields as $field){
             $field->sequence = $index;
             $field->save();
@@ -104,7 +102,6 @@ class PageController extends Controller
     }
 
     public static function getNewPageFieldSequence($pageID){
-        //TODO:: should consider sub pages eventually
         $page = self::getPage($pageID);
 
         $lField = $page->fields()->get()->last();

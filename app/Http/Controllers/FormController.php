@@ -407,7 +407,7 @@ class FormController extends Controller {
         foreach($preset->pages()->get() as $page){
             $newP = new Page();
             $newP->parent_type = $page->parent_type;
-            $newP->fid = $form->fid; //TODO::eventually figure out sub pages
+            $newP->fid = $form->fid;
             $newP->title = $page->title;
             $newP->sequence = $page->sequence;
             $newP->save();
@@ -439,8 +439,6 @@ class FormController extends Controller {
 
             $field_assoc[$field->flid] = $new->flid;
         }
-
-        //TODO::recreate pages for the form being a preset
 
         $form->save();
     }
