@@ -69,7 +69,7 @@ class RecordController extends Controller {
         $form = FormController::getForm($fid);
         $filesize = RecordController::getFormFilesize($fid);
         $records = Record::where('fid', '=', $fid)->paginate(self::RECORDS_PER_PAGE);
-        $records->setPath(env('BASE_URL').'public/projects/'.$pid.'/forms/'.$fid.'/records');
+        $records->setPath(env('BASE_URL').'projects/'.$pid.'/forms/'.$fid.'/records');
 
         return view('records.index', compact('form', 'filesize', 'records'));
 	}

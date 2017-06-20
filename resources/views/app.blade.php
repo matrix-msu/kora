@@ -18,39 +18,39 @@
     <link href='//fonts.googleapis.com/css?family=Lato:100' rel='stylesheet' type='text/css'>
     @if(!isset($not_installed))
         <!-- For Rich Text -->
-        <script src="{{ env('BASE_URL') }}public/ckeditor/ckeditor.js"></script>
+        <script src="{{ env('BASE_URL') }}ckeditor/ckeditor.js"></script>
         <!-- For Schedule -->
-        <script type="text/javascript" src="{{ env('BASE_URL') }}public/bower_components/moment/min/moment.min.js"></script>
-        <script type="text/javascript" src="{{ env('BASE_URL') }}public/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
-        <link rel="stylesheet" href="{{ env('BASE_URL') }}public/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
-        <link rel='stylesheet' href='{{ env('BASE_URL') }}public/bower_components/fullcalendar/dist/fullcalendar.css' />
-        <script src='{{ env('BASE_URL') }}public/bower_components/fullcalendar/dist/fullcalendar.js'></script>
+        <script type="text/javascript" src="{{ env('BASE_URL') }}bower_components/moment/min/moment.min.js"></script>
+        <script type="text/javascript" src="{{ env('BASE_URL') }}bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+        <link rel="stylesheet" href="{{ env('BASE_URL') }}bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
+        <link rel='stylesheet' href='{{ env('BASE_URL') }}bower_components/fullcalendar/dist/fullcalendar.css' />
+        <script src='{{ env('BASE_URL') }}bower_components/fullcalendar/dist/fullcalendar.js'></script>
         <!-- For Geolocator -->
-        <link rel="stylesheet" href="{{ env('BASE_URL') }}public/leaflet/leaflet.css" />
-        <script src="{{ env('BASE_URL') }}public/leaflet/leaflet.js"></script>
+        <link rel="stylesheet" href="{{ env('BASE_URL') }}leaflet/leaflet.css" />
+        <script src="{{ env('BASE_URL') }}leaflet/leaflet.js"></script>
 		<!-- For Documents -->
-		<link rel="stylesheet" href="{{ env('BASE_URL') }}public/fileUpload/css/style.css">
-		<link rel="stylesheet" href="{{ env('BASE_URL') }}public/fileUpload/css/jquery.fileupload.css">
-		<link rel="stylesheet" href="{{ env('BASE_URL') }}public/fileUpload/css/jquery.fileupload-ui.css">
-		<script src="{{ env('BASE_URL') }}public/fileUpload/js/vendor/jquery.ui.widget.js"></script>
-		<script src="{{ env('BASE_URL') }}public/fileUpload/js/jquery.iframe-transport.js"></script>
-		<script src="{{ env('BASE_URL') }}public/fileUpload/js/jquery.fileupload.js"></script>
+		<link rel="stylesheet" href="{{ env('BASE_URL') }}fileUpload/css/style.css">
+		<link rel="stylesheet" href="{{ env('BASE_URL') }}fileUpload/css/jquery.fileupload.css">
+		<link rel="stylesheet" href="{{ env('BASE_URL') }}fileUpload/css/jquery.fileupload-ui.css">
+		<script src="{{ env('BASE_URL') }}fileUpload/js/vendor/jquery.ui.widget.js"></script>
+		<script src="{{ env('BASE_URL') }}fileUpload/js/jquery.iframe-transport.js"></script>
+		<script src="{{ env('BASE_URL') }}fileUpload/js/jquery.fileupload.js"></script>
 		<!-- For Gallery -->
-		<link rel="stylesheet" type="text/css" href="{{ env('BASE_URL') }}public/slick/slick/slick.css"/>
-		<link rel="stylesheet" type="text/css" href="{{ env('BASE_URL') }}public/slick/slick/slick-theme.css"/>
+		<link rel="stylesheet" type="text/css" href="{{ env('BASE_URL') }}slick/slick/slick.css"/>
+		<link rel="stylesheet" type="text/css" href="{{ env('BASE_URL') }}slick/slick/slick-theme.css"/>
 		<script type="text/javascript" src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
-		<script type="text/javascript" src="{{ env('BASE_URL') }}public/slick/slick/slick.min.js"></script>
+		<script type="text/javascript" src="{{ env('BASE_URL') }}slick/slick/slick.min.js"></script>
 		<!-- For Playlist and Video -->
-		<link rel="stylesheet" type="text/css" href="{{ env('BASE_URL') }}public/jplayer/pink.flag/css/jplayer.pink.flag.min.css"/>
-		<script type="text/javascript" src="{{ env('BASE_URL') }}public/jplayer/jquery.jplayer.min.js"></script>
-		<script type="text/javascript" src="{{ env('BASE_URL') }}public/jplayer/jplayer.playlist.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="{{ env('BASE_URL') }}jplayer/pink.flag/css/jplayer.pink.flag.min.css"/>
+		<script type="text/javascript" src="{{ env('BASE_URL') }}jplayer/jquery.jplayer.min.js"></script>
+		<script type="text/javascript" src="{{ env('BASE_URL') }}jplayer/jplayer.playlist.min.js"></script>
 		<!-- For 3D Model -->
-		<script type="text/javascript" src="{{ env('BASE_URL') }}public/jsc3d/jsc3d.js"></script>
-		<script type="text/javascript" src="{{ env('BASE_URL') }}public/jsc3d/jsc3d.webgl.js"></script>
-		<script type="text/javascript" src="{{ env('BASE_URL') }}public/jsc3d/jsc3d.touch.js"></script>
+		<script type="text/javascript" src="{{ env('BASE_URL') }}jsc3d/jsc3d.js"></script>
+		<script type="text/javascript" src="{{ env('BASE_URL') }}jsc3d/jsc3d.webgl.js"></script>
+		<script type="text/javascript" src="{{ env('BASE_URL') }}jsc3d/jsc3d.touch.js"></script>
         <!-- Dropdowns enhancement -->
-        <link href="{{ env('BASE_URL') }}public/dropdowns_enhancement/dist/css/dropdowns-enhancement.css" rel="stylesheet"/>
-        <script type="text/javascript" src="{{ env('BASE_URL') }}public/dropdowns_enhancement/dist/js/dropdowns-enhancement.js"></script>
+        <link href="{{ env('BASE_URL') }}dropdowns_enhancement/dist/css/dropdowns-enhancement.css" rel="stylesheet"/>
+        <script type="text/javascript" src="{{ env('BASE_URL') }}dropdowns_enhancement/dist/js/dropdowns-enhancement.js"></script>
 	@endif
     <title>Kora 3</title>
 </head>

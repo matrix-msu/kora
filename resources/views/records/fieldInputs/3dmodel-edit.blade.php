@@ -38,7 +38,7 @@ if(!is_null($model)){
     <span class="btn btn-success fileinput-button">
         <span>{{trans('records_fieldInput.addmod')}}...</span>
         <input id="file{{$field->flid}}" type="file" name="file{{$field->flid}}[]"
-               data-url="{{ env('BASE_URL') }}public/saveTmpFile/{{$field->flid}}" multiple>
+               data-url="{{ env('BASE_URL') }}saveTmpFile/{{$field->flid}}" multiple>
         {!! Form::hidden($field->flid,'f'.$field->flid.'u'.\Auth::user()->id) !!}
     </span>
     <br/><br/>
@@ -53,7 +53,7 @@ if(!is_null($model)){
                 {{$file}}
                 <input type="hidden" name="file{{$field->flid}}[]" value ="{{$file}}">
                 <button class="btn btn-danger delete" type="button" data-type="DELETE"
-                        data-url="{{env('BASE_URL')}}public/deleteTmpFile/{{$folder}}/{{urlencode($file)}}">
+                        data-url="{{env('BASE_URL')}}deleteTmpFile/{{$folder}}/{{urlencode($file)}}">
                     <i class="glyphicon glyphicon-trash"></i>
                     {{trans('records_fieldInput.delete')}}
                 </button>

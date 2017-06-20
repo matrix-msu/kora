@@ -125,7 +125,7 @@ class RecordExporter(Exporter):
                 resource = "<rdf:Description "
 
                 resource_index_value = cursor.get_resource_index_value(fid, rid)
-                resource += "rdf:about=\""+env("BASE_URL")+"public/projects/"+str(pid)+"/forms/"+str(fid)+"/metadata/public/"+resource_index_value+"\">"
+                resource += "rdf:about=\""+env("BASE_URL")+"projects/"+str(pid)+"/forms/"+str(fid)+"/metadata/public/"+resource_index_value+"\">"
 
                 for table in get_base_field_types():
                     for field in cursor.get_field_data_lod(table, rid):

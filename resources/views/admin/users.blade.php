@@ -7,7 +7,7 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">
 
-                        <img id="current_profile_pic" style="width:auto;height:200px" src="{{env('BASE_URL') . 'public/logos/blank_profile.jpg'}}">
+                        <img id="current_profile_pic" style="width:auto;height:200px" src="{{env('BASE_URL') . 'logos/blank_profile.jpg'}}">
 
                         @include('admin.form')
 

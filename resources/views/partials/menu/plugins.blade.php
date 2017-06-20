@@ -5,7 +5,7 @@
             <li class="dropdown-submenu" id="plugin-submenu"> <a href="#" data-toggle="dropdown">{{$plugin->name}}</a>
                 <ul class="dropdown-menu scrollable-submenu">
                     @foreach($plugin->menus() as $menu)
-                        <li><a href="{{env('BASE_URL').'public/plugins/'.$plugin->url.'/loadView/'.$menu->url}}">{{ $menu->name }}</a></li>
+                        <li><a href="{{env('BASE_URL').'plugins/'.$plugin->url.'/loadView/'.$menu->url}}">{{ $menu->name }}</a></li>
                     @endforeach
                 </ul>
             </li>

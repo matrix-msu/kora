@@ -380,7 +380,7 @@
                                                 @if($aud != '')
                                                 <?php
                                                 $name = explode('[Name]',$aud)[1];
-                                                $link = env('BASE_URL').'storage/app/files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$name;
+                                                $link = env('STORAGE_URL').'files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$name;
                                                 ?>
                                             {
                                                 title: "{{$name}}",
@@ -463,7 +463,7 @@
                                                 @if($vid != '')
                                                 <?php
                                                 $name = explode('[Name]',$vid)[1];
-                                                $link = env('BASE_URL').'storage/app/files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$name;
+                                                $link = env('STORAGE_URL').'files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$name;
                                                 ?>
                                             {
                                                 title: "{{$name}}",

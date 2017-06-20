@@ -47,7 +47,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="{{ url('/') }}"><img style="height: 35px;width: 35px;margin-top: -7.5px" src="{{ env('BASE_URL') }}public/logos/KoraIII-Logo.gif"></a>
+          <a class="navbar-brand" href="{{ url('/') }}"><img style="height: 35px;width: 35px;margin-top: -7.5px" src="{{ env('BASE_URL') }}logos/KoraIII-Logo.gif"></a>
         </div>
 		
         <div id="navbar" class="collapse navbar-collapse">

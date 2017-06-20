@@ -12,9 +12,9 @@
                     <div class="panel-body">
 
                         @if(!is_null($profile))
-                            <img id="current_profile_pic" style="width:auto;height:200px" src="{{env('BASE_URL') . 'storage/app/profiles/'.\Auth::user()->id.'/'.$profile}}">
+                            <img id="current_profile_pic" style="width:auto;height:200px" src="{{env('STORAGE_URL') . 'profiles/'.\Auth::user()->id.'/'.$profile}}">
                         @else
-                            <img id="current_profile_pic" style="width:auto;height:200px" src="{{env('BASE_URL') . 'public/logos/blank_profile.jpg'}}">
+                            <img id="current_profile_pic" style="width:auto;height:200px" src="{{env('BASE_URL') . 'logos/blank_profile.jpg'}}">
                         @endif
 
                         <div class="form-group">

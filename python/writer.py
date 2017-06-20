@@ -230,7 +230,7 @@ class METAWriter(Writer):
         with open(filepath, "w") as target:
                     header = "<?xml version=\"1.0\"?><rdf:RDF "
                     header += "xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" xmlns:geo=\"http://www.w3.org/2003/01/geo/wgs84_pos#\" "
-                    header += "xmlns:"+resource_title+"=\""+env("BASE_URL")+"public/projects/"+str(self.pid)+"/forms/"+str(self.fid)+"/metadata/public#\">"
+                    header += "xmlns:"+resource_title+"=\""+env("BASE_URL")+"projects/"+str(self.pid)+"/forms/"+str(self.fid)+"/metadata/public#\">"
                     target.write(header)
 
     def footer(self, filepath):

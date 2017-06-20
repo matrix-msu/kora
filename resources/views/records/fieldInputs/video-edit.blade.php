@@ -38,7 +38,7 @@ if(!is_null($video)){
     <span class="btn btn-success fileinput-button">
         <span>{{trans('records_fieldInput.addvid')}}...</span>
         <input id="file{{$field->flid}}" type="file" name="file{{$field->flid}}[]"
-               data-url="{{ env('BASE_URL') }}public/saveTmpFile/{{$field->flid}}" multiple>
+               data-url="{{ env('BASE_URL') }}saveTmpFile/{{$field->flid}}" multiple>
         {!! Form::hidden($field->flid,'f'.$field->flid.'u'.\Auth::user()->id) !!}
     </span>
     <br/><br/>
@@ -55,7 +55,7 @@ if(!is_null($video)){
                 <button id="up" class="btn btn-default" type="button">{{trans('records_fieldInput.up')}}</button>
                 <button id="down"class="btn btn-default" type="button">{{trans('records_fieldInput.down')}}</button>
                 <button class="btn btn-danger delete" type="button" data-type="DELETE"
-                        data-url="{{env('BASE_URL')}}public/deleteTmpFile/{{$folder}}/{{urlencode($file)}}">
+                        data-url="{{env('BASE_URL')}}deleteTmpFile/{{$folder}}/{{urlencode($file)}}">
                     <i class="glyphicon glyphicon-trash"></i>
                     {{trans('records_fieldInput.delete')}}
                 </button>

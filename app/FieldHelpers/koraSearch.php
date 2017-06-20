@@ -270,7 +270,7 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
     $data["forms"] = json_encode($output);
 
     $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $env["BASE_URL"]."public/api/search");
+    curl_setopt($curl, CURLOPT_URL, $env["BASE_URL"]."api/search");
     if(!empty($userInfo)){
         curl_setopt($curl, CURLOPT_USERPWD, $userInfo["user"].":".$userInfo["pass"]);
         curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);

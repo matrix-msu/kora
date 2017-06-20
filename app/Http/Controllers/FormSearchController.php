@@ -116,7 +116,7 @@ class FormSearchController extends Controller
             "query" => $arg,
             "method" => $method
         ]);
-        $rid_paginator->setPath( env('BASE_URL') . 'public/keywordSearch/project/' . $pid . '/forms/' . $fid);
+        $rid_paginator->setPath( env('BASE_URL') . 'keywordSearch/project/' . $pid . '/forms/' . $fid);
 
         return view('search.results', compact("form", "filesize", "records", "rid_paginator"));
     }

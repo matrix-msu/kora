@@ -84,7 +84,7 @@ class AssociatorField extends BaseField {
             }
         }
 
-        $html = "<a href='".env('BASE_URL')."public/projects/".$pid."/forms/".$fid."/records/".$rid."'>".$kid."</a>";
+        $html = "<a href='".env('BASE_URL')."projects/".$pid."/forms/".$fid."/records/".$rid."'>".$kid."</a>";
         foreach($preview as $val){
             $html .= " | ".$val;
         }

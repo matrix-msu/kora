@@ -37,7 +37,7 @@
     <div class="container_quote">
         <div class="content_quote">
             @if(!isset($not_installed))
-                <img src="{{ env('BASE_URL') }}public/logos/koraiii-logo-blue.svg">
+                <img src="{{ env('BASE_URL') }}logos/koraiii-logo-blue.svg">
             @else
                 <img src="logos/koraiii-logo-blue.svg">
             @endif

@@ -63,7 +63,7 @@ class UserController extends Controller {
     public function changepicture(Request $request){
         $file = $request->file('profile');
         $pDir = env('BASE_PATH') . 'storage/app/profiles/'.\Auth::user()->id.'/';
-        $pURL = env('BASE_URL') . 'storage/app/profiles/'.\Auth::user()->id.'/';
+        $pURL = env('STORAGE_URL') . 'profiles/'.\Auth::user()->id.'/';
 
         //remove old pic
         $oldFile = $pDir.\Auth::user()->profile;

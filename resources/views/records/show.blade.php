@@ -87,7 +87,7 @@
             <div><b>{{trans('records_show.created')}}:</b> {{ $record->created_at }}</div>
             <div><b>{{trans('records_show.assoc')}}:</b>
             @foreach(\App\Http\Controllers\AssociationController::getAssociatedRecords($record) as $record)
-            <a href='{{env('BASE_URL')}}public/projects/{{$record->pid}}/forms/{{$record->fid}}/records/{{$record->rid}}'>{{$record->kid}}</a> |
+            <a href='{{env('BASE_URL')}}projects/{{$record->pid}}/forms/{{$record->fid}}/records/{{$record->rid}}'>{{$record->kid}}</a> |
             @endforeach
             </div>
         </div>
