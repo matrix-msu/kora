@@ -317,7 +317,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue
                 $field->sequence = $collToPage[$collid."_seq"];
                 $field->type = $newType;
                 $field->name = $c['name'];
-                $slug = str_replace(' ','_',$c['name']);
+                $slug = str_replace(' ','_',$c['name']).$this->fieldSlugGenerator();
                 while(Field::slugExists($slug)){
                     $slug .= $this->fieldSlugGenerator();
                 }
@@ -474,7 +474,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue
 
                         break;
                     case 'Schedule':
-                        $mlc = (array)simplexml_load_string(utf8_encode($value))->date;
+                        $mlc = simplexml_load_string(utf8_encode($value))->date;
                         $formattedDates = array();
                         $i=1;
 
@@ -651,15 +651,14 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue
                         $assoc->flid = $field->flid;
                         $assoc->save();
 
-                        Session::put("assoc_".$recModel->rid, serialize($kids));
+                        Session::put("assoc_".$recModel->rid, serialize($kids)); //TODO::Doesnt work
                 }
             }
         }
 
-        Session::put("kid_to_rid_".$this->sid, serialize($oldKidToNewRid));
+        Session::put("kid_to_rid_".$this->sid, serialize($oldKidToNewRid)); //TODO::Doesnt work
 
         //Last but not least, record presets!!!!!!!!!
-        //TODO: I don't think were passing the right IDs
         $recordPresets = $records = $con->query("select * from recordPreset where schemeid=".$this->sid);
         while ($rp = $recordPresets->fetch_assoc()) {
             $preset = new RecordPreset();

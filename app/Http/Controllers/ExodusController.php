@@ -239,7 +239,10 @@ class ExodusController extends Controller{
                         $groupUsers = array();
                         $members = $con->query("select * from member where gid=" . $pg['gid']);
                         while ($m = $members->fetch_assoc()) {
-                            $gu = $userArray[$m['uid']];
+                            if(isset($userArray[$m['uid']]))
+                                $gu = $userArray[$m['uid']];
+                            else
+                                continue; //most likely get here because k2 Admin was added as a group user, but no need for that in kora 3
                             array_push($groupUsers, $gu);
                         }
                         $k3Group->users()->attach($groupUsers);
@@ -262,7 +265,11 @@ class ExodusController extends Controller{
             foreach ($tokenArray as $t => $tokenProjs) {
                 $token = new Token();
                 $token->token = $t;
-                $token->type = 'search';
+                $token->title = "Kora 2 Search Token";
+                $token->search = 1;
+                $token->create = 0;
+                $token->edit = 0;
+                $token->delete = 0;
                 $token->save();
 
                 //add all it's projects
