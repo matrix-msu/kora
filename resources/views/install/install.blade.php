@@ -21,8 +21,8 @@
 
                       <div class="panel panel-default">
                            <div class="panel-heading">
-                               {{trans('install_install.data')}}
-                        </div>
+                               {{trans('install_install.data')}} - Information for your database server
+                           </div>
                            <div class="panel-body">
 
 
@@ -71,7 +71,7 @@
 
                       <div class="panel panel-default">
                         <div class="panel-heading">
-                            {{trans('install_install.admin')}}
+                            {{trans('install_install.admin')}} - Main user for managing the installation
                         </div>
                         <div class="panel-body">
                             <div class="form-group">
@@ -121,7 +121,7 @@
 
                       <div class="panel panel-default">
                               <div class="panel-heading">
-                                  {{trans('install_install.mail')}}
+                                  {{trans('install_install.mail')}} - Email server that will deliver email notifications from Kora3
                               </div>
                               <div class="panel-body">
                                   <div class="form-group">
@@ -153,7 +153,7 @@
 
                       <div class="panel panel-default">
                               <div class="panel-heading">
-                                  Recaptcha
+                                  Recaptcha - Used for account creation filtering
                               </div>
                               <div class="panel-body">
                                   <div class="form-group">
@@ -171,15 +171,19 @@
 
                       <div class="panel panel-default">
                           <div class="panel-heading">
-                              {{trans('install_install.base')}}
+                              {{trans('install_install.base')}} - Paths used for accessing system resources. See ENV.example for example URIs
                           </div>
                           <div class="panel-body">
                               <div class="form-group">
-                                  <label for="baseurl_url">URL:</label>
+                                  <label for="baseurl_url">URL ( URL that points to the installation. Laravel requires you to point to {ProjectRoot}/public/ ):</label>
                                   <input type="text" class="form-control" id="baseurl_url" name="baseurl_url" value="{{old('baseurl_url')}}">
                               </div>
                               <div class="form-group">
-                                  <label for="basepath">{{trans('install_install.path')}}:</label>
+                                  <label for="baseurl_storage">Storage URL ( Create a symlink in {ProjectRoot}/public/, point it to {ProjectRoot}/storage/app/, and then enter the {UrlAbove}/{SymlinkName}/ ):</label>
+                                  <input type="text" class="form-control" id="baseurl_storage" name="baseurl_storage" value="{{old('baseurl_storage')}}">
+                              </div>
+                              <div class="form-group">
+                                  <label for="basepath">{{trans('install_install.path')}} ( Actual system path from / to {ProjectRoot}/ ):</label>
                                   <input type="text" class="form-control" id="basepath" name="basepath" value="{{old('basepath')}}">
                               </div>
                           </div>
@@ -234,6 +238,7 @@
                 recaptcha_public_key: $("#recaptcha_public_key").val(),
                 recaptcha_private_key: $("#recaptcha_private_key").val(),
                 baseurl_url: $("#baseurl_url").val(),
+                baseurl_storage: $("#baseurl_storage").val(),
                 basepath: $("#basepath").val(),
             },
             success: function (result,textStatus,jqXHRs) {

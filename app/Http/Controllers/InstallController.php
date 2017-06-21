@@ -154,6 +154,7 @@ class InstallController extends Controller {
 		$env2->put("mail_password",ENV("MAIL_PASSWORD"));
 
 		$env2->put("baseurl_url",ENV("BASE_URL"));
+		$env2->put("baseurl_storage",ENV("STORAGE_URL"));
 		$env2->put("basepath",ENV("BASE_PATH"));
 
         $env2->put("recaptcha_public_key",ENV("RECAPTCHA_PUBLIC_KEY"));
@@ -179,6 +180,18 @@ class InstallController extends Controller {
             $envstrings->put("baseurl_url",$baseurl);
         }
 
+        $storageurl = $envstrings->get("baseurl_storage");
+        //Check if http:// is included in the base URL, and addi it if missing
+        if(!preg_match("/(http)(.*)/",$storageurl)){
+            $storageurl = "http://".$storageurl;
+        }
+        //Check for trailing slashes
+        if(substr($storageurl,-1) != "/"){
+            $storageurl = $storageurl."/";
+            $envstrings->forget("baseurl_storage");
+            $envstrings->put("baseurl_storage",$storageurl);
+        }
+
 		$env_layout = "APP_ENV=local
 			APP_DEBUG=true".
 			//APP_KEY=" . ENV("APP_KEY") . "\n
@@ -200,6 +213,7 @@ class InstallController extends Controller {
 			SESSION_DRIVER=file
 
 			BASE_URL=" . $envstrings->get('baseurl_url') . "\n
+			STORAGE_URL=" . $envstrings->get('baseurl_storage') . "\n
 			BASE_PATH=" . $envstrings->get('basepath') . "\n
 
 			RECAPTCHA_PUBLIC_KEY=" . $envstrings->get('recaptcha_public_key') . "\n
@@ -385,6 +399,7 @@ class InstallController extends Controller {
 			'recaptcha_public_key'=>'required',
 			'recaptcha_private_key'=>'required',
 			'baseurl_url'=>'required',
+			'baseurl_storage'=>'required',
 			'basepath'=>'required'
 		]);
 
@@ -415,6 +430,18 @@ class InstallController extends Controller {
 		}
 
 		$envstrings->put("baseurl_url",$baseurl);
+
+        $storageurl = $request->input("baseurl_storage");
+        //Check if http:// is included in the base URL, and addi it if missing
+        if(!preg_match("/(http)(.*)/",$storageurl)){
+            $storageurl = "http://".$storageurl;
+        }
+        //Check for trailing slashes
+        if(substr($storageurl,-1) != "/"){
+            $storageurl = $storageurl."/";
+        }
+
+        $envstrings->put("baseurl_storage",$storageurl);
 
 		try{
 			$dbtype = $envstrings->get('db_driver');
