@@ -179,10 +179,10 @@ class WelcomeController extends Controller {
                         //get plugin names and menus
                         break;
                     case 'Kora News':
-                        //TODO
+                        //TODO:: Kora News
                         break;
                     case 'Kora Twitter':
-                        //TODO
+                        //TODO:: Twitter
                         break;
                     case 'Dominos':
                         $user = $options[0];

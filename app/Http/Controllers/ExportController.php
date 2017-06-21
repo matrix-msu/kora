@@ -186,7 +186,6 @@ class ExportController extends Controller {
             $p = array();
             $p['id'] = $page->id;
             $p['parent_type'] = $page->parent_type;
-            //TODO::sub pages
             $p['title'] = $page->title;
             $p['sequence'] = $page->sequence;
 

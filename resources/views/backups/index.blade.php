@@ -129,14 +129,14 @@
                     "filename": filename
                 },
                 success: function(data){
-                 location.reload();
+                 //location.reload();
                 },
                 error: function(data){
                     if(data.status == 422){
                         var encode = $('<div/>').html("{{ trans('backups_index.noselect') }}").text();
                         alert(encode);
                     }
-                   location.reload();
+                   //location.reload();
                 }
             });
 

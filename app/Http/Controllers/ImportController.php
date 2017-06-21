@@ -892,7 +892,7 @@ class ImportController extends Controller {
             $p = new Page();
 
             $p->parent_type = $page->parent_type;
-            $p->fid = $form->fid; //TODO:: subPAGES!!!
+            $p->fid = $form->fid;
             $p->title = $page->title;
             $p->sequence = $page->sequence;
 
@@ -1529,7 +1529,7 @@ class ImportController extends Controller {
             $p = new Page();
 
             $p->parent_type = $page->parent_type;
-            $p->fid = $form->fid; //TODO:: subPAGES!!!
+            $p->fid = $form->fid;
             $p->title = $page->title;
             $p->sequence = $page->sequence;
 

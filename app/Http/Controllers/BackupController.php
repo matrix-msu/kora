@@ -56,6 +56,8 @@ Use \Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use RecursiveIteratorIterator;
+use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
 
 class BackupController extends Controller
 {
@@ -589,7 +591,6 @@ class BackupController extends Controller
                 $fPath = $file->getRealPath();
                 $subPath = explode($filepath,$fPath)[1]; //sub directory + filename
                 $fname = $file->getFilename(); //filename
-                $fext = $file->getExtension(); //TODO: remove
                 //if that files sub directory doesn't exist, make it
                 //$subDir = preg_replace('/'.$fname.'$/', '', $subPath); //just the sub directory
                 $subDirArr = explode($fname,$subPath);
@@ -698,7 +699,6 @@ class BackupController extends Controller
      * @return \Illuminate\Http\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
     public function delete(Request $request){
-        //TODO: REWORK THIS TO DELETE NEW SAVE STRUCTURE
         $this->validate($request,[
             'backup_source'=>'required|in:server',
             'filename'=>'required',
@@ -710,12 +710,23 @@ class BackupController extends Controller
 
         if($request->input("backup_source") == "server"){
             $filename = $path.$request->filename;
+            $dir = str_replace(".kora3_backup","",$filename);
 
             try{
 
                 if($request->input("backup_type") == "system") {
-                    if (file_exists($filename)) {
-                        unlink($filename);
+                    if(is_dir($dir)) {
+                        $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
+                        $files = new RecursiveIteratorIterator($it,
+                            RecursiveIteratorIterator::CHILD_FIRST);
+                        foreach($files as $file) {
+                            if ($file->isDir()){
+                                rmdir($file->getRealPath());
+                            } else {
+                                unlink($file->getRealPath());
+                            }
+                        }
+                        rmdir($dir);
                     }
                 }
 
