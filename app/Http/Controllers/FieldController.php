@@ -41,7 +41,7 @@ class FieldController extends Controller {
             return redirect('projects/'.$pid);
         }
 
-        if(!FieldController::checkPermissions($fid, 'create')) {
+        if(!self::checkPermissions($fid, 'create')) {
             return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
         }
 
@@ -108,15 +108,15 @@ class FieldController extends Controller {
      */
 	public function show($pid, $fid, $flid)
 	{
-        if(!FieldController::validProjFormField($pid, $fid, $flid)){
+        if(!self::validProjFormField($pid, $fid, $flid)){
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
-        if(!FieldController::checkPermissions($fid, 'edit')) {
+        if(!self::checkPermissions($fid, 'edit')) {
             return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
         }
 
-        $field = FieldController::getField($flid);
+        $field = self::getField($flid);
         $form = FormController::getForm($fid);
         $proj = ProjectController::getProject($pid);
 
@@ -170,15 +170,15 @@ class FieldController extends Controller {
      */
 	public function edit($pid, $fid, $flid)
 	{
-        if(!FieldController::validProjFormField($pid, $fid, $flid)){
+        if(!self::validProjFormField($pid, $fid, $flid)){
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
-        if(!FieldController::checkPermissions($fid, 'edit')) {
+        if(!self::checkPermissions($fid, 'edit')) {
             return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
         }
 
-        $field = FieldController::getField($flid);
+        $field = self::getField($flid);
 
         return view('fields.edit', compact('field', 'fid', 'pid','presets'));
 	}
@@ -193,15 +193,15 @@ class FieldController extends Controller {
      */
 	public function update($pid, $fid, $flid, FieldRequest $request)
 	{
-        if(!FieldController::validProjFormField($pid, $fid, $flid)){
+        if(!self::validProjFormField($pid, $fid, $flid)){
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
-        if(!FieldController::checkPermissions($fid, 'edit')) {
+        if(!self::checkPermissions($fid, 'edit')) {
             return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
         }
 
-		$field = FieldController::getField($flid);
+		$field = self::getField($flid);
 
         $field->update($request->all());
 
@@ -215,15 +215,15 @@ class FieldController extends Controller {
 
     public static function updateRequired($pid, $fid, $flid, $req)
     {
-        if(!FieldController::validProjFormField($pid, $fid, $flid)){
+        if(!self::validProjFormField($pid, $fid, $flid)){
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
-        if(!FieldController::checkPermissions($fid, 'edit')) {
+        if(!self::checkPermissions($fid, 'edit')) {
             return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
         }
 
-        $field = FieldController::getField($flid);
+        $field = self::getField($flid);
 
         $field->required = $req;
         $field->save();
@@ -234,15 +234,15 @@ class FieldController extends Controller {
 
     public static function updateSearchable($pid, $fid, $flid, Request $request)
     {
-        if(!FieldController::validProjFormField($pid, $fid, $flid)){
+        if(!self::validProjFormField($pid, $fid, $flid)){
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
-        if(!FieldController::checkPermissions($fid, 'edit')) {
+        if(!self::checkPermissions($fid, 'edit')) {
             return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
         }
 
-        $field = FieldController::getField($flid);
+        $field = self::getField($flid);
 
         $field->searchable = $request->searchable;
         $field->extsearch = $request->extsearch;
@@ -257,15 +257,15 @@ class FieldController extends Controller {
 
     public static function updateDefault($pid, $fid, $flid, $def)
     {
-        if(!FieldController::validProjFormField($pid, $fid, $flid)){
+        if(!self::validProjFormField($pid, $fid, $flid)){
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
-        if(!FieldController::checkPermissions($fid, 'edit')) {
+        if(!self::checkPermissions($fid, 'edit')) {
             return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
         }
 
-        $field = FieldController::getField($flid);
+        $field = self::getField($flid);
 
         $field->default = $def;
 
@@ -277,15 +277,15 @@ class FieldController extends Controller {
 
     public static function updateOptions($pid, $fid, $flid, $opt, $value)
     {
-        if(!FieldController::validProjFormField($pid, $fid, $flid)){
+        if(!self::validProjFormField($pid, $fid, $flid)){
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
-        if(!FieldController::checkPermissions($fid, 'edit')) {
+        if(!self::checkPermissions($fid, 'edit')) {
             return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
         }
 
-        $field = FieldController::getField($flid);
+        $field = self::getField($flid);
 
         $options = $field->options;
         $tag = '[!'.$opt.'!]';
@@ -309,15 +309,15 @@ class FieldController extends Controller {
      */
 	public function destroy($pid, $fid, $flid)
 	{
-        if(!FieldController::validProjFormField($pid, $fid, $flid)){
+        if(!self::validProjFormField($pid, $fid, $flid)){
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
-        if(!FieldController::checkPermissions($fid, 'delete')) {
+        if(!self::checkPermissions($fid, 'delete')) {
             return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
         }
 
-        $field = FieldController::getField($flid);
+        $field = self::getField($flid);
         $form = FormController::getForm($fid);
         $pageID = $field->page_id; //capture before delete
         $field->delete();
@@ -356,7 +356,7 @@ class FieldController extends Controller {
      */
     public static function validProjFormField($pid, $fid, $flid)
     {
-        $field = FieldController::getField($flid);
+        $field = self::getField($flid);
         $form = FormController::getForm($fid);
         $proj = ProjectController::getProject($pid);
 

@@ -99,11 +99,11 @@ class KORA_Clause{
         $op = strtoupper($op);
 
         if($op == "AND" | $op == "OR"){
-            if (!$arg1 instanceof KORA_Clause)
+            if (!$arg1 instanceof self)
             {
                 die("The first query clause you provided must be an object of class KORA_Clause");
             }
-            if (!$arg2 instanceof KORA_Clause)
+            if (!$arg2 instanceof self)
             {
                 die("The second query clause you provided must be an object of class KORA_Clause");
             }

@@ -36,11 +36,11 @@ class VideoField extends FileTypeField {
             return null;
         }
 
-        $videofield = VideoField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+        $videofield = self::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($videofield)) {
-            $videofield = new VideoField();
+            $videofield = new self();
             $videofield->flid = $field->flid;
             $videofield->fid = $revision->fid;
             $videofield->rid = $revision->rid;

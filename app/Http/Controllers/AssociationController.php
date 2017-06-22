@@ -41,7 +41,7 @@ class AssociationController extends Controller {
 		}
 
 		//Associations to this form
-		$assocs = AssociationController::getAllowedAssociations($fid);
+		$assocs = self::getAllowedAssociations($fid);
 		//Create an array of fids of those associations
 		$associds = array();
 		foreach($assocs as $a){
@@ -138,7 +138,7 @@ class AssociationController extends Controller {
         //get all forms
         $forms = Form::all();
         //get forms we already have permission to search
-        $available = AssociationController::getAvailableAssociations($fid);
+        $available = self::getAvailableAssociations($fid);
         //store things here
         $requestable = array();
 
@@ -187,7 +187,7 @@ class AssociationController extends Controller {
         ////////REDIRECT BACK TO INDEX WITH SUCCESS MESSAGE
 
         //Associations to this form
-        $assocs = AssociationController::getAllowedAssociations($fid);
+        $assocs = self::getAllowedAssociations($fid);
         //Create an array of fids of those associations
         $associds = array();
         foreach($assocs as $a){

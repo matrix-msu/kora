@@ -71,7 +71,7 @@ class FormGroupController extends Controller {
             return redirect(action('FormGroupController@index', ['fid'=>$form->fid]));
         }
 
-        $group = FormGroupController::buildGroup($pid, $form->fid, $request);
+        $group = self::buildGroup($pid, $form->fid, $request);
 
         if(!is_null($request['users'])) {
             foreach ($request['users'] as $uid) {

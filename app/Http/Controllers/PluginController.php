@@ -163,7 +163,7 @@ class PluginController extends Controller
         $plugin_id = $request->plugin_id;
         $options = $request->options;
         $users = $request->users;
-        $plugin = PluginController::getPlugin($plugin_id);
+        $plugin = self::getPlugin($plugin_id);
         $project = ProjectController::getProject($plugin->pid);
         $gid = $project->adminGID;
 
@@ -188,7 +188,7 @@ class PluginController extends Controller
         $plid = $request->plid;
         $checked = $request->checked;
 
-        $plugin = PluginController::getPlugin($plid);
+        $plugin = self::getPlugin($plid);
         if($checked=='true')
             $plugin->active = 1;
         else
@@ -197,7 +197,7 @@ class PluginController extends Controller
     }
 
     public function destroy($plid){
-        $plugin = PluginController::getPlugin($plid);
+        $plugin = self::getPlugin($plid);
         $project = ProjectController::getProject($plugin->pid);
 
         $project->delete();

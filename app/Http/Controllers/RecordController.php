@@ -62,12 +62,12 @@ class RecordController extends Controller {
             return redirect('projects');
         }
 
-        if(!RecordController::checkPermissions($fid)) {
+        if(!self::checkPermissions($fid)) {
             return redirect('projects/' . $pid . '/forms/' . $fid);
         }
 
         $form = FormController::getForm($fid);
-        $filesize = RecordController::getFormFilesize($fid);
+        $filesize = self::getFormFilesize($fid);
         $records = Record::where('fid', '=', $fid)->paginate(self::RECORDS_PER_PAGE);
         $records->setPath(env('BASE_URL').'projects/'.$pid.'/forms/'.$fid.'/records');
 
@@ -85,7 +85,7 @@ class RecordController extends Controller {
             return redirect('projects');
         }
 
-        if(!RecordController::checkPermissions($fid, 'ingest')) {
+        if(!self::checkPermissions($fid, 'ingest')) {
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
@@ -467,16 +467,16 @@ class RecordController extends Controller {
 	 */
 	public function show($pid, $fid, $rid)
 	{
-        if(!RecordController::validProjFormRecord($pid, $fid, $rid)){
+        if(!self::validProjFormRecord($pid, $fid, $rid)){
             return redirect('projects');
         }
 
-        if(!RecordController::checkPermissions($fid)) {
+        if(!self::checkPermissions($fid)) {
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
         $form = FormController::getForm($fid);
-        $record = RecordController::getRecord($rid);
+        $record = self::getRecord($rid);
         $owner = User::where('id', '=', $record->owner)->first();
 
         return view('records.show', compact('record', 'form', 'pid', 'owner'));
@@ -490,16 +490,16 @@ class RecordController extends Controller {
 	 */
 	public function edit($pid, $fid, $rid)
 	{
-        if(!RecordController::validProjFormRecord($pid, $fid, $rid)){
+        if(!self::validProjFormRecord($pid, $fid, $rid)){
             return redirect('projects');
         }
 
-        if(!\Auth::user()->isOwner(RecordController::getRecord($rid)) && !RecordController::checkPermissions($fid, 'modify')) {
+        if(!\Auth::user()->isOwner(self::getRecord($rid)) && !self::checkPermissions($fid, 'modify')) {
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
         $form = FormController::getForm($fid);
-        $record = RecordController::getRecord($rid);
+        $record = self::getRecord($rid);
 
         return view('records.edit', compact('record', 'form'));
 	}
@@ -515,7 +515,7 @@ class RecordController extends Controller {
      */
     public function cloneRecord($pid, $fid, $rid) {
 
-        if(!RecordController::validProjFormRecord($pid, $fid, $rid)){
+        if(!self::validProjFormRecord($pid, $fid, $rid)){
             return redirect('projects');
         }
 
@@ -1270,15 +1270,15 @@ class RecordController extends Controller {
      */
     public function destroy($pid, $fid, $rid, $mass = false)
 	{
-        if(!RecordController::validProjFormRecord($pid, $fid, $rid)){
+        if(!self::validProjFormRecord($pid, $fid, $rid)){
             return redirect('projects/'.$pid.'forms/');
         }
 
-        if(!\Auth::user()->isOwner(RecordController::getRecord($rid)) && !RecordController::checkPermissions($fid, 'destroy') ) {
+        if(!\Auth::user()->isOwner(self::getRecord($rid)) && !self::checkPermissions($fid, 'destroy') ) {
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
-        $record = RecordController::getRecord($rid);
+        $record = self::getRecord($rid);
 
         if (!$mass) {
             RevisionController::storeRevision($record->rid, 'delete');
@@ -1307,10 +1307,6 @@ class RecordController extends Controller {
 
             Record::where("fid", "=", $fid)->delete();
 
-//            $records = Record::where('fid', '=', $fid)->get();
-//            foreach ($records as $record) {
-//                RecordController::destroy($pid, $fid, $record->rid, true);
-//            }
             flash()->overlay(trans('controller_record.alldelete'), trans('controller_record.success'));
         }
     }
@@ -1320,7 +1316,7 @@ class RecordController extends Controller {
             return redirect('projects');
         }
 
-        if(!RecordController::checkPermissions($fid, 'ingest')) {
+        if(!self::checkPermissions($fid, 'ingest')) {
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
@@ -1376,7 +1372,7 @@ class RecordController extends Controller {
      */
     public static function validProjFormRecord($pid, $fid, $rid)
     {
-        $record = RecordController::getRecord($rid);
+        $record = self::getRecord($rid);
         $form = FormController::getForm($fid);
         $proj = ProjectController::getProject($pid);
 
@@ -1445,9 +1441,9 @@ class RecordController extends Controller {
         $filesize = 0;
 
         $basedir = env( "BASE_PATH" ) . "storage/app/files/p".$pid."/f".$fid;
-        $filesize += RecordController::dirCrawl($basedir);
+        $filesize += self::dirCrawl($basedir);
 
-        $filesize = RecordController::fileSizeConvert($filesize);
+        $filesize = self::fileSizeConvert($filesize);
 
         return $filesize;
 
@@ -1466,7 +1462,7 @@ class RecordController extends Controller {
             foreach (new \DirectoryIterator($dir) as $file) {
                 // If the file is a valid directory, call dirCrawl and access its child directory(s)
                 if ($file->isDir() && $file->getFilename() != '.' && $file->getFilename() != '..') {
-                    $filesize += RecordController::dirCrawl($file->getPathname());
+                    $filesize += self::dirCrawl($file->getPathname());
                 } // If the file is indeed a file, add its size
                 elseif ($file->isFile()) {
                     $filesize += $file->getSize();

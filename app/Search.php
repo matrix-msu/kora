@@ -151,8 +151,8 @@ class Search
      */
     public static function processArgument($arg, $method) {
         switch($method) {
-            case Search::SEARCH_OR:
-            case Search::SEARCH_AND:
+            case self::SEARCH_OR:
+            case self::SEARCH_AND:
                 $args = explode(" ", $arg);
 
                 foreach ($args as &$piece) {
@@ -162,7 +162,7 @@ class Search
                 $arg = trim(implode($args));
                 break;
 
-            case Search::SEARCH_EXACT:
+            case self::SEARCH_EXACT:
                 $arg = "\"" . $arg . "\"";
                 break;
         }

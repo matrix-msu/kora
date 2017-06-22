@@ -139,7 +139,7 @@ class RevisionController extends Controller {
 
         if ($revision->type == Revision::CREATE){
             $record = Record::where('rid', '=', $revision->rid)->first();
-            $revision = RevisionController::storeRevision($record->rid, Revision::DELETE);
+            $revision = self::storeRevision($record->rid, Revision::DELETE);
             $record->delete();
 
             flash()->overlay(trans('controller_revision.record').$form->pid.'-'.$form->fid.'-'.$revision->rid.trans('controller_revision.delete'), trans('controller_revision.success') );
@@ -159,15 +159,15 @@ class RevisionController extends Controller {
                 $record->kid = $record->pid . '-' . $record->fid . '-' . $record->rid;
                 $record->save();
 
-                RevisionController::rollback_routine($record, $form, $revision, false);
-                RevisionController::storeRevision($record->rid, Revision::CREATE);
+                self::rollback_routine($record, $form, $revision, false);
+                self::storeRevision($record->rid, Revision::CREATE);
 
                 flash()->overlay(trans('controller_revision.record') . $form->pid . '-' . $form->fid . '-' . $record->rid . trans('controller_revision.rollback'), trans('controller_revision.success'));
             }
         }
         else{
             $record = RecordController::getRecord($revision->rid);
-            RevisionController::rollback_routine($record, $form, $revision, true);
+            self::rollback_routine($record, $form, $revision, true);
             flash()->overlay(trans('controller_revision.record').$form->pid.'-'.$form->fid.'-'.$record->rid.trans('controller_revision.rollback'), trans('controller_revision.success'));
         }
     }
@@ -183,7 +183,7 @@ class RevisionController extends Controller {
     public static function rollback_routine(Record $record, Form $form, Revision $revision, $is_rollback)
     {
         if($is_rollback) {
-            $new_revision = RevisionController::storeRevision($record->rid, Revision::ROLLBACK);
+            $new_revision = self::storeRevision($record->rid, Revision::ROLLBACK);
             $new_revision->oldData = $revision->data;
             $new_revision->save();
         }
@@ -284,7 +284,7 @@ class RevisionController extends Controller {
             $revision->userId = \Auth::user()->id;
         $revision->type = $type;
 
-        $revision->data = RevisionController::buildDataArray($record);
+        $revision->data = self::buildDataArray($record);
 
         $revision->rollback = 1;
         $revision->save();

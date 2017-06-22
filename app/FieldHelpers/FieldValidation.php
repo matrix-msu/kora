@@ -20,22 +20,22 @@ class FieldValidation {
     static function validateField($field, $value, $request){
         $field = FieldController::getField($field);
         if($field->type=='Text'){
-            return FieldValidation::validateText($field, $value);
+            return self::validateText($field, $value);
         } else if($field->type=='List') {
-            return FieldValidation::validateList($field, $value);
+            return self::validateList($field, $value);
         } else if($field->type=='Multi-Select List') {
-            return FieldValidation::validateMultiSelectList($field, $value);
+            return self::validateMultiSelectList($field, $value);
         } else if($field->type=='Rich Text' | $field->type=='Number' | $field->type=='Schedule'
             | $field->type=='Geolocator' | $field->type=='Associator' ){
-            return FieldValidation::validateDefault($field, $value);
+            return self::validateDefault($field, $value);
         } else if($field->type=='Generated List') {
-            return FieldValidation::validateGeneratedList($field, $value);
+            return self::validateGeneratedList($field, $value);
         }  else if($field->type=='Combo List') {
-            return FieldValidation::validateComboList($field, $request);
+            return self::validateComboList($field, $request);
         } else if($field->type=='Date') {
-            return FieldValidation::validateDate($field, $request);
+            return self::validateDate($field, $request);
         }else if($field->type=='Documents' | $field->type=='Gallery' | $field->type=='Playlist' | $field->type=="Video" | $field->type=="3D-Model"){
-            return FieldValidation::validateDocuments($field, $value);
+            return self::validateDocuments($field, $value);
         } else{
             return trans('fieldhelpers_val.notype');
         }

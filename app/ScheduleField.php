@@ -171,11 +171,11 @@ class ScheduleField extends BaseField {
             return null;
         }
 
-        $schedulefield = ScheduleField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+        $schedulefield = self::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($schedulefield)) {
-            $schedulefield = new ScheduleField();
+            $schedulefield = new self();
             $schedulefield->flid = $field->flid;
             $schedulefield->fid = $revision->fid;
             $schedulefield->rid = $revision->rid;

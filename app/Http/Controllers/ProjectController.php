@@ -58,7 +58,7 @@ class ProjectController extends Controller {
         $projects = array();
         if(!is_null($request->pid)) {
             foreach ($request->pid as $pid) {
-                $project = ProjectController::getProject($pid);
+                $project = self::getProject($pid);
                 if (!is_null($project))
                     array_push($projects, $project);
             }
@@ -109,8 +109,8 @@ class ProjectController extends Controller {
 	{
         $project = Project::create($request->all());
 
-        $adminGroup = ProjectController::makeAdminGroup($project, $request);
-        ProjectController::makeDefaultGroup($project, $request);
+        $adminGroup = self::makeAdminGroup($project, $request);
+        self::makeDefaultGroup($project, $request);
         $project->adminGID = $adminGroup->id;
         $project->save();
 
@@ -127,7 +127,7 @@ class ProjectController extends Controller {
 	 */
 	public function show($id)
     {
-        if (!ProjectController::validProj(($id))){
+        if (!self::validProj(($id))){
             return redirect('/projects');
         }
 
@@ -135,7 +135,7 @@ class ProjectController extends Controller {
             return redirect('/projects');
         }
 
-        $project = ProjectController::getProject($id);
+        $project = self::getProject($id);
         $projectArrays = [$project->buildFormSelectorArray()];
 
         return view('projects.show', compact('project', 'projectArrays'));
@@ -149,14 +149,14 @@ class ProjectController extends Controller {
 	 */
 	public function edit($id)
 	{
-        if (!ProjectController::validProj(($id))){
+        if (!self::validProj(($id))){
             return redirect('/projects');
         }
 
         $user = \Auth::user();
-        $project = ProjectController::getProject($id);
+        $project = self::getProject($id);
 
-        if (!$user->admin && !ProjectController::isProjectAdmin($user, $project)) {
+        if (!$user->admin && !self::isProjectAdmin($user, $project)) {
             flash()->overlay(trans('controller_project.editper'), trans('controller_project.whoops'));
             return redirect('/projects');
         }
@@ -172,7 +172,7 @@ class ProjectController extends Controller {
 	 */
 	public function update($id, ProjectRequest $request)
 	{
-        $project = ProjectController::getProject($id);
+        $project = self::getProject($id);
         $project->update($request->all());
 
         ProjectGroupController::updateMainGroupNames($project);
@@ -190,14 +190,14 @@ class ProjectController extends Controller {
 	 */
 	public function destroy($id)
     {
-        if (!ProjectController::validProj(($id))){
+        if (!self::validProj(($id))){
             return redirect('/projects');
         }
 
         $user = \Auth::user();
-        $project = ProjectController::getProject($id);
+        $project = self::getProject($id);
 
-        if (!$user->admin && !ProjectController::isProjectAdmin($user, $project)) {
+        if (!$user->admin && !self::isProjectAdmin($user, $project)) {
             flash()->overlay(trans('controller_project.deleteper'), trans('controller_project.whoops'));
             return redirect('/projects');
         }
@@ -302,7 +302,7 @@ class ProjectController extends Controller {
      * @return bool
      */
     public static function validProj($id){
-        return !is_null(ProjectController::getProject($id));
+        return !is_null(self::getProject($id));
     }
 
     public function importProjectView(){

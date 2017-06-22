@@ -18,7 +18,7 @@ class ComboListField extends BaseField {
 
     public static function getComboList($field, $blankOpt=false, $fnum)
     {
-        $dbOpt = ComboListField::getComboFieldOption($field, 'Options', $fnum);
+        $dbOpt = self::getComboFieldOption($field, 'Options', $fnum);
 
         if($dbOpt === null) {
             return [];
@@ -205,11 +205,11 @@ class ComboListField extends BaseField {
             return null;
         }
 
-        $combolistfield = ComboListField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+        $combolistfield = self::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($combolistfield)) {
-            $combolistfield = new ComboListField();
+            $combolistfield = new self();
             $combolistfield->flid = $field->flid;
             $combolistfield->fid = $revision->fid;
             $combolistfield->rid = $revision->rid;
@@ -217,8 +217,8 @@ class ComboListField extends BaseField {
 
         $combolistfield->save();
 
-        $type_1 = ComboListField::getComboFieldType($field, "one");
-        $type_2 = ComboListField::getComboFieldName($field, "two");
+        $type_1 = self::getComboFieldType($field, "one");
+        $type_2 = self::getComboFieldName($field, "two");
 
         $combolistfield->updateData($revision->data[Field::_COMBO_LIST][$field->flid]['data']['options'], $type_1, $type_2);
 

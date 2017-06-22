@@ -107,7 +107,7 @@ class RecordPresetController extends Controller {
             return;
         }
         else {
-            $rpc = new RecordPresetController();
+            $rpc = new self();
             $pre->preset = $rpc->getRecordArray($rid);
         }
     }
@@ -488,7 +488,7 @@ class RecordPresetController extends Controller {
         //
         // Recursively copy the record's file directory.
         //
-        RecordPresetController::recurse_copy($record_path, $path);
+        self::recurse_copy($record_path, $path);
     }
 
     /**
@@ -525,7 +525,7 @@ class RecordPresetController extends Controller {
         //
         // Copy the preset directory to the temporary directory.
         //
-        RecordPresetController::recurse_copy($presetPath, $tempPath);
+        self::recurse_copy($presetPath, $tempPath);
     }
 
     /**
@@ -546,7 +546,7 @@ class RecordPresetController extends Controller {
             while (false !== ($file = readdir($dir))) {
                 if (($file != '.') && ($file != '..')) {
                     if (is_dir($src . '/' . $file)) {
-                        RecordPresetController::recurse_copy($src . '/' . $file, $dst . '/' . $file);
+                        self::recurse_copy($src . '/' . $file, $dst . '/' . $file);
                     } else {
                         copy($src . '/' . $file, $dst . '/' . $file);
                     }

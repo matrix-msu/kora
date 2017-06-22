@@ -133,7 +133,7 @@ class AdminController extends Controller {
             $created = 0;
 
             foreach ($emails as $email) {
-                if (!AdminController::emailExists($email)) {
+                if (!self::emailExists($email)) {
                     if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
                         $username = explode('@', $email)[0];
                         $i = 1;
@@ -141,7 +141,7 @@ class AdminController extends Controller {
                         $username_array[0] = $username;
 
                         // Increment a count while the username exists.
-                        while (AdminController::usernameExists($username)) {
+                        while (self::usernameExists($username)) {
                             $username_array[1] = $i;
                             $username = implode($username_array);
                             $i++;
@@ -153,7 +153,7 @@ class AdminController extends Controller {
                         $user = new User();
                         $user->username = $username;
                         $user->email = $email;
-                        $password = AdminController::passwordGen();
+                        $password = self::passwordGen();
                         $user->password = bcrypt($password);
                         $token = AuthenticatesAndRegistersUsers::makeRegToken();
                         $user->regtoken = $token;

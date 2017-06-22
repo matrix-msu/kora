@@ -57,7 +57,7 @@ class ProjectGroupController extends Controller {
             return redirect('projects/'.$pid.'/manage/projectgroups');
         }
 
-        $group = ProjectGroupController::buildGroup($pid, $request);
+        $group = self::buildGroup($pid, $request);
 
         if(!is_null($request['users'])) {
             foreach($request['users'] as $uid){
@@ -114,7 +114,7 @@ class ProjectGroupController extends Controller {
         $instance = ProjectGroup::where('id', '=', $request['projectGroup'])->first();
 
         if($request['pid'] == $instance->id)
-            ProjectGroupController::wipeAdminRights($request, $request['pid']);
+            self::wipeAdminRights($request, $request['pid']);
 
         $forms = Form::where('pid', '=', $instance->pid)->get();
         foreach ($forms as $form) {

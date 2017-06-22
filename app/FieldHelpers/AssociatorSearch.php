@@ -48,7 +48,7 @@ class AssociatorSearch
             foreach($activeForms as $fid => $details){
                 $form = FormController::getForm($fid);
 
-                $rids = AssociatorSearch::search($form->pid, $fid, $keyword, 0);
+                $rids = self::search($form->pid, $fid, $keyword, 0);
 
                 foreach($rids as $rid){
                     $kid = $form->pid.'-'.$fid.'-'.$rid;

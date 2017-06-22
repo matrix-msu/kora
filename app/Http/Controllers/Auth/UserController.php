@@ -52,8 +52,8 @@ class UserController extends Controller {
         }
         else{
             $admin = 0;
-            $projects = UserController::buildProjectsArray($user);
-            $forms = UserController::buildFormsArray($user);
+            $projects = self::buildProjectsArray($user);
+            $forms = self::buildFormsArray($user);
             $records = Record::where('owner', '=', $user->id)->orderBy('updated_at', 'desc')->get();
 
             return view('user/profile',compact('languages_available', 'admin', 'projects', 'forms', 'records', 'profile'));

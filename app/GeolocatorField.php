@@ -174,11 +174,11 @@ class GeolocatorField extends BaseField {
             return null;
         }
 
-        $geofield = GeolocatorField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+        $geofield = self::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($geofield)) {
-            $geofield = new GeolocatorField();
+            $geofield = new self();
             $geofield->flid = $field->flid;
             $geofield->fid = $revision->fid;
             $geofield->rid = $revision->rid;

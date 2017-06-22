@@ -40,7 +40,7 @@ class TextField extends BaseField {
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($textfield)) {
-            $textfield = new TextField();
+            $textfield = new self();
             $textfield->flid = $field->flid;
             $textfield->rid = $revision->rid;
             $textfield->fid = $revision->fid;

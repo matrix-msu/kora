@@ -38,11 +38,11 @@ class GalleryField extends FileTypeField  {
             return null;
         }
 
-        $galleryfield = GalleryField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+        $galleryfield = self::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($galleryfield)) {
-            $galleryfield = new GalleryField();
+            $galleryfield = new self();
             $galleryfield->flid = $field->flid;
             $galleryfield->fid = $revision->fid;
             $galleryfield->rid = $revision->rid;

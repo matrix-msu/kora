@@ -53,7 +53,7 @@ class FormController extends Controller {
             return redirect('projects');
         }
 
-        if(!FormController::checkPermissions($pid, 'create')){
+        if(!self::checkPermissions($pid, 'create')){
             return redirect('projects/'.$pid.'/forms');
         }
 
@@ -81,13 +81,13 @@ class FormController extends Controller {
         if(!isset($request['preset'])) //Since the preset is copying the target form, no need to make a default page
             PageController::makePageOnForm($form->fid,$form->slug." Default Page");
 
-        $adminGroup = FormController::makeAdminGroup($form, $request);
-        FormController::makeDefaultGroup($form);
+        $adminGroup = self::makeAdminGroup($form, $request);
+        self::makeDefaultGroup($form);
         $form->adminGID = $adminGroup->id;
         $form->save();
 
         if(isset($request['preset']))
-            FormController::addPresets($form, $request['preset']);
+            self::addPresets($form, $request['preset']);
 
         flash()->overlay(trans('controller_form.create'),trans('controller_form.goodjob'));
 
@@ -102,15 +102,15 @@ class FormController extends Controller {
 	 */
 	public function show($pid, $fid)
 	{
-        if(!FormController::validProjForm($pid,$fid)){
+        if(!self::validProjForm($pid,$fid)){
             return redirect('projects/'.$pid);
         }
 
-        if(!FormController::checkPermissions($pid)){
+        if(!self::checkPermissions($pid)){
             return redirect('/projects');
         }
 
-        $form = FormController::getForm($fid);
+        $form = self::getForm($fid);
         $proj = ProjectController::getProject($pid);
         $projName = $proj->name;
 
@@ -127,15 +127,15 @@ class FormController extends Controller {
 	 */
 	public function edit($pid, $fid)
     {
-        if(!FormController::validProjForm($pid,$fid)){
+        if(!self::validProjForm($pid,$fid)){
             return redirect('projects/'.$pid);
         }
 
-        if(!FormController::checkPermissions($pid, 'edit')){
+        if(!self::checkPermissions($pid, 'edit')){
             return redirect('/projects/'.$pid.'/forms');
         }
 
-        $form = FormController::getForm($fid);
+        $form = self::getForm($fid);
         $proj = ProjectController::getProject($pid);
         $projName = $proj->name;
 
@@ -150,13 +150,13 @@ class FormController extends Controller {
 	 */
 	public function update($pid, $fid, FormRequest $request)
 	{
-        if(!FormController::validProjForm($pid,$fid)){
+        if(!self::validProjForm($pid,$fid)){
             return redirect('projects/'.$pid);
         }
 
-        $form = FormController::getForm($fid);
+        $form = self::getForm($fid);
 
-        if(!FormController::checkPermissions($pid, 'edit')){
+        if(!self::checkPermissions($pid, 'edit')){
             return redirect('/projects/'.$form->$pid.'/forms');
         }
 
@@ -177,15 +177,15 @@ class FormController extends Controller {
 	 */
 	public function destroy($pid, $fid)
 	{
-        if(!FormController::validProjForm($pid,$fid)){
+        if(!self::validProjForm($pid,$fid)){
             return redirect('projects/'.$pid);
         }
 
-        if(!FormController::checkPermissions($pid, 'delete')){
+        if(!self::checkPermissions($pid, 'delete')){
             return redirect('/projects/'.$pid.'/forms');
         }
 
-        $form = FormController::getForm($fid);
+        $form = self::getForm($fid);
         $form->delete();
 
         flash()->overlay(trans('controller_form.delete'),trans('controller_form.goodjob'));
@@ -201,11 +201,11 @@ class FormController extends Controller {
      */
     public function preset($pid, $fid, Request $request)
     {
-        if(!FormController::validProjForm($pid,$fid)){
+        if(!self::validProjForm($pid,$fid)){
             return redirect('projects/'.$pid);
         }
 
-        $form = FormController::getForm($fid);
+        $form = self::getForm($fid);
         if($request['preset'])
             $form->preset = 1;
         else
@@ -218,7 +218,7 @@ class FormController extends Controller {
             return redirect('projects');
         }
 
-        if(!FormController::checkPermissions($pid, 'ingest')) {
+        if(!self::checkPermissions($pid, 'ingest')) {
             return redirect('projects/'.$pid);
         }
 
@@ -232,7 +232,7 @@ class FormController extends Controller {
             return redirect('projects');
         }
 
-        if(!FormController::checkPermissions($pid, 'ingest')) {
+        if(!self::checkPermissions($pid, 'ingest')) {
             return redirect('projects/'.$pid);
         }
 
@@ -266,7 +266,7 @@ class FormController extends Controller {
      */
     public static function validProjForm($pid, $fid)
     {
-        $form = FormController::getForm($fid);
+        $form = self::getForm($fid);
         $proj = ProjectController::getProject($pid);
 
         if(is_null($form) || is_null($proj))

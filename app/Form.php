@@ -101,7 +101,7 @@ class Form extends Model {
 
     public static function slugExists($slug)
     {
-        $form = Form::where('slug', '=', $slug)->get()->first();
+        $form = self::where('slug', '=', $slug)->get()->first();
         if (is_null($form))
             return false;
         else

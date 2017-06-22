@@ -50,11 +50,11 @@ class Field extends Model {
      * @var array
      */
     static public $ENUM_TYPED_FIELDS = [
-        Field::_TEXT, Field::_RICH_TEXT, Field::_NUMBER, Field::_LIST,
-        Field::_MULTI_SELECT_LIST, Field::_GENERATED_LIST, Field::_DATE,
-        Field::_SCHEDULE, Field::_GEOLOCATOR, Field::_DOCUMENTS, Field::_GALLERY,
-        Field::_3D_MODEL, Field::_PLAYLIST, Field::_VIDEO, Field::_COMBO_LIST,
-        Field::_ASSOCIATOR
+        self::_TEXT, self::_RICH_TEXT, self::_NUMBER, self::_LIST,
+        self::_MULTI_SELECT_LIST, self::_GENERATED_LIST, self::_DATE,
+        self::_SCHEDULE, self::_GEOLOCATOR, self::_DOCUMENTS, self::_GALLERY,
+        self::_3D_MODEL, self::_PLAYLIST, self::_VIDEO, self::_COMBO_LIST,
+        self::_ASSOCIATOR
     ];
 
     protected $primaryKey = "flid";
@@ -94,67 +94,67 @@ class Field extends Model {
      */
     public function getTypedField($rid) {
         switch($this->type) {
-            case Field::_TEXT:
+            case self::_TEXT:
                 return TextField::where("flid", "=", $this->flid)->where("rid", "=", $rid)->first();
                 break;
 
-            case Field::_RICH_TEXT:
+            case self::_RICH_TEXT:
                 return RichTextField::where("flid", "=", $this->flid)->where("rid", "=", $rid)->first();
                 break;
 
-            case Field::_NUMBER:
+            case self::_NUMBER:
                 return NumberField::where("flid", "=", $this->flid)->where("rid", "=", $rid)->first();
                 break;
 
-            case Field::_LIST:
+            case self::_LIST:
                 return ListField::where("flid", "=", $this->flid)->where("rid", "=", $rid)->first();
                 break;
 
-            case Field::_MULTI_SELECT_LIST:
+            case self::_MULTI_SELECT_LIST:
                 return MultiSelectListField::where("flid", "=", $this->flid)->where("rid", "=", $rid)->first();
                 break;
 
-            case Field::_GENERATED_LIST:
+            case self::_GENERATED_LIST:
                 return GeneratedListField::where("flid", "=", $this->flid)->where("rid", "=", $rid)->first();
                 break;
 
-            case Field::_DATE:
+            case self::_DATE:
                 return DateField::where("flid", "=", $this->flid)->where("rid", "=", $rid)->first();
                 break;
 
-            case Field::_SCHEDULE:
+            case self::_SCHEDULE:
                 return ScheduleField::where("flid", "=", $this->flid)->where("rid", "=", $rid)->first();
                 break;
 
-            case Field::_GEOLOCATOR:
+            case self::_GEOLOCATOR:
                 return GeolocatorField::where("flid", "=", $this->flid)->where("rid", "=", $rid)->first();
                 break;
 
-            case Field::_DOCUMENTS:
+            case self::_DOCUMENTS:
                 return DocumentsField::where("flid", "=", $this->flid)->where("rid", "=", $rid)->first();
                 break;
 
-            case Field::_GALLERY:
+            case self::_GALLERY:
                 return GalleryField::where("flid", "=", $this->flid)->where("rid", "=", $rid)->first();
                 break;
 
-            case Field::_3D_MODEL:
+            case self::_3D_MODEL:
                 return ModelField::where("flid", "=", $this->flid)->where("rid", "=", $rid)->first();
                 break;
 
-            case Field::_PLAYLIST:
+            case self::_PLAYLIST:
                 return PlaylistField::where("flid", "=", $this->flid)->where("rid", "=", $rid)->first();
                 break;
 
-            case Field::_VIDEO:
+            case self::_VIDEO:
                 return VideoField::where("flid", "=", $this->flid)->where("rid", "=", $rid)->first();
                 break;
 
-            case Field::_COMBO_LIST:
+            case self::_COMBO_LIST:
                 return ComboListField::where("flid", "=", $this->flid)->where("rid", "=", $rid)->first();
                 break;
 
-            case Field::_ASSOCIATOR:
+            case self::_ASSOCIATOR:
                 return AssociatorField::where("flid", "=", $this->flid)->where("rid", "=", $rid)->first();
                 break;
 
@@ -173,7 +173,7 @@ class Field extends Model {
      */
     public function keywordSearchTyped($arg, $method) {
         switch($this->type) {
-            case Field::_TEXT:
+            case self::_TEXT:
                 return DB::table("text_fields")
                     ->select("rid")
                     ->where("fid", "=", $this->fid)
@@ -181,7 +181,7 @@ class Field extends Model {
                     ->distinct();
                 break;
 
-            case Field::_RICH_TEXT:
+            case self::_RICH_TEXT:
                 return DB::table("rich_text_fields")
                     ->select("rid")
                     ->where("fid", "=", $this->fid)
@@ -189,7 +189,7 @@ class Field extends Model {
                     ->distinct();
                 break;
 
-            case Field::_NUMBER:
+            case self::_NUMBER:
                 $arg = str_replace(["*", "\""], "", $arg);
 
                 if (is_numeric($arg)) { // Only search if we're working with a number.
@@ -208,7 +208,7 @@ class Field extends Model {
                 }
                 break;
 
-            case Field::_LIST:
+            case self::_LIST:
                 return DB::table("list_fields")
                     ->select("rid")
                     ->where("fid", "=", $this->fid)
@@ -216,7 +216,7 @@ class Field extends Model {
                     ->distinct();
                 break;
 
-            case Field::_MULTI_SELECT_LIST:
+            case self::_MULTI_SELECT_LIST:
                 return DB::table("multi_select_list_fields")
                     ->select("rid")
                     ->where("fid", "=", $this->fid)
@@ -224,7 +224,7 @@ class Field extends Model {
                     ->distinct();
                 break;
 
-            case Field::_GENERATED_LIST:
+            case self::_GENERATED_LIST:
                 return DB::table("generated_list_fields")
                     ->select("rid")
                     ->where("fid", "=", $this->fid)
@@ -232,7 +232,7 @@ class Field extends Model {
                     ->distinct();
                 break;
 
-            case Field::_DATE:
+            case self::_DATE:
                 $arg = str_replace(["*", "\""], "", $arg);
 
                 // Boolean to decide if we should consider circa options.
@@ -244,7 +244,7 @@ class Field extends Model {
                 return DateField::buildQuery($arg, $circa, $era, $this->fid);
                 break;
 
-            case Field::_SCHEDULE:
+            case self::_SCHEDULE:
                 return DB::table(ScheduleField::SUPPORT_NAME)
                     ->select("rid")
                     ->where("fid", "=", $this->fid)
@@ -252,7 +252,7 @@ class Field extends Model {
                     ->distinct();
                 break;
 
-            case Field::_GEOLOCATOR:
+            case self::_GEOLOCATOR:
                 return DB::table(GeolocatorField::SUPPORT_NAME)
                     ->select("rid")
                     ->where("fid", "=", $this->fid)
@@ -263,7 +263,7 @@ class Field extends Model {
                     ->distinct();
                 break;
 
-            case Field::_DOCUMENTS:
+            case self::_DOCUMENTS:
                 $arg = self::processArgumentForFileField($arg, $method);
 
                 return DB::table("documents_fields")
@@ -273,7 +273,7 @@ class Field extends Model {
                     ->distinct();
                 break;
 
-            case Field::_GALLERY:
+            case self::_GALLERY:
                 $arg = self::processArgumentForFileField($arg, $method);
 
                 return DB::table("gallery_fields")
@@ -283,7 +283,7 @@ class Field extends Model {
                     ->distinct();
                 break;
 
-            case Field::_3D_MODEL:
+            case self::_3D_MODEL:
                 $arg = self::processArgumentForFileField($arg, $method);
 
                 return DB::table("model_fields")
@@ -293,7 +293,7 @@ class Field extends Model {
                     ->distinct();
                 break;
 
-            case Field::_PLAYLIST:
+            case self::_PLAYLIST:
                 $arg = self::processArgumentForFileField($arg, $method);
 
                 return DB::table("playlist_fields")
@@ -303,7 +303,7 @@ class Field extends Model {
                     ->distinct();
                 break;
 
-            case Field::_VIDEO:
+            case self::_VIDEO:
                 $arg = self::processArgumentForFileField($arg, $method);
 
                 return DB::table("video_fields")
@@ -313,7 +313,7 @@ class Field extends Model {
                     ->distinct();
                 break;
 
-            case Field::_COMBO_LIST:
+            case self::_COMBO_LIST:
                 return DB::table("combo_support")
                     ->select("rid")
                     ->where("fid", "=", $this->fid)
@@ -327,7 +327,7 @@ class Field extends Model {
                     ->distinct();
                 break;
 
-            case Field::_ASSOCIATOR:
+            case self::_ASSOCIATOR:
                 return DB::table(AssociatorField::SUPPORT_NAME)
                     ->select("rid")
                     ->where("fid", "=", $this->fid)
@@ -352,67 +352,67 @@ class Field extends Model {
      */
     public static function advancedSearch($flid, $field_type, array $query) {
         switch($field_type) {
-            case Field::_TEXT:
+            case self::_TEXT:
                 return TextField::getAdvancedSearchQuery($flid, $query);
                 break;
 
-            case Field::_RICH_TEXT:
+            case self::_RICH_TEXT:
                 return RichTextField::getAdvancedSearchQuery($flid, $query);
                 break;
 
-            case Field::_NUMBER:
+            case self::_NUMBER:
                 return NumberField::getAdvancedSearchQuery($flid, $query);
                 break;
 
-            case Field::_LIST:
+            case self::_LIST:
                 return ListField::getAdvancedSearchQuery($flid, $query);
                 break;
 
-            case Field::_MULTI_SELECT_LIST:
+            case self::_MULTI_SELECT_LIST:
                 return MultiSelectListField::getAdvancedSearchQuery($flid, $query);
                 break;
 
-            case Field::_GENERATED_LIST:
+            case self::_GENERATED_LIST:
                 return GeneratedListField::getAdvancedSearchQuery($flid, $query);
                 break;
 
-            case Field::_DATE:
+            case self::_DATE:
                 return DateField::getAdvancedSearchQuery($flid, $query);
                 break;
 
-            case Field::_SCHEDULE:
+            case self::_SCHEDULE:
                 return ScheduleField::getAdvancedSearchQuery($flid, $query);
                 break;
 
-            case Field::_GEOLOCATOR:
+            case self::_GEOLOCATOR:
                 return GeolocatorField::getAdvancedSearchQuery($flid, $query);
                 break;
 
-            case Field::_DOCUMENTS:
+            case self::_DOCUMENTS:
                 return DocumentsField::getAdvancedSearchQuery($flid, $query);
                 break;
 
-            case Field::_GALLERY:
+            case self::_GALLERY:
                 return GalleryField::getAdvancedSearchQuery($flid, $query);
                 break;
 
-            case Field::_3D_MODEL:
+            case self::_3D_MODEL:
                 return ModelField::getAdvancedSearchQuery($flid, $query);
                 break;
 
-            case Field::_PLAYLIST:
+            case self::_PLAYLIST:
                 return PlaylistField::getAdvancedSearchQuery($flid, $query);
                 break;
 
-            case Field::_VIDEO:
+            case self::_VIDEO:
                 return VideoField::getAdvancedSearchQuery($flid, $query);
                 break;
 
-            case Field::_COMBO_LIST:
+            case self::_COMBO_LIST:
                 return ComboListField::getAdvancedSearchQuery($flid, $query);
                 break;
 
-            case Field::_ASSOCIATOR:
+            case self::_ASSOCIATOR:
                 return AssociatorField::getAdvancedSearchQuery($flid, $query);
                 break;
 
@@ -453,16 +453,16 @@ class Field extends Model {
     public function delete() {
         DB::table(BaseField::$MAPPED_FIELD_TYPES[$this->type])->where("flid", "=", $this->flid)->delete();
 
-        if ($this->type == Field::_SCHEDULE) {
+        if ($this->type == self::_SCHEDULE) {
             DB::table(ScheduleField::SUPPORT_NAME)->where("flid", "=", $this->flid)->delete();
         }
-        else if ($this->type == Field::_GEOLOCATOR) {
+        else if ($this->type == self::_GEOLOCATOR) {
             DB::table(GeolocatorField::SUPPORT_NAME)->where("flid", "=", $this->flid)->delete();
         }
-        else if ($this->type == Field::_COMBO_LIST) {
+        else if ($this->type == self::_COMBO_LIST) {
             DB::table(ComboListField::SUPPORT_NAME)->where("flid", "=", $this->flid)->delete();
         }
-        else if ($this->type == Field::_ASSOCIATOR) {
+        else if ($this->type == self::_ASSOCIATOR) {
             DB::table(AssociatorField::SUPPORT_NAME)->where("flid", "=", $this->flid)->delete();
         }
 
@@ -482,7 +482,7 @@ class Field extends Model {
     }
 
     public static function slugExists($slug){
-        $field = Field::where('slug','=',$slug)->get()->first();
+        $field = self::where('slug','=',$slug)->get()->first();
         if(is_null($field))
             return false;
         else

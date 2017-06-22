@@ -36,11 +36,11 @@ class ModelField extends FileTypeField  {
             return null;
         }
 
-        $modelfield = ModelField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+        $modelfield = self::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($modelfield)) {
-            $modelfield = new ModelField();
+            $modelfield = new self();
             $modelfield->flid = $field->flid;
             $modelfield->fid = $revision->fid;
             $modelfield->rid = $revision->rid;

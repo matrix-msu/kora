@@ -32,7 +32,7 @@ class UpdateController extends Controller {
         $git = is_dir( env('BASE_PATH'). DIRECTORY_SEPARATOR . '.git');
 
         //Determine if an update is needed (this is determined independent of how Kora was acquired).
-        $update = UpdateController::checkVersion();
+        $update = self::checkVersion();
 
         return view('update.index', compact('git', 'update'));
     }
@@ -48,7 +48,7 @@ class UpdateController extends Controller {
         $thisVersion = DB::table('versions')->orderBy('created_at', 'desc')->first()->version;
 
         //Current version of Kora 3
-        $currentVersion = UpdateController::getCurrentVersion();
+        $currentVersion = self::getCurrentVersion();
 
         return version_compare($currentVersion, $thisVersion, ">");
     }
@@ -99,7 +99,7 @@ class UpdateController extends Controller {
             }
         }
 
-        if (UpdateController::hasPulled())
+        if (self::hasPulled())
         {
             //
             // Run scripts that have not yet been run.
@@ -112,8 +112,8 @@ class UpdateController extends Controller {
                     $script->save();
                 }
             }
-            UpdateController::refresh();
-            UpdateController::storeVersion();
+            self::refresh();
+            self::storeVersion();
 
             //
             // Inform the user they have successfully updated.
@@ -159,7 +159,7 @@ class UpdateController extends Controller {
     private function storeVersion()
     {
         $v = new Version();
-        $v->version = UpdateController::getCurrentVersion();
+        $v->version = self::getCurrentVersion();
         $v->save();
     }
 

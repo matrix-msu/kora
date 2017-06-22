@@ -200,11 +200,11 @@ class AssociatorField extends BaseField {
             return null;
         }
 
-        $associatorfield = AssociatorField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+        $associatorfield = self::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($associatorfield)) {
-            $associatorfield = new AssociatorField();
+            $associatorfield = new self();
             $associatorfield->flid = $field->flid;
             $associatorfield->fid = $revision->fid;
             $associatorfield->rid = $revision->rid;

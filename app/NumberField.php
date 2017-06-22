@@ -48,11 +48,11 @@ class NumberField extends BaseField {
             return null;
         }
 
-        $numberfield = NumberField::where('flid', '=', $field->flid)->where('rid', '=', $revision->rid)->first();
+        $numberfield = self::where('flid', '=', $field->flid)->where('rid', '=', $revision->rid)->first();
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($numberfield)) {
-            $numberfield = new NumberField();
+            $numberfield = new self();
             $numberfield->flid = $field->flid;
             $numberfield->rid = $revision->rid;
             $numberfield->fid = $revision->fid;
@@ -99,28 +99,28 @@ class NumberField extends BaseField {
         // Determine the interval we should search over. With epsilons to account for float rounding.
         if ($left == "") {
             if ($invert) { // (right, inf)
-                $query->where($prefix . "number", ">", floatval($right) - NumberField::EPSILON);
+                $query->where($prefix . "number", ">", floatval($right) - self::EPSILON);
             }
             else { // (-inf, right]
-                $query->where($prefix . "number", "<=", floatval($right) + NumberField::EPSILON);
+                $query->where($prefix . "number", "<=", floatval($right) + self::EPSILON);
             }
         }
         else if ($right == "") {
             if ($invert) { // (-inf, left)
-                $query->where($prefix . "number", "<", floatval($left) + NumberField::EPSILON);
+                $query->where($prefix . "number", "<", floatval($left) + self::EPSILON);
             }
             else { // [left, inf)
-                $query->where($prefix . "number", ">=", floatval($left) - NumberField::EPSILON);
+                $query->where($prefix . "number", ">=", floatval($left) - self::EPSILON);
             }
         }
         else {
             if ($invert) { // (-inf, left) union (right, inf)
-                $query->whereNotBetween($prefix . "number", [floatval($left) - NumberField::EPSILON,
-                    floatval($right) + NumberField::EPSILON]);
+                $query->whereNotBetween($prefix . "number", [floatval($left) - self::EPSILON,
+                    floatval($right) + self::EPSILON]);
             }
             else { // [left, right]
-                $query->whereBetween($prefix . "number", [floatval($left) - NumberField::EPSILON,
-                    floatval($right) + NumberField::EPSILON]);
+                $query->whereBetween($prefix . "number", [floatval($left) - self::EPSILON,
+                    floatval($right) + self::EPSILON]);
             }
         }
     }

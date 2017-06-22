@@ -40,7 +40,7 @@ class TokenController extends Controller {
     public function create(Request $request)
     {
         $instance = new Token();
-        $instance->token = TokenController::tokenGen();
+        $instance->token = self::tokenGen();
         $instance->title = $request['title'];
         $instance->search = isset($request['search']) ? true : false;
         $instance->create = isset($request['create']) ? true : false;
@@ -61,7 +61,7 @@ class TokenController extends Controller {
      */
     public function deleteProject(Request $request)
     {
-        $instance = TokenController::getToken($request->token);
+        $instance = self::getToken($request->token);
         $instance->projects()->detach($request['pid']);
     }
 
@@ -72,7 +72,7 @@ class TokenController extends Controller {
      */
     public function addProject(Request $request)
     {
-        $instance = TokenController::getToken($request->token);
+        $instance = self::getToken($request->token);
         $instance->projects()->attach($request['pid']);
     }
 
@@ -83,7 +83,7 @@ class TokenController extends Controller {
      */
     public function deleteToken(Request $request)
     {
-        $instance = TokenController::getToken($request->id);
+        $instance = self::getToken($request->id);
         $instance->delete();
 
         flash()->overlay(trans('controller_token.delete'), trans('controller_token.success'));

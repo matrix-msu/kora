@@ -51,11 +51,11 @@ class RichTextField extends BaseField {
             return null;
         }
 
-        $richtextfield = RichTextField::where('flid', '=', $field->flid)->where('rid', '=', $revision->rid)->first();
+        $richtextfield = self::where('flid', '=', $field->flid)->where('rid', '=', $revision->rid)->first();
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($richtextfield)) {
-            $richtextfield = new RichTextField();
+            $richtextfield = new self();
             $richtextfield->flid = $field->flid;
             $richtextfield->rid = $revision->rid;
             $richtextfield->fid = $revision->fid;

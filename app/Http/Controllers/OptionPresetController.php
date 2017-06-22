@@ -250,7 +250,7 @@ class OptionPresetController extends Controller
             $oneType = ComboListField::getComboFieldType($field,'one');
             $twoType = ComboListField::getComboFieldType($field,'two');
             //ComboList field one
-            $onePresets = OptionPresetController::getPresetsIndex($pid);
+            $onePresets = self::getPresetsIndex($pid);
             foreach ($onePresets as $subset) {
                 foreach ($subset as $key => $preset) {
                     if ($preset->type != $preset_field_compatibility->get($oneType)) {
@@ -260,7 +260,7 @@ class OptionPresetController extends Controller
             }
             $comboPresets->put("one",$onePresets);
             //ComboList field two
-            $twoPresets = OptionPresetController::getPresetsIndex($pid);
+            $twoPresets = self::getPresetsIndex($pid);
             foreach ($twoPresets as $subset) {
                 foreach ($subset as $key => $preset) {
                     if ($preset->type != $preset_field_compatibility->get($twoType)) {
@@ -273,7 +273,7 @@ class OptionPresetController extends Controller
             return $comboPresets;
         }
         else {
-            $all_presets = OptionPresetController::getPresetsIndex($pid);
+            $all_presets = self::getPresetsIndex($pid);
             foreach ($all_presets as $subset) {
                 foreach ($subset as $key => $preset) {
                     if ($preset->type != $preset_field_compatibility->get($field->type)) {

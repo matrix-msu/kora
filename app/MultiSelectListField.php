@@ -60,11 +60,11 @@ class MultiSelectListField extends BaseField {
             return null;
         }
 
-        $mslfield = MultiSelectListField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+        $mslfield = self::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($mslfield)) {
-            $mslfield = new MultiSelectListField();
+            $mslfield = new self();
             $mslfield->flid = $field->flid;
             $mslfield->rid = $revision->rid;
             $mslfield->fid = $revision->fid;

@@ -217,11 +217,11 @@ class DateField extends BaseField {
             return null;
         }
 
-        $datefield = DateField::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
+        $datefield = self::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if ($revision->type == Revision::DELETE || is_null($datefield)) {
-            $datefield = new DateField();
+            $datefield = new self();
             $datefield->flid = $field->flid;
             $datefield->fid = $revision->fid;
             $datefield->rid = $revision->rid;
