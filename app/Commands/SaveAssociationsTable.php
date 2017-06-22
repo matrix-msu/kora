@@ -37,8 +37,11 @@ class SaveAssociationsTable extends Command implements SelfHandling, ShouldQueue
             foreach($assocs as $association) {
                 $individual_association_data = new Collection();
 
-                $individual_association_data->put("form_group_id", $association->form_group_id);
-                $individual_association_data->put("user_id", $association->user_id);
+                $individual_association_data->put("id", $association->id);
+                $individual_association_data->put("dataForm", $association->dataForm);
+                $individual_association_data->put("assocForm", $association->assocForm);
+                $individual_association_data->put("created_at", $association->created_at); // Already a string, don't format.
+                $individual_association_data->put("updated_at", $association->updated_at);
 
                 $all_association_data->push($individual_association_data);
                 $count++;

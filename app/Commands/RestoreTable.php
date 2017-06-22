@@ -37,7 +37,11 @@ class RestoreTable extends CommandRestore implements SelfHandling, ShouldQueue
                 $jsondata = file_get_contents($restore_path.'/'.$file->getFilename());
                 $data = json_decode($jsondata, true);
                 foreach($data as $row) {
-                    DB::table($this->table)->insert($row);
+                    try {
+                        DB::table($this->table)->insert($row);
+                    }catch(\PDOException $e){
+                        Log::info("Restore error with Table ".$this->proper_name."\n".$e->getMessage());
+                    }
                 }
                 DB::table("restore_partial_progress")->where("id", $row_id)->increment("progress", 1, ["updated_at" => Carbon::now()]);
             }

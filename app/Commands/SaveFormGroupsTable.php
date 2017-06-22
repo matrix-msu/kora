@@ -37,20 +37,17 @@ class SaveFormGroupsTable extends Command implements SelfHandling, ShouldQueue {
             foreach($formgroups as $formgroup) {
                 $individual_formgroup_data = new Collection();
 
-                $group_data = new Collection();
-                $group_data->put("id", $formgroup->id);
-                $group_data->put("name", $formgroup->name);
-                $group_data->put("fid", $formgroup->fid);
-                $group_data->put("create", $formgroup->create);
-                $group_data->put("edit", $formgroup->edit);
-                $group_data->put("delete", $formgroup->delete);
-                $group_data->put("ingest", $formgroup->ingest);
-                $group_data->put("modify", $formgroup->modify);
-                $group_data->put("destroy", $formgroup->destroy);
-                $group_data->put("created_at", $formgroup->created_at->toDateTimeString());
-                $group_data->put("updated_at", $formgroup->updated_at->toDateTimeString());
-                $individual_formgroup_data->put("group_data", $group_data);
-                $individual_formgroup_data->put("user_data", $formgroup->users()->get()->modelKeys());
+                $individual_formgroup_data->put("id", $formgroup->id);
+                $individual_formgroup_data->put("name", $formgroup->name);
+                $individual_formgroup_data->put("fid", $formgroup->fid);
+                $individual_formgroup_data->put("create", $formgroup->create);
+                $individual_formgroup_data->put("edit", $formgroup->edit);
+                $individual_formgroup_data->put("delete", $formgroup->delete);
+                $individual_formgroup_data->put("ingest", $formgroup->ingest);
+                $individual_formgroup_data->put("modify", $formgroup->modify);
+                $individual_formgroup_data->put("destroy", $formgroup->destroy);
+                $individual_formgroup_data->put("created_at", $formgroup->created_at->toDateTimeString());
+                $individual_formgroup_data->put("updated_at", $formgroup->updated_at->toDateTimeString());
 
                 $all_formgroup_data->push($individual_formgroup_data);
                 $count++;

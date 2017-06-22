@@ -41,6 +41,7 @@ class SaveMetadatasTable extends Command implements SelfHandling, ShouldQueue
                 $individual_metadata_data->put("pid", $metadata->pid);
                 $individual_metadata_data->put("fid", $metadata->fid);
                 $individual_metadata_data->put("name", $metadata->name);
+                $individual_metadata_data->put("primary", $metadata->primary);
                 $individual_metadata_data->put("created_at", $metadata->created_at->toDateTimeString());
                 $individual_metadata_data->put("updated_at", $metadata->updated_at->toDateTimeString());
 

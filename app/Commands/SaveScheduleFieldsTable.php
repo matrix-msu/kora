@@ -39,6 +39,7 @@ class SaveScheduleFieldsTable extends Command implements SelfHandling, ShouldQue
 
                 $individual_schedulefield_data->put("id", $schedulefield->id);
                 $individual_schedulefield_data->put("rid", $schedulefield->rid);
+                $individual_schedulefield_data->put("fid", $schedulefield->fid);
                 $individual_schedulefield_data->put("flid", $schedulefield->flid);
                 $individual_schedulefield_data->put("created_at", $schedulefield->created_at->toDateTimeString());
                 $individual_schedulefield_data->put("updated_at", $schedulefield->updated_at->toDateTimeString());

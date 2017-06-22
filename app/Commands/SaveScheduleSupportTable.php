@@ -44,8 +44,8 @@ class SaveScheduleSupportTable extends Command implements SelfHandling, ShouldQu
                 $individual_schedulesupport_data->put("flid", $schedulesupport->flid);
                 $individual_schedulesupport_data->put("begin", $schedulesupport->begin);
                 $individual_schedulesupport_data->put("end", $schedulesupport->end);
-                $individual_schedulesupport_data->put("desc", $schedulesupport->desc);
                 $individual_schedulesupport_data->put("allday", $schedulesupport->allday);
+                $individual_schedulesupport_data->put("desc", $schedulesupport->desc);
                 $individual_schedulesupport_data->put("created_at", $schedulesupport->created_at); // Already a string, don't format.
                 $individual_schedulesupport_data->put("updated_at", $schedulesupport->updated_at);
 

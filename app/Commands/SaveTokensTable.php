@@ -39,14 +39,15 @@ class SaveTokensTable extends Command implements SelfHandling, ShouldQueue
             foreach ($tokens as $token) {
                 $individual_token_data = new Collection();
 
-                $token_data = new Collection();
-                $token_data->put("id", $token->id);
-                $token_data->put("type", $token->type);
-                $token_data->put("token", $token->token);
-                $token_data->put("created_at", $token->created_at->toDateTimeString());
-                $token_data->put("updated_at", $token->updated_at->toDateTimeString());
-                $individual_token_data->put("token_data",$token_data);
-                $individual_token_data->put("project_data",$token->projects()->get()->modelKeys());
+                $individual_token_data->put("id", $token->id);
+                $individual_token_data->put("token", $token->token);
+                $individual_token_data->put("title", $token->title);
+                $individual_token_data->put("search", $token->search);
+                $individual_token_data->put("create", $token->create);
+                $individual_token_data->put("edit", $token->edit);
+                $individual_token_data->put("delete", $token->delete);
+                $individual_token_data->put("created_at", $token->created_at->toDateTimeString());
+                $individual_token_data->put("updated_at", $token->updated_at->toDateTimeString());
 
                 $all_tokens_data->push($individual_token_data);
                 $count++;

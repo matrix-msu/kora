@@ -47,11 +47,14 @@ class SaveUsersTable extends Command implements SelfHandling, ShouldQueue
                 $individual_user_data->put("active", $user->active);
                 $individual_user_data->put("username", $user->username);
                 $individual_user_data->put("name", $user->name);
+                $individual_user_data->put("profile", $user->profile);
                 $individual_user_data->put("email", $user->email);
                 $individual_user_data->put("password", $user->password);
                 $individual_user_data->put("organization", $user->organization);
                 $individual_user_data->put("language", $user->language);
                 $individual_user_data->put("regtoken", $user->regtoken);
+                $individual_user_data->put("dash", $user->dash);
+                $individual_user_data->put("locked_out", $user->locked_out);
                 $individual_user_data->put("remember_token", $user->remember_token);
                 $individual_user_data->put("created_at", $user->created_at->toDateTimeString());
                 $individual_user_data->put("updated_at", $user->updated_at->toDateTimeString());

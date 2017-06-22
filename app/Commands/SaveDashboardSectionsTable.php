@@ -37,8 +37,12 @@ class SaveDashboardSectionsTable extends Command implements SelfHandling, Should
             foreach($dashsecs as $dashboardsection) {
                 $individual_dashboardsection_data = new Collection();
 
-                $individual_dashboardsection_data->put("form_group_id", $dashboardsection->form_group_id);
-                $individual_dashboardsection_data->put("user_id", $dashboardsection->user_id);
+                $individual_dashboardsection_data->put("id", $dashboardsection->id);
+                $individual_dashboardsection_data->put("uid", $dashboardsection->uid);
+                $individual_dashboardsection_data->put("order", $dashboardsection->order);
+                $individual_dashboardsection_data->put("title", $dashboardsection->title);
+                $individual_dashboardsection_data->put("created_at", $dashboardsection->created_at->toDateTimeString());
+                $individual_dashboardsection_data->put("updated_at", $dashboardsection->updated_at->toDateTimeString());
 
                 $all_dashboardsection_data->push($individual_dashboardsection_data);
                 $count++;

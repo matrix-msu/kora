@@ -40,6 +40,7 @@ class SaveNumberFieldsTable extends Command implements SelfHandling, ShouldQueue
 
                 $individual_numberfield_data->put("id", $numberfield->id);
                 $individual_numberfield_data->put("rid", $numberfield->rid);
+                $individual_numberfield_data->put("fid", $numberfield->fid);
                 $individual_numberfield_data->put("flid", $numberfield->flid);
                 $individual_numberfield_data->put("number", $numberfield->number);
                 $individual_numberfield_data->put("created_at", $numberfield->created_at->toDateTimeString());

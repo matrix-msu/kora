@@ -39,7 +39,8 @@ class SaveGeolocatorSupportTable extends Command implements SelfHandling, Should
                 $individual_geolocatorsupport_data = new Collection();
 
                 $individual_geolocatorsupport_data->put("id", $geolocatorsupport->id);
-                $individual_geolocatorsupport_data->put("rid", $geolocatorsupport->fid);
+                $individual_geolocatorsupport_data->put("fid", $geolocatorsupport->fid);
+                $individual_geolocatorsupport_data->put("rid", $geolocatorsupport->rid);
                 $individual_geolocatorsupport_data->put("flid", $geolocatorsupport->flid);
                 $individual_geolocatorsupport_data->put("desc", $geolocatorsupport->desc);
                 $individual_geolocatorsupport_data->put("lat", $geolocatorsupport->lat);

@@ -41,18 +41,18 @@ class SaveAssociatorSupportTable extends Command implements SelfHandling, Should
                 $individual_support_data = new Collection();
 
                 $individual_support_data->put("id", $support_field->id);
-                $individual_support_data->put("fid", $support_fields->fid);
-                $individual_support_data->put("rid", $support_fields->rid);
-                $individual_support_data->put("flid", $support_fields->flid);
-                $individual_support_data->put("record", $support_fields->record);
-                $individual_support_data->put("created_at", $support_fields->created_at); // Already a string, don't format.
-                $individual_support_data->put("updated_at", $support_fields->updated_at);
+                $individual_support_data->put("fid", $support_field->fid);
+                $individual_support_data->put("rid", $support_field->rid);
+                $individual_support_data->put("flid", $support_field->flid);
+                $individual_support_data->put("record", $support_field->record);
+                $individual_support_data->put("created_at", $support_field->created_at); // Already a string, don't format.
+                $individual_support_data->put("updated_at", $support_field->updated_at);
 
                 $all_support_data->push($individual_support_data);
                 $count++;
             }
 
-            DB::table('backup_partial_progress')->where('id',$row_id)->increment('progress', $count, ['updated_at '=> Carbon::now()]);
+            DB::table('backup_partial_progress')->where('id',$row_id)->increment('progress', $count, ['updated_at'=> Carbon::now()]);
             $increment = DB::table('backup_partial_progress')->where('id',$row_id)->pluck('progress');
             $this->backup_fs->put($table_path . $increment . ".json", json_encode($all_support_data));
         });

@@ -39,6 +39,7 @@ class SaveMultiSelectListFieldsTable extends Command implements SelfHandling, Sh
 
                 $individual_multiselectlistfield_data->put("id", $multiselectlistfield->id);
                 $individual_multiselectlistfield_data->put("rid", $multiselectlistfield->rid);
+                $individual_multiselectlistfield_data->put("fid", $multiselectlistfield->fid);
                 $individual_multiselectlistfield_data->put("flid", $multiselectlistfield->flid);
                 $individual_multiselectlistfield_data->put("options", $multiselectlistfield->options);
                 $individual_multiselectlistfield_data->put("created_at", $multiselectlistfield->created_at->toDateTimeString());

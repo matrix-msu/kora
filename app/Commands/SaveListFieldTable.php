@@ -39,6 +39,7 @@ class SaveListFieldTable extends Command implements SelfHandling, ShouldQueue
 
                 $individual_listfield_data->put("id", $listfield->id);
                 $individual_listfield_data->put("rid", $listfield->rid);
+                $individual_listfield_data->put("fid", $listfield->fid);
                 $individual_listfield_data->put("flid", $listfield->flid);
                 $individual_listfield_data->put("option", $listfield->option);
                 $individual_listfield_data->put("created_at", $listfield->created_at->toDateTimeString());

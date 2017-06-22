@@ -37,8 +37,13 @@ class SaveDashboardBlocksTable extends Command implements SelfHandling, ShouldQu
             foreach($dashblks as $dashboardblock) {
                 $individual_dashboardblock_data = new Collection();
 
-                $individual_dashboardblock_data->put("form_group_id", $dashboardblock->form_group_id);
-                $individual_dashboardblock_data->put("user_id", $dashboardblock->user_id);
+                $individual_dashboardblock_data->put("id", $dashboardblock->id);
+                $individual_dashboardblock_data->put("bid", $dashboardblock->bid);
+                $individual_dashboardblock_data->put("type", $dashboardblock->type);
+                $individual_dashboardblock_data->put("order", $dashboardblock->order);
+                $individual_dashboardblock_data->put("options", $dashboardblock->options);
+                $individual_dashboardblock_data->put("created_at", $dashboardblock->created_at->toDateTimeString());
+                $individual_dashboardblock_data->put("updated_at", $dashboardblock->updated_at->toDateTimeString());
 
                 $all_dashboardblock_data->push($individual_dashboardblock_data);
                 $count++;

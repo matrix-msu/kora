@@ -497,6 +497,7 @@ class BackupController extends Controller
             DB::table('plugin_users')->delete();
             DB::table('dashboard_sections')->delete();
             DB::table('dashboard_blocks')->delete();
+            DB::table('pages')->delete();
 
 
         }catch(\Exception $e){
@@ -517,42 +518,42 @@ class BackupController extends Controller
             new RestoreTable('projects',$dir, $restore_id),
             new RestoreTable('forms',$dir, $restore_id),
             new RestoreTable('pages',$dir, $restore_id),
-            new RestoreTable('fields',$dir, $restore_id),
+            new RestoreTable('fields',$dir, $restore_id),//
             new RestoreTable('records',$dir, $restore_id),
             new RestoreTable('metadatas',$dir, $restore_id),
             new RestoreTable('tokens',$dir, $restore_id),
             new RestoreTable('project_token',$dir, $restore_id),
-            new RestoreTable('revisions',$dir, $restore_id),
+            new RestoreTable('revisions',$dir, $restore_id),//
             new RestoreTable('date_fields',$dir, $restore_id),
             new RestoreTable('form_groups',$dir, $restore_id),
             new RestoreTable('form_group_user',$dir, $restore_id),
             new RestoreTable('generated_list_fields',$dir, $restore_id),
-            new RestoreTable('geolocator_fields',$dir, $restore_id),
+            new RestoreTable('geolocator_fields',$dir, $restore_id),//
             new RestoreTable('geolocator_support',$dir, $restore_id),
             new RestoreTable('list_fields',$dir, $restore_id),
             new RestoreTable('multi_select_list_fields',$dir, $restore_id),
             new RestoreTable('number_fields',$dir, $restore_id),
-            new RestoreTable('project_groups',$dir, $restore_id),
+            new RestoreTable('project_groups',$dir, $restore_id),//
             new RestoreTable('project_group_user',$dir, $restore_id),
             new RestoreTable('rich_text_fields',$dir, $restore_id),
             new RestoreTable('schedule_fields',$dir, $restore_id),
             new RestoreTable('schedule_support',$dir, $restore_id),
-            new RestoreTable('text_fields',$dir, $restore_id),
+            new RestoreTable('text_fields',$dir, $restore_id),//
             new RestoreTable('documents_fields',$dir, $restore_id),
             new RestoreTable('model_fields',$dir, $restore_id),
             new RestoreTable('gallery_fields',$dir, $restore_id),
             new RestoreTable('video_fields',$dir, $restore_id),
-            new RestoreTable('playlist_fields',$dir, $restore_id),
+            new RestoreTable('playlist_fields',$dir, $restore_id),//
             new RestoreTable('combo_list_fields',$dir, $restore_id),
             new RestoreTable('combo_support',$dir, $restore_id),
             new RestoreTable('associator_fields',$dir, $restore_id),
             new RestoreTable('associator_support',$dir, $restore_id),
-            new RestoreTable('associations',$dir, $restore_id),
+            new RestoreTable('associations',$dir, $restore_id),//
             new RestoreTable('option_presets',$dir, $restore_id),
             new RestoreTable('record_presets',$dir, $restore_id),
             new RestoreTable('plugins',$dir, $restore_id),
             new RestoreTable('plugin_menus',$dir, $restore_id),
-            new RestoreTable('plugin_settings',$dir, $restore_id),
+            new RestoreTable('plugin_settings',$dir, $restore_id),//
             new RestoreTable('plugin_users',$dir, $restore_id),
             new RestoreTable('dashboard_sections',$dir, $restore_id),
             new RestoreTable('dashboard_blocks',$dir, $restore_id),];

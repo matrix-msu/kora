@@ -39,6 +39,7 @@ class SaveGeneratedListFieldsTable extends Command implements SelfHandling, Shou
 
                 $individual_generatedlistfield_data->put("id", $generatedlistfield->id);
                 $individual_generatedlistfield_data->put("rid", $generatedlistfield->rid);
+                $individual_generatedlistfield_data->put("fid", $generatedlistfield->fid);
                 $individual_generatedlistfield_data->put("flid", $generatedlistfield->flid);
                 $individual_generatedlistfield_data->put("options", $generatedlistfield->options);
                 $individual_generatedlistfield_data->put("created_at", $generatedlistfield->created_at->toDateTimeString());

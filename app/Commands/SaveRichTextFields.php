@@ -40,7 +40,9 @@ class SaveRichTextFields extends Command implements SelfHandling, ShouldQueue
                 $individual_richtextfield_data->put("id", $richtextfield->id);
                 $individual_richtextfield_data->put("rid", $richtextfield->rid);
                 $individual_richtextfield_data->put("flid", $richtextfield->flid);
+                $individual_richtextfield_data->put("fid", $richtextfield->fid);
                 $individual_richtextfield_data->put("rawtext", $richtextfield->rawtext);
+                $individual_richtextfield_data->put("searchable_rawtext", $richtextfield->searchable_rawtext);
                 $individual_richtextfield_data->put("created_at", $richtextfield->created_at->toDateTimeString());
                 $individual_richtextfield_data->put("updated_at", $richtextfield->updated_at->toDateTimeString());
 

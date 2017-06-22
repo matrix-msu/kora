@@ -37,17 +37,14 @@ class SaveProjectGroupsTable extends Command implements SelfHandling, ShouldQueu
             foreach($projectgroups as $projectgroup) {
                 $individual_projectgroup_data = new Collection();
 
-                $group_data = new Collection();
-                $group_data->put("id", $projectgroup->id);
-                $group_data->put("name", $projectgroup->name);
-                $group_data->put("pid", $projectgroup->pid);
-                $group_data->put("create", $projectgroup->create);
-                $group_data->put("edit", $projectgroup->edit);
-                $group_data->put("delete", $projectgroup->delete);
-                $group_data->put("created_at", $projectgroup->created_at->toDateTimeString());
-                $group_data->put("updated_at", $projectgroup->updated_at->toDateTimeString());
-                $individual_projectgroup_data->put("group_data", $group_data);
-                $individual_projectgroup_data->put("user_data", $projectgroup->users()->get()->modelKeys());
+                $individual_projectgroup_data->put("id", $projectgroup->id);
+                $individual_projectgroup_data->put("name", $projectgroup->name);
+                $individual_projectgroup_data->put("pid", $projectgroup->pid);
+                $individual_projectgroup_data->put("create", $projectgroup->create);
+                $individual_projectgroup_data->put("edit", $projectgroup->edit);
+                $individual_projectgroup_data->put("delete", $projectgroup->delete);
+                $individual_projectgroup_data->put("created_at", $projectgroup->created_at->toDateTimeString());
+                $individual_projectgroup_data->put("updated_at", $projectgroup->updated_at->toDateTimeString());
 
                 $all_projectgroup_data->push($individual_projectgroup_data);
                 $count++;

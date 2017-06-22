@@ -50,6 +50,7 @@ class SaveTextFieldsTable extends Command implements SelfHandling, ShouldQueue {
                 $individual_textfield_data = new Collection();
                 $individual_textfield_data->put("id", $textfield->id);
                 $individual_textfield_data->put("rid", $textfield->rid);
+                $individual_textfield_data->put("fid", $textfield->fid);
                 $individual_textfield_data->put("flid", $textfield->flid);
                 $individual_textfield_data->put("text", $textfield->text);
                 $individual_textfield_data->put("created_at", $textfield->created_at->toDateTimeString());

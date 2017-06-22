@@ -39,13 +39,14 @@ class SaveDateFieldsTable extends Command implements SelfHandling, ShouldQueue
 
                 $individual_datefield_data->put("id", $datefield->id);
                 $individual_datefield_data->put("rid", $datefield->rid);
+                $individual_datefield_data->put("fid", $datefield->fid);
                 $individual_datefield_data->put("flid", $datefield->flid);
                 $individual_datefield_data->put("circa", $datefield->circa);
                 $individual_datefield_data->put("month", $datefield->month);
                 $individual_datefield_data->put("day", $datefield->year);
                 $individual_datefield_data->put("year", $datefield->year);
                 $individual_datefield_data->put("era", $datefield->era);
-                $individual_datefield_data->put("date_object", $datefield->date_object->toDateTimeString());
+                $individual_datefield_data->put("date_object", $datefield->date_object);
                 $individual_datefield_data->put("created_at", $datefield->created_at->toDateTimeString());
                 $individual_datefield_data->put("updated_at", $datefield->updated_at->toDateTimeString());
 

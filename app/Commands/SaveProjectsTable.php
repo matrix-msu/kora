@@ -43,24 +43,19 @@ class SaveProjectsTable extends Command implements SelfHandling, ShouldQueue {
 			$count= 0;
 			$all_projects_data = new Collection();
 			foreach ($projects as $project) {
-				//try {
 				$individual_project_data = new Collection();
+
 				$individual_project_data->put("pid", $project->pid);
 				$individual_project_data->put("name", $project->name);
-
-
-
-				$individual_project_data->put("slug", $project->slug);
+                $individual_project_data->put("slug", $project->slug);
 				$individual_project_data->put("description", $project->description);
 				$individual_project_data->put("adminGID", $project->adminGID);
 				$individual_project_data->put("active", $project->active);
 				$individual_project_data->put("created_at", $project->created_at->toDateTimeString());
 				$individual_project_data->put("updated_at", $project->updated_at->toDateTimeString());
+
 				$all_projects_data->push($individual_project_data);
 				$count++;
-				//} catch (\Exception $e) {
-				//	$this->ajax_error_list->push($e->getMessage());
-				//}
 			}
 			DB::table('backup_partial_progress')->where('id',$row_id)->increment('progress',$count,['updated_at'=>Carbon::now()]);
 			$increment = DB::table('backup_partial_progress')->where('id',$row_id)->pluck('progress');
