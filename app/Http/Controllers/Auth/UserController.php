@@ -4,11 +4,12 @@ use App\Form;
 use App\Project;
 use App\Record;
 use App\User;
-use App\Http\Requests;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\View\View;
 
 class UserController extends Controller {
 
@@ -17,12 +18,12 @@ class UserController extends Controller {
     | User Controller
     |--------------------------------------------------------------------------
     |
-    | This controller handles ...
+    | This controller handles User based functions
     |
     */
 
     /**
-     * Create a new controller instance.
+     * Constructs the controller and checks if user is authenticated and activated.
      */
     public function __construct()
     {
@@ -31,11 +32,9 @@ class UserController extends Controller {
     }
 
     /**
-     * Show the application welcome screen to the user.
+     * Gets info for profile and returns profile view. Also gathers records and systems permission sets.
      *
-     *
-     *
-     * @return Response
+     * @return View
      */
     public function index()
     {
@@ -45,12 +44,11 @@ class UserController extends Controller {
 
         $profile = $user->profile;
 
-        if($user->admin){
+        if($user->admin) {
             $admin = 1;
             $records = Record::where('owner', '=', $user->id)->orderBy('updated_at', 'desc')->take(30)->get();
             return view('user/profile',compact('languages_available', 'admin', 'records', 'profile'));
-        }
-        else{
+        } else {
             $admin = 0;
             $projects = self::buildProjectsArray($user);
             $forms = self::buildFormsArray($user);
@@ -60,6 +58,12 @@ class UserController extends Controller {
         }
     }
 
+    /**
+     * Changes the user profile picture and returns the pic URI.
+     *
+     * @param  Request $request
+     * @return string
+     */
     public function changepicture(Request $request){
         $file = $request->file('profile');
         $pDir = env('BASE_PATH') . 'storage/app/profiles/'.\Auth::user()->id.'/';
@@ -82,98 +86,89 @@ class UserController extends Controller {
     }
 
     /**
-     * @param Request $request
-     * @return Response
+     * Change user profile information.
+     *
+     * @param  Request $request
      */
-
     public function changeprofile(Request $request){
         $user = Auth::user();
         $type = $request->input("type");
 
-        if($type == "lang"){
-            $lang = $request->input("field");
+        switch($type) {
+            case "lang":
+                $lang = $request->input("field");
 
-            if(empty($lang)){
-                flash()->overlay(trans('controller_auth_user.selectlan'),trans('controller_auth_user.whoops'));
-                //return redirect('user/profile');
-            }
-            else{
-                $user->language = $lang;
-                $user->save();
-                flash()->overlay(trans('controller_auth_user.lanupdate'),trans('controller_auth_user.success'));
-               // return redirect('user/profile');
-            }
+                if(empty($lang)) {
+                    flash()->overlay(trans('controller_auth_user.selectlan'), trans('controller_auth_user.whoops'));
+                } else {
+                    $user->language = $lang;
+                    $user->save();
+                    flash()->overlay(trans('controller_auth_user.lanupdate'), trans('controller_auth_user.success'));
+                }
+                break;
+            case "dash":
+                $dash = $request->input("field");
+
+                if($dash != "0" && $dash != "1") {
+                    flash()->overlay(trans('controller_auth_user.selectdash'), trans('controller_auth_user.whoops'));
+                } else {
+                    $user->dash = $dash;
+                    $user->save();
+                    flash()->overlay(trans('controller_auth_user.dashupdate'), trans('controller_auth_user.success'));
+                }
+                break;
+            case "name":
+                $realname = $request->input("field");
+
+                if(empty($realname)) {
+                    flash()->overlay(trans('controller_auth_user.entername'), trans('controller_auth_user.whoops'));
+                } else {
+                    $user->name = $realname;
+                    $user->save();
+                    flash()->overlay(trans('controller_auth_user.nameupdate'), trans('controller_auth_user.success'));
+                }
+                break;
+            case "org":
+                $organization = $request->input("field");
+
+                if(empty($organization)) {
+                    flash()->overlay(trans('controller_auth_user.enterorg'), trans('controller_auth_user.whoops'));
+                } else {
+                    $user->organization = $organization;
+                    $user->save();
+                    flash()->overlay(trans('controller_auth_user.orgupdate'), trans('controller_auth_user.success'));
+                }
+                break;
+            default:
+                break;
         }
-        elseif($type == "dash"){
-            $dash = $request->input("field");
-
-            if($dash!="0" && $dash!="1"){
-                flash()->overlay(trans('controller_auth_user.selectdash'),trans('controller_auth_user.whoops'));
-                //return redirect('user/profile');
-            }
-            else{
-                $user->dash = $dash;
-                $user->save();
-                flash()->overlay(trans('controller_auth_user.dashupdate'),trans('controller_auth_user.success'));
-                // return redirect('user/profile');
-            }
-        }
-        elseif($type == "name"){
-            $realname = $request->input("field");
-
-            if(empty($realname)){
-                flash()->overlay(trans('controller_auth_user.entername'),trans('controller_auth_user.whoops'));
-                //return redirect('user/profile');
-            }
-            else{
-                $user->name = $realname;
-                $user->save();
-                flash()->overlay(trans('controller_auth_user.nameupdate'),trans('controller_auth_user.success'));
-                //return redirect('user/profile');
-            }
-        }
-        elseif($type == "org"){
-            $organization = $request->input("field");
-
-            if(empty($organization)){
-                flash()->overlay(trans('controller_auth_user.enterorg'),trans('controller_auth_user.whoops'));
-                //return redirect('user/profile');
-            }
-            else{
-                $user->organization = $organization;
-                $user->save();
-                flash()->overlay(trans('controller_auth_user.orgupdate'),trans('controller_auth_user.success'));
-               // return redirect('user/profile');
-            }
-
-        }
-        else{
-
-        }
-
     }
+
+    /**
+     * Validates and changes user password.
+     *
+     * @param  Request $request
+     * @return Redirect
+     */
     public function changepw(Request $request)
     {
         $user = Auth::user();
         $new_pass = $request->new_password;
         $confirm = $request->confirm;
 
-        if (empty($new_pass) && empty($confirm)){
+        if(empty($new_pass) && empty($confirm)) {
             flash()->overlay(trans('controller_auth_user.bothpass'), trans('controller_auth_user.whoops'));
             return redirect('user/profile');
-        }
 
-        elseif(strlen($new_pass) < 6){
+        } else if(strlen($new_pass) < 6) {
             flash()->overlay(trans('controller_auth_user.lessthan'), trans('controller_auth_user.whoops'));
             return redirect('user/profile');
-        }
 
-        elseif($new_pass != $confirm){
+        } else if($new_pass != $confirm) {
             flash()->overlay(trans('controller_auth_user.nomatch'), trans('controller_auth_user.whoops'));
             return redirect('user/profile');
-        }
 
-        else{
+        } else {
             $user->password = bcrypt($new_pass);
             $user->save();
 
@@ -183,7 +178,9 @@ class UserController extends Controller {
     }
 
     /**
-     * @return Response
+     * Returns the view for the user activation page.
+     *
+     * @return View
      */
     public function activateshow()
     {
@@ -191,20 +188,22 @@ class UserController extends Controller {
     }
 
     /**
-     * @param Request $request
-     * @return Response
+     * Validates registration token to activate a user.
+     *
+     * @param  Request $request
+     * @return Redirect
      */
     public function activator(Request $request)
     {
         $user = User::where('username', '=', $request->user)->first();
-        if($user==null){
+        if($user==null) {
             flash()->overlay(trans('controller_auth_user.nouser'), trans('controller_auth_user.whoops'));
             return redirect('auth/activate');
         }
 
         $token = trim($request->token);
 
-        if ($user->regtoken == $token && !empty($user->regtoken) && !($user->active ==1)){
+        if($user->regtoken == $token && !empty($user->regtoken) && !($user->active ==1)) {
             $user->active = 1;
             $user->save();
             flash()->overlay(trans('controller_auth_user.activated'), trans('controller_auth_user.success'));
@@ -212,22 +211,23 @@ class UserController extends Controller {
             \Auth::login($user);
 
             return redirect('/');
-        }
-        else{
+        } else {
             flash()->overlay(trans('controller_auth_user.badtokenuser'), trans('controller_auth_user.whoops'));
             return redirect('auth/activate');
         }
     }
 
     /**
-     * Activates the user with a link that is emailed to them.
+     * Handles activation from an email link.
      *
-     * @param token
-     * @return Response
+     * @param  String $token
+     * @return Redirect
      */
     public function activate($token)
     {
-        if(!is_null(\Auth::user())){
+        //Since we are coming from an email client or otherwise, we need to make sure that no one on the browser is already
+        // logged in.
+        if(!is_null(\Auth::user())) {
             \Auth::logout(\Auth::user()->id);
         }
 
@@ -235,13 +235,10 @@ class UserController extends Controller {
 
         \Auth::login($user);
 
-        if ($token != $user->regtoken)
-        {
+        if($token != $user->regtoken) {
             flash()->overlay(trans('controller_auth_user.badtoken'), trans('controller_auth_user.whoops'));
             return redirect('/');
-        }
-        else
-        {
+        } else {
             $user->active = 1;
             $user->save();
 
@@ -250,23 +247,26 @@ class UserController extends Controller {
         }
     }
 
+    /**
+     * Build permission set array of all the users projects
+     *
+     * @param  User $user
+     * @return array
+     */
     public static function buildProjectsArray(User $user)
     {
         $all_projects = Project::all();
         $projects = array();
         $i=0;
-        foreach($all_projects as $project)
-        {
-            if($user->inAProjectGroup($project))
-            {
+        foreach($all_projects as $project) {
+            if($user->inAProjectGroup($project)) {
                 $permissions = '';
                 $projects[$i]['pid'] = $project->pid;
                 $projects[$i]['name'] = $project->name;
 
                 if($user->isProjectAdmin($project))
                     $projects[$i]['permissions'] = 'Admin';
-                else
-                {
+                else {
                     if($user->canCreateForms($project))
                         $permissions .= 'Create Forms | ';
                     if($user->canEditForms($project))
@@ -284,15 +284,19 @@ class UserController extends Controller {
         return $projects;
     }
 
+    /**
+     * Build permission set array of all the users forms
+     *
+     * @param  User $user
+     * @return array
+     */
     public static function buildFormsArray(User $user)
     {
         $i=0;
         $all_forms = Form::all();
         $forms = array();
-        foreach($all_forms as $form)
-        {
-            if($user->inAFormGroup($form))
-            {
+        foreach($all_forms as $form) {
+            if($user->inAFormGroup($form)) {
                 $permissions = '';
                 $forms[$i]['fid'] = $form->fid;
                 $forms[$i]['pid'] = $form->pid;
@@ -300,8 +304,7 @@ class UserController extends Controller {
 
                 if($user->isFormAdmin($form))
                     $forms[$i]['permissions'] = 'Admin';
-                else
-                {
+                else {
                     if($user->canCreateFields($form))
                         $permissions .= 'Create Fields | ';
                     if($user->canEditFields($form))
