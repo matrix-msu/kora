@@ -140,7 +140,7 @@
 
                 //send it to ajax
                 $.ajax({
-                    url: "{{ action('FieldAjaxController@assocSearch',['pid' => $field->pid,'fid'=>$field->fid, 'flid'=>$field->flid]) }}",
+                    url: "{{ action('AssociatorSearchController@assocSearch',['pid' => $field->pid,'fid'=>$field->fid, 'flid'=>$field->flid]) }}",
                     type: 'POST',
                     data: {
                         "_token": "{{ csrf_token() }}",

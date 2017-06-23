@@ -127,7 +127,7 @@ Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/assoc','OptionCo
 Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/video','OptionController@updateVideo');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/validateCombo','FieldAjaxController@validateComboListOpt');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/geoConvert','FieldAjaxController@geoConvert');
-Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/assoc','FieldAjaxController@assocSearch');
+Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/assoc','AssociatorSearchController@assocSearch');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/clearRecency', 'FieldController@clearRecency');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/checkRecency', 'FieldController@checkRecency');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/move', 'PageController@moveField');

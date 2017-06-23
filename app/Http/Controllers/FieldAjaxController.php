@@ -349,10 +349,4 @@ class FieldAjaxController extends Controller {
         }
     }
 
-    public function assocSearch($pid, $fid, $flid, Request $request){
-        $field = FieldController::getField($flid);
-
-        return AssociatorSearch::keywordSearch($request->keyword, $field);
-    }
-
 }
