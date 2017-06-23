@@ -289,4 +289,12 @@ SQL;
         $this->deleteLocations();
         parent::delete();
     }
+
+    public static function validate($field, $value){
+        $req = $field->required;
+
+        if($req==1 && ($value==null | $value=="")){
+            return $field->name.trans('fieldhelpers_val.req');
+        }
+    }
 }

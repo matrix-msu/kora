@@ -110,4 +110,19 @@ class MultiSelectListField extends BaseField {
             }
         });
     }
+
+    public static function validate($field, $value){
+        $req = $field->required;
+        $list = MultiSelectListField::getList($field);
+
+        if($req==1 && ($value==null | $value=="")){
+            return $field->name.trans('fieldhelpers_val.req');
+        }
+
+        if(sizeof(array_diff($value,$list))>0 && $value[0] !== ' '){
+            return trans('fieldhelpers_val.mslist',['name'=>$field->name]);
+        }
+
+        return '';
+    }
 }

@@ -271,4 +271,12 @@ class ScheduleField extends BaseField {
 
         return $query->distinct();
     }
+
+    public static function validate($field, $value){
+        $req = $field->required;
+
+        if($req==1 && ($value==null | $value=="")){
+            return $field->name.trans('fieldhelpers_val.req');
+        }
+    }
 }

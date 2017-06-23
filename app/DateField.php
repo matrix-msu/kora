@@ -291,4 +291,27 @@ class DateField extends BaseField {
 
         return $query->distinct();
     }
+
+    public static function validate($field, $request){
+        $req = $field->required;
+        $start = FieldController::getFieldOption($field,'Start');
+        $end = FieldController::getFieldOption($field,'End');
+        $month = $request->input('month_'.$field->flid,'');
+        $day = $request->input('day_'.$field->flid,'');
+        $year = $request->input('year_'.$field->flid,'');
+
+        if($req==1 && $month=='' && $day=='' && $year==''){
+            return $field->name.trans('fieldhelpers_val.req');
+        }
+
+        if(($year<$start | $year>$end) && ($month!='' | $day!='')){
+            return trans('fieldhelpers_val.year',['name'=>$field->name,'start'=>$start,'end'=>$end]);
+        }
+
+        if(!DateField::validateDate($month,$day,$year)){
+            return trans('fieldhelpers_val.date',['name'=>$field->name]);
+        }
+
+        return '';
+    }
 }

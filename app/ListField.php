@@ -104,4 +104,19 @@ class ListField extends BaseField {
         $db_query->whereRaw("MATCH (`option`) AGAINST (? IN BOOLEAN MODE)",
             [Search::processArgument($input, Search::ADVANCED_METHOD)]);
     }
+
+    public static function validate($field, $value){
+        $req = $field->required;
+        $list = ListField::getList($field);
+
+        if($req==1 && ($value==null | $value=="")){
+            return $field->name.trans('fieldhelpers_val.req');
+        }
+
+        if($value!='' && !in_array($value,$list)){
+            return trans('fieldhelpers_val.list',['name'=>$field->name]);
+        }
+
+        return '';
+    }
 }

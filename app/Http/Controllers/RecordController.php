@@ -18,20 +18,16 @@ use App\Field;
 use App\Record;
 use App\TextField;
 use App\NumberField;
-use App\Http\Requests;
 use App\RichTextField;
 use App\ListField;
 use App\MultiSelectListField;
 use App\VideoField;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\FieldHelpers\FieldValidation;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use RecursiveIteratorIterator;
 use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
-use Illuminate\Support\Facades\DB;
 
 
 class RecordController extends Controller {
@@ -118,7 +114,7 @@ class RecordController extends Controller {
             if(!is_numeric($key)){
                 continue;
             }
-            $message = FieldValidation::validateField($key, $value, $request);
+            $message = Field::validateField($key, $value, $request);
             if($message != ''){
                 flash()->error($message);
 
@@ -618,7 +614,7 @@ class RecordController extends Controller {
             if(!is_numeric($key)){
                 continue;
             }
-            $message = FieldValidation::validateField($key, $value, $request);
+            $message = Field::validateField($key, $value, $request);
             if($message != ''){
                 flash()->error($message);
 

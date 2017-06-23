@@ -77,4 +77,13 @@ class DocumentsField extends FileTypeField {
             ->whereRaw("MATCH (`documents`) AGAINST (? IN BOOLEAN MODE)", [$processed])
             ->distinct();
     }
+
+    public static function validate($field, $value){
+        $req = $field->required;
+
+        if($req==1){
+            if(glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') == false)
+                return $field->name.trans('fieldhelpers_val.file');
+        }
+    }
 }

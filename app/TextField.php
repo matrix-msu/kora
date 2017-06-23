@@ -1,5 +1,6 @@
 <?php namespace App;
 
+use App\Http\Controllers\FieldController;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -66,5 +67,20 @@ class TextField extends BaseField {
             ->whereRaw("MATCH (`text`) AGAINST (? IN BOOLEAN MODE)",
                 [Search::processArgument($query[$flid . "_input"], Search::ADVANCED_METHOD)])
             ->distinct();
+    }
+
+    public static function validate($field, $value){
+        $req = $field->required;
+        $regex = FieldController::getFieldOption($field, 'Regex');
+
+        if($req==1 && ($value==null | $value=="")){
+            return $field->name.trans('fieldhelpers_val.req');
+        }
+
+        if(($regex!=null | $regex!="") && !preg_match($regex,$value)){
+            return trans('fieldhelpers_val.regex',['name'=>$field->name]);
+        }
+
+        return '';
     }
 }

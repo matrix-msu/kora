@@ -416,4 +416,15 @@ class ComboListField extends BaseField {
             ->select("rid")
             ->where("flid", "=", $flid);
     }
+
+    public static function validate($field, $request){
+        $req = $field->required;
+        $flid = $field->flid;
+
+        if($req==1 && !isset($request[$flid.'_val'])){
+            return $field->name.trans('fieldhelpers_val.req');
+        }
+
+        return '';
+    }
 }

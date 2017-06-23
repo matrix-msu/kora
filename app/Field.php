@@ -1,5 +1,6 @@
 <?php namespace App;
 
+use App\Http\Controllers\FieldController;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -418,6 +419,80 @@ class Field extends Model {
 
             default: // Error occurred.
                 throw new \Exception("Invalid field type in field::advancedSearch.");
+                break;
+        }
+    }
+
+    static function validateField($field, $value, $request){
+        $field = FieldController::getField($field);
+        $field_type = $field->type;
+        switch($field_type) {
+            case self::_TEXT:
+                return TextField::validate($field, $value);
+                break;
+
+            case self::_RICH_TEXT:
+                return RichTextField::validate($field, $value);
+                break;
+
+            case self::_NUMBER:
+                return NumberField::validate($field, $value);
+                break;
+
+            case self::_LIST:
+                return ListField::validate($field, $value);
+                break;
+
+            case self::_MULTI_SELECT_LIST:
+                return MultiSelectListField::validate($field, $value);
+                break;
+
+            case self::_GENERATED_LIST:
+                return GeneratedListField::validate($field, $value);
+                break;
+
+            case self::_DATE:
+                return DateField::validate($field, $request);
+                break;
+
+            case self::_SCHEDULE:
+                return ScheduleField::validate($field, $value);
+                break;
+
+            case self::_GEOLOCATOR:
+                return GeolocatorField::validate($field, $value);
+                break;
+
+            case self::_DOCUMENTS:
+                return DocumentsField::validate($field, $value);
+                break;
+
+            case self::_GALLERY:
+                return GalleryField::validate($field, $value);
+                break;
+
+            case self::_3D_MODEL:
+                return ModelField::validate($field, $value);
+                break;
+
+            case self::_PLAYLIST:
+                return PlaylistField::validate($field, $value);
+                break;
+
+            case self::_VIDEO:
+                return VideoField::validate($field, $value);
+                break;
+
+            case self::_COMBO_LIST:
+                return ComboListField::validate($field, $request);
+                break;
+
+            case self::_ASSOCIATOR:
+                return AssociatorField::validate($field, $value);
+                break;
+
+            default: // Error occurred.
+                throw new \Exception("Invalid field type in field::field validation.");
                 break;
         }
     }

@@ -97,4 +97,21 @@ class GeneratedListField extends BaseField {
 
         return $query->distinct();
     }
+
+    public static function validate($field, $value){
+        $req = $field->required;
+        $regex = FieldController::getFieldOption($field, 'Regex');
+
+        if($req==1 && ($value==null | $value=="")){
+            return $field->name.trans('fieldhelpers_val.req');
+        }
+
+        foreach($value as $opt){
+            if(($regex!=null | $regex!="") && !preg_match($regex,$opt)){
+                return trans('fieldhelpers_val.regexopt',['name'=>$field->name,'opt'=>$opt]);
+            }
+        }
+
+        return '';
+    }
 }
