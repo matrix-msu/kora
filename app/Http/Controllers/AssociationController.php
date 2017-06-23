@@ -3,32 +3,42 @@
 use App\Association;
 use App\AssociatorField;
 use App\Form;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
+use App\Record;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\View\View;
 
 class AssociationController extends Controller {
 
-	/**
-	 * User must be logged in to access views in this controller.
-	 */
-	public function __construct()
-	{
+    /*
+    |--------------------------------------------------------------------------
+    | Association Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles management of form associations for use in
+    | associator fields
+    |
+    */
+
+    /**
+     * Constructs controller and makes sure user is authenticated.
+     */
+	public function __construct() {
 		$this->middleware('auth');
 		$this->middleware('active');
 	}
 
-	/**
-	 * Display a listing of the resource.
-	 *
-	 * @return Response
-	 */
-	public function index($pid, $fid)
-	{
-        if(!FormController::validProjForm($pid,$fid)){
+    /**
+     * Gets the view for the manage associations page, including any existing permissions.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return View
+     */
+	public function index($pid, $fid) {
+        if(!FormController::validProjForm($pid,$fid)) {
             return redirect('projects/'.$pid);
         }
 
@@ -44,20 +54,21 @@ class AssociationController extends Controller {
 		$assocs = self::getAllowedAssociations($fid);
 		//Create an array of fids of those associations
 		$associds = array();
-		foreach($assocs as $a){
+		foreach($assocs as $a) {
 			array_push($associds,$a->assocForm);
 		}
-		//dd($associds);
+
 		return view('association.index', compact('form', 'assocs', 'associds', 'project'));
 	}
 
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @return Response
-	 */
-	public function create($pid, $fid, Request $request)
-	{
+    /**
+     * Creates a new association permission.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     */
+	public function create($pid, $fid, Request $request) {
 		$assocFormID = $request->assocfid;
 
 		$assoc = new Association();
@@ -66,57 +77,14 @@ class AssociationController extends Controller {
 		$assoc->save();
 	}
 
-	/**
-	 * Store a newly created resource in storage.
-	 *
-	 * @return Response
-	 */
-	public function store()
-	{
-		//
-	}
-
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function show($id)
-	{
-		//
-	}
-
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function edit($id)
-	{
-		//
-	}
-
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function update($id)
-	{
-		//
-	}
-
-	/**
-	 * Remove the specified resource from storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function destroy($pid, $fid, Request $request)
-	{
+    /**
+     * Delete an existing association permission.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     */
+	public function destroy($pid, $fid, Request $request) {
 		$assocFormID = $request->assocfid;
 
 		$assoc = Association::where('dataForm','=',$fid)->where('assocForm','=',$assocFormID)->first();
@@ -124,17 +92,33 @@ class AssociationController extends Controller {
 		$assoc->delete();
 	}
 
-    //These are the forms that we have given permission to search us
-	static function getAllowedAssociations($fid){
+    /**
+     * Gets all forms that a given form has given permission to.
+     *
+     * @param  int $fid - Form ID of form granting permission
+     * @return Collection - The forms that this form has given permission
+     */
+    static function getAllowedAssociations($fid) {
 		return Association::where('dataForm','=',$fid)->get()->all();
 	}
 
-    //These are the forms that have given us permission to search
-	static function getAvailableAssociations($fid){
+    /**
+     * Gets all forms that a given form can associate to.
+     *
+     * @param  int $fid - Form ID
+     * @return Collection - The forms this form has access to
+     */
+    static function getAvailableAssociations($fid) {
 		return Association::where('assocForm','=',$fid)->get()->all();
 	}
 
-    static function getRequestableAssociations($fid){
+    /**
+     * Gets a list of forms that a given form doesn't have access to yet.
+     *
+     * @param  int $fid - Form ID
+     * @return array - Forms that can be requested for access
+     */
+    static function getRequestableAssociations($fid) {
         //get all forms
         $forms = Form::all();
         //get forms we already have permission to search
@@ -142,13 +126,13 @@ class AssociationController extends Controller {
         //store things here
         $requestable = array();
 
-        foreach($forms as $form){
+        foreach($forms as $form) {
             //if it's not the current form continue
             if($form->fid==$fid)
                 continue;
             //if it's in the available associations already, no worries, continue
             $noworries = false;
-            foreach($available as $avail){
+            foreach($available as $avail) {
                 if($avail->dataForm==$form->fid)
                     $noworries = true;
             }
@@ -161,7 +145,15 @@ class AssociationController extends Controller {
         return $requestable;
     }
 
-    public function requestAccess($pid, $fid, Request $request){
+    /**
+     * Makes the request for permission to associate a form. Emails all admins of the requested form.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     * @return View
+     */
+    public function requestAccess($pid, $fid, Request $request) {
         $myForm = FormController::getForm($fid);
         $myProj = ProjectController::getProject($myForm->pid);
         $theirForm = FormController::getForm($request->rfid);
@@ -176,7 +168,7 @@ class AssociationController extends Controller {
         $group = $theirForm->adminGroup()->first();
         $users = $group->users()->get();
 
-        foreach($users as $user){
+        foreach($users as $user) {
             Mail::send('emails.request.assoc', compact('myForm','myProj','theirForm', 'theirProj'), function ($message) use($user) {
                 $message->from(env('MAIL_FROM_ADDRESS'));
                 $message->to($user->email);
@@ -190,7 +182,7 @@ class AssociationController extends Controller {
         $assocs = self::getAllowedAssociations($fid);
         //Create an array of fids of those associations
         $associds = array();
-        foreach($assocs as $a){
+        foreach($assocs as $a) {
             array_push($associds,$a->assocForm);
         }
         //FIX THIS//
@@ -201,13 +193,19 @@ class AssociationController extends Controller {
         return view('association.index', compact('form', 'assocs', 'associds', 'project'));
     }
 
-    public static function getAssociatedRecords($record){
+    /**
+     * Gets a list of records that associate to a particular record
+     *
+     * @param  Record $record - The subject record
+     * @return array - Records that associate it
+     */
+    public static function getAssociatedRecords($record) {
         $assoc = DB::table(AssociatorField::SUPPORT_NAME)
             ->select("rid")
             ->distinct()
             ->where('record','=',$record->rid)->get();
         $records = array();
-        foreach($assoc as $af){
+        foreach($assoc as $af) {
             $rid = $af->rid;
             $rec = RecordController::getRecord($rid);
             array_push($records,$rec);

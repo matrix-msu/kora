@@ -4,10 +4,7 @@
 use App\Field;
 use App\Form;
 use App\Record;
-use Geocoder\Geocoder;
 use Illuminate\Http\Request;
-use Geocoder\Provider\NominatimProvider;
-use Geocoder\HttpAdapter\CurlHttpAdapter;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
