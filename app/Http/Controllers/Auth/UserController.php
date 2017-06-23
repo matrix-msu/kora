@@ -62,7 +62,7 @@ class UserController extends Controller {
      * Changes the user profile picture and returns the pic URI.
      *
      * @param  Request $request
-     * @return string
+     * @return string - URI of pic
      */
     public function changepicture(Request $request){
         $file = $request->file('profile');
@@ -220,7 +220,7 @@ class UserController extends Controller {
     /**
      * Handles activation from an email link.
      *
-     * @param  String $token
+     * @param  String $token - Token user will register with
      * @return Redirect
      */
     public function activate($token)
@@ -250,8 +250,8 @@ class UserController extends Controller {
     /**
      * Build permission set array of all the users projects
      *
-     * @param  User $user
-     * @return array
+     * @param  User $user - User to get information for
+     * @return array - Project permission set information
      */
     public static function buildProjectsArray(User $user)
     {
@@ -287,8 +287,8 @@ class UserController extends Controller {
     /**
      * Build permission set array of all the users forms
      *
-     * @param  User $user
-     * @return array
+     * @param  User $user - User to get information for
+     * @return array - Form permission set information
      */
     public static function buildFormsArray(User $user)
     {
