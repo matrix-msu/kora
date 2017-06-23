@@ -45,12 +45,12 @@
             '7' => '07 - '.trans('fields_options_date.july'), '8' => '08 - '.trans('fields_options_date.aug'),
             '9' => '09 - '.trans('fields_options_date.sep'), '10' => '10 - '.trans('fields_options_date.oct'),
             '11' => '11 - '.trans('fields_options_date.nov'), '12' => '12 - '.trans('fields_options_date.dec')],
-            explode('[M]',$field->default)[1], ['class' => 'form-control']) !!}
+            ($field->default=='' ? null : explode('[M]',$field->default)[1]), ['class' => 'form-control']) !!}
         {!! Form::label('default_day','Default '.trans('fields_options_date.day').': ') !!}
         <select name="default_day" class="form-control">
             <option value=""></option>
             <?php
-                if(explode('[D]',$field->default)[1]==0){
+                if($field->default!='' && explode('[D]',$field->default)[1]=='0'){
                     echo "<option value=" . 0 . " selected>Current Day</option>";
                 }else{
                     echo "<option value=" . 0 . ">Current Day</option>";
@@ -58,7 +58,7 @@
                 $i = 1;
                 while ($i <= 31)
                 {
-                    if(explode('[D]',$field->default)[1]==$i){
+                    if($field->default!='' && explode('[D]',$field->default)[1]==$i){
                         echo "<option value=" . $i . " selected>" . $i . "</option>";
                     }else{
                         echo "<option value=" . $i . ">" . $i . "</option>";
@@ -71,7 +71,7 @@
         <select name="default_year" class="form-control" id="default_year">
             <option value=""></option>
             <?php
-            if(explode('[Y]',$field->default)[1]==0){
+            if($field->default!='' && explode('[Y]',$field->default)[1]=='0'){
                 echo "<option value=" . 0 . " selected>Current Year</option>";
             }else{
                 echo "<option value=" . 0 . ">Current Year</option>";
@@ -80,7 +80,7 @@
             $j = \App\Http\Controllers\FieldController::getFieldOption($field, 'End');
             while ($i <= $j)
             {
-                if(explode('[Y]',$field->default)[1]==$i){
+                if($field->default!='' && explode('[Y]',$field->default)[1]==$i){
                     echo "<option value=" . $i . " selected>" . $i . "</option>";
                 }else{
                     echo "<option value=" . $i . ">" . $i . "</option>";

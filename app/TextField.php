@@ -13,6 +13,10 @@ class TextField extends BaseField {
         'text'
     ];
 
+    public static function getOptions(){
+        return '[!Regex!][!Regex!][!MultiLine!]0[!MultiLine!]';
+    }
+
     /**
      * @param Field | null $field
      * @return string

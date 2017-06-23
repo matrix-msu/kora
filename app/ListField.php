@@ -13,6 +13,10 @@ class ListField extends BaseField {
         'option'
     ];
 
+    public static function getOptions(){
+        return '[!Options!][!Options!]';
+    }
+
     public static function getList($field, $blankOpt=false)
     {
         $dbOpt = FieldController::getFieldOption($field, 'Options');

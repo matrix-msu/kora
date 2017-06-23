@@ -5,7 +5,6 @@ use App\FieldHelpers\gPoint;
 use App\Http\Requests;
 use App\Http\Requests\FieldRequest;
 use App\Http\Controllers\Controller;
-use App\FieldHelpers\FieldDefaults;
 use App\FieldHelpers\UploadHandler;
 
 use Geocoder\HttpAdapter\CurlHttpAdapter;
@@ -69,8 +68,8 @@ class FieldController extends Controller {
             return redirect()->back()->withInput();
         }
 
-        $field->options = FieldDefaults::getOptions($field->type);
-        $field->default = FieldDefaults::getDefault($field->type);
+        $field->options = Field::getOptions($field->type, $request);
+        $field->default = '';
 
         $field->sequence = $seq;
 

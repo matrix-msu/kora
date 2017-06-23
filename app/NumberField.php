@@ -21,6 +21,10 @@ class NumberField extends BaseField {
         'number'
     ];
 
+    public static function getOptions(){
+        return '[!Max!][!Max!][!Min!][!Min!][!Increment!]1[!Increment!][!Unit!][!Unit!]';
+    }
+
     /**
      * @param null $field
      * @return array

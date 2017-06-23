@@ -13,6 +13,10 @@ class GeneratedListField extends BaseField {
         'options'
     ];
 
+    public static function getOptions(){
+        return '[!Regex!][!Regex!][!Options!][!Options!]';
+    }
+
     public static function getList($field, $blankOpt=false)
     {
         $dbOpt = FieldController::getFieldOption($field, 'Options');

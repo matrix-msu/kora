@@ -20,6 +20,10 @@ class GeolocatorField extends BaseField {
         'locations'
     ];
 
+    public static function getOptions(){
+        return '[!Map!]No[!Map!][!DataView!]LatLon[!DataView!]';
+    }
+
     /**
      * Gets the default locations from the field options.
      *

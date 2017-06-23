@@ -9,8 +9,8 @@
     @endif
     <input type="hidden" name={{$field->flid}} value="{{$field->flid}}">
     <?php
-        $defMonth = explode('[M]',$field->default)[1];
-        if($defMonth==0){
+        $defMonth = $field->default=='' ? null : explode('[M]',$field->default)[1];
+        if($defMonth=='0'){
             $defMonth = \Carbon\Carbon::now()->month;
         }
     ?>
@@ -28,13 +28,13 @@
         <option value=""></option>
         <?php
             $currDay=0;
-            if(explode('[D]',$field->default)[1]==0){
+            if($field->default!='' && explode('[D]',$field->default)[1]=='0'){
                 $currDay=\Carbon\Carbon::now()->day;
             }
             $i = 1;
             while ($i <= 31)
             {
-                if(explode('[D]',$field->default)[1]==$i | $i==$currDay){
+                if(($field->default!='' && explode('[D]',$field->default)[1]==$i) | $i==$currDay){
                     echo "<option value=" . $i . " selected>" . $i . "</option>";
                 }else{
                     echo "<option value=" . $i . ">" . $i . "</option>";
@@ -48,14 +48,14 @@
         <option value=""></option>
         <?php
             $currYear=0;
-            if(explode('[D]',$field->default)[1]==0){
+            if($field->default!='' && explode('[Y]',$field->default)[1]=='0'){
                 $currYear=\Carbon\Carbon::now()->year;
             }
             $i = \App\Http\Controllers\FieldController::getFieldOption($field, 'Start');
             $j = \App\Http\Controllers\FieldController::getFieldOption($field, 'End');
             while ($i <= $j)
             {
-                if(explode('[Y]',$field->default)[1]==$i | $i==$currYear){
+                if(($field->default!='' && explode('[Y]',$field->default)[1]==$i) | $i==$currYear){
                     echo "<option value=" . $i . " selected>" . $i . "</option>";
                 }else{
                     echo "<option value=" . $i . ">" . $i . "</option>";

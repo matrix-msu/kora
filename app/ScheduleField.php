@@ -16,6 +16,10 @@ class ScheduleField extends BaseField {
         'events'
     ];
 
+    public static function getOptions(){
+        return '[!Start!]1900[!Start!][!End!]2020[!End!][!Calendar!]No[!Calendar!]';
+    }
+
     public static function getDateList($field)
     {
         $def = $field->default;

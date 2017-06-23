@@ -16,6 +16,10 @@ class AssociatorField extends BaseField {
         'records'
     ];
 
+    public static function getOptions(){
+        return '[!SearchForms!][!SearchForms!]';
+    }
+
     public static function getDefault($default, $blankOpt=false)
     {
         $options = array();

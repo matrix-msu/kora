@@ -12,6 +12,10 @@ class DocumentsField extends FileTypeField {
         'documents'
     ];
 
+    public static function getOptions(){
+        return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!][!FileTypes!]';
+    }
+
     public static function getMimeTypes(){
         $types=array();
         foreach(@explode("\n",@file_get_contents('http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types'))as $x)

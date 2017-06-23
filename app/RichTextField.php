@@ -13,6 +13,10 @@ class RichTextField extends BaseField {
         'searchable_rawtext'
     ];
 
+    public static function getOptions(){
+
+    }
+
     /**
      * Saves the model.
      *

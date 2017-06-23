@@ -12,6 +12,10 @@ class ModelField extends FileTypeField  {
         'model'
     ];
 
+    public static function getOptions(){
+        return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]1[!MaxFiles!][!FileTypes!][!FileTypes!]';
+    }
+
     /**
      * @param null $field
      * @return string

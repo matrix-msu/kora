@@ -12,6 +12,10 @@ class VideoField extends FileTypeField {
         'video'
     ];
 
+    public static function getOptions(){
+        return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!][!FileTypes!]';
+    }
+
     /**
      * @param null $field
      * @return string

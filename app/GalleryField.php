@@ -20,6 +20,10 @@ class GalleryField extends FileTypeField  {
         return $this->images;
     }
 
+    public static function getOptions(){
+        return '[!FieldSize!]0[!FieldSize!][!ThumbSmall!]150x150[!ThumbSmall!][!ThumbLarge!]300x300[!ThumbLarge!][!MaxFiles!]0[!MaxFiles!][!FileTypes!][!FileTypes!]';
+    }
+
     /**
      * Rollback a gallery field based on a revision.
      *

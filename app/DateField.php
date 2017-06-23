@@ -37,6 +37,10 @@ class DateField extends BaseField {
         'date_object'
     ];
 
+    public static function getOptions(){
+        return '[!Circa!]No[!Circa!][!Start!]1900[!Start!][!End!]2020[!End!][!Format!]MMDDYYYY[!Format!][!Era!]No[!Era!]';
+    }
+
     /**
      * Builds the query for a date field.
      *

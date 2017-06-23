@@ -1,5 +1,6 @@
 <?php namespace App;
 
+use App\Http\Requests\Request;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
@@ -15,6 +16,44 @@ class ComboListField extends BaseField {
         'ftype1',
         'ftype2'
     ];
+
+    public static function getOptions(Request $request){
+        $type1 = $request->cftype1;
+        $type2 = $request->cftype2;
+        $name1 = '[Name]'.$request->cfname1.'[Name]';
+        $name2 = '[Name]'.$request->cfname2.'[Name]';
+        $options = "";
+
+        $options = "[!Field1!][Type]";
+        if($type1=='Text'){
+            $options .= "Text[Type]".$name1."[Options][!Regex!][!Regex!][!MultiLine!]0[!MultiLine!]";
+        }else if($type1=='Number'){
+            $options .= "Number[Type]".$name1."[Options][!Max!]10[!Max!][!Min!]1[!Min!][!Increment!]1[!Increment!][!Unit!][!Unit!]";
+        }else if($type1=='List'){
+            $options .= "List[Type]".$name1."[Options][!Options!][!Options!]";
+        }else if($type1=='Multi-Select List'){
+            $options .= "Multi-Select List[Type]".$name1."[Options][!Options!][!Options!]";
+        }else if($type1=='Generated List'){
+            $options .= "Generated List[Type]".$name1."[Options][!Regex!][!Regex!][!Options!][!Options!]";
+        }
+        $options .= "[Options][!Field1!]";
+
+        $options .= "[!Field2!][Type]";
+        if($type2=='Text'){
+            $options .= "Text[Type]".$name2."[Options][!Regex!][!Regex!][!MultiLine!]0[!MultiLine!]";
+        }else if($type2=='Number'){
+            $options .= "Number[Type]".$name2."[Options][!Max!]10[!Max!][!Min!]1[!Min!][!Increment!]1[!Increment!][!Unit!][!Unit!]";
+        }else if($type2=='List'){
+            $options .= "List[Type]".$name2."[Options][!Options!][!Options!]";
+        }else if($type2=='Multi-Select List'){
+            $options .= "Multi-Select List[Type]".$name2."[Options][!Options!][!Options!]";
+        }else if($type2=='Generated List'){
+            $options .= "Generated List[Type]".$name2."[Options][!Regex!][!Regex!][!Options!][!Options!]";
+        }
+        $options .= "[Options][!Field2!]";
+
+        return $options;
+    }
 
     public static function getComboList($field, $blankOpt=false, $fnum)
     {
