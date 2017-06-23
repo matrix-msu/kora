@@ -110,6 +110,33 @@ class FieldAjaxController extends Controller {
         return '';
     }
 
+    /**
+     * Validates the address for a Geolocator field.
+     *
+     * @param  Request $request
+     * @return bool - Result of address validity
+     */
+    public function validateAddress(Request $request) {
+        $address = $request['address'];
+
+        $coder = new Geocoder();
+        $coder->registerProviders([
+            new NominatimProvider(
+                new CurlHttpAdapter(),
+                'http://nominatim.openstreetmap.org/',
+                'en'
+            )
+        ]);
+
+        try {
+            $coder->geocode($address);
+        } catch(\Exception $e) {
+            return json_encode(false);
+        }
+
+        return json_encode(true);
+    }
+
     public function geoConvert(Request $request){
         if($request->type == 'latlon'){
             $lat = $request->lat;

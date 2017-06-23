@@ -126,8 +126,8 @@
             if ($("[name={{$field->flid}}_address]").val()) {
                 console.log("Doing address validation...");
                 $.ajax({
-                    url: '{{ action('AdvancedSearchController@validateAddress') }}',
-                    type: 'GET',
+                    url: '{{ action('FieldAjaxController@validateAddress') }}',
+                    type: 'POST',
                     data: {
                         '_token': '{{ csrf_token() }}',
                         address: $("[name={{$field->flid}}_address]").val()

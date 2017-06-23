@@ -9,28 +9,38 @@ use Illuminate\Http\Request;
 use Geocoder\Provider\NominatimProvider;
 use Geocoder\HttpAdapter\CurlHttpAdapter;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
+use Illuminate\View\View;
 
 class AdvancedSearchController extends Controller {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Advanced Search Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles advanced searches for a form
+    |
+    */
+
     /**
-     * User must be logged in and admin to access views in this controller.
+     * Constructs controller and makes sure user is authenticated.
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->middleware('auth');
         $this->middleware('active');
     }
 
     /**
-     * Advanced search index.
+     * Gets a list of all fields in the form and returns the advanced search view.
      *
-     * @param $pid, project id.
-     * @param $fid, form id.
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return View
      */
     public function index($pid, $fid) {
-        if (! FormController::validProjForm($pid, $fid)) {
+        if(! FormController::validProjForm($pid, $fid)) {
             return redirect('projects/'.$pid);
         }
 
@@ -39,15 +49,15 @@ class AdvancedSearchController extends Controller {
     }
 
     /**
-     * Execute an advanced search.
+     * Performs the advanced search and stores results in the session.
      *
-     * @param $pid, project id
-     * @param $fid, form id
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse |\Illuminate\Routing\Redirector
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     * @return Redirect
      */
     public function search($pid, $fid, Request $request) {
-        if (! FormController::validProjForm($pid, $fid)) {
+        if(! FormController::validProjForm($pid, $fid)) {
             return redirect("projects/". $pid);
         }
 
@@ -59,7 +69,7 @@ class AdvancedSearchController extends Controller {
 
         $results = [];
 
-        foreach ($this->processRequest($request) as $flid => $query) {
+        foreach($this->processRequest($request) as $flid => $query) {
             // Result will be returned as an array of stdObjects so we have to extract the rid.
             $result = array_map(function($returned) {
                 return $returned->rid;
@@ -80,12 +90,12 @@ class AdvancedSearchController extends Controller {
     }
 
     /**
-     * Execute an advanced search.
+     * Handles an advanced search from the API. We need the results back directly, rather than a view to display them.
      *
-     * @param $pid, project id
-     * @param $fid, form id
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse |\Illuminate\Routing\Redirector
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     * @return array - Record ID search results
      */
     public function apisearch($pid, $fid, Request $request) {
         if (! FormController::validProjForm($pid, $fid)) {
@@ -99,7 +109,7 @@ class AdvancedSearchController extends Controller {
 
         $results = [];
 
-        foreach ($this->processRequest($request) as $flid => $query) {
+        foreach($this->processRequest($request) as $flid => $query) {
             // Result will be returned as an array of stdObjects so we have to extract the rid.
             $result = array_map(function($returned) {
                 return $returned->rid;
@@ -118,23 +128,22 @@ class AdvancedSearchController extends Controller {
     }
 
     /**
-     * Returns the results page based on a search result.
+     * Processes and prepares the results for the results view, including pagination.
      *
-     * @param $pid, project id
-     * @param $fid, form id
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return View
      */
     public function results($pid, $fid) {
-        if(!FormController::validProjForm($pid,$fid)){
+        if(!FormController::validProjForm($pid,$fid)) {
             return redirect('projects/'.$pid);
         }
 
         $page = (isset($_GET['page'])) ? intval(strip_tags($_GET['page'])) : $page = 1;
 
-        if (Session::has("rids")) {
+        if(Session::has("rids")) {
             $rids = Session::get("rids");
-        }
-        else {
+        } else {
             $rids = [];
         }
 
@@ -158,40 +167,10 @@ class AdvancedSearchController extends Controller {
     }
 
     /**
-     * Determines validity of an address.
+     * Takes the request variables for an advanced search an processed them for use.
      *
-     * @param Request $request
-     * @return bool, true if valid.
-     */
-    public function validateAddress(Request $request) {
-        $address = $request['address'];
-
-        $coder = new Geocoder();
-        $coder->registerProviders([
-            new NominatimProvider(
-                new CurlHttpAdapter(),
-                'http://nominatim.openstreetmap.org/',
-                'en'
-            )
-        ]);
-
-        try {
-            $coder->geocode($address);
-        }
-        catch (\Exception $e) {
-            return json_encode(false);
-        }
-
-        return json_encode(true);
-    }
-
-    /**
-     * Processes the request into a associative array with the following format:
-     *      $processed[flid] => search query
-     * Ensures all inputs are marked as valid (validity determined in searchBoxes/geolocator.blade.php.
-     *
-     * @param array $request
-     * @return array $processed
+     * @param  array $request - Variables from the request
+     * @return array - Processed array
      */
     private function processRequest(array $request) {
         $processed = [];
@@ -200,16 +179,15 @@ class AdvancedSearchController extends Controller {
         $prev_flid = -1;
         foreach($request as $key => $value) {
             $flid = explode("_", $key)[0];
-            if ($flid != $prev_flid) { // On a new input group.
+            if($flid != $prev_flid) { // On a new input group.
 
                 // Only add the new query if it is valid.
-                if (isset($query[$prev_flid . "_valid"]) && isset($query[$prev_flid . "_dropdown"])) {
-                    if ($query[$prev_flid . "_valid"] == "1") {
+                if(isset($query[$prev_flid . "_valid"]) && isset($query[$prev_flid . "_dropdown"])) {
+                    if($query[$prev_flid . "_valid"] == "1") {
                         $processed[$prev_flid] = $query;
                     }
-                }
-                else if (isset($query[$prev_flid . "_1_valid"]) && isset($query[$prev_flid . "_2_valid"])) {
-                    if ($query[$prev_flid . "_1_valid"] == "1" || $query[$prev_flid . "_2_valid"] == "1") {
+                } else if(isset($query[$prev_flid . "_1_valid"]) && isset($query[$prev_flid . "_2_valid"])) {
+                    if($query[$prev_flid . "_1_valid"] == "1" || $query[$prev_flid . "_2_valid"] == "1") {
                         $processed[$prev_flid] = $query;
                     }
                 }
@@ -217,21 +195,19 @@ class AdvancedSearchController extends Controller {
                 $query = [];
                 $query[$key] = $value;
                 $prev_flid = $flid;
-            }
-            else {
+            } else {
                 $query[$key] = $value;
                 $prev_flid = $flid;
             }
         }
 
         // Check the last query.
-        if (isset($query[$prev_flid . "_valid"])) {
-            if ($query[$prev_flid . "_valid"] == "1") {
+        if(isset($query[$prev_flid . "_valid"])) {
+            if($query[$prev_flid . "_valid"] == "1") {
                 $processed[$prev_flid] = $query;
             }
-        }
-        else if (isset($query[$prev_flid . "_1_valid"]) && isset($query[$prev_flid . "_2_valid"])) {
-            if ($query[$prev_flid . "_1_valid"] == "1" || $query[$prev_flid . "_2_valid"] == "1") {
+        } else if(isset($query[$prev_flid . "_1_valid"]) && isset($query[$prev_flid . "_2_valid"])) {
+            if($query[$prev_flid . "_1_valid"] == "1" || $query[$prev_flid . "_2_valid"] == "1") {
                 $processed[$prev_flid] = $query;
             }
         }

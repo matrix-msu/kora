@@ -137,6 +137,8 @@ Route::patch('/saveTmpFile/{flid}', 'FieldAjaxController@saveTmpFile');
 Route::delete('/deleteTmpFile/{flid}/{filename}', 'FieldAjaxController@delTmpFile');
 Route::get('/download/{rid}/{flid}/{filename}','FieldAjaxController@getFileDownload');
 Route::get('/download/{rid}/{flid}/{filename}/{type}','FieldAjaxController@getImgDisplay');
+Route::get("/validateAddress", "FieldAjaxController@validateAddress");
+
 
 //record preset routes
 Route::get('/projects/{pid}/forms/{fid}/records/presets', 'RecordPresetController@index');
@@ -244,7 +246,6 @@ Route::get("globalSearch", "ProjectSearchController@globalSearch");
 
 //advanced search routes
 Route::get("/projects/{pid}/forms/{fid}/advancedSearch", "AdvancedSearchController@index");
-Route::get("/advancedSearch/validateAddress", "AdvancedSearchController@validateAddress");
 Route::get("/projects/{pid}/forms/{fid}/advancedSearch/results", "AdvancedSearchController@results");
 Route::post("/projects/{pid}/forms/{fid}/advancedSearch/search", "AdvancedSearchController@search");
 
