@@ -19,7 +19,7 @@ namespace App\FieldHelpers;
 
 //This class has a bunch of functions that can help build the json required for a form to search with the API. NOTE: This
 //can be used separately from it's use in the koraSearch conversion.
-class kora3ApiExternalTool{
+class kora3ApiExternalTool {
 
     /*
     |--------------------------------------------------------------------------
@@ -40,7 +40,7 @@ class kora3ApiExternalTool{
      * @param  array $flids - Specific fields to search in
      * @return array - The query array
      */
-    static function keywordQueryBuilder($keyString,$method,$not=false,$flids=array()){
+    static function keywordQueryBuilder($keyString,$method,$not=false,$flids=array()) {
         $qkey = array();
         $qkey["search"] = "keyword";
         $qkey["keys"] = $keyString;
@@ -60,7 +60,7 @@ class kora3ApiExternalTool{
      * @param  bool $not - Get the negative results of the search
      * @return array - The query array
      */
-    static function kidQueryBuilder($kids,$not=false){
+    static function kidQueryBuilder($kids,$not=false) {
         $qkid = array();
         $qkid["search"] = "KID";
         $qkid["kids"] = $kids;
@@ -73,7 +73,7 @@ class kora3ApiExternalTool{
     /**
      * TODO::Builds the query string for an advanced search.
      */
-    static function advancedQueryBuilder(){
+    static function advancedQueryBuilder() {
         /* $qadv = array();
         $qadv["search"] = "advanced";
         $advFields = array();
@@ -91,7 +91,7 @@ class kora3ApiExternalTool{
      * @param  array $queryObj2 - Index of 2nd query object in your query array, or another logic array
      * @return array - Logic array
      */
-    static function queryLogicBuilder($queryObj1,$operator,$queryObj2){
+    static function queryLogicBuilder($queryObj1,$operator,$queryObj2) {
         return array($queryObj1,$operator,$queryObj2);
     }
 
@@ -109,7 +109,7 @@ class kora3ApiExternalTool{
      * @param  int $count - Determines, starting from $index, how many records to return
      * @return array - Array representation of the form search for the API
      */
-    static function formSearchBuilder($fid,$token,$flags,$fields,$sort,$queries,$qLogic,$index=null,$count=null){
+    static function formSearchBuilder($fid,$token,$flags,$fields,$sort,$queries,$qLogic,$index=null,$count=null) {
         $form = array();
         $form["form"] = $fid;
         $form["token"] = $token;
@@ -134,10 +134,9 @@ class kora3ApiExternalTool{
 
         return $form;
     }
-
 }
 
-class KORA_Clause{
+class KORA_Clause {
 
     /*
     |--------------------------------------------------------------------------
@@ -165,7 +164,7 @@ class KORA_Clause{
      * @param  string $op - Operator to compare arguments
      * @param  mixed $arg2 - Compared argument for the clause
      */
-    function __construct($arg1, $op, $arg2){
+    function __construct($arg1, $op, $arg2) {
         $op = strtoupper($op);
 
         if($op == "AND" | $op == "OR") {
@@ -255,7 +254,7 @@ class KORA_Clause{
      * @param  int $size - Size of array at top level of recursion
      * @return array - The newly indexed logic array
      */
-    private function recursizeLogicIndex($queryArray,$size){
+    private function recursizeLogicIndex($queryArray,$size) {
         $returnArray = array();
 
         //part1
@@ -285,7 +284,7 @@ class KORA_Clause{
      *
      * @return array - Query variable
      */
-    public function getQueries(){
+    public function getQueries() {
         return $this->queries;
     }
 
@@ -294,7 +293,7 @@ class KORA_Clause{
      *
      * @return array - Logic varible
      */
-    public function getLogic(){
+    public function getLogic() {
         return $this->logic;
     }
 }
@@ -313,7 +312,7 @@ class KORA_Clause{
  * @param  array $userInfo - Server authentication for connecting to private servers
  * @return array - The records to return from the search
  */
-function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=null,$number=null,$userInfo = array()){
+function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=null,$number=null,$userInfo = array()) {
     if(!$koraClause instanceof KORA_Clause) {
         die("The query clause you provided must be an object of class KORA_Clause");
     }

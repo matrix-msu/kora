@@ -25,8 +25,7 @@ class UserController extends Controller {
     /**
      * Constructs the controller and checks if user is authenticated and activated.
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->middleware('auth', ['except' => ['activate', 'activator', 'activateshow']]);
         $this->middleware('active', ['except' => ['activate', 'activator', 'activateshow']]);
     }
@@ -36,8 +35,7 @@ class UserController extends Controller {
      *
      * @return View
      */
-    public function index()
-    {
+    public function index() {
         $languages_available = Config::get('app.locales_supported');
 
         $user = Auth::user();
@@ -64,7 +62,7 @@ class UserController extends Controller {
      * @param  Request $request
      * @return string - URI of pic
      */
-    public function changepicture(Request $request){
+    public function changepicture(Request $request) {
         $file = $request->file('profile');
         $pDir = env('BASE_PATH') . 'storage/app/profiles/'.\Auth::user()->id.'/';
         $pURL = env('STORAGE_URL') . 'profiles/'.\Auth::user()->id.'/';
@@ -90,7 +88,7 @@ class UserController extends Controller {
      *
      * @param  Request $request
      */
-    public function changeprofile(Request $request){
+    public function changeprofile(Request $request) {
         $user = Auth::user();
         $type = $request->input("type");
 
@@ -150,8 +148,7 @@ class UserController extends Controller {
      * @param  Request $request
      * @return Redirect
      */
-    public function changepw(Request $request)
-    {
+    public function changepw(Request $request) {
         $user = Auth::user();
         $new_pass = $request->new_password;
         $confirm = $request->confirm;
@@ -182,8 +179,7 @@ class UserController extends Controller {
      *
      * @return View
      */
-    public function activateshow()
-    {
+    public function activateshow() {
         return view('auth.activate');
     }
 
@@ -193,8 +189,7 @@ class UserController extends Controller {
      * @param  Request $request
      * @return Redirect
      */
-    public function activator(Request $request)
-    {
+    public function activator(Request $request) {
         $user = User::where('username', '=', $request->user)->first();
         if($user==null) {
             flash()->overlay(trans('controller_auth_user.nouser'), trans('controller_auth_user.whoops'));
@@ -223,8 +218,7 @@ class UserController extends Controller {
      * @param  String $token - Token user will register with
      * @return Redirect
      */
-    public function activate($token)
-    {
+    public function activate($token) {
         //Since we are coming from an email client or otherwise, we need to make sure that no one on the browser is already
         // logged in.
         if(!is_null(\Auth::user())) {
@@ -253,8 +247,7 @@ class UserController extends Controller {
      * @param  User $user - User to get information for
      * @return array - Project permission set information
      */
-    public static function buildProjectsArray(User $user)
-    {
+    public static function buildProjectsArray(User $user) {
         $all_projects = Project::all();
         $projects = array();
         $i=0;
@@ -290,8 +283,7 @@ class UserController extends Controller {
      * @param  User $user - User to get information for
      * @return array - Form permission set information
      */
-    public static function buildFormsArray(User $user)
-    {
+    public static function buildFormsArray(User $user) {
         $i=0;
         $all_forms = Form::all();
         $forms = array();

@@ -1,89 +1,90 @@
 <?php namespace App\Http\Controllers;
 
 use App\User;
-use App\Http\Requests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
+use Illuminate\View\View;
 
 class AdminController extends Controller {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles administrative functions for Kora 3
+    |
+    */
+
     /**
-     * User must be logged in and admin to access views in this controller.
+     * Constructs the controller and makes sure active user is an administrator.
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->middleware('auth');
         $this->middleware('active');
         $this->middleware('admin');
     }
 
     /**
-     * Method for the manage users page.
+     * Returns the view for the user management page.
      *
-     * @return Response
+     * @return View
      */
-    public function users()
-    {
+    public function users() {
         $users = User::all();
 
         return view('admin.users', compact('users'));
     }
 
     /**
-     * Changes the user's password and/or makes user admin.
-     * Builds up a message as it moves through if statements.
+     * Updates information and/or password for a individual user.
      *
-     * @param Request $request
-     * @return Response
+     * @param  Request $request
+     * @return View
      */
-    public function update(Request $request)
-    {
+    public function update(Request $request) {
         $message = trans('controller_admin.changed');
         $user = User::where('id', '=', $request->users)->first();
         $new_pass = $request->new_password;
         $confirm = $request->confirm;
 
         // Has the user been given admin rights?
-        if (!is_null($request->admin)){
+        if(!is_null($request->admin)) {
             $user->admin = 1;
             $message .= trans('controller_admin.admin');
-        }
-        else{
+        } else {
             $user->admin = 0;
             $message .= trans('controller_admin.notadmin');
         }
 
         // Has the user been activated?
-        if (!is_null($request->active)){
+        if(!is_null($request->active)) {
             $user->active = 1;
             $message .= trans('controller_admin.active');
-        }
-        else{
+        } else {
             $user->active = 0;
             $message .= trans('controller_admin.inactive');
         }
 
         // Handle password change cases.
-        if (!empty($new_pass) || !empty($confirm)){
-
+        if(!empty($new_pass) || !empty($confirm)) {
             // If passwords don't match.
-            if ($new_pass != $confirm){
+            if($new_pass != $confirm) {
                 flash()->overlay(trans('controller_admin.nomatch'), trans('controller_admin.whoops'));
                 return redirect('admin/users');
             }
 
             // If password is less than 6 chars
-            if(strlen($new_pass)<6){
+            if(strlen($new_pass)<6) {
                 flash()->overlay(trans('controller_admin.short'), trans('controller_admin.whoops'));
                 return redirect('admin/users');
             }
 
             // If password contains spaces
-            if ( preg_match('/\s/',$new_pass) ){
+            if(preg_match('/\s/',$new_pass)) {
                 flash()->overlay(trans('controller_admin.spaces'), trans('controller_admin.whoops'));
                 return redirect('admin/users');
             }
@@ -98,12 +99,11 @@ class AdminController extends Controller {
     }
 
     /**
-     * Deletes a user.
+     * Deletes a user from the system.
      *
-     * @param $id, the user's id.
+     * @param  int $id - The ID of user to be deleted
      */
-    public function deleteUser($id)
-    {
+    public function deleteUser($id) {
         $user = User::where('id', '=', $id)->first();
         $user->delete();
 
@@ -111,37 +111,34 @@ class AdminController extends Controller {
     }
 
     /**
-     * Takes in comma or space separated (or a combination of the two)
-     * e-mails and creates new users based on the emails.
+     * Batch invites users to Kora3 using list of emails.
      *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @param  Request $request
+     * @return View
      */
-    public function batch(Request $request)
-    {
+    public function batch(Request $request) {
         $emails = str_replace(',', ' ', $request['emails']);
         $emails = preg_replace('!\s+!', ' ', $emails);
         $emails = array_unique(explode(' ', $emails));
 
         // The user hasn't entered anything.
-        if ($emails[0] == "") {
+        if($emails[0] == "") {
             flash()->overlay(trans('controller_admin.enter'), trans('controller_admin.whoops'));
             return redirect('admin/users');
-        }
-        else {
+        } else {
             $skipped = 0;
             $created = 0;
 
-            foreach ($emails as $email) {
-                if (!self::emailExists($email)) {
-                    if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            foreach($emails as $email) {
+                if(!self::emailExists($email)) {
+                    if(filter_var($email, FILTER_VALIDATE_EMAIL)) {
                         $username = explode('@', $email)[0];
                         $i = 1;
                         $username_array = array();
                         $username_array[0] = $username;
 
                         // Increment a count while the username exists.
-                        while (self::usernameExists($username)) {
+                        while(self::usernameExists($username)) {
                             $username_array[1] = $i;
                             $username = implode($username_array);
                             $i++;
@@ -168,15 +165,14 @@ class AdminController extends Controller {
                             $message->subject('Kora Account Activation');
                         });
                         $created++;
-                    }
-                    else {
+                    } else {
                         $skipped++;
                     }
                 } else {
                     $skipped++;
                 }
             }
-            if ($skipped)
+            if($skipped)
                 flash()->overlay($skipped . trans('controller_admin.skipped') . $created . trans('controller_admin.created'), trans('controller_admin.success'));
             else
                 flash()->overlay($created . trans('controller_admin.created'), trans('controller_admin.success'));
@@ -184,17 +180,22 @@ class AdminController extends Controller {
         }
     }
 
-    public function deleteData(){
-        if(Auth::check()){
-            if(Auth::user()->id != 1){
+    /**
+     * Deletes all information from Kora3, except the root user. Only the root user can use this function.
+     *
+     * @return string - Success message
+     */
+    public function deleteData() {
+        if(Auth::check()) {
+            if(Auth::user()->id != 1) {
                 flash()->overlay("There can only be one highlander!","Get out!");
                 return redirect("/projects")->send();
             }
         }
 
         try {
-            foreach (User::all() as $User) {
-                if ($User->id == 1) { //Do not delete the default admin user
+            foreach(User::all() as $User) {
+                if($User->id == 1) { //Do not delete the default admin user
                     continue;
                 } else {
                     $User->delete();
@@ -241,7 +242,7 @@ class AdminController extends Controller {
             DB::table('associator_support')->delete();
             DB::table('pages')->delete();
 
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             $this->ajaxResponse(false, "Error removing from database");
         }
 
@@ -249,41 +250,37 @@ class AdminController extends Controller {
     }
 
     /**
-     * Checks if a username is in use.
+     * Checks if username is already taken.
      *
-     * @param $username
-     * @return bool
+     * @param  string $username - Username to check for
+     * @return bool - Username's existence
      */
-    private function usernameExists($username)
-    {
+    private function usernameExists($username) {
         return !is_null(User::where('username', '=', $username)->first());
     }
 
     /**
-     * Checks if an email is in use.
+     * Checks if email is already taken.
      *
-     * @param $email
-     * @return bool
+     * @param  string $email - Email to check for
+     * @return bool - Email's existence
      */
-    private function emailExists($email)
-    {
+    private function emailExists($email) {
         return !is_null(User::where('email', '=', $email)->first());
     }
 
-
     /**
-     * Generates a random temporary password.
+     * Generates a temporary password of length 10.
      *
-     * @return string
+     * @return string - Generated password
      */
-    private function passwordGen()
-    {
+    private function passwordGen() {
         $valid = 'abcdefghijklmnopqrstuvwxyz';
         $valid .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $valid .= '0123456789';
 
         $password = '';
-        for ($i = 0; $i < 10; $i++){
+        for($i = 0; $i < 10; $i++) {
             $password .= $valid[( rand() % 62 )];
         }
         return $password;
