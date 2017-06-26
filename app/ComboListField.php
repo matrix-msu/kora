@@ -1,5 +1,6 @@
 <?php namespace App;
 
+use App\Http\Controllers\FieldController;
 use App\Http\Requests\Request;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
@@ -464,6 +465,110 @@ class ComboListField extends BaseField {
             return $field->name.trans('fieldhelpers_val.req');
         }
 
+        return '';
+    }
+
+    /**
+     * Validates record data for a Combo List Field.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $flid - Field ID
+     * @param  Request $request
+     * @return string - Returns on error or blank on success
+     */
+    public static function validateComboListOpt($pid, $fid, $flid, \Illuminate\Http\Request $request) {
+        $field = FieldController::getField($flid);
+
+        $valone = $request->valone;
+        $valtwo = $request->valtwo;
+        $typeone = $request->typeone;
+        $typetwo = $request->typetwo;
+
+        if($valone=="" | $valtwo=="") {
+            return trans('controller_field.valueboth');
+        }
+
+        if($typeone=='Text') {
+            $regex = ComboListField::getComboFieldOption($field,'Regex','one');
+            if(($regex!=null | $regex!="") && !preg_match($regex,$valone)) {
+                return trans('controller_field.v1regex');
+            }
+        } else if($typeone=='Number') {
+            $max = ComboListField::getComboFieldOption($field,'Max','one');
+            $min = ComboListField::getComboFieldOption($field,'Min','one');
+            $inc = ComboListField::getComboFieldOption($field,'Increment','one');
+
+            if($valone<$min | $valone>$max) {
+                return trans('controller_field.v1num');
+            }
+
+            if(fmod(floatval($valone),floatval($inc))!=0) {
+                return trans('controller_field.v1numinc');
+            }
+        } else if($typeone=='List') {
+            $opts = explode('[!]',ComboListField::getComboFieldOption($field,'Options','one'));
+
+            if(!in_array($valone,$opts)) {
+                return trans('controller_field.v1list');
+            }
+        } else if($typeone=='Multi-Select List') {
+            $opts = explode('[!]',ComboListField::getComboFieldOption($field,'Options','one'));
+
+            if(sizeof(array_diff($valone,$opts))>0) {
+                return trans('controller_field.v1mslist');
+            }
+        } else if($typeone=='Generated List') {
+            $regex = ComboListField::getComboFieldOption($field,'Regex','one');
+
+            if($regex != null | $regex != "") {
+                foreach($valone as $val) {
+                    if(!preg_match($regex, $val)) {
+                        return trans('controller_field.v1genlist');
+                    }
+                }
+            }
+        }
+
+        if($typetwo=='Text') {
+            $regex = ComboListField::getComboFieldOption($field,'Regex','two');
+            if(($regex!=null | $regex!="") && !preg_match($regex,$valtwo)) {
+                return trans('controller_field.v2regex');
+            }
+        } else if($typetwo=='Number') {
+            $max = ComboListField::getComboFieldOption($field,'Max','two');
+            $min = ComboListField::getComboFieldOption($field,'Min','two');
+            $inc = ComboListField::getComboFieldOption($field,'Increment','two');
+
+            if($valtwo<$min | $valtwo>$max) {
+                return trans('controller_field.v2num');
+            }
+            if(fmod(floatval($valtwo),floatval($inc))!=0) {
+                return trans('controller_field.v2numinc');
+            }
+        } else if($typetwo=='List') {
+            $opts = explode('[!]',ComboListField::getComboFieldOption($field,'Options','two'));
+
+            if(!in_array($valtwo,$opts)) {
+                return trans('controller_field.v2list');
+            }
+        } else if($typetwo=='Multi-Select List') {
+            $opts = explode('[!]',ComboListField::getComboFieldOption($field,'Options','two'));
+
+            if(sizeof(array_diff($valtwo,$opts))>0) {
+                return trans('controller_field.v2mslist');
+            }
+        } else if($typetwo=='Generated List') {
+            $regex = ComboListField::getComboFieldOption($field,'Regex','two');
+
+            if($regex != null | $regex != "") {
+                foreach($valtwo as $val) {
+                    if(!preg_match($regex, $val)) {
+                        return trans('controller_field.v2genlist');
+                    }
+                }
+            }
+        }
         return '';
     }
 }

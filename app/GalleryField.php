@@ -1,5 +1,7 @@
 <?php namespace App;
 
+use App\Http\Controllers\FieldController;
+use App\Http\Controllers\RecordController;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -81,6 +83,36 @@ class GalleryField extends FileTypeField  {
         if($req==1){
             if(glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') == false)
                 return $field->name.trans('fieldhelpers_val.file');
+        }
+    }
+
+    /**
+     * Gets the image associated with the Gallery Field of a particular record.
+     *
+     * @param  int $rid - Record ID
+     * @param  int $flid - Field ID
+     * @param  string $filename - Name of image file
+     * @param  string $type - Get either the full image or a thumbnail of the image
+     * @return string - html for the file download
+     */
+    public static function getImgDisplay($rid, $flid, $filename, $type){
+        $record = RecordController::getRecord($rid);
+        $field = FieldController::getField($flid);
+        if($type == 'thumbnail' | $type == 'medium') {
+            $file_path = env('BASE_PATH').'storage/app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$type.'/'. $filename;
+        } else {
+            $file_path = env('BASE_PATH').'storage/app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $filename;
+
+        }
+
+        if(file_exists($file_path)) {
+            // Send Download
+            return response()->download($file_path, $filename, [
+                'Content-Length: '. filesize($file_path)
+            ]);
+        } else {
+            // Error
+            exit(trans('controller_field.nofile'));
         }
     }
 }

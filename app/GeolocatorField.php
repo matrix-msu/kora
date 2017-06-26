@@ -6,6 +6,7 @@ use Geocoder\HttpAdapter\CurlHttpAdapter;
 use Geocoder\Provider\NominatimProvider;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use PhpSpec\Exception\Exception;
@@ -299,6 +300,135 @@ SQL;
 
         if($req==1 && ($value==null | $value=="")){
             return $field->name.trans('fieldhelpers_val.req');
+        }
+    }
+
+    /**
+     * Validates the address for a Geolocator field.
+     *
+     * @param  Request $request
+     * @return bool - Result of address validity
+     */
+    public static function validateAddress(Request $request) {
+        $address = $request['address'];
+
+        $coder = new Geocoder();
+        $coder->registerProviders([
+            new NominatimProvider(
+                new CurlHttpAdapter(),
+                'http://nominatim.openstreetmap.org/',
+                'en'
+            )
+        ]);
+
+        try {
+            $coder->geocode($address);
+        } catch(\Exception $e) {
+            return json_encode(false);
+        }
+
+        return json_encode(true);
+    }
+
+    /**
+     * Converts provide lat/long, utm, or geo coordinates into the other types.
+     *
+     * @param  Request $request
+     * @return string - Geolocator formatted string of the converted coordinates
+     */
+    public static function geoConvert(Request $request) {
+        if($request->type == 'latlon') {
+            $lat = $request->lat;
+            $lon = $request->lon;
+
+            //to utm
+            $con = new gPoint();
+            $con->gPoint();
+            $con->setLongLat($lon,$lat);
+            $con->convertLLtoTM();
+            $utm = $con->utmZone.':'.$con->utmEasting.','.$con->utmNorthing;
+
+            //to address
+            $con = new \Geocoder\Geocoder();
+            $con->registerProviders([
+                new NominatimProvider(
+                    new CurlHttpAdapter(), 'http://nominatim.openstreetmap.org/', 'en'
+                )
+            ]);
+            try {
+                $res = $con->geocode($lat.', '.$lon);
+                $addr = $res->getStreetNumber().' '.$res->getStreetName().' '.$res->getCity().' '.$res->getRegion();
+            } catch(\Exception $e) {
+                $addr = 'null';
+            }
+
+            $result = '[LatLon]'.$lat.','.$lon.'[LatLon][UTM]'.$utm.'[UTM][Address]'.$addr.'[Address]';
+
+            return $result;
+        } else if($request->type == 'utm') {
+            $zone = $request->zone;
+            $east = $request->east;
+            $north = $request->north;
+
+            //to latlon
+            $con = new gPoint();
+            $con->gPoint();
+            $con->setUTM($east,$north,$zone);
+            $con->convertTMtoLL();
+            $lat = $con->lat;
+            $lon = $con->long;
+
+            //to address
+            $con = new \Geocoder\Geocoder();
+            $con->registerProviders([
+                new NominatimProvider(
+                    new CurlHttpAdapter(), 'http://nominatim.openstreetmap.org/', 'en'
+                )
+            ]);
+            try {
+                $res = $con->geocode($lat.', '.$lon);
+                $addr = $res->getStreetNumber().' '.$res->getStreetName().' '.$res->getCity().' '.$res->getRegion();
+            } catch(\Exception $e) {
+                $addr = 'null';
+            }
+
+            $result = '[LatLon]'.$lat.','.$lon.'[LatLon][UTM]'.$zone.':'.$east.','.$north.'[UTM][Address]'.$addr.'[Address]';
+
+            return $result;
+        } else if($request->type == 'geo') {
+            $addr = $request->addr;
+
+            //to latlon
+            $con = new \Geocoder\Geocoder();
+            $con->registerProviders([
+                new NominatimProvider(
+                    new CurlHttpAdapter(), 'http://nominatim.openstreetmap.org/', 'en'
+                )
+            ]);
+            try {
+                $res = $con->geocode($addr);
+                $lat = $res->getLatitude();
+                $lon = $res->getLongitude();
+            } catch(\Exception $e) {
+                $lat = 'null';
+                $lon = 'null';
+            }
+
+            //to utm
+            if($lat != 'null' && $lon != 'null') {
+                $con = new gPoint();
+                $con->gPoint();
+                $con->setLongLat($lon,$lat);
+                $con->convertLLtoTM();
+
+                $utm = $con->utmZone.':'.$con->utmEasting.','.$con->utmNorthing;
+            } else {
+                $utm = 'null:null.null';
+            }
+
+            $result = '[LatLon]'.$lat.','.$lon.'[LatLon][UTM]'.$utm.'[UTM][Address]'.$addr.'[Address]';
+
+            return $result;
         }
     }
 }

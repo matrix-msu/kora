@@ -1,66 +1,55 @@
 <?php namespace App\Http\Controllers;
 
-use App\ComboListField;
-use App\DateField;
-use App\DocumentsField;
 use App\DownloadTracker;
 use App\Field;
 use App\Form;
-use App\GalleryField;
-use App\GeneratedListField;
-use App\GeolocatorField;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\DB;
-use App\ListField;
 use App\Metadata;
-use App\ModelField;
-use App\MultiSelectListField;
-use App\NumberField;
 use App\OptionPreset;
-use App\PlaylistField;
-use App\Record;
 use App\RecordPreset;
-use App\RichTextField;
-use App\ScheduleField;
-use App\TextField;
-use App\VideoField;
 use Carbon\Carbon;
 use CsvParser\Parser;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 
 class ExportController extends Controller {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Export Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles the export process of Kora 3 structure and data
+    |
+    */
+
     /**
-     * Standard output formats.
-     * @var string.
+     * @var string - Valid formats for export
      */
     const JSON = "JSON";
     const XML = "XML";
     const META = "META";
 
     /**
-     * @var array
+     * @var array - Array of those formats
      */
     const VALID_FORMATS = [ self::JSON, self::XML, self::META ];
 
     /**
-     * Export records of a particular form.
+     * Gathers and exports a forms records.
      *
-     * @param int $pid, project id.
-     * @param int $fid, form id.
-     * @param string $type, type of the output.
-     * @return mixed
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  string $type - Type of export format
+     * @return Redirect
      */
-    public function exportRecords($pid, $fid, $type){
-        if(!FormController::validProjForm($pid,$fid)){
+    public function exportRecords($pid, $fid, $type) {
+        if(!FormController::validProjForm($pid,$fid)) {
             return redirect('projects/'.$pid);
         }
 
         $form = FormController::getForm($fid);
 
-        if(!\Auth::user()->isFormAdmin($form)){
+        if(!\Auth::user()->isFormAdmin($form)) {
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
@@ -78,7 +67,7 @@ class ExportController extends Controller {
 
         $output = self::exportWithRids($rids, $type);
 
-        if (file_exists($output)) { // File exists, so we download it.
+        if(file_exists($output)) { // File exists, so we download it.
             header("Content-Disposition: attachment; filename=\"" . basename($output) . "\"");
             header("Content-Type: application/octet-stream");
             header("Content-Length: " . filesize($output));
@@ -86,8 +75,7 @@ class ExportController extends Controller {
             readfile($output);
 
             $tracker->delete();
-        }
-        else { // File does not exist, so some kind of error occurred, and we redirect.
+        } else { // File does not exist, so some kind of error occurred, and we redirect.
             $tracker->delete();
 
             flash()->overlay(trans("records_index.exporterror"), trans("controller_admin.whoops"));
@@ -96,29 +84,30 @@ class ExportController extends Controller {
     }
 
     /**
-     * Checks if there is an active export for the form.
-     * @param $fid, int
-     * @return string, json object.
+     * Returns status of record export to notify completion.
+     *
+     * @param  int $fid - Form ID of form that's being export
+     * @return string - Json array of the status
      */
     public function checkRecordExport($fid) {
         return json_encode(["finished" => !! DB::table("download_trackers")->where("fid", "=", $fid)->count()]);
     }
 
-    private function xmlTagClear($value){
-        $value = htmlentities($value);
-        $value = str_replace(' ','_',$value);
-
-        return $value;
-    }
-
-    public function exportRecordFiles($pid, $fid){
-        if(!FormController::validProjForm($pid,$fid)){
+    /**
+     * Exports the files associated with the form records being exported.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return string - The html to download the file
+     */
+    public function exportRecordFiles($pid, $fid) {
+        if(!FormController::validProjForm($pid,$fid)) {
             return redirect('projects/'.$pid);
         }
 
         $form = FormController::getForm($fid);
 
-        if(!\Auth::user()->isFormAdmin($form)){
+        if(!\Auth::user()->isFormAdmin($form)) {
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
@@ -136,11 +125,9 @@ class ExportController extends Controller {
             \RecursiveIteratorIterator::LEAVES_ONLY
         );
 
-        foreach ($files as $name => $file)
-        {
+        foreach ($files as $name => $file) {
             // Skip directories (they would be added automatically)
-            if (!$file->isDir())
-            {
+            if(!$file->isDir()) {
                 // Get real and relative path for current file
                 $filePath = $file->getRealPath();
                 $relativePath = substr($filePath, strlen($path) + 1);
@@ -159,15 +146,22 @@ class ExportController extends Controller {
         readfile($zipPath.$form->name.'_fileData_'.$time.'.zip');
     }
 
-    public function exportForm($pid, $fid, $download=true)
-    {
-        if (!FormController::validProjForm($pid, $fid)) {
+    /**
+     * Exports a form and its structure.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  bool $download - Download as a file or as an array for the project export
+     * @return mixed - Export file or data array
+     */
+    public function exportForm($pid, $fid, $download=true) {
+        if(!FormController::validProjForm($pid, $fid)) {
             return redirect('projects/'.$pid);
         }
 
         $form = FormController::getForm($fid);
 
-        if (!\Auth::user()->isFormAdmin($form)) {
+        if(!\Auth::user()->isFormAdmin($form)) {
             return redirect('projects/' . $pid . '/forms/' . $fid);
         }
 
@@ -182,7 +176,7 @@ class ExportController extends Controller {
         //Page
         $pages = $form->pages()->get();
         $formArray['pages'] = array();
-        foreach($pages as $page){
+        foreach($pages as $page) {
             $p = array();
             $p['id'] = $page->id;
             $p['parent_type'] = $page->parent_type;
@@ -206,7 +200,7 @@ class ExportController extends Controller {
         $fields = Field::where('fid','=',$form->fid)->get();
         $formArray['fields'] = array();
 
-        foreach($fields as $field){
+        foreach($fields as $field) {
             $fieldArray = array();
 
             $fieldArray['flid'] = $field->flid;
@@ -239,19 +233,25 @@ class ExportController extends Controller {
             header("Content-Type: application/octet-stream; ");
 
             echo json_encode($formArray);
-        }else{
+        } else {
             return $formArray;
         }
     }
 
-    public function exportProject($pid){
-        if (!ProjectController::validProj($pid)) {
+    /**
+     * Exports a project and its structure.
+     *
+     * @param  int $pid - Project ID
+     * @return string - html for the file
+     */
+    public function exportProject($pid) {
+        if(!ProjectController::validProj($pid)) {
             return redirect('projects');
         }
 
         $proj = ProjectController::getProject($pid);
 
-        if (!\Auth::user()->isProjectAdmin($proj)) {
+        if(!\Auth::user()->isProjectAdmin($proj)) {
             return redirect('projects/' . $pid);
         }
 
@@ -287,19 +287,16 @@ class ExportController extends Controller {
     }
 
     /**
-     * Simplifies export to work with an array of rids.
-     * Makes an external call to the python exporter to speed things up (see: app/python).
+     * Passes the rids to python so we can use multi-threading to fetch all the record data.
      *
-     * Note: unit tests are not possible for this function as the python exporter does not know about the test database.
-     *
-     * @param array $rids, array of rids to export.
-     * @param string $format, the desired output format, defaults to JSON.
-     * @return string | null, if the format is valid, will return the absolute path of the file the rids were exported to.
+     * @param  array $rids - The RIDs to gather data for
+     * @param  string $format - File format to export
+     * @return string - The system path to the exported file
      */
     public static function exportWithRids(array $rids, $format = self::JSON) {
         $format = strtoupper($format);
 
-        if ( ! self::isValidFormat($format)) {
+        if(! self::isValidFormat($format)) {
             return null;
         }
 
@@ -312,8 +309,10 @@ class ExportController extends Controller {
     }
 
     /**
-     * @param string $format
-     * @return bool, true if valid.
+     * Verifies the given format is an eligible format for exporting.
+     *
+     * @param  string $format - Format to compare
+     * @return bool - Result of format being eligible
      */
     public static function isValidFormat($format) {
         return in_array(($format), self::VALID_FORMATS);
