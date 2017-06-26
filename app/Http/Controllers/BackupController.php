@@ -49,42 +49,43 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
-use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Support\Collection;
-use \Illuminate\Support\Facades\App;
 Use \Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 use RecursiveIteratorIterator;
 use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
 
-class BackupController extends Controller
-{
+class BackupController extends Controller {
 
     /*
     |--------------------------------------------------------------------------
     | Backup Controller
     |--------------------------------------------------------------------------
     |
-    | This controller handles creation of backup files, saving them as a restore point, downloading them to the
-    | user's computer, restoring from a saved or uploaded file, and locking and unlocking users during operations.
+    | This controller handles creation of backup files, saving them as a restore
+    | point, downloading them to the user's computer, restoring from a saved or
+    | uploaded file, and locking and unlocking users during operations.
     |
     */
 
-    private $BACKUP_DIRECTORY = "backups"; //Set the backup directory relative to laravel/storage/app
-    private $UPLOAD_DIRECTORY = "backups/user_upload/"; //Set the upload directory relative to laravel/storage/app
-    private $MEDIA_DIRECTORY =  "files"; //Set the storage directory for media field types relative to laravel/storage/app
+    /**
+     * @var type - Sets the backup directory relative to laravel/storage/app
+     */
+    private $BACKUP_DIRECTORY = "backups";
 
-
-    public function __construct()
-    {
+    /**
+     * Constructs the controller and makes sure active user is the root user
+     */
+    public function __construct() {
         $this->middleware('auth');
         $this->middleware('admin');
         $this->middleware('active');
         $this->middleware('admin');
-        if(Auth::check()){
-            if(Auth::user()->id != 1){
+        if(Auth::check()) {
+            if(Auth::user()->id != 1) {
                 flash()->overlay(trans('controller_backup.admin'),trans('controller_backup.whoops'));
                 return redirect("/projects")->send();
             }
@@ -92,41 +93,38 @@ class BackupController extends Controller
 
         $this->ajax_error_list = new Collection(); //The Exception's getMessage() for data that didn't restore/backup
     }
-    /*
-     * This method retrieves all restore points saved on the server, and displays a view
-     * for the user to create a new backup, revert to a restore point, or to upload a backup file
+
+    /**
+     * Gets list of backups and returns view of the main backup page.
      *
-     * @params Request $request
-     * @return view
+     * @param  Request $request
+     * @return View
      */
-    public function index(Request $request){
+    public function index(Request $request) {
         try {
             $user_support = DB::table('backup_support')->where('user_id', Auth::user()->id)->where('view', 'backups.index')->first();
-            if ($user_support === null) {
+            if($user_support === null) {
                 $user_support = DB::table('backup_support')->insert(['user_id' => Auth::user()->id, 'view' => 'backups.index', 'hasRun' => Carbon::now(), 'accessed' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
-            }
-            else {
-                if((Carbon::createFromFormat('Y#m#d G#i#s', ($user_support->updated_at))->diffInMinutes(Carbon::now()) < 2)){
+            } else {
+                if((Carbon::createFromFormat('Y#m#d G#i#s', ($user_support->updated_at))->diffInMinutes(Carbon::now()) < 2)) {
                     if($user_support->accessed>0)
                         DB::table('backup_support')->where('id', $user_support->id)->update(['accessed' => $user_support->accessed - 1, 'updated_at' => Carbon::now()]);
-                }
-                elseif ((Carbon::createFromFormat('Y#m#d G#i#s', ($user_support->hasRun))->diffInMinutes(Carbon::now()) > 30) && ($user_support->accessed % 10 == 0 && $user_support->accessed != 0)) {
+                } else if ((Carbon::createFromFormat('Y#m#d G#i#s', ($user_support->hasRun))->diffInMinutes(Carbon::now()) > 30) && ($user_support->accessed % 10 == 0 && $user_support->accessed != 0)) {
                     DB::table('backup_support')->where('id', $user_support->id)->update(['hasRun' => Carbon::now(), 'accessed' => 0, 'updated_at' => Carbon::now()]);
                     $request->session()->flash('user_backup_support',true);
                 } else {
                     DB::table('backup_support')->where('id', $user_support->id)->update(['accessed' => $user_support->accessed + 1, 'updated_at' => Carbon::now()]);
-                    //dd(['support'=>$user_support,'date'=>Carbon::createFromFormat('Y#m#d G#i#s',($user_support->hasRun))->diffInMinutes(Carbon::now())]);
                 }
             }
         }
-        catch(\Exception $e){
+        catch(\Exception $e) {
             $user_support = null;
         }
 
         $available_backups = array();
-        foreach (new \DirectoryIterator(env('BASE_PATH')."storage/app/".$this->BACKUP_DIRECTORY."/") as $dir) {
+        foreach(new \DirectoryIterator(env('BASE_PATH')."storage/app/".$this->BACKUP_DIRECTORY."/") as $dir) {
             $name = $dir->getFilename();
-            if($name!='.' && $name!='..' && $dir->isDir()){
+            if($name!='.' && $name!='..' && $dir->isDir()) {
                 if(file_exists(env('BASE_PATH')."storage/app/".$this->BACKUP_DIRECTORY.'/'.$name.'/.kora3_backup'))
                     array_push($available_backups,$this->BACKUP_DIRECTORY.'/'.$name.'/.kora3_backup');
             }
@@ -135,7 +133,7 @@ class BackupController extends Controller
 
         //Load all previously saved backups, and package them up so they can be displayed by the view
         $available_backups_index = 0;
-        foreach($available_backups as $backup){
+        foreach($available_backups as $backup) {
             $backup_info = new Collection();
             $backup_file = Storage::get($backup);
             $parsed_data = json_decode($backup_file);
@@ -145,27 +143,24 @@ class BackupController extends Controller
             try {
                 $backup_info->put("date", $parsed_data->kora3->date);
                 $backup_info->put("timestamp",Carbon::parse($parsed_data->kora3->date)->timestamp);
-            }
-            catch(\Exception $e){
+            } catch(\Exception $e) {
                 $backup_info->put("date","Unknown");
                 $backup_info->put("timestamp",Carbon::now()->timestamp);
             }
             try {
                 $backup_info->put("name", $parsed_data->kora3->name);
-            }
-            catch(\Exception $e){
+            } catch(\Exception $e) {
                 $backup_info->put("name","Unknown");
             }
             try{
                 $backup_info->put("user",$parsed_data->kora3->created_by);
-            }
-            catch(\Exception $e){
+            } catch(\Exception $e) {
                 $backup_info->put("user","Unknown");
             }
 
             $saved_backups->push($backup_info);
         }
-        $saved_backups = $saved_backups->sortByDesc(function($item){
+        $saved_backups = $saved_backups->sortByDesc(function($item) {
             return $item->get('timestamp');
         });
 
@@ -173,15 +168,13 @@ class BackupController extends Controller
     }
 
 
-    /*
-     * This method validates the backup info, then displays a view with a progress bar
-     * the view makes an AJAX call to BackupController@create to start the backup process
+    /**
+     * Initiates the backup and returns progress view.
      *
-     * @params Request $request
-     * @return view
+     * @param  Request $request
+     * @return View
      */
-    public function startBackup(Request $request){
-
+    public function startBackup(Request $request) {
         $this->validate($request,[
             'backup_label'=>'required|alpha_dash',
         ]);
@@ -190,7 +183,12 @@ class BackupController extends Controller
         return view('backups.backup',compact('backup_label','type'));
     }
 
-    public function create(Request $request){
+    /**
+     * Initializes backup, sets up basic info and all needed directories.
+     *
+     * @param  Request $request
+     */
+    public function create(Request $request) {
         $users_exempt_from_lockout = new Collection();
         $users_exempt_from_lockout->put(1,1); //Add another one of these with (userid,userid) to exempt extra users
 
@@ -208,7 +206,13 @@ class BackupController extends Controller
 
     }
 
-    public function saveDatabase2($backup_disk, $path){
+    /**
+     * Loads and executes the background save command for each table.
+     *
+     * @param  string $backup_disk - Back up file system type
+     * @param  string $path - Path where JSON Outputs will be stored
+     */
+    public function saveDatabase2($backup_disk, $path) {
         ini_set('max_execution_time',0);
         Log::info("Backup fp: ".$path);
         $backup_id = DB::table('backup_overall_progress')->insertGetId(['progress'=>0,'overall'=>0,'start'=>Carbon::now(),'created_at'=>Carbon::now(),'updated_at'=>Carbon::now()]);
@@ -256,7 +260,7 @@ class BackupController extends Controller
             new SaveUsersTable($backup_disk, $path, $backup_id),
             new SavePagesTable($backup_disk, $path, $backup_id)];
 
-        foreach($jobs as $job){
+        foreach($jobs as $job) {
             //Queue::push($job);
             $this->dispatch($job->onQueue('backup'));
         }
@@ -267,14 +271,28 @@ class BackupController extends Controller
         ]);
     }
 
-    public function checkProgress(Request $request){
+    /**
+     * Checks the overall progress of the backup.
+     *
+     * @param  Request $request
+     * @return string - A json array of the overall progress parts
+     */
+    public function checkProgress(Request $request) {
+        //Total number of tables commands being saved
         $overall = DB::table('backup_overall_progress')->where('created_at',DB::table('backup_overall_progress')->max('created_at'))->first();
+        //Number completed so far
         $partial = DB::table('backup_partial_progress')->where('backup_id',$overall->id)->get();
 
         return response()->json(["overall"=>$overall,"partial"=>$partial],200);
     }
 
-    public function finishBackup(Request $request){
+    /**
+     * After progress is complete, run this function to backup files and save the master backup file
+     *
+     * @param  Request $request
+     * @return string - Returns string on error
+     */
+    public function finishBackup(Request $request) {
         ini_set('max_execution_time',0);
         $label = $request->backup_label;
         $labelParts = explode('___',$label);
@@ -287,7 +305,7 @@ class BackupController extends Controller
         mkdir($newfilepath, 0775, true);
         $directory = new \RecursiveDirectoryIterator($filepath);
         $iterator = new \RecursiveIteratorIterator($directory);
-        foreach ($iterator as $file) {
+        foreach($iterator as $file) {
             if($file->isFile()) {
                 //get file name and sub directories
                 $fPath = $file->getRealPath();
@@ -297,10 +315,10 @@ class BackupController extends Controller
                 $subDirArr = explode($fname,$subPath);
                 $loopSize = sizeof($subDirArr)-1;
                 $subDir = ''; //just the sub directory
-                for($i=0;$i<$loopSize;$i++){
+                for($i=0;$i<$loopSize;$i++) {
                     $subDir .= $subDirArr[$i];
                 }
-                if (!file_exists($newfilepath.$subDir))
+                if(!file_exists($newfilepath.$subDir))
                     mkdir($newfilepath.$subDir, 0775, true);
                 //copy file over
                 copy($filepath.$subPath, $newfilepath.$subPath);
@@ -331,15 +349,13 @@ class BackupController extends Controller
         $this->unlockUsers();
     }
 
-    /*
-     * This method allows the user to download a backup file once.
-     * It retrieves the file name from the session, then deletes it from session,
-     * then sends the file as response.  If there is no filename, it flashes an error.
+    /**
+     * Download a zipped copy of the backup.
      *
-     * @params Request $request
-     * @return response
+     * @param  string $path - System path to the backup
+     * @param  Request $request
      */
-    public function download($path, Request $request){
+    public function download($path, Request $request) {
         $fullpath = env('BASE_PATH')."storage/app/".$this->BACKUP_DIRECTORY."/".$path."/";
 
         $zipname = $path.'.zip';
@@ -349,7 +365,7 @@ class BackupController extends Controller
 
         $directory = new \RecursiveDirectoryIterator($fullpath);
         $iterator = new \RecursiveIteratorIterator($directory);
-        foreach ($iterator as $info) {
+        foreach($iterator as $info) {
             if($info->getFilename() != '.' && $info->getFilename() != '..') {
                 $fPath = $info->getRealPath();
                 $subPath = explode($path."/",$fPath)[1];
@@ -365,14 +381,13 @@ class BackupController extends Controller
         readfile($zipdir.$zipname);
     }
 
-    /*
-    * This method validates the restore info, then displays a view with a progress bar
-    * the view makes an AJAX call to BackupController@restoreData to start the restore process
-    *
-    * @params Request $request
-    * @return view
-    */
-    public function startRestore(Request $request){
+    /**
+     * Initiates the restore process and returns the restore view.
+     *
+     * @param  Request $request
+     * @return View - The
+     */
+    public function startRestore(Request $request) {
 
 
         $this->validate($request,[
@@ -382,10 +397,10 @@ class BackupController extends Controller
         ]);
 
         $type = "system";
-        if($request->input("backup_source") == "server"){
+        if($request->input("backup_source") == "server") {
             $filename=$request->restore_point;
-        }
-        else if($request->input("backup_source") == "upload"){
+        } else if($request->input("backup_source") == "upload") {
+            //TODO::Restore from file?
             /*if($request->hasFile("upload_file") == true){
                 $file = $request->file("upload_file");
                 $new_file_name = "user_upload_" . time() . ".kora3_backup";
@@ -411,8 +426,7 @@ class BackupController extends Controller
                 flash()->overlay(trans('controller_backup.nofiles'),trans('controller_backup.whoops'));
                 return redirect()->back();
             }*/
-        }
-        else{
+        } else {
             return redirect()->back();
         }
 
@@ -422,20 +436,12 @@ class BackupController extends Controller
         return view('backups.restore',compact('type','filename'));
     }
 
-    /*
-     * Deletes all rows from the existing database, then creates new ones based on the JSON file
-     * Expects to be called via AJAX, so the response is a JSON object that is
-     * {"status": boolean, "message":"string","restore_errors":["array"]}
+    /**
+     * Loads and executes the background restore command for each table.
      *
-     * along with an HTTP status code of either 200 or 500
-     * If you get an error, it's likely that users are locked out of the application, so you must
-     * call BackupController@unlockUsers() to restore access.
-     *
-     * @params Request $request
-     * @return response
-     *
+     * @param  Request $request
      */
-	public function restoreData(Request $request){
+	public function restoreData(Request $request) {
 
         //Lock out users
         $users_exempt_from_lockout = new Collection();
@@ -448,8 +454,8 @@ class BackupController extends Controller
 
         //Delete all existing data
         try {
-            foreach (User::all() as $User) {
-                if ($User->id == 1) { //Do not delete the default admin user
+            foreach(User::all() as $User) {
+                if($User->id == 1) { //Do not delete the default admin user
                     continue;
                 } else {
                     $User->delete();
@@ -500,7 +506,7 @@ class BackupController extends Controller
             DB::table('pages')->delete();
 
 
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             $this->ajaxResponse(false, trans('controller_backup.dbpermission'));
         }
 
@@ -558,7 +564,7 @@ class BackupController extends Controller
             new RestoreTable('dashboard_sections',$dir, $restore_id),
             new RestoreTable('dashboard_blocks',$dir, $restore_id),];
 
-        foreach($jobs as $job){
+        foreach($jobs as $job) {
             $this->dispatch($job->onQueue('restore'));
         }
 
@@ -566,19 +572,27 @@ class BackupController extends Controller
             '--queue' => 'restore',
             '--timeout' => 1800
         ]);
-
-        return '';
 	}
 
-    //This function will need tables for restore
-    public function checkRestoreProgress(Request $request){
+    /**
+     * Checks the overall progress of the restore.
+     *
+     * @param  Request $request
+     * @return string - A json array of the overall progress parts
+     */
+    public function checkRestoreProgress(Request $request) {
         $overall = DB::table('restore_overall_progress')->where('created_at',DB::table('restore_overall_progress')->max('created_at'))->first();
         $partial = DB::table('restore_partial_progress')->where('restore_id',$overall->id)->get();
 
         return response()->json(["overall"=>$overall,"partial"=>$partial],200);
     }
 
-    public function finishRestore(Request $request){
+    /**
+     * After progress is complete, run this function to backup files and save the master backup file.
+     *
+     * @param  Request $request
+     */
+    public function finishRestore(Request $request) {
         $filepath = env('BASE_PATH').'storage/app/'.$request->filename.'/files/';
         $newfilepath = env('BASE_PATH')."storage/app/files/";
 
@@ -586,7 +600,7 @@ class BackupController extends Controller
         mkdir($newfilepath, 0775, true);
         $directory = new \RecursiveDirectoryIterator($filepath);
         $iterator = new \RecursiveIteratorIterator($directory);
-        foreach ($iterator as $file) {
+        foreach($iterator as $file) {
             if($file->isFile()) {
                 //get file name and sub directories
                 $fPath = $file->getRealPath();
@@ -597,23 +611,24 @@ class BackupController extends Controller
                 $subDirArr = explode($fname,$subPath);
                 $loopSize = sizeof($subDirArr)-1;
                 $subDir = ''; //just the sub directory
-                for($i=0;$i<$loopSize;$i++){
+                for($i=0;$i<$loopSize;$i++) {
                     $subDir .= $subDirArr[$i];
                 }
-                if (!file_exists($newfilepath.$subDir))
+                if(!file_exists($newfilepath.$subDir))
                     mkdir($newfilepath.$subDir, 0775, true);
                 //copy file over
                 copy($filepath.$subPath, $newfilepath.$subPath);
             }
         }
-
-        dd("finished restore");
     }
 
-    private function recursiveRemoveDirectory($directory)
-    {
-        foreach(glob("{$directory}/*") as $file)
-        {
+    /**
+     * A recursive function for deleting a directory and all its contents.
+     *
+     * @param  string $directory - Name of directory to remove
+     */
+    private function recursiveRemoveDirectory($directory) {
+        foreach(glob("{$directory}/*") as $file) {
             if(is_dir($file)) {
                 $this->recursiveRemoveDirectory($file);
             } else {
@@ -623,83 +638,72 @@ class BackupController extends Controller
         rmdir($directory);
     }
 
-    /*
-     * This method accepts a boolean (status) and a string (message)
-     * and it returns a JSON response for AJAX calls with php escape stringthe status, message,
-     * and an array of restore errors.  It also sets the HTTP status code.
+    /**
+     * Use to get information about an ajax response.
      *
-     * Note that this sends the response immediately, and will exit()!
-     *
-     * @params String $status, String, $message
-     * @return response
+     * @param  bool $status - Status of the response
+     * @param  string $message - Message associated with the response
+     * @return string - A json array of the response and any errors
      */
-    public function ajaxResponse($status,$message){
-
+    public function ajaxResponse($status,$message) {
         $ajax_return_data = new Collection(); //This will get a status boolean, a message, and an array of errors
         $ajax_return_data->put("status",$status);
         $ajax_return_data->put("error_list",$this->ajax_error_list);
         $ajax_return_data->put("message",$message);
 
-        if($status == true){
+        if($status == true) {
             return response()->json($ajax_return_data,200);
-        }
-        else{
+        } else {
             //This is bad, but otherwise it keeps running, maybe there's an alternative?
             return response()->json($ajax_return_data,500)->send() && exit();
         }
 
     }
 
-    /*
-     * This method takes a collection of user IDs as keys, and their username as value
-     * It will lock any user that is not exempted, so that they cannot access the app during
-     * backup and restore operations.  They should be unlocked afterwards.
+    /**
+     * Locks all users to prevent them from logging in during the restore/backup process. That way data will not be
+     *  manipulated during them.
      *
-     * The default is [1,1]
-     *
-     * @params Collection $exemptions
-     * @return
+     * @param  Collection $exemptions - A list of users excempt from the lockout
      */
-    public function lockUsers(Collection $exemptions){
+    public function lockUsers(Collection $exemptions) {
         $users = User::all();
-        foreach($users as $user){
-            if($exemptions->has($user->id)){
+        foreach($users as $user) {
+            if($exemptions->has($user->id)) {
                 continue;
-            }
-            else{
+            } else {
                 $user->locked_out = true;
                 $user->save();
             }
         }
     }
-    /*
-     * This method will unlock all users, it returns a response with a message and status code,
-     * but the response isn't sent (unless this is called from a route).
+
+    /**
+     * Unlocks any locked users.
      *
-     * @params
-     * @return response
+     * @return string - Success or error message
      */
-    public function unlockUsers(){
+    public function unlockUsers( ){
 
         try {
             $users = User::all();
-            foreach ($users as $user) {
+            foreach($users as $user) {
                 $user->locked_out = false;
                 $user->save();
             }
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
             return response("error",500);
         }
         return response("success",200);
     }
 
     /**
-     * Delete a restore point and its files
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * Deletes a stored backup from the installation.
+     *
+     * @param  Request $request
+     * @return string - Json response of the result
      */
-    public function delete(Request $request){
+    public function delete(Request $request) {
         $this->validate($request,[
             'backup_source'=>'required|in:server',
             'filename'=>'required',
@@ -709,19 +713,17 @@ class BackupController extends Controller
 
         $path = env('BASE_PATH')."storage/app/";
 
-        if($request->input("backup_source") == "server"){
+        if($request->input("backup_source") == "server") {
             $filename = $path.$request->filename;
             $dir = str_replace(".kora3_backup","",$filename);
 
-            try{
-
+            try {
                 if($request->input("backup_type") == "system") {
                     if(is_dir($dir)) {
                         $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
-                        $files = new RecursiveIteratorIterator($it,
-                            RecursiveIteratorIterator::CHILD_FIRST);
+                        $files = new RecursiveIteratorIterator($it,RecursiveIteratorIterator::CHILD_FIRST);
                         foreach($files as $file) {
-                            if ($file->isDir()){
+                            if($file->isDir()) {
                                 rmdir($file->getRealPath());
                             } else {
                                 unlink($file->getRealPath());
@@ -730,22 +732,16 @@ class BackupController extends Controller
                         rmdir($dir);
                     }
                 }
-
-            }
-            catch(\Exception $e){
+            } catch(\Exception $e) {
                 return response()->json(["status"=>false,"message"=>"$e->getMessage()"]);
             }
 
             return response()->json(["status"=>true,"message"=>$filename]);
-        }
-        else{
+        } else {
             flash()->overlay(trans('controller_backup.badrestore'),trans('controller_backup.whoops'));
             return redirect()->back();
         }
-
-
     }
-
 }
 
 
