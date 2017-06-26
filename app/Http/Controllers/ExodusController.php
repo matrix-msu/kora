@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Commands\SaveKora2Scheme;
-use App\Field;
 use App\Form;
 use App\FormGroup;
 use App\OptionPreset;
@@ -16,22 +15,28 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 use Illuminate\Http\Request;
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
+use Illuminate\View\View;
 
-class ExodusController extends Controller{
+class ExodusController extends Controller {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Exodus Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles the Exodus migration of Kora 2 data to Kora3
+    |
+    */
 
     /**
-     * User must be logged in and admin to access views in this controller.
+     * Constructs controller and makes sure user is the root installation user.
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->middleware('auth');
         $this->middleware('active');
         $this->middleware('admin');
@@ -44,22 +49,21 @@ class ExodusController extends Controller{
     }
 
     /**
-     * Display a listing of the resource.
+     * Returns the view for the Exodus tool.
      *
-     * @return \Illuminate\Http\Response
+     * @return View
      */
-    public function index()
-    {
+    public function index() {
         return view('exodus.index');
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Initializes the migration process and returns the progress view.
      *
-     * @return \Illuminate\Http\Response
+     * @param  Request $request
+     * @return View
      */
-    public function migrate(Request $request)
-    {
+    public function migrate(Request $request) {
         $users_exempt_from_lockout = new Collection();
         $users_exempt_from_lockout->put(1,1); //Add another one of these with (userid,userid) to exempt extra users
         $this->lockUsers($users_exempt_from_lockout);
@@ -78,21 +82,31 @@ class ExodusController extends Controller{
         return view('exodus.progress',compact('host', 'name', 'user', 'pass', 'migrateUsers', 'migrateTokens', 'projects', 'filePath'));
     }
 
-    public function getProjectList(Request $request)
-    {
+    /**
+     * Gets a list of all the Kora 2 projects to be migrated.
+     *
+     * @param  Request $request
+     * @return array - The list of projects
+     */
+    public function getProjectList(Request $request) {
         $con = mysqli_connect($request->host, $request->user, $request->pass, $request->name);
 
         $projectArray = array();
 
         $projects = $con->query("select * from project");
-        while ($p = $projects->fetch_assoc()) {
+        while($p = $projects->fetch_assoc()) {
             $projectArray[$p['pid']] = $p['name'];
         }
 
         return $projectArray;
     }
 
-    public function startExodus(Request $request){
+    /**
+     * Actually initiates the Exodus process.
+     *
+     * @param  Request $request
+     */
+    public function startExodus(Request $request) {
         $con = mysqli_connect($request->host,$request->user,$request->pass,$request->name);
         $dbInfo = array();
         $dbInfo['host'] = $request->host;
@@ -121,17 +135,17 @@ class ExodusController extends Controller{
 
         //Users
         $users = $con->query("select * from user where username!='koraadmin'");
-        while ($u = $users->fetch_assoc()) {
+        while($u = $users->fetch_assoc()) {
             if($u['salt']!=0 && $migrateUsers) {
                 $email = $u['email'];
-                if (!$this->emailExists($email)) {
+                if(!$this->emailExists($email)) {
                     $username = explode('@', $email)[0];
                     $i = 1;
                     $username_array = array();
                     $username_array[0] = $username;
 
                     // Increment a count while the username exists.
-                    while ($this->usernameExists($username)) {
+                    while($this->usernameExists($username)) {
                         $username_array[1] = $i;
                         $username = implode($username_array);
                         $i++;
@@ -152,15 +166,6 @@ class ExodusController extends Controller{
                     $user->regtoken = $token;
                     $user->save();
 
-                    //
-                    // Send a confirmation email.
-                    //
-                    /*Mail::send('emails.batch-activation', compact('token', 'password', 'username'), function ($message) use ($email) {
-                        $message->from(env('MAIL_FROM_ADDRESS'));
-                        $message->to($email);
-                        $message->subject('Kora Account Activation');
-                    });*/
-
                     //add user to conversion array with new id
                     $userArray[$u['uid']] = $user->id;
                 } else {
@@ -168,13 +173,13 @@ class ExodusController extends Controller{
                     $user = User::where('email', '=', $email)->first();
                     $userArray[$u['uid']] = $user->id;
                 }
-            }else{
+            } else {
                 //salt is zero so we have a token and not a user
                 $tid = $u['uid'];
                 $token = $u['username'];
                 $projects = array();
                 $pids = $con->query("select * from member where uid=".$tid);
-                while ($pid = $pids->fetch_assoc()) {
+                while($pid = $pids->fetch_assoc()) {
                     if(in_array($pid['pid'],$migratedProjects))
                         array_push($projects,$pid['pid']);
                 }
@@ -185,17 +190,17 @@ class ExodusController extends Controller{
 
         //Projects
         $projects = $con->query("select * from project");
-        while ($p = $projects->fetch_assoc()) {
+        while($p = $projects->fetch_assoc()) {
             if(in_array($p['pid'],$migratedProjects)) {
                 //make project
                 $proj = new Project();
                 $proj->name = $p['name'];
                 $slug = str_replace(' ', '_', $p['name']);
-                if (Project::where('slug', '=', $slug)->exists()) {
+                if(Project::where('slug', '=', $slug)->exists()) {
                     $unique = false;
                     $i = 1;
-                    while (!$unique) {
-                        if (Project::where('slug', '=', $slug . $i)->exists()) {
+                    while(!$unique) {
+                        if(Project::where('slug', '=', $slug . $i)->exists()) {
                             $i++;
                         } else {
                             $proj->slug = $slug . $i;
@@ -214,13 +219,13 @@ class ExodusController extends Controller{
 
                 //create permission groups
                 $permGroups = $con->query("select * from permGroup where pid=" . $p['pid']);
-                while ($pg = $permGroups->fetch_assoc()) {
+                while($pg = $permGroups->fetch_assoc()) {
                     $admin = false;
                     $k3Group = new ProjectGroup();
-                    if ($pg['name'] == 'Administrators') {
+                    if($pg['name'] == 'Administrators') {
                         $k3Group->name = $proj->name . ' Admin Group';
                         $admin = true;
-                    } else if ($pg['name'] == 'Default') {
+                    } else if($pg['name'] == 'Default') {
                         $k3Group->name = $proj->name . ' Default Group';
                     } else {
                         $k3Group->name = $pg['name'];
@@ -229,16 +234,16 @@ class ExodusController extends Controller{
                     $k3Group->save();
 
                     //this group is the admin group so save that info to the project
-                    if ($admin) {
+                    if($admin) {
                         $proj->adminGID = $k3Group->id;
                         $proj->save();
                     }
 
                     //add all the members to their appropriate groups
-                    if ($migrateUsers) {
+                    if($migrateUsers) {
                         $groupUsers = array();
                         $members = $con->query("select * from member where gid=" . $pg['gid']);
-                        while ($m = $members->fetch_assoc()) {
+                        while($m = $members->fetch_assoc()) {
                             if(isset($userArray[$m['uid']]))
                                 $gu = $userArray[$m['uid']];
                             else
@@ -262,7 +267,7 @@ class ExodusController extends Controller{
 
         //Back to tokens
         if($migrateTokens) {
-            foreach ($tokenArray as $t => $tokenProjs) {
+            foreach($tokenArray as $t => $tokenProjs) {
                 $token = new Token();
                 $token->token = $t;
                 $token->title = "Kora 2 Search Token";
@@ -273,7 +278,7 @@ class ExodusController extends Controller{
                 $token->save();
 
                 //add all it's projects
-                foreach ($tokenProjs as $tpid) {
+                foreach($tokenProjs as $tpid) {
                     $newPid = $projectArray[$tpid];
                     DB::table('project_token')->insert(
                         ['project_id' => $newPid, 'token_id' => $token->id]
@@ -284,8 +289,8 @@ class ExodusController extends Controller{
 
         //Option Presets
         $optPresets = $con->query("select * from controlPreset");
-        while ($o = $optPresets->fetch_assoc()) {
-            if($o['project']==0 | !isset($projectArray[$o['project']])){
+        while($o = $optPresets->fetch_assoc()) {
+            if($o['project']==0 | !isset($projectArray[$o['project']])) {
                 continue; //this is either an old global preset, or doesn't belong to a migrated project
             }
 
@@ -293,10 +298,10 @@ class ExodusController extends Controller{
 
             switch($o['class']) {
                 case 'TextControl':
-                    if($o['value']!=''){
+                    if($o['value']!='') {
                         $preset = OptionPreset::create(['pid' => $optionPID, 'type' => 'Text', 'name' => $o['name'], 'preset' => $o['value']]);
                         $preset->save();
-                        if ($o['global']) {
+                        if($o['global']) {
                             $preset->shared = 1;
                         } else {
                             $preset->shared = 0;
@@ -308,15 +313,15 @@ class ExodusController extends Controller{
                     $xml = simplexml_load_string(utf8_encode($o['value']));
                     $options = array();
                     if(!is_null($xml->option)) {
-                        foreach ((array)$xml->option as $opt) {
+                        foreach((array)$xml->option as $opt) {
                             if($opt!=''){array_push($options,$opt);}
                         }
                     }
-                    if(sizeof($options)>0){
+                    if(sizeof($options)>0) {
                         $optString = implode('[!]',$options);
                         $preset = OptionPreset::create(['pid' => $optionPID, 'type' => 'List', 'name' => $o['name'], 'preset' => $optString]);
                         $preset->save();
-                        if ($o['global']) {
+                        if($o['global']) {
                             $preset->shared = 1;
                         } else {
                             $preset->shared = 0;
@@ -329,18 +334,18 @@ class ExodusController extends Controller{
 
         //Forms
         $forms = $con->query("select * from scheme");
-        while ($f = $forms->fetch_assoc()) {
+        while($f = $forms->fetch_assoc()) {
             if(in_array($f['pid'],$migratedProjects)) {
                 //make form
                 $form = new Form();
                 $form->pid = $projectArray[$f['pid']];
                 $form->name = $f['schemeName'];
                 $slug = str_replace(' ', '_', $f['schemeName']);
-                if (Form::where('slug', '=', $slug)->exists()) {
+                if(Form::where('slug', '=', $slug)->exists()) {
                     $unique = false;
                     $i = 1;
-                    while (!$unique) {
-                        if (Form::where('slug', '=', $slug . $i)->exists()) {
+                    while(!$unique) {
+                        if(Form::where('slug', '=', $slug . $i)->exists()) {
                             $i++;
                         } else {
                             $form->slug = $slug . $i;
@@ -362,14 +367,14 @@ class ExodusController extends Controller{
 
                 //create admin/default groups based on project groups
                 $permGroups = $con->query("select * from permGroup where pid=" . $f['pid']);
-                while ($pg = $permGroups->fetch_assoc()) {
+                while($pg = $permGroups->fetch_assoc()) {
                     $admin = false;
                     $k3Group = new FormGroup();
-                    if ($pg['name'] == 'Administrators') {
+                    if($pg['name'] == 'Administrators') {
                         $k3Group->name = $form->name . ' Admin Group';
                         $nameOfProjectGroup = ProjectController::getProject($form->pid)->name . ' Admin Group';
                         $admin = true;
-                    } else if ($pg['name'] == 'Default') {
+                    } else if($pg['name'] == 'Default') {
                         $k3Group->name = $form->name . ' Default Group';
                         $nameOfProjectGroup = ProjectController::getProject($form->pid)->name . ' Default Group';
                     } else {
@@ -380,7 +385,7 @@ class ExodusController extends Controller{
                     $k3Group->save();
 
                     //this group is the admin group so save that info to the project
-                    if ($admin) {
+                    if($admin) {
                         $form->adminGID = $k3Group->id;
                         $form->save();
                     }
@@ -388,8 +393,8 @@ class ExodusController extends Controller{
                     //add all the members from the newly created project group to the respective form group
                     $groupUsers = array();
                     $projGroup = ProjectGroup::where('name', '=', $nameOfProjectGroup)->where('pid', '=', $form->pid)->first();
-                    if ($migrateUsers) {
-                        foreach ($projGroup->users()->get() as $user) {
+                    if($migrateUsers) {
+                        foreach($projGroup->users()->get() as $user) {
                             array_push($groupUsers, $user->id);
                         }
                         $k3Group->users()->attach($groupUsers);
@@ -414,7 +419,7 @@ class ExodusController extends Controller{
         ini_set('max_execution_time',0);
         Log::info("Begin Exodus");
         $exodus_id = DB::table('exodus_overall_progress')->insertGetId(['progress'=>0,'overall'=>0,'start'=>Carbon::now(),'created_at'=>Carbon::now(),'updated_at'=>Carbon::now()]);
-        foreach($formArray as $sid=>$fid){
+        foreach($formArray as $sid=>$fid) {
             $job = new SaveKora2Scheme($sid,$fid,$pairArray, $dbInfo, $filePath, $exodus_id);
             $this->dispatch($job->onQueue('exodus'));
         }
@@ -423,13 +428,17 @@ class ExodusController extends Controller{
             '--queue' => 'exodus',
             '--timeout' => 1800
         ]);
-
-        return '';
     }
 
-    public function checkProgress(Request $request){
+    /**
+     * Returns the current progress of the Exodus migration.
+     *
+     * @param  Request $request
+     * @return string - Json array of the progress
+     */
+    public function checkProgress(Request $request) {
         $overall = DB::table('exodus_overall_progress')->where('created_at',DB::table('exodus_overall_progress')->max('created_at'))->first();
-        if(is_null($overall)){
+        if(is_null($overall)) {
             return 'inprogress';
         }
         $partial = DB::table('exodus_partial_progress')->where('exodus_id',$overall->id)->get();
@@ -437,53 +446,61 @@ class ExodusController extends Controller{
         return response()->json(["overall"=>$overall,"partial"=>$partial],200);
     }
 
-    public function finishExodus(Request $request){
+    /**
+     * Finishes the Exodus process.
+     *
+     * @param  Request $request
+     */
+    public function finishExodus(Request $request) {
         //TODO: Associate things!!!
         $session = Session::all();
         dd($session);
     }
 
     /**
-     * Checks if a username is in use.
+     * Checks whether the username is already taken.
      *
-     * @param $username
-     * @return bool
+     * @param  string $username - Username to compare
+     * @return bool - The result of its existence
      */
-    private function usernameExists($username)
-    {
+    private function usernameExists($username) {
         return !is_null(User::where('username', '=', $username)->first());
     }
 
     /**
-     * Checks if an email is in use.
+     * Checks whether the email is already taken.
      *
-     * @param $email
-     * @return bool
+     * @param  string $email - Email to compare
+     * @return bool - The result of its existence
      */
-    private function emailExists($email)
-    {
+    private function emailExists($email) {
         return !is_null(User::where('email', '=', $email)->first());
     }
 
     /**
-     * Generates a random temporary password.
+     * Generates a new 10-character password.
      *
-     * @return string
+     * @return string - The new password
      */
-    private function passwordGen()
-    {
+    private function passwordGen() {
         $valid = 'abcdefghijklmnopqrstuvwxyz';
         $valid .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $valid .= '0123456789';
 
         $password = '';
-        for ($i = 0; $i < 10; $i++){
+        for($i = 0; $i < 10; $i++) {
             $password .= $valid[( rand() % 62 )];
         }
         return $password;
     }
 
-    private function k2tok3Perms($perm){
+    /**
+     * Converts Kora 2 permissions to Project/Form permissions in Kora3.
+     *
+     * @param  int $perm - The permissions set to apply
+     * @return array - The new permission set in Kora3
+     */
+    private function k2tok3Perms($perm) {
         $result = array();
 
         $result['pCreate'] = ((int)$perm & 1);
@@ -501,102 +518,40 @@ class ExodusController extends Controller{
         return $result;
     }
 
-    /*
-     * This method takes a collection of user IDs as keys, and their username as value
-     * It will lock any user that is not exempted, so that they cannot access the app during
-     * backup and restore operations.  They should be unlocked afterwards.
+    /**
+     * Locks all users to prevent them from logging in during the restore/backup process. That way data will not be
+     *  manipulated during them.
      *
-     * The default is [1,1]
-     *
-     * @params Collection $exemptions
-     * @return
+     * @param  Collection $exemptions - A list of users excempt from the lockout
      */
-    public function lockUsers(Collection $exemptions){
+    public function lockUsers(Collection $exemptions) {
         $users = User::all();
-        foreach($users as $user){
-            if($exemptions->has($user->id)){
+        foreach($users as $user) {
+            if($exemptions->has($user->id)) {
                 continue;
-            }
-            else{
+            } else {
                 $user->locked_out = true;
                 $user->save();
             }
         }
     }
-    /*
-     * This method will unlock all users, it returns a response with a message and status code,
-     * but the response isn't sent (unless this is called from a route).
+
+    /**
+     * Unlocks any locked users.
      *
-     * @params
-     * @return response
+     * @return string - Success or error message
      */
-    public function unlockUsers(){
+    public function unlockUsers() {
 
         try {
             $users = User::all();
-            foreach ($users as $user) {
+            foreach($users as $user) {
                 $user->locked_out = false;
                 $user->save();
             }
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
             return response("error",500);
         }
         return response("success",200);
-    }
-
-    //Strictly for testing purposes
-    private function deleteAll(){
-        try {
-            foreach (User::all() as $User) {
-                if ($User->id == 1) { //Do not delete the default admin user
-                    continue;
-                } else {
-                    $User->delete();
-                }
-            }
-            DB::table('projects')->delete();
-            DB::table('forms')->delete();
-            DB::table('fields')->delete();
-            DB::table('records')->delete();
-            DB::table('metadatas')->delete();
-            DB::table('tokens')->delete();
-            DB::table('project_token')->delete();
-            DB::table('revisions')->delete();
-            DB::table('date_fields')->delete();
-            DB::table('form_groups')->delete();
-            DB::table('form_group_user')->delete();
-            DB::table('generated_list_fields')->delete();
-            DB::table('geolocator_fields')->delete();
-            DB::table('list_fields')->delete();
-            DB::table('multi_select_list_fields')->delete();
-            DB::table('number_fields')->delete();
-            DB::table('project_groups')->delete();
-            DB::table('project_group_user')->delete();
-            DB::table('rich_text_fields')->delete();
-            DB::table('schedule_fields')->delete();
-            DB::table('text_fields')->delete();
-            DB::table('documents_fields')->delete();
-            DB::table('model_fields')->delete();
-            DB::table('gallery_fields')->delete();
-            DB::table('video_fields')->delete();
-            DB::table('playlist_fields')->delete();
-            DB::table('combo_list_fields')->delete();
-            DB::table('associator_fields')->delete();
-            DB::table('option_presets')->delete();
-            DB::table('record_presets')->delete();
-            DB::table('plugins')->delete();
-            DB::table('plugin_menus')->delete();
-            DB::table('plugin_settings')->delete();
-            DB::table('plugin_users')->delete();
-            DB::table('associations')->delete();
-            DB::table('combo_support')->delete();
-            DB::table('geolocator_support')->delete();
-            DB::table('schedule_support')->delete();
-
-
-        }catch(\Exception $e){
-            $this->ajaxResponse(false, trans('controller_backup.dbpermission'));
-        }
     }
 }
