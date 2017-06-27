@@ -197,14 +197,14 @@ class RecordController extends Controller {
                     $mslf->flid = $field->flid;
                     $mslf->rid = $record->rid;
                     $mslf->fid = $fid;
-                    $mslf->options = FieldController::listArrayToString($value);
+                    $mslf->options = implode("[!]",$value);
                     $mslf->save();
                 } else if ($field->type == 'Generated List') {
                     $glf = new GeneratedListField();
                     $glf->flid = $field->flid;
                     $glf->rid = $record->rid;
                     $glf->fid = $fid;
-                    $glf->options = FieldController::listArrayToString($value);
+                    $glf->options = implode("[!]",$value);
                     $glf->save();
                 } else if($field->type == 'Combo List' && $request->input($field->flid.'_val') != null){
                     $clf = new ComboListField();
@@ -728,7 +728,7 @@ class RecordController extends Controller {
 
                 if(!is_null($mslf) && !is_null($value)){
                    // $mslf = MultiSelectListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
-                    $mslf->options = FieldController::listArrayToString($value);
+                    $mslf->options = implode("[!]",$value);
                     $mslf->save();
                 }
                 elseif(!is_null($mslf) && is_null($value)){
@@ -739,7 +739,7 @@ class RecordController extends Controller {
                     $mslf->flid = $field->flid;
                     $mslf->rid = $record->rid;
                     $mslf->fid = $record->fid;
-                    $mslf->options = FieldController::listArrayToString($value);
+                    $mslf->options = implode("[!]",$value);
                     $mslf->save();
                 }
             } else if($field->type=='Generated List'){
@@ -747,7 +747,7 @@ class RecordController extends Controller {
                 $glf = GeneratedListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
                 if(!is_null($glf) && !is_null($value)){
                     //$glf = GeneratedListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
-                    $glf->options = FieldController::listArrayToString($value);
+                    $glf->options = implode("[!]",$value);
                     $glf->save();
                 }elseif(!is_null($glf) && is_null($value)){
                     $glf->delete();
@@ -757,7 +757,7 @@ class RecordController extends Controller {
                     $glf->flid = $field->flid;
                     $glf->rid = $record->rid;
                     $glf->fid = $record->fid;
-                    $glf->options = FieldController::listArrayToString($value);
+                    $glf->options = implode("[!]",$value);
                     $glf->save();
                 }
             } else if($field->type=='Combo List'){

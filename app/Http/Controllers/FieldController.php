@@ -1,42 +1,39 @@
 <?php namespace App\Http\Controllers;
 
 use App\Field;
-use App\FieldHelpers\gPoint;
-use App\Http\Requests;
 use App\Http\Requests\FieldRequest;
-use App\Http\Controllers\Controller;
-use App\FieldHelpers\UploadHandler;
-
-use Geocoder\HttpAdapter\CurlHttpAdapter;
-use Geocoder\Provider\NominatimProvider;
-use Geocoder\Provider\YandexProvider;
-use Geocoder\Tests\HttpAdapter\CurlHttpAdapterTest;
 use Illuminate\Http\Request;
-use Laracasts\Flash\Flash;
-use Toin0u\Geocoder\Facade\Geocoder;
+use Illuminate\View\View;
 
 class FieldController extends Controller {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Field Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles the creation and management of fields in Kora3
+    |
+    */
 
     /**
-     * User must be logged in to access views in this controller.
+     * Constructs controller and makes sure user is authenticated.
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->middleware('auth');
         $this->middleware('active');
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Gets the field creation view.
      *
-     * @param $pid
-     * @param $fid
-     * @return Response
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     * @return View
      */
-	public function create($pid, $fid, Request $request)
-	{
-        if(!FormController::validProjForm($pid, $fid)){
+	public function create($pid, $fid, Request $request) {
+        if(!FormController::validProjForm($pid, $fid)) {
             return redirect('projects/'.$pid);
         }
 
@@ -50,19 +47,17 @@ class FieldController extends Controller {
 	}
 
     /**
-     * Store a newly created resource in storage.
+     * Saves a new field model and redirects to form page.
      *
-     * @param FieldRequest $request
-     * @return Response
+     * @param  FieldRequest $request
+     * @return View
      */
-	public function store(FieldRequest $request)
-    {
-        //dd($request);
+	public function store(FieldRequest $request) {
         $seq = PageController::getNewPageFieldSequence($request->page_id); //we do this before anything so the new field isnt counted in it's logic
         $field = Field::Create($request->all());
 
         //special error check for combo list field
-        if($field->type=='Combo List' && ($_REQUEST['cfname1']=='' | $_REQUEST['cfname2']=='')){
+        if($field->type=='Combo List' && ($_REQUEST['cfname1']=='' | $_REQUEST['cfname2']=='')) {
             flash()->error(trans('controller_field.comboname'));
 
             return redirect()->back()->withInput();
@@ -80,7 +75,7 @@ class FieldController extends Controller {
         if($request->advance) {
             $optC = new OptionController();
             $result = $optC->updateAdvanced($field,$request);
-            if($result != ''){
+            if($result != '') {
                 $advError = true;
                 flash()->error('There was an error with the advanced options. '.$result.' Please visit the options page of the field.');
             }
@@ -97,17 +92,15 @@ class FieldController extends Controller {
 	}
 
     /**
-     * Display the specified resource.
+     * Gets and displays the field options page for a particular field.
      *
-     * @param $pid
-     * @param $fid
-     * @param $flid
-     * @return Response
-     * @internal param int $id
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $flid - Field ID
+     * @return View
      */
-	public function show($pid, $fid, $flid)
-	{
-        if(!self::validProjFormField($pid, $fid, $flid)){
+	public function show($pid, $fid, $flid) {
+        if(!self::validProjFormField($pid, $fid, $flid)) {
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
@@ -123,53 +116,51 @@ class FieldController extends Controller {
 
         if($field->type=="Text") {
             return view('fields.options.text', compact('field', 'form', 'proj','presets'));
-        }else if($field->type=="Rich Text") {
+        } else if($field->type=="Rich Text") {
             return view('fields.options.richtext', compact('field', 'form', 'proj'));
-        }else if($field->type=="Number") {
+        } else if($field->type=="Number") {
             return view('fields.options.number', compact('field', 'form', 'proj'));
-        }else if($field->type=="List") {
+        } else if($field->type=="List") {
             return view('fields.options.list', compact('field', 'form', 'proj','presets'));
-        }else if($field->type=="Multi-Select List") {
+        } else if($field->type=="Multi-Select List") {
             return view('fields.options.mslist', compact('field', 'form', 'proj','presets'));
-        }else if($field->type=="Generated List") {
+        } else if($field->type=="Generated List") {
             return view('fields.options.genlist', compact('field', 'form', 'proj','presets'));
-        }else if($field->type=="Combo List") {
+        } else if($field->type=="Combo List") {
             $presetsOne = $presets->get("one");
             $presetsTwo = $presets->get("two");
             return view('fields.options.combolist', compact('field', 'form', 'proj','presetsOne','presetsTwo'));
-        }else if($field->type=="Date") {
+        } else if($field->type=="Date") {
             return view('fields.options.date', compact('field', 'form', 'proj'));
-        }else if($field->type=="Schedule") {
+        } else if($field->type=="Schedule") {
             return view('fields.options.schedule', compact('field', 'form', 'proj','presets'));
-        }else if($field->type=="Geolocator") {
+        } else if($field->type=="Geolocator") {
             return view('fields.options.geolocator', compact('field', 'form', 'proj','presets'));
-        }else if($field->type=="Documents") {
+        } else if($field->type=="Documents") {
             return view('fields.options.documents', compact('field', 'form', 'proj'));
-        }else if($field->type=="Gallery") {
+        } else if($field->type=="Gallery") {
             return view('fields.options.gallery', compact('field', 'form', 'proj'));
-        }else if($field->type=="Playlist") {
+        } else if($field->type=="Playlist") {
             return view('fields.options.playlist', compact('field', 'form', 'proj'));
-        }else if($field->type=="Video") {
+        } else if($field->type=="Video") {
             return view('fields.options.video', compact('field', 'form', 'proj'));
-        }else if($field->type=="3D-Model") {
+        } else if($field->type=="3D-Model") {
             return view('fields.options.3dmodel', compact('field', 'form', 'proj'));
-        }else if($field->type=="Associator") {
+        } else if($field->type=="Associator") {
             return view('fields.options.associator', compact('field', 'form', 'proj'));
         }
 	}
 
     /**
-     * Show the form for editing the specified resource.
+     * Get the edit view for a field.
      *
-     * @param $pid
-     * @param $fid
-     * @param $flid
-     * @return Response
-     * @internal param int $id
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $flid - Field ID
+     * @return View
      */
-	public function edit($pid, $fid, $flid)
-	{
-        if(!self::validProjFormField($pid, $fid, $flid)){
+	public function edit($pid, $fid, $flid) {
+        if(!self::validProjFormField($pid, $fid, $flid)) {
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
@@ -183,16 +174,16 @@ class FieldController extends Controller {
 	}
 
     /**
-     * Update the specified resource in storage.
+     * Update a field's information.
      *
-     * @param $flid
-     * @param FieldRequest $request
-     * @return Response
-     * @internal param int $id
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $flid - Field ID
+     * @param  FieldRequest $request
+     * @return View
      */
-	public function update($pid, $fid, $flid, FieldRequest $request)
-	{
-        if(!self::validProjFormField($pid, $fid, $flid)){
+	public function update($pid, $fid, $flid, FieldRequest $request) {
+        if(!self::validProjFormField($pid, $fid, $flid)) {
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
@@ -212,9 +203,16 @@ class FieldController extends Controller {
         return redirect('projects/'.$pid.'/forms/'.$fid);
 	}
 
-    public static function updateRequired($pid, $fid, $flid, $req)
-    {
-        if(!self::validProjFormField($pid, $fid, $flid)){
+    /**
+     * Update the field for if data is required in the field.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $flid - Field ID
+     * @param  bool $req - Is the field required?
+     */
+    public static function updateRequired($pid, $fid, $flid, $req) {
+        if(!self::validProjFormField($pid, $fid, $flid)) {
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
@@ -231,9 +229,16 @@ class FieldController extends Controller {
         RevisionController::wipeRollbacks($fid);
     }
 
-    public static function updateSearchable($pid, $fid, $flid, Request $request)
-    {
-        if(!self::validProjFormField($pid, $fid, $flid)){
+    /**
+     * Update the field for what context field's data can be searched and viewed.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $flid - Field ID
+     * @param  Request $request
+     */
+    public static function updateSearchable($pid, $fid, $flid, Request $request) {
+        if(!self::validProjFormField($pid, $fid, $flid)) {
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
@@ -254,9 +259,16 @@ class FieldController extends Controller {
         RevisionController::wipeRollbacks($fid);
     }
 
-    public static function updateDefault($pid, $fid, $flid, $def)
-    {
-        if(!self::validProjFormField($pid, $fid, $flid)){
+    /**
+     * Update the field's default value.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $flid - Field ID
+     * @param  string $def - Default value of field
+     */
+    public static function updateDefault($pid, $fid, $flid, $def) {
+        if(!self::validProjFormField($pid, $fid, $flid)) {
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
@@ -274,9 +286,17 @@ class FieldController extends Controller {
         RevisionController::wipeRollbacks($fid);
     }
 
-    public static function updateOptions($pid, $fid, $flid, $opt, $value)
-    {
-        if(!self::validProjFormField($pid, $fid, $flid)){
+    /**
+     * Update an option for a field.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $flid - Field ID
+     * @param  string $opt - Option to update
+     * @param  string $value - Value for option
+     */
+    public static function updateOptions($pid, $fid, $flid, $opt, $value) {
+        if(!self::validProjFormField($pid, $fid, $flid)) {
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
@@ -298,17 +318,14 @@ class FieldController extends Controller {
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete a field model.
      *
-     * @param $pid
-     * @param $fid
-     * @param $flid
-     * @return Response
-     * @internal param int $id
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $flid - Field ID
      */
-	public function destroy($pid, $fid, $flid)
-	{
-        if(!self::validProjFormField($pid, $fid, $flid)){
+	public function destroy($pid, $fid, $flid) {
+        if(!self::validProjFormField($pid, $fid, $flid)) {
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
@@ -330,15 +347,14 @@ class FieldController extends Controller {
 	}
 
     /**
-     * Get field object.
+     * Get a field from the database with either the flid or the slug.
      *
-     * @param $flid
-     * @return Field
+     * @param  mixed $flid - The flid or slug of the field
+     * @return Field - The represented field
      */
-    public static function getField($flid)
-    {
+    public static function getField($flid) {
         $field = Field::where('flid', '=', $flid)->first();
-        if(is_null($field)){
+        if(is_null($field)) {
             $field = Field::where('slug','=',$flid)->first();
         }
 
@@ -346,15 +362,14 @@ class FieldController extends Controller {
     }
 
     /**
-     * Validate that a field belongs to a form and project.
+     * Validates the project/form/field ID pairs.
      *
-     * @param $pid
-     * @param $fid
-     * @param $flid
-     * @return bool
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $flid - Field ID
+     * @return bool - The validity of the IDs
      */
-    public static function validProjFormField($pid, $fid, $flid)
-    {
+    public static function validProjFormField($pid, $fid, $flid) {
         $field = self::getField($flid);
         $form = FormController::getForm($fid);
         $proj = ProjectController::getProject($pid);
@@ -370,7 +385,14 @@ class FieldController extends Controller {
             return false;
     }
 
-    public static function getFieldOption($field, $key){
+    /**
+     * Gets the value of a particular field option.
+     *
+     * @param  Field $field - Field to get option from
+     * @param  string $key - The option name
+     * @return string - The value of the option
+     */
+    public static function getFieldOption($field, $key) {
         $options = $field->options;
         $tag = '[!'.$key.'!]';
         $value = explode($tag,$options)[1];
@@ -379,58 +401,38 @@ class FieldController extends Controller {
     }
 
     /**
-     * Checks if a user has a certain permission.
-     * If no permission is provided checkPermissions simply decides if they are in any form group.
-     * This acts as the "can read" permission level.
+     * Checks a users permissions to be able to create and manipulate fields in a form.
      *
-     * @param $fid
-     * @param string $permission
-     * @return bool
+     * @param  int $fid - Form ID
+     * @param  string $permission - Permission to check for
+     * @return bool - Has the permission
      */
-    private static function checkPermissions($fid, $permission='')
-    {
+    private static function checkPermissions($fid, $permission='') {
         switch($permission) {
             case 'create':
-                if(!(\Auth::user()->canCreateFields(FormController::getForm($fid))))
-                {
+                if(!(\Auth::user()->canCreateFields(FormController::getForm($fid))))  {
                     flash()->overlay(trans('controller_field.createper'), trans('controller_field.whoops'));
                     return false;
                 }
                 return true;
             case 'edit':
-                if(!(\Auth::user()->canEditFields(FormController::getForm($fid))))
-                {
+                if(!(\Auth::user()->canEditFields(FormController::getForm($fid)))) {
                     flash()->overlay(trans('controller_field.editper'), trans('controller_field.whoops'));
                     return false;
                 }
                 return true;
             case 'delete':
-                if(!(\Auth::user()->canDeleteFields(FormController::getForm($fid))))
-                {
+                if(!(\Auth::user()->canDeleteFields(FormController::getForm($fid)))) {
                     flash()->overlay(trans('controller_field.deleteper'), trans('controller_field.whoops'));
                     return false;
                 }
                 return true;
             default:
-                if(!(\Auth::user()->inAFormGroup(FormController::getForm($fid))))
-                {
+                if(!(\Auth::user()->inAFormGroup(FormController::getForm($fid)))) {
                     flash()->overlay(trans('controller_field.viewper'), trans('controller_field.whoops'));
                     return false;
                 }
                 return true;
         }
     }
-
-    public static function listArrayToString($array){
-        if(is_array($array)){
-            $list = $array[0];
-            for($i=1;$i<sizeof($array);$i++){
-                $list .= '[!]'.$array[$i];
-            }
-            return $list;
-        }
-
-        return '';
-    }
-
 }

@@ -636,11 +636,11 @@ class RestfulController extends Controller
                     if (!is_array($val[$nameone]))
                         $fone = '[!f1!]' . $val[$nameone] . '[!f1!]';
                     else
-                        $fone = '[!f1!]' . FieldController::listArrayToString($val[$nameone]) . '[!f1!]';
+                        $fone = '[!f1!]' . implode("[!]",$val[$nameone]) . '[!f1!]';
                     if (!is_array($val[$nametwo]))
                         $ftwo = '[!f2!]' . $val[$nametwo] . '[!f2!]';
                     else
-                        $ftwo = '[!f2!]' . FieldController::listArrayToString($val[$nametwo]) . '[!f2!]';
+                        $ftwo = '[!f2!]' . implode("[!]",$val[$nametwo]) . '[!f2!]';
                     array_push($values, $fone . $ftwo);
                 }
                 $recRequest[$flid] = '';
@@ -830,11 +830,11 @@ class RestfulController extends Controller
                     if (!is_array($val[$nameone]))
                         $fone = '[!f1!]' . $val[$nameone] . '[!f1!]';
                     else
-                        $fone = '[!f1!]' . FieldController::listArrayToString($val[$nameone]) . '[!f1!]';
+                        $fone = '[!f1!]' . implode("[!]",$val[$nameone]) . '[!f1!]';
                     if (!is_array($val[$nametwo]))
                         $ftwo = '[!f2!]' . $val[$nametwo] . '[!f2!]';
                     else
-                        $ftwo = '[!f2!]' . FieldController::listArrayToString($val[$nametwo]) . '[!f2!]';
+                        $ftwo = '[!f2!]' . implode("[!]",$val[$nametwo]) . '[!f2!]';
                     array_push($values, $fone . $ftwo);
                 }
                 $recRequest[$flid] = '';

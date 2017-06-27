@@ -565,7 +565,7 @@ class ImportController extends Controller {
                         else if (sizeof($val->{$nameone}->value) == 1)
                             $fone = '[!f1!]' . (string)$val->{$nameone}->value . '[!f1!]';
                         else
-                            $fone = '[!f1!]' . FieldController::listArrayToString((array)$val->{$nameone}->value) . '[!f1!]';
+                            $fone = '[!f1!]' . implode("[!]",(array)$val->{$nameone}->value) . '[!f1!]';
 
 
                         if ((string)$val->{$nametwo} != '')
@@ -573,7 +573,7 @@ class ImportController extends Controller {
                         else if (sizeof($val->{$nametwo}->value) == 1)
                             $ftwo = '[!f2!]' . (string)$val->{$nametwo}->value . '[!f2!]';
                         else
-                            $ftwo = '[!f2!]' . FieldController::listArrayToString((array)$val->{$nametwo}->value) . '[!f2!]';
+                            $ftwo = '[!f2!]' . implode("[!]",(array)$val->{$nametwo}->value) . '[!f2!]';
 
                         array_push($values, $fone . $ftwo);
                     }
@@ -712,13 +712,13 @@ class ImportController extends Controller {
                         if (!is_array($val[$nameone]))
                             $fone = '[!f1!]' . $val[$nameone] . '[!f1!]';
                         else
-                            $fone = '[!f1!]' . FieldController::listArrayToString($val[$nameone]) . '[!f1!]';
+                            $fone = '[!f1!]' . implode("[!]",$val[$nameone]) . '[!f1!]';
 
 
                         if (!is_array($val[$nametwo]))
                             $ftwo = '[!f2!]' . $val[$nametwo] . '[!f2!]';
                         else
-                            $ftwo = '[!f2!]' . FieldController::listArrayToString($val[$nametwo]) . '[!f2!]';
+                            $ftwo = '[!f2!]' . implode("[!]",$val[$nametwo]) . '[!f2!]';
 
                         array_push($values, $fone . $ftwo);
                     }
