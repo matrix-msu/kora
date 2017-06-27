@@ -3,6 +3,7 @@
 use App\Field;
 use App\Http\Requests\FieldRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
 class FieldController extends Controller {
@@ -50,7 +51,7 @@ class FieldController extends Controller {
      * Saves a new field model and redirects to form page.
      *
      * @param  FieldRequest $request
-     * @return View
+     * @return Redirect
      */
 	public function store(FieldRequest $request) {
         $seq = PageController::getNewPageFieldSequence($request->page_id); //we do this before anything so the new field isnt counted in it's logic
@@ -354,9 +355,8 @@ class FieldController extends Controller {
      */
     public static function getField($flid) {
         $field = Field::where('flid', '=', $flid)->first();
-        if(is_null($field)) {
+        if(is_null($field))
             $field = Field::where('slug','=',$flid)->first();
-        }
 
         return $field;
     }

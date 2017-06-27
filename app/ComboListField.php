@@ -490,14 +490,14 @@ class ComboListField extends BaseField {
         }
 
         if($typeone=='Text') {
-            $regex = ComboListField::getComboFieldOption($field,'Regex','one');
+            $regex = self::getComboFieldOption($field,'Regex','one');
             if(($regex!=null | $regex!="") && !preg_match($regex,$valone)) {
                 return trans('controller_field.v1regex');
             }
         } else if($typeone=='Number') {
-            $max = ComboListField::getComboFieldOption($field,'Max','one');
-            $min = ComboListField::getComboFieldOption($field,'Min','one');
-            $inc = ComboListField::getComboFieldOption($field,'Increment','one');
+            $max = self::getComboFieldOption($field,'Max','one');
+            $min = self::getComboFieldOption($field,'Min','one');
+            $inc = self::getComboFieldOption($field,'Increment','one');
 
             if($valone<$min | $valone>$max) {
                 return trans('controller_field.v1num');
@@ -507,19 +507,19 @@ class ComboListField extends BaseField {
                 return trans('controller_field.v1numinc');
             }
         } else if($typeone=='List') {
-            $opts = explode('[!]',ComboListField::getComboFieldOption($field,'Options','one'));
+            $opts = explode('[!]',self::getComboFieldOption($field,'Options','one'));
 
             if(!in_array($valone,$opts)) {
                 return trans('controller_field.v1list');
             }
         } else if($typeone=='Multi-Select List') {
-            $opts = explode('[!]',ComboListField::getComboFieldOption($field,'Options','one'));
+            $opts = explode('[!]',self::getComboFieldOption($field,'Options','one'));
 
             if(sizeof(array_diff($valone,$opts))>0) {
                 return trans('controller_field.v1mslist');
             }
         } else if($typeone=='Generated List') {
-            $regex = ComboListField::getComboFieldOption($field,'Regex','one');
+            $regex = self::getComboFieldOption($field,'Regex','one');
 
             if($regex != null | $regex != "") {
                 foreach($valone as $val) {
@@ -531,14 +531,14 @@ class ComboListField extends BaseField {
         }
 
         if($typetwo=='Text') {
-            $regex = ComboListField::getComboFieldOption($field,'Regex','two');
+            $regex = self::getComboFieldOption($field,'Regex','two');
             if(($regex!=null | $regex!="") && !preg_match($regex,$valtwo)) {
                 return trans('controller_field.v2regex');
             }
         } else if($typetwo=='Number') {
-            $max = ComboListField::getComboFieldOption($field,'Max','two');
-            $min = ComboListField::getComboFieldOption($field,'Min','two');
-            $inc = ComboListField::getComboFieldOption($field,'Increment','two');
+            $max = self::getComboFieldOption($field,'Max','two');
+            $min = self::getComboFieldOption($field,'Min','two');
+            $inc = self::getComboFieldOption($field,'Increment','two');
 
             if($valtwo<$min | $valtwo>$max) {
                 return trans('controller_field.v2num');
@@ -547,19 +547,19 @@ class ComboListField extends BaseField {
                 return trans('controller_field.v2numinc');
             }
         } else if($typetwo=='List') {
-            $opts = explode('[!]',ComboListField::getComboFieldOption($field,'Options','two'));
+            $opts = explode('[!]',self::getComboFieldOption($field,'Options','two'));
 
             if(!in_array($valtwo,$opts)) {
                 return trans('controller_field.v2list');
             }
         } else if($typetwo=='Multi-Select List') {
-            $opts = explode('[!]',ComboListField::getComboFieldOption($field,'Options','two'));
+            $opts = explode('[!]',self::getComboFieldOption($field,'Options','two'));
 
             if(sizeof(array_diff($valtwo,$opts))>0) {
                 return trans('controller_field.v2mslist');
             }
         } else if($typetwo=='Generated List') {
-            $regex = ComboListField::getComboFieldOption($field,'Regex','two');
+            $regex = self::getComboFieldOption($field,'Regex','two');
 
             if($regex != null | $regex != "") {
                 foreach($valtwo as $val) {

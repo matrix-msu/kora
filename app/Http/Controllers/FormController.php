@@ -1,59 +1,47 @@
 <?php namespace App\Http\Controllers;
 
-use App\ComboListField;
-use App\DateField;
-use App\DocumentsField;
 use App\Form;
-use App\GalleryField;
-use App\GeneratedListField;
-use App\GeolocatorField;
-use App\ListField;
-use App\ModelField;
-use App\MultiSelectListField;
-use App\NumberField;
 use App\Page;
-use App\PlaylistField;
-use App\Record;
-use App\RichTextField;
-use App\ScheduleField;
-use App\TextField;
 use App\User;
 use App\Field;
-use App\Project;
 use App\FormGroup;
-use App\Http\Requests;
-use App\VideoField;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Requests\FormRequest;
-use App\Http\Controllers\Controller;
-use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\View\View;
 
 
 class FormController extends Controller {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Form Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles creation and manipulation of Form models
+    |
+    */
+
     /**
-     * User must be logged in to access views in this controller.
+     * Constructs controller and makes sure user is authenticated.
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->middleware('auth');
         $this->middleware('active');
     }
 
-    
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @return Response
-	 */
-	public function create($pid)
-	{
-        if(!ProjectController::validProj($pid)){
+    /**
+     * Gets and returns create form view.
+     *
+     * @param  int $pid - Project ID
+     * @return View
+     */
+	public function create($pid) {
+        if(!ProjectController::validProj($pid)) {
             return redirect('projects');
         }
 
-        if(!self::checkPermissions($pid, 'create')){
+        if(!self::checkPermissions($pid, 'create')) {
             return redirect('projects/'.$pid.'/forms');
         }
 
@@ -67,13 +55,13 @@ class FormController extends Controller {
         return view('forms.create', compact('project', 'users', 'presets')); //pass in
 	}
 
-	/**
-	 * Store a newly created resource in storage.
-	 *
-	 * @return Response
-	 */
-	public function store(FormRequest $request)
-	{
+    /**
+     * Saves a new Form model.
+     *
+     * @param  FormRequest $request
+     * @return Redirect
+     */
+	public function store(FormRequest $request) {
         $form = Form::create($request->all());
 
         $form->save();
@@ -94,19 +82,19 @@ class FormController extends Controller {
         return redirect('projects/'.$form->pid);
 	}
 
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function show($pid, $fid)
-	{
-        if(!self::validProjForm($pid,$fid)){
+    /**
+     * Gets the display view for a form.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return View
+     */
+	public function show($pid, $fid) {
+        if(!self::validProjForm($pid,$fid)) {
             return redirect('projects/'.$pid);
         }
 
-        if(!self::checkPermissions($pid)){
+        if(!self::checkPermissions($pid)) {
             return redirect('/projects');
         }
 
@@ -119,19 +107,19 @@ class FormController extends Controller {
         return view('forms.show', compact('form','projName','pageLayout'));
 	}
 
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function edit($pid, $fid)
-    {
-        if(!self::validProjForm($pid,$fid)){
+    /**
+     * Gets the edit view for a form.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return View
+     */
+	public function edit($pid, $fid) {
+        if(!self::validProjForm($pid,$fid)) {
             return redirect('projects/'.$pid);
         }
 
-        if(!self::checkPermissions($pid, 'edit')){
+        if(!self::checkPermissions($pid, 'edit')) {
             return redirect('/projects/'.$pid.'/forms');
         }
 
@@ -142,21 +130,22 @@ class FormController extends Controller {
         return view('forms.edit', compact('form','projName'));
 	}
 
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function update($pid, $fid, FormRequest $request)
-	{
-        if(!self::validProjForm($pid,$fid)){
+    /**
+     * Saves any edits made to a form.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  FormRequest $request
+     * @return Redirect
+     */
+	public function update($pid, $fid, FormRequest $request) {
+        if(!self::validProjForm($pid,$fid)) {
             return redirect('projects/'.$pid);
         }
 
         $form = self::getForm($fid);
 
-        if(!self::checkPermissions($pid, 'edit')){
+        if(!self::checkPermissions($pid, 'edit')) {
             return redirect('/projects/'.$form->$pid.'/forms');
         }
 
@@ -169,19 +158,18 @@ class FormController extends Controller {
         return redirect('projects/'.$form->pid);
 	}
 
-	/**
-	 * Remove the specified resource from storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function destroy($pid, $fid)
-	{
-        if(!self::validProjForm($pid,$fid)){
+    /**
+     * Deletes a form model.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     */
+	public function destroy($pid, $fid) {
+        if(!self::validProjForm($pid,$fid)) {
             return redirect('projects/'.$pid);
         }
 
-        if(!self::checkPermissions($pid, 'delete')){
+        if(!self::checkPermissions($pid, 'delete')) {
             return redirect('/projects/'.$pid.'/forms');
         }
 
@@ -192,16 +180,14 @@ class FormController extends Controller {
 	}
 
     /**
-     * Sets a form as a preset.
+     * Set the form to be used as a preset.
      *
-     * @param $pid
-     * @param $fid
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
      */
-    public function preset($pid, $fid, Request $request)
-    {
-        if(!self::validProjForm($pid,$fid)){
+    public function preset($pid, $fid, Request $request) {
+        if(!self::validProjForm($pid,$fid)) {
             return redirect('projects/'.$pid);
         }
 
@@ -213,8 +199,14 @@ class FormController extends Controller {
         $form->save();
     }
 
-    public function importFormView($pid){
-        if(!ProjectController::validProj($pid)){
+    /**
+     * Gets the view for the import form page.
+     *
+     * @param  int $pid - Project ID
+     * @return View
+     */
+    public function importFormView($pid) {
+        if(!ProjectController::validProj($pid)) {
             return redirect('projects');
         }
 
@@ -227,8 +219,14 @@ class FormController extends Controller {
         return view('forms.import',compact('proj','pid'));
     }
 
-    public function importFormViewK2($pid){
-        if(!ProjectController::validProj($pid)){
+    /**
+     * Gets the view for the import form page for K2 schemes.
+     *
+     * @param  int $pid - Project ID
+     * @return View
+     */
+    public function importFormViewK2($pid) {
+        if(!ProjectController::validProj($pid)) {
             return redirect('projects');
         }
 
@@ -242,30 +240,27 @@ class FormController extends Controller {
     }
 
     /**
-     * Get form object for use in controller.
+     * Gets a form by fid or slug.
      *
-     * @param $fid
-     * @return Form | null.
+     * @param  mixed $fid - Form ID or slug
+     * @return Form - The requested form
      */
-    public static function getForm($fid)
-    {
+    public static function getForm($fid) {
         $form = Form::where('fid','=',$fid)->first();
-        if(is_null($form)){
+        if(is_null($form))
             $form = Form::where('slug','=',$fid)->first();
-        }
 
         return $form;
     }
 
     /**
-     * Validate that a form belongs to the project in use.
+     * Validates a project/form ID pair.
      *
-     * @param $pid
-     * @param $fid
-     * @return bool
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return bool - Validity of the pair
      */
-    public static function validProjForm($pid, $fid)
-    {
+    public static function validProjForm($pid, $fid) {
         $form = self::getForm($fid);
         $proj = ProjectController::getProject($pid);
 
@@ -278,56 +273,49 @@ class FormController extends Controller {
     }
 
     /**
-     * Checks if a user has a certain permission.
-     * If no permission is provided checkPermissions simply decides if they are in any project group.
-     * This acts as the "can read" permission level.
+     * Checks user's permission to create and modify forms in a project.
      *
-     * @param $pid
-     * @param string $permission
-     * @return bool
+     * @param  int $pid - Project ID
+     * @param  string $permission - Permission to check
+     * @return bool - Whether user has permission
      */
-    public static function checkPermissions($pid, $permission='')
-    {
-        switch ($permission) {
+    public static function checkPermissions($pid, $permission='') {
+        switch($permission) {
             case 'create':
-                if(!(\Auth::user()->canCreateForms(ProjectController::getProject($pid))))
-                {
+                if(!(\Auth::user()->canCreateForms(ProjectController::getProject($pid)))) {
                     flash()->overlay(trans('controller_form.createper'), trans('controller_form.whoops'));
                     return false;
                 }
                 return true;
             case 'edit':
-                if(!(\Auth::user()->canEditForms(ProjectController::getProject($pid))))
-                {
+                if(!(\Auth::user()->canEditForms(ProjectController::getProject($pid)))) {
                     flash()->overlay(trans('controller_form.editper'), trans('controller_form.whoops'));
                     return false;
                 }
                 return true;
             case 'delete':
-                if(!(\Auth::user()->canDeleteForms(ProjectController::getProject($pid))))
-                {
+                if(!(\Auth::user()->canDeleteForms(ProjectController::getProject($pid)))) {
                     flash()->overlay(trans('controller_form.deleteper'), trans('controller_form.whoops'));
                     return false;
                 }
                 return true;
             default: //"Read Only"
-                if(!(\Auth::user()->inAProjectGroup(ProjectController::getProject($pid))))
-                {
+                if(!(\Auth::user()->inAProjectGroup(ProjectController::getProject($pid)))) {
                     flash()->overlay(trans('controller_form.viewper'), trans('controller_form.whoops'));
                     return false;
                 }
                 return true;
         }
     }
+
     /**
-     * Creates the form's admin Group.
+     * Creates the form's admin group.
      *
-     * @param $project
-     * @param $request
-     * @return FormGroup
+     * @param  Form $form - Form to create group for
+     * @param  Request $request
+     * @return FormGroup - The newly created group
      */
-    private function makeAdminGroup(Form $form, Request $request)
-    {
+    private function makeAdminGroup(Form $form, Request $request) {
         $groupName = $form->name;
         $groupName .= ' Admin Group';
 
@@ -365,14 +353,11 @@ class FormController extends Controller {
     }
 
     /**
-     * Creates the form's admin Group.
+     * Creates the form's default group.
      *
-     * @param $project
-     * @param $request
-     * @return FormGroup
+     * @param  Form $form - Form to create group for
      */
-    private function makeDefaultGroup(Form $form)
-    {
+    private function makeDefaultGroup(Form $form) {
         $groupName = $form->name;
         $groupName .= ' Default Group';
 
@@ -392,19 +377,19 @@ class FormController extends Controller {
     }
 
     /**
-     * Creates the form from a preset form.
+     * Copys a form's information from another preset form.
      *
-     * @param Form $form
-     * @param $fid
+     * @param  Form $form - Form being created
+     * @param  int $fid - Form ID of preset form
      */
-    private function addPresets(Form $form, $fid)
-    {
+    private function addPresets(Form $form, $fid) {
         $preset = Form::where('fid', '=', $fid)->first();
 
         $field_assoc = array();
         $pageConvert = array();
 
-        foreach($preset->pages()->get() as $page){
+        //Duplicate pages
+        foreach($preset->pages()->get() as $page) {
             $newP = new Page();
             $newP->parent_type = $page->parent_type;
             $newP->fid = $form->fid;
@@ -416,8 +401,7 @@ class FormController extends Controller {
         }
 
         //Duplicate fields
-        foreach($preset->fields()->get() as $field)
-        {
+        foreach($preset->fields()->get() as $field)  {
             $new = new Field();
             $new->pid = $form->pid;
             $new->fid = $form->fid;
