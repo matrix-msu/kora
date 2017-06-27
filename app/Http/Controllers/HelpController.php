@@ -1,18 +1,24 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Ian Whalen
- * Date: 6/22/2016
- * Time: 3:38 PM
- */
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
 
-class HelpController extends Controller
-{
+class HelpController extends Controller {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Help Controller
+    |--------------------------------------------------------------------------
+    |
+    | Will probably use for more, but now just returns the help page for search
+    |
+    */
+
     /**
-     * Redirects to the search help page view.
+     * Gets the view for the search help page.
+     *
+     * @return View
      */
     public function search() {
         return view("help.search");

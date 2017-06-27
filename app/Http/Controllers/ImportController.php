@@ -8,9 +8,6 @@ use App\Form;
 use App\FormGroup;
 use App\GalleryField;
 use App\GeneratedListField;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
 use App\ListField;
 use App\Metadata;
 use App\MultiSelectListField;
@@ -23,12 +20,34 @@ use App\RecordPreset;
 use App\RichTextField;
 use App\ScheduleField;
 use App\TextField;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class ImportController extends Controller {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Import Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles import of Project/Form structures as well as Record
+    | data
+    |
+    */
+
+    /**
+     * Constructs controller and makes sure user is authenticated.
+     */
+    public function __construct() {
+        $this->middleware('auth');
+        $this->middleware('active');
+    }
+
+    /**
+     * WHAT_DOESTHISFUNTIONDO
+     *
+     * @param  type $name - DESCRIPTION
+     * @return type - DESCRIPTION
+     */
     public function exportSample($pid, $fid, $type){
         if(!FormController::validProjForm($pid,$fid)){
             return redirect('projects');
@@ -419,6 +438,12 @@ class ImportController extends Controller {
         }
     }
 
+    /**
+     * WHAT_DOESTHISFUNTIONDO
+     *
+     * @param  type $name - DESCRIPTION
+     * @return type - DESCRIPTION
+     */
     private function xmlTagClear($value){
         $value = htmlentities($value);
         $value = str_replace(' ','_',$value);
@@ -426,6 +451,12 @@ class ImportController extends Controller {
         return $value;
     }
 
+    /**
+     * WHAT_DOESTHISFUNTIONDO
+     *
+     * @param  type $name - DESCRIPTION
+     * @return type - DESCRIPTION
+     */
     public function matchupFields($pid, $fid, Request $request){
         $form = FormController::getForm($fid);
 
@@ -530,6 +561,12 @@ class ImportController extends Controller {
         return $result;
     }
 
+    /**
+     * WHAT_DOESTHISFUNTIONDO
+     *
+     * @param  type $name - DESCRIPTION
+     * @return type - DESCRIPTION
+     */
     public function importRecord($pid, $fid, Request $request){
         $matchup = $request->table;
 
@@ -836,11 +873,12 @@ class ImportController extends Controller {
         return '';
     }
 
-	/**
-	 * Display a listing of the resource.
-	 *
-	 * @return Response
-	 */
+    /**
+     * WHAT_DOESTHISFUNTIONDO
+     *
+     * @param  type $name - DESCRIPTION
+     * @return type - DESCRIPTION
+     */
 	public function importForm($pid, Request $request){
         $project = ProjectController::getProject($pid);
 
@@ -967,6 +1005,12 @@ class ImportController extends Controller {
         return redirect('projects/'.$form->pid);
     }
 
+    /**
+     * WHAT_DOESTHISFUNTIONDO
+     *
+     * @param  type $name - DESCRIPTION
+     * @return type - DESCRIPTION
+     */
     public function importFormK2($pid, Request $request){
         $project = ProjectController::getProject($pid);
 
@@ -1486,6 +1530,12 @@ class ImportController extends Controller {
         return redirect('projects/'.$form->pid);
     }
 
+    /**
+     * WHAT_DOESTHISFUNTIONDO
+     *
+     * @param  type $name - DESCRIPTION
+     * @return type - DESCRIPTION
+     */
     private function importFormNoFile($pid, $fileArray){
         $project = ProjectController::getProject($pid);
 
@@ -1600,6 +1650,12 @@ class ImportController extends Controller {
         }
     }
 
+    /**
+     * WHAT_DOESTHISFUNTIONDO
+     *
+     * @param  type $name - DESCRIPTION
+     * @return type - DESCRIPTION
+     */
     private function makeFormAdminGroup(Form $form)
     {
         $groupName = $form->name;
@@ -1639,11 +1695,10 @@ class ImportController extends Controller {
     }
 
     /**
-     * Creates the form's admin Group.
+     * WHAT_DOESTHISFUNTIONDO
      *
-     * @param $project
-     * @param $request
-     * @return FormGroup
+     * @param  type $name - DESCRIPTION
+     * @return type - DESCRIPTION
      */
     private function makeFormDefaultGroup(Form $form)
     {
@@ -1665,6 +1720,12 @@ class ImportController extends Controller {
         $defaultGroup->save();
     }
 
+    /**
+     * WHAT_DOESTHISFUNTIONDO
+     *
+     * @param  type $name - DESCRIPTION
+     * @return type - DESCRIPTION
+     */
     public function importProject(Request $request){
         if(!\Auth::user()->admin){
             return redirect('projects/');
@@ -1729,6 +1790,12 @@ class ImportController extends Controller {
         return redirect('projects');
     }
 
+    /**
+     * WHAT_DOESTHISFUNTIONDO
+     *
+     * @param  type $name - DESCRIPTION
+     * @return type - DESCRIPTION
+     */
     private function makeProjAdminGroup($project)
     {
         $groupName = $project->name;
@@ -1751,11 +1818,10 @@ class ImportController extends Controller {
     }
 
     /**
-     * Creates the form's admin Group.
+     * WHAT_DOESTHISFUNTIONDO
      *
-     * @param $project
-     * @param $request
-     * @return FormGroup
+     * @param  type $name - DESCRIPTION
+     * @return type - DESCRIPTION
      */
     private function makeProjectDefaultGroup($project)
     {
