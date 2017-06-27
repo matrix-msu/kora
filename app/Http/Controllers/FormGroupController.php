@@ -4,37 +4,39 @@ use App\Form;
 use App\ProjectGroup;
 use App\User;
 use App\FormGroup;
-use App\Http\Requests;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\View\View;
 
-
-/**
- * Form groups control permissions over fields and records within a project.
- *
- * Class FormGroupController
- * @package App\Http\Controllers
- */
 class FormGroupController extends Controller {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Form Group Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles groups that manage user permissions for forms.
+    |
+    */
+
     /**
-     * User must be logged in to access views in this controller.
+     * Constructs controller and makes sure user is authenticated.
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->middleware('auth');
         $this->middleware('active');
     }
 
     /**
-     * @pararm $pid
-     * @param $fid
-     * @return Response
+     * Gets the view for managing form groups.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return View
      */
-    public function index($pid, $fid)
-    {
-        if(!FormController::validProjForm($pid,$fid)){
+    public function index($pid, $fid) {
+        if(!FormController::validProjForm($pid,$fid)) {
             return redirect('projects/'.$pid);
         }
 
@@ -53,20 +55,21 @@ class FormGroupController extends Controller {
     }
 
     /**
-     * Creates a form group.
+     * Creates a new form group.
      *
-     * @param Request $request
-     * @return Response
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     * @return Redirect
      */
-    public function create($pid, $fid, Request $request)
-    {
-        if(!FormController::validProjForm($pid,$fid)){
+    public function create($pid, $fid, Request $request) {
+        if(!FormController::validProjForm($pid,$fid)) {
             return redirect('projects/'.$pid);
         }
 
         $form = FormController::getForm($fid);
 
-        if($request['name'] == ""){
+        if($request['name'] == "") {
             flash()->overlay(trans('controller_formgroup.name'), trans('controller_formgroup.whoops'));
             return redirect(action('FormGroupController@index', ['fid'=>$form->fid]));
         }
@@ -74,7 +77,7 @@ class FormGroupController extends Controller {
         $group = self::buildGroup($pid, $form->fid, $request);
 
         if(!is_null($request['users'])) {
-            foreach ($request['users'] as $uid) {
+            foreach($request['users'] as $uid) {
                 //remove them from an old group if they have one
                 //get any groups the user belongs to
                 $currGroups = DB::table('form_group_user')->where('user_id', $uid)->get();
@@ -83,16 +86,16 @@ class FormGroupController extends Controller {
                 $newUser = true;
 
                 //foreach of the user's project groups, see if one belongs to the current project
-                foreach ($currGroups as $prev) {
+                foreach($currGroups as $prev) {
                     $grp = FormGroup::where('id', '=', $prev->form_group_id)->first();
-                    if ($grp->fid == $group->fid) {
+                    if($grp->fid == $group->fid) {
                         $idOld = $grp->id;
                         $newUser = false;
                         break;
                     }
                 }
 
-                if($newUser){
+                if($newUser) {
                     //add them to the project if they don't exist
                     $inProj = false;
                     $form = FormController::getForm($group->fid);
@@ -100,17 +103,17 @@ class FormGroupController extends Controller {
                     //get all project groups for this project
                     $pGroups = ProjectGroup::where('pid','=', $form->pid)->get();
 
-                    foreach($pGroups as $pg){
+                    foreach($pGroups as $pg) {
                         //see if user belongs to project group
                         $uidPG = DB::table('project_group_user')->where('user_id', $uid)->where('project_group_id', $pg->id)->get();
 
-                        if(!empty($uidPG)){
+                        if(!empty($uidPG)) {
                             $inProj = true;
                         }
                     }
 
                     //not in project, lets add them
-                    if(!$inProj){
+                    if(!$inProj) {
                         $default = ProjectGroup::where('name','=',$proj->name.' Default Group')->first();
                         DB::table('project_group_user')->insert([
                             ['project_group_id' => $default->id, 'user_id' => $uid]
@@ -129,23 +132,21 @@ class FormGroupController extends Controller {
     }
 
     /**
-     * Remove user from form group.
+     * Remove user from a form group.
      *
-     * @param Request $request
+     * @param  Request $request
      */
-    public function removeUser(Request $request)
-    {
+    public function removeUser(Request $request) {
         $instance = FormGroup::where('id', '=', $request['formGroup'])->first();
         $instance->users()->detach($request['userId']);
     }
 
     /**
-     * Add user to form group.
+     * Add user to a form group.
      *
-     * @param Request $request
+     * @param  Request $request
      */
-    public function addUser(Request $request)
-    {
+    public function addUser(Request $request) {
         $instance = FormGroup::where('id', '=', $request['formGroup'])->first();
 
         //get any groups the user belongs to
@@ -155,9 +156,9 @@ class FormGroupController extends Controller {
         $idOld = 0;
 
         //foreach of the user's form groups, see if one belongs to the current project
-        foreach($currGroups as $prev){
+        foreach($currGroups as $prev) {
             $group = FormGroup::where('id', '=', $prev->form_group_id)->first();
-            if($group->fid==$instance->fid){
+            if($group->fid==$instance->fid) {
                 $newUser = false;
                 $idOld = $group->id;
                 break;
@@ -169,7 +170,7 @@ class FormGroupController extends Controller {
             DB::table('form_group_user')->where('user_id', $request['userId'])->where('form_group_id', $idOld)->delete();
 
             echo $idOld;
-        }else{
+        } else {
             //add them to the project if they don't exist
             $inProj = false;
             $form = FormController::getForm($instance->fid);
@@ -177,17 +178,17 @@ class FormGroupController extends Controller {
             //get all project groups for this project
             $pGroups = ProjectGroup::where('pid','=', $form->pid)->get();
 
-            foreach($pGroups as $pg){
+            foreach($pGroups as $pg) {
                 //see if user belongs to project group
                 $uidPG = DB::table('project_group_user')->where('user_id', $request['userId'])->where('project_group_id', $pg->id)->get();
 
-                if(!empty($uidPG)){
+                if(!empty($uidPG)) {
                     $inProj = true;
                 }
             }
 
             //not in project, lets add them
-            if(!$inProj){
+            if(!$inProj) {
                 $default = ProjectGroup::where('name','=',$proj->name.' Default Group')->first();
                 DB::table('project_group_user')->insert([
                     ['project_group_id' => $default->id, 'user_id' => $request['userId']]
@@ -199,26 +200,21 @@ class FormGroupController extends Controller {
     }
 
     /**
-     * Delete user from form group.
+     * Delete an entire form group.
      *
-     * @param Request $request
+     * @param  Request $request
      */
-    public function deleteFormGroup(Request $request)
-    {
+    public function deleteFormGroup(Request $request) {
         $instance = FormGroup::where('id', '=', $request['formGroup'])->first();
         $instance->delete();
     }
 
     /**
-     * Update form group's permissions.
+     * Updates the permission set of a particular form group.
      *
-     * Note that permissions create, edit, and delete refer to the creation, editing, and deletion of fields, respectfully.
-     * And that permissions ingest, modify, and destroy refer to the creation, editing, and deletion of records, respectfully.
-     *
-     * @param Request $request
+     * @param  Request $request
      */
-    public function updatePermissions(Request $request)
-    {
+    public function updatePermissions(Request $request) {
         $formGroup = FormGroup::where('id', '=', $request['formGroup'])->first();
 
         //Because of some name convention problems in JavaScript we use a simple associative array to
@@ -231,7 +227,7 @@ class FormGroupController extends Controller {
             ['permDestroy', 'destroy']
         ];
 
-        foreach($permissions as $permission){
+        foreach($permissions as $permission) {
             if($request[$permission[0]])
                 $formGroup[$permission[1]] = 1;
             else
@@ -240,8 +236,12 @@ class FormGroupController extends Controller {
         $formGroup->save();
     }
 
-    public function updateName(Request $request)
-    {
+    /**
+     * Update the name of a form group.
+     *
+     * @param  Request $request
+     */
+    public function updateName(Request $request) {
         $instance = FormGroup::where('id', '=', $request->gid)->first();
         $instance->name = $request->name;
 
@@ -249,14 +249,14 @@ class FormGroupController extends Controller {
     }
 
     /**
-     * Build a form group.
+     * The function that physically builds the new group.
      *
-     * @param $fid
-     * @param Request $request
-     * @return FormGroup
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     * @return FormGroup - Returns the group model
      */
-    private function buildGroup($pid, $fid, Request $request)
-    {
+    private function buildGroup($pid, $fid, Request $request) {
         $group = new FormGroup();
         $group->name = $request['name'];
         $group->fid = $fid;
@@ -273,7 +273,12 @@ class FormGroupController extends Controller {
         return $group;
     }
 
-    public static function updateMainGroupNames($form){
+    /**
+     * Updates the names of the Admin and Default groups when the Form name changes.
+     *
+     * @param  Form $form - Form that group belongs to
+     */
+    public static function updateMainGroupNames($form) {
         $admin = FormGroup::where('fid', '=', $form->fid)->where('name', 'like', '% Admin Group')->get()->first();
         $default = FormGroup::where('fid', '=', $form->fid)->where('name', 'like', '% Default Group')->get()->first();
 
@@ -283,5 +288,4 @@ class FormGroupController extends Controller {
         $default->name = $form->name.' Default Group';
         $default->save();
     }
-
 }
