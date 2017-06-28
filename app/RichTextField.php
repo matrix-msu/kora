@@ -1,5 +1,6 @@
 <?php namespace App;
 
+use App\Http\Controllers\FieldController;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Builder;
 use Illuminate\Support\Facades\DB;
@@ -7,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 class RichTextField extends BaseField {
 
     const FIELD_OPTIONS_VIEW = "fields.options.richtext";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.richtext";
 
     protected $fillable = [
         'rid',
@@ -36,6 +38,12 @@ class RichTextField extends BaseField {
                 break;
         }
 
+    }
+
+    public static function updateOptions($pid, $fid, $flid, $request){
+        FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
+        FieldController::updateDefault($pid, $fid, $flid, $request->default);
     }
 
     /**

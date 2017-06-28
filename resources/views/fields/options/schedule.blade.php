@@ -2,7 +2,7 @@
 
 @section('fieldOptions')
 
-    {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['OptionController@updateSchedule', $field->pid, $field->fid, $field->flid], 'onsubmit' => 'selectAll()']) !!}
+    {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldAjaxController@updateOptions', $field->pid, $field->fid, $field->flid, $field->type], 'onsubmit' => 'selectAll()']) !!}
     @include('fields.options.hiddens')
     <div class="form-group">
         {!! Form::label('required',trans('fields_options_schedule.req').': ') !!}

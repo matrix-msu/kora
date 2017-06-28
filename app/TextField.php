@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 class TextField extends BaseField {
 
     const FIELD_OPTIONS_VIEW = "fields.options.text";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.text";
 
     protected $fillable = [
         'rid',
@@ -36,6 +37,36 @@ class TextField extends BaseField {
                 break;
         }
 
+    }
+
+    public static function updateOptions($pid, $fid, $flid, $request, $return=true){
+        $advString = '';
+
+        if($request->regex!=''){
+            $regArray = str_split($request->regex);
+            if($regArray[0]!=end($regArray)){
+                $request->regex = '/'.$request->regex.'/';
+            }
+            if ($request->default!='' && !preg_match($request->regex, $request->default))
+            {
+                if($return){
+                    flash()->error('The default value does not match the given regex pattern.');
+
+                    return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options')->withInput();
+                }else{
+                    $request->default = '';
+                    $advString = 'The default value does not match the given regex pattern.';
+                }
+            }
+        }
+
+        FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
+        FieldController::updateDefault($pid, $fid, $flid, $request->default);
+        FieldController::updateOptions($pid, $fid, $flid, 'Regex', $request->regex);
+        FieldController::updateOptions($pid, $fid, $flid, 'MultiLine', $request->multi);
+
+        return $advString;
     }
 
     /**

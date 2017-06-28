@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 class MultiSelectListField extends BaseField {
 
     const FIELD_OPTIONS_VIEW = "fields.options.mslist";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.mslist";
 
     protected $fillable = [
         'rid',
@@ -39,6 +40,25 @@ class MultiSelectListField extends BaseField {
                 break;
         }
 
+    }
+
+    public static function updateOptions($pid, $fid, $flid, $request){
+        $reqDefs = $request->default;
+        $default = $reqDefs[0];
+        for($i=1;$i<sizeof($reqDefs);$i++){
+            $default .= '[!]'.$reqDefs[$i];
+        }
+
+        $reqOpts = $request->options;
+        $options = $reqOpts[0];
+        for($i=1;$i<sizeof($reqOpts);$i++){
+            $options .= '[!]'.$reqOpts[$i];
+        }
+
+        FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
+        FieldController::updateDefault($pid, $fid, $flid, $default);
+        FieldController::updateOptions($pid, $fid, $flid, 'Options', $options);
     }
 
     public static function getList($field, $blankOpt=false)

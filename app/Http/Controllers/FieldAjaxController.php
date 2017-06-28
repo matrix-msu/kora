@@ -1,10 +1,13 @@
 <?php namespace App\Http\Controllers;
 
 use App\ComboListField;
+use App\Field;
 use App\FileTypeField;
 use App\GalleryField;
 use App\GeolocatorField;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\View\View;
 
 class FieldAjaxController extends Controller {
 
@@ -107,5 +110,32 @@ class FieldAjaxController extends Controller {
      */
     public function getImgDisplay($rid, $flid, $filename, $type){
         return GalleryField::getImgDisplay($rid, $flid, $filename, $type);
+    }
+
+    /**
+     * Gets field form for advanced create view.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     * @return View
+     */
+    public function getAdvancedOptionsPage($pid, $fid, Request $request) {
+        $type = $request->type;
+
+        return view(Field::getAdvFieldTypeView($type), compact('field', 'form', 'proj','presets'));
+    }
+
+    /**
+     * Update the options for a particular field.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $flid - Field ID
+     * @param  Request $request
+     * @return Redirect
+     */
+    public function updateOptions($pid, $fid, $flid, $type, Request $request){
+        return Field::updateOptions($pid, $fid, $flid, $type, $request);
     }
 }

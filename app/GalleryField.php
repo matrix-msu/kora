@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 class GalleryField extends FileTypeField  {
 
     const FIELD_OPTIONS_VIEW = "fields.options.gallery";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.gallery";
 
     protected $fillable = [
         'rid',
@@ -65,6 +66,44 @@ class GalleryField extends FileTypeField  {
                 break;
         }
 
+    }
+
+    public static function updateOptions($pid, $fid, $flid, $request){
+        $filetype = $request->filetype[0];
+        for($i=1;$i<sizeof($request->filetype);$i++){
+            $filetype .= '[!]'.$request->filetype[$i];
+        }
+
+        if($request->filesize==''){
+            $request->filesize = 0;
+        }
+        if($request->maxfiles==''){
+            $request->maxfiles = 0;
+        }
+
+        $sx = $request->small_x;
+        $sy = $request->small_y;
+        if($sx=='')
+            $sx = 150;
+        if($sy=='')
+            $sy = 150;
+        $small = $sx.'x'.$sy;
+
+        $lx = $request->large_x;
+        $ly = $request->large_y;
+        if($lx=='')
+            $lx = 300;
+        if($ly=='')
+            $ly = 300;
+        $large = $lx.'x'.$ly;
+
+        FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
+        FieldController::updateOptions($pid, $fid, $flid, 'FieldSize', $request->filesize);
+        FieldController::updateOptions($pid, $fid, $flid, 'MaxFiles', $request->maxfiles);
+        FieldController::updateOptions($pid, $fid, $flid, 'FileTypes', $filetype);
+        FieldController::updateOptions($pid, $fid, $flid, 'ThumbSmall', $small);
+        FieldController::updateOptions($pid, $fid, $flid, 'ThumbLarge', $large);
     }
 
     /**

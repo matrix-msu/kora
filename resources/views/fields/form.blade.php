@@ -111,7 +111,7 @@
     $('#advance_options_div').on('click','#adv_opt',function(){
         //opens advanced options page for selected type
         $.ajax({
-            url: "{{ action('OptionController@getAdvancedOptionsPage',['pid' => $pid,'fid'=>$fid]) }}",
+            url: "{{ action('FieldAjaxController@getAdvancedOptionsPage',['pid' => $pid,'fid'=>$fid]) }}",
             type: 'GET',
             data: {
                 "_token": "{{ csrf_token() }}",

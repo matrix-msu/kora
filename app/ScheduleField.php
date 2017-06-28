@@ -1,5 +1,6 @@
 <?php namespace App;
 
+use App\Http\Controllers\FieldController;
 use DateTime;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
@@ -10,6 +11,7 @@ class ScheduleField extends BaseField {
 
     const SUPPORT_NAME = "schedule_support";
     const FIELD_OPTIONS_VIEW = "fields.options.schedule";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.schedule";
 
     protected $fillable = [
         'rid',
@@ -64,6 +66,28 @@ class ScheduleField extends BaseField {
                 break;
         }
 
+    }
+
+    public static function updateOptions($pid, $fid, $flid, $request){
+        $reqDefs = $request->default;
+        $default = $reqDefs[0];
+        for($i=1;$i<sizeof($reqDefs);$i++){
+            $default .= '[!]'.$reqDefs[$i];
+        }
+
+        if($request->start=='' | $request->start == 0){
+            $request->start = 1;
+        }
+        if($request->end==''){
+            $request->end = 9999;
+        }
+
+        FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
+        FieldController::updateDefault($pid, $fid, $flid, $default);
+        FieldController::updateOptions($pid, $fid, $flid, 'Start', $request->start);
+        FieldController::updateOptions($pid, $fid, $flid, 'End', $request->end);
+        FieldController::updateOptions($pid, $fid, $flid, 'Calendar', $request->cal);
     }
 
     public static function getDateList($field)

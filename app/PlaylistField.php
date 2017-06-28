@@ -1,5 +1,6 @@
 <?php namespace App;
 
+use App\Http\Controllers\FieldController;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -7,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 class PlaylistField extends FileTypeField  {
 
     const FIELD_OPTIONS_VIEW = "fields.options.playlist";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.playlist";
 
     protected $fillable = [
         'rid',
@@ -55,6 +57,26 @@ class PlaylistField extends FileTypeField  {
                 break;
         }
 
+    }
+
+    public static function updateOptions($pid, $fid, $flid, $request){
+        $filetype = $request->filetype[0];
+        for($i=1;$i<sizeof($request->filetype);$i++){
+            $filetype .= '[!]'.$request->filetype[$i];
+        }
+
+        if($request->filesize==''){
+            $request->filesize = 0;
+        }
+        if($request->maxfiles==''){
+            $request->maxfiles = 0;
+        }
+
+        FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
+        FieldController::updateOptions($pid, $fid, $flid, 'FieldSize', $request->filesize);
+        FieldController::updateOptions($pid, $fid, $flid, 'MaxFiles', $request->maxfiles);
+        FieldController::updateOptions($pid, $fid, $flid, 'FileTypes', $filetype);
     }
 
     /**

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 class DateField extends BaseField {
 
     const FIELD_OPTIONS_VIEW = "fields.options.date";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.date";
 
     /**
      * Month day year format.
@@ -69,6 +70,32 @@ class DateField extends BaseField {
                 break;
         }
 
+    }
+
+    public static function updateOptions($pid, $fid, $flid, $request){
+        if(DateField::validateDate($request->default_month,$request->default_day,$request->default_year))
+            $default = '[M]'.$request->default_month.'[M][D]'.$request->default_day.'[D][Y]'.$request->default_year.'[Y]';
+        else{
+            flash()->error(trans('controller_option.baddate'));
+
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options')->withInput();
+        }
+
+        if($request->start=='' | $request->start==0){
+            $request->start = 1;
+        }
+        if($request->end==''){
+            $request->end = 9999;
+        }
+
+        FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
+        FieldController::updateDefault($pid, $fid, $flid, $default);
+        FieldController::updateOptions($pid, $fid, $flid, 'Format', $request->format);
+        FieldController::updateOptions($pid, $fid, $flid, 'Start', $request->start);
+        FieldController::updateOptions($pid, $fid, $flid, 'End', $request->end);
+        FieldController::updateOptions($pid, $fid, $flid, 'Circa', $request->circa);
+        FieldController::updateOptions($pid, $fid, $flid, 'Era', $request->era);
     }
 
     /**

@@ -1,6 +1,7 @@
 <?php namespace App;
 
 use App\FieldHelpers\gPoint;
+use App\Http\Controllers\FieldController;
 use Geocoder\Geocoder;
 use Geocoder\HttpAdapter\CurlHttpAdapter;
 use Geocoder\Provider\NominatimProvider;
@@ -15,6 +16,7 @@ class GeolocatorField extends BaseField {
 
     const SUPPORT_NAME = "geolocator_support";
     const FIELD_OPTIONS_VIEW = "fields.options.geolocator";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.geolocator";
 
     protected $fillable = [
         'rid',
@@ -61,6 +63,20 @@ class GeolocatorField extends BaseField {
                 break;
         }
 
+    }
+
+    public static function updateOptions($pid, $fid, $flid, $request){
+        $reqDefs = $request->default;
+        $default = $reqDefs[0];
+        for($i=1;$i<sizeof($reqDefs);$i++){
+            $default .= '[!]'.$reqDefs[$i];
+        }
+
+        FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
+        FieldController::updateDefault($pid, $fid, $flid, $default);
+        FieldController::updateOptions($pid, $fid, $flid, 'Map', $request->map);
+        FieldController::updateOptions($pid, $fid, $flid, 'DataView', $request->view);
     }
 
     /**

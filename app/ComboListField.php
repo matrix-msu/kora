@@ -11,6 +11,7 @@ class ComboListField extends BaseField {
 
     const SUPPORT_NAME = "combo_support";
     const FIELD_OPTIONS_VIEW = "fields.options.combolist";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.combolist";
 
     protected $fillable = [
         'rid',
@@ -117,6 +118,96 @@ class ComboListField extends BaseField {
                 break;
         }
 
+    }
+
+    public static function updateOptions($pid, $fid, $flid, $request){
+        $flopt_one ='[Type]'.$request->typeone.'[Type][Name]'.$request->nameone.'[Name][Options]';
+
+        if($request->typeone == 'Text'){
+            $flopt_one .= '[!Regex!]'.$request->regex_one.'[!Regex!]';
+            $flopt_one .= '[!MultiLine!]'.$request->multi_one.'[!MultiLine!]';
+        }else if($request->typeone == 'Number'){
+            $flopt_one .= '[!Max!]'.$request->max_one.'[!Max!]';
+            $flopt_one .= '[!Min!]'.$request->min_one.'[!Min!]';
+            $flopt_one .= '[!Increment!]'.$request->inc_one.'[!Increment!]';
+            $flopt_one .= '[!Unit!]'.$request->unit_one.'[!Unit!]';
+        }else if($request->typeone == 'List' | $request->typeone == 'Multi-Select List'){
+            $flopt_one .= '[!Options!]';
+
+            $reqOpts = $request->options_one;
+            $options = $reqOpts[0];
+            for($i=1;$i<sizeof($reqOpts);$i++){
+                $options .= '[!]'.$reqOpts[$i];
+            }
+            $flopt_one .= $options;
+            $flopt_one .= '[!Options!]';
+        }else if($request->typeone == 'Generated List'){
+            $flopt_one .= '[!Options!]';
+
+            $reqOpts = $request->options_one;
+            $options = $reqOpts[0];
+            for($i=1;$i<sizeof($reqOpts);$i++){
+                $options .= '[!]'.$reqOpts[$i];
+            }
+            $flopt_one .= $options;
+            $flopt_one .= '[!Options!]';
+            $flopt_one .= '[!Regex!]'.$request->regex_one.'[!Regex!]';
+        }
+
+        $flopt_one .= '[Options]';
+
+        $flopt_two ='[Type]'.$request->typetwo.'[Type][Name]'.$request->nametwo.'[Name][Options]';
+
+        if($request->typetwo == 'Text'){
+            $flopt_two .= '[!Regex!]'.$request->regex_two.'[!Regex!]';
+            $flopt_two .= '[!MultiLine!]'.$request->multi_two.'[!MultiLine!]';
+        }else if($request->typetwo == 'Number'){
+            $flopt_two .= '[!Max!]'.$request->max_two.'[!Max!]';
+            $flopt_two .= '[!Min!]'.$request->min_two.'[!Min!]';
+            $flopt_two .= '[!Increment!]'.$request->inc_two.'[!Increment!]';
+            $flopt_two .= '[!Unit!]'.$request->unit_two.'[!Unit!]';
+        }else if($request->typetwo == 'List' | $request->typetwo == 'Multi-Select List'){
+            $flopt_two .= '[!Options!]';
+
+            $reqOpts = $request->options_two;
+            $options = $reqOpts[0];
+            for($i=1;$i<sizeof($reqOpts);$i++){
+                $options .= '[!]'.$reqOpts[$i];
+            }
+            $flopt_two .= $options;
+            $flopt_two .= '[!Options!]';
+        }else if($request->typetwo == 'Generated List'){
+            $flopt_two .= '[!Options!]';
+
+            $reqOpts = $request->options_two;
+            $options = $reqOpts[0];
+            for($i=1;$i<sizeof($reqOpts);$i++){
+                $options .= '[!]'.$reqOpts[$i];
+            }
+            $flopt_two .= $options;
+            $flopt_two .= '[!Options!]';
+            $flopt_two .= '[!Regex!]'.$request->regex_two.'[!Regex!]';
+        }
+
+        $flopt_two .= '[Options]';
+
+        $default='';
+        if(!is_null($request->defvalone) && $request->defvalone != ''){
+            $default .= '[!f1!]'.$request->defvalone[0].'[!f1!]';
+            $default .= '[!f2!]'.$request->defvaltwo[0].'[!f2!]';
+
+            for($i=1;$i<sizeof($request->defvalone);$i++){
+                $default .= '[!def!]';
+                $default .= '[!f1!]'.$request->defvalone[$i].'[!f1!]';
+                $default .= '[!f2!]'.$request->defvaltwo[$i].'[!f2!]';
+            }
+        }
+
+        FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
+        FieldController::updateDefault($pid, $fid, $flid, $default);
+        FieldController::updateOptions($pid, $fid, $flid, 'Field1', $flopt_one);
+        FieldController::updateOptions($pid, $fid, $flid, 'Field2', $flopt_two);
     }
 
     public static function getComboList($field, $blankOpt=false, $fnum)

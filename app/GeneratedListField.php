@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 class GeneratedListField extends BaseField {
 
     const FIELD_OPTIONS_VIEW = "fields.options.genlist";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.genlist";
 
     protected $fillable = [
         'rid',
@@ -39,6 +40,32 @@ class GeneratedListField extends BaseField {
                 break;
         }
 
+    }
+
+    public static function updateOptions($pid, $fid, $flid, $request){
+        $reqDefs = $request->default;
+        $default = $reqDefs[0];
+        for($i=1;$i<sizeof($reqDefs);$i++){
+            $default .= '[!]'.$reqDefs[$i];
+        }
+
+        $reqOpts = $request->options;
+        $options = $reqOpts[0];
+        for($i=1;$i<sizeof($reqOpts);$i++){
+            if ($request->regex!='' && !preg_match($request->regex, $reqOpts[$i]))
+            {
+                flash()->error(trans('controller_option.genregex',['opt' => $reqOpts[$i]]));
+
+                return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options')->withInput();
+            }
+            $options .= '[!]'.$reqOpts[$i];
+        }
+
+        FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
+        FieldController::updateDefault($pid, $fid, $flid, $default);
+        FieldController::updateOptions($pid, $fid, $flid, 'Regex', $request->regex);
+        FieldController::updateOptions($pid, $fid, $flid, 'Options', $options);
     }
 
     public static function getList($field, $blankOpt=false)

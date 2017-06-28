@@ -654,6 +654,131 @@ class Field extends Model {
         }
     }
 
+    static function getAdvFieldTypeView($field_type)
+    {
+        switch ($field_type) {
+            case self::_TEXT:
+                return TextField::FIELD_ADV_OPTIONS_VIEW;
+                break;
+            case self::_RICH_TEXT:
+                return RichTextField::FIELD_ADV_OPTIONS_VIEW;
+                break;
+            case self::_NUMBER:
+                return NumberField::FIELD_ADV_OPTIONS_VIEW;
+                break;
+            case self::_LIST:
+                return ListField::FIELD_ADV_OPTIONS_VIEW;
+                break;
+            case self::_MULTI_SELECT_LIST:
+                return MultiSelectListField::FIELD_ADV_OPTIONS_VIEW;
+                break;
+            case self::_GENERATED_LIST:
+                return GeneratedListField::FIELD_ADV_OPTIONS_VIEW;
+                break;
+            case self::_DATE:
+                return DateField::FIELD_ADV_OPTIONS_VIEW;
+                break;
+            case self::_SCHEDULE:
+                return ScheduleField::FIELD_ADV_OPTIONS_VIEW;
+                break;
+            case self::_GEOLOCATOR:
+                return GeolocatorField::FIELD_ADV_OPTIONS_VIEW;
+                break;
+            case self::_DOCUMENTS:
+                return DocumentsField::FIELD_ADV_OPTIONS_VIEW;
+                break;
+            case self::_GALLERY:
+                return GalleryField::FIELD_ADV_OPTIONS_VIEW;
+                break;
+            case self::_3D_MODEL:
+                return ModelField::FIELD_ADV_OPTIONS_VIEW;
+                break;
+            case self::_PLAYLIST:
+                return PlaylistField::FIELD_ADV_OPTIONS_VIEW;
+                break;
+            case self::_VIDEO:
+                return VideoField::FIELD_ADV_OPTIONS_VIEW;
+                break;
+            case self::_COMBO_LIST:
+                return ComboListField::FIELD_ADV_OPTIONS_VIEW;
+                break;
+            case self::_ASSOCIATOR:
+                return AssociatorField::FIELD_ADV_OPTIONS_VIEW;
+                break;
+            default: // Error occurred.
+                throw new \Exception("Invalid field type in field::field option.");
+                break;
+        }
+    }
+
+    static function updateOptions($pid, $fid, $flid, $field_type, $request, $return=true)
+    {
+        switch ($field_type) {
+            case self::_TEXT:
+                $returnval = TextField::updateOptions($pid, $fid, $flid, $request, $return);
+                break;
+            case self::_RICH_TEXT:
+                RichTextField::updateOptions($pid, $fid, $flid, $request);
+                break;
+            case self::_NUMBER:
+                $returnval = NumberField::updateOptions($pid, $fid, $flid, $request, $return);
+                break;
+            case self::_LIST:
+                ListField::updateOptions($pid, $fid, $flid, $request);
+                break;
+            case self::_MULTI_SELECT_LIST:
+                MultiSelectListField::updateOptions($pid, $fid, $flid, $request);
+                break;
+            case self::_GENERATED_LIST:
+                GeneratedListField::updateOptions($pid, $fid, $flid, $request);
+                break;
+            case self::_DATE:
+                DateField::updateOptions($pid, $fid, $flid, $request);
+                break;
+            case self::_SCHEDULE:
+                ScheduleField::updateOptions($pid, $fid, $flid, $request);
+                break;
+            case self::_GEOLOCATOR:
+                GeolocatorField::updateOptions($pid, $fid, $flid, $request);
+                break;
+            case self::_DOCUMENTS:
+                DocumentsField::updateOptions($pid, $fid, $flid, $request);
+                break;
+            case self::_GALLERY:
+                GalleryField::updateOptions($pid, $fid, $flid, $request);
+                break;
+            case self::_3D_MODEL:
+                ModelField::updateOptions($pid, $fid, $flid, $request);
+                break;
+            case self::_PLAYLIST:
+                PlaylistField::updateOptions($pid, $fid, $flid, $request);
+                break;
+            case self::_VIDEO:
+                VideoField::updateOptions($pid, $fid, $flid, $request);
+                break;
+            case self::_COMBO_LIST:
+                ComboListField::updateOptions($pid, $fid, $flid, $request);
+                break;
+            case self::_ASSOCIATOR:
+                AssociatorField::updateOptions($pid, $fid, $flid, $request);
+                break;
+            default: // Error occurred.
+                throw new \Exception("Invalid field type in field::field option.");
+                break;
+        }
+
+        if($return) {
+            flash()->success(trans('controller_option.updated'));
+
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
+        } else {
+            if($field_type==self::_TEXT | $field_type==self::_NUMBER)
+                return $returnval;
+            else
+                return '';
+        }
+    }
+
     /**
      * Processes an argument so it can be used in a file field.
      *

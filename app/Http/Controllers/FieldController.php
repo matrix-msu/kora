@@ -75,8 +75,7 @@ class FieldController extends Controller {
         //if advanced options was selected we should call the correct one
         $advError = false;
         if($request->advance) {
-            $optC = new OptionController();
-            $result = $optC->updateAdvanced($field,$request);
+            $result = Field::updateOptions($field->pid, $field->fid, $field->flid, $field->type, $request, false);
             if($result != '') {
                 $advError = true;
                 flash()->error('There was an error with the advanced options. '.$result.' Please visit the options page of the field.');

@@ -20,7 +20,7 @@
             }
     ?>
 
-    {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['OptionController@updateAssociator', $field->pid, $field->fid, $field->flid], 'onsubmit' => 'saveAssocList()']) !!}
+    {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldAjaxController@updateOptions', $field->pid, $field->fid, $field->flid, $field->type], 'onsubmit' => 'saveAssocList()']) !!}
     @include('fields.options.hiddens')
     <div class="form-group">
         {!! Form::label('required',trans('fields_options_associator.req').': ') !!}

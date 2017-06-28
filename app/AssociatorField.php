@@ -10,6 +10,7 @@ class AssociatorField extends BaseField {
 
     const SUPPORT_NAME = "associator_support";
     const FIELD_OPTIONS_VIEW = "fields.options.associator";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.associator";
 
     protected $fillable = [
         'rid',
@@ -55,6 +56,23 @@ class AssociatorField extends BaseField {
                 break;
         }
 
+    }
+
+    public static function updateOptions($pid, $fid, $flid, $request){
+        if(is_null($request->default)){
+            $default = '';
+        }else {
+            $reqDefs = array_values(array_unique($request->default));
+            $default = $reqDefs[0];
+            for ($i = 1; $i < sizeof($reqDefs); $i++) {
+                $default .= '[!]' . $reqDefs[$i];
+            }
+        }
+
+        FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
+        FieldController::updateDefault($pid, $fid, $flid, $default);
+        FieldController::updateOptions($pid, $fid, $flid, 'SearchForms', $request->searchforms);
     }
 
     public function getPreviewValues($rid){

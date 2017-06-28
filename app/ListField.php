@@ -8,6 +8,7 @@ use Illuminate\Database\Query\Builder;
 class ListField extends BaseField {
 
     const FIELD_OPTIONS_VIEW = "fields.options.list";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.list";
 
     protected $fillable = [
         'rid',
@@ -36,6 +37,19 @@ class ListField extends BaseField {
                 break;
         }
 
+    }
+
+    public static function updateOptions($pid, $fid, $flid, $request){
+        $reqOpts = $request->options;
+        $options = $reqOpts[0];
+        for($i=1;$i<sizeof($reqOpts);$i++){
+            $options .= '[!]'.$reqOpts[$i];
+        }
+
+        FieldController::updateRequired($pid, $fid, $flid, $request->required);
+        FieldController::updateSearchable($pid, $fid, $flid, $request);
+        FieldController::updateDefault($pid, $fid, $flid, $request->default);
+        FieldController::updateOptions($pid, $fid, $flid, 'Options', $options);
     }
 
     public static function getList($field, $blankOpt=false)
