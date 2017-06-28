@@ -201,6 +201,7 @@ class AdminController extends Controller {
                     $User->delete();
                 }
             }
+            //TODO::Can we make this more modular?
             DB::table('projects')->delete();
             DB::table('forms')->delete();
             DB::table('fields')->delete();

@@ -1,16 +1,14 @@
 <?php namespace App\Http\Controllers;
 
-use App\Metadata;
 use App\Version;
 use Illuminate\Support\Collection;
-use \Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 Use \Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Schema;
-use \Illuminate\Support\Facades\Session;
 use \Illuminate\Support\Facades\Config;
 use \Illuminate\Support\Facades\Artisan;
-use PhpSpec\Exception\Exception;
+use Illuminate\View\View;
 
 class InstallController extends Controller {
 
@@ -19,12 +17,14 @@ class InstallController extends Controller {
 	| Install Controller
 	|--------------------------------------------------------------------------
 	|
-	| This controller handles generating the .env file a2pdo67a7nd running the artisan
+	| This controller handles generating the .env file and running the artisan
 	| migration so the rest of the controllers can function.  It also creates the
-	| first user.  And sets the application key, and creates needed folders.
+	| first user. And sets the application key, and creates needed folders
 	*/
 
-    //Any directory in this array will be created for you during install with 0644 permission
+    /**
+     * @var array - Directories that will be created upon installation.
+     */
     public $DIRECTORIES = ["storage/app/backups",
 		"storage/app/backups/user_upload",
 		"storage/app/backups/files",
@@ -39,6 +39,9 @@ class InstallController extends Controller {
         "python/temp"
 	];
 
+    /**
+     * @var array - Stock option presets for various field types.
+     */
     public $STOCKPRESETS = ["URL_URI" => ["type"=>"Text","preset"=>"/^(http|ftp|https):\/\//"],
         "Boolean" => ["type"=>"List","preset"=>"Yes[!]No"],
         "Countries" => ["type"=>"List","preset"=>"United States[!]United Nations[!]Canada[!]Mexico[!]Afghanistan[!]Albania[!]Algeria[!]American Samoa[!]Andorra[!]Angola[!]Anguilla[!]Antarctica[!]Antigua and Barbuda[!]Argentina[!]Armenia[!]Aruba[!]Australia[!]Austria[!]Azerbaijan[!]Bahamas[!]Bahrain[!]Bangladesh[!]Barbados[!]Belarus[!]Belgium[!]Belize[!]Benin[!]Bermuda[!]Bhutan[!]Bolivia[!]Bosnia and Herzegowina[!]Botswana[!]Bouvet Island[!]Brazil[!]British Indian Ocean Terr.[!]Brunei Darussalam[!]Bulgaria[!]Burkina Faso[!]Burundi[!]Cambodia[!]Cameroon[!]Cape Verde[!]Cayman Islands[!]Central African Republic[!]Chad[!]Chile[!]China[!]Christmas Island[!]Cocos (Keeling) Islands[!]Colombia[!]Comoros[!]Congo[!]Cook Islands[!]Costa Rica[!]Cote d`Ivoire[!]Croatia (Hrvatska)[!]Cuba[!]Cyprus[!]Czech Republic[!]Denmark[!]Djibouti[!]Dominica[!]Dominican Republic[!]East Timor[!]Ecuador[!]Egypt[!]El Salvador[!]Equatorial Guinea[!]Eritrea[!]Estonia[!]Ethiopia[!]Falkland Islands/Malvinas[!]Faroe Islands[!]Fiji[!]Finland[!]France[!]France, Metropolitan[!]French Guiana[!]French Polynesia[!]French Southern Terr.[!]Gabon[!]Gambia[!]Georgia[!]Germany[!]Ghana[!]Gibraltar[!]Greece[!]Greenland[!]Grenada[!]Guadeloupe[!]Guam[!]Guatemala[!]Guinea[!]Guinea-Bissau[!]Guyana[!]Haiti[!]Heard &amp; McDonald Is.[!]Honduras[!]Hong Kong[!]Hungary[!]Iceland[!]India[!]Indonesia[!]Iran[!]Iraq[!]Ireland[!]Israel[!]Italy[!]Jamaica[!]Japan[!]Jordan[!]Kazakhstan[!]Kenya[!]Kiribati[!]Korea, North[!]Korea, South[!]Kuwait[!]Kyrgyzstan[!]Lao People`s Dem. Rep.[!]Latvia[!]Lebanon[!]Lesotho[!]Liberia[!]Libyan Arab Jamahiriya[!]Liechtenstein[!]Lithuania[!]Luxembourg[!]Macau[!]Macedonia[!]Madagascar[!]Malawi[!]Malaysia[!]Maldives[!]Mali[!]Malta[!]Marshall Islands[!]Martinique[!]Mauritania[!]Mauritius[!]Mayotte[!]Micronesia[!]Moldova[!]Monaco[!]Mongolia[!]Montserrat[!]Morocco[!]Mozambique[!]Myanmar[!]Namibia[!]Nauru[!]Nepal[!]Netherlands[!]Netherlands Antilles[!]New Caledonia[!]New Zealand[!]Nicaragua[!]Niger[!]Nigeria[!]Niue[!]Norfolk Island[!]Northern Mariana Is.[!]Norway[!]Oman[!]Pakistan[!]Palau[!]Panama[!]Papua New Guinea[!]Paraguay[!]Peru[!]Philippines[!]Pitcairn[!]Poland[!]Portugal[!]Puerto Rico[!]Qatar[!]Reunion[!]Romania[!]Russian Federation[!]Rwanda[!]Saint Kitts and Nevis[!]Saint Lucia[!]St. Vincent &amp; Grenadines[!]Samoa[!]San Marino[!]Sao Tome &amp; Principe[!]Saudi Arabia[!]Senegal[!]Seychelles[!]Sierra Leone[!]Singapore[!]Slovakia (Slovak Republic)[!]Slovenia[!]Solomon Islands[!]Somalia[!]South Africa[!]S.Georgia &amp; S.Sandwich Is.[!]Spain[!]Sri Lanka[!]St. Helena[!]St. Pierre &amp; Miquelon[!]Sudan[!]Suriname[!]Svalbard &amp; Jan Mayen Is.[!]Swaziland[!]Sweden[!]Switzerland[!]Syrian Arab Republic[!]Taiwan[!]Tajikistan[!]Tanzania[!]Thailand[!]Togo[!]Tokelau[!]Tonga[!]Trinidad and Tobago[!]Tunisia[!]Turkey[!]Turkmenistan[!]Turks &amp; Caicos Islands[!]Tuvalu[!]Uganda[!]Ukraine[!]United Arab Emirates[!]United Kingdom[!]U.S. Minor Outlying Is.[!]Uruguay[!]Uzbekistan[!]Vanuatu[!]Vatican (Holy See)[!]Venezuela[!]Viet Nam[!]Virgin Islands (British)[!]Virgin Islands (U.S.)[!]Wallis &amp; Futuna Is.[!]Western Sahara[!]Yemen[!]Yugoslavia[!]Zaire[!]Zambia[!]Zimbabwe"],
@@ -48,10 +51,14 @@ class InstallController extends Controller {
         "US Capitols" => ["type"=>"Geolocator","preset"=>"[Desc]Montgomery, Alabama[Desc][LatLon]32.361538,-86.279118[LatLon][UTM]16S:567823.38838923,3580738.9844514[UTM][Address] East 5th Street Montgomery Alabama[Address][!][Desc]Juneau, Alaska[Desc][LatLon]58.301935,-134.419740[LatLon][UTM]8V:534009.26096904,6462472.8464997[UTM][Address]709 West 9th Street Juneau Alaska[Address][!][Desc]Phoenix, Arizona[Desc][LatLon]33.448457,-112.073844[LatLon][UTM]12S:400194.21279718,3701520.2757013[UTM][Address]Suite 1400 North Central Avenue Phoenix Arizona[Address][!][Desc]Little Rock, Arkansas[Desc][LatLon]34.736009,-92.331122[LatLon][UTM]15S:561232.09562153,3843971.7628186[UTM][Address] West 18th Street  Arkansas[Address][!][Desc]Sacramento, California[Desc][LatLon]38.555605,-121.468926[LatLon][UTM]10S:633407.27512251,4268574.590979[UTM][Address] X Street Y Street Alley Sacramento California[Address][!][Desc]Denver, Colorado[Desc][LatLon]39.7391667,-104.984167[LatLon][UTM]13S:501356.62832259,4398808.0467364[UTM][Address]200 East Colfax Avenue Denver Colorado[Address][!][Desc]Hartford, Connecticut[Desc][LatLon]41.767,-72.677[LatLon][UTM]18T:693091.61449858,4626515.1509541[UTM][Address] Haynes Street City Of Hartford Connecticut[Address][!][Desc]Dover, Delaware[Desc][LatLon]39.161921,-75.526755[LatLon][UTM]18S:454491.37347078,4334877.4920692[UTM][Address] North Bradford Street Dover Delaware[Address][!][Desc]Tallahassee, Florida[Desc][LatLon]30.4518,-84.27277[LatLon][UTM]16R:761883.81679029,3372010.5037012[UTM][Address]902 Martin Street Tallahassee Florida[Address][!][Desc]Atlanta, Georgia[Desc][LatLon]33.76,-84.39[LatLon][UTM]16S:741735.79582188,3738606.7627897[UTM][Address]196 Ted Turner Drive Northwest Atlanta Georgia[Address][!][Desc]Honolulu, Hawaii[Desc][LatLon]21.30895,-157.826182[LatLon][UTM]4Q:621747.01926081,2356793.8454331[UTM][Address] Mamane Place Honolulu Hawaii[Address][!][Desc]Boise, Idaho[Desc][LatLon]43.613739,-116.237651[LatLon][UTM]11T:561515.86953992,4829255.4444125[UTM][Address] Gage Street Boise City Idaho[Address][!][Desc]Springfield, Illinois[Desc][LatLon]39.783250,-89.650373[LatLon][UTM]16S:273036.44670432,4407060.8758545[UTM][Address] East Laurel Street Springfield Illinois[Address][!][Desc]Indianapolis, Indiana[Desc][LatLon]39.790942,-86.147685[LatLon][UTM]16S:572975.22719286,4404901.6314715[UTM][Address] East 17th Street Indianapolis Indiana[Address][!][Desc]Des Moines, Iowa[Desc][LatLon]41.590939,-93.620866[LatLon][UTM]15T:448253.23858349,4604546.3882494[UTM][Address] 2nd Avenue Des Moines Iowa[Address][!][Desc]Topeka, Kansas[Desc][LatLon]39.04,-95.69[LatLon][UTM]15S:267181.5390966,4324659.2616614[UTM][Address]1018 Southwest 15th Street Topeka Kansas[Address][!][Desc]Frankfort, Kentucky[Desc][LatLon]38.197274,-84.86311[LatLon][UTM]16S:687119.84422167,4229861.6492636[UTM][Address] East Main Street Frankfort Kentucky[Address][!][Desc]Baton Rouge, Louisiana[Desc][LatLon]30.45809,-91.140229[LatLon][UTM]15R:678556.42591707,3371016.4979645[UTM][Address] North Foster Drive Baton Rouge Louisiana[Address][!][Desc]Augusta, Maine[Desc][LatLon]44.323535,-69.765261[LatLon][UTM]19T:438980.21801941,4908092.9149464[UTM][Address] Park Street Augusta Maine[Address][!][Desc]Annapolis, Maryland[Desc][LatLon]38.972945,-76.501157[LatLon][UTM]18S:369959.55240987,4314845.850535[UTM][Address]128 Archwood Avenue Annapolis Maryland[Address][!][Desc]Boston, Massachusetts[Desc][LatLon]42.2352,-71.0275[LatLon][UTM]19T:332703.5972572,4677880.84088[UTM][Address] Wesson Avenue  Massachusetts[Address][!][Desc]Lansing, Michigan[Desc][LatLon]42.7335,-84.5467[LatLon][UTM]16T:700831.4265761,4734139.7225832[UTM][Address] East Michigan Avenue Lansing Michigan[Address][!][Desc]Saint Paul, Minnesota[Desc][LatLon]44.95,-93.094[LatLon][UTM]15T:492584.92142831,4977400.3559376[UTM][Address] Robert Street North Saint Paul Minnesota[Address][!][Desc]Jackson, Mississippi[Desc][LatLon]32.320,-90.207[LatLon][UTM]15S:762938.35266383,3579334.2537806[UTM][Address] Carver Street Jackson Mississippi[Address][!][Desc]Jefferson City, Missouri[Desc][LatLon]38.572954,-92.189283[LatLon][UTM]15S:570621.96606259,4269700.1089196[UTM][Address] Edmonds Street Jefferson City Missouri[Address][!][Desc]Helana, Montana[Desc][LatLon]46.595805,-112.027031[LatLon][UTM]12T:421332.72882339,5160761.2480163[UTM][Address] Helena Avenue Helena Montana[Address][!][Desc]Lincoln, Nebraska[Desc][LatLon]40.809868,-96.675345[LatLon][UTM]14T:696075.72531413,4520251.3423297[UTM][Address] J Street Lincoln Nebraska[Address][!][Desc]Carson City, Nevada[Desc][LatLon]39.160949,-119.753877[LatLon][UTM]11S:262059.41187024,4338250.1156982[UTM][Address] East 5th Street Carson City Nevada[Address][!][Desc]Concord, New Hampshire[Desc][LatLon]43.220093,-71.549127[LatLon][UTM]19T:292963.65070103,4788411.2231967[UTM][Address] Curtice Avenue Concord New Hampshire[Address][!][Desc]Trenton, New Jersey[Desc][LatLon]40.221741,-74.756138[LatLon][UTM]18T:520748.50944052,4452397.286396[UTM][Address]450 Ewing Street Trenton New Jersey[Address][!][Desc]Santa Fe, New Mexico[Desc][LatLon]35.667231,-105.964575[LatLon][UTM]13S:412700.06116234,3947469.0280147[UTM][Address] Young Street Santa Fe New Mexico[Address][!][Desc]Albany, New York[Desc][LatLon]42.659829,-73.781339[LatLon][UTM]18T:599877.87894873,4723760.3512143[UTM][Address] Yates Street Albany New York[Address][!][Desc]Raleigh, North Carolina[Desc][LatLon]35.771,-78.638[LatLon][UTM]17S:713514.51156294,3961122.9545538[UTM][Address] South Wilmington Street Raleigh North Carolina[Address][!][Desc]Bismarck, North Dakota[Desc][LatLon]48.813343,-100.779004[LatLon][UTM]14U:369396.37872121,5408232.4739295[UTM][Address] County Road 33  North Dakota[Address][!][Desc]Columbus, Ohio[Desc][LatLon]39.962245,-83.000647[LatLon][UTM]17S:329125.20731903,4425483.3406726[UTM][Address] East Broad Street Columbus Ohio[Address][!][Desc]Oklahoma City, Oklahoma[Desc][LatLon]35.482309,-97.534994[LatLon][UTM]14S:632899.82618685,3927517.786144[UTM][Address] North Mckinley Avenue Oklahoma City Oklahoma[Address][!][Desc]Salem, Oregon[Desc][LatLon]44.931109,-123.029159[LatLon][UTM]10T:497699.07245835,4975297.9434202[UTM][Address]  Salem Oregon[Address][!][Desc]Harrisburg, Pennsylvania[Desc][LatLon]40.269789,-76.875613[LatLon][UTM]18T:340525.35775351,4459389.4206946[UTM][Address] Forster Street Harrisburg Pennsylvania[Address][!][Desc]Providence, Rhode Island[Desc][LatLon]41.82355,-71.422132[LatLon][UTM]19T:298844.83645536,4633021.6717855[UTM][Address] Newton Street Providence Rhode Island[Address][!][Desc]Columbia, South Carolina[Desc][LatLon]34.000,-81.035[LatLon][UTM]17S:496767.82579737,3762156.5296628[UTM][Address]1115 Assembly Street Columbia South Carolina[Address][!][Desc]Pierre, South Dakota[Desc][LatLon]44.367966,-100.336378[LatLon][UTM]14T:393521.24858888,4913611.737334[UTM][Address] East Robinson Avenue Pierre South Dakota[Address][!][Desc]Nashville, Tennessee[Desc][LatLon]36.165,-86.784[LatLon][UTM]16S:519426.94669423,4002271.2269574[UTM][Address] 7th Avenue North Nashville-Davidson Tennessee[Address][!][Desc]Austin, Texas[Desc][LatLon]30.266667,-97.75[LatLon][UTM]14R:620240.70200607,3348995.9735886[UTM][Address]607 West 3rd Street Austin Texas[Address][!][Desc]Salt Lake City, Utah[Desc][LatLon]40.7547,-111.892622[LatLon][UTM]12T:424651.03790536,4511910.1988511[UTM][Address] 700 South Salt Lake City Utah[Address][!][Desc]Montpelier, Vermont[Desc][LatLon]44.26639,-72.57194[LatLon][UTM]18T:693796.0175554,4904327.9430711[UTM][Address]15 Winter Street Montpelier Vermont[Address][!][Desc]Richmond, Virginia[Desc][LatLon]37.54,-77.46[LatLon][UTM]18S:282659.10446272,4157622.9853212[UTM][Address] Lakeview Avenue Richmond City Virginia[Address][!][Desc]Olympia, Washington[Desc][LatLon]47.042418,-122.893077[LatLon][UTM]10T:508122.44663845,5209883.4331402[UTM][Address] Plum Street Southeast Olympia Washington[Address][!][Desc]Charleston, West Virginia[Desc][LatLon]38.349497,-81.633294[LatLon][UTM]17S:444663.13148926,4244783.347957[UTM][Address] Hale Street Charleston West Virginia[Address][!][Desc]Madison, Wisconsin[Desc][LatLon]43.074722,-89.384444[LatLon][UTM]16T:305879.7197932,4771872.0721079[UTM][Address]2 East Main Street Madison Wisconsin[Address][!][Desc]Cheyenne, Wyoming[Desc][LatLon]41.145548,-104.802042[LatLon][UTM]13T:516611.89796343,4554933.3575248[UTM][Address]1525 East Pershing Boulevard Cheyenne Wyoming[Address]"]
     ];
 
-	public function index(Request $request)
-	{
-
-		if(file_exists("../.env")){
+    /**
+     * Gets home view for the installation page.
+     *
+     * @param  Request $request
+     * @return View
+     */
+	public function index(Request $request) {
+		if(file_exists("../.env")) {
 			return redirect('/');
 		}
 		$not_installed = true;
@@ -60,12 +67,17 @@ class InstallController extends Controller {
 		return view('install.install',compact('languages_available','not_installed'));
 	}
 
-	public function editEnvConfigs(){
-		if(!Auth::check()){
+    /**
+     * Edits recaptcha and mail options in the ENV configuration file.
+     *
+     * @return View
+     */
+	public function editEnvConfigs() {
+		if(!Auth::check()) {
 			return redirect("/");
 		}
 
-		if(!Auth::user()->admin){
+		if(!Auth::user()->admin) {
 			flash()->overlay(trans('controller_install.admin'),trans('controller_install.whoops'));
 			return redirect("/");
 		}
@@ -81,59 +93,63 @@ class InstallController extends Controller {
 		return view('install.config',compact('configs'));
 	}
 
-	public function updateEnvConfigs(\Illuminate\Http\Request $request){
-		if(!Auth::check()){
+    /**
+     * Updates recaptcha and mail options in the ENV configuration file.
+     *
+     * @param  Request $request
+     * @return string - Json array of return status
+     */
+	public function updateEnvConfigs(Request $request) {
+		if(!Auth::check()) {
 			return redirect("/");
 		}
 
-		if(!Auth::user()->admin){
+		if(!Auth::user()->admin) {
 			flash()->overlay(trans('controller_install.admin'),trans('controller_install.whoops'));
 			return redirect("/");
 		}
         $current_config = $this->getEnvConfigs();
 
-        if($request->input("type") == "Recaptcha Public Key"){
+        if($request->input("type") == "Recaptcha Public Key") {
             $current_config->forget("recaptcha_public_key");
             $current_config->put("recaptcha_public_key",$request->input("value"));
 
-        }
-        elseif($request->input("type") == "Recaptcha Private Key"){
+        } else if($request->input("type") == "Recaptcha Private Key") {
             $current_config->forget("recaptcha_private_key");
             $current_config->put("recaptcha_private_key",$request->input("value"));
-        }
 
-        elseif($request->input("type") == "Mail Host"){
+        } else if($request->input("type") == "Mail Host") {
             $current_config->forget("mail_host");
             $current_config->put("mail_host",$request->input("value"));
 
-        }
-
-        elseif($request->input("type") == "Mail User"){
+        } else if($request->input("type") == "Mail User") {
             $current_config->forget("mail_username");
             $current_config->put("mail_username",$request->input("value"));
 
-        }
-
-        elseif($request->input("type") == "Mail Password"){
+        } else if($request->input("type") == "Mail Password") {
             $current_config->forget("mail_password");
             $current_config->put("mail_password",$request->input("value"));
-        }
-        else{
+
+        } else {
             return response()->json(["status"=>false,"message"=>$request->input("type").trans('controller_install.cantchange')],500);
         }
 
         $write_status = $this->writeEnv($current_config,true);
 
-        if($write_status == false){
+        if($write_status == false) {
             return response()->json(["status"=>false,"message"=>trans('controller_install.unable')],500);
-        }
-        else{
+        } else {
             return response()->json(["status"=>true,"message"=>trans('controller_install.updated')]);
         }
 
 	}
 
-    public function getEnvConfigs(){
+    /**
+     * Gets information from the ENV file.
+     *
+     * @return Collection - The data pairs in the ENV
+     */
+    public function getEnvConfigs() {
         $env2 = new Collection();
 
 		$env2->put("app_env",ENV("APP_ENV"));
@@ -161,20 +177,24 @@ class InstallController extends Controller {
         $env2->put("recaptcha_private_key",ENV("RECAPTCHA_PRIVATE_KEY"));
 
         return $env2;
-
     }
 
-
-	private function writeEnv(Collection $envstrings, $overwrite = false)
-	{
+    /**
+     * Writes initial data to the ENV upon install.
+     *
+     * @param  Collection $envstrings - The data pairs to write
+     * @param  bool $overwrite - Should we overwrite if env exists?
+     * @return bool - Returns false on error
+     */
+	private function writeEnv(Collection $envstrings, $overwrite = false) {
 
         $baseurl = $envstrings->get("baseurl_url");
         //Check if http:// is included in the base URL, and addi it if missing
-        if(!preg_match("/(http)(.*)/",$baseurl)){
+        if(!preg_match("/(http)(.*)/",$baseurl)) {
             $baseurl = "http://".$baseurl;
         }
         //Check for trailing slashes
-        if(substr($baseurl,-1) != "/"){
+        if(substr($baseurl,-1) != "/") {
             $baseurl = $baseurl."/";
             $envstrings->forget("baseurl_url");
             $envstrings->put("baseurl_url",$baseurl);
@@ -182,11 +202,11 @@ class InstallController extends Controller {
 
         $storageurl = $envstrings->get("baseurl_storage");
         //Check if http:// is included in the base URL, and addi it if missing
-        if(!preg_match("/(http)(.*)/",$storageurl)){
+        if(!preg_match("/(http)(.*)/",$storageurl)) {
             $storageurl = "http://".$storageurl;
         }
         //Check for trailing slashes
-        if(substr($storageurl,-1) != "/"){
+        if(substr($storageurl,-1) != "/") {
             $storageurl = $storageurl."/";
             $envstrings->forget("baseurl_storage");
             $envstrings->put("baseurl_storage",$storageurl);
@@ -221,18 +241,18 @@ class InstallController extends Controller {
 			";
 
 
-		if (file_exists('../.env') && $overwrite==false) {
+		if(file_exists('../.env') && $overwrite==false) {
 			return false;
 		} else {
 			try {
 				$envfile = fopen("../.env", "w");
 
-			} catch (\Exception $e) { //Most likely if the file is owned by another user or PHP doesn't have permission
+			} catch(\Exception $e) { //Most likely if the file is owned by another user or PHP doesn't have permission
                 flash()->overlay(trans('controller_install.openenv')."\n ".$e->getMessage());
 				return false;
 			}
             try {
-                if (!fwrite($envfile, $env_layout)) { //write to file and if nothing is written or error
+                if(!fwrite($envfile, $env_layout)) { //write to file and if nothing is written or error
                     fclose($envfile);
                     flash()->overlay(trans('controller_install.writeenv'));
                     return false;
@@ -241,15 +261,20 @@ class InstallController extends Controller {
                     chmod("../.env",0660);
                     return true;
                 }
-            }
-            catch(\Exception $e){
+            } catch(\Exception $e) {
                 flash()->overlay(trans('controller_install.writeenv')."\n ".$e->getMessage());
                 return false;
             }
 		}
 	}
 
-    public function runMigrate(\Illuminate\Http\Request $request){
+    /**
+     * Executes php artisan migrate which will install all required databases.
+     *
+     * @param  Request $request
+     * @return Redirect
+     */
+    public function runMigrate(Request $request) {
 
 		$this->validate($request,[
 			'user_username'=>'required|alpha_dash',
@@ -267,122 +292,110 @@ class InstallController extends Controller {
 		$adminuser->put('user_realname',$request->input('user_realname'));
 		$adminuser->put('user_language',$request->input('user_language'));
 
-			if(!file_exists("../.env")){
-				//flash()->overlay("The database connection settings do not exist",'Whoops!');
-				//return redirect('/install');
-				return response()->json(["status"=>false,"message"=>trans('controller_install.nodb')],500);
-			}
-			else{
-				try {
-						if(Schema::hasTable("users")){ //This indicates a migration has already been run
-							//return redirect('/');
-							return response()->json(["status"=>false,"message"=>trans('controller_install.kora3')],500);
-						}
-				}
-				catch(\Exception $e){
-					flash()->overlay(trans('controller_install.checkdb'),trans('controller_install.whoops'));
-					//return redirect('/install');
-					return response()->json(["status"=>false,"message"=>trans('controller_install.connfailed')],500);
-				}
-				try {
-					$status = Artisan::call("migrate", array('--force' => true));
-				}
-				catch(\Exception $e){
-					flash()->overlay(trans('controller_install.runartisan'),trans('controller_install.whoops'));
-					//return redirect('/');
-					return response()->json(["status"=>false,"message"=>trans('controller_install.artisanfail')],500);
-				}
-                try{
-                    $status = Artisan::call("key:generate");
-                }
-                catch(\Exception $e){
-                    flash()->overlay(trans('controller_install.appkey'),trans('controller_install.whoops'));
+        if(!file_exists("../.env")) {
+            //flash()->overlay("The database connection settings do not exist",'Whoops!');
+            //return redirect('/install');
+            return response()->json(["status"=>false,"message"=>trans('controller_install.nodb')],500);
+        } else {
+            try {
+                if(Schema::hasTable("users")) { //This indicates a migration has already been run
                     //return redirect('/');
-					return response()->json(["status"=>false,"message"=>trans('controller_install.probkey')],500);
+                    return response()->json(["status"=>false,"message"=>trans('controller_install.kora3')],500);
                 }
+            } catch(\Exception $e) {
+                flash()->overlay(trans('controller_install.checkdb'),trans('controller_install.whoops'));
+                //return redirect('/install');
+                return response()->json(["status"=>false,"message"=>trans('controller_install.connfailed')],500);
+            }
 
-                try{
-                    $status = $this->createDirectories();
+            try {
+                $status = Artisan::call("migrate", array('--force' => true));
+            } catch(\Exception $e) {
+                flash()->overlay(trans('controller_install.runartisan'),trans('controller_install.whoops'));
+                //return redirect('/');
+                return response()->json(["status"=>false,"message"=>trans('controller_install.artisanfail')],500);
+            }
+
+            try {
+                $status = Artisan::call("key:generate");
+            } catch(\Exception $e) {
+                flash()->overlay(trans('controller_install.appkey'),trans('controller_install.whoops'));
+                //return redirect('/');
+                return response()->json(["status"=>false,"message"=>trans('controller_install.probkey')],500);
+            }
+
+            try {
+                $status = $this->createDirectories();
+            } catch(\Exception $e) {
+                flash()->overlay(trans('controller_install.createdir'),trans('controller_install.whoops'));
+                //return redirect('/');
+                return response()->json(["status"=>false,"message"=>trans('controller_install.unabledir'),"exception"=>$e->getMessage()],500);
+            }
+
+            try {
+                $v = new Version();
+                $v->version = UpdateController::getCurrentVersion();
+                $v->save();
+            } catch(\Exception $e) {
+                flash()->overlay(trans('controller_install.currver'), trans('controller_install.whoops'));
+                //return redirect('/');
+                return response()->json(["status"=>false,"message"=>trans('controller_install.probver')],500);
+            }
+
+            try {
+                $username = $adminuser->get('user_username');
+                $name = $adminuser->get('user_realname');
+                $email = $adminuser->get('user_email');
+                $password = bcrypt($adminuser->get('user_password'));
+                $organization = "";
+                $language = $adminuser->get('user_language');
+
+                $newuser = \App\User::create(compact("username","name","email","password","organization","language"));
+                $newuser->active = 1;
+                $newuser->admin = 1;
+                $newuser->save();
+            } catch(\Exception $e) {
+                flash()->overlay(trans('controller_install.adminuser'),trans('controller_install.whoops'));
+                return response()->json(["status"=>false,"message"=>trans('controller_install.adminfail')],500);
+            }
+
+            try {
+                foreach($this->STOCKPRESETS as $name => $info) {
+                    $pid = null;
+                    $type = $info['type'];
+                    $preset = $info['preset'];
+
+                    $newPreset = \App\OptionPreset::create(compact("name","pid","type","preset"));
                 }
-                catch(\Exception $e){
-                    flash()->overlay(trans('controller_install.createdir'),trans('controller_install.whoops'));
-                    //return redirect('/');
-					return response()->json(["status"=>false,"message"=>trans('controller_install.unabledir'),"exception"=>$e->getMessage()],500);
-                }
+            } catch(\Exception $e) {
+                flash()->overlay("A stock preset could not be created.",trans('controller_install.whoops'));
+                return response()->json(["status"=>false,"message"=>"Stock Preset Creation Failed"],500);
+            } finally {
+                return redirect("/");
+            }
+        }
+    }
 
-				try{
-					$v = new Version();
-					$v->version = UpdateController::getCurrentVersion();
-					$v->save();
-				}
-				catch(\Exception $e){
-					flash()->overlay(trans('controller_install.currver'), trans('controller_install.whoops'));
-					//return redirect('/');
-					return response()->json(["status"=>false,"message"=>trans('controller_install.probver')],500);
-				}
-
-				try{
-
-					$username = $adminuser->get('user_username');
-					$name = $adminuser->get('user_realname');
-					$email = $adminuser->get('user_email');
-					$password = bcrypt($adminuser->get('user_password'));
-					$organization = "";
-					$language = $adminuser->get('user_language');
-
-					$newuser = \App\User::create(compact("username","name","email","password","organization","language"));
-					$newuser->active = 1;
-					$newuser->admin = 1;
-					$newuser->save();
-				}
-				catch(\Exception $e){
-					flash()->overlay(trans('controller_install.adminuser'),trans('controller_install.whoops'));
-					return response()->json(["status"=>false,"message"=>trans('controller_install.adminfail')],500);
-				}
-
-                try{
-                    foreach($this->STOCKPRESETS as $name => $info){
-                        $pid = null;
-                        $type = $info['type'];
-                        $preset = $info['preset'];
-
-                        $newPreset = \App\OptionPreset::create(compact("name","pid","type","preset"));
-                    }
-                }
-                catch(\Exception $e){
-                    flash()->overlay("A stock preset could not be created.",trans('controller_install.whoops'));
-                    return response()->json(["status"=>false,"message"=>"Stock Preset Creation Failed"],500);
-                }
-				finally{
-					return redirect("/");
-				}
-			}
-		}
-
-	public function installKora(\Illuminate\Http\Request $request){
-		/*if(file_exists("../.env")) {
-            flash()->overlay(".env file already exists, can't overwrite", "Whoops!");
-            return redirect('/');
-        }*/
-
-		if(!file_exists("../.env")){
-			//flash()->overlay("The database connection settings do not exist",'Whoops!');
-			//return redirect('/install');
-
-		}
-		else {
+    /**
+     * Begins the installation process.
+     *
+     * @param  Request $request
+     * @return string - Json array response
+     */
+	public function installKora(Request $request) {
+		if(file_exists("../.env")) {
 			try {
-				if (Schema::hasTable("users")) { //This indicates a migration has already been run
+				if(Schema::hasTable("users")) { //This indicates a migration has already been run
 					//return redirect('/');
 					return response()->json(["status" => false, "message" => trans('controller_install.kora3')], 500);
 				}
-			} catch (\Exception $e) {
+			} catch(\Exception $e) {
 				flash()->overlay(trans('controller_install.checkdb'), trans('controller_install.whoops'));
 				//return redirect('/install');
 				return response()->json(["status" => false, "message" => trans('controller_install.connfailed')], 500);
 			}
-
 		}
+
 		$envstrings = new Collection();
 		$this->validate($request,[
 			'db_driver'=>'required|in:mysql,pgsql,sqlsrv,sqlite',
@@ -421,11 +434,11 @@ class InstallController extends Controller {
 
 		$baseurl = $request->input("baseurl_url");
 		//Check if http:// is included in the base URL, and addi it if missing
-		if(!preg_match("/(http)(.*)/",$baseurl)){
+		if(!preg_match("/(http)(.*)/",$baseurl)) {
 			$baseurl = "http://".$baseurl;
 		}
 		//Check for trailing slashes
-		if(substr($baseurl,-1) != "/"){
+		if(substr($baseurl,-1) != "/") {
 			$baseurl = $baseurl."/";
 		}
 
@@ -433,11 +446,11 @@ class InstallController extends Controller {
 
         $storageurl = $request->input("baseurl_storage");
         //Check if http:// is included in the base URL, and addi it if missing
-        if(!preg_match("/(http)(.*)/",$storageurl)){
+        if(!preg_match("/(http)(.*)/",$storageurl)) {
             $storageurl = "http://".$storageurl;
         }
         //Check for trailing slashes
-        if(substr($storageurl,-1) != "/"){
+        if(substr($storageurl,-1) != "/") {
             $storageurl = $storageurl."/";
         }
 
@@ -445,60 +458,48 @@ class InstallController extends Controller {
 
 		try{
 			$dbtype = $envstrings->get('db_driver');
-			if($dbtype == "mysql"){
+			if($dbtype == "mysql") {
 				$dbc = new \PDO('mysql:host='.$envstrings->get("db_host").';dbname='.$envstrings->get("db_database"),$envstrings->get('db_username'),$envstrings->get('db_password'));
-			}
-			elseif($dbtype == "pgsql") {
+			} else if($dbtype == "pgsql") {
 				$dbc = new \PDO('pgsql:host='.$envstrings->get("db_host").';dbname='.$envstrings->get("db_database"),$envstrings->get('db_username'),$envstrings->get('db_password'));
-			}
-			elseif($dbtype == "sqlsrv"){
+			} elseif($dbtype == "sqlsrv") {
 				$dbc = new \PDO('pgsql:Server='.$envstrings->get("db_host").';Databasee='.$envstrings->get("db_database"),$envstrings->get('db_username'),$envstrings->get('db_password'));
 			}
-		}
-		catch(\PDOException $e) {
+		} catch(\PDOException $e) {
 			flash()->overlay(trans('controller_install.dbinfo'), trans('controller_install.whoops'));
 			return response()->json(["status"=>false,"message"=>trans('controller_install.dbinfo')],500);
 			//return (redirect()->back()->withInput());
-		}
-		finally{
+		} finally {
 			$dbc = null; //required to close PDO connection
 		}
 
 
 		$status = $this->writeEnv($envstrings);
 
-		if($status == true){
+		if($status == true) {
 			return response()->json(["status"=>true,"message"=>"success"],200);
-		}
-		else{
+		} else {
 			flash()->overlay(trans('controller_install.php'),trans('controller_install.whoops'));
 			return response()->json(["status"=>false,"message"=>trans('controller_install.permission')],500);
 		}
-
-
-		//return response()->json(["status"=>false,message=>"Kora 3 was not installed"],500);
 	}
 
-    public function createDirectories(){
-        foreach($this->DIRECTORIES as $dir){
-            if(file_exists(ENV("BASE_PATH").$dir)){
-                //echo "EXISTS ";
-                //echo '<br>';
-                continue;
-            }
-            else{
+    /**
+     * Creates all the directories for the installation process.
+     *
+     * @return string - Success/error message
+     */
+    public function createDirectories() {
+        foreach($this->DIRECTORIES as $dir) {
+            if(!file_exists(ENV("BASE_PATH").$dir)) {
                 try {
                     echo "mkdir on ". ENV("BASE_PATH") . $dir . "\n";
                     echo '<br>';
-                   // mkdir(ENV("BASE_PATH") . $dir, 0644); //Notice the permission that is set and if it's OK!
-                    mkdir(ENV("BASE_PATH") . $dir, 0770); //Notice the permission that is set and if it's OK!
-                }
-                catch(\Exception $e){
+                    mkdir(ENV("BASE_PATH") . $dir, 0775); //Notice the permission that is set and if it's OK!
+                } catch(\Exception $e) {
                     echo "Error  " . $e->getMessage() . "\n";
-                    //echo '<br>';
                 }
             }
         }
     }
-
 }

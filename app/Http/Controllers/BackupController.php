@@ -216,6 +216,7 @@ class BackupController extends Controller {
         ini_set('max_execution_time',0);
         Log::info("Backup fp: ".$path);
         $backup_id = DB::table('backup_overall_progress')->insertGetId(['progress'=>0,'overall'=>0,'start'=>Carbon::now(),'created_at'=>Carbon::now(),'updated_at'=>Carbon::now()]);
+        //TODO::Can we make this more modular?
         $jobs = [new SaveFormsTable($backup_disk, $path, $backup_id ),
             new SaveProjectsTable($backup_disk, $path, $backup_id),
             new SaveRecordsTable($backup_disk, $path, $backup_id ),
@@ -461,6 +462,7 @@ class BackupController extends Controller {
                     $User->delete();
                 }
             }
+            //TODO::Can we make this more modular?
             DB::table('projects')->delete();
             DB::table('forms')->delete();
             DB::table('pages')->delete();
@@ -520,6 +522,7 @@ class BackupController extends Controller {
         $restore_id = DB::table('restore_overall_progress')->insertGetId(['progress'=>0,'overall'=>0,'start'=>Carbon::now(),'created_at'=>Carbon::now(),'updated_at'=>Carbon::now()]);
         //These jobs need restore versions. Will test with TEXT
 
+        //TODO::Can we make this more modular?
         $jobs = [new RestoreTable("users",$dir, $restore_id),
             new RestoreTable('projects',$dir, $restore_id),
             new RestoreTable('forms',$dir, $restore_id),
