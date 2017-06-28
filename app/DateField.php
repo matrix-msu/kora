@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 
 class DateField extends BaseField {
 
+    const FIELD_OPTIONS_VIEW = "fields.options.date";
+
     /**
      * Month day year format.
      * @var string
@@ -39,6 +41,34 @@ class DateField extends BaseField {
 
     public static function getOptions(){
         return '[!Circa!]No[!Circa!][!Start!]1900[!Start!][!End!]2020[!End!][!Format!]MMDDYYYY[!Format!][!Era!]No[!Era!]';
+    }
+
+    public static function getExportSample($field,$type){
+        switch ($type){
+            case "XML":
+                $xml = '<' . Field::xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                $value = '<Circa>' . utf8_encode('1 IF CIRCA. 0 IF NOT') . '</Circa>';
+                $value .= '<Month>' . utf8_encode('NUMERIC VALUE OF MONTH (i.e. 08)') . '</Month>';
+                $value .= '<Day>' . utf8_encode('19') . '</Day>';
+                $value .= '<Year>' . utf8_encode('1990') . '</Year>';
+                $value .= '<Era>' . utf8_encode('CE OR BCE') . '</Era>';
+                $xml .= $value;
+                $xml .= '</' . Field::xmlTagClear($field->slug) . '>';
+
+                return $xml;
+                break;
+            case "JSON":
+                $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                $fieldArray['circa'] = '1 IF CIRCA. 0 IF NOT';
+                $fieldArray['month'] = 'NUMERIC VALUE OF MONTH (i.e. 08)';
+                $fieldArray['day'] = 19;
+                $fieldArray['year'] = 1990;
+                $fieldArray['era'] = 'CE OR BCE';
+
+                return $fieldArray;
+                break;
+        }
+
     }
 
     /**

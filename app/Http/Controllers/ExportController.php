@@ -35,6 +35,14 @@ class ExportController extends Controller {
     const VALID_FORMATS = [ self::JSON, self::XML, self::META ];
 
     /**
+     * Constructs controller and makes sure user is authenticated.
+     */
+    public function __construct() {
+        $this->middleware('auth');
+        $this->middleware('active');
+    }
+
+    /**
      * Gathers and exports a forms records.
      *
      * @param  int $pid - Project ID

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 class AssociatorField extends BaseField {
 
     const SUPPORT_NAME = "associator_support";
+    const FIELD_OPTIONS_VIEW = "fields.options.associator";
 
     protected $fillable = [
         'rid',
@@ -40,6 +41,20 @@ class AssociatorField extends BaseField {
         }
 
         return $options;
+    }
+
+    public static function getExportSample($field,$type){
+        switch ($type){
+            case "XML":
+                //TODO::add sample
+
+                break;
+            case "JSON":
+                //TODO::add sample
+
+                break;
+        }
+
     }
 
     public function getPreviewValues($rid){

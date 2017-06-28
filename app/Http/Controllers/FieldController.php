@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\ComboListField;
 use App\Field;
 use App\Http\Requests\FieldRequest;
 use Illuminate\Http\Request;
@@ -115,40 +116,13 @@ class FieldController extends Controller {
 
         $presets = OptionPresetController::getPresetsSupported($pid,$field);
 
-        if($field->type=="Text") {
-            return view('fields.options.text', compact('field', 'form', 'proj','presets'));
-        } else if($field->type=="Rich Text") {
-            return view('fields.options.richtext', compact('field', 'form', 'proj'));
-        } else if($field->type=="Number") {
-            return view('fields.options.number', compact('field', 'form', 'proj'));
-        } else if($field->type=="List") {
-            return view('fields.options.list', compact('field', 'form', 'proj','presets'));
-        } else if($field->type=="Multi-Select List") {
-            return view('fields.options.mslist', compact('field', 'form', 'proj','presets'));
-        } else if($field->type=="Generated List") {
-            return view('fields.options.genlist', compact('field', 'form', 'proj','presets'));
-        } else if($field->type=="Combo List") {
+        //Combo has two presets so we make an exception
+        if($field->type=="Combo List"){
             $presetsOne = $presets->get("one");
             $presetsTwo = $presets->get("two");
-            return view('fields.options.combolist', compact('field', 'form', 'proj','presetsOne','presetsTwo'));
-        } else if($field->type=="Date") {
-            return view('fields.options.date', compact('field', 'form', 'proj'));
-        } else if($field->type=="Schedule") {
-            return view('fields.options.schedule', compact('field', 'form', 'proj','presets'));
-        } else if($field->type=="Geolocator") {
-            return view('fields.options.geolocator', compact('field', 'form', 'proj','presets'));
-        } else if($field->type=="Documents") {
-            return view('fields.options.documents', compact('field', 'form', 'proj'));
-        } else if($field->type=="Gallery") {
-            return view('fields.options.gallery', compact('field', 'form', 'proj'));
-        } else if($field->type=="Playlist") {
-            return view('fields.options.playlist', compact('field', 'form', 'proj'));
-        } else if($field->type=="Video") {
-            return view('fields.options.video', compact('field', 'form', 'proj'));
-        } else if($field->type=="3D-Model") {
-            return view('fields.options.3dmodel', compact('field', 'form', 'proj'));
-        } else if($field->type=="Associator") {
-            return view('fields.options.associator', compact('field', 'form', 'proj'));
+            return view(ComboListField::FIELD_OPTIONS_VIEW, compact('field', 'form', 'proj','presetsOne','presetsTwo'));
+        } else {
+            return view(Field::getFieldTypeView($field->type), compact('field', 'form', 'proj','presets'));
         }
 	}
 

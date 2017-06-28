@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 
 class TextField extends BaseField {
 
+    const FIELD_OPTIONS_VIEW = "fields.options.text";
+
     protected $fillable = [
         'rid',
         'flid',
@@ -15,6 +17,25 @@ class TextField extends BaseField {
 
     public static function getOptions(){
         return '[!Regex!][!Regex!][!MultiLine!]0[!MultiLine!]';
+    }
+
+    public static function getExportSample($field,$type){
+        switch ($type){
+            case "XML":
+                $xml = '<' . Field::xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                $xml .= utf8_encode('TEXT VALUE');
+                $xml .= '</' . Field::xmlTagClear($field->slug) . '>';
+
+                return $xml;
+                break;
+            case "JSON":
+                $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                $fieldArray['text'] = 'TEXT VALUE';
+
+                return $fieldArray;
+                break;
+        }
+
     }
 
     /**

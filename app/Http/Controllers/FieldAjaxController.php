@@ -23,6 +23,14 @@ class FieldAjaxController extends Controller {
     */
 
     /**
+     * Constructs controller and makes sure user is authenticated.
+     */
+    public function __construct() {
+        $this->middleware('auth');
+        $this->middleware('active');
+    }
+
+    /**
      * Validates record data for a Combo List Field.
      *
      * @param  int $pid - Project ID

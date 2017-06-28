@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\DB;
 
 class ModelField extends FileTypeField  {
 
+    const FIELD_OPTIONS_VIEW = "fields.options.3dmodel";
+
     protected $fillable = [
         'rid',
         'flid',
@@ -14,6 +16,31 @@ class ModelField extends FileTypeField  {
 
     public static function getOptions(){
         return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]1[!MaxFiles!][!FileTypes!][!FileTypes!]';
+    }
+
+    public static function getExportSample($field,$type){
+        switch ($type){
+            case "XML":
+                $xml = '<' . Field::xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                $xml .= '<File>';
+                $xml .= '<Name>' . utf8_encode('FILENAME') . '</Name>';
+                $xml .= '</File>';
+                $xml .= '</' . Field::xmlTagClear($field->slug) . '>';
+
+                return $xml;
+                break;
+            case "JSON":
+                $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                $fieldArray['files'] = array();
+
+                $fileArray = array();
+                $fileArray['name'] = 'FILENAME 1';
+                array_push($fieldArray['files'], $fileArray);
+
+                return $fieldArray;
+                break;
+        }
+
     }
 
     /**

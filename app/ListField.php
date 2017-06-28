@@ -7,6 +7,8 @@ use Illuminate\Database\Query\Builder;
 
 class ListField extends BaseField {
 
+    const FIELD_OPTIONS_VIEW = "fields.options.list";
+
     protected $fillable = [
         'rid',
         'flid',
@@ -15,6 +17,25 @@ class ListField extends BaseField {
 
     public static function getOptions(){
         return '[!Options!][!Options!]';
+    }
+
+    public static function getExportSample($field,$type){
+        switch ($type){
+            case "XML":
+                $xml = '<' . Field::xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                $xml .= utf8_encode('LIST VALUE');
+                $xml .= '</' . Field::xmlTagClear($field->slug) . '>';
+
+                return $xml;
+                break;
+            case "JSON":
+                $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                $fieldArray['option'] = 'VALUE';
+
+                return $fieldArray;
+                break;
+        }
+
     }
 
     public static function getList($field, $blankOpt=false)

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 class ComboListField extends BaseField {
 
     const SUPPORT_NAME = "combo_support";
+    const FIELD_OPTIONS_VIEW = "fields.options.combolist";
 
     protected $fillable = [
         'rid',
@@ -54,6 +55,68 @@ class ComboListField extends BaseField {
         $options .= "[Options][!Field2!]";
 
         return $options;
+    }
+
+    public static function getExportSample($field,$type){
+        switch ($type){
+            case "XML":
+                $xml = '<' . Field::xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                $typeone = ComboListField::getComboFieldType($field, 'one');
+                $typetwo = ComboListField::getComboFieldType($field, 'two');
+                $nameone = ComboListField::getComboFieldName($field, 'one');
+                $nametwo = ComboListField::getComboFieldName($field, 'two');
+                $xml .= '<Value>';
+                $xml .= '<' . Field::xmlTagClear($nameone) . '>';
+                if ($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List')
+                    $xml .= utf8_encode('VALUE');
+                else if ($typeone == 'Multi-Select List' | $typeone == 'Generated List') {
+                    $xml .= '<value>'.utf8_encode('VALUE 1').'</value>';
+                    $xml .= '<value>'.utf8_encode('VALUE 2').'</value>';
+                    $xml .= '<value>'.utf8_encode('so on..').'</value>';
+                }
+                $xml .= '</' . Field::xmlTagClear($nameone) . '>';
+                $xml .= '<' . Field::xmlTagClear($nametwo) . '>';
+                if ($typetwo == 'Text' | $typetwo == 'Number' | $typetwo == 'List')
+                    $xml .= utf8_encode('VALUE');
+                else if ($typetwo == 'Multi-Select List' | $typetwo == 'Generated List') {
+                    $xml .= '<value>'.utf8_encode('VALUE 1').'</value>';
+                    $xml .= '<value>'.utf8_encode('VALUE 2').'</value>';
+                    $xml .= '<value>'.utf8_encode('so on..').'</value>';
+                }
+                $xml .= '</' . Field::xmlTagClear($nametwo) . '>';
+                $xml .= '</Value>';
+                $xml .= '</' . Field::xmlTagClear($field->slug) . '>';
+
+                return $xml;
+                break;
+            case "JSON":
+                $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                $typeone = ComboListField::getComboFieldType($field, 'one');
+                $typetwo = ComboListField::getComboFieldType($field, 'two');
+                $nameone = ComboListField::getComboFieldName($field, 'one');
+                $nametwo = ComboListField::getComboFieldName($field, 'two');
+
+                $fieldArray['values'] = array();
+                $valArray = array();
+
+                if ($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List')
+                    $valArray[$nameone] = 'VALUE';
+                else if ($typeone == 'Multi-Select List' | $typeone == 'Generated List') {
+                    $valArray[$nameone] = array('VALUE 1','VALUE 2','so on...');
+                }
+
+                if ($typetwo == 'Text' | $typetwo == 'Number' | $typetwo == 'List')
+                    $valArray[$nametwo] = 'VALUE';
+                else if ($typetwo == 'Multi-Select List' | $typetwo == 'Generated List') {
+                    $valArray[$nametwo] = array('VALUE 1','VALUE 2','so on...');
+                }
+
+                array_push($fieldArray['values'], $valArray);
+
+                return $fieldArray;
+                break;
+        }
+
     }
 
     public static function getComboList($field, $blankOpt=false, $fnum)

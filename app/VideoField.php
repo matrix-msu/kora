@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\DB;
 
 class VideoField extends FileTypeField {
 
+    const FIELD_OPTIONS_VIEW = "fields.options.video";
+
     protected $fillable = [
         'rid',
         'flid',
@@ -14,6 +16,45 @@ class VideoField extends FileTypeField {
 
     public static function getOptions(){
         return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!][!FileTypes!]';
+    }
+
+    public static function getExportSample($field,$type){
+        switch ($type){
+            case "XML":
+                $xml = '<' . Field::xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                $xml .= '<File>';
+                $xml .= '<Name>' . utf8_encode('FILENAME 1') . '</Name>';
+                $xml .= '</File>';
+                $xml .= '<File>';
+                $xml .= '<Name>' . utf8_encode('FILENAME 2') . '</Name>';
+                $xml .= '</File>';
+                $xml .= '<File>';
+                $xml .= '<Name>' . utf8_encode('so on...') . '</Name>';
+                $xml .= '</File>';
+                $xml .= '</' . Field::xmlTagClear($field->slug) . '>';
+
+                return $xml;
+                break;
+            case "JSON":
+                $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                $fieldArray['files'] = array();
+
+                $fileArray = array();
+                $fileArray['name'] = 'FILENAME 1';
+                array_push($fieldArray['files'], $fileArray);
+
+                $fileArray = array();
+                $fileArray['name'] = 'FILENAME2';
+                array_push($fieldArray['files'], $fileArray);
+
+                $fileArray = array();
+                $fileArray['name'] = 'so on...';
+                array_push($fieldArray['files'], $fileArray);
+
+                return $fieldArray;
+                break;
+        }
+
     }
 
     /**

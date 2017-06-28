@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\DB;
 
 class RichTextField extends BaseField {
 
+    const FIELD_OPTIONS_VIEW = "fields.options.richtext";
+
     protected $fillable = [
         'rid',
         'flid',
@@ -14,6 +16,25 @@ class RichTextField extends BaseField {
     ];
 
     public static function getOptions(){
+        return '';
+    }
+
+    public static function getExportSample($field,$type){
+        switch ($type){
+            case "XML":
+                $xml = '<' . Field::xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                $xml .= utf8_encode('<b>RICH TEXT VALUE</b>');
+                $xml .= '</' . Field::xmlTagClear($field->slug) . '>';
+
+                return $xml;
+                break;
+            case "JSON":
+                $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                $fieldArray['richtext'] = '<b>RICH TEXT VALUE</b>';
+
+                return $fieldArray;
+                break;
+        }
 
     }
 

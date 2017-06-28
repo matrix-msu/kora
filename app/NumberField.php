@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 
 class NumberField extends BaseField {
 
+    const FIELD_OPTIONS_VIEW = "fields.options.number";
+
     /**
      * Epsilon value for comparison purposes.
      * Used to match between values in MySQL.
@@ -23,6 +25,25 @@ class NumberField extends BaseField {
 
     public static function getOptions(){
         return '[!Max!][!Max!][!Min!][!Min!][!Increment!]1[!Increment!][!Unit!][!Unit!]';
+    }
+
+    public static function getExportSample($field,$type){
+        switch ($type){
+            case "XML":
+                $xml = '<' . Field::xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                $xml .= utf8_encode('1337');
+                $xml .= '</' . Field::xmlTagClear($field->slug) . '>';
+
+                return $xml;
+                break;
+            case "JSON":
+                $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                $fieldArray['number'] = 1337;
+
+                return $fieldArray;
+                break;
+        }
+
     }
 
     /**

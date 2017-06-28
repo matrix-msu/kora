@@ -21,6 +21,7 @@ use App\RichTextField;
 use App\ScheduleField;
 use App\TextField;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 
 class ImportController extends Controller {
 
@@ -35,6 +36,12 @@ class ImportController extends Controller {
     */
 
     /**
+     * @var string - Valid formats for record import
+     */
+    const JSON = "JSON";
+    const XML = "XML";
+
+    /**
      * Constructs controller and makes sure user is authenticated.
      */
     public function __construct() {
@@ -43,424 +50,75 @@ class ImportController extends Controller {
     }
 
     /**
-     * WHAT_DOESTHISFUNTIONDO
+     * Exports a sample file of the structure for importing data.
      *
-     * @param  type $name - DESCRIPTION
-     * @return type - DESCRIPTION
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  string $type - Format type
+     * @return string - html for the file download
      */
     public function exportSample($pid, $fid, $type){
-        if(!FormController::validProjForm($pid,$fid)){
+        if(!FormController::validProjForm($pid,$fid)) {
             return redirect('projects');
         }
 
         $form = FormController::getForm($fid);
 
-        if(!\Auth::user()->isFormAdmin($form)){
+        if(!\Auth::user()->isFormAdmin($form)) {
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
 
         $fields = Field::where('fid', '=', $fid)->get();
 
-        if($type=='XML') {
-            $xml = '<?xml version="1.0" encoding="utf-8"?><Records>';
-            $xml .= '<Record kid="OPTIONAL KID FOR RECORD. USE TO COMPLETE ASSOCIATED REFERENCES">';
+        switch($type) {
+            case 'XML':
+                $xml = '<?xml version="1.0" encoding="utf-8"?><Records>';
+                $xml .= '<Record kid="OPTIONAL KID FOR RECORD. USE TO COMPLETE ASSOCIATED REFERENCES">';
 
-            foreach ($fields as $field) {
-                if ($field->type == "Text") {
-                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
-                    $xml .= utf8_encode('TEXT VALUE');
-                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
+                foreach($fields as $field) {
+                    $xml .= Field::getExportSample($field, "XML");
                 }
-                else if ($field->type == "Rich Text") {
-                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
-                    $xml .= utf8_encode('<b>RICH TEXT VALUE</b>');
-                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
-                }
-                else if ($field->type == "Number") {
-                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
-                    $xml .= utf8_encode('1337');
-                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
-                }
-                else if ($field->type == "List") {
-                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
-                    $xml .= utf8_encode('LIST VALUE');
-                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
-                }
-                else if ($field->type == "Multi-Select List") {
-                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
-                    $xml .= '<value>' . utf8_encode('LIST VALUE 1') . '</value>';
-                    $xml .= '<value>' . utf8_encode('LIST VALUE 2') . '</value>';
-                    $xml .= '<value>' . utf8_encode('so on...') . '</value>';
-                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
-                }
-                else if ($field->type == "Generated List") {
-                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
-                    $xml .= '<value>' . utf8_encode('LIST VALUE 1') . '</value>';
-                    $xml .= '<value>' . utf8_encode('LIST VALUE 2') . '</value>';
-                    $xml .= '<value>' . utf8_encode('so on...') . '</value>';
-                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
-                }
-                else if ($field->type == "Combo List") {
-                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
-                    $typeone = ComboListField::getComboFieldType($field, 'one');
-                    $typetwo = ComboListField::getComboFieldType($field, 'two');
-                    $nameone = ComboListField::getComboFieldName($field, 'one');
-                    $nametwo = ComboListField::getComboFieldName($field, 'two');
-                    $xml .= '<Value>';
-                    $xml .= '<' . $this->xmlTagClear($nameone) . '>';
-                    if ($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List')
-                        $xml .= utf8_encode('VALUE');
-                    else if ($typeone == 'Multi-Select List' | $typeone == 'Generated List') {
-                        $xml .= '<value>'.utf8_encode('VALUE 1').'</value>';
-                        $xml .= '<value>'.utf8_encode('VALUE 2').'</value>';
-                        $xml .= '<value>'.utf8_encode('so on..').'</value>';
-                    }
-                    $xml .= '</' . $this->xmlTagClear($nameone) . '>';
-                    $xml .= '<' . $this->xmlTagClear($nametwo) . '>';
-                    if ($typetwo == 'Text' | $typetwo == 'Number' | $typetwo == 'List')
-                        $xml .= utf8_encode('VALUE');
-                    else if ($typetwo == 'Multi-Select List' | $typetwo == 'Generated List') {
-                        $xml .= '<value>'.utf8_encode('VALUE 1').'</value>';
-                        $xml .= '<value>'.utf8_encode('VALUE 2').'</value>';
-                        $xml .= '<value>'.utf8_encode('so on..').'</value>';
-                    }
-                    $xml .= '</' . $this->xmlTagClear($nametwo) . '>';
-                    $xml .= '</Value>';
-                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
-                }
-                else if ($field->type == "Date") {
-                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
-                    $value = '<Circa>' . utf8_encode('1 IF CIRCA. 0 IF NOT') . '</Circa>';
-                    $value .= '<Month>' . utf8_encode('NUMERIC VALUE OF MONTH (i.e. 08)') . '</Month>';
-                    $value .= '<Day>' . utf8_encode('19') . '</Day>';
-                    $value .= '<Year>' . utf8_encode('1990') . '</Year>';
-                    $value .= '<Era>' . utf8_encode('CE OR BCE') . '</Era>';
-                    $xml .= $value;
-                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
-                }
-                else if ($field->type == "Schedule") {
-                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
-                    $value = '<Event>';
-                    $value .= '<Title>' . utf8_encode('EVENT TITLE 1') . '</Title>';
-                    $value .= '<Start>' . '08/19/1990 12:00 AM' . '</Start>';
-                    $value .= '<End>' . '08/19/1990 12:30 AM' . '</End>';
-                    $value .= '<All_Day>' . utf8_encode('0 FOR TIMED EVENT') . '</All_Day>';
-                    $value .= '</Event>';
-                    $value .= '<Event>';
-                    $value .= '<Title>' . utf8_encode('EVENT TITLE 2') . '</Title>';
-                    $value .= '<Start>' . '08/19/1990' . '</Start>';
-                    $value .= '<End>' . '08/20/1990' . '</End>';
-                    $value .= '<All_Day>' . utf8_encode('1 FOR ALL DAY EVENT') . '</All_Day>';
-                    $value .= '</Event>';
-                    $xml .= $value;
-                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
-                }
-                else if ($field->type == "Documents") {
-                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
-                    $xml .= '<File>';
-                    $xml .= '<Name>' . utf8_encode('FILENAME 1') . '</Name>';
-                    $xml .= '</File>';
-                    $xml .= '<File>';
-                    $xml .= '<Name>' . utf8_encode('FILENAME 2') . '</Name>';
-                    $xml .= '</File>';
-                    $xml .= '<File>';
-                    $xml .= '<Name>' . utf8_encode('so on...') . '</Name>';
-                    $xml .= '</File>';
-                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
-                }
-                else if ($field->type == "Gallery") {
-                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
-                    $xml .= '<File>';
-                    $xml .= '<Name>' . utf8_encode('FILENAME 1') . '</Name>';
-                    $xml .= '</File>';
-                    $xml .= '<File>';
-                    $xml .= '<Name>' . utf8_encode('FILENAME 2') . '</Name>';
-                    $xml .= '</File>';
-                    $xml .= '<File>';
-                    $xml .= '<Name>' . utf8_encode('so on...') . '</Name>';
-                    $xml .= '</File>';
-                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
-                }
-                else if ($field->type == "Playlist") {
-                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
-                    $xml .= '<File>';
-                    $xml .= '<Name>' . utf8_encode('FILENAME 1') . '</Name>';
-                    $xml .= '</File>';
-                    $xml .= '<File>';
-                    $xml .= '<Name>' . utf8_encode('FILENAME 2') . '</Name>';
-                    $xml .= '</File>';
-                    $xml .= '<File>';
-                    $xml .= '<Name>' . utf8_encode('so on...') . '</Name>';
-                    $xml .= '</File>';
-                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
-                }
-                else if ($field->type == "Video") {
-                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
-                    $xml .= '<File>';
-                    $xml .= '<Name>' . utf8_encode('FILENAME 1') . '</Name>';
-                    $xml .= '</File>';
-                    $xml .= '<File>';
-                    $xml .= '<Name>' . utf8_encode('FILENAME 2') . '</Name>';
-                    $xml .= '</File>';
-                    $xml .= '<File>';
-                    $xml .= '<Name>' . utf8_encode('so on...') . '</Name>';
-                    $xml .= '</File>';
-                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
-                }
-                else if ($field->type == "3D-Model") {
-                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
-                    $xml .= '<File>';
-                    $xml .= '<Name>' . utf8_encode('FILENAME') . '</Name>';
-                    $xml .= '</File>';
-                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
-                }
-                else if ($field->type == "Geolocator") {
-                    $xml .= '<' . $this->xmlTagClear($field->slug) . ' type="' . $field->type . '">';
-                    $xml .= '<Location>';
-                    $xml .= '<Desc>' . utf8_encode('LOCATION DESCRIPTION') . '</Desc>';
-                    $xml .= '<Lat>' . utf8_encode('i.e. 13') . '</Lat>';
-                    $xml .= '<Lon>' . utf8_encode('i.e. 14.5') . '</Lon>';
-                    $xml .= '<Zone>' . utf8_encode('i.e. 38T') . '</Zone>';
-                    $xml .= '<East>' . utf8_encode('i.e. 59233.235234') . '</East>';
-                    $xml .= '<North>' . utf8_encode('i.e. 52833.265454') . '</North>';
-                    $xml .= '<Address>' . utf8_encode('TEXTUAL REPRESENTATION OF LOCATION') . '</Address>';
-                    $xml .= '</Location>';
-                    $xml .= '</' . $this->xmlTagClear($field->slug) . '>';
-                }
-            }
 
-            $xml .= '</Record></Records>';
+                $xml .= '</Record></Records>';
 
-            header("Content-Disposition: attachment; filename=" . $form->name . '_exampleData.xml');
-            header("Content-Type: application/octet-stream; ");
+                header("Content-Disposition: attachment; filename=" . $form->name . '_exampleData.xml');
+                header("Content-Type: application/octet-stream; ");
 
-            echo $xml;
-        } else if($type=='JSON') {
-            $json=array('Records'=>array());
-            $recArray = array('kid'=>"OPTIONAL KID FOR RECORD. USE TO COMPLETE ASSOCIATED REFERENCES", 'Fields'=>array());
+                echo $xml;
+                break;
+            case 'JSON':
+                $json = array('Records' => array());
+                $recArray = array('kid' => "OPTIONAL KID FOR RECORD. USE TO COMPLETE ASSOCIATED REFERENCES", 'Fields' => array());
 
-            foreach ($fields as $field) {
-                if ($field->type == "Text") {
-                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
-                    $fieldArray['text'] = 'TEXT VALUE';
+                foreach($fields as $field) {
+                    $fieldArray = Field::getExportSample($field, "JSON");
                     array_push($recArray['Fields'], $fieldArray);
                 }
-                else if ($field->type == "Rich Text") {
-                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
-                    $fieldArray['richtext'] = '<b>RICH TEXT VALUE</b>';
-                    array_push($recArray['Fields'], $fieldArray);
-                }
-                else if ($field->type == "Number") {
-                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
-                    $fieldArray['number'] = 1337;
-                    array_push($recArray['Fields'], $fieldArray);
-                }
-                else if ($field->type == "List") {
-                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
-                    $fieldArray['option'] = 'VALUE';
-                    array_push($recArray['Fields'], $fieldArray);
-                }
-                else if ($field->type == "Multi-Select List") {
-                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
-                    $options = array('LIST VALUE 1','LIST VALUE 2','so on...');
-                    $fieldArray['options'] = $options;
-                    array_push($recArray['Fields'], $fieldArray);
-                }
-                else if ($field->type == "Generated List") {
-                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
-                    $options = array('LIST VALUE 1','LIST VALUE 2','so on...');
-                    $fieldArray['options'] = $options;
-                    array_push($recArray['Fields'], $fieldArray);
-                }
-                else if ($field->type == "Combo List") {
-                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
-                    $typeone = ComboListField::getComboFieldType($field, 'one');
-                    $typetwo = ComboListField::getComboFieldType($field, 'two');
-                    $nameone = ComboListField::getComboFieldName($field, 'one');
-                    $nametwo = ComboListField::getComboFieldName($field, 'two');
 
-                    $fieldArray['values'] = array();
-                    $valArray = array();
+                array_push($json['Records'], $recArray);
 
-                    if ($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List')
-                        $valArray[$nameone] = 'VALUE';
-                    else if ($typeone == 'Multi-Select List' | $typeone == 'Generated List') {
-                        $valArray[$nameone] = array('VALUE 1','VALUE 2','so on...');
-                    }
+                $json = json_encode($json);
 
-                    if ($typetwo == 'Text' | $typetwo == 'Number' | $typetwo == 'List')
-                        $valArray[$nametwo] = 'VALUE';
-                    else if ($typetwo == 'Multi-Select List' | $typetwo == 'Generated List') {
-                        $valArray[$nametwo] = array('VALUE 1','VALUE 2','so on...');
-                    }
+                header("Content-Disposition: attachment; filename=" . $form->name . '_exampleData.json');
+                header("Content-Type: application/octet-stream; ");
 
-                    array_push($fieldArray['values'], $valArray);
-
-                    array_push($recArray['Fields'], $fieldArray);
-                }
-                else if ($field->type == "Date") {
-                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
-                    $fieldArray['circa'] = '1 IF CIRCA. 0 IF NOT';
-                    $fieldArray['month'] = 'NUMERIC VALUE OF MONTH (i.e. 08)';
-                    $fieldArray['day'] = 19;
-                    $fieldArray['year'] = 1990;
-                    $fieldArray['era'] = 'CE OR BCE';
-                    array_push($recArray['Fields'], $fieldArray);
-                }
-                else if ($field->type == "Schedule") {
-                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
-                    $fieldArray['events'] = array();
-
-                    $eventArray = array();
-                    $eventArray['title'] = 'EVENT TITLE 1';
-                    $eventArray['start'] = '08/19/1990 12:00 AM';
-                    $eventArray['end'] = '08/19/1990 12:30 AM';
-                    $eventArray['allday'] = '0 FOR TIMED EVENT';
-                    array_push($fieldArray['events'], $eventArray);
-
-                    $eventArray = array();
-                    $eventArray['title'] = 'EVENT TITLE 2';
-                    $eventArray['start'] = '08/19/1990';
-                    $eventArray['end'] = '08/20/1990';
-                    $eventArray['allday'] = '1 FOR ALL DAY EVENT';
-                    array_push($fieldArray['events'], $eventArray);
-
-                    array_push($recArray['Fields'], $fieldArray);
-                }
-                else if ($field->type == "Documents") {
-                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
-                    $fieldArray['files'] = array();
-
-                    $fileArray = array();
-                    $fileArray['name'] = 'FILENAME 1';
-                    array_push($fieldArray['files'], $fileArray);
-
-                    $fileArray = array();
-                    $fileArray['name'] = 'FILENAME2';
-                    array_push($fieldArray['files'], $fileArray);
-
-                    $fileArray = array();
-                    $fileArray['name'] = 'so on...';
-                    array_push($fieldArray['files'], $fileArray);
-
-                    array_push($recArray['Fields'], $fieldArray);
-                }
-                else if ($field->type == "Gallery") {
-                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
-                    $fieldArray['files'] = array();
-
-                    $fileArray = array();
-                    $fileArray['name'] = 'FILENAME 1';
-                    array_push($fieldArray['files'], $fileArray);
-
-                    $fileArray = array();
-                    $fileArray['name'] = 'FILENAME2';
-                    array_push($fieldArray['files'], $fileArray);
-
-                    $fileArray = array();
-                    $fileArray['name'] = 'so on...';
-                    array_push($fieldArray['files'], $fileArray);
-
-                    array_push($recArray['Fields'], $fieldArray);
-                }
-                else if ($field->type == "Playlist") {
-                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
-                    $fieldArray['files'] = array();
-
-                    $fileArray = array();
-                    $fileArray['name'] = 'FILENAME 1';
-                    array_push($fieldArray['files'], $fileArray);
-
-                    $fileArray = array();
-                    $fileArray['name'] = 'FILENAME2';
-                    array_push($fieldArray['files'], $fileArray);
-
-                    $fileArray = array();
-                    $fileArray['name'] = 'so on...';
-                    array_push($fieldArray['files'], $fileArray);
-
-                    array_push($recArray['Fields'], $fieldArray);
-                }
-                else if ($field->type == "Video") {
-                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
-                    $fieldArray['files'] = array();
-
-                    $fileArray = array();
-                    $fileArray['name'] = 'FILENAME 1';
-                    array_push($fieldArray['files'], $fileArray);
-
-                    $fileArray = array();
-                    $fileArray['name'] = 'FILENAME2';
-                    array_push($fieldArray['files'], $fileArray);
-
-                    $fileArray = array();
-                    $fileArray['name'] = 'so on...';
-                    array_push($fieldArray['files'], $fileArray);
-
-                    array_push($recArray['Fields'], $fieldArray);
-                }
-                else if ($field->type == "Model") {
-                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
-                    $fieldArray['files'] = array();
-
-                    $fileArray = array();
-                    $fileArray['name'] = 'FILENAME 1';
-                    array_push($fieldArray['files'], $fileArray);
-
-                    array_push($recArray['Fields'], $fieldArray);
-                }
-                else if ($field->type == "Geolocator") {
-                    $fieldArray = array('name' => $field->slug, 'type' => $field->type);
-                    $fieldArray['locations'] = array();
-                    $locArray = array();
-
-                    $locArray['desc'] = 'LOCATION DESCRIPTION';
-                    $locArray['lat'] = 'i.e. 13';
-                    $locArray['lon'] = 'i.e. 14.5';
-                    $locArray['zone'] = 'i.e. 38T';
-                    $locArray['east'] = 'i.e. 59233.235234';
-                    $locArray['north'] = 'i.e. 52833.265454';
-                    $locArray['address'] = 'TEXTUAL REPRESENTATION OF LOCATION';
-                    array_push($fieldArray['locations'], $locArray);
-
-                    array_push($recArray['Fields'], $fieldArray);
-                }
-            }
-
-            array_push($json['Records'],$recArray);
-
-            $json = json_encode($json);
-
-            header("Content-Disposition: attachment; filename=".$form->name.'_exampleData.json');
-            header("Content-Type: application/octet-stream; ");
-
-            echo $json;
+                echo $json;
+                break;
         }
     }
 
     /**
-     * WHAT_DOESTHISFUNTIONDO
+     * Builds the matchup table for comparing imported tag names to actual field names.
      *
-     * @param  type $name - DESCRIPTION
-     * @return type - DESCRIPTION
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     * @return array - Contains html for table as well as list of record objects
      */
-    private function xmlTagClear($value){
-        $value = htmlentities($value);
-        $value = str_replace(' ','_',$value);
-
-        return $value;
-    }
-
-    /**
-     * WHAT_DOESTHISFUNTIONDO
-     *
-     * @param  type $name - DESCRIPTION
-     * @return type - DESCRIPTION
-     */
-    public function matchupFields($pid, $fid, Request $request){
+    public function matchupFields($pid, $fid, Request $request) {
         $form = FormController::getForm($fid);
 
-        if(!\Auth::user()->admin && !\Auth::user()->isFormAdmin($form)){
+        if(!\Auth::user()->admin && !\Auth::user()->isFormAdmin($form)) {
             return 'Error: ';
         }
 
@@ -468,7 +126,7 @@ class ImportController extends Controller {
         if(!is_null($request->file('files'))) {
             $zip = new \ZipArchive();
             $res = $zip->open($request->file('files'));
-            if($res){
+            if($res) {
                 $dir = env('BASE_PATH').'storage/app/tmpFiles/impU'.\Auth::user()->id;
                 if(file_exists($dir)) {
                     //clear import directory
@@ -476,9 +134,9 @@ class ImportController extends Controller {
                         new \RecursiveDirectoryIterator($dir),
                         \RecursiveIteratorIterator::LEAVES_ONLY
                     );
-                    foreach ($files as $file) {
+                    foreach($files as $file) {
                         // Skip directories (they would be added automatically)
-                        if (!$file->isDir()) {
+                        if(!$file->isDir()) {
                             unlink($file);
                         }
                     }
@@ -488,33 +146,36 @@ class ImportController extends Controller {
             }
         }
 
-        $type = $request->type;
+        $type = strtoupper($request->type);
 
         $tagNames = array();
         $recordObjs = array();
 
-        if($type=='xml') {
-            $xml = simplexml_load_file($request->file('records'));
+        switch($type) {
+            case self::XML:
+                $xml = simplexml_load_file($request->file('records'));
 
-            foreach ($xml->children() as $record) {
-                array_push($recordObjs, $record->asXML());
-                foreach ($record->children() as $fields) {
-                    array_push($tagNames, $fields->getName());
+                foreach($xml->children() as $record) {
+                    array_push($recordObjs, $record->asXML());
+                    foreach($record->children() as $fields) {
+                        array_push($tagNames, $fields->getName());
+                    }
                 }
-            }
 
-            $tagNames = array_unique($tagNames);
-        }else if($type=='json'){
-            $json = json_decode(file_get_contents($request->file('records')),true);
+                $tagNames = array_unique($tagNames);
+                break;
+            case self::JSON:
+                $json = json_decode(file_get_contents($request->file('records')), true);
 
-            foreach ($json['Records'] as $record) {
-                array_push($recordObjs, $record);
-                foreach ($record['Fields'] as $fields) {
-                    array_push($tagNames, $fields['name']);
+                foreach($json['Records'] as $record) {
+                    array_push($recordObjs, $record);
+                    foreach($record['Fields'] as $fields) {
+                        array_push($tagNames, $fields['name']);
+                    }
                 }
-            }
 
-            $tagNames = array_unique($tagNames);
+                $tagNames = array_unique($tagNames);
+                break;
         }
 
         $fields = $form->fields()->get();
@@ -526,7 +187,7 @@ class ImportController extends Controller {
         $table .= '<span style="float:left;width:50%;margin-bottom:10px"><b>'.trans('controller_input.xml').'</b></span>';
         $table .= '</div>';
 
-        foreach ($fields as $field){
+        foreach($fields as $field) {
             $table .= '<div>';
             $table .= '<span style="float:left;width:50%;margin-bottom:10px">';
             $table .= $field->name.' ('.$field->slug.')';
@@ -535,10 +196,9 @@ class ImportController extends Controller {
             $table .= '<span style="float:left;width:50%;margin-bottom:10px">';
             $table .= '<select class="tags">';
             $table .= '<option></option>';
-            foreach($tagNames as $name){
-                if($field->slug==$name) {
+            foreach($tagNames as $name) {
+                if($field->slug==$name)
                     $table .= '<option selected>' . $name . '</option>';
-                }
                 else
                     $table .= '<option>'.$name.'</option>';
             }
@@ -550,7 +210,7 @@ class ImportController extends Controller {
         $table .= '</div>';
 
         $table .= '<div class="form-group">';
-           $table .= '<button type="button" class="form-control btn btn-primary" id="submit_records">'.trans('controller_input.records').'</button>';
+        $table .= '<button type="button" class="form-control btn btn-primary" id="submit_records">'.trans('controller_input.records').'</button>';
         $table .= '</div>';
 
         $result = array();
@@ -562,10 +222,11 @@ class ImportController extends Controller {
     }
 
     /**
-     * WHAT_DOESTHISFUNTIONDO
+     * Import Kora 3 records via XML of JSON file. We will leave field specific stuff here because it's too specific.
      *
-     * @param  type $name - DESCRIPTION
-     * @return type - DESCRIPTION
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
      */
     public function importRecord($pid, $fid, Request $request){
         $matchup = $request->table;
@@ -581,33 +242,33 @@ class ImportController extends Controller {
             $originKid = $record->attributes()->kid;
             $originRid = explode('-', $originKid)[2];
 
-            foreach ($record->children() as $key => $field) {
+            foreach($record->children() as $key => $field) {
                 $fieldSlug = $matchup[$key];
                 $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
                 $type = $field->attributes()->type;
 
-                if ($type == 'Text' | $type == 'Rich Text' | $type == 'Number' | $type == 'List')
+                if($type == 'Text' | $type == 'Rich Text' | $type == 'Number' | $type == 'List')
                     $recRequest[$flid] = (string)$field;
-                else if ($type == 'Multi-Select List') {
+                else if($type == 'Multi-Select List') {
                     $recRequest[$flid] = (array)$field->value;
-                } else if ($type == 'Generated List') {
+                } else if($type == 'Generated List') {
                     $recRequest[$flid] = (array)$field->value;
-                } else if ($type == 'Combo List') {
+                } else if($type == 'Combo List') {
                     $values = array();
                     $nameone = str_replace(" ","_",ComboListField::getComboFieldName(FieldController::getField($flid), 'one'));
                     $nametwo = str_replace(" ","_",ComboListField::getComboFieldName(FieldController::getField($flid), 'two'));
-                    foreach ($field->Value as $val) {
-                        if ((string)$val->{$nameone} != '')
+                    foreach($field->Value as $val) {
+                        if((string)$val->{$nameone} != '')
                             $fone = '[!f1!]' . (string)$val->{$nameone} . '[!f1!]';
-                        else if (sizeof($val->{$nameone}->value) == 1)
+                        else if(sizeof($val->{$nameone}->value) == 1)
                             $fone = '[!f1!]' . (string)$val->{$nameone}->value . '[!f1!]';
                         else
                             $fone = '[!f1!]' . implode("[!]",(array)$val->{$nameone}->value) . '[!f1!]';
 
 
-                        if ((string)$val->{$nametwo} != '')
+                        if((string)$val->{$nametwo} != '')
                             $ftwo = '[!f2!]' . (string)$val->{$nametwo} . '[!f2!]';
-                        else if (sizeof($val->{$nametwo}->value) == 1)
+                        else if(sizeof($val->{$nametwo}->value) == 1)
                             $ftwo = '[!f2!]' . (string)$val->{$nametwo}->value . '[!f2!]';
                         else
                             $ftwo = '[!f2!]' . implode("[!]",(array)$val->{$nametwo}->value) . '[!f2!]';
@@ -616,23 +277,23 @@ class ImportController extends Controller {
                     }
                     $recRequest[$flid] = '';
                     $recRequest[$flid . '_val'] = $values;
-                } else if ($type == 'Date') {
+                } else if($type == 'Date') {
                     $recRequest['circa_' . $flid] = (string)$field->Circa;
                     $recRequest['month_' . $flid] = (string)$field->Month;
                     $recRequest['day_' . $flid] = (string)$field->Day;
                     $recRequest['year_' . $flid] = (string)$field->Year;
                     $recRequest['era_' . $flid] = (string)$field->Era;
                     $recRequest[$flid] = '';
-                } else if ($type == 'Schedule') {
+                } else if($type == 'Schedule') {
                     $events = array();
-                    foreach ($field->Event as $event) {
+                    foreach($field->Event as $event) {
                         $string = $event->Title . ': ' . $event->Start . ' - ' . $event->End;
                         array_push($events, $string);
                     }
                     $recRequest[$flid] = $events;
-                } else if ($type == 'Geolocator') {
+                } else if($type == 'Geolocator') {
                     $geo = array();
-                    foreach ($field->Location as $loc) {
+                    foreach($field->Location as $loc) {
                         $string = '[Desc]' . $loc->Desc . '[Desc]';
                         $string .= '[LatLon]' . $loc->Lat . ',' . $loc->Lon . '[LatLon]';
                         $string .= '[UTM]' . $loc->Zone . ':' . $loc->East . ',' . $loc->North . '[UTM]';
@@ -640,20 +301,20 @@ class ImportController extends Controller {
                         array_push($geo, $string);
                     }
                     $recRequest[$flid] = $geo;
-                } else if ($type == 'Documents' | $type == 'Playlist' | $type == 'Video' | $type == '3D-Model') {
+                } else if($type == 'Documents' | $type == 'Playlist' | $type == 'Video' | $type == '3D-Model') {
                     $files = array();
                     $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
                     $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id;
-                    if (file_exists($newDir)) {
-                        foreach (new \DirectoryIterator($newDir) as $file) {
-                            if ($file->isFile()) {
+                    if(file_exists($newDir)) {
+                        foreach(new \DirectoryIterator($newDir) as $file) {
+                            if($file->isFile()) {
                                 unlink($newDir . '/' . $file->getFilename());
                             }
                         }
                     } else {
                         mkdir($newDir, 0775, true);
                     }
-                    foreach ($field->File as $file) {
+                    foreach($field->File as $file) {
                         $name = (string)$file->Name;
                         //move file from imp temp to tmp files
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
@@ -662,26 +323,26 @@ class ImportController extends Controller {
                     }
                     $recRequest['file' . $flid] = $files;
                     $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;
-                } else if ($type == 'Gallery') {
+                } else if($type == 'Gallery') {
                     $files = array();
                     $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
                     $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id;
-                    if (file_exists($newDir)) {
-                        foreach (new \DirectoryIterator($newDir) as $file) {
-                            if ($file->isFile()) {
+                    if(file_exists($newDir)) {
+                        foreach(new \DirectoryIterator($newDir) as $file) {
+                            if($file->isFile()) {
                                 unlink($newDir . '/' . $file->getFilename());
                             }
                         }
-                        if (file_exists($newDir . '/thumbnail')) {
-                            foreach (new \DirectoryIterator($newDir . '/thumbnail') as $file) {
-                                if ($file->isFile()) {
+                        if(file_exists($newDir . '/thumbnail')) {
+                            foreach(new \DirectoryIterator($newDir . '/thumbnail') as $file) {
+                                if($file->isFile()) {
                                     unlink($newDir . '/thumbnail/' . $file->getFilename());
                                 }
                             }
                         }
-                        if (file_exists($newDir . '/medium')) {
-                            foreach (new \DirectoryIterator($newDir . '/medium') as $file) {
-                                if ($file->isFile()) {
+                        if(file_exists($newDir . '/medium')) {
+                            foreach(new \DirectoryIterator($newDir . '/medium') as $file) {
+                                if($file->isFile()) {
                                     unlink($newDir . '/medium/' . $file->getFilename());
                                 }
                             }
@@ -691,23 +352,23 @@ class ImportController extends Controller {
                         mkdir($newDir . '/thumbnail', 0775, true);
                         mkdir($newDir . '/medium', 0775, true);
                     }
-                    foreach ($field->File as $file) {
+                    foreach($field->File as $file) {
                         $name = (string)$file->Name;
                         //move file from imp temp to tmp files
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
                         copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                         copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
-                        if (file_exists($currDir . '/thumbnail'))
+                        if(file_exists($currDir . '/thumbnail'))
                             copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
-                        else{
+                        else {
                             $smallParts = explode('x',FieldController::getFieldOption($field,'ThumbSmall'));
                             $tImage = new \Imagick($newDir . '/' . $name);
                             $tImage->thumbnailImage($smallParts[0],$smallParts[1],true);
                             $tImage->writeImage($newDir . '/thumbnail/' . $name);
                         }
-                        if (file_exists($currDir . '/medium'))
+                        if(file_exists($currDir . '/medium'))
                             copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
-                        else{
+                        else {
                             $largeParts = explode('x',FieldController::getFieldOption($field,'ThumbLarge'));
                             $mImage = new \Imagick($newDir . '/' . $name);
                             $mImage->thumbnailImage($largeParts[0],$largeParts[1],true);
@@ -720,39 +381,39 @@ class ImportController extends Controller {
                     $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;
                 }
             }
-        }else if($request->type=='json'){
+        } else if($request->type=='json') {
             $originKid = $record['kid'];
             $originRid = explode('-', $originKid)[2];
 
-            foreach ($record['Fields'] as $field) {
+            foreach($record['Fields'] as $field) {
                 $fieldSlug = $matchup[$field['name']];
                 $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
                 $type = $field['type'];
 
-                if ($type == 'Text'){
+                if($type == 'Text') {
                     $recRequest[$flid] = $field['text'];
-                } else if ($type == 'Rich Text'){
+                } else if($type == 'Rich Text') {
                     $recRequest[$flid] = $field['richtext'];
-                } else if ($type == 'Number'){
+                } else if($type == 'Number') {
                     $recRequest[$flid] = $field['number'];
-                } else if ($type == 'List') {
+                } else if($type == 'List') {
                     $recRequest[$flid] = $field['option'];
-                } else if ($type == 'Multi-Select List') {
+                } else if($type == 'Multi-Select List') {
                     $recRequest[$flid] = $field['options'];
-                } else if ($type == 'Generated List') {
+                } else if($type == 'Generated List') {
                     $recRequest[$flid] = $field['options'];
-                } else if ($type == 'Combo List') {
+                } else if($type == 'Combo List') {
                     $values = array();
                     $nameone = ComboListField::getComboFieldName(FieldController::getField($flid), 'one');
                     $nametwo = ComboListField::getComboFieldName(FieldController::getField($flid), 'two');
-                    foreach ($field['values'] as $val) {
-                        if (!is_array($val[$nameone]))
+                    foreach($field['values'] as $val) {
+                        if(!is_array($val[$nameone]))
                             $fone = '[!f1!]' . $val[$nameone] . '[!f1!]';
                         else
                             $fone = '[!f1!]' . implode("[!]",$val[$nameone]) . '[!f1!]';
 
 
-                        if (!is_array($val[$nametwo]))
+                        if(!is_array($val[$nametwo]))
                             $ftwo = '[!f2!]' . $val[$nametwo] . '[!f2!]';
                         else
                             $ftwo = '[!f2!]' . implode("[!]",$val[$nametwo]) . '[!f2!]';
@@ -761,23 +422,23 @@ class ImportController extends Controller {
                     }
                     $recRequest[$flid] = '';
                     $recRequest[$flid . '_val'] = $values;
-                } else if ($type == 'Date') {
+                } else if($type == 'Date') {
                     $recRequest['circa_' . $flid] = $field['circa'];
                     $recRequest['month_' . $flid] = $field['month'];
                     $recRequest['day_' . $flid] = $field['day'];
                     $recRequest['year_' . $flid] = $field['year'];
                     $recRequest['era_' . $flid] = $field['era'];
                     $recRequest[$flid] = '';
-                } else if ($type == 'Schedule') {
+                } else if($type == 'Schedule') {
                     $events = array();
-                    foreach ($field['events'] as $event) {
+                    foreach($field['events'] as $event) {
                         $string = $event['title'] . ': ' . $event['start'] . ' - ' . $event['end'];
                         array_push($events, $string);
                     }
                     $recRequest[$flid] = $events;
-                } else if ($type == 'Geolocator') {
+                } else if($type == 'Geolocator') {
                     $geo = array();
-                    foreach ($field['locations'] as $loc) {
+                    foreach($field['locations'] as $loc) {
                         $string = '[Desc]' . $loc['desc'] . '[Desc]';
                         $string .= '[LatLon]' . $loc['lat'] . ',' . $loc['lon'] . '[LatLon]';
                         $string .= '[UTM]' . $loc['zone'] . ':' . $loc['east'] . ',' . $loc['north'] . '[UTM]';
@@ -785,20 +446,20 @@ class ImportController extends Controller {
                         array_push($geo, $string);
                     }
                     $recRequest[$flid] = $geo;
-                } else if ($type == 'Documents' | $type == 'Playlist' | $type == 'Video' | $type == '3D-Model') {
+                } else if($type == 'Documents' | $type == 'Playlist' | $type == 'Video' | $type == '3D-Model') {
                     $files = array();
                     $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
                     $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id;
-                    if (file_exists($newDir)) {
-                        foreach (new \DirectoryIterator($newDir) as $file) {
-                            if ($file->isFile()) {
+                    if(file_exists($newDir)) {
+                        foreach(new \DirectoryIterator($newDir) as $file) {
+                            if($file->isFile()) {
                                 unlink($newDir . '/' . $file->getFilename());
                             }
                         }
                     } else {
                         mkdir($newDir, 0775, true);
                     }
-                    foreach ($field['files'] as $file) {
+                    foreach($field['files'] as $file) {
                         $name = $file['name'];
                         //move file from imp temp to tmp files
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
@@ -807,26 +468,26 @@ class ImportController extends Controller {
                     }
                     $recRequest['file' . $flid] = $files;
                     $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;
-                } else if ($type == 'Gallery') {
+                } else if($type == 'Gallery') {
                     $files = array();
                     $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
                     $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id;
-                    if (file_exists($newDir)) {
-                        foreach (new \DirectoryIterator($newDir) as $file) {
-                            if ($file->isFile()) {
+                    if(file_exists($newDir)) {
+                        foreach(new \DirectoryIterator($newDir) as $file) {
+                            if($file->isFile()) {
                                 unlink($newDir . '/' . $file->getFilename());
                             }
                         }
-                        if (file_exists($newDir . '/thumbnail')) {
-                            foreach (new \DirectoryIterator($newDir . '/thumbnail') as $file) {
-                                if ($file->isFile()) {
+                        if(file_exists($newDir . '/thumbnail')) {
+                            foreach(new \DirectoryIterator($newDir . '/thumbnail') as $file) {
+                                if($file->isFile()) {
                                     unlink($newDir . '/thumbnail/' . $file->getFilename());
                                 }
                             }
                         }
-                        if (file_exists($newDir . '/medium')) {
-                            foreach (new \DirectoryIterator($newDir . '/medium') as $file) {
-                                if ($file->isFile()) {
+                        if(file_exists($newDir . '/medium')) {
+                            foreach(new \DirectoryIterator($newDir . '/medium') as $file) {
+                                if($file->isFile()) {
                                     unlink($newDir . '/medium/' . $file->getFilename());
                                 }
                             }
@@ -836,23 +497,23 @@ class ImportController extends Controller {
                         mkdir($newDir . '/thumbnail', 0775, true);
                         mkdir($newDir . '/medium', 0775, true);
                     }
-                    foreach ($field['files'] as $file) {
+                    foreach($field['files'] as $file) {
                         $name = $file['name'];
                         //move file from imp temp to tmp files
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
                         copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                         copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
-                        if (file_exists($currDir . '/thumbnail'))
+                        if(file_exists($currDir . '/thumbnail'))
                             copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
-                        else{
+                        else {
                             $smallParts = explode('x',FieldController::getFieldOption($field,'ThumbSmall'));
                             $tImage = new \Imagick($newDir . '/' . $name);
                             $tImage->thumbnailImage($smallParts[0],$smallParts[1],true);
                             $tImage->writeImage($newDir . '/thumbnail/' . $name);
                         }
-                        if (file_exists($currDir . '/medium'))
+                        if(file_exists($currDir . '/medium'))
                             copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
-                        else{
+                        else {
                             $largeParts = explode('x',FieldController::getFieldOption($field,'ThumbLarge'));
                             $mImage = new \Imagick($newDir . '/' . $name);
                             $mImage->thumbnailImage($largeParts[0],$largeParts[1],true);
@@ -869,20 +530,19 @@ class ImportController extends Controller {
 
         $recCon = new RecordController();
         $recCon->store($pid,$fid,$recRequest);
-
-        return '';
     }
 
     /**
-     * WHAT_DOESTHISFUNTIONDO
+     * Import a k3Form file into Kora3.
      *
-     * @param  type $name - DESCRIPTION
-     * @return type - DESCRIPTION
+     * @param  int $pid - Project ID
+     * @param  Request $request
+     * @return Redirect
      */
-	public function importForm($pid, Request $request){
+	public function importForm($pid, Request $request) {
         $project = ProjectController::getProject($pid);
 
-        if(!\Auth::user()->admin && !\Auth::user()->isProjectAdmin($project)){
+        if(!\Auth::user()->admin && !\Auth::user()->isProjectAdmin($project)) {
             return redirect('projects/'.$pid);
         }
 
@@ -890,24 +550,22 @@ class ImportController extends Controller {
 
         $fileArray = json_decode(file_get_contents($file));
 
-        //dd($fileArray);
-
         $form = new Form();
 
         $form->pid = $project->pid;
         $form->name = $fileArray->name;
-        if (Form::where('slug', '=', $fileArray->slug)->exists()) {
+        if(Form::where('slug', '=', $fileArray->slug)->exists()) {
             $unique = false;
             $i=1;
-            while(!$unique){
-                if(Form::where('slug', '=', $fileArray->slug.$i)->exists()){
+            while(!$unique) {
+                if(Form::where('slug', '=', $fileArray->slug.$i)->exists()) {
                     $i++;
-                }else{
+                } else {
                     $form->slug = $fileArray->slug.$i;
                     $unique = true;
                 }
             }
-        }else{
+        } else {
             $form->slug = $fileArray->slug;
         }
         $form->description = $fileArray->desc;
@@ -926,7 +584,7 @@ class ImportController extends Controller {
         $pages = $fileArray->pages;
         $pConvert = array();
 
-        foreach($pages as $page){
+        foreach($pages as $page) {
             $p = new Page();
 
             $p->parent_type = $page->parent_type;
@@ -954,7 +612,7 @@ class ImportController extends Controller {
 
         $fields = $fileArray->fields;
 
-        foreach($fields as $fieldArray){
+        foreach($fields as $fieldArray) {
             $field = new Field();
 
             $field->pid = $project->pid;
@@ -963,18 +621,18 @@ class ImportController extends Controller {
             $field->sequence = $fieldArray->sequence;
             $field->type = $fieldArray->type;
             $field->name = $fieldArray->name;
-            if (Field::where('slug', '=', $fieldArray->slug)->exists()) {
+            if(Field::where('slug', '=', $fieldArray->slug)->exists()) {
                 $unique = false;
                 $i=1;
-                while(!$unique){
-                    if(Field::where('slug', '=', $fieldArray->slug.$i)->exists()){
+                while(!$unique) {
+                    if(Field::where('slug', '=', $fieldArray->slug.$i)->exists()) {
                         $i++;
-                    }else{
+                    } else {
                         $field->slug = $fieldArray->slug.$i;
                         $unique = true;
                     }
                 }
-            }else{
+            } else {
                 $field->slug = $fieldArray->slug;
             }
             $field->desc = $fieldArray->desc;
@@ -990,7 +648,7 @@ class ImportController extends Controller {
             $field->save();
 
             //metadata
-            if($fieldArray->metadata!=""){
+            if($fieldArray->metadata!="") {
                 $meta = new Metadata();
                 $meta->flid = $field->flid;
                 $meta->pid = $project->pid;
@@ -1006,15 +664,16 @@ class ImportController extends Controller {
     }
 
     /**
-     * WHAT_DOESTHISFUNTIONDO
+     * Import a Kora 2 scheme into Kora3.
      *
-     * @param  type $name - DESCRIPTION
-     * @return type - DESCRIPTION
+     * @param  int $pid  - Project ID
+     * @param  Request $request
+     * @return Redirect
      */
-    public function importFormK2($pid, Request $request){
+    public function importFormK2($pid, Request $request) {
         $project = ProjectController::getProject($pid);
 
-        if(!\Auth::user()->admin && !\Auth::user()->isProjectAdmin($project)){
+        if(!\Auth::user()->admin && !\Auth::user()->isProjectAdmin($project)) {
             return redirect('projects/'.$pid);
         }
 
@@ -1037,8 +696,8 @@ class ImportController extends Controller {
         $form->save();
 
         //do stuff
-        foreach ($scheme->children() as $category => $value) {
-            if($category=='SchemeDesc'){
+        foreach($scheme->children() as $category => $value) {
+            if($category=='SchemeDesc') {
                 $name = $value->Name->__toString();
                 $desc = $value->Description->__toString();
 
@@ -1052,9 +711,9 @@ class ImportController extends Controller {
                 $form->slug = $slug;
                 $form->description = $desc;
                 $form->save();
-            }else if($category=='Collections'){
+            } else if($category=='Collections') {
                 $pIndex = 0;
-                foreach($value->children() as $collection){
+                foreach($value->children() as $collection) {
                     $page = new Page();
                     $page->parent_type=PageController::_FORM;
                     $page->fid = $form->fid;
@@ -1068,7 +727,7 @@ class ImportController extends Controller {
                     //Each page needs to keep track of its own sequence for fields
                     $collToPage[(int)$collection->id."_seq"] = 0;
                 }
-            }else if($category=='Controls'){
+            } else if($category=='Controls') {
                 foreach($value->children() as $name => $control) {
                     if($name != 'systimestamp' && $name != 'recordowner') {
                         $type = $control->Type->__toString();
@@ -1083,11 +742,11 @@ class ImportController extends Controller {
                         $newDef = '';
                         $newType = '';
 
-                        switch($type){
+                        switch($type) {
                             case 'TextControl':
                                 $def = $optXML->defaultValue->__toString();
                                 $textType = $optXML->textEditor->__toString();
-                                if($textType=='plain'){
+                                if($textType=='plain') {
                                     $regex = $optXML->regex->__toString();
                                     $rows = (int)$optXML->rows;
                                     $multiline = 0;
@@ -1097,7 +756,7 @@ class ImportController extends Controller {
                                     $newOpts = "[!Regex!]".$regex."[!Regex!][!MultiLine!]".$multiline."[!MultiLine!]";
                                     $newDef = $def;
                                     $newType = "Text";
-                                }else if($textType=='rich'){
+                                } else if($textType=='rich') {
                                     $newOpts = "";
                                     $newDef = $def;
                                     $newType = "Rich Text";
@@ -1108,7 +767,7 @@ class ImportController extends Controller {
                                 $defOpts = '';
                                 if(isset($def[0])) {
                                     $defOpts = $def[0];
-                                    for ($i = 1; $i < sizeof($def); $i++) {
+                                    for($i = 1; $i < sizeof($def); $i++) {
                                         $defOpts .= '[!]' . $def[$i];
                                     }
                                 }
@@ -1129,10 +788,10 @@ class ImportController extends Controller {
                                 $prefix = $optXML->prefixes->__toString();
                                 $circa = 'No';
                                 $for = 'MMDDYYYY';
-                                if($prefix=="circa"){$circa="Yes";}
-                                if($format=="MDY"){$for="MMDDYYYY";}
-                                else if($format=="DMY"){$for="DDMMYYYY";}
-                                else if($format=="YMD"){$for="YYYYMMDD";}
+                                if($prefix=="circa") {$circa="Yes";}
+                                if($format=="MDY") {$for="MMDDYYYY";}
+                                else if($format=="DMY") {$for="DDMMYYYY";}
+                                else if($format=="YMD") {$for="YYYYMMDD";}
 
                                 $newOpts = "[!Circa!]".$circa."[!Circa!][!Start!]".$startY."[!Start!][!End!]".$endY."[!End!][!Format!]".$for."[!Format!][!Era!]".$era."[!Era!]";
                                 $newDef = "[M]".$defMon."[M][D]".$defDay."[D][Y]".$defYear."[Y]";
@@ -1144,13 +803,12 @@ class ImportController extends Controller {
                                 $def = (array)$optXML->defaultValue;
                                 if(isset($def["date"]))
                                     $def = $def["date"];
-                                else{
+                                else
                                     $def=array();
-                                }
                                 $defOpts = '';
                                 if(isset($def[0])) {
                                     $defOpts = "Event 1: " . $def[0]->month . "/" . $def[0]->day . "/" . $def[0]->year . " - " . $def[0]->month . "/" . $def[0]->day . "/" . $def[0]->year;
-                                    for ($i = 1; $i < sizeof($def); $i++) {
+                                    for($i = 1; $i < sizeof($def); $i++) {
                                         $defOpts .= '[!]' . "Event " . ($i + 1) . ": " . $def[$i]->month . "/" . $def[$i]->day . "/" . $def[$i]->year . " - " . $def[$i]->month . "/" . $def[$i]->day . "/" . $def[$i]->year;
                                     }
                                 }
@@ -1165,7 +823,7 @@ class ImportController extends Controller {
                                 $allOpts = '';
                                 if(isset($allowed[0])) {
                                     $allOpts = $allowed[0];
-                                    for ($i = 1; $i < sizeof($allowed); $i++) {
+                                    for($i = 1; $i < sizeof($allowed); $i++) {
                                         $allOpts .= '[!]' . $allowed[$i];
                                     }
                                 }
@@ -1179,7 +837,7 @@ class ImportController extends Controller {
                                 $allOpts = '';
                                 if(isset($allowed[0])) {
                                     $allOpts = $allowed[0];
-                                    for ($i = 1; $i < sizeof($allowed); $i++) {
+                                    for($i = 1; $i < sizeof($allowed); $i++) {
                                         if ($allowed[$i] != "image/pjpeg" && $allowed[$i] != "image/x-png")
                                             $allOpts .= '[!]' . $allowed[$i];
                                     }
@@ -1195,7 +853,7 @@ class ImportController extends Controller {
                                 $allOpts = '';
                                 if(isset($opts[0])) {
                                     $allOpts = $opts[0];
-                                    for ($i = 1; $i < sizeof($opts); $i++) {
+                                    for($i = 1; $i < sizeof($opts); $i++) {
                                         $allOpts .= '[!]' . $opts[$i];
                                     }
                                 }
@@ -1210,7 +868,7 @@ class ImportController extends Controller {
                                 $allOpts = '';
                                 if(isset($opts[0])) {
                                     $allOpts = $opts[0];
-                                    for ($i = 1; $i < sizeof($opts); $i++) {
+                                    for($i = 1; $i < sizeof($opts); $i++) {
                                         $allOpts .= '[!]' . $opts[$i];
                                     }
                                 }
@@ -1218,7 +876,7 @@ class ImportController extends Controller {
                                 $defOpts = '';
                                 if(isset($def[0])) {
                                     $defOpts = $def[0];
-                                    for ($i = 1; $i < sizeof($def); $i++) {
+                                    for($i = 1; $i < sizeof($def); $i++) {
                                         $defOpts .= '[!]' . $def[$i];
                                     }
                                 }
@@ -1244,7 +902,7 @@ class ImportController extends Controller {
                         $field->name = $name;
                         $slug = str_replace(' ','_',$name);
                         $z=1;
-                        while(Field::slugExists($slug)){
+                        while(Field::slugExists($slug)) {
                             $slug .= $z;
                             $z++;
                         }
@@ -1271,11 +929,11 @@ class ImportController extends Controller {
             $records = simplexml_load_file($file);
             $zipDir = env('BASE_PATH').'storage/app/tmpFiles/f'.$form->fid.'u'.\Auth::user()->id.'/';
 
-            if(!is_null($request->file('files'))){
+            if(!is_null($request->file('files'))) {
                 $fileZIP = $request->file('files');
 
                 $zip = new \ZipArchive();
-                if($zip->open($fileZIP) === TRUE){
+                if($zip->open($fileZIP) === TRUE) {
                     if(mkdir($zipDir)) {
                         $zip->extractTo($zipDir);
                         $zip->close();
@@ -1283,7 +941,7 @@ class ImportController extends Controller {
                 }
             }
 
-            foreach($records->Record as $record){
+            foreach($records->Record as $record) {
                 $recModel = new Record();
                 $recModel->pid = $form->pid;
                 $recModel->fid = $form->fid;
@@ -1295,14 +953,16 @@ class ImportController extends Controller {
 
                 $usedMultiples = array();
 
-                foreach($record->children() as $name => $value){
+                foreach($record->children() as $name => $value) {
                     //for multi style controls, move on if name already user
-                    if(in_array($name,$usedMultiples)){continue;}
+                    if(in_array($name,$usedMultiples)) {continue;}
                     //ignore standard control types and process
                     if($name != 'systimestamp' && $name != 'recordowner') {
                         $slug = $fieldNameArrayForRecordInsert[$name];
                         $field = Field::where('slug','=',$slug)->get()->first();
 
+                        //We leave this code here (instead of in the Field model) because they are heavily specific to
+                        // the conversion of Kora 2 data and will probably never change.
                         switch($field->type) {
                             case 'Text':
                                 $value = (string)$value;
@@ -1331,9 +991,9 @@ class ImportController extends Controller {
                             case 'Generated List':
                                 array_push($usedMultiples,$name);
                                 $opts = (array)$record->$name;
-                                if(isset($opts[0])){
+                                if(isset($opts[0])) {
                                     $optStr = $opts[0];
-                                    for ($i = 1; $i < sizeof($opts); $i++) {
+                                    for($i = 1; $i < sizeof($opts); $i++) {
                                         $optStr .= '[!]' . $opts[$i];
                                     }
 
@@ -1347,17 +1007,17 @@ class ImportController extends Controller {
                                 break;
                             case 'Date':
                                 $circa=0;
-                                if(isset($value->attributes()["prefix"])){
-                                    if($value->attributes()["prefix"] == "circa"){
+                                if(isset($value->attributes()["prefix"])) {
+                                    if($value->attributes()["prefix"] == "circa") {
                                         $circa=1;
                                     }
                                 }
                                 $dateStr = (string)$value;
                                 if($dateStr!="") {
                                     $dateArray = explode(' ',$dateStr);
-                                    if(FieldController::getFieldOption($field,'Era')=='Yes'){
+                                    if(FieldController::getFieldOption($field,'Era')=='Yes') {
                                         $era = $dateArray[1];
-                                    }else{
+                                    } else {
                                         $era = 'CE';
                                     }
                                     $dateParts = explode("/",$dateArray[0]);
@@ -1377,13 +1037,13 @@ class ImportController extends Controller {
                             case 'Schedule':
                                 array_push($usedMultiples,$name);
                                 $opts = (array)$record->$name;
-                                if(isset($opts[0])){
+                                if(isset($opts[0])) {
                                     //CREATE THE VALUE
                                     $z=1;
                                     $dateStr = explode(' ',$opts[0])[0];
                                     $eventStr = 'Event '.$z.': '.$dateStr.' - '.$dateStr;
                                     $z++;
-                                    for ($i = 1; $i < sizeof($opts); $i++) {
+                                    for($i = 1; $i < sizeof($opts); $i++) {
                                         $dateStr = explode(' ',$opts[$i])[0];
                                         $eventStr .= '[!]Event '.$z.': '.$dateStr.' - '.$dateStr;
                                         $z++;
@@ -1400,7 +1060,7 @@ class ImportController extends Controller {
                                 break;
                             case 'Documents':
                                 $realname='';
-                                if(isset($value->attributes()["originalName"])){
+                                if(isset($value->attributes()["originalName"])) {
                                     $realname = $value->attributes()["originalName"];
                                 }
                                 $localname = (string)$value;
@@ -1421,7 +1081,7 @@ class ImportController extends Controller {
                                     //Get file info
                                     $mimes = DocumentsField::getMimeTypes();
                                     $ext = pathinfo($newPath.$realname,PATHINFO_EXTENSION);
-                                    if (!array_key_exists($ext, $mimes))
+                                    if(!array_key_exists($ext, $mimes))
                                         $type = 'application/octet-stream';
                                     else
                                         $type = $mimes[$ext];
@@ -1437,7 +1097,7 @@ class ImportController extends Controller {
                                 break;
                             case 'Gallery':
                                 $realname='';
-                                if(isset($value->attributes()["originalName"])){
+                                if(isset($value->attributes()["originalName"])) {
                                     $realname = $value->attributes()["originalName"];
                                 }
                                 $localname = (string)$value;
@@ -1472,7 +1132,7 @@ class ImportController extends Controller {
                                     //Get file info
                                     $mimes = DocumentsField::getMimeTypes();
                                     $ext = pathinfo($newPath.$realname,PATHINFO_EXTENSION);
-                                    if (!array_key_exists($ext, $mimes))
+                                    if(!array_key_exists($ext, $mimes))
                                         $type = 'application/octet-stream';
                                     else
                                         $type = $mimes[$ext];
@@ -1501,9 +1161,9 @@ class ImportController extends Controller {
                             case 'Multi-Select List':
                                 array_push($usedMultiples,$name);
                                 $opts = (array)$record->$name;
-                                if(isset($opts[0])){
+                                if(isset($opts[0])) {
                                     $optStr = $opts[0];
-                                    for ($i = 1; $i < sizeof($opts); $i++) {
+                                    for($i = 1; $i < sizeof($opts); $i++) {
                                         $optStr .= '[!]' . $opts[$i];
                                     }
 
@@ -1531,32 +1191,30 @@ class ImportController extends Controller {
     }
 
     /**
-     * WHAT_DOESTHISFUNTIONDO
+     * Project import uses this to import its forms without the need for a k3Form file.
      *
-     * @param  type $name - DESCRIPTION
-     * @return type - DESCRIPTION
+     * @param  int $pid - Project ID
+     * @param  array $fileArray - Form structure info
      */
-    private function importFormNoFile($pid, $fileArray){
+    private function importFormNoFile($pid, $fileArray) {
         $project = ProjectController::getProject($pid);
-
-        //dd($fileArray);
 
         $form = new Form();
 
         $form->pid = $project->pid;
         $form->name = $fileArray->name;
-        if (Form::where('slug', '=', $fileArray->slug)->exists()) {
+        if(Form::where('slug', '=', $fileArray->slug)->exists()) {
             $unique = false;
             $i=1;
-            while(!$unique){
-                if(Form::where('slug', '=', $fileArray->slug.$i)->exists()){
+            while(!$unique) {
+                if(Form::where('slug', '=', $fileArray->slug.$i)->exists()) {
                     $i++;
-                }else{
+                } else {
                     $form->slug = $fileArray->slug.$i;
                     $unique = true;
                 }
             }
-        }else{
+        } else {
             $form->slug = $fileArray->slug;
         }
         $form->description = $fileArray->desc;
@@ -1575,7 +1233,7 @@ class ImportController extends Controller {
         $pages = $fileArray->pages;
         $pConvert = array();
 
-        foreach($pages as $page){
+        foreach($pages as $page) {
             $p = new Page();
 
             $p->parent_type = $page->parent_type;
@@ -1603,7 +1261,7 @@ class ImportController extends Controller {
 
         $fields = $fileArray->fields;
 
-        foreach($fields as $fieldArray){
+        foreach($fields as $fieldArray) {
             $field = new Field();
 
             $field->pid = $project->pid;
@@ -1612,18 +1270,18 @@ class ImportController extends Controller {
             $field->sequence = $fieldArray->sequence;
             $field->type = $fieldArray->type;
             $field->name = $fieldArray->name;
-            if (Field::where('slug', '=', $fieldArray->slug)->exists()) {
+            if(Field::where('slug', '=', $fieldArray->slug)->exists()) {
                 $unique = false;
                 $i=1;
-                while(!$unique){
-                    if(Field::where('slug', '=', $fieldArray->slug.$i)->exists()){
+                while(!$unique) {
+                    if(Field::where('slug', '=', $fieldArray->slug.$i)->exists()) {
                         $i++;
-                    }else{
+                    } else {
                         $field->slug = $fieldArray->slug.$i;
                         $unique = true;
                     }
                 }
-            }else{
+            } else {
                 $field->slug = $fieldArray->slug;
             }
             $field->desc = $fieldArray->desc;
@@ -1639,7 +1297,7 @@ class ImportController extends Controller {
             $field->save();
 
             //metadata
-            if($fieldArray->metadata!=""){
+            if($fieldArray->metadata!="") {
                 $meta = new Metadata();
                 $meta->flid = $field->flid;
                 $meta->pid = $project->pid;
@@ -1651,13 +1309,12 @@ class ImportController extends Controller {
     }
 
     /**
-     * WHAT_DOESTHISFUNTIONDO
+     * Creates the form's admin group.
      *
-     * @param  type $name - DESCRIPTION
-     * @return type - DESCRIPTION
+     * @param  Form $form - Form to create group for
+     * @return FormGroup - The newly created group
      */
-    private function makeFormAdminGroup(Form $form)
-    {
+    private function makeFormAdminGroup(Form $form) {
         $groupName = $form->name;
         $groupName .= ' Admin Group';
 
@@ -1679,7 +1336,7 @@ class ImportController extends Controller {
 
         $idArray = array_unique(array_merge(array(\Auth::user()->id), $idArray));
 
-        if (!empty($idArray))
+        if(!empty($idArray))
             $adminGroup->users()->attach($idArray);
 
         $adminGroup->create = 1;
@@ -1695,13 +1352,11 @@ class ImportController extends Controller {
     }
 
     /**
-     * WHAT_DOESTHISFUNTIONDO
+     * Creates the form's default group.
      *
-     * @param  type $name - DESCRIPTION
-     * @return type - DESCRIPTION
+     * @param  Form $form - Form to create group for
      */
-    private function makeFormDefaultGroup(Form $form)
-    {
+    private function makeFormDefaultGroup(Form $form) {
         $groupName = $form->name;
         $groupName .= ' Default Group';
 
@@ -1721,13 +1376,13 @@ class ImportController extends Controller {
     }
 
     /**
-     * WHAT_DOESTHISFUNTIONDO
+     * Import a k3Proj file into Kora3.
      *
-     * @param  type $name - DESCRIPTION
-     * @return type - DESCRIPTION
+     * @param  Request $request
+     * @return Redirect
      */
-    public function importProject(Request $request){
-        if(!\Auth::user()->admin){
+    public function importProject(Request $request) {
+        if(!\Auth::user()->admin) {
             return redirect('projects/');
         }
 
@@ -1735,23 +1390,21 @@ class ImportController extends Controller {
 
         $fileArray = json_decode(file_get_contents($file));
 
-        //dd($fileArray);
-
         $proj = new Project();
 
         $proj->name = $fileArray->name;
-        if (Project::where('slug', '=', $fileArray->slug)->exists()) {
+        if(Project::where('slug', '=', $fileArray->slug)->exists()) {
             $unique = false;
             $i=1;
-            while(!$unique){
-                if(Project::where('slug', '=', $fileArray->slug.$i)->exists()){
+            while(!$unique) {
+                if(Project::where('slug', '=', $fileArray->slug.$i)->exists()) {
                     $i++;
-                }else{
+                } else {
                     $proj->slug = $fileArray->slug.$i;
                     $unique = true;
                 }
             }
-        }else{
+        } else {
             $proj->slug = $fileArray->slug;
         }
         $proj->description = $fileArray->description;
@@ -1761,7 +1414,7 @@ class ImportController extends Controller {
 
         //make admin group
         $admin = $this->makeProjAdminGroup($proj);
-        $this->makeProjAdminGroup($proj);
+        $this->makeProjectDefaultGroup($proj);
         $proj->adminGID = $admin->id;
         $proj->save();
 
@@ -1791,13 +1444,12 @@ class ImportController extends Controller {
     }
 
     /**
-     * WHAT_DOESTHISFUNTIONDO
+     * Creates the project's admin group.
      *
-     * @param  type $name - DESCRIPTION
-     * @return type - DESCRIPTION
+     * @param  Project $project - Project to create group for
+     * @return ProjectGroup - The newly created group
      */
-    private function makeProjAdminGroup($project)
-    {
+    private function makeProjAdminGroup($project) {
         $groupName = $project->name;
         $groupName .= ' Admin Group';
 
@@ -1818,13 +1470,11 @@ class ImportController extends Controller {
     }
 
     /**
-     * WHAT_DOESTHISFUNTIONDO
+     * Creates the projects's default group.
      *
-     * @param  type $name - DESCRIPTION
-     * @return type - DESCRIPTION
+     * @param  Project $project - Project to create group for
      */
-    private function makeProjectDefaultGroup($project)
-    {
+    private function makeProjectDefaultGroup($project) {
         $groupName = $project->name;
         $groupName .= ' Default Group';
 

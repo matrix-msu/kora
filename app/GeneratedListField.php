@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 
 class GeneratedListField extends BaseField {
 
+    const FIELD_OPTIONS_VIEW = "fields.options.genlist";
+
     protected $fillable = [
         'rid',
         'flid',
@@ -15,6 +17,28 @@ class GeneratedListField extends BaseField {
 
     public static function getOptions(){
         return '[!Regex!][!Regex!][!Options!][!Options!]';
+    }
+
+    public static function getExportSample($field,$type){
+        switch ($type){
+            case "XML":
+                $xml = '<' . Field::xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                $xml .= '<value>' . utf8_encode('LIST VALUE 1') . '</value>';
+                $xml .= '<value>' . utf8_encode('LIST VALUE 2') . '</value>';
+                $xml .= '<value>' . utf8_encode('so on...') . '</value>';
+                $xml .= '</' . Field::xmlTagClear($field->slug) . '>';
+
+                return $xml;
+                break;
+            case "JSON":
+                $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                $options = array('LIST VALUE 1','LIST VALUE 2','so on...');
+                $fieldArray['options'] = $options;
+
+                return $fieldArray;
+                break;
+        }
+
     }
 
     public static function getList($field, $blankOpt=false)

@@ -538,6 +538,122 @@ class Field extends Model {
         }
     }
 
+    static function getExportSample($field, $expType)
+    {
+        $field_type = $field->type;
+
+        switch ($field_type) {
+            case self::_TEXT:
+                return TextField::getExportSample($field, $expType);
+                break;
+            case self::_RICH_TEXT:
+                return RichTextField::getExportSample($field, $expType);
+                break;
+            case self::_NUMBER:
+                return NumberField::getExportSample($field, $expType);
+                break;
+            case self::_LIST:
+                return ListField::getExportSample($field, $expType);
+                break;
+            case self::_MULTI_SELECT_LIST:
+                return MultiSelectListField::getExportSample($field, $expType);
+                break;
+            case self::_GENERATED_LIST:
+                return GeneratedListField::getExportSample($field, $expType);
+                break;
+            case self::_DATE:
+                return DateField::getExportSample($field, $expType);
+                break;
+            case self::_SCHEDULE:
+                return ScheduleField::getExportSample($field, $expType);
+                break;
+            case self::_GEOLOCATOR:
+                return GeolocatorField::getExportSample($field, $expType);
+                break;
+            case self::_DOCUMENTS:
+                return DocumentsField::getExportSample($field, $expType);
+                break;
+            case self::_GALLERY:
+                return GalleryField::getExportSample($field, $expType);
+                break;
+            case self::_3D_MODEL:
+                return ModelField::getExportSample($field, $expType);
+                break;
+            case self::_PLAYLIST:
+                return PlaylistField::getExportSample($field, $expType);
+                break;
+            case self::_VIDEO:
+                return VideoField::getExportSample($field, $expType);
+                break;
+            case self::_COMBO_LIST:
+                return ComboListField::getExportSample($field, $expType);
+                break;
+            case self::_ASSOCIATOR:
+                return AssociatorField::getExportSample($field, $expType);
+                break;
+            default: // Error occurred.
+                throw new \Exception("Invalid field type in field::field option.");
+                break;
+        }
+    }
+
+    static function getFieldTypeView($field_type)
+    {
+        switch ($field_type) {
+            case self::_TEXT:
+                return TextField::FIELD_OPTIONS_VIEW;
+                break;
+            case self::_RICH_TEXT:
+                return RichTextField::FIELD_OPTIONS_VIEW;
+                break;
+            case self::_NUMBER:
+                return NumberField::FIELD_OPTIONS_VIEW;
+                break;
+            case self::_LIST:
+                return ListField::FIELD_OPTIONS_VIEW;
+                break;
+            case self::_MULTI_SELECT_LIST:
+                return MultiSelectListField::FIELD_OPTIONS_VIEW;
+                break;
+            case self::_GENERATED_LIST:
+                return GeneratedListField::FIELD_OPTIONS_VIEW;
+                break;
+            case self::_DATE:
+                return DateField::FIELD_OPTIONS_VIEW;
+                break;
+            case self::_SCHEDULE:
+                return ScheduleField::FIELD_OPTIONS_VIEW;
+                break;
+            case self::_GEOLOCATOR:
+                return GeolocatorField::FIELD_OPTIONS_VIEW;
+                break;
+            case self::_DOCUMENTS:
+                return DocumentsField::FIELD_OPTIONS_VIEW;
+                break;
+            case self::_GALLERY:
+                return GalleryField::FIELD_OPTIONS_VIEW;
+                break;
+            case self::_3D_MODEL:
+                return ModelField::FIELD_OPTIONS_VIEW;
+                break;
+            case self::_PLAYLIST:
+                return PlaylistField::FIELD_OPTIONS_VIEW;
+                break;
+            case self::_VIDEO:
+                return VideoField::FIELD_OPTIONS_VIEW;
+                break;
+            case self::_COMBO_LIST:
+                return ComboListField::FIELD_OPTIONS_VIEW;
+                break;
+            case self::_ASSOCIATOR:
+                return AssociatorField::FIELD_OPTIONS_VIEW;
+                break;
+            default: // Error occurred.
+                throw new \Exception("Invalid field type in field::field option.");
+                break;
+        }
+    }
+
     /**
      * Processes an argument so it can be used in a file field.
      *
@@ -603,6 +719,19 @@ class Field extends Model {
             return false;
         else
             return true;
+    }
+
+    /**
+     * Validates/cleans an xml tag name.
+     *
+     * @param  string $value - XML tag
+     * @return string - The sanitized tag
+     */
+    public static function xmlTagClear($value) {
+        $value = htmlentities($value);
+        $value = str_replace(' ','_',$value);
+
+        return $value;
     }
 }
 

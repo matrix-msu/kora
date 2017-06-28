@@ -16,6 +16,14 @@ class HelpController extends Controller {
     */
 
     /**
+     * Constructs controller and makes sure user is authenticated.
+     */
+    public function __construct() {
+        $this->middleware('auth');
+        $this->middleware('active');
+    }
+
+    /**
      * Gets the view for the search help page.
      *
      * @return View

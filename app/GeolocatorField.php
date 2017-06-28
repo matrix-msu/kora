@@ -14,6 +14,7 @@ use PhpSpec\Exception\Exception;
 class GeolocatorField extends BaseField {
 
     const SUPPORT_NAME = "geolocator_support";
+    const FIELD_OPTIONS_VIEW = "fields.options.geolocator";
 
     protected $fillable = [
         'rid',
@@ -23,6 +24,43 @@ class GeolocatorField extends BaseField {
 
     public static function getOptions(){
         return '[!Map!]No[!Map!][!DataView!]LatLon[!DataView!]';
+    }
+
+    public static function getExportSample($field,$type){
+        switch ($type){
+            case "XML":
+                $xml = '<' . Field::xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                $xml .= '<Location>';
+                $xml .= '<Desc>' . utf8_encode('LOCATION DESCRIPTION') . '</Desc>';
+                $xml .= '<Lat>' . utf8_encode('i.e. 13') . '</Lat>';
+                $xml .= '<Lon>' . utf8_encode('i.e. 14.5') . '</Lon>';
+                $xml .= '<Zone>' . utf8_encode('i.e. 38T') . '</Zone>';
+                $xml .= '<East>' . utf8_encode('i.e. 59233.235234') . '</East>';
+                $xml .= '<North>' . utf8_encode('i.e. 52833.265454') . '</North>';
+                $xml .= '<Address>' . utf8_encode('TEXTUAL REPRESENTATION OF LOCATION') . '</Address>';
+                $xml .= '</Location>';
+                $xml .= '</' . Field::xmlTagClear($field->slug) . '>';
+
+                return $xml;
+                break;
+            case "JSON":
+                $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                $fieldArray['locations'] = array();
+                $locArray = array();
+
+                $locArray['desc'] = 'LOCATION DESCRIPTION';
+                $locArray['lat'] = 'i.e. 13';
+                $locArray['lon'] = 'i.e. 14.5';
+                $locArray['zone'] = 'i.e. 38T';
+                $locArray['east'] = 'i.e. 59233.235234';
+                $locArray['north'] = 'i.e. 52833.265454';
+                $locArray['address'] = 'TEXTUAL REPRESENTATION OF LOCATION';
+                array_push($fieldArray['locations'], $locArray);
+
+                return $fieldArray;
+                break;
+        }
+
     }
 
     /**
