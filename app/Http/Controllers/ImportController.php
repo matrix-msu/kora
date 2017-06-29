@@ -766,10 +766,7 @@ class ImportController extends Controller {
                                 $def = (array)$optXML->defaultValue->value;
                                 $defOpts = '';
                                 if(isset($def[0])) {
-                                    $defOpts = $def[0];
-                                    for($i = 1; $i < sizeof($def); $i++) {
-                                        $defOpts .= '[!]' . $def[$i];
-                                    }
+                                    $defOpts = implode("[!]",$def);
                                 }
                                 $regex = $optXML->regex->__toString();
 
@@ -822,10 +819,7 @@ class ImportController extends Controller {
                                 $allowed = (array)$optXML->allowedMIME->mime;
                                 $allOpts = '';
                                 if(isset($allowed[0])) {
-                                    $allOpts = $allowed[0];
-                                    for($i = 1; $i < sizeof($allowed); $i++) {
-                                        $allOpts .= '[!]' . $allowed[$i];
-                                    }
+                                    $allOpts = implode("[!]",$allowed);
                                 }
 
                                 $newOpts = "[!FieldSize!]".$maxSize."[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!]".$allOpts."[!FileTypes!]";
@@ -852,10 +846,7 @@ class ImportController extends Controller {
                                 $opts = (array)$optXML->option;
                                 $allOpts = '';
                                 if(isset($opts[0])) {
-                                    $allOpts = $opts[0];
-                                    for($i = 1; $i < sizeof($opts); $i++) {
-                                        $allOpts .= '[!]' . $opts[$i];
-                                    }
+                                    $allOpts = implode("[!]",$opts);
                                 }
                                 $def = $optXML->defaultValue->__toString();
 
@@ -867,18 +858,12 @@ class ImportController extends Controller {
                                 $opts = (array)$optXML->option;
                                 $allOpts = '';
                                 if(isset($opts[0])) {
-                                    $allOpts = $opts[0];
-                                    for($i = 1; $i < sizeof($opts); $i++) {
-                                        $allOpts .= '[!]' . $opts[$i];
-                                    }
+                                    $allOpts = implode("[!]",$opts);
                                 }
                                 $def = (array)$optXML->defaultValue->option;
                                 $defOpts = '';
                                 if(isset($def[0])) {
-                                    $defOpts = $def[0];
-                                    for($i = 1; $i < sizeof($def); $i++) {
-                                        $defOpts .= '[!]' . $def[$i];
-                                    }
+                                    $defOpts = implode("[!]",$def);
                                 }
 
                                 $newOpts = "[!Options!]".$allOpts."[!Options!]";
@@ -992,10 +977,7 @@ class ImportController extends Controller {
                                 array_push($usedMultiples,$name);
                                 $opts = (array)$record->$name;
                                 if(isset($opts[0])) {
-                                    $optStr = $opts[0];
-                                    for($i = 1; $i < sizeof($opts); $i++) {
-                                        $optStr .= '[!]' . $opts[$i];
-                                    }
+                                    $optStr = implode("[!]",$opts);
 
                                     $gen = new GeneratedListField();
                                     $gen->rid = $recModel->rid;
@@ -1162,10 +1144,7 @@ class ImportController extends Controller {
                                 array_push($usedMultiples,$name);
                                 $opts = (array)$record->$name;
                                 if(isset($opts[0])) {
-                                    $optStr = $opts[0];
-                                    for($i = 1; $i < sizeof($opts); $i++) {
-                                        $optStr .= '[!]' . $opts[$i];
-                                    }
+                                    $optStr = implode("[!]",$opts);
 
                                     $msl = new MultiSelectListField();
                                     $msl->rid = $recModel->rid;
