@@ -3,32 +3,39 @@
 use App\User;
 use App\Project;
 use App\ProjectGroup;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\ProjectRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\View\View;
 
 class ProjectController extends Controller {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Project Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles projects within Kora3
+    |
+    */
+
     /**
-     * User must be logged in to access views in this controller.
+     * Constructs controller and makes sure user is authenticated.
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->middleware('auth');
         $this->middleware('active');
         $this->middleware('admin', ['except' => ['index', 'show', 'request']]);
     }
 
-	/**
-	 * Display a listing of the resource.
-	 *
-	 * @return Response
-	 */
-	public function index()
-	{
+    /**
+     * Gets the view for the main projects page.
+     *
+     * @return View
+     */
+	public function index() {
         $projectCollections = Project::all();
 
         $projectArrays = [];
@@ -36,17 +43,17 @@ class ProjectController extends Controller {
         $hasProjects = false;
         $requestProjects = array();
         foreach($projectCollections as $project) {
-            if(\Auth::user()->admin || \Auth::user()->inAProjectGroup($project)){
+            if(\Auth::user()->admin || \Auth::user()->inAProjectGroup($project)) {
                 $projectArrays[] = $project->buildFormSelectorArray();
                 array_push($projects,$project);
                 $hasProjects = true;
-            }else if($project->active){
+            } else if($project->active) {
                 $requestProjects[$project->name] = $project->pid;
             }
         }
 
         $c = new UpdateController();
-        if ($c->checkVersion() && !session('notified_of_update')) {
+        if($c->checkVersion() && !session('notified_of_update')) {
             session(['notified_of_update' => true]);
             flash()->overlay(trans('controller_update.updateneeded'), trans('controller_update.updateheader'));
         }
@@ -54,25 +61,31 @@ class ProjectController extends Controller {
         return view('projects.index', compact('projects', 'projectArrays', 'hasProjects','requestProjects'));
 	}
 
-    public function request(Request $request){
+    /**
+     * Sends an access request to admins of project(s).
+     *
+     * @param  Request $request
+     * @return Redirect
+     */
+    public function request(Request $request) {
         $projects = array();
         if(!is_null($request->pid)) {
-            foreach ($request->pid as $pid) {
+            foreach($request->pid as $pid) {
                 $project = self::getProject($pid);
-                if (!is_null($project))
+                if(!is_null($project))
                     array_push($projects, $project);
             }
         }
 
-        if(sizeof($projects)==0){
+        if(sizeof($projects)==0) {
             flash()->overlay(trans('controller_project.requestfail'),trans('controller_project.whoops'));
 
             return redirect('projects');
-        }else{
-            foreach($projects as $project){
+        } else {
+            foreach($projects as $project) {
                 $admins = $this->getProjectAdminNames($project);
 
-                foreach($admins as $user){
+                foreach($admins as $user) {
                     Mail::send('emails.request.access', compact('project'), function ($message) use($user) {
                         $message->from(env('MAIL_FROM_ADDRESS'));
                         $message->to($user->email);
@@ -87,30 +100,28 @@ class ProjectController extends Controller {
         }
     }
 
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @return Response
-	 */
-	public function create()
-	{
-        if(\Auth::user()->admin);
-
+    /**
+     * Gets the create view for a project.
+     *
+     * @return View
+     */
+	public function create() {
         $users = User::lists('username', 'id')->all();
+
         return view('projects.create', compact('users'));
 	}
 
-	/**
-	 * Store a newly created resource in storage.
-	 *
-	 * @return Response
-	 */
-	public function store(ProjectRequest $request)
-	{
+    /**
+     * Saves a new project model to the DB.
+     *
+     * @param  ProjectRequest $request
+     * @return Redirect
+     */
+	public function store(ProjectRequest $request) {
         $project = Project::create($request->all());
 
         $adminGroup = self::makeAdminGroup($project, $request);
-        self::makeDefaultGroup($project, $request);
+        self::makeDefaultGroup($project);
         $project->adminGID = $adminGroup->id;
         $project->save();
 
@@ -119,19 +130,18 @@ class ProjectController extends Controller {
         return redirect('projects');
 	}
 
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function show($id)
-    {
-        if (!self::validProj(($id))){
+    /**
+     * Gets the view for an individual project page.
+     *
+     * @param  int $id - Project ID
+     * @return View
+     */
+	public function show($id) {
+        if(!self::validProj(($id))) {
             return redirect('/projects');
         }
 
-        if(!FormController::checkPermissions($id)){
+        if(!FormController::checkPermissions($id)) {
             return redirect('/projects');
         }
 
@@ -141,22 +151,21 @@ class ProjectController extends Controller {
         return view('projects.show', compact('project', 'projectArrays'));
 	}
 
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function edit($id)
-	{
-        if (!self::validProj(($id))){
+    /**
+     * Gets the view for editing a project.
+     *
+     * @param  int $id - Project ID
+     * @return View
+     */
+	public function edit($id) {
+        if(!self::validProj(($id))) {
             return redirect('/projects');
         }
 
         $user = \Auth::user();
         $project = self::getProject($id);
 
-        if (!$user->admin && !self::isProjectAdmin($user, $project)) {
+        if(!$user->admin && !self::isProjectAdmin($user, $project)) {
             flash()->overlay(trans('controller_project.editper'), trans('controller_project.whoops'));
             return redirect('/projects');
         }
@@ -164,14 +173,14 @@ class ProjectController extends Controller {
         return view('projects.edit', compact('project'));
 	}
 
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function update($id, ProjectRequest $request)
-	{
+    /**
+     * Updates an edited project.
+     *
+     * @param  int $id - Project ID
+     * @param  ProjectRequest $request
+     * @return Redirect
+     */
+	public function update($id, ProjectRequest $request) {
         $project = self::getProject($id);
         $project->update($request->all());
 
@@ -183,21 +192,19 @@ class ProjectController extends Controller {
 	}
 
     /**
-	 * Remove the specified resource from storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function destroy($id)
-    {
-        if (!self::validProj(($id))){
+     * Deletes a project.
+     *
+     * @param  int $id - Project ID
+     */
+	public function destroy($id) {
+        if(!self::validProj(($id))) {
             return redirect('/projects');
         }
 
         $user = \Auth::user();
         $project = self::getProject($id);
 
-        if (!$user->admin && !self::isProjectAdmin($user, $project)) {
+        if(!$user->admin && !self::isProjectAdmin($user, $project)) {
             flash()->overlay(trans('controller_project.deleteper'), trans('controller_project.whoops'));
             return redirect('/projects');
         }
@@ -208,32 +215,33 @@ class ProjectController extends Controller {
 	}
 
     /**
-     * Decides if a certain user is a project admin.
+     * Determines if user is an admin of the project.
      *
-     * @param User $user
-     * @param Project $project
-     * @return bool
+     * @param  User $user - User to authenticate
+     * @param  Project $project - Project to check against
+     * @return bool - Is project admin
      */
-    public function isProjectAdmin(User $user, Project $project)
-    {
-        if ($user->admin) return true;
+    public function isProjectAdmin(User $user, Project $project) {
+        if ($user->admin)
+            return true;
 
         $adminGroup = $project->adminGroup()->first();
         if($adminGroup->hasUser($user))
             return true;
-        return false;
+        else
+            return false;
     }
 
 
     /**
-     * Creates the project's admin Group.
+     * //TODO::modular
+     * Creates the admin group for a project.
      *
-     * @param $project
-     * @param $request
-     * @return Group
+     * @param  Project $project - Project to add group
+     * @param  Request $request
+     * @return ProjectGroup - The new admin group
      */
-    private function makeAdminGroup($project, $request)
-    {
+    private function makeAdminGroup($project, $request) {
         $groupName = $project->name;
         $groupName .= ' Admin Group';
 
@@ -242,7 +250,7 @@ class ProjectController extends Controller {
         $adminGroup->pid = $project->pid;
         $adminGroup->save();
 
-        if (!is_null($request['admins']))
+        if(!is_null($request['admins']))
             $adminGroup->users()->attach($request['admins']);
 
         $adminGroup->create = 1;
@@ -255,14 +263,14 @@ class ProjectController extends Controller {
     }
 
     /**
-     * Creates the project's default Group.
+     * //TODO::modular
+     * Creates the default group for a project.
      *
-     * @param $project
-     * @param $request
-     * @return Group
+     * @param  Project $project - Project to add group
+     * @param  Request $request
+     * @return ProjectGroup - The new default group
      */
-    private function makeDefaultGroup($project, $request)
-    {
+    private function makeDefaultGroup($project) {
         $groupName = $project->name;
         $groupName .= ' Default Group';
 
@@ -281,35 +289,45 @@ class ProjectController extends Controller {
     }
 
     /**
-     * Gets the project based on id or slug.
+     * Gets back a project using its ID or slug.
      *
-     * @param $id
-     * @return Project $project (possibly null)
+     * @param  int $id - Project ID
+     * @return Project - Project model matching ID/slug
      */
-    public static function getProject($id){
+    public static function getProject($id) {
         $project = Project::where('pid','=',$id)->first();
-        if(is_null($project)){
+        if(is_null($project))
             $project = Project::where('slug','=',$id)->first();
-        }
 
         return $project;
     }
 
     /**
-     * Determines the validity of a pid.
+     * Determines if project exists.
      *
-     * @param $id
-     * @return bool
+     * @param  int $id - Project ID
+     * @return bool - Is a project
      */
-    public static function validProj($id){
+    public static function validProj($id) {
         return !is_null(self::getProject($id));
     }
 
-    public function importProjectView(){
+    /**
+     * Gets the view for importing a k3Proj file.
+     *
+     * @return View
+     */
+    public function importProjectView() {
         return view('projects.import');
     }
 
-    private function getProjectAdminNames($project){
+    /**
+     * Get a list of project admins for a project.
+     *
+     * @param  Project $project - Project to retrieve from
+     * @return Collection - List of users
+     */
+    private function getProjectAdminNames($project) {
         $group = $project->adminGroup()->first();
         $users = $group->users()->get();
 
