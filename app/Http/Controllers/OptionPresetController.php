@@ -108,7 +108,7 @@ class OptionPresetController extends Controller {
         $preset = OptionPreset::find($id);
         $project = Project::find($pid);
 
-        if(!is_null($preset)) {
+        if(!is_null($preset) && !is_null($project)) {
             return view('optionPresets.edit', compact('preset', 'project', 'pid', 'id'));
         } else {
             flash()->overlay(trans('controller_optionpreset.noexist'),trans('controller_optionpreset.whoops'));

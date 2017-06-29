@@ -10,39 +10,43 @@ use App\Plugin;
 use App\Project;
 use App\ProjectGroup;
 use App\RecordPreset;
-
-use App\Http\Controllers\Controller;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\View;
+use Illuminate\View\View;
 
-class PluginController extends Controller
-{
+class PluginController extends Controller {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Plugin Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles plugin activation/management
+    |
+    */
+
     /**
-     * User must be logged in and admin to access views in this controller.
+     * Constructs controller and makes sure user is authenticated.
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->middleware('auth');
         $this->middleware('active');
         $this->middleware('admin');
     }
 
     /**
-     * Display a listing of the resource.
+     * Gets the view for the plugin management page.
      *
-     * @return \Illuminate\Http\Response
+     * @return View
      */
-    public function index()
-    {
+    public function index() {
         $newPlugs = array();
 
-        foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/plugins/') as $folder) {
-            if ($folder->isDir() && $folder->getFilename()!='.' && $folder->getFilename()!='..') {
+        foreach(new \DirectoryIterator(env('BASE_PATH') . 'storage/app/plugins/') as $folder) {
+            if($folder->isDir() && $folder->getFilename()!='.' && $folder->getFilename()!='..') {
                 $results = DB::select("select * from ".env('DB_PREFIX')."plugins where name = :name", ['name'=>$folder->getFilename()]);
-                if(sizeof($results)==0){
+                if(sizeof($results)==0)
                     array_push($newPlugs,$folder->getFilename());
-                }
             }
         }
 
@@ -51,27 +55,32 @@ class PluginController extends Controller
         return view('plugins.index', compact('newPlugs','plugins'));
     }
 
-    public function install($name){
+    /**
+     * Triggers the install function for a plugin.
+     *
+     * @param  string $name - Name of the plugin
+     */
+    public function install($name) {
         $values = array();
         $menus = array();
         $options = array();
         $handle = fopen(env('BASE_PATH') . 'storage/app/plugins/' . $name . '/k3plugin.config', "r");
-        if ($handle) {
+        if($handle) {
             $values['name'] = $name;
-            while (($buffer = fgets($handle, 4096)) !== false) {
+            while(($buffer = fgets($handle, 4096)) !== false) {
                 $buffer = trim($buffer);
                 $index = explode('=',$buffer)[0];
                 $value = explode('=',$buffer)[1];
 
                 if($index=='plugin_url') {
                     $values['url'] = $value;
-                }else if($index=='plugin_project'){
+                } else if($index=='plugin_project') {
                     $proj = explode(':',$value);
                     $values['project']['name'] = $proj[0];
                     $values['project']['slug'] = $proj[1];
-                }else if($index=='plugin_description'){
+                } else if($index=='plugin_description') {
                     $values['project']['desc'] = $value;
-                }else if($index=='plugin_menu'){
+                } else if($index=='plugin_menu') {
                     $menu = array();
                     $m = explode(':',$value);
                     $menu['name'] = $m[0];
@@ -79,8 +88,7 @@ class PluginController extends Controller
                     $menu['order'] = $m[2];
 
                     array_push($menus,$menu);
-                }
-                else if($index=='plugin_option'){
+                } else if($index=='plugin_option') {
                     $option = array();
                     $o = explode(':',$value);
                     $option['option'] = $o[0];
@@ -89,6 +97,7 @@ class PluginController extends Controller
                     array_push($options,$option);
                 }
             }
+
             if (!feof($handle)) {
                 echo "Error: unexpected fgets() fail\n";
             }
@@ -133,13 +142,13 @@ class PluginController extends Controller
         $plugin->save();
 
         //plugin menus
-        foreach($menus as $menu){
+        foreach($menus as $menu) {
             DB::insert("insert into ".env('DB_PREFIX')."plugin_menus (plugin_id, name, url, `order`) values (?, ?, ?, ?)",
                 [$plugin->id, $menu['name'], $menu['url'], $menu['order']]);
         }
 
         //plugin menus
-        foreach($options as $option){
+        foreach($options as $option) {
             DB::insert("insert into ".env('DB_PREFIX')."plugin_settings (plugin_id, `option`, value) values (?, ?, ?)",
                 [$plugin->id, $option['option'], $option['value']]);
         }
@@ -149,8 +158,8 @@ class PluginController extends Controller
             [$plugin->id, $proj->adminGID]);
 
         //import forms associated with plugin
-        foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/plugins/'.$name.'/Forms/') as $file) {
-            if ($file->isFile()) {
+        foreach(new \DirectoryIterator(env('BASE_PATH') . 'storage/app/plugins/'.$name.'/Forms/') as $file) {
+            if($file->isFile()) {
                 $this->importForm($plugin->pid,env('BASE_PATH') . 'storage/app/plugins/'.$name.'/Forms/'.$file->getFilename());
             }
         }
@@ -158,7 +167,12 @@ class PluginController extends Controller
         flash()->overlay(trans('controller_plugin.install'),trans('controller_plugin.goodjob'));
     }
 
-    public function update(Request $request){
+    /**
+     * Update configuration settings for a plugin.
+     *
+     * @param  Request $request
+     */
+    public function update(Request $request) {
         //initialize variables we need
         $plugin_id = $request->plugin_id;
         $options = $request->options;
@@ -169,7 +183,7 @@ class PluginController extends Controller
 
         //Update each option
         if(!is_null($options)) {
-            foreach ($options as $key=>$opt) {
+            foreach($options as $key=>$opt) {
                 DB::update("update ".env('DB_PREFIX')."plugin_settings set value=? where `option`= ?", [$opt,$key]);
             }
         }
@@ -177,14 +191,19 @@ class PluginController extends Controller
         //Clear users in group and re-add
         DB::delete("delete from ".env('DB_PREFIX')."project_group_user where project_group_id=? and user_id!=1",[$gid]);
         if(!is_null($users)) {
-            foreach ($users as $uid) {
+            foreach($users as $uid) {
                 DB::insert("insert into ".env('DB_PREFIX')."project_group_user (project_group_id, user_id) values (?, ?)",
                     [$gid, $uid]);
             }
         }
     }
 
-    public function activate(Request $request){
+    /**
+     * Activate or deactivate a plugin.
+     *
+     * @param  Request $request
+     */
+    public function activate(Request $request) {
         $plid = $request->plid;
         $checked = $request->checked;
 
@@ -196,7 +215,12 @@ class PluginController extends Controller
         $plugin->save();
     }
 
-    public function destroy($plid){
+    /**
+     * Uninstalls a plugin from the installation.
+     *
+     * @param  int $plid - Plugin ID
+     */
+    public function destroy($plid) {
         $plugin = self::getPlugin($plid);
         $project = ProjectController::getProject($plugin->pid);
 
@@ -206,39 +230,49 @@ class PluginController extends Controller
         flash()->overlay(trans('controller_plugin.deleted'),trans('controller_plugin.goodjob'));
     }
 
-    public static function getPlugin($id){
-        $plugin = Plugin::where('id','=',$id)->first();
+    /**
+     * Gets a specific plugin model.
+     *
+     * @param  int $plid - Plugin ID
+     * @return Plugin - The model itself
+     */
+    public static function getPlugin($plid) {
+        $plugin = Plugin::where('id','=',$plid)->first();
 
         return $plugin;
     }
 
-    private function importForm($pid, $filepath){
+    /**
+     * Import a form file for a plugin project installation.
+     *
+     * @param  int $pid - Project ID
+     * @param  string $filepath - Path to k3Form file
+     */
+    private function importForm($pid, $filepath) {
         $project = ProjectController::getProject($pid);
 
-        if(!\Auth::user()->admin && !\Auth::user()->isProjectAdmin($project)){
+        if(!\Auth::user()->admin && !\Auth::user()->isProjectAdmin($project)) {
             return redirect('projects/'.$pid);
         }
 
         $fileArray = json_decode(file_get_contents($filepath));
 
-        //dd($fileArray);
-
         $form = new Form();
 
         $form->pid = $project->pid;
         $form->name = $fileArray->name;
-        if (Form::where('slug', '=', $fileArray->slug)->exists()) {
+        if(Form::where('slug', '=', $fileArray->slug)->exists()) {
             $unique = false;
             $i=1;
-            while(!$unique){
-                if(Form::where('slug', '=', $fileArray->slug.$i)->exists()){
+            while(!$unique) {
+                if(Form::where('slug', '=', $fileArray->slug.$i)->exists()) {
                     $i++;
-                }else{
+                } else {
                     $form->slug = $fileArray->slug.$i;
                     $unique = true;
                 }
             }
-        }else{
+        } else {
             $form->slug = $fileArray->slug;
         }
         $form->description = $fileArray->desc;
@@ -249,6 +283,7 @@ class PluginController extends Controller
 
         //make admin group
         $admin = $this->makeFormAdminGroup($form);
+        $this->makeDefaultGroup($form);
         $form->adminGID = $admin->id;
         $form->save();
 
@@ -256,7 +291,7 @@ class PluginController extends Controller
         $pages = $fileArray->pages;
         $pConvert = array();
 
-        foreach($pages as $page){
+        foreach($pages as $page) {
             $p = new Page();
 
             $p->parent_type = $page->parent_type;
@@ -284,7 +319,7 @@ class PluginController extends Controller
 
         $fields = $fileArray->fields;
 
-        foreach($fields as $fieldArray){
+        foreach($fields as $fieldArray) {
             $field = new Field();
 
             $field->pid = $project->pid;
@@ -293,18 +328,18 @@ class PluginController extends Controller
             $field->sequence = $fieldArray->sequence;
             $field->type = $fieldArray->type;
             $field->name = $fieldArray->name;
-            if (Field::where('slug', '=', $fieldArray->slug)->exists()) {
+            if(Field::where('slug', '=', $fieldArray->slug)->exists()) {
                 $unique = false;
                 $i=1;
-                while(!$unique){
-                    if(Field::where('slug', '=', $fieldArray->slug.$i)->exists()){
+                while(!$unique) {
+                    if(Field::where('slug', '=', $fieldArray->slug.$i)->exists()) {
                         $i++;
-                    }else{
+                    } else {
                         $field->slug = $fieldArray->slug.$i;
                         $unique = true;
                     }
                 }
-            }else{
+            } else {
                 $field->slug = $fieldArray->slug;
             }
             $field->desc = $fieldArray->desc;
@@ -320,7 +355,7 @@ class PluginController extends Controller
             $field->save();
 
             //metadata
-            if($fieldArray->metadata!=""){
+            if($fieldArray->metadata!="") {
                 $meta = new Metadata();
                 $meta->flid = $field->flid;
                 $meta->pid = $project->pid;
@@ -331,8 +366,13 @@ class PluginController extends Controller
         }
     }
 
-    private function makeFormAdminGroup(Form $form)
-    {
+    /**
+     * Creates the form's admin group.
+     *
+     * @param  Form $form - Form to create group for
+     * @return FormGroup - The newly created group
+     */
+    private function makeFormAdminGroup(Form $form) {
         $groupName = $form->name;
         $groupName .= ' Admin Group';
 
@@ -354,7 +394,7 @@ class PluginController extends Controller
 
         $idArray = array_unique(array_merge(array(\Auth::user()->id), $idArray));
 
-        if (!empty($idArray))
+        if(!empty($idArray))
             $adminGroup->users()->attach($idArray);
 
         $adminGroup->create = 1;
@@ -369,7 +409,38 @@ class PluginController extends Controller
         return $adminGroup;
     }
 
-    public function loadView($name, $view){
+    /**
+     * Creates the form's default group.
+     *
+     * @param  Form $form - Form to create group for
+     */
+    private function makeDefaultGroup(Form $form) {
+        $groupName = $form->name;
+        $groupName .= ' Default Group';
+
+        $defaultGroup = new FormGroup();
+        $defaultGroup->name = $groupName;
+        $defaultGroup->fid = $form->fid;
+        $defaultGroup->save();
+
+        $defaultGroup->create = 0;
+        $defaultGroup->edit = 0;
+        $defaultGroup->delete = 0;
+        $defaultGroup->ingest = 0;
+        $defaultGroup->modify = 0;
+        $defaultGroup->destroy = 0;
+
+        $defaultGroup->save();
+    }
+
+    /**
+     * Gets and loads a specific plugin view.
+     *
+     * @param  string $name - Name of plugin
+     * @param  string $view - View of plugin
+     * @return View
+     */
+    public function loadView($name, $view) {
         $fullName = Plugin::where('url','=',$name)->first()->name;
 
         include(env('BASE_PATH').'storage/app/plugins/'.$fullName.'/'.$name.'.php');
@@ -382,7 +453,15 @@ class PluginController extends Controller
         return $controller->loadView($view);
     }
 
-    public function action($name, $action, Request $request){
+    /**
+     * Executes a plugin controller method.
+     *
+     * @param  string $name - Plugin name
+     * @param  string $action - Name of method in controller
+     * @param  Request $request
+     * @return mixed - The return result of the method
+     */
+    public function action($name, $action, Request $request) {
         $fullName = Plugin::where('url','=',$name)->first()->name;
 
         include(env('BASE_PATH').'storage/app/plugins/'.$fullName.'/'.$name.'.php');
