@@ -2,37 +2,44 @@
 
 use App\Form;
 use App\FormGroup;
-use App\Http\Controllers\Auth\UserController;
 use App\User;
-use App\Project;
 use App\ProjectGroup;
-use App\Http\Requests;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\View\View;
 
 
 class ProjectGroupController extends Controller {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Project Group Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handle permission groups for projects
+    |
+    */
+
     /**
-     * User must be logged in and an admin to access views in this controller.
+     * Constructs controller and makes sure user is authenticated.
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->middleware('auth');
         $this->middleware('active');
     }
 
     /**
-     * @param $pid
-     * @return Response
+     * Gets the main view for managing project groups.
+     *
+     * @param $pid - Project ID
+     * @return View
      */
-    public function index($pid)
-    {
+    public function index($pid) {
         $project = ProjectController::getProject($pid);
 
-        if(!(\Auth::user()->isProjectAdmin($project))){
+        if(!(\Auth::user()->isProjectAdmin($project))) {
             flash()->overlay(trans('controller_projectgroup.admin'), trans('controller_projectgroup.whoops'));
             return redirect('projects/'.$pid);
         }
@@ -44,15 +51,14 @@ class ProjectGroupController extends Controller {
     }
 
     /**
-     * Creates new group for a project.
+     * Creates a new project group.
      *
-     * @param $pid
-     * @param Request $request
-     * @return Response
+     * @param $pid - Project ID
+     * @param  Request $request
+     * @return Redirect
      */
-    public function create($pid, Request $request)
-    {
-        if($request['name'] == ""){
+    public function create($pid, Request $request) {
+        if($request['name'] == "") {
             flash()->overlay(trans('controller_projectgroup.name'), trans('controller_projectgroup.whoops'));
             return redirect('projects/'.$pid.'/manage/projectgroups');
         }
@@ -60,7 +66,7 @@ class ProjectGroupController extends Controller {
         $group = self::buildGroup($pid, $request);
 
         if(!is_null($request['users'])) {
-            foreach($request['users'] as $uid){
+            foreach($request['users'] as $uid) {
                 //remove them from an old group if they have one
                 //get any groups the user belongs to
                 $currGroups = DB::table('project_group_user')->where('user_id', $uid)->get();
@@ -69,9 +75,9 @@ class ProjectGroupController extends Controller {
                 $idOld = 0;
 
                 //foreach of the user's project groups, see if one belongs to the current project
-                foreach($currGroups as $prev){
+                foreach($currGroups as $prev) {
                     $grp = ProjectGroup::where('id', '=', $prev->project_group_id)->first();
-                    if($grp->pid==$group->pid){
+                    if($grp->pid==$group->pid) {
                         $newUser = false;
                         $idOld = $grp->id;
                         break;
@@ -92,9 +98,9 @@ class ProjectGroupController extends Controller {
                     }
 
                     $this->emailUserProject("added", $uid, $group->id);
+                } else {
+                    $this->emailUserProject("changed", $uid, $group->id);
                 }
-                else
-                    $this->emailUserProject("changed",$uid,$group->id);
             }
 
             $group->users()->attach($request['users']);
@@ -105,37 +111,35 @@ class ProjectGroupController extends Controller {
     }
 
     /**
-     * Remove user from a project group.
+     * Removes a user from the group.
      *
-     * @param Request $request
+     * @param  Request $request
      */
-    public function removeUser(Request $request)
-    {
-        $instance = ProjectGroup::where('id', '=', $request['projectGroup'])->first();
+    public function removeUser(Request $request) {
+        $instance = ProjectGroup::where('id', '=', $request->projectGroup)->first();
 
-        if($request['pid'] == $instance->id)
-            self::wipeAdminRights($request, $request['pid']);
+        if($request->pid == $instance->id)
+            self::wipeAdminRights($request);
 
         $forms = Form::where('pid', '=', $instance->pid)->get();
-        foreach ($forms as $form) {
+        foreach($forms as $form) {
             $formGroups = FormGroup::where('fid','=',$form->fid)->get();
-            foreach($formGroups as $fg){
-                DB::table('form_group_user')->where('user_id', $request['userId'])->where('form_group_id', $fg->id)->delete();
+            foreach($formGroups as $fg) {
+                DB::table('form_group_user')->where('user_id', $request->userId)->where('form_group_id', $fg->id)->delete();
             }
         }
 
-        $instance->users()->detach($request['userId']);
+        $instance->users()->detach($request->userId);
 
-        $this->emailUserProject("removed",$request['userId'],$instance->id);
+        $this->emailUserProject("removed",$request->userId,$instance->id);
     }
 
     /**
-     * Add a user to a project group.
+     * Adds user to a group.
      *
-     * @param Request $request
+     * @param  Request $request
      */
-    public function addUser(Request $request)
-    {
+    public function addUser(Request $request) {
         $instance = ProjectGroup::where('id', '=', $request['projectGroup'])->first();
 
         //get any groups the user belongs to
@@ -145,9 +149,9 @@ class ProjectGroupController extends Controller {
         $idOld = 0;
 
         //foreach of the user's project groups, see if one belongs to the current project
-        foreach($currGroups as $prev){
+        foreach($currGroups as $prev) {
             $group = ProjectGroup::where('id', '=', $prev->project_group_id)->first();
-            if($group->pid==$instance->pid){
+            if($group->pid==$instance->pid) {
                 $newUser = false;
                 $idOld = $group->id;
                 break;
@@ -159,13 +163,13 @@ class ProjectGroupController extends Controller {
 
             if($instance->name == $proj->name.' Admin Group') {
                 $tag = ' Admin Group';
-            }else {
+            } else {
                 $tag = ' Default Group';
             }
 
             //add to all forms
             $forms = Form::where('pid', '=', $instance->pid)->get();
-            foreach ($forms as $form) {
+            foreach($forms as $form) {
                 $defGroup = FormGroup::where('name', '=', $form->name . $tag)->get()->first();
                 $FGC = new FormGroupController();
                 $request['formGroup'] = $defGroup->id;
@@ -173,7 +177,7 @@ class ProjectGroupController extends Controller {
             }
 
             $this->emailUserProject("added", $request['userId'], $instance->id);
-        }else{
+        } else {
             //remove from old group
             DB::table('project_group_user')->where('user_id', $request['userId'])->where('project_group_id', $idOld)->delete();
 
@@ -188,18 +192,17 @@ class ProjectGroupController extends Controller {
     /**
      * Deletes a project group.
      *
-     * @param Request $request
+     * @param  Request $request
      */
-    public function deleteProjectGroup(Request $request)
-    {
+    public function deleteProjectGroup(Request $request) {
         $instance = ProjectGroup::where('id', '=', $request['projectGroup'])->first();
 
         $users = $instance->users()->get();
         $forms = Form::where('pid', '=', $instance->pid)->get();
-        foreach($users as $user){
+        foreach($users as $user) {
             foreach ($forms as $form) {
                 $formGroups = FormGroup::where('fid','=',$form->fid)->get();
-                foreach($formGroups as $fg){
+                foreach($formGroups as $fg) {
                     DB::table('form_group_user')->where('user_id', $user->id)->where('form_group_id', $fg->id)->delete();
                 }
             }
@@ -213,16 +216,15 @@ class ProjectGroupController extends Controller {
     }
 
     /**
-     * Change a group's permissions.
+     * Updates the permission set for a particular group.
      *
-     * @param Request $request
+     * @param  Request $request
      */
-    public function updatePermissions(Request $request)
-    {
+    public function updatePermissions(Request $request) {
         $instance = ProjectGroup::where('id', '=', $request['projectGroup'])->first();
 
         $users = $instance->users()->get();
-        foreach($users as $user){
+        foreach($users as $user) {
             $this->emailUserProject("changed",$user->id,$instance->id);
         }
 
@@ -244,8 +246,12 @@ class ProjectGroupController extends Controller {
         $instance->save();
     }
 
-    public function updateName(Request $request)
-    {
+    /**
+     * Update the name of a project group.
+     *
+     * @param  Request $request
+     */
+    public function updateName(Request $request) {
         $instance = ProjectGroup::where('id', '=', $request->gid)->first();
         $instance->name = $request->name;
 
@@ -253,14 +259,13 @@ class ProjectGroupController extends Controller {
     }
 
     /**
-     * Builds a new group for a project.
+     * Does the actual building of the group model.
      *
-     * @param $pid
-     * @param Request $request
-     * @return ProjectGroup
+     * @param  int $pid - Project ID
+     * @param  Request $request
+     * @return ProjectGroup - Newly built group
      */
-    private function buildGroup($pid, Request $request)
-    {
+    private function buildGroup($pid, Request $request) {
         $group = new ProjectGroup();
         $group->name = $request['name'];
         $group->pid = $pid;
@@ -280,29 +285,40 @@ class ProjectGroupController extends Controller {
         return $group;
     }
 
-    private function wipeAdminRights($request, $pid)
-    {
-        $user = $request['userId'];
-        $project = ProjectController::getProject($pid);
+    /**
+     * Removes the user from a project's admin group.
+     *
+     * @param  Request $request
+     */
+    private function wipeAdminRights(Request $request) {
+        $user = $request->userId;
+        $project = ProjectController::getProject($request->pid);
         $forms = $project->forms()->get();
 
-        foreach($forms as $form){
+        foreach($forms as $form) {
             $adminGroup = $form->adminGroup()->first();
             $adminGroup->users()->detach($user);
         }
     }
 
-    private function emailUserProject($type, $uid, $pgid){
+    /**
+     * Emails a user when their access to a project has changed.
+     *
+     * @param  string $type - Method to execute
+     * @param  int $uid - User ID
+     * @param  int $pgid - Project Group ID
+     */
+    private function emailUserProject($type, $uid, $pgid) {
         $userMail = DB::table('users')->where('id', $uid)->value('email');
         $name = DB::table('users')->where('id', $uid)->value('name');
         $group = ProjectGroup::where('id', '=', $pgid)->first();
         $project = ProjectController::getProject($group->pid);
 
-        if($type=="added"){
+        if($type=="added") {
             $email = 'emails.project.added';
-        }else if($type=="removed"){
+        } else if($type=="removed") {
             $email = 'emails.project.removed';
-        }else if($type=="changed"){
+        } else if($type=="changed") {
             $email = 'emails.project.changed';
         }
 
@@ -313,7 +329,12 @@ class ProjectGroupController extends Controller {
         });
     }
 
-    public static function updateMainGroupNames($project){
+    /**
+     * This function will rename the Default and Admin groups' names when the project's name changes.
+     *
+     * @param  Project $project - Project to update
+     */
+    public static function updateMainGroupNames($project) {
         $admin = ProjectGroup::where('pid', '=', $project->pid)->where('name', 'like', '% Admin Group')->get()->first();
         $default = ProjectGroup::where('pid', '=', $project->pid)->where('name', 'like', '% Default Group')->get()->first();
 
