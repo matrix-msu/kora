@@ -26,35 +26,44 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use RecursiveIteratorIterator;
 use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
 
 class RecordController extends Controller {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Record Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles record creation and manipulation
+    |
+    */
+
     /**
-     * @type int
+     * @var int - Number of allowed records per page
      */
     const RECORDS_PER_PAGE = 10;
 
     /**
-     * User must be logged in to access views in this controller.
+     * Constructs controller and makes sure user is authenticated.
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->middleware('auth');
         $this->middleware('active');
     }
 
-
-	/**
-	 * Display a listing of the resource.
-	 *
-	 * @return View
-	 */
-	public function index($pid, $fid)
-	{
-        if(!FormController::validProjForm($pid,$fid)){
+    /**
+     * Gets the all records view.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return View
+     */
+	public function index($pid, $fid) {
+        if(!FormController::validProjForm($pid,$fid)) {
             return redirect('projects');
         }
 
@@ -70,14 +79,15 @@ class RecordController extends Controller {
         return view('records.index', compact('form', 'filesize', 'records'));
 	}
 
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @return Response
-	 */
-	public function create($pid, $fid)
-	{
-        if(!FormController::validProjForm($pid,$fid)){
+    /**
+     * Gets the new record view.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return View
+     */
+	public function create($pid, $fid) {
+        if(!FormController::validProjForm($pid,$fid)) {
             return redirect('projects');
         }
 
@@ -98,30 +108,30 @@ class RecordController extends Controller {
         return view('records.create', compact('form', 'presets', 'fields'));
 	}
 
-	/**
-	 * Store a newly created resource in storage.
-	 *
-	 * @return Response
-	 */
-	public function store($pid, $fid, Request $request)
-	{
-        //dd($request);
-        if(!FormController::validProjForm($pid,$fid)){
+    /**
+     * WHAT_DOESTHISFUNTIONDO
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     * @return Redirect
+     */
+	public function store($pid, $fid, Request $request) {
+        if(!FormController::validProjForm($pid,$fid)) {
             return redirect('projects');
         }
 
-        foreach($request->all() as $key => $value){
-            if(!is_numeric($key)){
+        foreach($request->all() as $key => $value) {
+            if(!is_numeric($key))
                 continue;
-            }
             $message = Field::validateField($key, $value, $request);
-            if($message != ''){
+            if($message != '') {
                 flash()->error($message);
 
                 $arrayed_keys = array();
 
                 foreach($request->all() as $akey => $avalue) {
-                    if(is_array($avalue)){
+                    if(is_array($avalue)) {
                         array_push($arrayed_keys,$akey);
                     }
                 }
@@ -136,15 +146,10 @@ class RecordController extends Controller {
             $numRecs = 1;
 
         //safeguard
-        if($numRecs>1000){
+        if($numRecs>1000)
             $numRecs = 1000;
-        }
 
-//        // Gets the largest rid in the database
-//        $max_rid = DB::select('select `rid` from ' . env("DB_PREFIX") . 'records ORDER BY `rid` DESC LIMIT 1')[0]->rid;
-//        $j = 0;
-
-        for ($i = 0; $i < $numRecs ; $i++) {
+        for($i = 0; $i < $numRecs ; $i++) {
             $record = new Record();
             $record->pid = $pid;
             $record->fid = $fid;
@@ -153,12 +158,12 @@ class RecordController extends Controller {
             $record->kid = $pid . '-' . $fid . '-' . $record->rid;
             $record->save();
 
-            foreach ($request->all() as $key => $value) {
-                if (!is_numeric($key)) {
+            foreach($request->all() as $key => $value) {
+                if(!is_numeric($key))
                     continue;
-                }
                 $field = FieldController::getField($key);
-                if ($field->type == 'Text') {
+                //TODO::modular
+                if($field->type == 'Text') {
                     if (!empty($value) && !is_null($value)) {
                         $tf = new TextField();
                         $tf->flid = $field->flid;
@@ -446,24 +451,25 @@ class RecordController extends Controller {
                 RevisionController::storeRevision($record->rid, 'create');
         }
 
-        if($request->api){
+        if($request->api) {
             return $record->kid;
-        }else {
+        } else {
             flash()->overlay(trans('controller_record.created'), trans('controller_record.goodjob'));
 
             return redirect('projects/' . $pid . '/forms/' . $fid . '/records');
         }
 	}
 
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function show($pid, $fid, $rid)
-	{
-        if(!self::validProjFormRecord($pid, $fid, $rid)){
+    /**
+     * Gets the individual record view.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $rid - Record ID
+     * @return View
+     */
+	public function show($pid, $fid, $rid) {
+        if(!self::validProjFormRecord($pid, $fid, $rid)) {
             return redirect('projects');
         }
 
@@ -478,15 +484,16 @@ class RecordController extends Controller {
         return view('records.show', compact('record', 'form', 'pid', 'owner'));
 	}
 
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param int $id
-	 * @return Response
-	 */
-	public function edit($pid, $fid, $rid)
-	{
-        if(!self::validProjFormRecord($pid, $fid, $rid)){
+    /**
+     * Get the edit record view.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $rid - Record ID
+     * @return View
+     */
+	public function edit($pid, $fid, $rid) {
+        if(!self::validProjFormRecord($pid, $fid, $rid)) {
             return redirect('projects');
         }
 
@@ -501,17 +508,15 @@ class RecordController extends Controller {
 	}
 
     /**
-     * Clones the record.
-     * More specifically, it sends it's array representation to the cretion page.
+     * Gets record to be cloned and throws its data into the new record view.
      *
-     * @param $pid
-     * @param $fid
-     * @param $rid
-     * @return Response
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $rid - Record ID
+     * @return View
      */
     public function cloneRecord($pid, $fid, $rid) {
-
-        if(!self::validProjFormRecord($pid, $fid, $rid)){
+        if(!self::validProjFormRecord($pid, $fid, $rid)) {
             return redirect('projects');
         }
 
@@ -533,18 +538,19 @@ class RecordController extends Controller {
     }
 
     /**
-     * Deletes file directories for records that do not exist anymore.
+     * Removes record files from the system for records that no longer exist. This will prevent the possiblity of
+     *  rolling back these records.
      *
-     * @param $pid
-     * @param $fid
-     * @return Response
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return array - The records that were removed
      */
     public function cleanUp($pid, $fid) {
-        if(!FormController::validProjForm($pid,$fid)){
+        if(!FormController::validProjForm($pid,$fid)) {
             return redirect('projects');
         }
 
-        if(!\Auth::user()->isFormAdmin(FormController::getForm($fid))){
+        if(!\Auth::user()->isFormAdmin(FormController::getForm($fid))) {
             flash()->overlay(trans('controller_record.noperm'), trans('controller_record.whoops'));
         }
 
@@ -557,18 +563,17 @@ class RecordController extends Controller {
         $all_revisions = Revision::where('fid', '=', $fid)->get();
         $rids = array();
 
-        foreach($all_revisions as $revision){
+        foreach($all_revisions as $revision) {
             $rids[] = $revision->rid;
         }
         $rids = array_unique($rids);
 
         $revisions = array(); // To be filled with revisions with records that do not exist.
-        foreach($rids as $rid){
+        foreach($rids as $rid) {
             // If a record's most recent revision is a deletion...
             $revision = Revision::where('rid', '=', $rid)->orderBy('created_at', 'desc')->first();
-            if($revision->type == Revision::DELETE){
+            if($revision->type == Revision::DELETE)
                 $revisions[] = $revision; // ... add to the array.
-            }
         }
 
         $base_path = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid;
@@ -576,48 +581,45 @@ class RecordController extends Controller {
         //
         // For each revision, delete it's associated record's files.
         //
-        foreach ($revisions as $revision){
+        foreach($revisions as $revision) {
             $path = $base_path . "/r" . $revision->rid;
             if(is_dir($path)) {
                 $it = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
                 $files = new RecursiveIteratorIterator($it,
                     RecursiveIteratorIterator::CHILD_FIRST);
                 foreach($files as $file) {
-                    if ($file->isDir()){
+                    if($file->isDir())
                         rmdir($file->getRealPath());
-                    } else {
+                    else
                         unlink($file->getRealPath());
-                    }
                 }
                 rmdir($path);
             }
         }
 
         return $revisions;
-
     }
 
 
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function update($pid, $fid, $rid, Request $request)
-	{
-        //dd($request);
-        if(!FormController::validProjForm($pid,$fid)){
+    /**
+     * Update a record with new data.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $rid - Record ID
+     * @param  Request $request
+     * @return Redirect
+     */
+	public function update($pid, $fid, $rid, Request $request) {
+        if(!FormController::validProjForm($pid,$fid)) {
             return redirect('projects');
         }
-        foreach($request->all() as $key => $value){
-            if(!is_numeric($key)){
+        foreach($request->all() as $key => $value) {
+            if(!is_numeric($key))
                 continue;
-            }
             $message = Field::validateField($key, $value, $request);
-            if($message != ''){
+            if($message != '') {
                 flash()->error($message);
-
                 return redirect()->back()->withInput();
             }
         }
@@ -630,29 +632,24 @@ class RecordController extends Controller {
 
         $form_fields_expected = Form::find($fid)->fields()->get();
 
-        foreach($form_fields_expected as $expected_field){
-
+        foreach($form_fields_expected as $expected_field) {
             $key = $expected_field->flid;
 
-            if($request->has($key)){
+            if($request->has($key))
                 $value = $request->input($key);
-            }
-            else{
+            else
                 $value = null;
-            }
-
 
             $field = FieldController::getField($key);
+            //TODO::modular
             if($field->type=='Text'){
                 //we need to check if the field exist first
                 $tf  = TextField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
-                if( !is_null($tf) && !is_null($value)){
-                   // $tf = TextField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                if(!is_null($tf) && !is_null($value)){
                     $tf->text = $value;
                     $tf->save();
                 }
                 elseif(!is_null($tf) && is_null($value)){
-                    //$tf = TextField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
                     $tf->delete();
                 }
                 elseif(is_null($tf) && !empty($value)){
@@ -1258,15 +1255,15 @@ class RecordController extends Controller {
 
 
     /**
-     * @param int $pid The project ID
-     * @param int $fid The form ID
-     * @param int $rid The record ID
-     * @param bool $mass Is this is a mass deletion?
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * Delete a record from Kora3.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $rid - Record ID
+     * @param  bool $mass - Is deleting mass records
      */
-    public function destroy($pid, $fid, $rid, $mass = false)
-	{
-        if(!self::validProjFormRecord($pid, $fid, $rid)){
+    public function destroy($pid, $fid, $rid, $mass = false) {
+        if(!self::validProjFormRecord($pid, $fid, $rid)) {
             return redirect('projects/'.$pid.'forms/');
         }
 
@@ -1276,11 +1273,8 @@ class RecordController extends Controller {
 
         $record = self::getRecord($rid);
 
-        if (!$mass) {
+        if(!$mass)
             RevisionController::storeRevision($record->rid, 'delete');
-        }
-        //if directory r[rid] exists
-        //  destroy directory
 
         $record->delete();
 
@@ -1290,25 +1284,30 @@ class RecordController extends Controller {
     /**
      * Delete all records from a form.
      *
-     * @param $fid
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
      */
-    public function deleteAllRecords($pid, $fid)
-    {
+    public function deleteAllRecords($pid, $fid) {
         $form = FormController::getForm($fid);
 
-        if(!\Auth::user()->isFormAdmin($form)){
+        if(!\Auth::user()->isFormAdmin($form)) {
             flash()->overlay(trans('controller_record.noperm'), trans('controller_record.whoops'));
-        }
-        else {
-
+        } else {
             Record::where("fid", "=", $fid)->delete();
 
             flash()->overlay(trans('controller_record.alldelete'), trans('controller_record.success'));
         }
     }
 
-    public function importRecordsView($pid,$fid){
-        if(!FormController::validProjForm($pid,$fid)){
+    /**
+     * Gets the view for the record import process.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return View
+     */
+    public function importRecordsView($pid,$fid) {
+        if(!FormController::validProjForm($pid,$fid)) {
             return redirect('projects');
         }
 
@@ -1322,60 +1321,55 @@ class RecordController extends Controller {
     }
 
     /**
-     * Gets a record.
+     * Get a record back by RID.
      *
-     * @param $rid
-     * @return mixed
+     * @param  int $rid - Record ID
+     * @return Record - Requested record
      */
-    public static function getRecord($rid)
-    {
+    public static function getRecord($rid) {
         $record = Record::where('rid', '=', $rid)->first();
 
         return $record;
     }
 
     /**
-     * Gets a record.
+     * Get a record back by KID.
      *
-     * @param $kid
-     * @return mixed
+     * @param  int $kid - Kora ID
+     * @return Record - Requested record
      */
-    public static function getRecordByKID($kid)
-    {
+    public static function getRecordByKID($kid) {
         $record = Record::where('kid', '=', $kid)->first();
 
         return $record;
     }
 
     /**
-     * Determines if a record exists.
+     * Determines if record exists.
      *
-     * @param $rid
-     * @return bool
+     * @param  int $rid - Record ID
+     * @return bool - Does exist
      */
-    public static function exists($rid)
-    {
+    public static function exists($rid) {
         return !is_null(Record::where('rid','=',$rid)->first());
     }
 
     /**
-     * Determines if a pid, fid, rid combination is valid in the system.
+     * Determines if the project, form, record ID combos are valid.
      *
-     * @param $pid
-     * @param $fid
-     * @param $rid
-     * @return bool
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $rid - Record ID
+     * @return bool - Valid pairs
      */
-    public static function validProjFormRecord($pid, $fid, $rid)
-    {
+    public static function validProjFormRecord($pid, $fid, $rid) {
         $record = self::getRecord($rid);
         $form = FormController::getForm($fid);
         $proj = ProjectController::getProject($pid);
 
-        if (!FormController::validProjForm($pid, $fid))
+        if(!FormController::validProjForm($pid, $fid))
             return false;
-
-        if (is_null($record) || is_null($form) || is_null($proj))
+        if(is_null($record) || is_null($form) || is_null($proj))
             return false;
         else if ($record->fid == $form->fid)
             return true;
@@ -1384,39 +1378,34 @@ class RecordController extends Controller {
     }
 
     /**
-     * Determines if a user has certain record permissions.
+     * Checks users abilities to create, edit, delete records.
      *
-     * @param $fid
-     * @param string $permission
-     * @return bool
+     * @param  int $fid - Form ID
+     * @param  string $permission - Permission to search for
+     * @return bool - Has permissions
      */
-    private function checkPermissions($fid, $permission='')
-    {
-        switch($permission){
+    private function checkPermissions($fid, $permission='') {
+        switch($permission) {
             case 'ingest':
-                if(!(\Auth::user()->canIngestRecords(FormController::getForm($fid))))
-                {
+                if(!(\Auth::user()->canIngestRecords(FormController::getForm($fid)))) {
                     flash()->overlay(trans('controller_record.createper'), trans('controller_record.whoops'));
                     return false;
                 }
                 return true;
             case 'modify':
-                if(!(\Auth::user()->canModifyRecords(FormController::getForm($fid))))
-                {
+                if(!(\Auth::user()->canModifyRecords(FormController::getForm($fid)))) {
                     flash()->overlay(trans('controller_record.editper'), trans('controller_record.whoops'));
                     return false;
                 }
                 return true;
             case 'destroy':
-                if(!(\Auth::user()->canDestroyRecords(FormController::getForm($fid))))
-                {
+                if(!(\Auth::user()->canDestroyRecords(FormController::getForm($fid)))) {
                     flash()->overlay(trans('controller_record.deleteper'), trans('controller_record.whoops'));
                     return false;
                 }
                 return true;
             default: // "Read Only"
-                if(!(\Auth::user()->inAFormGroup(FormController::getForm($fid))))
-                {
+                if(!(\Auth::user()->inAFormGroup(FormController::getForm($fid)))) {
                     flash()->overlay(trans('controller_record.viewper'), trans('controller_record.whoops'));
                     return false;
                 }
@@ -1424,12 +1413,11 @@ class RecordController extends Controller {
         }
     }
 
-
     /**
-     * Gets the filesize of the particular form's file directory.
+     * Get collective file size of the record files in a form.
      *
-     * @param $fid
-     * @return string
+     * @param  int $fid - Form ID
+     * @return string - File size
      */
     public function getFormFilesize($fid) {
         $form = FormController::getForm($fid);
@@ -1442,25 +1430,24 @@ class RecordController extends Controller {
         $filesize = self::fileSizeConvert($filesize);
 
         return $filesize;
-
     }
 
     /**
-     * Recursively builds up fileszie of directories, their subdirectories, and any files.
+     * Scans a form's file directory to get the total filesize.
      *
-     * @param $dir
-     * @return int
+     * @param  string $dir - Directory to scan
+     * @return int - Size in bytes
      */
-    function dirCrawl($dir) {
+    private function dirCrawl($dir) {
         $filesize = 0;
 
-        if (file_exists($dir)) {
-            foreach (new \DirectoryIterator($dir) as $file) {
-                // If the file is a valid directory, call dirCrawl and access its child directory(s)
-                if ($file->isDir() && $file->getFilename() != '.' && $file->getFilename() != '..') {
+        if(file_exists($dir)) {
+            foreach(new \DirectoryIterator($dir) as $file) {
+                if($file->isDir() && $file->getFilename() != '.' && $file->getFilename() != '..') {
+                    // If the file is a valid directory, call dirCrawl and access its child directory(s)
                     $filesize += self::dirCrawl($file->getPathname());
-                } // If the file is indeed a file, add its size
-                elseif ($file->isFile()) {
+                } else if($file->isFile()) {
+                    // If the file is indeed a file, add its size
                     $filesize += $file->getSize();
                 }
             }
@@ -1470,14 +1457,12 @@ class RecordController extends Controller {
     }
 
     /**
-     * Converts bytes into human readable file size.
+     * Converts the directory size in bytes to the most readable form.
      *
-     * @param string $bytes
-     * @return string human readable file size
-     * @author Mogilev Arseny
+     * @param  int $bytes - Size in bytes
+     * @return string - The readable size value
      */
-    function fileSizeConvert($bytes)
-    {
+    private function fileSizeConvert($bytes) {
         $result = "0 B";
         $bytes = floatval($bytes);
         $arBytes = array(
@@ -1503,10 +1488,8 @@ class RecordController extends Controller {
             ),
         );
 
-        foreach($arBytes as $arItem)
-        {
-            if($bytes >= $arItem["VALUE"])
-            {
+        foreach($arBytes as $arItem) {
+            if($bytes >= $arItem["VALUE"]) {
                 $result = $bytes / $arItem["VALUE"];
                 $result = strval(round($result, 2))." ".$arItem["UNIT"];
                 break;
@@ -1516,76 +1499,68 @@ class RecordController extends Controller {
     }
 
     /**
+     * Gets the view for mass assigning records.
      *
-     * Display a view for mass assigning a value to many records at once
-     *
-     * @param $pid
-     * @param $fid
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return View
      */
-    public function showMassAssignmentView($pid,$fid){
-        if(!FormController::validProjForm($pid,$fid)){
+    public function showMassAssignmentView($pid,$fid) {
+        if(!FormController::validProjForm($pid,$fid)) {
             return redirect('projects');
         }
 
-        if(!$this->checkPermissions($fid,'modify')){
+        if(!$this->checkPermissions($fid,'modify')) {
             return redirect()->back();
         }
 
         $form = FormController::getForm($fid);
         $all_fields = $form->fields()->get();
         $fields = new Collection();
-        foreach($all_fields as $field){
+        foreach($all_fields as $field) {
             $type = $field->type;
-            if($type == "Documents" || $type == "Gallery" || $type == "Playlist" || $type == "3D-Model" || $type == 'Video'){
+            if($type == "Documents" || $type == "Gallery" || $type == "Playlist" || $type == "3D-Model" || $type == 'Video')
                 continue;
-            }
-            else{
+            else
                 $fields->push($field);
-            }
         }
         return view('records.mass-assignment',compact('form','fields','pid','fid'));
     }
 
     /**
+     * Mass assigns a value to a field in all records.
      *
-     * Mass assign a value to many records at once, similar to update, but loops through all of them
-     *
-     * @param $pid
-     * @param $fid
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     * @return Redirect
      */
-    public function massAssignRecords($pid, $fid, Request $request)
-    {
-
-        if(!$this->checkPermissions($fid,'modify')){
+    public function massAssignRecords($pid, $fid, Request $request) {
+        if(!$this->checkPermissions($fid,'modify')) {
             return redirect()->back();
         }
 
         $flid = $request->input("field_selection");
-        if (!is_numeric($flid)) {
+        if(!is_numeric($flid)) {
             flash()->overlay(trans('controller_record.notvalid'));
             return redirect()->back();
         }
 
         if($request->has($flid)) {
             $form_field_value = $request->input($flid); //Note this only works when there is one form element being submitted, so if you have more, check Date
-        }
-        else{
+        } else {
             flash()->overlay(trans('controller_record.provide'),trans('controller_record.whoops'));
             return redirect()->back();
         }
 
-        if ($request->has("overwrite")) {
+        if ($request->has("overwrite"))
             $overwrite = $request->input("overwrite"); //Overwrite field in all records, even if it has data
-        } else {
+        else
             $overwrite = 0;
-        }
-
 
         $field = Field::find($flid);
-        foreach (Form::find($fid)->records()->get() as $record) {
+        foreach(Form::find($fid)->records()->get() as $record) {
+            //TODO::modular
             if ($field->type == "Text") {
                 $matching_record_fields = $record->textfields()->where("flid", '=', $flid)->get();
                 $record->updated_at = Carbon::now();
@@ -1864,17 +1839,25 @@ class RecordController extends Controller {
         return redirect()->action('RecordController@index',compact('pid','fid'));
     }
 
-    public function createTest($pid, $fid, Request $request){
+    /**
+     * Creates several test records in a form for testing purposes.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     * @return Redirect
+     */
+    public function createTest($pid, $fid, Request $request) {
         $numRecs = $request->test_records_num;
 
-        if(!FormController::validProjForm($pid,$fid)){
+        if(!FormController::validProjForm($pid,$fid)) {
             return redirect('projects');
         }
 
         $form = FormController::getForm($fid);
         $fields = $form->fields()->get();
 
-        for ($i = 0; $i < $numRecs ; $i++) {
+        for($i = 0; $i < $numRecs ; $i++) {
             $record = new Record();
             $record->pid = $pid;
             $record->fid = $fid;
@@ -1883,7 +1866,8 @@ class RecordController extends Controller {
             $record->kid = $pid . '-' . $fid . '-' . $record->rid;
             $record->save();
 
-            foreach ($fields as $field) {
+            foreach($fields as $field) {
+                //TODO::modular
                 if ($field->type == 'Text') {
                     $tf = new TextField();
                     $tf->flid = $field->flid;
