@@ -102,6 +102,32 @@ class NumberField extends BaseField {
         return $advString;
     }
 
+    public static function setRestfulAdvSearch($data, $field, $request){
+        if(isset($data->left))
+            $leftNum = $data->left;
+        else
+            $leftNum = '';
+        $request->request->add([$field->flid.'_left' => $leftNum]);
+        if(isset($data->right))
+            $rightNum = $data->right;
+        else
+            $rightNum = '';
+        $request->request->add([$field->flid.'_right' => $rightNum]);
+        if(isset($data->invert))
+            $invert = $data->invert;
+        else
+            $invert = 0;
+        $request->request->add([$field->flid.'_invert' => $invert]);
+
+        return $request;
+    }
+
+    public static function setRestfulRecordData($field, $flid, $recRequest){
+        $recRequest[$flid] = $field->number;
+
+        return $recRequest;
+    }
+
     /**
      * @param null $field
      * @return array

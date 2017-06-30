@@ -210,6 +210,79 @@ class ComboListField extends BaseField {
         FieldController::updateOptions($pid, $fid, $flid, 'Field2', $flopt_two);
     }
 
+    public static function setRestfulAdvSearch($data, $field, $request){
+        $type1 = ComboListField::getComboFieldType($field,'one');
+        switch($type1) {
+            case 'Number':
+                if(isset($data->left_one))
+                    $leftNum = $data->left_one;
+                else
+                    $leftNum = '';
+                $request->request->add([$field->flid.'_1_left' => $leftNum]);
+                if(isset($data->right_one))
+                    $rightNum = $data->right_one;
+                else
+                    $rightNum = '';
+                $request->request->add([$field->flid.'_1_right' => $rightNum]);
+                if(isset($data->invert_one))
+                    $invert = $data->invert_one;
+                else
+                    $invert = 0;
+                $request->request->add([$field->flid.'_1_invert' => $invert]);
+                break;
+            default:
+                $request->request->add([$field->flid.'_1_input' => $data->input_one]);
+                break;
+        }
+        $type2 = ComboListField::getComboFieldType($field,'two');
+        switch($type2) {
+            case 'Number':
+                if(isset($data->left_two))
+                    $leftNum = $data->left_two;
+                else
+                    $leftNum = '';
+                $request->request->add([$field->flid.'_2_left' => $leftNum]);
+                if(isset($data->right_two))
+                    $rightNum = $data->right_two;
+                else
+                    $rightNum = '';
+                $request->request->add([$field->flid.'_2_right' => $rightNum]);
+                if(isset($data->invert_two))
+                    $invert = $data->invert_two;
+                else
+                    $invert = 0;
+                $request->request->add([$field->flid.'_2_invert' => $invert]);
+                break;
+            default:
+                $request->request->add([$field->flid.'_2_input' => $data->input_two]);
+                break;
+        }
+        $request->request->add([$field->flid.'_operator' => $data->operator]);
+
+        return $request;
+    }
+
+    public static function setRestfulRecordData($field, $flid, $recRequest){
+        $values = array();
+        $nameone = ComboListField::getComboFieldName(FieldController::getField($flid), 'one');
+        $nametwo = ComboListField::getComboFieldName(FieldController::getField($flid), 'two');
+        foreach($field->values as $val) {
+            if(!is_array($val[$nameone]))
+                $fone = '[!f1!]' . $val[$nameone] . '[!f1!]';
+            else
+                $fone = '[!f1!]' . implode("[!]",$val[$nameone]) . '[!f1!]';
+            if(!is_array($val[$nametwo]))
+                $ftwo = '[!f2!]' . $val[$nametwo] . '[!f2!]';
+            else
+                $ftwo = '[!f2!]' . implode("[!]",$val[$nametwo]) . '[!f2!]';
+            array_push($values, $fone . $ftwo);
+        }
+        $recRequest[$flid] = '';
+        $recRequest[$flid . '_val'] = $values;
+
+        return $recRequest;
+    }
+
     public static function getComboList($field, $blankOpt=false, $fnum)
     {
         $dbOpt = self::getComboFieldOption($field, 'Options', $fnum);

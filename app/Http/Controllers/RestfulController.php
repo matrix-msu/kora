@@ -1,49 +1,70 @@
 <?php
 namespace App\Http\Controllers;
-use App\ComboListField;
-use App\DateField;
+
 use App\Field;
-use App\ListField;
-use App\NumberField;
+use App\Form;
 use App\Record;
 use App\Search;
-use App\TextField;
-use App\Token;
 use App\User;
 use Illuminate\Http\Request;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-class RestfulController extends Controller
-{
+
+class RestfulController extends Controller {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Restful Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles API requests to Kora3.
+    |
+    */
+
     /**
-     * Standard output formats.
-     * @var string.
+     * @var string - Standard output formats
      */
     const JSON = "JSON";
     const XML = "XML";
+
     /**
-     * @var array
+     * @var array - Valid output formats
      */
     const VALID_FORMATS = [ self::JSON, self::XML ];
-    const VALID_SORT = ['Text','List','Number','Date'];
-    public function getKoraVersion(){
+
+    /**
+     * @var array - Fields that are valid for sort
+     */
+    const VALID_SORT = Field::VALID_SORT;
+
+    /**
+     * Gets the current version of Kora3.
+     *
+     * @return string - Kora version
+     */
+    public function getKoraVersion() {
         $instInfo = DB::table("versions")->first();
-        if(is_null($instInfo)){
+        if(is_null($instInfo)) {
             return "Failed to retrieve Kora version";
-        }else{
+        } else {
             return $instInfo->version;
         }
     }
-    public function getProjectForms($pid){
-        if(!ProjectController::validProj($pid)){
+
+    /**
+     * Get a basic list of the forms in a project.
+     *
+     * @param  int $pid - Project ID
+     * @return string - Json array of the forms
+     */
+    public function getProjectForms($pid) {
+        if(!ProjectController::validProj($pid)) {
             return 'Invalid Project: '.$pid;
         }
         $project = ProjectController::getProject($pid);
         $formMods = $project->forms()->get();
         $forms = array();
-        foreach($formMods as $form){
+        foreach($formMods as $form) {
             $fArray = array();
             $fArray['name'] = $form->name;
             $fArray['nickname'] = $form->slug;
@@ -52,14 +73,22 @@ class RestfulController extends Controller
         }
         return json_encode($forms);
     }
-    public function getFormFields($pid, $fid){
-        if(!FormController::validProjForm($pid,$fid)){
+
+    /**
+     * Get a basic list of the fields in a form.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return string - Json array of the fields
+     */
+    public function getFormFields($pid, $fid) {
+        if(!FormController::validProjForm($pid,$fid)) {
             return "Invalid Project/Form Pair: ".$pid." ~ ".$fid;
         }
         $form = FormController::getForm($fid);
         $fieldMods = $form->fields()->get();
         $fields = array();
-        foreach($fieldMods as $field){
+        foreach($fieldMods as $field) {
             $fArray = array();
             $fArray['name'] = $field->name;
             $fArray['type'] = $field->type;
@@ -69,32 +98,47 @@ class RestfulController extends Controller
         }
         return json_encode($fields);
     }
-    public function getFormRecordCount($pid, $fid){
-        if(!FormController::validProjForm($pid,$fid)){
+
+    /**
+     * Get the number of records in a form.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return int - Number of records
+     */
+    public function getFormRecordCount($pid, $fid) {
+        if(!FormController::validProjForm($pid,$fid)) {
             return "Invalid Project/Form Pair: ".$pid." ~ ".$fid;
         }
         $form = FormController::getForm($fid);
         $count = $form->records()->count();
         return $count;
     }
-    public function search(Request $request){
+
+    /**
+     * Performs an API search on Kora3.
+     *
+     * @param  Request $request
+     * @return string - Json response of the records
+     */
+    public function search(Request $request) {
         //get the forms
         $forms = json_decode($request->forms);
         //next, we authenticate each form
-        foreach($forms as $f){
+        foreach($forms as $f) {
             //next, we authenticate the form
             $form = FormController::getForm($f->form);
-            if(is_null($form)){
+            if(is_null($form)) {
                 return 'Illegal form provided: '.$f->form;
             }
             $validated = $this->validateToken($form,$f->token,"search");
             //Authentication failed
-            if(!$validated){
+            if(!$validated) {
                 return "The provided token is invalid for form: ".$form->name;
             }
         }
         //now we actually do searches per form
-        foreach($forms as $f){
+        foreach($forms as $f) {
             //initialize form
             $form = FormController::getForm($f->form);
             //things we will be returning
@@ -108,10 +152,10 @@ class RestfulController extends Controller
             $filters['index'] = isset($f->index) ? $f->index : null; //where the array of results should start
             $filters['count'] = isset($f->count) ? $f->count : null; //how many records we should grab from that index
             //parse the query
-            if(!isset($f->query)){
+            if(!isset($f->query)) {
                 //return all records
                 $returnRIDS = Record::where("fid","=",$form->fid)->lists('rid')->all();
-                if(!is_null($filters['sort'])){
+                if(!is_null($filters['sort'])) {
                     $returnRIDS = $this->sort_rids($returnRIDS,$filters['sort']);
                     if(!$returnRIDS)
                         return "Illegal field type or invalid field provided for sort in form: " . $form->name;
@@ -121,20 +165,19 @@ class RestfulController extends Controller
                     return sizeof($returnRIDS);
                 else
                     return $this->populateRecords($returnRIDS, $filters);
-            }else {
+            } else {
                 $queries = $f->query;
                 $resultSets = array();
-                foreach ($queries as $query) {
+                foreach($queries as $query) {
                     //determine our search type
-                    switch ($query->search) {
+                    switch($query->search) {
                         case 'keyword':
                             //do a keyword search
-                            if (!isset($query->keys)) {
+                            if (!isset($query->keys))
                                 return "You must provide keywords in a keyword search for form: " . $form->name;
-                            }
                             $keys = $query->keys;
                             $method = isset($query->method) ? $query->method : 'OR';
-                            switch($method){
+                            switch($method) {
                                 case 'OR':
                                     $method = Search::SEARCH_OR;
                                     break;
@@ -151,16 +194,14 @@ class RestfulController extends Controller
                             $search = new Search($form->pid, $form->fid, $keys, $method);
                             $rids = $search->formKeywordSearch(null,true);
                             $negative = isset($query->not) ? $query->not : false;
-                            if($negative){
+                            if($negative)
                                 $rids = $this->negative_results($form,$rids);
-                            }
                             array_push($resultSets,$rids);
                             break;
                         case 'advanced':
                             //do an advanced search
-                            if (!isset($query->fields)) {
+                            if (!isset($query->fields))
                                 return "You must provide fields in an advanced search for form: " . $form->name;
-                            }
                             $fields = $query->fields;
                             foreach($fields as $flid => $data) {
                                 $field = FieldController::getField($flid);
@@ -170,216 +211,27 @@ class RestfulController extends Controller
                                 $id = $field->flid;
                                 $request->request->add([$id.'_dropdown' => 'on']);
                                 $request->request->add([$id.'_valid' => 1]);
-                                switch($field->type){
-                                    case 'Text':
-                                        $request->request->add([$id.'_input' => $data->input]);
-                                        break;
-                                    case 'Rich Text':
-                                        $request->request->add([$id.'_input' => $data->input]);
-                                        break;
-                                    case 'Number':
-                                        if(isset($data->left))
-                                            $leftNum = $data->left;
-                                        else
-                                            $leftNum = '';
-                                        $request->request->add([$id.'_left' => $leftNum]);
-                                        if(isset($data->right))
-                                            $rightNum = $data->right;
-                                        else
-                                            $rightNum = '';
-                                        $request->request->add([$id.'_right' => $rightNum]);
-                                        if(isset($data->invert))
-                                            $invert = $data->invert;
-                                        else
-                                            $invert = 0;
-                                        $request->request->add([$id.'_invert' => $invert]);
-                                        break;
-                                    case 'List':
-                                        $request->request->add([$id.'_input' => $data->input]);
-                                        break;
-                                    case 'Multi-Select List':
-                                        $request->request->add([$id.'_input' => $data->input]);
-                                        break;
-                                    case 'Generated List':
-                                        $request->request->add([$id.'_input' => $data->input]);
-                                        break;
-                                    case 'Combo List':
-                                        $type1 = ComboListField::getComboFieldType($field,'one');
-                                        switch($type1){
-                                            case 'Number':
-                                                if(isset($data->left_one))
-                                                    $leftNum = $data->left_one;
-                                                else
-                                                    $leftNum = '';
-                                                $request->request->add([$id.'_1_left' => $leftNum]);
-                                                if(isset($data->right_one))
-                                                    $rightNum = $data->right_one;
-                                                else
-                                                    $rightNum = '';
-                                                $request->request->add([$id.'_1_right' => $rightNum]);
-                                                if(isset($data->invert_one))
-                                                    $invert = $data->invert_one;
-                                                else
-                                                    $invert = 0;
-                                                $request->request->add([$id.'_1_invert' => $invert]);
-                                            default:
-                                                $request->request->add([$id.'_1_input' => $data->input_one]);
-                                                break;
-                                        }
-                                        $type2 = ComboListField::getComboFieldType($field,'two');
-                                        switch($type2){
-                                            case 'Number':
-                                                if(isset($data->left_two))
-                                                    $leftNum = $data->left_two;
-                                                else
-                                                    $leftNum = '';
-                                                $request->request->add([$id.'_2_left' => $leftNum]);
-                                                if(isset($data->right_two))
-                                                    $rightNum = $data->right_two;
-                                                else
-                                                    $rightNum = '';
-                                                $request->request->add([$id.'_2_right' => $rightNum]);
-                                                if(isset($data->invert_two))
-                                                    $invert = $data->invert_two;
-                                                else
-                                                    $invert = 0;
-                                                $request->request->add([$id.'_2_invert' => $invert]);
-                                            default:
-                                                $request->request->add([$id.'_2_input' => $data->input_two]);
-                                                break;
-                                        }
-                                        $request->request->add([$id.'_operator' => $data->operator]);
-                                        break;
-                                    case 'Date':
-                                        if(isset($data->begin_month))
-                                            $beginMonth = $data->begin_month;
-                                        else
-                                            $beginMonth = '';
-                                        if(isset($data->begin_day))
-                                            $beginDay = $data->begin_day;
-                                        else
-                                            $beginDay = '';
-                                        if(isset($data->begin_year))
-                                            $beginYear = $data->begin_year;
-                                        else
-                                            $beginYear = '';
-                                        $request->request->add([$id.'_begin_month' => $beginMonth]);
-                                        $request->request->add([$id.'_begin_day' => $beginDay]);
-                                        $request->request->add([$id.'_begin_year' => $beginYear]);
-                                        if(isset($data->end_month))
-                                            $endMonth = $data->end_month;
-                                        else
-                                            $endMonth = '';
-                                        if(isset($data->end_day))
-                                            $endDay = $data->end_day;
-                                        else
-                                            $endDay = '';
-                                        if(isset($data->end_year))
-                                            $endYear = $data->end_year;
-                                        else
-                                            $endYear = '';
-                                        $request->request->add([$id.'_end_month' => $endMonth]);
-                                        $request->request->add([$id.'_end_day' => $endDay]);
-                                        $request->request->add([$id.'_end_year' => $endYear]);
-                                        break;
-                                    case 'Schedule':
-                                        if(isset($data->begin_month))
-                                            $beginMonth = $data->begin_month;
-                                        else
-                                            $beginMonth = '';
-                                        if(isset($data->begin_day))
-                                            $beginDay = $data->begin_day;
-                                        else
-                                            $beginDay = '';
-                                        if(isset($data->begin_year))
-                                            $beginYear = $data->begin_year;
-                                        else
-                                            $beginYear = '';
-                                        $request->request->add([$id.'_begin_month' => $beginMonth]);
-                                        $request->request->add([$id.'_begin_day' => $beginDay]);
-                                        $request->request->add([$id.'_begin_year' => $beginYear]);
-                                        if(isset($data->end_month))
-                                            $endMonth = $data->end_month;
-                                        else
-                                            $endMonth = '';
-                                        if(isset($data->end_day))
-                                            $endDay = $data->end_day;
-                                        else
-                                            $endDay = '';
-                                        if(isset($data->end_year))
-                                            $endYear = $data->end_year;
-                                        else
-                                            $endYear = '';
-                                        $request->request->add([$id.'_end_month' => $endMonth]);
-                                        $request->request->add([$id.'_end_day' => $endDay]);
-                                        $request->request->add([$id.'_end_year' => $endYear]);
-                                        break;
-                                    case 'Documents' | 'Gallery'  | 'Playlist' | 'Video' | '3D-Model':
-                                        $request->request->add([$id.'_input' => $data->input]);
-                                        break;
-                                    case 'Geolocator':
-                                        $request->request->add([$id.'_type' => $data->type]);
-                                        if(isset($data->lat))
-                                            $lat = $data->lat;
-                                        else
-                                            $lat = '';
-                                        $request->request->add([$id.'_lat' => $lat]);
-                                        if(isset($data->lon))
-                                            $lon = $data->lon;
-                                        else
-                                            $lon = '';
-                                        $request->request->add([$id.'_lon' => $lon]);
-                                        if(isset($data->zone))
-                                            $zone = $data->zone;
-                                        else
-                                            $zone = '';
-                                        $request->request->add([$id.'_zone' => $zone]);
-                                        if(isset($data->east))
-                                            $east = $data->east;
-                                        else
-                                            $east = '';
-                                        $request->request->add([$id.'_east' => $east]);
-                                        if(isset($data->north))
-                                            $north = $data->north;
-                                        else
-                                            $north = '';
-                                        $request->request->add([$id.'_north' => $north]);
-                                        if(isset($data->address))
-                                            $address = $data->address;
-                                        else
-                                            $address = '';
-                                        $request->request->add([$id.'_address' => $address]);
-                                        $request->request->add([$id.'_range' => $data->range]);
-                                        break;
-                                    case 'Associator':
-                                        $request->request->add([$id.'_input' => $data->input]);
-                                        break;
-                                    default:
-                                        break;
-                                }
-                                $advSearch = new AdvancedSearchController();
-                                $rids = $advSearch->apisearch($form->pid, $form->fid, $request);
-                                $negative = isset($query->not) ? $query->not : false;
-                                if($negative){
-                                    $rids = $this->negative_results($form,$rids);
-                                }
-                                array_push($resultSets,$rids);
+                                $request = Field::setRestfulAdvSearch($data,$field,$request);
                             }
+                            $advSearch = new AdvancedSearchController();
+                            $rids = $advSearch->apisearch($form->pid, $form->fid, $request);
+                            $negative = isset($query->not) ? $query->not : false;
+                            if($negative)
+                                $rids = $this->negative_results($form,$rids);
+                            array_push($resultSets,$rids);
                             break;
                         case 'kid':
                             //do a kid search
-                            if (!isset($query->kids)) {
+                            if (!isset($query->kids))
                                 return "You must provide KIDs in a KID search for form: " . $form->name;
-                            }
                             $kids = $query->kids;
                             $rids = array();
-                            for ($i = 0; $i < sizeof($kids); $i++) {
+                            for($i = 0; $i < sizeof($kids); $i++) {
                                 $rids[$i] = explode("-", $kids[$i])[2];
                             }
                             $negative = isset($query->not) ? $query->not : false;
-                            if($negative){
+                            if($negative)
                                 $rids = $this->negative_results($form,$rids);
-                            }
                             array_push($resultSets,$rids);
                             break;
                         default:
@@ -389,25 +241,25 @@ class RestfulController extends Controller
                 }
                 //perform all the and/or logic for search types
                 $returnRIDS = array();
-                if(!isset($f->logic)){
+                if(!isset($f->logic)) {
                     //OR IT ALL TOGETHER
-                    foreach($resultSets as $result){
+                    foreach($resultSets as $result) {
                         $returnRIDS = array_merge($returnRIDS,$result);
                     }
                     $returnRIDS = array_unique($returnRIDS);
-                }else {
+                } else {
                     //do the work!!!!
                     $logic = $f->logic;
                     $returnRIDS = $this->logic_recursive($logic,$resultSets);
                 }
                 //sort
-                if(!is_null($filters['sort'])){
+                if(!is_null($filters['sort'])) {
                     $returnRIDS = $this->sort_rids($returnRIDS,$filters['sort']);
                     if(!$returnRIDS)
                         return "Illegal field type or invalid field provided for sort in form: " . $form->name;
                 }
                 //see if we are returning the
-                if ($filters['size'])
+                if($filters['size'])
                     return sizeof($returnRIDS);
                 else
                     return $this->populateRecords($returnRIDS, $filters);
@@ -415,84 +267,69 @@ class RestfulController extends Controller
         }
         return 'Successful search!';
     }
-    private function negative_results($form, $rids){
+
+    /**
+     * Based on set of RIDs from a search result, return all RIDs that do not fit that search.
+     *
+     * @param  Form $form - Form being searched
+     * @param  array $rids - Record IDs we don't want
+     * @return Collection - The RIDs not in the given set
+     */
+    private function negative_results($form, $rids) {
         $negatives = Record::where('fid','=',$form->fid)->whereNotIn('rid',$rids)->lists('rid')->all();
         return $negatives;
     }
-    private function sort_rids($rids, $sortFields){
+
+    /**
+     * Sorts RIDs by fields.
+     *
+     * @param  array $rids - The RIDs to sort
+     * @param  array $sortFields - The fields to sort by
+     * @return array - The new array with sorted RIDs
+     */
+    private function sort_rids($rids, $sortFields) {
         //get field
         $fieldSlug = $sortFields[0];
         $direction = $sortFields[1];
         $newOrderArray = array();
         $noSortValue = array();
-        if($fieldSlug=="kora_meta_owner"){
-            foreach ($rids as $rid) {
+        if($fieldSlug=="kora_meta_owner") {
+            foreach($rids as $rid) {
                 $record = RecordController::getRecord($rid);
                 $owner = User::where('id','=',$record->owner)->first();
                 $newOrderArray[$rid] = $owner->username;
             }
-        }else if($fieldSlug=="kora_meta_created"){
-            foreach ($rids as $rid) {
+        } else if($fieldSlug=="kora_meta_created") {
+            foreach($rids as $rid) {
                 $record = RecordController::getRecord($rid);
                 $created = $record->created_at;
                 $newOrderArray[$rid] = $created;
             }
-        }else if($fieldSlug=="kora_meta_updated"){
-            foreach ($rids as $rid) {
+        } else if($fieldSlug=="kora_meta_updated") {
+            foreach($rids as $rid) {
                 $record = RecordController::getRecord($rid);
                 $updated = $record->updated_at;
                 $newOrderArray[$rid] = $updated;
             }
-        }else if($fieldSlug=="kora_meta_kid"){
-            foreach ($rids as $rid) {
+        } else if($fieldSlug=="kora_meta_kid") {
+            foreach($rids as $rid) {
                 $newOrderArray[$rid] = $rid;
             }
-        }else {
+        } else {
             $field = FieldController::getField($fieldSlug);
-            if (!in_array(($field->type), self::VALID_SORT)) {
+            if(!in_array(($field->type), self::VALID_SORT))
                 return false;
-            }
             //for each rid
-            foreach ($rids as $rid) {
+            foreach($rids as $rid) {
                 //based on type
-                switch ($field->type) {
-                    case 'Text':
-                        $tf = TextField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
-                        if (is_null($tf))
-                            array_push($noSortValue, $rid);
-                        else
-                            $newOrderArray[$rid] = $tf->text;
-                        break;
-                    case 'List':
-                        $lf = ListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
-                        if (is_null($lf))
-                            array_push($noSortValue, $rid);
-                        else
-                            $newOrderArray[$rid] = $lf->option;
-                        break;
-                    case 'Number':
-                        $nf = NumberField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
-                        if (is_null($nf))
-                            array_push($noSortValue, $rid);
-                        else
-                            $newOrderArray[$rid] = $nf->number;
-                        break;
-                    case 'Date':
-                        $df = DateField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
-                        if (is_null($df))
-                            array_push($noSortValue, $rid);
-                        else
-                            $newOrderArray[$rid] = \DateTime::createFromFormat("Y-m-d", $df->year . "-" . $df->month . "-" . $df->day);;
-                        break;
-                    default:
-                        return false;
-                        break;
-                }
+                $hasSort = Field::hasValueToSort($field, $rid, $newOrderArray, $noSortValue);
+                $newOrderArray = $hasSort[0];
+                $noSortValue = $hasSort[1];
             }
         }
         //sort new array
         $extraData = array($sortFields,$direction,$newOrderArray);
-        uksort($newOrderArray, function($a_key,$b_key) use ($extraData){
+        uksort($newOrderArray, function($a_key,$b_key) use ($extraData) {
             $sortArray = $extraData[0]; //we need to remove the original sort term and direction to determine if we have tiebreakers defined
             $copySort = $sortArray;
             array_shift($copySort); //this removes the first sort field
@@ -510,9 +347,9 @@ class RestfulController extends Controller
             $copyArray = $extraData[2]; //a copy of the newOrderArray
             $a = $copyArray[$a_key];
             $b = $copyArray[$b_key];
-            if(is_a($a,'DateTime') | (is_numeric($a) && is_numeric($b))){
-                if($a==$b){
-                    if(!empty($copySort)){
+            if(is_a($a,'DateTime') | (is_numeric($a) && is_numeric($b))) {
+                if($a==$b) {
+                    if(!empty($copySort)) {
                         //do things to tiebreak
                         //get the rids were working with
                         $recurRids = array($a_key,$b_key);
@@ -524,17 +361,17 @@ class RestfulController extends Controller
                             return -1*$dir;
                         else
                             return 1*$dir;
-                    }
-                    else
+                    } else {
                         return 0;
-                } else if($a>$b){
+                    }
+                } else if($a>$b) {
                     return 1*$dir;
-                } else if($a<$b){
+                } else if($a<$b) {
                     return -1*$dir;
                 }
-            }else{
+            } else {
                 $answer = strcmp($a, $b)*$dir;
-                if($answer==0 && !empty($copySort)){
+                if($answer==0 && !empty($copySort)) {
                     //do things to tiebreak
                     //get the rids were working with
                     $recurRids = array($a_key,$b_key);
@@ -546,241 +383,143 @@ class RestfulController extends Controller
                         return -1*$dir;
                     else
                         return 1*$dir;
-                }
-                else
+                } else {
                     return $answer;
+                }
             }
         });
         //convert to plain array of rids
         $finalResult = array_keys($newOrderArray);
         return $finalResult;
     }
-    private function logic_recursive($logicArray, $ridSets){
+
+    /**
+     * Recursively goes through the search logic tree and does the and/or comparisons of each query.
+     *
+     * @param  array $logicArray - Query logic for the search
+     * @param  array $ridSets - The rids to be compared at current level
+     * @return array - A unique set of RIDs that fit the search query logic
+     */
+    private function logic_recursive($logicArray, $ridSets) {
         $returnRIDS = array();
         $firstRIDS = array();
         $secondRIDS = array();
         //get first array of rids, or recurse till it becomes array
         if(is_array($logicArray[0]))
             $firstRIDS = $this->logic_recursive($logicArray[0],$ridSets);
-        else{
+        else
             $firstRIDS = $ridSets[$logicArray[0]];
-        }
         //get second array of rids, or recurse till it becomes array
         if(is_array($logicArray[2]))
             $secondRIDS = $this->logic_recursive($logicArray[2],$ridSets);
-        else{
+        else
             $secondRIDS = $ridSets[$logicArray[2]];
-        }
         $operator = $logicArray[1];
-        if($operator=="AND"){
+        if($operator=="AND") {
             $returnRIDS = array_intersect($firstRIDS,$secondRIDS);
-        }else if($operator=="OR"){
+        } else if($operator=="OR") {
             $returnRIDS = array_merge($firstRIDS,$secondRIDS);
         }
         return array_unique($returnRIDS);
     }
-    public function create(Request $request){
+
+    /**
+     * Creates a new record.
+     *
+     * @param  Request $request
+     * @return string - Json response with the new RID, if successful
+     */
+    public function create(Request $request) {
         //get the form
         $f = $request->form;
         //next, we authenticate the form
         $form = FormController::getForm($f);
-        if(is_null($form)){
+        if(is_null($form)) {
             return 'Illegal form provided: '.$f->form;
         }
         $validated = $this->validateToken($form,$request->token,"create");
         //Authentication failed
-        if(!$validated){
+        if(!$validated) {
             return "The provided token is invalid for form: ".$form->name;
         }
         //Gather field data to insert
-        if(!isset($request->fields)){
+        if(!isset($request->fields)) {
             return "You must provide data to insert into: ".$form->name;
         }
         $fields = json_decode($request->fields);
         $recRequest = new Request();
         $uToken = $this->fileToken(); //need a temp user id to interact, specifically for files
         $recRequest['userId'] = $uToken; //the new record will ultimately be owned by the root/sytem
-        if( !is_null($request->file("zipFile")) ){
+        if( !is_null($request->file("zipFile")) ) {
             $file = $request->file("zipFile");
             $zipPath = $file->move(env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken);
             $zip = new \ZipArchive();
             $res = $zip->open($zipPath);
-            if ($res === TRUE) {
+            if($res === TRUE) {
                 $zip->extractTo(env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken);
                 $zip->close();
             } else {
                 return "There was an error extracting the provided zip";
             }
         }
-        foreach ($fields as $field) {
+        foreach($fields as $field) {
             $fieldSlug = $field->name;
             $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
-            $type = $field->type;
-            if ($type == 'Text'){
-                $recRequest[$flid] = $field->text;
-            } else if ($type == 'Rich Text'){
-                $recRequest[$flid] = $field->richtext;
-            } else if ($type == 'Number'){
-                $recRequest[$flid] = $field->number;
-            } else if ($type == 'List') {
-                $recRequest[$flid] = $field->option;
-            } else if ($type == 'Multi-Select List') {
-                $recRequest[$flid] = $field->options;
-            } else if ($type == 'Generated List') {
-                $recRequest[$flid] = $field->options;
-            } else if ($type == 'Combo List') {
-                $values = array();
-                $nameone = ComboListField::getComboFieldName(FieldController::getField($flid), 'one');
-                $nametwo = ComboListField::getComboFieldName(FieldController::getField($flid), 'two');
-                foreach ($field->values as $val) {
-                    if (!is_array($val[$nameone]))
-                        $fone = '[!f1!]' . $val[$nameone] . '[!f1!]';
-                    else
-                        $fone = '[!f1!]' . implode("[!]",$val[$nameone]) . '[!f1!]';
-                    if (!is_array($val[$nametwo]))
-                        $ftwo = '[!f2!]' . $val[$nametwo] . '[!f2!]';
-                    else
-                        $ftwo = '[!f2!]' . implode("[!]",$val[$nametwo]) . '[!f2!]';
-                    array_push($values, $fone . $ftwo);
-                }
-                $recRequest[$flid] = '';
-                $recRequest[$flid . '_val'] = $values;
-            } else if ($type == 'Date') {
-                $recRequest['circa_' . $flid] = $field->circa;
-                $recRequest['month_' . $flid] = $field->month;
-                $recRequest['day_' . $flid] = $field->day;
-                $recRequest['year_' . $flid] = $field->year;
-                $recRequest['era_' . $flid] = $field->era;
-                $recRequest[$flid] = '';
-            } else if ($type == 'Schedule') {
-                $events = array();
-                foreach ($field->events as $event) {
-                    $string = $event['title'] . ': ' . $event['start'] . ' - ' . $event['end'];
-                    array_push($events, $string);
-                }
-                $recRequest[$flid] = $events;
-            } else if ($type == 'Geolocator') {
-                $geo = array();
-                foreach ($field->locations as $loc) {
-                    $string = '[Desc]' . $loc['desc'] . '[Desc]';
-                    $string .= '[LatLon]' . $loc['lat'] . ',' . $loc['lon'] . '[LatLon]';
-                    $string .= '[UTM]' . $loc['zone'] . ':' . $loc['east'] . ',' . $loc['north'] . '[UTM]';
-                    $string .= '[Address]' . $loc['address'] . '[Address]';
-                    array_push($geo, $string);
-                }
-                $recRequest[$flid] = $geo;
-            } else if ($type == 'Documents' | $type == 'Playlist' | $type == 'Video' | $type == '3D-Model') {
-                $files = array();
-                $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken;
-                $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . $uToken;
-                if (file_exists($newDir)) {
-                    foreach (new \DirectoryIterator($newDir) as $file) {
-                        if ($file->isFile()) {
-                            unlink($newDir . '/' . $file->getFilename());
-                        }
-                    }
-                } else {
-                    mkdir($newDir, 0775, true);
-                }
-                foreach ($field->files as $file) {
-                    $name = $file->name;
-                    //move file from imp temp to tmp files
-                    copy($currDir . '/' . $name, $newDir . '/' . $name);
-                    //add input for this file
-                    array_push($files, $name);
-                }
-                $recRequest['file' . $flid] = $files;
-                $recRequest[$flid] = 'f' . $flid . 'u' . $uToken;
-            }else if ($type == 'Gallery') {
-                $files = array();
-                $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken;
-                $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . $uToken;
-                if (file_exists($newDir)) {
-                    foreach (new \DirectoryIterator($newDir) as $file) {
-                        if ($file->isFile()) {
-                            unlink($newDir . '/' . $file->getFilename());
-                        }
-                    }
-                    if (file_exists($newDir . '/thumbnail')) {
-                        foreach (new \DirectoryIterator($newDir . '/thumbnail') as $file) {
-                            if ($file->isFile()) {
-                                unlink($newDir . '/thumbnail/' . $file->getFilename());
-                            }
-                        }
-                    }
-                    if (file_exists($newDir . '/medium')) {
-                        foreach (new \DirectoryIterator($newDir . '/medium') as $file) {
-                            if ($file->isFile()) {
-                                unlink($newDir . '/medium/' . $file->getFilename());
-                            }
-                        }
-                    }
-                } else {
-                    mkdir($newDir, 0775, true);
-                    mkdir($newDir . '/thumbnail', 0775, true);
-                    mkdir($newDir . '/medium', 0775, true);
-                }
-                foreach ($field->files as $file) {
-                    $name = $file->name;
-                    //move file from imp temp to tmp files
-                    copy($currDir . '/' . $name, $newDir . '/' . $name);
-                    $smallParts = explode('x',FieldController::getFieldOption($field,'ThumbSmall'));
-                    $tImage = new \Imagick($newDir . '/' . $name);
-                    $tImage->thumbnailImage($smallParts[0],$smallParts[1],true);
-                    $tImage->writeImage($newDir . '/thumbnail/' . $name);
-                    $largeParts = explode('x',FieldController::getFieldOption($field,'ThumbLarge'));
-                    $mImage = new \Imagick($newDir . '/' . $name);
-                    $mImage->thumbnailImage($largeParts[0],$largeParts[1],true);
-                    $mImage->writeImage($newDir . '/medium/' . $name);
-                    //add input for this file
-                    array_push($files, $name);
-                }
-                $recRequest['file' . $flid] = $files;
-                $recRequest[$flid] = 'f' . $flid . 'u' . $uToken;
-            } else if ($type == 'Associator') {
-                $recRequest[$flid] = $field->records;
-            }
+
+            $recRequest = Field::setRestfulRecordData($field, $flid, $recRequest, $uToken);
         }
-        //dd($recRequest);
         $recRequest['api'] = true;
         $recCon = new RecordController();
         $response = $recCon->store($form->pid,$form->fid,$recRequest);
         return 'Created record: '.$response;
     }
-    private function fileToken(){
+
+    /**
+     * Creates a fake user id to exist within the temp file structure of Kora3.
+     *
+     * @return string - The id
+     */
+    private function fileToken() {
         $valid = 'abcdefghijklmnopqrstuvwxyz';
         $valid .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $valid .= '0123456789';
         $token = '';
-        for ($i = 0; $i < 12; $i++){
+        for($i = 0; $i < 12; $i++) {
             $token .= $valid[( rand() % 62 )];
         }
         return $token;
     }
-    public function edit(Request $request){
+
+    /**
+     * Edit an existing record
+     *
+     * @param  type $name - DESCRIPTION
+     * @return string - DESCRIPTION
+     */
+    public function edit(Request $request) {
         //get the form
         $f = $request->form;
         //next, we authenticate the form
         $form = FormController::getForm($f);
-        if(is_null($form)){
+        if(is_null($form)) {
             return 'Illegal form provided: '.$f->form;
         }
         $validated = $this->validateToken($form,$request->token,"edit");
         //Authentication failed
-        if(!$validated){
+        if(!$validated) {
             return "The provided token is invalid for form: ".$form->name;
         }
         //Gather field data to insert
-        if(!isset($request->kid)){
+        if(!isset($request->kid)) {
             return "You must provide a record kid for: ".$form->name;
         }
         //Gather field data to insert
-        if(!isset($request->fields)){
+        if(!isset($request->fields)) {
             return "You must provide data to insert into: ".$form->name;
         }
         $fields = json_decode($request->fields);
         $record = RecordController::getRecordByKID($request->kid);
-        if(is_null($record)){
+        if(is_null($record)) {
             return 'Illegal record provided: '.$request->kid;
         }
         $recRequest = new Request();
@@ -791,151 +530,27 @@ class RestfulController extends Controller
         //by default, we delete data from unmentioned fields
         $keepFields = isset($request->keepFields) ? $request->keepFields : "false";
         $fieldsToEditArray = array(); //These are the fields that are allowed to be editted if we are doing keepfields
-        if( !is_null($request->file("zipFile")) ){
+        if( !is_null($request->file("zipFile")) ) {
             $file = $request->file("zipFile");
             $zipPath = $file->move(env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken);
             $zip = new \ZipArchive();
             $res = $zip->open($zipPath);
-            if ($res === TRUE) {
+            if($res === TRUE) {
                 $zip->extractTo(env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken);
                 $zip->close();
             } else {
                 return "There was an error extracting the provided zip";
             }
         }
-        foreach ($fields as $field) {
+        foreach($fields as $field) {
             $fieldSlug = $field->name;
             $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
-            $type = $field->type;
             //if keepfields scenario, keep track of this field that will be edited
             if($keepFields=="true")
                 array_push($fieldsToEditArray,$flid);
-            if ($type == 'Text'){
-                $recRequest[$flid] = $field->text;
-            } else if ($type == 'Rich Text'){
-                $recRequest[$flid] = $field->richtext;
-            } else if ($type == 'Number'){
-                $recRequest[$flid] = $field->number;
-            } else if ($type == 'List') {
-                $recRequest[$flid] = $field->option;
-            } else if ($type == 'Multi-Select List') {
-                $recRequest[$flid] = $field->options;
-            } else if ($type == 'Generated List') {
-                $recRequest[$flid] = $field->options;
-            } else if ($type == 'Combo List') {
-                $values = array();
-                $nameone = ComboListField::getComboFieldName(FieldController::getField($flid), 'one');
-                $nametwo = ComboListField::getComboFieldName(FieldController::getField($flid), 'two');
-                foreach ($field->values as $val) {
-                    if (!is_array($val[$nameone]))
-                        $fone = '[!f1!]' . $val[$nameone] . '[!f1!]';
-                    else
-                        $fone = '[!f1!]' . implode("[!]",$val[$nameone]) . '[!f1!]';
-                    if (!is_array($val[$nametwo]))
-                        $ftwo = '[!f2!]' . $val[$nametwo] . '[!f2!]';
-                    else
-                        $ftwo = '[!f2!]' . implode("[!]",$val[$nametwo]) . '[!f2!]';
-                    array_push($values, $fone . $ftwo);
-                }
-                $recRequest[$flid] = '';
-                $recRequest[$flid . '_val'] = $values;
-            } else if ($type == 'Date') {
-                $recRequest['circa_' . $flid] = $field->circa;
-                $recRequest['month_' . $flid] = $field->month;
-                $recRequest['day_' . $flid] = $field->day;
-                $recRequest['year_' . $flid] = $field->year;
-                $recRequest['era_' . $flid] = $field->era;
-                $recRequest[$flid] = '';
-            } else if ($type == 'Schedule') {
-                $events = array();
-                foreach ($field->events as $event) {
-                    $string = $event['title'] . ': ' . $event['start'] . ' - ' . $event['end'];
-                    array_push($events, $string);
-                }
-                $recRequest[$flid] = $events;
-            } else if ($type == 'Geolocator') {
-                $geo = array();
-                foreach ($field->locations as $loc) {
-                    $string = '[Desc]' . $loc['desc'] . '[Desc]';
-                    $string .= '[LatLon]' . $loc['lat'] . ',' . $loc['lon'] . '[LatLon]';
-                    $string .= '[UTM]' . $loc['zone'] . ':' . $loc['east'] . ',' . $loc['north'] . '[UTM]';
-                    $string .= '[Address]' . $loc['address'] . '[Address]';
-                    array_push($geo, $string);
-                }
-                $recRequest[$flid] = $geo;
-            }else if ($type == 'Documents' | $type == 'Playlist' | $type == 'Video' | $type == '3D-Model') {
-                $files = array();
-                $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken;
-                $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . $uToken;
-                if (file_exists($newDir)) {
-                    foreach (new \DirectoryIterator($newDir) as $file) {
-                        if ($file->isFile()) {
-                            unlink($newDir . '/' . $file->getFilename());
-                        }
-                    }
-                } else {
-                    mkdir($newDir, 0775, true);
-                }
-                foreach ($field->files as $file) {
-                    $name = $file->name;
-                    //move file from imp temp to tmp files
-                    copy($currDir . '/' . $name, $newDir . '/' . $name);
-                    //add input for this file
-                    array_push($files, $name);
-                }
-                $recRequest['file' . $flid] = $files;
-                $recRequest[$flid] = 'f' . $flid . 'u' . $uToken;
-            } else if ($type == 'Gallery') {
-                $files = array();
-                $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken;
-                $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . $uToken;
-                if (file_exists($newDir)) {
-                    foreach (new \DirectoryIterator($newDir) as $file) {
-                        if ($file->isFile()) {
-                            unlink($newDir . '/' . $file->getFilename());
-                        }
-                    }
-                    if (file_exists($newDir . '/thumbnail')) {
-                        foreach (new \DirectoryIterator($newDir . '/thumbnail') as $file) {
-                            if ($file->isFile()) {
-                                unlink($newDir . '/thumbnail/' . $file->getFilename());
-                            }
-                        }
-                    }
-                    if (file_exists($newDir . '/medium')) {
-                        foreach (new \DirectoryIterator($newDir . '/medium') as $file) {
-                            if ($file->isFile()) {
-                                unlink($newDir . '/medium/' . $file->getFilename());
-                            }
-                        }
-                    }
-                } else {
-                    mkdir($newDir, 0775, true);
-                    mkdir($newDir . '/thumbnail', 0775, true);
-                    mkdir($newDir . '/medium', 0775, true);
-                }
-                foreach ($field->files as $file) {
-                    $name = $file->name;
-                    //move file from imp temp to tmp files
-                    copy($currDir . '/' . $name, $newDir . '/' . $name);
-                    $smallParts = explode('x',FieldController::getFieldOption($field,'ThumbSmall'));
-                    $tImage = new \Imagick($newDir . '/' . $name);
-                    $tImage->thumbnailImage($smallParts[0],$smallParts[1],true);
-                    $tImage->writeImage($newDir . '/thumbnail/' . $name);
-                    $largeParts = explode('x',FieldController::getFieldOption($field,'ThumbLarge'));
-                    $mImage = new \Imagick($newDir . '/' . $name);
-                    $mImage->thumbnailImage($largeParts[0],$largeParts[1],true);
-                    $mImage->writeImage($newDir . '/medium/' . $name);
-                    //add input for this file
-                    array_push($files, $name);
-                }
-                $recRequest['file' . $flid] = $files;
-                $recRequest[$flid] = 'f' . $flid . 'u' . $uToken;
-            } else if ($type == 'Associator') {
-                $recRequest[$flid] = $field->records;
-            }
+
+            $recRequest = Field::setRestfulRecordData($field, $flid, $recRequest, $uToken);
         }
-        //dd($recRequest);
         $recRequest['api'] = true;
         $recRequest['keepFields'] = $keepFields; //whether we keep unmentioned fields
         $recRequest['fieldsToEdit'] = $fieldsToEditArray; //what fields can be modified if keepfields
@@ -943,50 +558,66 @@ class RestfulController extends Controller
         $recCon->update($form->pid,$form->fid,$record->rid,$recRequest);
         return 'Modified record: '.$request->kid;
     }
+
+    /**
+     * Delete a set of records from Kora3
+     *
+     * @param  Request $request
+     * @return string - Success/error message
+     */
     public function delete(Request $request){
         //get the form
         $f = $request->form;
         //next, we authenticate the form
         $form = FormController::getForm($f);
-        if(is_null($form)){
+        if(is_null($form)) {
             return 'Illegal form provided: '.$f->form;
         }
         $validated = $this->validateToken($form,$request->token,"delete");
         //Authentication failed
-        if(!$validated){
+        if(!$validated) {
             return "The provided token is invalid for form: ".$form->name;
         }
         //Gather records to delete
-        if(!isset($request->kids)){
+        if(!isset($request->kids)) {
             return "You must provide KIDs to delete from: ".$form->name;
         }
         $kids = explode(",",$request->kids);
         $recsToDelete = array();
-        for($i=0;$i<sizeof($kids);$i++){
+        for($i=0;$i<sizeof($kids);$i++) {
             $rid = explode("-",$kids[$i])[2];
             $record = RecordController::getRecord($rid);
-            if(is_null($record)){
+            if(is_null($record)) {
                 return 'Non-existent record provided: '.$kids[$i];
-            }else{
+            } else {
                 array_push($recsToDelete,$record);
             }
         }
-        foreach($recsToDelete as $record){
+        foreach($recsToDelete as $record) {
             $record->delete();
         }
         return 'DELETE SUCCESS!';
     }
+
+    /**
+     * Sends list of RIDs to python to generate the record data.
+     *
+     * @param  array $rids - List of Record IDs
+     * @param  array $filters - Filters from the search
+     * @param  string $format - The return format for the results
+     * @return string - Path to the results file
+     */
     //mimics the export python functionality to populate records
-    private function populateRecords($rids,$filters,$format = self::JSON){
+    private function populateRecords($rids,$filters,$format = self::JSON) {
         $format = strtoupper($format);
-        if ( ! self::isValidFormat($format)) {
+        if( ! self::isValidFormat($format)) {
             return null;
         }
-        if($filters['fields'] == "ALL"){
+        if($filters['fields'] == "ALL")
             $fields = json_encode(array());
-        }else{
+        else
             $fields = json_encode($filters['fields']);
-        }
+
         if($filters['meta'])
             $meta = 'True';
         else
@@ -1003,35 +634,44 @@ class RestfulController extends Controller
         //Slice up array of RIDs to get the correct subset
         //There are done down here to ensure sorting has already taken place
 
-        if(!is_null($filters['index'])){
+        if(!is_null($filters['index']))
             $rids = array_slice($rids,$filters['index']);
-        }
 
-        if(!is_null($filters['count'])){
+        if(!is_null($filters['count']))
             $rids = array_slice($rids,0,$filters['count']);
-        }
 
         $rids = json_encode($rids);
         $exec_string = env("BASE_PATH") . "python/api.py \"$rids\" \"$format\" '$fields' \"$meta\" \"$data\" \"$assoc\"";
         exec($exec_string, $output);
         return $output[0];
     }
+
     /**
-     * @param string $format
-     * @return bool, true if valid.
+     * Checks if provided format is a valid format for exporting.
+     *
+     * @param  string $format - The format
+     * @return bool - Is valid
      */
     private function isValidFormat($format) {
         return in_array(($format), self::VALID_FORMATS);
     }
-    private function validateToken($form,$token,$permission){
+
+    /**
+     * Makes sure provided token is valid and has the needed permission.
+     *
+     * @param  Form $form - Form being searched/modified
+     * @param  string $token - Provided token to check
+     * @param  string $permission - Type of API action being taken
+     * @return bool - Is valid and has permission
+     */
+    private function validateToken($form,$token,$permission) {
         //Get all the projects tokens
         $project = ProjectController::getProject($form->pid);
         $tokens = $project->tokens()->get();
         //compare
-        foreach($tokens as $t){
-            if($t->token == $token && $t->$permission){
+        foreach($tokens as $t) {
+            if($t->token == $token && $t->$permission)
                 return true;
-            }
         }
         return false;
     }

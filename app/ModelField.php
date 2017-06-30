@@ -61,6 +61,37 @@ class ModelField extends FileTypeField  {
         FieldController::updateOptions($pid, $fid, $flid, 'FileTypes', $filetype);
     }
 
+    public static function setRestfulAdvSearch($data, $field, $request){
+        $request->request->add([$field->flid.'_input' => $data->input]);
+
+        return $request;
+    }
+
+    public static function setRestfulRecordData($field, $flid, $recRequest, $uToken){
+        $files = array();
+        $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken;
+        $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . $uToken;
+        if(file_exists($newDir)) {
+            foreach(new \DirectoryIterator($newDir) as $file) {
+                if ($file->isFile())
+                    unlink($newDir . '/' . $file->getFilename());
+            }
+        } else {
+            mkdir($newDir, 0775, true);
+        }
+        foreach($field->files as $file) {
+            $name = $file->name;
+            //move file from imp temp to tmp files
+            copy($currDir . '/' . $name, $newDir . '/' . $name);
+            //add input for this file
+            array_push($files, $name);
+        }
+        $recRequest['file' . $flid] = $files;
+        $recRequest[$flid] = 'f' . $flid . 'u' . $uToken;
+
+        return $recRequest;
+    }
+
     /**
      * @param null $field
      * @return string

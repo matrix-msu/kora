@@ -75,6 +75,18 @@ class AssociatorField extends BaseField {
         FieldController::updateOptions($pid, $fid, $flid, 'SearchForms', $request->searchforms);
     }
 
+    public static function setRestfulAdvSearch($data, $field, $request){
+        $request->request->add([$field->flid.'_input' => $data->input]);
+
+        return $request;
+    }
+
+    public static function setRestfulRecordData($field, $flid, $recRequest){
+        $recRequest[$flid] = $field->records;
+
+        return $recRequest;
+    }
+
     public function getPreviewValues($rid){
         //individual kid elements
         $recModel = RecordController::getRecord($rid);

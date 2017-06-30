@@ -79,6 +79,57 @@ class GeolocatorField extends BaseField {
         FieldController::updateOptions($pid, $fid, $flid, 'DataView', $request->view);
     }
 
+    public static function setRestfulAdvSearch($data, $field, $request){
+        $request->request->add([$field->flid.'_type' => $data->type]);
+        if(isset($data->lat))
+            $lat = $data->lat;
+        else
+            $lat = '';
+        $request->request->add([$field->flid.'_lat' => $lat]);
+        if(isset($data->lon))
+            $lon = $data->lon;
+        else
+            $lon = '';
+        $request->request->add([$field->flid.'_lon' => $lon]);
+        if(isset($data->zone))
+            $zone = $data->zone;
+        else
+            $zone = '';
+        $request->request->add([$field->flid.'_zone' => $zone]);
+        if(isset($data->east))
+            $east = $data->east;
+        else
+            $east = '';
+        $request->request->add([$field->flid.'_east' => $east]);
+        if(isset($data->north))
+            $north = $data->north;
+        else
+            $north = '';
+        $request->request->add([$field->flid.'_north' => $north]);
+        if(isset($data->address))
+            $address = $data->address;
+        else
+            $address = '';
+        $request->request->add([$field->flid.'_address' => $address]);
+        $request->request->add([$field->flid.'_range' => $data->range]);
+
+        return $request;
+    }
+
+    public static function setRestfulRecordData($field, $flid, $recRequest){
+        $geo = array();
+        foreach($field->locations as $loc) {
+            $string = '[Desc]' . $loc['desc'] . '[Desc]';
+            $string .= '[LatLon]' . $loc['lat'] . ',' . $loc['lon'] . '[LatLon]';
+            $string .= '[UTM]' . $loc['zone'] . ':' . $loc['east'] . ',' . $loc['north'] . '[UTM]';
+            $string .= '[Address]' . $loc['address'] . '[Address]';
+            array_push($geo, $string);
+        }
+        $recRequest[$flid] = $geo;
+
+        return $recRequest;
+    }
+
     /**
      * Gets the default locations from the field options.
      *

@@ -52,6 +52,18 @@ class ListField extends BaseField {
         FieldController::updateOptions($pid, $fid, $flid, 'Options', $options);
     }
 
+    public static function setRestfulAdvSearch($data, $field, $request){
+        $request->request->add([$field->flid.'_input' => $data->input]);
+
+        return $request;
+    }
+
+    public static function setRestfulRecordData($field, $flid, $recRequest){
+        $recRequest[$flid] = $field->option;
+
+        return $recRequest;
+    }
+
     public static function getList($field, $blankOpt=false)
     {
         $dbOpt = FieldController::getFieldOption($field, 'Options');

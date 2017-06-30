@@ -3,6 +3,7 @@
 use App\Http\Controllers\FieldController;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class TextField extends BaseField {
@@ -67,6 +68,18 @@ class TextField extends BaseField {
         FieldController::updateOptions($pid, $fid, $flid, 'MultiLine', $request->multi);
 
         return $advString;
+    }
+
+    public static function setRestfulAdvSearch($data, $field, $request){
+        $request->request->add([$field->flid.'_input' => $data->input]);
+
+        return $request;
+    }
+
+    public static function setRestfulRecordData($field, $flid, $recRequest){
+        $recRequest[$flid] = $field->text;
+
+        return $recRequest;
     }
 
     /**

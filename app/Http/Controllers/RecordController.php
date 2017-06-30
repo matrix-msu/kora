@@ -30,7 +30,6 @@ use Illuminate\View\View;
 use RecursiveIteratorIterator;
 use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
 
-
 class RecordController extends Controller {
 
     /**

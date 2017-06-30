@@ -98,6 +98,52 @@ class DateField extends BaseField {
         FieldController::updateOptions($pid, $fid, $flid, 'Era', $request->era);
     }
 
+    public static function setRestfulAdvSearch($data, $field, $request){
+        if(isset($data->begin_month))
+            $beginMonth = $data->begin_month;
+        else
+            $beginMonth = '';
+        if(isset($data->begin_day))
+            $beginDay = $data->begin_day;
+        else
+            $beginDay = '';
+        if(isset($data->begin_year))
+            $beginYear = $data->begin_year;
+        else
+            $beginYear = '';
+        $request->request->add([$field->flid.'_begin_month' => $beginMonth]);
+        $request->request->add([$field->flid.'_begin_day' => $beginDay]);
+        $request->request->add([$field->flid.'_begin_year' => $beginYear]);
+        if(isset($data->end_month))
+            $endMonth = $data->end_month;
+        else
+            $endMonth = '';
+        if(isset($data->end_day))
+            $endDay = $data->end_day;
+        else
+            $endDay = '';
+        if(isset($data->end_year))
+            $endYear = $data->end_year;
+        else
+            $endYear = '';
+        $request->request->add([$field->flid.'_end_month' => $endMonth]);
+        $request->request->add([$field->flid.'_end_day' => $endDay]);
+        $request->request->add([$field->flid.'_end_year' => $endYear]);
+
+        return $request;
+    }
+
+    public static function setRestfulRecordData($field, $flid, $recRequest){
+        $recRequest['circa_' . $flid] = $field->circa;
+        $recRequest['month_' . $flid] = $field->month;
+        $recRequest['day_' . $flid] = $field->day;
+        $recRequest['year_' . $flid] = $field->year;
+        $recRequest['era_' . $flid] = $field->era;
+        $recRequest[$flid] = '';
+
+        return $recRequest;
+    }
+
     /**
      * Builds the query for a date field.
      *

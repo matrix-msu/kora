@@ -106,6 +106,59 @@ class GalleryField extends FileTypeField  {
         FieldController::updateOptions($pid, $fid, $flid, 'ThumbLarge', $large);
     }
 
+    public static function setRestfulAdvSearch($data, $field, $request){
+        $request->request->add([$field->flid.'_input' => $data->input]);
+
+        return $request;
+    }
+
+    public static function setRestfulRecordData($field, $flid, $recRequest, $uToken){
+        $files = array();
+        $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken;
+        $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . $uToken;
+        if(file_exists($newDir)) {
+            foreach(new \DirectoryIterator($newDir) as $file) {
+                if($file->isFile())
+                    unlink($newDir . '/' . $file->getFilename());
+            }
+            if(file_exists($newDir . '/thumbnail')) {
+                foreach(new \DirectoryIterator($newDir . '/thumbnail') as $file) {
+                    if($file->isFile())
+                        unlink($newDir . '/thumbnail/' . $file->getFilename());
+                }
+            }
+            if(file_exists($newDir . '/medium')) {
+                foreach(new \DirectoryIterator($newDir . '/medium') as $file) {
+                    if($file->isFile())
+                        unlink($newDir . '/medium/' . $file->getFilename());
+                }
+            }
+        } else {
+            mkdir($newDir, 0775, true);
+            mkdir($newDir . '/thumbnail', 0775, true);
+            mkdir($newDir . '/medium', 0775, true);
+        }
+        foreach($field->files as $file) {
+            $name = $file->name;
+            //move file from imp temp to tmp files
+            copy($currDir . '/' . $name, $newDir . '/' . $name);
+            $smallParts = explode('x',FieldController::getFieldOption($field,'ThumbSmall'));
+            $tImage = new \Imagick($newDir . '/' . $name);
+            $tImage->thumbnailImage($smallParts[0],$smallParts[1],true);
+            $tImage->writeImage($newDir . '/thumbnail/' . $name);
+            $largeParts = explode('x',FieldController::getFieldOption($field,'ThumbLarge'));
+            $mImage = new \Imagick($newDir . '/' . $name);
+            $mImage->thumbnailImage($largeParts[0],$largeParts[1],true);
+            $mImage->writeImage($newDir . '/medium/' . $name);
+            //add input for this file
+            array_push($files, $name);
+        }
+        $recRequest['file' . $flid] = $files;
+        $recRequest[$flid] = 'f' . $flid . 'u' . $uToken;
+
+        return $recRequest;
+    }
+
     /**
      * Rollback a gallery field based on a revision.
      *

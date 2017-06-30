@@ -4,6 +4,7 @@ use App\Http\Controllers\FieldController;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request;
 use PhpSpec\Exception\Exception;
 
 class Field extends Model {
@@ -57,6 +58,8 @@ class Field extends Model {
         self::_3D_MODEL, self::_PLAYLIST, self::_VIDEO, self::_COMBO_LIST,
         self::_ASSOCIATOR
     ];
+
+    const VALID_SORT = ['Text','List','Number','Date'];
 
     protected $primaryKey = "flid";
 
@@ -779,6 +782,121 @@ class Field extends Model {
         }
     }
 
+    static function setRestfulAdvSearch($data, $field, $request)
+    {
+        switch ($field->type) {
+            case self::_TEXT:
+                return TextField::setRestfulAdvSearch($data, $field, $request);
+                break;
+            case self::_RICH_TEXT:
+                return RichTextField::setRestfulAdvSearch($data, $field, $request);
+                break;
+            case self::_NUMBER:
+                return NumberField::setRestfulAdvSearch($data, $field, $request);
+                break;
+            case self::_LIST:
+                return ListField::setRestfulAdvSearch($data, $field, $request);
+                break;
+            case self::_MULTI_SELECT_LIST:
+                return MultiSelectListField::setRestfulAdvSearch($data, $field, $request);
+                break;
+            case self::_GENERATED_LIST:
+                return GeneratedListField::setRestfulAdvSearch($data, $field, $request);
+                break;
+            case self::_DATE:
+                return DateField::setRestfulAdvSearch($data, $field, $request);
+                break;
+            case self::_SCHEDULE:
+                return ScheduleField::setRestfulAdvSearch($data, $field, $request);
+                break;
+            case self::_GEOLOCATOR:
+                return GeolocatorField::setRestfulAdvSearch($data, $field, $request);
+                break;
+            case self::_DOCUMENTS:
+                return DocumentsField::setRestfulAdvSearch($data, $field, $request);
+                break;
+            case self::_GALLERY:
+                return GalleryField::setRestfulAdvSearch($data, $field, $request);
+                break;
+            case self::_3D_MODEL:
+                return ModelField::setRestfulAdvSearch($data, $field, $request);
+                break;
+            case self::_PLAYLIST:
+                return PlaylistField::setRestfulAdvSearch($data, $field, $request);
+                break;
+            case self::_VIDEO:
+                return VideoField::setRestfulAdvSearch($data, $field, $request);
+                break;
+            case self::_COMBO_LIST:
+                return ComboListField::setRestfulAdvSearch($data, $field, $request);
+                break;
+            case self::_ASSOCIATOR:
+                return AssociatorField::setRestfulAdvSearch($data, $field, $request);
+                break;
+            default: // Error occurred.
+                throw new \Exception("Invalid field type in field::field option.");
+                break;
+        }
+    }
+
+    //$field is a json array
+    static function setRestfulRecordData($field, $flid, $recRequest, $uToken)
+    {
+        switch ($field->type) {
+            case self::_TEXT:
+                return TextField::setRestfulRecordData($field, $flid, $recRequest);
+                break;
+            case self::_RICH_TEXT:
+                return RichTextField::setRestfulRecordData($field, $flid, $recRequest);
+                break;
+            case self::_NUMBER:
+                return NumberField::setRestfulRecordData($field, $flid, $recRequest);
+                break;
+            case self::_LIST:
+                return ListField::setRestfulRecordData($field, $flid, $recRequest);
+                break;
+            case self::_MULTI_SELECT_LIST:
+                return MultiSelectListField::setRestfulRecordData($field, $flid, $recRequest);
+                break;
+            case self::_GENERATED_LIST:
+                return GeneratedListField::setRestfulRecordData($field, $flid, $recRequest);
+                break;
+            case self::_DATE:
+                return DateField::setRestfulRecordData($field, $flid, $recRequest);
+                break;
+            case self::_SCHEDULE:
+                return ScheduleField::setRestfulRecordData($field, $flid, $recRequest);
+                break;
+            case self::_GEOLOCATOR:
+                return GeolocatorField::setRestfulRecordData($field, $flid, $recRequest);
+                break;
+            case self::_DOCUMENTS:
+                return DocumentsField::setRestfulRecordData($field, $flid, $recRequest, $uToken);
+                break;
+            case self::_GALLERY:
+                return GalleryField::setRestfulRecordData($field, $flid, $recRequest, $uToken);
+                break;
+            case self::_3D_MODEL:
+                return ModelField::setRestfulRecordData($field, $flid, $recRequest, $uToken);
+                break;
+            case self::_PLAYLIST:
+                return PlaylistField::setRestfulRecordData($field, $flid, $recRequest, $uToken);
+                break;
+            case self::_VIDEO:
+                return VideoField::setRestfulRecordData($field, $flid, $recRequest, $uToken);
+                break;
+            case self::_COMBO_LIST:
+                return ComboListField::setRestfulRecordData($field, $flid, $recRequest);
+                break;
+            case self::_ASSOCIATOR:
+                return AssociatorField::setRestfulRecordData($field, $flid, $recRequest);
+                break;
+            default: // Error occurred.
+                throw new \Exception("Invalid field type in field::field option.");
+                break;
+        }
+    }
+
     /**
      * Processes an argument so it can be used in a file field.
      *
@@ -857,6 +975,44 @@ class Field extends Model {
         $value = str_replace(' ','_',$value);
 
         return $value;
+    }
+
+    public static function hasValueToSort($field, $rid, $newOrderArray, $noSortValue){
+        switch($field->type) {
+            case self::_TEXT:
+                $tf = TextField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                if (is_null($tf))
+                    array_push($noSortValue, $rid);
+                else
+                    $newOrderArray[$rid] = $tf->text;
+                break;
+            case self::_LIST:
+                $lf = ListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                if (is_null($lf))
+                    array_push($noSortValue, $rid);
+                else
+                    $newOrderArray[$rid] = $lf->option;
+                break;
+            case self::_NUMBER:
+                $nf = NumberField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                if (is_null($nf))
+                    array_push($noSortValue, $rid);
+                else
+                    $newOrderArray[$rid] = $nf->number;
+                break;
+            case self::_DATE:
+                $df = DateField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
+                if (is_null($df))
+                    array_push($noSortValue, $rid);
+                else
+                    $newOrderArray[$rid] = \DateTime::createFromFormat("Y-m-d", $df->year . "-" . $df->month . "-" . $df->day);;
+                break;
+            default:
+                throw new \Exception("Invalid field type in field::has sort.");
+                break;
+        }
+
+        return array($newOrderArray, $noSortValue);
     }
 }
 
