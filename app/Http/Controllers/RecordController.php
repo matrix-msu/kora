@@ -109,7 +109,7 @@ class RecordController extends Controller {
 	}
 
     /**
-     * WHAT_DOESTHISFUNTIONDO
+     * Saves a new record in Kora.
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID

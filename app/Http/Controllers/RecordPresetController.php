@@ -8,8 +8,6 @@ use App\Form;
 use App\GalleryField;
 use App\GeneratedListField;
 use App\GeolocatorField;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
 use App\ListField;
 use App\ModelField;
 use App\MultiSelectListField;
@@ -22,37 +20,44 @@ use App\ScheduleField;
 use App\TextField;
 use App\VideoField;
 use Illuminate\Http\Request;
-use Psy\Command\ShowCommand;
+use Illuminate\View\View;
 use RecursiveIteratorIterator;
 use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
-use Symfony\Component\Finder\Shell\Shell;
 
 class RecordPresetController extends Controller {
+
+    /*
+    |--------------------------------------------------------------------------
+    | ... Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles creation and management of record presets
+    |
+    */
+
     /**
-     * User must be logged in to access views in this controller.
+     * Constructs controller and makes sure user is authenticated.
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->middleware('auth');
         $this->middleware('active');
     }
 
     /**
-     * The record preset index.
+     * Gets the view for managing existing presets.
      *
-     * @param $pid
-     * @param $fid
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return View
      */
-    public function index($pid, $fid)
-    {
-        if(!FormController::validProjForm($pid,$fid)){
+    public function index($pid, $fid) {
+        if(!FormController::validProjForm($pid,$fid)) {
             return redirect('projects/'.$pid);
         }
 
         $form = FormController::getForm($fid);
 
-        if (!\Auth::user()->isFormAdmin($form)){
+        if(!\Auth::user()->isFormAdmin($form)) {
             flash()->overlay(trans('controller_recordpreset.view'), trans('controller_recordpreset.whoops'));
             return redirect('projects');
         }
@@ -63,19 +68,17 @@ class RecordPresetController extends Controller {
     }
 
     /**
-     * Makes a record a preset for other records to be copied from.
+     * Copies a record and saves it as a record preset template.
      *
-     * @param Request $request
+     * @param  Request $request
      */
-    public function presetRecord(Request $request)
-    {
+    public function presetRecord(Request $request) {
         $name = $request->name;
         $rid = $request->rid;
 
         if(!is_null(RecordPreset::where('rid', '=', $rid)->first())) {
             flash()->overlay(trans('controller_record.already'));
-        }
-        else {
+        } else {
             $record = RecordController::getRecord($rid);
             $fid = $record->fid;
 
@@ -96,29 +99,25 @@ class RecordPresetController extends Controller {
     }
 
     /**
-     * Updates a record preset with the record's current values if it the record preset exists.
+     * Updates a record's preset if one was made.
      *
-     * @param $rid, record id.
+     * @param  int $rid - Record ID
      */
     public static function updateIfExists($rid) {
         $pre = RecordPreset::where("rid", '=', $rid)->first();
 
-        if(is_null($pre)) {
-            return;
-        }
-        else {
+        if(!is_null($pre)) {
             $rpc = new self();
             $pre->preset = $rpc->getRecordArray($rid);
         }
     }
 
     /**
-     * Changes a preset's name.
+     * Changes the saved name of the preset.
      *
-     * @param Request $request
+     * @param  Request $request
      */
-    public function changePresetName(Request $request)
-    {
+    public function changePresetName(Request $request) {
         $name = $request->name;
         $id = $request->id;
 
@@ -129,12 +128,11 @@ class RecordPresetController extends Controller {
     }
 
     /**
-     * Removes a record as a preset.
+     * Deletes a record preset.
      *
-     * @param Request $request
+     * @param  Request $request
      */
-    public function deletePreset(Request $request)
-    {
+    public function deletePreset(Request $request) {
         $id = $request->id;
         $preset = RecordPreset::where('id', '=', $id)->first();
         $preset->delete();
@@ -149,24 +147,22 @@ class RecordPresetController extends Controller {
             $files = new RecursiveIteratorIterator($it,
                 RecursiveIteratorIterator::CHILD_FIRST);
             foreach($files as $file) {
-                if ($file->isDir()){
+                if ($file->isDir())
                     rmdir($file->getRealPath());
-                } else {
+                else
                     unlink($file->getRealPath());
-                }
             }
             rmdir($path);
         }
-
 
         flash()->overlay(trans('controller_recordpreset.preset'), trans('controller_recordpreset.success'));
     }
 
     /**
-     * Get the array associated with a certain record preset.
+     * Gets the data from a record preset.
      *
-     * @param Request $request
-     * @return mixed
+     * @param  Request $request
+     * @return array - The record data
      */
     public function getData(Request $request) {
         $id = $request->id;
@@ -174,15 +170,13 @@ class RecordPresetController extends Controller {
         return json_decode($recordPreset->preset, true);
     }
 
-
     /**
-     * Builds an array representing a record, saving its FLIDs for creation page population.
+     * Takes a record and turns it into an array that is saved in the record preset.
      *
-     * @param $rid, the record's id.
-     * @return mixed
+     * @param  int $rid - Record ID
+     * @return array - The data array
      */
-    public function getRecordArray($rid)
-    {
+    public function getRecordArray($rid) {
         $record = Record::where('rid', '=', $rid)->first();
         $form = Form::where('fid', '=', $record->fid)->first();
 
@@ -197,7 +191,8 @@ class RecordPresetController extends Controller {
             $data['flid'] = $field->flid;
             $data['type'] = $field->type;
 
-            switch ($field->type) {
+            //TODO::modular
+            switch($field->type) {
                 case 'Text':
                     $textfield = TextField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
 
@@ -450,9 +445,8 @@ class RecordPresetController extends Controller {
         }
 
         // A file field was in use, so we need to move the record files to a preset directory.
-        if ($fileFields) {
+        if($fileFields)
             $this->moveFilesToPreset($record->rid);
-        }
 
         $response['data'] = $field_array;
         $response['flids'] = $flid_array;
@@ -460,9 +454,9 @@ class RecordPresetController extends Controller {
     }
 
     /**
-     * Moves all of a particular record's files to a preset directory.
+     * Moves a records files into the folder for the preset.
      *
-     * @param $rid, the rid of the record whose files we are moving.
+     * @param  int $rid - Record ID
      */
     public function moveFilesToPreset($rid) {
         $presets_path = env('BASE_PATH').'storage/app/presetFiles';
@@ -470,15 +464,13 @@ class RecordPresetController extends Controller {
         //
         // Create the presets file path if it does not exist.
         //
-        if(!is_dir($presets_path)) {
+        if(!is_dir($presets_path))
             mkdir($presets_path, 0755, true);
-        }
 
         $path = $presets_path . '/preset' . $this->presetID; // Path for the new preset's directory.
 
-        if (!is_dir($path)) {
+        if(!is_dir($path))
             mkdir($path, 0755, true);
-        }
 
         // Build the record's directory.
         $record = RecordController::getRecord($rid);
@@ -492,7 +484,10 @@ class RecordPresetController extends Controller {
     }
 
     /**
+     * WHAT_DOESTHISFUNTIONDO
      *
+     * @param  type $name - DESCRIPTION
+     * @return type - DESCRIPTION
      */
     public function moveFilesToTemp(Request $request) {
         $presetID = $request->presetID;
@@ -529,13 +524,12 @@ class RecordPresetController extends Controller {
     }
 
     /**
-     * Recursively copy an entire directory.
+     * Recursively copies a directory and its files to directory.
      *
-     * @param $src, source directory.
-     * @param $dst, destination directory.
-     * @author gimmicklessgpt, from php.net.
+     * @param  string $src - Directory to copy
+     * @param  string $dst - Directory to copy to
      */
-    static public function recurse_copy($src, $dst) {
+    public static function recurse_copy($src, $dst) {
         if(file_exists($src)) {
             $dir = opendir($src);
 
@@ -555,6 +549,4 @@ class RecordPresetController extends Controller {
             closedir($dir);
         }
     }
-
-    private $presetID = -1; //The id of the preset we are currently working with. (-1 if we don't care)
 }
