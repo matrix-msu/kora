@@ -2,28 +2,36 @@
 
 use App\Token;
 use App\Project;
-use App\Http\Requests;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\View\View;
 
 class TokenController extends Controller {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Token Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles creation and management of data authentication tokens
+    |
+    */
+
     /**
-     * User must be logged in and admin to access views in this controller.
+     * Constructs controller and makes sure user is authenticated and a system admin.
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->middleware('auth');
         $this->middleware('active');
         $this->middleware('admin');
     }
 
     /**
-     * @return Response
+     * Gets the view for the token management page.
+     *
+     * @return View
      */
-    public function index()
-    {
+    public function index() {
         $tokens = Token::all();
         $projects = Project::lists('name', 'pid')->all();
         $all_projects = Project::all(); //Second variable created here to get around weird indexing needed for pivot table in $projects
@@ -32,10 +40,10 @@ class TokenController extends Controller {
     }
 
     /**
-     * Creates new token of certain type and assigns projects.
+     * Creates a new token.
      *
-     * @param Request $request
-     * @return Response
+     * @param  Request $request
+     * @return Redirect
      */
     public function create(Request $request)
     {
@@ -55,34 +63,31 @@ class TokenController extends Controller {
     }
 
     /**
-     * Detaches a project from a token.
+     * Removes project authentication from a token.
      *
-     * @param Request $request
+     * @param  Request $request
      */
-    public function deleteProject(Request $request)
-    {
+    public function deleteProject(Request $request) {
         $instance = self::getToken($request->token);
         $instance->projects()->detach($request['pid']);
     }
 
     /**
-     * Attaches a project to a token.
+     * Adds project authentication from a token.
      *
-     * @param Request $request
+     * @param  Request $request
      */
-    public function addProject(Request $request)
-    {
+    public function addProject(Request $request) {
         $instance = self::getToken($request->token);
         $instance->projects()->attach($request['pid']);
     }
 
     /**
-     * Deletes a token.
+     * Deletes a token from Kora3.
      *
-     * @param Request $request
+     * @param  Request $request
      */
-    public function deleteToken(Request $request)
-    {
+    public function deleteToken(Request $request) {
         $instance = self::getToken($request->id);
         $instance->delete();
 
@@ -90,29 +95,29 @@ class TokenController extends Controller {
     }
 
     /**
-     * Creates random string of alphanumeric characters.
+     * Generates a new 24 character token.
      *
-     * @return string
+     * @return string - Newly created token
      */
-    public static function tokenGen()
-    {
+    public static function tokenGen() {
         $valid = 'abcdefghijklmnopqrstuvwxyz';
         $valid .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $valid .= '0123456789';
 
         $token = '';
-        for ($i = 0; $i < 24; $i++){
+        for($i = 0; $i < 24; $i++) {
             $token .= $valid[( rand() % 62 )];
         }
         return $token;
     }
 
     /**
-     * @param $id
-     * @return Token
+     * Gets a token based on ID.
+     *
+     * @param  int $id - Token ID
+     * @return Token - Requested token
      */
-    public static function getToken($id)
-    {
+    public static function getToken($id) {
         return Token::where('id', '=', $id)->first();
     }
 }
