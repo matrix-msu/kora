@@ -2,32 +2,41 @@
 
 use App\Version;
 use App\Script;
-use App\Http\Requests;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
+use Illuminate\View\View;
 
 class UpdateController extends Controller {
 
-    const UPDATE_PAGE = 'http://matrix-msu.github.io/Kora3/';
-    const VERSION_SEARCH = "Current Kora Version: ";
+    /*
+    |--------------------------------------------------------------------------
+    | Update Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles version management of Kora3
+    |
+    */
 
     /**
-     * User must be logged in and admin to access views in this controller.
+     * @var string - The URL for checking for new versions of Kora3
      */
-    public function __construct()
-    {
+    const UPDATE_PAGE = 'http://matrix-msu.github.io/Kora3/';
+
+    /**
+     * Constructs controller and makes sure user is authenticated and is a system admin.
+     */
+    public function __construct() {
         $this->middleware('auth');
         $this->middleware('active');
         $this->middleware('admin');
     }
 
     /**
-     * Update index page.
+     * Get the view for the update page.
+     *
+     * @return View
      */
-    public function index()
-    {
+    public function index() {
         //Determine if the user installed Kora 3 using Git (.git directory exists)
         $git = is_dir( env('BASE_PATH'). DIRECTORY_SEPARATOR . '.git');
 
@@ -38,12 +47,11 @@ class UpdateController extends Controller {
     }
 
     /**
-     * Checks if this Kora 3 version is equal to the current Kora 3 version.
-     * False if updated not needed, true if updated needed.
-     * \return bool Depending on the versions.
+     * Checks Github to see if there is a new version.
+     *
+     * @return bool - Is out of date
      */
-    public function checkVersion()
-    {
+    public function checkVersion() {
         //Version of this Kora 3
         $thisVersion = DB::table('versions')->orderBy('created_at', 'desc')->first()->version;
 
@@ -54,15 +62,15 @@ class UpdateController extends Controller {
     }
 
     /**
-     * Gets the current version of Kora as a string.
-     * \return string The standardized version string.
+     * Fetches the version number from Github.
+     *
+     * @return string - Version number
      */
-    static public function getCurrentVersion()
-    {
+    static public function getCurrentVersion() {
         //
         // Get the html of the github page, then find the current version in the html.
         //
-        $search = self::VERSION_SEARCH;
+        $search = "Current Kora Version: ";
         $html = file_get_contents(self::UPDATE_PAGE);
 
         $pos = strpos($html, $search) + strlen($search); //Position of the version string.
@@ -75,10 +83,11 @@ class UpdateController extends Controller {
 
 
     /**
-     * Updates the application using the git update routine.
+     * Runs an update script to update Kora3.
+     *
+     * @return Redirect
      */
-    public function runScripts()
-    {
+    public function runScripts() {
         // Allow the script to run for 20 minutes.
         ignore_user_abort(true);
         set_time_limit(1200);
@@ -88,10 +97,8 @@ class UpdateController extends Controller {
         // those that do not exist yet (ignores '.' and '..')
         //
         $scriptNames = array_diff(scandir(env('BASE_PATH'). "scripts"), array('..', '.'));
-        foreach($scriptNames as $scriptName)
-        {
-            if (is_null(Script::where('filename', '=', $scriptName)->first()))
-            {
+        foreach($scriptNames as $scriptName) {
+            if(is_null(Script::where('filename', '=', $scriptName)->first())) {
                 $script = new Script();
                 $script->hasRun = false;
                 $script->filename = $scriptName;
@@ -99,13 +106,12 @@ class UpdateController extends Controller {
             }
         }
 
-        if (self::hasPulled())
-        {
+        if(self::hasPulled()) {
             //
             // Run scripts that have not yet been run.
             //
-            foreach (Script::all() as $script) {
-                if (!$script->hasRun) {
+            foreach(Script::all() as $script) {
+                if(!$script->hasRun) {
                     $includeString = env('BASE_PATH') . 'scripts' . DIRECTORY_SEPARATOR . $script->filename;
                     include $includeString;
                     $script->hasRun = true;
@@ -119,9 +125,7 @@ class UpdateController extends Controller {
             // Inform the user they have successfully updated.
             //
             flash()->overlay(trans('controller_update.updatesuccess'), trans('controller_admin.success'));
-        }
-        else
-        {
+        } else {
             //
             // Inform the user they have not successfully executed a git pull.
             //
@@ -133,10 +137,12 @@ class UpdateController extends Controller {
     }
 
     /**
-     * Clears the cached views and the Laravel compiled caches.
+     * Clears the view cache after an update to make sure new features show up in the browser.
+     *
+     * @param  type $name - DESCRIPTION
+     * @return type - DESCRIPTION
      */
-    private function refresh()
-    {
+    private function refresh() {
         //
         // Clear cached views.
         //
@@ -154,25 +160,22 @@ class UpdateController extends Controller {
     }
 
     /**
-     * Stores the new version of Kora 3 as the current version.
+     * Stores the newly updated version into the local DB.
      */
-    private function storeVersion()
-    {
+    private function storeVersion() {
         $v = new Version();
         $v->version = self::getCurrentVersion();
         $v->save();
     }
 
     /**
-     * Determine if any new scripts are in the app/scripts directory.
-     * This effectively determines if the user has actually done a git pull.
+     * Makes sure that any update scripts in the system have run.
+     *
+     * @return bool - Are executed
      */
-    private function hasPulled()
-    {
-        foreach(Script::all() as $script)
-        {
-            if(!$script->hasRun)
-            {   // We have found a script that has not run, hence the user has executed a git pull successfully.
+    private function hasPulled() {
+        foreach(Script::all() as $script) {
+            if(!$script->hasRun) {   // We have found a script that has not run, hence the user has executed a git pull successfully.
                 return true;
             }
         }

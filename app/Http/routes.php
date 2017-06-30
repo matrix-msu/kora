@@ -2,8 +2,8 @@
 
 Route::get('/', 'WelcomeController@index');
 Route::get('/home', 'WelcomeController@index');
-Route::get('/dashboard', 'WelcomeController@dashboard');
 Route::post('/language','WelcomeController@setTemporaryLanguage');
+Route::get('/dashboard', 'DashboardController@dashboard');
 
 //api routes
 Route::get('/api/version','RestfulController@getKoraVersion');
