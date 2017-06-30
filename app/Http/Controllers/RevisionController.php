@@ -1,37 +1,26 @@
 <?php namespace App\Http\Controllers;
 
-use App\AssociatorField;
-use App\ComboListField;
-use App\DocumentsField;
 use App\Form;
 use App\Field;
-use App\GalleryField;
-use App\GeolocatorField;
-use App\ModelField;
-use App\PlaylistField;
 use App\Record;
 use App\Revision;
-use App\DateField;
-use App\TextField;
-use App\ListField;
-use App\NumberField;
-use App\ScheduleField;
-use App\Http\Requests;
-use App\RichTextField;
-use App\GeneratedListField;
-use App\VideoField;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use App\MultiSelectListField;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
-use PhpParser\Comment\Doc;
-
+use Illuminate\View\View;
 
 class RevisionController extends Controller {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Revision Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles record revisions to preserve history of a record
+    |
+    */
+
     /**
-     * User must be logged in to access views in this controller.
+     * Constructs controller and makes sure user is authenticated.
      */
     public function __construct() {
         $this->middleware('auth');
@@ -39,20 +28,18 @@ class RevisionController extends Controller {
     }
 
     /**
-     * Displays the fifty most recent record revisions index for the particular form.
+     * Gets the main record revision view.
      *
-     * @param string | int $pid
-     * @param string | int $fid
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return View
      */
-    public function index($pid, $fid){
-
-        if(!FormController::validProjForm($pid,$fid)){
+    public function index($pid, $fid) {
+        if(!FormController::validProjForm($pid,$fid)) {
             return redirect('projects/'.$pid);
         }
 
-        if(!\Auth::user()->admin && !\Auth::user()->isFormAdmin(FormController::getForm($fid)))
-        {
+        if(!\Auth::user()->admin && !\Auth::user()->isFormAdmin(FormController::getForm($fid))) {
             $pid = FormController::getForm($fid)->pid;
             flash()->overlay(trans('controller_revision.permission'), trans('controller_revision.whoops'));
             return redirect('projects/'.$pid.'/forms/'.$fid);
@@ -61,7 +48,7 @@ class RevisionController extends Controller {
         $revisions = DB::table('revisions')->where('fid', '=', $fid)->orderBy('created_at', 'desc')->take(50)->get();
 
         $rid_array = array();
-        foreach($revisions as $revision){
+        foreach($revisions as $revision) {
             $rid_array[] = $revision->rid;
         }
         $rid_array = array_values(array_unique($rid_array));
@@ -72,11 +59,9 @@ class RevisionController extends Controller {
 
         $temp = array_values(array_unique(Revision::lists('rid')->all()));
 
-        for($i=0; $i < count($temp); $i++)
-        {
-            if(in_array($temp[$i], $rid_array)) {
+        for($i=0; $i < count($temp); $i++) {
+            if(in_array($temp[$i], $rid_array))
                 $records[$temp[$i]] = $pid . '-' . $form->fid . '-' . $temp[$i];
-            }
         }
         $message = 'Recent';
 
@@ -84,28 +69,26 @@ class RevisionController extends Controller {
     }
 
     /**
-     * Shows the revision history for a particular record, still functional if the record is deleted.
+     * Gets view for an individual records revision history.
      *
-     * @param $pid
-     * @param $fid
-     * @param $rid
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|string
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $rid - Record ID
+     * @return View
      */
-    public function show($pid, $fid, $rid)
-    {
-        if(!RecordController::validProjFormRecord($pid, $fid, $rid)){
+    public function show($pid, $fid, $rid) {
+        if(!RecordController::validProjFormRecord($pid, $fid, $rid)) {
             return redirect('projects/'.$pid.'/forms');
         }
 
         $firstRevision = DB::table('revisions')->where('rid', '=', $rid)->orderBy('created_at','desc')->first();
-        if(is_null($firstRevision)){
+        if(is_null($firstRevision)) {
             flash()->overlay(trans('controller_revision.none'), trans('controller_revision.whoops'));
             return $this->index($pid,$fid);
         }
         $owner = DB::table('revisions')->where('rid', '=', $rid)->orderBy('created_at','desc')->first()->owner;
 
-        if(!\Auth::user()->admin && !\Auth::user()->isFormAdmin(FormController::getForm($fid)) && \Auth::user()->id != $owner)
-        {
+        if(!\Auth::user()->admin && !\Auth::user()->isFormAdmin(FormController::getForm($fid)) && \Auth::user()->id != $owner) {
             flash()->overlay(trans('controller_revision.permission'), trans('controller_revision.whoops'));
             return redirect('projects/'.$pid.'/forms/'.$fid);
         }
@@ -118,8 +101,7 @@ class RevisionController extends Controller {
 
         $temp = array_values(array_unique(Revision::lists('rid')->all()));
 
-        for($i=0; $i < count($temp); $i++)
-        {
+        for($i=0; $i < count($temp); $i++) {
             $records[$temp[$i]] = $pid.'-'.$form->fid.'-'.$temp[$i];
         }
         $message = $pid.'-'.$fid.'-'.$rid;
@@ -128,27 +110,24 @@ class RevisionController extends Controller {
     }
 
     /**
-     * Rolls back a record.
+     * Execute a rollback to restore a record to a previous revision.
      *
-     * @param Request $request
+     * @param  Request $request
      */
-    public function rollback(Request $request)
-    {
+    public function rollback(Request $request) {
         $revision = Revision::where('id', '=', $request['revision'])->first();
         $form = FormController::getForm($revision->fid);
 
-        if ($revision->type == Revision::CREATE){
+        if($revision->type == Revision::CREATE) {
             $record = Record::where('rid', '=', $revision->rid)->first();
             $revision = self::storeRevision($record->rid, Revision::DELETE);
             $record->delete();
 
             flash()->overlay(trans('controller_revision.record').$form->pid.'-'.$form->fid.'-'.$revision->rid.trans('controller_revision.delete'), trans('controller_revision.success') );
-        }
-        elseif($revision->type == Revision::DELETE){
-            if(RecordController::exists($revision->rid)){
+        } else if($revision->type == Revision::DELETE) {
+            if(RecordController::exists($revision->rid)) {
                 flash()->overlay(trans('controller_revision.exists'));
-            }
-            else {
+            } else {
                 // We must create a new record
                 $record = new Record();
                 $record->rid = $revision->rid;
@@ -164,8 +143,7 @@ class RevisionController extends Controller {
 
                 flash()->overlay(trans('controller_revision.record') . $form->pid . '-' . $form->fid . '-' . $record->rid . trans('controller_revision.rollback'), trans('controller_revision.success'));
             }
-        }
-        else{
+        } else {
             $record = RecordController::getRecord($revision->rid);
             self::rollback_routine($record, $form, $revision, true);
             flash()->overlay(trans('controller_revision.record').$form->pid.'-'.$form->fid.'-'.$record->rid.trans('controller_revision.rollback'), trans('controller_revision.success'));
@@ -173,15 +151,14 @@ class RevisionController extends Controller {
     }
 
     /**
-     * Does the actual rolling back using the data array from a particular revision.
+     * Performs the actual rollback.
      *
-     * @param Record $record
-     * @param Form $form
-     * @param Revision $revision
-     * @param bool $is_rollback
+     * @param  Record $record - Record to rollback
+     * @param  Form $form - Form that owns record
+     * @param  Revision $revision - Revision to pull data from
+     * @param  bool $is_rollback - Will new revision allow for rollback
      */
-    public static function rollback_routine(Record $record, Form $form, Revision $revision, $is_rollback)
-    {
+    public static function rollback_routine(Record $record, Form $form, Revision $revision, $is_rollback) {
         if($is_rollback) {
             $new_revision = self::storeRevision($record->rid, Revision::ROLLBACK);
             $new_revision->oldData = $revision->data;
@@ -193,83 +170,18 @@ class RevisionController extends Controller {
         $revision->data = json_decode($revision->data, true);
 
         foreach($form->fields()->get() as $field) {
-            switch($field->type) {
-                case Field::_TEXT:
-                    TextField::rollback($revision, $field);
-                    break;
-
-                case Field::_RICH_TEXT:
-                    RichTextField::rollback($revision, $field);
-                    break;
-
-                case Field::_NUMBER:
-                    NumberField::rollback($revision, $field);
-                    break;
-
-                case Field::_LIST:
-                    ListField::rollback($revision, $field);
-                    break;
-
-                case Field::_MULTI_SELECT_LIST:
-                    MultiSelectListField::rollback($revision, $field);
-                    break;
-
-                case Field::_GENERATED_LIST:
-                    GeneratedListField::rollback($revision, $field);
-                    break;
-
-                case Field::_DATE:
-                    DateField::rollback($revision, $field);
-                    break;
-
-                case Field::_SCHEDULE:
-                    ScheduleField::rollback($revision, $field);
-                    break;
-
-                case Field::_GEOLOCATOR:
-                    GeolocatorField::rollback($revision, $field);
-                    break;
-
-                case Field::_DOCUMENTS:
-                    DocumentsField::rollback($revision, $field);
-                    break;
-
-                case Field::_GALLERY:
-                    GalleryField::rollback($revision, $field);
-                    break;
-
-                case Field::_3D_MODEL:
-                    ModelField::rollback($revision, $field);
-                    break;
-
-                case Field::_PLAYLIST:
-                    PlaylistField::rollback($revision, $field);
-                    break;
-
-                case Field::_VIDEO:
-                    VideoField::rollback($revision, $field);
-                    break;
-
-                case Field::_ASSOCIATOR:
-                    AssociatorField::rollback($revision, $field);
-                    break;
-
-                case Field::_COMBO_LIST:
-                    ComboListField::rollback($revision, $field);
-                    break;
-            }
+            Field::rollbackField($revision,$field);
         }
     }
 
     /**
-     * Stores a new revision. Called on record creation, deletion, or edit.
+     * Stores a record revision.
      *
-     * @param $rid
-     * @param $type
-     * @return Revision
+     * @param  int $rid - Record ID
+     * @param  string $type - Revision type
+     * @return Revision - The new revision model
      */
-    public static function storeRevision($rid, $type)
-    {
+    public static function storeRevision($rid, $type) {
         $revision = new Revision();
         $record = RecordController::getRecord($rid);
 
@@ -293,13 +205,12 @@ class RevisionController extends Controller {
     }
 
     /**
-     * Builds up an array that functions similarly to the field object. Json encoded for storage.
+     * Builds the data array for the revision.
      *
-     * @param Record $record
-     * @return string
+     * @param  Record $record - Record to pull data from
+     * @return string - Json string of the data for DB storage
      */
-    public static function buildDataArray(Record $record)
-    {
+    public static function buildDataArray(Record $record) {
         $data = array();
         $fields = Field::where("fid", "=", $record->fid)->get();
 
@@ -307,24 +218,21 @@ class RevisionController extends Controller {
             $typed_field = $field->getTypedField($record->rid);
 
             $data[$field->type][$field->flid]['name'] = $field->name;
-            if (is_null($typed_field)) {
+            if(is_null($typed_field))
                 $data[$field->type][$field->flid]['data'] = null;
-            }
-            else {
+            else
                 $data[$field->type][$field->flid]['data'] = $typed_field->getRevisionData($field);
-            }
         }
 
         return json_encode($data);
     }
 
     /**
-     * Wipes ability to rollback any revisions. Called on field creation, deletion, or edit.
+     * Turns off rollback for all revisions in a form.
      *
-     * @param $fid
+     * @param  int $fid - Form ID
      */
-    public static function wipeRollbacks($fid)
-    {
+    public static function wipeRollbacks($fid){
         Revision::where('fid','=',$fid)->update(["rollback" => 0]);
     }
 }

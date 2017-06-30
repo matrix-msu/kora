@@ -484,6 +484,74 @@ class Field extends Model {
         }
     }
 
+    static function rollbackField($revision, $field){
+        switch($field->type) {
+            case Field::_TEXT:
+                TextField::rollback($revision, $field);
+                break;
+
+            case Field::_RICH_TEXT:
+                RichTextField::rollback($revision, $field);
+                break;
+
+            case Field::_NUMBER:
+                NumberField::rollback($revision, $field);
+                break;
+
+            case Field::_LIST:
+                ListField::rollback($revision, $field);
+                break;
+
+            case Field::_MULTI_SELECT_LIST:
+                MultiSelectListField::rollback($revision, $field);
+                break;
+
+            case Field::_GENERATED_LIST:
+                GeneratedListField::rollback($revision, $field);
+                break;
+
+            case Field::_DATE:
+                DateField::rollback($revision, $field);
+                break;
+
+            case Field::_SCHEDULE:
+                ScheduleField::rollback($revision, $field);
+                break;
+
+            case Field::_GEOLOCATOR:
+                GeolocatorField::rollback($revision, $field);
+                break;
+
+            case Field::_DOCUMENTS:
+                DocumentsField::rollback($revision, $field);
+                break;
+
+            case Field::_GALLERY:
+                GalleryField::rollback($revision, $field);
+                break;
+
+            case Field::_3D_MODEL:
+                ModelField::rollback($revision, $field);
+                break;
+
+            case Field::_PLAYLIST:
+                PlaylistField::rollback($revision, $field);
+                break;
+
+            case Field::_VIDEO:
+                VideoField::rollback($revision, $field);
+                break;
+
+            case Field::_ASSOCIATOR:
+                AssociatorField::rollback($revision, $field);
+                break;
+
+            case Field::_COMBO_LIST:
+                ComboListField::rollback($revision, $field);
+                break;
+        }
+    }
+
     static function getOptions($type, $request){
         $field_type = $type;
         switch($field_type) {
