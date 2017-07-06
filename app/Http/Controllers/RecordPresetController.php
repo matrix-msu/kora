@@ -1,24 +1,9 @@
 <?php namespace App\Http\Controllers;
 
-use App\AssociatorField;
-use App\ComboListField;
-use App\DateField;
-use App\DocumentsField;
+use App\Field;
 use App\Form;
-use App\GalleryField;
-use App\GeneratedListField;
-use App\GeolocatorField;
-use App\ListField;
-use App\ModelField;
-use App\MultiSelectListField;
-use App\NumberField;
-use App\PlaylistField;
 use App\Record;
 use App\RecordPreset;
-use App\RichTextField;
-use App\ScheduleField;
-use App\TextField;
-use App\VideoField;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use RecursiveIteratorIterator;
@@ -28,7 +13,7 @@ class RecordPresetController extends Controller {
 
     /*
     |--------------------------------------------------------------------------
-    | ... Controller
+    | Record Preset Controller
     |--------------------------------------------------------------------------
     |
     | This controller handles creation and management of record presets
@@ -191,255 +176,12 @@ class RecordPresetController extends Controller {
             $data['flid'] = $field->flid;
             $data['type'] = $field->type;
 
-            //TODO::modular
-            switch($field->type) {
-                case 'Text':
-                    $textfield = TextField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-                    if (!empty($textfield->text)) {
-                        $data['text'] = $textfield->text;
-                    }
-                    else {
-                        $data['text'] = null;
-                    }
-
-                    $flid_array[] = $field->flid;
-                    break;
-
-                case 'Rich Text':
-                    $rtfield = RichTextField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-                    if (!empty($rtfield->rawtext)) {
-                        $data['rawtext'] = $rtfield->rawtext;
-                    }
-                    else {
-                        $data['rawtext'] = null;
-                    }
-
-                    $flid_array[] = $field->flid;
-                    break;
-
-                case 'Number':
-                    $numberfield = NumberField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-                    if (!empty($numberfield->number)) {
-                        $data['number'] = $numberfield->number;
-                    }
-                    else {
-                        $data['number'] = null;
-                    }
-
-                    $flid_array[] = $field->flid;
-                    break;
-
-                case 'List':
-                    $listfield = ListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-                    if (!empty($listfield->option)) {
-                        $data['option'] = $listfield->option;
-                    }
-                    else {
-                        $data['option'] = null;
-                    }
-
-                    $flid_array[] = $field->flid;
-                    break;
-
-                case 'Multi-Select List':
-                    $mslfield = MultiSelectListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-                    if (!empty($mslfield->options)) {
-                        $data['options'] = explode('[!]', $mslfield->options);
-                    }
-                    else {
-                        $data['options'] = null;
-                    }
-
-                    $flid_array[] = $field->flid;
-                    break;
-
-                case 'Generated List':
-                    $gnlfield = GeneratedListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-                    if (!empty($gnlfield->options)) {
-                        $data['options'] = explode('[!]', $gnlfield->options);
-                    }
-                    else {
-                        $data['options'] = null;
-                    }
-
-                    $flid_array[] = $field->flid;
-                    break;
-
-                case 'Date':
-                    $datefield = DateField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-                    if(!empty($datefield->circa)) {
-                        $date_array['circa'] = $datefield->circa;
-                    }
-                    else {
-                        $date_array['circa'] = null;
-                    }
-
-                    if(!empty($datefield->era)) {
-                        $date_array['era'] = $datefield->era;
-                    }
-                    else {
-                        $date_array['era'] = null;
-                    }
-
-                    if(!empty($datefield->day)) {
-                        $date_array['day'] = $datefield->day;
-                    }
-                    else {
-                        $date_array['day'] = null;
-                    }
-
-                    if(!empty($datefield->month)) {
-                        $date_array['month'] = $datefield->month;
-                    }
-                    else {
-                        $date_array['month'] = null;
-                    }
-
-                    if(!empty($datefield->year)) {
-                        $date_array['year'] = $datefield->year;
-                    }
-                    else {
-                        $date_array['year'] = null;
-                    }
-
-                    $data['data'] = $date_array;
-                    $flid_array[] = $field->flid;
-                    break;
-
-                case 'Schedule':
-                    $schedfield = ScheduleField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-                    if($schedfield->hasEvents()) {
-                        $data['events'] = ScheduleField::eventsToOldFormat($schedfield->events()->get());
-                    }
-                    else {
-                        $data['events'] = null;
-                    }
-
-
-                    $flid_array[] = $field->flid;
-                    break;
-
-                case 'Geolocator':
-                    $geofield = GeolocatorField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-                    if ($geofield->hasLocations()) {
-                        $data['locations'] = GeolocatorField::locationsToOldFormat($geofield->locations()->get());
-                    }
-                    else {
-                        $data['locations'] = null;
-                    }
-
-                    $flid_array[] = $field->flid;
-                    break;
-
-                case 'Combo List':
-                    $cmbfield = ComboListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-                    if (!empty($cmbfield->options)) {
-                        $data['combolists'] = ComboListField::dataToOldFormat($cmbfield->data()->get());
-                    }
-                    else {
-                        $data['combolists'] = null;
-                    }
-
-                    $flid_array[] = $field->flid;
-                    break;
-
-                case 'Documents':
-                    $docfield = DocumentsField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-                    if (!empty($docfield->documents)) {
-                        $data['documents'] = explode('[!]', $docfield->documents);
-                    }
-                    else {
-                        $data['documents'] = null;
-                    }
-
-                    $flid_array[] = $field->flid;
-                    $fileFields = true;
-                    break;
-
-                case 'Gallery':
-                    $galfield = GalleryField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-                    if (!empty($galfield->images)) {
-                        $data['images'] = explode('[!]', $galfield->images);
-                    }
-                    else {
-                        $data['images'] = null;
-                    }
-
-                    $flid_array[] = $field->flid;
-                    $fileFields = true;
-                    break;
-
-                case 'Playlist':
-                    $playfield = PlaylistField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-                    if (!empty($playfield->audio)) {
-                        $data['audio'] = explode('[!]', $playfield->audio);
-                    }
-                    else {
-                        $data['audio'] = null;
-                    }
-
-                    $flid_array[] = $field->flid;
-                    $fileFields = true;
-                    break;
-
-                case 'Video':
-                    $vidfield = VideoField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-                    if (!empty($vidfield->video)) {
-                        $data['video'] = explode('[!]', $vidfield->video);
-                    }
-                    else {
-                        $data['video'] = null;
-                    }
-
-                    $flid_array[] = $field->flid;
-                    $fileFields = true;
-                    break;
-
-                case '3D-Model':
-                    $modelfield = ModelField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-                    if (!empty($modelfield->model)) {
-                        $data['model'] = $modelfield->model;
-                    }
-                    else {
-                        $data['model'] = null;
-                    }
-
-                    $flid_array[] = $field->flid;
-                    $fileFields = true;
-                    break;
-
-                case 'Associator':
-                    $assocfield = AssociatorField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-                    if (!empty($assocfield->records)) {
-                        $data['records'] = explode('[!]', $assocfield->records);
-                    }
-                    else {
-                        $data['records'] = null;
-                    }
-
-                    $flid_array[] = $field->flid;
-                    break;
-
-                default:
-                    // None other supported right now, though this list should be exhaustive.
-                    break;
-            }
+            $dataArray = Field::getRecordPresetArray($field,$record,$data,$flid_array);
+            $data = $dataArray[0];
+            $flid_array = $dataArray[1];
+            //We hit a file type field
+            if(isset($dataArray[2]))
+                $fileFields = true;
 
             $field_array[$field->flid] = $data;
         }

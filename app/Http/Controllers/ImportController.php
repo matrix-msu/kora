@@ -4,6 +4,7 @@ use App\ComboListField;
 use App\DateField;
 use App\DocumentsField;
 use App\Field;
+use App\FileTypeField;
 use App\Form;
 use App\FormGroup;
 use App\GalleryField;
@@ -1061,7 +1062,7 @@ class ImportController extends Controller {
                                     rename($zipDir.$localname,$newPath.$realname);
 
                                     //Get file info
-                                    $mimes = DocumentsField::getMimeTypes();
+                                    $mimes = FileTypeField::getMimeTypes();
                                     $ext = pathinfo($newPath.$realname,PATHINFO_EXTENSION);
                                     if(!array_key_exists($ext, $mimes))
                                         $type = 'application/octet-stream';
@@ -1112,7 +1113,7 @@ class ImportController extends Controller {
                                     $mImage->writeImage($newPathM.$realname);
 
                                     //Get file info
-                                    $mimes = DocumentsField::getMimeTypes();
+                                    $mimes = FileTypeField::getMimeTypes();
                                     $ext = pathinfo($newPath.$realname,PATHINFO_EXTENSION);
                                     if(!array_key_exists($ext, $mimes))
                                         $type = 'application/octet-stream';

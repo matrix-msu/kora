@@ -85,6 +85,234 @@ class Field extends Model {
         return $this->extsearch;
     }
 
+    static function createNewRecordField($field, $record, $value, $request){
+        $field_type = $field->type;
+        switch($field_type) {
+            case self::_TEXT:
+                TextField::createNewRecordField($field, $record, $value);
+                break;
+            case self::_RICH_TEXT:
+                RichTextField::createNewRecordField($field, $record, $value);
+                break;
+            case self::_NUMBER:
+                NumberField::createNewRecordField($field, $record, $value);
+                break;
+            case self::_LIST:
+                ListField::createNewRecordField($field, $record, $value);
+                break;
+            case self::_MULTI_SELECT_LIST:
+                MultiSelectListField::createNewRecordField($field, $record, $value);
+                break;
+            case self::_GENERATED_LIST:
+                GeneratedListField::createNewRecordField($field, $record, $value);
+                break;
+            case self::_DATE:
+                DateField::createNewRecordField($field, $record, $request);
+                break;
+            case self::_SCHEDULE:
+                ScheduleField::createNewRecordField($field, $record, $value);
+                break;
+            case self::_GEOLOCATOR:
+                GeolocatorField::createNewRecordField($field, $record, $value);
+                break;
+            case self::_DOCUMENTS:
+                DocumentsField::createNewRecordField($field, $record, $value, $request);
+                break;
+            case self::_GALLERY:
+                GalleryField::createNewRecordField($field, $record, $value, $request);
+                break;
+            case self::_3D_MODEL:
+                ModelField::createNewRecordField($field, $record, $value, $request);
+                break;
+            case self::_PLAYLIST:
+                PlaylistField::createNewRecordField($field, $record, $value, $request);
+                break;
+            case self::_VIDEO:
+                VideoField::createNewRecordField($field, $record, $value, $request);
+                break;
+            case self::_COMBO_LIST:
+                ComboListField::createNewRecordField($field, $record, $request);
+                break;
+            case self::_ASSOCIATOR:
+                AssociatorField::createNewRecordField($field, $record, $value);
+                break;
+            default: // Error occurred.
+                throw new \Exception("Invalid field type in field::field validation.");
+                break;
+        }
+    }
+
+    static function editRecordField($field, $record, $value, $request){
+        $field_type = $field->type;
+        switch($field_type) {
+            case self::_TEXT:
+                TextField::editRecordField($field, $record, $value);
+                break;
+            case self::_RICH_TEXT:
+                RichTextField::editRecordField($field, $record, $value);
+                break;
+            case self::_NUMBER:
+                NumberField::editRecordField($field, $record, $value);
+                break;
+            case self::_LIST:
+                ListField::editRecordField($field, $record, $value);
+                break;
+            case self::_MULTI_SELECT_LIST:
+                MultiSelectListField::editRecordField($field, $record, $value);
+                break;
+            case self::_GENERATED_LIST:
+                GeneratedListField::editRecordField($field, $record, $value);
+                break;
+            case self::_DATE:
+                DateField::editRecordField($field, $record, $request);
+                break;
+            case self::_SCHEDULE:
+                ScheduleField::editRecordField($field, $record, $value);
+                break;
+            case self::_GEOLOCATOR:
+                GeolocatorField::editRecordField($field, $record, $value);
+                break;
+            case self::_DOCUMENTS:
+                DocumentsField::editRecordField($field, $record, $value, $request);
+                break;
+            case self::_GALLERY:
+                GalleryField::editRecordField($field, $record, $value, $request);
+                break;
+            case self::_3D_MODEL:
+                ModelField::editRecordField($field, $record, $value, $request);
+                break;
+            case self::_PLAYLIST:
+                PlaylistField::editRecordField($field, $record, $value, $request);
+                break;
+            case self::_VIDEO:
+                VideoField::editRecordField($field, $record, $value, $request);
+                break;
+            case self::_COMBO_LIST:
+                ComboListField::editRecordField($field, $record, $request);
+                break;
+            case self::_ASSOCIATOR:
+                AssociatorField::editRecordField($field, $record, $value);
+                break;
+            default: // Error occurred.
+                throw new \Exception("Invalid field type in field::field validation.");
+                break;
+        }
+    }
+
+    static function massAssignRecordField($field, $record, $form_field_value, $overwrite=0, $request){
+        $field_type = $field->type;
+        switch($field_type) {
+            case self::_TEXT:
+                TextField::massAssignRecordField($field->flid, $record, $form_field_value, $overwrite);
+                break;
+            case self::_RICH_TEXT:
+                RichTextField::massAssignRecordField($field->flid, $record, $form_field_value, $overwrite);
+                break;
+            case self::_NUMBER:
+                NumberField::massAssignRecordField($field->flid, $record, $form_field_value, $overwrite);
+                break;
+            case self::_LIST:
+                ListField::massAssignRecordField($field->flid, $record, $form_field_value, $overwrite);
+                break;
+            case self::_MULTI_SELECT_LIST:
+                MultiSelectListField::massAssignRecordField($field->flid, $record, $form_field_value, $overwrite);
+                break;
+            case self::_GENERATED_LIST:
+                GeneratedListField::massAssignRecordField($field->flid, $record, $form_field_value, $overwrite);
+                break;
+            case self::_DATE:
+                DateField::massAssignRecordField($field->flid, $record, $request, $overwrite);
+                break;
+            case self::_SCHEDULE:
+                ScheduleField::massAssignRecordField($field->flid, $record, $form_field_value, $overwrite);
+                break;
+            case self::_GEOLOCATOR:
+                GeolocatorField::massAssignRecordField($field->flid, $record, $form_field_value, $overwrite);
+                break;
+            case self::_DOCUMENTS:
+                DocumentsField::massAssignRecordField($field->flid, $record, $form_field_value, $overwrite);
+                break;
+            case self::_GALLERY:
+                GalleryField::massAssignRecordField($field->flid, $record, $form_field_value, $overwrite);
+                break;
+            case self::_3D_MODEL:
+                ModelField::massAssignRecordField($field->flid, $record, $form_field_value, $overwrite);
+                break;
+            case self::_PLAYLIST:
+                PlaylistField::massAssignRecordField($field->flid, $record, $form_field_value, $overwrite);
+                break;
+            case self::_VIDEO:
+                VideoField::massAssignRecordField($field->flid, $record, $form_field_value, $overwrite);
+                break;
+            case self::_COMBO_LIST:
+                ComboListField::massAssignRecordField($field->flid, $record, $request, $overwrite);
+                break;
+            case self::_ASSOCIATOR:
+                AssociatorField::massAssignRecordField($field->flid, $record, $form_field_value, $overwrite);
+                break;
+            default: // Error occurred.
+                throw new \Exception("Invalid field type in field::field validation.");
+                break;
+        }
+    }
+
+    static function createTestRecordField($field, $record){
+        $field_type = $field->type;
+        switch($field_type) {
+            case self::_TEXT:
+                TextField::createTestRecordField($field, $record);
+                break;
+            case self::_RICH_TEXT:
+                RichTextField::createTestRecordField($field, $record);
+                break;
+            case self::_NUMBER:
+                NumberField::createTestRecordField($field, $record);
+                break;
+            case self::_LIST:
+                ListField::createTestRecordField($field, $record);
+                break;
+            case self::_MULTI_SELECT_LIST:
+                MultiSelectListField::createTestRecordField($field, $record);
+                break;
+            case self::_GENERATED_LIST:
+                GeneratedListField::createTestRecordField($field, $record);
+                break;
+            case self::_DATE:
+                DateField::createTestRecordField($field, $record);
+                break;
+            case self::_SCHEDULE:
+                ScheduleField::createTestRecordField($field, $record);
+                break;
+            case self::_GEOLOCATOR:
+                GeolocatorField::createTestRecordField($field, $record);
+                break;
+            case self::_DOCUMENTS:
+                DocumentsField::createTestRecordField($field, $record);
+                break;
+            case self::_GALLERY:
+                GalleryField::createTestRecordField($field, $record);
+                break;
+            case self::_3D_MODEL:
+                ModelField::createTestRecordField($field, $record);
+                break;
+            case self::_PLAYLIST:
+                PlaylistField::createTestRecordField($field, $record);
+                break;
+            case self::_VIDEO:
+                VideoField::createTestRecordField($field, $record);
+                break;
+            case self::_COMBO_LIST:
+                ComboListField::createTestRecordField($field, $record);
+                break;
+            case self::_ASSOCIATOR:
+                AssociatorField::createTestRecordField($field, $record);
+                break;
+            default: // Error occurred.
+                throw new \Exception("Invalid field type in field::field validation.");
+                break;
+        }
+    }
+
     /**
      * Gets the typed field governed by this field.
      * E.g. if this->type == "Text" it will find the TextField it is associated with in the database.
@@ -958,6 +1186,63 @@ class Field extends Model {
                 break;
             case self::_ASSOCIATOR:
                 return AssociatorField::setRestfulRecordData($field, $flid, $recRequest);
+                break;
+            default: // Error occurred.
+                throw new \Exception("Invalid field type in field::field option.");
+                break;
+        }
+    }
+
+    //$field is a json array
+    static function getRecordPresetArray($field, $record, $data, $flid_array) {
+        switch ($field->type) {
+            case self::_TEXT:
+                return TextField::getRecordPresetArray($field, $record, $data, $flid_array);
+                break;
+            case self::_RICH_TEXT:
+                return RichTextField::getRecordPresetArray($field, $record, $data, $flid_array);
+                break;
+            case self::_NUMBER:
+                return NumberField::getRecordPresetArray($field, $record, $data, $flid_array);
+                break;
+            case self::_LIST:
+                return ListField::getRecordPresetArray($field, $record, $data, $flid_array);
+                break;
+            case self::_MULTI_SELECT_LIST:
+                return MultiSelectListField::getRecordPresetArray($field, $record, $data, $flid_array);
+                break;
+            case self::_GENERATED_LIST:
+                return GeneratedListField::getRecordPresetArray($field, $record, $data, $flid_array);
+                break;
+            case self::_DATE:
+                return DateField::getRecordPresetArray($field, $record, $data, $flid_array);
+                break;
+            case self::_SCHEDULE:
+                return ScheduleField::getRecordPresetArray($field, $record, $data, $flid_array);
+                break;
+            case self::_GEOLOCATOR:
+                return GeolocatorField::getRecordPresetArray($field, $record, $data, $flid_array);
+                break;
+            case self::_DOCUMENTS:
+                return DocumentsField::getRecordPresetArray($field, $record, $data, $flid_array);
+                break;
+            case self::_GALLERY:
+                return GalleryField::getRecordPresetArray($field, $record, $data, $flid_array);
+                break;
+            case self::_3D_MODEL:
+                return ModelField::getRecordPresetArray($field, $record, $data, $flid_array);
+                break;
+            case self::_PLAYLIST:
+                return PlaylistField::getRecordPresetArray($field, $record, $data, $flid_array);
+                break;
+            case self::_VIDEO:
+                return VideoField::getRecordPresetArray($field, $record, $data, $flid_array);
+                break;
+            case self::_COMBO_LIST:
+                return ComboListField::getRecordPresetArray($field, $record, $data, $flid_array);
+                break;
+            case self::_ASSOCIATOR:
+                return AssociatorField::getRecordPresetArray($field, $record, $data, $flid_array);
                 break;
             default: // Error occurred.
                 throw new \Exception("Invalid field type in field::field option.");

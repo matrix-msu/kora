@@ -1,6 +1,8 @@
 <?php namespace App;
 
 use App\Http\Controllers\FieldController;
+use App\Http\Controllers\RevisionController;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -61,6 +63,65 @@ class MultiSelectListField extends BaseField {
         FieldController::updateOptions($pid, $fid, $flid, 'Options', $options);
     }
 
+    public static function createNewRecordField($field, $record, $value){
+        $mslf = new self();
+        $mslf->flid = $field->flid;
+        $mslf->rid = $record->rid;
+        $mslf->fid = $field->fid;
+        $mslf->options = implode("[!]",$value);
+        $mslf->save();
+    }
+
+    public static function editRecordField($field, $record, $value){
+        //we need to check if the field exist first
+        $mslf = self::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
+
+        if(!is_null($mslf) && !is_null($value)){
+            $mslf->options = implode("[!]",$value);
+            $mslf->save();
+        }
+        elseif(!is_null($mslf) && is_null($value)){
+            $mslf->delete();
+        }
+        else {
+            self::createNewRecordField($field, $record, $value);
+        }
+    }
+
+    public static function massAssignRecordField($flid, $record, $form_field_value, $overwrite){
+        $matching_record_fields = $record->multiselectlistfields()->where("flid", '=', $flid)->get();
+        $record->updated_at = Carbon::now();
+        $record->save();
+        if ($matching_record_fields->count() > 0) {
+            $multiselectlistfield = $matching_record_fields->first();
+            if ($overwrite == true || $multiselectlistfield->options == "" || is_null($multiselectlistfield->options)) {
+                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $multiselectlistfield->options = implode("[!]", $form_field_value);
+                $multiselectlistfield->save();
+                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->save();
+            }
+        } else {
+            $mslf = new self();
+            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $mslf->flid = $flid;
+            $mslf->rid = $record->rid;
+            $mslf->options = implode("[!]", $form_field_value);
+            $mslf->save();
+            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->save();
+        }
+    }
+
+    public static function createTestRecordField($field, $record){
+        $mslf = new self();
+        $mslf->flid = $field->flid;
+        $mslf->rid = $record->rid;
+        $mslf->fid = $field->fid;
+        $mslf->options = 'K3TR[!]1337[!]Test[!]Record';
+        $mslf->save();
+    }
+
     public static function setRestfulAdvSearch($data, $field, $request){
         $request->request->add([$field->flid.'_input' => $data->input]);
 
@@ -71,6 +132,21 @@ class MultiSelectListField extends BaseField {
         $recRequest[$flid] = $field->options;
 
         return $recRequest;
+    }
+
+    public static function getRecordPresetArray($field, $record, $data, $flid_array){
+        $mslfield = MultiSelectListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
+
+        if (!empty($mslfield->options)) {
+            $data['options'] = explode('[!]', $mslfield->options);
+        }
+        else {
+            $data['options'] = null;
+        }
+
+        $flid_array[] = $field->flid;
+
+        return array($data,$flid_array);
     }
 
     public static function getList($field, $blankOpt=false)

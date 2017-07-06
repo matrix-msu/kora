@@ -1,6 +1,8 @@
 <?php namespace App;
 
 use App\Http\Controllers\FieldController;
+use App\Http\Controllers\RevisionController;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
@@ -70,6 +72,66 @@ class TextField extends BaseField {
         return $advString;
     }
 
+    public static function createNewRecordField($field, $record, $value){
+        if (!empty($value) && !is_null($value)) {
+            $tf = new self();
+            $tf->flid = $field->flid;
+            $tf->rid = $record->rid;
+            $tf->fid = $field->fid;
+            $tf->text = $value;
+            $tf->save();
+        }
+    }
+
+    public static function editRecordField($field, $record, $value){
+        //we need to check if the field exist first
+        $tf  = self::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
+        if(!is_null($tf) && !is_null($value)){
+            $tf->text = $value;
+            $tf->save();
+        }
+        elseif(!is_null($tf) && is_null($value)){
+            $tf->delete();
+        }
+        else {
+            self::createNewRecordField($field, $record, $value);
+        }
+    }
+
+    public static function massAssignRecordField($flid, $record, $form_field_value, $overwrite){
+        $matching_record_fields = $record->textfields()->where("flid", '=', $flid)->get();
+        $record->updated_at = Carbon::now();
+        $record->save();
+        if ($matching_record_fields->count() > 0) {
+            $textfield = $matching_record_fields->first();
+            if ($overwrite == true || $textfield->text == "" || is_null($textfield->text)) {
+                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $textfield->text = $form_field_value;
+                $textfield->save();
+                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->save();
+            }
+        } else {
+            $tf = new self();
+            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $tf->flid = $flid;
+            $tf->rid = $record->rid;
+            $tf->text = $form_field_value;
+            $tf->save();
+            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->save();
+        }
+    }
+
+    public static function createTestRecordField($field, $record){
+        $tf = new TextField();
+        $tf->flid = $field->flid;
+        $tf->rid = $record->rid;
+        $tf->fid = $field->fid;
+        $tf->text = 'K3TR: This is a test record';
+        $tf->save();
+    }
+
     public static function setRestfulAdvSearch($data, $field, $request){
         $request->request->add([$field->flid.'_input' => $data->input]);
 
@@ -80,6 +142,21 @@ class TextField extends BaseField {
         $recRequest[$flid] = $field->text;
 
         return $recRequest;
+    }
+
+    public static function getRecordPresetArray($field, $record, $data, $flid_array){
+        $textfield = self::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
+
+        if (!empty($textfield->text)) {
+            $data['text'] = $textfield->text;
+        }
+        else {
+            $data['text'] = null;
+        }
+
+        $flid_array[] = $field->flid;
+
+        return array($data,$flid_array);
     }
 
     /**

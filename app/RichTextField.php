@@ -1,6 +1,8 @@
 <?php namespace App;
 
 use App\Http\Controllers\FieldController;
+use App\Http\Controllers\RevisionController;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Builder;
 use Illuminate\Support\Facades\DB;
@@ -46,6 +48,65 @@ class RichTextField extends BaseField {
         FieldController::updateDefault($pid, $fid, $flid, $request->default);
     }
 
+    public static function createNewRecordField($field, $record, $value){
+        if (!empty($value) && !is_null($value)) {
+            $rtf = new self();
+            $rtf->flid = $field->flid;
+            $rtf->rid = $record->rid;
+            $rtf->fid = $field->fid;
+            $rtf->rawtext = $value;
+            $rtf->save();
+        }
+    }
+
+    public static function editRecordField($field, $record, $value){
+        //we need to check if the field exist first
+        $rtf = self::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
+        if(!is_null($rtf) && !is_null($value)){
+            $rtf->rawtext = $value;
+            $rtf->save();
+        }elseif(!is_null($rtf) && is_null($value)){
+            $rtf->delete();
+        }
+        else {
+            self::createNewRecordField($field, $record, $value);
+        }
+    }
+
+    public static function massAssignRecordField($flid, $record, $form_field_value, $overwrite){
+        $matching_record_fields = $record->richtextfields()->where("flid", '=', $flid)->get();
+        $record->updated_at = Carbon::now();
+        $record->save();
+        if ($matching_record_fields->count() > 0) {
+            $richtextfield = $matching_record_fields->first();
+            if ($overwrite == true || $richtextfield->rawtext == "" || is_null($richtextfield->rawtext)) {
+                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $richtextfield->rawtext = $form_field_value;
+                $richtextfield->save();
+                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->save();
+            }
+        } else {
+            $rtf = new self();
+            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $rtf->flid = $flid;
+            $rtf->rid = $record->rid;
+            $rtf->rawtext = $form_field_value;
+            $rtf->save();
+            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->save();
+        }
+    }
+
+    public static function createTestRecordField($field, $record){
+        $rtf = new self();
+        $rtf->flid = $field->flid;
+        $rtf->rid = $record->rid;
+        $rtf->fid = $field->fid;
+        $rtf->rawtext = '<b>K3TR</b>: This is a <i>test</i> record';
+        $rtf->save();
+    }
+
     public static function setRestfulAdvSearch($data, $field, $request){
         $request->request->add([$field->flid.'_input' => $data->input]);
 
@@ -56,6 +117,21 @@ class RichTextField extends BaseField {
         $recRequest[$flid] = $field->richtext;
 
         return $recRequest;
+    }
+
+    public static function getRecordPresetArray($field, $record, $data, $flid_array){
+        $rtfield = RichTextField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
+
+        if (!empty($rtfield->rawtext)) {
+            $data['rawtext'] = $rtfield->rawtext;
+        }
+        else {
+            $data['rawtext'] = null;
+        }
+
+        $flid_array[] = $field->flid;
+
+        return array($data,$flid_array);
     }
 
     /**

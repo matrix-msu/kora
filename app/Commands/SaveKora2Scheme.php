@@ -8,6 +8,7 @@ use App\Commands\Command;
 use App\DateField;
 use App\DocumentsField;
 use App\Field;
+use App\FileTypeField;
 use App\Form;
 use App\GalleryField;
 use App\GeneratedListField;
@@ -522,7 +523,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue
                             copy($oldDir.$localname,$newPath.$realname);
 
                             //Get file info
-                            $mimes = DocumentsField::getMimeTypes();
+                            $mimes = FileTypeField::getMimeTypes();
                             $ext = pathinfo($newPath.$realname,PATHINFO_EXTENSION);
                             if (!array_key_exists($ext, $mimes))
                                 $type = 'application/octet-stream';
@@ -605,7 +606,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue
                             }
 
                             //Get file info
-                            $mimes = DocumentsField::getMimeTypes();
+                            $mimes = FileTypeField::getMimeTypes();
                             $ext = pathinfo($newPath.$realname,PATHINFO_EXTENSION);
                             if (!array_key_exists($ext, $mimes))
                                 $type = 'application/octet-stream';

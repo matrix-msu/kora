@@ -1,6 +1,8 @@
 <?php namespace App;
 
 use App\Http\Controllers\FieldController;
+use App\Http\Controllers\RevisionController;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -68,6 +70,63 @@ class GeneratedListField extends BaseField {
         FieldController::updateOptions($pid, $fid, $flid, 'Options', $options);
     }
 
+    public static function createNewRecordField($field, $record, $value){
+        $glf = new self();
+        $glf->flid = $field->flid;
+        $glf->rid = $record->rid;
+        $glf->fid = $field->fid;
+        $glf->options = implode("[!]",$value);
+        $glf->save();
+    }
+
+    public static function editRecordField($field, $record, $value){
+        //we need to check if the field exist first
+        $glf = self::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
+        if(!is_null($glf) && !is_null($value)){
+            $glf->options = implode("[!]",$value);
+            $glf->save();
+        }elseif(!is_null($glf) && is_null($value)){
+            $glf->delete();
+        }
+        else {
+            self::createNewRecordField($field, $record, $value);
+        }
+    }
+
+    public static function massAssignRecordField($flid, $record, $form_field_value, $overwrite){
+        $matching_record_fields = $record->generatedlistfields()->where("flid", '=', $flid)->get();
+        $record->updated_at = Carbon::now();
+        $record->save();
+        if ($matching_record_fields->count() > 0) {
+            $generatedlistfield = $matching_record_fields->first();
+            if ($overwrite == true || $generatedlistfield->options == "" || is_null($generatedlistfield->options)) {
+                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $generatedlistfield->options = implode("[!]", $form_field_value);
+                $generatedlistfield->save();
+                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->save();
+            }
+        } else {
+            $glf = new self();
+            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $glf->flid = $flid;
+            $glf->rid = $record->rid;
+            $glf->options = implode("[!]", $form_field_value);
+            $glf->save();
+            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->save();
+        }
+    }
+
+    public static function createTestRecordField($field, $record){
+        $glf = new self();
+        $glf->flid = $field->flid;
+        $glf->rid = $record->rid;
+        $glf->fid = $field->fid;
+        $glf->options = 'K3TR[!]1337[!]Test[!]Record';
+        $glf->save();
+    }
+
     public static function setRestfulAdvSearch($data, $field, $request){
         $request->request->add([$field->flid.'_input' => $data->input]);
 
@@ -78,6 +137,21 @@ class GeneratedListField extends BaseField {
         $recRequest[$flid] = $field->options;
 
         return $recRequest;
+    }
+
+    public static function getRecordPresetArray($field, $record, $data, $flid_array){
+        $gnlfield = GeneratedListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
+
+        if (!empty($gnlfield->options)) {
+            $data['options'] = explode('[!]', $gnlfield->options);
+        }
+        else {
+            $data['options'] = null;
+        }
+
+        $flid_array[] = $field->flid;
+
+        return array($data,$flid_array);
     }
 
     public static function getList($field, $blankOpt=false)

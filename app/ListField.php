@@ -1,6 +1,8 @@
 <?php namespace App;
 
 use App\Http\Controllers\FieldController;
+use App\Http\Controllers\RevisionController;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
@@ -52,6 +54,64 @@ class ListField extends BaseField {
         FieldController::updateOptions($pid, $fid, $flid, 'Options', $options);
     }
 
+    public static function createNewRecordField($field, $record, $value){
+        $lf = new self();
+        $lf->flid = $field->flid;
+        $lf->rid = $record->rid;
+        $lf->fid = $field->fid;
+        $lf->option = $value;
+        $lf->save();
+    }
+
+    public static function editRecordField($field, $record, $value){
+        //we need to check if the field exist first
+        $lf = self::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
+        if(!is_null($lf) && !is_null($value)){
+            $lf->option = $value;
+            $lf->save();
+        }
+        else if(!is_null($lf) && is_null($value)){
+            $lf->delete();
+        }
+        else {
+            self::createNewRecordField($field, $record, $value);
+        }
+    }
+
+    public static function massAssignRecordField($flid, $record, $form_field_value, $overwrite){
+        $matching_record_fields = $record->listfields()->where("flid", '=', $flid)->get();
+        $record->updated_at = Carbon::now();
+        $record->save();
+        if ($matching_record_fields->count() > 0) {
+            $listfield = $matching_record_fields->first();
+            if ($overwrite == true || $listfield->option == "" || is_null($listfield->option)) {
+                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $listfield->option = $form_field_value;
+                $listfield->save();
+                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->save();
+            }
+        } else {
+            $lf = new self();
+            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $lf->flid = $flid;
+            $lf->rid = $record->rid;
+            $lf->option = $form_field_value;
+            $lf->save();
+            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->save();
+        }
+    }
+
+    public static function createTestRecordField($field, $record){
+        $lf = new self();
+        $lf->flid = $field->flid;
+        $lf->rid = $record->rid;
+        $lf->fid = $field->fid;
+        $lf->option = 'K3TR';
+        $lf->save();
+    }
+
     public static function setRestfulAdvSearch($data, $field, $request){
         $request->request->add([$field->flid.'_input' => $data->input]);
 
@@ -62,6 +122,21 @@ class ListField extends BaseField {
         $recRequest[$flid] = $field->option;
 
         return $recRequest;
+    }
+
+    public static function getRecordPresetArray($field, $record, $data, $flid_array){
+        $listfield = ListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
+
+        if (!empty($listfield->option)) {
+            $data['option'] = $listfield->option;
+        }
+        else {
+            $data['option'] = null;
+        }
+
+        $flid_array[] = $field->flid;
+
+        return array($data,$flid_array);
     }
 
     public static function getList($field, $blankOpt=false)

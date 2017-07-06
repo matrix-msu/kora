@@ -1,7 +1,9 @@
 <?php namespace App;
 
 use App\Http\Controllers\FieldController;
+use App\Http\Controllers\RevisionController;
 use App\Http\Requests\Request;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
@@ -210,8 +212,113 @@ class ComboListField extends BaseField {
         FieldController::updateOptions($pid, $fid, $flid, 'Field2', $flopt_two);
     }
 
+    public static function createNewRecordField($field, $record, $request){
+        if($request->input($field->flid.'_val') != null){
+            $clf = new self();
+            $clf->flid = $field->flid;
+            $clf->rid = $record->rid;
+            $clf->fid = $field->fid;
+            $clf->save();
+
+            $type_1 = self::getComboFieldType($field, 'one');
+            $type_2 = self::getComboFieldType($field, 'two');
+
+            // Add combo data to support table.
+            $clf->addData($request->input($field->flid.'_val'), $type_1, $type_2);
+        }
+    }
+
+    public static function editRecordField($field, $record, $request){
+        //we need to check if the field exist first
+        $clf = self::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
+        if(!is_null($clf) && !is_null($request->input($field->flid.'_val'))){
+            $type_1 = self::getComboFieldType($field, 'one');
+            $type_2 = self::getComboFieldType($field, 'two');
+
+            $clf->updateData($_REQUEST[$field->flid.'_val'], $type_1, $type_2);
+        }elseif(!is_null($clf) && is_null($request->input($field->flid.'_val'))){
+            $clf->delete();
+            $clf->deleteData();
+        }
+        else {
+            self::createNewRecordField($field, $record, $request);
+        }
+    }
+
+    public static function massAssignRecordField($flid, $record, $request, $overwrite){
+        $matching_record_fields = $record->combolistfields()->where('flid','=',$flid)->get();
+        $record->updated_at = Carbon::now();
+        $record->save();
+
+        if($matching_record_fields->count() > 0){
+            $combolistfield = $matching_record_fields->first();
+            if($overwrite == true || $combolistfield->options == "" || is_null($combolistfield->options)){
+                $revision = RevisionController::storeRevision($record->rid,'edit');
+
+                $combolistfield->updateData($request->input($flid.'_val'));
+
+                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->save();
+            }
+        } else{
+            $clf = new self();
+            $revision = RevisionController::storeRevision($record->rid,'edit');
+            $clf->flid = $flid;
+            $clf->rid = $record->rid;
+            $clf->options = $request->input($flid.'_val')[0];
+            for($i=1;$i<sizeof($request->input($flid.'_val'));$i++){
+                $clf->options .= '[!val!]'.$request->input($flid.'_val')[$i];
+            }
+            $clf->save();
+            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->save();
+        }
+    }
+
+    public static function createTestRecordField($field, $record){
+        $clf = new self();
+        $clf->flid = $field->flid;
+        $clf->rid = $record->rid;
+        $clf->fid = $field->fid;
+        $val1 = '';
+        $val2 = '';
+        $type1 = self::getComboFieldType($field,'one');
+        $type2 = self::getComboFieldType($field,'two');
+        switch($type1){
+            case 'Text':
+                $val1 = 'K3TR: This is a test record';
+                break;
+            case 'List':
+                $val1 = 'K3TR';
+                break;
+            case 'Number':
+                $val1 = 1337;
+                break;
+            case 'Multi-Select List'||'Generated List':
+                $val1 = 'K3TR[!]1337[!]Test[!]Record';
+                break;
+        }
+        switch($type2){
+            case 'Text':
+                $val2 = 'K3TR: This is a test record';
+                break;
+            case 'List':
+                $val2 = 'K3TR';
+                break;
+            case 'Number':
+                $val2 = 1337;
+                break;
+            case 'Multi-Select List'||'Generated List':
+                $val2 = 'K3TR[!]1337[!]Test[!]Record';
+                break;
+        }
+        $clf->save();
+
+        $clf->addData(["[!f1!]".$val1."[!f1!][!f2!]".$val2."[!f2!]", "[!f1!]".$val1."[!f1!][!f2!]".$val2."[!f2!]"], $type1, $type2);
+    }
+
     public static function setRestfulAdvSearch($data, $field, $request){
-        $type1 = ComboListField::getComboFieldType($field,'one');
+        $type1 = self::getComboFieldType($field,'one');
         switch($type1) {
             case 'Number':
                 if(isset($data->left_one))
@@ -234,7 +341,7 @@ class ComboListField extends BaseField {
                 $request->request->add([$field->flid.'_1_input' => $data->input_one]);
                 break;
         }
-        $type2 = ComboListField::getComboFieldType($field,'two');
+        $type2 = self::getComboFieldType($field,'two');
         switch($type2) {
             case 'Number':
                 if(isset($data->left_two))
@@ -264,8 +371,8 @@ class ComboListField extends BaseField {
 
     public static function setRestfulRecordData($field, $flid, $recRequest){
         $values = array();
-        $nameone = ComboListField::getComboFieldName(FieldController::getField($flid), 'one');
-        $nametwo = ComboListField::getComboFieldName(FieldController::getField($flid), 'two');
+        $nameone = self::getComboFieldName(FieldController::getField($flid), 'one');
+        $nametwo = self::getComboFieldName(FieldController::getField($flid), 'two');
         foreach($field->values as $val) {
             if(!is_array($val[$nameone]))
                 $fone = '[!f1!]' . $val[$nameone] . '[!f1!]';
@@ -281,6 +388,21 @@ class ComboListField extends BaseField {
         $recRequest[$flid . '_val'] = $values;
 
         return $recRequest;
+    }
+
+    public static function getRecordPresetArray($field, $record, $data, $flid_array){
+        $cmbfield = ComboListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
+
+        if (!empty($cmbfield->options)) {
+            $data['combolists'] = ComboListField::dataToOldFormat($cmbfield->data()->get());
+        }
+        else {
+            $data['combolists'] = null;
+        }
+
+        $flid_array[] = $field->flid;
+
+        return array($data,$flid_array);
     }
 
     public static function getComboList($field, $blankOpt=false, $fnum)
