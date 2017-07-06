@@ -7,22 +7,40 @@ use Illuminate\Support\Facades\Storage;
 
 abstract class Command {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Command
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the Kora3 backup process
+    |
+    */
+
     use Queueable;
 
     /*************************************************************************************
      * Children must use InteractsWithQueue and SerializesModels from the Queue library. *
      *************************************************************************************/
 
-    public $backup_fs;           ///< Backup filesystem, disk instance
-    public $backup_filepath;     ///< Backup file path, the backup json will be output here.
-    public $backup_id;           ///< Backup id, the job id stored in the database.
+    /**
+     * @var string - Backup filesystem, disk instance
+     */
+    public $backup_fs;
+    /**
+     * @var string - Backup file path, the backup json will be output here
+     */
+    public $backup_filepath;
+    /**
+     * @var int - Backup id, the job id stored in the database
+     */
+    public $backup_id;
 
     /**
-     * Command constructor.
+     * Constructs command and adds itself to the overall progress.
      *
-     * @param $backup_fs
-     * @param $backup_filepath
-     * @param $backup_id
+     * @param $backup_fs - Backup filesystem, disk instance
+     * @param $backup_filepath - Backup file path, the backup json will be output here
+     * @param $backup_id - Backup id, the job id stored in the database
      */
     public function __construct($backup_fs, $backup_filepath, $backup_id) {
         $this->backup_fs = Storage::disk($backup_fs);
@@ -34,13 +52,13 @@ abstract class Command {
     /**
      * Makes an array for the backup_partial_progress table to insert.
      *
-     * @param $name, name of the table to create the array for, e.g. text_fields.
-     * @return array, the array to be inserted into the backup_partial_progress table.
+     * @param $name - Name of the table to create the array for, e.g. text_fields
+     * @return array - The array to be inserted into the backup_partial_progress table
      */
     public function makeBackupTableArray($name) {
         $proper_name_pieces = explode("_", $name);
         $proper_name = "";
-        foreach ($proper_name_pieces as $piece) {
+        foreach($proper_name_pieces as $piece) {
             $proper_name .= ucfirst($piece) . " ";
         }
         $proper_name .= "Table";
@@ -48,9 +66,8 @@ abstract class Command {
         //need to make sure these tables are not running more than one
         $duplicate = DB::table('backup_partial_progress')->where('name', $proper_name)->where('backup_id', $this->backup_id)->count();
 
-        if($duplicate>0){
+        if($duplicate>0)
             return false;
-        }
 
         return [
             "name" => $proper_name,

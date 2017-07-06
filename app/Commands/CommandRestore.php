@@ -6,23 +6,44 @@ use Illuminate\Support\Facades\DB;
 
 abstract class CommandRestore {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Command Restore
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the Kora3 restore process
+    |
+    */
+
     use Queueable;
 
     /*************************************************************************************
      * Children must use InteractsWithQueue and SerializesModels from the Queue library. *
      *************************************************************************************/
 
-    public $directory;                  ///< Path where the restore files exist
-    public $restore_id;                 ///< Restore id, the job id stored in the database.
-    public $table;                      ///< String of table name
-    public $proper_name = "";           ///< Readable name of table
+    /**
+     * @var string - String of table name
+     */
+    public $table;
+    /**
+     * @var string - Path where the restore files exist
+     */
+    public $directory;
+    /**
+     * @var int - Restore id, the job id stored in the database
+     */
+    public $restore_id;
+    /**
+     * @var string - Readable name of table
+     */
+    public $proper_name = "";
 
     /**
-     * Command constructor.
+     * Constructs command and adds itself to the overall progress.
      *
-     * @param $backup_fs
-     * @param $backup_filepath
-     * @param $backup_id
+     * @param $table - String of table name
+     * @param $dir - Path where the restore files exist
+     * @param $restore_id - Restore id, the job id stored in the database
      */
     public function __construct($table, $dir, $restore_id) {
         $this->table = $table;
@@ -34,12 +55,12 @@ abstract class CommandRestore {
     /**
      * Makes an array for the backup_partial_progress table to insert.
      *
-     * @param $name, name of the table to create the array for, e.g. text_fields.
-     * @return array, the array to be inserted into the backup_partial_progress table.
+     * @param $name - Name of the table to create the array for, e.g. text_fields
+     * @return array - The array to be inserted into the backup_partial_progress table
      */
     public function makeBackupTableArray() {
         $proper_name_pieces = explode("_", $this->table);
-        foreach ($proper_name_pieces as $piece) {
+        foreach($proper_name_pieces as $piece) {
             $this->proper_name .= ucfirst($piece) . " ";
         }
         $this->proper_name .= "Table";
@@ -47,9 +68,8 @@ abstract class CommandRestore {
         //need to make sure these tables are not running more than one
         $duplicate = DB::table('restore_partial_progress')->where('name', $this->proper_name)->where('restore_id', $this->restore_id)->count();
 
-        if($duplicate>0){
+        if($duplicate>0)
             return false;
-        }
 
         return [
             "name" => $this->proper_name,
