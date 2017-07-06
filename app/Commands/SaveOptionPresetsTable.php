@@ -1,6 +1,5 @@
 <?php namespace App\Commands;
 
-
 use App\OptionPreset;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -10,11 +9,18 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Contracts\Queue\ShouldBeQueued;
 
+class SaveOptionPresetsTable extends Command implements SelfHandling, ShouldQueue {
 
-class SaveOptionPresetsTable extends Command implements SelfHandling, ShouldQueue
-{
+    /*
+    |--------------------------------------------------------------------------
+    | Save Option Presets Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the option presets table
+    |
+    */
+
     use InteractsWithQueue, SerializesModels;
 
     /**
@@ -36,7 +42,7 @@ class SaveOptionPresetsTable extends Command implements SelfHandling, ShouldQueu
             $count = 0;
             $all_optionpresets_data = new Collection();
 
-            foreach ($optionpresets as $optionpreset) {
+            foreach($optionpresets as $optionpreset) {
                 $individual_optionpresets_data = new Collection();
 
                 $individual_optionpresets_data->put("id", $optionpreset->id);

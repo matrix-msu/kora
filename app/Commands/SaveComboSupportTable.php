@@ -1,13 +1,4 @@
-<?php
-/**
- * Created by PhpStorm.
- * User: Ian Whalen
- * Date: 2/23/2017
- * Time: 1:43 PM
- */
-
-namespace App\Commands;
-
+<?php namespace App\Commands;
 
 use App\ComboListField;
 use Carbon\Carbon;
@@ -19,8 +10,17 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class SaveComboSupportTable extends Command implements SelfHandling, ShouldQueue
-{
+class SaveComboSupportTable extends Command implements SelfHandling, ShouldQueue {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Combo Support Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the combo support table
+    |
+    */
+
     use InteractsWithQueue, SerializesModels;
 
     /**
@@ -32,7 +32,7 @@ class SaveComboSupportTable extends Command implements SelfHandling, ShouldQueue
         $table_path = $this->backup_filepath . "/combo_support/";
         $table_array = $this->makeBackupTableArray("combo_support");
 
-        if ($table_array == false) { return; }
+        if($table_array == false) { return; }
 
         $row_id = DB::table('backup_partial_progress')->insertGetId(
           $table_array
@@ -44,7 +44,7 @@ class SaveComboSupportTable extends Command implements SelfHandling, ShouldQueue
             $count = 0;
             $all_support_data = new Collection();
 
-            foreach ($support_fields as $support_field) {
+            foreach($support_fields as $support_field) {
                 $individual_support_data = new Collection();
 
                 $individual_support_data->put("id", $support_field->id);

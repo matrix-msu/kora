@@ -9,10 +9,18 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveRevisionsTable extends Command implements SelfHandling, ShouldQueue
-{
+class SaveRevisionsTable extends Command implements SelfHandling, ShouldQueue {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Revisions Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the revisions table
+    |
+    */
+
     use InteractsWithQueue, SerializesModels;
 
     /**
@@ -34,7 +42,7 @@ class SaveRevisionsTable extends Command implements SelfHandling, ShouldQueue
             $count = 0;
             $all_revisions_data = new Collection();
 
-            foreach ($revisions as $revision) {
+            foreach($revisions as $revision) {
                 $individual_revision_data = new Collection();
 
                 $individual_revision_data->put("id", $revision->id);

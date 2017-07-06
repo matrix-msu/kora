@@ -9,10 +9,18 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveGeneratedListFieldsTable extends Command implements SelfHandling, ShouldQueue
-{
+class SaveGeneratedListFieldsTable extends Command implements SelfHandling, ShouldQueue {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Generated List Fields Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the generated list fields table
+    |
+    */
+
     use InteractsWithQueue, SerializesModels;
 
     /**
@@ -34,7 +42,7 @@ class SaveGeneratedListFieldsTable extends Command implements SelfHandling, Shou
             $count = 0;
             $all_generatedlistfields_data = new Collection();
 
-            foreach ($generatedlistfields as $generatedlistfield) {
+            foreach($generatedlistfields as $generatedlistfield) {
                 $individual_generatedlistfield_data = new Collection();
 
                 $individual_generatedlistfield_data->put("id", $generatedlistfield->id);

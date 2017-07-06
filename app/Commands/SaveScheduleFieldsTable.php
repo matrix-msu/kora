@@ -9,10 +9,18 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveScheduleFieldsTable extends Command implements SelfHandling, ShouldQueue
-{
+class SaveScheduleFieldsTable extends Command implements SelfHandling, ShouldQueue {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Schedule Fields Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the schedule fields table
+    |
+    */
+
     use InteractsWithQueue, SerializesModels;
 
     /**
@@ -34,7 +42,7 @@ class SaveScheduleFieldsTable extends Command implements SelfHandling, ShouldQue
             $count = 0;
             $all_schedulefields_data = new Collection();
 
-            foreach ($schedulefields as $schedulefield) {
+            foreach($schedulefields as $schedulefield) {
                 $individual_schedulefield_data = new Collection();
 
                 $individual_schedulefield_data->put("id", $schedulefield->id);

@@ -9,10 +9,18 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveFormsTable extends Command implements SelfHandling, ShouldQueue
-{
+class SaveFormsTable extends Command implements SelfHandling, ShouldQueue {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Forms Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the forms table
+    |
+    */
+
     use InteractsWithQueue, SerializesModels;
 
     /**
@@ -34,7 +42,7 @@ class SaveFormsTable extends Command implements SelfHandling, ShouldQueue
             $count = 0;
             $all_forms_data = new Collection();
 
-            foreach ($forms as $form) {
+            foreach($forms as $form) {
                 $form_data = new Collection();
 
                 $form_data->put("fid", $form->fid);

@@ -9,16 +9,23 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveUsersTable extends Command implements SelfHandling, ShouldQueue
-{
+class SaveUsersTable extends Command implements SelfHandling, ShouldQueue {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Users Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the users table
+    |
+    */
+
     use InteractsWithQueue, SerializesModels;
 
     /**
      * Execute the command.
      */
-
     public function handle() {
         Log::info("Started backing up the Users table.");
 

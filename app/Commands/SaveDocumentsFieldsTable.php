@@ -2,7 +2,6 @@
 
 use App\DocumentsField;
 use Carbon\Carbon;
-use App\RichTextField;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -10,10 +9,18 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveDocumentsFieldsTable extends Command implements SelfHandling, ShouldQueue
-{
+class SaveDocumentsFieldsTable extends Command implements SelfHandling, ShouldQueue {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Documents Fields Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the documents fields table
+    |
+    */
+
     use InteractsWithQueue, SerializesModels;
 
     /**

@@ -1,7 +1,6 @@
 <?php namespace App\Commands;
 
 use Carbon\Carbon;
-use App\RichTextField;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -9,10 +8,18 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveDashboardSectionsTable extends Command implements SelfHandling, ShouldQueue
-{
+class SaveDashboardSectionsTable extends Command implements SelfHandling, ShouldQueue {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Dashboard Sections Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the dashboard sections table
+    |
+    */
+
     use InteractsWithQueue, SerializesModels;
 
     /**

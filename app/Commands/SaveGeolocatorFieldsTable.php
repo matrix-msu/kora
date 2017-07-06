@@ -9,10 +9,18 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveGeolocatorFieldsTable extends Command implements SelfHandling, ShouldQueue
-{
+class SaveGeolocatorFieldsTable extends Command implements SelfHandling, ShouldQueue {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Geolocator Fields Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the geolocator fields table
+    |
+    */
+
     use InteractsWithQueue, SerializesModels;
 
     /**
@@ -34,7 +42,7 @@ class SaveGeolocatorFieldsTable extends Command implements SelfHandling, ShouldQ
             $count = 0;
             $all_geolocatorfields_data = new Collection();
 
-            foreach ($geolocatorfields as $geolocatorfield) {
+            foreach($geolocatorfields as $geolocatorfield) {
                 $individual_geolocatorfield_data = new Collection();
 
                 $individual_geolocatorfield_data->put("id", $geolocatorfield->id);

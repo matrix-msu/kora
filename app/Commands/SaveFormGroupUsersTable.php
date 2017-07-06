@@ -1,7 +1,6 @@
 <?php namespace App\Commands;
 
 use Carbon\Carbon;
-use App\RichTextField;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -9,10 +8,18 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveFormGroupUsersTable extends Command implements SelfHandling, ShouldQueue
-{
+class SaveFormGroupUsersTable extends Command implements SelfHandling, ShouldQueue {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Form Group Users Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the form group users table
+    |
+    */
+
     use InteractsWithQueue, SerializesModels;
 
     /**

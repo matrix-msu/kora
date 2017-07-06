@@ -9,10 +9,18 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveDateFieldsTable extends Command implements SelfHandling, ShouldQueue
-{
+class SaveDateFieldsTable extends Command implements SelfHandling, ShouldQueue {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Date Fields Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the date fields table
+    |
+    */
+
     use InteractsWithQueue, SerializesModels;
 
     /**
@@ -34,7 +42,7 @@ class SaveDateFieldsTable extends Command implements SelfHandling, ShouldQueue
             $count = 0;
             $all_datefields_data = new Collection();
 
-            foreach ($datefields as $datefield) {
+            foreach($datefields as $datefield) {
                 $individual_datefield_data = new Collection();
 
                 $individual_datefield_data->put("id", $datefield->id);

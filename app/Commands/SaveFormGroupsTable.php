@@ -9,9 +9,17 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Contracts\Queue\ShouldBeQueued;
 
 class SaveFormGroupsTable extends Command implements SelfHandling, ShouldQueue {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Form Groups Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the form groups table
+    |
+    */
 
     use InteractsWithQueue, SerializesModels;
 

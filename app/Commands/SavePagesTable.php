@@ -9,10 +9,18 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SavePagesTable extends Command implements SelfHandling, ShouldQueue
-{
+class SavePagesTable extends Command implements SelfHandling, ShouldQueue {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Pages Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the pages table
+    |
+    */
+
     use InteractsWithQueue, SerializesModels;
 
     /**
@@ -34,7 +42,7 @@ class SavePagesTable extends Command implements SelfHandling, ShouldQueue
             $count = 0;
             $all_pages_data = new Collection();
 
-            foreach ($pages as $page) {
+            foreach($pages as $page) {
                 $page_data = new Collection();
 
                 $page_data->put("id", $page->id);

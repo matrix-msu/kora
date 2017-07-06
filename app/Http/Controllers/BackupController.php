@@ -37,7 +37,7 @@ use App\Commands\SaveProjectTokensTable;
 use App\Commands\SaveRecordPresetsTable;
 use App\Commands\SaveRecordsTable;
 use App\Commands\SaveRevisionsTable;
-use App\Commands\SaveRichTextFields;
+use App\Commands\SaveRichTextFieldsTable;
 use App\Commands\SaveScheduleFieldsTable;
 use App\Commands\SaveScheduleSupportTable;
 use App\Commands\SaveTextFieldsTable;
@@ -239,7 +239,7 @@ class BackupController extends Controller {
             new SaveFormGroupsTable($backup_disk, $path, $backup_id),
             new SaveFormGroupUsersTable($backup_disk, $path, $backup_id),
             new SaveRevisionsTable($backup_disk, $path, $backup_id),
-            new SaveRichTextFields($backup_disk, $path, $backup_id),
+            new SaveRichTextFieldsTable($backup_disk, $path, $backup_id),
             new SaveScheduleFieldsTable($backup_disk, $path, $backup_id),
             new SaveScheduleSupportTable($backup_disk, $path, $backup_id),
             new SaveDocumentsFieldsTable($backup_disk, $path, $backup_id),

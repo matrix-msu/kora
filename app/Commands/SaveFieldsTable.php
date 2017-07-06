@@ -9,10 +9,18 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveFieldsTable extends Command implements SelfHandling, ShouldQueue
-{
+class SaveFieldsTable extends Command implements SelfHandling, ShouldQueue {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Fields Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the fields table
+    |
+    */
+
     use InteractsWithQueue, SerializesModels;
 
     /**
@@ -34,7 +42,7 @@ class SaveFieldsTable extends Command implements SelfHandling, ShouldQueue
             $count = 0;
             $all_fields_data = new Collection();
 
-            foreach ($fields as $field) {
+            foreach($fields as $field) {
                 $individual_field_data = new Collection();
 
                 $individual_field_data->put("flid", $field->flid);

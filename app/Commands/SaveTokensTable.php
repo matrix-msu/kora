@@ -1,6 +1,5 @@
 <?php namespace App\Commands;
 
-
 use App\Token;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -10,11 +9,18 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Contracts\Queue\ShouldBeQueued;;
 
+class SaveTokensTable extends Command implements SelfHandling, ShouldQueue {
 
-class SaveTokensTable extends Command implements SelfHandling, ShouldQueue
-{
+    /*
+    |--------------------------------------------------------------------------
+    | Save Tokens Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the tokens table
+    |
+    */
+
     use InteractsWithQueue, SerializesModels;
 
     /**
@@ -36,7 +42,7 @@ class SaveTokensTable extends Command implements SelfHandling, ShouldQueue
             $count = 0;
             $all_tokens_data = new Collection();
 
-            foreach ($tokens as $token) {
+            foreach($tokens as $token) {
                 $individual_token_data = new Collection();
 
                 $individual_token_data->put("id", $token->id);

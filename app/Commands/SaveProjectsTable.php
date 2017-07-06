@@ -1,33 +1,32 @@
 <?php namespace App\Commands;
 
-use App\Commands\Command;
-
 use App\Project;
-use App\Field;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Contracts\Queue\ShouldBeQueued;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 class SaveProjectsTable extends Command implements SelfHandling, ShouldQueue {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Save Projects Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the projects table
+    |
+    */
+
 	use InteractsWithQueue, SerializesModels;
-	
 
 	/**
 	 * Execute the command.
-	 *
-	 * @return void
 	 */
-	public function handle()
-	{
-		
-		//
+	public function handle() {
 		Log::info("Started backing up Projects table");
 
 		$table_path = $this->backup_filepath."/projects/";
@@ -42,7 +41,7 @@ class SaveProjectsTable extends Command implements SelfHandling, ShouldQueue {
 		Project::chunk(500,function($projects) use ($table_path, $row_id){
 			$count= 0;
 			$all_projects_data = new Collection();
-			foreach ($projects as $project) {
+			foreach($projects as $project) {
 				$individual_project_data = new Collection();
 
 				$individual_project_data->put("pid", $project->pid);

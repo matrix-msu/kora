@@ -1,9 +1,6 @@
-<?php
-
-namespace App\Commands;
+<?php namespace App\Commands;
 
 use App\AssociatorField;
-use App\Commands\Command;
 use Carbon\Carbon;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Database\Eloquent\Collection;
@@ -12,8 +9,17 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class SaveAssociatorFieldsTable extends Command implements SelfHandling
-{
+class SaveAssociatorFieldsTable extends Command implements SelfHandling {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Associator Fields Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the associator fields table
+    |
+    */
+
     use InteractsWithQueue, SerializesModels;
 
     /**

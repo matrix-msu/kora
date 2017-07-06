@@ -9,10 +9,18 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveComboListFieldsTable extends Command implements SelfHandling, ShouldQueue
-{
+class SaveComboListFieldsTable extends Command implements SelfHandling, ShouldQueue {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Combo List Fields Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the combo list fields table
+    |
+    */
+
     use InteractsWithQueue, SerializesModels;
 
     /**
@@ -34,7 +42,7 @@ class SaveComboListFieldsTable extends Command implements SelfHandling, ShouldQu
             $count = 0;
             $all_combolistfield_data = new Collection();
 
-            foreach ($combolistfields as $combolistfield) {
+            foreach($combolistfields as $combolistfield) {
                 $individual_combolistfield_data = new Collection();
 
                 $individual_combolistfield_data->put('id',$combolistfield->id);

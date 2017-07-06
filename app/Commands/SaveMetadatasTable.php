@@ -9,10 +9,18 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveMetadatasTable extends Command implements SelfHandling, ShouldQueue
-{
+class SaveMetadatasTable extends Command implements SelfHandling, ShouldQueue {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Metadatas Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the metadatas table
+    |
+    */
+
     use InteractsWithQueue, SerializesModels;
 
     /**
@@ -34,7 +42,7 @@ class SaveMetadatasTable extends Command implements SelfHandling, ShouldQueue
             $count = 0;
             $all_metadatas_data = new Collection();
 
-            foreach ($metadatas as $metadata) {
+            foreach($metadatas as $metadata) {
                 $individual_metadata_data = new Collection();
 
                 $individual_metadata_data->put("flid", $metadata->flid);

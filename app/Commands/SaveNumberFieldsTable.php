@@ -9,11 +9,18 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Contracts\Queue\ShouldBeQueued;
 
+class SaveNumberFieldsTable extends Command implements SelfHandling, ShouldQueue {
 
-class SaveNumberFieldsTable extends Command implements SelfHandling, ShouldQueue
-{
+    /*
+    |--------------------------------------------------------------------------
+    | Save Number Fields Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the number fields table
+    |
+    */
+
     use InteractsWithQueue, SerializesModels;
 
     /**
@@ -35,7 +42,7 @@ class SaveNumberFieldsTable extends Command implements SelfHandling, ShouldQueue
             $count = 0;
             $all_numberfields_data = new Collection();
 
-            foreach ($numfields as $numberfield) {
+            foreach($numfields as $numberfield) {
                 $individual_numberfield_data = new Collection();
 
                 $individual_numberfield_data->put("id", $numberfield->id);

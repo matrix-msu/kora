@@ -9,10 +9,18 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveRichTextFields extends Command implements SelfHandling, ShouldQueue
-{
+class SaveRichTextFieldsTable extends Command implements SelfHandling, ShouldQueue {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Rich Text Fields Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the rich text fields table
+    |
+    */
+
     use InteractsWithQueue, SerializesModels;
 
     /**

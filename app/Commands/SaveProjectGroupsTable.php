@@ -6,13 +6,21 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Contracts\Queue\ShouldBeQueued;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
-class SaveProjectGroupsTable extends Command implements SelfHandling, ShouldQueue
-{
+class SaveProjectGroupsTable extends Command implements SelfHandling, ShouldQueue {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Project Groups Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the project groups table
+    |
+    */
+
     use InteractsWithQueue, SerializesModels;
 
     /**

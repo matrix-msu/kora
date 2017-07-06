@@ -1,10 +1,7 @@
 <?php namespace App\Commands;
 
-use App\DocumentsField;
 use App\ModelField;
-use App\VideoField;
 use Carbon\Carbon;
-use App\RichTextField;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -12,10 +9,18 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class SaveModelFieldsTable extends Command implements SelfHandling, ShouldQueue
-{
+class SaveModelFieldsTable extends Command implements SelfHandling, ShouldQueue {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Model Fields Table
+    |--------------------------------------------------------------------------
+    |
+    | This command handles the backup of the model fields table
+    |
+    */
+
     use InteractsWithQueue, SerializesModels;
 
     /**
