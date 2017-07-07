@@ -2,48 +2,48 @@
 
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
+use Illuminate\Http\Request;
 
 class Authenticate {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Authenticate
+    |--------------------------------------------------------------------------
+    |
+    | This middleware handles the authentication of a user
+    |
+    */
+
 	/**
-	 * The Guard implementation.
-	 *
-	 * @var Guard
+	 * @var Guard - The Guard implementation
 	 */
 	protected $auth;
 
 	/**
 	 * Create a new filter instance.
 	 *
-	 * @param  Guard  $auth
-	 * @return void
+	 * @param  Guard $auth - The guard implementation to assign
 	 */
-	public function __construct(Guard $auth)
-	{
+	public function __construct(Guard $auth) {
 		$this->auth = $auth;
 	}
 
 	/**
 	 * Handle an incoming request.
 	 *
-	 * @param  \Illuminate\Http\Request  $request
-	 * @param  \Closure  $next
+	 * @param  Request $request
+	 * @param  Closure $next
 	 * @return mixed
 	 */
-	public function handle($request, Closure $next)
-	{
-		if ($this->auth->guest())
-		{
-			if ($request->ajax())
-			{
+	public function handle($request, Closure $next) {
+		if($this->auth->guest())  {
+			if($request->ajax()) {
 				return response(trans('middleware_authenticate.auth'), 401);
-			}
-			else
-			{
+			} else {
 				return redirect()->guest('/');
 			}
 		}
-
 
         return $next($request);
 	}
