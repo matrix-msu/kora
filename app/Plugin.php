@@ -1,10 +1,23 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
-class Plugin extends Model
-{
+class Plugin extends Model {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Plugin
+    |--------------------------------------------------------------------------
+    |
+    | This model represents an installed Kora3 plugin
+    |
+    */
+
+    /**
+     * @var array - Attributes that can be mass assigned to model
+     */
     protected $fillable = [
         'pid',
         'name',
@@ -12,15 +25,25 @@ class Plugin extends Model
         'url'
     ];
 
-    public function options(){
+    /**
+     * Returns all of the option settings for a plugin.
+     *
+     * @return Collection - The option set
+     */
+    public function options() {
         return DB::select("select * from ".env('DB_PREFIX')."plugin_settings where plugin_id=?", [$this->id]);
     }
 
-    public function users(){
+    /**
+     * Returns all users belonging to the plugin.
+     *
+     * @return array - The users
+     */
+    public function users() {
         $users = array();
         $gid = DB::select("select gid from ".env('DB_PREFIX')."plugin_users where plugin_id=?", [$this->id])[0]->gid;
         $uids = DB::select("select user_id from ".env('DB_PREFIX')."project_group_user where project_group_id=?", [$gid]);
-        foreach($uids as $uid){
+        foreach($uids as $uid) {
             $user = User::where('id','=',$uid->user_id)->get()->first();
             if($user->id!=1)
                 array_push($users,$user);
@@ -29,6 +52,11 @@ class Plugin extends Model
         return $users;
     }
 
+    /**
+     * Gets a list of users that are not assigned to the plugin.
+     *
+     * @return array - The users
+     */
     public function new_users(){
         $curr = $this->users();
         $all = array();
@@ -41,10 +69,18 @@ class Plugin extends Model
         return array_diff($all,$curr);
     }
 
+    /**
+     * Returns the menu URIs that belong to the plugin.
+     *
+     * @return Collection - The menu items
+     */
     public function menus(){
         return DB::select("select name,url from ".env('DB_PREFIX')."plugin_menus where plugin_id=? order by `order` ASC", [$this->id]);
     }
 
+    /**
+     * Deletes the plugins saved configurations and registered users, then deletes self.
+     */
     public function delete() {
         DB::table("plugin_menus")->where("plugin_id", "=", $this->id)->delete();
         DB::table("plugin_settings")->where("plugin_id", "=", $this->id)->delete();

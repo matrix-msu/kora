@@ -1,34 +1,50 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\DB;
 
 class FormGroup extends Model {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Form Group
+    |--------------------------------------------------------------------------
+    |
+    | This model represents the data for a Form Group
+    |
+    */
+
+    /**
+     * @var array - Attributes that can be mass assigned to model
+     */
 	protected $fillable = ['name', 'create', 'edit', 'delete'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * Returns the users belonging to a form group.
+     *
+     * @return BelongsToMany
      */
-    public function users(){
+    public function users() {
         return $this->belongsToMany('App\User');
     }
 
     /**
      * Returns a form group's form.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function form(){
+    public function form() {
         return $this->belongsTo('App\Form');
     }
 
     /**
      * Returns a form group's project.
      *
-     * @return mixed
+     * @return Project
      */
-    public function project(){
+    public function project() {
         $form = $this->form()->first();
         return $form->project();
     }
@@ -36,14 +52,17 @@ class FormGroup extends Model {
     /**
      * Determines if a user is in a form group.
      *
-     * @param User $user
-     * @return bool
+     * @param User $user - User to verify
+     * @return bool - Is member
      */
-    public function hasUser(User $user){
+    public function hasUser(User $user) {
         $thisUsers = $this->users()->get();
         return $thisUsers->contains($user);
     }
 
+    /**
+     * Delete's the connections between group and users, and then deletes self.
+     */
     public function delete() {
         DB::table("form_group_user")->where("form_group_id", "=", $this->id)->delete();
 

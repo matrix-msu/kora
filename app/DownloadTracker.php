@@ -1,13 +1,20 @@
-<?php
-
-namespace App;
+<?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 
-class DownloadTracker extends Model
-{
-    protected $fillable = [
-        "fid",
-    ];
+class DownloadTracker extends Model {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Download Tracker
+    |--------------------------------------------------------------------------
+    |
+    | This model represents the tracker that monitors progress of record exporting
+    |
+    */
+
+    /**
+     * @var array - Attributes that can be mass assigned to model
+     */
+    protected $fillable = ["fid"];
 }

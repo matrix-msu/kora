@@ -1,9 +1,24 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Record extends Model {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Record
+    |--------------------------------------------------------------------------
+    |
+    | This model represents the data for a Record
+    |
+    */
+
+    /**
+     * @var array - Attributes that can be mass assigned to model
+     */
     protected $fillable = [
         'id',
         'pid',
@@ -12,90 +27,184 @@ class Record extends Model {
         'kid'
     ];
 
+    /**
+     * @var string - Database column that represents the primary key
+     */
     protected $primaryKey = "rid";
 
+    /**
+     * Returns the Preset associated with a Record.
+     *
+     * @return BelongsTo
+     */
     public function preset() {
         return $this->belongsTo('App/Preset');
     }
 
-    public function form(){
+    /**
+     * Returns the form associated with a Record.
+     *
+     * @return BelongsTo
+     */
+    public function form() {
         return $this->belongsTo('App\Form', 'fid');
     }
 
-    public function typedFields() {
+    /**
+     * Returns the text fields associated with a Record.
+     *
+     * @return HasMany
+     */
+    public function textfields() {
         return $this->hasMany('App\TextField', 'rid');
     }
 
-    public function textfields(){
-        return $this->hasMany('App\TextField', 'rid');
-    }
-
-    public function richtextfields(){
+    /**
+     * Returns the rich text fields associated with a Record.
+     *
+     * @return HasMany
+     */
+    public function richtextfields() {
         return $this->hasMany('App\RichTextField', 'rid');
     }
 
-    public function numberfields(){
+    /**
+     * Returns the number fields associated with a Record.
+     *
+     * @return HasMany
+     */
+    public function numberfields() {
         return $this->hasMany('App\NumberField', 'rid');
     }
 
-    public function listfields(){
+    /**
+     * Returns the list fields associated with a Record.
+     *
+     * @return HasMany
+     */
+    public function listfields() {
         return $this->hasMany('App\ListField', 'rid');
     }
 
-    public function multiselectlistfields(){
+    /**
+     * Returns the multi-select list fields associated with a Record.
+     *
+     * @return HasMany
+     */
+    public function multiselectlistfields() {
         return $this->hasMany('App\MultiSelectListField', 'rid');
     }
 
-    public function generatedlistfields(){
+    /**
+     * Returns the generated list fields associated with a Record.
+     *
+     * @return HasMany
+     */
+    public function generatedlistfields() {
         return $this->hasMany('App\GeneratedListField', 'rid');
     }
 
-    public function combolistfields(){
+    /**
+     * Returns the combo list fields associated with a Record.
+     *
+     * @return HasMany
+     */
+    public function combolistfields() {
         return $this->hasMany('App\ComboListField', 'rid');
     }
 
-    public function datefields(){
+    /**
+     * Returns the date fields associated with a Record.
+     *
+     * @return HasMany
+     */
+    public function datefields() {
         return $this->hasMany('App\DateField', 'rid');
     }
 
-    public function schedulefields(){
+    /**
+     * Returns the schedule fields associated with a Record.
+     *
+     * @return HasMany
+     */
+    public function schedulefields() {
         return $this->hasMany('App\ScheduleField', 'rid');
     }
 
-    public function geolocatorfields(){
+    /**
+     * Returns the geolocator fields associated with a Record.
+     *
+     * @return HasMany
+     */
+    public function geolocatorfields() {
         return $this->hasMany('App\GeolocatorField', 'rid');
     }
 
-    public function documentsfields(){
+    /**
+     * Returns the documents fields associated with a Record.
+     *
+     * @return HasMany
+     */
+    public function documentsfields() {
         return $this->hasMany('App\DocumentsField', 'rid');
     }
 
-    public function galleryfields(){
+    /**
+     * Returns the gallery fields associated with a Record.
+     *
+     * @return HasMany
+     */
+    public function galleryfields() {
         return $this->hasMany('App\GalleryField', 'rid');
     }
 
-    public function playlistfields(){
+    /**
+     * Returns the playlist fields associated with a Record.
+     *
+     * @return HasMany
+     */
+    public function playlistfields() {
         return $this->hasMany('App\PlaylistField', 'rid');
     }
 
-    public function videofields(){
+    /**
+     * Returns the video fields associated with a Record.
+     *
+     * @return HasMany
+     */
+    public function videofields() {
         return $this->hasMany('App\VideoField', 'rid');
     }
 
-    public function modelfields(){
+    /**
+     * Returns the model fields associated with a Record.
+     *
+     * @return HasMany
+     */
+    public function modelfields() {
         return $this->hasMany('App\ModelField', 'rid');
     }
 
-    public function associatorfields(){
+    /**
+     * Returns the associator fields associated with a Record.
+     *
+     * @return HasMany
+     */
+    public function associatorfields() {
         return $this->hasMany('App\AssociatorField', 'rid');
     }
 
-    public function owner(){
+    /**
+     * Returns the owner associated with a Record.
+     *
+     * @return HasOne
+     */
+    public function owner() {
         return $this->hasOne('App\User', 'owner');
     }
 
     /**
-     * Because the MyISAM engine does not support foreign keys we have to emulate cascading.
+     * Deletes all data fields belonging to a record, then deletes self.
      */
     public function delete() {
         BaseField::deleteBaseFields($this->rid);
@@ -103,13 +212,12 @@ class Record extends Model {
         parent::delete();
     }
 
-
     /**
      * Determines if a string is a KID pattern.
      * For reference, the KID pattern is PID-FID-RID, i.e. three sets of integers separated by hyphens.
      *
-     * @param $string
-     * @return bool
+     * @param $string - Kora ID to validate
+     * @return bool - Matches pattern
      */
     public static function isKIDPattern($string) {
         $pattern = "/^([0-9]+)-([0-9]+)-([0-9]+)/"; // Match exactly with KID pattern.

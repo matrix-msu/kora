@@ -1,12 +1,24 @@
 <?php namespace App;
 
-use App\Http\Controllers\PageController;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 
 class Form extends Model {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Form
+    |--------------------------------------------------------------------------
+    |
+    | This model represents the data for a Form
+    |
+    */
+
+    /**
+     * @var array - Attributes that can be mass assigned to model
+     */
     protected $fillable = [
         'pid',
         'name',
@@ -15,68 +27,76 @@ class Form extends Model {
         'public_metadata'
     ];
 
+    /**
+     * @var string - Database column that represents the primary key
+     */
     protected $primaryKey = "fid";
 
     /**
      * Returns the project associated with a form.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function project(){
+    public function project() {
         return $this->belongsTo('App\Project', 'pid');
     }
 
     /**
-     * Returns the fields associtated with a form
+     * Returns the fields associated with a form.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function fields(){
+    public function fields() {
         return $this->hasMany('App\Field', 'fid');
     }
 
     /**
-     * Returns the pages associtated with a form
+     * Returns the pages associated with a form.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function pages(){
+    public function pages() {
         return $this->hasMany('App\Page', 'fid')->orderBy('sequence');
     }
 
     /**
      * Returns the records associated with a form.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function records(){
+    public function records() {
         return $this->hasMany('App\Record', 'fid');
     }
 
     /**
      * Returns the form's admin group.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function adminGroup(){
+    public function adminGroup() {
         return $this->belongsTo('App\FormGroup', 'adminGID');
     }
 
     /**
      * Returns the form groups associated with a form.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function groups(){
+    public function groups() {
         return $this->hasMany('App\FormGroup', 'fid');
     }
 
-    public function revisions(){
+    /**
+     * Returns the record revisions associated with a form.
+     *
+     * @return HasMany
+     */
+    public function revisions() {
         return $this->hasMany('App\Revision','fid');
     }
 
     /**
-     * Because the MyISAM engine doesn't support foreign keys we have to emulate cascading.
+     * Deletes all data belonging to the form, then deletes self.
      */
     public function delete() {
         DB::table("record_presets")->where("fid", "=", $this->fid)->delete();
@@ -99,10 +119,15 @@ class Form extends Model {
         parent::delete();
     }
 
-    public static function slugExists($slug)
-    {
+    /**
+     * Checks if slug is already used by another form.
+     *
+     * @param  string $slug - Slug to evaluate
+     * @return bool - Does exist
+     */
+    public static function slugExists($slug) {
         $form = self::where('slug', '=', $slug)->get()->first();
-        if (is_null($form))
+        if(is_null($form))
             return false;
         else
             return true;

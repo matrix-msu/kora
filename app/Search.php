@@ -1,38 +1,56 @@
-<?php
-namespace App;
+<?php namespace App;
 
-/**
- * Class Search.
- * Hold the important methods for searching.
- *
- * @package App
- */
-class Search
-{
+class Search {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Search
+    |--------------------------------------------------------------------------
+    |
+    | This class contains core search functionality in Kora3
+    |
+    */
+
     /**
-     * Search operators.
-     *
-     * OR: at least one argument must be in some record's field.
-     * AND: all arguments must be in a particular record's fields.
-     * EXACT: the whole phrase must be in some field.
+     * @var int - At least one argument must be in some record's field
      */
     const SEARCH_OR = 0;
-    const SEARCH_AND = 1;
-    const SEARCH_EXACT = 2;
-
-
     /**
-     * The advanced search operator.
+     * @var int - All arguments must be in a particular record's fields
+     */
+    const SEARCH_AND = 1;
+    /**
+     * @var int - The whole phrase must be in some field
+     */
+    const SEARCH_EXACT = 2;
+    /**
+     * @var int - The advanced search operator
      */
     const ADVANCED_METHOD = self::SEARCH_EXACT;
+    /**
+     * @var int - Id of the project we're searching in
+     */
+    private $pid;
+    /**
+     * @var int - Id of the form we're searching in
+     */
+    private $fid;
+    /**
+     * @var string - The query as input by the user
+     */
+    private $arg;
+    /**
+     * @var int - Method of search, see the search operators
+     */
+    private $method;
 
     /**
      * Search constructor.
      *
-     * @param $pid, project id.
-     * @param $fid, form id.
-     * @param $arg, the query of the search.
-     * @param $method, the method of search, see search operators.
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  string $arg - The query of the search
+     * @param  int $method - The method of search, see search operators
      */
     public function __construct($pid, $fid, $arg, $method) {
         $this->pid = $pid;
@@ -41,32 +59,14 @@ class Search
         $this->method = $method;
     }
 
-    /** Id of the project we're searching in.
-     * @var integer
-     */
-    private $pid;
-    /** Id of the form we're searching in.
-     * @var integer
-     */
-    private $fid;
-    /** The query as input by the user.
-     * @var string
-     */
-    private $arg;
-    /** Method of search, see the search operators.
-     * @var integer
-     */
-    private $method;
-
     /**
      * Runs the keyword search routine on all field types.
      *
-     * @return array, array of rids satisfying search parameters.
+     * @return array - Array of rids satisfying search parameters
      */
     public function formKeywordSearch($flids=null, $external=false) {
-        if ($this->arg == "") {
+        if($this->arg == "")
             return [];
-        }
 
         $used_types = []; // Array to keep track of types of fields we have searched already.
 
@@ -78,12 +78,12 @@ class Search
 
         $processed = Search::processArgument($this->arg, $this->method);
 
-        if ($this->method != Search::SEARCH_AND) {
-            foreach ($fields as $field) {
+        if($this->method != Search::SEARCH_AND) {
+            foreach($fields as $field) {
                 //This will account for both cases:
                 // If internal and searchable
                 // If external (api, korasearch) and ext-searchable
-                if ( (!$external && $field->isSearchable()) | ($external && $field->isExternalSearchable()) ) {
+                if( (!$external && $field->isSearchable()) | ($external && $field->isExternalSearchable()) ) {
                     if(!isset($used_types[$field->type]))
                         $used_types[$field->type] = true;
 
@@ -95,19 +95,18 @@ class Search
             $rids = array_map(function ($result) {
                 return $result->rid;
             }, $rids);
-        }
-        else {
+        } else {
             $rids_array = []; // Stores the results of each individual search.
 
             foreach($fields as $field) {
                 //This will account for both cases:
                 // If internal and searchable
                 // If external (api, korasearch) and ext-searchable
-                if ( (!$external && $field->isSearchable()) | ($external && $field->isExternalSearchable()) ) {
+                if( (!$external && $field->isSearchable()) | ($external && $field->isExternalSearchable()) ) {
                     if(!isset($used_types[$field->type]))
                         $used_types[$field->type] = true;
 
-                    foreach (explode(" ", $processed) as $arg) {
+                    foreach(explode(" ", $processed) as $arg) {
                         $rids_array[] = $field->keywordSearchTyped($arg)->get();
                     }
                 }
@@ -124,8 +123,10 @@ class Search
                 $c_a = count($a);
                 $c_b = count($b);
 
-                if ($c_a == $c_b) return 0;
-                return ($c_a < $c_b) ? -1 : 1;
+                if($c_a == $c_b)
+                    return 0;
+                else
+                    return ($c_a < $c_b) ? -1 : 1;
             });
 
             $rids = array_shift($rids_array); // Get the first array.
@@ -145,23 +146,23 @@ class Search
      *         full text indexes do not apply backward due to the structure of the B-Tree.
      * EXACT: "large fish" => "\"large fish\"" to only match with the phrase "large fish".
      *
-     * @param $arg, the argument to be processed.
-     * @param $method, the search method (or, and, exact).
-     * @return string, processed arguement.
+     * @param  string $arg - The argument to be processed
+     * @param  int $method - The search method (or, and, exact)
+     * @return string - Processed argument
      */
     public static function processArgument($arg, $method) {
         switch($method) {
             case self::SEARCH_OR:
+                break;
             case self::SEARCH_AND:
                 $args = explode(" ", $arg);
 
-                foreach ($args as &$piece) {
+                foreach($args as &$piece) {
                     $piece .= "* "; // Boolean fulltext wildcard
                 }
 
                 $arg = trim(implode($args));
                 break;
-
             case self::SEARCH_EXACT:
                 $arg = "\"" . $arg . "\"";
                 break;
@@ -173,26 +174,44 @@ class Search
     /**
      * Returns an array of values that will be ignored by the full text index.
      *
-     * @param $string string, the input to the search.
-     * @return array, the intersection of the input (as an array) and self::$STOP_WORDS.
+     * @param  string $string - The input to the search
+     * @return array -Tthe intersection of the input (as an array) and self::$STOP_WORDS
      */
     public static function showIgnoredArguments($string) {
         $args = explode(" ", $string);
 
         $short = [];
-        foreach ($args as $arg) {
-            if (strlen($arg) <= 3) {
+        foreach($args as $arg) {
+            if (strlen($arg) <= 3)
                 $short[] = $arg;
-            }
         }
 
         return array_unique(array_merge(array_values(array_intersect($args, self::$STOP_WORDS)), $short));
     }
 
     /**
-     * Special characters the user might enter.
+     * Converts characters in a string to their close english only non-accented, non-diacritical matches.
+     * The actual conversion is not super important, however consistency is, this is used to ensure a word like
+     * "manana" matches what the search probably meant, "mañana".
      *
-     * @var array
+     * @param  string $string - String to convert
+     * @return string - The converted string
+     */
+    static public function convertCloseChars($string) {
+        return str_replace(self::$SPECIALS, self::$CLOSE_ASCII, $string);
+    }
+
+    /**
+     * Prints the help link for the flash message.
+     *
+     * @return string - The html element
+     */
+    static public function searchHelpLink() {
+        return "<span class='pull-right'><a href='" . action("HelpController@search") . "' target='_blank'>Help</a>&nbsp;</span>";
+    }
+
+    /**
+     * @var array - Special characters the user might enter
      */
     public static $SPECIALS = ['À', 'Á', 'Â', 'Ã', 'Ä', 'Å', 'Æ', 'Ç', 'È', 'É', 'Ê', 'Ë', 'Ì', 'Í', 'Î', 'Ï', 'Ð',
         'Ñ', 'Ò', 'Ó', 'Ô', 'Õ', 'Ö', 'Ø', 'Ù', 'Ú', 'Û', 'Ü', 'Ý', 'ß', 'à', 'á', 'â', 'ã', 'ä', 'å', 'æ', 'ç', 'è',
@@ -207,10 +226,7 @@ class Search
         'Ό', 'ό', 'Ώ', 'ώ', 'Ί', 'ί', 'ϊ', 'ΐ', 'Ύ', 'ύ', 'ϋ', 'ΰ', 'Ή', 'ή'];
 
     /**
-     * Their translations deemed "close" by a skilled observer.
-     *
-     * Anything that does not get converted properly could just be added here.
-     * @var array
+     * @var array - Their translations deemed "close" by a skilled observer
      */
     public static $CLOSE_ASCII = ['A', 'A', 'A', 'A', 'A', 'A', 'AE', 'C', 'E', 'E', 'E', 'E', 'I', 'I', 'I', 'I', 'D',
         'N', 'O', 'O', 'O', 'O', 'O', 'O', 'U', 'U', 'U', 'U', 'Y', 's', 'a', 'a', 'a', 'a', 'a', 'a', 'ae', 'c', 'e',
@@ -225,10 +241,7 @@ class Search
         'Ο', 'ο', 'O', 'w', 'Ι', 'i', 'i', 'i', 'Υ', 'u', 'u', 'u', 'Η', 'n'];
 
     /**
-     * Array of MyISAM stopwords.
-     * These words are completely ignored by a search on a field with a fulltext index (CONTAINS statement).
-     *
-     * @var array
+     * @var array - Array of MyISAM stopwords that are completely ignored by a search on a field with a fulltext index (CONTAINS statement)
      */
     public static $STOP_WORDS = [
         "a's", "able", "about", "above", "according", "accordingly", "across", "actually", "after", "afterwards",
@@ -281,25 +294,4 @@ class Search
         "willing", "wish", "with", "within", "without", "won't", "wonder", "would", "wouldn't", "yes", "yet", "you",
         "you'd", "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves", "zero"
     ];
-
-    /**
-     * Converts characters in a string to their close english only non-accented, non-diacritical matches.
-     * The actual conversion is not super important, however consistency is, this is used to ensure a word like
-     * "manana" matches what the search probably meant, "mañana".
-     *
-     * @param string $string
-     * @return string, the converted string.
-     */
-    static public function convertCloseChars($string) {
-        return str_replace(self::$SPECIALS, self::$CLOSE_ASCII, $string);
-    }
-
-    /**
-     * Prints the help link for the flash message.
-     *
-     * @return string
-     */
-    static public function searchHelpLink() {
-        return "<span class='pull-right'><a href='" . action("HelpController@search") . "' target='_blank'>Help</a>&nbsp;</span>";
-    }
 }

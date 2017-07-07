@@ -1,11 +1,22 @@
-<?php
-
-namespace App;
+<?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Page extends Model
-{
+class Page extends Model {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Page
+    |--------------------------------------------------------------------------
+    |
+    | This model represents a page within the form layout
+    |
+    */
+
+    /**
+     * @var array - Attributes that can be mass assigned to model
+     */
     protected $fillable = [
         'parent_type',
         'fid',
@@ -14,16 +25,16 @@ class Page extends Model
     ];
 
     /**
-     * Returns the fields for a given page
+     * Returns the fields for a given page.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function fields(){
         return $this->hasMany('App\Field', 'page_id')->orderBy('sequence');
     }
 
     /**
-     * Because the MyISAM engine doesn't support foreign keys we have to emulate cascading.
+     * Delete the fields contained in the page, and then deletes self.
      */
     public function delete() {
         $fields = Field::where("page_id", "=", $this->id)->get();

@@ -1,10 +1,24 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\DB;
 
 class Token extends Model {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Token
+    |--------------------------------------------------------------------------
+    |
+    | This model represents an authentication token for interacting with projects
+    |  from outside Kora3
+    |
+    */
+
+    /**
+     * @var array - Attributes that can be mass assigned to model
+     */
 	protected $fillable = [
         'token',
         'title',
@@ -17,26 +31,25 @@ class Token extends Model {
     /**
      * Get the projects associated to with a token.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return BelongsToMany
      */
-    public function projects(){
+    public function projects() {
         return $this->belongsToMany('App\Project');
     }
 
     /**
      * Determines if a token belongs to a certain project.
      *
-     * @param Project $project
-     * @return mixed
+     * @param  Project $project - Project to check against
+     * @return bool - Does belong
      */
-    public function hasProject(Project $project)
-    {
+    public function hasProject(Project $project) {
         $thisProjects = $this->projects()->get();
         return $thisProjects->contains($project);
     }
 
     /**
-     * Because the MyISAM engine doesn't support foreign keys we have to emulate cascading.
+     * Deletes the tokens connections to projects, then deletes self.
      */
     public function delete() {
         DB::table("project_token")->where("token_id", "=", $this->id)->delete();
