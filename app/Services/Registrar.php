@@ -1,21 +1,29 @@
 <?php namespace App\Services;
 
 use App\User;
-use Validator;
 use Illuminate\Contracts\Auth\Registrar as RegistrarContract;
+use Illuminate\Contracts\Validation\Validator;
 
 class Registrar implements RegistrarContract {
 
-	/**
+    /*
+    |--------------------------------------------------------------------------
+    | Registrar
+    |--------------------------------------------------------------------------
+    |
+    | This service handles creation and validation of new user
+    |
+    */
+
+    /**
 	 * Get a validator for an incoming registration request.
 	 *
-	 * @param  array  $data
-	 * @return \Illuminate\Contracts\Validation\Validator
+	 * @param  array $data - User data to validate
+	 * @return Validator
 	 */
-	public function validator(array $data)
-	{
+	public function validator(array $data) {
 		return Validator::make($data, [
-			'username' => 'required|max:255|unique:users', //Check to not contain 'a'
+			'username' => 'required|max:255|unique:users',
 			'email' => 'required|email|max:255|unique:users',
 			'password' => 'required|confirmed|min:6',
 			'language'=> 'required|alpha|max:2',
@@ -25,11 +33,10 @@ class Registrar implements RegistrarContract {
 	/**
 	 * Create a new user instance after a valid registration.
 	 *
-	 * @param  array  $data
+	 * @param  array $data - New user data
 	 * @return User
 	 */
-	public function create(array $data)
-	{
+	public function create(array $data) {
 		return User::create([
 			'username' => $data['username'],
 			'name' => $data['name'],

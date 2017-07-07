@@ -1,17 +1,24 @@
 <?php namespace App\Http\Requests;
 
 use App\Http\Controllers\FieldController;
-use App\Http\Requests\Request;
 
 class FieldRequest extends Request {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Field Request
+    |--------------------------------------------------------------------------
+    |
+    | This request handles validation of request inputs for Fields
+    |
+    */
 
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize()
-    {
+    public function authorize() {
         return true;
     }
 
@@ -20,15 +27,12 @@ class FieldRequest extends Request {
      *
      * @return array
      */
-    public function rules()
-    {
+    public function rules() {
         $id = $this->route('flid');
         $field = FieldController::getField($id);
 
-        switch($this->method())
-        {
+        switch($this->method()) {
             case 'POST':
-            {
                 return [
                     'pid' => 'required|numeric',
                     'fid' => 'required|numeric',
@@ -37,9 +41,7 @@ class FieldRequest extends Request {
                     'slug' => 'required|alpha_num|min:3|unique:fields',
                     'desc' => 'required'
                 ];
-            }
             case 'PATCH':
-            {
                 return [
                     'pid' => 'required|numeric',
                     'fid' => 'required|numeric',
@@ -48,13 +50,17 @@ class FieldRequest extends Request {
                     'slug' => 'required|alpha_num|min:3|unique:fields,slug,'.$field->flid.',flid',
                     'desc' => 'required'
                 ];
-            }
-            default:break;
+            default:
+                break;
         }
     }
 
-    public function messages()
-    {
+    /**
+     * Get the custom error messages for Fields.
+     *
+     * @return array
+     */
+    public function messages() {
         return [
             'slug.required' => trans('request_all.req'),
             'slug.alpha_num' => trans('request_all.alpha'),

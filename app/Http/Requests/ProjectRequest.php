@@ -1,18 +1,24 @@
 <?php namespace App\Http\Requests;
 
 use App\Http\Controllers\ProjectController;
-use App\Http\Requests\Request;
-use Illuminate\Support\Facades\Route;
 
 class ProjectRequest extends Request {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Project Request
+    |--------------------------------------------------------------------------
+    |
+    | This request handles validation of request inputs for Projects
+    |
+    */
 
 	/**
 	 * Determine if the user is authorized to make this request.
 	 *
 	 * @return bool
 	 */
-	public function authorize()
-	{
+	public function authorize() {
 		return true;
 	}
 
@@ -21,37 +27,36 @@ class ProjectRequest extends Request {
 	 *
 	 * @return array
 	 */
-	public function rules()
-	{
+	public function rules() {
         $id = $this->route('projects');
         $project = ProjectController::getProject($id);
 
-        switch($this->method())
-        {
+        switch($this->method())  {
             case 'POST':
-            {
                 return [
                     'name' => 'required|min:3',
                     'slug' => 'required|alpha_num|min:3|unique:projects',
                     'description' => 'required',
                     'active' => 'required',
                 ];
-            }
             case 'PATCH':
-            {
                 return [
                     'name' => 'required|min:3',
                     'slug' => 'required|alpha_num|min:3|unique:projects,slug,'.$project->pid.',pid',
                     'description' => 'required',
                     'active' => 'required',
                 ];
-            }
-            default:break;
+            default:
+                break;
         }
 	}
 
-	public function messages()
-	{
+    /**
+     * Get the custom error messages for Projects.
+     *
+     * @return array
+     */
+	public function messages() {
 		return [
 			'slug.required' => trans('request_all.req'),
 			'slug.alpha_num' => trans('request_all.alpha'),
