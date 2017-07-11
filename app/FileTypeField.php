@@ -1,29 +1,26 @@
-<?php
-/**
- * Created by PhpStorm.
- * User: ian.whalen
- * Date: 4/21/2016
- * Time: 12:55 PM
- */
+<?php namespace App;
 
-namespace App;
 use App\FieldHelpers\UploadHandler;
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RecordController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
-use League\Flysystem\Util\MimeType;
 
-/**
- * Class FileTypeField, abstract class for the fields that have files associated with them.
- * @package App
- */
-abstract class FileTypeField extends BaseField
-{
+abstract class FileTypeField extends BaseField {
+
+    /*
+    |--------------------------------------------------------------------------
+    | File Typed Field
+    |--------------------------------------------------------------------------
+    |
+    | This model represents the abstract class for the fields that have files
+    |  associated with them
+    |
+    */
+
     /**
      * Parses the string representing all the files that a field has and returns an array of the file names.
      *
-     * @return array, empty if there was an error, else it will have the names of the files associated with the field.
+     * @return array - Empty if there was an error, else it will have the names of the files associated with the field
      */
     public function getFileNames() {
         $type = Field::where("flid", '=', $this->flid)->first()->type;
@@ -34,27 +31,22 @@ abstract class FileTypeField extends BaseField
             case 'Documents':
                 $infoString = $this->documents;
                 break;
-
             case 'Gallery':
                 $infoString = $this->images;
                 break;
-
             case 'Playlist':
                 $infoString = $this->audio;
                 break;
-
             case 'Video':
                 $infoString = $this->video;
                 break;
-
             case '3D-Model':
                 $infoString = $this->model;
                 break;
         }
 
-        if ($infoString == null) {
+        if($infoString == null)
             return []; // Something went wrong!
-        }
 
         $fileNames = [];
         foreach(explode('[!]', $infoString) as $file) {
@@ -65,33 +57,22 @@ abstract class FileTypeField extends BaseField
     }
 
     /**
-     * Processes the input string for searching in an advanced search query.
-     *
-     * @param $input
-     * @return string
-     */
-    public static function processAdvancedSearchInput($input) {
-        return $input . "*[Name]";
-    }
-
-    /**
      * Saves a temporary version of an uploaded file.
      *
      * @param  int $flid - File field that record file will be loaded to
      * @param  Request $request
      */
-    public static function saveTmpFile($flid, Request $request) {
+    public static function saveTmpFile($flid) {
         $field = FieldController::getField($flid);
         $uid = \Auth::user()->id;
         $dir = env('BASE_PATH').'storage/app/tmpFiles/f'.$flid.'u'.$uid;
 
         $maxFileNum = FieldController::getFieldOption($field, 'MaxFiles');
         $fileNumRequest = sizeof($_FILES['file'.$flid]['name']);
-        if(glob($dir.'/*.*') != false) {
+        if(glob($dir.'/*.*') != false)
             $fileNumDisk = count(glob($dir.'/*.*'));
-        } else {
+        else
             $fileNumDisk = 0;
-        }
 
         $maxFieldSize = FieldController::getFieldOption($field, 'FieldSize')*1024; //conversion of kb to bytes
         $fileSizeRequest = 0;
@@ -101,9 +82,8 @@ abstract class FileTypeField extends BaseField
         $fileSizeDisk = 0;
         if(file_exists($dir)) {
             foreach(new \DirectoryIterator($dir) as $file) {
-                if($file->isFile()) {
+                if($file->isFile())
                     $fileSizeDisk += $file->getSize();
-                }
             }
         }
 
@@ -117,35 +97,30 @@ abstract class FileTypeField extends BaseField
         $fileTypesRequest = $_FILES['file'.$flid]['type'];
         if((sizeof($fileTypes)!=1 | $fileTypes[0]!='') && $field->type != '3D-Model') {
             foreach($fileTypesRequest as $type) {
-                if(!in_array($type,$fileTypes)) {
+                if(!in_array($type,$fileTypes))
                     $validTypes = false;
-                }
             }
         } else if($field->type=='Gallery') {
             foreach($fileTypesRequest as $type) {
-                if(!in_array($type,['image/jpeg','image/gif','image/png'])) {
+                if(!in_array($type,['image/jpeg','image/gif','image/png']))
                     $validTypes = false;
-                }
             }
         } else if($field->type=='Playlist') {
             foreach($fileTypesRequest as $type) {
-                if(!in_array($type,['audio/mp3','audio/wav','audio/ogg'])) {
+                if(!in_array($type,['audio/mp3','audio/wav','audio/ogg']))
                     $validTypes = false;
-                }
             }
         } else if($field->type=='Video') {
             foreach($fileTypesRequest as $type) {
-                if(!in_array($type,['video/mp4','video/ogg'])) {
+                if(!in_array($type,['video/mp4','video/ogg']))
                     $validTypes = false;
-                }
             }
         } else if($field->type=='3D-Model') {
             foreach($_FILES['file'.$flid]['name'] as $file) {
                 $filetype = explode('.',$file);
                 $type = array_pop($filetype);
-                if(!in_array($type,['obj','stl'])) {
+                if(!in_array($type,['obj','stl']))
                     $validTypes = false;
-                }
             }
         }
 
@@ -157,6 +132,7 @@ abstract class FileTypeField extends BaseField
             $options['image_versions']['medium']['max_width'] = $lgThumbs[0];
             $options['image_versions']['medium']['max_height'] = $lgThumbs[1];
         }
+
         if(!$validTypes) {
             echo 'InvalidType';
         } else if($maxFileNum !=0 && $fileNumRequest+$fileNumDisk>$maxFileNum) {
@@ -175,7 +151,7 @@ abstract class FileTypeField extends BaseField
      * @param  string $name - Name of the file to delete
      * @param  Request $request
      */
-    public static function delTmpFile($flid, $filename, Request $request) {
+    public static function delTmpFile($flid, $filename) {
         $options = array();
         $options['flid'] = $flid;
         $options['filename'] = $filename;
@@ -207,7 +183,12 @@ abstract class FileTypeField extends BaseField
         }
     }
 
-    public static function getMimeTypes(){
+    /**
+     * Searches standard list of MIME file types.
+     *
+     * @param  array - The MIME types
+     */
+    public static function getMimeTypes() {
         $types=array();
         foreach(@explode("\n",@file_get_contents('http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types'))as $x)
             if(isset($x[0])&&$x[0]!=='#'&&preg_match_all('#([^\s]+)#',$x,$out)&&isset($out[1])&&($c=count($out[1]))>1)

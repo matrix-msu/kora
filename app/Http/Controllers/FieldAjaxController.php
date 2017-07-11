@@ -72,8 +72,8 @@ class FieldAjaxController extends Controller {
      * @param  int $flid - File field that record file will be loaded to
      * @param  Request $request
      */
-    public function saveTmpFile($flid, Request $request) {
-        FileTypeField::saveTmpFile($flid, $request);
+    public function saveTmpFile($flid) {
+        FileTypeField::saveTmpFile($flid);
     }
 
     /**
@@ -83,8 +83,8 @@ class FieldAjaxController extends Controller {
      * @param  string $name - Name of the file to delete
      * @param  Request $request
      */
-    public function delTmpFile($flid, $filename, Request $request) {
-        FileTypeField::delTmpFile($flid, $filename, $request);
+    public function delTmpFile($flid, $filename) {
+        FileTypeField::delTmpFile($flid, $filename);
     }
 
     /**

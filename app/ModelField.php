@@ -290,7 +290,7 @@ class ModelField extends FileTypeField  {
      * @return Builder
      */
     public static function getAdvancedSearchQuery($flid, $query) {
-        $processed = self::processAdvancedSearchInput($query[$flid."_input"]);
+        $processed = $query[$flid."_input"]. "*[Name]";
 
         return DB::table("model_fields")
             ->select("rid")
