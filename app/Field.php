@@ -1,11 +1,13 @@
 <?php namespace App;
 
 use App\Http\Controllers\FieldController;
-use App\Http\Requests\Request;
+use App\Http\Controllers\FormController;
+use App\Http\Controllers\RevisionController;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -118,6 +120,117 @@ class Field extends Model {
     }
 
     /**
+     * Update the field for if data is required in the field.
+     *
+     * @param  bool $req - Is the field required?
+     */
+    public function updateRequired($req) {
+        if(!self::checkPermissions($this->fid, 'edit')) {
+            return redirect('projects/'.$this->pid.'/forms/'.$this->fid.'/fields');
+        }
+
+        $this->required = $req;
+        $this->save();
+
+        //A field has been changed, so current record rollbacks become invalid.
+        RevisionController::wipeRollbacks($this->fid);
+    }
+
+    /**
+     * Update the field for what context field's data can be searched and viewed.
+     *
+     * @param  Request $request
+     */
+    public function updateSearchable(Request $request) {
+        if(!self::checkPermissions($this->fid, 'edit')) {
+            return redirect('projects/' . $this->pid . '/forms/' . $this->fid . '/fields');
+        }
+
+        $this->searchable = $request->searchable;
+        $this->extsearch = $request->extsearch;
+        $this->viewable = $request->viewable;
+        $this->viewresults = $request->viewresults;
+        $this->extview = $request->extview;
+        $this->save();
+
+        //A field has been changed, so current record rollbacks become invalid.
+        RevisionController::wipeRollbacks($this->fid);
+    }
+
+    /**
+     * Update the field's default value.
+     *
+     * @param  string $def - Default value of field
+     */
+    public function updateDefault($def) {
+        if(!self::checkPermissions($this->fid, 'edit')) {
+            return redirect('projects/'.$this->pid.'/forms/'.$this->fid.'/fields');
+        }
+
+        $this->default = $def;
+        $this->save();
+
+        //A field has been changed, so current record rollbacks become invalid.
+        RevisionController::wipeRollbacks($this->fid);
+    }
+
+    /**
+     * Update an option for a field.
+     *
+     * @param  string $opt - Option to update
+     * @param  string $value - Value for option
+     */
+    public function updateOptions($opt, $value) {
+        if(!self::checkPermissions($this->fid, 'edit')) {
+            return redirect('projects/'.$this->pid.'/forms/'.$this->fid.'/fields');
+        }
+
+        $tag = '[!'.$opt.'!]';
+        $array = explode($tag,$this->options);
+        $this->options = $array[0].$tag.$value.$tag.$array[2];
+        $this->save();
+
+        //A field has been changed, so current record rollbacks become invalid.
+        RevisionController::wipeRollbacks($this->fid);
+    }
+
+    /**
+     * Checks a users permissions to be able to create and manipulate fields in a form.
+     *
+     * @param  int $fid - Form ID
+     * @param  string $permission - Permission to check for
+     * @return bool - Has the permission
+     */
+    private static function checkPermissions($fid, $permission='') {
+        switch($permission) {
+            case 'create':
+                if(!(\Auth::user()->canCreateFields(FormController::getForm($fid))))  {
+                    flash()->overlay(trans('controller_field.createper'), trans('controller_field.whoops'));
+                    return false;
+                }
+                return true;
+            case 'edit':
+                if(!(\Auth::user()->canEditFields(FormController::getForm($fid)))) {
+                    flash()->overlay(trans('controller_field.editper'), trans('controller_field.whoops'));
+                    return false;
+                }
+                return true;
+            case 'delete':
+                if(!(\Auth::user()->canDeleteFields(FormController::getForm($fid)))) {
+                    flash()->overlay(trans('controller_field.deleteper'), trans('controller_field.whoops'));
+                    return false;
+                }
+                return true;
+            default:
+                if(!(\Auth::user()->inAFormGroup(FormController::getForm($fid)))) {
+                    flash()->overlay(trans('controller_field.viewper'), trans('controller_field.whoops'));
+                    return false;
+                }
+                return true;
+        }
+    }
+
+    /**
      * Checks to see if slug is already in use.
      *
      * @param  string $slug - The slug to check
@@ -172,12 +285,133 @@ class Field extends Model {
     /////////////
 
     /**
+     * Get back the typed field model. Mostly used for typed field functionality that exists before the model 
+     * exists in a record.
+     *
+     * @return BaseField - The requested typed field
+     */
+    public function getTypedField() {
+        switch($this->type) {
+            case self::_TEXT:
+                return new TextField();
+                break;
+            case self::_RICH_TEXT:
+                return new RichTextField();
+                break;
+            case self::_NUMBER:
+                return new NumberField();
+                break;
+            case self::_LIST:
+                return new ListField();
+                break;
+            case self::_MULTI_SELECT_LIST:
+                return new MultiSelectListField();
+                break;
+            case self::_GENERATED_LIST:
+                return new GeneratedListField();
+                break;
+            case self::_DATE:
+                return new DateField();
+                break;
+            case self::_SCHEDULE:
+                return new ScheduleField();
+                break;
+            case self::_GEOLOCATOR:
+                return new GeolocatorField();
+                break;
+            case self::_DOCUMENTS:
+                return new DocumentsField();
+                break;
+            case self::_GALLERY:
+                return new GalleryField();
+                break;
+            case self::_3D_MODEL:
+                return new ModelField();
+                break;
+            case self::_PLAYLIST:
+                return new PlaylistField();
+                break;
+            case self::_VIDEO:
+                return new VideoField();
+                break;
+            case self::_COMBO_LIST:
+                return new ComboListField();
+                break;
+            case self::_ASSOCIATOR:
+                return new AssociatorField();
+                break;
+            default:
+                throw new \Exception("Invalid field type in Field::getTypedField.");
+        }
+    }
+
+    /**
+     * Can call this instead if the field doesn't exist yet and you know the type you need.
+     *
+     * @return BaseField - The requested typed field
+     */
+    public static function getTypedFieldStatic($type) {
+        switch($type) {
+            case self::_TEXT:
+                return new TextField();
+                break;
+            case self::_RICH_TEXT:
+                return new RichTextField();
+                break;
+            case self::_NUMBER:
+                return new NumberField();
+                break;
+            case self::_LIST:
+                return new ListField();
+                break;
+            case self::_MULTI_SELECT_LIST:
+                return new MultiSelectListField();
+                break;
+            case self::_GENERATED_LIST:
+                return new GeneratedListField();
+                break;
+            case self::_DATE:
+                return new DateField();
+                break;
+            case self::_SCHEDULE:
+                return new ScheduleField();
+                break;
+            case self::_GEOLOCATOR:
+                return new GeolocatorField();
+                break;
+            case self::_DOCUMENTS:
+                return new DocumentsField();
+                break;
+            case self::_GALLERY:
+                return new GalleryField();
+                break;
+            case self::_3D_MODEL:
+                return new ModelField();
+                break;
+            case self::_PLAYLIST:
+                return new PlaylistField();
+                break;
+            case self::_VIDEO:
+                return new VideoField();
+                break;
+            case self::_COMBO_LIST:
+                return new ComboListField();
+                break;
+            case self::_ASSOCIATOR:
+                return new AssociatorField();
+                break;
+            default:
+                throw new \Exception("Invalid field type in Field::getTypedField.");
+        }
+    }
+
+    /**
      * For a record, gets back the typed field model that holds the actual data.
      *
      * @param  int $rid - Record ID
      * @return BaseField - The requested typed field
      */
-    public function getTypedField($rid) {
+    public function getTypedFieldFromRID($rid) {
         switch($this->type) {
             case self::_TEXT:
                 return TextField::where("flid", "=", $this->flid)->where("rid", "=", $rid)->first();
@@ -229,276 +463,6 @@ class Field extends Model {
                 break;
             default:
                 throw new \Exception("Invalid field type in Field::getTypedField.");
-        }
-    }
-
-    ///////////
-    //OPTIONS//
-    ///////////
-
-    /**
-     * Gets the view name for the field options page.
-     *
-     * @param  string $fieldType - The field type
-     * @return string - View name
-     */
-    public static function getFieldTypeView($fieldType) {
-        switch ($fieldType) {
-            case self::_TEXT:
-                return TextField::FIELD_OPTIONS_VIEW;
-                break;
-            case self::_RICH_TEXT:
-                return RichTextField::FIELD_OPTIONS_VIEW;
-                break;
-            case self::_NUMBER:
-                return NumberField::FIELD_OPTIONS_VIEW;
-                break;
-            case self::_LIST:
-                return ListField::FIELD_OPTIONS_VIEW;
-                break;
-            case self::_MULTI_SELECT_LIST:
-                return MultiSelectListField::FIELD_OPTIONS_VIEW;
-                break;
-            case self::_GENERATED_LIST:
-                return GeneratedListField::FIELD_OPTIONS_VIEW;
-                break;
-            case self::_DATE:
-                return DateField::FIELD_OPTIONS_VIEW;
-                break;
-            case self::_SCHEDULE:
-                return ScheduleField::FIELD_OPTIONS_VIEW;
-                break;
-            case self::_GEOLOCATOR:
-                return GeolocatorField::FIELD_OPTIONS_VIEW;
-                break;
-            case self::_DOCUMENTS:
-                return DocumentsField::FIELD_OPTIONS_VIEW;
-                break;
-            case self::_GALLERY:
-                return GalleryField::FIELD_OPTIONS_VIEW;
-                break;
-            case self::_3D_MODEL:
-                return ModelField::FIELD_OPTIONS_VIEW;
-                break;
-            case self::_PLAYLIST:
-                return PlaylistField::FIELD_OPTIONS_VIEW;
-                break;
-            case self::_VIDEO:
-                return VideoField::FIELD_OPTIONS_VIEW;
-                break;
-            case self::_COMBO_LIST:
-                return ComboListField::FIELD_OPTIONS_VIEW;
-                break;
-            case self::_ASSOCIATOR:
-                return AssociatorField::FIELD_OPTIONS_VIEW;
-                break;
-            default: // Error occurred.
-                throw new \Exception("Invalid field type in field::field option.");
-                break;
-        }
-    }
-
-    /**
-     * Gets the view name for advanced field creation.
-     *
-     * @param  string $fieldType - The field type
-     * @return string - View name
-     */
-    public static function getAdvFieldTypeView($fieldType) {
-        switch($fieldType) {
-            case self::_TEXT:
-                return TextField::FIELD_ADV_OPTIONS_VIEW;
-                break;
-            case self::_RICH_TEXT:
-                return RichTextField::FIELD_ADV_OPTIONS_VIEW;
-                break;
-            case self::_NUMBER:
-                return NumberField::FIELD_ADV_OPTIONS_VIEW;
-                break;
-            case self::_LIST:
-                return ListField::FIELD_ADV_OPTIONS_VIEW;
-                break;
-            case self::_MULTI_SELECT_LIST:
-                return MultiSelectListField::FIELD_ADV_OPTIONS_VIEW;
-                break;
-            case self::_GENERATED_LIST:
-                return GeneratedListField::FIELD_ADV_OPTIONS_VIEW;
-                break;
-            case self::_DATE:
-                return DateField::FIELD_ADV_OPTIONS_VIEW;
-                break;
-            case self::_SCHEDULE:
-                return ScheduleField::FIELD_ADV_OPTIONS_VIEW;
-                break;
-            case self::_GEOLOCATOR:
-                return GeolocatorField::FIELD_ADV_OPTIONS_VIEW;
-                break;
-            case self::_DOCUMENTS:
-                return DocumentsField::FIELD_ADV_OPTIONS_VIEW;
-                break;
-            case self::_GALLERY:
-                return GalleryField::FIELD_ADV_OPTIONS_VIEW;
-                break;
-            case self::_3D_MODEL:
-                return ModelField::FIELD_ADV_OPTIONS_VIEW;
-                break;
-            case self::_PLAYLIST:
-                return PlaylistField::FIELD_ADV_OPTIONS_VIEW;
-                break;
-            case self::_VIDEO:
-                return VideoField::FIELD_ADV_OPTIONS_VIEW;
-                break;
-            case self::_COMBO_LIST:
-                return ComboListField::FIELD_ADV_OPTIONS_VIEW;
-                break;
-            case self::_ASSOCIATOR:
-                return AssociatorField::FIELD_ADV_OPTIONS_VIEW;
-                break;
-            default: // Error occurred.
-                throw new \Exception("Invalid field type in field::field option.");
-                break;
-        }
-    }
-
-    /**
-     * Gets the default options string for a new field.
-     *
-     * @param  string $type - The field type
-     * @param  Request $request
-     * @return string - The default options
-     */
-    public static function getOptions($type, $request) {
-        $field_type = $type;
-        switch($field_type) {
-            case self::_TEXT:
-                return TextField::getOptions();
-                break;
-            case self::_RICH_TEXT:
-                return RichTextField::getOptions();
-                break;
-            case self::_NUMBER:
-                return NumberField::getOptions();
-                break;
-            case self::_LIST:
-                return ListField::getOptions();
-                break;
-            case self::_MULTI_SELECT_LIST:
-                return MultiSelectListField::getOptions();
-                break;
-            case self::_GENERATED_LIST:
-                return GeneratedListField::getOptions();
-                break;
-            case self::_DATE:
-                return DateField::getOptions();
-                break;
-            case self::_SCHEDULE:
-                return ScheduleField::getOptions();
-                break;
-            case self::_GEOLOCATOR:
-                return GeolocatorField::getOptions();
-                break;
-            case self::_DOCUMENTS:
-                return DocumentsField::getOptions();
-                break;
-            case self::_GALLERY:
-                return GalleryField::getOptions();
-                break;
-            case self::_3D_MODEL:
-                return ModelField::getOptions();
-                break;
-            case self::_PLAYLIST:
-                return PlaylistField::getOptions();
-                break;
-            case self::_VIDEO:
-                return VideoField::getOptions();
-                break;
-            case self::_COMBO_LIST:
-                return ComboListField::getOptions($request);
-                break;
-            case self::_ASSOCIATOR:
-                return AssociatorField::getOptions();
-                break;
-            default: // Error occurred.
-                throw new \Exception("Invalid field type in field::field option.");
-                break;
-        }
-    }
-
-    /**
-     * Update the options for a field
-     *
-     * @param  int $pid - Project ID
-     * @param  int $fid - Form ID
-     * @param  int $flid - Field ID
-     * @param  string $fieldType - Type of field
-     * @param  Request $request
-     * @param  bool $return - Are we returning an error by string or redirect
-     * @return string - The result
-     */
-    public static function updateOptions($pid, $fid, $flid, $fieldType, $request, $return=true) {
-        switch($fieldType) {
-            case self::_TEXT:
-                $returnval = TextField::updateOptions($pid, $fid, $flid, $request, $return);
-                break;
-            case self::_RICH_TEXT:
-                RichTextField::updateOptions($pid, $fid, $flid, $request);
-                break;
-            case self::_NUMBER:
-                $returnval = NumberField::updateOptions($pid, $fid, $flid, $request, $return);
-                break;
-            case self::_LIST:
-                ListField::updateOptions($pid, $fid, $flid, $request);
-                break;
-            case self::_MULTI_SELECT_LIST:
-                MultiSelectListField::updateOptions($pid, $fid, $flid, $request);
-                break;
-            case self::_GENERATED_LIST:
-                GeneratedListField::updateOptions($pid, $fid, $flid, $request);
-                break;
-            case self::_DATE:
-                DateField::updateOptions($pid, $fid, $flid, $request);
-                break;
-            case self::_SCHEDULE:
-                ScheduleField::updateOptions($pid, $fid, $flid, $request);
-                break;
-            case self::_GEOLOCATOR:
-                GeolocatorField::updateOptions($pid, $fid, $flid, $request);
-                break;
-            case self::_DOCUMENTS:
-                DocumentsField::updateOptions($pid, $fid, $flid, $request);
-                break;
-            case self::_GALLERY:
-                GalleryField::updateOptions($pid, $fid, $flid, $request);
-                break;
-            case self::_3D_MODEL:
-                ModelField::updateOptions($pid, $fid, $flid, $request);
-                break;
-            case self::_PLAYLIST:
-                PlaylistField::updateOptions($pid, $fid, $flid, $request);
-                break;
-            case self::_VIDEO:
-                VideoField::updateOptions($pid, $fid, $flid, $request);
-                break;
-            case self::_COMBO_LIST:
-                ComboListField::updateOptions($pid, $fid, $flid, $request);
-                break;
-            case self::_ASSOCIATOR:
-                AssociatorField::updateOptions($pid, $fid, $flid, $request);
-                break;
-            default: // Error occurred.
-                throw new \Exception("Invalid field type in field::field option.");
-                break;
-        }
-
-        if($return) {
-            flash()->success(trans('controller_option.updated'));
-
-            return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options');
-        } else {
-            if($field_type==self::_TEXT | $field_type==self::_NUMBER)
-                return $returnval;
-            else
-                return '';
         }
     }
 
@@ -1198,7 +1162,7 @@ class Field extends Model {
      * @param  string $arg - The keywords
      * @param  string $method - Type of keyword search
      * @return string - Updated keyword search
-     */
+     */ //TODO::static? File typed?
     private static function processArgumentForFileField($arg, $method) {
         // We only want to match with actual data in the name field
         if($method == Search::SEARCH_EXACT) {

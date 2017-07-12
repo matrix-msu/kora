@@ -5,6 +5,7 @@ use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class NumberField extends BaseField {
@@ -13,8 +14,7 @@ class NumberField extends BaseField {
     const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.number";
 
     /**
-     * Epsilon value for comparison purposes.
-     * Used to match between values in MySQL.
+     * Epsilon value for comparison purposes. Used to match between values in MySQL.
      *
      * @type float
      */
@@ -26,8 +26,76 @@ class NumberField extends BaseField {
         'number'
     ];
 
-    public static function getOptions(){
+    public function getFieldOptionsView(){
+        return self::FIELD_OPTIONS_VIEW;
+    }
+
+    public function getAdvancedFieldOptionsView(){
+        return self::FIELD_ADV_OPTIONS_VIEW;
+    }
+
+    public function getDefaultOptions(Request $request){
         return '[!Max!][!Max!][!Min!][!Min!][!Increment!]1[!Increment!][!Unit!][!Unit!]';
+    }
+
+    public function updateOptions($field, Request $request, $return=true) {
+        //these are help prevent interruption of correct parameters when error is found in advanced setup
+        $advString = '';
+
+        if($request->min!='' && $request->max!=''){
+            if($request->min >= $request->max){
+                if($return){
+                    flash()->error('The max value is less than or equal to the minimum value. ');
+
+                    return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')->withInput();
+                }else{
+                    $request->min = '';
+                    $request->max = '';
+                    $advString = 'The max value is less than or equal to the minimum value.';
+                }
+            }
+        }
+
+        if($request->default!='' && $request->max!=''){
+            if($request->default > $request->max) {
+                if($return){
+                    flash()->error('The max value is less than the default value. ');
+
+                    return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')->withInput();
+                }else{
+                    $request->default = '';
+                    $advString = 'The max value is less than the default value.';
+                }
+            }
+        }
+
+        if($request->default!='' && $request->min!=''){
+            if($request->default < $request->min) {
+                if($return){
+                    flash()->error('The minimum value is greater than the default value. ');
+
+                    return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')->withInput();
+                }else{
+                    $request->default = '';
+                    $advString = 'The minimum value is greater than the default value.';
+                }
+            }
+        }
+
+        $field->updateRequired($request->required);
+        $field->updateSearchable($request);
+        $field->updateDefault($request->default);
+        $field->updateOptions('Max', $request->max);
+        $field->updateOptions('Min', $request->min);
+        $field->updateOptions('Increment', $request->inc);
+        $field->updateOptions('Unit', $request->unit);
+
+        if($return) {
+            flash()->overlay(trans('controller_field.optupdate'), trans('controller_field.goodjob'));
+            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
+        } else {
+            return $advString;
+        }
     }
 
     public static function getExportSample($field,$type){
@@ -47,61 +115,6 @@ class NumberField extends BaseField {
                 break;
         }
 
-    }
-
-    public static function updateOptions($pid, $fid, $flid, $request, $return=true){
-        //these are help prevent interruption of correct parameters when error is found in advanced setup
-        $advString = '';
-
-        if($request->min!='' && $request->max!=''){
-            if($request->min >= $request->max){
-                if($return){
-                    flash()->error('The max value is less than or equal to the minimum value. ');
-
-                    return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options')->withInput();
-                }else{
-                    $request->min = '';
-                    $request->max = '';
-                    $advString = 'The max value is less than or equal to the minimum value.';
-                }
-            }
-        }
-
-        if($request->default!='' && $request->max!=''){
-            if($request->default > $request->max) {
-                if($return){
-                    flash()->error('The max value is less than the default value. ');
-
-                    return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options')->withInput();
-                }else{
-                    $request->default = '';
-                    $advString = 'The max value is less than the default value.';
-                }
-            }
-        }
-
-        if($request->default!='' && $request->min!=''){
-            if($request->default < $request->min) {
-                if($return){
-                    flash()->error('The minimum value is greater than the default value. ');
-
-                    return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options')->withInput();
-                }else{
-                    $request->default = '';
-                    $advString = 'The minimum value is greater than the default value.';
-                }
-            }
-        }
-
-        FieldController::updateRequired($pid, $fid, $flid, $request->required);
-        FieldController::updateSearchable($pid, $fid, $flid, $request);
-        FieldController::updateDefault($pid, $fid, $flid, $request->default);
-        FieldController::updateOptions($pid, $fid, $flid, 'Max', $request->max);
-        FieldController::updateOptions($pid, $fid, $flid, 'Min', $request->min);
-        FieldController::updateOptions($pid, $fid, $flid, 'Increment', $request->inc);
-        FieldController::updateOptions($pid, $fid, $flid, 'Unit', $request->unit);
-
-        return $advString;
     }
 
     public static function createNewRecordField($field, $record, $value){

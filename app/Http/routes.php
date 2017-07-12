@@ -109,7 +109,7 @@ Route::delete('/projects/{pid}/forms/{fid}/fields/{flid}','FieldController@destr
 Route::get('/projects/{pid}/forms/{fid}/fields/{flid}/edit','FieldController@edit');
 Route::get('/projects/{pid}/forms/{fid}/fields/{flid}/options','FieldController@show'); //alias for fields/{id}
 Route::get('/projects/{pid}/forms/{fid}/advOpt','FieldAjaxController@getAdvancedOptionsPage');
-Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options/{type}','FieldAjaxController@updateOptions');
+Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}/options','FieldAjaxController@updateOptions');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/validateCombo','FieldAjaxController@validateComboListOpt');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/geoConvert','FieldAjaxController@geoConvert');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/assoc','AssociatorSearchController@assocSearch');

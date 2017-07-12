@@ -43,7 +43,11 @@ class FieldAjaxController extends Controller {
      * @return string - Returns on error or blank on success
      */
     public function validateComboListOpt($pid, $fid, $flid, Request $request) {
-        return ComboListField::validateComboListOpt($pid, $fid, $flid, $request);
+        if(!FieldController::validProjFormField($pid, $fid, $flid)) {
+            return redirect('projects/'.$pid.'/forms/'.$fid);
+        }
+
+        return ComboListField::validateComboListOpt($flid, $request);
     }
 
     /**
@@ -121,9 +125,13 @@ class FieldAjaxController extends Controller {
      * @return View
      */
     public function getAdvancedOptionsPage($pid, $fid, Request $request) {
+        if(!FormController::validProjForm($pid,$fid)) {
+            return redirect('projects/'.$pid);
+        }
+
         $type = $request->type;
 
-        return view(Field::getAdvFieldTypeView($type), compact('field', 'form', 'proj','presets'));
+        return view(Field::getTypedFieldStatic($type)->getAdvancedFieldOptionsView(), compact('field', 'form', 'proj','presets'));
     }
 
     /**
@@ -135,7 +143,12 @@ class FieldAjaxController extends Controller {
      * @param  Request $request
      * @return Redirect
      */
-    public function updateOptions($pid, $fid, $flid, $type, Request $request){
-        return Field::updateOptions($pid, $fid, $flid, $type, $request);
+    public function updateOptions($pid, $fid, $flid, Request $request){
+        if(!FieldController::validProjFormField($pid, $fid, $flid)) {
+            return redirect('projects/'.$pid.'/forms/'.$fid);
+        }
+
+        $field = FieldController::getField($flid);
+        return $field->getTypedField()->updateOptions($field, $request);
     }
 }

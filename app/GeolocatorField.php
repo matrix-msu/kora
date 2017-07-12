@@ -26,8 +26,37 @@ class GeolocatorField extends BaseField {
         'locations'
     ];
 
-    public static function getOptions(){
+    public function getFieldOptionsView(){
+        return self::FIELD_OPTIONS_VIEW;
+    }
+
+    public function getAdvancedFieldOptionsView(){
+        return self::FIELD_ADV_OPTIONS_VIEW;
+    }
+
+    public function getDefaultOptions(Request $request){
         return '[!Map!]No[!Map!][!DataView!]LatLon[!DataView!]';
+    }
+
+    public function updateOptions($field, Request $request, $return=true) {
+        $reqDefs = $request->default;
+        $default = $reqDefs[0];
+        for($i=1;$i<sizeof($reqDefs);$i++){
+            $default .= '[!]'.$reqDefs[$i];
+        }
+
+        $field->updateRequired($request->required);
+        $field->updateSearchable($request);
+        $field->updateDefault($default);
+        $field->updateOptions('Map', $request->map);
+        $field->updateOptions('DataView', $request->view);
+
+        if($return) {
+            flash()->overlay(trans('controller_field.optupdate'), trans('controller_field.goodjob'));
+            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
+        } else {
+            return '';
+        }
     }
 
     public static function getExportSample($field,$type){
@@ -65,20 +94,6 @@ class GeolocatorField extends BaseField {
                 break;
         }
 
-    }
-
-    public static function updateOptions($pid, $fid, $flid, $request){
-        $reqDefs = $request->default;
-        $default = $reqDefs[0];
-        for($i=1;$i<sizeof($reqDefs);$i++){
-            $default .= '[!]'.$reqDefs[$i];
-        }
-
-        FieldController::updateRequired($pid, $fid, $flid, $request->required);
-        FieldController::updateSearchable($pid, $fid, $flid, $request);
-        FieldController::updateDefault($pid, $fid, $flid, $default);
-        FieldController::updateOptions($pid, $fid, $flid, 'Map', $request->map);
-        FieldController::updateOptions($pid, $fid, $flid, 'DataView', $request->view);
     }
 
     public static function createNewRecordField($field, $record, $value){

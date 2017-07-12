@@ -305,7 +305,7 @@ class OptionPresetController extends Controller {
         $id = $request->input("id");
         $preset = OptionPreset::findOrFail($id);
         $project = Project::findOrFail($pid);
-        $field = Field::findOrFail($flid);
+        $field = FieldController::getField($flid);
         $user = Auth::user();
         $arr = [$preset,$project,$field];
 
@@ -318,12 +318,11 @@ class OptionPresetController extends Controller {
                     return response()->json(["status"=>false,"message"=>trans('controller_optionpreset.editpermission')],500);
                 } else {
                     if($field->type == "Text" && $preset->type == "Text") {
-                        //FieldController::setFieldOptions($field, "Regex", $preset->preset);
-                        FieldController::updateOptions($pid,$fid,$flid,"Regex",$preset->preset);
+                        $field->getTypedField()->updateOptions("Regex",$preset->preset);
                         flash()->overlay(trans('controller_optionpreset.regexapplied'),trans('controller_optionpreset.goodjob'));
                         return response()->json(["status"=>true,"presetval"=>$preset->preset],200);
                     } else if(in_array($field->type,["List","Generated List","Multi-Select List"]) && $preset->type=="List") {
-                        FieldController::updateOptions($pid,$fid,$flid,"Options",$preset->preset);
+                        $field->getTypedField()->updateOptions("Options",$preset->preset);
                         flash()->overlay(trans('controller_optionpreset.presetopt'),trans('controller_optionpreset.goodjob'));
                         return response()->json(["status"=>true,"presetval"=>$preset->preset],200);
                     } else if(in_array($field->type,["Schedule","Geolocator"]) && in_array($preset->type,["Schedule","Geolocator"])) {

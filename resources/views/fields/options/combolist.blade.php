@@ -11,7 +11,7 @@
             $defArray = explode('[!def!]',$defs);
     ?>
 
-    {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldAjaxController@updateOptions', $field->pid, $field->fid, $field->flid, $field->type], 'onsubmit' => 'selectAll()', 'id' => 'comboform']) !!}
+    {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldAjaxController@updateOptions', $field->pid, $field->fid, $field->flid], 'onsubmit' => 'selectAll()', 'id' => 'comboform']) !!}
     @include('fields.options.hiddens')
     {!! Form::hidden('typeone',$oneType) !!}
     {!! Form::hidden('typetwo',$twoType) !!}

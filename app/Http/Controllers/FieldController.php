@@ -65,7 +65,7 @@ class FieldController extends Controller {
             return redirect()->back()->withInput();
         }
 
-        $field->options = Field::getOptions($field->type, $request);
+        $field->options = $field->getTypedField()->getDefaultOptions($request);
         $field->default = '';
 
         $field->sequence = $seq;
@@ -75,7 +75,7 @@ class FieldController extends Controller {
         //if advanced options was selected we should call the correct one
         $advError = false;
         if($request->advance) {
-            $result = Field::updateOptions($field->pid, $field->fid, $field->flid, $field->type, $request, false);
+            $result = $field->getTypedField()->updateOptions($field, $request, false);
             if($result != '') {
                 $advError = true;
                 flash()->error('There was an error with the advanced options. '.$result.' Please visit the options page of the field.');
@@ -121,7 +121,7 @@ class FieldController extends Controller {
             $presetsTwo = $presets->get("two");
             return view(ComboListField::FIELD_OPTIONS_VIEW, compact('field', 'form', 'proj','presetsOne','presetsTwo'));
         } else {
-            return view(Field::getFieldTypeView($field->type), compact('field', 'form', 'proj','presets'));
+            return view($field->getTypedField()->getFieldOptionsView(), compact('field', 'form', 'proj','presets'));
         }
 	}
 
@@ -176,120 +176,6 @@ class FieldController extends Controller {
 
         return redirect('projects/'.$pid.'/forms/'.$fid);
 	}
-
-    /**
-     * Update the field for if data is required in the field.
-     *
-     * @param  int $pid - Project ID
-     * @param  int $fid - Form ID
-     * @param  int $flid - Field ID
-     * @param  bool $req - Is the field required?
-     */
-    public static function updateRequired($pid, $fid, $flid, $req) {
-        if(!self::validProjFormField($pid, $fid, $flid)) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
-
-        if(!self::checkPermissions($fid, 'edit')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
-        }
-
-        $field = self::getField($flid);
-
-        $field->required = $req;
-        $field->save();
-
-        //A field has been changed, so current record rollbacks become invalid.
-        RevisionController::wipeRollbacks($fid);
-    }
-
-    /**
-     * Update the field for what context field's data can be searched and viewed.
-     *
-     * @param  int $pid - Project ID
-     * @param  int $fid - Form ID
-     * @param  int $flid - Field ID
-     * @param  Request $request
-     */
-    public static function updateSearchable($pid, $fid, $flid, Request $request) {
-        if(!self::validProjFormField($pid, $fid, $flid)) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
-
-        if(!self::checkPermissions($fid, 'edit')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
-        }
-
-        $field = self::getField($flid);
-
-        $field->searchable = $request->searchable;
-        $field->extsearch = $request->extsearch;
-        $field->viewable = $request->viewable;
-        $field->viewresults = $request->viewresults;
-        $field->extview = $request->extview;
-        $field->save();
-
-        //A field has been changed, so current record rollbacks become invalid.
-        RevisionController::wipeRollbacks($fid);
-    }
-
-    /**
-     * Update the field's default value.
-     *
-     * @param  int $pid - Project ID
-     * @param  int $fid - Form ID
-     * @param  int $flid - Field ID
-     * @param  string $def - Default value of field
-     */
-    public static function updateDefault($pid, $fid, $flid, $def) {
-        if(!self::validProjFormField($pid, $fid, $flid)) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
-
-        if(!self::checkPermissions($fid, 'edit')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
-        }
-
-        $field = self::getField($flid);
-
-        $field->default = $def;
-
-        $field->save();
-
-        //A field has been changed, so current record rollbacks become invalid.
-        RevisionController::wipeRollbacks($fid);
-    }
-
-    /**
-     * Update an option for a field.
-     *
-     * @param  int $pid - Project ID
-     * @param  int $fid - Form ID
-     * @param  int $flid - Field ID
-     * @param  string $opt - Option to update
-     * @param  string $value - Value for option
-     */
-    public static function updateOptions($pid, $fid, $flid, $opt, $value) {
-        if(!self::validProjFormField($pid, $fid, $flid)) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
-
-        if(!self::checkPermissions($fid, 'edit')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
-        }
-
-        $field = self::getField($flid);
-
-        $options = $field->options;
-        $tag = '[!'.$opt.'!]';
-        $array = explode($tag,$options);
-
-        $field->options = $array[0].$tag.$value.$tag.$array[2];
-        $field->save();
-
-        //A field has been changed, so current record rollbacks become invalid.
-        RevisionController::wipeRollbacks($fid);
-    }
 
     /**
      * Delete a field model.

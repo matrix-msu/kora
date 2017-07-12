@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use DateTime;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PhpSpec\Exception\Exception;
 
@@ -21,8 +22,45 @@ class ScheduleField extends BaseField {
         'events'
     ];
 
-    public static function getOptions(){
+    public function getFieldOptionsView(){
+        return self::FIELD_OPTIONS_VIEW;
+    }
+
+    public function getAdvancedFieldOptionsView(){
+        return self::FIELD_ADV_OPTIONS_VIEW;
+    }
+
+    public function getDefaultOptions(Request $request){
         return '[!Start!]1900[!Start!][!End!]2020[!End!][!Calendar!]No[!Calendar!]';
+    }
+
+    public function updateOptions($field, Request $request, $return=true) {
+        $reqDefs = $request->default;
+        $default = $reqDefs[0];
+        for($i=1;$i<sizeof($reqDefs);$i++){
+            $default .= '[!]'.$reqDefs[$i];
+        }
+
+        if($request->start=='' | $request->start == 0){
+            $request->start = 1;
+        }
+        if($request->end==''){
+            $request->end = 9999;
+        }
+
+        $field->updateRequired($request->required);
+        $field->updateSearchable($request);
+        $field->updateDefault($default);
+        $field->updateOptions('Start', $request->start);
+        $field->updateOptions('End', $request->end);
+        $field->updateOptions('Calendar', $request->cal);
+
+        if($return) {
+            flash()->overlay(trans('controller_field.optupdate'), trans('controller_field.goodjob'));
+            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
+        } else {
+            return '';
+        }
     }
 
     public static function getExportSample($field,$type){
@@ -68,28 +106,6 @@ class ScheduleField extends BaseField {
                 break;
         }
 
-    }
-
-    public static function updateOptions($pid, $fid, $flid, $request){
-        $reqDefs = $request->default;
-        $default = $reqDefs[0];
-        for($i=1;$i<sizeof($reqDefs);$i++){
-            $default .= '[!]'.$reqDefs[$i];
-        }
-
-        if($request->start=='' | $request->start == 0){
-            $request->start = 1;
-        }
-        if($request->end==''){
-            $request->end = 9999;
-        }
-
-        FieldController::updateRequired($pid, $fid, $flid, $request->required);
-        FieldController::updateSearchable($pid, $fid, $flid, $request);
-        FieldController::updateDefault($pid, $fid, $flid, $default);
-        FieldController::updateOptions($pid, $fid, $flid, 'Start', $request->start);
-        FieldController::updateOptions($pid, $fid, $flid, 'End', $request->end);
-        FieldController::updateOptions($pid, $fid, $flid, 'Calendar', $request->cal);
     }
 
     public static function createNewRecordField($field, $record, $value){

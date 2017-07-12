@@ -3,6 +3,7 @@
 use App\Http\Controllers\FieldController;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class VideoField extends FileTypeField {
@@ -16,8 +17,43 @@ class VideoField extends FileTypeField {
         'video'
     ];
 
-    public static function getOptions(){
+    public function getFieldOptionsView(){
+        return self::FIELD_OPTIONS_VIEW;
+    }
+
+    public function getAdvancedFieldOptionsView(){
+        return self::FIELD_ADV_OPTIONS_VIEW;
+    }
+
+    public function getDefaultOptions(Request $request){
         return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!][!FileTypes!]';
+    }
+
+    public function updateOptions($field, Request $request, $return=true) {
+        $filetype = $request->filetype[0];
+        for($i=1;$i<sizeof($request->filetype);$i++){
+            $filetype .= '[!]'.$request->filetype[$i];
+        }
+
+        if($request->filesize==''){
+            $request->filesize = 0;
+        }
+        if($request->maxfiles==''){
+            $request->maxfiles = 0;
+        }
+
+        $field->updateRequired($request->required);
+        $field->updateSearchable($request);
+        $field->updateOptions('FieldSize', $request->filesize);
+        $field->updateOptions('MaxFiles', $request->maxfiles);
+        $field->updateOptions('FileTypes', $filetype);
+
+        if($return) {
+            flash()->overlay(trans('controller_field.optupdate'), trans('controller_field.goodjob'));
+            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
+        } else {
+            return '';
+        }
     }
 
     public static function getExportSample($field,$type){
@@ -57,26 +93,6 @@ class VideoField extends FileTypeField {
                 break;
         }
 
-    }
-
-    public static function updateOptions($pid, $fid, $flid, $request){
-        $filetype = $request->filetype[0];
-        for($i=1;$i<sizeof($request->filetype);$i++){
-            $filetype .= '[!]'.$request->filetype[$i];
-        }
-
-        if($request->filesize==''){
-            $request->filesize = 0;
-        }
-        if($request->maxfiles==''){
-            $request->maxfiles = 0;
-        }
-
-        FieldController::updateRequired($pid, $fid, $flid, $request->required);
-        FieldController::updateSearchable($pid, $fid, $flid, $request);
-        FieldController::updateOptions($pid, $fid, $flid, 'FieldSize', $request->filesize);
-        FieldController::updateOptions($pid, $fid, $flid, 'MaxFiles', $request->maxfiles);
-        FieldController::updateOptions($pid, $fid, $flid, 'FileTypes', $filetype);
     }
 
     public static function createNewRecordField($field, $record, $value, $request){

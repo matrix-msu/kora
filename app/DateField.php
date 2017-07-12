@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use DateTime;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DateField extends BaseField {
@@ -42,8 +43,55 @@ class DateField extends BaseField {
         'date_object'
     ];
 
-    public static function getOptions(){
+    public function getFieldOptionsView(){
+        return self::FIELD_OPTIONS_VIEW;
+    }
+
+    public function getAdvancedFieldOptionsView(){
+        return self::FIELD_ADV_OPTIONS_VIEW;
+    }
+
+    public function getDefaultOptions(Request $request){
         return '[!Circa!]No[!Circa!][!Start!]1900[!Start!][!End!]2020[!End!][!Format!]MMDDYYYY[!Format!][!Era!]No[!Era!]';
+    }
+
+    public function updateOptions($field, Request $request, $return=true) {
+        $advString = '';
+
+        if(DateField::validateDate($request->default_month,$request->default_day,$request->default_year))
+            $default = '[M]'.$request->default_month.'[M][D]'.$request->default_day.'[D][Y]'.$request->default_year.'[Y]';
+        else{
+            if($return) {
+                flash()->error(trans('controller_option.baddate'));
+                return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')->withInput();
+            } else {
+                $default = '';
+                $advString = trans('controller_option.baddate');
+            }
+        }
+
+        if($request->start=='' | $request->start==0){
+            $request->start = 1;
+        }
+        if($request->end==''){
+            $request->end = 9999;
+        }
+
+        $field->updateRequired($request->required);
+        $field->updateSearchable($request);
+        $field->updateDefault($default);
+        $field->updateOptions('Format', $request->format);
+        $field->updateOptions('Start', $request->start);
+        $field->updateOptions('End', $request->end);
+        $field->updateOptions('Circa', $request->circa);
+        $field->updateOptions('Era', $request->era);
+
+        if($return) {
+            flash()->overlay(trans('controller_field.optupdate'), trans('controller_field.goodjob'));
+            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
+        } else {
+            return $advString;
+        }
     }
 
     public static function getExportSample($field,$type){
@@ -72,32 +120,6 @@ class DateField extends BaseField {
                 break;
         }
 
-    }
-
-    public static function updateOptions($pid, $fid, $flid, $request){
-        if(DateField::validateDate($request->default_month,$request->default_day,$request->default_year))
-            $default = '[M]'.$request->default_month.'[M][D]'.$request->default_day.'[D][Y]'.$request->default_year.'[Y]';
-        else{
-            flash()->error(trans('controller_option.baddate'));
-
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options')->withInput();
-        }
-
-        if($request->start=='' | $request->start==0){
-            $request->start = 1;
-        }
-        if($request->end==''){
-            $request->end = 9999;
-        }
-
-        FieldController::updateRequired($pid, $fid, $flid, $request->required);
-        FieldController::updateSearchable($pid, $fid, $flid, $request);
-        FieldController::updateDefault($pid, $fid, $flid, $default);
-        FieldController::updateOptions($pid, $fid, $flid, 'Format', $request->format);
-        FieldController::updateOptions($pid, $fid, $flid, 'Start', $request->start);
-        FieldController::updateOptions($pid, $fid, $flid, 'End', $request->end);
-        FieldController::updateOptions($pid, $fid, $flid, 'Circa', $request->circa);
-        FieldController::updateOptions($pid, $fid, $flid, 'Era', $request->era);
     }
 
     public static function createNewRecordField($field, $record, $request){

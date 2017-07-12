@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 abstract class BaseField extends Model {
@@ -49,6 +50,38 @@ abstract class BaseField extends Model {
         Field::_3D_MODEL => "model_fields",
         Field::_ASSOCIATOR => "associator_fields"
     ];
+
+    /**
+     * Get the field options view.
+     *
+     * @return string - The view
+     */
+    abstract public function getFieldOptionsView();
+
+    /**
+     * Get the field options view for advanced field creation.
+     *
+     * @return string - The view
+     */
+    abstract public function getAdvancedFieldOptionsView();
+
+    /**
+     * Gets the default options string for a new field.
+     *
+     * @param  Request $request
+     * @return string - The default options
+     */
+    abstract public function getDefaultOptions(Request $request);
+
+    /**
+     * Update the options for a field
+     *
+     * @param  Field $field - Field to update options
+     * @param  Request $request
+     * @param  bool $return - Are we returning an error by string or redirect
+     * @return mixed - The result
+     */
+    abstract public function updateOptions($field, Request $request, $return=true);
 
     /**
      * Get the required information for a revision data array.

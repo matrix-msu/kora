@@ -4,6 +4,7 @@ use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 
@@ -18,8 +19,36 @@ class ListField extends BaseField {
         'option'
     ];
 
-    public static function getOptions(){
+    public function getFieldOptionsView(){
+        return self::FIELD_OPTIONS_VIEW;
+    }
+
+    public function getAdvancedFieldOptionsView(){
+        return self::FIELD_ADV_OPTIONS_VIEW;
+    }
+
+    public function getDefaultOptions(Request $request){
         return '[!Options!][!Options!]';
+    }
+
+    public function updateOptions($field, Request $request, $return=true) {
+        $reqOpts = $request->options;
+        $options = $reqOpts[0];
+        for($i=1;$i<sizeof($reqOpts);$i++){
+            $options .= '[!]'.$reqOpts[$i];
+        }
+
+        $field->updateRequired($request->required);
+        $field->updateSearchable($request);
+        $field->updateDefault($request->default);
+        $field->updateOptions('Options', $options);
+
+        if($return) {
+            flash()->overlay(trans('controller_field.optupdate'), trans('controller_field.goodjob'));
+            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
+        } else {
+            return '';
+        }
     }
 
     public static function getExportSample($field,$type){
@@ -39,19 +68,6 @@ class ListField extends BaseField {
                 break;
         }
 
-    }
-
-    public static function updateOptions($pid, $fid, $flid, $request){
-        $reqOpts = $request->options;
-        $options = $reqOpts[0];
-        for($i=1;$i<sizeof($reqOpts);$i++){
-            $options .= '[!]'.$reqOpts[$i];
-        }
-
-        FieldController::updateRequired($pid, $fid, $flid, $request->required);
-        FieldController::updateSearchable($pid, $fid, $flid, $request);
-        FieldController::updateDefault($pid, $fid, $flid, $request->default);
-        FieldController::updateOptions($pid, $fid, $flid, 'Options', $options);
     }
 
     public static function createNewRecordField($field, $record, $value){

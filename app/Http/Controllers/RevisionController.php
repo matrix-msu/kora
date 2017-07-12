@@ -215,7 +215,7 @@ class RevisionController extends Controller {
         $fields = Field::where("fid", "=", $record->fid)->get();
 
         foreach($fields as $field) {
-            $typed_field = $field->getTypedField($record->rid);
+            $typed_field = $field->getTypedFieldFromRID($record->rid);
 
             $data[$field->type][$field->flid]['name'] = $field->name;
             if(is_null($typed_field))

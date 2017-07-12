@@ -3,24 +3,94 @@
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class TextField extends BaseField {
 
+    /**
+     * @var string - Views for the typed field options
+     */
     const FIELD_OPTIONS_VIEW = "fields.options.text";
     const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.text";
 
+    /**
+     * @var array - Attributes that can be mass assigned to model
+     */
     protected $fillable = [
         'rid',
         'flid',
         'text'
     ];
 
-    public static function getOptions(){
+    /**
+     * Get the field options view.
+     *
+     * @return string - The view
+     */
+    public function getFieldOptionsView() {
+        return self::FIELD_OPTIONS_VIEW;
+    }
+
+    /**
+     * Get the field options view for advanced field creation.
+     *
+     * @return string - The view
+     */
+    public function getAdvancedFieldOptionsView() {
+        return self::FIELD_ADV_OPTIONS_VIEW;
+    }
+
+    /**
+     * Gets the default options string for a new field.
+     *
+     * @param  Request $request
+     * @return string - The default options
+     */
+    public function getDefaultOptions(Request $request) {
         return '[!Regex!][!Regex!][!MultiLine!]0[!MultiLine!]';
+    }
+
+    /**
+     * Update the options for a field
+     *
+     * @param  Field $field - Field to update options
+     * @param  Request $request
+     * @param  bool $return - Are we returning an error by string or redirect
+     * @return mixed - The result
+     */
+    public function updateOptions($field, Request $request, $return=true) {
+        $advString = '';
+
+        if($request->regex!='') {
+            $regArray = str_split($request->regex);
+            if($regArray[0]!=end($regArray)) {
+                $request->regex = '/'.$request->regex.'/';
+            }
+            if($request->default!='' && !preg_match($request->regex, $request->default)) {
+                if($return) {
+                    flash()->error('The default value does not match the given regex pattern.');
+                    return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')->withInput();
+                } else {
+                    $request->default = '';
+                    $advString = 'The default value does not match the given regex pattern.';
+                }
+            }
+        }
+
+        $field->updateRequired($request->required);
+        $field->updateSearchable($request);
+        $field->updateDefault($request->default);
+        $field->updateOptions('Regex', $request->regex);
+        $field->updateOptions('MultiLine', $request->multi);
+
+        if($return) {
+            flash()->overlay(trans('controller_field.optupdate'), trans('controller_field.goodjob'));
+            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
+        } else {
+            return $advString;
+        }
     }
 
     public static function getExportSample($field,$type){
@@ -40,36 +110,6 @@ class TextField extends BaseField {
                 break;
         }
 
-    }
-
-    public static function updateOptions($pid, $fid, $flid, $request, $return=true){
-        $advString = '';
-
-        if($request->regex!=''){
-            $regArray = str_split($request->regex);
-            if($regArray[0]!=end($regArray)){
-                $request->regex = '/'.$request->regex.'/';
-            }
-            if ($request->default!='' && !preg_match($request->regex, $request->default))
-            {
-                if($return){
-                    flash()->error('The default value does not match the given regex pattern.');
-
-                    return redirect('projects/' . $pid . '/forms/' . $fid . '/fields/' . $flid . '/options')->withInput();
-                }else{
-                    $request->default = '';
-                    $advString = 'The default value does not match the given regex pattern.';
-                }
-            }
-        }
-
-        FieldController::updateRequired($pid, $fid, $flid, $request->required);
-        FieldController::updateSearchable($pid, $fid, $flid, $request);
-        FieldController::updateDefault($pid, $fid, $flid, $request->default);
-        FieldController::updateOptions($pid, $fid, $flid, 'Regex', $request->regex);
-        FieldController::updateOptions($pid, $fid, $flid, 'MultiLine', $request->multi);
-
-        return $advString;
     }
 
     public static function createNewRecordField($field, $record, $value){

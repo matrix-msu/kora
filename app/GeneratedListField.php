@@ -5,6 +5,7 @@ use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class GeneratedListField extends BaseField {
@@ -18,8 +19,54 @@ class GeneratedListField extends BaseField {
         'options'
     ];
 
-    public static function getOptions(){
+    public function getFieldOptionsView(){
+        return self::FIELD_OPTIONS_VIEW;
+    }
+
+    public function getAdvancedFieldOptionsView(){
+        return self::FIELD_ADV_OPTIONS_VIEW;
+    }
+
+    public function getDefaultOptions(Request $request){
         return '[!Regex!][!Regex!][!Options!][!Options!]';
+    }
+
+    public function updateOptions($field, Request $request, $return=true) {
+        $advString = '';
+
+        $reqDefs = $request->default;
+        $default = $reqDefs[0];
+        for($i=1;$i<sizeof($reqDefs);$i++){
+            $default .= '[!]'.$reqDefs[$i];
+        }
+
+        $reqOpts = $request->options;
+        $options = $reqOpts[0];
+        for($i=1;$i<sizeof($reqOpts);$i++){
+            if ($request->regex!='' && !preg_match($request->regex, $reqOpts[$i])) {
+                if($return) {
+                    flash()->error(trans('controller_option.genregex', ['opt' => $reqOpts[$i]]));
+                    return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')->withInput();
+                } else {
+                    $request->regex = '';
+                    $advString = trans('controller_option.genregex', ['opt' => $reqOpts[$i]]);
+                }
+            }
+            $options .= '[!]'.$reqOpts[$i];
+        }
+
+        $field->updateRequired($request->required);
+        $field->updateSearchable($request);
+        $field->updateDefault($default);
+        $field->updateOptions('Regex', $request->regex);
+        $field->updateOptions('Options', $options);
+
+        if($return) {
+            flash()->overlay(trans('controller_field.optupdate'), trans('controller_field.goodjob'));
+            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
+        } else {
+            return $advString;
+        }
     }
 
     public static function getExportSample($field,$type){
@@ -42,32 +89,6 @@ class GeneratedListField extends BaseField {
                 break;
         }
 
-    }
-
-    public static function updateOptions($pid, $fid, $flid, $request){
-        $reqDefs = $request->default;
-        $default = $reqDefs[0];
-        for($i=1;$i<sizeof($reqDefs);$i++){
-            $default .= '[!]'.$reqDefs[$i];
-        }
-
-        $reqOpts = $request->options;
-        $options = $reqOpts[0];
-        for($i=1;$i<sizeof($reqOpts);$i++){
-            if ($request->regex!='' && !preg_match($request->regex, $reqOpts[$i]))
-            {
-                flash()->error(trans('controller_option.genregex',['opt' => $reqOpts[$i]]));
-
-                return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options')->withInput();
-            }
-            $options .= '[!]'.$reqOpts[$i];
-        }
-
-        FieldController::updateRequired($pid, $fid, $flid, $request->required);
-        FieldController::updateSearchable($pid, $fid, $flid, $request);
-        FieldController::updateDefault($pid, $fid, $flid, $default);
-        FieldController::updateOptions($pid, $fid, $flid, 'Regex', $request->regex);
-        FieldController::updateOptions($pid, $fid, $flid, 'Options', $options);
     }
 
     public static function createNewRecordField($field, $record, $value){
