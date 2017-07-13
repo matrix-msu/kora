@@ -51,6 +51,53 @@ class ListField extends BaseField {
         }
     }
 
+    public function createNewRecordField($field, $record, $value, $request){
+        $this->flid = $field->flid;
+        $this->rid = $record->rid;
+        $this->fid = $field->fid;
+        $this->option = $value;
+        $this->save();
+    }
+
+    public function editRecordField($value, $request) {
+        if(!is_null($this) && !is_null($value)){
+            $this->option = $value;
+            $this->save();
+        }
+        else if(!is_null($this) && is_null($value)){
+            $this->delete();
+        }
+    }
+
+    public function massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite=0) {
+        $matching_record_fields = $record->listfields()->where("flid", '=', $field->flid)->get();
+        $record->updated_at = Carbon::now();
+        $record->save();
+        if ($matching_record_fields->count() > 0) {
+            $listfield = $matching_record_fields->first();
+            if ($overwrite == true || $listfield->option == "" || is_null($listfield->option)) {
+                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $listfield->option = $formFieldValue;
+                $listfield->save();
+                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->save();
+            }
+        } else {
+            $this->createNewRecordField($field, $record, $formFieldValue, $request);
+            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->save();
+        }
+    }
+
+    public function createTestRecordField($field, $record){
+        $this->flid = $field->flid;
+        $this->rid = $record->rid;
+        $this->fid = $field->fid;
+        $this->option = 'K3TR';
+        $this->save();
+    }
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -68,64 +115,6 @@ class ListField extends BaseField {
                 break;
         }
 
-    }
-
-    public static function createNewRecordField($field, $record, $value){
-        $lf = new self();
-        $lf->flid = $field->flid;
-        $lf->rid = $record->rid;
-        $lf->fid = $field->fid;
-        $lf->option = $value;
-        $lf->save();
-    }
-
-    public static function editRecordField($field, $record, $value){
-        //we need to check if the field exist first
-        $lf = self::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-        if(!is_null($lf) && !is_null($value)){
-            $lf->option = $value;
-            $lf->save();
-        }
-        else if(!is_null($lf) && is_null($value)){
-            $lf->delete();
-        }
-        else {
-            self::createNewRecordField($field, $record, $value);
-        }
-    }
-
-    public static function massAssignRecordField($flid, $record, $form_field_value, $overwrite){
-        $matching_record_fields = $record->listfields()->where("flid", '=', $flid)->get();
-        $record->updated_at = Carbon::now();
-        $record->save();
-        if ($matching_record_fields->count() > 0) {
-            $listfield = $matching_record_fields->first();
-            if ($overwrite == true || $listfield->option == "" || is_null($listfield->option)) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
-                $listfield->option = $form_field_value;
-                $listfield->save();
-                $revision->oldData = RevisionController::buildDataArray($record);
-                $revision->save();
-            }
-        } else {
-            $lf = new self();
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
-            $lf->flid = $flid;
-            $lf->rid = $record->rid;
-            $lf->option = $form_field_value;
-            $lf->save();
-            $revision->oldData = RevisionController::buildDataArray($record);
-            $revision->save();
-        }
-    }
-
-    public static function createTestRecordField($field, $record){
-        $lf = new self();
-        $lf->flid = $field->flid;
-        $lf->rid = $record->rid;
-        $lf->fid = $field->fid;
-        $lf->option = 'K3TR';
-        $lf->save();
     }
 
     public static function setRestfulAdvSearch($data, $field, $request){

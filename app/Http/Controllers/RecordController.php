@@ -146,7 +146,7 @@ class RecordController extends Controller {
                 if(!is_numeric($key))
                     continue;
                 $field = FieldController::getField($key);
-                Field::createNewRecordField($field, $record, $value, $request);
+                $field->getTypedField()->createNewRecordField($field, $record, $value, $request);
             }
 
             //
@@ -348,7 +348,11 @@ class RecordController extends Controller {
                 $value = null;
 
             $field = FieldController::getField($key);
-            Field::editRecordField($field, $record, $value, $request);
+            $typedField = $field->getTypedFieldFromRID($record->rid);
+            if(!is_null($typedField))
+                $typedField->editRecordField($value,$request);
+            else //doesnt exist yet
+                $field->getTypedField()->createNewRecordField($field,$record,$value,$request);
         }
 
         $revision->oldData = RevisionController::buildDataArray($record);
@@ -657,7 +661,7 @@ class RecordController extends Controller {
         }
 
         if($request->has($flid)) {
-            $form_field_value = $request->input($flid); //Note this only works when there is one form element being submitted, so if you have more, check Date
+            $formFieldValue = $request->input($flid); //Note this only works when there is one form element being submitted, so if you have more, check Date
         } else {
             flash()->overlay(trans('controller_record.provide'),trans('controller_record.whoops'));
             return redirect()->back();
@@ -669,9 +673,10 @@ class RecordController extends Controller {
             $overwrite = 0;
 
         $field = FieldController::getField($flid);
+        $typedField = $field->getTypedField();
         
         foreach(Form::find($fid)->records()->get() as $record) {
-            Field::massAssignRecordField($field, $record, $form_field_value, $overwrite, $request);
+            $typedField->massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite);
         }
 
         flash()->overlay(trans('controller_record.recupdate'),trans('controller_record.goodjob'));
@@ -706,7 +711,7 @@ class RecordController extends Controller {
             $record->save();
 
             foreach($fields as $field) {
-                Field::createTestRecordField($field, $record);
+                $field->getTypedField()->createTestRecordField($field, $record);
             }
         }
 

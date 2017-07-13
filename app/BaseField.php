@@ -52,6 +52,47 @@ abstract class BaseField extends Model {
     ];
 
     /**
+     * Record that the field belongs to.
+     *
+     * @return BelongsTo
+     */
+    public function record() {
+        return $this->belongsTo('App\Record');
+    }
+
+    /**
+     * Maps a typed field name to its table's name in the database.
+     *
+     * @param  String $string - Enum representing typed field
+     * @return string - The table name
+     */
+    public static function getDBName($string) {
+        if(isset(Field::$ENUM_TYPED_FIELDS[$string])) {
+            return self::$MAPPED_FIELD_TYPES[$string];
+        }
+
+        return false;
+    }
+
+    /**
+     * Deletes all the BaseFields with a certain rid in a clean way.
+     *
+     * @param  int $rid - Record id
+     */
+    static public function deleteBaseFields($rid) {
+        foreach(self::$TABLE_NAMES as $table_name) {
+            DB::table($table_name)->where("rid", "=", $rid)->delete();
+        }
+
+        // Delete support tables.
+        $support_tables = [ScheduleField::SUPPORT_NAME, GeolocatorField::SUPPORT_NAME, ComboListField::SUPPORT_NAME, AssociatorField::SUPPORT_NAME];
+
+        foreach($support_tables as $support_table) {
+            DB::table($support_table)->where("rid", "=", $rid)->delete();
+        }
+    }
+
+    /**
      * Get the field options view.
      *
      * @return string - The view
@@ -92,43 +133,39 @@ abstract class BaseField extends Model {
     abstract public function getRevisionData($field = null);
 
     /**
-     * Record that the field belongs to.
+     * Creates a typed field to store record data.
      *
-     * @return BelongsTo
+     * @param  Field $field - The field to represent record data
+     * @param  Record $record - Record being created
+     * @param  string $value - Data to add
+     * @param  Request $request
      */
-    public function record() {
-        return $this->belongsTo('App\Record');
-    }
+    abstract public function createNewRecordField($field, $record, $value, $request);
 
     /**
-     * Maps a typed field name to its table's name in the database.
+     * Edits a typed field that has record data.
      *
-     * @param  String $string - Enum representing typed field
-     * @return string - The table name
+     * @param  string $value - Data to add
+     * @param  Request $request
      */
-    public static function getDBName($string) {
-        if(isset(Field::$ENUM_TYPED_FIELDS[$string])) {
-            return self::$MAPPED_FIELD_TYPES[$string];
-        }
-
-        return false;
-    }
+    abstract public function editRecordField($value, $request);
 
     /**
-     * Deletes all the BaseFields with a certain rid in a clean way.
+     * Takes data from a mass assignment operation and applies it to an individual field.
      *
-     * @param  int $rid - Record id
+     * @param  Field $field - The field to represent record data
+     * @param  Record $record - Record being written to
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  bool $overwrite - Overwrite if data exists
      */
-    static public function deleteBaseFields($rid) {
-        foreach(self::$TABLE_NAMES as $table_name) {
-            DB::table($table_name)->where("rid", "=", $rid)->delete();
-        }
+    abstract public function massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite=0);
 
-        // Delete support tables.
-        $support_tables = [ScheduleField::SUPPORT_NAME, GeolocatorField::SUPPORT_NAME, ComboListField::SUPPORT_NAME, AssociatorField::SUPPORT_NAME];
-
-        foreach($support_tables as $support_table) {
-            DB::table($support_table)->where("rid", "=", $rid)->delete();
-        }
-    }
+    /**
+     * For a test record, add test data to field.
+     *
+     * @param  Field $field - The field to represent record data
+     * @param  Record $record - Test record being created
+     */
+    abstract public function createTestRecordField($field, $record);
 }

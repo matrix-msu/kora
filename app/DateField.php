@@ -94,6 +94,72 @@ class DateField extends BaseField {
         }
     }
 
+    public function createNewRecordField($field, $record, $value, $request){
+        if($request->input('year_' . $field->flid) != '') {
+            $this->flid = $field->flid;
+            $this->rid = $record->rid;
+            $this->fid = $field->fid;
+            $this->circa = $request->input('circa_' . $field->flid, '');
+            $this->month = $request->input('month_' . $field->flid);
+            $this->day = $request->input('day_' . $field->flid);
+            $this->year = $request->input('year_' . $field->flid);
+            $this->era = $request->input('era_' . $field->flid, 'CE');
+            $this->save();
+        }
+    }
+
+    public function editRecordField($value, $request) {
+        if(!is_null($this) && !(empty($request->input('month_'.$this->flid)) && empty($request->input('day_'.$this->flid)) && empty($request->input('year_'.$this->flid)))){
+            $this->circa = $request->input('circa_'.$this->flid, '');
+            $this->month = $request->input('month_'.$this->flid);
+            $this->day = $request->input('day_'.$this->flid);
+            $this->year = $request->input('year_'.$this->flid);
+            $this->era = $request->input('era_'.$this->flid, 'CE');
+            $this->save();
+        }
+        elseif(!is_null($this) && (empty($request->input('month_'.$this->flid)) && empty($request->input('day_'.$this->flid)) && empty($request->input('year_'.$this->flid)))){
+            $this->delete();
+        }
+    }
+
+    public function massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite=0) {
+        $flid = $field->flid;
+        $matching_record_fields = $record->datefields()->where("flid", '=', $flid)->get();
+        $record->updated_at = Carbon::now();
+        $record->save();
+        if ($matching_record_fields->count() > 0) {
+            $datefield = $matching_record_fields->first();
+            if ($overwrite == true || $datefield->month == "" || is_null($datefield->month)) {
+                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $datefield->circa = $request->input('circa_' . $flid, '');
+                $datefield->month = $request->input('month_' . $flid);
+                $datefield->day = $request->input('day_' . $flid);
+                $datefield->year = $request->input('year_' . $flid);
+                $datefield->era = $request->input('era_' . $flid, 'CE');
+                $datefield->save();
+                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->save();
+            }
+        } else {
+            $this->createNewRecordField($field, $record, $formFieldValue, $request);
+            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->save();
+        }
+    }
+
+    public function createTestRecordField($field, $record){
+        $this->flid = $field->flid;
+        $this->rid = $record->rid;
+        $this->fid = $field->fid;
+        $this->circa = 1;
+        $this->month = 1;
+        $this->day = 3;
+        $this->year = 1937;
+        $this->era = 'CE';
+        $this->save();
+    }
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -120,86 +186,6 @@ class DateField extends BaseField {
                 break;
         }
 
-    }
-
-    public static function createNewRecordField($field, $record, $request){
-        if($request->input('year_' . $field->flid) != '') {
-            $df = new self();
-            $df->flid = $field->flid;
-            $df->rid = $record->rid;
-            $df->fid = $field->fid;
-            $df->circa = $request->input('circa_' . $field->flid, '');
-            $df->month = $request->input('month_' . $field->flid);
-            $df->day = $request->input('day_' . $field->flid);
-            $df->year = $request->input('year_' . $field->flid);
-            $df->era = $request->input('era_' . $field->flid, 'CE');
-            $df->save();
-        }
-    }
-
-    public static function editRecordField($field, $record, $request){
-        //we need to check if the field exist first
-        $df = self::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-        if(!is_null($df) && !(empty($request->input('month_'.$field->flid)) && empty($request->input('day_'.$field->flid)) && empty($request->input('year_'.$field->flid)))){
-            $df->circa = $request->input('circa_'.$field->flid, '');
-            $df->month = $request->input('month_'.$field->flid);
-            $df->day = $request->input('day_'.$field->flid);
-            $df->year = $request->input('year_'.$field->flid);
-            $df->era = $request->input('era_'.$field->flid, 'CE');
-            $df->save();
-        }
-        elseif(!is_null($df) && (empty($request->input('month_'.$field->flid)) && empty($request->input('day_'.$field->flid)) && empty($request->input('year_'.$field->flid)))){
-            $df->delete();
-        }
-        else {
-            self::createNewRecordField($field, $record, $request);
-        }
-    }
-
-    public static function massAssignRecordField($flid, $record, $request, $overwrite){
-        $matching_record_fields = $record->datefields()->where("flid", '=', $flid)->get();
-        $record->updated_at = Carbon::now();
-        $record->save();
-        if ($matching_record_fields->count() > 0) {
-            $datefield = $matching_record_fields->first();
-            if ($overwrite == true || $datefield->month == "" || is_null($datefield->month)) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
-                $datefield->circa = $request->input('circa_' . $flid, '');
-                $datefield->month = $request->input('month_' . $flid);
-                $datefield->day = $request->input('day_' . $flid);
-                $datefield->year = $request->input('year_' . $flid);
-                $datefield->era = $request->input('era_' . $flid, 'CE');
-                $datefield->save();
-                $revision->oldData = RevisionController::buildDataArray($record);
-                $revision->save();
-            }
-        } else {
-            $df = new self();
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
-            $df->circa = $request->input('circa_' . $flid, '');
-            $df->month = $request->input('month_' . $flid);
-            $df->day = $request->input('day_' . $flid);
-            $df->year = $request->input('year_' . $flid);
-            $df->era = $request->input('era_' . $flid, 'CE');
-            $df->rid = $record->rid;
-            $df->flid = $flid;
-            $df->save();
-            $revision->oldData = RevisionController::buildDataArray($record);
-            $revision->save();
-        }
-    }
-
-    public static function createTestRecordField($field, $record){
-        $df = new self();
-        $df->flid = $field->flid;
-        $df->rid = $record->rid;
-        $df->fid = $field->fid;
-        $df->circa = 1;
-        $df->month = 1;
-        $df->day = 3;
-        $df->year = 1937;
-        $df->era = 'CE';
-        $df->save();
     }
 
     public static function setRestfulAdvSearch($data, $field, $request){

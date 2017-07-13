@@ -63,6 +63,55 @@ class ScheduleField extends BaseField {
         }
     }
 
+    public function createNewRecordField($field, $record, $value, $request){
+        $this->flid = $field->flid;
+        $this->rid = $record->rid;
+        $this->fid = $field->fid;
+        $this->save();
+
+        $this->addEvents($value);
+    }
+
+    public function editRecordField($value, $request) {
+        if(!is_null($this) && !is_null($value)){
+            $this->updateEvents($value);
+        }
+        elseif(!is_null($this) && is_null($value)){
+            $this->delete();
+            $this->deleteEvents();
+        }
+    }
+
+    public function massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite=0) {
+        $matching_record_fields = $record->schedulefields()->where("flid", '=', $field->flid)->get();
+        $record->updated_at = Carbon::now();
+        $record->save();
+        if ($matching_record_fields->count() > 0) {
+            $schedulefield = $matching_record_fields->first();
+            if ($overwrite == true || $schedulefield->hasEvents()) {
+                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $schedulefield->updateEvents($formFieldValue);
+                $schedulefield->save();
+                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->save();
+            }
+        } else {
+            $this->createNewRecordField($field, $record, $formFieldValue, $request);
+            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->save();
+        }
+    }
+
+    public function createTestRecordField($field, $record){
+        $this->flid = $field->flid;
+        $this->rid = $record->rid;
+        $this->fid = $field->fid;
+        $this->save();
+
+        $this->addEvents(['K3TR: 01/03/1937 - 01/03/1937']);
+    }
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -106,68 +155,6 @@ class ScheduleField extends BaseField {
                 break;
         }
 
-    }
-
-    public static function createNewRecordField($field, $record, $value){
-        $sf = new self();
-        $sf->flid = $field->flid;
-        $sf->rid = $record->rid;
-        $sf->fid = $field->fid;
-        $sf->save();
-
-        $sf->addEvents($value);
-    }
-
-    public static function editRecordField($field, $record, $value){
-        //we need to check if the field exist first
-        $sf = self::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-        if(!is_null($sf) && !is_null($value)){
-            $sf->updateEvents($value);
-        }
-        elseif(!is_null($sf) && is_null($value)){
-            $sf->delete();
-            $sf->deleteEvents();
-        }
-        else {
-            self::createNewRecordField($field, $record, $value);
-        }
-    }
-
-    public static function massAssignRecordField($flid, $record, $form_field_value, $overwrite){
-        $matching_record_fields = $record->schedulefields()->where("flid", '=', $flid)->get();
-        $record->updated_at = Carbon::now();
-        $record->save();
-        if ($matching_record_fields->count() > 0) {
-            $schedulefield = $matching_record_fields->first();
-            if ($overwrite == true || $schedulefield->hasEvents()) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
-                $schedulefield->updateEvents($form_field_value);
-                $schedulefield->save();
-                $revision->oldData = RevisionController::buildDataArray($record);
-                $revision->save();
-            }
-        } else {
-            $sf = new self();
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
-            $sf->flid = $flid;
-            $sf->rid = $record->rid;
-            $sf->save();
-
-            $sf->addEvents($form_field_value);
-
-            $revision->oldData = RevisionController::buildDataArray($record);
-            $revision->save();
-        }
-    }
-
-    public static function createTestRecordField($field, $record){
-        $sf = new self();
-        $sf->flid = $field->flid;
-        $sf->rid = $record->rid;
-        $sf->fid = $field->fid;
-        $sf->save();
-
-        $sf->addEvents(['K3TR: 01/03/1937 - 01/03/1937']);
     }
 
     public static function setRestfulAdvSearch($data, $field, Request $request){

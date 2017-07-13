@@ -98,6 +98,55 @@ class NumberField extends BaseField {
         }
     }
 
+    public function createNewRecordField($field, $record, $value, $request){
+        if (!empty($value) && !is_null($value)) {
+            $this->flid = $field->flid;
+            $this->rid = $record->rid;
+            $this->fid = $field->fid;
+            $this->number = $value;
+            $this->save();
+        }
+    }
+
+    public function editRecordField($value, $request) {
+        if(!is_null($this) && !is_null($value)){
+            $this->number = $value;
+            $this->save();
+        }
+        else if(!is_null($this) && is_null($value)){
+            $this->delete();
+        }
+    }
+
+    public function massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite=0) {
+        $matching_record_fields = $record->numberfields()->where("flid", '=', $field->flid)->get();
+        $record->updated_at = Carbon::now();
+        $record->save();
+        if ($matching_record_fields->count() > 0) {
+            $numberfield = $matching_record_fields->first();
+            if ($overwrite == true || $numberfield->number == "" || is_null($numberfield->number)) {
+                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $numberfield->number = $formFieldValue;
+                $numberfield->save();
+                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->save();
+            }
+        } else {
+            $this->createNewRecordField($field, $record, $formFieldValue, $request);
+            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->save();
+        }
+    }
+
+    public function createTestRecordField($field, $record){
+        $this->flid = $field->flid;
+        $this->rid = $record->rid;
+        $this->fid = $field->fid;
+        $this->number = 1337;
+        $this->save();
+    }
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -115,66 +164,6 @@ class NumberField extends BaseField {
                 break;
         }
 
-    }
-
-    public static function createNewRecordField($field, $record, $value){
-        if (!empty($value) && !is_null($value)) {
-            $nf = new self();
-            $nf->flid = $field->flid;
-            $nf->rid = $record->rid;
-            $nf->fid = $field->fid;
-            $nf->number = $value;
-            $nf->save();
-        }
-    }
-
-    public static function editRecordField($field, $record, $value){
-        //we need to check if the field exist first
-        $nf = self::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-        if(!is_null($nf) && !is_null($value)){
-            $nf->number = $value;
-            $nf->save();
-        }
-        else if(!is_null($nf) && is_null($value)){
-            $nf->delete();
-        }
-        else {
-            self::createNewRecordField($field, $record, $value);
-        }
-    }
-
-    public static function massAssignRecordField($flid, $record, $form_field_value, $overwrite){
-        $matching_record_fields = $record->numberfields()->where("flid", '=', $flid)->get();
-        $record->updated_at = Carbon::now();
-        $record->save();
-        if ($matching_record_fields->count() > 0) {
-            $numberfield = $matching_record_fields->first();
-            if ($overwrite == true || $numberfield->number == "" || is_null($numberfield->number)) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
-                $numberfield->number = $form_field_value;
-                $numberfield->save();
-                $revision->oldData = RevisionController::buildDataArray($record);
-                $revision->save();
-            }
-        } else {
-            $nf = new self();
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
-            $nf->flid = $flid;
-            $nf->rid = $record->rid;
-            $nf->number = $form_field_value;
-            $nf->save();
-            $revision->oldData = RevisionController::buildDataArray($record);
-            $revision->save();
-        }
-    }
-
-    public static function createTestRecordField($field, $record){
-        $nf = new self();
-        $nf->flid = $field->flid;
-        $nf->rid = $record->rid;
-        $nf->fid = $field->fid;
-        $nf->number = 1337;
-        $nf->save();
     }
 
     public static function setRestfulAdvSearch($data, $field, $request){

@@ -52,37 +52,11 @@ class ModelField extends FileTypeField  {
         }
     }
 
-    public static function getExportSample($field,$type){
-        switch ($type){
-            case "XML":
-                $xml = '<' . Field::xmlTagClear($field->slug) . ' type="' . $field->type . '">';
-                $xml .= '<File>';
-                $xml .= '<Name>' . utf8_encode('FILENAME') . '</Name>';
-                $xml .= '</File>';
-                $xml .= '</' . Field::xmlTagClear($field->slug) . '>';
-
-                return $xml;
-                break;
-            case "JSON":
-                $fieldArray = array('name' => $field->slug, 'type' => $field->type);
-                $fieldArray['files'] = array();
-
-                $fileArray = array();
-                $fileArray['name'] = 'FILENAME 1';
-                array_push($fieldArray['files'], $fileArray);
-
-                return $fieldArray;
-                break;
-        }
-
-    }
-
-    public static function createNewRecordField($field, $record, $value, $request){
+    public function createNewRecordField($field, $record, $value, $request){
         if(glob(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/*.*') != false){
-            $mf = new self();
-            $mf->flid = $field->flid;
-            $mf->rid = $record->rid;
-            $mf->fid = $field->fid;
+            $this->flid = $field->flid;
+            $this->rid = $record->rid;
+            $this->fid = $field->fid;
             $infoString = '';
             $infoArray = array();
             $newPath = env('BASE_PATH') . 'storage/app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid;
@@ -111,29 +85,15 @@ class ModelField extends FileTypeField  {
                     }
                 }
             }
-            $mf->model = $infoString;
-            $mf->save();
+            $this->model = $infoString;
+            $this->save();
         }
     }
 
-    public static function editRecordField($field, $record, $value, $request){
-        if(self::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first() != null
-            | glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') != false){
+    public function editRecordField($value, $request) {
+        if(glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') != false){
             $mod_files_exist = false; // if this remains false, then the files were deleted and row should be removed from table
 
-            //we need to check if the field exist first
-            if(self::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first() != null){
-                $mf = self::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-            }else {
-                $mf = new self();
-                $mf->flid = $field->flid;
-                $mf->rid = $record->rid;
-                $mf->fid = $record->fid;
-                $newPath = env('BASE_PATH').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$record->rid.'/fl'.$field->flid;
-                if(!file_exists($newPath)) {
-                    mkdir($newPath, 0775, true);
-                }
-            }
             //clear the old files before moving the update over
             //we only want to remove files that are being replaced by new versions
             //we keep old files around for revision purposes
@@ -145,9 +105,10 @@ class ModelField extends FileTypeField  {
                 }
             }
             //actually clear them
-            foreach (new \DirectoryIterator(env('BASE_PATH').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$record->rid.'/fl'.$field->flid) as $file) {
+            $field = FieldController::getField($this->flid);
+            foreach (new \DirectoryIterator(env('BASE_PATH').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid) as $file) {
                 if ($file->isFile() and in_array($file->getFilename(),$newNames)) {
-                    unlink(env('BASE_PATH').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$file->getFilename());
+                    unlink(env('BASE_PATH').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid.'/'.$file->getFilename());
                 }
             }
             //build new stuff
@@ -164,7 +125,7 @@ class ModelField extends FileTypeField  {
                         $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
                         $infoArray[$file->getFilename()] = $info;
                         copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
-                            env('BASE_PATH').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $file->getFilename());
+                            env('BASE_PATH').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid . '/' . $file->getFilename());
                         $mod_files_exist = true;
                     }
                 }
@@ -178,24 +139,23 @@ class ModelField extends FileTypeField  {
                     }
                 }
             }
-            $mf->model = $infoString;
-            $mf->save();
+            $this->model = $infoString;
+            $this->save();
 
             if(!$mod_files_exist){
-                $mf->delete();
+                $this->delete();
             }
         }
     }
 
-    public static function massAssignRecordField($flid, $record, $form_field_value, $overwrite){
+    public function massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite=0) {
         //TODO::mass assign
     }
 
-    public static function createTestRecordField($field, $record){
-        $mf = new self();
-        $mf->flid = $field->flid;
-        $mf->rid = $record->rid;
-        $mf->fid = $field->fid;
+    public function createTestRecordField($field, $record){
+        $this->flid = $field->flid;
+        $this->rid = $record->rid;
+        $this->fid = $field->fid;
         $newPath = env('BASE_PATH') . 'storage/app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid;
         mkdir($newPath, 0775, true);
 
@@ -208,8 +168,33 @@ class ModelField extends FileTypeField  {
         copy(env('BASE_PATH') . 'public/testFiles/model.stl',
             $newPath . '/model.stl');
 
-        $mf->model = $infoString;
-        $mf->save();
+        $this->model = $infoString;
+        $this->save();
+    }
+
+    public static function getExportSample($field,$type){
+        switch ($type){
+            case "XML":
+                $xml = '<' . Field::xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                $xml .= '<File>';
+                $xml .= '<Name>' . utf8_encode('FILENAME') . '</Name>';
+                $xml .= '</File>';
+                $xml .= '</' . Field::xmlTagClear($field->slug) . '>';
+
+                return $xml;
+                break;
+            case "JSON":
+                $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                $fieldArray['files'] = array();
+
+                $fileArray = array();
+                $fileArray['name'] = 'FILENAME 1';
+                array_push($fieldArray['files'], $fileArray);
+
+                return $fieldArray;
+                break;
+        }
+
     }
 
     public static function setRestfulAdvSearch($data, $field, $request){

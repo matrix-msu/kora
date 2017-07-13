@@ -59,6 +59,54 @@ class GeolocatorField extends BaseField {
         }
     }
 
+    public function createNewRecordField($field, $record, $value, $request){
+        $this->flid = $field->flid;
+        $this->rid = $record->rid;
+        $this->fid = $field->fid;
+        $this->save();
+
+        $this->addLocations($value);
+    }
+
+    public function editRecordField($value, $request) {
+        if(!is_null($this) && !is_null($value)){
+            $this->updateLocations($value);
+        }
+        elseif(!is_null($this) && is_null($value)){
+            $this->delete();
+            $this->deleteLocations();
+        }
+    }
+
+    public function massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite=0) {
+        $matching_record_fields = $record->geolocatorfields()->where("flid", '=', $field->flid)->get();
+        $record->updated_at = Carbon::now();
+        $record->save();
+        if ($matching_record_fields->count() > 0) {
+            $geolocatorfield = $matching_record_fields->first();
+            if ($overwrite == true || ! $geolocatorfield->hasLocations()) {
+                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $geolocatorfield->updateLocations($formFieldValue);
+                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->save();
+            }
+        } else {
+            $this->createNewRecordField($field, $record, $formFieldValue, $request);
+            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->save();
+        }
+    }
+
+    public function createTestRecordField($field, $record){
+        $this->flid = $field->flid;
+        $this->rid = $record->rid;
+        $this->fid = $field->fid;
+        $this->save();
+
+        $this->addLocations(['[Desc]K3TR[Desc][LatLon]13,37[LatLon][UTM]37P:283077.41182513,1437987.6443346[UTM][Address] Appelstra�e Hanover Lower Saxony[Address]']);
+    }
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -94,67 +142,6 @@ class GeolocatorField extends BaseField {
                 break;
         }
 
-    }
-
-    public static function createNewRecordField($field, $record, $value){
-        $gf = new self();
-        $gf->flid = $field->flid;
-        $gf->rid = $record->rid;
-        $gf->fid = $field->fid;
-        $gf->save();
-
-        $gf->addLocations($value);
-    }
-
-    public static function editRecordField($field, $record, $value){
-        //we need to check if the field exist first
-        $gf = self::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-        if(!is_null($gf) && !is_null($value)){
-            $gf->updateLocations($value);
-        }
-        elseif(!is_null($gf) && is_null($value)){
-            $gf->delete();
-            $gf->deleteLocations();
-        }
-        else {
-            self::createNewRecordField($field, $record, $value);
-        }
-    }
-
-    public static function massAssignRecordField($flid, $record, $form_field_value, $overwrite){
-        $matching_record_fields = $record->geolocatorfields()->where("flid", '=', $flid)->get();
-        $record->updated_at = Carbon::now();
-        $record->save();
-        if ($matching_record_fields->count() > 0) {
-            $geolocatorfield = $matching_record_fields->first();
-            if ($overwrite == true || ! $geolocatorfield->hasLocations()) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
-                $geolocatorfield->updateLocations($form_field_value);
-                $revision->oldData = RevisionController::buildDataArray($record);
-                $revision->save();
-            }
-        } else {
-            $gf = new self();
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
-            $gf->flid = $flid;
-            $gf->rid = $record->rid;
-            $gf->save();
-
-            $gf->addLocations($form_field_value);
-
-            $revision->oldData = RevisionController::buildDataArray($record);
-            $revision->save();
-        }
-    }
-
-    public static function createTestRecordField($field, $record){
-        $gf = new self();
-        $gf->flid = $field->flid;
-        $gf->rid = $record->rid;
-        $gf->fid = $field->fid;
-        $gf->save();
-
-        $gf->addLocations(['[Desc]K3TR[Desc][LatLon]13,37[LatLon][UTM]37P:283077.41182513,1437987.6443346[UTM][Address] Appelstra�e Hanover Lower Saxony[Address]']);
     }
 
     public static function setRestfulAdvSearch($data, $field, $request){

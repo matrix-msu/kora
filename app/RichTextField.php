@@ -45,6 +45,54 @@ class RichTextField extends BaseField {
         }
     }
 
+    public function createNewRecordField($field, $record, $value, $request){
+        if (!empty($value) && !is_null($value)) {
+            $this->flid = $field->flid;
+            $this->rid = $record->rid;
+            $this->fid = $field->fid;
+            $this->rawtext = $value;
+            $this->save();
+        }
+    }
+
+    public function editRecordField($value, $request) {
+        if(!is_null($this) && !is_null($value)){
+            $this->rawtext = $value;
+            $this->save();
+        }elseif(!is_null($this) && is_null($value)){
+            $this->delete();
+        }
+    }
+
+    public function massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite=0) {
+        $matching_record_fields = $record->richtextfields()->where("flid", '=', $field->flid)->get();
+        $record->updated_at = Carbon::now();
+        $record->save();
+        if ($matching_record_fields->count() > 0) {
+            $richtextfield = $matching_record_fields->first();
+            if ($overwrite == true || $richtextfield->rawtext == "" || is_null($richtextfield->rawtext)) {
+                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $richtextfield->rawtext = $formFieldValue;
+                $richtextfield->save();
+                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->save();
+            }
+        } else {
+            $this->createNewRecordField($field, $record, $formFieldValue, $request);
+            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->save();
+        }
+    }
+
+    public function createTestRecordField($field, $record){
+        $this->flid = $field->flid;
+        $this->rid = $record->rid;
+        $this->fid = $field->fid;
+        $this->rawtext = '<b>K3TR</b>: This is a <i>test</i> record';
+        $this->save();
+    }
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -62,65 +110,6 @@ class RichTextField extends BaseField {
                 break;
         }
 
-    }
-
-    public static function createNewRecordField($field, $record, $value){
-        if (!empty($value) && !is_null($value)) {
-            $rtf = new self();
-            $rtf->flid = $field->flid;
-            $rtf->rid = $record->rid;
-            $rtf->fid = $field->fid;
-            $rtf->rawtext = $value;
-            $rtf->save();
-        }
-    }
-
-    public static function editRecordField($field, $record, $value){
-        //we need to check if the field exist first
-        $rtf = self::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-        if(!is_null($rtf) && !is_null($value)){
-            $rtf->rawtext = $value;
-            $rtf->save();
-        }elseif(!is_null($rtf) && is_null($value)){
-            $rtf->delete();
-        }
-        else {
-            self::createNewRecordField($field, $record, $value);
-        }
-    }
-
-    public static function massAssignRecordField($flid, $record, $form_field_value, $overwrite){
-        $matching_record_fields = $record->richtextfields()->where("flid", '=', $flid)->get();
-        $record->updated_at = Carbon::now();
-        $record->save();
-        if ($matching_record_fields->count() > 0) {
-            $richtextfield = $matching_record_fields->first();
-            if ($overwrite == true || $richtextfield->rawtext == "" || is_null($richtextfield->rawtext)) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
-                $richtextfield->rawtext = $form_field_value;
-                $richtextfield->save();
-                $revision->oldData = RevisionController::buildDataArray($record);
-                $revision->save();
-            }
-        } else {
-            $rtf = new self();
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
-            $rtf->flid = $flid;
-            $rtf->rid = $record->rid;
-            $rtf->rawtext = $form_field_value;
-            $rtf->save();
-            $revision->oldData = RevisionController::buildDataArray($record);
-            $revision->save();
-        }
-    }
-
-    public static function createTestRecordField($field, $record){
-        $rtf = new self();
-        $rtf->flid = $field->flid;
-        $rtf->rid = $record->rid;
-        $rtf->fid = $field->fid;
-        $rtf->rawtext = '<b>K3TR</b>: This is a <i>test</i> record';
-        $rtf->save();
     }
 
     public static function setRestfulAdvSearch($data, $field, $request){

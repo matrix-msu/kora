@@ -64,6 +64,37 @@ class AssociatorField extends BaseField {
         }
     }
 
+    public function createNewRecordField($field, $record, $value, $request){
+        $this->flid = $field->flid;
+        $this->rid = $record->rid;
+        $this->fid = $field->fid;
+        $this->save();
+        $this->addRecords($value);
+    }
+
+    public function editRecordField($value, $request) {
+        if(!is_null($this) && !is_null($value)){
+            $this->updateRecords($value);
+        }
+        elseif(!is_null($this) && is_null($value)){
+            $this->delete();
+            $this->deleteRecords();
+        }
+    }
+
+    public function massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite=0) {
+        //TODO::mass assign
+    }
+
+    public function createTestRecordField($field, $record){
+        $this->flid = $field->flid;
+        $this->rid = $record->rid;
+        $this->fid = $field->fid;
+        $this->save();
+
+        $this->addRecords(array('1-3-37','1-3-37','1-3-37','1-3-37'));
+    }
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -76,44 +107,6 @@ class AssociatorField extends BaseField {
                 break;
         }
 
-    }
-
-    public static function createNewRecordField($field, $record, $value){
-        $af = new self();
-        $af->flid = $field->flid;
-        $af->rid = $record->rid;
-        $af->fid = $field->fid;
-        $af->save();
-        $af->addRecords($value);
-    }
-
-    public static function editRecordField($field, $record, $value){
-        //we need to check if the field exist first
-        $af = self::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-        if(!is_null($af) && !is_null($value)){
-            $af->updateRecords($value);
-        }
-        elseif(!is_null($af) && is_null($value)){
-            $af->delete();
-            $af->deleteRecords();
-        }
-        else {
-            self::createNewRecordField($field, $record, $value);
-        }
-    }
-
-    public static function massAssignRecordField($flid, $record, $form_field_value, $overwrite){
-        //TODO::mass assign
-    }
-
-    public static function createTestRecordField($field, $record){
-        $af = new self();
-        $af->flid = $field->flid;
-        $af->rid = $record->rid;
-        $af->fid = $field->fid;
-        $af->save();
-
-        $af->addRecords(array('1-3-37','1-3-37','1-3-37','1-3-37'));
     }
 
     public static function setRestfulAdvSearch($data, $field, $request){

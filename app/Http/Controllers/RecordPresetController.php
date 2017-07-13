@@ -76,7 +76,7 @@ class RecordPresetController extends Controller {
 
             $this->presetID = $preset->id;
 
-            $preset->preset = json_encode($this->getRecordArray($rid));
+            $preset->preset = json_encode($this->getRecordArray($rid,$preset->id));
             $preset->save();
 
             flash()->overlay(trans('controller_record.presetsaved'), trans('controller_record.success'));
@@ -93,7 +93,7 @@ class RecordPresetController extends Controller {
 
         if(!is_null($pre)) {
             $rpc = new self();
-            $pre->preset = $rpc->getRecordArray($rid);
+            $pre->preset = $rpc->getRecordArray($rid, $pre->id);
         }
     }
 
@@ -159,9 +159,10 @@ class RecordPresetController extends Controller {
      * Takes a record and turns it into an array that is saved in the record preset.
      *
      * @param  int $rid - Record ID
+     * @param  int $preID - Preset ID
      * @return array - The data array
      */
-    public function getRecordArray($rid) {
+    public function getRecordArray($rid, $preID=null) {
         $record = Record::where('rid', '=', $rid)->first();
         $form = Form::where('fid', '=', $record->fid)->first();
 
@@ -187,8 +188,8 @@ class RecordPresetController extends Controller {
         }
 
         // A file field was in use, so we need to move the record files to a preset directory.
-        if($fileFields)
-            $this->moveFilesToPreset($record->rid);
+        if($fileFields and !is_null($preID))
+            $this->moveFilesToPreset($record->rid, $preID);
 
         $response['data'] = $field_array;
         $response['flids'] = $flid_array;
@@ -199,8 +200,9 @@ class RecordPresetController extends Controller {
      * Moves a records files into the folder for the preset.
      *
      * @param  int $rid - Record ID
+     * @param  int $preID - Preset ID
      */
-    public function moveFilesToPreset($rid) {
+    public function moveFilesToPreset($rid, $preID) {
         $presets_path = env('BASE_PATH').'storage/app/presetFiles';
 
         //
@@ -209,7 +211,7 @@ class RecordPresetController extends Controller {
         if(!is_dir($presets_path))
             mkdir($presets_path, 0755, true);
 
-        $path = $presets_path . '/preset' . $this->presetID; // Path for the new preset's directory.
+        $path = $presets_path . '/preset' . $preID; // Path for the new preset's directory.
 
         if(!is_dir($path))
             mkdir($path, 0755, true);
