@@ -108,7 +108,8 @@ class RecordController extends Controller {
         foreach($request->all() as $key => $value) {
             if(!is_numeric($key))
                 continue;
-            $message = Field::validateField($key, $value, $request);
+            $field = FieldController::getField($key);
+            $message = $field->getTypedField()->validateField($field, $value, $request);
             if($message != '') {
                 flash()->error($message);
 
@@ -324,7 +325,8 @@ class RecordController extends Controller {
         foreach($request->all() as $key => $value) {
             if(!is_numeric($key))
                 continue;
-            $message = Field::validateField($key, $value, $request);
+            $field = FieldController::getField($key);
+            $message = $field->getTypedField()->validateField($field, $value, $request);
             if($message != '') {
                 flash()->error($message);
                 return redirect()->back()->withInput();

@@ -107,6 +107,34 @@ class GeolocatorField extends BaseField {
         $this->addLocations(['[Desc]K3TR[Desc][LatLon]13,37[LatLon][UTM]37P:283077.41182513,1437987.6443346[UTM][Address] Appelstra�e Hanover Lower Saxony[Address]']);
     }
 
+    public function validateField($field, $value, $request) {
+        $req = $field->required;
+
+        if($req==1 && ($value==null | $value=="")){
+            return $field->name.trans('fieldhelpers_val.req');
+        }
+    }
+
+    public function rollbackField($field, Revision $revision, $exists=true) {
+        if (!is_array($revision->data)) {
+            $revision->data = json_decode($revision->data, true);
+        }
+
+        if (is_null($revision->data[Field::_GEOLOCATOR][$field->flid]['data'])) {
+            return null;
+        }
+
+        // If the field doesn't exist or was explicitly deleted, we create a new one.
+        if ($revision->type == Revision::DELETE || !$exists) {
+            $this->flid = $field->flid;
+            $this->fid = $revision->fid;
+            $this->rid = $revision->rid;
+        }
+
+        $this->save();
+        $this->updateLocations($revision->data[Field::_GEOLOCATOR][$field->flid]['data']);
+    }
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -349,38 +377,6 @@ class GeolocatorField extends BaseField {
     }
 
     /**
-     * Rollback a geolocator field based on a revision.
-     *
-     * @param Revision $revision
-     * @param Field $field
-     * @return GeolocatorField
-     */
-    public static function rollback(Revision $revision, Field $field) {
-        if (!is_array($revision->data)) {
-            $revision->data = json_decode($revision->data, true);
-        }
-
-        if (is_null($revision->data[Field::_GEOLOCATOR][$field->flid]['data'])) {
-            return null;
-        }
-
-        $geofield = self::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
-
-        // If the field doesn't exist or was explicitly deleted, we create a new one.
-        if ($revision->type == Revision::DELETE || is_null($geofield)) {
-            $geofield = new self();
-            $geofield->flid = $field->flid;
-            $geofield->fid = $revision->fid;
-            $geofield->rid = $revision->rid;
-        }
-
-        $geofield->save();
-        $geofield->updateLocations($revision->data[Field::_GEOLOCATOR][$field->flid]['data']);
-
-        return $geofield;
-    }
-
-    /**
      * Build an advanced search query for a geolocator field.
      *
      * @param $flid, field id.
@@ -478,14 +474,6 @@ SQL;
     public function delete() {
         $this->deleteLocations();
         parent::delete();
-    }
-
-    public static function validate($field, $value){
-        $req = $field->required;
-
-        if($req==1 && ($value==null | $value=="")){
-            return $field->name.trans('fieldhelpers_val.req');
-        }
     }
 
     /**

@@ -98,6 +98,41 @@ class ListField extends BaseField {
         $this->save();
     }
 
+    public function validateField($field, $value, $request) {
+        $req = $field->required;
+        $list = ListField::getList($field);
+
+        if($req==1 && ($value==null | $value=="")){
+            return $field->name.trans('fieldhelpers_val.req');
+        }
+
+        if($value!='' && !in_array($value,$list)){
+            return trans('fieldhelpers_val.list',['name'=>$field->name]);
+        }
+
+        return '';
+    }
+
+    public function rollbackField($field, Revision $revision, $exists=true) {
+        if (!is_array($revision->data)) {
+            $revision->data = json_decode($revision->data, true);
+        }
+
+        if (is_null($revision->data[Field::_LIST][$field->flid]['data'])) {
+            return null;
+        }
+
+        // If the field doesn't exist or was explicitly deleted, we create a new one.
+        if ($revision->type == Revision::DELETE || !$exists) {
+            $this->flid = $field->flid;
+            $this->rid = $revision->rid;
+            $this->fid = $revision->fid;
+        }
+
+        $this->option = $revision->data[Field::_LIST][$field->flid]['data'];
+        $this->save();
+    }
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -176,38 +211,6 @@ class ListField extends BaseField {
     }
 
     /**
-     * Rollback a list field based on a revision.
-     *
-     * @param Revision $revision
-     * @param Field $field
-     * @return ListField
-     */
-    public static function rollback(Revision $revision, Field $field) {
-        if (!is_array($revision->data)) {
-            $revision->data = json_decode($revision->data, true);
-        }
-
-        if (is_null($revision->data[Field::_LIST][$field->flid]['data'])) {
-            return null;
-        }
-
-        $listfield = self::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
-
-        // If the field doesn't exist or was explicitly deleted, we create a new one.
-        if ($revision->type == Revision::DELETE || is_null($listfield)) {
-            $listfield = new self();
-            $listfield->flid = $field->flid;
-            $listfield->rid = $revision->rid;
-            $listfield->fid = $revision->fid;
-        }
-
-        $listfield->option = $revision->data[Field::_LIST][$field->flid]['data'];
-        $listfield->save();
-
-        return $listfield;
-    }
-
-    /**
      * Build the advanced query for a list field.
      *
      * @param $flid, field id.
@@ -234,20 +237,5 @@ class ListField extends BaseField {
     public static function buildAdvancedListQuery(Builder &$db_query, $input) {
         $db_query->whereRaw("MATCH (`option`) AGAINST (? IN BOOLEAN MODE)",
             [Search::processArgument($input, Search::ADVANCED_METHOD)]);
-    }
-
-    public static function validate($field, $value){
-        $req = $field->required;
-        $list = ListField::getList($field);
-
-        if($req==1 && ($value==null | $value=="")){
-            return $field->name.trans('fieldhelpers_val.req');
-        }
-
-        if($value!='' && !in_array($value,$list)){
-            return trans('fieldhelpers_val.list',['name'=>$field->name]);
-        }
-
-        return '';
     }
 }

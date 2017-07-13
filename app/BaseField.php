@@ -168,4 +168,23 @@ abstract class BaseField extends Model {
      * @param  Record $record - Test record being created
      */
     abstract public function createTestRecordField($field, $record);
+
+    /**
+     * Validates the record data for a field against the field's options.
+     *
+     * @param  Field $field - The
+     * @param  mixed $value - Record data
+     * @param  Request $request
+     * @return string - Potential error message
+     */
+    abstract public function validateField($field, $value, $request);
+
+    /**
+     * Performs a rollback function on an individual field's record data.
+     *
+     * @param  Field $field - The field being rolled back
+     * @param  Revision $revision - The revision being rolled back
+     * @param  bool $exists - Field for record exists
+     */
+    abstract public function rollbackField($field, Revision $revision, $exists=true);
 }

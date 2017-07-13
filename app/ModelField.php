@@ -172,6 +172,35 @@ class ModelField extends FileTypeField  {
         $this->save();
     }
 
+    public function validateField($field, $value, $request) {
+        $req = $field->required;
+
+        if($req==1){
+            if(glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') == false)
+                return $field->name.trans('fieldhelpers_val.file');
+        }
+    }
+
+    public function rollbackField($field, Revision $revision, $exists=true) {
+        if (!is_array($revision->data)) {
+            $revision->data = json_decode($revision->data, true);
+        }
+
+        if (is_null($revision->data[Field::_3D_MODEL][$field->flid]['data'])) {
+            return null;
+        }
+
+        // If the field doesn't exist or was explicitly deleted, we create a new one.
+        if ($revision->type == Revision::DELETE || !$exists) {
+            $this->flid = $field->flid;
+            $this->fid = $revision->fid;
+            $this->rid = $revision->rid;
+        }
+
+        $this->model = $revision->data[Field::_3D_MODEL][$field->flid]['data'];
+        $this->save();
+    }
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -252,38 +281,6 @@ class ModelField extends FileTypeField  {
     }
 
     /**
-     * Rollback a model field based on a revision.
-     *
-     * @param Revision $revision
-     * @param Field $field
-     * @return ModelField
-     */
-    public static function rollback(Revision $revision, Field $field) {
-        if (!is_array($revision->data)) {
-            $revision->data = json_decode($revision->data, true);
-        }
-
-        if (is_null($revision->data[Field::_3D_MODEL][$field->flid]['data'])) {
-            return null;
-        }
-
-        $modelfield = self::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
-
-        // If the field doesn't exist or was explicitly deleted, we create a new one.
-        if ($revision->type == Revision::DELETE || is_null($modelfield)) {
-            $modelfield = new self();
-            $modelfield->flid = $field->flid;
-            $modelfield->fid = $revision->fid;
-            $modelfield->rid = $revision->rid;
-        }
-
-        $modelfield->model = $revision->data[Field::_3D_MODEL][$field->flid]['data'];
-        $modelfield->save();
-
-        return $modelfield;
-    }
-
-    /**
      * Build the advanced search query.
      *
      * @param $flid
@@ -298,14 +295,5 @@ class ModelField extends FileTypeField  {
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`model`) AGAINST (? IN BOOLEAN MODE)", [$processed])
             ->distinct();
-    }
-
-    public static function validate($field, $value){
-        $req = $field->required;
-
-        if($req==1){
-            if(glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') == false)
-                return $field->name.trans('fieldhelpers_val.file');
-        }
     }
 }

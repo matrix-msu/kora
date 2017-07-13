@@ -93,6 +93,34 @@ class RichTextField extends BaseField {
         $this->save();
     }
 
+    public function validateField($field, $value, $request) {
+        $req = $field->required;
+
+        if($req==1 && ($value==null | $value=="")){
+            return $field->name.trans('fieldhelpers_val.req');
+        }
+    }
+
+    public function rollbackField($field, Revision $revision, $exists=true) {
+        if (!is_array($revision->data)) {
+            $revision->data = json_decode($revision->data, true);
+        }
+
+        if (is_null($revision->data[Field::_RICH_TEXT][$field->flid]['data'])) {
+            return null;
+        }
+
+        // If the field doesn't exist or was explicitly deleted, we create a new one.
+        if ($revision->type == Revision::DELETE || !$exists) {
+            $this->flid = $field->flid;
+            $this->rid = $revision->rid;
+            $this->fid = $revision->fid;
+        }
+
+        $this->rawtext = $revision->data[Field::_RICH_TEXT][$field->flid]['data'];
+        $this->save();
+    }
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -162,38 +190,6 @@ class RichTextField extends BaseField {
     }
 
     /**
-     * Rollback a rich text field based on a revision.
-     *
-     * @param Revision $revision
-     * @param Field $field
-     * @return RichTextField
-     */
-    public static function rollback(Revision $revision, Field $field) {
-        if (!is_array($revision->data)) {
-            $revision->data = json_decode($revision->data, true);
-        }
-
-        if (is_null($revision->data[Field::_RICH_TEXT][$field->flid]['data'])) {
-            return null;
-        }
-
-        $richtextfield = self::where('flid', '=', $field->flid)->where('rid', '=', $revision->rid)->first();
-
-        // If the field doesn't exist or was explicitly deleted, we create a new one.
-        if ($revision->type == Revision::DELETE || is_null($richtextfield)) {
-            $richtextfield = new self();
-            $richtextfield->flid = $field->flid;
-            $richtextfield->rid = $revision->rid;
-            $richtextfield->fid = $revision->fid;
-        }
-
-        $richtextfield->rawtext = $revision->data[Field::_RICH_TEXT][$field->flid]['data'];
-        $richtextfield->save();
-
-        return $richtextfield;
-    }
-
-    /**
      * Builds the advanced search query for a rich text field.
      *
      * @param $flid
@@ -207,13 +203,5 @@ class RichTextField extends BaseField {
             ->whereRaw("MATCH (`searchable_rawtext`) AGAINST (? IN BOOLEAN MODE)",
                 [Search::processArgument($query[$flid . "_input"], Search::ADVANCED_METHOD)])
             ->distinct();
-    }
-
-    public static function validate($field, $value){
-        $req = $field->required;
-
-        if($req==1 && ($value==null | $value=="")){
-            return $field->name.trans('fieldhelpers_val.req');
-        }
     }
 }

@@ -183,6 +183,35 @@ class PlaylistField extends FileTypeField  {
         $this->save();
     }
 
+    public function validateField($field, $value, $request) {
+        $req = $field->required;
+
+        if($req==1){
+            if(glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') == false)
+                return $field->name.trans('fieldhelpers_val.file');
+        }
+    }
+
+    public function rollbackField($field, Revision $revision, $exists=true) {
+        if (!is_array($revision->data)) {
+            $revision->data = json_decode($revision->data, true);
+        }
+
+        if (is_null($revision->data[Field::_PLAYLIST][$field->flid]['data'])) {
+            return null;
+        }
+
+        // If the field doesn't exist or was explicitly deleted, we create a new one.
+        if ($revision->type == Revision::DELETE || !$exists) {
+            $this->flid = $field->flid;
+            $this->fid = $revision->fid;
+            $this->rid = $revision->rid;
+        }
+
+        $this->audio = $revision->data[Field::_PLAYLIST][$field->flid]['data'];
+        $this->save();
+    }
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -277,38 +306,6 @@ class PlaylistField extends FileTypeField  {
     }
 
     /**
-     * Rollback a playlist field based on a revision.
-     *
-     * @param Revision $revision
-     * @param Field $field
-     * @return PlaylistField
-     */
-    public static function rollback(Revision $revision, Field $field) {
-        if (!is_array($revision->data)) {
-            $revision->data = json_decode($revision->data, true);
-        }
-
-        if (is_null($revision->data[Field::_PLAYLIST][$field->flid]['data'])) {
-            return null;
-        }
-
-        $playlistfield = self::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
-
-        // If the field doesn't exist or was explicitly deleted, we create a new one.
-        if ($revision->type == Revision::DELETE || is_null($playlistfield)) {
-            $playlistfield = new self();
-            $playlistfield->flid = $field->flid;
-            $playlistfield->fid = $revision->fid;
-            $playlistfield->rid = $revision->rid;
-        }
-
-        $playlistfield->audio = $revision->data[Field::_PLAYLIST][$field->flid]['data'];
-        $playlistfield->save();
-
-        return $playlistfield;
-    }
-
-    /**
      * Build the advanced search query.
      *
      * @param $flid
@@ -323,14 +320,5 @@ class PlaylistField extends FileTypeField  {
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`audio`) AGAINST (? IN BOOLEAN MODE)", [$processed])
             ->distinct();
-    }
-
-    public static function validate($field, $value){
-        $req = $field->required;
-
-        if($req==1){
-            if(glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') == false)
-                return $field->name.trans('fieldhelpers_val.file');
-        }
     }
 }

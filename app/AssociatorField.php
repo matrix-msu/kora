@@ -95,6 +95,35 @@ class AssociatorField extends BaseField {
         $this->addRecords(array('1-3-37','1-3-37','1-3-37','1-3-37'));
     }
 
+    public function validateField($field, $value, $request) {
+        $req = $field->required;
+
+        if($req==1 && ($value==null | $value=="")){
+            return $field->name.trans('fieldhelpers_val.req');
+        }
+    }
+
+    public function rollbackField($field, Revision $revision, $exists=true) {
+        if (!is_array($revision->data)) {
+            $revision->data = json_decode($revision->data, true);
+        }
+
+        if (is_null($revision->data[Field::_ASSOCIATOR][$field->flid]['data'])) {
+            return null;
+        }
+
+        // If the field doesn't exist or was explicitly deleted, we create a new one.
+        if ($revision->type == Revision::DELETE || !$exists) {
+            $this->flid = $field->flid;
+            $this->fid = $revision->fid;
+            $this->rid = $revision->rid;
+        }
+
+        $this->save();
+        $updated = explode('[!]',$revision->data[Field::_ASSOCIATOR][$field->flid]['data']);
+        $this->updateRecords($updated);
+    }
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -282,40 +311,6 @@ class AssociatorField extends BaseField {
     }
 
     /**
-     * Rollback a associator field based on a revision.
-     *
-     * ** Assumes $revision->data is json decoded. **
-     *
-     * @param Revision $revision
-     * @param Field $field
-     */
-    public static function rollback(Revision $revision, Field $field) {
-        if (!is_array($revision->data)) {
-            $revision->data = json_decode($revision->data, true);
-        }
-
-        if (is_null($revision->data[Field::_ASSOCIATOR][$field->flid]['data'])) {
-            return null;
-        }
-
-        $associatorfield = self::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
-
-        // If the field doesn't exist or was explicitly deleted, we create a new one.
-        if ($revision->type == Revision::DELETE || is_null($associatorfield)) {
-            $associatorfield = new self();
-            $associatorfield->flid = $field->flid;
-            $associatorfield->fid = $revision->fid;
-            $associatorfield->rid = $revision->rid;
-        }
-
-        $associatorfield->save();
-        $updated = explode('[!]',$revision->data[Field::_ASSOCIATOR][$field->flid]['data']);
-        $associatorfield->updateRecords($updated);
-
-        return $associatorfield;
-    }
-
-    /**
      * Build the advanced search query.
      * Advanced queries for MSL Fields accept any record that has at least one of the desired parameters.
      *
@@ -349,13 +344,5 @@ class AssociatorField extends BaseField {
                     [Search::processArgument($rid, Search::ADVANCED_METHOD)]);
             }
         });
-    }
-
-    public static function validate($field, $value){
-        $req = $field->required;
-
-        if($req==1 && ($value==null | $value=="")){
-            return $field->name.trans('fieldhelpers_val.req');
-        }
     }
 }

@@ -257,6 +257,41 @@ class ComboListField extends BaseField {
         $this->addData(["[!f1!]".$val1."[!f1!][!f2!]".$val2."[!f2!]", "[!f1!]".$val1."[!f1!][!f2!]".$val2."[!f2!]"], $type1, $type2);
     }
 
+    public function validateField($field, $value, $request) {
+        $req = $field->required;
+        $flid = $field->flid;
+
+        if($req==1 && !isset($request[$flid.'_val'])){
+            return $field->name.trans('fieldhelpers_val.req');
+        }
+
+        return '';
+    }
+
+    public function rollbackField($field, Revision $revision, $exists=true) {
+        if (!is_array($revision->data)) {
+            $revision->data = json_decode($revision->data, true);
+        }
+
+        if (is_null($revision->data[Field::_COMBO_LIST][$field->flid]['data'])) {
+            return null;
+        }
+
+        // If the field doesn't exist or was explicitly deleted, we create a new one.
+        if ($revision->type == Revision::DELETE || !$exists) {
+            $this->flid = $field->flid;
+            $this->fid = $revision->fid;
+            $this->rid = $revision->rid;
+        }
+
+        $this->save();
+
+        $type_1 = self::getComboFieldType($field, "one");
+        $type_2 = self::getComboFieldName($field, "two");
+
+        $this->updateData($revision->data[Field::_COMBO_LIST][$field->flid]['data']['options'], $type_1, $type_2);
+    }
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -581,42 +616,6 @@ class ComboListField extends BaseField {
     }
 
     /**
-     * Rollback a combo list field based on a revision.
-     *
-     * @param Revision $revision
-     * @param Field $field
-     * @return ComboListField
-     */
-    public static function rollback(Revision $revision, Field $field) {
-        if (!is_array($revision->data)) {
-            $revision->data = json_decode($revision->data, true);
-        }
-
-        if (is_null($revision->data[Field::_COMBO_LIST][$field->flid]['data'])) {
-            return null;
-        }
-
-        $combolistfield = self::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
-
-        // If the field doesn't exist or was explicitly deleted, we create a new one.
-        if ($revision->type == Revision::DELETE || is_null($combolistfield)) {
-            $combolistfield = new self();
-            $combolistfield->flid = $field->flid;
-            $combolistfield->fid = $revision->fid;
-            $combolistfield->rid = $revision->rid;
-        }
-
-        $combolistfield->save();
-
-        $type_1 = self::getComboFieldType($field, "one");
-        $type_2 = self::getComboFieldName($field, "two");
-
-        $combolistfield->updateData($revision->data[Field::_COMBO_LIST][$field->flid]['data']['options'], $type_1, $type_2);
-
-        return $combolistfield;
-    }
-
-    /**
      * Puts an array of data into the old format.
      *      - "Old Format" meaning, and array of the data options formatted as
      *        [!f1!]<Field 1 Data>[!f1!][!f2!]<Field 2 Data>[!f2!]
@@ -806,17 +805,6 @@ class ComboListField extends BaseField {
         return DB::table(self::SUPPORT_NAME)
             ->select("rid")
             ->where("flid", "=", $flid);
-    }
-
-    public static function validate($field, $request){
-        $req = $field->required;
-        $flid = $field->flid;
-
-        if($req==1 && !isset($request[$flid.'_val'])){
-            return $field->name.trans('fieldhelpers_val.req');
-        }
-
-        return '';
     }
 
     /**

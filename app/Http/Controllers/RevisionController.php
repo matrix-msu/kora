@@ -170,7 +170,14 @@ class RevisionController extends Controller {
         $revision->data = json_decode($revision->data, true);
 
         foreach($form->fields()->get() as $field) {
-            Field::rollbackField($revision,$field);
+            $typedField = $field->getTypedFieldFromRID($record->rid);
+            if(!is_null($typedField)){
+                //Field exists in record already
+                $typedField->rollbackField($field, $revision, true);
+            } else {
+                //Most likely restoring from a deleted field
+                $field->getTypedField()->rollbackField($field, $revision, false);
+            }
         }
     }
 

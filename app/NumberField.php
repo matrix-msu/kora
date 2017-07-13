@@ -147,6 +147,34 @@ class NumberField extends BaseField {
         $this->save();
     }
 
+    public function validateField($field, $value, $request) {
+        $req = $field->required;
+
+        if($req==1 && ($value==null | $value=="")){
+            return $field->name.trans('fieldhelpers_val.req');
+        }
+    }
+
+    public function rollbackField($field, Revision $revision, $exists=true) {
+        if (!is_array($revision->data)) {
+            $revision->data = json_decode($revision->data, true);
+        }
+
+        if (is_null($revision->data[Field::_NUMBER][$field->flid]['data']['number'])) {
+            return null;
+        }
+
+        // If the field doesn't exist or was explicitly deleted, we create a new one.
+        if ($revision->type == Revision::DELETE || !$exists) {
+            $this->flid = $field->flid;
+            $this->rid = $revision->rid;
+            $this->fid = $revision->fid;
+        }
+
+        $this->number = $revision->data[Field::_NUMBER][$field->flid]['data']['number'];
+        $this->save();
+    }
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -219,38 +247,6 @@ class NumberField extends BaseField {
     }
 
     /**
-     * Rollback a number field based on a revision.
-     *
-     * @param Revision $revision
-     * @param Field $field
-     * @return NumberField
-     */
-    public static function rollback(Revision $revision, Field $field) {
-        if (!is_array($revision->data)) {
-            $revision->data = json_decode($revision->data, true);
-        }
-
-        if (is_null($revision->data[Field::_NUMBER][$field->flid]['data']['number'])) {
-            return null;
-        }
-
-        $numberfield = self::where('flid', '=', $field->flid)->where('rid', '=', $revision->rid)->first();
-
-        // If the field doesn't exist or was explicitly deleted, we create a new one.
-        if ($revision->type == Revision::DELETE || is_null($numberfield)) {
-            $numberfield = new self();
-            $numberfield->flid = $field->flid;
-            $numberfield->rid = $revision->rid;
-            $numberfield->fid = $revision->fid;
-        }
-
-        $numberfield->number = $revision->data[Field::_NUMBER][$field->flid]['data']['number'];
-        $numberfield->save();
-
-        return $numberfield;
-    }
-
-    /**
      * Builds the advanced query for a number field.
      * More explicitly, this will build a search range in MySQL based off the inputs.
      *
@@ -308,14 +304,6 @@ class NumberField extends BaseField {
                 $query->whereBetween($prefix . "number", [floatval($left) - self::EPSILON,
                     floatval($right) + self::EPSILON]);
             }
-        }
-    }
-
-    public static function validate($field, $value){
-        $req = $field->required;
-
-        if($req==1 && ($value==null | $value=="")){
-            return $field->name.trans('fieldhelpers_val.req');
         }
     }
 }

@@ -115,6 +115,43 @@ class GeneratedListField extends BaseField {
         $this->save();
     }
 
+    public function validateField($field, $value, $request) {
+        $req = $field->required;
+        $regex = FieldController::getFieldOption($field, 'Regex');
+
+        if($req==1 && ($value==null | $value=="")){
+            return $field->name.trans('fieldhelpers_val.req');
+        }
+
+        foreach($value as $opt){
+            if(($regex!=null | $regex!="") && !preg_match($regex,$opt)){
+                return trans('fieldhelpers_val.regexopt',['name'=>$field->name,'opt'=>$opt]);
+            }
+        }
+
+        return '';
+    }
+
+    public function rollbackField($field, Revision $revision, $exists=true) {
+        if (!is_array($revision->data)) {
+            $revision->data = json_decode($revision->data, true);
+        }
+
+        if (is_null($revision->data[Field::_GENERATED_LIST][$field->flid]['data'])) {
+            return null;
+        }
+
+        // If the field doesn't exist or was explicitly deleted, we create a new one.
+        if ($revision->type == Revision::DELETE || !$exists) {
+            $this->flid = $field->flid;
+            $this->rid = $revision->rid;
+            $this->fid = $revision->fid;
+        }
+
+        $this->options = $revision->data[Field::_GENERATED_LIST][$field->flid]['data'];
+        $this->save();
+    }
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -196,40 +233,6 @@ class GeneratedListField extends BaseField {
     }
 
     /**
-     * Rollback a generated list field based on a revision.
-     *
-     * ** Assumes $revision->data is json decoded. **
-     *
-     * @param Revision $revision
-     * @param Field $field
-     * @return GeneratedListField
-     */
-    public static function rollback(Revision $revision, Field $field) {
-        if (!is_array($revision->data)) {
-            $revision->data = json_decode($revision->data, true);
-        }
-
-        if (is_null($revision->data[Field::_GENERATED_LIST][$field->flid]['data'])) {
-            return null;
-        }
-
-        $genfield = self::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
-
-        // If the field doesn't exist or was explicitly deleted, we create a new one.
-        if ($revision->type == Revision::DELETE || is_null($genfield)) {
-            $genfield = new self();
-            $genfield->flid = $field->flid;
-            $genfield->rid = $revision->rid;
-            $genfield->fid = $revision->fid;
-        }
-
-        $genfield->options = $revision->data[Field::_GENERATED_LIST][$field->flid]['data'];
-        $genfield->save();
-
-        return $genfield;
-    }
-
-    /**
      * Builds the advanced search query.
      * Advanced queries for Gen List Fields accept any record that has at least one of the desired parameters.
      *
@@ -247,22 +250,5 @@ class GeneratedListField extends BaseField {
         MultiSelectListField::buildAdvancedMultiSelectListQuery($query, $inputs);
 
         return $query->distinct();
-    }
-
-    public static function validate($field, $value){
-        $req = $field->required;
-        $regex = FieldController::getFieldOption($field, 'Regex');
-
-        if($req==1 && ($value==null | $value=="")){
-            return $field->name.trans('fieldhelpers_val.req');
-        }
-
-        foreach($value as $opt){
-            if(($regex!=null | $regex!="") && !preg_match($regex,$opt)){
-                return trans('fieldhelpers_val.regexopt',['name'=>$field->name,'opt'=>$opt]);
-            }
-        }
-
-        return '';
     }
 }

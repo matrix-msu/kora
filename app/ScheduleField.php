@@ -112,6 +112,34 @@ class ScheduleField extends BaseField {
         $this->addEvents(['K3TR: 01/03/1937 - 01/03/1937']);
     }
 
+    public function validateField($field, $value, $request) {
+        $req = $field->required;
+
+        if($req==1 && ($value==null | $value=="")){
+            return $field->name.trans('fieldhelpers_val.req');
+        }
+    }
+
+    public function rollbackField($field, Revision $revision, $exists=true) {
+        if (!is_array($revision->data)) {
+            $revision->data = json_decode($revision->data, true);
+        }
+
+        if (is_null($revision->data[Field::_SCHEDULE][$field->flid]['data'])) {
+            return null;
+        }
+
+        // If the field doesn't exist or was explicitly deleted, we create a new one.
+        if ($revision->type == Revision::DELETE || !$exists) {
+            $this->flid = $field->flid;
+            $this->fid = $revision->fid;
+            $this->rid = $revision->rid;
+        }
+
+        $this->save();
+        $this->updateEvents($revision->data[Field::_SCHEDULE][$field->flid]['data']);
+    }
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -359,38 +387,6 @@ class ScheduleField extends BaseField {
     }
 
     /**
-     * Rollback a schedule field based on a revision.
-     *
-     * @param Revision $revision
-     * @param Field $field
-     * @return ScheduleField
-     */
-    public static function rollback(Revision $revision, Field $field) {
-        if (!is_array($revision->data)) {
-            $revision->data = json_decode($revision->data, true);
-        }
-
-        if (is_null($revision->data[Field::_SCHEDULE][$field->flid]['data'])) {
-            return null;
-        }
-
-        $schedulefield = self::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
-
-        // If the field doesn't exist or was explicitly deleted, we create a new one.
-        if ($revision->type == Revision::DELETE || is_null($schedulefield)) {
-            $schedulefield = new self();
-            $schedulefield->flid = $field->flid;
-            $schedulefield->fid = $revision->fid;
-            $schedulefield->rid = $revision->rid;
-        }
-
-        $schedulefield->save();
-        $schedulefield->updateEvents($revision->data[Field::_SCHEDULE][$field->flid]['data']);
-
-        return $schedulefield;
-    }
-
-    /**
      * Puts an array of events into the old format.
      *      - "Old Format" meaning, an array of the events formatted as
      *      <Description>: <Begin> - <End>
@@ -473,13 +469,5 @@ class ScheduleField extends BaseField {
         });
 
         return $query->distinct();
-    }
-
-    public static function validate($field, $value){
-        $req = $field->required;
-
-        if($req==1 && ($value==null | $value=="")){
-            return $field->name.trans('fieldhelpers_val.req');
-        }
     }
 }

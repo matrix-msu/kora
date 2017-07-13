@@ -160,6 +160,53 @@ class DateField extends BaseField {
         $this->save();
     }
 
+    public function validateField($field, $value, $request) {
+        $req = $field->required;
+        $start = FieldController::getFieldOption($field,'Start');
+        $end = FieldController::getFieldOption($field,'End');
+        $month = $request->input('month_'.$field->flid,'');
+        $day = $request->input('day_'.$field->flid,'');
+        $year = $request->input('year_'.$field->flid,'');
+
+        if($req==1 && $month=='' && $day=='' && $year==''){
+            return $field->name.trans('fieldhelpers_val.req');
+        }
+
+        if(($year<$start | $year>$end) && ($month!='' | $day!='')){
+            return trans('fieldhelpers_val.year',['name'=>$field->name,'start'=>$start,'end'=>$end]);
+        }
+
+        if(!DateField::validateDate($month,$day,$year)){
+            return trans('fieldhelpers_val.date',['name'=>$field->name]);
+        }
+
+        return '';
+    }
+
+    public function rollbackField($field, Revision $revision, $exists=true) {
+        if (!is_array($revision->data)) {
+            $revision->data = json_decode($revision->data, true);
+        }
+
+        if(is_null($revision->data[Field::_DATE][$field->flid]['data'])) {
+            return null;
+        }
+
+        // If the field doesn't exist or was explicitly deleted, we create a new one.
+        if ($revision->type == Revision::DELETE || $exists) {
+            $this->flid = $field->flid;
+            $this->fid = $revision->fid;
+            $this->rid = $revision->rid;
+        }
+
+        $this->circa = $revision->data[Field::_DATE][$field->flid]['data']['circa'];
+        $this->month = $revision->data[Field::_DATE][$field->flid]['data']['month'];
+        $this->day = $revision->data[Field::_DATE][$field->flid]['data']['day'];
+        $this->year = $revision->data[Field::_DATE][$field->flid]['data']['year'];
+        $this->era = $revision->data[Field::_DATE][$field->flid]['data']['era'];
+        $this->save();
+    }
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -441,44 +488,6 @@ class DateField extends BaseField {
     }
 
     /**
-     * Rollback a date field based on a revision.
-     *
-     * ** Assumes $revision->data is json decoded. **
-     *
-     * @param Revision $revision
-     * @param Field $field
-     * @return DateField
-     */
-    public static function rollback(Revision $revision, Field $field) {
-        if (!is_array($revision->data)) {
-            $revision->data = json_decode($revision->data, true);
-        }
-
-        if(is_null($revision->data[Field::_DATE][$field->flid]['data'])) {
-            return null;
-        }
-
-        $datefield = self::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
-
-        // If the field doesn't exist or was explicitly deleted, we create a new one.
-        if ($revision->type == Revision::DELETE || is_null($datefield)) {
-            $datefield = new self();
-            $datefield->flid = $field->flid;
-            $datefield->fid = $revision->fid;
-            $datefield->rid = $revision->rid;
-        }
-
-        $datefield->circa = $revision->data[Field::_DATE][$field->flid]['data']['circa'];
-        $datefield->month = $revision->data[Field::_DATE][$field->flid]['data']['month'];
-        $datefield->day = $revision->data[Field::_DATE][$field->flid]['data']['day'];
-        $datefield->year = $revision->data[Field::_DATE][$field->flid]['data']['year'];
-        $datefield->era = $revision->data[Field::_DATE][$field->flid]['data']['era'];
-        $datefield->save();
-
-        return $datefield;
-    }
-
-    /**
      * Build the advanced search query.
      *
      * @param $flid, field id.
@@ -531,28 +540,5 @@ class DateField extends BaseField {
         }
 
         return $query->distinct();
-    }
-
-    public static function validate($field, $request){
-        $req = $field->required;
-        $start = FieldController::getFieldOption($field,'Start');
-        $end = FieldController::getFieldOption($field,'End');
-        $month = $request->input('month_'.$field->flid,'');
-        $day = $request->input('day_'.$field->flid,'');
-        $year = $request->input('year_'.$field->flid,'');
-
-        if($req==1 && $month=='' && $day=='' && $year==''){
-            return $field->name.trans('fieldhelpers_val.req');
-        }
-
-        if(($year<$start | $year>$end) && ($month!='' | $day!='')){
-            return trans('fieldhelpers_val.year',['name'=>$field->name,'start'=>$start,'end'=>$end]);
-        }
-
-        if(!DateField::validateDate($month,$day,$year)){
-            return trans('fieldhelpers_val.date',['name'=>$field->name]);
-        }
-
-        return '';
     }
 }

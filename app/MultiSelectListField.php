@@ -104,6 +104,41 @@ class MultiSelectListField extends BaseField {
         $this->save();
     }
 
+    public function validateField($field, $value, $request) {
+        $req = $field->required;
+        $list = MultiSelectListField::getList($field);
+
+        if($req==1 && ($value==null | $value=="")){
+            return $field->name.trans('fieldhelpers_val.req');
+        }
+
+        if(sizeof(array_diff($value,$list))>0 && $value[0] !== ' '){
+            return trans('fieldhelpers_val.mslist',['name'=>$field->name]);
+        }
+
+        return '';
+    }
+
+    public function rollbackField($field, Revision $revision, $exists=true) {
+        if (!is_array($revision->data)) {
+            $revision->data = json_decode($revision->data, true);
+        }
+
+        if(is_null($revision->data[Field::_MULTI_SELECT_LIST][$field->flid]['data'])) {
+            return null;
+        }
+
+        // If the field doesn't exist or was explicitly deleted, we create a new one.
+        if ($revision->type == Revision::DELETE || !$exists) {
+            $this->flid = $field->flid;
+            $this->rid = $revision->rid;
+            $this->fid = $revision->fid;
+        }
+
+        $this->options = $revision->data[Field::_MULTI_SELECT_LIST][$field->flid]['data'];
+        $this->save();
+    }
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -185,38 +220,6 @@ class MultiSelectListField extends BaseField {
     }
 
     /**
-     * Rollback a multiselect list field based on a revision.
-     *
-     * @param Revision $revision
-     * @param Field $field
-     * @return MultiSelectListField
-     */
-    public static function rollback(Revision $revision, Field $field) {
-        if (!is_array($revision->data)) {
-            $revision->data = json_decode($revision->data, true);
-        }
-
-        if(is_null($revision->data[Field::_MULTI_SELECT_LIST][$field->flid]['data'])) {
-            return null;
-        }
-
-        $mslfield = self::where("flid", "=", $field->flid)->where("rid", "=", $revision->rid)->first();
-
-        // If the field doesn't exist or was explicitly deleted, we create a new one.
-        if ($revision->type == Revision::DELETE || is_null($mslfield)) {
-            $mslfield = new self();
-            $mslfield->flid = $field->flid;
-            $mslfield->rid = $revision->rid;
-            $mslfield->fid = $revision->fid;
-        }
-
-        $mslfield->options = $revision->data[Field::_MULTI_SELECT_LIST][$field->flid]['data'];
-        $mslfield->save();
-
-        return $mslfield;
-    }
-
-    /**
      * Build the advanced search query.
      * Advanced queries for MSL Fields accept any record that has at least one of the desired parameters.
      *
@@ -249,20 +252,5 @@ class MultiSelectListField extends BaseField {
                     [Search::processArgument($input, Search::ADVANCED_METHOD)]);
             }
         });
-    }
-
-    public static function validate($field, $value){
-        $req = $field->required;
-        $list = MultiSelectListField::getList($field);
-
-        if($req==1 && ($value==null | $value=="")){
-            return $field->name.trans('fieldhelpers_val.req');
-        }
-
-        if(sizeof(array_diff($value,$list))>0 && $value[0] !== ' '){
-            return trans('fieldhelpers_val.mslist',['name'=>$field->name]);
-        }
-
-        return '';
     }
 }
