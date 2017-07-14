@@ -132,19 +132,17 @@ class RichTextField extends BaseField {
         return $data;
     }
 
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    public static function getExportSample($field,$type){
+    public function getExportSample($slug,$type) {
         switch ($type){
             case "XML":
-                $xml = '<' . Field::xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                $xml = '<' . Field::xmlTagClear($slug) . ' type="Rich Text">';
                 $xml .= utf8_encode('<b>RICH TEXT VALUE</b>');
-                $xml .= '</' . Field::xmlTagClear($field->slug) . '>';
+                $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                $fieldArray = array('name' => $slug, 'type' => 'Rich Text');
                 $fieldArray['richtext'] = '<b>RICH TEXT VALUE</b>';
 
                 return $fieldArray;
@@ -152,6 +150,8 @@ class RichTextField extends BaseField {
         }
 
     }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     public static function setRestfulAdvSearch($data, $field, $request){
         $request->request->add([$field->flid.'_input' => $data->input]);

@@ -588,7 +588,7 @@ def gallery_to_JSONable(row, field_options = ""):
     return { "files": file_formatter(files,url) }
 
 def gallery_to_XML(row, field_options = ""):
-    files = row["documents"].split("[!]")
+    files = row["images"].split("[!]")
     cursor = Cursor(Connection())
 
     curr_pid = cursor.pid_from_fid(row["fid"])
@@ -597,7 +597,7 @@ def gallery_to_XML(row, field_options = ""):
     return file_formatter_xml(files,url)
 
 def gallery_to_META(row, field_options = ""):
-    files = row["documents"].split("[!]")
+    files = row["images"].split("[!]")
     cursor = Cursor(Connection())
 
     curr_pid = cursor.pid_from_fid(row["fid"])
@@ -615,7 +615,7 @@ def playlist_to_JSONable(row, field_options = ""):
     return { "files": file_formatter(files,url) }
 
 def playlist_to_XML(row, field_options = ""):
-    files = row["documents"].split("[!]")
+    files = row["audio"].split("[!]")
     cursor = Cursor(Connection())
 
     curr_pid = cursor.pid_from_fid(row["fid"])
@@ -624,7 +624,7 @@ def playlist_to_XML(row, field_options = ""):
     return file_formatter_xml(files,url)
 
 def playlist_to_META(row, field_options = ""):
-    files = row["documents"].split("[!]")
+    files = row["audio"].split("[!]")
     cursor = Cursor(Connection())
 
     curr_pid = cursor.pid_from_fid(row["fid"])
@@ -642,7 +642,7 @@ def video_to_JSONable(row, field_options = ""):
     return { "files": file_formatter(files,url) }
 
 def video_to_XML(row, field_options = ""):
-    files = row["documents"].split("[!]")
+    files = row["video"].split("[!]")
     cursor = Cursor(Connection())
 
     curr_pid = cursor.pid_from_fid(row["fid"])
@@ -651,7 +651,7 @@ def video_to_XML(row, field_options = ""):
     return file_formatter_xml(files,url)
 
 def video_to_META(row, field_options = ""):
-    files = row["documents"].split("[!]")
+    files = row["video"].split("[!]")
     cursor = Cursor(Connection())
 
     curr_pid = cursor.pid_from_fid(row["fid"])

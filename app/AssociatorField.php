@@ -135,9 +135,7 @@ class AssociatorField extends BaseField {
         return $data;
     }
 
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    public static function getExportSample($field,$type){
+    public function getExportSample($slug,$type) {
         switch ($type){
             case "XML":
                 //TODO::add sample
@@ -150,6 +148,8 @@ class AssociatorField extends BaseField {
         }
 
     }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     public static function setRestfulAdvSearch($data, $field, $request){
         $request->request->add([$field->flid.'_input' => $data->input]);
@@ -342,5 +342,28 @@ class AssociatorField extends BaseField {
                     [Search::processArgument($rid, Search::ADVANCED_METHOD)]);
             }
         });
+    }
+
+    /**
+     * Gets the default locations from the field options.
+     *
+     * @param $field
+     * @return array
+     */
+    public static function getAssociatorList($field)
+    {
+        $def = $field->default;
+        $options = array();
+        if ($def == '') {
+            //skip
+        } else if (!strstr($def, '[!]')) {
+            $options = [$def => $def];
+        } else {
+            $opts = explode('[!]', $def);
+            foreach ($opts as $opt) {
+                $options[$opt] = $opt;
+            }
+        }
+        return $options;
     }
 }

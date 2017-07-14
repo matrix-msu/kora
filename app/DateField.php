@@ -230,24 +230,22 @@ class DateField extends BaseField {
         return $data;
     }
 
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    public static function getExportSample($field,$type){
+    public function getExportSample($slug,$type) {
         switch ($type){
             case "XML":
-                $xml = '<' . Field::xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                $xml = '<' . Field::xmlTagClear($slug) . ' type="Date">';
                 $value = '<Circa>' . utf8_encode('1 IF CIRCA. 0 IF NOT') . '</Circa>';
                 $value .= '<Month>' . utf8_encode('NUMERIC VALUE OF MONTH (i.e. 08)') . '</Month>';
                 $value .= '<Day>' . utf8_encode('19') . '</Day>';
                 $value .= '<Year>' . utf8_encode('1990') . '</Year>';
                 $value .= '<Era>' . utf8_encode('CE OR BCE') . '</Era>';
                 $xml .= $value;
-                $xml .= '</' . Field::xmlTagClear($field->slug) . '>';
+                $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                $fieldArray = array('name' => $slug, 'type' => 'Date');
                 $fieldArray['circa'] = '1 IF CIRCA. 0 IF NOT';
                 $fieldArray['month'] = 'NUMERIC VALUE OF MONTH (i.e. 08)';
                 $fieldArray['day'] = 19;
@@ -259,6 +257,8 @@ class DateField extends BaseField {
         }
 
     }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     public static function setRestfulAdvSearch($data, $field, $request){
         if(isset($data->begin_month))

@@ -77,7 +77,7 @@ class ImportController extends Controller {
                 $xml .= '<Record kid="OPTIONAL KID FOR RECORD. USE TO COMPLETE ASSOCIATED REFERENCES">';
 
                 foreach($fields as $field) {
-                    $xml .= Field::getExportSample($field, "XML");
+                    $xml .= $field->getTypedField()->getExportSample($field->slug, "XML");
                 }
 
                 $xml .= '</Record></Records>';
@@ -92,7 +92,7 @@ class ImportController extends Controller {
                 $recArray = array('kid' => "OPTIONAL KID FOR RECORD. USE TO COMPLETE ASSOCIATED REFERENCES", 'Fields' => array());
 
                 foreach($fields as $field) {
-                    $fieldArray = Field::getExportSample($field, "JSON");
+                    $fieldArray = $field->getTypedField()->getExportSample($field->slug, "JSON");
                     array_push($recArray['Fields'], $fieldArray);
                 }
 

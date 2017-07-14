@@ -150,21 +150,19 @@ class MultiSelectListField extends BaseField {
         return $data;
     }
 
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    public static function getExportSample($field,$type){
+    public function getExportSample($slug,$type) {
         switch ($type){
             case "XML":
-                $xml = '<' . Field::xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                $xml = '<' . Field::xmlTagClear($slug) . ' type="Multi-Select List">';
                 $xml .= '<value>' . utf8_encode('LIST VALUE 1') . '</value>';
                 $xml .= '<value>' . utf8_encode('LIST VALUE 2') . '</value>';
                 $xml .= '<value>' . utf8_encode('so on...') . '</value>';
-                $xml .= '</' . Field::xmlTagClear($field->slug) . '>';
+                $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                $fieldArray = array('name' => $slug, 'type' => 'Multi-Select List');
                 $options = array('LIST VALUE 1','LIST VALUE 2','so on...');
                 $fieldArray['options'] = $options;
 
@@ -173,6 +171,8 @@ class MultiSelectListField extends BaseField {
         }
 
     }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     public static function setRestfulAdvSearch($data, $field, $request){
         $request->request->add([$field->flid.'_input' => $data->input]);

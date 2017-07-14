@@ -66,7 +66,7 @@
         </div>
         <div id="assocSearchResults">
         </div>
-        {!! Form::select('default[]',\App\AssociatorField::getDefault($field->default,false),  null, ['class' => 'form-control', 'multiple', 'id' => 'default']) !!}
+        {!! Form::select('default[]',\App\AssociatorField::getAssociatorList($field),  null, ['class' => 'form-control', 'multiple', 'id' => 'default']) !!}
         <button type="button" class="btn btn-primary remove_option">{{trans('fields_options_list.delete')}}</button>
         <button type="button" class="btn btn-primary move_option_up">{{trans('fields_options_list.up')}}</button>
         <button type="button" class="btn btn-primary move_option_down">{{trans('fields_options_list.down')}}</button>

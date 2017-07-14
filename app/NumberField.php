@@ -186,19 +186,17 @@ class NumberField extends BaseField {
         return $data;
     }
 
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    public static function getExportSample($field,$type){
+    public function getExportSample($slug,$type) {
         switch ($type){
             case "XML":
-                $xml = '<' . Field::xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                $xml = '<' . Field::xmlTagClear($slug) . ' type="Number">';
                 $xml .= utf8_encode('1337');
-                $xml .= '</' . Field::xmlTagClear($field->slug) . '>';
+                $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                $fieldArray = array('name' => $slug, 'type' => 'Number');
                 $fieldArray['number'] = 1337;
 
                 return $fieldArray;
@@ -206,6 +204,8 @@ class NumberField extends BaseField {
         }
 
     }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     public static function setRestfulAdvSearch($data, $field, $request){
         if(isset($data->left))

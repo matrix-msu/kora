@@ -146,12 +146,10 @@ class GeolocatorField extends BaseField {
         return $data;
     }
 
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    public static function getExportSample($field,$type){
+    public function getExportSample($slug,$type) {
         switch ($type){
             case "XML":
-                $xml = '<' . Field::xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                $xml = '<' . Field::xmlTagClear($slug) . ' type="Geolocator">';
                 $xml .= '<Location>';
                 $xml .= '<Desc>' . utf8_encode('LOCATION DESCRIPTION') . '</Desc>';
                 $xml .= '<Lat>' . utf8_encode('i.e. 13') . '</Lat>';
@@ -161,12 +159,12 @@ class GeolocatorField extends BaseField {
                 $xml .= '<North>' . utf8_encode('i.e. 52833.265454') . '</North>';
                 $xml .= '<Address>' . utf8_encode('TEXTUAL REPRESENTATION OF LOCATION') . '</Address>';
                 $xml .= '</Location>';
-                $xml .= '</' . Field::xmlTagClear($field->slug) . '>';
+                $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                $fieldArray = array('name' => $slug, 'type' => 'Geolocator');
                 $fieldArray['locations'] = array();
                 $locArray = array();
 
@@ -184,6 +182,8 @@ class GeolocatorField extends BaseField {
         }
 
     }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     public static function setRestfulAdvSearch($data, $field, $request){
         $request->request->add([$field->flid.'_type' => $data->type]);

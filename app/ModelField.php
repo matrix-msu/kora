@@ -212,21 +212,19 @@ class ModelField extends FileTypeField  {
         return $data;
     }
 
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    public static function getExportSample($field,$type){
+    public function getExportSample($slug,$type) {
         switch ($type){
             case "XML":
-                $xml = '<' . Field::xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                $xml = '<' . Field::xmlTagClear($slug) . ' type="3D-Model">';
                 $xml .= '<File>';
                 $xml .= '<Name>' . utf8_encode('FILENAME') . '</Name>';
                 $xml .= '</File>';
-                $xml .= '</' . Field::xmlTagClear($field->slug) . '>';
+                $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                $fieldArray = array('name' => $slug, 'type' => '3D-Model');
                 $fieldArray['files'] = array();
 
                 $fileArray = array();
@@ -238,6 +236,8 @@ class ModelField extends FileTypeField  {
         }
 
     }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     public static function setRestfulAdvSearch($data, $field, $request){
         $request->request->add([$field->flid.'_input' => $data->input]);

@@ -235,26 +235,32 @@ class TextField extends BaseField {
         return $data;
     }
 
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    public static function getExportSample($field,$type){
-        switch ($type){
+    /**
+     * Provides an example of the field's structure in an export to help with importing records.
+     *
+     * @param  string $slug - Field nickname
+     * @param  string $expType - Type of export
+     * @return mixed - The example
+     */
+    public function getExportSample($slug,$type) {
+        switch($type) {
             case "XML":
-                $xml = '<' . Field::xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                $xml = '<' . Field::xmlTagClear($slug) . ' type="Text">';
                 $xml .= utf8_encode('TEXT VALUE');
-                $xml .= '</' . Field::xmlTagClear($field->slug) . '>';
+                $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                $fieldArray = array('name' => $slug, 'type' => 'Text');
                 $fieldArray['text'] = 'TEXT VALUE';
 
                 return $fieldArray;
                 break;
         }
-
     }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     public static function setRestfulAdvSearch($data, $field, $request){
         $request->request->add([$field->flid.'_input' => $data->input]);

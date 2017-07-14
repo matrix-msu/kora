@@ -303,16 +303,18 @@ class ComboListField extends BaseField {
         return $data;
     }
 
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+    public function getExportSample($slug,$type) {
+        $field = Field::where('slug','=',$slug)->first();
 
-    public static function getExportSample($field,$type){
+        $typeone = ComboListField::getComboFieldType($field, 'one');
+        $typetwo = ComboListField::getComboFieldType($field, 'two');
+        $nameone = ComboListField::getComboFieldName($field, 'one');
+        $nametwo = ComboListField::getComboFieldName($field, 'two');
+
         switch ($type){
             case "XML":
-                $xml = '<' . Field::xmlTagClear($field->slug) . ' type="' . $field->type . '">';
-                $typeone = ComboListField::getComboFieldType($field, 'one');
-                $typetwo = ComboListField::getComboFieldType($field, 'two');
-                $nameone = ComboListField::getComboFieldName($field, 'one');
-                $nametwo = ComboListField::getComboFieldName($field, 'two');
+                $xml = '<' . Field::xmlTagClear($slug) . ' type="Combo List">';
+
                 $xml .= '<Value>';
                 $xml .= '<' . Field::xmlTagClear($nameone) . '>';
                 if ($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List')
@@ -333,16 +335,12 @@ class ComboListField extends BaseField {
                 }
                 $xml .= '</' . Field::xmlTagClear($nametwo) . '>';
                 $xml .= '</Value>';
-                $xml .= '</' . Field::xmlTagClear($field->slug) . '>';
+                $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $field->slug, 'type' => $field->type);
-                $typeone = ComboListField::getComboFieldType($field, 'one');
-                $typetwo = ComboListField::getComboFieldType($field, 'two');
-                $nameone = ComboListField::getComboFieldName($field, 'one');
-                $nametwo = ComboListField::getComboFieldName($field, 'two');
+                $fieldArray = array('name' => $slug, 'type' => 'Combo List');
 
                 $fieldArray['values'] = array();
                 $valArray = array();
@@ -366,6 +364,8 @@ class ComboListField extends BaseField {
         }
 
     }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     public static function setRestfulAdvSearch($data, $field, $request){
         $type1 = self::getComboFieldType($field,'one');

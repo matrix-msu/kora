@@ -151,12 +151,10 @@ class ScheduleField extends BaseField {
         return $data;
     }
 
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    public static function getExportSample($field,$type){
+    public function getExportSample($slug,$type) {
         switch ($type){
             case "XML":
-                $xml = '<' . Field::xmlTagClear($field->slug) . ' type="' . $field->type . '">';
+                $xml = '<' . Field::xmlTagClear($slug) . ' type="Schedule">';
                 $value = '<Event>';
                 $value .= '<Title>' . utf8_encode('EVENT TITLE 1') . '</Title>';
                 $value .= '<Start>' . '08/19/1990 12:00 AM' . '</Start>';
@@ -170,12 +168,12 @@ class ScheduleField extends BaseField {
                 $value .= '<All_Day>' . utf8_encode('1 FOR ALL DAY EVENT') . '</All_Day>';
                 $value .= '</Event>';
                 $xml .= $value;
-                $xml .= '</' . Field::xmlTagClear($field->slug) . '>';
+                $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $field->slug, 'type' => $field->type);
+                $fieldArray = array('name' => $slug, 'type' => 'Schedule');
                 $fieldArray['events'] = array();
 
                 $eventArray = array();
@@ -197,6 +195,8 @@ class ScheduleField extends BaseField {
         }
 
     }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     public static function setRestfulAdvSearch($data, $field, Request $request){
         if(isset($data->begin_month))
