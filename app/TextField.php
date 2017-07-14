@@ -220,6 +220,23 @@ class TextField extends BaseField {
         $this->save();
     }
 
+    /**
+     * Get the arrayed version of the field data to store in a record preset.
+     *
+     * @param  array $data - The data array representing the record preset
+     * @return array - The updated $data
+     */
+    public function getRecordPresetArray($data, $exists=true) {
+        if($exists)
+            $data['text'] = $this->text;
+        else
+            $data['text'] = null;
+
+        return $data;
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -249,21 +266,6 @@ class TextField extends BaseField {
         $recRequest[$flid] = $field->text;
 
         return $recRequest;
-    }
-
-    public static function getRecordPresetArray($field, $record, $data, $flid_array){
-        $textfield = self::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-        if (!empty($textfield->text)) {
-            $data['text'] = $textfield->text;
-        }
-        else {
-            $data['text'] = null;
-        }
-
-        $flid_array[] = $field->flid;
-
-        return array($data,$flid_array);
     }
 
     /**

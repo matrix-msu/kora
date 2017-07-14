@@ -121,6 +121,19 @@ class RichTextField extends BaseField {
         $this->save();
     }
 
+    public function getRecordPresetArray($data, $exists=true) {
+        if ($exists) {
+            $data['rawtext'] = $this->rawtext;
+        }
+        else {
+            $data['rawtext'] = null;
+        }
+
+        return $data;
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -150,21 +163,6 @@ class RichTextField extends BaseField {
         $recRequest[$flid] = $field->richtext;
 
         return $recRequest;
-    }
-
-    public static function getRecordPresetArray($field, $record, $data, $flid_array){
-        $rtfield = RichTextField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-        if (!empty($rtfield->rawtext)) {
-            $data['rawtext'] = $rtfield->rawtext;
-        }
-        else {
-            $data['rawtext'] = null;
-        }
-
-        $flid_array[] = $field->flid;
-
-        return array($data,$flid_array);
     }
 
     /**

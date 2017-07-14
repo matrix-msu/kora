@@ -211,6 +211,19 @@ class DocumentsField extends FileTypeField {
         $this->save();
     }
 
+    public function getRecordPresetArray($data, $exists=true) {
+        if ($exists) {
+            $data['documents'] = explode('[!]', $this->documents);
+        }
+        else {
+            $data['documents'] = null;
+        }
+
+        return $data;
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -279,21 +292,6 @@ class DocumentsField extends FileTypeField {
         $recRequest[$flid] = 'f' . $flid . 'u' . $uToken;
 
         return $recRequest;
-    }
-
-    public static function getRecordPresetArray($field, $record, $data, $flid_array){
-        $docfield = DocumentsField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-        if (!empty($docfield->documents)) {
-            $data['documents'] = explode('[!]', $docfield->documents);
-        }
-        else {
-            $data['documents'] = null;
-        }
-
-        $flid_array[] = $field->flid;
-
-        return array($data,$flid_array,true);
     }
 
     /**

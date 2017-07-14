@@ -292,6 +292,19 @@ class ComboListField extends BaseField {
         $this->updateData($revision->data[Field::_COMBO_LIST][$field->flid]['data']['options'], $type_1, $type_2);
     }
 
+    public function getRecordPresetArray($data, $exists=true) {
+        if ($exists) {
+            $data['combolists'] = ComboListField::dataToOldFormat($this->data()->get());
+        }
+        else {
+            $data['combolists'] = null;
+        }
+
+        return $data;
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -425,21 +438,6 @@ class ComboListField extends BaseField {
         $recRequest[$flid . '_val'] = $values;
 
         return $recRequest;
-    }
-
-    public static function getRecordPresetArray($field, $record, $data, $flid_array){
-        $cmbfield = ComboListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-        if (!empty($cmbfield->options)) {
-            $data['combolists'] = ComboListField::dataToOldFormat($cmbfield->data()->get());
-        }
-        else {
-            $data['combolists'] = null;
-        }
-
-        $flid_array[] = $field->flid;
-
-        return array($data,$flid_array);
     }
 
     public static function getComboList($field, $blankOpt=false, $fnum)

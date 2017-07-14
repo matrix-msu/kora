@@ -175,6 +175,19 @@ class NumberField extends BaseField {
         $this->save();
     }
 
+    public function getRecordPresetArray($data, $exists=true) {
+        if ($exists) {
+            $data['number'] = $this->number;
+        }
+        else {
+            $data['number'] = null;
+        }
+
+        return $data;
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -218,21 +231,6 @@ class NumberField extends BaseField {
         $recRequest[$flid] = $field->number;
 
         return $recRequest;
-    }
-
-    public static function getRecordPresetArray($field, $record, $data, $flid_array){
-        $numberfield = NumberField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-        if (!empty($numberfield->number)) {
-            $data['number'] = $numberfield->number;
-        }
-        else {
-            $data['number'] = null;
-        }
-
-        $flid_array[] = $field->flid;
-
-        return array($data,$flid_array);
     }
 
     /**

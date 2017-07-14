@@ -139,6 +139,19 @@ class MultiSelectListField extends BaseField {
         $this->save();
     }
 
+    public function getRecordPresetArray($data, $exists=true) {
+        if ($exists) {
+            $data['options'] = explode('[!]', $this->options);
+        }
+        else {
+            $data['options'] = null;
+        }
+
+        return $data;
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -171,21 +184,6 @@ class MultiSelectListField extends BaseField {
         $recRequest[$flid] = $field->options;
 
         return $recRequest;
-    }
-
-    public static function getRecordPresetArray($field, $record, $data, $flid_array){
-        $mslfield = MultiSelectListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-        if (!empty($mslfield->options)) {
-            $data['options'] = explode('[!]', $mslfield->options);
-        }
-        else {
-            $data['options'] = null;
-        }
-
-        $flid_array[] = $field->flid;
-
-        return array($data,$flid_array);
     }
 
     public static function getList($field, $blankOpt=false)

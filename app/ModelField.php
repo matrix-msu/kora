@@ -201,6 +201,19 @@ class ModelField extends FileTypeField  {
         $this->save();
     }
 
+    public function getRecordPresetArray($data, $exists=true) {
+        if ($exists) {
+            $data['model'] = $this->model;
+        }
+        else {
+            $data['model'] = null;
+        }
+
+        return $data;
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -255,21 +268,6 @@ class ModelField extends FileTypeField  {
         $recRequest[$flid] = 'f' . $flid . 'u' . $uToken;
 
         return $recRequest;
-    }
-
-    public static function getRecordPresetArray($field, $record, $data, $flid_array){
-        $modelfield = ModelField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-        if (!empty($modelfield->model)) {
-            $data['model'] = $modelfield->model;
-        }
-        else {
-            $data['model'] = null;
-        }
-
-        $flid_array[] = $field->flid;
-
-        return array($data,$flid_array,true);
     }
 
     /**

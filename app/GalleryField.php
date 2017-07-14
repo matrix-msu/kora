@@ -258,6 +258,17 @@ class GalleryField extends FileTypeField  {
         $this->save();
     }
 
+    public function getRecordPresetArray($data, $exists=true) {
+        if($exists)
+            $data['images'] = explode('[!]', $this->images);
+        else
+            $data['images'] = null;
+
+        return $data;
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -348,21 +359,6 @@ class GalleryField extends FileTypeField  {
         $recRequest[$flid] = 'f' . $flid . 'u' . $uToken;
 
         return $recRequest;
-    }
-
-    public static function getRecordPresetArray($field, $record, $data, $flid_array){
-        $galfield = GalleryField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-        if (!empty($galfield->images)) {
-            $data['images'] = explode('[!]', $galfield->images);
-        }
-        else {
-            $data['images'] = null;
-        }
-
-        $flid_array[] = $field->flid;
-
-        return array($data,$flid_array,true);
     }
 
     /**

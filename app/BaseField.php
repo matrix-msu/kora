@@ -187,4 +187,13 @@ abstract class BaseField extends Model {
      * @param  bool $exists - Field for record exists
      */
     abstract public function rollbackField($field, Revision $revision, $exists=true);
+
+    /**
+     * Get the arrayed version of the field data to store in a record preset.
+     *
+     * @param  array $data - The data array representing the record preset
+     * @param  bool $exists - Typed field exists and has data
+     * @return array - The updated $data
+     */
+    abstract public function getRecordPresetArray($data, $exists=true);
 }

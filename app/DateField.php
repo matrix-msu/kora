@@ -207,6 +207,31 @@ class DateField extends BaseField {
         $this->save();
     }
 
+    public function getRecordPresetArray($data, $exists=true) {
+        $date_array = array();
+
+        if($exists) {
+            $date_array['circa'] = $this->circa;
+            $date_array['era'] = $this->era;
+            $date_array['day'] = $this->day;
+            $date_array['month'] = $this->month;
+            $date_array['year'] = $this->year;
+        }
+        else {
+            $date_array['circa'] = null;
+            $date_array['era'] = null;
+            $date_array['day'] = null;
+            $date_array['month'] = null;
+            $date_array['year'] = null;
+        }
+
+        $data['data'] = $date_array;
+
+        return $data;
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -279,50 +304,6 @@ class DateField extends BaseField {
         $recRequest[$flid] = '';
 
         return $recRequest;
-    }
-
-    public static function getRecordPresetArray($field, $record, $data, $flid_array){
-        $datefield = DateField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-        if(!empty($datefield->circa)) {
-            $date_array['circa'] = $datefield->circa;
-        }
-        else {
-            $date_array['circa'] = null;
-        }
-
-        if(!empty($datefield->era)) {
-            $date_array['era'] = $datefield->era;
-        }
-        else {
-            $date_array['era'] = null;
-        }
-
-        if(!empty($datefield->day)) {
-            $date_array['day'] = $datefield->day;
-        }
-        else {
-            $date_array['day'] = null;
-        }
-
-        if(!empty($datefield->month)) {
-            $date_array['month'] = $datefield->month;
-        }
-        else {
-            $date_array['month'] = null;
-        }
-
-        if(!empty($datefield->year)) {
-            $date_array['year'] = $datefield->year;
-        }
-        else {
-            $date_array['year'] = null;
-        }
-
-        $data['data'] = $date_array;
-        $flid_array[] = $field->flid;
-
-        return array($data,$flid_array);
     }
 
     /**

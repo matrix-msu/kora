@@ -133,6 +133,19 @@ class ListField extends BaseField {
         $this->save();
     }
 
+    public function getRecordPresetArray($data, $exists=true) {
+        if ($exists) {
+            $data['option'] = $this->option;
+        }
+        else {
+            $data['option'] = null;
+        }
+
+        return $data;
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -162,21 +175,6 @@ class ListField extends BaseField {
         $recRequest[$flid] = $field->option;
 
         return $recRequest;
-    }
-
-    public static function getRecordPresetArray($field, $record, $data, $flid_array){
-        $listfield = ListField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-        if (!empty($listfield->option)) {
-            $data['option'] = $listfield->option;
-        }
-        else {
-            $data['option'] = null;
-        }
-
-        $flid_array[] = $field->flid;
-
-        return array($data,$flid_array);
     }
 
     public static function getList($field, $blankOpt=false)

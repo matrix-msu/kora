@@ -211,6 +211,19 @@ class VideoField extends FileTypeField {
         $this->save();
     }
 
+    public function getRecordPresetArray($data, $exists=true) {
+        if ($exists) {
+            $data['video'] = explode('[!]', $this->video);
+        }
+        else {
+            $data['video'] = null;
+        }
+
+        return $data;
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -279,21 +292,6 @@ class VideoField extends FileTypeField {
         $recRequest[$flid] = 'f' . $flid . 'u' . $uToken;
 
         return $recRequest;
-    }
-
-    public static function getRecordPresetArray($field, $record, $data, $flid_array){
-        $vidfield = VideoField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-        if (!empty($vidfield->video)) {
-            $data['video'] = explode('[!]', $vidfield->video);
-        }
-        else {
-            $data['video'] = null;
-        }
-
-        $flid_array[] = $field->flid;
-
-        return array($data,$flid_array,true);
     }
 
     /**

@@ -124,6 +124,19 @@ class AssociatorField extends BaseField {
         $this->updateRecords($updated);
     }
 
+    public function getRecordPresetArray($data, $exists=true) {
+        if ($exists) {
+            $data['records'] = explode('[!]', $this->records);
+        }
+        else {
+            $data['records'] = null;
+        }
+
+        return $data;
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -148,21 +161,6 @@ class AssociatorField extends BaseField {
         $recRequest[$flid] = $field->records;
 
         return $recRequest;
-    }
-
-    public static function getRecordPresetArray($field, $record, $data, $flid_array){
-        $assocfield = AssociatorField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-        if (!empty($assocfield->records)) {
-            $data['records'] = explode('[!]', $assocfield->records);
-        }
-        else {
-            $data['records'] = null;
-        }
-
-        $flid_array[] = $field->flid;
-
-        return array($data,$flid_array);
     }
 
     public function getPreviewValues($rid){

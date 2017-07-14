@@ -140,6 +140,19 @@ class ScheduleField extends BaseField {
         $this->updateEvents($revision->data[Field::_SCHEDULE][$field->flid]['data']);
     }
 
+    public function getRecordPresetArray($data, $exists=true) {
+        if($exists) {
+            $data['events'] = ScheduleField::eventsToOldFormat($this->events()->get());
+        }
+        else {
+            $data['events'] = null;
+        }
+
+        return $data;
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -229,22 +242,6 @@ class ScheduleField extends BaseField {
         $recRequest[$flid] = $events;
 
         return $recRequest;
-    }
-
-    public static function getRecordPresetArray($field, $record, $data, $flid_array){
-        $schedfield = ScheduleField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-        if($schedfield->hasEvents()) {
-            $data['events'] = ScheduleField::eventsToOldFormat($schedfield->events()->get());
-        }
-        else {
-            $data['events'] = null;
-        }
-
-
-        $flid_array[] = $field->flid;
-
-        return array($data,$flid_array);
     }
 
     public static function getDateList($field)

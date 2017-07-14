@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Field;
+use App\FileTypeField;
 use App\Form;
 use App\Record;
 use App\RecordPreset;
@@ -177,11 +178,16 @@ class RecordPresetController extends Controller {
             $data['flid'] = $field->flid;
             $data['type'] = $field->type;
 
-            $dataArray = Field::getRecordPresetArray($field,$record,$data,$flid_array);
-            $data = $dataArray[0];
-            $flid_array = $dataArray[1];
+            $typedField = $field->getTypedFieldFromRID($record->rid);
+            if(!is_null($typedField)) {
+                $data = $typedField->getRecordPresetArray($data);
+            } else {
+                $typedField = $field->getTypedField();
+                $data = $typedField->getRecordPresetArray($data, false);
+            }
+            $flid_array[] = $field->flid;
             //We hit a file type field
-            if(isset($dataArray[2]))
+            if($typedField instanceof FileTypeField)
                 $fileFields = true;
 
             $field_array[$field->flid] = $data;

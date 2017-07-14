@@ -135,6 +135,19 @@ class GeolocatorField extends BaseField {
         $this->updateLocations($revision->data[Field::_GEOLOCATOR][$field->flid]['data']);
     }
 
+    public function getRecordPresetArray($data, $exists=true) {
+        if ($exists) {
+            $data['locations'] = GeolocatorField::locationsToOldFormat($this->locations()->get());
+        }
+        else {
+            $data['locations'] = null;
+        }
+
+        return $data;
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
     public static function getExportSample($field,$type){
         switch ($type){
             case "XML":
@@ -221,21 +234,6 @@ class GeolocatorField extends BaseField {
         $recRequest[$flid] = $geo;
 
         return $recRequest;
-    }
-
-    public static function getRecordPresetArray($field, $record, $data, $flid_array){
-        $geofield = GeolocatorField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();
-
-        if ($geofield->hasLocations()) {
-            $data['locations'] = GeolocatorField::locationsToOldFormat($geofield->locations()->get());
-        }
-        else {
-            $data['locations'] = null;
-        }
-
-        $flid_array[] = $field->flid;
-
-        return array($data,$flid_array);
     }
 
     /**

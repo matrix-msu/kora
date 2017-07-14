@@ -248,8 +248,10 @@
                         else {
                             moveFiles(presetID, flid, userID);
 
-                            var vid = field['video'].split('[Name]')[1];
-                            filenames.append(fileDivHTML(vid, flid, userID, false));
+                            for (var tv = 0; tv < field['video'].length; tv++) {
+                                filename = field['video'][tv].split('[Name]')[1];
+                                filenames.append(fileDivHTML(filename, flid, userID, true));
+                            }
                         }
                         break;
 
