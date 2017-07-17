@@ -5,7 +5,7 @@ use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection;
 
 class TextField extends BaseField {
 
@@ -260,26 +260,48 @@ class TextField extends BaseField {
         }
     }
 
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    public static function setRestfulAdvSearch($data, $field, $request){
-        $request->request->add([$field->flid.'_input' => $data->input]);
+    /**
+     * Updates the request for an API search to mimic the advanced search structure.
+     *
+     * @param  array $data - Data from the search
+     * @param  int $flid - Field ID
+     * @param  Request $request
+     * @return Request - The update request
+     */
+    public function setRestfulAdvSearch($data, $flid, $request) {
+        $request->request->add([$flid.'_input' => $data->input]);
 
         return $request;
     }
 
-    public static function setRestfulRecordData($field, $flid, $recRequest){
-        $recRequest[$flid] = $field->text;
+    /**
+     * Updates the request for an API to mimic record creation .
+     *
+     * @param  array $jsonField - JSON representation of field data
+     * @param  int $flid - Field ID
+     * @param  Request $recRequest
+     * @param  int $uToken - Custom generated user token for file fields and tmp folders
+     * @return Request - The update request
+     */
+    public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
+        $recRequest[$flid] = $jsonField->text;
 
         return $recRequest;
     }
 
     /**
-     * @param Field | null $field
-     * @return string
+     * Performs a keyword search on this field and returns any results.
+     *
+     * @param  int $fid - Form ID
+     * @param  string $arg - The keywords
+     * @param  string $method - Type of keyword search
+     * @return Collection - The RIDs that match search
      */
-    public function getRevisionData($field = null) {
-        return $this->text;
+    public function keywordSearchTyped($fid, $arg, $method) {
+        return self::select("rid")
+            ->where("fid", "=", $fid)
+            ->whereRaw("MATCH (`text`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+            ->distinct();
     }
 
     /**
@@ -289,12 +311,30 @@ class TextField extends BaseField {
      * @param $query, contents of query.
      * @return Builder
      */
-    public static function getAdvancedSearchQuery($flid, $query) {
-        return DB::table("text_fields")
-            ->select("rid")
+    public function getAdvancedSearchQuery($flid, $query) {
+        return self::select("rid")
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`text`) AGAINST (? IN BOOLEAN MODE)",
                 [Search::processArgument($query[$flid . "_input"], Search::ADVANCED_METHOD)])
             ->distinct();
+    }
+
+    /**
+     * Gets formatted value of record field to compare for sort. Only implement if field is sortable.
+     *
+     * @return string - The value
+     */
+    public function getValueForSort() {
+        return $this->text;
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
+    /**
+     * @param Field | null $field
+     * @return string
+     */
+    public function getRevisionData($field = null) {
+        return $this->text;
     }
 }

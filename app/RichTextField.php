@@ -151,19 +151,34 @@ class RichTextField extends BaseField {
 
     }
 
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    public static function setRestfulAdvSearch($data, $field, $request){
-        $request->request->add([$field->flid.'_input' => $data->input]);
+    public function setRestfulAdvSearch($data, $flid, $request) {
+        $request->request->add([$flid.'_input' => $data->input]);
 
         return $request;
     }
 
-    public static function setRestfulRecordData($field, $flid, $recRequest){
-        $recRequest[$flid] = $field->richtext;
+    public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
+        $recRequest[$flid] = $jsonField->richtext;
 
         return $recRequest;
     }
+
+    public function keywordSearchTyped($fid, $arg, $method) {
+        return self::select("rid")
+            ->where("fid", "=", $fid)
+            ->whereRaw("MATCH (`searchable_rawtext`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+            ->distinct();
+    }
+
+    public function getAdvancedSearchQuery($flid, $query) {
+        return self::select("rid")
+            ->where("flid", "=", $flid)
+            ->whereRaw("MATCH (`searchable_rawtext`) AGAINST (? IN BOOLEAN MODE)",
+                [Search::processArgument($query[$flid . "_input"], Search::ADVANCED_METHOD)])
+            ->distinct();
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     /**
      * Saves the model.
@@ -185,21 +200,5 @@ class RichTextField extends BaseField {
      */
     public function getRevisionData($field = null) {
         return $this->rawtext;
-    }
-
-    /**
-     * Builds the advanced search query for a rich text field.
-     *
-     * @param $flid
-     * @param array $query
-     * @return Builder
-     */
-    public static function getAdvancedSearchQuery($flid, array $query) {
-        return DB::table("rich_text_fields")
-            ->select("rid")
-            ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`searchable_rawtext`) AGAINST (? IN BOOLEAN MODE)",
-                [Search::processArgument($query[$flid . "_input"], Search::ADVANCED_METHOD)])
-            ->distinct();
     }
 }

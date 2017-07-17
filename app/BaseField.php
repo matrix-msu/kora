@@ -2,7 +2,9 @@
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 abstract class BaseField extends Model {
@@ -205,4 +207,53 @@ abstract class BaseField extends Model {
      * @return mixed - The example
      */
     abstract public function getExportSample($slug,$type);
+
+    /**
+     * Updates the request for an API search to mimic the advanced search structure.
+     *
+     * @param  array $data - Data from the search
+     * @param  int $flid - Field ID
+     * @param  Request $request
+     * @return Request - The update request
+     */
+    abstract public function setRestfulAdvSearch($data, $flid, $request);
+
+    /**
+     * Updates the request for an API to mimic record creation .
+     *
+     * @param  array $jsonField - JSON representation of field data
+     * @param  int $flid - Field ID
+     * @param  Request $recRequest
+     * @param  int $uToken - Custom generated user token for file fields and tmp folders
+     * @return Request - The update request
+     */
+    abstract public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null);
+
+    /**
+     * Performs a keyword search on this field and returns any results.
+     *
+     * @param  int $fid - Form ID
+     * @param  string $arg - The keywords
+     * @param  string $method - Type of keyword search
+     * @return Collection - The RIDs that match search
+     */
+    abstract public function keywordSearchTyped($fid, $arg, $method);
+
+    /**
+     * Performs an advanced search on this field and returns any results.
+     *
+     * @param  int $flid - Field ID
+     * @param  array $query - The advance search user query
+     * @return Builder - The RIDs that match search
+     */
+    abstract public function getAdvancedSearchQuery($flid, $query);
+
+    /**
+     * Gets formatted value of record field to compare for sort. Only implement if field is sortable.
+     *
+     * @return string - The value
+     */
+    public function getValueForSort() {
+        return '';
+    }
 }

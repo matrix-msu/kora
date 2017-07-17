@@ -1,5 +1,4 @@
-<?php
-namespace App\Http\Controllers;
+<?php namespace App\Http\Controllers;
 
 use App\Field;
 use App\Form;
@@ -31,11 +30,6 @@ class RestfulController extends Controller {
      * @var array - Valid output formats
      */
     const VALID_FORMATS = [ self::JSON, self::XML ];
-
-    /**
-     * @var array - Fields that are valid for sort
-     */
-    const VALID_SORT = Field::VALID_SORT;
 
     /**
      * Gets the current version of Kora3.
@@ -204,14 +198,13 @@ class RestfulController extends Controller {
                                 return "You must provide fields in an advanced search for form: " . $form->name;
                             $fields = $query->fields;
                             foreach($fields as $flid => $data) {
-                                $field = FieldController::getField($flid);
+                                $fieldModel = FieldController::getField($flid);
                                 //Check permission to search externally
-                                if(!$field->isExternalSearchable())
+                                if(!$fieldModel->isExternalSearchable())
                                     continue;
-                                $id = $field->flid;
-                                $request->request->add([$id.'_dropdown' => 'on']);
-                                $request->request->add([$id.'_valid' => 1]);
-                                $request = Field::setRestfulAdvSearch($data,$field,$request);
+                                $request->request->add([$flid.'_dropdown' => 'on']);
+                                $request->request->add([$flid.'_valid' => 1]);
+                                $request = $fieldModel->getTypedField()->setRestfulAdvSearch($data,$flid,$request);
                             }
                             $advSearch = new AdvancedSearchController();
                             $rids = $advSearch->apisearch($form->pid, $form->fid, $request);
@@ -317,14 +310,16 @@ class RestfulController extends Controller {
             }
         } else {
             $field = FieldController::getField($fieldSlug);
-            if(!in_array(($field->type), self::VALID_SORT))
+            if(!$field->isSortable())
                 return false;
             //for each rid
             foreach($rids as $rid) {
                 //based on type
-                $hasSort = Field::hasValueToSort($field, $rid, $newOrderArray, $noSortValue);
-                $newOrderArray = $hasSort[0];
-                $noSortValue = $hasSort[1];
+                $typedField = $field->getTypedFieldFromRID($rid);
+                if(!is_null($typedField))
+                    $newOrderArray[$rid] = $typedField->getValueForSort();
+                else
+                    array_push($noSortValue, $rid);
             }
         }
         //sort new array
@@ -462,11 +457,11 @@ class RestfulController extends Controller {
                 return "There was an error extracting the provided zip";
             }
         }
-        foreach($fields as $field) {
-            $fieldSlug = $field->name;
-            $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
+        foreach($fields as $jsonField) {
+            $fieldSlug = $jsonField->name;
+            $field = Field::where('slug', '=', $fieldSlug)->get()->first();
 
-            $recRequest = Field::setRestfulRecordData($field, $flid, $recRequest, $uToken);
+            $recRequest = $field->getTypedField()->setRestfulRecordData($jsonField, $field->flid, $recRequest, $uToken);
         }
         $recRequest['api'] = true;
         $recCon = new RecordController();
@@ -542,14 +537,14 @@ class RestfulController extends Controller {
                 return "There was an error extracting the provided zip";
             }
         }
-        foreach($fields as $field) {
-            $fieldSlug = $field->name;
-            $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
+        foreach($fields as $jsonField) {
+            $fieldSlug = $jsonField->name;
+            $field = Field::where('slug', '=', $fieldSlug)->get()->first();
             //if keepfields scenario, keep track of this field that will be edited
             if($keepFields=="true")
-                array_push($fieldsToEditArray,$flid);
+                array_push($fieldsToEditArray,$field->flid);
 
-            $recRequest = Field::setRestfulRecordData($field, $flid, $recRequest, $uToken);
+            $recRequest = $field->getTypedField()->setRestfulRecordData($jsonField, $field->flid, $recRequest, $uToken);
         }
         $recRequest['api'] = true;
         $recRequest['keepFields'] = $keepFields; //whether we keep unmentioned fields

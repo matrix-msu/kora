@@ -68,9 +68,10 @@ class AdvancedSearchController extends Controller {
 
         foreach($this->processRequest($request) as $flid => $query) {
             // Result will be returned as an array of stdObjects so we have to extract the rid.
+            $field = FieldController::getField($flid);
             $result = array_map(function($returned) {
                 return $returned->rid;
-            }, Field::advancedSearch($flid, $stash[$flid]["type"], $query)->get());
+            }, $field->getTypedField()->getAdvancedSearchQuery($flid, $query)->get());
             $results[] = $result;
         }
 
@@ -108,9 +109,10 @@ class AdvancedSearchController extends Controller {
 
         foreach($this->processRequest($request) as $flid => $query) {
             // Result will be returned as an array of stdObjects so we have to extract the rid.
+            $field = FieldController::getField($flid);
             $result = array_map(function($returned) {
                 return $returned->rid;
-            }, Field::advancedSearch($flid, $stash[$flid]["type"], $query)->get());
+            }, $field->getTypedField()->getAdvancedSearchQuery($flid, $query)->get());
             $results[] = $result;
         }
 

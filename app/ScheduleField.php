@@ -196,9 +196,7 @@ class ScheduleField extends BaseField {
 
     }
 
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    public static function setRestfulAdvSearch($data, $field, Request $request){
+    public function setRestfulAdvSearch($data, $flid, $request) {
         if(isset($data->begin_month))
             $beginMonth = $data->begin_month;
         else
@@ -211,9 +209,9 @@ class ScheduleField extends BaseField {
             $beginYear = $data->begin_year;
         else
             $beginYear = '';
-        $request->request->add([$field->flid.'_begin_month' => $beginMonth]);
-        $request->request->add([$field->flid.'_begin_day' => $beginDay]);
-        $request->request->add([$field->flid.'_begin_year' => $beginYear]);
+        $request->request->add([$flid.'_begin_month' => $beginMonth]);
+        $request->request->add([$flid.'_begin_day' => $beginDay]);
+        $request->request->add([$flid.'_begin_year' => $beginYear]);
         if(isset($data->end_month))
             $endMonth = $data->end_month;
         else
@@ -226,16 +224,16 @@ class ScheduleField extends BaseField {
             $endYear = $data->end_year;
         else
             $endYear = '';
-        $request->request->add([$field->flid.'_end_month' => $endMonth]);
-        $request->request->add([$field->flid.'_end_day' => $endDay]);
-        $request->request->add([$field->flid.'_end_year' => $endYear]);
+        $request->request->add([$flid.'_end_month' => $endMonth]);
+        $request->request->add([$flid.'_end_day' => $endDay]);
+        $request->request->add([$flid.'_end_year' => $endYear]);
 
         return $request;
     }
 
-    public static function setRestfulRecordData($field, $flid, $recRequest){
+    public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
         $events = array();
-        foreach($field->events as $event) {
+        foreach($jsonField->events as $event) {
             $string = $event['title'] . ': ' . $event['start'] . ' - ' . $event['end'];
             array_push($events, $string);
         }
@@ -243,6 +241,51 @@ class ScheduleField extends BaseField {
 
         return $recRequest;
     }
+
+    public function keywordSearchTyped($fid, $arg, $method) {
+        return DB::table(self::SUPPORT_NAME)
+            ->select("rid")
+            ->where("fid", "=", $fid)
+            ->whereRaw("MATCH (`desc`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+            ->distinct();
+    }
+
+    public function getAdvancedSearchQuery($flid, $query) {
+        $begin_month = ($query[$flid."_begin_month"] == "") ? 1 : intval($query[$flid."_begin_month"]);
+        $begin_day = ($query[$flid."_begin_day"] == "") ? 1 : intval($query[$flid."_begin_day"]);
+        $begin_year = ($query[$flid."_begin_year"] == "") ? 1 : intval($query[$flid."_begin_year"]);
+
+        $end_month = ($query[$flid."_end_month"] == "") ? 1 : intval($query[$flid."_end_month"]);
+        $end_day = ($query[$flid."_end_day"] == "") ? 1 : intval($query[$flid."_end_day"]);
+        $end_year = ($query[$flid."_end_year"] == "") ? 1 : intval($query[$flid."_end_year"]);
+
+        //
+        // Advanced Search for schedule doesn't allow for time search, but we do store the time in some schedules entries.
+        // So we search from 0:00:00 to 23:59:59 on the begin and end day respectively.
+        //
+        $begin = DateTime::createFromFormat("Y-m-d H:i:s", $begin_year."-".$begin_month."-".$begin_day." 00:00:00");
+        $end = DateTime::createFromFormat("Y-m-d H:i:s", $end_year."-".$end_month."-".$end_day." 23:59:59");
+
+        $query = DB::table(self::SUPPORT_NAME)
+            ->select("rid")
+            ->where("flid", "=", $flid);
+
+        $query->where(function($query) use ($begin, $end) {
+            // We search over [search_begin, search_end] and return results if
+            // the intersection of [search_begin, search_end] and [begin, end] is non-empty.
+            $query->whereBetween("begin", [$begin, $end])
+                ->orWhereBetween("end", [$begin, $end]);
+
+            $query->orWhere(function($query) use($begin, $end) {
+                $query->where("begin", "<=", $begin)
+                    ->where("end", ">=", $end);
+            });
+        });
+
+        return $query->distinct();
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     public static function getDateList($field)
     {
@@ -424,47 +467,5 @@ class ScheduleField extends BaseField {
      */
     public static function supportFields($rid) {
         return DB::table(self::SUPPORT_NAME)->where("rid", "=", $rid);
-    }
-
-    /**
-     * Build an advanced search query for a schedule field.
-     *
-     * @param $flid, field id.
-     * @param $query, query array. 
-     * @return Builder
-     */
-    public static function getAdvancedSearchQuery($flid, $query) {
-        $begin_month = ($query[$flid."_begin_month"] == "") ? 1 : intval($query[$flid."_begin_month"]);
-        $begin_day = ($query[$flid."_begin_day"] == "") ? 1 : intval($query[$flid."_begin_day"]);
-        $begin_year = ($query[$flid."_begin_year"] == "") ? 1 : intval($query[$flid."_begin_year"]);
-
-        $end_month = ($query[$flid."_end_month"] == "") ? 1 : intval($query[$flid."_end_month"]);
-        $end_day = ($query[$flid."_end_day"] == "") ? 1 : intval($query[$flid."_end_day"]);
-        $end_year = ($query[$flid."_end_year"] == "") ? 1 : intval($query[$flid."_end_year"]);
-
-        //
-        // Advanced Search for schedule doesn't allow for time search, but we do store the time in some schedules entries.
-        // So we search from 0:00:00 to 23:59:59 on the begin and end day respectively.
-        //
-        $begin = DateTime::createFromFormat("Y-m-d H:i:s", $begin_year."-".$begin_month."-".$begin_day." 00:00:00");
-        $end = DateTime::createFromFormat("Y-m-d H:i:s", $end_year."-".$end_month."-".$end_day." 23:59:59");
-
-        $query = DB::table(self::SUPPORT_NAME)
-            ->select("rid")
-            ->where("flid", "=", $flid);
-
-        $query->where(function($query) use ($begin, $end) {
-            // We search over [search_begin, search_end] and return results if
-            // the intersection of [search_begin, search_end] and [begin, end] is non-empty.
-            $query->whereBetween("begin", [$begin, $end])
-                ->orWhereBetween("end", [$begin, $end]);
-
-            $query->orWhere(function($query) use($begin, $end) {
-                $query->where("begin", "<=", $begin)
-                    ->where("end", ">=", $end);
-            });
-        });
-
-        return $query->distinct();
     }
 }

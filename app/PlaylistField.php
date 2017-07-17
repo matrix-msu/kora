@@ -262,15 +262,13 @@ class PlaylistField extends FileTypeField  {
 
     }
 
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    public static function setRestfulAdvSearch($data, $field, $request){
-        $request->request->add([$field->flid.'_input' => $data->input]);
+    public function setRestfulAdvSearch($data, $flid, $request) {
+        $request->request->add([$flid.'_input' => $data->input]);
 
         return $request;
     }
 
-    public static function setRestfulRecordData($field, $flid, $recRequest, $uToken){
+    public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
         $files = array();
         $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken;
         $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . $uToken;
@@ -282,7 +280,7 @@ class PlaylistField extends FileTypeField  {
         } else {
             mkdir($newDir, 0775, true);
         }
-        foreach($field->files as $file) {
+        foreach($jsonField->files as $file) {
             $name = $file->name;
             //move file from imp temp to tmp files
             copy($currDir . '/' . $name, $newDir . '/' . $name);
@@ -295,28 +293,31 @@ class PlaylistField extends FileTypeField  {
         return $recRequest;
     }
 
+    public function keywordSearchTyped($fid, $arg, $method) {
+        $arg = self::processArgumentForFileField($arg, $method);
+
+        return self::select("rid")
+            ->where("fid", "=", $fid)
+            ->whereRaw("MATCH (`audio`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+            ->distinct();
+    }
+
+    public function getAdvancedSearchQuery($flid, $query) {
+        $processed = $query[$flid."_input"]. "*[Name]";
+
+        return self::select("rid")
+            ->where("flid", "=", $flid)
+            ->whereRaw("MATCH (`audio`) AGAINST (? IN BOOLEAN MODE)", [$processed])
+            ->distinct();
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
     /**
      * @param null $field
      * @return string
      */
     public function getRevisionData($field = null) {
         return $this->audio;
-    }
-
-    /**
-     * Build the advanced search query.
-     *
-     * @param $flid
-     * @param $query
-     * @return Builder
-     */
-    public static function getAdvancedSearchQuery($flid, $query) {
-        $processed = $query[$flid."_input"]. "*[Name]";
-
-        return DB::table("playlist_fields")
-            ->select("rid")
-            ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`audio`) AGAINST (? IN BOOLEAN MODE)", [$processed])
-            ->distinct();
     }
 }

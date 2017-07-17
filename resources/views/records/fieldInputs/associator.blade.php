@@ -14,7 +14,7 @@
         </div>
         <div id="assocSearchResults{{$field->flid}}">
         </div>
-        {!! Form::select($field->flid.'[]',\App\AssociatorField::getDefault($field->default,false),  \App\AssociatorField::getDefault($field->default,false), ['class' => 'form-control', 'multiple', 'id' => $field->flid]) !!}
+        {!! Form::select($field->flid.'[]',\App\AssociatorField::getAssociatorList($field),  \App\AssociatorField::getAssociatorList($field), ['class' => 'form-control', 'multiple', 'id' => $field->flid]) !!}
         <button type="button" class="btn btn-primary remove_option{{$field->flid}}">{{trans('fields_options_list.delete')}}</button>
         <button type="button" class="btn btn-primary move_option_up{{$field->flid}}">{{trans('fields_options_list.up')}}</button>
         <button type="button" class="btn btn-primary move_option_down{{$field->flid}}">{{trans('fields_options_list.down')}}</button>

@@ -163,19 +163,45 @@ class ListField extends BaseField {
 
     }
 
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    public static function setRestfulAdvSearch($data, $field, $request){
-        $request->request->add([$field->flid.'_input' => $data->input]);
+    public function setRestfulAdvSearch($data, $flid, $request) {
+        $request->request->add([$flid.'_input' => $data->input]);
 
         return $request;
     }
 
-    public static function setRestfulRecordData($field, $flid, $recRequest){
-        $recRequest[$flid] = $field->option;
+    public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
+        $recRequest[$flid] = $jsonField->option;
 
         return $recRequest;
     }
+
+    public function keywordSearchTyped($fid, $arg, $method) {
+        return self::select("rid")
+            ->where("fid", "=", $fid)
+            ->whereRaw("MATCH (`option`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+            ->distinct();
+    }
+
+    public function getAdvancedSearchQuery($flid, $query) {
+        $db_query = self::select("rid")
+            ->where("flid", "=", $flid);
+        $input = $query[$flid . "_input"];
+
+        self::buildAdvancedListQuery($db_query, $input);
+
+        return $db_query->distinct();
+    }
+
+    /**
+     * Gets formatted value of record field to compare for sort. Only implement if field is sortable.
+     *
+     * @return string - The value
+     */
+    public function getValueForSort() {
+        return $this->option;
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     public static function getList($field, $blankOpt=false)
     {
@@ -206,24 +232,6 @@ class ListField extends BaseField {
      */
     public function getRevisionData($field = null) {
         return $this->option;
-    }
-
-    /**
-     * Build the advanced query for a list field.
-     *
-     * @param $flid, field id.
-     * @param $query, query array.
-     * @return Builder
-     */
-    public static function getAdvancedSearchQuery($flid, $query) {
-        $db_query = DB::table("list_fields")
-            ->select("rid")
-            ->where("flid", "=", $flid);
-        $input = $query[$flid . "_input"];
-
-        self::buildAdvancedListQuery($db_query, $input);
-
-        return $db_query->distinct();
     }
 
     /**

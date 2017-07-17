@@ -87,7 +87,7 @@ class Search {
                     if(!isset($used_types[$field->type]))
                         $used_types[$field->type] = true;
 
-                    $rids += $field->keywordSearchTyped($processed, $this->method)->get();
+                    $rids += $field->getTypedField()->keywordSearchTyped($field->fid, $processed, $this->method)->get();
                 }
             }
 
@@ -107,7 +107,7 @@ class Search {
                         $used_types[$field->type] = true;
 
                     foreach(explode(" ", $processed) as $arg) {
-                        $rids_array[] = $field->keywordSearchTyped($arg)->get();
+                        $rids_array[] = $field->getTypedField()->keywordSearchTyped($field->fid, $arg, $this->method)->get();
                     }
                 }
             }

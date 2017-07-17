@@ -205,33 +205,71 @@ class NumberField extends BaseField {
 
     }
 
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    public static function setRestfulAdvSearch($data, $field, $request){
+    public function setRestfulAdvSearch($data, $flid, $request) {
         if(isset($data->left))
             $leftNum = $data->left;
         else
             $leftNum = '';
-        $request->request->add([$field->flid.'_left' => $leftNum]);
+        $request->request->add([$flid.'_left' => $leftNum]);
         if(isset($data->right))
             $rightNum = $data->right;
         else
             $rightNum = '';
-        $request->request->add([$field->flid.'_right' => $rightNum]);
+        $request->request->add([$flid.'_right' => $rightNum]);
         if(isset($data->invert))
             $invert = $data->invert;
         else
             $invert = 0;
-        $request->request->add([$field->flid.'_invert' => $invert]);
+        $request->request->add([$flid.'_invert' => $invert]);
 
         return $request;
     }
 
-    public static function setRestfulRecordData($field, $flid, $recRequest){
-        $recRequest[$flid] = $field->number;
+    public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
+        $recRequest[$flid] = $jsonField->number;
 
         return $recRequest;
     }
+
+    public function keywordSearchTyped($fid, $arg, $method) {
+        $arg = str_replace(["*", "\""], "", $arg);
+
+        if(is_numeric($arg)) { // Only search if we're working with a number.
+            $arg = floatval($arg);
+
+            return self::select("rid")
+                ->where("fid", "=", $fid)
+                ->whereBetween("number", [$arg - self::EPSILON, $arg + self::EPSILON])
+                ->distinct();
+        } else {
+            return self::select("rid")
+                ->where("id", "<", -1); // Purposefully impossible.
+        }
+    }
+
+    public function getAdvancedSearchQuery($flid, $query) {
+        $left = $query[$flid . "_left"];
+        $right = $query[$flid . "_right"];
+        $invert = isset($query[$flid . "_invert"]);
+
+        $query = self::select("rid")
+            ->where("flid", "=", $flid);
+
+        self::buildAdvancedNumberQuery($query, $left, $right, $invert);
+
+        return $query->distinct();
+    }
+
+    /**
+     * Gets formatted value of record field to compare for sort. Only implement if field is sortable.
+     *
+     * @return string - The value
+     */
+    public function getValueForSort() {
+        return $this->number;
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     /**
      * @param null $field
@@ -242,28 +280,6 @@ class NumberField extends BaseField {
             'number' => $this->number,
             'unit' => FieldController::getFieldOption($field, 'Unit')
         ];
-    }
-
-    /**
-     * Builds the advanced query for a number field.
-     * More explicitly, this will build a search range in MySQL based off the inputs.
-     *
-     * @param $flid, field id
-     * @param $query, query array
-     * @return Builder
-     */
-    public static function getAdvancedSearchQuery($flid, $query) {
-        $left = $query[$flid . "_left"];
-        $right = $query[$flid . "_right"];
-        $invert = isset($query[$flid . "_invert"]);
-
-        $query = DB::table("number_fields")
-            ->select("rid")
-            ->where("flid", "=", $flid);
-
-        self::buildAdvancedNumberQuery($query, $left, $right, $invert);
-
-        return $query->distinct();
     }
 
     /**

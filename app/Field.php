@@ -1,14 +1,11 @@
 <?php namespace App;
 
-use App\Http\Controllers\FieldController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\RevisionController;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class Field extends Model {
@@ -81,7 +78,7 @@ class Field extends Model {
     /**
      * @var array - This is an array of all sortable typed fields
      */
-    const VALID_SORT = ['Text','List','Number','Date'];
+    const VALID_SORT = [self::_TEXT,self::_NUMBER,self::_LIST,self::_DATE];
 
     /**
      * Returns a field's form.
@@ -117,6 +114,15 @@ class Field extends Model {
      */
     public function isExternalSearchable() {
         return $this->extsearch;
+    }
+
+    /**
+     * Checks if field type is sortable.
+     *
+     * @return bool - Is sortable
+     */
+    public function isSortable() {
+        return in_array($this->type, self::VALID_SORT);
     }
 
     /**
@@ -263,26 +269,15 @@ class Field extends Model {
     public function delete() {
         DB::table(BaseField::$MAPPED_FIELD_TYPES[$this->type])->where("flid", "=", $this->flid)->delete();
 
-        if($this->type == self::_SCHEDULE) {
-            DB::table(ScheduleField::SUPPORT_NAME)->where("flid", "=", $this->flid)->delete();
-        } else if($this->type == self::_GEOLOCATOR) {
-            DB::table(GeolocatorField::SUPPORT_NAME)->where("flid", "=", $this->flid)->delete();
-        } else if($this->type == self::_COMBO_LIST) {
-            DB::table(ComboListField::SUPPORT_NAME)->where("flid", "=", $this->flid)->delete();
-        } else if($this->type == self::_ASSOCIATOR) {
-            DB::table(AssociatorField::SUPPORT_NAME)->where("flid", "=", $this->flid)->delete();
-        }
-
         DB::table("metadatas")->where("flid", "=", $this->flid)->delete();
 
         parent::delete();
     }
 
-    //TODO:: These are all the switch statements that we need to do something to simplify
-
     /////////////
     //UTILITIES//
     /////////////
+    /// These functions help retrieve a fields typed model. Any new fields should be represented here.
 
     /**
      * Get back the typed field model. Mostly used for typed field functionality that exists before the model 
@@ -463,438 +458,6 @@ class Field extends Model {
                 break;
             default:
                 throw new \Exception("Invalid field type in Field::getTypedField.");
-        }
-    }
-
-    //////////
-    //SEARCH//
-    //////////
-
-    /**
-     * Performs a keyword search on this field and returns any results.
-     *
-     * @param  string $arg - The keywords
-     * @param  string $method - Type of keyword search
-     * @return Collection - The RIDs that match search
-     */
-    public function keywordSearchTyped($arg, $method) {
-        switch($this->type) {
-            case self::_TEXT:
-                return DB::table("text_fields")
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`text`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
-            case self::_RICH_TEXT:
-                return DB::table("rich_text_fields")
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`searchable_rawtext`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
-            case self::_NUMBER:
-                $arg = str_replace(["*", "\""], "", $arg);
-
-                if(is_numeric($arg)) { // Only search if we're working with a number.
-                    $arg = floatval($arg);
-
-                    return DB::table("number_fields")
-                        ->select("rid")
-                        ->where("fid", "=", $this->fid)
-                        ->whereBetween("number", [$arg - NumberField::EPSILON, $arg + NumberField::EPSILON])
-                        ->distinct();
-                } else {
-                    return DB::table("number_fields")
-                        ->select("rid")
-                        ->where("id", "<", -1); // Purposefully impossible.
-                }
-                break;
-            case self::_LIST:
-                return DB::table("list_fields")
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`option`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
-            case self::_MULTI_SELECT_LIST:
-                return DB::table("multi_select_list_fields")
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
-            case self::_GENERATED_LIST:
-                return DB::table("generated_list_fields")
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
-            case self::_DATE:
-                $arg = str_replace(["*", "\""], "", $arg);
-
-                // Boolean to decide if we should consider circa options.
-                $circa = explode("[!Circa!]", $this->options)[1] == "Yes";
-
-                // Boolean to decide if we should consider era.
-                $era = explode("[!Era!]", $this->options)[1] == "On";
-
-                return DateField::buildQuery($arg, $circa, $era, $this->fid);
-                break;
-            case self::_SCHEDULE:
-                return DB::table(ScheduleField::SUPPORT_NAME)
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`desc`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
-            case self::_GEOLOCATOR:
-                return DB::table(GeolocatorField::SUPPORT_NAME)
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->where(function($query) use ($arg) {
-                        $query->whereRaw("MATCH (`desc`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                            ->orWhereRaw("MATCH (`address`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
-                    })
-                    ->distinct();
-                break;
-            case self::_DOCUMENTS:
-                $arg = self::processArgumentForFileField($arg, $method);
-
-                return DB::table("documents_fields")
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`documents`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
-            case self::_GALLERY:
-                $arg = self::processArgumentForFileField($arg, $method);
-
-                return DB::table("gallery_fields")
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`images`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
-            case self::_3D_MODEL:
-                $arg = self::processArgumentForFileField($arg, $method);
-
-                return DB::table("model_fields")
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`model`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
-            case self::_PLAYLIST:
-                $arg = self::processArgumentForFileField($arg, $method);
-
-                return DB::table("playlist_fields")
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`audio`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
-            case self::_VIDEO:
-                $arg = self::processArgumentForFileField($arg, $method);
-
-                return DB::table("video_fields")
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`video`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
-            case self::_COMBO_LIST:
-                return DB::table("combo_support")
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->where(function($query) use ($arg) {
-                        $num = $arg = str_replace(["*", "\""], "", $arg);
-                        $num = floatval($num);
-
-                        $query->whereRaw("MATCH (`data`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                            ->orWhereBetween("number", [$num - NumberField::EPSILON, $num + NumberField::EPSILON]);
-                    })
-                    ->distinct();
-                break;
-            case self::_ASSOCIATOR:
-                return DB::table(AssociatorField::SUPPORT_NAME)
-                    ->select("rid")
-                    ->where("fid", "=", $this->fid)
-                    ->whereRaw("MATCH (`record`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->distinct();
-                break;
-            default: // Error occurred.
-                throw new \Exception("Invalid field type in field::keywordSearchTyped.");
-                break;
-        }
-    }
-
-    /**
-     * Helps with keyword search for file typed fields.
-     *
-     * @param  string $arg - The keywords
-     * @param  string $method - Type of keyword search
-     * @return string - Updated keyword search
-     */ //TODO::static? File typed?
-    private static function processArgumentForFileField($arg, $method) {
-        // We only want to match with actual data in the name field
-        if($method == Search::SEARCH_EXACT) {
-            $arg = rtrim($arg, '"');
-            $arg .= "[Name]\"";
-        } else {
-            $args = explode(" ", $arg);
-
-            foreach($args as &$arg) {
-                $arg .= "[Name]";
-            }
-            $arg = implode(" ",$args);
-        }
-
-        return $arg;
-    }
-
-    /**
-     * Performs an advanced search on this field and returns any results.
-     *
-     * @param  int $flid - Field ID
-     * @param  string $fieldType - Field type
-     * @param  array $query - The advance search user query
-     * @return Builder - The RIDs that match search
-     */
-    public static function advancedSearch($flid, $fieldType, array $query) {
-        switch($fieldType) {
-            case self::_TEXT:
-                return TextField::getAdvancedSearchQuery($flid, $query);
-                break;
-            case self::_RICH_TEXT:
-                return RichTextField::getAdvancedSearchQuery($flid, $query);
-                break;
-            case self::_NUMBER:
-                return NumberField::getAdvancedSearchQuery($flid, $query);
-                break;
-            case self::_LIST:
-                return ListField::getAdvancedSearchQuery($flid, $query);
-                break;
-            case self::_MULTI_SELECT_LIST:
-                return MultiSelectListField::getAdvancedSearchQuery($flid, $query);
-                break;
-            case self::_GENERATED_LIST:
-                return GeneratedListField::getAdvancedSearchQuery($flid, $query);
-                break;
-            case self::_DATE:
-                return DateField::getAdvancedSearchQuery($flid, $query);
-                break;
-            case self::_SCHEDULE:
-                return ScheduleField::getAdvancedSearchQuery($flid, $query);
-                break;
-            case self::_GEOLOCATOR:
-                return GeolocatorField::getAdvancedSearchQuery($flid, $query);
-                break;
-            case self::_DOCUMENTS:
-                return DocumentsField::getAdvancedSearchQuery($flid, $query);
-                break;
-            case self::_GALLERY:
-                return GalleryField::getAdvancedSearchQuery($flid, $query);
-                break;
-            case self::_3D_MODEL:
-                return ModelField::getAdvancedSearchQuery($flid, $query);
-                break;
-            case self::_PLAYLIST:
-                return PlaylistField::getAdvancedSearchQuery($flid, $query);
-                break;
-            case self::_VIDEO:
-                return VideoField::getAdvancedSearchQuery($flid, $query);
-                break;
-            case self::_COMBO_LIST:
-                return ComboListField::getAdvancedSearchQuery($flid, $query);
-                break;
-            case self::_ASSOCIATOR:
-                return AssociatorField::getAdvancedSearchQuery($flid, $query);
-                break;
-            default: // Error occurred.
-                throw new \Exception("Invalid field type in field::advancedSearch.");
-                break;
-        }
-    }
-
-    /**
-     * Checks if the field has any value in order to be sorted.
-     *
-     * @param  Field $field - Field to check
-     * @param  int $rid - Record ID
-     * @param  array $newOrderArray - DESCRIPTION
-     * @param  array $noSortValue - DESCRIPTION
-     * @return array - The two modified arrays
-     */
-    public static function hasValueToSort($field, $rid, $newOrderArray, $noSortValue) {
-        switch($field->type) {
-            case self::_TEXT:
-                $tf = TextField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
-                if(is_null($tf))
-                    array_push($noSortValue, $rid);
-                else
-                    $newOrderArray[$rid] = $tf->text;
-                break;
-            case self::_LIST:
-                $lf = ListField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
-                if(is_null($lf))
-                    array_push($noSortValue, $rid);
-                else
-                    $newOrderArray[$rid] = $lf->option;
-                break;
-            case self::_NUMBER:
-                $nf = NumberField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
-                if(is_null($nf))
-                    array_push($noSortValue, $rid);
-                else
-                    $newOrderArray[$rid] = $nf->number;
-                break;
-            case self::_DATE:
-                $df = DateField::where('rid', '=', $rid)->where('flid', '=', $field->flid)->first();
-                if(is_null($df))
-                    array_push($noSortValue, $rid);
-                else
-                    $newOrderArray[$rid] = \DateTime::createFromFormat("Y-m-d", $df->year . "-" . $df->month . "-" . $df->day);;
-                break;
-            default:
-                throw new \Exception("Invalid field type in field::has sort.");
-                break;
-        }
-
-        return array($newOrderArray, $noSortValue);
-    }
-
-    ///////////////
-    //RESTFUL API//
-    ///////////////
-
-    /**
-     * Updates the request for an API search to mimic the advanced search structure.
-     *
-     * @param  array $data - Data from the search
-     * @param  Field $field - DESCRIPTION
-     * @param  Request $request
-     * @return Request - The update request
-     */
-    public static function setRestfulAdvSearch($data, $field, $request) {
-        switch($field->type) {
-            case self::_TEXT:
-                return TextField::setRestfulAdvSearch($data, $field, $request);
-                break;
-            case self::_RICH_TEXT:
-                return RichTextField::setRestfulAdvSearch($data, $field, $request);
-                break;
-            case self::_NUMBER:
-                return NumberField::setRestfulAdvSearch($data, $field, $request);
-                break;
-            case self::_LIST:
-                return ListField::setRestfulAdvSearch($data, $field, $request);
-                break;
-            case self::_MULTI_SELECT_LIST:
-                return MultiSelectListField::setRestfulAdvSearch($data, $field, $request);
-                break;
-            case self::_GENERATED_LIST:
-                return GeneratedListField::setRestfulAdvSearch($data, $field, $request);
-                break;
-            case self::_DATE:
-                return DateField::setRestfulAdvSearch($data, $field, $request);
-                break;
-            case self::_SCHEDULE:
-                return ScheduleField::setRestfulAdvSearch($data, $field, $request);
-                break;
-            case self::_GEOLOCATOR:
-                return GeolocatorField::setRestfulAdvSearch($data, $field, $request);
-                break;
-            case self::_DOCUMENTS:
-                return DocumentsField::setRestfulAdvSearch($data, $field, $request);
-                break;
-            case self::_GALLERY:
-                return GalleryField::setRestfulAdvSearch($data, $field, $request);
-                break;
-            case self::_3D_MODEL:
-                return ModelField::setRestfulAdvSearch($data, $field, $request);
-                break;
-            case self::_PLAYLIST:
-                return PlaylistField::setRestfulAdvSearch($data, $field, $request);
-                break;
-            case self::_VIDEO:
-                return VideoField::setRestfulAdvSearch($data, $field, $request);
-                break;
-            case self::_COMBO_LIST:
-                return ComboListField::setRestfulAdvSearch($data, $field, $request);
-                break;
-            case self::_ASSOCIATOR:
-                return AssociatorField::setRestfulAdvSearch($data, $field, $request);
-                break;
-            default: // Error occurred.
-                throw new \Exception("Invalid field type in field::field option.");
-                break;
-        }
-    }
-
-    /**
-     * Updates the request for an API to mimic record creation .
-     *
-     * @param  Field $field - Field to add data to for record
-     * @param  int $flid - Field ID
-     * @param  Request $recRequest
-     * @param  int $uToken - Custom generated user token for file fields and tmp folders
-     * @return Request - The update request
-     */
-    public static function setRestfulRecordData($field, $flid, $recRequest, $uToken) {
-        switch($field->type) {
-            case self::_TEXT:
-                return TextField::setRestfulRecordData($field, $flid, $recRequest);
-                break;
-            case self::_RICH_TEXT:
-                return RichTextField::setRestfulRecordData($field, $flid, $recRequest);
-                break;
-            case self::_NUMBER:
-                return NumberField::setRestfulRecordData($field, $flid, $recRequest);
-                break;
-            case self::_LIST:
-                return ListField::setRestfulRecordData($field, $flid, $recRequest);
-                break;
-            case self::_MULTI_SELECT_LIST:
-                return MultiSelectListField::setRestfulRecordData($field, $flid, $recRequest);
-                break;
-            case self::_GENERATED_LIST:
-                return GeneratedListField::setRestfulRecordData($field, $flid, $recRequest);
-                break;
-            case self::_DATE:
-                return DateField::setRestfulRecordData($field, $flid, $recRequest);
-                break;
-            case self::_SCHEDULE:
-                return ScheduleField::setRestfulRecordData($field, $flid, $recRequest);
-                break;
-            case self::_GEOLOCATOR:
-                return GeolocatorField::setRestfulRecordData($field, $flid, $recRequest);
-                break;
-            case self::_DOCUMENTS:
-                return DocumentsField::setRestfulRecordData($field, $flid, $recRequest, $uToken);
-                break;
-            case self::_GALLERY:
-                return GalleryField::setRestfulRecordData($field, $flid, $recRequest, $uToken);
-                break;
-            case self::_3D_MODEL:
-                return ModelField::setRestfulRecordData($field, $flid, $recRequest, $uToken);
-                break;
-            case self::_PLAYLIST:
-                return PlaylistField::setRestfulRecordData($field, $flid, $recRequest, $uToken);
-                break;
-            case self::_VIDEO:
-                return VideoField::setRestfulRecordData($field, $flid, $recRequest, $uToken);
-                break;
-            case self::_COMBO_LIST:
-                return ComboListField::setRestfulRecordData($field, $flid, $recRequest);
-                break;
-            case self::_ASSOCIATOR:
-                return AssociatorField::setRestfulRecordData($field, $flid, $recRequest);
-                break;
-            default: // Error occurred.
-                throw new \Exception("Invalid field type in field::field option.");
-                break;
         }
     }
 }

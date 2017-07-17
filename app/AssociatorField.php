@@ -149,19 +149,39 @@ class AssociatorField extends BaseField {
 
     }
 
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    public static function setRestfulAdvSearch($data, $field, $request){
-        $request->request->add([$field->flid.'_input' => $data->input]);
+    public function setRestfulAdvSearch($data, $flid, $request) {
+        $request->request->add([$flid.'_input' => $data->input]);
 
         return $request;
     }
 
-    public static function setRestfulRecordData($field, $flid, $recRequest){
-        $recRequest[$flid] = $field->records;
+    public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
+        $recRequest[$flid] = $jsonField->records;
 
         return $recRequest;
     }
+
+    public function keywordSearchTyped($fid, $arg, $method) {
+        return DB::table(self::SUPPORT_NAME)
+            ->select("rid")
+            ->where("fid", "=", $fid)
+            ->whereRaw("MATCH (`record`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+            ->distinct();
+    }
+
+    public function getAdvancedSearchQuery($flid, $query) {
+        $inputs = $query[$flid."_input"];
+
+        $query = DB::table(self::SUPPORT_NAME)
+            ->select("rid")
+            ->where("flid", "=", $flid);
+
+        self::buildAdvancedAssociatorQuery($query, $inputs);
+
+        return $query->distinct();
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     public function getPreviewValues($rid){
         //individual kid elements
@@ -306,26 +326,6 @@ class AssociatorField extends BaseField {
 
         $formatted = implode("[!]", $pieces);
         return $formatted;
-    }
-
-    /**
-     * Build the advanced search query.
-     * Advanced queries for MSL Fields accept any record that has at least one of the desired parameters.
-     *
-     * @param $flid
-     * @param $query
-     * @return Builder
-     */
-    public static function getAdvancedSearchQuery($flid, $query) {
-        $inputs = $query[$flid."_input"];
-
-        $query = DB::table(self::SUPPORT_NAME)
-            ->select("rid")
-            ->where("flid", "=", $flid);
-
-        self::buildAdvancedAssociatorQuery($query, $inputs);
-
-        return $query->distinct();
     }
 
     /**

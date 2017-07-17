@@ -258,9 +258,7 @@ class DateField extends BaseField {
 
     }
 
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    public static function setRestfulAdvSearch($data, $field, $request){
+    public function setRestfulAdvSearch($data, $flid, $request) {
         if(isset($data->begin_month))
             $beginMonth = $data->begin_month;
         else
@@ -273,9 +271,9 @@ class DateField extends BaseField {
             $beginYear = $data->begin_year;
         else
             $beginYear = '';
-        $request->request->add([$field->flid.'_begin_month' => $beginMonth]);
-        $request->request->add([$field->flid.'_begin_day' => $beginDay]);
-        $request->request->add([$field->flid.'_begin_year' => $beginYear]);
+        $request->request->add([$flid.'_begin_month' => $beginMonth]);
+        $request->request->add([$flid.'_begin_day' => $beginDay]);
+        $request->request->add([$flid.'_begin_year' => $beginYear]);
         if(isset($data->end_month))
             $endMonth = $data->end_month;
         else
@@ -288,23 +286,93 @@ class DateField extends BaseField {
             $endYear = $data->end_year;
         else
             $endYear = '';
-        $request->request->add([$field->flid.'_end_month' => $endMonth]);
-        $request->request->add([$field->flid.'_end_day' => $endDay]);
-        $request->request->add([$field->flid.'_end_year' => $endYear]);
+        $request->request->add([$flid.'_end_month' => $endMonth]);
+        $request->request->add([$flid.'_end_day' => $endDay]);
+        $request->request->add([$flid.'_end_year' => $endYear]);
 
         return $request;
     }
 
-    public static function setRestfulRecordData($field, $flid, $recRequest){
-        $recRequest['circa_' . $flid] = $field->circa;
-        $recRequest['month_' . $flid] = $field->month;
-        $recRequest['day_' . $flid] = $field->day;
-        $recRequest['year_' . $flid] = $field->year;
-        $recRequest['era_' . $flid] = $field->era;
+    public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null){
+        $recRequest['circa_' . $flid] = $jsonField->circa;
+        $recRequest['month_' . $flid] = $jsonField->month;
+        $recRequest['day_' . $flid] = $jsonField->day;
+        $recRequest['year_' . $flid] = $jsonField->year;
+        $recRequest['era_' . $flid] = $jsonField->era;
         $recRequest[$flid] = '';
 
         return $recRequest;
     }
+
+    public function keywordSearchTyped($fid, $arg, $method) {
+        $arg = str_replace(["*", "\""], "", $arg);
+
+        // Boolean to decide if we should consider circa options.
+        $circa = explode("[!Circa!]", $this->options)[1] == "Yes";
+
+        // Boolean to decide if we should consider era.
+        $era = explode("[!Era!]", $this->options)[1] == "On";
+
+        return self::buildQuery($arg, $circa, $era, $fid);
+    }
+
+    public function getAdvancedSearchQuery($flid, $query) {
+        $begin_month = ($query[$flid."_begin_month"] == "") ? 1 : intval($query[$flid."_begin_month"]);
+        $begin_day = ($query[$flid."_begin_day"] == "") ? 1 : intval($query[$flid."_begin_day"]);
+        $begin_year = ($query[$flid."_begin_year"] == "") ? 1 : intval($query[$flid."_begin_year"]);
+        $begin_era = isset($query[$flid."_begin_era"]) ? $query[$flid."_begin_era"] : "CE";
+
+        $end_month = ($query[$flid."_end_month"] == "") ? 1 : intval($query[$flid."_end_month"]);
+        $end_day = ($query[$flid."_end_day"] == "") ? 1 : intval($query[$flid."_end_day"]);
+        $end_year = ($query[$flid."_end_year"] == "") ? 1 : intval($query[$flid."_end_year"]);
+        $end_era = isset($query[$flid."_end_era"]) ? $query[$flid."_end_era"] : "CE";
+
+        $query = self::select("rid")
+            ->where("flid", "=", $flid);
+
+        if ($begin_era == "BCE" && $end_era == "BCE") { // Date interval flipped, dates are decreasing.
+            $begin = DateTime::createFromFormat("Y-m-d", $end_year."-".$end_month."-".$end_day); // End is beginning now.
+            $end = DateTime::createFromFormat("Y-m-d", $begin_year."-".$begin_month."-".$begin_day); // Begin is end now.
+
+            $query->where("era", "=", "BCE")
+                ->whereBetween("date_object", [$begin, $end]);
+        }
+        else if ($begin_era == "BCE" && $end_era == "CE") { // Have to use two interval and era clauses.
+            $begin = DateTime::createFromFormat("Y-m-d", $begin_year."-".$begin_month."-".$begin_day);
+            $era_bound = DateTime::createFromFormat("Y-m-d", "1-1-1"); // There is no year 0 on Gregorian calendar.
+            $end = DateTime::createFromFormat("Y-m-d", $end_year."-".$end_month."-".$end_day);
+
+            $query->where(function($query) use($begin, $era_bound, $end) {
+                $query->where("era", "=", "BCE")
+                    ->whereBetween("date_object", [$era_bound, $begin]);
+
+                $query->orWhere(function($query) use($era_bound, $end) {
+                    $query->where("era", "=", "CE")
+                        ->whereBetween("date_object", [$era_bound, $end]);
+                });
+            });
+        }
+        else { // Normal case, both are CE, the other choice of CE then BCE is invalid.
+            $begin = DateTime::createFromFormat("Y-m-d", $begin_year."-".$begin_month."-".$begin_day);
+            $end = DateTime::createFromFormat("Y-m-d", $end_year."-".$end_month."-".$end_day);
+
+            $query->where("era", "=", "CE")
+                ->whereBetween("date_object", [$begin, $end]);
+        }
+
+        return $query->distinct();
+    }
+
+    /**
+     * Gets formatted value of record field to compare for sort. Only implement if field is sortable.
+     *
+     * @return string - The value
+     */
+    public function getValueForSort() {
+        return DateTime::createFromFormat("Y-m-d", $this->year . "-" . $this->month . "-" . $this->day);
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     /**
      * Builds the query for a date field.
@@ -466,60 +534,5 @@ class DateField extends BaseField {
             'circa' => FieldController::getFieldOption($field, 'Circa') == 'Yes' ? $this->circa : '',
             'era' => FieldController::getFieldOption($field, 'Era') == 'Yes' ? $this->era : ''
         ];
-    }
-
-    /**
-     * Build the advanced search query.
-     *
-     * @param $flid, field id.
-     * @param $query
-     * @return Builder
-     */
-    public static function getAdvancedSearchQuery($flid, $query) {
-        $begin_month = ($query[$flid."_begin_month"] == "") ? 1 : intval($query[$flid."_begin_month"]);
-        $begin_day = ($query[$flid."_begin_day"] == "") ? 1 : intval($query[$flid."_begin_day"]);
-        $begin_year = ($query[$flid."_begin_year"] == "") ? 1 : intval($query[$flid."_begin_year"]);
-        $begin_era = isset($query[$flid."_begin_era"]) ? $query[$flid."_begin_era"] : "CE";
-
-        $end_month = ($query[$flid."_end_month"] == "") ? 1 : intval($query[$flid."_end_month"]);
-        $end_day = ($query[$flid."_end_day"] == "") ? 1 : intval($query[$flid."_end_day"]);
-        $end_year = ($query[$flid."_end_year"] == "") ? 1 : intval($query[$flid."_end_year"]);
-        $end_era = isset($query[$flid."_end_era"]) ? $query[$flid."_end_era"] : "CE";
-
-        $query = DB::table("date_fields")
-            ->select("rid")
-            ->where("flid", "=", $flid);
-
-        if ($begin_era == "BCE" && $end_era == "BCE") { // Date interval flipped, dates are decreasing.
-            $begin = DateTime::createFromFormat("Y-m-d", $end_year."-".$end_month."-".$end_day); // End is beginning now.
-            $end = DateTime::createFromFormat("Y-m-d", $begin_year."-".$begin_month."-".$begin_day); // Begin is end now.
-
-            $query->where("era", "=", "BCE")
-                ->whereBetween("date_object", [$begin, $end]);
-        }
-        else if ($begin_era == "BCE" && $end_era == "CE") { // Have to use two interval and era clauses.
-            $begin = DateTime::createFromFormat("Y-m-d", $begin_year."-".$begin_month."-".$begin_day);
-            $era_bound = DateTime::createFromFormat("Y-m-d", "1-1-1"); // There is no year 0 on Gregorian calendar.
-            $end = DateTime::createFromFormat("Y-m-d", $end_year."-".$end_month."-".$end_day);
-
-            $query->where(function($query) use($begin, $era_bound, $end) {
-                $query->where("era", "=", "BCE")
-                    ->whereBetween("date_object", [$era_bound, $begin]);
-
-                $query->orWhere(function($query) use($era_bound, $end) {
-                   $query->where("era", "=", "CE")
-                       ->whereBetween("date_object", [$era_bound, $end]);
-                });
-            });
-        }
-        else { // Normal case, both are CE, the other choice of CE then BCE is invalid.
-            $begin = DateTime::createFromFormat("Y-m-d", $begin_year."-".$begin_month."-".$begin_day);
-            $end = DateTime::createFromFormat("Y-m-d", $end_year."-".$end_month."-".$end_day);
-
-            $query->where("era", "=", "CE")
-                ->whereBetween("date_object", [$begin, $end]);
-        }
-
-        return $query->distinct();
     }
 }

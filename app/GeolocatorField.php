@@ -183,48 +183,46 @@ class GeolocatorField extends BaseField {
 
     }
 
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    public static function setRestfulAdvSearch($data, $field, $request){
-        $request->request->add([$field->flid.'_type' => $data->type]);
+    public function setRestfulAdvSearch($data, $flid, $request) {
+        $request->request->add([$flid.'_type' => $data->type]);
         if(isset($data->lat))
             $lat = $data->lat;
         else
             $lat = '';
-        $request->request->add([$field->flid.'_lat' => $lat]);
+        $request->request->add([$flid.'_lat' => $lat]);
         if(isset($data->lon))
             $lon = $data->lon;
         else
             $lon = '';
-        $request->request->add([$field->flid.'_lon' => $lon]);
+        $request->request->add([$flid.'_lon' => $lon]);
         if(isset($data->zone))
             $zone = $data->zone;
         else
             $zone = '';
-        $request->request->add([$field->flid.'_zone' => $zone]);
+        $request->request->add([$flid.'_zone' => $zone]);
         if(isset($data->east))
             $east = $data->east;
         else
             $east = '';
-        $request->request->add([$field->flid.'_east' => $east]);
+        $request->request->add([$flid.'_east' => $east]);
         if(isset($data->north))
             $north = $data->north;
         else
             $north = '';
-        $request->request->add([$field->flid.'_north' => $north]);
+        $request->request->add([$flid.'_north' => $north]);
         if(isset($data->address))
             $address = $data->address;
         else
             $address = '';
-        $request->request->add([$field->flid.'_address' => $address]);
-        $request->request->add([$field->flid.'_range' => $data->range]);
+        $request->request->add([$flid.'_address' => $address]);
+        $request->request->add([$flid.'_range' => $data->range]);
 
         return $request;
     }
 
-    public static function setRestfulRecordData($field, $flid, $recRequest){
+    public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
         $geo = array();
-        foreach($field->locations as $loc) {
+        foreach($jsonField->locations as $loc) {
             $string = '[Desc]' . $loc['desc'] . '[Desc]';
             $string .= '[LatLon]' . $loc['lat'] . ',' . $loc['lon'] . '[LatLon]';
             $string .= '[UTM]' . $loc['zone'] . ':' . $loc['east'] . ',' . $loc['north'] . '[UTM]';
@@ -235,6 +233,61 @@ class GeolocatorField extends BaseField {
 
         return $recRequest;
     }
+
+    public function keywordSearchTyped($fid, $arg, $method) {
+        return DB::table(self::SUPPORT_NAME)
+            ->select("rid")
+            ->where("fid", "=", $fid)
+            ->where(function($query) use ($arg) {
+                $query->whereRaw("MATCH (`desc`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+                    ->orWhereRaw("MATCH (`address`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
+            })
+            ->distinct();
+    }
+
+    public function getAdvancedSearchQuery($flid, $query) {
+        $range = $query[$flid.'_range'];
+
+        // Depending on the search type, we must convert the input to latitude and longitude.
+        switch($query[$flid.'_type']) {
+            case "LatLon":
+                $lat = $query[$flid."_lat"];
+                $lon = $query[$flid."_lon"];
+                break;
+            case "UTM":
+                $point = self::UTMToPoint($query[$flid."_zone"],
+                    $query[$flid."_east"],
+                    $query[$flid."_north"]);
+                $lat = $point->Lat();
+                $lon = $point->Long();
+                break;
+            case "Address":
+                $point = self::addressToPoint($query[$flid."_address"]);
+                $lat = $point->Lat();
+                $lon = $point->Long();
+                break;
+        }
+
+        $query = DB::table(self::SUPPORT_NAME);
+
+        $distance = <<<SQL
+(
+  6371 * acos(cos(radians(?))
+  * cos(radians(lat))
+  * cos(radians(lon) - radians(?))
+  + sin(radians(?))
+  * sin( radians(lat)))
+)
+SQL;
+        return $query->select(
+            DB::raw("rid, {$distance} AS distance"))
+            ->whereRaw("`flid` = ?")
+            ->havingRaw("`distance` < ?")
+            ->distinct()
+            ->setBindings([$lat, $lon, $lat, $flid, $range]);
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     /**
      * Gets the default locations from the field options.
@@ -372,55 +425,6 @@ class GeolocatorField extends BaseField {
      */
     public function getRevisionData($field = null) {
         return self::locationsToOldFormat($this->locations()->get());
-    }
-
-    /**
-     * Build an advanced search query for a geolocator field.
-     *
-     * @param $flid, field id.
-     * @param $query, query array.
-     * @return Builder
-     */
-    public static function getAdvancedSearchQuery($flid, $query) {
-        $range = $query[$flid.'_range'];
-
-        // Depending on the search type, we must convert the input to latitude and longitude.
-        switch($query[$flid.'_type']) {
-            case "LatLon":
-                $lat = $query[$flid."_lat"];
-                $lon = $query[$flid."_lon"];
-                break;
-            case "UTM":
-                $point = self::UTMToPoint($query[$flid."_zone"],
-                                           $query[$flid."_east"],
-                                           $query[$flid."_north"]);
-                $lat = $point->Lat();
-                $lon = $point->Long();
-                break;
-            case "Address":
-                $point = self::addressToPoint($query[$flid."_address"]);
-                $lat = $point->Lat();
-                $lon = $point->Long();
-                break;
-        }
-
-        $query = DB::table(self::SUPPORT_NAME);
-
-        $distance = <<<SQL
-(
-  6371 * acos(cos(radians(?))
-  * cos(radians(lat))
-  * cos(radians(lon) - radians(?))
-  + sin(radians(?))
-  * sin( radians(lat)))
-)
-SQL;
-        return $query->select(
-            DB::raw("rid, {$distance} AS distance"))
-            ->whereRaw("`flid` = ?")
-            ->havingRaw("`distance` < ?")
-            ->distinct()
-            ->setBindings([$lat, $lon, $lat, $flid, $range]);
     }
 
     /**
