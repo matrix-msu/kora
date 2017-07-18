@@ -22,7 +22,7 @@ class AssociatorField extends BaseField {
      */
     const SUPPORT_NAME = "associator_support";
     /**
-     * @var string - View names for option tables
+     * @var string - Views for the typed field options
      */
     const FIELD_OPTIONS_VIEW = "fields.options.associator";
     const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.associator";

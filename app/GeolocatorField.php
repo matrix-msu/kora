@@ -425,7 +425,13 @@ SQL;
             ->delete();
     }
 
-    //
+    /**
+     * Turns the support table into the old format beforehand.
+     *
+     * @param  array $locations - Locations from support
+     * @param  bool $array_string - Array of old format or string of old format
+     * @return mixed - String or array of old format
+     */
     public static function locationsToOldFormat(array $locations, $array_string = false) {
         $formatted = [];
         foreach ($locations as $location) {

@@ -3,18 +3,34 @@
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class ComboListField extends BaseField {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Combo List Field
+    |--------------------------------------------------------------------------
+    |
+    | This model represents the combo list field in Kora3
+    |
+    */
+
+    /**
+     * @var string - Support table name
+     */
     const SUPPORT_NAME = "combo_support";
+    /**
+     * @var string - Views for the typed field options
+     */
     const FIELD_OPTIONS_VIEW = "fields.options.combolist";
     const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.combolist";
 
+    /**
+     * @var array - Attributes that can be mass assigned to model
+     */
     protected $fillable = [
         'rid',
         'flid',
@@ -22,129 +38,83 @@ class ComboListField extends BaseField {
         'ftype2'
     ];
 
-    public function getFieldOptionsView(){
+    /**
+     * Get the field options view.
+     *
+     * @return string - The view
+     */
+    public function getFieldOptionsView() {
         return self::FIELD_OPTIONS_VIEW;
     }
 
-    public function getAdvancedFieldOptionsView(){
+    /**
+     * Get the field options view for advanced field creation.
+     *
+     * @return string - The view
+     */
+    public function getAdvancedFieldOptionsView() {
         return self::FIELD_ADV_OPTIONS_VIEW;
     }
 
-    public function getDefaultOptions(Request $request){
+    /**
+     * Gets the default options string for a new field.
+     *
+     * @param  Request $request
+     * @return string - The default options
+     */
+    public function getDefaultOptions(Request $request) {
         $type1 = $request->cftype1;
         $type2 = $request->cftype2;
-        $name1 = '[Name]'.$request->cfname1.'[Name]';
-        $name2 = '[Name]'.$request->cfname2.'[Name]';
-        $options = "";
+        $name1 = $request->cfname1;
+        $name2 = $request->cfname2;
 
-        $options = "[!Field1!][Type]";
-        if($type1=='Text'){
-            $options .= "Text[Type]".$name1."[Options][!Regex!][!Regex!][!MultiLine!]0[!MultiLine!]";
-        }else if($type1=='Number'){
-            $options .= "Number[Type]".$name1."[Options][!Max!]10[!Max!][!Min!]1[!Min!][!Increment!]1[!Increment!][!Unit!][!Unit!]";
-        }else if($type1=='List'){
-            $options .= "List[Type]".$name1."[Options][!Options!][!Options!]";
-        }else if($type1=='Multi-Select List'){
-            $options .= "Multi-Select List[Type]".$name1."[Options][!Options!][!Options!]";
-        }else if($type1=='Generated List'){
-            $options .= "Generated List[Type]".$name1."[Options][!Regex!][!Regex!][!Options!][!Options!]";
-        }
-        $options .= "[Options][!Field1!]";
+        $options = "[!Field1!]";
+        $options .= $this->getSubFieldDefaultOptions($type1,$name1);
+        $options .= "[!Field1!]";
 
-        $options .= "[!Field2!][Type]";
-        if($type2=='Text'){
-            $options .= "Text[Type]".$name2."[Options][!Regex!][!Regex!][!MultiLine!]0[!MultiLine!]";
-        }else if($type2=='Number'){
-            $options .= "Number[Type]".$name2."[Options][!Max!]10[!Max!][!Min!]1[!Min!][!Increment!]1[!Increment!][!Unit!][!Unit!]";
-        }else if($type2=='List'){
-            $options .= "List[Type]".$name2."[Options][!Options!][!Options!]";
-        }else if($type2=='Multi-Select List'){
-            $options .= "Multi-Select List[Type]".$name2."[Options][!Options!][!Options!]";
-        }else if($type2=='Generated List'){
-            $options .= "Generated List[Type]".$name2."[Options][!Regex!][!Regex!][!Options!][!Options!]";
-        }
-        $options .= "[Options][!Field2!]";
+        $options .= "[!Field2!]";
+        $options .= $this->getSubFieldDefaultOptions($type2,$name2);
+        $options .= "[!Field2!]";
 
         return $options;
     }
 
+    /**
+     * Helper function to process default options for sub field.
+     *
+     * @param  string $type - Type of field
+     * @param  string $name - Name of sub field
+     * @return string - The default options
+     */
+    private function getSubFieldDefaultOptions($type, $name) {
+        $options = "[Type]".$type."[Type][Name]".$name."[Name]";
+        $typedField = Field::getTypedFieldStatic($type);
+        $options .= "[Options]".$typedField->getDefaultOptions(null)."[Options]";
+
+        return $options;
+    }
+
+    /**
+     * Update the options for a field
+     *
+     * @param  Field $field - Field to update options
+     * @param  Request $request
+     * @param  bool $return - Are we returning an error by string or redirect
+     * @return mixed - The result
+     */
     public function updateOptions($field, Request $request, $return=true) {
-        $flopt_one ='[Type]'.$request->typeone.'[Type][Name]'.$request->nameone.'[Name][Options]';
-
-        if($request->typeone == 'Text'){
-            $flopt_one .= '[!Regex!]'.$request->regex_one.'[!Regex!]';
-            $flopt_one .= '[!MultiLine!]'.$request->multi_one.'[!MultiLine!]';
-        }else if($request->typeone == 'Number'){
-            $flopt_one .= '[!Max!]'.$request->max_one.'[!Max!]';
-            $flopt_one .= '[!Min!]'.$request->min_one.'[!Min!]';
-            $flopt_one .= '[!Increment!]'.$request->inc_one.'[!Increment!]';
-            $flopt_one .= '[!Unit!]'.$request->unit_one.'[!Unit!]';
-        }else if($request->typeone == 'List' | $request->typeone == 'Multi-Select List'){
-            $flopt_one .= '[!Options!]';
-
-            $reqOpts = $request->options_one;
-            $options = $reqOpts[0];
-            for($i=1;$i<sizeof($reqOpts);$i++){
-                $options .= '[!]'.$reqOpts[$i];
-            }
-            $flopt_one .= $options;
-            $flopt_one .= '[!Options!]';
-        }else if($request->typeone == 'Generated List'){
-            $flopt_one .= '[!Options!]';
-
-            $reqOpts = $request->options_one;
-            $options = $reqOpts[0];
-            for($i=1;$i<sizeof($reqOpts);$i++){
-                $options .= '[!]'.$reqOpts[$i];
-            }
-            $flopt_one .= $options;
-            $flopt_one .= '[!Options!]';
-            $flopt_one .= '[!Regex!]'.$request->regex_one.'[!Regex!]';
-        }
-
-        $flopt_one .= '[Options]';
+        $flopt_one ='[Type]'.$request->typeone.'[Type][Name]'.$request->nameone.'[Name]';
+        $flopt_one .= $this->formatUpdatedSubOptions($request,"one");
 
         $flopt_two ='[Type]'.$request->typetwo.'[Type][Name]'.$request->nametwo.'[Name][Options]';
-
-        if($request->typetwo == 'Text'){
-            $flopt_two .= '[!Regex!]'.$request->regex_two.'[!Regex!]';
-            $flopt_two .= '[!MultiLine!]'.$request->multi_two.'[!MultiLine!]';
-        }else if($request->typetwo == 'Number'){
-            $flopt_two .= '[!Max!]'.$request->max_two.'[!Max!]';
-            $flopt_two .= '[!Min!]'.$request->min_two.'[!Min!]';
-            $flopt_two .= '[!Increment!]'.$request->inc_two.'[!Increment!]';
-            $flopt_two .= '[!Unit!]'.$request->unit_two.'[!Unit!]';
-        }else if($request->typetwo == 'List' | $request->typetwo == 'Multi-Select List'){
-            $flopt_two .= '[!Options!]';
-
-            $reqOpts = $request->options_two;
-            $options = $reqOpts[0];
-            for($i=1;$i<sizeof($reqOpts);$i++){
-                $options .= '[!]'.$reqOpts[$i];
-            }
-            $flopt_two .= $options;
-            $flopt_two .= '[!Options!]';
-        }else if($request->typetwo == 'Generated List'){
-            $flopt_two .= '[!Options!]';
-
-            $reqOpts = $request->options_two;
-            $options = $reqOpts[0];
-            for($i=1;$i<sizeof($reqOpts);$i++){
-                $options .= '[!]'.$reqOpts[$i];
-            }
-            $flopt_two .= $options;
-            $flopt_two .= '[!Options!]';
-            $flopt_two .= '[!Regex!]'.$request->regex_two.'[!Regex!]';
-        }
-
-        $flopt_two .= '[Options]';
+        $flopt_two .= $this->formatUpdatedSubOptions($request,"two");
 
         $default='';
-        if(!is_null($request->defvalone) && $request->defvalone != ''){
+        if(!is_null($request->defvalone) && $request->defvalone != '') {
             $default .= '[!f1!]'.$request->defvalone[0].'[!f1!]';
             $default .= '[!f2!]'.$request->defvaltwo[0].'[!f2!]';
 
-            for($i=1;$i<sizeof($request->defvalone);$i++){
+            for($i=1;$i<sizeof($request->defvalone);$i++) {
                 $default .= '[!def!]';
                 $default .= '[!f1!]'.$request->defvalone[$i].'[!f1!]';
                 $default .= '[!f2!]'.$request->defvaltwo[$i].'[!f2!]';
@@ -165,8 +135,60 @@ class ComboListField extends BaseField {
         }
     }
 
-    public function createNewRecordField($field, $record, $value, $request){
-        if($request->input($field->flid.'_val') != null){
+    /**
+     * Helper function to format updated options for sub field.
+     *
+     * @param  Request $request
+     * @param  string $seq - Is this the first or second sub field
+     * @return string - The updated options
+     */
+    private function formatUpdatedSubOptions($request, $seq) {
+        $options = "[Options]";
+        $type = $request->{"type".$seq};
+        switch($type) {
+            case Field::_TEXT:
+                $options .= '[!Regex!]'.$request->{"regex_".$seq}.'[!Regex!]';
+                $options .= '[!MultiLine!]'.$request->{"multi_".$seq}.'[!MultiLine!]';
+                break;
+            case Field::_NUMBER:
+                $options .= '[!Max!]'.$request->{"max_".$seq}.'[!Max!]';
+                $options .= '[!Min!]'.$request->{"min_".$seq}.'[!Min!]';
+                $options .= '[!Increment!]'.$request->{"inc_".$seq}.'[!Increment!]';
+                $options .= '[!Unit!]'.$request->{"unit_".$seq}.'[!Unit!]';
+                break;
+            case Field::_LIST | Field::_MULTI_SELECT_LIST:
+                $options .= '[!Options!]';
+
+                $reqOpts = $request->{"options_".$seq};
+                $options .= implode("[!]",$reqOpts);
+                $options .= $options;
+                $options .= '[!Options!]';
+                break;
+            case Field::_GENERATED_LIST:
+                $options .= '[!Options!]';
+
+                $reqOpts = $request->{"options_".$seq};
+                $options .= implode("[!]",$reqOpts);
+                $options .= $options;
+                $options .= '[!Options!]';
+                $options .= '[!Regex!]'.$request->{"regex_".$seq}.'[!Regex!]';
+                break;
+        }
+        $options .= "[Options]";
+
+        return $options;
+    }
+
+    /**
+     * Creates a typed field to store record data.
+     *
+     * @param  Field $field - The field to represent record data
+     * @param  Record $record - Record being created
+     * @param  string $value - Data to add
+     * @param  Request $request
+     */
+    public function createNewRecordField($field, $record, $value, $request) {
+        if($request->input($field->flid.'_val') != null) {
             $this->flid = $field->flid;
             $this->rid = $record->rid;
             $this->fid = $field->fid;
@@ -180,27 +202,42 @@ class ComboListField extends BaseField {
         }
     }
 
+    /**
+     * Edits a typed field that has record data.
+     *
+     * @param  string $value - Data to add
+     * @param  Request $request
+     */
     public function editRecordField($value, $request) {
-        if(!is_null($this) && !is_null($request->input($this->flid.'_val'))){
+        if(!is_null($this) && !is_null($request->input($this->flid.'_val'))) {
             $field = FieldController::getField($this->flid);
             $type_1 = self::getComboFieldType($field, 'one');
             $type_2 = self::getComboFieldType($field, 'two');
 
             $this->updateData($_REQUEST[$field->flid.'_val'], $type_1, $type_2);
-        }elseif(!is_null($this) && is_null($request->input($this->flid.'_val'))){
+        } else if(!is_null($this) && is_null($request->input($this->flid.'_val'))) {
             $this->delete();
             $this->deleteData();
         }
     }
 
+    /**
+     * Takes data from a mass assignment operation and applies it to an individual field.
+     *
+     * @param  Field $field - The field to represent record data
+     * @param  Record $record - Record being written to
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  bool $overwrite - Overwrite if data exists
+     */
     public function massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite=0) {
         $matching_record_fields = $record->combolistfields()->where('flid','=',$field->flid)->get();
         $record->updated_at = Carbon::now();
         $record->save();
 
-        if($matching_record_fields->count() > 0){
+        if($matching_record_fields->count() > 0) {
             $combolistfield = $matching_record_fields->first();
-            if($overwrite == true || $combolistfield->options == "" || is_null($combolistfield->options)){
+            if($overwrite == true || $combolistfield->options == "" || is_null($combolistfield->options)) {
                 $revision = RevisionController::storeRevision($record->rid,'edit');
 
                 $combolistfield->updateData($request->input($field->flid.'_val'));
@@ -208,7 +245,7 @@ class ComboListField extends BaseField {
                 $revision->oldData = RevisionController::buildDataArray($record);
                 $revision->save();
             }
-        } else{
+        } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
             $revision = RevisionController::storeRevision($record->rid,'edit');
             $revision->oldData = RevisionController::buildDataArray($record);
@@ -216,7 +253,13 @@ class ComboListField extends BaseField {
         }
     }
 
-    public function createTestRecordField($field, $record){
+    /**
+     * For a test record, add test data to field.
+     *
+     * @param  Field $field - The field to represent record data
+     * @param  Record $record - Test record being created
+     */
+    public function createTestRecordField($field, $record) {
         $this->flid = $field->flid;
         $this->rid = $record->rid;
         $this->fid = $field->fid;
@@ -224,31 +267,31 @@ class ComboListField extends BaseField {
         $val2 = '';
         $type1 = self::getComboFieldType($field,'one');
         $type2 = self::getComboFieldType($field,'two');
-        switch($type1){
-            case 'Text':
+        switch($type1) {
+            case Field::_TEXT:
                 $val1 = 'K3TR: This is a test record';
                 break;
-            case 'List':
+            case Field::_LIST:
                 $val1 = 'K3TR';
                 break;
-            case 'Number':
+            case Field::_NUMBER:
                 $val1 = 1337;
                 break;
-            case 'Multi-Select List'||'Generated List':
+            case Field::_MULTI_SELECT_LIST||Field::_GENERATED_LIST:
                 $val1 = 'K3TR[!]1337[!]Test[!]Record';
                 break;
         }
-        switch($type2){
-            case 'Text':
+        switch($type2) {
+            case Field::_TEXT:
                 $val2 = 'K3TR: This is a test record';
                 break;
-            case 'List':
+            case Field::_LIST:
                 $val2 = 'K3TR';
                 break;
-            case 'Number':
+            case Field::_NUMBER:
                 $val2 = 1337;
                 break;
-            case 'Multi-Select List'||'Generated List':
+            case Field::_MULTI_SELECT_LIST||Field::_GENERATED_LIST:
                 $val2 = 'K3TR[!]1337[!]Test[!]Record';
                 break;
         }
@@ -257,28 +300,40 @@ class ComboListField extends BaseField {
         $this->addData(["[!f1!]".$val1."[!f1!][!f2!]".$val2."[!f2!]", "[!f1!]".$val1."[!f1!][!f2!]".$val2."[!f2!]"], $type1, $type2);
     }
 
+    /**
+     * Validates the record data for a field against the field's options.
+     *
+     * @param  Field $field - The
+     * @param  mixed $value - Record data
+     * @param  Request $request
+     * @return string - Potential error message
+     */
     public function validateField($field, $value, $request) {
         $req = $field->required;
         $flid = $field->flid;
 
-        if($req==1 && !isset($request[$flid.'_val'])){
+        if($req==1 && !isset($request[$flid.'_val']))
             return $field->name.trans('fieldhelpers_val.req');
-        }
 
         return '';
     }
 
+    /**
+     * Performs a rollback function on an individual field's record data.
+     *
+     * @param  Field $field - The field being rolled back
+     * @param  Revision $revision - The revision being rolled back
+     * @param  bool $exists - Field for record exists
+     */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if (!is_array($revision->data)) {
+        if(!is_array($revision->data))
             $revision->data = json_decode($revision->data, true);
-        }
 
-        if (is_null($revision->data[Field::_COMBO_LIST][$field->flid]['data'])) {
+        if(is_null($revision->data[Field::_COMBO_LIST][$field->flid]['data']))
             return null;
-        }
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
-        if ($revision->type == Revision::DELETE || !$exists) {
+        if($revision->type == Revision::DELETE || !$exists) {
             $this->flid = $field->flid;
             $this->fid = $revision->fid;
             $this->rid = $revision->rid;
@@ -292,17 +347,28 @@ class ComboListField extends BaseField {
         $this->updateData($revision->data[Field::_COMBO_LIST][$field->flid]['data']['options'], $type_1, $type_2);
     }
 
+    /**
+     * Get the arrayed version of the field data to store in a record preset.
+     *
+     * @param  array $data - The data array representing the record preset
+     * @param  bool $exists - Typed field exists and has data
+     * @return array - The updated $data
+     */
     public function getRecordPresetArray($data, $exists=true) {
-        if ($exists) {
+        if($exists)
             $data['combolists'] = ComboListField::dataToOldFormat($this->data()->get());
-        }
-        else {
+        else
             $data['combolists'] = null;
-        }
 
         return $data;
     }
 
+    /**
+     * Get the required information for a revision data array.
+     *
+     * @param  Field $field - Optional field to get storage options for certain typed fields
+     * @return mixed - The revision data
+     */
     public function getRevisionData($field = null) {
         $field = Field::where('flid', '=', $this->flid)->first();
 
@@ -316,6 +382,13 @@ class ComboListField extends BaseField {
         ];
     }
 
+    /**
+     * Provides an example of the field's structure in an export to help with importing records.
+     *
+     * @param  string $slug - Field nickname
+     * @param  string $expType - Type of export
+     * @return mixed - The example
+     */
     public function getExportSample($slug,$type) {
         $field = Field::where('slug','=',$slug)->first();
 
@@ -324,24 +397,24 @@ class ComboListField extends BaseField {
         $nameone = ComboListField::getComboFieldName($field, 'one');
         $nametwo = ComboListField::getComboFieldName($field, 'two');
 
-        switch ($type){
+        switch($type) {
             case "XML":
                 $xml = '<' . Field::xmlTagClear($slug) . ' type="Combo List">';
 
                 $xml .= '<Value>';
                 $xml .= '<' . Field::xmlTagClear($nameone) . '>';
-                if ($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List')
+                if($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List') {
                     $xml .= utf8_encode('VALUE');
-                else if ($typeone == 'Multi-Select List' | $typeone == 'Generated List') {
+                } else if($typeone == 'Multi-Select List' | $typeone == 'Generated List') {
                     $xml .= '<value>'.utf8_encode('VALUE 1').'</value>';
                     $xml .= '<value>'.utf8_encode('VALUE 2').'</value>';
                     $xml .= '<value>'.utf8_encode('so on..').'</value>';
                 }
                 $xml .= '</' . Field::xmlTagClear($nameone) . '>';
                 $xml .= '<' . Field::xmlTagClear($nametwo) . '>';
-                if ($typetwo == 'Text' | $typetwo == 'Number' | $typetwo == 'List')
+                if($typetwo == 'Text' | $typetwo == 'Number' | $typetwo == 'List') {
                     $xml .= utf8_encode('VALUE');
-                else if ($typetwo == 'Multi-Select List' | $typetwo == 'Generated List') {
+                } else if($typetwo == 'Multi-Select List' | $typetwo == 'Generated List') {
                     $xml .= '<value>'.utf8_encode('VALUE 1').'</value>';
                     $xml .= '<value>'.utf8_encode('VALUE 2').'</value>';
                     $xml .= '<value>'.utf8_encode('so on..').'</value>';
@@ -358,15 +431,15 @@ class ComboListField extends BaseField {
                 $fieldArray['values'] = array();
                 $valArray = array();
 
-                if ($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List')
+                if($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List') {
                     $valArray[$nameone] = 'VALUE';
-                else if ($typeone == 'Multi-Select List' | $typeone == 'Generated List') {
+                } else if($typeone == 'Multi-Select List' | $typeone == 'Generated List') {
                     $valArray[$nameone] = array('VALUE 1','VALUE 2','so on...');
                 }
 
-                if ($typetwo == 'Text' | $typetwo == 'Number' | $typetwo == 'List')
+                if($typetwo == 'Text' | $typetwo == 'Number' | $typetwo == 'List') {
                     $valArray[$nametwo] = 'VALUE';
-                else if ($typetwo == 'Multi-Select List' | $typetwo == 'Generated List') {
+                } else if($typetwo == 'Multi-Select List' | $typetwo == 'Generated List') {
                     $valArray[$nametwo] = array('VALUE 1','VALUE 2','so on...');
                 }
 
@@ -375,14 +448,21 @@ class ComboListField extends BaseField {
                 return $fieldArray;
                 break;
         }
-
     }
 
+    /**
+     * Updates the request for an API search to mimic the advanced search structure.
+     *
+     * @param  array $data - Data from the search
+     * @param  int $flid - Field ID
+     * @param  Request $request
+     * @return Request - The update request
+     */
     public function setRestfulAdvSearch($data, $flid, $request) {
         $field = FieldController::getField($flid);
         $type1 = self::getComboFieldType($field,'one');
         switch($type1) {
-            case 'Number':
+            case Field::_NUMBER:
                 if(isset($data->left_one))
                     $leftNum = $data->left_one;
                 else
@@ -405,7 +485,7 @@ class ComboListField extends BaseField {
         }
         $type2 = self::getComboFieldType($field,'two');
         switch($type2) {
-            case 'Number':
+            case Field::_NUMBER:
                 if(isset($data->left_two))
                     $leftNum = $data->left_two;
                 else
@@ -431,6 +511,15 @@ class ComboListField extends BaseField {
         return $request;
     }
 
+    /**
+     * Updates the request for an API to mimic record creation .
+     *
+     * @param  array $jsonField - JSON representation of field data
+     * @param  int $flid - Field ID
+     * @param  Request $recRequest
+     * @param  int $uToken - Custom generated user token for file fields and tmp folders
+     * @return Request - The update request
+     */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
         $values = array();
         $field = FieldController::getField($flid);
@@ -453,6 +542,14 @@ class ComboListField extends BaseField {
         return $recRequest;
     }
 
+    /**
+     * Performs a keyword search on this field and returns any results.
+     *
+     * @param  int $fid - Form ID
+     * @param  string $arg - The keywords
+     * @param  string $method - Type of keyword search
+     * @return Collection - The RIDs that match search
+     */
     public function keywordSearchTyped($fid, $arg, $method) {
         return DB::table(self::SUPPORT_NAME)
             ->select("rid")
@@ -467,6 +564,13 @@ class ComboListField extends BaseField {
             ->distinct();
     }
 
+    /**
+     * Performs an advanced search on this field and returns any results.
+     *
+     * @param  int $flid - Field ID
+     * @param  array $query - The advance search user query
+     * @return Builder - The RIDs that match search
+     */
     public function getAdvancedSearchQuery($flid, $query) {
         $field = Field::where("flid", "=", $flid)->first();
         $type_1 = self::getComboFieldType($field, 'one');
@@ -477,11 +581,10 @@ class ComboListField extends BaseField {
 
         // Return an impossible query if the two fields are somehow both invalid.
         // May seem extraneous, but this is required for chaining calls elsewhere.
-        if (! ($one_valid || $two_valid)) {
+        if(! ($one_valid || $two_valid)) {
             return DB::table(self::SUPPORT_NAME)->select("*")->where("id", "<", 0);
-        }
-        else if ($one_valid && $two_valid) {
-            if ($query[$flid . "_operator"] == "and") {
+        } else if($one_valid && $two_valid) {
+            if($query[$flid . "_operator"] == "and") {
                 //
                 // We need to join combo_support with itself.
                 // Since each entry represents one sub-field in the combo list, an "and" operation
@@ -505,8 +608,7 @@ class ComboListField extends BaseField {
                     self::buildAdvancedQueryRoutine($db_query, "2", $flid, $query, $type_2, $second_prefix);
                 });
 
-            }
-            else { // OR operation.
+            } else { // OR operation.
                 $db_query = self::makeAdvancedQueryRoutine($flid);
                 $db_query->where(function($db_query) use ($flid, $query, $type_1) {
                     self::buildAdvancedQueryRoutine($db_query, "1", $flid, $query, $type_1);
@@ -515,12 +617,10 @@ class ComboListField extends BaseField {
                     self::buildAdvancedQueryRoutine($db_query, "2", $flid, $query, $type_2);
                 });
             }
-        }
-        else if ($one_valid) {
+        } else if ($one_valid) {
             $db_query = self::makeAdvancedQueryRoutine($flid);
             self::buildAdvancedQueryRoutine($db_query, "1", $flid, $query, $type_1);
-        }
-        else { // two valid
+        } else { // two valid
             $db_query = self::makeAdvancedQueryRoutine($flid);
             self::buildAdvancedQueryRoutine($db_query, "2", $flid, $query, $type_2);
         }
@@ -529,9 +629,10 @@ class ComboListField extends BaseField {
     }
 
     /**
-     * Makes the initial DB query.
-     * @param int $flid, field id.
-     * @return Builder, initial query.
+     * Helper function to make the initial advanced DB query.
+     *
+     * @param  int $flid - Field ID
+     * @return Builder - Initial query
      */
     private static function makeAdvancedQueryRoutine($flid) {
         return DB::table(self::SUPPORT_NAME)
@@ -540,32 +641,29 @@ class ComboListField extends BaseField {
     }
 
     /**
-     * The logic to build up an advanced query.
+     * Helper function with logic to build up an advanced query.
      *
-     * @param Builder $db_query, reference to the current query.
-     * @param mixed $field_num, first or second field in the combo list.
-     * @param int $flid, field id.
-     * @param array $query, query array from the form.
-     * @param string $type, the type of the combo field.
-     * @param string $prefix, to deal with joined tables.
+     * @param  Builder $db_query - Pointer reference to the current query
+     * @param  mixed $field_num - First or second field in the combo list
+     * @param  int $flid - Field ID
+     * @param  array $query - Query array from the form
+     * @param  string $type - The type of the combo field
+     * @param  string $prefix - To deal with joined tables
      */
     private static function buildAdvancedQueryRoutine(Builder &$db_query, $field_num, $flid, $query, $type, $prefix = "") {
         $db_query->where($prefix . "field_num", "=", $field_num);
 
-        if ($type == Field::_NUMBER) {
+        if($type == Field::_NUMBER) {
             NumberField::buildAdvancedNumberQuery($db_query,
                 $query[$flid . "_" . $field_num . "_left"],
                 $query[$flid . "_" . $field_num . "_right"],
                 isset($query[$flid . "_" . $field_num . "_invert"]),
                 $prefix);
-        }
-        else {
-            if ($type == Field::_LIST || $type == Field::_TEXT) {
+        } else {
+            if($type == Field::_LIST || $type == Field::_TEXT)
                 $inputs = [$query[$flid . "_" . $field_num . "_input"]];
-            }
-            else { // Generated or Multi-Select List
+            else // Generated or Multi-Select List
                 $inputs = $query[$flid . "_" . $field_num . "_input"];
-            }
 
             // Since we're using a raw query, we have to get the database prefix to match our alias.
             $db_prefix = DB::getTablePrefix();
@@ -631,7 +729,7 @@ class ComboListField extends BaseField {
         $two_is_num = $type2 == 'Number';
 
         $i = 0;
-        foreach ($data as $entry) {
+        foreach($data as $entry) {
             $field_1_data = explode('[!f1!]', $entry)[1];
             $field_2_data = explode('[!f2!]', $entry)[1];
 
@@ -662,7 +760,7 @@ class ComboListField extends BaseField {
             $i++;
         }
 
-        DB::table('combo_support')->insert($inserts);
+        DB::table(self::SUPPORT_NAME)->insert($inserts);
     }
 
     /**
@@ -685,33 +783,34 @@ class ComboListField extends BaseField {
             ->delete();
     }
 
-    //
+    /**
+     * Turns the support table into the old format beforehand.
+     *
+     * @param  array $data - Data from support
+     * @param  bool $array_string - Array of old format or string of old format
+     * @return mixed - String or array of old format
+     */
     public static function dataToOldFormat(array $data, $array_string = false) {
         $formatted = [];
         for($i = 0; $i < count($data); $i++) {
             $op1 = $data[$i];
             $op2 = $data[++$i];
 
-            if ($op1->field_num == 2) {
+            if($op1->field_num == 2) {
                 $tmp = $op1;
                 $op1 = $op2;
                 $op2 = $tmp;
             }
 
-            if (! is_null($op1->data)) {
+            if(! is_null($op1->data))
                 $val1 = $op1->data;
-            }
-            else {
+            else
                 $val1 = $op1->number + 0;
-            }
 
-            if (! is_null($op2->data)) {
+            if(! is_null($op2->data))
                 $val2 = $op2->data;
-            }
-            else {
+            else
                 $val2 = $op2->number + 0;
-            }
-
 
             $formatted[] = "[!f1!]"
                 . $val1
@@ -721,9 +820,8 @@ class ComboListField extends BaseField {
                 . "[!f2!]";
         }
 
-        if($array_string) {
+        if($array_string)
             return implode("[!val!]", $formatted);
-        }
 
         return $formatted;
     }
@@ -743,101 +841,96 @@ class ComboListField extends BaseField {
         $typeone = $request->typeone;
         $typetwo = $request->typetwo;
 
-        if($valone=="" | $valtwo=="") {
+        if($valone=="" | $valtwo=="")
             return trans('controller_field.valueboth');
-        }
 
         if($typeone=='Text') {
             $regex = self::getComboFieldOption($field,'Regex','one');
-            if(($regex!=null | $regex!="") && !preg_match($regex,$valone)) {
+            if(($regex!=null | $regex!="") && !preg_match($regex,$valone))
                 return trans('controller_field.v1regex');
-            }
         } else if($typeone=='Number') {
             $max = self::getComboFieldOption($field,'Max','one');
             $min = self::getComboFieldOption($field,'Min','one');
             $inc = self::getComboFieldOption($field,'Increment','one');
 
-            if($valone<$min | $valone>$max) {
+            if($valone<$min | $valone>$max)
                 return trans('controller_field.v1num');
-            }
 
-            if(fmod(floatval($valone),floatval($inc))!=0) {
+            if(fmod(floatval($valone),floatval($inc))!=0)
                 return trans('controller_field.v1numinc');
-            }
         } else if($typeone=='List') {
             $opts = explode('[!]',self::getComboFieldOption($field,'Options','one'));
 
-            if(!in_array($valone,$opts)) {
+            if(!in_array($valone,$opts))
                 return trans('controller_field.v1list');
-            }
         } else if($typeone=='Multi-Select List') {
             $opts = explode('[!]',self::getComboFieldOption($field,'Options','one'));
 
-            if(sizeof(array_diff($valone,$opts))>0) {
+            if(sizeof(array_diff($valone,$opts))>0)
                 return trans('controller_field.v1mslist');
-            }
         } else if($typeone=='Generated List') {
             $regex = self::getComboFieldOption($field,'Regex','one');
 
             if($regex != null | $regex != "") {
                 foreach($valone as $val) {
-                    if(!preg_match($regex, $val)) {
+                    if(!preg_match($regex, $val))
                         return trans('controller_field.v1genlist');
-                    }
                 }
             }
         }
 
         if($typetwo=='Text') {
             $regex = self::getComboFieldOption($field,'Regex','two');
-            if(($regex!=null | $regex!="") && !preg_match($regex,$valtwo)) {
+            if(($regex!=null | $regex!="") && !preg_match($regex,$valtwo))
                 return trans('controller_field.v2regex');
-            }
         } else if($typetwo=='Number') {
             $max = self::getComboFieldOption($field,'Max','two');
             $min = self::getComboFieldOption($field,'Min','two');
             $inc = self::getComboFieldOption($field,'Increment','two');
 
-            if($valtwo<$min | $valtwo>$max) {
+            if($valtwo<$min | $valtwo>$max)
                 return trans('controller_field.v2num');
-            }
-            if(fmod(floatval($valtwo),floatval($inc))!=0) {
+
+            if(fmod(floatval($valtwo),floatval($inc))!=0)
                 return trans('controller_field.v2numinc');
-            }
         } else if($typetwo=='List') {
             $opts = explode('[!]',self::getComboFieldOption($field,'Options','two'));
 
-            if(!in_array($valtwo,$opts)) {
+            if(!in_array($valtwo,$opts))
                 return trans('controller_field.v2list');
-            }
         } else if($typetwo=='Multi-Select List') {
             $opts = explode('[!]',self::getComboFieldOption($field,'Options','two'));
 
-            if(sizeof(array_diff($valtwo,$opts))>0) {
+            if(sizeof(array_diff($valtwo,$opts))>0)
                 return trans('controller_field.v2mslist');
-            }
         } else if($typetwo=='Generated List') {
             $regex = self::getComboFieldOption($field,'Regex','two');
 
             if($regex != null | $regex != "") {
                 foreach($valtwo as $val) {
-                    if(!preg_match($regex, $val)) {
+                    if(!preg_match($regex, $val))
                         return trans('controller_field.v2genlist');
-                    }
                 }
             }
         }
+
         return '';
     }
 
-    //
-    public static function getComboFieldName($field, $num){
+    /**
+     * Gets the name of a combo list sub field
+     *
+     * @param  Field $field - Combo field to inspect
+     * @param  int $num - Sequence of sub field
+     * @return string - Name
+     */
+    public static function getComboFieldName($field, $num) {
         $options = $field->options;
 
         if($num=='one') {
             $oneOpts = explode('[!Field1!]', $options)[1];
             $name = explode('[Name]', $oneOpts)[1];
-        }else if ($num=='two') {
+        } else if($num=='two') {
             $twoOpts = explode('[!Field2!]', $options)[1];
             $name = explode('[Name]', $twoOpts)[1];
         }
@@ -845,14 +938,20 @@ class ComboListField extends BaseField {
         return $name;
     }
 
-    //
-    public static function getComboFieldType($field, $num){
+    /**
+     * Gets the type of a combo list sub field
+     *
+     * @param  Field $field - Combo field to inspect
+     * @param  int $num - Sequence of sub field
+     * @return string - Type
+     */
+    public static function getComboFieldType($field, $num) {
         $options = $field->options;
 
         if($num=='one') {
             $oneOpts = explode('[!Field1!]', $options)[1];
             $type = explode('[Type]', $oneOpts)[1];
-        }else if ($num=='two') {
+        } else if($num=='two') {
             $twoOpts = explode('[!Field2!]', $options)[1];
             $type = explode('[Type]', $twoOpts)[1];
         }
@@ -860,8 +959,15 @@ class ComboListField extends BaseField {
         return $type;
     }
 
-    //
-    public static function getComboFieldOption($field, $key, $num){
+    /**
+     * Gets an option of a combo list sub field
+     *
+     * @param  Field $field - Combo field to inspect
+     * @param  string $key - The option we want
+     * @param  int $num - Sequence of sub field
+     * @return string - The option
+     */
+    public static function getComboFieldOption($field, $key, $num) {
         $options = $field->options;
         if($num=='one')
             $opt = explode('[!Field1!]',$options)[1];
@@ -872,9 +978,8 @@ class ComboListField extends BaseField {
 
         $exploded = explode($tag, $opt);
 
-        if (sizeof($exploded) < 2) {
+        if(sizeof($exploded) < 2)
             return null;
-        }
 
         $value = explode($tag,$opt)[1];
 

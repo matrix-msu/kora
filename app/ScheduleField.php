@@ -390,7 +390,13 @@ class ScheduleField extends BaseField {
             ->delete();
     }
 
-    //
+    /**
+     * Turns the support table into the old format beforehand.
+     *
+     * @param  array $events - Events from support
+     * @param  bool $array_string - Array of old format or string of old format
+     * @return mixed - String or array of old format
+     */
     public static function eventsToOldFormat(array $events, $array_string = false) {
         $formatted = [];
         foreach($events as $event) {
