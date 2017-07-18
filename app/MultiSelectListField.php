@@ -223,7 +223,13 @@ class MultiSelectListField extends BaseField {
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
-    //
+    /**
+     * Gets the list options for a multi-select list field.
+     *
+     * @param  Field $field - Field to pull options from
+     * @param  bool $blankOpt - Has blank option as first array element
+     * @return array - The list options
+     */
     public static function getList($field, $blankOpt=false) {
         $dbOpt = FieldController::getFieldOption($field, 'Options');
         return self::getListOptionsFromString($dbOpt,$blankOpt);

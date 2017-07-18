@@ -335,26 +335,41 @@ SQL;
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
-    //
+    /**
+     * Gets the default values for a geolocator field.
+     *
+     * @param  Field $field - Field to pull defaults from
+     * @return array - The defaults
+     */
     public static function getLocationList($field) {
         $def = $field->default;
         return self::getListOptionsFromString($def);
     }
 
-    //
+    /**
+     * Overrides the delete function to first delete support fields.
+     */
     public function delete() {
         $this->deleteLocations();
         parent::delete();
     }
 
-    //
+    /**
+     * Returns the locations for a record's generated list value.
+     *
+     * @return Builder - Query of values
+     */
     public function locations() {
         return DB::table(self::SUPPORT_NAME)->select("*")
             ->where("flid", "=", $this->flid)
             ->where("rid", "=", $this->rid);
     }
 
-    //
+    /**
+     * Adds locations to the support table.
+     *
+     * @param  array $locations - Locations to add
+     */
     public function addLocations(array $locations) {
         $now = date("Y-m-d H:i:s");
 
@@ -390,13 +405,19 @@ SQL;
         }
     }
 
-    //
+    /**
+     * Updates the current list of locations by deleting the old ones and adding the array that has both new and old.
+     *
+     * @param  array $locations - Locations to add
+     */
     public function updateLocations(array $locations) {
         $this->deleteLocations();
         $this->addLocations($locations);
     }
 
-    //
+    /**
+     * Deletes locations from the support table.
+     */
     public function deleteLocations() {
         DB::table(self::SUPPORT_NAME)
             ->where("flid", "=", $this->flid)

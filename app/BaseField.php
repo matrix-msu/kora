@@ -55,6 +55,7 @@ abstract class BaseField extends Model {
      *
      * @param  string $string - The option list in string form
      * @param  bool $blankOpt - Has blank option as first array element
+     * @return array - The values
      */
     public static function getListOptionsFromString($string, $blankOpt=false) {
         $options = array();

@@ -291,26 +291,41 @@ class ScheduleField extends BaseField {
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
-    //
+    /**
+     * Gets the default values for a schedule field.
+     *
+     * @param  Field $field - Field to pull defaults from
+     * @return array - The defaults
+     */
     public static function getDateList($field) {
         $def = $field->default;
         return self::getListOptionsFromString($def);
     }
 
-    //
+    /**
+     * Overrides the delete function to first delete support fields.
+     */
     public function delete() {
         $this->deleteEvents();
         parent::delete();
     }
 
-    //
+    /**
+     * Returns the events for a record's schedule value.
+     *
+     * @return Builder - Query of values
+     */
     public function events() {
         return DB::table(self::SUPPORT_NAME)->select("*")
             ->where("flid", "=", $this->flid)
             ->where("rid", "=", $this->rid);
     }
 
-    //
+    /**
+     * Adds events to the support table.
+     *
+     * @param  array $events - Events to add
+     */
     public function addEvents(array $events) {
         $now = date("Y-m-d H:i:s");
         foreach($events as $event) {
@@ -355,13 +370,19 @@ class ScheduleField extends BaseField {
         return [$begin, $end, $desc, $allday];
     }
 
-    //
+    /**
+     * Updates the current list of events by deleting the old ones and adding the array that has both new and old.
+     *
+     * @param  array $events - events to add
+     */
     public function updateEvents(array $events) {
         $this->deleteEvents();
         $this->addEvents($events);
     }
 
-    //
+    /**
+     * Deletes events from the support table.
+     */
     public function deleteEvents() {
         DB::table(self::SUPPORT_NAME)
             ->where("rid", "=", $this->rid)

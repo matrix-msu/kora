@@ -581,7 +581,13 @@ class ComboListField extends BaseField {
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
-    //
+    /**
+     * Gets the list options for a combo list field.
+     *
+     * @param  Field $field - Field to pull options from
+     * @param  bool $blankOpt - Has blank option as first array element
+     * @return array - The list options
+     */
     public static function getComboList($field, $blankOpt=false, $fnum) {
         $dbOpt = self::getComboFieldOption($field, 'Options', $fnum);
         if(is_null($dbOpt))
@@ -589,13 +595,19 @@ class ComboListField extends BaseField {
         return self::getListOptionsFromString($dbOpt,$blankOpt);
     }
 
-    //
+    /**
+     * Overrides the delete function to first delete support fields.
+     */
     public function delete() {
         $this->deleteData();
         parent::delete();
     }
 
-    //
+    /**
+     * Returns the data for a record's combo list value.
+     *
+     * @return Builder - Query of values
+     */
     public function data() {
         return DB::table(self::SUPPORT_NAME)->select("*")
             ->where("rid", "=", $this->rid)
@@ -603,14 +615,20 @@ class ComboListField extends BaseField {
             ->orderBy('list_index');
     }
 
-    //
-    public function addData(array $data, $type_1, $type_2) {
+    /**
+     * Adds data to the support table.
+     *
+     * @param  array $data - Data to add
+     * @param  string $type1 - Field type of sub-field 1
+     * @param  string $type2 - Field type of sub-field 2
+     */
+    public function addData(array $data, $type1, $type2) {
         $now = date("Y-m-d H:i:s");
 
         $inserts = [];
 
-        $one_is_num = $type_1 == 'Number';
-        $two_is_num = $type_2 == 'Number';
+        $one_is_num = $type1 == 'Number';
+        $two_is_num = $type2 == 'Number';
 
         $i = 0;
         foreach ($data as $entry) {
@@ -647,13 +665,19 @@ class ComboListField extends BaseField {
         DB::table('combo_support')->insert($inserts);
     }
 
-    //
+    /**
+     * Updates the current list of data by deleting the old ones and adding the array that has both new and old.
+     *
+     * @param  array $data - Data to add
+     */
     public function updateData(array $data, $type_1, $type_2) {
         $this->deleteData();
         $this->addData($data, $type_1, $type_2);
     }
 
-    //
+    /**
+     * Deletes data from the support table.
+     */
     public function deleteData() {
         DB::table(self::SUPPORT_NAME)
             ->where("rid", "=", $this->rid)
