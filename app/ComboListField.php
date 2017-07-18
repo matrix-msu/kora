@@ -303,6 +303,19 @@ class ComboListField extends BaseField {
         return $data;
     }
 
+    public function getRevisionData($field = null) {
+        $field = Field::where('flid', '=', $this->flid)->first();
+
+        $name_1 = self::getComboFieldName($field, 'one');
+        $name_2 = self::getComboFieldName($field, 'two');
+
+        return [
+            'options' => self::dataToOldFormat($this->data()->get()),
+            'name_1' => $name_1,
+            'name_2' => $name_2
+        ];
+    }
+
     public function getExportSample($slug,$type) {
         $field = Field::where('slug','=',$slug)->first();
 
@@ -515,100 +528,82 @@ class ComboListField extends BaseField {
         return $db_query->distinct();
     }
 
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    public static function getComboList($field, $blankOpt=false, $fnum)
-    {
-        $dbOpt = self::getComboFieldOption($field, 'Options', $fnum);
-
-        if($dbOpt === null) {
-            return [];
-        }
-
-        $options = array();
-
-        if ($dbOpt == '') {
-            //skip
-        } else if (!strstr($dbOpt, '[!]')) {
-            $options = [$dbOpt => $dbOpt];
-        } else {
-            $opts = explode('[!]', $dbOpt);
-            foreach ($opts as $opt) {
-                $options[$opt] = $opt;
-            }
-        }
-
-        if ($blankOpt) {
-            $options = array('' => '') + $options;
-        }
-
-        return $options;
+    /**
+     * Makes the initial DB query.
+     * @param int $flid, field id.
+     * @return Builder, initial query.
+     */
+    private static function makeAdvancedQueryRoutine($flid) {
+        return DB::table(self::SUPPORT_NAME)
+            ->select("rid")
+            ->where("flid", "=", $flid);
     }
-
-    public static function getComboFieldOption($field, $key, $num){
-        $options = $field->options;
-        if($num=='one')
-            $opt = explode('[!Field1!]',$options)[1];
-        else if($num=='two')
-            $opt = explode('[!Field2!]',$options)[1];
-
-        $tag = '[!'.$key.'!]';
-
-        $exploded = explode($tag, $opt);
-
-        if (sizeof($exploded) < 2) {
-            return null;
-        }
-
-        $value = explode($tag,$opt)[1];
-
-        return $value;
-    }
-
-    public static function getComboFieldName($field, $num){
-        $options = $field->options;
-
-        if($num=='one') {
-            $oneOpts = explode('[!Field1!]', $options)[1];
-            $name = explode('[Name]', $oneOpts)[1];
-        }else if ($num=='two') {
-            $twoOpts = explode('[!Field2!]', $options)[1];
-            $name = explode('[Name]', $twoOpts)[1];
-        }
-
-        return $name;
-    }
-
-    public static function getComboFieldType($field, $num){
-        $options = $field->options;
-
-        if($num=='one') {
-            $oneOpts = explode('[!Field1!]', $options)[1];
-            $type = explode('[Type]', $oneOpts)[1];
-        }else if ($num=='two') {
-            $twoOpts = explode('[!Field2!]', $options)[1];
-            $type = explode('[Type]', $twoOpts)[1];
-        }
-
-        return $type;
-    }
-
 
     /**
-     * @throws \Exception
+     * The logic to build up an advanced query.
+     *
+     * @param Builder $db_query, reference to the current query.
+     * @param mixed $field_num, first or second field in the combo list.
+     * @param int $flid, field id.
+     * @param array $query, query array from the form.
+     * @param string $type, the type of the combo field.
+     * @param string $prefix, to deal with joined tables.
      */
+    private static function buildAdvancedQueryRoutine(Builder &$db_query, $field_num, $flid, $query, $type, $prefix = "") {
+        $db_query->where($prefix . "field_num", "=", $field_num);
+
+        if ($type == Field::_NUMBER) {
+            NumberField::buildAdvancedNumberQuery($db_query,
+                $query[$flid . "_" . $field_num . "_left"],
+                $query[$flid . "_" . $field_num . "_right"],
+                isset($query[$flid . "_" . $field_num . "_invert"]),
+                $prefix);
+        }
+        else {
+            if ($type == Field::_LIST || $type == Field::_TEXT) {
+                $inputs = [$query[$flid . "_" . $field_num . "_input"]];
+            }
+            else { // Generated or Multi-Select List
+                $inputs = $query[$flid . "_" . $field_num . "_input"];
+            }
+
+            // Since we're using a raw query, we have to get the database prefix to match our alias.
+            $db_prefix = DB::getTablePrefix();
+            $prefix = ($prefix == "") ? self::SUPPORT_NAME : substr($prefix, 0, -1);
+            $db_query->where(function($db_query) use ($inputs, $prefix, $db_prefix) {
+                foreach($inputs as $input) {
+                    $db_query->orWhereRaw("MATCH (`" . $db_prefix . $prefix . "`.`data`) AGAINST (? IN BOOLEAN MODE)",
+                        [Search::processArgument($input, Search::ADVANCED_METHOD)]);
+                }
+            });
+        }
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
+    //
+    public static function getComboList($field, $blankOpt=false, $fnum) {
+        $dbOpt = self::getComboFieldOption($field, 'Options', $fnum);
+        if(is_null($dbOpt))
+            $dbOpt = '';
+        return self::getListOptionsFromString($dbOpt,$blankOpt);
+    }
+
+    //
     public function delete() {
         $this->deleteData();
         parent::delete();
     }
 
-    /**
-     * Adds data to the combo list support field.
-     *
-     * @param array $data, data as formatted by the record entry.
-     * @param string $type_1, type of first combo field.
-     * @param string $type_2, type of second combo field.
-     */
+    //
+    public function data() {
+        return DB::table(self::SUPPORT_NAME)->select("*")
+            ->where("rid", "=", $this->rid)
+            ->where("flid", "=", $this->flid)
+            ->orderBy('list_index');
+    }
+
+    //
     public function addData(array $data, $type_1, $type_2) {
         $now = date("Y-m-d H:i:s");
 
@@ -652,53 +647,21 @@ class ComboListField extends BaseField {
         DB::table('combo_support')->insert($inserts);
     }
 
-    /**
-     * The query for data in a combo list field. Orders by the index data appears in the list.
-     * Use ->get() to obtain all events.
-     * @return Builder
-     */
-    public function data() {
-        return DB::table(self::SUPPORT_NAME)->select("*")
+    //
+    public function updateData(array $data, $type_1, $type_2) {
+        $this->deleteData();
+        $this->addData($data, $type_1, $type_2);
+    }
+
+    //
+    public function deleteData() {
+        DB::table(self::SUPPORT_NAME)
             ->where("rid", "=", $this->rid)
             ->where("flid", "=", $this->flid)
-            ->orderBy('list_index');
+            ->delete();
     }
 
-    /**
-     * True if there is data associated with a particular Combo List field.
-     *
-     * @return bool
-     */
-    public function hasData() {
-        return !! $this->data()->count();
-    }
-
-    /**
-     * @param null $field
-     * @return array
-     */
-    public function getRevisionData($field = null) {
-        $field = Field::where('flid', '=', $this->flid)->first();
-
-        $name_1 = self::getComboFieldName($field, 'one');
-        $name_2 = self::getComboFieldName($field, 'two');
-
-        return [
-            'options' => self::dataToOldFormat($this->data()->get()),
-            'name_1' => $name_1,
-            'name_2' => $name_2
-        ];
-    }
-
-    /**
-     * Puts an array of data into the old format.
-     *      - "Old Format" meaning, and array of the data options formatted as
-     *        [!f1!]<Field 1 Data>[!f1!][!f2!]<Field 2 Data>[!f2!]
-     *
-     * @param array $data, array of StdObjects representing data options.
-     * @param bool $array_string, should this be in the old *[!val!]*[!val!]...[!val!]* format?
-     * @return array | string
-     */
+    //
     public static function dataToOldFormat(array $data, $array_string = false) {
         $formatted = [];
         for($i = 0; $i < count($data); $i++) {
@@ -742,86 +705,13 @@ class ComboListField extends BaseField {
     }
 
     /**
-     * Delete data associated with this field.
-     */
-    public function deleteData() {
-        DB::table(self::SUPPORT_NAME)
-            ->where("rid", "=", $this->rid)
-            ->where("flid", "=", $this->flid)
-            ->delete();
-    }
-
-    /**
-     * Updates a combo list's data.
-     *
-     * @param array $data
-     * @param $type_1
-     * @param $type_2
-     */
-    public function updateData(array $data, $type_1, $type_2) {
-        $this->deleteData();
-        $this->addData($data, $type_1, $type_2);
-    }
-
-    /**
-     * The logic to build up an advanced query.
-     *
-     * @param Builder $db_query, reference to the current query.
-     * @param mixed $field_num, first or second field in the combo list.
-     * @param int $flid, field id.
-     * @param array $query, query array from the form.
-     * @param string $type, the type of the combo field.
-     * @param string $prefix, to deal with joined tables.
-     */
-    public static function buildAdvancedQueryRoutine(Builder &$db_query, $field_num, $flid, $query, $type, $prefix = "") {
-        $db_query->where($prefix . "field_num", "=", $field_num);
-
-        if ($type == Field::_NUMBER) {
-            NumberField::buildAdvancedNumberQuery($db_query,
-                $query[$flid . "_" . $field_num . "_left"],
-                $query[$flid . "_" . $field_num . "_right"],
-                isset($query[$flid . "_" . $field_num . "_invert"]),
-                $prefix);
-        }
-        else {
-            if ($type == Field::_LIST || $type == Field::_TEXT) {
-                $inputs = [$query[$flid . "_" . $field_num . "_input"]];
-            }
-            else { // Generated or Multi-Select List
-                $inputs = $query[$flid . "_" . $field_num . "_input"];
-            }
-
-            // Since we're using a raw query, we have to get the database prefix to match our alias.
-            $db_prefix = DB::getTablePrefix();
-            $prefix = ($prefix == "") ? self::SUPPORT_NAME : substr($prefix, 0, -1);
-            $db_query->where(function($db_query) use ($inputs, $prefix, $db_prefix) {
-                foreach($inputs as $input) {
-                    $db_query->orWhereRaw("MATCH (`" . $db_prefix . $prefix . "`.`data`) AGAINST (? IN BOOLEAN MODE)",
-                        [Search::processArgument($input, Search::ADVANCED_METHOD)]);
-                }
-            });
-        }
-    }
-
-    /**
-     * Makes the initial DB query.
-     * @param int $flid, field id.
-     * @return Builder, initial query.
-     */
-    public static function makeAdvancedQueryRoutine($flid) {
-        return DB::table(self::SUPPORT_NAME)
-            ->select("rid")
-            ->where("flid", "=", $flid);
-    }
-
-    /**
      * Validates record data for a Combo List Field.
      *
      * @param  int $flid - Field ID
      * @param  Request $request
      * @return string - Returns on error or blank on success
      */
-    public static function validateComboListOpt($flid, \Illuminate\Http\Request $request) {
+    public static function validateComboListOpt($flid, $request) {
         $field = FieldController::getField($flid);
 
         $valone = $request->valone;
@@ -914,5 +804,56 @@ class ComboListField extends BaseField {
             }
         }
         return '';
+    }
+
+    //
+    public static function getComboFieldName($field, $num){
+        $options = $field->options;
+
+        if($num=='one') {
+            $oneOpts = explode('[!Field1!]', $options)[1];
+            $name = explode('[Name]', $oneOpts)[1];
+        }else if ($num=='two') {
+            $twoOpts = explode('[!Field2!]', $options)[1];
+            $name = explode('[Name]', $twoOpts)[1];
+        }
+
+        return $name;
+    }
+
+    //
+    public static function getComboFieldType($field, $num){
+        $options = $field->options;
+
+        if($num=='one') {
+            $oneOpts = explode('[!Field1!]', $options)[1];
+            $type = explode('[Type]', $oneOpts)[1];
+        }else if ($num=='two') {
+            $twoOpts = explode('[!Field2!]', $options)[1];
+            $type = explode('[Type]', $twoOpts)[1];
+        }
+
+        return $type;
+    }
+
+    //
+    public static function getComboFieldOption($field, $key, $num){
+        $options = $field->options;
+        if($num=='one')
+            $opt = explode('[!Field1!]',$options)[1];
+        else if($num=='two')
+            $opt = explode('[!Field2!]',$options)[1];
+
+        $tag = '[!'.$key.'!]';
+
+        $exploded = explode($tag, $opt);
+
+        if (sizeof($exploded) < 2) {
+            return null;
+        }
+
+        $value = explode($tag,$opt)[1];
+
+        return $value;
     }
 }

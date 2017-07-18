@@ -212,6 +212,10 @@ class ModelField extends FileTypeField  {
         return $data;
     }
 
+    public function getRevisionData($field = null) {
+        return $this->model;
+    }
+
     public function getExportSample($slug,$type) {
         switch ($type){
             case "XML":
@@ -287,12 +291,4 @@ class ModelField extends FileTypeField  {
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    /**
-     * @param null $field
-     * @return string
-     */
-    public function getRevisionData($field = null) {
-        return $this->model;
-    }
 }

@@ -17,14 +17,6 @@ class GalleryField extends FileTypeField  {
         'images'
     ];
 
-    /**
-     * @param null $field
-     * @return string
-     */
-    public function getRevisionData($field = null) {
-        return $this->images;
-    }
-
     public function getFieldOptionsView(){
         return self::FIELD_OPTIONS_VIEW;
     }
@@ -267,6 +259,10 @@ class GalleryField extends FileTypeField  {
         return $data;
     }
 
+    public function getRevisionData($field = null) {
+        return $this->images;
+    }
+
     public function getExportSample($slug,$type) {
         switch ($type){
             case "XML":
@@ -383,19 +379,16 @@ class GalleryField extends FileTypeField  {
     /**
      * Gets the image associated with the Gallery Field of a particular record.
      *
-     * @param  int $rid - Record ID
-     * @param  int $flid - Field ID
+     * @param  int $pid - Project ID
      * @param  string $filename - Name of image file
      * @param  string $type - Get either the full image or a thumbnail of the image
      * @return string - html for the file download
      */
-    public static function getImgDisplay($rid, $flid, $filename, $type){
-        $record = RecordController::getRecord($rid);
-        $field = FieldController::getField($flid);
+    public function getImgDisplay($pid, $filename, $type) {
         if($type == 'thumbnail' | $type == 'medium') {
-            $file_path = env('BASE_PATH').'storage/app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$type.'/'. $filename;
+            $file_path = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$this->fid.'/r'.$this->rid.'/fl'.$this->flid.'/'.$type.'/'. $filename;
         } else {
-            $file_path = env('BASE_PATH').'storage/app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $filename;
+            $file_path = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$this->fid.'/r'.$this->rid.'/fl'.$this->flid . '/' . $filename;
 
         }
 

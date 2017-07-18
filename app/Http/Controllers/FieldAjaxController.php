@@ -113,7 +113,9 @@ class FieldAjaxController extends Controller {
      * @return string - html for the file download
      */
     public function getImgDisplay($rid, $flid, $filename, $type){
-        return GalleryField::getImgDisplay($rid, $flid, $filename, $type);
+        $field = FieldController::getField($flid);
+        $galleryField = $field->getTypedFieldFromRID($rid);
+        return $galleryField->getImgDisplay($field->pid, $filename, $type);
     }
 
     /**

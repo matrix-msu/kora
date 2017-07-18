@@ -18,34 +18,37 @@ abstract class FileTypeField extends BaseField {
     */
 
     /**
+     * @var array - Maps file field constant names to file variable names
+     */
+    public static $FILE_DATA_TYPES = [
+        Field::_DOCUMENTS => "documents",
+        Field::_GALLERY => "images",
+        Field::_PLAYLIST => "audio",
+        Field::_VIDEO => "video",
+        Field::_3D_MODEL => "model",
+    ];
+
+    /**
+     * @var array - Maps file field constant names to valid file memes
+     */
+    public static $FILE_MIME_TYPES = [
+        Field::_GALLERY => ['image/jpeg','image/gif','image/png'],
+        Field::_PLAYLIST => ['audio/mp3','audio/wav','audio/ogg'],
+        Field::_VIDEO => ['video/mp4','video/ogg'],
+        Field::_3D_MODEL => ['obj','stl'],
+    ];
+
+    /**
      * Parses the string representing all the files that a field has and returns an array of the file names.
      *
-     * @return array - Empty if there was an error, else it will have the names of the files associated with the field
+     * @return array - The names of the files associated with the field
      */
     public function getFileNames() {
         $type = Field::where("flid", '=', $this->flid)->first()->type;
 
-        $infoString = null;
+        $infoString = $this->{self::$FILE_DATA_TYPES[$type]};
 
-        switch($type) {
-            case 'Documents':
-                $infoString = $this->documents;
-                break;
-            case 'Gallery':
-                $infoString = $this->images;
-                break;
-            case 'Playlist':
-                $infoString = $this->audio;
-                break;
-            case 'Video':
-                $infoString = $this->video;
-                break;
-            case '3D-Model':
-                $infoString = $this->model;
-                break;
-        }
-
-        if($infoString == null)
+        if(is_null($infoString))
             return []; // Something went wrong!
 
         $fileNames = [];
@@ -87,7 +90,7 @@ abstract class FileTypeField extends BaseField {
             }
         }
 
-        if($field->type=='Gallery') {
+        if($field->type==Field::_GALLERY) {
             $smThumbs = explode('x', FieldController::getFieldOption($field, 'ThumbSmall'));
             $lgThumbs = explode('x', FieldController::getFieldOption($field, 'ThumbLarge'));
         }
@@ -95,38 +98,22 @@ abstract class FileTypeField extends BaseField {
         $validTypes = true;
         $fileTypes = explode('[!]',FieldController::getFieldOption($field, 'FileTypes'));
         $fileTypesRequest = $_FILES['file'.$flid]['type'];
-        if((sizeof($fileTypes)!=1 | $fileTypes[0]!='') && $field->type != '3D-Model') {
+        if((sizeof($fileTypes)!=1 | $fileTypes[0]!='') && $field->type != Field::_3D_MODEL) {
             foreach($fileTypesRequest as $type) {
                 if(!in_array($type,$fileTypes))
                     $validTypes = false;
             }
-        } else if($field->type=='Gallery') {
+        } else if(array_key_exists($field->type, self::$FILE_MIME_TYPES)) {
+            $fileTypes = self::$FILE_MIME_TYPES[$field->type];
             foreach($fileTypesRequest as $type) {
-                if(!in_array($type,['image/jpeg','image/gif','image/png']))
-                    $validTypes = false;
-            }
-        } else if($field->type=='Playlist') {
-            foreach($fileTypesRequest as $type) {
-                if(!in_array($type,['audio/mp3','audio/wav','audio/ogg']))
-                    $validTypes = false;
-            }
-        } else if($field->type=='Video') {
-            foreach($fileTypesRequest as $type) {
-                if(!in_array($type,['video/mp4','video/ogg']))
-                    $validTypes = false;
-            }
-        } else if($field->type=='3D-Model') {
-            foreach($_FILES['file'.$flid]['name'] as $file) {
-                $filetype = explode('.',$file);
-                $type = array_pop($filetype);
-                if(!in_array($type,['obj','stl']))
+                if(!in_array($type,$fileTypes))
                     $validTypes = false;
             }
         }
 
         $options = array();
         $options['flid'] = 'f'.$flid.'u'.$uid;
-        if($field->type=='Gallery') {
+        if($field->type==Field::_GALLERY) {
             $options['image_versions']['thumbnail']['max_width'] = $smThumbs[0];
             $options['image_versions']['thumbnail']['max_height'] = $smThumbs[1];
             $options['image_versions']['medium']['max_width'] = $lgThumbs[0];

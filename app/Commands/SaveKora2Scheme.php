@@ -722,6 +722,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
             $data['flid'] = $field->flid;
             $data['type'] = $field->type;
 
+            //TODO::modular
             switch($field->type) {
                 case 'Text':
                     $textfield = TextField::where('rid', '=', $record->rid)->where('flid', '=', $field->flid)->first();

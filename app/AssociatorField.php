@@ -135,6 +135,19 @@ class AssociatorField extends BaseField {
         return $data;
     }
 
+    public function getRevisionData($field = null) {
+        $pieces = array();
+        $records = $this->records()->get();
+        foreach($records as $record){
+            $rid = $record->record;
+            $model = RecordController::getRecord($rid);
+            array_push($pieces,$model->kid);
+        }
+
+        $formatted = implode("[!]", $pieces);
+        return $formatted;
+    }
+
     public function getExportSample($slug,$type) {
         switch ($type){
             case "XML":
@@ -181,8 +194,77 @@ class AssociatorField extends BaseField {
         return $query->distinct();
     }
 
+    /**
+     * Build the advanced search query for a multi select list. (Works for Generated List too.)
+     *
+     * @param Builder $db_query
+     * @param array $inputs, input values
+     */
+    private static function buildAdvancedAssociatorQuery(Builder &$db_query, $inputs) {
+        $db_query->where(function($db_query) use ($inputs) {
+            foreach($inputs as $input) {
+                $rid = explode('-',$input)[2];
+                $db_query->orWhereRaw("MATCH (`record`) AGAINST (? IN BOOLEAN MODE)",
+                    [Search::processArgument($rid, Search::ADVANCED_METHOD)]);
+            }
+        });
+    }
+
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
+    //
+    public static function getAssociatorList($field) {
+        $def = $field->default;
+        return self::getListOptionsFromString($def);
+    }
+
+    //
+    public function delete() {
+        $this->deleteRecords();
+        parent::delete();
+    }
+
+    //
+    public function records() {
+        return DB::table(self::SUPPORT_NAME)->select("*")
+            ->where("flid", "=", $this->flid)
+            ->where("rid", "=", $this->rid);
+    }
+
+    //
+    public function addRecords(array $records) {
+        $now = date("Y-m-d H:i:s");
+        foreach($records as $record) {
+            $recInfo = explode("-",$record);
+
+            DB::table(self::SUPPORT_NAME)->insert(
+                [
+                    'rid' => $this->rid,
+                    'fid' => $this->fid,
+                    'flid' => $this->flid,
+                    'record' => $recInfo[2],
+                    'created_at' => $now,
+                    'updated_at' => $now
+                ]
+            );
+        }
+    }
+
+    //
+    public function updateRecords(array $records) {
+        $this->deleteRecords();
+        $this->addRecords($records);
+    }
+
+    //
+    public function deleteRecords() {
+        DB::table(self::SUPPORT_NAME)
+            ->where("rid", "=", $this->rid)
+            ->where("flid", "=", $this->flid)
+            ->delete();
+    }
+
+    //
     public function getPreviewValues($rid){
         //individual kid elements
         $recModel = RecordController::getRecord($rid);
@@ -235,135 +317,5 @@ class AssociatorField extends BaseField {
         }
 
         return $html;
-    }
-
-    /**
-     * Delete a schedule field, we must also delete its support fields.
-     * @throws \Exception
-     */
-    public function delete() {
-        $this->deleteRecords();
-        parent::delete();
-    }
-
-    /**
-     * Adds an record to the associatr_support table.
-     * @param array $records an array of records to associate to.
-     *  They are in KID format
-     */
-    public function addRecords(array $records) {
-        $now = date("Y-m-d H:i:s");
-        foreach($records as $record) {
-            $recInfo = explode("-",$record);
-
-            DB::table(self::SUPPORT_NAME)->insert(
-                [
-                    'rid' => $this->rid,
-                    'fid' => $this->fid,
-                    'flid' => $this->flid,
-                    'record' => $recInfo[2],
-                    'created_at' => $now,
-                    'updated_at' => $now
-                ]
-            );
-        }
-    }
-
-    /**
-     * Update events using the same method as add events.
-     * The only reliable way to actually update is to delete all previous events and just add the updated versions.
-     *
-     * @param array $records
-     */
-    public function updateRecords(array $records) {
-        $this->deleteRecords();
-        $this->addRecords($records);
-    }
-
-    /**
-     * Deletes all events associated with the schedule field.
-     */
-    public function deleteRecords() {
-        DB::table(self::SUPPORT_NAME)
-            ->where("rid", "=", $this->rid)
-            ->where("flid", "=", $this->flid)
-            ->delete();
-    }
-
-    /**
-     * The query for records in a associator field.
-     * Use ->get() to obtain all events.
-     *
-     * @return Builder
-     */
-    public function records() {
-        return DB::table(self::SUPPORT_NAME)->select("*")
-            ->where("flid", "=", $this->flid)
-            ->where("rid", "=", $this->rid);
-    }
-
-    /**
-     * True if there are events associated with a particular Schedule field.
-     *
-     * @return bool
-     */
-    public function hasRecords() {
-        return !! $this->records()->count();
-    }
-
-    /**
-     * @param null $field
-     * @return string
-     */
-    public function getRevisionData($field = null) {
-        $pieces = array();
-        $records = $this->records()->get();
-        foreach($records as $record){
-            $rid = $record->record;
-            $model = RecordController::getRecord($rid);
-            array_push($pieces,$model->kid);
-        }
-
-        $formatted = implode("[!]", $pieces);
-        return $formatted;
-    }
-
-    /**
-     * Build the advanced search query for a multi select list. (Works for Generated List too.)
-     *
-     * @param Builder $db_query
-     * @param array $inputs, input values
-     */
-    public static function buildAdvancedAssociatorQuery(Builder &$db_query, $inputs) {
-        $db_query->where(function($db_query) use ($inputs) {
-            foreach($inputs as $input) {
-                $rid = explode('-',$input)[2];
-                $db_query->orWhereRaw("MATCH (`record`) AGAINST (? IN BOOLEAN MODE)",
-                    [Search::processArgument($rid, Search::ADVANCED_METHOD)]);
-            }
-        });
-    }
-
-    /**
-     * Gets the default locations from the field options.
-     *
-     * @param $field
-     * @return array
-     */
-    public static function getAssociatorList($field)
-    {
-        $def = $field->default;
-        $options = array();
-        if ($def == '') {
-            //skip
-        } else if (!strstr($def, '[!]')) {
-            $options = [$def => $def];
-        } else {
-            $opts = explode('[!]', $def);
-            foreach ($opts as $opt) {
-                $options[$opt] = $opt;
-            }
-        }
-        return $options;
     }
 }

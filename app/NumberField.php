@@ -186,6 +186,13 @@ class NumberField extends BaseField {
         return $data;
     }
 
+    public function getRevisionData($field = null) {
+        return [
+            'number' => $this->number,
+            'unit' => FieldController::getFieldOption($field, 'Unit')
+        ];
+    }
+
     public function getExportSample($slug,$type) {
         switch ($type){
             case "XML":
@@ -261,29 +268,8 @@ class NumberField extends BaseField {
     }
 
     /**
-     * Gets formatted value of record field to compare for sort. Only implement if field is sortable.
-     *
-     * @return string - The value
-     */
-    public function getValueForSort() {
-        return $this->number;
-    }
-
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    /**
-     * @param null $field
-     * @return array
-     */
-    public function getRevisionData($field = null) {
-        return [
-            'number' => $this->number,
-            'unit' => FieldController::getFieldOption($field, 'Unit')
-        ];
-    }
-
-    /**
-     * Build an advanced search number field query.
+     * Build an advanced search number field query. Public because Combolist borrows it. Otherwise it would be private
+     * like the others.
      *
      * @param Builder $query, query to build upon.
      * @param string $left, input from the form, left index.
@@ -319,5 +305,16 @@ class NumberField extends BaseField {
                     floatval($right) + self::EPSILON]);
             }
         }
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
+    /**
+     * Gets formatted value of record field to compare for sort. Only implement if field is sortable.
+     *
+     * @return string - The value
+     */
+    public function getValueForSort() {
+        return $this->number;
     }
 }

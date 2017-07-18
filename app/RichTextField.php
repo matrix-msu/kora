@@ -132,6 +132,10 @@ class RichTextField extends BaseField {
         return $data;
     }
 
+    public function getRevisionData($field = null) {
+        return $this->rawtext;
+    }
+
     public function getExportSample($slug,$type) {
         switch ($type){
             case "XML":
@@ -180,25 +184,10 @@ class RichTextField extends BaseField {
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
-    /**
-     * Saves the model.
-     *
-     * Instead of putting this everywhere the rawtext member is assigned we'll just override the member function.
-     *
-     * @param array $options
-     * @return bool
-     */
+    //
     public function save(array $options = array()) {
         $this->searchable_rawtext = strip_tags($this->rawtext);
 
         return parent::save($options);
-    }
-
-    /**
-     * @param Field | null $field
-     * @return string
-     */
-    public function getRevisionData($field = null) {
-        return $this->rawtext;
     }
 }

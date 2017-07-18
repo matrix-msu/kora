@@ -207,7 +207,7 @@ class Record extends Model {
      * Deletes all data fields belonging to a record, then deletes self.
      */
     public function delete() {
-        BaseField::deleteBaseFields($this->rid);
+        BaseField::deleteBaseFieldsByRID($this->rid);
 
         parent::delete();
     }

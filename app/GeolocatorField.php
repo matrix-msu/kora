@@ -146,6 +146,10 @@ class GeolocatorField extends BaseField {
         return $data;
     }
 
+    public function getRevisionData($field = null) {
+        return self::locationsToOldFormat($this->locations()->get());
+    }
+
     public function getExportSample($slug,$type) {
         switch ($type){
             case "XML":
@@ -287,83 +291,70 @@ SQL;
             ->setBindings([$lat, $lon, $lat, $flid, $range]);
     }
 
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
     /**
-     * Gets the default locations from the field options.
+     * Convert UTM to gPoint instance.
      *
-     * @param $field
-     * @return array
+     * @param string $zone, valid UTM zone.
+     * @param float $easting, easting UTM value (meters east).
+     * @param float $northing, northing UTM value (meters north).
+     * @return gPoint, point with converted latitude and longitude values in member variables.
+     *                 Use ->Lat() and ->Long() to obtain converted values.
      */
-    public static function getLocationList($field)
-    {
-        $def = $field->default;
-        $options = array();
-        if ($def == '') {
-            //skip
-        } else if (!strstr($def, '[!]')) {
-            $options = [$def => $def];
-        } else {
-            $opts = explode('[!]', $def);
-            foreach ($opts as $opt) {
-                $options[$opt] = $opt;
-            }
-        }
-        return $options;
+    private static function UTMToPoint($zone, $easting, $northing) {
+        $point = new gPoint();
+        $point->gPoint();
+        $point->setUTM($easting, $northing, $zone);
+        $point->convertTMtoLL();
+        return $point;
     }
 
     /**
-     * The query for locations in a geolocator field.
-     * Use ->get() to obtain all locations.
-     * @return Builder
+     * Convert address to gPoint instance.
+     *
+     * @param string $address
+     * @return gPoint, point with converted latitude and longitude values in member variables.
+     *                 Use ->Lat() and ->Long() to obtain converted values.
      */
+    private static function addressToPoint($address) {
+        $coder = new Geocoder();
+        $coder->registerProviders([
+            new NominatimProvider(
+                new CurlHttpAdapter(),
+                'http://nominatim.openstreetmap.org/',
+                'en'
+            )
+        ]);
+
+        $result = $coder->geocode($address);
+        $point = new gPoint();
+        $point->gPoint();
+        $point->setLongLat($result->getLongitude(), $result->getLatitude());
+
+        return $point;
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
+    //
+    public static function getLocationList($field) {
+        $def = $field->default;
+        return self::getListOptionsFromString($def);
+    }
+
+    //
+    public function delete() {
+        $this->deleteLocations();
+        parent::delete();
+    }
+
+    //
     public function locations() {
         return DB::table(self::SUPPORT_NAME)->select("*")
             ->where("flid", "=", $this->flid)
             ->where("rid", "=", $this->rid);
     }
 
-    /**
-     * True if there are locations associated with a particular Geolocator field.
-     *
-     * @return bool
-     */
-    public function hasLocations() {
-        return !! $this->locations()->count();
-    }
-
-
-    /**
-     * Puts an array of events into the old format.
-     *      - "Old Format" meaning, an array of the locations formatted as
-     *        [Desc]<Description>[Desc][LatLon]<Latitude,Longitude>[LatLon][UTM]<Zone:Easting,Northing>[UTM][Address]<Address>[Address]
-     *
-     * @param array $locations, array of StdObjects representing locations.
-     * @param bool $array_string, should this be in the old *[!]*[!]...[!]* format?
-     * @return array | string
-     */
-    public static function locationsToOldFormat(array $locations, $array_string = false) {
-        $formatted = [];
-        foreach ($locations as $location) {
-            $formatted[] = "[Desc]" . $location->desc . "[Desc][LatLon]"
-                . $location->lat . "," . $location->lon . "[LatLon][UTM]"
-                . $location->zone . ":" . $location->easting . "," . $location->northing . "[UTM][Address]"
-                . $location->address . "[Address]";
-        }
-
-        if ($array_string) {
-            return implode("[!]", $formatted);
-        }
-
-        return $formatted;
-    }
-
-    /**
-     * Adds locations to the geolocator support table.
-     *
-     * @param array $locations, array of locations as they are given from the create/edit form javascript.
-     *      Format: [Desc]<Description>[Desc][LatLon]<Latitude,Longitude>[LatLon][UTM]<Zone:Easting,Northing>[UTM][Address]<Address>[Address]
-     */
+    //
     public function addLocations(array $locations) {
         $now = date("Y-m-d H:i:s");
 
@@ -399,19 +390,13 @@ SQL;
         }
     }
 
-    /**
-     * Updates locations associated with this field.
-     *
-     * @param array $locations
-     */
+    //
     public function updateLocations(array $locations) {
         $this->deleteLocations();
         $this->addLocations($locations);
     }
 
-    /**
-     * Deletes locations associated with this geolocator field.
-     */
+    //
     public function deleteLocations() {
         DB::table(self::SUPPORT_NAME)
             ->where("flid", "=", $this->flid)
@@ -419,63 +404,21 @@ SQL;
             ->delete();
     }
 
-    /**
-     * @param null $field
-     * @return array
-     */
-    public function getRevisionData($field = null) {
-        return self::locationsToOldFormat($this->locations()->get());
-    }
+    //
+    public static function locationsToOldFormat(array $locations, $array_string = false) {
+        $formatted = [];
+        foreach ($locations as $location) {
+            $formatted[] = "[Desc]" . $location->desc . "[Desc][LatLon]"
+                . $location->lat . "," . $location->lon . "[LatLon][UTM]"
+                . $location->zone . ":" . $location->easting . "," . $location->northing . "[UTM][Address]"
+                . $location->address . "[Address]";
+        }
 
-    /**
-     * Convert UTM to gPoint instance.
-     *
-     * @param string $zone, valid UTM zone.
-     * @param float $easting, easting UTM value (meters east).
-     * @param float $northing, northing UTM value (meters north).
-     * @return gPoint, point with converted latitude and longitude values in member variables.
-     *                 Use ->Lat() and ->Long() to obtain converted values.
-     */
-    public static function UTMToPoint($zone, $easting, $northing) {
-        $point = new gPoint();
-        $point->gPoint();
-        $point->setUTM($easting, $northing, $zone);
-        $point->convertTMtoLL();
-        return $point;
-    }
+        if ($array_string) {
+            return implode("[!]", $formatted);
+        }
 
-    /**
-     * Convert address to gPoint instance.
-     *
-     * @param string $address
-     * @return gPoint, point with converted latitude and longitude values in member variables.
-     *                 Use ->Lat() and ->Long() to obtain converted values.
-     */
-    public static function addressToPoint($address) {
-        $coder = new Geocoder();
-        $coder->registerProviders([
-            new NominatimProvider(
-                new CurlHttpAdapter(),
-                'http://nominatim.openstreetmap.org/',
-                'en'
-            )
-        ]);
-
-        $result = $coder->geocode($address);
-        $point = new gPoint();
-        $point->gPoint();
-        $point->setLongLat($result->getLongitude(), $result->getLatitude());
-
-        return $point;
-    }
-
-    /**
-     * Delete the geolocator field.
-     * @throws \Exception
-     */
-    public function delete() {
-        $this->deleteLocations();
-        parent::delete();
+        return $formatted;
     }
 
     /**

@@ -163,6 +163,10 @@ class GeneratedListField extends BaseField {
         return $data;
     }
 
+    public function getRevisionData($field = null) {
+        return $this->options;
+    }
+
     public function getExportSample($slug,$type) {
         switch ($type){
             case "XML":
@@ -210,41 +214,31 @@ class GeneratedListField extends BaseField {
         $query = self::select("rid")
             ->where("flid", "=", $flid);
 
-        MultiSelectListField::buildAdvancedMultiSelectListQuery($query, $inputs);
+        self::buildAdvancedGeneratedListQuery($query, $inputs);
 
         return $query->distinct();
     }
 
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    public static function getList($field, $blankOpt=false)
-    {
-        $dbOpt = FieldController::getFieldOption($field, 'Options');
-        $options = array();
-
-        if ($dbOpt == '') {
-            //skip
-        } else if (!strstr($dbOpt, '[!]')) {
-            $options = [$dbOpt => $dbOpt];
-        } else {
-            $opts = explode('[!]', $dbOpt);
-            foreach ($opts as $opt) {
-                $options[$opt] = $opt;
+    /**
+     * Build the advanced search query for a multi select list. (Works for Generated List too.)
+     *
+     * @param Builder $db_query
+     * @param array $inputs, input values
+     */
+    private static function buildAdvancedGeneratedListQuery(Builder &$db_query, $inputs) {
+        $db_query->where(function($db_query) use ($inputs) {
+            foreach($inputs as $input) {
+                $db_query->orWhereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)",
+                    [Search::processArgument($input, Search::ADVANCED_METHOD)]);
             }
-        }
-
-        if ($blankOpt) {
-            $options = array('' => '') + $options;
-        }
-
-        return $options;
+        });
     }
 
-    /**
-     * @param null $field
-     * @return string
-     */
-    public function getRevisionData($field = null) {
-        return $this->options;
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
+    //
+    public static function getList($field, $blankOpt=false) {
+        $dbOpt = FieldController::getFieldOption($field, 'Options');
+        return self::getListOptionsFromString($dbOpt,$blankOpt);
     }
 }

@@ -144,6 +144,10 @@ class ListField extends BaseField {
         return $data;
     }
 
+    public function getRevisionData($field = null) {
+        return $this->option;
+    }
+
     public function getExportSample($slug,$type) {
         switch ($type){
             case "XML":
@@ -193,55 +197,30 @@ class ListField extends BaseField {
     }
 
     /**
+     * Build and advanced query for list field.
+     *
+     * @param Builder $db_query, reference to query to build.
+     * @param string $input, input value from form.
+     */
+    private static function buildAdvancedListQuery(Builder &$db_query, $input) {
+        $db_query->whereRaw("MATCH (`option`) AGAINST (? IN BOOLEAN MODE)",
+            [Search::processArgument($input, Search::ADVANCED_METHOD)]);
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
+    //
+    public static function getList($field, $blankOpt=false) {
+        $dbOpt = FieldController::getFieldOption($field, 'Options');
+        return self::getListOptionsFromString($dbOpt,$blankOpt);
+    }
+
+    /**
      * Gets formatted value of record field to compare for sort. Only implement if field is sortable.
      *
      * @return string - The value
      */
     public function getValueForSort() {
         return $this->option;
-    }
-
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    public static function getList($field, $blankOpt=false)
-    {
-        $dbOpt = FieldController::getFieldOption($field, 'Options');
-        $options = array();
-
-        if ($dbOpt == '') {
-            //skip
-        } else if (!strstr($dbOpt, '[!]')) {
-            $options = [$dbOpt => $dbOpt];
-        } else {
-            $opts = explode('[!]', $dbOpt);
-            foreach ($opts as $opt) {
-                $options[$opt] = $opt;
-            }
-        }
-
-        if ($blankOpt) {
-            $options = array('' => '') + $options;
-        }
-
-        return $options;
-    }
-
-    /**
-     * @param null $field
-     * @return string
-     */
-    public function getRevisionData($field = null) {
-        return $this->option;
-    }
-
-    /**
-     * Build and advanced query for list field.
-     *
-     * @param Builder $db_query, reference to query to build.
-     * @param string $input, input value from form.
-     */
-    public static function buildAdvancedListQuery(Builder &$db_query, $input) {
-        $db_query->whereRaw("MATCH (`option`) AGAINST (? IN BOOLEAN MODE)",
-            [Search::processArgument($input, Search::ADVANCED_METHOD)]);
     }
 }

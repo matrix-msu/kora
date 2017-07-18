@@ -151,6 +151,10 @@ class ScheduleField extends BaseField {
         return $data;
     }
 
+    public function getRevisionData($field = null) {
+        return self::eventsToOldFormat($this->events()->get());
+    }
+
     public function getExportSample($slug,$type) {
         switch ($type){
             case "XML":
@@ -287,42 +291,26 @@ class ScheduleField extends BaseField {
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
-    public static function getDateList($field)
-    {
+    //
+    public static function getDateList($field) {
         $def = $field->default;
-        $options = array();
-
-        if ($def == '') {
-            //skip
-        } else if (!strstr($def, '[!]')) {
-            $options = [$def => $def];
-        } else {
-            $opts = explode('[!]', $def);
-            foreach ($opts as $opt) {
-                $options[$opt] = $opt;
-            }
-        }
-
-        return $options;
+        return self::getListOptionsFromString($def);
     }
 
-    /**
-     * Delete a schedule field, we must also delete its support fields.
-     * @throws \Exception
-     */
+    //
     public function delete() {
         $this->deleteEvents();
         parent::delete();
     }
 
-    /**
-     * Adds an event to the schedule_support table.
-     * @param array $events an array of events, each specified in the following format:
-     *      "description: mm/dd/yyyy - mm/dd/yyyy"
-     *      or if there is a time specified
-     *      "description: mm/dd/yyyy hh:mm A/PM - mm/dd/yyyy hh:mm A/PM"
-     *      Note: This is how the form builds the strings.
-     */
+    //
+    public function events() {
+        return DB::table(self::SUPPORT_NAME)->select("*")
+            ->where("flid", "=", $this->flid)
+            ->where("rid", "=", $this->rid);
+    }
+
+    //
     public function addEvents(array $events) {
         $now = date("Y-m-d H:i:s");
         foreach($events as $event) {
@@ -344,12 +332,7 @@ class ScheduleField extends BaseField {
         }
     }
 
-    /**
-     * Extract the logic to get the necessary information from the event string to the database.
-     *
-     * @param $event
-     * @return array
-     */
+    //
     private static function processEvent($event) {
         $event = explode(": ", $event);
         $desc = $event[0];
@@ -372,20 +355,13 @@ class ScheduleField extends BaseField {
         return [$begin, $end, $desc, $allday];
     }
 
-    /**
-     * Update events using the same method as add events.
-     * The only reliable way to actually update is to delete all previous events and just add the updated versions.
-     *
-     * @param array $events
-     */
+    //
     public function updateEvents(array $events) {
         $this->deleteEvents();
         $this->addEvents($events);
     }
 
-    /**
-     * Deletes all events associated with the schedule field.
-     */
+    //
     public function deleteEvents() {
         DB::table(self::SUPPORT_NAME)
             ->where("rid", "=", $this->rid)
@@ -393,48 +369,7 @@ class ScheduleField extends BaseField {
             ->delete();
     }
 
-    /**
-     * The query for events in a schedule field.
-     * Use ->get() to obtain all events.
-     *
-     * Events will be in "Y-m-d H:i:s" format.
-     *      For all day events use "m/d/Y" format.
-     *      For non-all day use "m/d/Y g:i A" format.
-     *
-     * @return Builder
-     */
-    public function events() {
-        return DB::table(self::SUPPORT_NAME)->select("*")
-            ->where("flid", "=", $this->flid)
-            ->where("rid", "=", $this->rid);
-    }
-
-    /**
-     * True if there are events associated with a particular Schedule field.
-     *
-     * @return bool
-     */
-    public function hasEvents() {
-        return !! $this->events()->count();
-    }
-
-    /**
-     * @param null $field
-     * @return array
-     */
-    public function getRevisionData($field = null) {
-        return self::eventsToOldFormat($this->events()->get());
-    }
-
-    /**
-     * Puts an array of events into the old format.
-     *      - "Old Format" meaning, an array of the events formatted as
-     *      <Description>: <Begin> - <End>
-     *
-     * @param array $events, array of StdObjects representing events.
-     * @param bool $array_string, should this be in the old *[!]*[!]...[!]* format?
-     * @return array | string
-     */
+    //
     public static function eventsToOldFormat(array $events, $array_string = false) {
         $formatted = [];
         foreach($events as $event) {
@@ -457,15 +392,5 @@ class ScheduleField extends BaseField {
         }
 
         return $formatted;
-    }
-
-    /**
-     * Get the support fields of a schedule field with a particular rid.
-     *
-     * @param $rid
-     * @return Builder
-     */
-    public static function supportFields($rid) {
-        return DB::table(self::SUPPORT_NAME)->where("rid", "=", $rid);
     }
 }

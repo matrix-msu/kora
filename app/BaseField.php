@@ -19,19 +19,6 @@ abstract class BaseField extends Model {
     */
 
     /**
-     * @var string - Database column that represents the primary key
-     */
-    protected $primaryKey = "id";
-
-    /**
-     * @var array - Names of the base fields in the database
-     */
-    public static $TABLE_NAMES = ["text_fields", "rich_text_fields", "number_fields", "list_fields",
-        "multi_select_list_fields", "generated_list_fields", "combo_list_fields",
-        "date_fields", "schedule_fields", "geolocator_fields", "documents_fields",
-        "gallery_fields", "playlist_fields", "video_fields", "model_fields", "associator_fields"];
-
-    /**
      * @var array - Maps field constant names to table names (Used with the DB::table method)
      */
     public static $MAPPED_FIELD_TYPES = [
@@ -63,17 +50,37 @@ abstract class BaseField extends Model {
     }
 
     /**
-     * Maps a typed field name to its table's name in the database.
+     * Turns a typical list of field options, that exists in a string for DB purposes, into an array. These are typical
+     * in the structure of 'Opt[!]Opt[!]Opt'.
      *
-     * @param  String $string - Enum representing typed field
-     * @return string - The table name
+     * @param  string $string - The option list in string form
+     * @param  bool $blankOpt - Has blank option as first array element
      */
-    public static function getDBName($string) {
-        if(isset(Field::$ENUM_TYPED_FIELDS[$string])) {
-            return self::$MAPPED_FIELD_TYPES[$string];
+    public static function getListOptionsFromString($string, $blankOpt=false) {
+        $options = array();
+
+        //if it's blank, we'll just send an empty array
+        if($string!='') {
+            $opts = explode('[!]', $string);
+            foreach($opts as $opt) {
+                $options[$opt] = $opt;
+            }
         }
 
-        return false;
+        //add the blank value to front of array
+        if($blankOpt)
+            $options = array('' => '') + $options;
+
+        return $options;
+    }
+
+    /**
+     * Gets formatted value of record field to compare for sort. Only implement if field is sortable.
+     *
+     * @return string - The value
+     */
+    public function getValueForSort() {
+        return '';
     }
 
     /**
@@ -81,8 +88,8 @@ abstract class BaseField extends Model {
      *
      * @param  int $rid - Record id
      */
-    static public function deleteBaseFields($rid) {
-        foreach(self::$TABLE_NAMES as $table_name) {
+    public static function deleteBaseFieldsByRID($rid) {
+        foreach(self::$MAPPED_FIELD_TYPES as $table_name) {
             DB::table($table_name)->where("rid", "=", $rid)->delete();
         }
 
@@ -91,6 +98,24 @@ abstract class BaseField extends Model {
 
         foreach($support_tables as $support_table) {
             DB::table($support_table)->where("rid", "=", $rid)->delete();
+        }
+    }
+
+    /**
+     * Deletes all the BaseFields with a certain flid in a clean way.
+     *
+     * @param  int $flid - Field id
+     */
+    public static function deleteBaseFieldsByFLID($flid) {
+        foreach(self::$MAPPED_FIELD_TYPES as $table_name) {
+            DB::table($table_name)->where("flid", "=", $flid)->delete();
+        }
+
+        // Delete support tables.
+        $support_tables = [ScheduleField::SUPPORT_NAME, GeolocatorField::SUPPORT_NAME, ComboListField::SUPPORT_NAME, AssociatorField::SUPPORT_NAME];
+
+        foreach($support_tables as $support_table) {
+            DB::table($support_table)->where("flid", "=", $flid)->delete();
         }
     }
 
@@ -125,14 +150,6 @@ abstract class BaseField extends Model {
      * @return mixed - The result
      */
     abstract public function updateOptions($field, Request $request, $return=true);
-
-    /**
-     * Get the required information for a revision data array.
-     *
-     * @param  Field $field - Optional field to get storage options for certain typed fields
-     * @return mixed - The revision data
-     */
-    abstract public function getRevisionData($field = null);
 
     /**
      * Creates a typed field to store record data.
@@ -200,6 +217,14 @@ abstract class BaseField extends Model {
     abstract public function getRecordPresetArray($data, $exists=true);
 
     /**
+     * Get the required information for a revision data array.
+     *
+     * @param  Field $field - Optional field to get storage options for certain typed fields
+     * @return mixed - The revision data
+     */
+    abstract public function getRevisionData($field = null);
+
+    /**
      * Provides an example of the field's structure in an export to help with importing records.
      *
      * @param  string $slug - Field nickname
@@ -247,13 +272,4 @@ abstract class BaseField extends Model {
      * @return Builder - The RIDs that match search
      */
     abstract public function getAdvancedSearchQuery($flid, $query);
-
-    /**
-     * Gets formatted value of record field to compare for sort. Only implement if field is sortable.
-     *
-     * @return string - The value
-     */
-    public function getValueForSort() {
-        return '';
-    }
 }

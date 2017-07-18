@@ -236,6 +236,16 @@ class TextField extends BaseField {
     }
 
     /**
+     * Get the required information for a revision data array.
+     *
+     * @param  Field $field - Optional field to get storage options for certain typed fields
+     * @return mixed - The revision data
+     */
+    public function getRevisionData($field = null) {
+        return $this->text;
+    }
+
+    /**
      * Provides an example of the field's structure in an export to help with importing records.
      *
      * @param  string $slug - Field nickname
@@ -319,22 +329,14 @@ class TextField extends BaseField {
             ->distinct();
     }
 
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
     /**
      * Gets formatted value of record field to compare for sort. Only implement if field is sortable.
      *
      * @return string - The value
      */
     public function getValueForSort() {
-        return $this->text;
-    }
-
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    /**
-     * @param Field | null $field
-     * @return string
-     */
-    public function getRevisionData($field = null) {
         return $this->text;
     }
 }

@@ -222,6 +222,10 @@ class VideoField extends FileTypeField {
         return $data;
     }
 
+    public function getRevisionData($field = null) {
+        return $this->video;
+    }
+
     public function getExportSample($slug,$type) {
         switch ($type){
             case "XML":
@@ -311,12 +315,4 @@ class VideoField extends FileTypeField {
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    /**
-     * @param null $field
-     * @return string
-     */
-    public function getRevisionData($field = null) {
-        return $this->video;
-    }
 }

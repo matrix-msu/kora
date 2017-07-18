@@ -32,6 +32,40 @@ class DateField extends BaseField {
      */
     const YEAR_MONTH_DAY = "YYYYMMDD";
 
+    /**
+     * The months of the year in different languages.
+     * These are listed without special characters because the input will be converted to close characters.
+     * Formatted with regular expression tags to find only the exact month so "march" does not match "marches" for example.
+     *
+     * @var array
+     */
+    const MONTHS_IN_LANG = [
+        // English
+        ['/(\\W|^)january(\\W|$)/i', "/(\\W|^)february(\\W|$)/i", "/(\\W|^)march(\\W|$)/i",
+            "/(\\W|^)april(\\W|$)/i", "/(\\W|^)may(\\W|$)/i", "/(\\W|^)june(\\W|$)/i", "/(\\W|^)july(\\W|$)/i",
+            "/(\\W|^)august(\\W|$)/i", "/(\\W|^)september(\\W|$)/i", "/(\\W|^)october(\\W|$)/i",
+            "/(\\W|^)november(\\W|$)/i", "/(\\W|^)december(\\W|$)/i"],
+
+        // Spanish
+        ["/(\\W|^)enero(\\W|$)/i", "/(\\W|^)febrero(\\W|$)/i", "/(\\W|^)marzo(\\W|$)/i",
+            "/(\\W|^)abril(\\W|$)/i", "/(\\W|^)mayo(\\W|$)/i", "/(\\W|^)junio(\\W|$)/i", "/(\\W|^)julio(\\W|$)/i",
+            "/(\\W|^)agosto(\\W|$)/i", "/(\\W|^)septiembre(\\W|$)/i", "/(\\W|^)octubre(\\W|$)/i",
+            "/(\\W|^)noviembre(\\W|$)/i", "/(\\W|^)diciembre(\\W|$)/i"],
+
+        // French
+        ["/(\\W|^)janvier(\\W|$)/i", "/(\\W|^)fevrier(\\W|$)/i", "/(\\W|^)mars(\\W|$)/i",
+            "/(\\W|^)avril(\\W|$)/i", "/(\\W|^)mai(\\W|$)/i", "/(\\W|^)juin(\\W|$)/i", "/(\\W|^)juillet(\\W|$)/i",
+            "/(\\W|^)aout(\\W|$)/i", "/(\\W|^)septembre(\\W|$)/i", "/(\\W|^)octobre(\\W|$)/i",
+            "/(\\W|^)novembre(\\W|$)/i", "/(\\W|^)decembre(\\W|$)/i"]
+    ];
+
+    /**
+     * We currently support 3 languages, so this is an array of 3 copies of the number of 1 through 12.
+     *
+     * @var array
+     */
+    const MONTH_NUMBERS = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ];
+
     protected $fillable = [
         'rid',
         'flid',
@@ -183,6 +217,20 @@ class DateField extends BaseField {
         return '';
     }
 
+    private static function validateDate($m,$d,$y){
+        if($d!='' && !is_null($d) && $d!=0) {
+            if ($m == '' | is_null($m) | $m==0) {
+                return false;
+            } else {
+                if($y=='' | $y==0)
+                    $y=1;
+                return checkdate($m, $d, $y);
+            }
+        }
+
+        return true;
+    }
+
     public function rollbackField($field, Revision $revision, $exists=true) {
         if (!is_array($revision->data)) {
             $revision->data = json_decode($revision->data, true);
@@ -228,6 +276,17 @@ class DateField extends BaseField {
         $data['data'] = $date_array;
 
         return $data;
+    }
+
+    public function getRevisionData($field = null) {
+        return [
+            'day' => $this->day,
+            'month' => $this->month,
+            'year' => $this->year,
+            'format' => FieldController::getFieldOption($field, 'Format'),
+            'circa' => FieldController::getFieldOption($field, 'Circa') == 'Yes' ? $this->circa : '',
+            'era' => FieldController::getFieldOption($field, 'Era') == 'Yes' ? $this->era : ''
+        ];
     }
 
     public function getExportSample($slug,$type) {
@@ -316,6 +375,45 @@ class DateField extends BaseField {
         return self::buildQuery($arg, $circa, $era, $fid);
     }
 
+    /**
+     * Builds the query for a date field.
+     *
+     * @param $search string, the query, a space separated string.
+     * @param $circa bool, should we search for date fields with circa turned on?
+     * @param $era bool, should we search for date fields with era turned on?
+     * @param $fid int, form id
+     * @return Builder, the query for the date field.
+     */
+    private static function buildQuery($search, $circa, $era, $fid) {
+        $args = explode(" ", $search);
+
+        $query = DB::table("date_fields")
+            ->select("rid")
+            ->where("fid", "=", $fid);
+
+        // This function acts as parenthesis around the or's of the date field requirements.
+        $query->where(function($query) use ($args, $circa, $era) {
+            foreach($args as $arg) {
+                $query->orWhere("day", "=", intval($arg))
+                    ->orWhere("year", "=", intval($arg));
+
+                if (self::isMonth($arg)) {
+                    $query->orWhere("month", "=", intval(self::monthToNumber($arg)));
+                }
+
+                if ($era && self::isValidEra($arg)) {
+                    $query->orWhere("era", "=", strtoupper($arg));
+                }
+            }
+
+            if ($circa && self::isCirca($arg)) {
+                $query->orWhere("circa", "=", 1);
+            }
+        });
+
+        return $query->distinct();
+    }
+
     public function getAdvancedSearchQuery($flid, $query) {
         $begin_month = ($query[$flid."_begin_month"] == "") ? 1 : intval($query[$flid."_begin_month"]);
         $begin_day = ($query[$flid."_begin_day"] == "") ? 1 : intval($query[$flid."_begin_day"]);
@@ -363,6 +461,8 @@ class DateField extends BaseField {
         return $query->distinct();
     }
 
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
     /**
      * Gets formatted value of record field to compare for sort. Only implement if field is sortable.
      *
@@ -372,45 +472,41 @@ class DateField extends BaseField {
         return DateTime::createFromFormat("Y-m-d", $this->year . "-" . $this->month . "-" . $this->day);
     }
 
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+    //
+    public function save(array $options = array()) {
+        $date = DateTime::createFromFormat("Y-m-d", $this->year."-".$this->month."-".$this->day);
+        $this->date_object = date_format($date, "Y-m-d");
+
+        return parent::save($options);
+    }
 
     /**
-     * Builds the query for a date field.
+     * Determines if a string is a value month name.
+     * Using the month to number function, if the string is turned to a number
+     * we know it is determined to be a valid month name.
+     * The original string should also not be a number itself. As searches for
+     * the numbers 1 through 12 should not return dates based on some month Jan-Dec.
      *
-     * @param $search string, the query, a space separated string.
-     * @param $circa bool, should we search for date fields with circa turned on?
-     * @param $era bool, should we search for date fields with era turned on?
-     * @param $fid int, form id
-     * @return Builder, the query for the date field.
+     * @param $string string, the string to test.
+     * @return bool, true if the string is a valid month.
      */
-    public static function buildQuery($search, $circa, $era, $fid) {
-        $args = explode(" ", $search);
+    public static function isMonth($string) {
+        $monthToNumber = self::monthToNumber($string);
+        return is_numeric($monthToNumber) && $monthToNumber != $string;
+    }
 
-        $query = DB::table("date_fields")
-            ->select("rid")
-            ->where("fid", "=", $fid);
+    /**
+     * Converts a month to the number corresponding to the month.
+     *
+     * @param $month, the month to be converted.
+     * @return array, processed collection of months.
+     */
+    public static function monthToNumber($month) {
+        foreach(self::MONTHS_IN_LANG as $monthRegex) {
+            $month = preg_replace($monthRegex, self::MONTH_NUMBERS, $month);
+        }
 
-        // This function acts as parenthesis around the or's of the date field requirements.
-        $query->where(function($query) use ($args, $circa, $era) {
-            foreach($args as $arg) {
-                $query->orWhere("day", "=", intval($arg))
-                    ->orWhere("year", "=", intval($arg));
-
-                if (self::isMonth($arg)) {
-                    $query->orWhere("month", "=", intval(self::monthToNumber($arg)));
-                }
-
-                if ($era && self::isValidEra($arg)) {
-                    $query->orWhere("era", "=", strtoupper($arg));
-                }
-            }
-
-            if ($circa && self::isCirca($arg)) {
-                $query->orWhere("circa", "=", 1);
-            }
-        });
-
-        return $query->distinct();
+        return $month;
     }
 
     /**
@@ -433,106 +529,5 @@ class DateField extends BaseField {
     public static function isCirca($string) {
         $string = strtoupper($string);
         return ($string == "CIRCA");
-    }
-
-    /**
-     * Determines if a string is a value month name.
-     * Using the month to number function, if the string is turned to a number
-     * we know it is determined to be a valid month name.
-     * The original string should also not be a number itself. As searches for
-     * the numbers 1 through 12 should not return dates based on some month Jan-Dec.
-     *
-     * @param $string string, the string to test.
-     * @return bool, true if the string is a valid month.
-     */
-    public static function isMonth($string) {
-        $monthToNumber = self::monthToNumber($string);
-        return is_numeric($monthToNumber) && $monthToNumber != $string;
-    }
-
-    /**
-     * The months of the year in different languages.
-     * These are listed without special characters because the input will be converted to close characters.
-     * Formatted with regular expression tags to find only the exact month so "march" does not match "marches" for example.
-     *
-     * @var array
-     */
-    private static $months = [
-        // English
-        ['/(\\W|^)january(\\W|$)/i', "/(\\W|^)february(\\W|$)/i", "/(\\W|^)march(\\W|$)/i",
-            "/(\\W|^)april(\\W|$)/i", "/(\\W|^)may(\\W|$)/i", "/(\\W|^)june(\\W|$)/i", "/(\\W|^)july(\\W|$)/i",
-            "/(\\W|^)august(\\W|$)/i", "/(\\W|^)september(\\W|$)/i", "/(\\W|^)october(\\W|$)/i",
-            "/(\\W|^)november(\\W|$)/i", "/(\\W|^)december(\\W|$)/i"],
-
-        // Spanish
-        ["/(\\W|^)enero(\\W|$)/i", "/(\\W|^)febrero(\\W|$)/i", "/(\\W|^)marzo(\\W|$)/i",
-            "/(\\W|^)abril(\\W|$)/i", "/(\\W|^)mayo(\\W|$)/i", "/(\\W|^)junio(\\W|$)/i", "/(\\W|^)julio(\\W|$)/i",
-            "/(\\W|^)agosto(\\W|$)/i", "/(\\W|^)septiembre(\\W|$)/i", "/(\\W|^)octubre(\\W|$)/i",
-            "/(\\W|^)noviembre(\\W|$)/i", "/(\\W|^)diciembre(\\W|$)/i"],
-
-        // French
-        ["/(\\W|^)janvier(\\W|$)/i", "/(\\W|^)fevrier(\\W|$)/i", "/(\\W|^)mars(\\W|$)/i",
-            "/(\\W|^)avril(\\W|$)/i", "/(\\W|^)mai(\\W|$)/i", "/(\\W|^)juin(\\W|$)/i", "/(\\W|^)juillet(\\W|$)/i",
-            "/(\\W|^)aout(\\W|$)/i", "/(\\W|^)septembre(\\W|$)/i", "/(\\W|^)octobre(\\W|$)/i",
-            "/(\\W|^)novembre(\\W|$)/i", "/(\\W|^)decembre(\\W|$)/i"]
-    ];
-
-    /**
-     * We currently support 3 languages, so this is an array of 3 copies of the number of 1 through 12.
-     *
-     * @var array
-     */
-    private static $monthNumbers = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ];
-
-    /**
-     * Converts a month to the number corresponding to the month.
-     *
-     * @param $month, the month to be converted.
-     * @return array, processed collection of months.
-     */
-    public static function monthToNumber($month) {
-        foreach(self::$months as $monthRegex) {
-            $month = preg_replace($monthRegex, self::$monthNumbers, $month);
-        }
-
-        return $month;
-    }
-
-    public static function validateDate($m,$d,$y){
-        if($d!='' && !is_null($d) && $d!=0) {
-            if ($m == '' | is_null($m) | $m==0) {
-                return false;
-            } else {
-                if($y=='' | $y==0)
-                    $y=1;
-                return checkdate($m, $d, $y);
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Override the save method to allow for storing the date as an object.
-     *
-     * @param array $options
-     * @return bool
-     */
-    public function save(array $options = array()) {
-        $date = DateTime::createFromFormat("Y-m-d", $this->year."-".$this->month."-".$this->day);
-        $this->date_object = date_format($date, "Y-m-d");
-
-        return parent::save($options);
-    }
-
-    public function getRevisionData($field = null) {
-        return [
-            'day' => $this->day,
-            'month' => $this->month,
-            'year' => $this->year,
-            'format' => FieldController::getFieldOption($field, 'Format'),
-            'circa' => FieldController::getFieldOption($field, 'Circa') == 'Yes' ? $this->circa : '',
-            'era' => FieldController::getFieldOption($field, 'Era') == 'Yes' ? $this->era : ''
-        ];
     }
 }
