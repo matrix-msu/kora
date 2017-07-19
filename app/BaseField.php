@@ -4,7 +4,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 abstract class BaseField extends Model {
@@ -261,7 +260,7 @@ abstract class BaseField extends Model {
      * @param  int $fid - Form ID
      * @param  string $arg - The keywords
      * @param  string $method - Type of keyword search
-     * @return Collection - The RIDs that match search
+     * @return Builder - The RIDs that match search
      */
     abstract public function keywordSearchTyped($fid, $arg, $method);
 

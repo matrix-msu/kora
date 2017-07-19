@@ -548,7 +548,7 @@ class ComboListField extends BaseField {
      * @param  int $fid - Form ID
      * @param  string $arg - The keywords
      * @param  string $method - Type of keyword search
-     * @return Collection - The RIDs that match search
+     * @return Builder - The RIDs that match search
      */
     public function keywordSearchTyped($fid, $arg, $method) {
         return DB::table(self::SUPPORT_NAME)
