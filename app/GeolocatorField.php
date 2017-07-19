@@ -1,47 +1,85 @@
 <?php namespace App;
 
 use App\FieldHelpers\gPoint;
-use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
 use Geocoder\Geocoder;
 use Geocoder\HttpAdapter\CurlHttpAdapter;
 use Geocoder\Provider\NominatimProvider;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use PhpSpec\Exception\Exception;
 
 class GeolocatorField extends BaseField {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Geolocator Field
+    |--------------------------------------------------------------------------
+    |
+    | This model represents the geolocator field in Kora3
+    |
+    */
+
+    /**
+     * @var string - Support table name
+     */
     const SUPPORT_NAME = "geolocator_support";
+    /**
+     * @var string - Views for the typed field options
+     */
     const FIELD_OPTIONS_VIEW = "fields.options.geolocator";
     const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.geolocator";
 
+    /**
+     * @var array - Attributes that can be mass assigned to model
+     */
     protected $fillable = [
         'rid',
         'flid',
         'locations'
     ];
 
-    public function getFieldOptionsView(){
+    /**
+     * Get the field options view.
+     *
+     * @return string - The view
+     */
+    public function getFieldOptionsView() {
         return self::FIELD_OPTIONS_VIEW;
     }
 
-    public function getAdvancedFieldOptionsView(){
+    /**
+     * Get the field options view for advanced field creation.
+     *
+     * @return string - The view
+     */
+    public function getAdvancedFieldOptionsView() {
         return self::FIELD_ADV_OPTIONS_VIEW;
     }
 
-    public function getDefaultOptions(Request $request){
+    /**
+     * Gets the default options string for a new field.
+     *
+     * @param  Request $request
+     * @return string - The default options
+     */
+    public function getDefaultOptions(Request $request) {
         return '[!Map!]No[!Map!][!DataView!]LatLon[!DataView!]';
     }
 
+    /**
+     * Update the options for a field
+     *
+     * @param  Field $field - Field to update options
+     * @param  Request $request
+     * @param  bool $return - Are we returning an error by string or redirect
+     * @return mixed - The result
+     */
     public function updateOptions($field, Request $request, $return=true) {
         $reqDefs = $request->default;
         $default = $reqDefs[0];
-        for($i=1;$i<sizeof($reqDefs);$i++){
+        for($i=1;$i<sizeof($reqDefs);$i++) {
             $default .= '[!]'.$reqDefs[$i];
         }
 
@@ -59,7 +97,15 @@ class GeolocatorField extends BaseField {
         }
     }
 
-    public function createNewRecordField($field, $record, $value, $request){
+    /**
+     * Creates a typed field to store record data.
+     *
+     * @param  Field $field - The field to represent record data
+     * @param  Record $record - Record being created
+     * @param  string $value - Data to add
+     * @param  Request $request
+     */
+    public function createNewRecordField($field, $record, $value, $request) {
         $this->flid = $field->flid;
         $this->rid = $record->rid;
         $this->fid = $field->fid;
@@ -68,23 +114,37 @@ class GeolocatorField extends BaseField {
         $this->addLocations($value);
     }
 
+    /**
+     * Edits a typed field that has record data.
+     *
+     * @param  string $value - Data to add
+     * @param  Request $request
+     */
     public function editRecordField($value, $request) {
-        if(!is_null($this) && !is_null($value)){
+        if(!is_null($this) && !is_null($value)) {
             $this->updateLocations($value);
-        }
-        elseif(!is_null($this) && is_null($value)){
+        } else if(!is_null($this) && is_null($value)) {
             $this->delete();
             $this->deleteLocations();
         }
     }
 
+    /**
+     * Takes data from a mass assignment operation and applies it to an individual field.
+     *
+     * @param  Field $field - The field to represent record data
+     * @param  Record $record - Record being written to
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  bool $overwrite - Overwrite if data exists
+     */
     public function massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite=0) {
         $matching_record_fields = $record->geolocatorfields()->where("flid", '=', $field->flid)->get();
         $record->updated_at = Carbon::now();
         $record->save();
-        if ($matching_record_fields->count() > 0) {
+        if($matching_record_fields->count() > 0) {
             $geolocatorfield = $matching_record_fields->first();
-            if ($overwrite == true || ! $geolocatorfield->hasLocations()) {
+            if($overwrite == true || ! $geolocatorfield->hasLocations()) {
                 $revision = RevisionController::storeRevision($record->rid, 'edit');
                 $geolocatorfield->updateLocations($formFieldValue);
                 $revision->oldData = RevisionController::buildDataArray($record);
@@ -98,7 +158,13 @@ class GeolocatorField extends BaseField {
         }
     }
 
-    public function createTestRecordField($field, $record){
+    /**
+     * For a test record, add test data to field.
+     *
+     * @param  Field $field - The field to represent record data
+     * @param  Record $record - Test record being created
+     */
+    public function createTestRecordField($field, $record) {
         $this->flid = $field->flid;
         $this->rid = $record->rid;
         $this->fid = $field->fid;
@@ -107,25 +173,37 @@ class GeolocatorField extends BaseField {
         $this->addLocations(['[Desc]K3TR[Desc][LatLon]13,37[LatLon][UTM]37P:283077.41182513,1437987.6443346[UTM][Address] Appelstra�e Hanover Lower Saxony[Address]']);
     }
 
+    /**
+     * Validates the record data for a field against the field's options.
+     *
+     * @param  Field $field - The
+     * @param  mixed $value - Record data
+     * @param  Request $request
+     * @return string - Potential error message
+     */
     public function validateField($field, $value, $request) {
         $req = $field->required;
 
-        if($req==1 && ($value==null | $value=="")){
+        if($req==1 && ($value==null | $value==""))
             return $field->name.trans('fieldhelpers_val.req');
-        }
     }
 
+    /**
+     * Performs a rollback function on an individual field's record data.
+     *
+     * @param  Field $field - The field being rolled back
+     * @param  Revision $revision - The revision being rolled back
+     * @param  bool $exists - Field for record exists
+     */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if (!is_array($revision->data)) {
+        if(!is_array($revision->data))
             $revision->data = json_decode($revision->data, true);
-        }
 
-        if (is_null($revision->data[Field::_GEOLOCATOR][$field->flid]['data'])) {
+        if(is_null($revision->data[Field::_GEOLOCATOR][$field->flid]['data']))
             return null;
-        }
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
-        if ($revision->type == Revision::DELETE || !$exists) {
+        if($revision->type == Revision::DELETE || !$exists) {
             $this->flid = $field->flid;
             $this->fid = $revision->fid;
             $this->rid = $revision->rid;
@@ -135,23 +213,41 @@ class GeolocatorField extends BaseField {
         $this->updateLocations($revision->data[Field::_GEOLOCATOR][$field->flid]['data']);
     }
 
+    /**
+     * Get the arrayed version of the field data to store in a record preset.
+     *
+     * @param  array $data - The data array representing the record preset
+     * @param  bool $exists - Typed field exists and has data
+     * @return array - The updated $data
+     */
     public function getRecordPresetArray($data, $exists=true) {
-        if ($exists) {
+        if($exists)
             $data['locations'] = GeolocatorField::locationsToOldFormat($this->locations()->get());
-        }
-        else {
+        else
             $data['locations'] = null;
-        }
 
         return $data;
     }
 
+    /**
+     * Get the required information for a revision data array.
+     *
+     * @param  Field $field - Optional field to get storage options for certain typed fields
+     * @return mixed - The revision data
+     */
     public function getRevisionData($field = null) {
         return self::locationsToOldFormat($this->locations()->get());
     }
 
+    /**
+     * Provides an example of the field's structure in an export to help with importing records.
+     *
+     * @param  string $slug - Field nickname
+     * @param  string $expType - Type of export
+     * @return mixed - The example
+     */
     public function getExportSample($slug,$type) {
-        switch ($type){
+        switch($type) {
             case "XML":
                 $xml = '<' . Field::xmlTagClear($slug) . ' type="Geolocator">';
                 $xml .= '<Location>';
@@ -187,6 +283,14 @@ class GeolocatorField extends BaseField {
 
     }
 
+    /**
+     * Updates the request for an API search to mimic the advanced search structure.
+     *
+     * @param  array $data - Data from the search
+     * @param  int $flid - Field ID
+     * @param  Request $request
+     * @return Request - The update request
+     */
     public function setRestfulAdvSearch($data, $flid, $request) {
         $request->request->add([$flid.'_type' => $data->type]);
         if(isset($data->lat))
@@ -224,6 +328,15 @@ class GeolocatorField extends BaseField {
         return $request;
     }
 
+    /**
+     * Updates the request for an API to mimic record creation .
+     *
+     * @param  array $jsonField - JSON representation of field data
+     * @param  int $flid - Field ID
+     * @param  Request $recRequest
+     * @param  int $uToken - Custom generated user token for file fields and tmp folders
+     * @return Request - The update request
+     */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
         $geo = array();
         foreach($jsonField->locations as $loc) {
@@ -238,6 +351,14 @@ class GeolocatorField extends BaseField {
         return $recRequest;
     }
 
+    /**
+     * Performs a keyword search on this field and returns any results.
+     *
+     * @param  int $fid - Form ID
+     * @param  string $arg - The keywords
+     * @param  string $method - Type of keyword search
+     * @return Builder - The RIDs that match search
+     */
     public function keywordSearchTyped($fid, $arg, $method) {
         return DB::table(self::SUPPORT_NAME)
             ->select("rid")
@@ -249,6 +370,13 @@ class GeolocatorField extends BaseField {
             ->distinct();
     }
 
+    /**
+     * Performs an advanced search on this field and returns any results.
+     *
+     * @param  int $flid - Field ID
+     * @param  array $query - The advance search user query
+     * @return Builder - The RIDs that match search
+     */
     public function getAdvancedSearchQuery($flid, $query) {
         $range = $query[$flid.'_range'];
 
@@ -294,11 +422,11 @@ SQL;
     /**
      * Convert UTM to gPoint instance.
      *
-     * @param string $zone, valid UTM zone.
-     * @param float $easting, easting UTM value (meters east).
-     * @param float $northing, northing UTM value (meters north).
-     * @return gPoint, point with converted latitude and longitude values in member variables.
-     *                 Use ->Lat() and ->Long() to obtain converted values.
+     * @param  string $zone - Valid UTM zone
+     * @param  float $easting - Easting UTM value (meters east)
+     * @param  float $northing - Northing UTM value (meters north)
+     * @return gPoint - Point with converted latitude and longitude values in member variables
+     *                 Use ->Lat() and ->Long() to obtain converted values
      */
     private static function UTMToPoint($zone, $easting, $northing) {
         $point = new gPoint();
@@ -311,9 +439,9 @@ SQL;
     /**
      * Convert address to gPoint instance.
      *
-     * @param string $address
-     * @return gPoint, point with converted latitude and longitude values in member variables.
-     *                 Use ->Lat() and ->Long() to obtain converted values.
+     * @param  string $address - Address value
+     * @return gPoint - Point with converted latitude and longitude values in member variables
+     *                 Use ->Lat() and ->Long() to obtain converted values
      */
     private static function addressToPoint($address) {
         $coder = new Geocoder();
@@ -434,16 +562,15 @@ SQL;
      */
     public static function locationsToOldFormat(array $locations, $array_string = false) {
         $formatted = [];
-        foreach ($locations as $location) {
+        foreach($locations as $location) {
             $formatted[] = "[Desc]" . $location->desc . "[Desc][LatLon]"
                 . $location->lat . "," . $location->lon . "[LatLon][UTM]"
                 . $location->zone . ":" . $location->easting . "," . $location->northing . "[UTM][Address]"
                 . $location->address . "[Address]";
         }
 
-        if ($array_string) {
+        if($array_string)
             return implode("[!]", $formatted);
-        }
 
         return $formatted;
     }

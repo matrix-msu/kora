@@ -3,47 +3,84 @@
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class GeneratedListField extends BaseField {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Generated List Field
+    |--------------------------------------------------------------------------
+    |
+    | This model represents the generated list field in Kora3
+    |
+    */
+
+    /**
+     * @var string - Views for the typed field options
+     */
     const FIELD_OPTIONS_VIEW = "fields.options.genlist";
     const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.genlist";
 
+    /**
+     * @var array - Attributes that can be mass assigned to model
+     */
     protected $fillable = [
         'rid',
         'flid',
         'options'
     ];
 
-    public function getFieldOptionsView(){
+    /**
+     * Get the field options view.
+     *
+     * @return string - The view
+     */
+    public function getFieldOptionsView() {
         return self::FIELD_OPTIONS_VIEW;
     }
 
-    public function getAdvancedFieldOptionsView(){
+    /**
+     * Get the field options view for advanced field creation.
+     *
+     * @return string - The view
+     */
+    public function getAdvancedFieldOptionsView() {
         return self::FIELD_ADV_OPTIONS_VIEW;
     }
 
-    public function getDefaultOptions(Request $request){
+    /**
+     * Gets the default options string for a new field.
+     *
+     * @param  Request $request
+     * @return string - The default options
+     */
+    public function getDefaultOptions(Request $request) {
         return '[!Regex!][!Regex!][!Options!][!Options!]';
     }
 
+    /**
+     * Update the options for a field
+     *
+     * @param  Field $field - Field to update options
+     * @param  Request $request
+     * @param  bool $return - Are we returning an error by string or redirect
+     * @return mixed - The result
+     */
     public function updateOptions($field, Request $request, $return=true) {
         $advString = '';
 
         $reqDefs = $request->default;
         $default = $reqDefs[0];
-        for($i=1;$i<sizeof($reqDefs);$i++){
+        for($i=1;$i<sizeof($reqDefs);$i++) {
             $default .= '[!]'.$reqDefs[$i];
         }
 
         $reqOpts = $request->options;
         $options = $reqOpts[0];
-        for($i=1;$i<sizeof($reqOpts);$i++){
-            if ($request->regex!='' && !preg_match($request->regex, $reqOpts[$i])) {
+        for($i=1;$i<sizeof($reqOpts);$i++) {
+            if($request->regex!='' && !preg_match($request->regex, $reqOpts[$i])) {
                 if($return) {
                     flash()->error(trans('controller_option.genregex', ['opt' => $reqOpts[$i]]));
                     return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')->withInput();
@@ -69,7 +106,15 @@ class GeneratedListField extends BaseField {
         }
     }
 
-    public function createNewRecordField($field, $record, $value, $request){
+    /**
+     * Creates a typed field to store record data.
+     *
+     * @param  Field $field - The field to represent record data
+     * @param  Record $record - Record being created
+     * @param  string $value - Data to add
+     * @param  Request $request
+     */
+    public function createNewRecordField($field, $record, $value, $request) {
         $this->flid = $field->flid;
         $this->rid = $record->rid;
         $this->fid = $field->fid;
@@ -77,22 +122,37 @@ class GeneratedListField extends BaseField {
         $this->save();
     }
 
+    /**
+     * Edits a typed field that has record data.
+     *
+     * @param  string $value - Data to add
+     * @param  Request $request
+     */
     public function editRecordField($value, $request) {
-        if(!is_null($this) && !is_null($value)){
+        if(!is_null($this) && !is_null($value)) {
             $this->options = implode("[!]",$value);
             $this->save();
-        }elseif(!is_null($this) && is_null($value)){
+        } else if(!is_null($this) && is_null($value)) {
             $this->delete();
         }
     }
 
+    /**
+     * Takes data from a mass assignment operation and applies it to an individual field.
+     *
+     * @param  Field $field - The field to represent record data
+     * @param  Record $record - Record being written to
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  bool $overwrite - Overwrite if data exists
+     */
     public function massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite=0) {
         $matching_record_fields = $record->generatedlistfields()->where("flid", '=', $field->flid)->get();
         $record->updated_at = Carbon::now();
         $record->save();
-        if ($matching_record_fields->count() > 0) {
+        if($matching_record_fields->count() > 0) {
             $generatedlistfield = $matching_record_fields->first();
-            if ($overwrite == true || $generatedlistfield->options == "" || is_null($generatedlistfield->options)) {
+            if($overwrite == true || $generatedlistfield->options == "" || is_null($generatedlistfield->options)) {
                 $revision = RevisionController::storeRevision($record->rid, 'edit');
                 $generatedlistfield->options = implode("[!]", $formFieldValue);
                 $generatedlistfield->save();
@@ -107,7 +167,13 @@ class GeneratedListField extends BaseField {
         }
     }
 
-    public function createTestRecordField($field, $record){
+    /**
+     * For a test record, add test data to field.
+     *
+     * @param  Field $field - The field to represent record data
+     * @param  Record $record - Test record being created
+     */
+    public function createTestRecordField($field, $record) {
         $this->flid = $field->flid;
         $this->rid = $record->rid;
         $this->fid = $field->fid;
@@ -115,34 +181,45 @@ class GeneratedListField extends BaseField {
         $this->save();
     }
 
+    /**
+     * Validates the record data for a field against the field's options.
+     *
+     * @param  Field $field - The
+     * @param  mixed $value - Record data
+     * @param  Request $request
+     * @return string - Potential error message
+     */
     public function validateField($field, $value, $request) {
         $req = $field->required;
         $regex = FieldController::getFieldOption($field, 'Regex');
 
-        if($req==1 && ($value==null | $value=="")){
+        if($req==1 && ($value==null | $value==""))
             return $field->name.trans('fieldhelpers_val.req');
-        }
 
-        foreach($value as $opt){
-            if(($regex!=null | $regex!="") && !preg_match($regex,$opt)){
+        foreach($value as $opt) {
+            if(($regex!=null | $regex!="") && !preg_match($regex,$opt))
                 return trans('fieldhelpers_val.regexopt',['name'=>$field->name,'opt'=>$opt]);
-            }
         }
 
         return '';
     }
 
+    /**
+     * Performs a rollback function on an individual field's record data.
+     *
+     * @param  Field $field - The field being rolled back
+     * @param  Revision $revision - The revision being rolled back
+     * @param  bool $exists - Field for record exists
+     */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if (!is_array($revision->data)) {
+        if(!is_array($revision->data))
             $revision->data = json_decode($revision->data, true);
-        }
 
-        if (is_null($revision->data[Field::_GENERATED_LIST][$field->flid]['data'])) {
+        if(is_null($revision->data[Field::_GENERATED_LIST][$field->flid]['data']))
             return null;
-        }
 
-        // If the field doesn't exist or was explicitly deleted, we create a new one.
-        if ($revision->type == Revision::DELETE || !$exists) {
+        //If the field doesn't exist or was explicitly deleted, we create a new one.
+        if($revision->type == Revision::DELETE || !$exists) {
             $this->flid = $field->flid;
             $this->rid = $revision->rid;
             $this->fid = $revision->fid;
@@ -152,23 +229,41 @@ class GeneratedListField extends BaseField {
         $this->save();
     }
 
+    /**
+     * Get the arrayed version of the field data to store in a record preset.
+     *
+     * @param  array $data - The data array representing the record preset
+     * @param  bool $exists - Typed field exists and has data
+     * @return array - The updated $data
+     */
     public function getRecordPresetArray($data, $exists=true) {
-        if ($exists) {
+        if($exists)
             $data['options'] = explode('[!]', $this->options);
-        }
-        else {
+        else
             $data['options'] = null;
-        }
 
         return $data;
     }
 
+    /**
+     * Get the required information for a revision data array.
+     *
+     * @param  Field $field - Optional field to get storage options for certain typed fields
+     * @return mixed - The revision data
+     */
     public function getRevisionData($field = null) {
         return $this->options;
     }
 
+    /**
+     * Provides an example of the field's structure in an export to help with importing records.
+     *
+     * @param  string $slug - Field nickname
+     * @param  string $expType - Type of export
+     * @return mixed - The example
+     */
     public function getExportSample($slug,$type) {
-        switch ($type){
+        switch($type) {
             case "XML":
                 $xml = '<' . Field::xmlTagClear($slug) . ' type="Generated List">';
                 $xml .= '<value>' . utf8_encode('LIST VALUE 1') . '</value>';
@@ -186,21 +281,45 @@ class GeneratedListField extends BaseField {
                 return $fieldArray;
                 break;
         }
-
     }
 
+    /**
+     * Updates the request for an API search to mimic the advanced search structure.
+     *
+     * @param  array $data - Data from the search
+     * @param  int $flid - Field ID
+     * @param  Request $request
+     * @return Request - The update request
+     */
     public function setRestfulAdvSearch($data, $flid, $request) {
         $request->request->add([$flid.'_input' => $data->input]);
 
         return $request;
     }
 
+    /**
+     * Updates the request for an API to mimic record creation .
+     *
+     * @param  array $jsonField - JSON representation of field data
+     * @param  int $flid - Field ID
+     * @param  Request $recRequest
+     * @param  int $uToken - Custom generated user token for file fields and tmp folders
+     * @return Request - The update request
+     */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
         $recRequest[$flid] = $jsonField->options;
 
         return $recRequest;
     }
 
+    /**
+     * Performs a keyword search on this field and returns any results.
+     *
+     * @param  int $fid - Form ID
+     * @param  string $arg - The keywords
+     * @param  string $method - Type of keyword search
+     * @return Builder - The RIDs that match search
+     */
     public function keywordSearchTyped($fid, $arg, $method) {
         return self::select("rid")
             ->where("fid", "=", $fid)
@@ -208,6 +327,13 @@ class GeneratedListField extends BaseField {
             ->distinct();
     }
 
+    /**
+     * Performs an advanced search on this field and returns any results.
+     *
+     * @param  int $flid - Field ID
+     * @param  array $query - The advance search user query
+     * @return Builder - The RIDs that match search
+     */
     public function getAdvancedSearchQuery($flid, $query) {
         $inputs = $query[$flid."_input"];
 
@@ -220,10 +346,10 @@ class GeneratedListField extends BaseField {
     }
 
     /**
-     * Build the advanced search query for a multi select list. (Works for Generated List too.)
+     * Build the advanced search query for a multi select list (Works for Generated List too).
      *
-     * @param Builder $db_query
-     * @param array $inputs, input values
+     * @param  Builder $db_query - Pointer to builder query
+     * @param  array $inputs - Input values
      */
     private static function buildAdvancedGeneratedListQuery(Builder &$db_query, $inputs) {
         $db_query->where(function($db_query) use ($inputs) {

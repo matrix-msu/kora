@@ -1,46 +1,82 @@
 <?php namespace App;
 
 use App\Http\Controllers\FieldController;
-use App\Http\Controllers\RecordController;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class GalleryField extends FileTypeField  {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Gallery Field
+    |--------------------------------------------------------------------------
+    |
+    | This model represents the gallery field in Kora3
+    |
+    */
+
+    /**
+     * @var string - Views for the typed field options
+     */
     const FIELD_OPTIONS_VIEW = "fields.options.gallery";
     const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.gallery";
 
+    /**
+     * @var array - Attributes that can be mass assigned to model
+     */
     protected $fillable = [
         'rid',
         'flid',
         'images'
     ];
 
-    public function getFieldOptionsView(){
+    /**
+     * Get the field options view.
+     *
+     * @return string - The view
+     */
+    public function getFieldOptionsView() {
         return self::FIELD_OPTIONS_VIEW;
     }
 
-    public function getAdvancedFieldOptionsView(){
+    /**
+     * Get the field options view for advanced field creation.
+     *
+     * @return string - The view
+     */
+    public function getAdvancedFieldOptionsView() {
         return self::FIELD_ADV_OPTIONS_VIEW;
     }
 
-    public function getDefaultOptions(Request $request){
+    /**
+     * Gets the default options string for a new field.
+     *
+     * @param  Request $request
+     * @return string - The default options
+     */
+    public function getDefaultOptions(Request $request) {
         return '[!FieldSize!]0[!FieldSize!][!ThumbSmall!]150x150[!ThumbSmall!][!ThumbLarge!]300x300[!ThumbLarge!][!MaxFiles!]0[!MaxFiles!][!FileTypes!][!FileTypes!]';
     }
 
+    /**
+     * Update the options for a field
+     *
+     * @param  Field $field - Field to update options
+     * @param  Request $request
+     * @param  bool $return - Are we returning an error by string or redirect
+     * @return mixed - The result
+     */
     public function updateOptions($field, Request $request, $return=true) {
         $filetype = $request->filetype[0];
-        for($i=1;$i<sizeof($request->filetype);$i++){
+        for($i=1;$i<sizeof($request->filetype);$i++) {
             $filetype .= '[!]'.$request->filetype[$i];
         }
 
-        if($request->filesize==''){
+        if($request->filesize=='')
             $request->filesize = 0;
-        }
-        if($request->maxfiles==''){
+
+        if($request->maxfiles=='')
             $request->maxfiles = 0;
-        }
 
         $sx = $request->small_x;
         $sy = $request->small_y;
@@ -74,8 +110,16 @@ class GalleryField extends FileTypeField  {
         }
     }
 
-    public function createNewRecordField($field, $record, $value, $request){
-        if(glob(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/*.*') != false){
+    /**
+     * Creates a typed field to store record data.
+     *
+     * @param  Field $field - The field to represent record data
+     * @param  Record $record - Record being created
+     * @param  string $value - Data to add
+     * @param  Request $request
+     */
+    public function createNewRecordField($field, $record, $value, $request) {
+        if(glob(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/*.*') != false) {
             $this->flid = $field->flid;
             $this->rid = $record->rid;
             $this->fid = $field->fid;
@@ -86,11 +130,11 @@ class GalleryField extends FileTypeField  {
             mkdir($newPath, 0775, true);
             mkdir($newPath . '/thumbnail', 0775, true);
             mkdir($newPath . '/medium', 0775, true);
-            if (file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
+            if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
                 $types = self::getMimeTypes();
-                foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
-                    if ($file->isFile()) {
-                        if (!array_key_exists($file->getExtension(), $types))
+                foreach(new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
+                    if($file->isFile()) {
+                        if(!array_key_exists($file->getExtension(), $types))
                             $type = 'application/octet-stream';
                         else
                             $type = $types[$file->getExtension()];
@@ -104,13 +148,12 @@ class GalleryField extends FileTypeField  {
                             $newPath . '/medium/' . $file->getFilename());
                     }
                 }
-                foreach($request->input('file'.$field->flid) as $fName){
-                    if($fName!=''){
-                        if ($infoString == '') {
+                foreach($request->input('file'.$field->flid) as $fName) {
+                    if($fName!='') {
+                        if($infoString == '')
                             $infoString = $infoArray[$fName];
-                        } else {
+                        else
                             $infoString .= '[!]' . $infoArray[$fName];
-                        }
                     }
                 }
             }
@@ -119,8 +162,14 @@ class GalleryField extends FileTypeField  {
         }
     }
 
+    /**
+     * Edits a typed field that has record data.
+     *
+     * @param  string $value - Data to add
+     * @param  Request $request
+     */
     public function editRecordField($value, $request) {
-        if(glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') != false){
+        if(glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') != false) {
             $gal_files_exist = false; // if this remains false, then the files were deleted and row should be removed from table
 
             //clear the old files before moving the update over
@@ -129,14 +178,14 @@ class GalleryField extends FileTypeField  {
             $newNames = array();
             //scan the tmpFile as these will be the "new ones"
             if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
-                foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
+                foreach(new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
                     array_push($newNames,$file->getFilename());
                 }
             }
             //actually clear them
             $field = FieldController::getField($this->flid);
-            foreach (new \DirectoryIterator(env('BASE_PATH').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid) as $file) {
-                if ($file->isFile() and in_array($file->getFilename(),$newNames)) {
+            foreach(new \DirectoryIterator(env('BASE_PATH').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid) as $file) {
+                if($file->isFile() and in_array($file->getFilename(),$newNames)) {
                     unlink(env('BASE_PATH').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid.'/'.$file->getFilename());
                     unlink(env('BASE_PATH').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid.'/thumbnail/'.$file->getFilename());
                     unlink(env('BASE_PATH').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid.'/medium/'.$file->getFilename());
@@ -147,8 +196,8 @@ class GalleryField extends FileTypeField  {
             $infoArray = array();
             if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
                 $types = self::getMimeTypes();
-                foreach (new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
-                    if ($file->isFile()) {
+                foreach(new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
+                    if($file->isFile()) {
                         if(!array_key_exists($file->getExtension(),$types))
                             $type = 'application/octet-stream';
                         else
@@ -165,45 +214,57 @@ class GalleryField extends FileTypeField  {
                         $gal_files_exist = true;
                     }
                 }
-                foreach($request->input('file'.$field->flid) as $fName){
-                    if($fName!=''){
-                        if ($infoString == '') {
+                foreach($request->input('file'.$field->flid) as $fName) {
+                    if($fName!='') {
+                        if($infoString == '')
                             $infoString = $infoArray[$fName];
-                        } else {
+                        else
                             $infoString .= '[!]' . $infoArray[$fName];
-                        }
                     }
                 }
             }
             $this->images = $infoString;
             $this->save();
 
-
-            if(!$gal_files_exist){
+            if(!$gal_files_exist)
                 $this->delete();
-            }
         }
     }
 
+    /**
+     * Takes data from a mass assignment operation and applies it to an individual field.
+     *
+     * @param  Field $field - The field to represent record data
+     * @param  Record $record - Record being written to
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  bool $overwrite - Overwrite if data exists
+     */
     public function massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite=0) {
         //TODO::mass assign
     }
 
-    public function createTestRecordField($field, $record){
+    /**
+     * For a test record, add test data to field.
+     *
+     * @param  Field $field - The field to represent record data
+     * @param  Record $record - Test record being created
+     */
+    public function createTestRecordField($field, $record) {
         $this->flid = $field->flid;
         $this->rid = $record->rid;
         $this->fid = $field->fid;
         $infoArray = array();
         $maxfiles = FieldController::getFieldOption($field,'MaxFiles');
-        if($maxfiles==0){$maxfiles=1;}
+        if($maxfiles==0) {$maxfiles=1;}
         $newPath = env('BASE_PATH') . 'storage/app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid;
         //make the three directories
         mkdir($newPath, 0775, true);
         mkdir($newPath . '/thumbnail', 0775, true);
         mkdir($newPath . '/medium', 0775, true);
-        for ($q=0;$q<$maxfiles;$q++) {
+        for($q=0;$q<$maxfiles;$q++) {
             $types = self::getMimeTypes();
-            if (!array_key_exists('png', $types))
+            if(!array_key_exists('png', $types))
                 $type = 'application/octet-stream';
             else
                 $type = $types['png'];
@@ -221,26 +282,39 @@ class GalleryField extends FileTypeField  {
         $this->save();
     }
 
+    /**
+     * Validates the record data for a field against the field's options.
+     *
+     * @param  Field $field - The
+     * @param  mixed $value - Record data
+     * @param  Request $request
+     * @return string - Potential error message
+     */
     public function validateField($field, $value, $request) {
         $req = $field->required;
 
-        if($req==1){
+        if($req==1) {
             if(glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') == false)
                 return $field->name.trans('fieldhelpers_val.file');
         }
     }
 
+    /**
+     * Performs a rollback function on an individual field's record data.
+     *
+     * @param  Field $field - The field being rolled back
+     * @param  Revision $revision - The revision being rolled back
+     * @param  bool $exists - Field for record exists
+     */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if (!is_array($revision->data)) {
+        if(!is_array($revision->data))
             $revision->data = json_decode($revision->data, true);
-        }
 
-        if (is_null($revision->data[Field::_GALLERY][$field->flid]['data'])) {
+        if(is_null($revision->data[Field::_GALLERY][$field->flid]['data']))
             return null;
-        }
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
-        if ($revision->type == Revision::DELETE || !$exists) {
+        if($revision->type == Revision::DELETE || !$exists) {
             $this->flid = $field->flid;
             $this->fid = $revision->fid;
             $this->rid = $revision->rid;
@@ -250,6 +324,13 @@ class GalleryField extends FileTypeField  {
         $this->save();
     }
 
+    /**
+     * Get the arrayed version of the field data to store in a record preset.
+     *
+     * @param  array $data - The data array representing the record preset
+     * @param  bool $exists - Typed field exists and has data
+     * @return array - The updated $data
+     */
     public function getRecordPresetArray($data, $exists=true) {
         if($exists)
             $data['images'] = explode('[!]', $this->images);
@@ -259,12 +340,25 @@ class GalleryField extends FileTypeField  {
         return $data;
     }
 
+    /**
+     * Get the required information for a revision data array.
+     *
+     * @param  Field $field - Optional field to get storage options for certain typed fields
+     * @return mixed - The revision data
+     */
     public function getRevisionData($field = null) {
         return $this->images;
     }
 
+    /**
+     * Provides an example of the field's structure in an export to help with importing records.
+     *
+     * @param  string $slug - Field nickname
+     * @param  string $expType - Type of export
+     * @return mixed - The example
+     */
     public function getExportSample($slug,$type) {
-        switch ($type){
+        switch($type) {
             case "XML":
                 $xml = '<' . Field::xmlTagClear($slug) . ' type="Gallery">';
                 $xml .= '<File>';
@@ -299,16 +393,32 @@ class GalleryField extends FileTypeField  {
                 return $fieldArray;
                 break;
         }
-
     }
 
+    /**
+     * Updates the request for an API search to mimic the advanced search structure.
+     *
+     * @param  array $data - Data from the search
+     * @param  int $flid - Field ID
+     * @param  Request $request
+     * @return Request - The update request
+     */
     public function setRestfulAdvSearch($data, $flid, $request) {
         $request->request->add([$flid.'_input' => $data->input]);
 
         return $request;
     }
 
-    public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null){
+    /**
+     * Updates the request for an API to mimic record creation .
+     *
+     * @param  array $jsonField - JSON representation of field data
+     * @param  int $flid - Field ID
+     * @param  Request $recRequest
+     * @param  int $uToken - Custom generated user token for file fields and tmp folders
+     * @return Request - The update request
+     */
+    public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
         $files = array();
         $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken;
         $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . $uToken;
@@ -356,6 +466,14 @@ class GalleryField extends FileTypeField  {
         return $recRequest;
     }
 
+    /**
+     * Performs a keyword search on this field and returns any results.
+     *
+     * @param  int $fid - Form ID
+     * @param  string $arg - The keywords
+     * @param  string $method - Type of keyword search
+     * @return Builder - The RIDs that match search
+     */
     public function keywordSearchTyped($fid, $arg, $method) {
         $arg = self::processArgumentForFileField($arg, $method);
 
@@ -365,6 +483,13 @@ class GalleryField extends FileTypeField  {
             ->distinct();
     }
 
+    /**
+     * Performs an advanced search on this field and returns any results.
+     *
+     * @param  int $flid - Field ID
+     * @param  array $query - The advance search user query
+     * @return Builder - The RIDs that match search
+     */
     public function getAdvancedSearchQuery($flid, $query) {
         $processed = $query[$flid."_input"]. "*[Name]";
 
