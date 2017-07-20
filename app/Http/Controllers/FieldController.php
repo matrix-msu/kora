@@ -60,7 +60,7 @@ class FieldController extends Controller {
         $field = Field::Create($request->all());
 
         //special error check for combo list field
-        if($field->type=='Combo List' && ($_REQUEST['cfname1']=='' | $_REQUEST['cfname2']=='')) {
+        if($field->type=='Combo List' && ($request->cfname1 == '' | $request->cfname2 == '')) {
             flash()->error(trans('controller_field.comboname'));
 
             return redirect()->back()->withInput();

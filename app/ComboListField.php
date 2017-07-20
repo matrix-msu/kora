@@ -214,7 +214,7 @@ class ComboListField extends BaseField {
             $type_1 = self::getComboFieldType($field, 'one');
             $type_2 = self::getComboFieldType($field, 'two');
 
-            $this->updateData($_REQUEST[$field->flid.'_val'], $type_1, $type_2);
+            $this->updateData($request->{$field->flid.'_val'}, $type_1, $type_2);
         } else if(!is_null($this) && is_null($request->input($this->flid.'_val'))) {
             $this->delete();
             $this->deleteData();
