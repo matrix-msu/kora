@@ -120,8 +120,8 @@ class ProjectController extends Controller {
 	public function store(ProjectRequest $request) {
         $project = Project::create($request->all());
 
-        $adminGroup = self::makeAdminGroup($project, $request);
-        self::makeDefaultGroup($project);
+        $adminGroup = ProjectGroup::makeAdminGroup($project, $request);
+        ProjectGroup::makeDefaultGroup($project);
         $project->adminGID = $adminGroup->id;
         $project->save();
 
@@ -230,62 +230,6 @@ class ProjectController extends Controller {
             return true;
         else
             return false;
-    }
-
-
-    /**
-     * //TODO::modular
-     * Creates the admin group for a project.
-     *
-     * @param  Project $project - Project to add group
-     * @param  Request $request
-     * @return ProjectGroup - The new admin group
-     */
-    private function makeAdminGroup($project, $request) {
-        $groupName = $project->name;
-        $groupName .= ' Admin Group';
-
-        $adminGroup = new ProjectGroup();
-        $adminGroup->name = $groupName;
-        $adminGroup->pid = $project->pid;
-        $adminGroup->save();
-
-        if(!is_null($request['admins']))
-            $adminGroup->users()->attach($request['admins']);
-
-        $adminGroup->create = 1;
-        $adminGroup->edit = 1;
-        $adminGroup->delete = 1;
-
-        $adminGroup->save();
-
-        return $adminGroup;
-    }
-
-    /**
-     * //TODO::modular
-     * Creates the default group for a project.
-     *
-     * @param  Project $project - Project to add group
-     * @param  Request $request
-     * @return ProjectGroup - The new default group
-     */
-    private function makeDefaultGroup($project) {
-        $groupName = $project->name;
-        $groupName .= ' Default Group';
-
-        $defaultGroup = new ProjectGroup();
-        $defaultGroup->name = $groupName;
-        $defaultGroup->pid = $project->pid;
-        $defaultGroup->save();
-
-        $defaultGroup->create = 0;
-        $defaultGroup->edit = 0;
-        $defaultGroup->delete = 0;
-
-        $defaultGroup->save();
-
-        return $defaultGroup;
     }
 
     /**

@@ -3,6 +3,7 @@
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ProjectGroup extends Model {
@@ -57,5 +58,56 @@ class ProjectGroup extends Model {
         DB::table("project_group_user")->where("project_group_id", "=", $this->id)->delete();
 
         parent::delete();
+    }
+
+    /**
+     * Creates the admin group for a project.
+     *
+     * @param  Project $project - Project to add group
+     * @param  Request $request
+     * @return ProjectGroup - The new admin group
+     */
+    public static function makeAdminGroup(Project $project, $request=null) {
+        $groupName = $project->name;
+        $groupName .= ' Admin Group';
+
+        $adminGroup = new ProjectGroup();
+        $adminGroup->name = $groupName;
+        $adminGroup->pid = $project->pid;
+        $adminGroup->save();
+
+        if(!is_null($request['admins']))
+            $adminGroup->users()->attach($request['admins']);
+        else
+            $adminGroup->users()->attach(array(\Auth::user()->id));
+
+        $adminGroup->create = 1;
+        $adminGroup->edit = 1;
+        $adminGroup->delete = 1;
+
+        $adminGroup->save();
+
+        return $adminGroup;
+    }
+
+    /**
+     * Creates the default group for a project.
+     *
+     * @param  Project $project - Project to add group
+     */
+    public static function makeDefaultGroup(Project $project) {
+        $groupName = $project->name;
+        $groupName .= ' Default Group';
+
+        $defaultGroup = new ProjectGroup();
+        $defaultGroup->name = $groupName;
+        $defaultGroup->pid = $project->pid;
+        $defaultGroup->save();
+
+        $defaultGroup->create = 0;
+        $defaultGroup->edit = 0;
+        $defaultGroup->delete = 0;
+
+        $defaultGroup->save();
     }
 }

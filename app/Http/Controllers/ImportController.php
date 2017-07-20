@@ -248,6 +248,8 @@ class ImportController extends Controller {
                 $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
                 $type = $field->attributes()->type;
 
+                //TODO::modular?
+
                 if($type == 'Text' | $type == 'Rich Text' | $type == 'Number' | $type == 'List')
                     $recRequest[$flid] = (string)$field;
                 else if($type == 'Multi-Select List') {
@@ -576,8 +578,8 @@ class ImportController extends Controller {
         $form->save();
 
         //make admin group
-        $admin = $this->makeFormAdminGroup($form);
-        $this->makeFormDefaultGroup($form);
+        $admin = FormGroup::makeAdminGroup($form);
+        FormGroup::makeDefaultGroup($form);
         $form->adminGID = $admin->id;
         $form->save();
 
@@ -690,8 +692,8 @@ class ImportController extends Controller {
         $form->public_metadata = 0;
         $form->save();
 
-        $admin = $this->makeFormAdminGroup($form);
-        $this->makeFormDefaultGroup($form);
+        $admin = FormGroup::makeAdminGroup($form);
+        FormGroup::makeDefaultGroup($form);
         $form->adminGID = $admin->id;
         $form->save();
 
@@ -947,6 +949,7 @@ class ImportController extends Controller {
 
                         //We leave this code here (instead of in the Field model) because they are heavily specific to
                         // the conversion of Kora 2 data and will probably never change.
+                        //TODO::modular?
                         switch($field->type) {
                             case 'Text':
                                 $value = (string)$value;
@@ -1202,8 +1205,8 @@ class ImportController extends Controller {
         $form->save();
 
         //make admin group
-        $admin = $this->makeFormAdminGroup($form);
-        $this->makeFormDefaultGroup($form);
+        $admin = FormGroup::makeAdminGroup($form);
+        FormGroup::makeDefaultGroup($form);
         $form->adminGID = $admin->id;
         $form->save();
 
@@ -1286,75 +1289,6 @@ class ImportController extends Controller {
     }
 
     /**
-     * Creates the form's admin group.
-     *
-     * @param  Form $form - Form to create group for
-     * @return FormGroup - The newly created group
-     */
-    //TODO::modular
-    private function makeFormAdminGroup(Form $form) {
-        $groupName = $form->name;
-        $groupName .= ' Admin Group';
-
-        $adminGroup = new FormGroup();
-        $adminGroup->name = $groupName;
-        $adminGroup->fid = $form->fid;
-        $adminGroup->save();
-
-        $formProject = $form->project()->first();
-        $projectAdminGroup = $formProject->adminGroup()->first();
-
-        $projectAdmins = $projectAdminGroup->users()->get();
-        $idArray = [];
-
-        //Add all current project admins to the form's admin group.
-        foreach($projectAdmins as $projectAdmin)
-            $idArray[] .= $projectAdmin->id;
-
-
-        $idArray = array_unique(array_merge(array(\Auth::user()->id), $idArray));
-
-        if(!empty($idArray))
-            $adminGroup->users()->attach($idArray);
-
-        $adminGroup->create = 1;
-        $adminGroup->edit = 1;
-        $adminGroup->delete = 1;
-        $adminGroup->ingest = 1;
-        $adminGroup->modify = 1;
-        $adminGroup->destroy = 1;
-
-        $adminGroup->save();
-
-        return $adminGroup;
-    }
-
-    /**
-     * Creates the form's default group.
-     *
-     * @param  Form $form - Form to create group for
-     */
-    //TODO::modular
-    private function makeFormDefaultGroup(Form $form) {
-        $groupName = $form->name;
-        $groupName .= ' Default Group';
-
-        $defaultGroup = new FormGroup();
-        $defaultGroup->name = $groupName;
-        $defaultGroup->fid = $form->fid;
-        $defaultGroup->save();
-
-        $defaultGroup->create = 0;
-        $defaultGroup->edit = 0;
-        $defaultGroup->delete = 0;
-        $defaultGroup->ingest = 0;
-        $defaultGroup->modify = 0;
-        $defaultGroup->destroy = 0;
-
-        $defaultGroup->save();
-    }
-
-    /**
      * Import a k3Proj file into Kora3.
      *
      * @param  Request $request
@@ -1392,8 +1326,8 @@ class ImportController extends Controller {
         $proj->save();
 
         //make admin group
-        $admin = $this->makeProjAdminGroup($proj);
-        $this->makeProjectDefaultGroup($proj);
+        $admin = ProjectGroup::makeAdminGroup($proj);
+        ProjectGroup::makeDefaultGroup($proj);
         $proj->adminGID = $admin->id;
         $proj->save();
 
@@ -1421,54 +1355,4 @@ class ImportController extends Controller {
 
         return redirect('projects');
     }
-
-    /**
-     * Creates the project's admin group.
-     *
-     * @param  Project $project - Project to create group for
-     * @return ProjectGroup - The newly created group
-     */
-    //TODO::modular
-    private function makeProjAdminGroup($project) {
-        $groupName = $project->name;
-        $groupName .= ' Admin Group';
-
-        $adminGroup = new ProjectGroup();
-        $adminGroup->name = $groupName;
-        $adminGroup->pid = $project->pid;
-        $adminGroup->save();
-
-        $adminGroup->users()->attach(array(\Auth::user()->id));
-
-        $adminGroup->create = 1;
-        $adminGroup->edit = 1;
-        $adminGroup->delete = 1;
-
-        $adminGroup->save();
-
-        return $adminGroup;
-    }
-
-    /**
-     * Creates the projects's default group.
-     *
-     * @param  Project $project - Project to create group for
-     */
-    //TODO::modular
-    private function makeProjectDefaultGroup($project) {
-        $groupName = $project->name;
-        $groupName .= ' Default Group';
-
-        $defaultGroup = new ProjectGroup();
-        $defaultGroup->name = $groupName;
-        $defaultGroup->pid = $project->pid;
-        $defaultGroup->save();
-
-        $defaultGroup->create = 0;
-        $defaultGroup->edit = 0;
-        $defaultGroup->delete = 0;
-
-        $defaultGroup->save();
-    }
-
 }

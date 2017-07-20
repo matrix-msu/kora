@@ -317,6 +317,7 @@ class OptionPresetController extends Controller {
                     flash()->overlay(trans('controller_optionpreset.editpermission'));
                     return response()->json(["status"=>false,"message"=>trans('controller_optionpreset.editpermission')],500);
                 } else {
+                    //TODO::modular?
                     if($field->type == "Text" && $preset->type == "Text") {
                         $field->getTypedField()->updateOptions("Regex",$preset->preset);
                         flash()->overlay(trans('controller_optionpreset.regexapplied'),trans('controller_optionpreset.goodjob'));

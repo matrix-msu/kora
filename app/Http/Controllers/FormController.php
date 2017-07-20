@@ -69,8 +69,8 @@ class FormController extends Controller {
         if(!isset($request['preset'])) //Since the preset is copying the target form, no need to make a default page
             PageController::makePageOnForm($form->fid,$form->slug." Default Page");
 
-        $adminGroup = self::makeAdminGroup($form, $request);
-        self::makeDefaultGroup($form);
+        $adminGroup = FormGroup::makeAdminGroup($form, $request);
+        FormGroup::makeDefaultGroup($form);
         $form->adminGID = $adminGroup->id;
         $form->save();
 
@@ -306,76 +306,6 @@ class FormController extends Controller {
                 }
                 return true;
         }
-    }
-
-    /**
-     * Creates the form's admin group.
-     *
-     * @param  Form $form - Form to create group for
-     * @param  Request $request
-     * @return FormGroup - The newly created group
-     */
-    //TODO::modular
-    private function makeAdminGroup(Form $form, Request $request) {
-        $groupName = $form->name;
-        $groupName .= ' Admin Group';
-
-        $adminGroup = new FormGroup();
-        $adminGroup->name = $groupName;
-        $adminGroup->fid = $form->fid;
-        $adminGroup->save();
-
-        $formProject = $form->project()->first();
-        $projectAdminGroup = $formProject->adminGroup()->first();
-
-        $projectAdmins = $projectAdminGroup->users()->get();
-        $idArray = [];
-
-        //Add all current project admins to the form's admin group.
-        foreach($projectAdmins as $projectAdmin)
-            $idArray[] .= $projectAdmin->id;
-
-        if (!is_null($request['admins']))
-            $idArray = array_unique(array_merge($request['admins'], $idArray));
-
-        if (!empty($idArray))
-            $adminGroup->users()->attach($idArray);
-
-        $adminGroup->create = 1;
-        $adminGroup->edit = 1;
-        $adminGroup->delete = 1;
-        $adminGroup->ingest = 1;
-        $adminGroup->modify = 1;
-        $adminGroup->destroy = 1;
-
-        $adminGroup->save();
-
-        return $adminGroup;
-    }
-
-    /**
-     * Creates the form's default group.
-     *
-     * @param  Form $form - Form to create group for
-     */
-    //TODO::modular
-    private function makeDefaultGroup(Form $form) {
-        $groupName = $form->name;
-        $groupName .= ' Default Group';
-
-        $defaultGroup = new FormGroup();
-        $defaultGroup->name = $groupName;
-        $defaultGroup->fid = $form->fid;
-        $defaultGroup->save();
-
-        $defaultGroup->create = 0;
-        $defaultGroup->edit = 0;
-        $defaultGroup->delete = 0;
-        $defaultGroup->ingest = 0;
-        $defaultGroup->modify = 0;
-        $defaultGroup->destroy = 0;
-
-        $defaultGroup->save();
     }
 
     /**
