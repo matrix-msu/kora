@@ -1,6 +1,4 @@
-<?php
-
-namespace App\Http\Controllers;
+<?php namespace App\Http\Controllers;
 
 use App\Record;
 use App\Search;
@@ -19,6 +17,11 @@ class FormSearchController extends Controller {
     | This controller handles form searches in Kora3
     |
     */
+
+    /**
+     * @var string - Help message for displaying illegal search terms (DON'T DELETE)
+     */
+    const HELP_MESSAGE = "The following arguments were ignored by the search: ";
 
     /**
      * Constructs controller and makes sure user is authenticated.
