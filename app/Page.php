@@ -18,7 +18,6 @@ class Page extends Model {
      * @var array - Attributes that can be mass assigned to model
      */
     protected $fillable = [
-        'parent_type',
         'fid',
         'title',
         'sequence'

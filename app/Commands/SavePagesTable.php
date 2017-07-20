@@ -46,7 +46,6 @@ class SavePagesTable extends Command implements SelfHandling, ShouldQueue {
                 $page_data = new Collection();
 
                 $page_data->put("id", $page->id);
-                $page_data->put("parent_type", $page->parent_type);
                 $page_data->put("fid", $page->fid);
                 $page_data->put("title", $page->title);
                 $page_data->put("sequence", $page->sequence);

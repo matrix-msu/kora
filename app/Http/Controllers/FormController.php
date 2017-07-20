@@ -393,7 +393,6 @@ class FormController extends Controller {
         //Duplicate pages
         foreach($preset->pages()->get() as $page) {
             $newP = new Page();
-            $newP->parent_type = $page->parent_type;
             $newP->fid = $form->fid;
             $newP->title = $page->title;
             $newP->sequence = $page->sequence;

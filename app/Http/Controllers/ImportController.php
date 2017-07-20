@@ -588,7 +588,6 @@ class ImportController extends Controller {
         foreach($pages as $page) {
             $p = new Page();
 
-            $p->parent_type = $page->parent_type;
             $p->fid = $form->fid;
             $p->title = $page->title;
             $p->sequence = $page->sequence;
@@ -716,7 +715,6 @@ class ImportController extends Controller {
                 $pIndex = 0;
                 foreach($value->children() as $collection) {
                     $page = new Page();
-                    $page->parent_type=PageController::_FORM;
                     $page->fid = $form->fid;
                     $page->title = $collection->Name->__toString();
                     $page->sequence = $pIndex;
@@ -1216,7 +1214,6 @@ class ImportController extends Controller {
         foreach($pages as $page) {
             $p = new Page();
 
-            $p->parent_type = $page->parent_type;
             $p->fid = $form->fid;
             $p->title = $page->title;
             $p->sequence = $page->sequence;

@@ -74,7 +74,6 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
         $pIndex = 0;
         while($c = $colls->fetch_assoc()) {
             $page = new Page();
-            $page->parent_type=PageController::_FORM;
             $page->fid = $newForm->fid;
             $page->title = $c['name'];
             $page->sequence = $pIndex;

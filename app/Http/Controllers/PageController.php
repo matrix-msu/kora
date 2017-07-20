@@ -50,7 +50,6 @@ class PageController extends Controller {
         $page = new Page();
 
         $page->title = $name;
-        $page->parent_type = '';
         $page->fid = $fid;
 
         $form = FormController::getForm($fid);
@@ -248,7 +247,6 @@ class PageController extends Controller {
                         $nPage = new Page();
 
                         $nPage->title = $name;
-                        $nPage->parent_type = self::_FORM;
                         $nPage->fid = $fid;
                         $nPage->sequence = $page->sequence + 1;
 

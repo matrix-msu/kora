@@ -17,7 +17,6 @@ class CreatePagesTable extends Migration
             $table->engine = 'MyISAM';
 
             $table->increments('id');
-            $table->string('parent_type');
             $table->integer('fid')->unsigned()->nullable();
             $table->foreign('fid')->references('fid')->on('forms')->onDelete('cascade');
             $table->string('title');

@@ -187,7 +187,6 @@ class ExportController extends Controller {
         foreach($pages as $page) {
             $p = array();
             $p['id'] = $page->id;
-            $p['parent_type'] = $page->parent_type;
             $p['title'] = $page->title;
             $p['sequence'] = $page->sequence;
 
