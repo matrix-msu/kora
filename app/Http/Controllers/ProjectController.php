@@ -159,7 +159,7 @@ class ProjectController extends Controller {
      */
 	public function edit($id) {
         if(!self::validProj(($id))) {
-            return redirect('/projects');
+            return redirect()->action('ProjectController@Index');
         }
 
         $user = \Auth::user();
@@ -167,7 +167,7 @@ class ProjectController extends Controller {
 
         if(!$user->admin && !self::isProjectAdmin($user, $project)) {
             flash()->overlay(trans('controller_project.editper'), trans('controller_project.whoops'));
-            return redirect('/projects');
+            return redirect()->action('ProjectController@Index');
         }
 
         return view('projects.edit', compact('project'));

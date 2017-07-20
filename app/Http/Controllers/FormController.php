@@ -166,11 +166,11 @@ class FormController extends Controller {
      */
 	public function destroy($pid, $fid) {
         if(!self::validProjForm($pid,$fid)) {
-            return redirect('projects/'.$pid);
+            return redirect()->action('ProjectController@show', ['pid' => $pid]);
         }
 
         if(!self::checkPermissions($pid, 'delete')) {
-            return redirect('/projects/'.$pid.'/forms');
+            return redirect()->action('ProjectController@show', ['pid' => $pid]);
         }
 
         $form = self::getForm($fid);

@@ -380,11 +380,11 @@ class RecordController extends Controller {
      */
     public function destroy($pid, $fid, $rid, $mass = false) {
         if(!self::validProjFormRecord($pid, $fid, $rid)) {
-            return redirect('projects/'.$pid.'forms/');
+            return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid]);
         }
 
         if(!\Auth::user()->isOwner(self::getRecord($rid)) && !self::checkPermissions($fid, 'destroy') ) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
+            return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid]);
         }
 
         $record = self::getRecord($rid);

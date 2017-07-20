@@ -187,11 +187,11 @@ class FieldController extends Controller {
      */
 	public function destroy($pid, $fid, $flid) {
         if(!self::validProjFormField($pid, $fid, $flid)) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
+            return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid]);
         }
 
         if(!self::checkPermissions($fid, 'delete')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
+            return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid]);
         }
 
         $field = self::getField($flid);
