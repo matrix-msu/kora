@@ -9,6 +9,15 @@ use Illuminate\Support\Collection;
 
 class TextField extends BaseField {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Text Field
+    |--------------------------------------------------------------------------
+    |
+    | This model represents the text field in Kora3
+    |
+    */
+
     /**
      * @var string - Views for the typed field options
      */
@@ -65,9 +74,8 @@ class TextField extends BaseField {
 
         if($request->regex!='') {
             $regArray = str_split($request->regex);
-            if($regArray[0]!=end($regArray)) {
+            if($regArray[0]!=end($regArray))
                 $request->regex = '/'.$request->regex.'/';
-            }
             if($request->default!='' && !preg_match($request->regex, $request->default)) {
                 if($return) {
                     flash()->error('The default value does not match the given regex pattern.');
@@ -118,11 +126,10 @@ class TextField extends BaseField {
      * @param  Request $request
      */
     public function editRecordField($value, $request) {
-        if(!is_null($this) && !is_null($value)){
+        if(!is_null($this) && !is_null($value)) {
             $this->text = $value;
             $this->save();
-        }
-        elseif(!is_null($this) && is_null($value)){
+        } else if(!is_null($this) && is_null($value)) {
             $this->delete();
         }
     }
@@ -182,13 +189,11 @@ class TextField extends BaseField {
         $req = $field->required;
         $regex = FieldController::getFieldOption($field, 'Regex');
 
-        if($req==1 && ($value==null | $value=="")) {
+        if($req==1 && ($value==null | $value==""))
             return $field->name.trans('fieldhelpers_val.req');
-        }
 
-        if(($regex!=null | $regex!="") && !preg_match($regex,$value)) {
+        if(($regex!=null | $regex!="") && !preg_match($regex,$value))
             return trans('fieldhelpers_val.regex',['name'=>$field->name]);
-        }
 
         return '';
     }
@@ -201,13 +206,11 @@ class TextField extends BaseField {
      * @param  bool $exists - Field for record exists
      */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if(!is_array($revision->data)) {
+        if(!is_array($revision->data))
             $revision->data = json_decode($revision->data, true);
-        }
 
-        if (is_null($revision->data[Field::_TEXT][$field->flid]['data'])) {
+        if(is_null($revision->data[Field::_TEXT][$field->flid]['data']))
             return null;
-        }
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
         if($revision->type == Revision::DELETE || !$exists) {

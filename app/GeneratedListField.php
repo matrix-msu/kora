@@ -346,7 +346,7 @@ class GeneratedListField extends BaseField {
     }
 
     /**
-     * Build the advanced search query for a multi select list (Works for Generated List too).
+     * Build the advanced search query for a generated list.
      *
      * @param  Builder $db_query - Pointer to builder query
      * @param  array $inputs - Input values
