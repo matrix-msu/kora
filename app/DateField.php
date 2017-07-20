@@ -606,7 +606,20 @@ class DateField extends BaseField {
      * @return bool - Return value from save
      */
     public function save(array $options = array()) {
-        $date = DateTime::createFromFormat("Y-m-d", $this->year."-".$this->month."-".$this->day);
+        $dT = new DateTime();
+        if($this->year=='')
+            $year = 1;
+        else
+            $year = $this->year;
+        if($this->month=='')
+            $month = 1;
+        else
+            $month = $this->month;
+        if($this->day=='')
+            $day = 1;
+        else
+            $day = $this->day;
+        $date = $dT->setDate($year,$month,$day);
         $this->date_object = date_format($date, "Y-m-d");
 
         return parent::save($options);
