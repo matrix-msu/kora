@@ -41,6 +41,7 @@
         </form>
         <div>
             <button class="btn btn-danger" onclick="deleteAll()">{{trans('records_index.delete')}}</button>
+            <button class="btn btn-danger" onclick="deleteTest()">Delete Test Records</button>
             <button class="btn btn-danger" onclick="cleanUp()">{{trans('records_index.cleanup')}}</button>
             <span><b>{{trans('records_index.size')}}:</b> {{$filesize}}</span>
         </div>
@@ -649,6 +650,30 @@
                         }
                     });
                 }
+            }
+        }
+
+        /**
+         * Delete all the records of a certain form.
+         * Makes sure the user is REALLY sure they want to do this.
+         */
+        function deleteTest() {
+            var encode = $('<div/>').html("Are you sure you want to delete all test records?").text();
+            var resp1 = confirm(encode);
+            if(resp1) {
+                $("#slideme").slideToggle(2000, function() {
+                    $('#progress').slideToggle(400);
+                });
+
+                $.ajax({
+                    url: '{{ action('RecordController@deleteTestRecords', ['pid' => $form->pid, 'fid' => $form->fid]) }}',
+                    type: 'DELETE',
+                    data: {
+                        "_token": "{{ csrf_token() }}"
+                    }, success: function (response) {
+                        location.reload();
+                    }
+                });
             }
         }
 

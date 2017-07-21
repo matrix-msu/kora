@@ -21,6 +21,7 @@ class CreateRecordsTable extends Migration {
             $table->integer('pid')->unsigned();
             $table->integer('fid')->unsigned();
             $table->integer('owner')->unsigned();
+            $table->boolean('isTest');
             $table->timestamps();
 
             $table->foreign(['pid', 'fid'])->references(['pid', 'fid'])->on('forms')->onDelete('cascade');

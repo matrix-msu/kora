@@ -308,7 +308,6 @@ class RecordController extends Controller {
         return $revisions;
     }
 
-
     /**
      * Update a record with new data.
      *
@@ -368,7 +367,6 @@ class RecordController extends Controller {
             return redirect('projects/' . $pid . '/forms/' . $fid . '/records/' . $rid);
         }
 	}
-
 
     /**
      * Delete a record from Kora3.
@@ -708,6 +706,7 @@ class RecordController extends Controller {
             $record->pid = $pid;
             $record->fid = $fid;
             $record->owner = Auth::user()->id;
+            $record->isTest = 1;
             $record->save(); //need to save to create rid needed to make kid
             $record->kid = $pid . '-' . $fid . '-' . $record->rid;
             $record->save();
@@ -719,5 +718,23 @@ class RecordController extends Controller {
 
         flash()->overlay('Created test records.',trans('controller_record.goodjob'));
         return redirect()->action('RecordController@index',compact('pid','fid'));
+    }
+
+    /**
+     * Delete all test records from a form.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     */
+    public function deleteTestRecords($pid, $fid) {
+        $form = FormController::getForm($fid);
+
+        if(!\Auth::user()->isFormAdmin($form)) {
+            flash()->overlay(trans('controller_record.noperm'), trans('controller_record.whoops'));
+        } else {
+            Record::where("fid", "=", $fid)->where("isTest", "=", 1)->delete();
+
+            flash()->overlay(trans('controller_record.alldelete'), trans('controller_record.success'));
+        }
     }
 }
