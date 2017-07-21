@@ -6,9 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'App\\FieldHelpers\\AssociatorSearch' => $baseDir . '/app/FieldHelpers/AssociatorSearch.php',
-    'App\\FieldHelpers\\FieldDefaults' => $baseDir . '/app/FieldHelpers/FieldDefaults.php',
-    'App\\FieldHelpers\\FieldValidation' => $baseDir . '/app/FieldHelpers/FieldValidation.php',
     'App\\FieldHelpers\\KORA_Clause' => $baseDir . '/app/FieldHelpers/koraSearch.php',
     'App\\FieldHelpers\\UploadHandler' => $baseDir . '/app/FieldHelpers/UploadHelper.php',
     'App\\FieldHelpers\\gPoint' => $baseDir . '/app/FieldHelpers/gPoint.php',

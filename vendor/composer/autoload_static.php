@@ -303,9 +303,6 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
     );
 
     public static $classMap = array (
-        'App\\FieldHelpers\\AssociatorSearch' => __DIR__ . '/../..' . '/app/FieldHelpers/AssociatorSearch.php',
-        'App\\FieldHelpers\\FieldDefaults' => __DIR__ . '/../..' . '/app/FieldHelpers/FieldDefaults.php',
-        'App\\FieldHelpers\\FieldValidation' => __DIR__ . '/../..' . '/app/FieldHelpers/FieldValidation.php',
         'App\\FieldHelpers\\KORA_Clause' => __DIR__ . '/../..' . '/app/FieldHelpers/koraSearch.php',
         'App\\FieldHelpers\\UploadHandler' => __DIR__ . '/../..' . '/app/FieldHelpers/UploadHelper.php',
         'App\\FieldHelpers\\gPoint' => __DIR__ . '/../..' . '/app/FieldHelpers/gPoint.php',

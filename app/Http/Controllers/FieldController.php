@@ -31,10 +31,10 @@ class FieldController extends Controller {
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
-     * @param  Request $request
+     * @param  int $rootPage - Page that will own this field
      * @return View
      */
-	public function create($pid, $fid, Request $request) {
+	public function create($pid, $fid, $rootPage) {
         if(!FormController::validProjForm($pid, $fid)) {
             return redirect('projects/'.$pid);
         }
@@ -44,7 +44,6 @@ class FieldController extends Controller {
         }
 
 		$form = FormController::getForm($fid);
-        $rootPage = $request->rootPage;
         return view('fields.create', compact('form','rootPage'));
 	}
 

@@ -81,9 +81,7 @@
         <hr>
 
         @if(\Auth::user()->canCreateFields($form))
-        <form method="POST" action="{{action('FieldController@create', ['pid' => $form->pid, 'fid' => $form->fid]) }}">
-            <input type="hidden" value="{{$page["id"]}}" name="rootPage"/>
-            <input type="hidden" value="{{ csrf_token() }}" name="_token"/>
+        <form method="DET" action="{{action('FieldController@create', ['pid' => $form->pid, 'fid' => $form->fid, 'rootPage' => $page["id"]]) }}">
             <input type="submit" value="{{trans('forms_show.createfield')}}" class="btn btn-primary">
         </form>
         <button type="button" class="add_page" pageid="{{$page["id"]}}">ADD PAGE</button>
