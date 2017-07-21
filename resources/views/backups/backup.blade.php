@@ -42,9 +42,12 @@
                                 </div>
                             </div>
                             <div style="display:none" id="summary_done">
-                                <p>
+                                <div>
                                     {{trans('backups_backup.success')}}.
-                                </p>
+                                </div>
+                                <div id="summary_size">
+
+                                </div>
                                 @if($type == "system")
                                     <button onclick="download()" type="button" class="btn btn-default">
                                         <span class="glyphicon glyphicon-save" aria-hidden="true"></span> Download
@@ -135,7 +138,8 @@
                             "_token": "{{ csrf_token() }}",
                             "backup_label": "{{$backup_label}}"
                         },
-                        success: function(data){
+                        success: function(data2){
+                            $('#summary_size').text("Estimated Pre-Compressed Download Size: "+data2.totalSize);
                             $('#summary').slideUp();
                             $('#summary_done').slideDown();
                         }

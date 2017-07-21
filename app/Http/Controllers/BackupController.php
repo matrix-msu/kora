@@ -348,6 +348,31 @@ class BackupController extends Controller {
         }
 
         $this->unlockUsers();
+
+        $totalSize = $this->humanFileSize($this->getDirectorySize($path));
+
+        return response()->json(["totalSize"=>$totalSize],200);
+    }
+
+    private function getDirectorySize($path) {
+        $bytestotal = 0;
+        $path = realpath($path);
+        if($path!==false && $path!='' && file_exists($path)) {
+            foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS)) as $object) {
+                $bytestotal += $object->getSize();
+            }
+        }
+        return $bytestotal;
+    }
+
+    private function humanFileSize($size,$unit="") {
+        if( (!$unit && $size >= 1<<30) || $unit == "GB")
+            return number_format($size/(1<<30),2)."GB";
+        if( (!$unit && $size >= 1<<20) || $unit == "MB")
+            return number_format($size/(1<<20),2)."MB";
+        if( (!$unit && $size >= 1<<10) || $unit == "KB")
+            return number_format($size/(1<<10),2)."KB";
+        return number_format($size)." bytes";
     }
 
     /**
