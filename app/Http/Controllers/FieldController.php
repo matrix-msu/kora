@@ -55,7 +55,7 @@ class FieldController extends Controller {
      * @return Redirect
      */
 	public function store(FieldRequest $request) {
-	    //dd($request);
+	    dd($request);
         $seq = PageController::getNewPageFieldSequence($request->page_id); //we do this before anything so the new field isnt counted in it's logic
         $field = Field::Create($request->all());
 
