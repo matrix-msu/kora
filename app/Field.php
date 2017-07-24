@@ -65,6 +65,17 @@ class Field extends Model {
     const _ASSOCIATOR = "Associator";
 
     /**
+    * @var array - This is an array of all possible typed fields
+    */
+    static public $ENUM_TYPED_FIELDS = [
+        self::_TEXT, self::_RICH_TEXT, self::_NUMBER, self::_LIST,
+        self::_MULTI_SELECT_LIST, self::_GENERATED_LIST, self::_DATE,
+        self::_SCHEDULE, self::_GEOLOCATOR, self::_DOCUMENTS, self::_GALLERY,
+        self::_3D_MODEL, self::_PLAYLIST, self::_VIDEO, self::_COMBO_LIST,
+        self::_ASSOCIATOR
+    ];
+
+    /**
      * @var array - This is an array of all sortable typed fields
      */
     const VALID_SORT = [self::_TEXT,self::_NUMBER,self::_LIST,self::_DATE];

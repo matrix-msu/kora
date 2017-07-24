@@ -198,9 +198,9 @@ class RevisionController extends Controller {
         $revision->owner = $record->owner;
 
         if(\Auth::guest())
-            $revision->userId = 1;
+            $revision->username = 'admin';
         else
-            $revision->userId = \Auth::user()->id;
+            $revision->username = \Auth::user()->username;
         $revision->type = $type;
 
         $revision->data = self::buildDataArray($record);
@@ -239,7 +239,7 @@ class RevisionController extends Controller {
      *
      * @param  int $fid - Form ID
      */
-    public static function wipeRollbacks($fid){
+    public static function wipeRollbacks($fid) {
         Revision::where('fid','=',$fid)->update(["rollback" => 0]);
     }
 }

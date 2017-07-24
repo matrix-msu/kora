@@ -17,7 +17,7 @@ class Revision extends Model {
     /**
      * @var array - Attributes that can be mass assigned to model
      */
-    protected $fillable = ['id','fid','rid','userId','type','data','oldData','rollback'];
+    protected $fillable = ['id','fid','rid','type','username','data','oldData','rollback'];
 
     /**
      * @var string - The individual types of a revision

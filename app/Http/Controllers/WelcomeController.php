@@ -28,7 +28,7 @@ class WelcomeController extends Controller {
 		$not_installed = true;
 		if(!file_exists("../.env")) {
 			return view('welcome',compact('languages_available','not_installed'));
-		} else if(\Auth::guest()) {
+		} else if(\Auth::guest() or !\Auth::user()->active) {
             return view('welcome',compact('languages_available'));
         } else if(\Auth::user()->dash) {
             return redirect('/dashboard');

@@ -66,6 +66,8 @@ class AdminController extends Controller {
             $message .= trans('controller_admin.active');
         } else {
             $user->active = 0;
+            //We need to give them a new regtoken so they can't use the old one to reactivate
+            $user->regtoken = AuthenticatesAndRegistersUsers::makeRegToken();
             $message .= trans('controller_admin.inactive');
         }
 
@@ -152,6 +154,7 @@ class AdminController extends Controller {
                         $user->email = $email;
                         $password = self::passwordGen();
                         $user->password = bcrypt($password);
+                        $user->language = 'en';
                         $token = AuthenticatesAndRegistersUsers::makeRegToken();
                         $user->regtoken = $token;
                         $user->save();
