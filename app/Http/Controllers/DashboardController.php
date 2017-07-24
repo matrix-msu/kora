@@ -184,4 +184,24 @@ class DashboardController extends Controller {
 
         return view('dashboard', compact('sections'));
     }
+
+    /**
+     * Deletes a dashboard section along with its blocks.
+     *
+     * @param  $secID - Section ID
+     */
+    public static function deleteSection($secID) {
+        DB::table("dashboard_blocks")->where("sec_id", "=", $secID)->delete();
+
+        DB::table("dashboard_sections")->where("id", "=", $secID)->delete();
+    }
+
+    /**
+     * Deletes a dashboard block.
+     *
+     * @param  $blkID - Block ID
+     */
+    public static function deleteBlock($blkID) {
+        DB::table("dashboard_blocks")->where("id", "=", $blkID)->delete();
+    }
 }

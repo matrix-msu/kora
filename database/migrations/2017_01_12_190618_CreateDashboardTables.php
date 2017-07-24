@@ -30,13 +30,13 @@ class CreateDashboardTables extends Migration
             $table->engine = 'MyISAM';
 
             $table->increments('id');
-            $table->integer('bid');
+            $table->integer('sec_id');
             $table->string('type');
             $table->integer('order');
             $table->text('options');
             $table->timestamps();
 
-            $table->foreign('bid')->references('id')->on('dashboard_sections')->onDelete('cascade');
+            $table->foreign('sec_id')->references('id')->on('dashboard_sections')->onDelete('cascade');
         });
     }
 

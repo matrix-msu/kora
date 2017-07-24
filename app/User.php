@@ -1,5 +1,6 @@
 <?php namespace App;
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectController;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
@@ -348,7 +349,12 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         DB::table("project_group_user")->where("user_id", "=", $this->id)->delete();
         DB::table("form_group_user")->where("user_id", "=", $this->id)->delete();
         DB::table("backup_support")->where("user_id", "=", $this->id)->delete();
-        //TODO::what else does user belong to?
+
+        //Delete dashboard stuff
+        $sections = DB::table("dashboard_sections")->where("yid", "=", $this->id)->get();
+        foreach($sections as $sec) {
+            DashboardController::deleteSection($sec->id);
+        }
 
         parent::delete();
     }
