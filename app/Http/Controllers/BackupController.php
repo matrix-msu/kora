@@ -72,7 +72,7 @@ class BackupController extends Controller {
     */
 
     /**
-     * @var type - Sets the backup directory relative to laravel/storage/app
+     * @var string- Sets the backup directory relative to laravel/storage/app
      */
     private $BACKUP_DIRECTORY = "backups";
 
@@ -124,6 +124,8 @@ class BackupController extends Controller {
         $available_backups = array();
         foreach(new \DirectoryIterator(env('BASE_PATH')."storage/app/".$this->BACKUP_DIRECTORY."/") as $dir) {
             $name = $dir->getFilename();
+            if(strpos($name, 'fileRestore') !== false)
+                continue;
             if($name!='.' && $name!='..' && $dir->isDir()) {
                 if(file_exists(env('BASE_PATH')."storage/app/".$this->BACKUP_DIRECTORY.'/'.$name.'/.kora3_backup'))
                     array_push($available_backups,$this->BACKUP_DIRECTORY.'/'.$name.'/.kora3_backup');
@@ -424,40 +426,46 @@ class BackupController extends Controller {
 
         $type = "system";
         if($request->input("backup_source") == "server") {
-            $filename=$request->restore_point;
+            $filename = $request->restore_point;
+            //we only want the directory now so strip the .kora3_backup tag
+            $filename = explode('/.kora3_backup',$filename)[0];
         } else if($request->input("backup_source") == "upload") {
-            //TODO::Restore from file?
-            /*if($request->hasFile("upload_file") == true){
+            if($request->hasFile("upload_file") == true) {
                 $file = $request->file("upload_file");
-                $new_file_name = "user_upload_" . time() . ".kora3_backup";
-                $filename = $this->UPLOAD_DIRECTORY."/".$new_file_name;
-                if($file->isValid()){
+                if($file->isValid()) {
+                    //Once we have a file, we need to do two things
+                    //First, save the file name path to a variable
+                    $filename = "backups/fileRestore___".time();
+                    $filepath = env("BASE_PATH")."storage/app/".$filename;
+                    mkdir($filepath, 0775, true);
                     try {
-                        //First argument is relative to LARAVEL_ROOT/public (this is not Flysystem, it's something to do with Symfony?)
-                        $file->move("../storage/app/".$this->UPLOAD_DIRECTORY,$new_file_name);
-                        //$filename is used by Flysystem so it only needs path relative to LARAVEL/storage/app
-                    }
-                    catch(\Exception $e){
+                        //Second, unzip the file into the backups directory
+                        $zip = new \ZipArchive();
+                        $res = $zip->open($file->getRealPath());
+                        if($res === TRUE) {
+                            $zip->extractTo($filepath);
+                            $zip->close();
+                        } else {
+                            flash()->overlay('Zip extraction failed!','code: ' . $res);
+                            return redirect()->back();
+                        }
+                    } catch(\Exception $e) {
                         flash()->overlay(trans('controller_backup.cantmove'),trans('controller_backup.whoops'));
                         return redirect()->back();
                     }
-                    $request->session()->put("restore_file_path",$filename);
-                }
-                else{
+                } else {
                     flash()->overlay(trans('controller_backup.badfile'),trans('controller_backup.whoops'));
                     return redirect()->back();
                 }
-            }
-            else{
+            } else {
                 flash()->overlay(trans('controller_backup.nofiles'),trans('controller_backup.whoops'));
                 return redirect()->back();
-            }*/
+            }
         } else {
             return redirect()->back();
         }
 
-        //we only want the directory now so strip the .kora3_backup tag
-        $filename = explode('/.kora3_backup',$filename)[0];
+        dd($filename);
 
         return view('backups.restore',compact('type','filename'));
     }
