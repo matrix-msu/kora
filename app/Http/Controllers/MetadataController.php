@@ -93,32 +93,6 @@ class MetadataController extends Controller {
     }
 
     /**
-     * Searches for metadata records using keyword search. Not complete and based on old format
-     *
-     * @param  int $pid - Project ID
-     * @param  int $fid - Form ID
-     * @param  string $query - Keyword search input
-     * @return null - DESCRIPTION
-     */
-    //TODO::This function should be looked at. Do we even want this?
-    public function search($pid, $fid, $query) {
-        if(!FormController::validProjForm($pid, $fid)) {
-            return redirect('projects/'.$pid.'/forms');
-        }
-
-        $query = explode(",", $query);
-        $query_str = implode(" ", $query);
-
-        $query = array_diff($query, Search::showIgnoredArguments($query_str));
-        $query = implode(" ", $query);
-
-        $search = new Search($pid, $fid, $query, Search::SEARCH_OR);
-        $rids = $search->formKeywordSearch();
-
-        dd($rids);
-    }
-
-    /**
      * Gets view for Linked Open Data management page.
      *
      * @param  int $pid - Project ID

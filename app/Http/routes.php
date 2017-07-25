@@ -190,7 +190,6 @@ Route::delete('/projects/{pid}/forms/{fid}/metadata/setup','MetadataController@d
 Route::get('/projects/{pid}/forms/{fid}/metadata/public','MetadataController@records2');
 Route::get('/projects/{pid}/forms/{fid}/metadata/public/{resource}','MetadataController@singleRecord');
 Route::post('/projects/{pid}/forms/{fid}/metadata/massassign','MetadataController@massAssign');
-Route::get('/projects/{pid}/forms/{fid}/metadata/search/{query}', 'MetadataController@search');
 
 //install routes
 Route::get('/install','InstallController@index');
