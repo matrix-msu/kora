@@ -256,6 +256,7 @@ abstract class BaseField extends Model {
 
     /**
      * Performs a keyword search on this field and returns any results.
+     * NOTE::Please use the DB method to call the table and DO NOT reference the model itself in the builder.
      *
      * @param  int $fid - Form ID
      * @param  string $arg - The keywords

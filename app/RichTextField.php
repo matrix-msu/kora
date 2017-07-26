@@ -3,6 +3,7 @@
 use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RichTextField extends BaseField {
 
@@ -292,7 +293,8 @@ class RichTextField extends BaseField {
      * @return Builder - The RIDs that match search
      */
     public function keywordSearchTyped($fid, $arg, $method) {
-        return self::select("rid")
+        return DB::table("rich_text_fields")
+            ->select("rid")
             ->where("fid", "=", $fid)
             ->whereRaw("MATCH (`searchable_rawtext`) AGAINST (? IN BOOLEAN MODE)", [$arg])
             ->distinct();

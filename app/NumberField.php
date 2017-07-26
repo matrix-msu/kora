@@ -5,6 +5,7 @@ use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class NumberField extends BaseField {
 
@@ -364,12 +365,14 @@ class NumberField extends BaseField {
         if(is_numeric($arg)) { // Only search if we're working with a number.
             $arg = floatval($arg);
 
-            return self::select("rid")
+            return DB::table("number_fields")
+                ->select("rid")
                 ->where("fid", "=", $fid)
                 ->whereBetween("number", [$arg - self::EPSILON, $arg + self::EPSILON])
                 ->distinct();
         } else {
-            return self::select("rid")
+            return DB::table("number_fields")
+                ->select("rid")
                 ->where("id", "<", -1); // Purposefully impossible.
         }
     }

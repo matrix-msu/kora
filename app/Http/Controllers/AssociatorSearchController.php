@@ -101,7 +101,7 @@ class AssociatorSearchController extends Controller {
      * @param  int $method - The type of keyword search we want to use
      * @return array - RID results from the search
      */
-    private function search($pid, $fid, $arg, $method=0) {
+    private function search($pid, $fid, $arg, $method=Search::SEARCH_OR) {
         $rids = [];
 
         $do_query = false;

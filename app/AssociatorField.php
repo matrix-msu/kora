@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RecordController;
+use App\Http\Controllers\RevisionController;
+use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -134,7 +136,24 @@ class AssociatorField extends BaseField {
      * @param  bool $overwrite - Overwrite if data exists
      */
     public function massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite=0) {
-        //TODO::mass assign
+        $matching_record_fields = $record->associatorfields()->where("flid", '=', $field->flid)->get();
+        $record->updated_at = Carbon::now();
+        $record->save();
+        if($matching_record_fields->count() > 0) {
+            $associatorfield = $matching_record_fields->first();
+            if($overwrite == true || $associatorfield->hasRecords()) {
+                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $associatorfield->updateRecords($formFieldValue);
+                $associatorfield->save();
+                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->save();
+            }
+        } else {
+            $this->createNewRecordField($field, $record, $formFieldValue, $request);
+            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->save();
+        }
     }
 
     /**
@@ -356,6 +375,15 @@ class AssociatorField extends BaseField {
         return DB::table(self::SUPPORT_NAME)->select("*")
             ->where("flid", "=", $this->flid)
             ->where("rid", "=", $this->rid);
+    }
+
+    /**
+     * Determine if this field has data in the support table.
+     *
+     * @return bool - Has data
+     */
+    public function hasRecords() {
+        return !! $this->records()->count();
     }
 
     /**

@@ -494,6 +494,15 @@ SQL;
     }
 
     /**
+     * Determine if this field has data in the support table.
+     *
+     * @return bool - Has data
+     */
+    public function hasLocations() {
+        return !! $this->locations()->count();
+    }
+
+    /**
      * Adds locations to the support table.
      *
      * @param  array $locations - Locations to add

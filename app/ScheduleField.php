@@ -450,6 +450,15 @@ class ScheduleField extends BaseField {
     }
 
     /**
+     * Determine if this field has data in the support table.
+     *
+     * @return bool - Has data
+     */
+    public function hasEvents() {
+        return !! $this->events()->count();
+    }
+
+    /**
      * Adds events to the support table.
      *
      * @param  array $events - Events to add

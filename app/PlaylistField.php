@@ -3,6 +3,7 @@
 use App\Http\Controllers\FieldController;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PlaylistField extends FileTypeField  {
 
@@ -416,7 +417,8 @@ class PlaylistField extends FileTypeField  {
     public function keywordSearchTyped($fid, $arg, $method) {
         $arg = self::processArgumentForFileField($arg, $method);
 
-        return self::select("rid")
+        return DB::table("playlist_fields")
+            ->select("rid")
             ->where("fid", "=", $fid)
             ->whereRaw("MATCH (`audio`) AGAINST (? IN BOOLEAN MODE)", [$arg])
             ->distinct();

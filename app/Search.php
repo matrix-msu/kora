@@ -1,5 +1,7 @@
 <?php namespace App;
 
+use Illuminate\Support\Collection;
+
 class Search {
 
     /*
@@ -78,6 +80,7 @@ class Search {
 
         $processed = Search::processArgument($this->arg, $this->method);
 
+        //TODO::we need to get rid of use of self in typed fields for keyword search
         if($this->method != Search::SEARCH_AND) {
             foreach($fields as $field) {
                 //This will account for both cases:
@@ -97,6 +100,11 @@ class Search {
             }, $rids);
         } else {
             $rids_array = []; // Stores the results of each individual search.
+            $args = explode(" ", $processed);
+            foreach($args as $arg) {
+                //Were building these arrays of essentially, results for each individual search before intersecting
+                $rids_array[$arg] = array();
+            }
 
             foreach($fields as $field) {
                 //This will account for both cases:
@@ -106,8 +114,12 @@ class Search {
                     if(!isset($used_types[$field->type]))
                         $used_types[$field->type] = true;
 
-                    foreach(explode(" ", $processed) as $arg) {
-                        $rids_array[] = $field->getTypedField()->keywordSearchTyped($field->fid, $arg, $this->method)->get();
+                    foreach($args as $arg) {
+                        //For this field, search with each argument and store in perspective results array
+                        $currArray = $rids_array[$arg];
+                        $result = $field->getTypedField()->keywordSearchTyped($field->fid, $arg, $this->method)->get();
+                        $currArray = array_merge($currArray,$result);
+                        $rids_array[$arg] = $currArray;
                     }
                 }
             }

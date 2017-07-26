@@ -175,6 +175,9 @@
                                 });
                             </script>
                     @endif
+                    @if($field->type == "Associator")
+                        @include('records.fieldInputs.associator')
+                    @endif
                 </div>
             @endforeach
 

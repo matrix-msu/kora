@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class TextField extends BaseField {
 
@@ -311,7 +312,8 @@ class TextField extends BaseField {
      * @return Collection - The RIDs that match search
      */
     public function keywordSearchTyped($fid, $arg, $method) {
-        return self::select("rid")
+        return DB::table("text_fields")
+            ->select("rid")
             ->where("fid", "=", $fid)
             ->whereRaw("MATCH (`text`) AGAINST (? IN BOOLEAN MODE)", [$arg])
             ->distinct();

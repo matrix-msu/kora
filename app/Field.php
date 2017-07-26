@@ -306,7 +306,10 @@ class Field extends Model {
                 return new GeneratedListField();
                 break;
             case self::_DATE:
-                return new DateField();
+                //Workaround for keyword search
+                $df = new DateField();
+                $df->flid = $this->flid;
+                return $df;
                 break;
             case self::_SCHEDULE:
                 return new ScheduleField();

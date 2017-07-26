@@ -491,11 +491,13 @@ class DateField extends BaseField {
     public function keywordSearchTyped($fid, $arg, $method) {
         $arg = str_replace(["*", "\""], "", $arg);
 
+        $field = FieldController::getField($this->flid);
+
         // Boolean to decide if we should consider circa options.
-        $circa = explode("[!Circa!]", $this->options)[1] == "Yes";
+        $circa = explode("[!Circa!]", $field->options)[1] == "Yes";
 
         // Boolean to decide if we should consider era.
-        $era = explode("[!Era!]", $this->options)[1] == "On";
+        $era = explode("[!Era!]", $field->options)[1] == "On";
 
         return self::buildQuery($arg, $circa, $era, $fid);
     }

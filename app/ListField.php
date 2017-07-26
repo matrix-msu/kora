@@ -5,6 +5,7 @@ use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 
 class ListField extends BaseField {
 
@@ -299,7 +300,8 @@ class ListField extends BaseField {
      * @return Builder - The RIDs that match search
      */
     public function keywordSearchTyped($fid, $arg, $method) {
-        return self::select("rid")
+        return DB::table("list_fields")
+            ->select("rid")
             ->where("fid", "=", $fid)
             ->whereRaw("MATCH (`option`) AGAINST (? IN BOOLEAN MODE)", [$arg])
             ->distinct();

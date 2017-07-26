@@ -5,6 +5,7 @@ use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class GeneratedListField extends BaseField {
 
@@ -321,7 +322,8 @@ class GeneratedListField extends BaseField {
      * @return Builder - The RIDs that match search
      */
     public function keywordSearchTyped($fid, $arg, $method) {
-        return self::select("rid")
+        return DB::table("generated_list_fields")
+            ->select("rid")
             ->where("fid", "=", $fid)
             ->whereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)", [$arg])
             ->distinct();

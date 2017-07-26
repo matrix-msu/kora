@@ -714,6 +714,15 @@ class ComboListField extends BaseField {
     }
 
     /**
+     * Determine if this field has data in the support table.
+     *
+     * @return bool - Has data
+     */
+    public function hasData() {
+        return !! $this->data()->count();
+    }
+
+    /**
      * Adds data to the support table.
      *
      * @param  array $data - Data to add

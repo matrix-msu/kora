@@ -3,6 +3,7 @@
 use App\Http\Controllers\FieldController;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ModelField extends FileTypeField  {
 
@@ -393,7 +394,8 @@ class ModelField extends FileTypeField  {
     public function keywordSearchTyped($fid, $arg, $method) {
         $arg = self::processArgumentForFileField($arg, $method);
 
-        return self::select("rid")
+        return DB::table("model_fields")
+            ->select("rid")
             ->where("fid", "=", $fid)
             ->whereRaw("MATCH (`model`) AGAINST (? IN BOOLEAN MODE)", [$arg])
             ->distinct();
