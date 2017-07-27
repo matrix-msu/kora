@@ -351,7 +351,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         DB::table("backup_support")->where("user_id", "=", $this->id)->delete();
 
         //Delete dashboard stuff
-        $sections = DB::table("dashboard_sections")->where("yid", "=", $this->id)->get();
+        $sections = DB::table("dashboard_sections")->where("uid", "=", $this->id)->get();
         foreach($sections as $sec) {
             DashboardController::deleteSection($sec->id);
         }

@@ -20,6 +20,54 @@ class AdminController extends Controller {
     */
 
     /**
+     * @var array - The data tables. Admin functions will use for both deletion, and backup/restore processes
+     */
+    public $DATA_TABLES = [
+        ['name' => 'associations', 'backup' => 'SaveAssociationsTable'],
+        ['name' => 'associator_fields', 'backup' => 'SaveAssociatorFieldsTable'],
+        ['name' => 'associator_support', 'backup' => 'SaveAssociatorSupportTable'],
+        ['name' => 'combo_list_fields', 'backup' => 'SaveComboListFieldsTable'],
+        ['name' => 'combo_support', 'backup' => 'SaveComboSupportTable'],
+        ['name' => 'dashboard_blocks', 'backup' => 'SaveDashboardBlocksTable'],
+        ['name' => 'dashboard_sections', 'backup' => 'SaveDashboardSectionsTable'],
+        ['name' => 'date_fields', 'backup' => 'SaveDateFieldsTable'],
+        ['name' => 'documents_fields', 'backup' => 'SaveDocumentsFieldsTable'],
+        ['name' => 'fields', 'backup' => 'SaveFieldsTable'],
+        ['name' => 'form_group_user', 'backup' => 'SaveFormGroupUsersTable'],
+        ['name' => 'form_groups', 'backup' => 'SaveFormGroupsTable'],
+        ['name' => 'forms', 'backup' => 'SaveFormsTable'],
+        ['name' => 'gallery_fields', 'backup' => 'SaveGalleryFieldsTable'],
+        ['name' => 'generated_list_fields', 'backup' => 'SaveGeneratedListFieldsTable'],
+        ['name' => 'geolocator_fields', 'backup' => 'SaveGeolocatorFieldsTable'],
+        ['name' => 'geolocator_support', 'backup' => 'SaveGeolocatorSupportTable'],
+        ['name' => 'list_fields', 'backup' => 'SaveListFieldTable'],
+        ['name' => 'metadatas', 'backup' => 'SaveMetadatasTable'],
+        ['name' => 'model_fields', 'backup' => 'SaveModelFieldsTable'],
+        ['name' => 'multi_select_list_fields', 'backup' => 'SaveMultiSelectListFieldsTable'],
+        ['name' => 'number_fields', 'backup' => 'SaveNumberFieldsTable'],
+        ['name' => 'option_presets', 'backup' => 'SaveOptionPresetsTable'],
+        ['name' => 'pages', 'backup' => 'SavePagesTable'],
+        ['name' => 'playlist_fields', 'backup' => 'SavePlaylistFieldsTable'],
+        ['name' => 'plugins', 'backup' => 'SavePluginsTable'],
+        ['name' => 'plugin_menus', 'backup' => 'SavePluginMenusTable'],
+        ['name' => 'plugin_settings', 'backup' => 'SavePluginSettingsTable'],
+        ['name' => 'plugin_users', 'backup' => 'SavePluginUsersTable'],
+        ['name' => 'project_group_user', 'backup' => 'SaveProjectGroupUsersTable'],
+        ['name' => 'project_groups', 'backup' => 'SaveProjectGroupsTable'],
+        ['name' => 'project_token', 'backup' => 'SaveProjectTokensTable'],
+        ['name' => 'projects', 'backup' => 'SaveProjectsTable'],
+        ['name' => 'record_presets', 'backup' => 'SaveRecordPresetsTable'],
+        ['name' => 'records', 'backup' => 'SaveRecordsTable'],
+        ['name' => 'revisions', 'backup' => 'SaveRevisionsTable'],
+        ['name' => 'rich_text_fields', 'backup' => 'SaveRichTextFieldsTable'],
+        ['name' => 'schedule_fields', 'backup' => 'SaveScheduleFieldsTable'],
+        ['name' => 'schedule_support', 'backup' => 'SaveScheduleSupportTable'],
+        ['name' => 'text_fields', 'backup' => 'SaveTextFieldsTable'],
+        ['name' => 'tokens', 'backup' => 'SaveTokensTable'],
+        ['name' => 'video_fields', 'backup' => 'SaveVideoFieldsTable'],
+    ];
+
+    /**
      * Constructs the controller and makes sure active user is an administrator.
      */
     public function __construct() {
@@ -204,50 +252,12 @@ class AdminController extends Controller {
                     $User->delete();
                 }
             }
-            //TODO::Can we make this more modular?
-            DB::table('projects')->delete();
-            DB::table('forms')->delete();
-            DB::table('fields')->delete();
-            DB::table('records')->delete();
-            DB::table('metadatas')->delete();
-            DB::table('tokens')->delete();
-            DB::table('project_token')->delete();
-            DB::table('revisions')->delete();
-            DB::table('date_fields')->delete();
-            DB::table('form_groups')->delete();
-            DB::table('form_group_user')->delete();
-            DB::table('generated_list_fields')->delete();
-            DB::table('geolocator_fields')->delete();
-            DB::table('list_fields')->delete();
-            DB::table('multi_select_list_fields')->delete();
-            DB::table('number_fields')->delete();
-            DB::table('project_groups')->delete();
-            DB::table('project_group_user')->delete();
-            DB::table('rich_text_fields')->delete();
-            DB::table('schedule_fields')->delete();
-            DB::table('text_fields')->delete();
-            DB::table('documents_fields')->delete();
-            DB::table('model_fields')->delete();
-            DB::table('gallery_fields')->delete();
-            DB::table('video_fields')->delete();
-            DB::table('playlist_fields')->delete();
-            DB::table('combo_list_fields')->delete();
-            DB::table('associator_fields')->delete();
-            DB::table('option_presets')->delete();
-            DB::table('record_presets')->delete();
-            DB::table('plugins')->delete();
-            DB::table('plugin_menus')->delete();
-            DB::table('plugin_settings')->delete();
-            DB::table('plugin_users')->delete();
-            DB::table('associations')->delete();
-            DB::table('combo_support')->delete();
-            DB::table('geolocator_support')->delete();
-            DB::table('schedule_support')->delete();
-            DB::table('associator_support')->delete();
-            DB::table('pages')->delete();
+
+            foreach($this->DATA_TABLES as $table)
+                DB::table($table["name"])->delete();
 
         } catch(\Exception $e) {
-            $this->ajaxResponse(false, "Error removing from database");
+            return "Error removing from database";
         }
 
         return "The force is strong with this one :)";
