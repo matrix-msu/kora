@@ -339,7 +339,8 @@ class GeneratedListField extends BaseField {
     public function getAdvancedSearchQuery($flid, $query) {
         $inputs = $query[$flid."_input"];
 
-        $query = self::select("rid")
+        $query = DB::table("generated_list_fields")
+            ->select("rid")
             ->where("flid", "=", $flid);
 
         self::buildAdvancedGeneratedListQuery($query, $inputs);

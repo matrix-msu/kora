@@ -495,7 +495,8 @@ class GalleryField extends FileTypeField  {
     public function getAdvancedSearchQuery($flid, $query) {
         $processed = $query[$flid."_input"]. "*[Name]";
 
-        return self::select("rid")
+        return DB::table("gallery_fields")
+            ->select("rid")
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`images`) AGAINST (? IN BOOLEAN MODE)", [$processed])
             ->distinct();

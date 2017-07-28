@@ -556,7 +556,8 @@ class DateField extends BaseField {
         $end_year = ($query[$flid."_end_year"] == "") ? 1 : intval($query[$flid."_end_year"]);
         $end_era = isset($query[$flid."_end_era"]) ? $query[$flid."_end_era"] : "CE";
 
-        $query = self::select("rid")
+        $query = DB::table("date_fields")
+            ->select("rid")
             ->where("flid", "=", $flid);
 
         if($begin_era == "BCE" && $end_era == "BCE") { // Date interval flipped, dates are decreasing.

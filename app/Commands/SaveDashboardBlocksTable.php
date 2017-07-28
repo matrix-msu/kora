@@ -45,7 +45,7 @@ class SaveDashboardBlocksTable extends Command implements SelfHandling, ShouldQu
                 $individual_dashboardblock_data = new Collection();
 
                 $individual_dashboardblock_data->put("id", $dashboardblock->id);
-                $individual_dashboardblock_data->put("bid", $dashboardblock->bid);
+                $individual_dashboardblock_data->put("sec_id", $dashboardblock->sec_id);
                 $individual_dashboardblock_data->put("type", $dashboardblock->type);
                 $individual_dashboardblock_data->put("order", $dashboardblock->order);
                 $individual_dashboardblock_data->put("options", $dashboardblock->options);

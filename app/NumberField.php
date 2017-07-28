@@ -389,7 +389,8 @@ class NumberField extends BaseField {
         $right = $query[$flid . "_right"];
         $invert = isset($query[$flid . "_invert"]);
 
-        $query = self::select("rid")
+        $query = DB::table("number_fields")
+            ->select("rid")
             ->where("flid", "=", $flid);
 
         self::buildAdvancedNumberQuery($query, $left, $right, $invert);

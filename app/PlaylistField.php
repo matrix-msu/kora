@@ -434,7 +434,8 @@ class PlaylistField extends FileTypeField  {
     public function getAdvancedSearchQuery($flid, $query) {
         $processed = $query[$flid."_input"]. "*[Name]";
 
-        return self::select("rid")
+        return DB::table("playlist_fields")
+            ->select("rid")
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`audio`) AGAINST (? IN BOOLEAN MODE)", [$processed])
             ->distinct();

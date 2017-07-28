@@ -66,12 +66,22 @@ class AdvancedSearchController extends Controller {
 
         $results = [];
 
+        //Need these for negative searches
+        $notRids = array_map(function($notRid) {
+            return $notRid["rid"];
+        }, Record::select("rid")->where('fid', '=', $fid)->get()->toArray());
+
         foreach($this->processRequest($request) as $flid => $query) {
             // Result will be returned as an array of stdObjects so we have to extract the rid.
             $field = FieldController::getField($flid);
             $result = array_map(function($returned) {
                 return $returned->rid;
             }, $field->getTypedField()->getAdvancedSearchQuery($flid, $query)->get());
+
+            //This is a negative search so we want the opposite results of what the search would produce
+            if(isset($request[$flid."_negative"]))
+                $result = array_diff($notRids,$result);
+
             $results[] = $result;
         }
 

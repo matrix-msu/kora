@@ -326,7 +326,8 @@ class MultiSelectListField extends BaseField {
     public function getAdvancedSearchQuery($flid, $query) {
         $inputs = $query[$flid."_input"];
 
-        $query = self::select("rid")
+        $query = DB::table("multi_select_list_fields")
+            ->select("rid")
             ->where("flid", "=", $flid);
 
         self::buildAdvancedMultiSelectListQuery($query, $inputs);

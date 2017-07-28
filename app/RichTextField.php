@@ -308,7 +308,8 @@ class RichTextField extends BaseField {
      * @return Builder - The RIDs that match search
      */
     public function getAdvancedSearchQuery($flid, $query) {
-        return self::select("rid")
+        return DB::table("rich_text_fields")
+            ->select("rid")
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`searchable_rawtext`) AGAINST (? IN BOOLEAN MODE)",
                 [Search::processArgument($query[$flid . "_input"], Search::ADVANCED_METHOD)])

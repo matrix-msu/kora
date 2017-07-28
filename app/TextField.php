@@ -309,7 +309,7 @@ class TextField extends BaseField {
      * @param  int $fid - Form ID
      * @param  string $arg - The keywords
      * @param  string $method - Type of keyword search
-     * @return Collection - The RIDs that match search
+     * @return Builder - The RIDs that match search
      */
     public function keywordSearchTyped($fid, $arg, $method) {
         return DB::table("text_fields")
@@ -324,10 +324,11 @@ class TextField extends BaseField {
      *
      * @param $flid, field id
      * @param $query, contents of query.
-     * @return Builder
+     * @return Builder - The RIDs that match search
      */
     public function getAdvancedSearchQuery($flid, $query) {
-        return self::select("rid")
+        return DB::table("text_fields")
+            ->select("rid")
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`text`) AGAINST (? IN BOOLEAN MODE)",
                 [Search::processArgument($query[$flid . "_input"], Search::ADVANCED_METHOD)])

@@ -315,7 +315,8 @@ class ListField extends BaseField {
      * @return Builder - The RIDs that match search
      */
     public function getAdvancedSearchQuery($flid, $query) {
-        $db_query = self::select("rid")
+        $db_query = DB::table("list_fields")
+            ->select("rid")
             ->where("flid", "=", $flid);
         $input = $query[$flid . "_input"];
 
