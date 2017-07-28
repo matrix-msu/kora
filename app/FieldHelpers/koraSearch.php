@@ -71,16 +71,76 @@ class kora3ApiExternalTool {
     }
 
     /**
-     * TODO::Builds the query string for an advanced search.
+     * Builds the query string for an advanced search.
+     *
+     * @param  array $advData - Array with search parameters for advanced search (SEE BELOW)
+     * @param  bool $not - Get the negative results of the search
+     * @return array - The query array
      */
-    static function advancedQueryBuilder() {
-        /* $qadv = array();
+    static function advancedQueryBuilder($advData,$not=false) {
+        $qadv = array();
         $qadv["search"] = "advanced";
-        $advFields = array();
-        $fText = array();
-        $fText["input"] = "Mr. Sister";
-        $advFields["title"] = $fText;
-        $qadv["fields"] = $advFields; */
+
+        $qadv["fields"] = $advData;
+        //Lets talk about the structure of $advData
+            //First off we have the index of the array values
+            //Each field is represented in the index
+            //The index will be a field's slug of flid
+                //$advData[FIELD_SLUG] = SEARCH_DATA_ARRAY
+
+            //So what about that SEARCH_DATA_ARRAY
+            //That is going to be an array of info which is different per field type
+            //Foreach field type, I will list out the index and the expected value of that index
+                //SEARCH_DATA_ARRAY[PARAMETER_NAME] = PARAMETER_VALUE
+
+            //Text
+                //SDA[input] = string of text to search
+            //Rich Text
+                //SDA[input] = string of text to search
+            //Number
+                //SDA[left] = number of left bound to search (blank for -infinite)
+                //SDA[right] = number of right bound to search (blank for infinite)
+                //SDA[invert] = bitwise where 1 will search outside of bound
+            //List
+                //SDA[input] = string option to search
+            //Multi-Select List
+                //SDA[input] = array of string options to search
+            //Generated List
+                //SDA[input] = array of string options to search
+            //Date
+                //SDA[begin_month] = number representation of month to search
+                //SDA[begin_day] = number representation of day to search
+                //SDA[begin_year] = number representation of year to search
+                //SDA[end_month] = number representation of month to search
+                //SDA[end_day] = number representation of day to search
+                //SDA[end_year] = number representation of year to search
+            //Schedule
+                //SDA[begin_month] = number representation of month to search
+                //SDA[begin_day] = number representation of day to search
+                //SDA[begin_year] = number representation of year to search
+                //SDA[end_month] = number representation of month to search
+                //SDA[end_day] = number representation of day to search
+                //SDA[end_year] = number representation of year to search
+            //Geolocator
+                //SDA[type] = string of location type to search (LatLon, UTM, or Address)
+                //Only if LatLon
+                    //SDA[lat] = number of latitude to search
+                    //SDA[lon] = number of longitude to search
+                //Only if UTM
+                    //SDA[zone] = string of UTM zone to search
+                    //SDA[east] = number of easting to search
+                    //SDA[north] = number of northing to search
+                //Only if Address
+                    //SDA[address] = string of text to search
+                //SDA[range] = number of radius from location center to search
+            //Associator
+                //SDA[input] = array of RIDs to search
+            //Literally Any File Field Ever
+                //SDA[input] = string of filename to search
+        if($not)
+            $qadv["not"] = $not;
+
+        return $qadv;
     }
 
     /**
