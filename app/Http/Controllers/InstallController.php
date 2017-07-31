@@ -1,10 +1,10 @@
 <?php namespace App\Http\Controllers;
 
 use App\Version;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
-Use \Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Schema;
 use \Illuminate\Support\Facades\Config;
 use \Illuminate\Support\Facades\Artisan;
