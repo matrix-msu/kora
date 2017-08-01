@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\AssociatorField;
 use App\Commands\SaveKora2Scheme;
 use App\Form;
 use App\FormGroup;
@@ -18,7 +19,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
 
 class ExodusController extends Controller {
@@ -31,6 +31,12 @@ class ExodusController extends Controller {
     | This controller handles the Exodus migration of Kora 2 data to Kora3
     |
     */
+
+    /**
+     * @var string - Views for the typed field options
+     */
+    const EXODUS_CONVERSION_PATH = "storage/app/exodusAssoc/conversions/";
+    const EXODUS_DATA_PATH = "storage/app/exodusAssoc/data/";
 
     /**
      * Constructs controller and makes sure user is the root installation user.
@@ -129,6 +135,10 @@ class ExodusController extends Controller {
         $tokenArray = array();
 
         $filePath = $request->filePath;
+
+        //clear assoc directories
+        $this->recursiveRemoveDirectoryFiles(env('BASE_PATH').self::EXODUS_CONVERSION_PATH);
+        $this->recursiveRemoveDirectoryFiles(env('BASE_PATH').self::EXODUS_DATA_PATH);
 
         //we should do the user table and project related tables and then divide all the scheme tasks into queued jobs
 
@@ -452,8 +462,45 @@ class ExodusController extends Controller {
      */
     public function finishExodus(Request $request) {
         //TODO: Associate things!!!
-        $session = Session::all();
-        dd($session);
+        $masterConvertor = array();
+
+        //Get all the conversion arrays for k2 KIDs to k3 RIDs
+        $dir1 = env('BASE_PATH').self::EXODUS_CONVERSION_PATH;
+        $iterator = new \DirectoryIterator($dir1);
+        foreach($iterator as $fileinfo) {
+            if($fileinfo->isFile()) {
+                $data = file_get_contents($dir1.$fileinfo->getFilename());
+                $dataArray = json_decode($data);
+
+                if(!is_array($dataArray[0])) {
+                    foreach($dataArray[0] as $kid => $rid) {
+                        $masterConvertor[$kid] = $rid;
+                    }
+                }
+            }
+        }
+
+        //Get all the matchups of k3 Assoc Field ids to the k2 KID values
+        $dir2 = env('BASE_PATH').self::EXODUS_DATA_PATH;
+        $iterator = new \DirectoryIterator($dir2);
+        foreach($iterator as $fileinfo) {
+            if($fileinfo->isFile()) {
+                $data = file_get_contents($dir2.$fileinfo->getFilename());
+                $dataArray = json_decode($data);
+
+                foreach($dataArray as $afid => $kidArray) {
+                    $assocfield = AssociatorField::where("id","=",$afid)->first();
+                    $ridArray = array();
+
+                    foreach($kidArray as $kid) {
+                        //We add the dummy k3 KID numbers because that's the format addRecords expects
+                        array_push($ridArray,"0-0-".$masterConvertor[$kid]);
+                    }
+
+                    $assocfield->addRecords($ridArray);
+                }
+            }
+        }
     }
 
     /**
@@ -515,6 +562,21 @@ class ExodusController extends Controller {
         $result['destroy'] = ((int)$perm & 4);
 
         return $result;
+    }
+
+    /**
+     * A recursive function for deleting a directory's contents.
+     *
+     * @param  string $directory - Name of directory to remove
+     */
+    private function recursiveRemoveDirectoryFiles($directory) {
+        foreach(glob("{$directory}/*") as $file) {
+            if(is_dir($file)) {
+                $this->recursiveRemoveDirectoryFiles($file);
+            } else {
+                unlink($file);
+            }
+        }
     }
 
     /**

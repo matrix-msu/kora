@@ -1,7 +1,6 @@
 <?php namespace App\Commands;
 
 use App\AssociatorField;
-use App\ComboListField;
 use App\DateField;
 use App\DocumentsField;
 use App\Field;
@@ -9,24 +8,20 @@ use App\FileTypeField;
 use App\Form;
 use App\GalleryField;
 use App\GeneratedListField;
-use App\GeolocatorField;
+use App\Http\Controllers\ExodusController;
 use App\Http\Controllers\FieldController;
-use App\Http\Controllers\PageController;
 use App\Http\Controllers\RecordController;
 use App\Http\Controllers\RecordPresetController;
 use App\ListField;
 use App\Metadata;
-use App\ModelField;
 use App\MultiSelectListField;
 use App\Page;
-use App\PlaylistField;
 use App\Record;
 use App\RecordPreset;
 use App\RichTextField;
 use App\ScheduleField;
 use App\TextField;
 use App\User;
-use App\VideoField;
 use Carbon\Carbon;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -386,6 +381,8 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                 $recModel->pid = $newForm->pid;
                 $recModel->fid = $newForm->fid;
                 $recModel->save();
+                $recModel->kid = $recModel->pid . '-' . $recModel->fid . '-' . $recModel->rid;
+                $recModel->save();
 
                 //increment table
                 DB::table("exodus_partial_progress")->where("id", $row_id)->increment("progress", 1, ["updated_at" => Carbon::now()]);
@@ -654,12 +651,18 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                         $assoc->flid = $field->flid;
                         $assoc->save();
 
-                        Session::put("assoc_".$recModel->rid, serialize($kids)); //TODO::Doesnt work
+                        //We want to save the Typed Field that will have the data eventually, matched to its values in Kora 2 KID form
+                        $dataToWrite = json_encode([$assoc->id => $kids]);
+                        $filename = env('BASE_PATH').ExodusController::EXODUS_DATA_PATH."assoc_".$assoc->id.".json";
+                        file_put_contents($filename,$dataToWrite);
                 }
             }
         }
 
-        Session::put("kid_to_rid_".$this->sid, serialize($oldKidToNewRid)); //TODO::Doesnt work
+        //We want to save the conversion array of Kora 2 KIDs to Kora 3 RIDs for this scheme
+        $dataToWrite = json_encode([$oldKidToNewRid]);
+        $filename = env('BASE_PATH').ExodusController::EXODUS_CONVERSION_PATH."kid_to_rid_".$this->sid.".json";
+        file_put_contents($filename,$dataToWrite);
 
         //Last but not least, record presets!!!!!!!!!
         $recordPresets = $records = $con->query("select * from recordPreset where schemeid=".$this->sid);

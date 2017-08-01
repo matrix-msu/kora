@@ -55,7 +55,6 @@ Route::post('/exodus/user/unlock','ExodusController@unlockUsers');
 Route::post('/exodus/start','ExodusController@startExodus');
 Route::post('/exodus/finish','ExodusController@finishExodus'); //
 
-
 //token routes
 Route::get('/tokens', 'TokenController@index');
 Route::post('/tokens/create', 'TokenController@create');
@@ -122,7 +121,6 @@ Route::get('/download/{rid}/{flid}/{filename}','FieldAjaxController@getFileDownl
 Route::get('/download/{rid}/{flid}/{filename}/{type}','FieldAjaxController@getImgDisplay');
 Route::get("/validateAddress", "FieldAjaxController@validateAddress");
 
-
 //record preset routes
 Route::get('/projects/{pid}/forms/{fid}/records/presets', 'RecordPresetController@index');
 Route::patch('/changePresetName', 'RecordPresetController@changePresetName');
@@ -131,7 +129,6 @@ Route::post('/getRecordArray', 'RecordPresetController@getRecordArray');
 Route::post('/presetRecord', 'RecordPresetController@presetRecord');
 Route::post('/getData', 'RecordPresetController@getData');
 Route::post('/moveFilesToTemp', 'RecordPresetController@moveFilesToTemp');
-
 
 //option preset routes
 Route::get('/projects/{pid}/presets', 'OptionPresetController@index');
@@ -142,7 +139,6 @@ Route::get('/projects/{pid}/presets/{id}/edit','OptionPresetController@edit');
 Route::post('/projects/{pid}/presets/{id}/saveList','OptionPresetController@saveList');
 Route::post('/projects/{pid}/presets/{id}/edit','OptionPresetController@update');
 Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/applyPreset','OptionPresetController@applyPreset');
-
 
 //record routes
 Route::get('/projects/{pid}/forms/{fid}/records','RecordController@index');
@@ -163,8 +159,6 @@ Route::delete('projects/{pid}/forms/{fid}/deleteTestRecords','RecordController@d
 Route::delete('projects/{pid}/forms/{fid}/deleteAllRecords','RecordController@deleteAllRecords');
 Route::post('/projects/{pid}/forms/{fid}/cleanUp', 'RecordController@cleanUp');
 Route::get('/projects/{pid}/forms/{fid}/clone/{rid}', 'RecordController@cloneRecord');
-
-
 
 //revision routes
 Route::get('/projects/{pid}/forms/{fid}/records/revisions/recent', 'RevisionController@index');

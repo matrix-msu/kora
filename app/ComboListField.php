@@ -89,7 +89,7 @@ class ComboListField extends BaseField {
     private function getSubFieldDefaultOptions($type, $name) {
         $options = "[Type]".$type."[Type][Name]".$name."[Name]";
         $typedField = Field::getTypedFieldStatic($type);
-        $options .= "[Options]".$typedField->getDefaultOptions(null)."[Options]";
+        $options .= "[Options]".$typedField->getDefaultOptions(new Request())."[Options]";
 
         return $options;
     }

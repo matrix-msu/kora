@@ -34,6 +34,8 @@ class InstallController extends Controller {
 		"storage/app/profiles",
 		"storage/app/presetFiles",
 		"storage/app/plugins",
+		"storage/app/exodusAssoc/data",
+		"storage/app/exodusAssoc/conversions",
         "python",
         "python/exports",
         "python/temp"
