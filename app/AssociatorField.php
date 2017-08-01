@@ -469,18 +469,23 @@ class AssociatorField extends BaseField {
         }
 
         //grab the preview fields associated with the form of this kid
-        $details = $activeForms[$fid];
+        //make sure one is selected first
         $preview = array();
-        foreach($details['flids'] as $flid=>$type) {
-            if($type=='Text') {
-                $text = TextField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
-                if($text->text != '')
-                    array_push($preview,$text->text);
-            } else if($type=='List') {
-                $list = ListField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
-                if($list->option != '')
-                    array_push($preview,$list->option);
+        if(isset($activeForms[$fid])) {
+            $details = $activeForms[$fid];
+            foreach($details['flids'] as $flid => $type) {
+                if($type == Field::_TEXT) {
+                    $text = TextField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
+                    if($text->text != '')
+                        array_push($preview, $text->text);
+                } else if($type == Field::_LIST) {
+                    $list = ListField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
+                    if($list->option != '')
+                        array_push($preview, $list->option);
+                }
             }
+        } else {
+            array_push($preview, "NO PREVIEW AVAILABLE");
         }
 
         $html = "<a href='".env('BASE_URL')."projects/".$pid."/forms/".$fid."/records/".$rid."'>".$kid."</a>";

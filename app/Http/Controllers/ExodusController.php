@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Association;
 use App\AssociatorField;
 use App\Commands\SaveKora2Scheme;
 use App\Form;
@@ -343,6 +344,7 @@ class ExodusController extends Controller {
 
         //Forms
         $forms = $con->query("select * from scheme");
+        $masterAssoc = array();
         while($f = $forms->fetch_assoc()) {
             if(in_array($f['pid'],$migratedProjects)) {
                 //make form
@@ -373,6 +375,21 @@ class ExodusController extends Controller {
                 $formArray[$f['schemeid']] = $form->fid;
                 //add to old sid/pid array
                 $pairArray[$f['schemeid']] = $f['pid'];
+
+                //We need to replicate the association permissions
+                $assocXML = simplexml_load_string(utf8_encode($f['crossProjectAllowed']));
+                if($assocXML !== false) {
+                    $aSchemes = (array)$assocXML->to;
+                    //Foreach scheme that can associate this one, we add its sid and store it for later.
+                    //We want to make sure all forms exist first before this information is actually used.
+                    $newAS = array();
+                    foreach($aSchemes["entry"] as $aS) {
+                        $asid = (int)$aS->scheme;
+                        array_push($newAS, $asid);
+                    }
+                    //What we'll reference later
+                    $masterAssoc[$form->fid] = $newAS;
+                }
 
                 //create admin/default groups based on project groups
                 $permGroups = $con->query("select * from permGroup where pid=" . $f['pid']);
@@ -419,6 +436,19 @@ class ExodusController extends Controller {
                     $k3Group->modify = $perms['modify'];
                     $k3Group->destroy = $perms['destroy'];
                     $k3Group->save();
+                }
+            }
+        }
+
+        //Resolve the assoc permissions
+        foreach($masterAssoc as $fid => $asids) {
+            foreach($asids as $asid) {
+                //Make sure the scheme it's looking for actually was transfered
+                if(isset($formArray[$asid])) {
+                    $assoc = new Association();
+                    $assoc->dataForm = $fid;
+                    $assoc->assocForm = $formArray[$asid];
+                    $assoc->save();
                 }
             }
         }
