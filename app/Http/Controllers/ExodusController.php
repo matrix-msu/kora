@@ -378,17 +378,27 @@ class ExodusController extends Controller {
 
                 //We need to replicate the association permissions
                 $assocXML = simplexml_load_string(utf8_encode($f['crossProjectAllowed']));
+                //Checks if DB value is straight up null
                 if($assocXML !== false) {
                     $aSchemes = (array)$assocXML->to;
-                    //Foreach scheme that can associate this one, we add its sid and store it for later.
-                    //We want to make sure all forms exist first before this information is actually used.
-                    $newAS = array();
-                    foreach($aSchemes["entry"] as $aS) {
-                        $asid = (int)$aS->scheme;
-                        array_push($newAS, $asid);
+                    //This will be an array no matter what, so if it's empty, leave it alone
+                    if(!empty($aSchemes)) {
+                        //Foreach scheme that can associate this one, we add its sid and store it for later.
+                        //We want to make sure all forms exist first before this information is actually used.
+                        $newAS = array();
+                        //When there's only one assocation, it makes it an object and not an array of that object, so check what data type
+                        if(is_array($aSchemes["entry"])) {
+                            foreach($aSchemes["entry"] as $aS) {
+                                $asid = (int)$aS->scheme;
+                                array_push($newAS, $asid);
+                            }
+                        } else {
+                            //This is the case where there's only one
+                            array_push($newAS, (int)$aSchemes["entry"]->scheme);
+                        }
+                        //What we'll reference later
+                        $masterAssoc[$form->fid] = $newAS;
                     }
-                    //What we'll reference later
-                    $masterAssoc[$form->fid] = $newAS;
                 }
 
                 //create admin/default groups based on project groups
