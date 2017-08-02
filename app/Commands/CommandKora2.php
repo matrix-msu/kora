@@ -31,6 +31,10 @@ abstract class CommandKora2 {
      */
     public $form;
     /**
+     * @var array - Array of old sids to new fids
+     */
+    public $formArray;
+    /**
      * @var array - Array of old to new pids
      */
     public $pairArray;
@@ -52,14 +56,16 @@ abstract class CommandKora2 {
      *
      * @param $sid - Original id of the scheme
      * @param $fid - Form that will be built
+     * @param $formArray - Array of old sids to new fids
      * @param $pairArray - Array of old to new pids
      * @param $dbInfo - Info to connect to db
      * @param $filePath - Local system path for kora 2 files
      * @param $exodus_id - Progress table id
      */
-    public function __construct($sid, $fid, $pairArray, $dbInfo, $filePath, $exodus_id) {
+    public function __construct($sid, $fid, $formArray, $pairArray, $dbInfo, $filePath, $exodus_id) {
         $this->sid = $sid;
         $this->form = FormController::getForm($fid);
+        $this->formArray = $formArray;
         $this->pairArray = $pairArray;
         $this->dbInfo = $dbInfo;
         $this->filePath = $filePath;

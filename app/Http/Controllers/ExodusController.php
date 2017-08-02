@@ -1,6 +1,4 @@
-<?php
-
-namespace App\Http\Controllers;
+<?php namespace App\Http\Controllers;
 
 use App\Association;
 use App\AssociatorField;
@@ -38,6 +36,7 @@ class ExodusController extends Controller {
      */
     const EXODUS_CONVERSION_PATH = "storage/app/exodusAssoc/conversions/";
     const EXODUS_DATA_PATH = "storage/app/exodusAssoc/data/";
+    const EXODUS_FIELDOPT_PATH = "storage/app/exodusAssoc/fieldopt/";
 
     /**
      * Constructs controller and makes sure user is the root installation user.
@@ -380,7 +379,7 @@ class ExodusController extends Controller {
                 $assocXML = simplexml_load_string(utf8_encode($f['crossProjectAllowed']));
                 //Checks if DB value is straight up null
                 if($assocXML !== false) {
-                    $aSchemes = (array)$assocXML->to;
+                    $aSchemes = (array)$assocXML->from;
                     //This will be an array no matter what, so if it's empty, leave it alone
                     if(!empty($aSchemes)) {
                         //Foreach scheme that can associate this one, we add its sid and store it for later.
@@ -456,8 +455,8 @@ class ExodusController extends Controller {
                 //Make sure the scheme it's looking for actually was transfered
                 if(isset($formArray[$asid])) {
                     $assoc = new Association();
-                    $assoc->dataForm = $fid;
-                    $assoc->assocForm = $formArray[$asid];
+                    $assoc->dataForm = $formArray[$asid];
+                    $assoc->assocForm = $fid;
                     $assoc->save();
                 }
             }
@@ -469,7 +468,7 @@ class ExodusController extends Controller {
         Log::info("Begin Exodus");
         $exodus_id = DB::table('exodus_overall_progress')->insertGetId(['progress'=>0,'overall'=>0,'start'=>Carbon::now(),'created_at'=>Carbon::now(),'updated_at'=>Carbon::now()]);
         foreach($formArray as $sid=>$fid) {
-            $job = new SaveKora2Scheme($sid,$fid,$pairArray, $dbInfo, $filePath, $exodus_id);
+            $job = new SaveKora2Scheme($sid, $fid, $formArray, $pairArray, $dbInfo, $filePath, $exodus_id);
             $this->dispatch($job->onQueue('exodus'));
         }
 
@@ -501,7 +500,7 @@ class ExodusController extends Controller {
      * @param  Request $request
      */
     public function finishExodus(Request $request) {
-        //TODO: Associate things!!!
+        //Stores the KID to RID conversions
         $masterConvertor = array();
 
         //Get all the conversion arrays for k2 KIDs to k3 RIDs
@@ -512,8 +511,8 @@ class ExodusController extends Controller {
                 $data = file_get_contents($dir1.$fileinfo->getFilename());
                 $dataArray = json_decode($data);
 
-                if(!is_array($dataArray[0])) {
-                    foreach($dataArray[0] as $kid => $rid) {
+                if(!is_array($dataArray)) {
+                    foreach($dataArray as $kid => $rid) {
                         $masterConvertor[$kid] = $rid;
                     }
                 }

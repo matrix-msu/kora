@@ -29,7 +29,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Session;
 
 class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue {
 
@@ -54,6 +53,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
         $oldPid = $this->pairArray[$this->sid];
         $collToPage = array();
         $oldControlInfo = array();
+        $assocControlCheck = array();
         $numRecords = $con->query("select distinct id from p".$oldPid."Data where schemeid=".$this->sid)->num_rows;
 
         $table_array = $this->makeBackupTableArray($numRecords);
@@ -306,6 +306,13 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                         $newType = "Multi-Select List";
                         break;
                     case 'AssociatorControl':
+                        if(!$blankOpts)
+                            $opts = (array)$optXML->scheme;
+                        else
+                            $opts = array();
+
+                        $assocControlCheck[$c['cid']] = $opts;
+
                         $newOpts = "[!SearchForms!][!SearchForms!]";
                         $newType = "Associator";
                         break;
@@ -337,6 +344,31 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
 
                 $oldControlInfo[$c['cid']] = $field->flid;
             }
+        }
+
+        //Now that we know the control options for all the associators, and which field ID they correlate to,
+        // we will save the associators options
+        foreach($assocControlCheck as $cid => $sids) {
+            $flid = $oldControlInfo[$cid];
+
+            $optString = "[!SearchForms!]";
+            $subOpt = array();
+
+            $af = FieldController::getField($flid);
+
+            foreach($sids as $sid) {
+                if(isset($this->formArray[$sid])) {
+                    $optFID = $this->formArray[$sid];
+                    $optVal = "[fid]" . $optFID . "[fid][search]1[search][flids][flids]";
+                    array_push($subOpt, $optVal);
+                }
+            }
+
+            $optString .= implode("[!]",$subOpt);
+            $optString .= "[!SearchForms!]";
+
+            $af->options = $optString;
+            $af->save();
         }
 
         //Dublin Core stuff//////////////////////////////////////////
@@ -660,7 +692,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
         }
 
         //We want to save the conversion array of Kora 2 KIDs to Kora 3 RIDs for this scheme
-        $dataToWrite = json_encode([$oldKidToNewRid]);
+        $dataToWrite = json_encode($oldKidToNewRid);
         $filename = env('BASE_PATH').ExodusController::EXODUS_CONVERSION_PATH."kid_to_rid_".$this->sid.".json";
         file_put_contents($filename,$dataToWrite);
 

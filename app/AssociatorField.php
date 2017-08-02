@@ -461,6 +461,9 @@ class AssociatorField extends BaseField {
                     $flids = array();
 
                 foreach($opt_flids as $flid) {
+                    //Make sure there actually is a preview field
+                    if($flid=="")
+                        continue;
                     $field = FieldController::getField($flid);
                     $flids[$flid] = $field->type;
                 }
