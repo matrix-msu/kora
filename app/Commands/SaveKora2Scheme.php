@@ -399,12 +399,11 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
             }
         }
 
-
         //time to build the records
         Log::info('Iterating through data');
 
         //Record stuff//////////////////////////////////////////
-        $records = $con->query("select * from p".$oldPid."Data where schemeid=".$this->sid);
+        $records = $con->query("select D.*, C.name from p".$oldPid."Data D left join p".$oldPid."Control C on D.cid=C.cid where D.schemeid=".$this->sid);
         $oldKidToNewRid = array();
 
         while($r = $records->fetch_assoc()) {
@@ -424,9 +423,11 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                 $recModel = RecordController::getRecord($oldKidToNewRid[$r['id']]);
             }
 
-            if($r['cid']==1) {
+            if($r['cid']==0) {
+                continue; //This is the reverse association list, so we can bounce
+            } else if($r['name']=="systimestamp") {
                 continue; //we don't want to save the timestamp
-            } else if($r['cid']==2) {
+            } else if($r['name']=="recordowner") {
                 //get the original record owner for some consistency, defaults to current user
                 $email = '';
                 $equery = $con->query("select email from user where username='".$r['value']."'");
