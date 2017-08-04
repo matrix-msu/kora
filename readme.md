@@ -1,23 +1,42 @@
-## Laravel PHP Framework
+# Kora 3 
+***
 
-[![Build Status](https://travis-ci.org/laravel/framework.svg)](https://travis-ci.org/laravel/framework)
-[![Total Downloads](https://poser.pugx.org/laravel/framework/downloads.svg)](https://packagist.org/packages/laravel/framework)
-[![Latest Stable Version](https://poser.pugx.org/laravel/framework/v/stable.svg)](https://packagist.org/packages/laravel/framework)
-[![Latest Unstable Version](https://poser.pugx.org/laravel/framework/v/unstable.svg)](https://packagist.org/packages/laravel/framework)
-[![License](https://poser.pugx.org/laravel/framework/license.svg)](https://packagist.org/packages/laravel/framework)
+### Installation
+Clone the repository
+    
+    git clone git@github.com:matrix-msu/Kora3.git
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as authentication, routing, sessions, queueing, and caching.
+Temporarily give write access to the directory:
+    
+    chmod -R 0775 -R Kora3/
 
-Laravel is accessible, yet powerful, providing powerful tools needed for large, robust applications. A superb inversion of control container, expressive migration system, and tightly integrated unit testing support give you the tools you need to build any application with which you are tasked.
+Create `.htaccess` from the example in `Kora3/public`
 
-## Official Documentation
+    cp Kora3/public/.htaccess.example Kora3/public/.htaccess
 
-Documentation for the framework can be found on the [Laravel website](http://laravel.com/docs).
+Configure the `RewriteBase` rule in the newly created `.htaccess` if the installation is **not** located at the root of your url similar to the example below.
+
+    Ex: http://www.example.com/digitalRepo/Kora3/
+    RewriteBase /digitalRepo/Kora3/public
+
+Navigate to your Kora3  url and click install
+
+    URL: http://www.example.com/digitalRepo/Kora3/public
+
+Change directory permissions to read access:
+    
+    chmod -R 0755 -R Kora3/
+    
+Give write access to the following directories:
+
+    chmod -R 0775 -R Kora3/bootstrap/cache/
+    chmod -R 0775 Kora3/python/
+    chmod -R 0775 -R Kora3/storage/
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](http://laravel.com/docs/contributions).
+Thank you for considering contributing to Kora3! The contribution guide can be found in the [Kora3 documentation](http://kora.com).
 
 ### License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
+Kora is open-sourced software licensed under the [GPU GPL-3.0 license](https://opensource.org/licenses/GPL-3.0)
