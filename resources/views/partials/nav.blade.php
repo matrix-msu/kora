@@ -23,7 +23,7 @@
                 </ul>
             </li>
         @else
-            <li class="kora_nav_search">
+            <li class="kora_nav_item">
                 <a href="#" class="kora_nav_item_title"><img src="{{ env('BASE_URL') }}images/menu_search.svg"></a>
                 <ul class="kora_nav_sub_menu">
                     <li class="kora_nav_sub_menu_item">

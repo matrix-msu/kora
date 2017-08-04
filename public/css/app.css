@@ -15,6 +15,7 @@
 }
 #kora_nav_right {
   float: right;
+  margin-top: 0;
 }
 .kora_nav_logo {
   float: left;
@@ -23,9 +24,6 @@
   padding-top: 10px;
   padding-left: 13px;
 }
-.kora_nav_logo {
-  float: left;
-}
 .kora_nav_logo img {
   height: 27px;
   width: 27px;
@@ -33,9 +31,6 @@
 .kora_nav_item {
   float: left;
   height: 50px;
-  width: 80px;
-  padding-top: 15px;
-  padding-left: 8px;
   font-family: ubunturegular;
   font-size: 12px;
   font-weight: 500;
@@ -43,6 +38,15 @@
 }
 .kora_nav_item a {
   opacity: 0.7;
+}
+#kora_nav_left .kora_nav_item {
+  width: 80px;
+  padding-left: 8px;
+  padding-top: 15px;
+}
+#kora_nav_right .kora_nav_item {
+  width: auto;
+  padding-right: 20px;
 }
 .kora_nav_sub_menu {
   width: 175px;
