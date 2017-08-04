@@ -1,19 +1,45 @@
-<li class="dropdown">
-    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Main<b class="caret"></b></a>
-    <ul class="dropdown-menu">
-        <li><a href="{{ url('/dashboard') }}">{{trans('partials_nav.dashboard')}}</a></li>
-        <li><a href="{{ url('/projects') }}">{{trans('partials_nav.projects')}}</a></li>
-        @if (\Auth::user() != null && \Auth::user()->admin)
-            <li class="divider"></li>
-            <li><a href="{{ url('/admin/users') }}">{{trans('partials_menu_dashboard.users')}}</a></li>
-            <li><a href="{{ url('/tokens') }}">{{trans('partials_menu_dashboard.tokens')}}</a></li>
-            @if(Auth::user()->id == 1)
-            <li><a href="{{ url('/backup') }}">{{trans('partials_menu_dashboard.backups')}}</a></li>
-            @endif
-            <li><a href="{{ url('/install/config') }}">{{trans('partials_menu_dashboard.env')}}</a></li>
-            <li><a href="{{ url('/plugins') }}">{{trans('partials_menu_dashboard.plugin')}}</a></li>
-            <li><a href="{{ url('/update') }}">{{trans('partials_menu_dashboard.update')}}</a></li>
-            <li><a href="{{ url('/exodus') }}">{{trans('partials_menu_dashboard.exodus')}}</a></li>
+<li class="kora_nav_item">
+    <a href="#" class="kora_nav_item_title">Dashboard     <img src="{{ env('BASE_URL') }}images/menu_arrow.svg"></a>
+    <ul class="kora_nav_sub_menu">
+        <li class="kora_nav_sub_menu_item">
+            <a href="{{ url('/dashboard') }}"><img src="{{ env('BASE_URL') }}images/menu_dash.svg">Dashboard</a>
+        </li>
+        <li class="kora_nav_sub_menu_spacer"></li>
+        <li class="kora_nav_sub_menu_item">
+            <a href="#">Edit Dashboard</a>
+        </li>
+        <li class="kora_nav_sub_menu_item">
+            <a href="#">Add Dashboard Block</a>
+        </li>
+    </ul>
+</li>
+<li class="kora_nav_item">
+    <a href="#" class="kora_nav_item_title">Projects     <img src="{{ env('BASE_URL') }}images/menu_arrow.svg"></a>
+    <ul class="kora_nav_sub_menu">
+        <li class="kora_nav_sub_menu_item">
+            <a href="{{ url('/projects') }}">Projects</a>
+        </li>
+        @if(\Auth::user()->admin==1)
+            <li class="kora_nav_sub_menu_spacer"></li>
+            <li class="kora_nav_sub_menu_item">
+                <a href="{{ url('/projects/create') }}">Create New Project</a>
+            </li>
+            <li class="kora_nav_sub_menu_item">
+                <a href="{{ url('/projects/import') }}">Import Project Setup</a>
+            </li>
+        @endif
+        <?php $allowed_projects = \Auth::user()->allowedProjects() ?>
+        @if(sizeof($allowed_projects) > 1)
+            <li class="kora_nav_sub_menu_item">
+                <a href='#' class="kora_nav_sub_menu_item_title">Jump to Project <img src="{{ env('BASE_URL') }}images/menu_plus.svg"></a>
+                <ul class="kora_nav_deep_menu">
+                    @foreach($allowed_projects as $project)
+                        <li class="kora_nav_deep_menu_item">
+                            <a href="{{ url('/projects/'.$project->pid) }}">{{ $project->name }}</a>
+                        </li>
+                    @endforeach
+                </ul>
+            </li>
         @endif
     </ul>
 </li>

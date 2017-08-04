@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="14px" height="14px" viewBox="0 0 14 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 45.2 (43514) - http://www.bohemiancoding.com/sketch -->
+    <title>dashboard-white</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Dashboard" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Dashboard---Dropdown" transform="translate(-55.000000, -35.000000)" stroke="#FFFFFF">
+            <g id="dashboard-white" transform="translate(62.000000, 42.000000) rotate(-90.000000) translate(-62.000000, -42.000000) translate(55.000000, 35.000000)">
+                <rect id="Rectangle-7" x="0.5" y="0.5" width="5.125" height="5.125" rx="2"></rect>
+                <rect id="Rectangle-7-Copy" x="8.375" y="0.5" width="5.125" height="13" rx="2"></rect>
+                <rect id="Rectangle-7-Copy-2" x="0.5" y="8.375" width="5.125" height="5.125" rx="2"></rect>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,6 +1,6 @@
 @extends('app')
 
-@section('content')
+@section('body')
 <style>
     .body_quote {
         margin: 0;

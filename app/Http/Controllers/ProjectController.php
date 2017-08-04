@@ -44,7 +44,7 @@ class ProjectController extends Controller {
         $requestProjects = array();
         foreach($projectCollections as $project) {
             if(\Auth::user()->admin || \Auth::user()->inAProjectGroup($project)) {
-                $projectArrays[] = $project->buildFormSelectorArray();
+                //TODO::$projectArrays[] = $project->buildFormSelectorArray();
                 array_push($projects,$project);
                 $hasProjects = true;
             } else if($project->active) {
