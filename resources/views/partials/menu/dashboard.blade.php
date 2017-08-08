@@ -1,5 +1,5 @@
 <li class="kora_nav_item">
-    <a href="#" class="kora_nav_item_title">Dashboard     <img src="{{ env('BASE_URL') }}images/menu_arrow.svg"></a>
+    <a href="#" class="kora_nav_item_title">Dashboard<img class="kora_nav_icon_post_text" src="{{ env('BASE_URL') }}images/menu_arrow.svg"></a>
     <ul class="kora_nav_sub_menu">
         <li class="kora_nav_sub_menu_item">
             <a href="{{ url('/dashboard') }}"><img src="{{ env('BASE_URL') }}images/menu_dash.svg">Dashboard</a>
@@ -14,7 +14,7 @@
     </ul>
 </li>
 <li class="kora_nav_item">
-    <a href="#" class="kora_nav_item_title">Projects     <img src="{{ env('BASE_URL') }}images/menu_arrow.svg"></a>
+    <a href="#" class="kora_nav_item_title">Projects<img class="kora_nav_icon_post_text" src="{{ env('BASE_URL') }}images/menu_arrow.svg"></a>
     <ul class="kora_nav_sub_menu">
         <li class="kora_nav_sub_menu_item">
             <a href="{{ url('/projects') }}">Projects</a>
@@ -31,7 +31,7 @@
         <?php $allowed_projects = \Auth::user()->allowedProjects() ?>
         @if(sizeof($allowed_projects) > 1)
             <li class="kora_nav_sub_menu_item">
-                <a href='#' class="kora_nav_sub_menu_item_title">Jump to Project <img src="{{ env('BASE_URL') }}images/menu_plus.svg"></a>
+                <a href='#' class="kora_nav_sub_menu_item_title">Jump to Project<img class="kora_nav_icon_post_text" src="{{ env('BASE_URL') }}images/menu_plus.svg"></a>
                 <ul class="kora_nav_deep_menu">
                     @foreach($allowed_projects as $project)
                         <li class="kora_nav_deep_menu_item">

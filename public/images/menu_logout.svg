@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="13px" height="14px" viewBox="0 0 13 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 45.2 (43514) - http://www.bohemiancoding.com/sketch -->
+    <title>log-out-green</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+        <g id="log-out-green" transform="translate(1.000000, 1.000000)" stroke-width="2" stroke="#04B6AF">
+            <g id="Shape">
+                <path d="M4.2,12 L1.2,12 C0.5372583,12 0,11.4627417 0,10.8 L0,1.2 C0,0.5372583 0.5372583,0 1.2,0 L4.2,0"></path>
+                <polyline points="8.4 8.4 10.8 6 8.4 3.6"></polyline>
+                <path d="M10.8,6 L3.6,6"></path>
+            </g>
+        </g>
+    </g>
+</svg>

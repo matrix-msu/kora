@@ -41,7 +41,7 @@
                 </ul>
             </li>
             <li class="kora_nav_profile">
-                <a href="#" class="kora_nav_item_title"><img style="height: 35px;width: 35px;" src="{{env('STORAGE_URL') . 'profiles/'.\Auth::user()->id.'/'.\Auth::user()->profile}}"></a>
+                <a href="#" class="kora_nav_item_title"><img class="kora_nav_profile_pic" src="{{env('STORAGE_URL') . 'profiles/'.\Auth::user()->id.'/'.\Auth::user()->profile}}"></a>
                 <ul class="kora_nav_sub_menu">
                     <li class="kora_nav_sub_menu_header">
                         Hello, {{ Auth::user()->username }}!
@@ -63,7 +63,7 @@
                     </li>
                     <li class="kora_nav_sub_menu_spacer"></li>
                     <li class="kora_nav_sub_menu_item">
-                        <a href="{{ url('/auth/logout') }}">Logout</a>
+                        <a href="{{ url('/auth/logout') }}">Logout<img class="kora_nav_logout_button" src="{{ env('BASE_URL') }}images/menu_logout.svg"></a>
                     </li>
                 </ul>
             </li>

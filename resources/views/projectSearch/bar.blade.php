@@ -33,6 +33,8 @@ echo '<form id="project_search" method="GET" action="'. $url .'">';
             <option value="2">{{trans('search_bar.exact')}}</option>
         </select>
 
+
+
         <input class="btn btn-primary form-control" type="submit" value="{{trans('search_bar.search')}}">
     </div>
 

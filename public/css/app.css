@@ -45,22 +45,27 @@
   float: left;
   height: 50px;
   width: auto;
-  padding-top: 10px;
+  padding-top: 12px;
   padding-right: 20px;
 }
-.kora_nav_profile img {
+.kora_nav_profile_pic {
   height: 24px;
   width: 24px;
   box-sizing: border-box;
-  border: 2px solid #FFFFFF;
+  border: 2px solid white;
   border-radius: 50%;
   box-shadow: 0 3px 5px 0 rgba(57, 67, 89, 0.2);
+}
+.kora_nav_logout_button {
+  height: 12px;
+  width: 11px;
+  padding-left: 155px;
 }
 .kora_nav_ham {
   float: left;
   height: 50px;
   width: auto;
-  padding-top: 19px;
+  padding-top: 17px;
   padding-right: 20px;
 }
 .kora_nav_ham img {
@@ -85,6 +90,9 @@
   width: auto;
   padding-right: 20px;
 }
+.kora_nav_icon_post_text {
+  padding-left: 10px;
+}
 .kora_nav_sub_menu {
   width: 175px;
   position: absolute;
@@ -96,8 +104,22 @@
   background-color: #21323B;
   box-shadow: 0 20px 30px 0 rgba(0, 0, 0, 0.2);
 }
+#kora_nav_right .kora_nav_sub_menu {
+  width: 250px;
+  right: 0;
+  border-radius: 0 0 0 5px;
+}
 .kora_nav_sub_menu img {
   padding-right: 13px;
+}
+.kora_nav_sub_menu_header {
+  padding-left: 17px;
+  padding-bottom: 20px;
+  color: white;
+  font-family: ubunturegular;
+  font-size: 16px;
+  line-height: 18px;
+  height: 18px;
 }
 .kora_nav_sub_menu_item {
   padding-left: 20px;
@@ -109,7 +131,7 @@
   box-sizing: border-box;
   width: 100%;
   height: 3px;
-  border: 2px solid #FFFFFF;
+  border: 2px solid white;
   opacity: 0.1;
 }
 .kora_nav_deep_menu {
