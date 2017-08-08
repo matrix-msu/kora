@@ -27,22 +27,59 @@
 .kora_nav_logo img {
   height: 27px;
   width: 27px;
+  box-shadow: 0 0 5px 0 rgba(255, 255, 255, 0.2);
 }
-.kora_nav_item {
+.kora_nav_search {
   float: left;
   height: 50px;
+  width: auto;
+  padding-top: 17px;
+  padding-right: 20px;
+}
+.kora_nav_search img {
+  height: 14px;
+  width: 14px;
+  box-shadow: 0 3px 5px 0 rgba(57, 67, 89, 0.2);
+}
+.kora_nav_profile {
+  float: left;
+  height: 50px;
+  width: auto;
+  padding-top: 10px;
+  padding-right: 20px;
+}
+.kora_nav_profile img {
+  height: 24px;
+  width: 24px;
+  box-sizing: border-box;
+  border: 2px solid #FFFFFF;
+  border-radius: 50%;
+  box-shadow: 0 3px 5px 0 rgba(57, 67, 89, 0.2);
+}
+.kora_nav_ham {
+  float: left;
+  height: 50px;
+  width: auto;
+  padding-top: 19px;
+  padding-right: 20px;
+}
+.kora_nav_ham img {
+  height: 12px;
+  width: 17px;
+  box-shadow: 0 3px 5px 0 rgba(57, 67, 89, 0.2);
+}
+.kora_nav_item {
+  padding-top: 15px;
+  float: left;
+  position: relative;
   font-family: ubunturegular;
   font-size: 12px;
   font-weight: 500;
   line-height: 16px;
 }
-.kora_nav_item a {
-  opacity: 0.7;
-}
 #kora_nav_left .kora_nav_item {
   width: 80px;
   padding-left: 8px;
-  padding-top: 15px;
 }
 #kora_nav_right .kora_nav_item {
   width: auto;
@@ -50,9 +87,9 @@
 }
 .kora_nav_sub_menu {
   width: 175px;
-  position: relative;
+  position: absolute;
   display: none;
-  margin-top: 19px;
+  top: 50px;
   padding-top: 20px;
   padding-bottom: 5px;
   border-radius: 0 0 5px 5px;

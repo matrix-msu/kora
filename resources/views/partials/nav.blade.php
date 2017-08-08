@@ -23,7 +23,7 @@
                 </ul>
             </li>
         @else
-            <li class="kora_nav_item">
+            <li class="kora_nav_search">
                 <a href="#" class="kora_nav_item_title"><img src="{{ env('BASE_URL') }}images/menu_search.svg"></a>
                 <ul class="kora_nav_sub_menu">
                     <li class="kora_nav_sub_menu_item">
@@ -40,7 +40,7 @@
                     </li>
                 </ul>
             </li>
-            <li class="kora_nav_item">
+            <li class="kora_nav_profile">
                 <a href="#" class="kora_nav_item_title"><img style="height: 35px;width: 35px;" src="{{env('STORAGE_URL') . 'profiles/'.\Auth::user()->id.'/'.\Auth::user()->profile}}"></a>
                 <ul class="kora_nav_sub_menu">
                     <li class="kora_nav_sub_menu_header">
@@ -67,19 +67,36 @@
                     </li>
                 </ul>
             </li>
-            <li class="kora_nav_item">
-                <a href="#" class="kora_nav_item_title">Dashboard</a>
+            <li class="kora_nav_ham">
+                <a href="#" class="kora_nav_item_title"><img src="{{ env('BASE_URL') }}images/menu_ham.svg"></a>
             </li>
         @endif
     </ul>
 </div>
 
 <script>
-    $("#kora_nav_bar").on("click", ".kora_nav_item_title", function(){
-        $(this).next().toggle();
+    var menuTitleElement = $('#kora_nav_left .kora_nav_item_title');
+    var menuIndex = menuTitleElement.length-1;
+    menuTitleElement.each( function(index){
+        if(index>0 && index != menuIndex)
+            $(this).css( "opacity", 0.7 );
     });
 
-    $("#kora_nav_bar").on("click", ".kora_nav_sub_menu_item_title", function(){
+    var navBarElement = $("#kora_nav_bar");
+    var subMenuElement = $("#kora_nav_bar .kora_nav_sub_menu");
+    var deepMenuElement = $("#kora_nav_bar .kora_nav_deep_menu");
+    navBarElement.on("click", ".kora_nav_item_title", function(){
+        var clicked = $(this).next();
+        deepMenuElement.each( function(){
+            $(this).attr("style","display: none;");
+        });
+        subMenuElement.each( function(){
+            if($(this).get(0) !== clicked.get(0))
+                $(this).attr("style","display: none;");
+        });
+        clicked.toggle();
+    });
+    navBarElement.on("click", ".kora_nav_sub_menu_item_title", function(){
         $(this).next().toggle();
     });
 </script>
