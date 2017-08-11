@@ -1,12 +1,14 @@
 <?php namespace App\Http\Controllers;
 
+use App\Field;
 use App\Form;
 use App\Project;
 use App\Record;
 use App\Search;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
 
@@ -137,10 +139,11 @@ class ProjectSearchController extends Controller {
     /**
      * Executes and displays results for a global multi-project search in Kora3.
      *
+     * @param  Request
      * @return View
      */
-    public function globalSearch() {
-        $query = trim(Request::input("query"));
+    public function globalSearch(Request $request) {
+        $query = trim($request->gsQuery);
         $method = "GLOBAL";
 
         $page = (isset($_GET['page'])) ? intval(strip_tags($_GET['page'])) : $page = 1;
@@ -235,5 +238,92 @@ class ProjectSearchController extends Controller {
 
         $pid = 0;
         return view("projectSearch.results", compact("records", "ignored", "rid_paginator", "pid", "projectArrays"));
+    }
+
+    /**
+     * Executes the quick search functionality of the global search bar.
+     *
+     * @param  Request
+     * @return array - The results from the quick search
+     */
+    public function globalQuickSearch(Request $request) {
+        $term = $request->searchText;
+        $termWC = "%".$term."%";
+
+        //Do the searches
+        $projResults = Project::where("name","like",$termWC)->orWhere("slug","like",$termWC)->get();
+        $formResults = Form::where("name","like",$termWC)->orWhere("slug","like",$termWC)->get();
+        $fieldResults = Field::where("name","like",$termWC)->orWhere("slug","like",$termWC)->get();
+        $recordResults = Record::where("kid","=",$term)->get();
+
+        $returnArray = array();
+
+        //Filter those results
+        foreach($projResults as $project) {
+            if(\Auth::user()->admin || \Auth::user()->inAProjectGroup($project)) {
+                $result = "<li>Go to Project: <a type=\"Project\" href=\"".action("ProjectController@show",["pid" => $project->pid])
+                    ."\">".$project->name." (".$project->slug.")</a></li>";
+                array_push($returnArray,$result);
+            }
+        }
+
+        foreach($formResults as $form) {
+            if(\Auth::user()->admin || \Auth::user()->inAFormGroup($form)) {
+                $result = "<li>Go to Form: <a type=\"Form\" href=\"".action("FormController@show",["pid" => $form->pid, "fid" => $form->fid])
+                    ."\">".$form->name." (".$form->slug.")</a></li>";
+                array_push($returnArray,$result);
+            }
+        }
+
+        foreach($fieldResults as $field) {
+            $form = FormController::getForm($field->flid);
+            if(\Auth::user()->admin || \Auth::user()->inAFormGroup($form)) {
+                $result = "<li>Go to Field: <a type=\"Field\" href=\"".action("FieldController@show",["pid" => $field->pid, "fid" => $field->fid, "flid" => $field->flid])
+                    ."\">".$field->name." (".$field->slug.")</a></li>";
+                array_push($returnArray,$result);
+            }
+        }
+
+        foreach($recordResults as $record) {
+            $form = FormController::getForm($record->fid);
+            if(\Auth::user()->admin || \Auth::user()->inAFormGroup($form)) {
+                $result = "<li>Go to Record: <a type=\"Record\" href=\"".action("RecordController@show",["pid" => $record->pid, "fid" => $record->fid, "rid" => $record->rid])
+                    ."\">".$record->kid."</a></li>";
+                array_push($returnArray,$result);
+            }
+        }
+
+        return json_encode($returnArray);
+    }
+
+    public function cacheGlobalSearch(Request $request) {
+        $html = $request->html;
+
+        $builder = \Auth::user()->gsCaches()->orderby("id","asc");
+        $currCache = $builder->get();
+        $currCount = $builder->count();
+        $firstCache = $builder->first();
+
+        //check if it exists
+        foreach($currCache as $cache) {
+            if($cache->html == $html) {
+                //lets delete the dupe and before we add so the "new" one is moved to the top
+                DB::table('global_cache')->where("id","=",$cache->id)->delete();
+                //update the count to reflect this deletion
+                $currCount--;
+            }
+        }
+
+        //If 5 results exist, delete the first one
+        if($currCount >= 6)
+            DB::table('global_cache')->where("id","=",$firstCache->id)->delete();
+
+        DB::table('global_cache')->insert([
+            ['user_id' => \Auth::user()->id, 'html' => $html]
+        ]);
+    }
+
+    public function clearGlobalCache() {
+        \Auth::user()->gsCaches()->delete();
     }
 }

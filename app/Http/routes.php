@@ -220,6 +220,9 @@ Route::get("keywordSearch/project/{pid}", "ProjectSearchController@keywordSearch
 
 //global search routes
 Route::get("globalSearch", "ProjectSearchController@globalSearch");
+Route::post("globalQuickSearch", "ProjectSearchController@globalQuickSearch");
+Route::post("cacheGlobalSearch", "ProjectSearchController@cacheGlobalSearch");
+Route::delete("clearGlobalCache", "ProjectSearchController@clearGlobalCache");
 
 //advanced search routes
 Route::get("/projects/{pid}/forms/{fid}/advancedSearch", "AdvancedSearchController@index");

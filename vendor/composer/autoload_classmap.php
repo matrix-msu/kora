@@ -27,6 +27,7 @@ return array(
     'CreateGalleryfieldsTable' => $baseDir . '/database/migrations/2015_00_00_000003_create_galleryfields_table.php',
     'CreateGeneratedlistfieldsTable' => $baseDir . '/database/migrations/2015_00_00_000004_create_generatedlistfields_table.php',
     'CreateGeolocatorfieldsTable' => $baseDir . '/database/migrations/2015_00_00_000005_create_geolocatorfields_table.php',
+    'CreateGlobalCacheTable' => $baseDir . '/database/migrations/2017_08_10_175125_CreateGlobalCacheTable.php',
     'CreateJobsTable' => $baseDir . '/database/migrations/2016_05_23_204821_create_jobs_table.php',
     'CreateListfieldsTable' => $baseDir . '/database/migrations/2015_00_00_000006_create_listfields_table.php',
     'CreateMetadataTable' => $baseDir . '/database/migrations/2015_07_01_122103_CreateMetadataTable.php',

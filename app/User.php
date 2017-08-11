@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Html\FormBuilder;
 use Illuminate\Support\Facades\DB;
 
 class User extends Model implements AuthenticatableContract, CanResetPasswordContract {
@@ -34,6 +36,15 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @var array - Attributes that ignored in the model representation
      */
 	protected $hidden = ['password', 'remember_token'];
+
+    /**
+     * Returns the global cache results associated with a user.
+     *
+     * @return FormBuilder
+     */
+    public function gsCaches() {
+        return DB::table("global_cache")->where("user_id", "=", $this->id);
+    }
 
     /**
      * Returns true if a user is allowed to create forms in a project, false if not.
@@ -349,6 +360,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         DB::table("project_group_user")->where("user_id", "=", $this->id)->delete();
         DB::table("form_group_user")->where("user_id", "=", $this->id)->delete();
         DB::table("backup_support")->where("user_id", "=", $this->id)->delete();
+        DB::table("global_cache")->where("user_id", "=", $this->id)->delete();
 
         //Delete dashboard stuff
         $sections = DB::table("dashboard_sections")->where("uid", "=", $this->id)->get();
