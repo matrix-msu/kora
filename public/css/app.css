@@ -257,6 +257,16 @@
 #kora_global_search_clear:focus {
   outline-width: 0;
 }
+/* Code down here is for the side bar */
+#kora_nav_side_bar {
+  height: 100vh;
+  width: 250px;
+  top: 50px;
+  right: 0;
+  position: absolute;
+  background-color: #152730;
+  display: none;
+}
 body {
   margin: 0px !important ;
 }

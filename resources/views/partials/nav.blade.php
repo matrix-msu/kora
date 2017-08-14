@@ -24,13 +24,13 @@
             </li>
         @else
             <li class="kora_nav_search">
-                <a href="#" id="kora_nav_search_cmdk" class="kora_nav_item_title"><img src="{{ env('BASE_URL') }}images/menu_search.svg"></a>
+                <a href="#" id="kora_nav_search_cmdk" class="kora_nav_item_title"><img src="{{ env('BASE_URL') }}assets/images/menu_search.svg"></a>
                 <ul class="kora_nav_sub_menu">
                     <li>
                         <form id="kora_global_search" action="{{action("ProjectSearchController@globalSearch")}}">
                             <input id="kora_global_search_input" autocomplete="off" value="" placeholder="    Start Typing to Search ..." name="gsQuery" />
                             <button id="kora_global_search_submit">
-                                <img src="{{ env('BASE_URL') }}images/menu_gSubmit.svg" alt="submit global search" />
+                                <img src="{{ env('BASE_URL') }}assets/images/menu_gSubmit.svg" alt="submit global search" />
                             </button>
                         </form>
                     </li>
@@ -74,12 +74,18 @@
                     </li>
                     <li class="kora_nav_sub_menu_spacer"></li>
                     <li class="kora_nav_sub_menu_item">
-                        <a href="{{ url('/auth/logout') }}">Logout<img class="kora_nav_logout_button" src="{{ env('BASE_URL') }}images/menu_logout.svg"></a>
+                        <a href="{{ url('/auth/logout') }}">Logout<img class="kora_nav_logout_button" src="{{ env('BASE_URL') }}assets/images/menu_logout.svg"></a>
                     </li>
                 </ul>
             </li>
             <li class="kora_nav_ham">
-                <a href="#" class="kora_nav_item_title"><img src="{{ env('BASE_URL') }}images/menu_ham.svg"></a>
+                <a href="#" class="kora_nav_side_title"><img src="{{ env('BASE_URL') }}assets/images/menu_ham.svg"></a>
+                <ul id="kora_nav_side_bar">
+                    <li>Some side menu item</li>
+                    <li>Some side menu item</li>
+                    <li>Some side menu item</li>
+                    <li>Some side menu item</li>
+                </ul>
             </li>
         @endif
     </ul>
