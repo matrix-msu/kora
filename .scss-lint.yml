@@ -1,7 +1,9 @@
+exclude: ['public/**', 'node_modules/**']
+include: 'resources/assets/scss//*.s+(a|c)ss'
+
+
 options:
   formatter: stylish
-files:
-  include: '**/*.s+(a|c)ss'
 rules:
   # Extends
   extends-before-mixins: 1
