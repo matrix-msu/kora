@@ -5,3 +5,6 @@
 phpunit.xml
 *.pyc
 /public/app
+ 
+.DS_Store
+ .sass-cache
