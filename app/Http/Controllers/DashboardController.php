@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Field;
+use App\Page;
+use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -65,19 +68,6 @@ class DashboardController extends Controller {
                         $b['displayedOpts'] = $disOpts;
                         $b['hiddenOpts'] = $hidOpts;
                         break;
-                    case 'Favorite Projects':
-                        $projects = array();
-                        foreach($options as $pid) {
-                            $p = array();
-                            $name = ProjectController::getProject($pid)->name;
-
-                            $p['pid'] = $pid;
-                            $p['name'] = $name;
-
-                            array_push($projects,$p);
-                        }
-                        $b['projects'] = $projects;
-                        break;
                     case 'Form':
                         $fid = $options[0];
                         $disOpts = explode(',',$options[1]);
@@ -91,77 +81,31 @@ class DashboardController extends Controller {
                         $b['displayedOpts'] = $disOpts;
                         $b['hiddenOpts'] = $hidOpts;
                         break;
-                    case 'Favorite Forms':
-                        $forms = array();
-                        foreach($options as $fid){
-                            $f = array();
-                            $name = FormController::getForm($fid)->name;
+                    case 'Record':
+                        $rid = $options[0];
 
-                            $f['fid'] = $fid;
-                            $f['name'] = $name;
+                        $record = RecordController::getRecord($rid);
+                        $project = ProjectController::getProject($record->pid);
+                        $form = FormController::getForm($record->fid);
 
-                            array_push($forms,$f);
-                        }
-                        $b['forms'] = $forms;
-                        break;
-                    case 'Your Records; Modified':
-                        //get record ids
-                        $blkResults = DB::table('revisions')->where('owner','=',Auth::user()->id)->orderBy('created_at','desc')->get();
-                        $blkrecords = array();
-                        foreach($blkResults as $rec) {
-                            $recMod = RecordController::getRecord($rec->rid);
-                            if(!is_null($recMod)) {
-                                $kid = $recMod->kid;
-                            } else {
-                                $formMod = FormController::getForm($rec->fid);
-                                $kid = $formMod->pid.'-'.$rec->fid.'-'.$rec->rid;
-                            }
+                        $firstPage = Page::where("fid","=",$record->fid)->where("sequence","=",0)->first();
+                        $firstField = Field::where("page_id","=",$firstPage->id)->where("sequence","=",0)->first();
+                        $typedField = $firstField->getTypedFieldFromRID($rid);
 
-                            if(!in_array($kid,$blkrecords))
-                                array_push($blkrecords,$kid);
+                        $b['rid'] = $rid;
+                        $b['projName'] = $project->name;
+                        $b['formName'] = $form->name;
+                        $b['fieldName'] = $firstField->name;
+                        $b['fieldType'] = $firstField->type;
+                        $b['dataField'] = $typedField;
+                        break;
+                    case 'Quote':
+                        $quote = Inspiring::quote();
 
-                            if(sizeof($blkrecords)==15)
-                                break;
-                        }
-                        $b['records'] = $blkrecords;
+                        $b["quote"] = $quote;
                         break;
-                        break;
-                    case 'Records You\'ve Modified':
-                        //get record ids
-                        $blkResults = DB::table('revisions')->where('userId','=',Auth::user()->id)->orderBy('created_at','desc')->get();
-                        $blkrecords = array();
-                        foreach($blkResults as $rec) {
-                            $recMod = RecordController::getRecord($rec->rid);
-                            if(!is_null($recMod)) {
-                                $kid = $recMod->kid;
-                            } else {
-                                $formMod = FormController::getForm($rec->fid);
-                                $kid = $formMod->pid.'-'.$rec->fid.'-'.$rec->rid;
-                            }
-
-                            if(!in_array($kid,$blkrecords))
-                                array_push($blkrecords,$kid);
-
-                            if(sizeof($blkrecords)==15)
-                                break;
-                        }
-                        $b['records'] = $blkrecords;
-                        break;
-                    case 'Plugins':
-                        //get plugin names and menus
-                        break;
-                    case 'Kora News':
-                        //TODO:: Kora News
-                        break;
-                    case 'Kora Twitter':
-                        //TODO:: Twitter
-                        break;
-                    case 'Dominos':
-                        $user = $options[0];
-                        $pass = $options[1];
-
-                        $b['user'] = $user;
-                        $b['pass'] = $pass;
+                    case 'Twitter':
+                        //TODO::Kora Twitter
                         break;
                     case 'Note':
                         $title = $options[0];

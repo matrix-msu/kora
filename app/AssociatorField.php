@@ -257,10 +257,18 @@ class AssociatorField extends BaseField {
     public function getExportSample($slug,$type) {
         switch($type) {
             case "XML":
-                //TODO::add sample
+                $xml = '<' . Field::xmlTagClear($slug) . ' type="Associator">';
+                $xml .= "<Record>".utf8_encode('0-0-0')."</Record>";
+                $xml .= "<Record>".utf8_encode('0-0-1')."</Record>";
+                $xml .= '</' . Field::xmlTagClear($slug) . '>';
+
+                return $xml;
                 break;
             case "JSON":
-                //TODO::add sample
+                $fieldArray = array('name' => $slug, 'type' => 'Associator');
+                $fieldArray['records'] = array("0-0-0","0-0-1");
+
+                return $fieldArray;
                 break;
         }
     }

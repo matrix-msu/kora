@@ -210,7 +210,7 @@ class DocumentsField extends FileTypeField {
      * @param  bool $overwrite - Overwrite if data exists
      */
     public function massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite=0) {
-        //TODO::mass assign
+        //TODO::mass assign?
     }
 
     /**

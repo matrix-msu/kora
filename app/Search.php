@@ -80,7 +80,6 @@ class Search {
 
         $processed = Search::processArgument($this->arg, $this->method);
 
-        //TODO::we need to get rid of use of self in typed fields for keyword search
         if($this->method != Search::SEARCH_AND) {
             foreach($fields as $field) {
                 //This will account for both cases:
