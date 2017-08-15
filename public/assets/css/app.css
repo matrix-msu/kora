@@ -827,8 +827,8 @@ form {
 .navigation-sub-menu {
   background-color: #21323b;
   border-radius: 0 0 5px 5px;
-  -webkit-box-shadow: -16px 20px 30px 0 white;
-          box-shadow: -16px 20px 30px 0 white;
+  -webkit-box-shadow: -16px 20px 30px 0 rgba(0, 0, 0, 0.2);
+          box-shadow: -16px 20px 30px 0 rgba(0, 0, 0, 0.2);
   opacity: 0;
   padding-bottom: 5px;
   position: absolute;
@@ -899,8 +899,8 @@ form {
 .navigation-deep-menu {
   background-color: #21323b;
   border-radius: 0 5px 5px;
-  -webkit-box-shadow: 0 20px 30px 0 white;
-          box-shadow: 0 20px 30px 0 white;
+  -webkit-box-shadow: 0 20px 30px 0 rgba(0, 0, 0, 0.2);
+          box-shadow: 0 20px 30px 0 rgba(0, 0, 0, 0.2);
   display: none;
   margin-left: 155px;
   margin-top: -15px;
