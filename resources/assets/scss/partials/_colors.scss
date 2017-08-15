@@ -1,0 +1,51 @@
+@function palette($palette, $tone: 'base') {
+  $base-green: #007c83;
+  $base-accent: #04b6af;
+  $sidemenu-gray: #152730;
+
+  // main base colors
+  $base-white: #fff;
+  $base-black: #000;
+  $base-gray: #21323b;
+
+  // status base colors
+
+  // additional accent base colors
+
+  // hue-based scales
+  $hue-scales: (
+  white: (
+  dark: $base-white,
+  base: $base-white,
+  light: adjust-color($base-white, $hue: +.0deg, $saturation: -0, $lightness: +0, $alpha: .8),
+  lighter: adjust-color($base-white, $hue: +.0deg, $saturation: -0, $lightness: +0, $alpha: .4),
+  lightest: adjust-color($base-white, $hue: +.0deg, $saturation: -0, $lightness: +0, $alpha: .2),
+  //   light2: adjust-color($base-blue, $hue: -1.42276deg, $saturation: -13.19426%, $lightness: +40.98039%),
+  //   light3: adjust-color($base-blue, $hue: +3.33333deg, $saturation: -42.93785%, $lightness: +46.66667%)
+
+  ),
+
+  black: (
+  dark: $base-black,
+  base: $base-black,
+  light: adjust-color($base-black, $hue: +.0deg, $saturation: -0, $lightness: +0, $alpha: .8),
+  lighter: adjust-color($base-black, $hue: +.0deg, $saturation: -0, $lightness: +0, $alpha: .4),
+  lightest: adjust-color($base-black, $hue: +.0deg, $saturation: -0, $lightness: +0, $alpha: .2),
+  ),
+
+  gray: (
+  dark: $sidemenu-gray,
+  base: #21323b
+  )
+
+  // blue: (
+  //   dark: adjust-color($base-blue, $hue: +.50725deg, $saturation: -5.13717%, $lightness: -8.23529%),
+  //   base: $base-blue,
+  //   light1: adjust-color($base-blue, $hue: +.05376deg, $saturation: -6.34637%, $lightness: +27.64706%),
+  //   light2: adjust-color($base-blue, $hue: -1.42276deg, $saturation: -13.19426%, $lightness: +40.98039%),
+  //   light3: adjust-color($base-blue, $hue: +3.33333deg, $saturation: -42.93785%, $lightness: +46.66667%)
+  // ),
+  );
+
+  @return map-get(map-get($hue-scales, $palette), $tone);
+}

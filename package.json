@@ -1,6 +1,10 @@
 {
   "devDependencies": {
     "gulp": "^3.8.8",
-    "laravel-elixir": "*"
+    "laravel-elixir": "*",
+    "csscomb": "*"
+  },
+  "dependencies": {
+    "normalize.css": "^7.0.0"
   }
 }

@@ -1,9 +1,13 @@
 // these should be moved into a variables or colors partial
-$variable: "value";
-$koraGreen: #007C83;
-$subMenuGrey: #21323B;
-$sideMenuGrey: #152730;
-$ubuntuBold: ubuntubold;
-$ubuntuReg: ubunturegular;
-@import "partials/global";
-@import "partials/nav";
+$white: #fff;
+$kora-green: #007c83;
+$kora-accent: #04b6af;
+$submenu-grey: #21323b;
+$sidemenu-grey: #152730;
+$ubuntu-bold: ubuntubold;
+$ubuntu-reg: ubunturegular;
+
+@import 'vendor/normalize/import-now';
+@import 'partials/colors';
+@import 'partials/global';
+@import 'partials/nav';

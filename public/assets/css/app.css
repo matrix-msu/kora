@@ -1,409 +1,917 @@
-/* line 1, ../../../resources/assets/scss/partials/global.scss */
+/*! normalize-scss | MIT/GPLv2 License | bit.ly/normalize-scss */
+/* Document
+   ========================================================================== */
+/**
+ * 1. Correct the line height in all browsers.
+ * 2. Prevent adjustments of font size after orientation changes in
+ *    IE on Windows Phone and in iOS.
+ */
+/* line 56, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+html {
+  line-height: 1.15;
+  /* 1 */
+  -ms-text-size-adjust: 100%;
+  /* 2 */
+  -webkit-text-size-adjust: 100%;
+  /* 2 */
+}
+
+/* Sections
+   ========================================================================== */
+/**
+ * Remove the margin in all browsers (opinionated).
+ */
+/* line 85, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
 body {
-  margin: 0 !important;
+  margin: 0;
+}
+
+/**
+ * Add the correct display in IE 9-.
+ */
+/* line 93, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+article,
+aside,
+footer,
+header,
+nav,
+section {
+  display: block;
+}
+
+/**
+ * Correct the font size and margin on `h1` elements within `section` and
+ * `article` contexts in Chrome, Firefox, and Safari.
+ */
+/* line 107, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+/* Grouping content
+   ========================================================================== */
+/**
+ * Add the correct display in IE 9-.
+ */
+/* line 200, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+figcaption,
+figure {
+  display: block;
+}
+
+/**
+ * Add the correct margin in IE 8.
+ */
+/* line 209, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+figure {
+  margin: 1em 40px;
+}
+
+/**
+ * 1. Add the correct box sizing in Firefox.
+ * 2. Show the overflow in Edge and IE.
+ */
+/* line 223, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+hr {
+  -webkit-box-sizing: content-box;
+          box-sizing: content-box;
+  /* 1 */
+  height: 0;
+  /* 1 */
+  overflow: visible;
+  /* 2 */
+}
+
+/**
+ * Add the correct display in IE.
+ */
+/* line 233, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+main {
+  display: block;
+}
+
+/**
+ * 1. Correct the inheritance and scaling of font size in all browsers.
+ * 2. Correct the odd `em` font sizing in all browsers.
+ */
+/* line 253, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+pre {
+  font-family: monospace, monospace;
+  /* 1 */
+  font-size: 1em;
+  /* 2 */
+}
+
+/* Links
+   ========================================================================== */
+/**
+ * 1. Remove the gray background on active links in IE 10.
+ * 2. Remove gaps in links underline in iOS 8+ and Safari 8+.
+ */
+/* line 268, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+a {
+  background-color: transparent;
+  /* 1 */
+  -webkit-text-decoration-skip: objects;
+  /* 2 */
+}
+
+/* Text-level semantics
+   ========================================================================== */
+/**
+ * 1. Remove the bottom border in Chrome 57- and Firefox 39-.
+ * 2. Add the correct text decoration in Chrome, Edge, IE, Opera, and Safari.
+ */
+/* line 283, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+abbr[title] {
+  border-bottom: none;
+  /* 1 */
+  text-decoration: underline;
+  /* 2 */
+  -webkit-text-decoration: underline dotted;
+          text-decoration: underline dotted;
+  /* 2 */
+}
+
+/**
+ * Prevent the duplicate application of `bolder` by the next rule in Safari 6.
+ */
+/* line 293, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+b,
+strong {
+  font-weight: inherit;
+}
+
+/**
+ * Add the correct font weight in Chrome, Edge, and Safari.
+ */
+/* line 302, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+b,
+strong {
+  font-weight: bolder;
+}
+
+/**
+ * 1. Correct the inheritance and scaling of font size in all browsers.
+ * 2. Correct the odd `em` font sizing in all browsers.
+ */
+/* line 312, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+code,
+kbd,
+samp {
+  font-family: monospace, monospace;
+  /* 1 */
+  font-size: 1em;
+  /* 2 */
+}
+
+/**
+ * Add the correct font style in Android 4.3-.
+ */
+/* line 323, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+dfn {
+  font-style: italic;
+}
+
+/**
+ * Add the correct background and color in IE 9-.
+ */
+/* line 331, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+mark {
+  background-color: #ff0;
+  color: #000;
+}
+
+/**
+ * Add the correct font size in all browsers.
+ */
+/* line 340, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+small {
+  font-size: 80%;
+}
+
+/**
+ * Prevent `sub` and `sup` elements from affecting the line height in
+ * all browsers.
+ */
+/* line 349, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+/* line 357, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+sub {
+  bottom: -0.25em;
+}
+
+/* line 361, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+sup {
+  top: -0.5em;
+}
+
+/* Embedded content
+   ========================================================================== */
+/**
+ * Add the correct display in IE 9-.
+ */
+/* line 374, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+audio,
+video {
+  display: inline-block;
+}
+
+/**
+ * Add the correct display in iOS 4-7.
+ */
+/* line 383, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+audio:not([controls]) {
+  display: none;
+  height: 0;
+}
+
+/**
+ * Remove the border on images inside links in IE 10-.
+ */
+/* line 392, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+img {
+  border-style: none;
+}
+
+/**
+ * Hide the overflow in IE.
+ */
+/* line 400, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+svg:not(:root) {
+  overflow: hidden;
+}
+
+/* Forms
+   ========================================================================== */
+/**
+ * 1. Change the font styles in all browsers (opinionated).
+ * 2. Remove the margin in Firefox and Safari.
+ */
+/* line 414, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: sans-serif;
+  /* 1 */
+  font-size: 100%;
+  /* 1 */
+  line-height: 1.15;
+  /* 1 */
+  margin: 0;
+  /* 2 */
+}
+
+/**
+ * Show the overflow in IE.
+ */
+/* line 434, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+button {
+  overflow: visible;
+}
+
+/**
+ * Remove the inheritance of text transform in Edge, Firefox, and IE.
+ * 1. Remove the inheritance of text transform in Firefox.
+ */
+/* line 443, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+button,
+select {
+  /* 1 */
+  text-transform: none;
+}
+
+/**
+ * 1. Prevent a WebKit bug where (2) destroys native `audio` and `video`
+ *    controls in Android 4.
+ * 2. Correct the inability to style clickable types in iOS and Safari.
+ */
+/* line 454, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+button,
+html [type="button"],
+[type="reset"],
+[type="submit"] {
+  -webkit-appearance: button;
+  /* 2 */
+}
+
+/* line 461, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+button,
+[type="button"],
+[type="reset"],
+[type="submit"] {
+  /**
+   * Remove the inner border and padding in Firefox.
+   */
+  /**
+   * Restore the focus styles unset by the previous rule.
+   */
+}
+/* line 470, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+button::-moz-focus-inner,
+[type="button"]::-moz-focus-inner,
+[type="reset"]::-moz-focus-inner,
+[type="submit"]::-moz-focus-inner {
+  border-style: none;
+  padding: 0;
+}
+/* line 479, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+button:-moz-focusring,
+[type="button"]:-moz-focusring,
+[type="reset"]:-moz-focusring,
+[type="submit"]:-moz-focusring {
+  outline: 1px dotted ButtonText;
+}
+
+/**
+ * Show the overflow in Edge.
+ */
+/* line 488, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+input {
+  overflow: visible;
+}
+
+/**
+ * 1. Add the correct box sizing in IE 10-.
+ * 2. Remove the padding in IE 10-.
+ */
+/* line 497, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+[type="checkbox"],
+[type="radio"] {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  /* 1 */
+  padding: 0;
+  /* 2 */
+}
+
+/**
+ * Correct the cursor style of increment and decrement buttons in Chrome.
+ */
+/* line 507, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+[type="number"]::-webkit-inner-spin-button,
+[type="number"]::-webkit-outer-spin-button {
+  height: auto;
+}
+
+/**
+ * 1. Correct the odd appearance in Chrome and Safari.
+ * 2. Correct the outline style in Safari.
+ */
+/* line 517, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+[type="search"] {
+  -webkit-appearance: textfield;
+  /* 1 */
+  outline-offset: -2px;
+  /* 2 */
+  /**
+   * Remove the inner padding and cancel buttons in Chrome and Safari on macOS.
+   */
+}
+/* line 525, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+[type="search"]::-webkit-search-cancel-button, [type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+/**
+ * 1. Correct the inability to style clickable types in iOS and Safari.
+ * 2. Change font properties to `inherit` in Safari.
+ */
+/* line 536, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+::-webkit-file-upload-button {
+  -webkit-appearance: button;
+  /* 1 */
+  font: inherit;
+  /* 2 */
+}
+
+/**
+ * Correct the padding in Firefox.
+ */
+/* line 545, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+fieldset {
+  padding: 0.35em 0.75em 0.625em;
+}
+
+/**
+ * 1. Correct the text wrapping in Edge and IE.
+ * 2. Correct the color inheritance from `fieldset` elements in IE.
+ * 3. Remove the padding so developers are not caught out when they zero out
+ *    `fieldset` elements in all browsers.
+ */
+/* line 556, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+legend {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  /* 1 */
+  display: table;
+  /* 1 */
+  max-width: 100%;
+  /* 1 */
+  padding: 0;
+  /* 3 */
+  color: inherit;
+  /* 2 */
+  white-space: normal;
+  /* 1 */
+}
+
+/**
+ * 1. Add the correct display in IE 9-.
+ * 2. Add the correct vertical alignment in Chrome, Firefox, and Opera.
+ */
+/* line 570, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+progress {
+  display: inline-block;
+  /* 1 */
+  vertical-align: baseline;
+  /* 2 */
+}
+
+/**
+ * Remove the default vertical scrollbar in IE.
+ */
+/* line 579, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+textarea {
+  overflow: auto;
+}
+
+/* Interactive
+   ========================================================================== */
+/*
+ * Add the correct display in Edge, IE, and Firefox.
+ */
+/* line 592, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+details {
+  display: block;
+}
+
+/*
+ * Add the correct display in all browsers.
+ */
+/* line 600, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+summary {
+  display: list-item;
+}
+
+/*
+ * Add the correct display in IE 9-.
+ */
+/* line 608, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+menu {
+  display: block;
+}
+
+/* Scripting
+   ========================================================================== */
+/**
+ * Add the correct display in IE 9-.
+ */
+/* line 641, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+canvas {
+  display: inline-block;
+}
+
+/**
+ * Add the correct display in IE.
+ */
+/* line 649, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+template {
+  display: none;
+}
+
+/* Hidden
+   ========================================================================== */
+/**
+ * Add the correct display in IE 10-.
+ */
+/* line 662, ../../../resources/assets/scss/vendor/normalize/_normalize-mixin.scss */
+[hidden] {
+  display: none;
+}
+
+/* line 1, ../../../resources/assets/scss/partials/_global.scss */
+body,
+form {
+  margin: 0;
+}
+
+/* line 6, ../../../resources/assets/scss/partials/_global.scss */
+.right {
+  float: right;
+}
+
+/* line 10, ../../../resources/assets/scss/partials/_global.scss */
+.left {
+  float: left;
 }
 
 @font-face {
   font-family: 'ubuntubold';
   font-style: normal;
   font-weight: normal;
-  src: url("fonts/ubuntu-bold.woff2") format("woff2"), url("fonts/ubuntu-bold.woff") format("woff"), url("fonts/ubuntu-bold.ttf") format("truetype"), url("fonts/ubuntu-bold.svg#ubuntubold") format("svg");
+  src: url("../fonts/ubuntu-bold.woff2") format("woff2"), url("../fonts/ubuntu-bold.woff") format("woff"), url("../fonts/ubuntu-bold.ttf") format("truetype"), url("../fonts/ubuntu-bold.svg#ubuntubold") format("svg");
 }
 @font-face {
   font-family: 'ubuntubold_italic';
   font-style: normal;
   font-weight: normal;
-  src: url("fonts/ubuntu-bolditalic.woff2") format("woff2"), url("fonts/ubuntu-bolditalic.woff") format("woff"), url("fonts/ubuntu-bolditalic.ttf") format("truetype"), url("fonts/ubuntu-bolditalic.svg#ubuntubold_italic") format("svg");
+  src: url("../fonts/ubuntu-bolditalic.woff2") format("woff2"), url("../fonts/ubuntu-bolditalic.woff") format("woff"), url("../fonts/ubuntu-bolditalic.ttf") format("truetype"), url("../fonts/ubuntu-bolditalic.svg#ubuntubold_italic") format("svg");
 }
 @font-face {
   font-family: 'ubuntuitalic';
   font-style: normal;
   font-weight: normal;
-  src: url("fonts/ubuntu-italic.woff2") format("woff2"), url("fonts/ubuntu-italic.woff") format("woff"), url("fonts/ubuntu-italic.ttf") format("truetype"), url("fonts/ubuntu-italic.svg#ubuntuitalic") format("svg");
+  src: url("../fonts/ubuntu-italic.woff2") format("woff2"), url("../fonts/ubuntu-italic.woff") format("woff"), url("../fonts/ubuntu-italic.ttf") format("truetype"), url("../fonts/ubuntu-italic.svg#ubuntuitalic") format("svg");
 }
 @font-face {
   font-family: 'ubuntulight';
   font-style: normal;
   font-weight: normal;
-  src: url("fonts/ubuntu-light.woff2") format("woff2"), url("fonts/ubuntu-light.woff") format("woff"), url("fonts/ubuntu-light.ttf") format("truetype"), url("fonts/ubuntu-light.svg#ubuntulight") format("svg");
+  src: url("../fonts/ubuntu-light.woff2") format("woff2"), url("../fonts/ubuntu-light.woff") format("woff"), url("../fonts/ubuntu-light.ttf") format("truetype"), url("../fonts/ubuntu-light.svg#ubuntulight") format("svg");
 }
 @font-face {
   font-family: 'ubuntulight_italic';
   font-style: normal;
   font-weight: normal;
-  src: url("fonts/ubuntu-lightitalic.woff2") format("woff2"), url("fonts/ubuntu-lightitalic.woff") format("woff"), url("fonts/ubuntu-lightitalic.ttf") format("truetype"), url("fonts/ubuntu-lightitalic.svg#ubuntulight_italic") format("svg");
+  src: url("../fonts/ubuntu-lightitalic.woff2") format("woff2"), url("../fonts/ubuntu-lightitalic.woff") format("woff"), url("../fonts/ubuntu-lightitalic.ttf") format("truetype"), url("../fonts/ubuntu-lightitalic.svg#ubuntulight_italic") format("svg");
 }
 @font-face {
   font-family: 'ubuntumedium';
   font-style: normal;
   font-weight: normal;
-  src: url("fonts/ubuntu-medium.woff2") format("woff2"), url("fonts/ubuntu-medium.woff") format("woff"), url("fonts/ubuntu-medium.ttf") format("truetype"), url("fonts/ubuntu-medium.svg#ubuntumedium") format("svg");
+  src: url("../fonts/ubuntu-medium.woff2") format("woff2"), url("../fonts/ubuntu-medium.woff") format("woff"), url("../fonts/ubuntu-medium.ttf") format("truetype"), url("../fonts/ubuntu-medium.svg#ubuntumedium") format("svg");
 }
 @font-face {
   font-family: 'ubuntumedium_italic';
   font-style: normal;
   font-weight: normal;
-  src: url("fonts/ubuntu-mediumitalic.woff2") format("woff2"), url("fonts/ubuntu-mediumitalic.woff") format("woff"), url("fonts/ubuntu-mediumitalic.ttf") format("truetype"), url("fonts/ubuntu-mediumitalic.svg#ubuntumedium_italic") format("svg");
+  src: url("../fonts/ubuntu-mediumitalic.woff2") format("woff2"), url("../fonts/ubuntu-mediumitalic.woff") format("woff"), url("../fonts/ubuntu-mediumitalic.ttf") format("truetype"), url("../fonts/ubuntu-mediumitalic.svg#ubuntumedium_italic") format("svg");
 }
 @font-face {
   font-family: 'ubunturegular';
   font-style: normal;
   font-weight: normal;
-  src: url("fonts/ubuntu-regular.woff2") format("woff2"), url("fonts/ubuntu-regular.woff") format("woff"), url("fonts/ubuntu-regular.ttf") format("truetype"), url("fonts/ubuntu-regular.svg#ubunturegular") format("svg");
+  src: url("../fonts/ubuntu-regular.woff2") format("woff2"), url("../fonts/ubuntu-regular.woff") format("woff"), url("../fonts/ubuntu-regular.ttf") format("truetype"), url("../fonts/ubuntu-regular.svg#ubunturegular") format("svg");
 }
-/* Navigation bar css */
-/* line 2, ../../../resources/assets/scss/partials/nav.scss */
-#kora_nav_bar {
-  height: 50px;
-  background-color: #007C83;
+/* line 3, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation {
+  background-color: #007c83;
   -webkit-box-shadow: 0 3px 5px 0 rgba(21, 39, 48, 0.05);
           box-shadow: 0 3px 5px 0 rgba(21, 39, 48, 0.05);
-}
-
-/* Basic attributes */
-/* line 8, ../../../resources/assets/scss/partials/nav.scss */
-#kora_nav_bar ul {
-  padding-left: 0;
-}
-
-/* line 12, ../../../resources/assets/scss/partials/nav.scss */
-#kora_nav_bar li {
-  list-style-type: none;
-}
-
-/* line 16, ../../../resources/assets/scss/partials/nav.scss */
-#kora_nav_bar a {
-  text-decoration: none;
-  color: white !important;
-}
-
-/* line 21, ../../../resources/assets/scss/partials/nav.scss */
-#kora_nav_right {
-  float: right;
-  margin-top: 0;
-}
-
-/* Specifications of specific images */
-/* line 26, ../../../resources/assets/scss/partials/nav.scss */
-.kora_nav_logo {
-  float: left;
   height: 50px;
-  width: 45px;
-  padding-top: 10px;
-  padding-left: 13px;
 }
-
-/* line 34, ../../../resources/assets/scss/partials/nav.scss */
-.kora_nav_logo img {
-  height: 27px;
-  width: 27px;
-  -webkit-box-shadow: 0 0 5px 0 rgba(255, 255, 255, 0.2);
-          box-shadow: 0 0 5px 0 rgba(255, 255, 255, 0.2);
-}
-
-/* line 40, ../../../resources/assets/scss/partials/nav.scss */
-.kora_nav_search {
-  float: left;
-  height: 50px;
-  width: auto;
-  padding-top: 17px;
-  padding-right: 20px;
-}
-
-/* line 48, ../../../resources/assets/scss/partials/nav.scss */
-.kora_nav_search img {
-  height: 14px;
-  width: 14px;
-  -webkit-box-shadow: 0 3px 5px 0 rgba(57, 67, 89, 0.2);
-          box-shadow: 0 3px 5px 0 rgba(57, 67, 89, 0.2);
-}
-
-/* line 54, ../../../resources/assets/scss/partials/nav.scss */
-.kora_nav_profile {
-  float: left;
-  height: 50px;
-  width: auto;
-  padding-top: 12px;
-  padding-right: 20px;
-}
-
-/* line 62, ../../../resources/assets/scss/partials/nav.scss */
-.kora_nav_profile_pic {
-  height: 24px;
-  width: 24px;
-  -webkit-box-sizing: border-box;
-          box-sizing: border-box;
-  border: 2px solid white;
-  border-radius: 50%;
-  -webkit-box-shadow: 0 3px 5px 0 rgba(57, 67, 89, 0.2);
-          box-shadow: 0 3px 5px 0 rgba(57, 67, 89, 0.2);
-}
-
-/* line 71, ../../../resources/assets/scss/partials/nav.scss */
-.kora_nav_logout_button {
-  height: 12px;
-  width: 11px;
-  padding-left: 155px;
-}
-
-/* line 77, ../../../resources/assets/scss/partials/nav.scss */
-.kora_nav_ham {
-  float: left;
-  height: 50px;
-  width: auto;
-  padding-top: 17px;
-  padding-right: 20px;
-}
-
-/* line 85, ../../../resources/assets/scss/partials/nav.scss */
-.kora_nav_ham img {
-  height: 12px;
-  width: 17px;
-  -webkit-box-shadow: 0 3px 5px 0 rgba(57, 67, 89, 0.2);
-          box-shadow: 0 3px 5px 0 rgba(57, 67, 89, 0.2);
-}
-
-/* Individual nav items */
-/* line 91, ../../../resources/assets/scss/partials/nav.scss */
-.kora_nav_item {
-  padding-top: 15px;
-  float: left;
-  position: relative;
-  font-family: ubunturegular;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 16px;
-}
-
-/* line 101, ../../../resources/assets/scss/partials/nav.scss */
-#kora_nav_left .kora_nav_item {
-  width: 80px;
-  padding-left: 8px;
-}
-
-/* line 106, ../../../resources/assets/scss/partials/nav.scss */
-#kora_nav_right .kora_nav_item {
-  width: auto;
-  padding-right: 20px;
-}
-
-/* line 111, ../../../resources/assets/scss/partials/nav.scss */
-.kora_nav_icon_post_text {
-  padding-left: 10px;
-}
-
-/* Navigation for sub menus */
-/* line 115, ../../../resources/assets/scss/partials/nav.scss */
-.kora_nav_sub_menu {
-  width: 175px;
-  position: absolute;
-  display: none;
-  top: 50px;
-  padding-top: 20px;
-  padding-bottom: 5px;
-  border-radius: 0 0 5px 5px;
-  background-color: #21323B;
-  -webkit-box-shadow: 0 20px 30px 0 rgba(0, 0, 0, 0.2);
-          box-shadow: 0 20px 30px 0 rgba(0, 0, 0, 0.2);
-}
-
-/* line 127, ../../../resources/assets/scss/partials/nav.scss */
-#kora_nav_right .kora_nav_sub_menu {
-  width: 250px;
-  right: 0;
-  border-radius: 0 0 0 5px;
-}
-
-/* line 133, ../../../resources/assets/scss/partials/nav.scss */
-.kora_nav_search .kora_nav_sub_menu {
-  padding-bottom: 0;
-}
-
-/* line 137, ../../../resources/assets/scss/partials/nav.scss */
-.kora_nav_sub_menu img {
-  padding-right: 13px;
-}
-
-/* line 141, ../../../resources/assets/scss/partials/nav.scss */
-.kora_nav_sub_menu_header {
-  padding-left: 17px;
-  padding-bottom: 20px;
-  color: white;
-  font-family: ubunturegular;
-  font-size: 16px;
-  line-height: 18px;
-  height: 18px;
-}
-
-/* line 151, ../../../resources/assets/scss/partials/nav.scss */
-.kora_nav_sub_menu_item {
-  padding-left: 20px;
-  padding-bottom: 15px;
-  height: 13px;
-  color: white;
-  font-family: ubunturegular;
-  font-size: 12px;
-  line-height: 13px;
-}
-
-/* line 161, ../../../resources/assets/scss/partials/nav.scss */
-.kora_nav_sub_menu_spacer {
-  margin-top: 5px;
-  margin-bottom: 20px;
-  -webkit-box-sizing: border-box;
-          box-sizing: border-box;
-  width: 100%;
-  height: 3px;
-  border: 2px solid white;
-  opacity: .1;
-}
-
-/* Navigation for deep menus */
-/* line 171, ../../../resources/assets/scss/partials/nav.scss */
-.kora_nav_deep_menu {
-  max-height: 60vh;
-  width: 175px;
-  position: absolute;
-  display: none;
-  margin-top: -15px;
-  margin-left: 155px;
-  padding-top: 20px;
-  overflow: scroll;
-  border-radius: 0 5px 5px 5px;
-  background-color: #21323B;
-  -webkit-box-shadow: 0 20px 30px 0 rgba(0, 0, 0, 0.2);
-          box-shadow: 0 20px 30px 0 rgba(0, 0, 0, 0.2);
-}
-
-/* line 185, ../../../resources/assets/scss/partials/nav.scss */
-.kora_nav_deep_menu_item {
-  padding-left: 20px;
-  padding-bottom: 15px;
-}
-
-/* While they could be split above, these pertain specifically to the global search bar */
-/* line 190, ../../../resources/assets/scss/partials/nav.scss */
-#kora_global_search_input {
-  width: 190px;
-  height: 17px;
-  margin-left: 20px;
-  color: white;
-  font-family: ubunturegular;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 16px;
+/* line 1, ../../../resources/assets/scss/partials/_search.scss */
+.navigation #kora_global_search_input {
   background: transparent;
-  border: none;
-  caret-color: #007C83;
+  border: 0;
+  color: #fff;
+  font-family: ubunturegular;
+  font-size: 12px;
+  font-weight: 500;
+  height: 17px;
+  line-height: 16px;
+  margin: 20px 0 20px 20px;
+  width: 190px;
 }
-
-/* line 204, ../../../resources/assets/scss/partials/nav.scss */
-#kora_global_search_input:focus {
+/* line 14, ../../../resources/assets/scss/partials/_search.scss */
+.navigation #kora_global_search_input:focus {
   outline-width: 0;
 }
-
-/* line 208, ../../../resources/assets/scss/partials/nav.scss */
-#kora_global_search_input::-webkit-input-placeholder {
+/* line 18, ../../../resources/assets/scss/partials/_search.scss */
+.navigation #kora_global_search_input::-webkit-input-placeholder {
   /* Chrome/Opera/Safari */
-  color: white;
+  color: #fff;
 }
-
-/* line 213, ../../../resources/assets/scss/partials/nav.scss */
-#kora_global_search_input::-moz-placeholder {
+/* line 23, ../../../resources/assets/scss/partials/_search.scss */
+.navigation #kora_global_search_input::-moz-placeholder {
   /* Firefox 19+ */
-  color: white;
+  color: #fff;
 }
-
-/* line 218, ../../../resources/assets/scss/partials/nav.scss */
-#kora_global_search_input:-ms-input-placeholder {
+/* line 28, ../../../resources/assets/scss/partials/_search.scss */
+.navigation #kora_global_search_input:-ms-input-placeholder {
   /* IE 10+ */
-  color: white;
+  color: #fff;
 }
-
-/* line 223, ../../../resources/assets/scss/partials/nav.scss */
-#kora_global_search_input:-moz-placeholder {
+/* line 33, ../../../resources/assets/scss/partials/_search.scss */
+.navigation #kora_global_search_input:-moz-placeholder {
   /* Firefox 18- */
-  color: white;
+  color: #fff;
 }
-
-/* line 228, ../../../resources/assets/scss/partials/nav.scss */
-#kora_global_search_submit {
+/* line 38, ../../../resources/assets/scss/partials/_search.scss */
+.navigation #kora_global_search_submit {
   border: 0;
   background: transparent;
   width: 17px;
   height: 17px;
 }
-
-/* line 235, ../../../resources/assets/scss/partials/nav.scss */
-#kora_global_search_submit:focus {
+/* line 45, ../../../resources/assets/scss/partials/_search.scss */
+.navigation #kora_global_search_submit:focus {
   outline-width: 0;
 }
-
-/* line 239, ../../../resources/assets/scss/partials/nav.scss */
-#kora_global_search_submit img {
+/* line 49, ../../../resources/assets/scss/partials/_search.scss */
+.navigation #kora_global_search_submit img {
   width: 4px;
   height: 8px;
 }
-
-/* line 244, ../../../resources/assets/scss/partials/nav.scss */
-#kora_global_search_spacer {
-  margin-top: 15px;
-  margin-bottom: 15px;
-  margin-left: 20px;
+/* line 54, ../../../resources/assets/scss/partials/_search.scss */
+.navigation #kora_global_search_spacer {
+  border-bottom: 2px solid #fff;
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
-  width: 210px;
-  height: 2px;
-  border: 2px solid white;
+  margin: 0 0 0 20px;
   opacity: .1;
+  width: 210px;
 }
-
-/* line 255, ../../../resources/assets/scss/partials/nav.scss */
-#kora_global_search_recent {
+/* line 62, ../../../resources/assets/scss/partials/_search.scss */
+.navigation #kora_global_search_recent {
   margin-left: 20px;
-  color: white;
+  color: #fff;
   font-family: ubunturegular;
   font-size: 12px;
   line-height: 13px;
 }
-
-/* line 263, ../../../resources/assets/scss/partials/nav.scss */
-#kora_global_search_recent li {
-  padding-bottom: 15px;
-}
-
-/* line 267, ../../../resources/assets/scss/partials/nav.scss */
-#kora_global_search_result {
+/* line 70, ../../../resources/assets/scss/partials/_search.scss */
+.navigation #kora_global_search_result {
   margin-left: 20px;
-  color: white;
+  color: #fff;
   font-family: ubunturegular;
   font-size: 12px;
   line-height: 13px;
 }
-
-/* line 275, ../../../resources/assets/scss/partials/nav.scss */
-#kora_global_search_result li {
-  padding-bottom: 15px;
+/* line 78, ../../../resources/assets/scss/partials/_search.scss */
+.navigation #kora_global_search_result li:first-child {
+  padding-top: 20px;
 }
-
-/* line 279, ../../../resources/assets/scss/partials/nav.scss */
-#kora_global_search_result a {
-  color: #007C83 !important;
+/* line 82, ../../../resources/assets/scss/partials/_search.scss */
+.navigation #kora_global_search_result li:last-child {
+  padding-bottom: 20px;
 }
-
-/* line 283, ../../../resources/assets/scss/partials/nav.scss */
-#kora_global_search_clear {
-  height: 48px;
-  width: 100%;
-  padding: 0;
-  margin: 0;
+/* line 86, ../../../resources/assets/scss/partials/_search.scss */
+.navigation #kora_global_search_result li {
+  height: 14px;
+  padding: 8px 0;
+}
+/* line 91, ../../../resources/assets/scss/partials/_search.scss */
+.navigation #kora_global_search_result a {
+  color: #007c83 !important;
+  display: initial;
+  line-height: 0;
+}
+/* line 97, ../../../resources/assets/scss/partials/_search.scss */
+.navigation #kora_global_search_clear {
+  background-color: rgba(255, 255, 255, 0.05);
   border: 0;
   border-radius: 0 0 0 5px;
-  background-color: rgba(255, 255, 255, 0.05);
-  color: white;
+  color: #fff;
+  font-size: 13px;
+  height: 48px;
+  margin: 0;
+  padding-left: 20px;
+  text-align: left;
+  width: 100%;
+}
+/* line 110, ../../../resources/assets/scss/partials/_search.scss */
+.navigation #kora_global_search_clear:focus {
+  outline-width: 0;
+}
+/* line 10, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation ul {
+  padding-left: 0;
+}
+/* line 14, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation li {
+  list-style-type: none;
+}
+/* line 18, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation a {
+  color: #fff;
+  display: block;
+  height: 100%;
+  line-height: 50px;
+  text-decoration: none;
+}
+/* line 27, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation .navigation-item {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  float: left;
+  font-family: ubunturegular;
+  font-size: 12px;
+  font-weight: 500;
+  height: 100%;
+  line-height: 16px;
+  position: relative;
+}
+/* line 39, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation .navigation-left .navigation-item {
+  width: 80px;
+}
+/* line 43, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation .navigation-left .navigation-item:not(:first-child) {
+  margin-left: 16px;
+}
+/* line 48, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation .navigation-right {
+  float: right;
+  margin-top: 0;
+}
+/* line 52, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation .navigation-right .navigation-item {
+  width: auto;
+}
+/* line 56, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation .navigation-right .navigation-sub-menu {
+  border-radius: 0 0 0 5px;
+  right: 0;
+  width: 250px;
+}
+/* line 64, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation .logo {
+  float: left;
+  height: 50px;
+  padding-left: 13px;
+  padding-top: 10px;
+  width: 45px;
+}
+/* line 71, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation .logo img {
+  -webkit-box-shadow: 0 0 5px 0 rgba(255, 255, 255, 0.2);
+          box-shadow: 0 0 5px 0 rgba(255, 255, 255, 0.2);
+  height: 27px;
+  width: 27px;
+}
+/* line 78, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation .navigation-search {
+  float: left;
+  height: 50px;
+  padding-right: 20px;
+  padding-top: 17px;
+  width: auto;
+}
+/* line 85, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation .navigation-search img {
+  -webkit-box-shadow: 0 3px 5px 0 rgba(57, 67, 89, 0.2);
+          box-shadow: 0 3px 5px 0 rgba(57, 67, 89, 0.2);
+  height: 14px;
+  width: 14px;
+}
+/* line 91, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation .navigation-search .navigation-sub-menu {
+  padding-bottom: 0;
+}
+/* line 96, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation .profile-navigation-item {
+  float: left;
+  height: 50px;
+  padding-right: 20px;
+  padding-top: 12px;
+  width: auto;
+}
+/* line 103, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation .profile-navigation-item .profile-picture {
+  border: 2px solid #fff;
+  border-radius: 50%;
+  -webkit-box-shadow: 0 3px 5px 0 rgba(57, 67, 89, 0.2);
+          box-shadow: 0 3px 5px 0 rgba(57, 67, 89, 0.2);
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  height: 24px;
+  width: 24px;
+}
+/* line 112, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation .profile-navigation-item .logout-icon {
+  height: 12px;
+  width: 11px;
+}
+/* line 118, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation .hamburger {
+  float: left;
+  height: 50px;
+  padding-right: 20px;
+  padding-top: 17px;
+  width: auto;
+}
+/* line 125, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation .hamburger img {
+  -webkit-box-shadow: 0 3px 5px 0 rgba(57, 67, 89, 0.2);
+          box-shadow: 0 3px 5px 0 rgba(57, 67, 89, 0.2);
+  height: 12px;
+  width: 17px;
+}
+/* line 132, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation .icon {
+  margin-left: 10px;
+  -webkit-transition: -webkit-transform 150ms ease;
+  transition: -webkit-transform 150ms ease;
+  transition: transform 150ms ease;
+  transition: transform 150ms ease, -webkit-transform 150ms ease;
+}
+/* line 136, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation .icon.arrow-icon.active {
+  -webkit-transform: rotate(-180deg);
+          transform: rotate(-180deg);
 }
 
-/* line 294, ../../../resources/assets/scss/partials/nav.scss */
-#kora_global_search_clear:focus {
-  outline-width: 0;
+/* line 143, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation-sub-menu {
+  background-color: #21323b;
+  border-radius: 0 0 5px 5px;
+  -webkit-box-shadow: -16px 20px 30px 0 white;
+          box-shadow: -16px 20px 30px 0 white;
+  opacity: 0;
+  padding-bottom: 5px;
+  position: absolute;
+  top: 50px;
+  -webkit-transition: all 250ms ease;
+  transition: all 250ms ease;
+  visibility: none;
+  width: 175px;
+  z-index: -100;
+}
+/* line 156, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation-sub-menu.active {
+  opacity: 1;
+  visibility: visible;
+  z-index: auto;
+}
+/* line 162, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation-sub-menu img {
+  padding-right: 13px;
+}
+/* line 166, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation-sub-menu .header {
+  color: #fff;
+  font-family: ubunturegular;
+  font-size: 16px;
+  height: 18px;
+  line-height: 18px;
+  padding: 20px;
+}
+/* line 175, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation-sub-menu .link {
+  color: #fff;
+  font-family: ubunturegular;
+  font-size: 13px;
+}
+/* line 180, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation-sub-menu .link a {
+  height: 14px;
+  line-height: 14px;
+  padding: 0 20px 8px;
+  -webkit-transition: color 150ms ease;
+  transition: color 150ms ease;
+}
+/* line 187, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation-sub-menu .link a:hover {
+  color: #04b6af;
+}
+/* line 191, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation-sub-menu .link:not(:first-child) a {
+  padding-top: 8px;
+}
+/* line 195, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation-sub-menu .link:last-child a {
+  padding-bottom: 20px;
+}
+/* line 200, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation-sub-menu .spacer {
+  border-bottom: 2px solid #fff;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  height: 3px;
+  margin: 12px auto;
+  opacity: .1;
+  width: calc(100% - 40px);
+}
+
+/* line 212, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation-deep-menu {
+  background-color: #21323b;
+  border-radius: 0 5px 5px;
+  -webkit-box-shadow: 0 20px 30px 0 white;
+          box-shadow: 0 20px 30px 0 white;
+  display: none;
+  margin-left: 155px;
+  margin-top: -15px;
+  max-height: 60vh;
+  overflow: scroll;
+  padding-top: 20px;
+  position: absolute;
+  width: 175px;
+}
+/* line 225, ../../../resources/assets/scss/partials/_nav.scss */
+.navigation-deep-menu .item {
+  padding-bottom: 15px;
+  padding-left: 20px;
 }

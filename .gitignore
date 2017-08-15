@@ -7,4 +7,5 @@ phpunit.xml
 /public/app
  
 .DS_Store
- .sass-cache
+.sass-cache
+.csscomb.json
