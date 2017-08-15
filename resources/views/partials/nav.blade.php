@@ -45,7 +45,7 @@
           <li class="link">
             <a href="#">My User Permissions</a>
           </li>
-          <li class="link">
+          <li class="link pre-spacer">
             <a href="#">My Record History</a>
           </li>
           <li class="spacer"></li>

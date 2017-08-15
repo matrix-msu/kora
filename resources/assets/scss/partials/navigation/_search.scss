@@ -1,6 +1,7 @@
 #kora_global_search_input {
   background: transparent;
   border: 0;
+  caret-color: $kora-accent;
   color: palette(white, base);
   font-family: $ubuntu-reg;
   font-size: 12px;

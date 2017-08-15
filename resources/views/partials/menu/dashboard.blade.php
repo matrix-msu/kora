@@ -1,8 +1,11 @@
 <li class="navigation-item">
     <a href="#" class="kora_nav_item_title">Dashboard<img class="icon arrow-icon" src="{{ env('BASE_URL') }}assets/images/menu_arrow.svg"></a>
     <ul class="navigation-sub-menu navigation-sub-menu-js">
-        <li class="link">
-            <a href="{{ url('/dashboard') }}"><img src="{{ env('BASE_URL') }}assets/images/menu_dash.svg">Dashboard</a>
+        <li class="link head">
+            <a href="{{ url('/dashboard') }}">
+              <img src="{{ env('BASE_URL') }}assets/images/menu_dash.svg">
+              <span>Dashboard</span>
+            </a>
         </li>
         <li class="spacer"></li>
         <li class="link">
@@ -16,8 +19,11 @@
 <li class="navigation-item">
     <a href="#" class="kora_nav_item_title">Projects<img class="icon arrow-icon" src="{{ env('BASE_URL') }}assets/images/menu_arrow.svg"></a>
     <ul class="navigation-sub-menu navigation-sub-menu-js">
-        <li class="link">
-            <a href="{{ url('/projects') }}">Projects</a>
+        <li class="link head">
+            <a href="{{ url('/projects') }}">
+              <img src="{{ env('BASE_URL') }}assets/images/menu_proj.svg">
+              <span>Projects</span>
+            </a>
         </li>
         @if(\Auth::user()->admin==1)
             <li class="spacer"></li>

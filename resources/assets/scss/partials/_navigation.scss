@@ -1,9 +1,9 @@
 $navigation-height: 50px;
 
 .navigation {
-  @import 'search';
+  @import 'navigation/search';
   background-color: $kora-green;
-  box-shadow: 0 3px 5px 0 rgba(21, 39, 48, .05);
+  box-shadow: 0 3px 5px 0 palette(box-shadow, base);
   height: $navigation-height;
 
   // Basic attributes
@@ -69,7 +69,7 @@ $navigation-height: 50px;
     width: 45px;
 
     img {
-      box-shadow: 0 0 5px 0 rgba(255, 255, 255, .2);
+      box-shadow: 0 0 5px 0 palette(white, lightest);
       height: 27px;
       width: 27px;
     }
@@ -83,7 +83,7 @@ $navigation-height: 50px;
     width: auto;
 
     img {
-      box-shadow: 0 3px 5px 0 rgba(57, 67, 89, .2);
+      box-shadow: 0 3px 5px 0 palette(box-shadow, base);
       height: 14px;
       width: 14px;
     }
@@ -111,6 +111,7 @@ $navigation-height: 50px;
 
     .logout-icon {
       height: 12px;
+      padding: 0;
       width: 11px;
     }
   }
@@ -123,7 +124,7 @@ $navigation-height: 50px;
     width: auto;
 
     img {
-      box-shadow: 0 3px 5px 0 rgba(57, 67, 89, .2);
+      box-shadow: 0 3px 5px 0 palette(box-shadow, base);
       height: 12px;
       width: 17px;
     }
@@ -178,6 +179,8 @@ $navigation-height: 50px;
     font-size: 13px;
 
     a {
+      align-items: center;
+      display: flex;
       height: 14px;
       line-height: 14px;
       padding: 0 20px 8px;
@@ -193,6 +196,15 @@ $navigation-height: 50px;
     }
 
     &:last-child a {
+      justify-content: space-between;
+      padding-bottom: 20px;
+    }
+
+    &.head a {
+      padding: 20px 0 20px 20px;
+    }
+
+    &.pre-spacer a {
       padding-bottom: 20px;
     }
   }
@@ -201,9 +213,13 @@ $navigation-height: 50px;
     border-bottom: 2px solid palette(white, base);
     box-sizing: border-box;
     height: 3px;
-    margin: 12px auto;
+    margin: 0 auto;
     opacity: .1;
     width: calc(100% - 40px);
+
+    & + .link a {
+      padding-top: 20px;
+    }
   }
 }
 

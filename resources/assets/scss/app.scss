@@ -8,6 +8,7 @@ $ubuntu-bold: ubuntubold;
 $ubuntu-reg: ubunturegular;
 
 @import 'vendor/normalize/import-now';
-@import 'partials/colors';
-@import 'partials/global';
-@import 'partials/nav';
+@import 'partials/general/colors';
+@import 'partials/general/global';
+@import 'partials/navigation';
+@import 'partials/projects';
