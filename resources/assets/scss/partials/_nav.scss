@@ -143,7 +143,7 @@ $navigation-height: 50px;
 .navigation-sub-menu {
   background-color: $submenu-grey;
   border-radius: 0 0 5px 5px;
-  box-shadow: -16px 20px 30px 0 palette(white, lightest);
+  box-shadow: -16px 20px 30px 0 palette(black, lightest);
   opacity: 0;
   padding-bottom: 5px;
   position: absolute;
@@ -212,7 +212,7 @@ $navigation-height: 50px;
 .navigation-deep-menu {
   background-color: $submenu-grey;
   border-radius: 0 5px 5px;
-  box-shadow: 0 20px 30px 0 palette(white, lightest);
+  box-shadow: 0 20px 30px 0 palette(black, lightest);
   display: none;
   margin-left: 155px;
   margin-top: -15px;
