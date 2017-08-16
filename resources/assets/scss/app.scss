@@ -5,8 +5,11 @@ $kora-accent: #04b6af;
 $submenu-grey: #21323b;
 $sidemenu-grey: #152730;
 $ubuntu-bold: ubuntubold;
-$ubuntu-reg: ubunturegular;
-
+$ubuntu: ubunturegular;
+$max-site-width: 1440px;
+$max-tablet-width: 960px;
+$max-mobile-width: 768px;
+$max-mobile-xs-width: 480px;
 @import 'vendor/normalize/import-now';
 @import 'partials/general/colors';
 @import 'partials/general/global';

@@ -1,12 +1,17 @@
 @extends('app', ['page_title' => 'Projects'])
 
 @section('header')
-    <div id="title">Projects</div>
-    <div id="description">Select a project below or create a project to get started.</div>
+  <section class="head">
+      <h1 class="title">
+        <img class="" src="{{ env('BASE_URL') }}assets/images/projects.svg">
+        <span>Projects</span>
+      </h1>
+      <p class="description">Select a project below or create a project to get started.</[div]>
+  </section>
 @stop
 
 @section('body')
-    <div id="project_index_bar">
+    <!-- <div id="project_index_bar">
         <div id="project_index_search">
             Find a Project
         </div>
@@ -63,7 +68,7 @@
         <a href="#" id="project_index_requests_link">
             Request Permissions to a Project
         </a>
-    </div>
+    </div> -->
 @stop
 
 @section('footer')

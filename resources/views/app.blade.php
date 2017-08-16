@@ -43,15 +43,15 @@
         @endif
         <title>Kora 3 - {{ $page_title }}</title>
     </head>
-    <body>
+    <body class="{{ str_hyphenated($page_title) }}-body">
         <div>
             @include('partials.nav')
         </div>
 
-        <section class="{{ str_hyphenated($page_title) }}">
+        <div class="{{ str_hyphenated($page_title) }}">
             @yield('header')
             @yield('body')
             @yield('footer')
-        </section>
+        </div>
     </body>
 </html>

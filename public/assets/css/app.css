@@ -938,3 +938,89 @@ form {
   padding-bottom: 15px;
   padding-left: 20px;
 }
+
+/* line 1, ../../../resources/assets/scss/partials/_projects.scss */
+.projects-body {
+  background: -webkit-gradient(linear, left top, left bottom, from(#FBFBFC), to(#F5F6F7));
+  background: linear-gradient(180deg, #FBFBFC 0%, #F5F6F7 100%);
+}
+
+/* line 5, ../../../resources/assets/scss/partials/_projects.scss */
+.projects {
+  margin: 0 auto;
+  max-width: 1440px;
+}
+/* line 1, ../../../resources/assets/scss/partials/projects/_head.scss */
+.projects .head {
+  background: #fff;
+  -webkit-box-shadow: 0 3px 5px -2px rgba(21, 39, 48, 0.05);
+          box-shadow: 0 3px 5px -2px rgba(21, 39, 48, 0.05);
+  font-family: ubunturegular;
+  width: 100%;
+}
+/* line 7, ../../../resources/assets/scss/partials/projects/_head.scss */
+.projects .head > * {
+  margin-left: 300px;
+  margin-right: 300px;
+  max-width: calc(1440px - 600px);
+}
+/* line 13, ../../../resources/assets/scss/partials/projects/_head.scss */
+.projects .head .title {
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -ms-flex-item-align: center;
+      align-self: center;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  margin: 0 auto 30px;
+  padding-top: 60px;
+  text-align: left;
+}
+/* line 21, ../../../resources/assets/scss/partials/projects/_head.scss */
+.projects .head .title img {
+  height: 37px;
+}
+/* line 25, ../../../resources/assets/scss/partials/projects/_head.scss */
+.projects .head .title span {
+  font-size: 36px;
+  font-weight: 100;
+  line-height: 37px;
+  padding: 0 30px;
+}
+/* line 33, ../../../resources/assets/scss/partials/projects/_head.scss */
+.projects .head .description {
+  -ms-flex-item-align: center;
+      align-self: center;
+  font-size: 16px;
+  margin: 0 auto;
+  padding: 0 0 60px;
+}
+@media screen and (max-width: 960px) {
+  /* line 42, ../../../resources/assets/scss/partials/projects/_head.scss */
+  .projects .head > * {
+    margin-left: 150px;
+    margin-right: 150px;
+    max-width: calc(960px - 300px);
+    width: calc(100% - 300px);
+  }
+}
+@media screen and (max-width: 768px) {
+  /* line 51, ../../../resources/assets/scss/partials/projects/_head.scss */
+  .projects .head > * {
+    margin-left: 100px;
+    margin-right: 100px;
+    max-width: calc(768px - 200px);
+    width: calc(100% - 200px);
+  }
+}
+@media screen and (max-width: 480px) {
+  /* line 60, ../../../resources/assets/scss/partials/projects/_head.scss */
+  .projects .head > * {
+    margin-left: 25px;
+    margin-right: 25px;
+    max-width: calc(480px - 50px);
+    width: calc(100% - 50px);
+  }
+}

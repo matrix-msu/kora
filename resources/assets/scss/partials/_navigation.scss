@@ -27,7 +27,7 @@ $navigation-height: 50px;
   .navigation-item {
     box-sizing: border-box;
     float: left;
-    font-family: $ubuntu-reg;
+    font-family: $ubuntu;
     font-size: 12px;
     font-weight: 500;
     height: 100%;
@@ -166,7 +166,7 @@ $navigation-height: 50px;
 
   .header {
     color: palette(white, base);
-    font-family: $ubuntu-reg;
+    font-family: $ubuntu;
     font-size: 16px;
     height: 18px;
     line-height: 18px;
@@ -175,7 +175,7 @@ $navigation-height: 50px;
 
   .link {
     color: palette(white, base);
-    font-family: $ubuntu-reg;
+    font-family: $ubuntu;
     font-size: 13px;
 
     a {

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="39px" height="39px" viewBox="0 0 39 39" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 46.1 (44463) - http://www.bohemiancoding.com/sketch -->
+    <title>projects-dark</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="All-Projects" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+        <g transform="translate(-208.000000, -109.000000)" stroke="#283C46" id="projects-dark" stroke-width="2" fill="#FFFFFF">
+            <g transform="translate(209.000000, 110.000000)">
+                <g id="folder">
+                    <path d="M28.9351852,23.1481481 C28.9351852,24.7461943 27.6397128,26.0416667 26.0416667,26.0416667 L2.89351852,26.0416667 C1.29547237,26.0416667 0,24.7461943 0,23.1481481 L0,2.89351852 C-3.21245088e-16,1.29547237 1.29547237,0 2.89351852,0 L10.1273148,0 L13.0208333,4.34027778 L26.0416667,4.34027778 C27.6397128,4.34027778 28.9351852,5.63575015 28.9351852,7.2337963 L28.9351852,23.1481481 Z" id="Shape"></path>
+                </g>
+                <g id="folder-copy" transform="translate(8.000000, 10.000000)">
+                    <path d="M28.9351852,23.1481481 C28.9351852,24.7461943 27.6397128,26.0416667 26.0416667,26.0416667 L2.89351852,26.0416667 C1.29547237,26.0416667 0,24.7461943 0,23.1481481 L0,2.89351852 C-3.21245088e-16,1.29547237 1.29547237,0 2.89351852,0 L10.1273148,0 L13.0208333,4.34027778 L26.0416667,4.34027778 C27.6397128,4.34027778 28.9351852,5.63575015 28.9351852,7.2337963 L28.9351852,23.1481481 Z" id="Shape"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

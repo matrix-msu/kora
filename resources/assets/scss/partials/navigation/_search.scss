@@ -3,7 +3,7 @@
   border: 0;
   caret-color: $kora-accent;
   color: palette(white, base);
-  font-family: $ubuntu-reg;
+  font-family: $ubuntu;
   font-size: 12px;
   font-weight: 500;
   height: 17px;
@@ -63,7 +63,7 @@
 #kora_global_search_recent {
   margin-left: 20px;
   color: palette(white, base);
-  font-family: $ubuntu-reg;
+  font-family: $ubuntu;
   font-size: 12px;
   line-height: 13px;
 }
@@ -71,7 +71,7 @@
 #kora_global_search_result {
   margin-left: 20px;
   color: palette(white, base);
-  font-family: $ubuntu-reg;
+  font-family: $ubuntu;
   font-size: 12px;
   line-height: 13px;
 }
