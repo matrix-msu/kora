@@ -88,7 +88,7 @@ class MultiSelectListField extends BaseField {
         $field->updateOptions('Options', $options);
 
         if($return) {
-            flash()->overlay(trans('controller_field.optupdate'), trans('controller_field.goodjob'));
+            flash()->overlay("Option updated!", "Good Job!");
             return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
         } else {
             return '';
@@ -183,10 +183,10 @@ class MultiSelectListField extends BaseField {
         $list = MultiSelectListField::getList($field);
 
         if($req==1 && ($value==null | $value==""))
-            return $field->name.trans('fieldhelpers_val.req');
+            return $field->name." field is required.";
 
         if(sizeof(array_diff($value,$list))>0 && $value[0] !== ' ')
-            return trans('fieldhelpers_val.mslist',['name'=>$field->name]);
+            return "Value(s) for field ".$field->name." not in list of options";
 
         return '';
     }

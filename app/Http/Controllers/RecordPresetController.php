@@ -44,7 +44,7 @@ class RecordPresetController extends Controller {
         $form = FormController::getForm($fid);
 
         if(!\Auth::user()->isFormAdmin($form)) {
-            flash()->overlay(trans('controller_recordpreset.view'), trans('controller_recordpreset.whoops'));
+            flash()->overlay("Record has been removed as a preset.", "Whoops");
             return redirect('projects');
         }
 
@@ -63,7 +63,7 @@ class RecordPresetController extends Controller {
         $rid = $request->rid;
 
         if(!is_null(RecordPreset::where('rid', '=', $rid)->first())) {
-            flash()->overlay(trans('controller_record.already'));
+            flash()->overlay("Record is already a preset.");
         } else {
             $record = RecordController::getRecord($rid);
             $fid = $record->fid;
@@ -80,7 +80,7 @@ class RecordPresetController extends Controller {
             $preset->preset = json_encode($this->getRecordArray($rid,$preset->id));
             $preset->save();
 
-            flash()->overlay(trans('controller_record.presetsaved'), trans('controller_record.success'));
+            flash()->overlay("Record preset saved.", "Success!");
         }
     }
 
@@ -141,7 +141,7 @@ class RecordPresetController extends Controller {
             rmdir($path);
         }
 
-        flash()->overlay(trans('controller_recordpreset.preset'), trans('controller_recordpreset.success'));
+        flash()->overlay("Record has been removed as a preset.", "Success!");
     }
 
     /**

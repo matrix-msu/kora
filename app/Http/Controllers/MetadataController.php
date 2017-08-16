@@ -166,7 +166,7 @@ class MetadataController extends Controller {
             ]);
 
             if(!$this->isUniqueToForm($fid,$request->input('name'))) {
-                flash()->overlay(trans('controller_metadata.name'),trans('controller_metadata.whoops'));
+                flash()->overlay("That name is already used in this form","Whoops");
                 return redirect()->back();
             }
 
@@ -195,7 +195,7 @@ class MetadataController extends Controller {
         $form->lod_resource = $title;
         $form->save();
 
-        flash()->overlay('Resource Title updated', trans('controller_metadata.success'));
+        flash()->overlay('Resource Title updated', "Success!");
         return redirect()->action('MetadataController@index',compact('pid','fid')); //Laravel form submission needs this
     }
 
@@ -233,7 +233,7 @@ class MetadataController extends Controller {
         $meta = Field::find($request->input('flid'))->metadata()->first();
         if($meta !== null)
             $meta->delete();
-        flash()->overlay(trans('controller_metadata.delete'), trans('controller_metadata.success'));
+        flash()->overlay("The field's Linked Open Data was deleted", "Success!");
         return response()->json('deleted');
 
     }

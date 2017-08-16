@@ -80,7 +80,7 @@ class InstallController extends Controller {
 		}
 
 		if(!Auth::user()->admin) {
-			flash()->overlay(trans('controller_install.admin'),trans('controller_install.whoops'));
+			flash()->overlay("You must be an admin to see this","Whoops");
 			return redirect("/");
 		}
 		$configs = new Collection();
@@ -107,7 +107,7 @@ class InstallController extends Controller {
 		}
 
 		if(!Auth::user()->admin) {
-			flash()->overlay(trans('controller_install.admin'),trans('controller_install.whoops'));
+			flash()->overlay("You must be an admin to see this","Whoops");
 			return redirect("/");
 		}
         $current_config = $this->getEnvConfigs();
@@ -133,15 +133,15 @@ class InstallController extends Controller {
             $current_config->put("mail_password",$request->input("value"));
 
         } else {
-            return response()->json(["status"=>false,"message"=>$request->input("type").trans('controller_install.cantchange')],500);
+            return response()->json(["status"=>false,"message"=>$request->input("type")." can't be changed or doesn't exist"],500);
         }
 
         $write_status = $this->writeEnv($current_config,true);
 
         if($write_status == false) {
-            return response()->json(["status"=>false,"message"=>trans('controller_install.unable')],500);
+            return response()->json(["status"=>false,"message"=>"Unable to update that setting"],500);
         } else {
-            return response()->json(["status"=>true,"message"=>trans('controller_install.updated')]);
+            return response()->json(["status"=>true,"message"=>"Updated"]);
         }
 
 	}
@@ -250,13 +250,13 @@ class InstallController extends Controller {
 				$envfile = fopen("../.env", "w");
 
 			} catch(\Exception $e) { //Most likely if the file is owned by another user or PHP doesn't have permission
-                flash()->overlay(trans('controller_install.openenv')."\n ".$e->getMessage());
+                flash()->overlay("There was a problem opening the ENV file, the permissions may not be set correctly."."\n ".$e->getMessage());
 				return false;
 			}
             try {
                 if(!fwrite($envfile, $env_layout)) { //write to file and if nothing is written or error
                     fclose($envfile);
-                    flash()->overlay(trans('controller_install.writeenv'));
+                    flash()->overlay("There was a problem writing to the ENV file, you may need to fix it manually");
                     return false;
                 } else {
                     fclose(($envfile));
@@ -264,7 +264,7 @@ class InstallController extends Controller {
                     return true;
                 }
             } catch(\Exception $e) {
-                flash()->overlay(trans('controller_install.writeenv')."\n ".$e->getMessage());
+                flash()->overlay("There was a problem writing to the ENV file, you may need to fix it manually"."\n ".$e->getMessage());
                 return false;
             }
 		}
@@ -297,41 +297,41 @@ class InstallController extends Controller {
         if(!file_exists("../.env")) {
             //flash()->overlay("The database connection settings do not exist",'Whoops!');
             //return redirect('/install');
-            return response()->json(["status"=>false,"message"=>trans('controller_install.nodb')],500);
+            return response()->json(["status"=>false,"message"=>"No database settings"],500);
         } else {
             try {
                 if(Schema::hasTable("users")) { //This indicates a migration has already been run
                     //return redirect('/');
-                    return response()->json(["status"=>false,"message"=>trans('controller_install.kora3')],500);
+                    return response()->json(["status"=>false,"message"=>"Kora 3 is already installed"],500);
                 }
             } catch(\Exception $e) {
-                flash()->overlay(trans('controller_install.checkdb'),trans('controller_install.whoops'));
+                flash()->overlay("Double check the database connection settings","Whoops");
                 //return redirect('/install');
-                return response()->json(["status"=>false,"message"=>trans('controller_install.connfailed')],500);
+                return response()->json(["status"=>false,"message"=>"Database connection failed"],500);
             }
 
             try {
                 $status = Artisan::call("migrate", array('--force' => true));
             } catch(\Exception $e) {
-                flash()->overlay(trans('controller_install.runartisan'),trans('controller_install.whoops'));
+                flash()->overlay("Sorry, couldn't run the Artisan migrations, please check Laravel's logs for details. ","Whoops");
                 //return redirect('/');
-                return response()->json(["status"=>false,"message"=>trans('controller_install.artisanfail')],500);
+                return response()->json(["status"=>false,"message"=>"Artisan migrations failed check Laravel's logs"],500);
             }
 
             try {
                 $status = Artisan::call("key:generate");
             } catch(\Exception $e) {
-                flash()->overlay(trans('controller_install.appkey'),trans('controller_install.whoops'));
+                flash()->overlay("Sorry, couldn't generate the application key through Artisan, please check Laravel's logs for details. ","Whoops");
                 //return redirect('/');
-                return response()->json(["status"=>false,"message"=>trans('controller_install.probkey')],500);
+                return response()->json(["status"=>false,"message"=>"Problem generating application key check Laravel's logs"],500);
             }
 
             try {
                 $status = $this->createDirectories();
             } catch(\Exception $e) {
-                flash()->overlay(trans('controller_install.createdir'),trans('controller_install.whoops'));
+                flash()->overlay("Sorry, there was a problem creating some required directories.","Whoops");
                 //return redirect('/');
-                return response()->json(["status"=>false,"message"=>trans('controller_install.unabledir'),"exception"=>$e->getMessage()],500);
+                return response()->json(["status"=>false,"message"=>"Unable to create required directories","exception"=>$e->getMessage()],500);
             }
 
             try {
@@ -339,9 +339,9 @@ class InstallController extends Controller {
                 $v->version = UpdateController::getCurrentVersion();
                 $v->save();
             } catch(\Exception $e) {
-                flash()->overlay(trans('controller_install.currver'), trans('controller_install.whoops'));
+                flash()->overlay("Sorry, current version could not be added to database.", "Whoops");
                 //return redirect('/');
-                return response()->json(["status"=>false,"message"=>trans('controller_install.probver')],500);
+                return response()->json(["status"=>false,"message"=>"Problem adding current version to the database"],500);
             }
 
             try {
@@ -357,8 +357,8 @@ class InstallController extends Controller {
                 $newuser->admin = 1;
                 $newuser->save();
             } catch(\Exception $e) {
-                flash()->overlay(trans('controller_install.adminuser'),trans('controller_install.whoops'));
-                return response()->json(["status"=>false,"message"=>trans('controller_install.adminfail')],500);
+                flash()->overlay("The admin user account couldn't be created.","Whoops");
+                return response()->json(["status"=>false,"message"=>"Admin account creation failed"],500);
             }
 
             try {
@@ -370,7 +370,7 @@ class InstallController extends Controller {
                     $newPreset = \App\OptionPreset::create(compact("name","pid","type","preset"));
                 }
             } catch(\Exception $e) {
-                flash()->overlay("A stock preset could not be created.",trans('controller_install.whoops'));
+                flash()->overlay("A stock preset could not be created.","Whoops");
                 return response()->json(["status"=>false,"message"=>"Stock Preset Creation Failed"],500);
             } finally {
                 return redirect("/");
@@ -389,12 +389,12 @@ class InstallController extends Controller {
 			try {
 				if(Schema::hasTable("users")) { //This indicates a migration has already been run
 					//return redirect('/');
-					return response()->json(["status" => false, "message" => trans('controller_install.kora3')], 500);
+					return response()->json(["status" => false, "message" => "Kora 3 is already installed"], 500);
 				}
 			} catch(\Exception $e) {
-				flash()->overlay(trans('controller_install.checkdb'), trans('controller_install.whoops'));
+				flash()->overlay("Double check the database connection settings", "Whoops");
 				//return redirect('/install');
-				return response()->json(["status" => false, "message" => trans('controller_install.connfailed')], 500);
+				return response()->json(["status" => false, "message" => "Database connection failed"], 500);
 			}
 		}
 
@@ -468,8 +468,8 @@ class InstallController extends Controller {
 				$dbc = new \PDO('pgsql:Server='.$envstrings->get("db_host").';Databasee='.$envstrings->get("db_database"),$envstrings->get('db_username'),$envstrings->get('db_password'));
 			}
 		} catch(\PDOException $e) {
-			flash()->overlay(trans('controller_install.dbinfo'), trans('controller_install.whoops'));
-			return response()->json(["status"=>false,"message"=>trans('controller_install.dbinfo')],500);
+			flash()->overlay("Can't connect to the database with the information provided", "Whoops");
+			return response()->json(["status"=>false,"message"=>"Can't connect to the database with the information provided"],500);
 			//return (redirect()->back()->withInput());
 		} finally {
 			$dbc = null; //required to close PDO connection
@@ -481,8 +481,8 @@ class InstallController extends Controller {
 		if($status == true) {
 			return response()->json(["status"=>true,"message"=>"success"],200);
 		} else {
-			flash()->overlay(trans('controller_install.php'),trans('controller_install.whoops'));
-			return response()->json(["status"=>false,"message"=>trans('controller_install.permission')],500);
+			flash()->overlay("Your settings couldn't be saved. Make sure that PHP has permission to save the ENV file","Whoops");
+			return response()->json(["status"=>false,"message"=>"permission error?"],500);
 		}
 	}
 

@@ -184,8 +184,8 @@ class ImportController extends Controller {
         $table = '<div id="matchup_table" style="overflow: auto">';
 
         $table .= '<div>';
-        $table .= '<span style="float:left;width:50%;margin-bottom:10px"><b>'.trans('controller_input.slug').'</b></span>';
-        $table .= '<span style="float:left;width:50%;margin-bottom:10px"><b>'.trans('controller_input.xml').'</b></span>';
+        $table .= '<span style="float:left;width:50%;margin-bottom:10px"><b>'."Field Name (Reference)".'</b></span>';
+        $table .= '<span style="float:left;width:50%;margin-bottom:10px"><b>'."XML Tag".'</b></span>';
         $table .= '</div>';
 
         foreach($fields as $field) {
@@ -211,7 +211,7 @@ class ImportController extends Controller {
         $table .= '</div>';
 
         $table .= '<div class="form-group">';
-        $table .= '<button type="button" class="form-control btn btn-primary" id="submit_records">'.trans('controller_input.records').'</button>';
+        $table .= '<button type="button" class="form-control btn btn-primary" id="submit_records">'."Submit Records".'</button>';
         $table .= '</div>';
 
         $result = array();
@@ -660,7 +660,7 @@ class ImportController extends Controller {
             }
         }
 
-        flash()->overlay(trans('controller_form.create'),trans('controller_form.goodjob'));
+        flash()->overlay("Your form has been successfully created!","Good job!");
 
         return redirect('projects/'.$form->pid);
     }
@@ -1166,7 +1166,7 @@ class ImportController extends Controller {
                 rmdir($zipDir);
         }
 
-        flash()->overlay(trans('controller_form.create'),trans('controller_form.goodjob'));
+        flash()->overlay("Your form has been successfully created!","Good job!");
 
         return redirect('projects/'.$form->pid);
     }
@@ -1351,7 +1351,7 @@ class ImportController extends Controller {
             $this->importFormNoFile($proj->pid,$form);
         }
 
-        flash()->overlay(trans('controller_project.create'),trans('controller_project.goodjob'));
+        flash()->overlay("Your project has been successfully created!","Good Job!");
 
         return redirect('projects');
     }

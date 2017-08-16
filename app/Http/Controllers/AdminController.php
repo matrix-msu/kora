@@ -94,7 +94,7 @@ class AdminController extends Controller {
      * @return View
      */
     public function update(Request $request) {
-        $message = trans('controller_admin.changed');
+        $message = "Here's what you changed (or kept the same):";
         $user = User::where('id', '=', $request->users)->first();
         $new_pass = $request->new_password;
         $confirm = $request->confirm;
@@ -102,49 +102,49 @@ class AdminController extends Controller {
         // Has the user been given admin rights?
         if(!is_null($request->admin)) {
             $user->admin = 1;
-            $message .= trans('controller_admin.admin');
+            $message .= " User is admin.";
         } else {
             $user->admin = 0;
-            $message .= trans('controller_admin.notadmin');
+            $message .= " User is not admin.";
         }
 
         // Has the user been activated?
         if(!is_null($request->active)) {
             $user->active = 1;
-            $message .= trans('controller_admin.active');
+            $message .= " User is active.";
         } else {
             $user->active = 0;
             //We need to give them a new regtoken so they can't use the old one to reactivate
             $user->regtoken = AuthenticatesAndRegistersUsers::makeRegToken();
-            $message .= trans('controller_admin.inactive');
+            $message .= " User is not active.";
         }
 
         // Handle password change cases.
         if(!empty($new_pass) || !empty($confirm)) {
             // If passwords don't match.
             if($new_pass != $confirm) {
-                flash()->overlay(trans('controller_admin.nomatch'), trans('controller_admin.whoops'));
+                flash()->overlay("Passwords do not match, please try again.", "Whoops.");
                 return redirect('admin/users');
             }
 
             // If password is less than 6 chars
             if(strlen($new_pass)<6) {
-                flash()->overlay(trans('controller_admin.short'), trans('controller_admin.whoops'));
+                flash()->overlay("Password is too short, please try again.", "Whoops.");
                 return redirect('admin/users');
             }
 
             // If password contains spaces
             if(preg_match('/\s/',$new_pass)) {
-                flash()->overlay(trans('controller_admin.spaces'), trans('controller_admin.whoops'));
+                flash()->overlay("Password contains whitespaces, please try again.", "Whoops.");
                 return redirect('admin/users');
             }
 
             $user->password = bcrypt($new_pass);
-            $message .= trans('controller_admin.passchange');
+            $message .= " User password changed.";
         }
 
         $user->save();
-        flash()->overlay($message, trans('controller_admin.success'));
+        flash()->overlay($message, "Success!");
         return redirect('admin/users');
     }
 
@@ -157,7 +157,7 @@ class AdminController extends Controller {
         $user = User::where('id', '=', $id)->first();
         $user->delete();
 
-        flash()->overlay(trans('controller_admin.delete'), trans('controller_admin.success'));
+        flash()->overlay("User Deleted.", "Success!");
     }
 
     /**
@@ -173,7 +173,7 @@ class AdminController extends Controller {
 
         // The user hasn't entered anything.
         if($emails[0] == "") {
-            flash()->overlay(trans('controller_admin.enter'), trans('controller_admin.whoops'));
+            flash()->overlay("You must enter something!", "Whoops.");
             return redirect('admin/users');
         } else {
             $skipped = 0;
@@ -224,9 +224,9 @@ class AdminController extends Controller {
                 }
             }
             if($skipped)
-                flash()->overlay($skipped . trans('controller_admin.skipped') . $created . trans('controller_admin.created'), trans('controller_admin.success'));
+                flash()->overlay($skipped . " entries skipped, " . $created . " user(s) created.", "Success!");
             else
-                flash()->overlay($created . trans('controller_admin.created'), trans('controller_admin.success'));
+                flash()->overlay($created . " user(s) created.", "Success!");
             return redirect('admin/users');
         }
     }

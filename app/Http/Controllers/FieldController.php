@@ -3,7 +3,6 @@
 use App\ComboListField;
 use App\Field;
 use App\Http\Requests\FieldRequest;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -59,7 +58,7 @@ class FieldController extends Controller {
 
         //special error check for combo list field
         if($field->type=='Combo List' && ($request->cfname1 == '' | $request->cfname2 == '')) {
-            flash()->error(trans('controller_field.comboname'));
+            flash()->error("You must enter a name for both Combo List fields!");
 
             return redirect()->back()->withInput();
         }
@@ -86,7 +85,7 @@ class FieldController extends Controller {
         RevisionController::wipeRollbacks($form->fid);
 
         if(!$advError) //if we error on the adv page we should hide the success message so error can display
-            flash()->overlay(trans('controller_field.fieldcreated'), trans('controller_field.goodjob'));
+            flash()->overlay("Your field has been successfully created!", "Good Job!");
 
         return redirect('projects/'.$field->pid.'/forms/'.$field->fid);
 	}
@@ -171,7 +170,7 @@ class FieldController extends Controller {
         //A field has been changed, so current record rollbacks become invalid.
         RevisionController::wipeRollbacks($fid);
 
-        flash()->overlay(trans('controller_field.fieldupdated'), trans('controller_field.goodjob'));
+        flash()->overlay("Your field has been successfully updated!", "Good Job!");
 
         return redirect('projects/'.$pid.'/forms/'.$fid);
 	}
@@ -202,7 +201,7 @@ class FieldController extends Controller {
 
         RevisionController::wipeRollbacks($form->fid);
 
-        flash()->overlay(trans('controller_field.deleted'), trans('controller_field.goodjob'));
+        flash()->overlay("Your field has been successfully deleted!", "Good Job!");
 	}
 
     /**
@@ -269,25 +268,25 @@ class FieldController extends Controller {
         switch($permission) {
             case 'create':
                 if(!(\Auth::user()->canCreateFields(FormController::getForm($fid))))  {
-                    flash()->overlay(trans('controller_field.createper'), trans('controller_field.whoops'));
+                    flash()->overlay("You do not have permission to create fields for that form.", "Whoops");
                     return false;
                 }
                 return true;
             case 'edit':
                 if(!(\Auth::user()->canEditFields(FormController::getForm($fid)))) {
-                    flash()->overlay(trans('controller_field.editper'), trans('controller_field.whoops'));
+                    flash()->overlay("You do not have permission to edit fields for that form.", "Whoops");
                     return false;
                 }
                 return true;
             case 'delete':
                 if(!(\Auth::user()->canDeleteFields(FormController::getForm($fid)))) {
-                    flash()->overlay(trans('controller_field.deleteper'), trans('controller_field.whoops'));
+                    flash()->overlay("You do not have permission to delete fields for that form.", "Whoops");
                     return false;
                 }
                 return true;
             default:
                 if(!(\Auth::user()->inAFormGroup(FormController::getForm($fid)))) {
-                    flash()->overlay(trans('controller_field.viewper'), trans('controller_field.whoops'));
+                    flash()->overlay("You do not have permission to view that field.", "Whoops");
                     return false;
                 }
                 return true;

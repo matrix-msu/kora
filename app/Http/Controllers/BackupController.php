@@ -44,7 +44,7 @@ class BackupController extends Controller {
         $this->middleware('admin');
         if(Auth::check()) {
             if(Auth::user()->id != 1) {
-                flash()->overlay(trans('controller_backup.admin'),trans('controller_backup.whoops'));
+                flash()->overlay("Only the default admin can view that page","Whoops");
                 return redirect("/projects")->send();
             }
         }
@@ -372,15 +372,15 @@ class BackupController extends Controller {
                             return redirect()->back();
                         }
                     } catch(\Exception $e) {
-                        flash()->overlay(trans('controller_backup.cantmove'),trans('controller_backup.whoops'));
+                        flash()->overlay("The file could not be moved to the backup directory.","Whoops");
                         return redirect()->back();
                     }
                 } else {
-                    flash()->overlay(trans('controller_backup.badfile'),trans('controller_backup.whoops'));
+                    flash()->overlay("There is something wrong with the file that was uploaded","Whoops");
                     return redirect()->back();
                 }
             } else {
-                flash()->overlay(trans('controller_backup.nofiles'),trans('controller_backup.whoops'));
+                flash()->overlay("No file was uploaded.","Whoops");
                 return redirect()->back();
             }
         } else {
@@ -411,7 +411,7 @@ class BackupController extends Controller {
             $ac = new AdminController();
             $ac->deleteData();
         } catch(\Exception $e) {
-            $this->ajaxResponse(false, trans('controller_backup.dbpermission'));
+            $this->ajaxResponse(false, "There was a problem when attempting to remove existing information from the database, the database user may not have permission to do this or the database may be in use.");
         }
 
         //Delete the files directory
@@ -605,7 +605,7 @@ class BackupController extends Controller {
 
             return response()->json(["status"=>true,"message"=>$filename]);
         } else {
-            flash()->overlay(trans('controller_backup.badrestore'),trans('controller_backup.whoops'));
+            flash()->overlay("The restore point you selected is not valid.","Whoops");
             return redirect()->back();
         }
     }

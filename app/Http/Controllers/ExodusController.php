@@ -47,7 +47,7 @@ class ExodusController extends Controller {
         $this->middleware('admin');
         if(Auth::check()){
             if(Auth::user()->id != 1){
-                flash()->overlay(trans('controller_backup.admin'),trans('controller_backup.whoops'));
+                flash()->overlay("Only the default admin can view that page","Whoops");
                 return redirect("/projects")->send();
             }
         }

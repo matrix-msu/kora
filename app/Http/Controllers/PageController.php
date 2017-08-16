@@ -389,25 +389,25 @@ class PageController extends Controller {
         switch($permission) {
             case 'create':
                 if(!(\Auth::user()->canCreateFields(FormController::getForm($fid))))  {
-                    flash()->overlay(trans('controller_field.createper'), trans('controller_field.whoops'));
+                    flash()->overlay("You do not have permission to create fields for that form.", "Whoops");
                     return false;
                 }
                 return true;
             case 'edit':
                 if(!(\Auth::user()->canEditFields(FormController::getForm($fid)))) {
-                    flash()->overlay(trans('controller_field.editper'), trans('controller_field.whoops'));
+                    flash()->overlay("You do not have permission to edit fields for that form.", "Whoops");
                     return false;
                 }
                 return true;
             case 'delete':
                 if(!(\Auth::user()->canDeleteFields(FormController::getForm($fid)))) {
-                    flash()->overlay(trans('controller_field.deleteper'), trans('controller_field.whoops'));
+                    flash()->overlay("You do not have permission to delete fields for that form.", "Whoops");
                     return false;
                 }
                 return true;
             default:
                 if(!(\Auth::user()->inAFormGroup(FormController::getForm($fid)))) {
-                    flash()->overlay(trans('controller_field.viewper'), trans('controller_field.whoops'));
+                    flash()->overlay("You do not have permission to view that field.", "Whoops");
                     return false;
                 }
                 return true;

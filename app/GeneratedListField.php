@@ -83,11 +83,11 @@ class GeneratedListField extends BaseField {
         for($i=1;$i<sizeof($reqOpts);$i++) {
             if($request->regex!='' && !preg_match($request->regex, $reqOpts[$i])) {
                 if($return) {
-                    flash()->error(trans('controller_option.genregex', ['opt' => $reqOpts[$i]]));
+                    flash()->error("Option ".$reqOpts[$i]." does not match the required regex pattern.");
                     return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')->withInput();
                 } else {
                     $request->regex = '';
-                    $advString = trans('controller_option.genregex', ['opt' => $reqOpts[$i]]);
+                    $advString = "Option ".$reqOpts[$i]." does not match the required regex pattern.";
                 }
             }
             $options .= '[!]'.$reqOpts[$i];
@@ -100,7 +100,7 @@ class GeneratedListField extends BaseField {
         $field->updateOptions('Options', $options);
 
         if($return) {
-            flash()->overlay(trans('controller_field.optupdate'), trans('controller_field.goodjob'));
+            flash()->overlay("Option updated!", "Good Job!");
             return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
         } else {
             return $advString;
@@ -195,11 +195,11 @@ class GeneratedListField extends BaseField {
         $regex = FieldController::getFieldOption($field, 'Regex');
 
         if($req==1 && ($value==null | $value==""))
-            return $field->name.trans('fieldhelpers_val.req');
+            return $field->name." field is required.";
 
         foreach($value as $opt) {
             if(($regex!=null | $regex!="") && !preg_match($regex,$opt))
-                return trans('fieldhelpers_val.regexopt',['name'=>$field->name,'opt'=>$opt]);
+                return "Value ".$opt." for field ".$field->name." does not match regex pattern.";
         }
 
         return '';

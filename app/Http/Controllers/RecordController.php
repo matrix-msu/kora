@@ -162,7 +162,7 @@ class RecordController extends Controller {
         if($request->api) {
             return $record->kid;
         } else {
-            flash()->overlay(trans('controller_record.created'), trans('controller_record.goodjob'));
+            flash()->overlay("Your record has been successfully created!", "Good job!");
 
             return redirect('projects/' . $pid . '/forms/' . $fid . '/records');
         }
@@ -259,7 +259,7 @@ class RecordController extends Controller {
         }
 
         if(!\Auth::user()->isFormAdmin(FormController::getForm($fid))) {
-            flash()->overlay(trans('controller_record.noperm'), trans('controller_record.whoops'));
+            flash()->overlay("You do not have permission for that.", "Whoops");
         }
 
         //
@@ -362,7 +362,7 @@ class RecordController extends Controller {
         RecordPresetController::updateIfExists($record->rid);
 
         if(!$request->api) {
-            flash()->overlay(trans('controller_record.updated'), trans('controller_record.goodjob'));
+            flash()->overlay("Your record has been successfully updated!", "Good job!");
 
             return redirect('projects/' . $pid . '/forms/' . $fid . '/records/' . $rid);
         }
@@ -392,7 +392,7 @@ class RecordController extends Controller {
 
         $record->delete();
 
-        flash()->overlay(trans('controller_record.deleted'), trans('controller_record.goodjob'));
+        flash()->overlay("Your record has been successfully deleted!", "Good job!");
 	}
 
     /**
@@ -405,11 +405,11 @@ class RecordController extends Controller {
         $form = FormController::getForm($fid);
 
         if(!\Auth::user()->isFormAdmin($form)) {
-            flash()->overlay(trans('controller_record.noperm'), trans('controller_record.whoops'));
+            flash()->overlay("You do not have permission for that.", "Whoops");
         } else {
             Record::where("fid", "=", $fid)->delete();
 
-            flash()->overlay(trans('controller_record.alldelete'), trans('controller_record.success'));
+            flash()->overlay("All records deleted.", "Success!");
         }
     }
 
@@ -502,25 +502,25 @@ class RecordController extends Controller {
         switch($permission) {
             case 'ingest':
                 if(!(\Auth::user()->canIngestRecords(FormController::getForm($fid)))) {
-                    flash()->overlay(trans('controller_record.createper'), trans('controller_record.whoops'));
+                    flash()->overlay("You do not have permission to create records for that form.", "Whoops");
                     return false;
                 }
                 return true;
             case 'modify':
                 if(!(\Auth::user()->canModifyRecords(FormController::getForm($fid)))) {
-                    flash()->overlay(trans('controller_record.editper'), trans('controller_record.whoops'));
+                    flash()->overlay("You do not have permission to edit records for that form.", "Whoops");
                     return false;
                 }
                 return true;
             case 'destroy':
                 if(!(\Auth::user()->canDestroyRecords(FormController::getForm($fid)))) {
-                    flash()->overlay(trans('controller_record.deleteper'), trans('controller_record.whoops'));
+                    flash()->overlay("You do not have permission to delete records for that form.", "Whoops");
                     return false;
                 }
                 return true;
             default: // "Read Only"
                 if(!(\Auth::user()->inAFormGroup(FormController::getForm($fid)))) {
-                    flash()->overlay(trans('controller_record.viewper'), trans('controller_record.whoops'));
+                    flash()->overlay("You do not have permission to view records for that form.", "Whoops");
                     return false;
                 }
                 return true;
@@ -656,14 +656,14 @@ class RecordController extends Controller {
 
         $flid = $request->input("field_selection");
         if(!is_numeric($flid)) {
-            flash()->overlay(trans('controller_record.notvalid'));
+            flash()->overlay("That is not a valid field");
             return redirect()->back();
         }
 
         if($request->has($flid)) {
             $formFieldValue = $request->input($flid); //Note this only works when there is one form element being submitted, so if you have more, check Date
         } else {
-            flash()->overlay(trans('controller_record.provide'),trans('controller_record.whoops'));
+            flash()->overlay("You didn't provide a value to assign to the records","Whoops");
             return redirect()->back();
         }
 
@@ -679,7 +679,7 @@ class RecordController extends Controller {
             $typedField->massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite);
         }
 
-        flash()->overlay(trans('controller_record.recupdate'),trans('controller_record.goodjob'));
+        flash()->overlay("The records were updated","Good job!");
         return redirect()->action('RecordController@index',compact('pid','fid'));
     }
 
@@ -716,7 +716,7 @@ class RecordController extends Controller {
             }
         }
 
-        flash()->overlay('Created test records.',trans('controller_record.goodjob'));
+        flash()->overlay('Created test records.',"Good job!");
         return redirect()->action('RecordController@index',compact('pid','fid'));
     }
 
@@ -730,11 +730,11 @@ class RecordController extends Controller {
         $form = FormController::getForm($fid);
 
         if(!\Auth::user()->isFormAdmin($form)) {
-            flash()->overlay(trans('controller_record.noperm'), trans('controller_record.whoops'));
+            flash()->overlay("You do not have permission for that.", "Whoops");
         } else {
             Record::where("fid", "=", $fid)->where("isTest", "=", 1)->delete();
 
-            flash()->overlay(trans('controller_record.alldelete'), trans('controller_record.success'));
+            flash()->overlay("All records deleted.", "Success!");
         }
     }
 }

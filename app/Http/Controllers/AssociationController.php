@@ -46,7 +46,7 @@ class AssociationController extends Controller {
 		$project = $form->project()->first();
 
 		if(!(\Auth::user()->isFormAdmin($form))) {
-			flash()->overlay(trans('controller_association.admin'), trans('controller_association.whoops'));
+			flash()->overlay("You are not an admin for that form.", "Whoops");
 			return redirect('projects'.$project->pid);
 		}
 
@@ -161,7 +161,7 @@ class AssociationController extends Controller {
 
         //form admins only
         if(!(\Auth::user()->isFormAdmin($myForm))) {
-            flash()->overlay(trans('controller_association.admin'), trans('controller_association.whoops'));
+            flash()->overlay("You are not an admin for that form.", "Whoops");
             return redirect('projects'.$myProj->pid);
         }
 
@@ -186,7 +186,7 @@ class AssociationController extends Controller {
             array_push($associds,$a->assocForm);
         }
         //FIX THIS//
-        flash()->overlay(trans('controller_association.requestsent'), trans('controller_association.success'));
+        flash()->overlay("Request for access successfully sent.", "Success!");
         ///////////
         $form=$myForm;
         $project=$myProj;

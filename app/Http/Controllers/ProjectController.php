@@ -55,7 +55,7 @@ class ProjectController extends Controller {
         $c = new UpdateController();
         if($c->checkVersion() && !session('notified_of_update')) {
             session(['notified_of_update' => true]);
-            flash()->overlay(trans('controller_update.updateneeded'), trans('controller_update.updateheader'));
+            flash()->overlay('An update is available, please visit the update page.', 'Update Available!');
         }
 
         return view('projects.index', compact('projects', 'projectArrays', 'hasProjects','requestProjects'));
@@ -78,7 +78,7 @@ class ProjectController extends Controller {
         }
 
         if(sizeof($projects)==0) {
-            flash()->overlay(trans('controller_project.requestfail'),trans('controller_project.whoops'));
+            flash()->overlay("No projects were selected for request.","Whoops");
 
             return redirect('projects');
         } else {
@@ -94,7 +94,7 @@ class ProjectController extends Controller {
                 }
             }
 
-            flash()->overlay(trans('controller_project.requestsuccess'),trans('controller_project.whoops'));
+            flash()->overlay("The admin for these projects will be notified to provide you with proper permissions. You will receive an email once permissions have been provided.","Whoops");
 
             return redirect('projects');
         }
@@ -125,7 +125,7 @@ class ProjectController extends Controller {
         $project->adminGID = $adminGroup->id;
         $project->save();
 
-        flash()->overlay(trans('controller_project.create'),trans('controller_project.goodjob'));
+        flash()->overlay("Your project has been successfully created!","Good Job!");
 
         return redirect('projects');
 	}
@@ -166,7 +166,7 @@ class ProjectController extends Controller {
         $project = self::getProject($id);
 
         if(!$user->admin && !self::isProjectAdmin($user, $project)) {
-            flash()->overlay(trans('controller_project.editper'), trans('controller_project.whoops'));
+            flash()->overlay("You do not have permission to edit that project.", "Whoops");
             return redirect()->action('ProjectController@Index');
         }
 
@@ -186,7 +186,7 @@ class ProjectController extends Controller {
 
         ProjectGroupController::updateMainGroupNames($project);
 
-        flash()->overlay(trans('controller_project.updated'),trans('controller_project.goodjob'));
+        flash()->overlay("Your project has been successfully updated!","Good Job!");
 
         return redirect('projects');
 	}
@@ -205,13 +205,13 @@ class ProjectController extends Controller {
         $project = self::getProject($id);
 
         if(!$user->admin && !self::isProjectAdmin($user, $project)) {
-            flash()->overlay(trans('controller_project.deleteper'), trans('controller_project.whoops'));
+            flash()->overlay("You do not have permission to delete that project.", "Whoops");
             return redirect('/projects');
         }
 
         $project->delete();
 
-        flash()->overlay(trans('controller_project.deleted'),trans('controller_project.goodjob'));
+        flash()->overlay("Your project has been successfully deleted!","Good Job!");
 	}
 
     /**

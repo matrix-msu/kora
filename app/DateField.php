@@ -126,11 +126,11 @@ class DateField extends BaseField {
             $default = '[M]' . $request->default_month . '[M][D]' . $request->default_day . '[D][Y]' . $request->default_year . '[Y]';
         } else {
             if($return) {
-                flash()->error(trans('controller_option.baddate'));
+                flash()->error("Invalid date. Either day given w/ no month provided, or day and month are impossible.");
                 return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')->withInput();
             } else {
                 $default = '';
-                $advString = trans('controller_option.baddate');
+                $advString = "Invalid date. Either day given w/ no month provided, or day and month are impossible.";
             }
         }
 
@@ -150,7 +150,7 @@ class DateField extends BaseField {
         $field->updateOptions('Era', $request->era);
 
         if($return) {
-            flash()->overlay(trans('controller_field.optupdate'), trans('controller_field.goodjob'));
+            flash()->overlay("Option updated!", "Good Job!");
             return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
         } else {
             return $advString;
@@ -268,13 +268,13 @@ class DateField extends BaseField {
         $year = $request->input('year_'.$field->flid,'');
 
         if($req==1 && $month=='' && $day=='' && $year=='')
-            return $field->name.trans('fieldhelpers_val.req');
+            return $field->name." field is required.";
 
         if(($year<$start | $year>$end) && ($month!='' | $day!=''))
-            return trans('fieldhelpers_val.year',['name'=>$field->name,'start'=>$start,'end'=>$end]);
+            return "Year supplied for field ".$field->name." is not in the range of ".$start." and :".$end.".";
 
         if(!DateField::validateDate($month,$day,$year))
-            return trans('fieldhelpers_val.date',['name'=>$field->name]);
+            return "Invalid date for field ".$field->name.". Either day given w/ no month provided, or day and month are impossible.";
 
         return '';
     }

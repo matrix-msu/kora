@@ -39,7 +39,7 @@ class Authenticate {
 	public function handle($request, Closure $next) {
 		if($this->auth->guest())  {
 			if($request->ajax()) {
-				return response(trans('middleware_authenticate.auth'), 401);
+				return response("Unauthorized.", 401);
 			} else {
 				return redirect()->guest('/');
 			}

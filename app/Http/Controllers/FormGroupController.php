@@ -44,7 +44,7 @@ class FormGroupController extends Controller {
         $project = $form->project()->first();
 
         if(!(\Auth::user()->isFormAdmin($form))) {
-            flash()->overlay(trans('controller_formgroup.admin'), trans('controller_formgroup.whoops'));
+            flash()->overlay("You are not an admin for that form.", "Whoops");
             return redirect('projects'.$project->pid);
         }
 
@@ -70,7 +70,7 @@ class FormGroupController extends Controller {
         $form = FormController::getForm($fid);
 
         if($request['name'] == "") {
-            flash()->overlay(trans('controller_formgroup.name'), trans('controller_formgroup.whoops'));
+            flash()->overlay("You must enter a group name.", "Whoops");
             return redirect(action('FormGroupController@index', ['fid'=>$form->fid]));
         }
 
@@ -127,7 +127,7 @@ class FormGroupController extends Controller {
             $group->users()->attach($request['users']);
         }
 
-        flash()->overlay(trans('controller_formgroup.created'), trans('controller_formgroup.success'));
+        flash()->overlay("Group created!", "Success!");
         return redirect(action('FormGroupController@index', ['pid'=>$form->pid, 'fid'=>$form->fid]));
     }
 

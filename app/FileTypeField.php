@@ -166,7 +166,7 @@ abstract class FileTypeField extends BaseField {
             ]);
         } else {
             // Error
-            exit(trans('controller_field.nofile'));
+            exit("Requested file does not exist on our server!");
         }
     }
 

@@ -23,7 +23,7 @@ class IsAdmin {
 	 */
 	public function handle($request, Closure $next) {
         if(!(\Auth::user()->admin)) {
-            flash()->overlay(trans('middleware_isadmin.admin'), trans('middleware_isadmin.whoops'));
+            flash()->overlay("You must be an admin to view that page.", "Whoops");
             return redirect('/');
         }
 

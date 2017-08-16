@@ -82,7 +82,7 @@ class ListField extends BaseField {
         $field->updateOptions('Options', $options);
 
         if($return) {
-            flash()->overlay(trans('controller_field.optupdate'), trans('controller_field.goodjob'));
+            flash()->overlay("Option updated!", "Good Job!");
             return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
         } else {
             return '';
@@ -177,10 +177,10 @@ class ListField extends BaseField {
         $list = ListField::getList($field);
 
         if($req==1 && ($value==null | $value==""))
-            return $field->name.trans('fieldhelpers_val.req');
+            return $field->name." field is required.";
 
         if($value!='' && !in_array($value,$list))
-            return trans('fieldhelpers_val.list',['name'=>$field->name]);
+            return "Value for field ".$field->name." not in list of options";
 
         return '';
     }

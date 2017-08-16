@@ -86,7 +86,7 @@ class ExportController extends Controller {
         } else { // File does not exist, so some kind of error occurred, and we redirect.
             $tracker->delete();
 
-            flash()->overlay(trans("records_index.exporterror"), trans("controller_admin.whoops"));
+            flash()->overlay("There was an error during exporting!", "Whoops");
             return redirect("projects/" . $pid . "/forms/" . $fid . "/records");
         }
     }

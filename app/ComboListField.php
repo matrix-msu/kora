@@ -128,7 +128,7 @@ class ComboListField extends BaseField {
         $field->updateOptions('Field2', $flopt_two);
 
         if($return) {
-            flash()->overlay(trans('controller_field.optupdate'), trans('controller_field.goodjob'));
+            flash()->overlay("Option updated!", "Good Job!");
             return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
         } else {
             return '';
@@ -313,7 +313,7 @@ class ComboListField extends BaseField {
         $flid = $field->flid;
 
         if($req==1 && !isset($request[$flid.'_val']))
-            return $field->name.trans('fieldhelpers_val.req');
+            return $field->name." field is required.";
 
         return '';
     }
@@ -851,39 +851,39 @@ class ComboListField extends BaseField {
         $typetwo = $request->typetwo;
 
         if($valone=="" | $valtwo=="")
-            return trans('controller_field.valueboth');
+            return "Value must be supplied for both fields.";
 
         if($typeone=='Text') {
             $regex = self::getComboFieldOption($field,'Regex','one');
             if(($regex!=null | $regex!="") && !preg_match($regex,$valone))
-                return trans('controller_field.v1regex');
+                return "Value for field one does not match the required regex pattern.";
         } else if($typeone=='Number') {
             $max = self::getComboFieldOption($field,'Max','one');
             $min = self::getComboFieldOption($field,'Min','one');
             $inc = self::getComboFieldOption($field,'Increment','one');
 
             if($valone<$min | $valone>$max)
-                return trans('controller_field.v1num');
+                return "Value for field one is not within the required range.";
 
             if(fmod(floatval($valone),floatval($inc))!=0)
-                return trans('controller_field.v1numinc');
+                return "Value for field one is not a multiple of the required increment.";
         } else if($typeone=='List') {
             $opts = explode('[!]',self::getComboFieldOption($field,'Options','one'));
 
             if(!in_array($valone,$opts))
-                return trans('controller_field.v1list');
+                return "Value for field one is not a valid list option.";
         } else if($typeone=='Multi-Select List') {
             $opts = explode('[!]',self::getComboFieldOption($field,'Options','one'));
 
             if(sizeof(array_diff($valone,$opts))>0)
-                return trans('controller_field.v1mslist');
+                return "One or more values for field one are not a valid list options.";
         } else if($typeone=='Generated List') {
             $regex = self::getComboFieldOption($field,'Regex','one');
 
             if($regex != null | $regex != "") {
                 foreach($valone as $val) {
                     if(!preg_match($regex, $val))
-                        return trans('controller_field.v1genlist');
+                        return "One or more values for field one do not match the required regex pattern.";
                 }
             }
         }
@@ -891,34 +891,34 @@ class ComboListField extends BaseField {
         if($typetwo=='Text') {
             $regex = self::getComboFieldOption($field,'Regex','two');
             if(($regex!=null | $regex!="") && !preg_match($regex,$valtwo))
-                return trans('controller_field.v2regex');
+                return "Value for field two does not match the required regex pattern.";
         } else if($typetwo=='Number') {
             $max = self::getComboFieldOption($field,'Max','two');
             $min = self::getComboFieldOption($field,'Min','two');
             $inc = self::getComboFieldOption($field,'Increment','two');
 
             if($valtwo<$min | $valtwo>$max)
-                return trans('controller_field.v2num');
+                return "Value for field two is not within the required range.";
 
             if(fmod(floatval($valtwo),floatval($inc))!=0)
-                return trans('controller_field.v2numinc');
+                return "Value for field two is not a multiple of the required increment.";
         } else if($typetwo=='List') {
             $opts = explode('[!]',self::getComboFieldOption($field,'Options','two'));
 
             if(!in_array($valtwo,$opts))
-                return trans('controller_field.v2list');
+                return "Value for field two is not a valid list option.";
         } else if($typetwo=='Multi-Select List') {
             $opts = explode('[!]',self::getComboFieldOption($field,'Options','two'));
 
             if(sizeof(array_diff($valtwo,$opts))>0)
-                return trans('controller_field.v2mslist');
+                return "One or more values for field two are not a valid list options.";
         } else if($typetwo=='Generated List') {
             $regex = self::getComboFieldOption($field,'Regex','two');
 
             if($regex != null | $regex != "") {
                 foreach($valtwo as $val) {
                     if(!preg_match($regex, $val))
-                        return trans('controller_field.v2genlist');
+                        return "One or more values for field two do not match the required regex pattern.";
                 }
             }
         }

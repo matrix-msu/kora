@@ -104,7 +104,7 @@ class GalleryField extends FileTypeField  {
         $field->updateOptions('ThumbLarge', $large);
 
         if($return) {
-            flash()->overlay(trans('controller_field.optupdate'), trans('controller_field.goodjob'));
+            flash()->overlay("Option updated!", "Good Job!");
             return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
         } else {
             return '';
@@ -296,7 +296,7 @@ class GalleryField extends FileTypeField  {
 
         if($req==1) {
             if(glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') == false)
-                return $field->name.trans('fieldhelpers_val.file');
+                return $field->name." field is required. No files submitted.";
         }
     }
 
@@ -527,7 +527,7 @@ class GalleryField extends FileTypeField  {
             ]);
         } else {
             // Error
-            exit(trans('controller_field.nofile'));
+            exit("Requested file does not exist on our server!");
         }
     }
 }

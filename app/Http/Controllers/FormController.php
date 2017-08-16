@@ -10,7 +10,6 @@ use App\Http\Requests\FormRequest;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
-
 class FormController extends Controller {
 
     /*
@@ -77,7 +76,7 @@ class FormController extends Controller {
         if(isset($request['preset']))
             self::addPresets($form, $request['preset']);
 
-        flash()->overlay(trans('controller_form.create'),trans('controller_form.goodjob'));
+        flash()->overlay("Your form has been successfully created!","Good Job!");
 
         return redirect('projects/'.$form->pid);
 	}
@@ -153,7 +152,7 @@ class FormController extends Controller {
 
         FormGroupController::updateMainGroupNames($form);
 
-        flash()->overlay(trans('controller_form.update'),trans('controller_form.goodjob'));
+        flash()->overlay("Your form has been successfully updated!","Good Job!");
 
         return redirect('projects/'.$form->pid);
 	}
@@ -176,7 +175,7 @@ class FormController extends Controller {
         $form = self::getForm($fid);
         $form->delete();
 
-        flash()->overlay(trans('controller_form.delete'),trans('controller_form.goodjob'));
+        flash()->overlay("Your form has been successfully deleted!","Good Job!");
 	}
 
     /**
@@ -283,25 +282,25 @@ class FormController extends Controller {
         switch($permission) {
             case 'create':
                 if(!(\Auth::user()->canCreateForms(ProjectController::getProject($pid)))) {
-                    flash()->overlay(trans('controller_form.createper'), trans('controller_form.whoops'));
+                    flash()->overlay("You do not have permission to create forms for that project.", "Whoops");
                     return false;
                 }
                 return true;
             case 'edit':
                 if(!(\Auth::user()->canEditForms(ProjectController::getProject($pid)))) {
-                    flash()->overlay(trans('controller_form.editper'), trans('controller_form.whoops'));
+                    flash()->overlay("You do not have permission to edit forms for that project.", "Whoops");
                     return false;
                 }
                 return true;
             case 'delete':
                 if(!(\Auth::user()->canDeleteForms(ProjectController::getProject($pid)))) {
-                    flash()->overlay(trans('controller_form.deleteper'), trans('controller_form.whoops'));
+                    flash()->overlay("You do not have permission to delete forms for that project.", "Whoops");
                     return false;
                 }
                 return true;
             default: //"Read Only"
                 if(!(\Auth::user()->inAProjectGroup(ProjectController::getProject($pid)))) {
-                    flash()->overlay(trans('controller_form.viewper'), trans('controller_form.whoops'));
+                    flash()->overlay("You do not have permission to view that project.", "Whoops");
                     return false;
                 }
                 return true;

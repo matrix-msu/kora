@@ -4,8 +4,10 @@ use App\Form;
 use App\Project;
 use App\Record;
 use App\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Routing\ResponseFactory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Redirect;
@@ -60,7 +62,7 @@ class UserController extends Controller {
      * Changes the user profile picture and returns the pic URI.
      *
      * @param  Request $request
-     * @return string - URI of pic
+     * @return JsonResponse - URI of pic
      */
     public function changepicture(Request $request) {
         $file = $request->file('profile');
@@ -80,13 +82,14 @@ class UserController extends Controller {
         //move photo and return new path
         $file->move($pDir,$newFilename);
 
-        return $pURL.$newFilename;
+        return response()->json(["status"=>true,"message"=>"MESSAGE_HERE","pic_url"=>$pURL.$newFilename],200);
     }
 
     /**
      * Change user profile information.
      *
      * @param  Request $request
+     * @return JsonResponse - Status of update
      */
     public function changeprofile(Request $request) {
         $user = Auth::user();
@@ -97,47 +100,48 @@ class UserController extends Controller {
                 $lang = $request->input("field");
 
                 if(empty($lang)) {
-                    flash()->overlay(trans('controller_auth_user.selectlan'), trans('controller_auth_user.whoops'));
+                    return response()->json(["status"=>false,"message"=>"language_missing"],500);
                 } else {
                     $user->language = $lang;
                     $user->save();
-                    flash()->overlay(trans('controller_auth_user.lanupdate'), trans('controller_auth_user.success'));
+                    return response()->json(["status"=>true,"message"=>"language_updated"],200);
                 }
                 break;
             case "dash":
                 $dash = $request->input("field");
 
                 if($dash != "0" && $dash != "1") {
-                    flash()->overlay(trans('controller_auth_user.selectdash'), trans('controller_auth_user.whoops'));
+                    return response()->json(["status"=>false,"message"=>"homepage_missing"],500);
                 } else {
                     $user->dash = $dash;
                     $user->save();
-                    flash()->overlay(trans('controller_auth_user.dashupdate'), trans('controller_auth_user.success'));
+                    return response()->json(["status"=>true,"message"=>"homepage_updated"],200);
                 }
                 break;
             case "name":
                 $realname = $request->input("field");
 
                 if(empty($realname)) {
-                    flash()->overlay(trans('controller_auth_user.entername'), trans('controller_auth_user.whoops'));
+                    return response()->json(["status"=>false,"message"=>"name_missing"],500);
                 } else {
                     $user->name = $realname;
                     $user->save();
-                    flash()->overlay(trans('controller_auth_user.nameupdate'), trans('controller_auth_user.success'));
+                    return response()->json(["status"=>true,"message"=>"name_updated"],200);
                 }
                 break;
             case "org":
                 $organization = $request->input("field");
 
                 if(empty($organization)) {
-                    flash()->overlay(trans('controller_auth_user.enterorg'), trans('controller_auth_user.whoops'));
+                    return response()->json(["status"=>false,"message"=>"organization_missing"],500);
                 } else {
                     $user->organization = $organization;
                     $user->save();
-                    flash()->overlay(trans('controller_auth_user.orgupdate'), trans('controller_auth_user.success'));
+                    return response()->json(["status"=>true,"message"=>"organization_updated"],200);
                 }
                 break;
             default:
+                return response()->json(["status"=>false,"message"=>"profile_field_missing"],500);
                 break;
         }
     }
@@ -154,23 +158,16 @@ class UserController extends Controller {
         $confirm = $request->confirm;
 
         if(empty($new_pass) && empty($confirm)) {
-            flash()->overlay(trans('controller_auth_user.bothpass'), trans('controller_auth_user.whoops'));
-            return redirect('user/profile');
-
+            return redirect('user/profile')->with('k3_global_error', 'fill_both_passwords');
         } else if(strlen($new_pass) < 6) {
-            flash()->overlay(trans('controller_auth_user.lessthan'), trans('controller_auth_user.whoops'));
-            return redirect('user/profile');
-
+            return redirect('user/profile')->with('k3_global_error', 'password_minimum');
         } else if($new_pass != $confirm) {
-            flash()->overlay(trans('controller_auth_user.nomatch'), trans('controller_auth_user.whoops'));
-            return redirect('user/profile');
-
+            return redirect('user/profile')->with('k3_global_error', 'password_no_match');
         } else {
             $user->password = bcrypt($new_pass);
             $user->save();
 
-            flash()->overlay(trans('controller_auth_user.passupdate'), trans('controller_auth_user.success'));
-            return redirect('user/profile');
+            return redirect('user/profile')->with('k3_global_success', 'password_change_success');
         }
     }
 
@@ -191,24 +188,20 @@ class UserController extends Controller {
      */
     public function activator(Request $request) {
         $user = User::where('username', '=', $request->user)->first();
-        if($user==null) {
-            flash()->overlay(trans('controller_auth_user.nouser'), trans('controller_auth_user.whoops'));
-            return redirect('auth/activate');
-        }
+        if($user==null)
+            return redirect('auth/activate')->with('k3_global_error', 'user_doesnt_exist');
 
         $token = trim($request->token);
 
         if($user->regtoken == $token && !empty($user->regtoken) && !($user->active ==1)) {
             $user->active = 1;
             $user->save();
-            flash()->overlay(trans('controller_auth_user.activated'), trans('controller_auth_user.success'));
 
             \Auth::login($user);
 
-            return redirect('/');
+            return redirect('/')->with('k3_global_success', 'user_activated');
         } else {
-            flash()->overlay(trans('controller_auth_user.badtokenuser'), trans('controller_auth_user.whoops'));
-            return redirect('auth/activate');
+            return redirect('auth/activate')->with('k3_global_error', 'invalid_token');
         }
     }
 
@@ -230,14 +223,12 @@ class UserController extends Controller {
         \Auth::login($user);
 
         if($token != $user->regtoken) {
-            flash()->overlay(trans('controller_auth_user.badtoken'), trans('controller_auth_user.whoops'));
-            return redirect('/');
+            return redirect('/')->with('k3_global_error', 'bad_activation_token');
         } else {
             $user->active = 1;
             $user->save();
 
-            flash()->overlay(trans('controller_auth_user.acttwo'), trans('controller_auth_user.success'));
-            return redirect('/');
+            return redirect('/')->with('k3_global_success', 'user_activated');
         }
     }
 

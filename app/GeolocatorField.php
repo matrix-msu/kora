@@ -90,7 +90,7 @@ class GeolocatorField extends BaseField {
         $field->updateOptions('DataView', $request->view);
 
         if($return) {
-            flash()->overlay(trans('controller_field.optupdate'), trans('controller_field.goodjob'));
+            flash()->overlay("Option updated!", "Good Job!");
             return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
         } else {
             return '';
@@ -185,7 +185,7 @@ class GeolocatorField extends BaseField {
         $req = $field->required;
 
         if($req==1 && ($value==null | $value==""))
-            return $field->name.trans('fieldhelpers_val.req');
+            return $field->name." field is required.";
     }
 
     /**

@@ -164,7 +164,7 @@ class PluginController extends Controller {
             }
         }
 
-        flash()->overlay(trans('controller_plugin.install'),trans('controller_plugin.goodjob'));
+        flash()->overlay("Your plugin was successfully installed!","Good Job!");
     }
 
     /**
@@ -227,7 +227,7 @@ class PluginController extends Controller {
         $project->delete();
         $plugin->delete();
 
-        flash()->overlay(trans('controller_plugin.deleted'),trans('controller_plugin.goodjob'));
+        flash()->overlay("Your plugin was successfully uninstalled!","Good Job!");
     }
 
     /**

@@ -124,12 +124,12 @@ class UpdateController extends Controller {
             //
             // Inform the user they have successfully updated.
             //
-            flash()->overlay(trans('controller_update.updatesuccess'), trans('controller_admin.success'));
+            flash()->overlay('You have successfully updated!', "Success!");
         } else {
             //
             // Inform the user they have not successfully executed a git pull.
             //
-            flash()->overlay(trans('controller_update.pullfail'), trans('controller_admin.whoops'));
+            flash()->overlay('You have not successfully executed a git pull, you must do so before running scripts.', "Whoops.");
         }
 
         ignore_user_abort(false);

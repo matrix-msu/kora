@@ -40,7 +40,7 @@ class ProjectGroupController extends Controller {
         $project = ProjectController::getProject($pid);
 
         if(!(\Auth::user()->isProjectAdmin($project))) {
-            flash()->overlay(trans('controller_projectgroup.admin'), trans('controller_projectgroup.whoops'));
+            flash()->overlay("You are not an admin for that project.", "Whoops.");
             return redirect('projects/'.$pid);
         }
 
@@ -59,7 +59,7 @@ class ProjectGroupController extends Controller {
      */
     public function create($pid, Request $request) {
         if($request['name'] == "") {
-            flash()->overlay(trans('controller_projectgroup.name'), trans('controller_projectgroup.whoops'));
+            flash()->overlay("You must enter a group name.", "Whoops.");
             return redirect('projects/'.$pid.'/manage/projectgroups');
         }
 
@@ -106,7 +106,7 @@ class ProjectGroupController extends Controller {
             $group->users()->attach($request['users']);
         }
 
-        flash()->overlay(trans('controller_projectgroup.create'), trans('controller_projectgroup.success'));
+        flash()->overlay("Group created!", "Success!");
         return redirect('projects/'.$pid.'/manage/projectgroups');
     }
 
@@ -212,7 +212,7 @@ class ProjectGroupController extends Controller {
 
         $instance->delete();
 
-        flash()->overlay(trans('controller_projectgroup.delete'), trans('controller_projectgroup.success'));
+        flash()->overlay("Project group has been deleted.", "Success!");
     }
 
     /**

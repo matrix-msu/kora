@@ -155,11 +155,11 @@ class ProjectSearchController extends Controller {
                 if(\Auth::user()->inAFormGroup(FormController::getForm($kid_array[1]))) {
                     return redirect("/projects/" . $kid_array[0] . "/forms/" . $kid_array[1] . "/records/" . $kid_array[2]);
                 } else { // User did not have permission to view the record.
-                    flash()->overlay(trans('controller_record.viewper'), trans('controller_record.whoops'));
+                    flash()->overlay("You do not have permission to view records for that form.", "Whoops");
                     return redirect()->back();
                 }
             } else { // Record does not exist.
-                flash()->overlay(trans("records_show.exist"), trans('controller_record.whoops'));
+                flash()->overlay("That record did not exist.", "Whoops");
                 return redirect()->back();
             }
         }
