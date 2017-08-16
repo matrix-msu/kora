@@ -48,7 +48,7 @@
             @include('partials.nav')
         </div>
 
-        <section class="{{ strtolower($page_title) }}">
+        <section class="{{ str_hyphenated($page_title) }}">
             @yield('header')
             @yield('body')
             @yield('footer')
