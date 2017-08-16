@@ -1,4 +1,4 @@
-@extends('app')
+@extends('app', ['page_title' => 'Welcome'])
 
 @section('body')
 <style>
