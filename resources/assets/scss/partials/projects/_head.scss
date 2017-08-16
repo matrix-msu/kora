@@ -8,6 +8,7 @@
     margin-left: 300px;
     margin-right: 300px;
     max-width: calc(#{ $max-site-width } - 600px);
+    width: calc(100% - 600px);
   }
 
   .title {
