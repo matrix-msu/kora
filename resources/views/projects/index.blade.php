@@ -1,8 +1,8 @@
-@extends('app')
+@extends('app', ['page_title' => 'Projects'])
 
 @section('header')
-    <div id="kora_header_title">Projects</div>
-    <div id="kora_header_description">Select a project below or create a project to get started.</div>
+    <div id="title">Projects</div>
+    <div id="description">Select a project below or create a project to get started.</div>
 @stop
 
 @section('body')

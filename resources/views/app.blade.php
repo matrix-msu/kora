@@ -41,23 +41,17 @@
             <script type="text/javascript" src="{{ env('BASE_URL') }}jsc3d/jsc3d.webgl.js"></script>
             <script type="text/javascript" src="{{ env('BASE_URL') }}jsc3d/jsc3d.touch.js"></script>
         @endif
-        <title>Kora 3</title>
+        <title>Kora 3 - {{ $page_title }}</title>
     </head>
     <body>
         <div>
             @include('partials.nav')
         </div>
 
-        <div id="kora_header">
+        <section class="{{ strtolower($page_title) }}">
             @yield('header')
-        </div>
-
-        <div id="kora_body">
             @yield('body')
-        </div>
-
-        <div id="kora_footer">
             @yield('footer')
-        </div>
+        </section>
     </body>
 </html>
