@@ -1031,25 +1031,26 @@ form {
 }
 /* line 12, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .search .icon {
+  cursor: pointer;
   -webkit-transition: all 200ms ease-in-out;
   transition: all 200ms ease-in-out;
   vertical-align: middle;
 }
-/* line 17, ../../../resources/assets/scss/partials/projects/_filters.scss */
+/* line 18, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .search .icon-search {
   height: 12px;
 }
-/* line 21, ../../../resources/assets/scss/partials/projects/_filters.scss */
+/* line 22, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .search .icon-cancel {
   height: 0;
   opacity: 0;
 }
-/* line 26, ../../../resources/assets/scss/partials/projects/_filters.scss */
+/* line 27, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .search .icon-cancel.active {
   height: 8px;
   opacity: 1;
 }
-/* line 31, ../../../resources/assets/scss/partials/projects/_filters.scss */
+/* line 32, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .search input {
   background: none;
   border: 0;
@@ -1062,7 +1063,7 @@ form {
   vertical-align: middle;
   width: 100px;
 }
-/* line 45, ../../../resources/assets/scss/partials/projects/_filters.scss */
+/* line 46, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .sort-options .option {
   color: rgba(40, 60, 70, 0.8);
   cursor: pointer;
@@ -1073,22 +1074,22 @@ form {
   padding: 0 0 10px;
   width: 116px;
 }
-/* line 55, ../../../resources/assets/scss/partials/projects/_filters.scss */
+/* line 56, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .sort-options .option:first-child {
   padding-left: 0;
 }
-/* line 59, ../../../resources/assets/scss/partials/projects/_filters.scss */
+/* line 60, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .sort-options .option:last-child {
   padding-right: 0;
 }
-/* line 64, ../../../resources/assets/scss/partials/projects/_filters.scss */
+/* line 65, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .search,
 .projects .filters .sort-options .option {
   position: relative;
   -webkit-transition: all .2s ease-in-out;
   transition: all .2s ease-in-out;
 }
-/* line 69, ../../../resources/assets/scss/partials/projects/_filters.scss */
+/* line 70, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .search::before, .projects .filters .search::after,
 .projects .filters .sort-options .option::before,
 .projects .filters .sort-options .option::after {
@@ -1105,23 +1106,23 @@ form {
           transition-duration: .75s;
   width: 0;
 }
-/* line 83, ../../../resources/assets/scss/partials/projects/_filters.scss */
+/* line 84, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .search::before,
 .projects .filters .sort-options .option::before {
   left: calc(50%);
 }
-/* line 87, ../../../resources/assets/scss/partials/projects/_filters.scss */
+/* line 88, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .search::after,
 .projects .filters .sort-options .option::after {
   right: calc(50%);
 }
-/* line 91, ../../../resources/assets/scss/partials/projects/_filters.scss */
+/* line 92, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .search.active,
 .projects .filters .sort-options .option.active {
   color: #04b6af;
   font-weight: bold;
 }
-/* line 96, ../../../resources/assets/scss/partials/projects/_filters.scss */
+/* line 97, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .search.active::before, .projects .filters .search.active::after,
 .projects .filters .sort-options .option.active::before,
 .projects .filters .sort-options .option.active::after {
@@ -1129,7 +1130,7 @@ form {
   width: 50%;
 }
 @media screen and (max-width: 960px) {
-  /* line 105, ../../../resources/assets/scss/partials/projects/_filters.scss */
+  /* line 106, ../../../resources/assets/scss/partials/projects/_filters.scss */
   .projects .filters {
     margin-left: 60px;
     margin-right: 60px;
@@ -1138,7 +1139,7 @@ form {
   }
 }
 @media screen and (max-width: 480px) {
-  /* line 114, ../../../resources/assets/scss/partials/projects/_filters.scss */
+  /* line 115, ../../../resources/assets/scss/partials/projects/_filters.scss */
   .projects .filters {
     margin-left: 25px;
     margin-right: 25px;
