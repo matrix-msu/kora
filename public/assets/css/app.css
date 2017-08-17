@@ -998,24 +998,6 @@ form {
   margin: 0;
   padding: 0 0 60px;
 }
-@media screen and (max-width: 960px) {
-  /* line 43, ../../../resources/assets/scss/partials/projects/_head.scss */
-  .projects .head .inner-wrap {
-    margin-left: 60px;
-    margin-right: 60px;
-    max-width: 840px;
-    width: calc(100% - 120px);
-  }
-}
-@media screen and (max-width: 480px) {
-  /* line 52, ../../../resources/assets/scss/partials/projects/_head.scss */
-  .projects .head .inner-wrap {
-    margin-left: 25px;
-    margin-right: 25px;
-    max-width: 430px;
-    width: calc(100% - 50px);
-  }
-}
 /* line 1, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters {
   font-family: ubunturegular;
@@ -1129,24 +1111,6 @@ form {
   opacity: 1;
   width: 50%;
 }
-@media screen and (max-width: 960px) {
-  /* line 106, ../../../resources/assets/scss/partials/projects/_filters.scss */
-  .projects .filters {
-    margin-left: 60px;
-    margin-right: 60px;
-    max-width: 840px;
-    width: calc(100% - 120px);
-  }
-}
-@media screen and (max-width: 480px) {
-  /* line 115, ../../../resources/assets/scss/partials/projects/_filters.scss */
-  .projects .filters {
-    margin-left: 25px;
-    margin-right: 25px;
-    max-width: 430px;
-    width: calc(100% - 50px);
-  }
-}
 /* line 1, ../../../resources/assets/scss/partials/projects/_new-project.scss */
 .projects .new-project-button {
   margin: 40px auto 0;
@@ -1180,7 +1144,9 @@ form {
           box-shadow: 0 5px 10px 0 rgba(4, 182, 175, 0.05);
 }
 @media screen and (max-width: 960px) {
-  /* line 32, ../../../resources/assets/scss/partials/projects/_new-project.scss */
+  /* line 12, ../../../resources/assets/scss/partials/_projects.scss */
+  .projects .filters,
+  .projects .head .inner-wrap,
   .projects .new-project-button {
     margin-left: 60px;
     margin-right: 60px;
@@ -1189,7 +1155,9 @@ form {
   }
 }
 @media screen and (max-width: 480px) {
-  /* line 41, ../../../resources/assets/scss/partials/projects/_new-project.scss */
+  /* line 23, ../../../resources/assets/scss/partials/_projects.scss */
+  .projects .filters,
+  .projects .head .inner-wrap,
   .projects .new-project-button {
     margin-left: 25px;
     margin-right: 25px;

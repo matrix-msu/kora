@@ -33,7 +33,7 @@
       @endif
     </form>
   </section>
-    <!-- <div id="project_index_cards">
+    <div id="project_index_cards">
         @foreach($projects as $project)
             <div class="project_index_card">
                 <div class="project_index_card_header">
@@ -63,9 +63,10 @@
 
                 </div>
             </div>
+            <?php break; ?>
         @endforeach
     </div>
-    <div id="project_index_requests">
+    <!-- <div id="project_index_requests">
         <div id="project_index_requests_text">
             Don't see the project you are looking for? You might not have the permissions...
         </div>

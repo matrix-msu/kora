@@ -101,21 +101,3 @@
     }
   }
 }
-
-@media screen and (max-width: $max-tablet-width) {
-  .filters {
-    margin-left: $tablet-margin-total / 2;
-    margin-right: $tablet-margin-total / 2;
-    max-width: $max-tablet-width - $tablet-margin-total;
-    width: calc(100% - #{$tablet-margin-total});
-  }
-}
-
-@media screen and (max-width: $max-mobile-xs-width) {
-  .filters {
-    margin-left: $mobile-xs-margin-total / 2;
-    margin-right: $mobile-xs-margin-total / 2;
-    max-width: $max-mobile-xs-width - $mobile-xs-margin-total;
-    width: calc(100% - #{$mobile-xs-margin-total});
-  }
-}
