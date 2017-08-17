@@ -1,7 +1,8 @@
-@function palette($palette, $tone: 'base') {
+@function palette($palette, $tone: 'base', $alpha: 1) {
   $base-green: #007c83;
   $base-accent: #04b6af;
   $sidemenu-gray: #152730;
+  $text-gray: #283c46;
 
   // main base colors
   $base-white: #fff;
@@ -14,24 +15,23 @@
 
   // hue-based scales
   $hue-scales: (
+    green: (
+      base: rgba($base-green, $alpha),
+      accent: rgba($base-accent, $alpha)
+    ),
+
     white: (
-      dark: $base-white,
-      base: $base-white,
-      light: rgba($base-white, .8),
-      lighter: rgba($base-white, .4),
-      lightest: rgba($base-white, .2),
+      base: rgba($base-white, $alpha),
     ),
 
     black: (
-      dark: $base-black,
-      base: $base-black,
-      light: rgba($base-black, .8),
-      lighter: rgba($base-black, .4),
-      lightest: rgba($base-black, .2)
+      base: rgba($base-black, $alpha)
     ),
 
     gray: (
-      dark: $sidemenu-gray,
+      darkest: #14252e,
+      darker: $sidemenu-gray,
+      text: rgba($text-gray, $alpha),
       base: #21323b
     ),
 

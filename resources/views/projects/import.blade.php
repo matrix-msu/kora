@@ -1,4 +1,4 @@
-@extends('app')
+@extends('app', ['page_title' => 'Project Import'])
 
 @section('content')
     <span><h1>{{trans('projects_index.import')}}</h1></span>

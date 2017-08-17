@@ -1,7 +1,7 @@
 #kora_global_search_input {
   background: transparent;
   border: 0;
-  caret-color: $kora-accent;
+  caret-color: palette(green, accent);
   color: palette(white, base);
   font-family: $ubuntu;
   font-size: 12px;
@@ -17,22 +17,18 @@
 }
 
 #kora_global_search_input::-webkit-input-placeholder {
-  /* Chrome/Opera/Safari */
   color: palette(white, base);
 }
 
 #kora_global_search_input::-moz-placeholder {
-  /* Firefox 19+ */
   color: palette(white, base);
 }
 
 #kora_global_search_input:-ms-input-placeholder {
-  /* IE 10+ */
   color: palette(white, base);
 }
 
 #kora_global_search_input:-moz-placeholder {
-  /* Firefox 18- */
   color: palette(white, base);
 }
 
@@ -90,7 +86,7 @@
 }
 
 #kora_global_search_result a {
-  color: $kora-green !important;
+  color: palette(green, base) !important;
   display: initial;
   line-height: 0;
 }

@@ -1,0 +1,118 @@
+.filters {
+  font-family: $ubuntu;
+  height: 20px;
+  margin: 30px auto 0;
+  max-width: calc(#{ $max-site-width } - 600px);
+  width: $max-site-width;
+
+  .search {
+    height: 20px;
+    padding-bottom: 8px;
+
+    .icon {
+      transition: all 200ms ease-in-out;
+      vertical-align: middle;
+    }
+
+    .icon-search {
+      height: 12px;
+    }
+
+    .icon-cancel {
+      height: 0;
+      opacity: 0;
+    }
+
+    .icon-cancel.active {
+      height: 8px;
+      opacity: 1;
+    }
+
+    input {
+      background: none;
+      border: 0;
+      font-size: 14px;
+      font-weight: 100;
+      margin: 0 16px;
+      outline: none;
+      vertical-align: middle;
+      width: 100px;
+    }
+  }
+
+  .sort-options .option {
+    color: palette(gray, text, .8);
+    cursor: pointer;
+    font-family: $ubuntu;
+    font-size: 14px;
+    line-height: 16px;
+    margin: 0 7.5px;
+    padding: 0 0 10px;
+    width: 116px;
+
+    &:first-child {
+      padding-left: 0;
+    }
+
+    &:last-child {
+      padding-right: 0;
+    }
+  }
+
+  .search,
+  .sort-options .option {
+    position: relative;
+    transition: all .2s ease-in-out;
+
+    &::before,
+    &::after {
+      background-color: palette(green, accent);
+      bottom: 0;
+      content: '';
+      height: 2px;
+      margin: 5px 0 0;
+      opacity: 0;
+      position: absolute;
+      transition: all .2s ease-in-out;
+      transition-duration: .75s;
+      width: 0;
+    }
+
+    &::before {
+      left: calc(50%);
+    }
+
+    &::after {
+      right: calc(50%);
+    }
+
+    &.active {
+      color: palette(green, accent);
+      font-weight: bold;
+    }
+
+    &.active::before,
+    &.active::after {
+      opacity: 1;
+      width: 50%;
+    }
+  }
+}
+
+@media screen and (max-width: $max-tablet-width) {
+  .filters {
+    margin-left: $tablet-margin-total / 2;
+    margin-right: $tablet-margin-total / 2;
+    max-width: $max-tablet-width - $tablet-margin-total;
+    width: calc(100% - #{$tablet-margin-total});
+  }
+}
+
+@media screen and (max-width: $max-mobile-xs-width) {
+  .filters {
+    margin-left: $mobile-xs-margin-total / 2;
+    margin-right: $mobile-xs-margin-total / 2;
+    max-width: $max-mobile-xs-width - $mobile-xs-margin-total;
+    width: calc(100% - #{$mobile-xs-margin-total});
+  }
+}

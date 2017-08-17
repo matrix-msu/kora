@@ -2,7 +2,7 @@ $navigation-height: 50px;
 
 .navigation {
   @import 'navigation/search';
-  background-color: $kora-green;
+  background-color: palette(green, base);
   box-shadow: 0 3px 5px 0 palette(box-shadow, base);
   height: $navigation-height;
 
@@ -69,7 +69,7 @@ $navigation-height: 50px;
     width: 45px;
 
     img {
-      box-shadow: 0 0 5px 0 palette(white, lightest);
+      box-shadow: 0 0 5px 0 palette($palette: white, $alpha: .2);
       height: 27px;
       width: 27px;
     }
@@ -142,9 +142,9 @@ $navigation-height: 50px;
 
 // Navigation for sub menus
 .navigation-sub-menu {
-  background-color: $submenu-grey;
+  background-color: palette(gray, base);
   border-radius: 0 0 5px 5px;
-  box-shadow: -16px 20px 30px 0 palette(black, lightest);
+  box-shadow: -16px 20px 30px 0 palette($palette: black, $alpha: .2);
   opacity: 0;
   padding-bottom: 5px;
   position: absolute;
@@ -188,7 +188,7 @@ $navigation-height: 50px;
     }
 
     a:hover {
-      color: $kora-accent;
+      color: palette(green, accent);
     }
 
     &:not(:first-child) a {
@@ -217,7 +217,7 @@ $navigation-height: 50px;
     opacity: .1;
     width: calc(100% - 40px);
 
-    & + .link a {
+    + .link a {
       padding-top: 20px;
     }
   }
@@ -226,9 +226,9 @@ $navigation-height: 50px;
 
 // Navigation for deep menus
 .navigation-deep-menu {
-  background-color: $submenu-grey;
+  background-color: palette(gray, base);
   border-radius: 0 5px 5px;
-  box-shadow: 0 20px 30px 0 palette(black, lightest);
+  box-shadow: 0 20px 30px 0 palette($palette: black, $alpha: .2);
   display: none;
   margin-left: 155px;
   margin-top: -15px;

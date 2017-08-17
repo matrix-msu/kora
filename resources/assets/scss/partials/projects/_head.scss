@@ -4,64 +4,54 @@
   font-family: $ubuntu;
   width: 100%;
 
-  > * {
-    margin-left: 300px;
-    margin-right: 300px;
+  .inner-wrap {
+    margin-left: auto;
+    margin-right: auto;
     max-width: calc(#{ $max-site-width } - 600px);
-    width: calc(100% - 600px);
+    width: $max-site-width;
   }
 
   .title {
-    align-items: center;
-    align-self: center;
-    display: flex;
-    margin: 0 auto 30px;
-    padding-top: 60px;
+    height: 45px;
+    margin: 0;
+    padding: 60px 0 30px;
     text-align: left;
 
     img {
       height: 37px;
+      vertical-align: middle;
     }
 
     span {
       font-size: 36px;
       font-weight: 100;
-      line-height: 37px;
-      padding: 0 30px;
+      padding: 0 0 0 22px;
+      vertical-align: middle;
     }
   }
 
   .description {
     align-self: center;
     font-size: 16px;
-    margin: 0 auto;
+    margin: 0;
     padding: 0 0 60px;
   }
 }
 
 @media screen and (max-width: $max-tablet-width) {
-  .head > * {
-    margin-left: 150px;
-    margin-right: 150px;
-    max-width: calc(#{ $max-tablet-width } - 300px);
-    width: calc(100% - 300px);
-  }
-}
-
-@media screen and (max-width: $max-mobile-width) {
-  .head > * {
-    margin-left: 100px;
-    margin-right: 100px;
-    max-width: calc(#{ $max-mobile-width } - 200px);
-    width: calc(100% - 200px);
+  .head .inner-wrap {
+    margin-left: $tablet-margin-total / 2;
+    margin-right: $tablet-margin-total / 2;
+    max-width: $max-tablet-width - $tablet-margin-total;
+    width: calc(100% - #{$tablet-margin-total});
   }
 }
 
 @media screen and (max-width: $max-mobile-xs-width) {
-  .head > * {
-    margin-left: 25px;
-    margin-right: 25px;
-    max-width: calc(#{ $max-mobile-xs-width } - 50px);
-    width: calc(100% - 50px);
+  .head .inner-wrap {
+    margin-left: $mobile-xs-margin-total / 2;
+    margin-right: $mobile-xs-margin-total / 2;
+    max-width: $max-mobile-xs-width - $mobile-xs-margin-total;
+    width: calc(100% - #{$mobile-xs-margin-total});
   }
 }

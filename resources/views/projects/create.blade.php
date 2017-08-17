@@ -1,4 +1,4 @@
-@extends('app')
+@extends('app', ['page_title' => 'New Project'])
 
 @section('content')
     <h1>{{trans('projects_create.new')}}</h1>

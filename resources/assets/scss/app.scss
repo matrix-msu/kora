@@ -1,15 +1,13 @@
-// these should be moved into a variables or colors partial
-$white: #fff;
-$kora-green: #007c83;
-$kora-accent: #04b6af;
-$submenu-grey: #21323b;
-$sidemenu-grey: #152730;
 $ubuntu-bold: ubuntubold;
 $ubuntu: ubunturegular;
 $max-site-width: 1440px;
 $max-tablet-width: 960px;
 $max-mobile-width: 768px;
 $max-mobile-xs-width: 480px;
+$tablet-margin-total: 120px;
+$mobile-margin-total: 60px;
+$mobile-xs-margin-total: 50px;
+
 @import 'vendor/normalize/import-now';
 @import 'partials/general/colors';
 @import 'partials/general/global';

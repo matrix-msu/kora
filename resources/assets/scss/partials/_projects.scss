@@ -5,4 +5,6 @@
 .projects {
   margin: 0 auto;
   @import 'projects/head';
+  @import 'projects/filters';
+  @import 'projects/new-project';
 }

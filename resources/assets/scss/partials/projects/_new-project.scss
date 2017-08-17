@@ -1,0 +1,47 @@
+.new-project-button {
+  margin: 40px auto 0;
+  max-width: calc(#{ $max-site-width } - 600px);
+  width: $max-site-width;
+
+  form {
+    width: 100%;
+  }
+
+  input {
+    background: none;
+    border: 1px solid palette(green, accent, .2);
+    border-radius: 5px;
+    color: palette(green, accent);
+    font-family: $ubuntu;
+    font-size: 14px;
+    height: 50px;
+    line-height: 16px;
+    padding: 0;
+    text-align: center;
+    transition: all .2s ease-in-out;
+    width: 100%;
+
+    &:hover {
+      background-color: palette(white, base);
+      box-shadow: 0 5px 10px 0 palette(green, accent, .05);
+    }
+  }
+}
+
+@media screen and (max-width: $max-tablet-width) {
+  .new-project-button {
+    margin-left: $tablet-margin-total / 2;
+    margin-right: $tablet-margin-total / 2;
+    max-width: $max-tablet-width - $tablet-margin-total;
+    width: calc(100% - #{$tablet-margin-total});
+  }
+}
+
+@media screen and (max-width: $max-mobile-xs-width) {
+  .new-project-button {
+    margin-left: $mobile-xs-margin-total / 2;
+    margin-right: $mobile-xs-margin-total / 2;
+    max-width: $max-mobile-xs-width - $mobile-xs-margin-total;
+    width: calc(100% - #{$mobile-xs-margin-total});
+  }
+}

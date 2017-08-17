@@ -11,6 +11,14 @@ form {
   float: left;
 }
 
+::-webkit-input-placeholder {
+  font-style: italic;
+}
+
+:-ms-input-placeholder {
+  font-style: italic;
+}
+
 @font-face {
   font-family: 'ubuntubold';
   font-style: normal;

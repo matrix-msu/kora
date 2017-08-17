@@ -516,6 +516,16 @@ form {
   float: left;
 }
 
+/* line 14, ../../../resources/assets/scss/partials/general/_global.scss */
+::-webkit-input-placeholder {
+  font-style: italic;
+}
+
+/* line 18, ../../../resources/assets/scss/partials/general/_global.scss */
+:-ms-input-placeholder {
+  font-style: italic;
+}
+
 @font-face {
   font-family: 'ubuntubold';
   font-style: normal;
@@ -576,7 +586,7 @@ form {
   background: transparent;
   border: 0;
   caret-color: #04b6af;
-  color: #fff;
+  color: white;
   font-family: ubunturegular;
   font-size: 12px;
   font-weight: 500;
@@ -591,90 +601,86 @@ form {
 }
 /* line 19, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_input::-webkit-input-placeholder {
-  /* Chrome/Opera/Safari */
-  color: #fff;
+  color: white;
 }
-/* line 24, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 23, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_input::-moz-placeholder {
-  /* Firefox 19+ */
-  color: #fff;
+  color: white;
 }
-/* line 29, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 27, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_input:-ms-input-placeholder {
-  /* IE 10+ */
-  color: #fff;
+  color: white;
 }
-/* line 34, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 31, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_input:-moz-placeholder {
-  /* Firefox 18- */
-  color: #fff;
+  color: white;
 }
-/* line 39, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 35, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_submit {
   border: 0;
   background: transparent;
   width: 17px;
   height: 17px;
 }
-/* line 46, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 42, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_submit:focus {
   outline-width: 0;
 }
-/* line 50, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 46, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_submit img {
   width: 4px;
   height: 8px;
 }
-/* line 55, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 51, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_spacer {
-  border-bottom: 2px solid #fff;
+  border-bottom: 2px solid white;
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
   margin: 0 0 0 20px;
   opacity: .1;
   width: 210px;
 }
-/* line 63, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 59, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_recent {
   margin-left: 20px;
-  color: #fff;
+  color: white;
   font-family: ubunturegular;
   font-size: 12px;
   line-height: 13px;
 }
-/* line 71, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 67, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_result {
   margin-left: 20px;
-  color: #fff;
+  color: white;
   font-family: ubunturegular;
   font-size: 12px;
   line-height: 13px;
 }
-/* line 79, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 75, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_result li:first-child {
   padding-top: 20px;
 }
-/* line 83, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 79, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_result li:last-child {
   padding-bottom: 20px;
 }
-/* line 87, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 83, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_result li {
   height: 14px;
   padding: 8px 0;
 }
-/* line 92, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 88, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_result a {
   color: #007c83 !important;
   display: initial;
   line-height: 0;
 }
-/* line 98, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 94, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_clear {
   background-color: rgba(255, 255, 255, 0.05);
   border: 0;
   border-radius: 0 0 0 5px;
-  color: #fff;
+  color: white;
   font-size: 13px;
   height: 48px;
   margin: 0;
@@ -682,7 +688,7 @@ form {
   text-align: left;
   width: 100%;
 }
-/* line 111, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 107, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_clear:focus {
   outline-width: 0;
 }
@@ -696,7 +702,7 @@ form {
 }
 /* line 18, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation a {
-  color: #fff;
+  color: white;
   display: block;
   height: 100%;
   line-height: 50px;
@@ -781,7 +787,7 @@ form {
 }
 /* line 103, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .profile-navigation-item .profile-picture {
-  border: 2px solid #fff;
+  border: 2px solid white;
   border-radius: 50%;
   -webkit-box-shadow: 0 3px 5px 0 rgba(57, 67, 89, 0.2);
           box-shadow: 0 3px 5px 0 rgba(57, 67, 89, 0.2);
@@ -853,7 +859,7 @@ form {
 }
 /* line 167, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu .header {
-  color: #fff;
+  color: white;
   font-family: ubunturegular;
   font-size: 16px;
   height: 18px;
@@ -862,7 +868,7 @@ form {
 }
 /* line 176, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu .link {
-  color: #fff;
+  color: white;
   font-family: ubunturegular;
   font-size: 13px;
 }
@@ -905,7 +911,7 @@ form {
 }
 /* line 212, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu .spacer {
-  border-bottom: 2px solid #fff;
+  border-bottom: 2px solid white;
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
   height: 3px;
@@ -951,76 +957,239 @@ form {
 }
 /* line 1, ../../../resources/assets/scss/partials/projects/_head.scss */
 .projects .head {
-  background: #fff;
+  background: white;
   -webkit-box-shadow: 0 3px 5px -2px rgba(21, 39, 48, 0.05);
           box-shadow: 0 3px 5px -2px rgba(21, 39, 48, 0.05);
   font-family: ubunturegular;
   width: 100%;
 }
 /* line 7, ../../../resources/assets/scss/partials/projects/_head.scss */
-.projects .head > * {
-  margin-left: 300px;
-  margin-right: 300px;
+.projects .head .inner-wrap {
+  margin-left: auto;
+  margin-right: auto;
   max-width: calc(1440px - 600px);
-  width: calc(100% - 600px);
+  width: 1440px;
 }
 /* line 14, ../../../resources/assets/scss/partials/projects/_head.scss */
 .projects .head .title {
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -ms-flex-item-align: center;
-      align-self: center;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  margin: 0 auto 30px;
-  padding-top: 60px;
+  height: 45px;
+  margin: 0;
+  padding: 60px 0 30px;
   text-align: left;
 }
-/* line 22, ../../../resources/assets/scss/partials/projects/_head.scss */
+/* line 20, ../../../resources/assets/scss/partials/projects/_head.scss */
 .projects .head .title img {
   height: 37px;
+  vertical-align: middle;
 }
-/* line 26, ../../../resources/assets/scss/partials/projects/_head.scss */
+/* line 25, ../../../resources/assets/scss/partials/projects/_head.scss */
 .projects .head .title span {
   font-size: 36px;
   font-weight: 100;
-  line-height: 37px;
-  padding: 0 30px;
+  padding: 0 0 0 22px;
+  vertical-align: middle;
 }
-/* line 34, ../../../resources/assets/scss/partials/projects/_head.scss */
+/* line 33, ../../../resources/assets/scss/partials/projects/_head.scss */
 .projects .head .description {
   -ms-flex-item-align: center;
       align-self: center;
   font-size: 16px;
-  margin: 0 auto;
+  margin: 0;
   padding: 0 0 60px;
 }
 @media screen and (max-width: 960px) {
-  /* line 43, ../../../resources/assets/scss/partials/projects/_head.scss */
-  .projects .head > * {
-    margin-left: 150px;
-    margin-right: 150px;
-    max-width: calc(960px - 300px);
-    width: calc(100% - 300px);
-  }
-}
-@media screen and (max-width: 768px) {
-  /* line 52, ../../../resources/assets/scss/partials/projects/_head.scss */
-  .projects .head > * {
-    margin-left: 100px;
-    margin-right: 100px;
-    max-width: calc(768px - 200px);
-    width: calc(100% - 200px);
+  /* line 42, ../../../resources/assets/scss/partials/projects/_head.scss */
+  .projects .head .inner-wrap {
+    margin-left: 60px;
+    margin-right: 60px;
+    max-width: 840px;
+    width: calc(100% - 120px);
   }
 }
 @media screen and (max-width: 480px) {
-  /* line 61, ../../../resources/assets/scss/partials/projects/_head.scss */
-  .projects .head > * {
+  /* line 51, ../../../resources/assets/scss/partials/projects/_head.scss */
+  .projects .head .inner-wrap {
     margin-left: 25px;
     margin-right: 25px;
-    max-width: calc(480px - 50px);
+    max-width: 430px;
+    width: calc(100% - 50px);
+  }
+}
+/* line 1, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters {
+  font-family: ubunturegular;
+  height: 20px;
+  margin: 30px auto 0;
+  max-width: calc(1440px - 600px);
+  width: 1440px;
+}
+/* line 8, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .search {
+  height: 20px;
+  padding-bottom: 8px;
+}
+/* line 12, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .search .icon {
+  -webkit-transition: all 200ms ease-in-out;
+  transition: all 200ms ease-in-out;
+  vertical-align: middle;
+}
+/* line 17, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .search .icon-search {
+  height: 12px;
+}
+/* line 21, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .search .icon-cancel {
+  height: 0;
+  opacity: 0;
+}
+/* line 26, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .search .icon-cancel.active {
+  height: 8px;
+  opacity: 1;
+}
+/* line 31, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .search input {
+  background: none;
+  border: 0;
+  font-size: 14px;
+  font-weight: 100;
+  margin: 0 16px;
+  outline: none;
+  vertical-align: middle;
+  width: 100px;
+}
+/* line 43, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .sort-options .option {
+  color: rgba(40, 60, 70, 0.8);
+  cursor: pointer;
+  font-family: ubunturegular;
+  font-size: 14px;
+  line-height: 16px;
+  margin: 0 7.5px;
+  padding: 0 0 10px;
+  width: 116px;
+}
+/* line 53, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .sort-options .option:first-child {
+  padding-left: 0;
+}
+/* line 57, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .sort-options .option:last-child {
+  padding-right: 0;
+}
+/* line 62, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .search,
+.projects .filters .sort-options .option {
+  position: relative;
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+}
+/* line 67, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .search::before, .projects .filters .search::after,
+.projects .filters .sort-options .option::before,
+.projects .filters .sort-options .option::after {
+  background-color: #04b6af;
+  bottom: 0;
+  content: '';
+  height: 2px;
+  margin: 5px 0 0;
+  opacity: 0;
+  position: absolute;
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+  -webkit-transition-duration: .75s;
+          transition-duration: .75s;
+  width: 0;
+}
+/* line 81, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .search::before,
+.projects .filters .sort-options .option::before {
+  left: calc(50%);
+}
+/* line 85, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .search::after,
+.projects .filters .sort-options .option::after {
+  right: calc(50%);
+}
+/* line 89, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .search.active,
+.projects .filters .sort-options .option.active {
+  color: #04b6af;
+  font-weight: bold;
+}
+/* line 94, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .search.active::before, .projects .filters .search.active::after,
+.projects .filters .sort-options .option.active::before,
+.projects .filters .sort-options .option.active::after {
+  opacity: 1;
+  width: 50%;
+}
+@media screen and (max-width: 960px) {
+  /* line 103, ../../../resources/assets/scss/partials/projects/_filters.scss */
+  .projects .filters {
+    margin-left: 60px;
+    margin-right: 60px;
+    max-width: 840px;
+    width: calc(100% - 120px);
+  }
+}
+@media screen and (max-width: 480px) {
+  /* line 112, ../../../resources/assets/scss/partials/projects/_filters.scss */
+  .projects .filters {
+    margin-left: 25px;
+    margin-right: 25px;
+    max-width: 430px;
+    width: calc(100% - 50px);
+  }
+}
+/* line 1, ../../../resources/assets/scss/partials/projects/_new-project.scss */
+.projects .new-project-button {
+  margin: 40px auto 0;
+  max-width: calc(1440px - 600px);
+  width: 1440px;
+}
+/* line 6, ../../../resources/assets/scss/partials/projects/_new-project.scss */
+.projects .new-project-button form {
+  width: 100%;
+}
+/* line 10, ../../../resources/assets/scss/partials/projects/_new-project.scss */
+.projects .new-project-button input {
+  background: none;
+  border: 1px solid rgba(4, 182, 175, 0.2);
+  border-radius: 5px;
+  color: #04b6af;
+  font-family: ubunturegular;
+  font-size: 14px;
+  height: 50px;
+  line-height: 16px;
+  padding: 0;
+  text-align: center;
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+  width: 100%;
+}
+/* line 24, ../../../resources/assets/scss/partials/projects/_new-project.scss */
+.projects .new-project-button input:hover {
+  background-color: white;
+  -webkit-box-shadow: 0 5px 10px 0 rgba(4, 182, 175, 0.05);
+          box-shadow: 0 5px 10px 0 rgba(4, 182, 175, 0.05);
+}
+@media screen and (max-width: 960px) {
+  /* line 32, ../../../resources/assets/scss/partials/projects/_new-project.scss */
+  .projects .new-project-button {
+    margin-left: 60px;
+    margin-right: 60px;
+    max-width: 840px;
+    width: calc(100% - 120px);
+  }
+}
+@media screen and (max-width: 480px) {
+  /* line 41, ../../../resources/assets/scss/partials/projects/_new-project.scss */
+  .projects .new-project-button {
+    margin-left: 25px;
+    margin-right: 25px;
+    max-width: 430px;
     width: calc(100% - 50px);
   }
 }
