@@ -31,6 +31,8 @@
     input {
       background: none;
       border: 0;
+      color: palette(gray, text);
+      caret-color: palette(green, accent);
       font-size: 14px;
       font-weight: 100;
       margin: 0 16px;
