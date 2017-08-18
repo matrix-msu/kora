@@ -1,13 +1,16 @@
-<html>
+<!doctype html>
+
+<html lang="en">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
         <link rel="stylesheet" href="{{env('BASE_URL')}}/assets/css/app.css">
         <!-- Latest compiled and minified JavaScript -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
         <!-- Google reCAPTCHA -->
         <script src="https://www.google.com/recaptcha/api.js" async defer></script>
         <!-- Files for select 2-->
-        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0-rc.2/css/select2.min.css" rel="stylesheet" />
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0-rc.2/css/select2.min.css" />
         <script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0-rc.2/js/select2.min.js"></script>
         @if(!isset($not_installed))
             <!-- For Rich Text -->
@@ -44,9 +47,7 @@
         <title>Kora 3 - {{ $page_title }}</title>
     </head>
     <body class="{{ str_hyphenated($page_title) }}-body">
-        <div>
-            @include('partials.nav')
-        </div>
+        @include('partials.nav')
 
         <div class="{{ str_hyphenated($page_title) }}">
             @yield('header')

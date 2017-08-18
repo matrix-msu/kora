@@ -1,0 +1,29 @@
+.foot {
+  font-family: $ubuntu;
+  margin: 60px auto 100px;
+  max-width: calc(#{ $max-site-width } - 600px);
+  width: $max-site-width;
+
+  .permission-information {
+    color: palette(gray, text);
+    font-size: 14px;
+    line-height: 16px;
+    margin: 0 auto 30px;
+    text-align: center;
+  }
+
+  .request-permissions {
+    color: palette(green, accent);
+    display: inherit;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 22px;
+    text-align: center;
+    text-decoration: none;
+    transition: color .2s ease-in-out;
+
+    &:hover {
+      color: palette(gray, text);
+    }
+  }
+}

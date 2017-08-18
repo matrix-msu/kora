@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="12px" height="10px" viewBox="0 0 12 10" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 46.1 (44463) - http://www.bohemiancoding.com/sketch -->
+    <title>arrow-right-green</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+        <g id="arrow-right-green" transform="translate(1.000000, 1.000000)" stroke-width="2" stroke="#04B6AF">
+            <g id="Shape">
+                <path d="M4.6875,-1.0625 L4.6875,8.9375" transform="translate(5.000000, 3.937500) rotate(-90.000000) translate(-5.000000, -3.937500) "></path>
+                <polyline transform="translate(8.125000, 4.250000) rotate(-90.000000) translate(-8.125000, -4.250000) " points="11.875 2.375 8.125 6.125 4.375 2.375"></polyline>
+            </g>
+        </g>
+    </g>
+</svg>

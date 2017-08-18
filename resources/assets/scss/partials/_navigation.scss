@@ -9,6 +9,7 @@ $navigation-height: 50px;
   // Basic attributes
   ul {
     padding-left: 0;
+    margin: 0;
   }
 
   li {
@@ -18,26 +19,31 @@ $navigation-height: 50px;
   a {
     color: palette(white, base);
     display: block;
-    height: 100%;
-    line-height: $navigation-height;
     text-decoration: none;
   }
 
   // Individual nav items
   .navigation-item {
     box-sizing: border-box;
-    float: left;
+    display: inline-block;
     font-family: $ubuntu;
     font-size: 12px;
     font-weight: 500;
-    height: 100%;
+    height: $navigation-height;
     line-height: 16px;
     position: relative;
+    vertical-align: middle;
   }
 
   .navigation-left {
+    display: inline-block;
+
     .navigation-item {
       width: 80px;
+    }
+
+    .navigation-item a {
+      line-height: 50px;
     }
 
     .navigation-item:not(:first-child) {
@@ -62,10 +68,9 @@ $navigation-height: 50px;
 
   // Specifications of specific images
   .logo {
-    float: left;
-    height: $navigation-height;
+    display: inline-block;
     padding-left: 13px;
-    padding-top: 10px;
+    vertical-align: middle;
     width: 45px;
 
     img {

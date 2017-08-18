@@ -1,5 +1,13 @@
+// html, body {
+//     margin: 0;
+//     padding: 0;
+//     overflow: hidden;
+// }
+
 .projects-body {
   background: linear-gradient(180deg, #FBFBFC 0%, #F5F6F7 100%);
+  font-family: $ubuntu;
+  min-height: 100vh;
 }
 
 .projects {
@@ -7,11 +15,15 @@
   @import 'projects/head';
   @import 'projects/filters';
   @import 'projects/new-project';
+  @import 'projects/project-selection';
+  @import 'projects/foot';
 
   @media screen and (max-width: $max-tablet-width) {
     .filters,
     .head .inner-wrap,
-    .new-project-button {
+    .new-project-button,
+    .project-selection,
+    .foot {
       margin-left: $tablet-margin-total / 2;
       margin-right: $tablet-margin-total / 2;
       max-width: $max-tablet-width - $tablet-margin-total;
@@ -22,11 +34,13 @@
   @media screen and (max-width: $max-mobile-xs-width) {
     .filters,
     .head .inner-wrap,
-    .new-project-button {
+    .new-project-button,
+    .project-selection,
+    .foot {
       margin-left: $mobile-xs-margin-total / 2;
       margin-right: $mobile-xs-margin-total / 2;
       max-width: $max-mobile-xs-width - $mobile-xs-margin-total;
       width: calc(100% - #{$mobile-xs-margin-total});
     }
-  }  
+  }
 }

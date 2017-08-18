@@ -33,47 +33,69 @@
       @endif
     </form>
   </section>
-    <div id="project_index_cards">
-        @foreach($projects as $project)
-            <div class="project_index_card">
-                <div class="project_index_card_header">
-                    <a href="{{action("ProjectController@show",["pid" => $project->pid])}}">{{$project->name}} -></a>
-                </div>
-                <div class="project_index_card_body">
-                    <div class="project_index_card_slug">
-                        Unique Project ID: {{$project->slug}}
-                    </div>
-                    <div class="project_index_card_desc">
-                        Project description: {{$project->description}}
-                    </div>
-                    <div class="project_index_card_admins">
-                        Project Admins:
-                        @foreach($project->adminGroup()->get() as $adminGroup)
-                            {{$adminGroup->users()->lists("username")->implode("username",", ")}}
-                        @endforeach
-                    </div>
-                    <div class="project_index_card_slug">
-                        Project Forms:
-                        @foreach($project->forms()->get() as $form)
-                            <a href="{{action("FormController@show",["pid" => $project->pid,"fid" => $form->fid])}}">{{$form->name}}</a>
-                        @endforeach
-                    </div>
-                </div>
-                <div class="project_index_card_footer">
+  <section class="project-selection">
+    @foreach($projects as $index=>$project)
+      <div class="project {{ $index == 0 ? 'active' : '' }}">
+        <div class="header">
+          <div class="left">
+            <div class="move-actions">
+              <a class="action" href="">
+                <img class="icon icon-arrow-up" src="{{ env('BASE_URL') }}assets/images/arrow-dark.svg">
+              </a>
 
-                </div>
+              <a class="action" href="">
+                <img class="icon icon-arrow-down" src="{{ env('BASE_URL') }}assets/images/arrow-dark.svg">
+              </a>
             </div>
-            <?php break; ?>
-        @endforeach
-    </div>
-    <!-- <div id="project_index_requests">
-        <div id="project_index_requests_text">
-            Don't see the project you are looking for? You might not have the permissions...
+
+            <a class="project-name" href="{{action("ProjectController@show",["pid" => $project->pid])}}">
+              <span>{{$project->name}}</span>
+              <img class="icon icon-arrow-right" src="{{ env('BASE_URL') }}assets/images/arrow-accent.svg">
+            </a>
+          </div>
+          <div class="project-toggle-wrap">
+            <a href="#" class="project-toggle project-toggle-js">
+              <img class="icon icon-chevron-down {{ $index == 0 ? 'active' : '' }}" src="{{ env('BASE_URL') }}assets/images/chevron-dark.svg">
+            </a>
+          </div>
         </div>
-        <a href="#" id="project_index_requests_link">
-            Request Permissions to a Project
-        </a>
-    </div> -->
+
+        <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
+            <div class="project_index_card_slug">
+                Unique Project ID: {{$project->slug}}
+            </div>
+            <div class="project_index_card_desc">
+                Project description: {{$project->description}}
+            </div>
+            <div class="project_index_card_admins">
+                Project Admins:
+                @foreach($project->adminGroup()->get() as $adminGroup)
+                    {{$adminGroup->users()->lists("username")->implode("username",", ")}}
+                @endforeach
+            </div>
+            <div class="project_index_card_slug">
+                Project Forms:
+                @foreach($project->forms()->get() as $form)
+                    <a href="{{action("FormController@show",["pid" => $project->pid,"fid" => $form->fid])}}">{{$form->name}}</a>
+                @endforeach
+            </div>
+        </div>
+
+
+        <div class="footer">
+        </div>
+      </div>
+    @endforeach
+  </section>
+  <section class="foot">
+    <p class="permission-information">
+        Don't see the project you are looking for? You might not have the permissions...
+    </p>
+    <p>
+    <a href="#" class="request-permissions">
+        Request Permissions to a Project
+    </a></p>
+  </section>
 @stop
 
 @section('footer')
@@ -98,7 +120,7 @@
             $(this).parent().removeClass('active');
             $(this).next().removeClass('active');
           }
-        })
+        });
 
         $('.search-js input').keyup(function(e) {
           if (e.keyCode === 27) {
@@ -110,12 +132,35 @@
           } else {
             $(this).next().removeClass('active');
           }
-        })
+        });
 
         $('.search-js .icon-cancel-js').click(function() {
           var $search = $('.search-js input');
           $search.val('').blur().parent().removeClass('active');
-        })
+        });
+
+        $('.project-toggle-js').click(function(e) {
+          e.preventDefault();
+
+          var $this = $(this);
+          var $header = $this.parent().parent();
+          var $project = $header.parent();
+          var $content = $header.next();
+
+          $this.children().toggleClass('active');
+          $project.toggleClass('active');
+          if ($project.hasClass('active')) {
+
+            $project.animate({height: $project.height() + $content.outerHeight(true) + 'px' }, 390);
+            $content.effect('slide', { direction: 'up', mode: 'show', duration: 400 });
+          } else {
+            $project.animate({height: '58px'}, 390, function() {
+              $content.hasClass('active') ? $content.removeClass('active') : null;
+            });
+            $content.effect('slide', { direction: 'up', mode: 'hide', duration: 400 });
+          }
+
+        });
       }
     </script>
 @stop

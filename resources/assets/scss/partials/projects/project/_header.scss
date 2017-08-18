@@ -1,0 +1,86 @@
+.header {
+  background: palette(white, base);
+  color: palette(green, accent);
+  font-size: 16px;
+  font-weight: 500;
+  position: relative;
+  z-index: 2;
+
+  .icon {
+    cursor: pointer;
+    transition: all 200ms ease-in-out;
+    vertical-align: middle;
+  }
+
+  .icon-arrow-right {
+    height: 10px;
+    padding: 24px 0 24px 3px;
+  }
+
+  .icon-arrow-left {
+    height: 10px;
+    transform: rotate(-180deg);
+  }
+
+  .icon-arrow-up {
+    transform: rotate(-90deg);
+  }
+
+  .icon-arrow-down {
+    transform: rotate(90deg);
+  }
+
+  .icon-arrow-down,
+  .icon-arrow-up {
+    height: 10px;
+    line-height: 50px;
+    opacity: .2;
+  }
+
+  .icon-chevron-down {
+    height: 6px;
+    padding: 26px;
+
+    &.active {
+      transform: rotate(-180deg);
+    }
+  }
+
+  .move-actions {
+    display: inline-block;
+
+    .action {
+      padding: 20px 0;
+    }
+
+    .action:first-child {
+      padding-left: 20px;
+      padding-right: 4px;
+    }
+
+    .action:last-child {
+      padding-left: 4px;
+      padding-right: 16px;
+    }
+
+    .action:hover .icon {
+      opacity: .6;
+    }
+  }
+
+  .project-name {
+    transition: all .2s ease-in-out;
+
+    &:hover {
+      color: palette(gray, text);
+    }
+  }
+
+  .project-toggle-wrap {
+
+    .project-toggle {
+      display: block;
+      text-align: right;
+    }
+  }
+}

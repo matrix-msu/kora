@@ -1,0 +1,31 @@
+.project {
+  background: palette(white, base);
+  border-radius: 5px;
+  box-shadow: 0 3px 5px 0 palette(box-shadow, base);
+  margin: 30px auto;
+  position: relative;
+
+  a {
+    color: inherit;
+    text-decoration: none;
+
+    span {
+      display: inline-block;
+      padding: 20px 0;
+      vertical-align: middle;
+    }
+  }
+
+  @import 'project/header';
+
+  .content {
+    background: palette(white, base);
+    display: none;
+    margin: 0 20px 20px;
+
+    &.active {
+      display: block;
+      padding-bottom: 20px;
+    }
+  }
+}

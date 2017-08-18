@@ -695,70 +695,77 @@ form {
 /* line 10, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation ul {
   padding-left: 0;
+  margin: 0;
 }
-/* line 14, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 15, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation li {
   list-style-type: none;
 }
-/* line 18, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 19, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation a {
   color: white;
   display: block;
-  height: 100%;
-  line-height: 50px;
   text-decoration: none;
 }
-/* line 27, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 26, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .navigation-item {
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
-  float: left;
+  display: inline-block;
   font-family: ubunturegular;
   font-size: 12px;
   font-weight: 500;
-  height: 100%;
+  height: 50px;
   line-height: 16px;
   position: relative;
+  vertical-align: middle;
 }
-/* line 39, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 38, ../../../resources/assets/scss/partials/_navigation.scss */
+.navigation .navigation-left {
+  display: inline-block;
+}
+/* line 41, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .navigation-left .navigation-item {
   width: 80px;
 }
-/* line 43, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 45, ../../../resources/assets/scss/partials/_navigation.scss */
+.navigation .navigation-left .navigation-item a {
+  line-height: 50px;
+}
+/* line 49, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .navigation-left .navigation-item:not(:first-child) {
   margin-left: 16px;
 }
-/* line 48, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 54, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .navigation-right {
   float: right;
   margin-top: 0;
 }
-/* line 52, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 58, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .navigation-right .navigation-item {
   width: auto;
 }
-/* line 56, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 62, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .navigation-right .navigation-sub-menu {
   border-radius: 0 0 0 5px;
   right: 0;
   width: 250px;
 }
-/* line 64, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 70, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .logo {
-  float: left;
-  height: 50px;
+  display: inline-block;
   padding-left: 13px;
-  padding-top: 10px;
+  vertical-align: middle;
   width: 45px;
 }
-/* line 71, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 76, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .logo img {
   -webkit-box-shadow: 0 0 5px 0 rgba(255, 255, 255, 0.2);
           box-shadow: 0 0 5px 0 rgba(255, 255, 255, 0.2);
   height: 27px;
   width: 27px;
 }
-/* line 78, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 83, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .navigation-search {
   float: left;
   height: 50px;
@@ -766,18 +773,18 @@ form {
   padding-top: 17px;
   width: auto;
 }
-/* line 85, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 90, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .navigation-search img {
   -webkit-box-shadow: 0 3px 5px 0 rgba(21, 39, 48, 0.05);
           box-shadow: 0 3px 5px 0 rgba(21, 39, 48, 0.05);
   height: 14px;
   width: 14px;
 }
-/* line 91, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 96, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .navigation-search .navigation-sub-menu {
   padding-bottom: 0;
 }
-/* line 96, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 101, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .profile-navigation-item {
   float: left;
   height: 50px;
@@ -785,7 +792,7 @@ form {
   padding-top: 12px;
   width: auto;
 }
-/* line 103, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 108, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .profile-navigation-item .profile-picture {
   border: 2px solid white;
   border-radius: 50%;
@@ -796,13 +803,13 @@ form {
   height: 24px;
   width: 24px;
 }
-/* line 112, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 117, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .profile-navigation-item .logout-icon {
   height: 12px;
   padding: 0;
   width: 11px;
 }
-/* line 119, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 124, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .hamburger {
   float: left;
   height: 50px;
@@ -810,14 +817,14 @@ form {
   padding-top: 17px;
   width: auto;
 }
-/* line 126, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 131, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .hamburger img {
   -webkit-box-shadow: 0 3px 5px 0 rgba(21, 39, 48, 0.05);
           box-shadow: 0 3px 5px 0 rgba(21, 39, 48, 0.05);
   height: 12px;
   width: 17px;
 }
-/* line 133, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 138, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .icon {
   margin-left: 10px;
   -webkit-transition: -webkit-transform 150ms ease;
@@ -825,13 +832,13 @@ form {
   transition: transform 150ms ease;
   transition: transform 150ms ease, -webkit-transform 150ms ease;
 }
-/* line 137, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 142, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .icon.arrow-icon.active {
   -webkit-transform: rotate(-180deg);
           transform: rotate(-180deg);
 }
 
-/* line 144, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 149, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu {
   background-color: #21323b;
   border-radius: 0 0 5px 5px;
@@ -847,17 +854,17 @@ form {
   width: 175px;
   z-index: -100;
 }
-/* line 157, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 162, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu.active {
   opacity: 1;
   visibility: visible;
   z-index: auto;
 }
-/* line 163, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 168, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu img {
   padding-right: 13px;
 }
-/* line 167, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 172, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu .header {
   color: white;
   font-family: ubunturegular;
@@ -866,13 +873,13 @@ form {
   line-height: 18px;
   padding: 20px;
 }
-/* line 176, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 181, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu .link {
   color: white;
   font-family: ubunturegular;
   font-size: 13px;
 }
-/* line 181, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 186, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu .link a {
   -webkit-box-align: center;
       -ms-flex-align: center;
@@ -886,30 +893,30 @@ form {
   -webkit-transition: color 150ms ease;
   transition: color 150ms ease;
 }
-/* line 190, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 195, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu .link a:hover {
   color: #04b6af;
 }
-/* line 194, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 199, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu .link:not(:first-child) a {
   padding-top: 8px;
 }
-/* line 198, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 203, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu .link:last-child a {
   -webkit-box-pack: justify;
       -ms-flex-pack: justify;
           justify-content: space-between;
   padding-bottom: 20px;
 }
-/* line 203, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 208, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu .link.head a {
   padding: 20px 0 20px 20px;
 }
-/* line 207, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 212, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu .link.pre-spacer a {
   padding-bottom: 20px;
 }
-/* line 212, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 217, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu .spacer {
   border-bottom: 2px solid white;
   -webkit-box-sizing: border-box;
@@ -919,12 +926,12 @@ form {
   opacity: .1;
   width: calc(100% - 40px);
 }
-/* line 220, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 225, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu .spacer + .link a {
   padding-top: 20px;
 }
 
-/* line 228, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 233, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-deep-menu {
   background-color: #21323b;
   border-radius: 0 5px 5px;
@@ -939,19 +946,21 @@ form {
   position: absolute;
   width: 175px;
 }
-/* line 241, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 246, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-deep-menu .item {
   padding-bottom: 15px;
   padding-left: 20px;
 }
 
-/* line 1, ../../../resources/assets/scss/partials/_projects.scss */
+/* line 7, ../../../resources/assets/scss/partials/_projects.scss */
 .projects-body {
   background: -webkit-gradient(linear, left top, left bottom, from(#FBFBFC), to(#F5F6F7));
   background: linear-gradient(180deg, #FBFBFC 0%, #F5F6F7 100%);
+  font-family: ubunturegular;
+  min-height: 100vh;
 }
 
-/* line 5, ../../../resources/assets/scss/partials/_projects.scss */
+/* line 13, ../../../resources/assets/scss/partials/_projects.scss */
 .projects {
   margin: 0 auto;
 }
@@ -1143,11 +1152,172 @@ form {
   -webkit-box-shadow: 0 5px 10px 0 rgba(4, 182, 175, 0.05);
           box-shadow: 0 5px 10px 0 rgba(4, 182, 175, 0.05);
 }
+/* line 1, ../../../resources/assets/scss/partials/projects/_project-selection.scss */
+.projects .project-selection {
+  background: none;
+  margin: auto;
+  max-width: calc(1440px - 600px);
+  width: 1440px;
+}
+/* line 1, ../../../resources/assets/scss/partials/projects/_project.scss */
+.projects .project-selection .project {
+  background: white;
+  border-radius: 5px;
+  -webkit-box-shadow: 0 3px 5px 0 rgba(21, 39, 48, 0.05);
+          box-shadow: 0 3px 5px 0 rgba(21, 39, 48, 0.05);
+  margin: 30px auto;
+  position: relative;
+}
+/* line 8, ../../../resources/assets/scss/partials/projects/_project.scss */
+.projects .project-selection .project a {
+  color: inherit;
+  text-decoration: none;
+}
+/* line 12, ../../../resources/assets/scss/partials/projects/_project.scss */
+.projects .project-selection .project a span {
+  display: inline-block;
+  padding: 20px 0;
+  vertical-align: middle;
+}
+/* line 1, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header {
+  background: white;
+  color: #04b6af;
+  font-size: 16px;
+  font-weight: 500;
+  position: relative;
+  z-index: 2;
+}
+/* line 9, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .icon {
+  cursor: pointer;
+  -webkit-transition: all 200ms ease-in-out;
+  transition: all 200ms ease-in-out;
+  vertical-align: middle;
+}
+/* line 15, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .icon-arrow-right {
+  height: 10px;
+  padding: 24px 0 24px 3px;
+}
+/* line 20, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .icon-arrow-left {
+  height: 10px;
+  -webkit-transform: rotate(-180deg);
+          transform: rotate(-180deg);
+}
+/* line 25, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .icon-arrow-up {
+  -webkit-transform: rotate(-90deg);
+          transform: rotate(-90deg);
+}
+/* line 29, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .icon-arrow-down {
+  -webkit-transform: rotate(90deg);
+          transform: rotate(90deg);
+}
+/* line 33, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .icon-arrow-down,
+.projects .project-selection .project .header .icon-arrow-up {
+  height: 10px;
+  line-height: 50px;
+  opacity: .2;
+}
+/* line 40, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .icon-chevron-down {
+  height: 6px;
+  padding: 26px;
+}
+/* line 44, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .icon-chevron-down.active {
+  -webkit-transform: rotate(-180deg);
+          transform: rotate(-180deg);
+}
+/* line 49, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .move-actions {
+  display: inline-block;
+}
+/* line 52, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .move-actions .action {
+  padding: 20px 0;
+}
+/* line 56, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .move-actions .action:first-child {
+  padding-left: 20px;
+  padding-right: 4px;
+}
+/* line 61, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .move-actions .action:last-child {
+  padding-left: 4px;
+  padding-right: 16px;
+}
+/* line 66, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .move-actions .action:hover .icon {
+  opacity: .6;
+}
+/* line 71, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .project-name {
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+}
+/* line 74, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .project-name:hover {
+  color: #283c46;
+}
+/* line 81, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .project-toggle-wrap .project-toggle {
+  display: block;
+  text-align: right;
+}
+/* line 21, ../../../resources/assets/scss/partials/projects/_project.scss */
+.projects .project-selection .project .content {
+  background: white;
+  display: none;
+  margin: 0 20px 20px;
+}
+/* line 26, ../../../resources/assets/scss/partials/projects/_project.scss */
+.projects .project-selection .project .content.active {
+  display: block;
+  padding-bottom: 20px;
+}
+/* line 1, ../../../resources/assets/scss/partials/projects/_foot.scss */
+.projects .foot {
+  font-family: ubunturegular;
+  margin: 60px auto 100px;
+  max-width: calc(1440px - 600px);
+  width: 1440px;
+}
+/* line 7, ../../../resources/assets/scss/partials/projects/_foot.scss */
+.projects .foot .permission-information {
+  color: #283c46;
+  font-size: 14px;
+  line-height: 16px;
+  margin: 0 auto 30px;
+  text-align: center;
+}
+/* line 15, ../../../resources/assets/scss/partials/projects/_foot.scss */
+.projects .foot .request-permissions {
+  color: #04b6af;
+  display: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 22px;
+  text-align: center;
+  text-decoration: none;
+  -webkit-transition: color .2s ease-in-out;
+  transition: color .2s ease-in-out;
+}
+/* line 25, ../../../resources/assets/scss/partials/projects/_foot.scss */
+.projects .foot .request-permissions:hover {
+  color: #283c46;
+}
 @media screen and (max-width: 960px) {
-  /* line 12, ../../../resources/assets/scss/partials/_projects.scss */
+  /* line 22, ../../../resources/assets/scss/partials/_projects.scss */
   .projects .filters,
   .projects .head .inner-wrap,
-  .projects .new-project-button {
+  .projects .new-project-button,
+  .projects .project-selection,
+  .projects .foot {
     margin-left: 60px;
     margin-right: 60px;
     max-width: 840px;
@@ -1155,10 +1325,12 @@ form {
   }
 }
 @media screen and (max-width: 480px) {
-  /* line 23, ../../../resources/assets/scss/partials/_projects.scss */
+  /* line 35, ../../../resources/assets/scss/partials/_projects.scss */
   .projects .filters,
   .projects .head .inner-wrap,
-  .projects .new-project-button {
+  .projects .new-project-button,
+  .projects .project-selection,
+  .projects .foot {
     margin-left: 25px;
     margin-right: 25px;
     max-width: 430px;
