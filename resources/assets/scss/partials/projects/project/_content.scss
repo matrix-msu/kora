@@ -17,13 +17,14 @@
   }
 
   span {
+    font-family: $ubuntu;
 
     &.attribute {
       font-family: $ubuntu-medium;
     }
 
     &:not(first-child) {
-      font-weight: 100;
+      font-weight: 400;
     }
   }
 

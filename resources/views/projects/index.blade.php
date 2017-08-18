@@ -19,7 +19,7 @@
         <input type="text" placeholder="Find a Project">
         <img class="icon icon-cancel icon-cancel-js" src="{{ env('BASE_URL') }}assets/images/cancel-dark.svg">
       </div>
-      <div class="right sort-options sort-options-js">
+      <div class="sort-options sort-options-js">
           <a class="option active">Recently Modified</a>
           <a class="option">Custom</a>
           <a class="option">Alphabetical</a>
