@@ -57,7 +57,7 @@
 
         <script>
           $(document).ready(function() {
-            $('.underline-middle-hover').on('click touchend', function(e) {
+            $('.underline-middle-hover, .underline-left-hover').on('click touchend', function(e) {
               var el = $(this);
               var link = el.attr('href');
               window.location = link;

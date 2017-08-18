@@ -2,8 +2,6 @@
 //
 // For on hover use .underline-middle-hover.
 //
-// NOTE: only works on screens larger than 1440px. Smaller devices have an opacity change instead.
-// This is for mobile safari compatibility.
 .underline-middle,
 .underline-middle-hover {
   position: relative;
@@ -36,19 +34,45 @@
     width: 50%;
   }
 }
-//
-// @media screen and (max-width: #{$max-site-width - 1px}) {
-//   .underline-middle-hover:hover {
-//     opacity: .5;
-//   }
-// }
 
-// @media screen and (min-width: $max-site-width) {
-  .underline-middle-hover {
-    &:hover::before,
-    &:hover::after {
-      opacity: 1;
-      width: 50%;
-    }
+.underline-middle-hover {
+  &:hover::before,
+  &:hover::after {
+    opacity: 1;
+    width: 50%;
   }
-// }
+}
+
+// Create an underline effect originating from the left when .active is added.
+//
+// For on hover use .underline-left-hover.
+//
+.underline-left,
+.underline-left-hover {
+  position: relative;
+  transition: all .2s ease-in-out;
+
+  &::before {
+    background-color: palette(green, accent);
+    bottom: 0;
+    content: '';
+    height: 2px;
+    margin: 5px 0 0;
+    opacity: 0;
+    position: absolute;
+    transition: all .2s ease-in-out;
+    width: 0;
+  }
+
+  &.active::before {
+    opacity: 1;
+    width: 100%;
+  }
+}
+
+.underline-left-hover {
+  &:hover::before {
+    opacity: 1;
+    width: 100%;
+  }
+}

@@ -576,14 +576,14 @@ form {
   font-weight: normal;
   src: url("../fonts/ubuntu-italic.woff2") format("woff2"), url("../fonts/ubuntu-italic.woff") format("woff"), url("../fonts/ubuntu-italic.ttf") format("truetype"), url("../fonts/ubuntu-italic.svg#ubuntuitalic") format("svg");
 }
-/* line 7, ../../../resources/assets/scss/partials/general/_animations.scss */
+/* line 5, ../../../resources/assets/scss/partials/general/_animations.scss */
 .underline-middle,
 .underline-middle-hover {
   position: relative;
   -webkit-transition: all .2s ease-in-out;
   transition: all .2s ease-in-out;
 }
-/* line 12, ../../../resources/assets/scss/partials/general/_animations.scss */
+/* line 10, ../../../resources/assets/scss/partials/general/_animations.scss */
 .underline-middle::before, .underline-middle::after,
 .underline-middle-hover::before,
 .underline-middle-hover::after {
@@ -598,17 +598,17 @@ form {
   transition: all .2s ease-in-out;
   width: 0;
 }
-/* line 25, ../../../resources/assets/scss/partials/general/_animations.scss */
+/* line 23, ../../../resources/assets/scss/partials/general/_animations.scss */
 .underline-middle::before,
 .underline-middle-hover::before {
   left: calc(50%);
 }
-/* line 29, ../../../resources/assets/scss/partials/general/_animations.scss */
+/* line 27, ../../../resources/assets/scss/partials/general/_animations.scss */
 .underline-middle::after,
 .underline-middle-hover::after {
   right: calc(50%);
 }
-/* line 33, ../../../resources/assets/scss/partials/general/_animations.scss */
+/* line 31, ../../../resources/assets/scss/partials/general/_animations.scss */
 .underline-middle.active::before, .underline-middle.active::after,
 .underline-middle-hover.active::before,
 .underline-middle-hover.active::after {
@@ -616,10 +616,44 @@ form {
   width: 50%;
 }
 
-/* line 48, ../../../resources/assets/scss/partials/general/_animations.scss */
+/* line 39, ../../../resources/assets/scss/partials/general/_animations.scss */
 .underline-middle-hover:hover::before, .underline-middle-hover:hover::after {
   opacity: 1;
   width: 50%;
+}
+
+/* line 50, ../../../resources/assets/scss/partials/general/_animations.scss */
+.underline-left,
+.underline-left-hover {
+  position: relative;
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+}
+/* line 55, ../../../resources/assets/scss/partials/general/_animations.scss */
+.underline-left::before,
+.underline-left-hover::before {
+  background-color: #04b6af;
+  bottom: 0;
+  content: '';
+  height: 2px;
+  margin: 5px 0 0;
+  opacity: 0;
+  position: absolute;
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+  width: 0;
+}
+/* line 67, ../../../resources/assets/scss/partials/general/_animations.scss */
+.underline-left.active::before,
+.underline-left-hover.active::before {
+  opacity: 1;
+  width: 100%;
+}
+
+/* line 74, ../../../resources/assets/scss/partials/general/_animations.scss */
+.underline-left-hover:hover::before {
+  opacity: 1;
+  width: 100%;
 }
 
 /* line 3, ../../../resources/assets/scss/partials/_navigation.scss */
