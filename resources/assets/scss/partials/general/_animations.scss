@@ -1,4 +1,9 @@
-// Create an underline effect originating from the middle when .active is added. for on hover use .underline-middle-hover
+// Create an underline effect originating from the middle when .active is added.
+//
+// For on hover use .underline-middle-hover.
+//
+// NOTE: only works on screens larger than 1440px. Smaller devices have an opacity change instead.
+// This is for mobile safari compatibility.
 .underline-middle,
 .underline-middle-hover {
   position: relative;
@@ -31,11 +36,19 @@
     width: 50%;
   }
 }
+//
+// @media screen and (max-width: #{$max-site-width - 1px}) {
+//   .underline-middle-hover:hover {
+//     opacity: .5;
+//   }
+// }
 
-.underline-middle-hover {
-  &:hover::before,
-  &:hover::after {
-    opacity: 1;
-    width: 50%;
+// @media screen and (min-width: $max-site-width) {
+  .underline-middle-hover {
+    &:hover::before,
+    &:hover::after {
+      opacity: 1;
+      width: 50%;
+    }
   }
-}
+// }

@@ -54,5 +54,15 @@
             @yield('body')
             @yield('footer')
         </div>
+
+        <script>
+          $(document).ready(function() {
+            $('.underline-middle-hover').on('click touchend', function(e) {
+              var el = $(this);
+              var link = el.attr('href');
+              window.location = link;
+            });
+          });
+        </script>
     </body>
 </html>
