@@ -954,12 +954,13 @@ form {
 
 /* line 1, ../../../resources/assets/scss/partials/_projects.scss */
 .projects-body {
-  background: #F5F6F7;
+  background: -webkit-gradient(linear, left top, left bottom, from(#FBFBFC), to(#F5F6F7));
+  background: linear-gradient(180deg, #FBFBFC 0%, #F5F6F7 100%);
   font-family: Ubuntu;
   min-height: 100vh;
 }
 
-/* line 8, ../../../resources/assets/scss/partials/_projects.scss */
+/* line 7, ../../../resources/assets/scss/partials/_projects.scss */
 .projects {
   margin: 0 auto;
 }
@@ -994,7 +995,7 @@ form {
 /* line 26, ../../../resources/assets/scss/partials/projects/_head.scss */
 .projects .head .title span {
   font-size: 36px;
-  font-weight: 100;
+  font-weight: 400;
   padding: 0 0 0 22px;
   vertical-align: middle;
 }
@@ -1363,7 +1364,7 @@ form {
   color: #283c46;
 }
 @media screen and (max-width: 960px) {
-  /* line 18, ../../../resources/assets/scss/partials/_projects.scss */
+  /* line 17, ../../../resources/assets/scss/partials/_projects.scss */
   .projects .filters,
   .projects .head .inner-wrap,
   .projects .new-project-button,
@@ -1376,7 +1377,7 @@ form {
   }
 }
 @media screen and (max-width: 480px) {
-  /* line 31, ../../../resources/assets/scss/partials/_projects.scss */
+  /* line 30, ../../../resources/assets/scss/partials/_projects.scss */
   .projects .filters,
   .projects .head .inner-wrap,
   .projects .new-project-button,
