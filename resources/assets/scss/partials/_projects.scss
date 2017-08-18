@@ -1,17 +1,13 @@
-// html, body {
-//     margin: 0;
-//     padding: 0;
-//     overflow: hidden;
-// }
-
 .projects-body {
-  background: linear-gradient(180deg, #FBFBFC 0%, #F5F6F7 100%);
+  // background: linear-gradient(180deg, #FBFBFC 0%, #F5F6F7 100%);
+  background: #F5F6F7;
   font-family: $ubuntu;
   min-height: 100vh;
 }
 
 .projects {
   margin: 0 auto;
+
   @import 'projects/head';
   @import 'projects/filters';
   @import 'projects/new-project';

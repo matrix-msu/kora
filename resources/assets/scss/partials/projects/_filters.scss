@@ -35,7 +35,6 @@
       color: palette(gray, text);
       caret-color: palette(green, accent);
       font-size: 14px;
-      font-weight: 100;
       margin: 0 16px;
       outline: none;
       vertical-align: middle;
@@ -91,7 +90,7 @@
 
     &.active {
       color: palette(green, accent);
-      font-weight: bold;
+      font-weight: 500;
     }
 
     &.active::before,

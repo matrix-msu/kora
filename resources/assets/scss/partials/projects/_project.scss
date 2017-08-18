@@ -17,15 +17,5 @@
   }
 
   @import 'project/header';
-
-  .content {
-    background: palette(white, base);
-    display: none;
-    margin: 0 20px 20px;
-
-    &.active {
-      display: block;
-      padding-bottom: 20px;
-    }
-  }
+  @import 'project/content';
 }

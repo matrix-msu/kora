@@ -1,0 +1,53 @@
+.content {
+  background: palette(white, base);
+  display: none;
+  margin: 0 20px 20px;
+
+  &.active {
+    display: block;
+    padding-bottom: 20px;
+  }
+
+  span,
+  .description {
+    color: palette(gray, text);
+    font-size: 14px;
+    line-height: 19px;
+
+  }
+
+  span {
+
+    &.attribute {
+      font-family: $ubuntu-medium;
+    }
+
+    &:not(first-child) {
+      font-weight: 100;
+    }
+  }
+
+  .id {
+    margin-bottom: 20px;
+  }
+
+  .admins {
+    margin: 20px 0;
+  }
+
+  .forms {
+    .attribute {
+      padding-right: 14px;
+    }
+
+    .form {
+      color: palette(green, accent);
+      font-family: $ubuntu-medium;
+    }
+
+    a {
+      display: inline-block;
+      padding: 7px 14px 7px 0;
+    }
+  }
+}

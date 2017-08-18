@@ -36,7 +36,7 @@
   <section class="project-selection">
     @foreach($projects as $index=>$project)
       <div class="project {{ $index == 0 ? 'active' : '' }}">
-        <div class="header">
+        <div class="header {{ $index == 0 ? 'active' : '' }}">
           <div class="left">
             <div class="move-actions">
               <a class="action" href="">
@@ -61,26 +61,31 @@
         </div>
 
         <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
-            <div class="project_index_card_slug">
-                Unique Project ID: {{$project->slug}}
-            </div>
-            <div class="project_index_card_desc">
-                Project description: {{$project->description}}
-            </div>
-            <div class="project_index_card_admins">
-                Project Admins:
-                @foreach($project->adminGroup()->get() as $adminGroup)
-                    {{$adminGroup->users()->lists("username")->implode("username",", ")}}
-                @endforeach
-            </div>
-            <div class="project_index_card_slug">
-                Project Forms:
-                @foreach($project->forms()->get() as $form)
-                    <a href="{{action("FormController@show",["pid" => $project->pid,"fid" => $form->fid])}}">{{$form->name}}</a>
-                @endforeach
-            </div>
-        </div>
+          <div class="id">
+            <span class="attribute">Unique Project ID: </span>
+            <span>{{$project->slug}}</span>
+          </div>
 
+          <div class="description">
+            {{$project->description}}
+          </div>
+
+          <div class="admins">
+            <span class="attribute">Project Admins: </span>
+            @foreach($project->adminGroup()->get() as $adminGroup)
+              <span>
+                {{$adminGroup->users()->lists("username")->implode("username",", ")}}
+              </span>
+            @endforeach
+          </div>
+
+          <div class="forms">
+            <span class="attribute">Project Forms:</span>
+            @foreach($project->forms()->get() as $form)
+              <span class="form"><a href="{{action("FormController@show",["pid" => $project->pid,"fid" => $form->fid])}}">{{$form->name}}</a></span>
+            @endforeach
+          </div>
+        </div>
 
         <div class="footer">
         </div>
@@ -150,14 +155,15 @@
           $this.children().toggleClass('active');
           $project.toggleClass('active');
           if ($project.hasClass('active')) {
-
-            $project.animate({height: $project.height() + $content.outerHeight(true) + 'px' }, 390);
-            $content.effect('slide', { direction: 'up', mode: 'show', duration: 400 });
+            $header.addClass('active');
+            $project.animate({height: $project.height() + $content.outerHeight(true) + 'px' }, 230);
+            $content.effect('slide', { direction: 'up', mode: 'show', duration: 240 });
           } else {
-            $project.animate({height: '58px'}, 390, function() {
+            $project.animate({height: '58px'}, 230, function() {
+              $header.hasClass('active') ? $header.removeClass('active') : null;
               $content.hasClass('active') ? $content.removeClass('active') : null;
             });
-            $content.effect('slide', { direction: 'up', mode: 'hide', duration: 400 });
+            $content.effect('slide', { direction: 'up', mode: 'hide', duration: 240 });
           }
 
         });
