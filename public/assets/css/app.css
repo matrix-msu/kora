@@ -519,11 +519,13 @@ form {
 /* line 14, ../../../resources/assets/scss/partials/general/_global.scss */
 ::-webkit-input-placeholder {
   font-family: Ubuntu-Italic;
+  opacity: 1 !important;
 }
 
-/* line 18, ../../../resources/assets/scss/partials/general/_global.scss */
+/* line 19, ../../../resources/assets/scss/partials/general/_global.scss */
 :-ms-input-placeholder {
   font-family: Ubuntu-Italic;
+  opacity: 1 !important;
 }
 
 @font-face {
@@ -574,6 +576,52 @@ form {
   font-weight: normal;
   src: url("../fonts/ubuntu-italic.woff2") format("woff2"), url("../fonts/ubuntu-italic.woff") format("woff"), url("../fonts/ubuntu-italic.ttf") format("truetype"), url("../fonts/ubuntu-italic.svg#ubuntuitalic") format("svg");
 }
+/* line 2, ../../../resources/assets/scss/partials/general/_animations.scss */
+.underline-middle,
+.underline-middle-hover {
+  position: relative;
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+}
+/* line 7, ../../../resources/assets/scss/partials/general/_animations.scss */
+.underline-middle::before, .underline-middle::after,
+.underline-middle-hover::before,
+.underline-middle-hover::after {
+  background-color: #04b6af;
+  bottom: 0;
+  content: '';
+  height: 2px;
+  margin: 5px 0 0;
+  opacity: 0;
+  position: absolute;
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+  width: 0;
+}
+/* line 20, ../../../resources/assets/scss/partials/general/_animations.scss */
+.underline-middle::before,
+.underline-middle-hover::before {
+  left: calc(50%);
+}
+/* line 24, ../../../resources/assets/scss/partials/general/_animations.scss */
+.underline-middle::after,
+.underline-middle-hover::after {
+  right: calc(50%);
+}
+/* line 28, ../../../resources/assets/scss/partials/general/_animations.scss */
+.underline-middle.active::before, .underline-middle.active::after,
+.underline-middle-hover.active::before,
+.underline-middle-hover.active::after {
+  opacity: 1;
+  width: 50%;
+}
+
+/* line 36, ../../../resources/assets/scss/partials/general/_animations.scss */
+.underline-middle-hover:hover::before, .underline-middle-hover:hover::after {
+  opacity: 1;
+  width: 50%;
+}
+
 /* line 3, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation {
   background-color: #007c83;
@@ -1076,52 +1124,14 @@ form {
 .projects .filters .sort-options .option:last-child {
   padding-right: 0;
 }
-/* line 68, ../../../resources/assets/scss/partials/projects/_filters.scss */
-.projects .filters .search,
-.projects .filters .sort-options .option {
-  position: relative;
-  -webkit-transition: all .2s ease-in-out;
-  transition: all .2s ease-in-out;
+/* line 67, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .sort-options .option:hover {
+  color: #04b6af;
 }
-/* line 73, ../../../resources/assets/scss/partials/projects/_filters.scss */
-.projects .filters .search::before, .projects .filters .search::after,
-.projects .filters .sort-options .option::before,
-.projects .filters .sort-options .option::after {
-  background-color: #04b6af;
-  bottom: 0;
-  content: '';
-  height: 2px;
-  margin: 5px 0 0;
-  opacity: 0;
-  position: absolute;
-  -webkit-transition: all .2s ease-in-out;
-  transition: all .2s ease-in-out;
-  -webkit-transition-duration: .75s;
-          transition-duration: .75s;
-  width: 0;
-}
-/* line 87, ../../../resources/assets/scss/partials/projects/_filters.scss */
-.projects .filters .search::before,
-.projects .filters .sort-options .option::before {
-  left: calc(50%);
-}
-/* line 91, ../../../resources/assets/scss/partials/projects/_filters.scss */
-.projects .filters .search::after,
-.projects .filters .sort-options .option::after {
-  right: calc(50%);
-}
-/* line 95, ../../../resources/assets/scss/partials/projects/_filters.scss */
-.projects .filters .search.active,
+/* line 71, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .sort-options .option.active {
   color: #04b6af;
   font-weight: 500;
-}
-/* line 100, ../../../resources/assets/scss/partials/projects/_filters.scss */
-.projects .filters .search.active::before, .projects .filters .search.active::after,
-.projects .filters .sort-options .option.active::before,
-.projects .filters .sort-options .option.active::after {
-  opacity: 1;
-  width: 50%;
 }
 /* line 1, ../../../resources/assets/scss/partials/projects/_new-project.scss */
 .projects .new-project-button {
@@ -1135,7 +1145,7 @@ form {
 }
 /* line 10, ../../../resources/assets/scss/partials/projects/_new-project.scss */
 .projects .new-project-button input {
-  background: none;
+  background: rgba(4, 182, 175, 0.02);
   border: 1px solid rgba(4, 182, 175, 0.2);
   border-radius: 5px;
   color: #04b6af;
@@ -1269,14 +1279,24 @@ form {
   transition: all .2s ease-in-out;
 }
 /* line 79, ../../../resources/assets/scss/partials/projects/project/_header.scss */
-.projects .project-selection .project .header .project-name:hover {
-  color: #283c46;
+.projects .project-selection .project .header .project-name .name {
+  padding: 5px 0;
+  margin: 15px 0;
 }
 /* line 84, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .project-name .icon-arrow-right {
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+}
+/* line 88, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .project-name:hover .icon-arrow-right {
+  padding-left: 8px;
+}
+/* line 93, ../../../resources/assets/scss/partials/projects/project/_header.scss */
 .projects .project-selection .project .header .project-toggle-wrap {
   overflow: hidden;
 }
-/* line 88, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+/* line 97, ../../../resources/assets/scss/partials/projects/project/_header.scss */
 .projects .project-selection .project .header .project-toggle {
   display: block;
   opacity: .6;
@@ -1284,7 +1304,7 @@ form {
   -webkit-transition: all .2s ease-in-out;
   transition: all .2s ease-in-out;
 }
-/* line 94, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+/* line 103, ../../../resources/assets/scss/partials/projects/project/_header.scss */
 .projects .project-selection .project .header .project-toggle:hover {
   opacity: 1;
 }
@@ -1336,9 +1356,10 @@ form {
   font-family: Ubuntu-Medium;
 }
 /* line 49, ../../../resources/assets/scss/partials/projects/project/_content.scss */
-.projects .project-selection .project .content .forms a {
+.projects .project-selection .project .content .forms .form-link {
   display: inline-block;
-  padding: 7px 14px 7px 0;
+  margin: 0 14px 0 0;
+  padding: 7px 0;
 }
 /* line 1, ../../../resources/assets/scss/partials/projects/_foot.scss */
 .projects .foot {

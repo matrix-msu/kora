@@ -14,16 +14,16 @@
 
 @section('body')
   <section class="filters">
-      <div class="left search search-js">
+      <div class="left underline-middle search search-js">
         <img class="icon icon-search" src="{{ env('BASE_URL') }}assets/images/search-dark.svg">
         <input type="text" placeholder="Find a Project">
         <img class="icon icon-cancel icon-cancel-js" src="{{ env('BASE_URL') }}assets/images/cancel-dark.svg">
       </div>
       <div class="sort-options sort-options-js">
-          <a class="option active">Recently Modified</a>
-          <a class="option">Custom</a>
-          <a class="option">Alphabetical</a>
-          <a class="option">Inactive</a>
+          <a class="option underline-middle active">Recently Modified</a>
+          <a class="option underline-middle">Custom</a>
+          <a class="option underline-middle">Alphabetical</a>
+          <a class="option underline-middle">Inactive</a>
       </div>
   </section>
   <section class="new-project-button">
@@ -49,7 +49,7 @@
             </div>
 
             <a class="project-name" href="{{action("ProjectController@show",["pid" => $project->pid])}}">
-              <span>{{$project->name}}</span>
+              <span class="name">{{$project->name}}</span>
               <img class="icon icon-arrow-right" src="{{ env('BASE_URL') }}assets/images/arrow-accent.svg">
             </a>
           </div>
@@ -82,7 +82,7 @@
           <div class="forms">
             <span class="attribute">Project Forms:</span>
             @foreach($project->forms()->get() as $form)
-              <span class="form"><a href="{{action("FormController@show",["pid" => $project->pid,"fid" => $form->fid])}}">{{$form->name}}</a></span>
+              <span class="form"><a class="form-link underline-middle-hover" href="{{action("FormController@show",["pid" => $project->pid,"fid" => $form->fid])}}">{{$form->name}}</a></span>
             @endforeach
           </div>
         </div>

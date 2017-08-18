@@ -63,44 +63,14 @@
     &:last-child {
       padding-right: 0;
     }
-  }
 
-  .search,
-  .sort-options .option {
-    position: relative;
-    transition: all .2s ease-in-out;
-
-    &::before,
-    &::after {
-      background-color: palette(green, accent);
-      bottom: 0;
-      content: '';
-      height: 2px;
-      margin: 5px 0 0;
-      opacity: 0;
-      position: absolute;
-      transition: all .2s ease-in-out;
-      transition-duration: .75s;
-      width: 0;
-    }
-
-    &::before {
-      left: calc(50%);
-    }
-
-    &::after {
-      right: calc(50%);
+    &:hover {
+      color: palette(green, accent);
     }
 
     &.active {
       color: palette(green, accent);
       font-weight: 500;
-    }
-
-    &.active::before,
-    &.active::after {
-      opacity: 1;
-      width: 50%;
     }
   }
 }

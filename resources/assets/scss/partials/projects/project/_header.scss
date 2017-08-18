@@ -76,8 +76,17 @@
   .project-name {
     transition: all .2s ease-in-out;
 
-    &:hover {
-      color: palette(gray, text);
+    .name {
+      padding: 5px 0;
+      margin: 15px 0;
+    }
+
+    .icon-arrow-right {
+      transition: all .2s ease-in-out;
+    }
+
+    &:hover .icon-arrow-right {
+      padding-left: 8px;
     }
   }
 
