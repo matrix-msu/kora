@@ -1,11 +1,13 @@
 <?php namespace App\Http\Controllers;
 
 use App\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
 class AdminController extends Controller {
@@ -91,10 +93,10 @@ class AdminController extends Controller {
      * Updates information and/or password for a individual user.
      *
      * @param  Request $request
-     * @return View
+     * @return Redirect
      */
     public function update(Request $request) {
-        $message = "Here's what you changed (or kept the same):";
+        $message = array();
         $user = User::where('id', '=', $request->users)->first();
         $new_pass = $request->new_password;
         $confirm = $request->confirm;
@@ -102,62 +104,56 @@ class AdminController extends Controller {
         // Has the user been given admin rights?
         if(!is_null($request->admin)) {
             $user->admin = 1;
-            $message .= " User is admin.";
+            array_push($message,"admin");
         } else {
             $user->admin = 0;
-            $message .= " User is not admin.";
+            array_push($message,"not_admin");
         }
 
         // Has the user been activated?
         if(!is_null($request->active)) {
             $user->active = 1;
-            $message .= " User is active.";
+            array_push($message,"active");
         } else {
             $user->active = 0;
             //We need to give them a new regtoken so they can't use the old one to reactivate
             $user->regtoken = AuthenticatesAndRegistersUsers::makeRegToken();
-            $message .= " User is not active.";
+            array_push($message,"not_active");
         }
 
         // Handle password change cases.
         if(!empty($new_pass) || !empty($confirm)) {
             // If passwords don't match.
-            if($new_pass != $confirm) {
-                flash()->overlay("Passwords do not match, please try again.", "Whoops.");
-                return redirect('admin/users');
-            }
+            if($new_pass != $confirm)
+                return redirect('admin/users')->with('k3_global_error', 'passwords_unmatched');
 
             // If password is less than 6 chars
-            if(strlen($new_pass)<6) {
-                flash()->overlay("Password is too short, please try again.", "Whoops.");
-                return redirect('admin/users');
-            }
+            if(strlen($new_pass)<6)
+                return redirect('admin/users')->with('k3_global_error', 'password_minimum');
 
             // If password contains spaces
-            if(preg_match('/\s/',$new_pass)) {
-                flash()->overlay("Password contains whitespaces, please try again.", "Whoops.");
-                return redirect('admin/users');
-            }
+            if(preg_match('/\s/',$new_pass))
+                return redirect('admin/users')->with('k3_global_error', 'password_whitespaces');
 
             $user->password = bcrypt($new_pass);
-            $message .= " User password changed.";
+            array_push($message,"password");
         }
 
         $user->save();
-        flash()->overlay($message, "Success!");
-        return redirect('admin/users');
+        return redirect('admin/users')->with('k3_global_success', 'user_updated')->with('user_changes', $message);
     }
 
     /**
      * Deletes a user from the system.
      *
      * @param  int $id - The ID of user to be deleted
+     * @return JsonResponse - User deleted
      */
     public function deleteUser($id) {
         $user = User::where('id', '=', $id)->first();
         $user->delete();
 
-        flash()->overlay("User Deleted.", "Success!");
+        return response()->json(["status"=>true,"message"=>"user_deleted"],200);
     }
 
     /**

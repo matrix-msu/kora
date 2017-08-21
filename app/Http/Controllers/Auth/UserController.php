@@ -1,16 +1,11 @@
 <?php namespace App\Http\Controllers\Auth;
 
-use App\Form;
-use App\Project;
 use App\Record;
-use App\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Routing\ResponseFactory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
 class UserController extends Controller {
@@ -162,7 +157,7 @@ class UserController extends Controller {
         } else if(strlen($new_pass) < 6) {
             return redirect('user/profile')->with('k3_global_error', 'password_minimum');
         } else if($new_pass != $confirm) {
-            return redirect('user/profile')->with('k3_global_error', 'password_no_match');
+            return redirect('user/profile')->with('k3_global_error', 'passwords_unmatched');
         } else {
             $user->password = bcrypt($new_pass);
             $user->save();
