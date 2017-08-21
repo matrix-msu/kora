@@ -97,7 +97,12 @@ abstract class FileTypeField extends BaseField {
 
         $validTypes = true;
         $fileTypes = explode('[!]',FieldController::getFieldOption($field, 'FileTypes'));
-        $fileTypesRequest = $_FILES['file'.$flid]['type'];
+        $fileTypesRequest = array();
+        if($field->type != Field::_3D_MODEL)
+            $fileTypesRequest = $_FILES['file'.$flid]['type'];
+        else
+            $fileTypesRequest[] = pathinfo($_FILES['file'.$flid]['name'][0], PATHINFO_EXTENSION);
+
         if((sizeof($fileTypes)!=1 | $fileTypes[0]!='') && $field->type != Field::_3D_MODEL) {
             foreach($fileTypesRequest as $type) {
                 if(!in_array($type,$fileTypes))
