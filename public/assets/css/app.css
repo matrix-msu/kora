@@ -1099,31 +1099,32 @@ form {
 }
 /* line 8, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .search {
+  float: left;
   height: 20px;
   padding-bottom: 8px;
 }
-/* line 12, ../../../resources/assets/scss/partials/projects/_filters.scss */
+/* line 13, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .search .icon {
   cursor: pointer;
   -webkit-transition: all 200ms ease-in-out;
   transition: all 200ms ease-in-out;
   vertical-align: middle;
 }
-/* line 18, ../../../resources/assets/scss/partials/projects/_filters.scss */
+/* line 19, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .search .icon-search {
   height: 12px;
 }
-/* line 22, ../../../resources/assets/scss/partials/projects/_filters.scss */
+/* line 23, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .search .icon-cancel {
   height: 0;
   opacity: 0;
 }
-/* line 27, ../../../resources/assets/scss/partials/projects/_filters.scss */
+/* line 28, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .search .icon-cancel.active {
   height: 8px;
   opacity: 1;
 }
-/* line 32, ../../../resources/assets/scss/partials/projects/_filters.scss */
+/* line 33, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .search input {
   background: none;
   border: 0;
@@ -1135,11 +1136,11 @@ form {
   vertical-align: middle;
   width: 100px;
 }
-/* line 45, ../../../resources/assets/scss/partials/projects/_filters.scss */
+/* line 46, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .sort-options {
   text-align: right;
 }
-/* line 49, ../../../resources/assets/scss/partials/projects/_filters.scss */
+/* line 50, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .sort-options .option {
   color: rgba(40, 60, 70, 0.8);
   cursor: pointer;
@@ -1148,7 +1149,6 @@ form {
   line-height: 16px;
   margin: 0 7.5px;
   padding: 0 0 10px;
-  width: 116px;
 }
 /* line 59, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .sort-options .option:first-child {
@@ -1166,6 +1166,43 @@ form {
 .projects .filters .sort-options .option.active {
   color: #04b6af;
   font-weight: 500;
+}
+@media screen and (max-width: 768px) {
+  /* line 79, ../../../resources/assets/scss/partials/projects/_filters.scss */
+  .projects .filters {
+    height: 66px;
+  }
+  /* line 82, ../../../resources/assets/scss/partials/projects/_filters.scss */
+  .projects .filters .search {
+    float: none;
+  }
+  /* line 86, ../../../resources/assets/scss/partials/projects/_filters.scss */
+  .projects .filters .sort-options {
+    height: 38px;
+    text-align: left;
+  }
+  /* line 90, ../../../resources/assets/scss/partials/projects/_filters.scss */
+  .projects .filters .sort-options .option {
+    display: inline-block;
+    padding-top: 12px;
+    width: auto;
+  }
+}
+@media screen and (max-width: 480px) {
+  /* line 100, ../../../resources/assets/scss/partials/projects/_filters.scss */
+  .projects .filters {
+    margin-left: 25px;
+    max-width: 430px;
+    overflow-x: hidden;
+    width: calc(100% - 25px);
+  }
+  /* line 106, ../../../resources/assets/scss/partials/projects/_filters.scss */
+  .projects .filters .sort-options {
+    white-space: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+  }
 }
 /* line 1, ../../../resources/assets/scss/partials/projects/_new-project.scss */
 .projects .new-project-button {
@@ -1198,6 +1235,12 @@ form {
   background-color: white;
   -webkit-box-shadow: 0 5px 10px 0 rgba(4, 182, 175, 0.05);
           box-shadow: 0 5px 10px 0 rgba(4, 182, 175, 0.05);
+}
+@media screen and (max-width: 768px) {
+  /* line 32, ../../../resources/assets/scss/partials/projects/_new-project.scss */
+  .projects .new-project-button {
+    margin-top: 25px;
+  }
 }
 /* line 1, ../../../resources/assets/scss/partials/projects/_project-selection.scss */
 .projects .project-selection {
@@ -1426,7 +1469,7 @@ form {
 .projects .foot .request-permissions:hover {
   color: #283c46;
 }
-@media screen and (max-width: 960px) {
+@media screen and (min-width: 480px) and (max-width: 960px) {
   /* line 17, ../../../resources/assets/scss/partials/_projects.scss */
   .projects .filters,
   .projects .head .inner-wrap,
@@ -1441,7 +1484,6 @@ form {
 }
 @media screen and (max-width: 480px) {
   /* line 30, ../../../resources/assets/scss/partials/_projects.scss */
-  .projects .filters,
   .projects .head .inner-wrap,
   .projects .new-project-button,
   .projects .project-selection,

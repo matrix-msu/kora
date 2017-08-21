@@ -6,6 +6,7 @@
   width: $max-site-width;
 
   .search {
+    float: left;
     height: 20px;
     padding-bottom: 8px;
 
@@ -54,7 +55,6 @@
     line-height: 16px;
     margin: 0 7.5px;
     padding: 0 0 10px;
-    width: 116px;
 
     &:first-child {
       padding-left: 0;
@@ -71,6 +71,40 @@
     &.active {
       color: palette(green, accent);
       font-weight: 500;
+    }
+  }
+}
+
+@media screen and (max-width: $max-mobile-width) {
+  .filters {
+    height: 66px;
+
+    .search {
+      float: none;
+    }
+
+    .sort-options {
+      height: 38px;
+      text-align: left;
+
+      .option {
+        display: inline-block;
+        padding-top: 12px;
+        width: auto;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: $max-mobile-xs-width) {
+  .filters {
+    margin-left: $mobile-xs-margin-total / 2;
+    max-width: $max-mobile-xs-width - $mobile-xs-margin-total;
+    overflow-x: hidden;
+    width: calc(100% - #{$mobile-xs-margin-total / 2 });
+
+    .sort-options {
+      @include responsive-scroll();
     }
   }
 }

@@ -27,3 +27,9 @@
     }
   }
 }
+
+@media screen and (max-width: $max-mobile-width) {
+  .new-project-button {
+    margin-top: 25px;
+  }
+}

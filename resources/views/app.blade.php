@@ -47,7 +47,7 @@
         <title>Kora 3 - {{ $page_title }}</title>
     </head>
     <body class="{{ str_hyphenated($page_title) }}-body">
-        @include('partials.nav')
+        <!-- @include('partials.nav') -->
 
         <div class="{{ str_hyphenated($page_title) }}">
             @yield('header')

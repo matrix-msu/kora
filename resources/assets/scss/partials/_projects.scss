@@ -13,7 +13,7 @@
   @import 'projects/project-selection';
   @import 'projects/foot';
 
-  @media screen and (max-width: $max-tablet-width) {
+  @media screen and (min-width: $max-mobile-xs-width) and (max-width: $max-tablet-width) {
     .filters,
     .head .inner-wrap,
     .new-project-button,
@@ -27,7 +27,6 @@
   }
 
   @media screen and (max-width: $max-mobile-xs-width) {
-    .filters,
     .head .inner-wrap,
     .new-project-button,
     .project-selection,

@@ -14,7 +14,7 @@
 
 @section('body')
   <section class="filters">
-      <div class="left underline-middle search search-js">
+      <div class="underline-middle search search-js">
         <img class="icon icon-search" src="{{ env('BASE_URL') }}assets/images/search-dark.svg">
         <input type="text" placeholder="Find a Project">
         <img class="icon icon-cancel icon-cancel-js" src="{{ env('BASE_URL') }}assets/images/cancel-dark.svg">
