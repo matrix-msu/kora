@@ -1,4 +1,4 @@
-@extends('app')
+@extends('app', ['page_title' => 'Edit Project'])
 
 @section('content')
     <h1>{{trans('projects_edit.edit')}}</h1>

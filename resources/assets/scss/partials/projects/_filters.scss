@@ -1,0 +1,76 @@
+.filters {
+  font-family: $ubuntu;
+  height: 20px;
+  margin: 30px auto 0;
+  max-width: calc(#{ $max-site-width } - 600px);
+  width: $max-site-width;
+
+  .search {
+    height: 20px;
+    padding-bottom: 8px;
+
+    .icon {
+      cursor: pointer;
+      transition: all 200ms ease-in-out;
+      vertical-align: middle;
+    }
+
+    .icon-search {
+      height: 12px;
+    }
+
+    .icon-cancel {
+      height: 0;
+      opacity: 0;
+    }
+
+    .icon-cancel.active {
+      height: 8px;
+      opacity: 1;
+    }
+
+    input {
+      background: none;
+      border: 0;
+      color: palette(gray, text);
+      caret-color: palette(green, accent);
+      font-size: 14px;
+      margin: 0 16px;
+      outline: none;
+      vertical-align: middle;
+      width: 100px;
+    }
+  }
+
+  .sort-options {
+    text-align: right;
+  }
+
+  .sort-options .option {
+    color: palette(gray, text, .8);
+    cursor: pointer;
+    font-family: $ubuntu;
+    font-size: 14px;
+    line-height: 16px;
+    margin: 0 7.5px;
+    padding: 0 0 10px;
+    width: 116px;
+
+    &:first-child {
+      padding-left: 0;
+    }
+
+    &:last-child {
+      padding-right: 0;
+    }
+
+    &:hover {
+      color: palette(green, accent);
+    }
+
+    &.active {
+      color: palette(green, accent);
+      font-weight: 500;
+    }
+  }
+}

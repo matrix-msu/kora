@@ -516,54 +516,146 @@ form {
   float: left;
 }
 
+/* line 14, ../../../resources/assets/scss/partials/general/_global.scss */
+::-webkit-input-placeholder {
+  font-family: Ubuntu-Italic;
+  opacity: 1 !important;
+}
+
+/* line 19, ../../../resources/assets/scss/partials/general/_global.scss */
+:-ms-input-placeholder {
+  font-family: Ubuntu-Italic;
+  opacity: 1 !important;
+}
+
 @font-face {
-  font-family: 'ubuntubold';
+  font-family: 'Ubuntu-Bold';
   font-style: normal;
   font-weight: normal;
   src: url("../fonts/ubuntu-bold.woff2") format("woff2"), url("../fonts/ubuntu-bold.woff") format("woff"), url("../fonts/ubuntu-bold.ttf") format("truetype"), url("../fonts/ubuntu-bold.svg#ubuntubold") format("svg");
 }
 @font-face {
-  font-family: 'ubuntubold_italic';
+  font-family: 'Ubuntu-Bold-Italic';
   font-style: normal;
   font-weight: normal;
   src: url("../fonts/ubuntu-bolditalic.woff2") format("woff2"), url("../fonts/ubuntu-bolditalic.woff") format("woff"), url("../fonts/ubuntu-bolditalic.ttf") format("truetype"), url("../fonts/ubuntu-bolditalic.svg#ubuntubold_italic") format("svg");
 }
 @font-face {
-  font-family: 'ubuntuitalic';
-  font-style: normal;
-  font-weight: normal;
-  src: url("../fonts/ubuntu-italic.woff2") format("woff2"), url("../fonts/ubuntu-italic.woff") format("woff"), url("../fonts/ubuntu-italic.ttf") format("truetype"), url("../fonts/ubuntu-italic.svg#ubuntuitalic") format("svg");
-}
-@font-face {
-  font-family: 'ubuntulight';
+  font-family: 'Ubuntu-Light';
   font-style: normal;
   font-weight: normal;
   src: url("../fonts/ubuntu-light.woff2") format("woff2"), url("../fonts/ubuntu-light.woff") format("woff"), url("../fonts/ubuntu-light.ttf") format("truetype"), url("../fonts/ubuntu-light.svg#ubuntulight") format("svg");
 }
 @font-face {
-  font-family: 'ubuntulight_italic';
+  font-family: 'Ubuntu-Light-Italic';
   font-style: normal;
   font-weight: normal;
   src: url("../fonts/ubuntu-lightitalic.woff2") format("woff2"), url("../fonts/ubuntu-lightitalic.woff") format("woff"), url("../fonts/ubuntu-lightitalic.ttf") format("truetype"), url("../fonts/ubuntu-lightitalic.svg#ubuntulight_italic") format("svg");
 }
 @font-face {
-  font-family: 'ubuntumedium';
+  font-family: 'Ubuntu-Medium';
   font-style: normal;
   font-weight: normal;
   src: url("../fonts/ubuntu-medium.woff2") format("woff2"), url("../fonts/ubuntu-medium.woff") format("woff"), url("../fonts/ubuntu-medium.ttf") format("truetype"), url("../fonts/ubuntu-medium.svg#ubuntumedium") format("svg");
 }
 @font-face {
-  font-family: 'ubuntumedium_italic';
+  font-family: 'Ubuntu-Medium-Italic';
   font-style: normal;
   font-weight: normal;
   src: url("../fonts/ubuntu-mediumitalic.woff2") format("woff2"), url("../fonts/ubuntu-mediumitalic.woff") format("woff"), url("../fonts/ubuntu-mediumitalic.ttf") format("truetype"), url("../fonts/ubuntu-mediumitalic.svg#ubuntumedium_italic") format("svg");
 }
 @font-face {
-  font-family: 'ubunturegular';
+  font-family: 'Ubuntu';
   font-style: normal;
   font-weight: normal;
   src: url("../fonts/ubuntu-regular.woff2") format("woff2"), url("../fonts/ubuntu-regular.woff") format("woff"), url("../fonts/ubuntu-regular.ttf") format("truetype"), url("../fonts/ubuntu-regular.svg#ubunturegular") format("svg");
 }
+@font-face {
+  font-family: 'Ubuntu-Italic';
+  font-style: normal;
+  font-weight: normal;
+  src: url("../fonts/ubuntu-italic.woff2") format("woff2"), url("../fonts/ubuntu-italic.woff") format("woff"), url("../fonts/ubuntu-italic.ttf") format("truetype"), url("../fonts/ubuntu-italic.svg#ubuntuitalic") format("svg");
+}
+/* line 5, ../../../resources/assets/scss/partials/general/_animations.scss */
+.underline-middle,
+.underline-middle-hover {
+  position: relative;
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+}
+/* line 10, ../../../resources/assets/scss/partials/general/_animations.scss */
+.underline-middle::before, .underline-middle::after,
+.underline-middle-hover::before,
+.underline-middle-hover::after {
+  background-color: #04b6af;
+  bottom: 0;
+  content: '';
+  height: 2px;
+  margin: 5px 0 0;
+  opacity: 0;
+  position: absolute;
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+  width: 0;
+}
+/* line 23, ../../../resources/assets/scss/partials/general/_animations.scss */
+.underline-middle::before,
+.underline-middle-hover::before {
+  left: calc(50%);
+}
+/* line 27, ../../../resources/assets/scss/partials/general/_animations.scss */
+.underline-middle::after,
+.underline-middle-hover::after {
+  right: calc(50%);
+}
+/* line 31, ../../../resources/assets/scss/partials/general/_animations.scss */
+.underline-middle.active::before, .underline-middle.active::after,
+.underline-middle-hover.active::before,
+.underline-middle-hover.active::after {
+  opacity: 1;
+  width: 50%;
+}
+
+/* line 39, ../../../resources/assets/scss/partials/general/_animations.scss */
+.underline-middle-hover:hover::before, .underline-middle-hover:hover::after {
+  opacity: 1;
+  width: 50%;
+}
+
+/* line 50, ../../../resources/assets/scss/partials/general/_animations.scss */
+.underline-left,
+.underline-left-hover {
+  position: relative;
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+}
+/* line 55, ../../../resources/assets/scss/partials/general/_animations.scss */
+.underline-left::before,
+.underline-left-hover::before {
+  background-color: #04b6af;
+  bottom: 0;
+  content: '';
+  height: 2px;
+  margin: 5px 0 0;
+  opacity: 0;
+  position: absolute;
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+  width: 0;
+}
+/* line 67, ../../../resources/assets/scss/partials/general/_animations.scss */
+.underline-left.active::before,
+.underline-left-hover.active::before {
+  opacity: 1;
+  width: 100%;
+}
+
+/* line 74, ../../../resources/assets/scss/partials/general/_animations.scss */
+.underline-left-hover:hover::before {
+  opacity: 1;
+  width: 100%;
+}
+
 /* line 3, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation {
   background-color: #007c83;
@@ -576,8 +668,8 @@ form {
   background: transparent;
   border: 0;
   caret-color: #04b6af;
-  color: #fff;
-  font-family: ubunturegular;
+  color: white;
+  font-family: Ubuntu;
   font-size: 12px;
   font-weight: 500;
   height: 17px;
@@ -591,90 +683,86 @@ form {
 }
 /* line 19, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_input::-webkit-input-placeholder {
-  /* Chrome/Opera/Safari */
-  color: #fff;
+  color: white;
 }
-/* line 24, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 23, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_input::-moz-placeholder {
-  /* Firefox 19+ */
-  color: #fff;
+  color: white;
 }
-/* line 29, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 27, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_input:-ms-input-placeholder {
-  /* IE 10+ */
-  color: #fff;
+  color: white;
 }
-/* line 34, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 31, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_input:-moz-placeholder {
-  /* Firefox 18- */
-  color: #fff;
+  color: white;
 }
-/* line 39, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 35, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_submit {
   border: 0;
   background: transparent;
   width: 17px;
   height: 17px;
 }
-/* line 46, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 42, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_submit:focus {
   outline-width: 0;
 }
-/* line 50, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 46, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_submit img {
   width: 4px;
   height: 8px;
 }
-/* line 55, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 51, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_spacer {
-  border-bottom: 2px solid #fff;
+  border-bottom: 2px solid white;
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
   margin: 0 0 0 20px;
   opacity: .1;
   width: 210px;
 }
-/* line 63, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 59, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_recent {
   margin-left: 20px;
-  color: #fff;
-  font-family: ubunturegular;
+  color: white;
+  font-family: Ubuntu;
   font-size: 12px;
   line-height: 13px;
 }
-/* line 71, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 67, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_result {
   margin-left: 20px;
-  color: #fff;
-  font-family: ubunturegular;
+  color: white;
+  font-family: Ubuntu;
   font-size: 12px;
   line-height: 13px;
 }
-/* line 79, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 75, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_result li:first-child {
   padding-top: 20px;
 }
-/* line 83, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 79, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_result li:last-child {
   padding-bottom: 20px;
 }
-/* line 87, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 83, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_result li {
   height: 14px;
   padding: 8px 0;
 }
-/* line 92, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 88, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_result a {
   color: #007c83 !important;
   display: initial;
   line-height: 0;
 }
-/* line 98, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 94, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_clear {
   background-color: rgba(255, 255, 255, 0.05);
   border: 0;
   border-radius: 0 0 0 5px;
-  color: #fff;
+  color: white;
   font-size: 13px;
   height: 48px;
   margin: 0;
@@ -682,77 +770,84 @@ form {
   text-align: left;
   width: 100%;
 }
-/* line 111, ../../../resources/assets/scss/partials/navigation/_search.scss */
+/* line 107, ../../../resources/assets/scss/partials/navigation/_search.scss */
 .navigation #kora_global_search_clear:focus {
   outline-width: 0;
 }
 /* line 10, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation ul {
   padding-left: 0;
+  margin: 0;
 }
-/* line 14, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 15, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation li {
   list-style-type: none;
 }
-/* line 18, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 19, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation a {
-  color: #fff;
+  color: white;
   display: block;
-  height: 100%;
-  line-height: 50px;
   text-decoration: none;
 }
-/* line 27, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 26, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .navigation-item {
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
-  float: left;
-  font-family: ubunturegular;
+  display: inline-block;
+  font-family: Ubuntu;
   font-size: 12px;
   font-weight: 500;
-  height: 100%;
+  height: 50px;
   line-height: 16px;
   position: relative;
+  vertical-align: middle;
 }
-/* line 39, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 38, ../../../resources/assets/scss/partials/_navigation.scss */
+.navigation .navigation-left {
+  display: inline-block;
+}
+/* line 41, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .navigation-left .navigation-item {
   width: 80px;
 }
-/* line 43, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 45, ../../../resources/assets/scss/partials/_navigation.scss */
+.navigation .navigation-left .navigation-item a {
+  line-height: 50px;
+}
+/* line 49, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .navigation-left .navigation-item:not(:first-child) {
   margin-left: 16px;
 }
-/* line 48, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 54, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .navigation-right {
   float: right;
   margin-top: 0;
 }
-/* line 52, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 58, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .navigation-right .navigation-item {
   width: auto;
 }
-/* line 56, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 62, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .navigation-right .navigation-sub-menu {
   border-radius: 0 0 0 5px;
   right: 0;
   width: 250px;
 }
-/* line 64, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 70, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .logo {
-  float: left;
-  height: 50px;
+  display: inline-block;
   padding-left: 13px;
-  padding-top: 10px;
+  vertical-align: middle;
   width: 45px;
 }
-/* line 71, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 76, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .logo img {
   -webkit-box-shadow: 0 0 5px 0 rgba(255, 255, 255, 0.2);
           box-shadow: 0 0 5px 0 rgba(255, 255, 255, 0.2);
   height: 27px;
   width: 27px;
 }
-/* line 78, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 83, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .navigation-search {
   float: left;
   height: 50px;
@@ -760,18 +855,18 @@ form {
   padding-top: 17px;
   width: auto;
 }
-/* line 85, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 90, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .navigation-search img {
   -webkit-box-shadow: 0 3px 5px 0 rgba(21, 39, 48, 0.05);
           box-shadow: 0 3px 5px 0 rgba(21, 39, 48, 0.05);
   height: 14px;
   width: 14px;
 }
-/* line 91, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 96, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .navigation-search .navigation-sub-menu {
   padding-bottom: 0;
 }
-/* line 96, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 101, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .profile-navigation-item {
   float: left;
   height: 50px;
@@ -779,9 +874,9 @@ form {
   padding-top: 12px;
   width: auto;
 }
-/* line 103, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 108, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .profile-navigation-item .profile-picture {
-  border: 2px solid #fff;
+  border: 2px solid white;
   border-radius: 50%;
   -webkit-box-shadow: 0 3px 5px 0 rgba(57, 67, 89, 0.2);
           box-shadow: 0 3px 5px 0 rgba(57, 67, 89, 0.2);
@@ -790,13 +885,13 @@ form {
   height: 24px;
   width: 24px;
 }
-/* line 112, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 117, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .profile-navigation-item .logout-icon {
   height: 12px;
   padding: 0;
   width: 11px;
 }
-/* line 119, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 124, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .hamburger {
   float: left;
   height: 50px;
@@ -804,14 +899,14 @@ form {
   padding-top: 17px;
   width: auto;
 }
-/* line 126, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 131, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .hamburger img {
   -webkit-box-shadow: 0 3px 5px 0 rgba(21, 39, 48, 0.05);
           box-shadow: 0 3px 5px 0 rgba(21, 39, 48, 0.05);
   height: 12px;
   width: 17px;
 }
-/* line 133, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 138, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .icon {
   margin-left: 10px;
   -webkit-transition: -webkit-transform 150ms ease;
@@ -819,13 +914,13 @@ form {
   transition: transform 150ms ease;
   transition: transform 150ms ease, -webkit-transform 150ms ease;
 }
-/* line 137, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 142, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation .icon.arrow-icon.active {
   -webkit-transform: rotate(-180deg);
           transform: rotate(-180deg);
 }
 
-/* line 144, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 149, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu {
   background-color: #21323b;
   border-radius: 0 0 5px 5px;
@@ -841,32 +936,32 @@ form {
   width: 175px;
   z-index: -100;
 }
-/* line 157, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 162, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu.active {
   opacity: 1;
   visibility: visible;
   z-index: auto;
 }
-/* line 163, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 168, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu img {
   padding-right: 13px;
 }
-/* line 167, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 172, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu .header {
-  color: #fff;
-  font-family: ubunturegular;
+  color: white;
+  font-family: Ubuntu;
   font-size: 16px;
   height: 18px;
   line-height: 18px;
   padding: 20px;
 }
-/* line 176, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 181, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu .link {
-  color: #fff;
-  font-family: ubunturegular;
+  color: white;
+  font-family: Ubuntu;
   font-size: 13px;
 }
-/* line 181, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 186, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu .link a {
   -webkit-box-align: center;
       -ms-flex-align: center;
@@ -880,32 +975,32 @@ form {
   -webkit-transition: color 150ms ease;
   transition: color 150ms ease;
 }
-/* line 190, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 195, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu .link a:hover {
   color: #04b6af;
 }
-/* line 194, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 199, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu .link:not(:first-child) a {
   padding-top: 8px;
 }
-/* line 198, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 203, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu .link:last-child a {
   -webkit-box-pack: justify;
       -ms-flex-pack: justify;
           justify-content: space-between;
   padding-bottom: 20px;
 }
-/* line 203, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 208, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu .link.head a {
   padding: 20px 0 20px 20px;
 }
-/* line 207, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 212, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu .link.pre-spacer a {
   padding-bottom: 20px;
 }
-/* line 212, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 217, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu .spacer {
-  border-bottom: 2px solid #fff;
+  border-bottom: 2px solid white;
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
   height: 3px;
@@ -913,12 +1008,12 @@ form {
   opacity: .1;
   width: calc(100% - 40px);
 }
-/* line 220, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 225, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-sub-menu .spacer + .link a {
   padding-top: 20px;
 }
 
-/* line 228, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 233, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-deep-menu {
   background-color: #21323b;
   border-radius: 0 5px 5px;
@@ -933,7 +1028,7 @@ form {
   position: absolute;
   width: 175px;
 }
-/* line 241, ../../../resources/assets/scss/partials/_navigation.scss */
+/* line 246, ../../../resources/assets/scss/partials/_navigation.scss */
 .navigation-deep-menu .item {
   padding-bottom: 15px;
   padding-left: 20px;
@@ -943,84 +1038,417 @@ form {
 .projects-body {
   background: -webkit-gradient(linear, left top, left bottom, from(#FBFBFC), to(#F5F6F7));
   background: linear-gradient(180deg, #FBFBFC 0%, #F5F6F7 100%);
+  font-family: Ubuntu;
+  min-height: 100vh;
 }
 
-/* line 5, ../../../resources/assets/scss/partials/_projects.scss */
+/* line 7, ../../../resources/assets/scss/partials/_projects.scss */
 .projects {
   margin: 0 auto;
 }
 /* line 1, ../../../resources/assets/scss/partials/projects/_head.scss */
 .projects .head {
-  background: #fff;
+  background: white;
   -webkit-box-shadow: 0 3px 5px -2px rgba(21, 39, 48, 0.05);
           box-shadow: 0 3px 5px -2px rgba(21, 39, 48, 0.05);
-  font-family: ubunturegular;
+  color: #283c46;
+  font-family: Ubuntu;
   width: 100%;
 }
-/* line 7, ../../../resources/assets/scss/partials/projects/_head.scss */
-.projects .head > * {
-  margin-left: 300px;
-  margin-right: 300px;
+/* line 8, ../../../resources/assets/scss/partials/projects/_head.scss */
+.projects .head .inner-wrap {
+  margin-left: auto;
+  margin-right: auto;
   max-width: calc(1440px - 600px);
-  width: calc(100% - 600px);
+  width: 1440px;
 }
-/* line 14, ../../../resources/assets/scss/partials/projects/_head.scss */
+/* line 15, ../../../resources/assets/scss/partials/projects/_head.scss */
 .projects .head .title {
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -ms-flex-item-align: center;
-      align-self: center;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  margin: 0 auto 30px;
-  padding-top: 60px;
+  height: 45px;
+  margin: 0;
+  padding: 60px 0 30px;
   text-align: left;
 }
-/* line 22, ../../../resources/assets/scss/partials/projects/_head.scss */
+/* line 21, ../../../resources/assets/scss/partials/projects/_head.scss */
 .projects .head .title img {
   height: 37px;
+  vertical-align: middle;
 }
 /* line 26, ../../../resources/assets/scss/partials/projects/_head.scss */
 .projects .head .title span {
   font-size: 36px;
-  font-weight: 100;
-  line-height: 37px;
-  padding: 0 30px;
+  font-weight: 400;
+  padding: 0 0 0 22px;
+  vertical-align: middle;
 }
 /* line 34, ../../../resources/assets/scss/partials/projects/_head.scss */
 .projects .head .description {
   -ms-flex-item-align: center;
       align-self: center;
   font-size: 16px;
-  margin: 0 auto;
+  margin: 0;
   padding: 0 0 60px;
 }
-@media screen and (max-width: 960px) {
-  /* line 43, ../../../resources/assets/scss/partials/projects/_head.scss */
-  .projects .head > * {
-    margin-left: 150px;
-    margin-right: 150px;
-    max-width: calc(960px - 300px);
-    width: calc(100% - 300px);
-  }
+/* line 1, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters {
+  font-family: Ubuntu;
+  height: 20px;
+  margin: 30px auto 0;
+  max-width: calc(1440px - 600px);
+  width: 1440px;
 }
-@media screen and (max-width: 768px) {
-  /* line 52, ../../../resources/assets/scss/partials/projects/_head.scss */
-  .projects .head > * {
-    margin-left: 100px;
-    margin-right: 100px;
-    max-width: calc(768px - 200px);
-    width: calc(100% - 200px);
+/* line 8, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .search {
+  height: 20px;
+  padding-bottom: 8px;
+}
+/* line 12, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .search .icon {
+  cursor: pointer;
+  -webkit-transition: all 200ms ease-in-out;
+  transition: all 200ms ease-in-out;
+  vertical-align: middle;
+}
+/* line 18, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .search .icon-search {
+  height: 12px;
+}
+/* line 22, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .search .icon-cancel {
+  height: 0;
+  opacity: 0;
+}
+/* line 27, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .search .icon-cancel.active {
+  height: 8px;
+  opacity: 1;
+}
+/* line 32, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .search input {
+  background: none;
+  border: 0;
+  color: #283c46;
+  caret-color: #04b6af;
+  font-size: 14px;
+  margin: 0 16px;
+  outline: none;
+  vertical-align: middle;
+  width: 100px;
+}
+/* line 45, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .sort-options {
+  text-align: right;
+}
+/* line 49, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .sort-options .option {
+  color: rgba(40, 60, 70, 0.8);
+  cursor: pointer;
+  font-family: Ubuntu;
+  font-size: 14px;
+  line-height: 16px;
+  margin: 0 7.5px;
+  padding: 0 0 10px;
+  width: 116px;
+}
+/* line 59, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .sort-options .option:first-child {
+  padding-left: 0;
+}
+/* line 63, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .sort-options .option:last-child {
+  padding-right: 0;
+}
+/* line 67, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .sort-options .option:hover {
+  color: #04b6af;
+}
+/* line 71, ../../../resources/assets/scss/partials/projects/_filters.scss */
+.projects .filters .sort-options .option.active {
+  color: #04b6af;
+  font-weight: 500;
+}
+/* line 1, ../../../resources/assets/scss/partials/projects/_new-project.scss */
+.projects .new-project-button {
+  margin: 40px auto 0;
+  max-width: calc(1440px - 600px);
+  width: 1440px;
+}
+/* line 6, ../../../resources/assets/scss/partials/projects/_new-project.scss */
+.projects .new-project-button form {
+  width: 100%;
+}
+/* line 10, ../../../resources/assets/scss/partials/projects/_new-project.scss */
+.projects .new-project-button input {
+  background: rgba(4, 182, 175, 0.02);
+  border: 1px solid rgba(4, 182, 175, 0.2);
+  border-radius: 5px;
+  color: #04b6af;
+  font-family: Ubuntu;
+  font-size: 14px;
+  height: 50px;
+  line-height: 16px;
+  padding: 0;
+  text-align: center;
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+  width: 100%;
+}
+/* line 24, ../../../resources/assets/scss/partials/projects/_new-project.scss */
+.projects .new-project-button input:hover {
+  background-color: white;
+  -webkit-box-shadow: 0 5px 10px 0 rgba(4, 182, 175, 0.05);
+          box-shadow: 0 5px 10px 0 rgba(4, 182, 175, 0.05);
+}
+/* line 1, ../../../resources/assets/scss/partials/projects/_project-selection.scss */
+.projects .project-selection {
+  background: none;
+  margin: auto;
+  max-width: calc(1440px - 600px);
+  width: 1440px;
+}
+/* line 1, ../../../resources/assets/scss/partials/projects/_project.scss */
+.projects .project-selection .project {
+  background: white;
+  border-radius: 5px;
+  -webkit-box-shadow: 0 3px 5px 0 rgba(21, 39, 48, 0.05);
+          box-shadow: 0 3px 5px 0 rgba(21, 39, 48, 0.05);
+  margin: 30px auto;
+  position: relative;
+}
+/* line 8, ../../../resources/assets/scss/partials/projects/_project.scss */
+.projects .project-selection .project a {
+  color: inherit;
+  text-decoration: none;
+}
+/* line 12, ../../../resources/assets/scss/partials/projects/_project.scss */
+.projects .project-selection .project a span {
+  display: inline-block;
+  padding: 20px 0;
+  vertical-align: middle;
+}
+/* line 1, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header {
+  background: white;
+  border-radius: 5px;
+  color: #04b6af;
+  font-size: 16px;
+  position: relative;
+  z-index: 2;
+}
+/* line 10, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header.active {
+  -webkit-box-shadow: 0px 6px 13px -4px white;
+          box-shadow: 0px 6px 13px -4px white;
+}
+/* line 14, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .icon {
+  cursor: pointer;
+  -webkit-transition: all 200ms ease-in-out;
+  transition: all 200ms ease-in-out;
+  vertical-align: middle;
+}
+/* line 20, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .icon-arrow-right {
+  height: 10px;
+  padding: 24px 0 24px 3px;
+}
+/* line 25, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .icon-arrow-left {
+  height: 10px;
+  -webkit-transform: rotate(-180deg);
+          transform: rotate(-180deg);
+}
+/* line 30, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .icon-arrow-up {
+  -webkit-transform: rotate(-90deg);
+          transform: rotate(-90deg);
+}
+/* line 34, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .icon-arrow-down {
+  -webkit-transform: rotate(90deg);
+          transform: rotate(90deg);
+}
+/* line 38, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .icon-arrow-down,
+.projects .project-selection .project .header .icon-arrow-up {
+  height: 10px;
+  line-height: 50px;
+  opacity: .2;
+}
+/* line 45, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .icon-chevron-down {
+  height: 6px;
+  padding: 26px;
+}
+/* line 49, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .icon-chevron-down.active {
+  -webkit-transform: rotate(-180deg);
+          transform: rotate(-180deg);
+}
+/* line 54, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .move-actions {
+  display: inline-block;
+}
+/* line 57, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .move-actions .action {
+  padding: 20px 0;
+}
+/* line 61, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .move-actions .action:first-child {
+  padding-left: 20px;
+  padding-right: 4px;
+}
+/* line 66, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .move-actions .action:last-child {
+  padding-left: 4px;
+  padding-right: 16px;
+}
+/* line 71, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .move-actions .action:hover .icon {
+  opacity: .6;
+}
+/* line 76, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .project-name {
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+}
+/* line 79, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .project-name .name {
+  padding: 5px 0;
+  margin: 15px 0;
+}
+/* line 84, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .project-name .icon-arrow-right {
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+}
+/* line 88, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .project-name:hover .icon-arrow-right {
+  padding-left: 8px;
+}
+/* line 93, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .project-toggle-wrap {
+  overflow: hidden;
+}
+/* line 97, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .project-toggle {
+  display: block;
+  opacity: .6;
+  text-align: right;
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+}
+/* line 103, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .project-toggle:hover {
+  opacity: 1;
+}
+/* line 1, ../../../resources/assets/scss/partials/projects/project/_content.scss */
+.projects .project-selection .project .content {
+  background: white;
+  display: none;
+  margin: 0 20px 20px;
+}
+/* line 6, ../../../resources/assets/scss/partials/projects/project/_content.scss */
+.projects .project-selection .project .content.active {
+  display: block;
+  padding-bottom: 20px;
+}
+/* line 11, ../../../resources/assets/scss/partials/projects/project/_content.scss */
+.projects .project-selection .project .content span,
+.projects .project-selection .project .content .description {
+  color: #283c46;
+  font-size: 14px;
+  line-height: 19px;
+}
+/* line 19, ../../../resources/assets/scss/partials/projects/project/_content.scss */
+.projects .project-selection .project .content span {
+  font-family: Ubuntu;
+}
+/* line 22, ../../../resources/assets/scss/partials/projects/project/_content.scss */
+.projects .project-selection .project .content span.attribute {
+  font-family: Ubuntu-Medium;
+}
+/* line 26, ../../../resources/assets/scss/partials/projects/project/_content.scss */
+.projects .project-selection .project .content span:not(first-child) {
+  font-weight: 400;
+}
+/* line 31, ../../../resources/assets/scss/partials/projects/project/_content.scss */
+.projects .project-selection .project .content .id {
+  margin-bottom: 20px;
+}
+/* line 35, ../../../resources/assets/scss/partials/projects/project/_content.scss */
+.projects .project-selection .project .content .admins {
+  margin: 20px 0;
+}
+/* line 40, ../../../resources/assets/scss/partials/projects/project/_content.scss */
+.projects .project-selection .project .content .forms .attribute {
+  padding-right: 14px;
+}
+/* line 44, ../../../resources/assets/scss/partials/projects/project/_content.scss */
+.projects .project-selection .project .content .forms .form {
+  color: #04b6af;
+  font-family: Ubuntu-Medium;
+}
+/* line 49, ../../../resources/assets/scss/partials/projects/project/_content.scss */
+.projects .project-selection .project .content .forms .form-link {
+  display: inline-block;
+  margin: 0 14px 0 0;
+  padding: 7px 0;
+}
+/* line 1, ../../../resources/assets/scss/partials/projects/_foot.scss */
+.projects .foot {
+  font-family: Ubuntu;
+  margin: 60px auto 100px;
+  max-width: calc(1440px - 600px);
+  width: 1440px;
+}
+/* line 7, ../../../resources/assets/scss/partials/projects/_foot.scss */
+.projects .foot .permission-information {
+  color: #283c46;
+  font-size: 14px;
+  line-height: 16px;
+  margin: 0 auto 30px;
+  text-align: center;
+}
+/* line 15, ../../../resources/assets/scss/partials/projects/_foot.scss */
+.projects .foot .request-permissions {
+  color: #04b6af;
+  display: inherit;
+  font-size: 16px;
+  font-family: Ubuntu-Medium;
+  line-height: 22px;
+  text-align: center;
+  text-decoration: none;
+  -webkit-transition: color .2s ease-in-out;
+  transition: color .2s ease-in-out;
+}
+/* line 25, ../../../resources/assets/scss/partials/projects/_foot.scss */
+.projects .foot .request-permissions:hover {
+  color: #283c46;
+}
+@media screen and (max-width: 960px) {
+  /* line 17, ../../../resources/assets/scss/partials/_projects.scss */
+  .projects .filters,
+  .projects .head .inner-wrap,
+  .projects .new-project-button,
+  .projects .project-selection,
+  .projects .foot {
+    margin-left: 60px;
+    margin-right: 60px;
+    max-width: 840px;
+    width: calc(100% - 120px);
   }
 }
 @media screen and (max-width: 480px) {
-  /* line 61, ../../../resources/assets/scss/partials/projects/_head.scss */
-  .projects .head > * {
+  /* line 30, ../../../resources/assets/scss/partials/_projects.scss */
+  .projects .filters,
+  .projects .head .inner-wrap,
+  .projects .new-project-button,
+  .projects .project-selection,
+  .projects .foot {
     margin-left: 25px;
     margin-right: 25px;
-    max-width: calc(480px - 50px);
+    max-width: 430px;
     width: calc(100% - 50px);
   }
 }

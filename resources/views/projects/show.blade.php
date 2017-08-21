@@ -1,4 +1,4 @@
-@extends('app')
+@extends('app', ['page_title' => 'Project'])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $project->pid])

@@ -2,13 +2,14 @@ $navigation-height: 50px;
 
 .navigation {
   @import 'navigation/search';
-  background-color: $kora-green;
+  background-color: palette(green, base);
   box-shadow: 0 3px 5px 0 palette(box-shadow, base);
   height: $navigation-height;
 
   // Basic attributes
   ul {
     padding-left: 0;
+    margin: 0;
   }
 
   li {
@@ -18,26 +19,31 @@ $navigation-height: 50px;
   a {
     color: palette(white, base);
     display: block;
-    height: 100%;
-    line-height: $navigation-height;
     text-decoration: none;
   }
 
   // Individual nav items
   .navigation-item {
     box-sizing: border-box;
-    float: left;
+    display: inline-block;
     font-family: $ubuntu;
     font-size: 12px;
     font-weight: 500;
-    height: 100%;
+    height: $navigation-height;
     line-height: 16px;
     position: relative;
+    vertical-align: middle;
   }
 
   .navigation-left {
+    display: inline-block;
+
     .navigation-item {
       width: 80px;
+    }
+
+    .navigation-item a {
+      line-height: 50px;
     }
 
     .navigation-item:not(:first-child) {
@@ -62,14 +68,13 @@ $navigation-height: 50px;
 
   // Specifications of specific images
   .logo {
-    float: left;
-    height: $navigation-height;
+    display: inline-block;
     padding-left: 13px;
-    padding-top: 10px;
+    vertical-align: middle;
     width: 45px;
 
     img {
-      box-shadow: 0 0 5px 0 palette(white, lightest);
+      box-shadow: 0 0 5px 0 palette($palette: white, $alpha: .2);
       height: 27px;
       width: 27px;
     }
@@ -142,9 +147,9 @@ $navigation-height: 50px;
 
 // Navigation for sub menus
 .navigation-sub-menu {
-  background-color: $submenu-grey;
+  background-color: palette(gray, base);
   border-radius: 0 0 5px 5px;
-  box-shadow: -16px 20px 30px 0 palette(black, lightest);
+  box-shadow: -16px 20px 30px 0 palette($palette: black, $alpha: .2);
   opacity: 0;
   padding-bottom: 5px;
   position: absolute;
@@ -188,7 +193,7 @@ $navigation-height: 50px;
     }
 
     a:hover {
-      color: $kora-accent;
+      color: palette(green, accent);
     }
 
     &:not(:first-child) a {
@@ -217,7 +222,7 @@ $navigation-height: 50px;
     opacity: .1;
     width: calc(100% - 40px);
 
-    & + .link a {
+    + .link a {
       padding-top: 20px;
     }
   }
@@ -226,9 +231,9 @@ $navigation-height: 50px;
 
 // Navigation for deep menus
 .navigation-deep-menu {
-  background-color: $submenu-grey;
+  background-color: palette(gray, base);
   border-radius: 0 5px 5px;
-  box-shadow: 0 20px 30px 0 palette(black, lightest);
+  box-shadow: 0 20px 30px 0 palette($palette: black, $alpha: .2);
   display: none;
   margin-left: 155px;
   margin-top: -15px;
