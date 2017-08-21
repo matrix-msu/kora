@@ -169,8 +169,7 @@ class AdminController extends Controller {
 
         // The user hasn't entered anything.
         if($emails[0] == "") {
-            flash()->overlay("You must enter something!", "Whoops.");
-            return redirect('admin/users');
+            return redirect('admin/users')->with('k3_global_error', 'batch_no_data');
         } else {
             $skipped = 0;
             $created = 0;
@@ -219,11 +218,8 @@ class AdminController extends Controller {
                     $skipped++;
                 }
             }
-            if($skipped)
-                flash()->overlay($skipped . " entries skipped, " . $created . " user(s) created.", "Success!");
-            else
-                flash()->overlay($created . " user(s) created.", "Success!");
-            return redirect('admin/users');
+
+            return redirect('admin/users')->with('k3_global_success', 'batch_users')->with('batch_users_created', $created)->with('batch_users_skipped', $skipped);
         }
     }
 
@@ -234,29 +230,26 @@ class AdminController extends Controller {
      */
     public function deleteData() {
         if(Auth::check()) {
-            if(Auth::user()->id != 1) {
-                flash()->overlay("There can only be one highlander!","Get out!");
-                return redirect("/projects")->send();
-            }
+            if(Auth::user()->id != 1)
+                return response()->json(["status"=>false,"message"=>"delete_all_not_root"],500);
         }
 
         try {
             foreach(User::all() as $User) {
-                if($User->id == 1) { //Do not delete the default admin user
+                if($User->id == 1) //Do not delete the default admin user
                     continue;
-                } else {
+                else
                     $User->delete();
-                }
             }
 
             foreach($this->DATA_TABLES as $table)
                 DB::table($table["name"])->delete();
 
         } catch(\Exception $e) {
-            return "Error removing from database";
+            return response()->json(["status"=>false,"message"=>"delete_all_db_fail"],500);
         }
 
-        return "The force is strong with this one :)";
+        return response()->json(["status"=>true,"message"=>"delete_all_success"],200);
     }
 
     /**
