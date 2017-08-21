@@ -39,11 +39,11 @@
         <div class="header {{ $index == 0 ? 'active' : '' }}">
           <div class="left">
             <div class="move-actions">
-              <a class="action" href="">
+              <a class="action move-action-js up-js" href="">
                 <img class="icon icon-arrow-up" src="{{ env('BASE_URL') }}assets/images/arrow-dark.svg">
               </a>
 
-              <a class="action" href="">
+              <a class="action move-action-js down-js" href="">
                 <img class="icon icon-arrow-down" src="{{ env('BASE_URL') }}assets/images/arrow-dark.svg">
               </a>
             </div>
@@ -170,7 +170,62 @@
 
         $( ".project-selection-js" ).sortable({
           helper : 'clone',
-          revert: true
+          revert: true,
+          containment: ".projects"
+        });
+
+        $('.move-action-js').click(function(e){
+          e.preventDefault();
+
+          var $this = $(this);
+          var $headerInnerWrapper = $this.parent().parent();
+          var $header = $headerInnerWrapper.parent();
+          var $project = $header.parent();
+          // $project.prev().before(current);
+          if ($this.hasClass('up-js')) {
+            var $previousProject = $project.prev();
+            if ($previousProject.length == 0) { return; }
+
+            $previousProject.css('z-index', 999)
+              .css('position','relative')
+              .animate({ top: $project.height() }, 300);
+            $project.css('z-index', 1000)
+              .css('position', 'relative')
+              .animate({ top: '-' + $previousProject.height() }, 300, function () {
+                $previousProject.css('z-index', '')
+                  .css('top', '')
+                  .css('position', '');
+                $project.css('z-index', '')
+                  .css('top', '')
+                  .css('position', '')
+                  .insertBefore($previousProject);
+              });
+          } else {
+            var $nextProject = $project.next();
+            if ($nextProject.length == 0) { return; }
+
+            $nextProject.css('z-index', 999)
+              .css('position', 'relative')
+              .animate({ top: '-' + $project.height() }, 300);
+            $project.css('z-index', 1000)
+              .css('position', 'relative')
+              .animate({ top: $nextProject.height() }, 300, function () {
+                $nextProject.css('z-index', '')
+                  .css('top', '')
+                  .css('position', '');
+                $project.css('z-index', '')
+                  .css('top', '')
+                  .css('position', '')
+                  .insertAfter($nextProject);
+              });
+          }
+
+
+        });
+
+        $('#myButtonDown').click(function(){
+          var current = $('.markedLi');
+          current.next().after(current);
         });
       }
     </script>
