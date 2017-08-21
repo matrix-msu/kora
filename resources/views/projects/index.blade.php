@@ -33,7 +33,7 @@
       @endif
     </form>
   </section>
-  <section class="project-selection">
+  <section class="project-selection project-js project-selection-js">
     @foreach($projects as $index=>$project)
       <div class="project {{ $index == 0 ? 'active' : '' }}">
         <div class="header {{ $index == 0 ? 'active' : '' }}">
@@ -166,6 +166,11 @@
             $content.effect('slide', { direction: 'up', mode: 'hide', duration: 240 });
           }
 
+        });
+
+        $( ".project-selection-js" ).sortable({
+          helper : 'clone',
+          revert: true
         });
       }
     </script>
