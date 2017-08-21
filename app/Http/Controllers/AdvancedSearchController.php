@@ -1,6 +1,5 @@
 <?php namespace App\Http\Controllers;
 
-
 use App\Field;
 use App\Form;
 use App\Record;
@@ -37,9 +36,8 @@ class AdvancedSearchController extends Controller {
      * @return View
      */
     public function index($pid, $fid) {
-        if(! FormController::validProjForm($pid, $fid)) {
-            return redirect('projects/'.$pid);
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $fields = Field::where("fid", "=", $fid)->get();
         return view("advancedSearch.index", compact("pid", "fid", "fields"));
@@ -54,9 +52,8 @@ class AdvancedSearchController extends Controller {
      * @return Redirect
      */
     public function search($pid, $fid, Request $request) {
-        if(! FormController::validProjForm($pid, $fid)) {
-            return redirect("projects/". $pid);
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $form = FormController::getForm($fid);
         $stash = $form->getFieldStash();
@@ -92,9 +89,7 @@ class AdvancedSearchController extends Controller {
             $rids = array_intersect($rids, $result);
         }
 
-        Session::put("rids", $rids);
-
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/advancedSearch/results');
+        return redirect('projects/'.$pid.'/forms/'.$fid.'/advancedSearch/results')->with("rids", $rids);
     }
 
     /**
@@ -106,9 +101,8 @@ class AdvancedSearchController extends Controller {
      * @return array - Record ID search results
      */
     public function apisearch($pid, $fid, Request $request) {
-        if (! FormController::validProjForm($pid, $fid)) {
-            return redirect("projects/". $pid);
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $form = FormController::getForm($fid);
         $stash = $form->getFieldStash();
@@ -144,17 +138,15 @@ class AdvancedSearchController extends Controller {
      * @return View
      */
     public function results($pid, $fid) {
-        if(!FormController::validProjForm($pid,$fid)) {
-            return redirect('projects/'.$pid);
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $page = (isset($_GET['page'])) ? intval(strip_tags($_GET['page'])) : $page = 1;
 
-        if(Session::has("rids")) {
+        if(Session::has("rids"))
             $rids = Session::get("rids");
-        } else {
+        else
             $rids = [];
-        }
 
         $controller = new RecordController();
         $filesize = $controller->getFormFilesize($fid);
@@ -192,13 +184,11 @@ class AdvancedSearchController extends Controller {
 
                 // Only add the new query if it is valid.
                 if(isset($query[$prev_flid . "_valid"]) && isset($query[$prev_flid . "_dropdown"])) {
-                    if($query[$prev_flid . "_valid"] == "1") {
+                    if($query[$prev_flid . "_valid"] == "1")
                         $processed[$prev_flid] = $query;
-                    }
                 } else if(isset($query[$prev_flid . "_1_valid"]) && isset($query[$prev_flid . "_2_valid"])) {
-                    if($query[$prev_flid . "_1_valid"] == "1" || $query[$prev_flid . "_2_valid"] == "1") {
+                    if($query[$prev_flid . "_1_valid"] == "1" || $query[$prev_flid . "_2_valid"] == "1")
                         $processed[$prev_flid] = $query;
-                    }
                 }
 
                 $query = [];
@@ -212,13 +202,11 @@ class AdvancedSearchController extends Controller {
 
         // Check the last query.
         if(isset($query[$prev_flid . "_valid"])) {
-            if($query[$prev_flid . "_valid"] == "1") {
+            if($query[$prev_flid . "_valid"] == "1")
                 $processed[$prev_flid] = $query;
-            }
         } else if(isset($query[$prev_flid . "_1_valid"]) && isset($query[$prev_flid . "_2_valid"])) {
-            if($query[$prev_flid . "_1_valid"] == "1" || $query[$prev_flid . "_2_valid"] == "1") {
+            if($query[$prev_flid . "_1_valid"] == "1" || $query[$prev_flid . "_2_valid"] == "1")
                 $processed[$prev_flid] = $query;
-            }
         }
 
         return $processed;
