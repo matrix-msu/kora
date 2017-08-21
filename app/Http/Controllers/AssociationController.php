@@ -38,17 +38,14 @@ class AssociationController extends Controller {
      * @return View
      */
 	public function index($pid, $fid) {
-        if(!FormController::validProjForm($pid,$fid)) {
-            return redirect('projects/'.$pid);
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
 		$form = FormController::getForm($fid);
 		$project = $form->project()->first();
 
-		if(!(\Auth::user()->isFormAdmin($form))) {
-			flash()->overlay("You are not an admin for that form.", "Whoops");
-			return redirect('projects'.$project->pid);
-		}
+		if(!(\Auth::user()->isFormAdmin($form)))
+			return redirect('projects'.$project->pid)->with('k3_global_error', 'not_form_admin');
 
 		//Associations to this form
 		$assocs = self::getAllowedAssociations($fid);
@@ -118,7 +115,7 @@ class AssociationController extends Controller {
      * @param  int $fid - Form ID
      * @return array - Forms that can be requested for access
      */
-    static function getRequestableAssociations($fid) {
+    public static function getRequestableAssociations($fid) {
         //get all forms
         $forms = Form::all();
         //get forms we already have permission to search
@@ -160,10 +157,8 @@ class AssociationController extends Controller {
         $theirProj = ProjectController::getProject($theirForm->pid);
 
         //form admins only
-        if(!(\Auth::user()->isFormAdmin($myForm))) {
-            flash()->overlay("You are not an admin for that form.", "Whoops");
-            return redirect('projects'.$myProj->pid);
-        }
+        if(!(\Auth::user()->isFormAdmin($myForm)))
+            return redirect('projects'.$myProj->pid)->with('k3_global_error', 'not_form_admin');
 
         $group = $theirForm->adminGroup()->first();
         $users = $group->users()->get();
@@ -190,7 +185,7 @@ class AssociationController extends Controller {
         ///////////
         $form=$myForm;
         $project=$myProj;
-        return view('association.index', compact('form', 'assocs', 'associds', 'project'));
+        return view('association.index', compact('form', 'assocs', 'associds', 'project'))->with('k3_global_success', 'assoc_access_requested');
     }
 
     /**
