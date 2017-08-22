@@ -1,42 +1,49 @@
 @function palette($palette, $tone: 'base', $alpha: 1) {
-  $base-green: #007c83;
-  $base-accent: #04b6af;
-  $sidemenu-gray: #152730;
-  $text-gray: #283c46;
-
   // main base colors
-  $base-white: #fff;
+  $base-accent: #04b6af;
+  $base-background: #f5f6f7;
   $base-black: #000;
-  $base-gray: #21323b;
-
-  // status base colors
-
-  // additional accent base colors
+  $base-dropdown-menu: #21323b;
+  $base-green: #007c83;
+  $base-sidemenu: #152730;
+  $base-sidemenu-drawer: #14252e;
+  $base-sidemenu-footer: #11222a;
+  $base-text: #283c46;
+  $base-warning: #283c46;
+  $base-white: #fff;
 
   // hue-based scales
   $hue-scales: (
     green: (
-      base: rgba($base-green, $alpha),
-      accent: rgba($base-accent, $alpha)
+      accent:         rgba($base-accent, $alpha),
+      base:           rgba($base-green, $alpha)
+    ),
+
+    red: (
+      base:           rgba($base-warning, $alpha),
+      warning:        rgba($base-warning, $alpha)
     ),
 
     white: (
-      base: rgba($base-white, $alpha),
+      base:           rgba($base-white, $alpha),
     ),
 
     black: (
-      base: rgba($base-black, $alpha)
+      base:           rgba($base-black, $alpha)
     ),
 
     gray: (
-      darkest: #14252e,
-      slate: $sidemenu-gray,
-      text: rgba($text-gray, $alpha),
-      base: #21323b
+      background:     rgba($base-background, $alpha),
+      base:           rgba($base-text, $alpha),
+      drawer-slate:   rgba($base-sidemenu-drawer, $alpha),
+      footer-slate:   rgba($base-sidemenu-drawer, $alpha),
+      dropdown:       rgba($base-dropdown-menu, $alpha),
+      slate:          rgba($base-sidemenu, $alpha),
+      text:           rgba($base-text, $alpha)
     ),
 
     box-shadow: (
-      base: rgba($sidemenu-gray, .05)
+      base: rgba($base-sidemenu, .05)
     )
 
     // blue: (
@@ -49,4 +56,21 @@
   );
 
   @return map-get(map-get($hue-scales, $palette), $tone);
+}
+
+@function gradient($palette: 'background', $degree: 180deg) {
+  $accent-start: #00c7b8;
+  $accent-start: #04b6af;
+  $background-start: #fbfbfc;
+  $background-end: #f5f6f7;
+  $warning-start: #ff6b83;
+  $warning-end: #f56;
+
+  $gradient-scales: (
+    accent:       linear-gradient($degree, $accent-start 0%, $accent-start 100%),
+    background:   linear-gradient($degree, $background-start 0%, $background-start 100%),
+    warning:      linear-gradient($degree, $warning-start 0%, $warning-start 100%)
+  );
+
+  @return map-get($gradient-scales, $palette);
 }

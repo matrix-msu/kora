@@ -147,7 +147,7 @@ $navigation-height: 50px;
 
 // Navigation for sub menus
 .navigation-sub-menu {
-  background-color: palette(gray, base);
+  background-color: palette(gray, dropdown);
   border-radius: 0 0 5px 5px;
   box-shadow: -16px 20px 30px 0 palette($palette: black, $alpha: .2);
   opacity: 0;
@@ -231,7 +231,7 @@ $navigation-height: 50px;
 
 // Navigation for deep menus
 .navigation-deep-menu {
-  background-color: palette(gray, base);
+  background-color: palette(gray, dropdown);
   border-radius: 0 5px 5px;
   box-shadow: 0 20px 30px 0 palette($palette: black, $alpha: .2);
   display: none;
