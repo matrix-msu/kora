@@ -4,7 +4,7 @@
   <section class="head">
       <div class="inner-wrap">
         <h1 class="title">
-          <img class="" src="{{ env('BASE_URL') }}assets/images/projects.svg">
+          <i class="icon icon-projects"></i>
           <span>Projects</span>
         </h1>
         <p class="description">Select a project below or create a project to get started.</p>
@@ -15,9 +15,9 @@
 @section('body')
   <section class="filters">
       <div class="underline-middle search search-js">
-        <img class="icon icon-search" src="{{ env('BASE_URL') }}assets/images/search-dark.svg">
+        <i class="icon icon-search"></i>
         <input type="text" placeholder="Find a Project">
-        <img class="icon icon-cancel icon-cancel-js" src="{{ env('BASE_URL') }}assets/images/cancel-dark.svg">
+        <i class="icon icon-cancel icon-cancel-js"></i>
       </div>
       <div class="sort-options sort-options-js">
           <a class="option underline-middle active">Recently Modified</a>
@@ -40,22 +40,22 @@
           <div class="left">
             <div class="move-actions">
               <a class="action move-action-js up-js" href="">
-                <img class="icon icon-arrow-up" src="{{ env('BASE_URL') }}assets/images/arrow-dark.svg">
+                <i class="icon icon-arrow-up"></i>
               </a>
 
               <a class="action move-action-js down-js" href="">
-                <img class="icon icon-arrow-down" src="{{ env('BASE_URL') }}assets/images/arrow-dark.svg">
+                <i class="icon icon-arrow-down"></i>
               </a>
             </div>
 
             <a class="project-name" href="{{action("ProjectController@show",["pid" => $project->pid])}}">
               <span class="name">{{$project->name}}</span>
-              <img class="icon icon-arrow-right" src="{{ env('BASE_URL') }}assets/images/arrow-accent.svg">
+              <i class="icon icon-arrow-right"></i>
             </a>
           </div>
           <div class="project-toggle-wrap">
             <a href="#" class="project-toggle project-toggle-js">
-              <img class="icon icon-chevron-down {{ $index == 0 ? 'active' : '' }}" src="{{ env('BASE_URL') }}assets/images/chevron-dark.svg">
+              <i class="icon icon-chevron icon-chevron-down"></i>
             </a>
           </div>
         </div>
@@ -113,7 +113,7 @@
           $(this).addClass('active');
         });
 
-        $('.search-js img, .search-js input').click(function(e) {
+        $('.search-js i, .search-js input').click(function(e) {
           e.preventDefault();
 
           $(this).parent().addClass('active');

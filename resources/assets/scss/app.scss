@@ -1,23 +1,7 @@
-$ubuntu: Ubuntu;
-$ubuntu-italic: Ubuntu-Italic;
-$ubuntu-bold: Ubuntu-Bold;
-$ubuntu-bold-italic: Ubuntu-Bold-Italic;
-$ubuntu-medium: Ubuntu-Medium;
-$ubuntu-medium-italic: Ubuntu-Medium-Italic;
-$ubuntu-light: Ubuntu-Light;
-$ubuntu-light-italic: Ubuntu-Light-Italic;
-
-
-$max-site-width: 1440px;
-$max-tablet-width: 960px;
-$max-mobile-width: 768px;
-$max-mobile-xs-width: 480px;
-$tablet-margin-total: 120px;
-$mobile-margin-total: 60px;
-$mobile-xs-margin-total: 50px;
-
 @import 'vendor/normalize/import-now';
+@import 'partials/general/variables';
 @import 'partials/general/colors';
+@import 'partials/general/fonts';
 @import 'partials/general/global';
 @import 'partials/general/animations';
 @import 'partials/general/mixins';

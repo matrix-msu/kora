@@ -1,0 +1,32 @@
+// Fonts
+
+$font-path: '../fonts';
+$kora-font-path: '#{$font-path}/kora-icons';
+
+$ubuntu: Ubuntu;
+$ubuntu-italic: Ubuntu-Italic;
+$ubuntu-bold: Ubuntu-Bold;
+$ubuntu-bold-italic: Ubuntu-Bold-Italic;
+$ubuntu-medium: Ubuntu-Medium;
+$ubuntu-medium-italic: Ubuntu-Medium-Italic;
+$ubuntu-light: Ubuntu-Light;
+$ubuntu-light-italic: Ubuntu-Light-Italic;
+
+// Kora Font
+$kora-icons: Kora-Icons;
+$icon-arrow: '\e900';
+$icon-chevron: '\e901';
+$icon-edit: '\e902';
+$icon-hamburger: '\e903';
+$icon-search: '\e904';
+$icon-projects: "\e905";
+$icon-cancel: "\e906";
+
+// Site Responsiveness
+$max-site-width: 1440px;
+$max-tablet-width: 960px;
+$max-mobile-width: 768px;
+$max-mobile-xs-width: 480px;
+$tablet-margin-total: 120px;
+$mobile-margin-total: 60px;
+$mobile-xs-margin-total: 50px;

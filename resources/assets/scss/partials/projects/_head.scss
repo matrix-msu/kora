@@ -18,12 +18,13 @@
     padding: 60px 0 30px;
     text-align: left;
 
-    img {
-      height: 37px;
+    i {
+      display: inline-block;
+      font-size: 37px;
       vertical-align: middle;
     }
 
-    span {
+    > span {
       font-size: 36px;
       font-weight: 400;
       padding: 0 0 0 22px;

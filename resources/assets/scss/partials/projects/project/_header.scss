@@ -18,32 +18,25 @@
   }
 
   .icon-arrow-right {
-    height: 10px;
+    color: palette(green, accent);
+    display: inline-block;
+    font-size: 10px;
     padding: 24px 0 24px 3px;
-  }
-
-  .icon-arrow-left {
-    height: 10px;
-    transform: rotate(-180deg);
-  }
-
-  .icon-arrow-up {
-    transform: rotate(-90deg);
-  }
-
-  .icon-arrow-down {
-    transform: rotate(90deg);
   }
 
   .icon-arrow-down,
   .icon-arrow-up {
-    height: 10px;
+    color: palette(gray, slate);
+    display: inline-block;
+    font-size: 10px;
     line-height: 50px;
     opacity: .2;
   }
 
-  .icon-chevron-down {
-    height: 6px;
+  .icon-chevron {
+    color: palette(gray, slate);
+    display: inline-block;
+    font-size: 6px;
     padding: 26px;
 
     &.active {

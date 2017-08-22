@@ -1,0 +1,157 @@
+@font-face {
+  font-family: 'Ubuntu-Bold';
+  font-style: normal;
+  font-weight: normal;
+  src: url('#{$font-path}/ubuntu-bold.woff2') format('woff2'),
+    url('#{$font-path}/ubuntu-bold.woff') format('woff'),
+    url('#{$font-path}/ubuntu-bold.ttf') format('truetype'),
+    url('#{$font-path}/ubuntu-bold.svg#ubuntubold') format('svg');
+}
+
+@font-face {
+  font-family: 'Ubuntu-Bold-Italic';
+  font-style: normal;
+  font-weight: normal;
+  src: url('#{$font-path}/ubuntu-bolditalic.woff2') format('woff2'),
+    url('#{$font-path}/ubuntu-bolditalic.woff') format('woff'),
+    url('#{$font-path}/ubuntu-bolditalic.ttf') format('truetype'),
+    url('#{$font-path}/ubuntu-bolditalic.svg#ubuntubold_italic') format('svg');
+}
+
+@font-face {
+  font-family: 'Ubuntu-Light';
+  font-style: normal;
+  font-weight: normal;
+  src: url('#{$font-path}/ubuntu-light.woff2') format('woff2'),
+    url('#{$font-path}/ubuntu-light.woff') format('woff'),
+    url('#{$font-path}/ubuntu-light.ttf') format('truetype'),
+    url('#{$font-path}/ubuntu-light.svg#ubuntulight') format('svg');
+}
+
+@font-face {
+  font-family: 'Ubuntu-Light-Italic';
+  font-style: normal;
+  font-weight: normal;
+  src: url('#{$font-path}/ubuntu-lightitalic.woff2') format('woff2'),
+    url('#{$font-path}/ubuntu-lightitalic.woff') format('woff'),
+    url('#{$font-path}/ubuntu-lightitalic.ttf') format('truetype'),
+    url('#{$font-path}/ubuntu-lightitalic.svg#ubuntulight_italic') format('svg');
+}
+
+@font-face {
+  font-family: 'Ubuntu-Medium';
+  font-style: normal;
+  font-weight: normal;
+  src: url('#{$font-path}/ubuntu-medium.woff2') format('woff2'),
+    url('#{$font-path}/ubuntu-medium.woff') format('woff'),
+    url('#{$font-path}/ubuntu-medium.ttf') format('truetype'),
+    url('#{$font-path}/ubuntu-medium.svg#ubuntumedium') format('svg');
+}
+
+@font-face {
+  font-family: 'Ubuntu-Medium-Italic';
+  font-style: normal;
+  font-weight: normal;
+  src: url('#{$font-path}/ubuntu-mediumitalic.woff2') format('woff2'),
+    url('#{$font-path}/ubuntu-mediumitalic.woff') format('woff'),
+    url('#{$font-path}/ubuntu-mediumitalic.ttf') format('truetype'),
+    url('#{$font-path}/ubuntu-mediumitalic.svg#ubuntumedium_italic') format('svg');
+}
+
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: normal;
+  src: url('#{$font-path}/ubuntu-regular.woff2') format('woff2'),
+url('#{$font-path}/ubuntu-regular.woff') format('woff'),
+url('#{$font-path}/ubuntu-regular.ttf') format('truetype'),
+url('#{$font-path}/ubuntu-regular.svg#ubunturegular') format('svg');
+}
+
+@font-face {
+  font-family: 'Ubuntu-Italic';
+  font-style: normal;
+  font-weight: normal;
+  src: url('#{$font-path}/ubuntu-italic.woff2') format('woff2'),
+    url('#{$font-path}/ubuntu-italic.woff') format('woff'),
+    url('#{$font-path}/ubuntu-italic.ttf') format('truetype'),
+    url('#{$font-path}/ubuntu-italic.svg#ubuntuitalic') format('svg');
+}
+
+
+
+@font-face {
+  font-family: 'Kora-Icons';
+  src: url('#{$kora-font-path}/kora-icons.eot?1yzz1y');
+  src: url('#{$kora-font-path}/kora-icons.eot?1yzz1y#iefix') format('embedded-opentype'),
+    url('#{$kora-font-path}/kora-icons.ttf?1yzz1y') format('truetype'),
+    url('#{$kora-font-path}/kora-icons.woff?1yzz1y') format('woff'),
+    url('#{$kora-font-path}/kora-icons.svg?1yzz1y#kora-icons') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+i {
+  font-family: 'Kora-Icons';
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1;
+  speak: none;
+  text-transform: none;
+}
+
+.icon-arrow-right,
+.icon-arrow-left,
+.icon-arrow-up,
+.icon-arrow-down {
+  &::before {
+    content: $icon-arrow;
+  }
+}
+
+.icon-arrow-up {
+  transform: rotate(-90deg);
+}
+
+.icon-arrow-down {
+  transform: rotate(90deg);
+}
+
+.icon-chevron {
+  &::before {
+    content: $icon-chevron;
+  }
+}
+
+.icon-edit {
+  &::before {
+    content: $icon-edit;
+  }
+}
+
+.icon-hamburger {
+  &::before {
+    content: $icon-hamburger;
+  }
+}
+
+.icon-search {
+  &::before {
+    content: $icon-search;
+  }
+}
+
+.icon-projects {
+  &::before {
+    content: $icon-projects;
+  }
+}
+
+.icon-cancel {
+  &::before {
+    content: $icon-cancel;
+  }
+}

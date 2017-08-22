@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /*! normalize-scss | MIT/GPLv2 License | bit.ly/normalize-scss */
 /* Document
    ========================================================================== */
@@ -500,34 +501,6 @@ template {
   display: none;
 }
 
-/* line 1, ../../../resources/assets/scss/partials/general/_global.scss */
-body,
-form {
-  margin: 0;
-}
-
-/* line 6, ../../../resources/assets/scss/partials/general/_global.scss */
-.right {
-  float: right;
-}
-
-/* line 10, ../../../resources/assets/scss/partials/general/_global.scss */
-.left {
-  float: left;
-}
-
-/* line 14, ../../../resources/assets/scss/partials/general/_global.scss */
-::-webkit-input-placeholder {
-  font-family: Ubuntu-Italic;
-  opacity: 1 !important;
-}
-
-/* line 19, ../../../resources/assets/scss/partials/general/_global.scss */
-:-ms-input-placeholder {
-  font-family: Ubuntu-Italic;
-  opacity: 1 !important;
-}
-
 @font-face {
   font-family: 'Ubuntu-Bold';
   font-style: normal;
@@ -576,6 +549,104 @@ form {
   font-weight: normal;
   src: url("../fonts/ubuntu-italic.woff2") format("woff2"), url("../fonts/ubuntu-italic.woff") format("woff"), url("../fonts/ubuntu-italic.ttf") format("truetype"), url("../fonts/ubuntu-italic.svg#ubuntuitalic") format("svg");
 }
+@font-face {
+  font-family: 'Kora-Icons';
+  src: url("../fonts/kora-icons/kora-icons.eot?1yzz1y");
+  src: url("../fonts/kora-icons/kora-icons.eot?1yzz1y#iefix") format("embedded-opentype"), url("../fonts/kora-icons/kora-icons.ttf?1yzz1y") format("truetype"), url("../fonts/kora-icons/kora-icons.woff?1yzz1y") format("woff"), url("../fonts/kora-icons/kora-icons.svg?1yzz1y#kora-icons") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+/* line 94, ../../../resources/assets/scss/partials/general/_fonts.scss */
+i {
+  font-family: 'Kora-Icons';
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1;
+  speak: none;
+  text-transform: none;
+}
+
+/* line 110, ../../../resources/assets/scss/partials/general/_fonts.scss */
+.icon-arrow-right::before,
+.icon-arrow-left::before,
+.icon-arrow-up::before,
+.icon-arrow-down::before {
+  content: "";
+}
+
+/* line 115, ../../../resources/assets/scss/partials/general/_fonts.scss */
+.icon-arrow-up {
+  -webkit-transform: rotate(-90deg);
+          transform: rotate(-90deg);
+}
+
+/* line 119, ../../../resources/assets/scss/partials/general/_fonts.scss */
+.icon-arrow-down {
+  -webkit-transform: rotate(90deg);
+          transform: rotate(90deg);
+}
+
+/* line 124, ../../../resources/assets/scss/partials/general/_fonts.scss */
+.icon-chevron::before {
+  content: "";
+}
+
+/* line 130, ../../../resources/assets/scss/partials/general/_fonts.scss */
+.icon-edit::before {
+  content: "";
+}
+
+/* line 136, ../../../resources/assets/scss/partials/general/_fonts.scss */
+.icon-hamburger::before {
+  content: "";
+}
+
+/* line 142, ../../../resources/assets/scss/partials/general/_fonts.scss */
+.icon-search::before {
+  content: "";
+}
+
+/* line 148, ../../../resources/assets/scss/partials/general/_fonts.scss */
+.icon-projects::before {
+  content: "";
+}
+
+/* line 154, ../../../resources/assets/scss/partials/general/_fonts.scss */
+.icon-cancel::before {
+  content: "";
+}
+
+/* line 1, ../../../resources/assets/scss/partials/general/_global.scss */
+body,
+form {
+  margin: 0;
+}
+
+/* line 6, ../../../resources/assets/scss/partials/general/_global.scss */
+.right {
+  float: right;
+}
+
+/* line 10, ../../../resources/assets/scss/partials/general/_global.scss */
+.left {
+  float: left;
+}
+
+/* line 14, ../../../resources/assets/scss/partials/general/_global.scss */
+::-webkit-input-placeholder {
+  font-family: Ubuntu-Italic;
+  opacity: 1 !important;
+}
+
+/* line 19, ../../../resources/assets/scss/partials/general/_global.scss */
+:-ms-input-placeholder {
+  font-family: Ubuntu-Italic;
+  opacity: 1 !important;
+}
+
 /* line 5, ../../../resources/assets/scss/partials/general/_animations.scss */
 .underline-middle,
 .underline-middle-hover {
@@ -1070,18 +1141,19 @@ form {
   text-align: left;
 }
 /* line 21, ../../../resources/assets/scss/partials/projects/_head.scss */
-.projects .head .title img {
-  height: 37px;
+.projects .head .title i {
+  display: inline-block;
+  font-size: 37px;
   vertical-align: middle;
 }
-/* line 26, ../../../resources/assets/scss/partials/projects/_head.scss */
-.projects .head .title span {
+/* line 27, ../../../resources/assets/scss/partials/projects/_head.scss */
+.projects .head .title > span {
   font-size: 36px;
   font-weight: 400;
   padding: 0 0 0 22px;
   vertical-align: middle;
 }
-/* line 34, ../../../resources/assets/scss/partials/projects/_head.scss */
+/* line 35, ../../../resources/assets/scss/partials/projects/_head.scss */
 .projects .head .description {
   -ms-flex-item-align: center;
       align-self: center;
@@ -1112,16 +1184,16 @@ form {
 }
 /* line 19, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .search .icon-search {
-  height: 12px;
+  font-size: 12px;
 }
 /* line 23, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .search .icon-cancel {
-  height: 0;
+  font-size: 0;
   opacity: 0;
 }
 /* line 28, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .search .icon-cancel.active {
-  height: 8px;
+  font-size: 8px;
   opacity: 1;
 }
 /* line 33, ../../../resources/assets/scss/partials/projects/_filters.scss */
@@ -1152,36 +1224,39 @@ form {
 }
 /* line 59, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .sort-options .option:first-child {
+  margin-left: 0;
   padding-left: 0;
 }
-/* line 63, ../../../resources/assets/scss/partials/projects/_filters.scss */
+/* line 64, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .sort-options .option:last-child {
+  margin-right: 0;
   padding-right: 0;
 }
-/* line 67, ../../../resources/assets/scss/partials/projects/_filters.scss */
+/* line 69, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .sort-options .option:hover {
   color: #04b6af;
 }
-/* line 71, ../../../resources/assets/scss/partials/projects/_filters.scss */
+/* line 73, ../../../resources/assets/scss/partials/projects/_filters.scss */
 .projects .filters .sort-options .option.active {
   color: #04b6af;
   font-weight: 500;
 }
 @media screen and (max-width: 768px) {
-  /* line 79, ../../../resources/assets/scss/partials/projects/_filters.scss */
+  /* line 81, ../../../resources/assets/scss/partials/projects/_filters.scss */
   .projects .filters {
     height: 66px;
   }
-  /* line 82, ../../../resources/assets/scss/partials/projects/_filters.scss */
+  /* line 84, ../../../resources/assets/scss/partials/projects/_filters.scss */
   .projects .filters .search {
+    display: inline-block;
     float: none;
   }
-  /* line 86, ../../../resources/assets/scss/partials/projects/_filters.scss */
+  /* line 89, ../../../resources/assets/scss/partials/projects/_filters.scss */
   .projects .filters .sort-options {
     height: 38px;
     text-align: left;
   }
-  /* line 90, ../../../resources/assets/scss/partials/projects/_filters.scss */
+  /* line 93, ../../../resources/assets/scss/partials/projects/_filters.scss */
   .projects .filters .sort-options .option {
     display: inline-block;
     padding-top: 12px;
@@ -1189,14 +1264,14 @@ form {
   }
 }
 @media screen and (max-width: 480px) {
-  /* line 100, ../../../resources/assets/scss/partials/projects/_filters.scss */
+  /* line 103, ../../../resources/assets/scss/partials/projects/_filters.scss */
   .projects .filters {
     margin-left: 25px;
     max-width: 430px;
     overflow-x: hidden;
     width: calc(100% - 25px);
   }
-  /* line 106, ../../../resources/assets/scss/partials/projects/_filters.scss */
+  /* line 109, ../../../resources/assets/scss/partials/projects/_filters.scss */
   .projects .filters .sort-options {
     white-space: nowrap;
     overflow-x: auto;
@@ -1292,88 +1367,78 @@ form {
 }
 /* line 20, ../../../resources/assets/scss/partials/projects/project/_header.scss */
 .projects .project-selection .project .header .icon-arrow-right {
-  height: 10px;
+  color: #04b6af;
+  display: inline-block;
+  font-size: 10px;
   padding: 24px 0 24px 3px;
 }
-/* line 25, ../../../resources/assets/scss/partials/projects/project/_header.scss */
-.projects .project-selection .project .header .icon-arrow-left {
-  height: 10px;
-  -webkit-transform: rotate(-180deg);
-          transform: rotate(-180deg);
-}
-/* line 30, ../../../resources/assets/scss/partials/projects/project/_header.scss */
-.projects .project-selection .project .header .icon-arrow-up {
-  -webkit-transform: rotate(-90deg);
-          transform: rotate(-90deg);
-}
-/* line 34, ../../../resources/assets/scss/partials/projects/project/_header.scss */
-.projects .project-selection .project .header .icon-arrow-down {
-  -webkit-transform: rotate(90deg);
-          transform: rotate(90deg);
-}
-/* line 38, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+/* line 27, ../../../resources/assets/scss/partials/projects/project/_header.scss */
 .projects .project-selection .project .header .icon-arrow-down,
 .projects .project-selection .project .header .icon-arrow-up {
-  height: 10px;
+  color: #152730;
+  display: inline-block;
+  font-size: 10px;
   line-height: 50px;
   opacity: .2;
 }
-/* line 45, ../../../resources/assets/scss/partials/projects/project/_header.scss */
-.projects .project-selection .project .header .icon-chevron-down {
-  height: 6px;
+/* line 36, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .icon-chevron {
+  color: #152730;
+  display: inline-block;
+  font-size: 6px;
   padding: 26px;
 }
-/* line 49, ../../../resources/assets/scss/partials/projects/project/_header.scss */
-.projects .project-selection .project .header .icon-chevron-down.active {
+/* line 42, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+.projects .project-selection .project .header .icon-chevron.active {
   -webkit-transform: rotate(-180deg);
           transform: rotate(-180deg);
 }
-/* line 54, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+/* line 47, ../../../resources/assets/scss/partials/projects/project/_header.scss */
 .projects .project-selection .project .header .move-actions {
   display: inline-block;
 }
-/* line 57, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+/* line 50, ../../../resources/assets/scss/partials/projects/project/_header.scss */
 .projects .project-selection .project .header .move-actions .action {
   padding: 20px 0;
 }
-/* line 61, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+/* line 54, ../../../resources/assets/scss/partials/projects/project/_header.scss */
 .projects .project-selection .project .header .move-actions .action:first-child {
   padding-left: 20px;
   padding-right: 4px;
 }
-/* line 66, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+/* line 59, ../../../resources/assets/scss/partials/projects/project/_header.scss */
 .projects .project-selection .project .header .move-actions .action:last-child {
   padding-left: 4px;
   padding-right: 16px;
 }
-/* line 71, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+/* line 64, ../../../resources/assets/scss/partials/projects/project/_header.scss */
 .projects .project-selection .project .header .move-actions .action:hover .icon {
   opacity: .6;
 }
-/* line 76, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+/* line 69, ../../../resources/assets/scss/partials/projects/project/_header.scss */
 .projects .project-selection .project .header .project-name {
   -webkit-transition: all .2s ease-in-out;
   transition: all .2s ease-in-out;
 }
-/* line 79, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+/* line 72, ../../../resources/assets/scss/partials/projects/project/_header.scss */
 .projects .project-selection .project .header .project-name .name {
   padding: 5px 0;
   margin: 15px 0;
 }
-/* line 84, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+/* line 77, ../../../resources/assets/scss/partials/projects/project/_header.scss */
 .projects .project-selection .project .header .project-name .icon-arrow-right {
   -webkit-transition: all .2s ease-in-out;
   transition: all .2s ease-in-out;
 }
-/* line 88, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+/* line 81, ../../../resources/assets/scss/partials/projects/project/_header.scss */
 .projects .project-selection .project .header .project-name:hover .icon-arrow-right {
   padding-left: 8px;
 }
-/* line 93, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+/* line 86, ../../../resources/assets/scss/partials/projects/project/_header.scss */
 .projects .project-selection .project .header .project-toggle-wrap {
   overflow: hidden;
 }
-/* line 97, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+/* line 90, ../../../resources/assets/scss/partials/projects/project/_header.scss */
 .projects .project-selection .project .header .project-toggle {
   display: block;
   opacity: .6;
@@ -1381,7 +1446,7 @@ form {
   -webkit-transition: all .2s ease-in-out;
   transition: all .2s ease-in-out;
 }
-/* line 103, ../../../resources/assets/scss/partials/projects/project/_header.scss */
+/* line 96, ../../../resources/assets/scss/partials/projects/project/_header.scss */
 .projects .project-selection .project .header .project-toggle:hover {
   opacity: 1;
 }
