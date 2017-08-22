@@ -12,6 +12,7 @@
     border: 1px solid palette(green, accent, .2);
     border-radius: 5px;
     color: palette(green, accent);
+    cursor: pointer;
     font-family: $ubuntu;
     font-size: 14px;
     height: 50px;
@@ -23,6 +24,7 @@
 
     &:hover {
       background-color: palette(white, base);
+      border: 1px solid palette(green, accent, 1);
       box-shadow: 0 5px 10px 0 palette(green, accent, .05);
     }
   }

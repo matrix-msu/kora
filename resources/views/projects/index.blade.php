@@ -85,9 +85,23 @@
               <span class="form"><a class="form-link underline-middle-hover" href="{{action("FormController@show",["pid" => $project->pid,"fid" => $form->fid])}}">{{$form->name}}</a></span>
             @endforeach
           </div>
-        </div>
 
-        <div class="footer">
+          <div class="footer">
+            <a class="quick-action underline-middle-hover" href="">
+              <i class="icon icon-edit"></i>
+              <span>Edit Project Info</span>
+            </a>
+
+            <a class="quick-action underline-middle-hover" href="">
+              <i class="icon icon-search"></i>
+              <span>Search Project Records</span>
+            </a>
+
+            <a class="quick-action" href="">
+              <span>Go to Project</span>
+              <i class="icon icon-arrow-right"></i>
+            </a>
+          </div>
         </div>
       </div>
     @endforeach

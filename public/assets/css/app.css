@@ -689,7 +689,7 @@ form {
 
 /* line 39, ../../../resources/assets/scss/partials/general/_animations.scss */
 .underline-middle-hover:hover::before, .underline-middle-hover:hover::after {
-  opacity: 1;
+  opacity: .8;
   width: 50%;
 }
 
@@ -1203,7 +1203,7 @@ form {
   color: #283c46;
   caret-color: #04b6af;
   font-size: 14px;
-  margin: 0 16px;
+  margin: 0 12px;
   outline: none;
   vertical-align: middle;
   width: 100px;
@@ -1295,6 +1295,7 @@ form {
   border: 1px solid rgba(4, 182, 175, 0.2);
   border-radius: 5px;
   color: #04b6af;
+  cursor: pointer;
   font-family: Ubuntu;
   font-size: 14px;
   height: 50px;
@@ -1305,14 +1306,15 @@ form {
   transition: all .2s ease-in-out;
   width: 100%;
 }
-/* line 24, ../../../resources/assets/scss/partials/projects/_new-project.scss */
+/* line 25, ../../../resources/assets/scss/partials/projects/_new-project.scss */
 .projects .new-project-button input:hover {
   background-color: white;
+  border: 1px solid #04b6af;
   -webkit-box-shadow: 0 5px 10px 0 rgba(4, 182, 175, 0.05);
           box-shadow: 0 5px 10px 0 rgba(4, 182, 175, 0.05);
 }
 @media screen and (max-width: 768px) {
-  /* line 32, ../../../resources/assets/scss/partials/projects/_new-project.scss */
+  /* line 34, ../../../resources/assets/scss/partials/projects/_new-project.scss */
   .projects .new-project-button {
     margin-top: 25px;
   }
@@ -1332,17 +1334,26 @@ form {
           box-shadow: 0 3px 5px 0 rgba(21, 39, 48, 0.05);
   margin: 30px auto;
   position: relative;
+  -webkit-transition: -webkit-box-shadow .2s ease-in-out;
+  transition: -webkit-box-shadow .2s ease-in-out;
+  transition: box-shadow .2s ease-in-out;
+  transition: box-shadow .2s ease-in-out, -webkit-box-shadow .2s ease-in-out;
 }
-/* line 8, ../../../resources/assets/scss/partials/projects/_project.scss */
+/* line 9, ../../../resources/assets/scss/partials/projects/_project.scss */
 .projects .project-selection .project a {
   color: inherit;
   text-decoration: none;
 }
-/* line 12, ../../../resources/assets/scss/partials/projects/_project.scss */
+/* line 13, ../../../resources/assets/scss/partials/projects/_project.scss */
 .projects .project-selection .project a span {
   display: inline-block;
   padding: 20px 0;
   vertical-align: middle;
+}
+/* line 20, ../../../resources/assets/scss/partials/projects/_project.scss */
+.projects .project-selection .project:hover {
+  -webkit-box-shadow: 0 10px 15px 0 rgba(21, 39, 48, 0.05);
+          box-shadow: 0 10px 15px 0 rgba(21, 39, 48, 0.05);
 }
 /* line 1, ../../../resources/assets/scss/partials/projects/project/_header.scss */
 .projects .project-selection .project .header {
@@ -1459,49 +1470,132 @@ form {
 /* line 6, ../../../resources/assets/scss/partials/projects/project/_content.scss */
 .projects .project-selection .project .content.active {
   display: block;
-  padding-bottom: 20px;
 }
-/* line 11, ../../../resources/assets/scss/partials/projects/project/_content.scss */
+/* line 10, ../../../resources/assets/scss/partials/projects/project/_content.scss */
 .projects .project-selection .project .content span,
 .projects .project-selection .project .content .description {
   color: #283c46;
   font-size: 14px;
   line-height: 19px;
 }
-/* line 19, ../../../resources/assets/scss/partials/projects/project/_content.scss */
+/* line 18, ../../../resources/assets/scss/partials/projects/project/_content.scss */
 .projects .project-selection .project .content span {
   font-family: Ubuntu;
 }
-/* line 22, ../../../resources/assets/scss/partials/projects/project/_content.scss */
+/* line 21, ../../../resources/assets/scss/partials/projects/project/_content.scss */
 .projects .project-selection .project .content span.attribute {
   font-family: Ubuntu-Medium;
 }
-/* line 26, ../../../resources/assets/scss/partials/projects/project/_content.scss */
+/* line 25, ../../../resources/assets/scss/partials/projects/project/_content.scss */
 .projects .project-selection .project .content span:not(first-child) {
   font-weight: 400;
 }
-/* line 31, ../../../resources/assets/scss/partials/projects/project/_content.scss */
+/* line 30, ../../../resources/assets/scss/partials/projects/project/_content.scss */
 .projects .project-selection .project .content .id {
   margin-bottom: 20px;
 }
-/* line 35, ../../../resources/assets/scss/partials/projects/project/_content.scss */
+/* line 34, ../../../resources/assets/scss/partials/projects/project/_content.scss */
 .projects .project-selection .project .content .admins {
   margin: 20px 0;
 }
-/* line 40, ../../../resources/assets/scss/partials/projects/project/_content.scss */
+/* line 39, ../../../resources/assets/scss/partials/projects/project/_content.scss */
 .projects .project-selection .project .content .forms .attribute {
   padding-right: 14px;
 }
-/* line 44, ../../../resources/assets/scss/partials/projects/project/_content.scss */
+/* line 43, ../../../resources/assets/scss/partials/projects/project/_content.scss */
 .projects .project-selection .project .content .forms .form {
   color: #04b6af;
   font-family: Ubuntu-Medium;
 }
-/* line 49, ../../../resources/assets/scss/partials/projects/project/_content.scss */
+/* line 48, ../../../resources/assets/scss/partials/projects/project/_content.scss */
 .projects .project-selection .project .content .forms .form-link {
   display: inline-block;
   margin: 0 14px 0 0;
   padding: 7px 0;
+}
+/* line 1, ../../../resources/assets/scss/partials/projects/project/_footer.scss */
+.projects .project-selection .project .footer {
+  text-align: right;
+}
+/* line 4, ../../../resources/assets/scss/partials/projects/project/_footer.scss */
+.projects .project-selection .project .footer .quick-action {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  color: #04b6af;
+  display: inline-block;
+  margin-bottom: 10px;
+  margin-left: 20px;
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+  vertical-align: middle;
+}
+/* line 13, ../../../resources/assets/scss/partials/projects/project/_footer.scss */
+.projects .project-selection .project .footer .quick-action .icon {
+  display: inline-block;
+  font-size: 12px;
+  margin: 0 5px 0 0;
+  padding: 20px 0 10px;
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+  vertical-align: middle;
+}
+/* line 22, ../../../resources/assets/scss/partials/projects/project/_footer.scss */
+.projects .project-selection .project .footer .quick-action .icon-arrow-right {
+  font-size: 10px;
+  will-change: transform;
+}
+/* line 27, ../../../resources/assets/scss/partials/projects/project/_footer.scss */
+.projects .project-selection .project .footer .quick-action span {
+  color: inherit;
+  font-family: Ubuntu-Medium;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 19px;
+  padding: 20px 0 10px;
+}
+/* line 36, ../../../resources/assets/scss/partials/projects/project/_footer.scss */
+.projects .project-selection .project .footer .quick-action:first-child {
+  margin-left: 0;
+}
+/* line 40, ../../../resources/assets/scss/partials/projects/project/_footer.scss */
+.projects .project-selection .project .footer .quick-action:last-child span {
+  margin: 0 5px 0 0;
+}
+/* line 44, ../../../resources/assets/scss/partials/projects/project/_footer.scss */
+.projects .project-selection .project .footer .quick-action:hover .icon-arrow-right {
+  -webkit-perspective: 1000;
+          perspective: 1000;
+  -webkit-transform: translate3d(7px, 0, 0);
+          transform: translate3d(7px, 0, 0);
+}
+@media screen and (max-width: 768px) {
+  /* line 52, ../../../resources/assets/scss/partials/projects/project/_footer.scss */
+  .projects .project-selection .project .footer {
+    -webkit-box-align: start;
+        -ms-flex-align: start;
+            align-items: flex-start;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    margin-top: 20px;
+    text-align: left;
+  }
+  /* line 59, ../../../resources/assets/scss/partials/projects/project/_footer.scss */
+  .projects .project-selection .project .footer .quick-action {
+    margin: 0;
+  }
+  /* line 62, ../../../resources/assets/scss/partials/projects/project/_footer.scss */
+  .projects .project-selection .project .footer .quick-action .icon, .projects .project-selection .project .footer .quick-action span {
+    padding-top: 10px;
+  }
+  /* line 66, ../../../resources/assets/scss/partials/projects/project/_footer.scss */
+  .projects .project-selection .project .footer .quick-action:last-child {
+    margin-bottom: 10px;
+  }
 }
 /* line 1, ../../../resources/assets/scss/partials/projects/_foot.scss */
 .projects .foot {

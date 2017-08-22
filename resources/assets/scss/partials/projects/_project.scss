@@ -4,6 +4,7 @@
   box-shadow: 0 3px 5px 0 palette(box-shadow, base);
   margin: 30px auto;
   position: relative;
+  transition: box-shadow .2s ease-in-out;
 
   a {
     color: inherit;
@@ -16,6 +17,11 @@
     }
   }
 
+  &:hover {
+    box-shadow: 0 10px 15px 0 palette(box-shadow, base);
+  }
+
   @import 'project/header';
   @import 'project/content';
+  @import 'project/footer';
 }
