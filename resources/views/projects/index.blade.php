@@ -55,7 +55,7 @@
           </div>
           <div class="project-toggle-wrap">
             <a href="#" class="project-toggle project-toggle-js">
-              <i class="icon icon-chevron icon-chevron-down"></i>
+              <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
             </a>
           </div>
         </div>
@@ -111,7 +111,7 @@
         Don't see the project you are looking for? You might not have the permissions...
     </p>
     <p>
-    <a href="#" class="request-permissions">
+    <a href="#" class="request-permissions underline-middle-hover">
         Request Permissions to a Project
     </a></p>
   </section>

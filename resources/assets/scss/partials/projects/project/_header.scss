@@ -49,6 +49,8 @@
 
     .action {
       padding: 20px 0;
+      transition: all .2s ease-in-out;
+      will-change: transform;
     }
 
     .action:first-child {
@@ -64,14 +66,22 @@
     .action:hover .icon {
       opacity: .6;
     }
+
+    .action:hover .icon-arrow-up {
+      transform: rotate(-90deg) scale($transform-scale-multiplier);
+    }
+
+    .action:hover .icon-arrow-down {
+      transform: rotate(90deg) scale($transform-scale-multiplier);
+    }
   }
 
   .project-name {
     transition: all .2s ease-in-out;
 
     .name {
-      padding: 5px 0;
       margin: 15px 0;
+      padding: 5px 0;
     }
 
     .icon-arrow-right {
@@ -95,6 +105,14 @@
 
     &:hover {
       opacity: 1;
+
+      .icon-chevron {
+        transform: scale($transform-scale-multiplier);
+      }
+
+      .active {
+        transform: rotate(-180deg) scale($transform-scale-multiplier);
+      }
     }
   }
 }

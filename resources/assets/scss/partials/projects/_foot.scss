@@ -2,6 +2,7 @@
   font-family: $ubuntu;
   margin: 60px auto 100px;
   max-width: calc(#{ $max-site-width } - 600px);
+  text-align: center;
   width: $max-site-width;
 
   .permission-information {
@@ -14,10 +15,11 @@
 
   .request-permissions {
     color: palette(green, accent);
-    display: inherit;
-    font-size: 16px;
+    display: inline-block;
     font-family: $ubuntu-medium;
+    font-size: 16px;
     line-height: 22px;
+    padding-bottom: 10px;
     text-align: center;
     text-decoration: none;
     transition: color .2s ease-in-out;

@@ -12,6 +12,7 @@
 
     .icon {
       cursor: pointer;
+      opacity: .7;
       transition: all 200ms ease-in-out;
       vertical-align: middle;
     }
@@ -26,7 +27,7 @@
     }
 
     .icon-cancel.active {
-      font-size: 8px;
+      font-size: 10px;
       opacity: 1;
     }
 
@@ -36,7 +37,7 @@
       color: palette(gray, text);
       caret-color: palette(green, accent);
       font-size: 14px;
-      margin: 0 12px;
+      margin: 0 5px;
       outline: none;
       vertical-align: middle;
       width: 100px;
