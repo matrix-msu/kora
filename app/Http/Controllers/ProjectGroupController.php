@@ -4,12 +4,13 @@ use App\Form;
 use App\FormGroup;
 use App\User;
 use App\ProjectGroup;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
-
+use Psy\Util\Json;
 
 class ProjectGroupController extends Controller {
 
@@ -39,10 +40,8 @@ class ProjectGroupController extends Controller {
     public function index($pid) {
         $project = ProjectController::getProject($pid);
 
-        if(!(\Auth::user()->isProjectAdmin($project))) {
-            flash()->overlay("You are not an admin for that project.", "Whoops.");
-            return redirect('projects/'.$pid);
-        }
+        if(!\Auth::user()->isProjectAdmin($project))
+            return redirect('projects')->with('k3_global_error', 'not_project_admin');
 
         $projectGroups = $project->groups()->get();
         $users = User::lists('username', 'id')->all();
@@ -58,10 +57,8 @@ class ProjectGroupController extends Controller {
      * @return Redirect
      */
     public function create($pid, Request $request) {
-        if($request['name'] == "") {
-            flash()->overlay("You must enter a group name.", "Whoops.");
-            return redirect('projects/'.$pid.'/manage/projectgroups');
-        }
+        if($request['name'] == "")
+            return redirect('projects/'.$pid.'/manage/projectgroups')->with('k3_global_error', 'group_name_missing');
 
         $group = self::buildGroup($pid, $request);
 
@@ -106,8 +103,7 @@ class ProjectGroupController extends Controller {
             $group->users()->attach($request['users']);
         }
 
-        flash()->overlay("Group created!", "Success!");
-        return redirect('projects/'.$pid.'/manage/projectgroups');
+        return redirect('projects/'.$pid.'/manage/projectgroups')->with('k3_global_success', 'project_group_created');
     }
 
     /**
@@ -193,6 +189,7 @@ class ProjectGroupController extends Controller {
      * Deletes a project group.
      *
      * @param  Request $request
+     * @return JsonResponse
      */
     public function deleteProjectGroup(Request $request) {
         $instance = ProjectGroup::where('id', '=', $request['projectGroup'])->first();
@@ -212,7 +209,7 @@ class ProjectGroupController extends Controller {
 
         $instance->delete();
 
-        flash()->overlay("Project group has been deleted.", "Success!");
+        return response()->json(["status"=>true,"message"=>"project_group_deleted"],200);
     }
 
     /**

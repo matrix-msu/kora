@@ -36,13 +36,11 @@ class FormController extends Controller {
      * @return View
      */
 	public function create($pid) {
-        if(!ProjectController::validProj($pid)) {
-            return redirect('projects');
-        }
+        if(!ProjectController::validProj($pid))
+            return redirect('projects')->with('k3_global_error', 'project_invalid');
 
-        if(!self::checkPermissions($pid, 'create')) {
-            return redirect('projects/'.$pid.'/forms');
-        }
+        if(!self::checkPermissions($pid, 'create'))
+            return redirect('projects/'.$pid.'/forms')->with('k3_global_error', 'cant_create_form');
 
         $project = ProjectController::getProject($pid);
         $users = User::lists('username', 'id')->all();
@@ -76,9 +74,7 @@ class FormController extends Controller {
         if(isset($request['preset']))
             self::addPresets($form, $request['preset']);
 
-        flash()->overlay("Your form has been successfully created!","Good Job!");
-
-        return redirect('projects/'.$form->pid);
+        return redirect('projects/'.$form->pid)->with('k3_global_success', 'form_created');
 	}
 
     /**
@@ -89,13 +85,11 @@ class FormController extends Controller {
      * @return View
      */
 	public function show($pid, $fid) {
-        if(!self::validProjForm($pid,$fid)) {
-            return redirect('projects/'.$pid);
-        }
+        if(!self::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
-        if(!self::checkPermissions($pid)) {
-            return redirect('/projects');
-        }
+        if(!FieldController::checkPermissions($fid))
+            return redirect('/projects/'.$pid)->with('k3_global_error', 'cant_view_form');
 
         $form = self::getForm($fid);
         $proj = ProjectController::getProject($pid);
@@ -114,13 +108,11 @@ class FormController extends Controller {
      * @return View
      */
 	public function edit($pid, $fid) {
-        if(!self::validProjForm($pid,$fid)) {
-            return redirect('projects/'.$pid);
-        }
+        if(!self::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
-        if(!self::checkPermissions($pid, 'edit')) {
-            return redirect('/projects/'.$pid.'/forms');
-        }
+        if(!self::checkPermissions($pid, 'edit'))
+            return redirect('projects/'.$pid.'/forms/')->with('k3_global_error', 'cant_edit_form');
 
         $form = self::getForm($fid);
         $proj = ProjectController::getProject($pid);
@@ -138,15 +130,13 @@ class FormController extends Controller {
      * @return Redirect
      */
 	public function update($pid, $fid, FormRequest $request) {
-        if(!self::validProjForm($pid,$fid)) {
-            return redirect('projects/'.$pid);
-        }
+        if(!self::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
+
+        if(!self::checkPermissions($pid, 'edit'))
+            return redirect('projects/'.$pid.'/forms/')->with('k3_global_error', 'cant_edit_form');
 
         $form = self::getForm($fid);
-
-        if(!self::checkPermissions($pid, 'edit')) {
-            return redirect('/projects/'.$form->$pid.'/forms');
-        }
 
         $form->update($request->all());
 
@@ -164,18 +154,16 @@ class FormController extends Controller {
      * @param  int $fid - Form ID
      */
 	public function destroy($pid, $fid) {
-        if(!self::validProjForm($pid,$fid)) {
-            return redirect()->action('ProjectController@show', ['pid' => $pid]);
-        }
+        if(!self::validProjForm($pid,$fid))
+            return redirect()->action('ProjectController@show', ['pid' => $pid])->with('k3_global_error', 'form_invalid');
 
-        if(!self::checkPermissions($pid, 'delete')) {
-            return redirect()->action('ProjectController@show', ['pid' => $pid]);
-        }
+        if(!self::checkPermissions($pid, 'delete'))
+            return redirect()->action('ProjectController@show', ['pid' => $pid])->with('k3_global_error', 'cant_delete_form');
 
         $form = self::getForm($fid);
         $form->delete();
 
-        flash()->overlay("Your form has been successfully deleted!","Good Job!");
+        return redirect('projects/'.$pid)->with('k3_global_success', 'form_deleted');
 	}
 
     /**
@@ -186,9 +174,8 @@ class FormController extends Controller {
      * @param  Request $request
      */
     public function preset($pid, $fid, Request $request) {
-        if(!self::validProjForm($pid,$fid)) {
-            return redirect('projects/'.$pid);
-        }
+        if(!self::validProjForm($pid, $fid))
+            return response()->json(["status"=>false,"message"=>"form_invalid"],500);
 
         $form = self::getForm($fid);
         if($request['preset'])
@@ -205,13 +192,11 @@ class FormController extends Controller {
      * @return View
      */
     public function importFormView($pid) {
-        if(!ProjectController::validProj($pid)) {
-            return redirect('projects');
-        }
+        if(!ProjectController::validProj($pid))
+            return redirect('projects')->with('k3_global_error', 'project_invalid');
 
-        if(!self::checkPermissions($pid, 'ingest')) {
-            return redirect('projects/'.$pid);
-        }
+        if(!self::checkPermissions($pid, 'create'))
+            return redirect('projects/'.$pid.'/forms')->with('k3_global_error', 'cant_create_form');
 
         $proj = ProjectController::getProject($pid);
 
@@ -225,13 +210,11 @@ class FormController extends Controller {
      * @return View
      */
     public function importFormViewK2($pid) {
-        if(!ProjectController::validProj($pid)) {
-            return redirect('projects');
-        }
+        if(!ProjectController::validProj($pid))
+            return redirect('projects')->with('k3_global_error', 'project_invalid');
 
-        if(!self::checkPermissions($pid, 'ingest')) {
-            return redirect('projects/'.$pid);
-        }
+        if(!self::checkPermissions($pid, 'create'))
+            return redirect('projects/'.$pid.'/forms')->with('k3_global_error', 'cant_create_form');
 
         $proj = ProjectController::getProject($pid);
 
@@ -281,30 +264,24 @@ class FormController extends Controller {
     public static function checkPermissions($pid, $permission='') {
         switch($permission) {
             case 'create':
-                if(!(\Auth::user()->canCreateForms(ProjectController::getProject($pid)))) {
-                    flash()->overlay("You do not have permission to create forms for that project.", "Whoops");
+                if(!(\Auth::user()->canCreateForms(ProjectController::getProject($pid))))
                     return false;
-                }
-                return true;
+                break;
             case 'edit':
-                if(!(\Auth::user()->canEditForms(ProjectController::getProject($pid)))) {
-                    flash()->overlay("You do not have permission to edit forms for that project.", "Whoops");
+                if(!(\Auth::user()->canEditForms(ProjectController::getProject($pid))))
                     return false;
-                }
-                return true;
+                break;
             case 'delete':
-                if(!(\Auth::user()->canDeleteForms(ProjectController::getProject($pid)))) {
-                    flash()->overlay("You do not have permission to delete forms for that project.", "Whoops");
+                if(!(\Auth::user()->canDeleteForms(ProjectController::getProject($pid))))
                     return false;
-                }
-                return true;
+                break;
             default: //"Read Only"
-                if(!(\Auth::user()->inAProjectGroup(ProjectController::getProject($pid)))) {
-                    flash()->overlay("You do not have permission to view that project.", "Whoops");
+                if(!(\Auth::user()->inAProjectGroup(ProjectController::getProject($pid))))
                     return false;
-                }
-                return true;
+                break;
         }
+
+        return true;
     }
 
     /**

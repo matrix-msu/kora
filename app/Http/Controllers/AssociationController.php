@@ -45,7 +45,7 @@ class AssociationController extends Controller {
 		$project = $form->project()->first();
 
 		if(!(\Auth::user()->isFormAdmin($form)))
-			return redirect('projects'.$project->pid)->with('k3_global_error', 'not_form_admin');
+			return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
 		//Associations to this form
 		$assocs = self::getAllowedAssociations($fid);
@@ -158,7 +158,7 @@ class AssociationController extends Controller {
 
         //form admins only
         if(!(\Auth::user()->isFormAdmin($myForm)))
-            return redirect('projects'.$myProj->pid)->with('k3_global_error', 'not_form_admin');
+            return redirect('projects/'.$myProj->pid)->with('k3_global_error', 'not_form_admin');
 
         $group = $theirForm->adminGroup()->first();
         $users = $group->users()->get();

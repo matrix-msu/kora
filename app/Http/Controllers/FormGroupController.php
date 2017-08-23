@@ -36,17 +36,14 @@ class FormGroupController extends Controller {
      * @return View
      */
     public function index($pid, $fid) {
-        if(!FormController::validProjForm($pid,$fid)) {
-            return redirect('projects/'.$pid);
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $form = FormController::getForm($fid);
         $project = $form->project()->first();
 
-        if(!(\Auth::user()->isFormAdmin($form))) {
-            flash()->overlay("You are not an admin for that form.", "Whoops");
-            return redirect('projects'.$project->pid);
-        }
+        if(!(\Auth::user()->isFormAdmin($form)))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
         $formGroups = $form->groups()->get();
         $users = User::lists('username', 'id')->all();
@@ -63,15 +60,13 @@ class FormGroupController extends Controller {
      * @return Redirect
      */
     public function create($pid, $fid, Request $request) {
-        if(!FormController::validProjForm($pid,$fid)) {
-            return redirect('projects/'.$pid);
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $form = FormController::getForm($fid);
 
         if($request['name'] == "") {
-            flash()->overlay("You must enter a group name.", "Whoops");
-            return redirect(action('FormGroupController@index', ['fid'=>$form->fid]));
+            return redirect(action('FormGroupController@index', ['fid'=>$form->fid]))->with('k3_global_error', 'form_group_noname');
         }
 
         $group = self::buildGroup($pid, $form->fid, $request);
@@ -107,9 +102,8 @@ class FormGroupController extends Controller {
                         //see if user belongs to project group
                         $uidPG = DB::table('project_group_user')->where('user_id', $uid)->where('project_group_id', $pg->id)->get();
 
-                        if(!empty($uidPG)) {
+                        if(!empty($uidPG))
                             $inProj = true;
-                        }
                     }
 
                     //not in project, lets add them
@@ -127,8 +121,7 @@ class FormGroupController extends Controller {
             $group->users()->attach($request['users']);
         }
 
-        flash()->overlay("Group created!", "Success!");
-        return redirect(action('FormGroupController@index', ['pid'=>$form->pid, 'fid'=>$form->fid]));
+        return redirect(action('FormGroupController@index', ['pid'=>$form->pid, 'fid'=>$form->fid]))->with('k3_global_success', 'form_group_created');
     }
 
     /**
@@ -182,9 +175,8 @@ class FormGroupController extends Controller {
                 //see if user belongs to project group
                 $uidPG = DB::table('project_group_user')->where('user_id', $request['userId'])->where('project_group_id', $pg->id)->get();
 
-                if(!empty($uidPG)) {
+                if(!empty($uidPG))
                     $inProj = true;
-                }
             }
 
             //not in project, lets add them

@@ -53,12 +53,13 @@ class ProjectController extends Controller {
         }
 
         $c = new UpdateController();
+        $updateNotification = false;
         if($c->checkVersion() && !session('notified_of_update')) {
             session(['notified_of_update' => true]);
-            flash()->overlay('An update is available, please visit the update page.', 'Update Available!');
+            $updateNotification = true;
         }
 
-        return view('projects.index', compact('projects', 'projectArrays', 'hasProjects','requestProjects'));
+        return view('projects.index', compact('projects', 'projectArrays', 'hasProjects', 'requestProjects', 'updateNotification'));
 	}
 
     /**
@@ -78,9 +79,7 @@ class ProjectController extends Controller {
         }
 
         if(sizeof($projects)==0) {
-            flash()->overlay("No projects were selected for request.","Whoops");
-
-            return redirect('projects');
+            return redirect('projects')->with('k3_global_error', 'no_project_requested');
         } else {
             foreach($projects as $project) {
                 $admins = $this->getProjectAdminNames($project);
@@ -94,9 +93,7 @@ class ProjectController extends Controller {
                 }
             }
 
-            flash()->overlay("The admin for these projects will be notified to provide you with proper permissions. You will receive an email once permissions have been provided.","Whoops");
-
-            return redirect('projects');
+            return redirect('projects')->with('k3_global_success', 'project_access_requested');
         }
     }
 
@@ -125,9 +122,7 @@ class ProjectController extends Controller {
         $project->adminGID = $adminGroup->id;
         $project->save();
 
-        flash()->overlay("Your project has been successfully created!","Good Job!");
-
-        return redirect('projects');
+        return redirect('projects')->with('k3_global_success', 'project_created');
 	}
 
     /**
@@ -137,13 +132,11 @@ class ProjectController extends Controller {
      * @return View
      */
 	public function show($id) {
-        if(!self::validProj(($id))) {
-            return redirect('/projects');
-        }
+        if(!self::validProj($id))
+            return redirect('projects')->with('k3_global_error', 'project_invalid');
 
-        if(!FormController::checkPermissions($id)) {
-            return redirect('/projects');
-        }
+        if(!FormController::checkPermissions($id))
+            return redirect('/projects')->with('k3_global_error', 'cant_view_project');
 
         $project = self::getProject($id);
         $projectArrays = [$project->buildFormSelectorArray()];
@@ -158,17 +151,14 @@ class ProjectController extends Controller {
      * @return View
      */
 	public function edit($id) {
-        if(!self::validProj(($id))) {
-            return redirect()->action('ProjectController@Index');
-        }
+        if(!self::validProj($id))
+            return redirect('projects')->with('k3_global_error', 'project_invalid');
 
         $user = \Auth::user();
         $project = self::getProject($id);
 
-        if(!$user->admin && !self::isProjectAdmin($user, $project)) {
-            flash()->overlay("You do not have permission to edit that project.", "Whoops");
-            return redirect()->action('ProjectController@Index');
-        }
+        if(!\Auth::user()->isProjectAdmin($project))
+            return redirect('projects')->with('k3_global_error', 'not_project_admin');
 
         return view('projects.edit', compact('project'));
 	}
@@ -186,32 +176,27 @@ class ProjectController extends Controller {
 
         ProjectGroupController::updateMainGroupNames($project);
 
-        flash()->overlay("Your project has been successfully updated!","Good Job!");
-
-        return redirect('projects');
+        return redirect('projects')->with('k3_global_success', 'project_updated');
 	}
 
     /**
      * Deletes a project.
      *
      * @param  int $id - Project ID
+     * @return Redirect
      */
 	public function destroy($id) {
-        if(!self::validProj(($id))) {
-            return redirect('/projects');
-        }
+        if(!self::validProj($id))
+            return redirect()->action('ProjectController@index')->with('k3_global_error', 'project_invalid');
 
-        $user = \Auth::user();
         $project = self::getProject($id);
 
-        if(!$user->admin && !self::isProjectAdmin($user, $project)) {
-            flash()->overlay("You do not have permission to delete that project.", "Whoops");
-            return redirect('/projects');
-        }
+        if(!\Auth::user()->isProjectAdmin($project))
+            return redirect()->action('ProjectController@index')->with('k3_global_error', 'not_project_admin');
 
         $project->delete();
 
-        flash()->overlay("Your project has been successfully deleted!","Good Job!");
+        return redirect()->action('ProjectController@index')->with('k3_global_success', 'project_deleted');
 	}
 
     /**
@@ -222,7 +207,7 @@ class ProjectController extends Controller {
      * @return bool - Is project admin
      */
     public function isProjectAdmin(User $user, Project $project) {
-        if ($user->admin)
+        if($user->admin)
             return true;
 
         $adminGroup = $project->adminGroup()->first();

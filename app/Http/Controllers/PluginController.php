@@ -1,6 +1,4 @@
-<?php
-
-namespace App\Http\Controllers;
+<?php namespace App\Http\Controllers;
 
 use App\Field;
 use App\Form;
@@ -10,6 +8,7 @@ use App\Plugin;
 use App\Project;
 use App\ProjectGroup;
 use App\RecordPreset;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -59,6 +58,7 @@ class PluginController extends Controller {
      * Triggers the install function for a plugin.
      *
      * @param  string $name - Name of the plugin
+     * @return JsonResponse
      */
     public function install($name) {
         $values = array();
@@ -98,9 +98,9 @@ class PluginController extends Controller {
                 }
             }
 
-            if (!feof($handle)) {
-                echo "Error: unexpected fgets() fail\n";
-            }
+            if(!feof($handle))
+                return response()->json(["status"=>false,"message"=>"plugin_file_error"],500);
+
             fclose($handle);
         }
 
@@ -159,18 +159,18 @@ class PluginController extends Controller {
 
         //import forms associated with plugin
         foreach(new \DirectoryIterator(env('BASE_PATH') . 'storage/app/plugins/'.$name.'/Forms/') as $file) {
-            if($file->isFile()) {
+            if($file->isFile())
                 $this->importForm($plugin->pid,env('BASE_PATH') . 'storage/app/plugins/'.$name.'/Forms/'.$file->getFilename());
-            }
         }
 
-        flash()->overlay("Your plugin was successfully installed!","Good Job!");
+        return response()->json(["status"=>true,"message"=>"plugin_install_success"],200);
     }
 
     /**
      * Update configuration settings for a plugin.
      *
      * @param  Request $request
+     * @return JsonResponse
      */
     public function update(Request $request) {
         //initialize variables we need
@@ -196,6 +196,8 @@ class PluginController extends Controller {
                     [$gid, $uid]);
             }
         }
+
+        return response()->json(["status"=>true,"message"=>"plugin_updated"],200);
     }
 
     /**
@@ -227,7 +229,7 @@ class PluginController extends Controller {
         $project->delete();
         $plugin->delete();
 
-        flash()->overlay("Your plugin was successfully uninstalled!","Good Job!");
+        return response()->json(["status"=>true,"message"=>"plugin_uninstalled"],200);
     }
 
     /**
@@ -250,10 +252,6 @@ class PluginController extends Controller {
      */
     private function importForm($pid, $filepath) {
         $project = ProjectController::getProject($pid);
-
-        if(!\Auth::user()->admin && !\Auth::user()->isProjectAdmin($project)) {
-            return redirect('projects/'.$pid);
-        }
 
         $fileArray = json_decode(file_get_contents($filepath));
 

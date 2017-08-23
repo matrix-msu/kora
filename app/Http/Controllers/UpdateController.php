@@ -4,13 +4,14 @@ use App\Version;
 use App\Script;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
 class UpdateController extends Controller {
 
     /*
     |--------------------------------------------------------------------------
-    | Update Controller
+    | Update Controller (TODO::Refactor updates)
     |--------------------------------------------------------------------------
     |
     | This controller handles version management of Kora3
@@ -124,23 +125,19 @@ class UpdateController extends Controller {
             //
             // Inform the user they have successfully updated.
             //
-            flash()->overlay('You have successfully updated!', "Success!");
+            ignore_user_abort(false);
+            return redirect('update')->with('k3_global_success', 'k3_updated');
         } else {
             //
             // Inform the user they have not successfully executed a git pull.
             //
-            flash()->overlay('You have not successfully executed a git pull, you must do so before running scripts.', "Whoops.");
+            ignore_user_abort(false);
+            return redirect('update')->with('k3_global_error', 'k3_update_gitfail');
         }
-
-        ignore_user_abort(false);
-        return redirect('update');
     }
 
     /**
      * Clears the view cache after an update to make sure new features show up in the browser.
-     *
-     * @param  type $name - DESCRIPTION
-     * @return type - DESCRIPTION
      */
     private function refresh() {
         //
@@ -175,9 +172,8 @@ class UpdateController extends Controller {
      */
     private function hasPulled() {
         foreach(Script::all() as $script) {
-            if(!$script->hasRun) {   // We have found a script that has not run, hence the user has executed a git pull successfully.
+            if(!$script->hasRun)   // We have found a script that has not run, hence the user has executed a git pull successfully.
                 return true;
-            }
         }
         // No scripts were found that were not already run, hence the user has not executed a git pull successfully.
         return false;

@@ -34,13 +34,11 @@ class FieldController extends Controller {
      * @return View
      */
 	public function create($pid, $fid, $rootPage) {
-        if(!FormController::validProjForm($pid, $fid)) {
-            return redirect('projects/'.$pid);
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
-        if(!self::checkPermissions($fid, 'create')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
-        }
+        if(!self::checkPermissions($fid, 'create'))
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields')->with('k3_global_error', 'cant_create_field');
 
 		$form = FormController::getForm($fid);
         return view('fields.create', compact('form','rootPage'));
@@ -58,9 +56,7 @@ class FieldController extends Controller {
 
         //special error check for combo list field
         if($field->type=='Combo List' && ($request->cfname1 == '' | $request->cfname2 == '')) {
-            flash()->error("You must enter a name for both Combo List fields!");
-
-            return redirect()->back()->withInput();
+            return redirect()->back()->withInput()->with('k3_global_error', 'combo_name_missing');
         }
 
         $field->options = $field->getTypedField()->getDefaultOptions($request);
@@ -74,10 +70,8 @@ class FieldController extends Controller {
         $advError = false;
         if($request->advance) {
             $result = $field->getTypedField()->updateOptions($field, $request, false);
-            if($result != '') {
+            if($result != '')
                 $advError = true;
-                flash()->error('There was an error with the advanced options. '.$result.' Please visit the options page of the field.');
-            }
         }
 
         //A field has been changed, so current record rollbacks become invalid.
@@ -85,9 +79,9 @@ class FieldController extends Controller {
         RevisionController::wipeRollbacks($form->fid);
 
         if(!$advError) //if we error on the adv page we should hide the success message so error can display
-            flash()->overlay("Your field has been successfully created!", "Good Job!");
-
-        return redirect('projects/'.$field->pid.'/forms/'.$field->fid);
+            return redirect('projects/'.$field->pid.'/forms/'.$field->fid)->with('k3_global_success', 'field_created');
+        else
+            return redirect('projects/'.$field->pid.'/forms/'.$field->fid)->with('k3_global_error', 'field_advanced_error');
 	}
 
     /**
@@ -99,13 +93,11 @@ class FieldController extends Controller {
      * @return View
      */
 	public function show($pid, $fid, $flid) {
-        if(!self::validProjFormField($pid, $fid, $flid)) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
+        if(!self::validProjFormField($pid, $fid, $flid))
+            return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'field_invalid');
 
-        if(!self::checkPermissions($fid, 'edit')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
-        }
+        if(!self::checkPermissions($fid, 'edit'))
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields')->with('k3_global_error', 'cant_edit_field');
 
         $field = self::getField($flid);
         $form = FormController::getForm($fid);
@@ -114,7 +106,7 @@ class FieldController extends Controller {
         $presets = OptionPresetController::getPresetsSupported($pid,$field);
 
         //Combo has two presets so we make an exception
-        if($field->type=="Combo List"){
+        if($field->type=="Combo List") {
             $presetsOne = $presets->get("one");
             $presetsTwo = $presets->get("two");
             return view(ComboListField::FIELD_OPTIONS_VIEW, compact('field', 'form', 'proj','presetsOne','presetsTwo'));
@@ -132,13 +124,11 @@ class FieldController extends Controller {
      * @return View
      */
 	public function edit($pid, $fid, $flid) {
-        if(!self::validProjFormField($pid, $fid, $flid)) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
+        if(!self::validProjFormField($pid, $fid, $flid))
+            return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'field_invalid');
 
-        if(!self::checkPermissions($fid, 'edit')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
-        }
+        if(!self::checkPermissions($fid, 'edit'))
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields')->with('k3_global_error', 'cant_edit_field');
 
         $field = self::getField($flid);
 
@@ -155,13 +145,11 @@ class FieldController extends Controller {
      * @return View
      */
 	public function update($pid, $fid, $flid, FieldRequest $request) {
-        if(!self::validProjFormField($pid, $fid, $flid)) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
+        if(!self::validProjFormField($pid, $fid, $flid))
+            return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'field_invalid');
 
-        if(!self::checkPermissions($fid, 'edit')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
-        }
+        if(!self::checkPermissions($fid, 'edit'))
+            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields')->with('k3_global_error', 'cant_edit_field');
 
 		$field = self::getField($flid);
 
@@ -170,9 +158,7 @@ class FieldController extends Controller {
         //A field has been changed, so current record rollbacks become invalid.
         RevisionController::wipeRollbacks($fid);
 
-        flash()->overlay("Your field has been successfully updated!", "Good Job!");
-
-        return redirect('projects/'.$pid.'/forms/'.$fid);
+        return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_success', 'field_updated');
 	}
 
     /**
@@ -183,13 +169,11 @@ class FieldController extends Controller {
      * @param  int $flid - Field ID
      */
 	public function destroy($pid, $fid, $flid) {
-        if(!self::validProjFormField($pid, $fid, $flid)) {
-            return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid]);
-        }
+        if(!self::validProjFormField($pid, $fid, $flid))
+            return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_error', 'field_invalid');
 
-        if(!self::checkPermissions($fid, 'delete')) {
-            return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid]);
-        }
+        if(!self::checkPermissions($fid, 'delete'))
+            return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_error', 'cant_delete_field');
 
         $field = self::getField($flid);
         $form = FormController::getForm($fid);
@@ -201,7 +185,7 @@ class FieldController extends Controller {
 
         RevisionController::wipeRollbacks($form->fid);
 
-        flash()->overlay("Your field has been successfully deleted!", "Good Job!");
+        return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_success', 'field_deleted');
 	}
 
     /**
@@ -264,32 +248,26 @@ class FieldController extends Controller {
      * @param  string $permission - Permission to check for
      * @return bool - Has the permission
      */
-    private static function checkPermissions($fid, $permission='') {
+    public static function checkPermissions($fid, $permission='') {
         switch($permission) {
             case 'create':
-                if(!(\Auth::user()->canCreateFields(FormController::getForm($fid))))  {
-                    flash()->overlay("You do not have permission to create fields for that form.", "Whoops");
+                if(!(\Auth::user()->canCreateFields(FormController::getForm($fid))))
                     return false;
-                }
-                return true;
+                break;
             case 'edit':
-                if(!(\Auth::user()->canEditFields(FormController::getForm($fid)))) {
-                    flash()->overlay("You do not have permission to edit fields for that form.", "Whoops");
+                if(!(\Auth::user()->canEditFields(FormController::getForm($fid))))
                     return false;
-                }
-                return true;
+                break;
             case 'delete':
-                if(!(\Auth::user()->canDeleteFields(FormController::getForm($fid)))) {
-                    flash()->overlay("You do not have permission to delete fields for that form.", "Whoops");
+                if(!(\Auth::user()->canDeleteFields(FormController::getForm($fid))))
                     return false;
-                }
-                return true;
+                break;
             default:
-                if(!(\Auth::user()->inAFormGroup(FormController::getForm($fid)))) {
-                    flash()->overlay("You do not have permission to view that field.", "Whoops");
+                if(!(\Auth::user()->inAFormGroup(FormController::getForm($fid))))
                     return false;
-                }
-                return true;
+                break;
         }
+
+        return true;
     }
 }

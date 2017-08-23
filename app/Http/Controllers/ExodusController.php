@@ -45,11 +45,9 @@ class ExodusController extends Controller {
         $this->middleware('auth');
         $this->middleware('active');
         $this->middleware('admin');
-        if(Auth::check()){
-            if(Auth::user()->id != 1){
-                flash()->overlay("Only the default admin can view that page","Whoops");
-                return redirect("/projects")->send();
-            }
+        if(Auth::check()) {
+            if(Auth::user()->id != 1)
+                return redirect("/projects")->with('k3_global_error', 'not_admin')->send();
         }
     }
 
@@ -491,7 +489,7 @@ class ExodusController extends Controller {
         }
         $partial = DB::table('exodus_partial_progress')->where('exodus_id',$overall->id)->get();
 
-        return response()->json(["overall"=>$overall,"partial"=>$partial],200);
+        return response()->json(["status"=>true,"message"=>"exodus_progress","overall"=>$overall,"partial"=>$partial],200);
     }
 
     /**
@@ -650,8 +648,8 @@ class ExodusController extends Controller {
                 $user->save();
             }
         } catch(\Exception $e) {
-            return response("error",500);
+            return response()->json(["status"=>false,"message"=>"user_unlock_failed"],500);
         }
-        return response("success",200);
+        return response()->json(["status"=>true,"message"=>"user_unlock_success"],200);
     }
 }

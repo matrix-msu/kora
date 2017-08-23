@@ -3,7 +3,6 @@
 use App\ComboListField;
 use App\Field;
 use App\FileTypeField;
-use App\GalleryField;
 use App\GeolocatorField;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -43,9 +42,8 @@ class FieldAjaxController extends Controller {
      * @return string - Returns on error or blank on success
      */
     public function validateComboListOpt($pid, $fid, $flid, Request $request) {
-        if(!FieldController::validProjFormField($pid, $fid, $flid)) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
+        if(!FieldController::validProjFormField($pid, $fid, $flid))
+            return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'field_invalid');
 
         return ComboListField::validateComboListOpt($flid, $request);
     }
@@ -127,9 +125,8 @@ class FieldAjaxController extends Controller {
      * @return View
      */
     public function getAdvancedOptionsPage($pid, $fid, Request $request) {
-        if(!FormController::validProjForm($pid,$fid)) {
-            return redirect('projects/'.$pid);
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $type = $request->type;
 
@@ -146,9 +143,8 @@ class FieldAjaxController extends Controller {
      * @return Redirect
      */
     public function updateOptions($pid, $fid, $flid, Request $request){
-        if(!FieldController::validProjFormField($pid, $fid, $flid)) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
+        if(!FieldController::validProjFormField($pid, $fid, $flid))
+            return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'field_invalid');
 
         $field = FieldController::getField($flid);
         return $field->getTypedField()->updateOptions($field, $request);

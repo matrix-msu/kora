@@ -1,9 +1,8 @@
-<?php
-
-namespace App\Http\Controllers;
+<?php namespace App\Http\Controllers;
 
 use App\Field;
 use App\Page;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PageController extends Controller {
@@ -43,10 +42,6 @@ class PageController extends Controller {
      * @param  int $resizeIndex - What index new page will take
      */
     public static function makePageOnForm($fid,$name,$resize=false,$resizeIndex=0) {
-        if(!self::checkPermissions($fid, 'edit')) {
-            return "You must have permission to edit forms in order to add pages.";
-        }
-
         $page = new Page();
 
         $page->title = $name;
@@ -66,9 +61,8 @@ class PageController extends Controller {
                     $cPage->save();
                 }
 
-                if($cPage->id == $resizeIndex) {
+                if($cPage->id == $resizeIndex)
                     $page->sequence = $cPage->sequence + 1;
-                }
             }
         } else { //Here we just add it to the end
             $page->sequence = $currPages->count();
@@ -157,16 +151,11 @@ class PageController extends Controller {
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @param  Request $request
-     * @return string - Success/error message
+     * @return JsonResponse
      */
     public function modifyFormPage($pid, $fid, Request $request) {
-        if(!FormController::validProjForm($pid, $fid)) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
-
-        if(!self::checkPermissions($fid, 'edit')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
-        }
+        if(!FieldController::checkPermissions($fid, 'edit'))
+            return response()->json(["status"=>false,"message"=>"cant_edit_field"],500);
 
         $method = $request->method;
         $form = FormController::getForm($fid);
@@ -263,11 +252,11 @@ class PageController extends Controller {
                 $page->save();
                 break;
             default:
-                return "Illegal Method Provided";
+                return response()->json(["status"=>false,"message"=>"illegal_page_method"],500);
                 break;
         }
 
-        return "success";
+        return response()->json(["status"=>true,"message"=>"page_layout_modified"],200);
     }
 
     /**
@@ -277,16 +266,11 @@ class PageController extends Controller {
      * @param  int $fid - Form ID
      * @param  int $flid - Field ID
      * @param  Request $request
-     * @return string - Success/error message
+     * @return JsonResponse
      */
     public function moveField($pid,$fid,$flid,Request $request) {
-        if(!FormController::validProjForm($pid, $fid)) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
-
-        if(!self::checkPermissions($fid, 'edit')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields');
-        }
+        if(!FieldController::checkPermissions($fid, 'edit'))
+            return response()->json(["status"=>false,"message"=>"cant_edit_field"],500);
 
         $direction = $request->direction;
         $field = FieldController::getField($flid);
@@ -305,7 +289,7 @@ class PageController extends Controller {
                     //We need to move to a new page potentially
                     $pageSeq = $page->sequence;
                     if($pageSeq==0) {
-                        return "No page above";
+                        return response()->json(["status"=>false,"message"=>"no_page_above"],500);
                     } else {
                         $nPage = Page::where('sequence','=',$pageSeq-1)->where('fid','=',$fid)->first();
                         $field->page_id = $nPage->id;
@@ -320,8 +304,6 @@ class PageController extends Controller {
                             $f->save();
                             $index++;
                         }
-
-                        return "success";
                     }
                 } else {
                     //Move it on up
@@ -332,8 +314,6 @@ class PageController extends Controller {
                     $aField->sequence = $seq;
                     $field->save();
                     $aField->save();
-
-                    return "success";
                 }
                 break;
             case self::_DOWN:
@@ -342,7 +322,7 @@ class PageController extends Controller {
                     $pageSeq = $page->sequence;
                     $maxPageSeq = Page::where("fid","=",$fid)->max("sequence");;
                     if($pageSeq==$maxPageSeq) {
-                        return "No page below";
+                        return response()->json(["status"=>false,"message"=>"no_page_below"],500);
                     } else {
                         $nPage = Page::where('sequence','=',$pageSeq+1)->where('fid','=',$fid)->first();
                         $field->page_id = $nPage->id;
@@ -357,8 +337,6 @@ class PageController extends Controller {
                             $f->save();
                             $index++;
                         }
-
-                        return "success";
                     }
                 } else {
                     //Move it on down
@@ -369,48 +347,12 @@ class PageController extends Controller {
                     $aField->sequence = $seq;
                     $field->save();
                     $aField->save();
-
-                    return "success";
                 }
                 break;
             default:
                 break;
         }
-    }
 
-    /**
-     * Checks a users permissions to be able to create and manipulate fields in a form.
-     *
-     * @param  int $fid - Form ID
-     * @param  string $permission - Permission to check for
-     * @return bool - Has the permission
-     */
-    private static function checkPermissions($fid, $permission='') {
-        switch($permission) {
-            case 'create':
-                if(!(\Auth::user()->canCreateFields(FormController::getForm($fid))))  {
-                    flash()->overlay("You do not have permission to create fields for that form.", "Whoops");
-                    return false;
-                }
-                return true;
-            case 'edit':
-                if(!(\Auth::user()->canEditFields(FormController::getForm($fid)))) {
-                    flash()->overlay("You do not have permission to edit fields for that form.", "Whoops");
-                    return false;
-                }
-                return true;
-            case 'delete':
-                if(!(\Auth::user()->canDeleteFields(FormController::getForm($fid)))) {
-                    flash()->overlay("You do not have permission to delete fields for that form.", "Whoops");
-                    return false;
-                }
-                return true;
-            default:
-                if(!(\Auth::user()->inAFormGroup(FormController::getForm($fid)))) {
-                    flash()->overlay("You do not have permission to view that field.", "Whoops");
-                    return false;
-                }
-                return true;
-        }
+        return response()->json(["status"=>true,"message"=>"page_moved"],200);
     }
 }

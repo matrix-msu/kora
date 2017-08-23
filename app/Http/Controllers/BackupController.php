@@ -3,6 +3,7 @@
 use App\Commands\RestoreTable;
 use App\Commands\SaveUsersTable;
 use App\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
@@ -43,10 +44,8 @@ class BackupController extends Controller {
         $this->middleware('active');
         $this->middleware('admin');
         if(Auth::check()) {
-            if(Auth::user()->id != 1) {
-                flash()->overlay("Only the default admin can view that page","Whoops");
-                return redirect("/projects")->send();
-            }
+            if(Auth::user()->id != 1)
+                return redirect("/projects")->with('k3_global_error', 'not_admin')->send();
         }
 
         $this->ajax_error_list = new Collection(); //The Exception's getMessage() for data that didn't restore/backup
@@ -208,7 +207,7 @@ class BackupController extends Controller {
         //Number completed so far
         $partial = DB::table('backup_partial_progress')->where('backup_id',$overall->id)->get();
 
-        return response()->json(["overall"=>$overall,"partial"=>$partial],200);
+        return response()->json(["status"=>true,"message"=>"backup_progress","overall"=>$overall,"partial"=>$partial],200);
     }
 
     /**
@@ -267,15 +266,13 @@ class BackupController extends Controller {
 
         $bytes_written = File::put($newfile, $json);
         if ($bytes_written === false)
-        {
-            echo "Error writing backup file";
-        }
+            return response()->json(["status"=>false,"message"=>"backup_file_failed"],500);
 
         $this->unlockUsers();
 
         $totalSize = $this->humanFileSize($this->getDirectorySize($path));
 
-        return response()->json(["totalSize"=>$totalSize],200);
+        return response()->json(["status"=>true,"message"=>"backup_finished","totalSize"=>$totalSize],200);
     }
 
     private function getDirectorySize($path) {
@@ -369,22 +366,22 @@ class BackupController extends Controller {
                             $zip->close();
                         } else {
                             flash()->overlay('Zip extraction failed!','code: ' . $res);
-                            return redirect()->back();
+                            return redirect()->with('k3_global_error', 'restore_extract_failed')->back();
                         }
                     } catch(\Exception $e) {
                         flash()->overlay("The file could not be moved to the backup directory.","Whoops");
-                        return redirect()->back();
+                        return redirect()->with('k3_global_error', 'restore_file_unmovable')->back();
                     }
                 } else {
                     flash()->overlay("There is something wrong with the file that was uploaded","Whoops");
-                    return redirect()->back();
+                    return redirect()->with('k3_global_error', 'restore_file_failed')->back();
                 }
             } else {
                 flash()->overlay("No file was uploaded.","Whoops");
-                return redirect()->back();
+                return redirect()->with('k3_global_error', 'restore_file_missing')->back();
             }
         } else {
-            return redirect()->back();
+            return redirect()->with('k3_global_error', 'backup_no_source')->back();
         }
 
         return view('backups.restore',compact('type','filename'));
@@ -411,7 +408,7 @@ class BackupController extends Controller {
             $ac = new AdminController();
             $ac->deleteData();
         } catch(\Exception $e) {
-            $this->ajaxResponse(false, "There was a problem when attempting to remove existing information from the database, the database user may not have permission to do this or the database may be in use.");
+            return response()->json(["status"=>false,"message"=>"restore_dbwipe_fail"],500);
         }
 
         //Delete the files directory
@@ -450,7 +447,7 @@ class BackupController extends Controller {
         $overall = DB::table('restore_overall_progress')->where('created_at',DB::table('restore_overall_progress')->max('created_at'))->first();
         $partial = DB::table('restore_partial_progress')->where('restore_id',$overall->id)->get();
 
-        return response()->json(["overall"=>$overall,"partial"=>$partial],200);
+        return response()->json(["status"=>true,"message"=>"restore_progress","overall"=>$overall,"partial"=>$partial],200);
     }
 
     /**
@@ -496,35 +493,12 @@ class BackupController extends Controller {
      */
     private function recursiveRemoveDirectory($directory) {
         foreach(glob("{$directory}/*") as $file) {
-            if(is_dir($file)) {
+            if(is_dir($file))
                 $this->recursiveRemoveDirectory($file);
-            } else {
+            else
                 unlink($file);
-            }
         }
         rmdir($directory);
-    }
-
-    /**
-     * Use to get information about an ajax response.
-     *
-     * @param  bool $status - Status of the response
-     * @param  string $message - Message associated with the response
-     * @return string - A json array of the response and any errors
-     */
-    public function ajaxResponse($status,$message) {
-        $ajax_return_data = new Collection(); //This will get a status boolean, a message, and an array of errors
-        $ajax_return_data->put("status",$status);
-        $ajax_return_data->put("error_list",$this->ajax_error_list);
-        $ajax_return_data->put("message",$message);
-
-        if($status == true) {
-            return response()->json($ajax_return_data,200);
-        } else {
-            //This is bad, but otherwise it keeps running, maybe there's an alternative?
-            return response()->json($ajax_return_data,500)->send() && exit();
-        }
-
     }
 
     /**
@@ -550,8 +524,7 @@ class BackupController extends Controller {
      *
      * @return string - Success or error message
      */
-    public function unlockUsers( ){
-
+    public function unlockUsers(){
         try {
             $users = User::all();
             foreach($users as $user) {
@@ -559,16 +532,16 @@ class BackupController extends Controller {
                 $user->save();
             }
         } catch(\Exception $e) {
-            return response("error",500);
+            return response()->json(["status"=>false,"message"=>"user_unlock_failed"],500);
         }
-        return response("success",200);
+        return response()->json(["status"=>true,"message"=>"user_unlock_success"],200);
     }
 
     /**
      * Deletes a stored backup from the installation.
      *
      * @param  Request $request
-     * @return string - Json response of the result
+     * @return JsonResponse - Json response of the result
      */
     public function delete(Request $request) {
         $this->validate($request,[
@@ -600,13 +573,12 @@ class BackupController extends Controller {
                     }
                 }
             } catch(\Exception $e) {
-                return response()->json(["status"=>false,"message"=>"$e->getMessage()"]);
+                return response()->json(["status"=>false,"message"=>"backup_delete_failed"],500);
             }
 
-            return response()->json(["status"=>true,"message"=>$filename]);
+            return response()->json(["status"=>true,"message"=>"backup_delete_success"],200);
         } else {
-            flash()->overlay("The restore point you selected is not valid.","Whoops");
-            return redirect()->back();
+            return response()->json(["status"=>false,"message"=>"backup_delete_invalid"],500);
         }
     }
 }

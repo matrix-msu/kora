@@ -3,7 +3,7 @@
 Use App\Metadata;
 Use App\Field;
 Use App\Form;
-use App\Search;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -38,9 +38,8 @@ class MetadataController extends Controller {
      * @return string - html for file download
      */
     public function records2($pid, $fid) {
-        if(!FormController::validProjForm($pid, $fid)) {
-            return redirect('projects/'.$pid.'/forms');
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $rids = DB::table("records")->where("fid", "=", $fid)->select("rid")->get();
 
@@ -69,9 +68,8 @@ class MetadataController extends Controller {
      * @return string - html for file download
      */
     public function singleRecord($pid, $fid, $resource) {
-        if(!FormController::validProjForm($pid, $fid)) {
-            return redirect('projects/'.$pid.'/forms');
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         //Get the record id of the text field whose primary index is equal to the resource
         $rids = DB::table("text_fields")->where("fid", "=", $fid)->where("text","=",$resource)->select("rid")->get();
@@ -100,19 +98,18 @@ class MetadataController extends Controller {
      * @return View
      */
     public function index($pid,$fid) {
-        if(!FormController::validProjForm($pid,$fid)) {
-            return redirect('projects/'.$pid.'/forms');
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
+
         //Fields that already have metadata do not get sent to the view to be listed
         $all_fields = Field::where('pid',$pid)->where('fid',$fid)->get();
         $available_fields = new \Illuminate\Support\Collection; //fields without a tag
         $assigned_fields = array(); //fields with a tag
         foreach($all_fields as $field) {
-            if($field->metadata()->first() !== null) {
+            if($field->metadata()->first() !== null)
                 array_push($assigned_fields,$field);
-            } else {
+            else
                 $available_fields->push($field);
-            }
         }
 
         $fields = $available_fields->lists('name','flid');
@@ -129,7 +126,7 @@ class MetadataController extends Controller {
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @param  Request $request
-     * @return Redirect
+     * @return mixed
      */
     public function store($pid, $fid, Request $request) {
         //Changing metadata visibility or adding metadata to a field?
@@ -143,21 +140,20 @@ class MetadataController extends Controller {
 
             //Couple checks to make sure things are set up right
             $resourceTitle = $form->lod_resource;
-            if(is_null($resourceTitle) || $resourceTitle=='') {
-                return response("You must give your resource a title.",200);
-            }
+            if(is_null($resourceTitle) || $resourceTitle=='')
+                return response()->json(["status"=>false,"message"=>"resource_title_missing"],500);
 
             $primeIndex = Metadata::where('fid','=',$fid)->where('primary','=',1)->get()->count();
-            if($primeIndex!=1) {
-                return response("You must select a primary index for this form metadata.",200);
-            }
+            if($primeIndex!=1)
+                return response()->json(["status"=>false,"message"=>"primary_index_missing"],500);
 
             if($request->input('state') == 'true')
                 $form->public_metadata = true;
             else
                 $form->public_metadata = false;
             $form->save();
-            return response("success",200); //The request comes from JQuery, no need to redirect
+
+            return response()->json(["status"=>true,"message"=>"metadata_created"],200);
         } else if($request->input('type')=='addmetadata') {
             //Add metadata to a field
             $this->validate($request,[
@@ -165,10 +161,8 @@ class MetadataController extends Controller {
                 'field' => 'required|unique:metadatas,flid', //field can only have 1 metadata
             ]);
 
-            if(!$this->isUniqueToForm($fid,$request->input('name'))) {
-                flash()->overlay("That name is already used in this form","Whoops");
-                return redirect()->back();
-            }
+            if(!$this->isUniqueToForm($fid,$request->input('name')))
+                return redirect()->back()->with('k3_global_error', 'resource_name_inuse');
 
             $field = Field::where('pid',$pid)->where('fid',$fid)->where('flid','=',$request->input('field'))->first();
             $metadata = new Metadata(['pid'=>$pid,'fid'=>$fid, 'name'=>$request->input('name')]);
@@ -176,7 +170,9 @@ class MetadataController extends Controller {
             $metadata->field()->associate($field);
             $field->metadata()->save($metadata);
 
-            return redirect()->action('MetadataController@index',compact('pid','fid')); //Laravel form submission needs this
+            //Laravel form submission needs this
+            return redirect()->action('MetadataController@index',compact('pid','fid'))
+                ->with('k3_global_success', 'resource_created');
         }
     }
 
@@ -195,8 +191,9 @@ class MetadataController extends Controller {
         $form->lod_resource = $title;
         $form->save();
 
-        flash()->overlay('Resource Title updated', "Success!");
-        return redirect()->action('MetadataController@index',compact('pid','fid')); //Laravel form submission needs this
+        //Laravel form submission needs this
+        return redirect()->action('MetadataController@index',compact('pid','fid'))
+            ->with('k3_global_success', 'resource_updated');
     }
 
     /**
@@ -211,11 +208,10 @@ class MetadataController extends Controller {
         $pFlid = $request->flid;
 
         foreach($metadatas as $meta) {
-            if($meta->flid==$pFlid) {
+            if($meta->flid==$pFlid)
                 $meta->primary = 1;
-            } else {
+            else
                 $meta->primary = 0;
-            }
 
             $meta->save();
         }
@@ -227,14 +223,13 @@ class MetadataController extends Controller {
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @param  Request $request
-     * @return string - Json array response
+     * @return JsonResponse
      */
     public function destroy($pid,$fid,Request $request) {
         $meta = Field::find($request->input('flid'))->metadata()->first();
         if($meta !== null)
             $meta->delete();
-        flash()->overlay("The field's Linked Open Data was deleted", "Success!");
-        return response()->json('deleted');
+        return response()->json(["status"=>true,"message"=>"resource_deleted"],200);
 
     }
 

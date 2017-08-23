@@ -1,10 +1,10 @@
 <?php namespace App\Http\Controllers;
 
-use App\Field;
 use App\FileTypeField;
 use App\Form;
 use App\Record;
 use App\RecordPreset;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use RecursiveIteratorIterator;
@@ -37,16 +37,13 @@ class RecordPresetController extends Controller {
      * @return View
      */
     public function index($pid, $fid) {
-        if(!FormController::validProjForm($pid,$fid)) {
-            return redirect('projects/'.$pid);
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $form = FormController::getForm($fid);
 
-        if(!\Auth::user()->isFormAdmin($form)) {
-            flash()->overlay("Record has been removed as a preset.", "Whoops");
-            return redirect('projects');
-        }
+        if(!(\Auth::user()->isFormAdmin($form)))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
         $presets = RecordPreset::where('fid', '=', $fid)->get();
 
@@ -57,13 +54,14 @@ class RecordPresetController extends Controller {
      * Copies a record and saves it as a record preset template.
      *
      * @param  Request $request
+     * @return JsonResponse
      */
     public function presetRecord(Request $request) {
         $name = $request->name;
         $rid = $request->rid;
 
         if(!is_null(RecordPreset::where('rid', '=', $rid)->first())) {
-            flash()->overlay("Record is already a preset.");
+            return response()->json(["status"=>false,"message"=>"record_already_preset"],500);
         } else {
             $record = RecordController::getRecord($rid);
             $fid = $record->fid;
@@ -80,7 +78,7 @@ class RecordPresetController extends Controller {
             $preset->preset = json_encode($this->getRecordArray($rid,$preset->id));
             $preset->save();
 
-            flash()->overlay("Record preset saved.", "Success!");
+            return response()->json(["status"=>true,"message"=>"record_preset_saved"],200);
         }
     }
 
@@ -117,6 +115,7 @@ class RecordPresetController extends Controller {
      * Deletes a record preset.
      *
      * @param  Request $request
+     * @return JsonResponse
      */
     public function deletePreset(Request $request) {
         $id = $request->id;
@@ -141,7 +140,7 @@ class RecordPresetController extends Controller {
             rmdir($path);
         }
 
-        flash()->overlay("Record has been removed as a preset.", "Success!");
+        return response()->json(["status"=>true,"message"=>"record_preset_deleted"],200);
     }
 
     /**
@@ -234,10 +233,9 @@ class RecordPresetController extends Controller {
     }
 
     /**
-     * WHAT_DOESTHISFUNTIONDO
+     * Moves file to tmp directory
      *
-     * @param  type $name - DESCRIPTION
-     * @return type - DESCRIPTION
+     * @param  Request $request
      */
     public function moveFilesToTemp(Request $request) {
         $presetID = $request->presetID;
@@ -256,11 +254,10 @@ class RecordPresetController extends Controller {
             $files = new RecursiveIteratorIterator($it,
                 RecursiveIteratorIterator::CHILD_FIRST);
             foreach($files as $file) {
-                if ($file->isDir()){
+                if ($file->isDir())
                     rmdir($file->getRealPath());
-                } else {
+                else
                     unlink($file->getRealPath());
-                }
             }
         }
         else {
@@ -283,17 +280,15 @@ class RecordPresetController extends Controller {
         if(file_exists($src)) {
             $dir = opendir($src);
 
-            if (!is_dir($dst) && !is_file($dst)) {
+            if (!is_dir($dst) && !is_file($dst))
                 mkdir($dst, 0755, true);
-            }
 
             while (false !== ($file = readdir($dir))) {
                 if (($file != '.') && ($file != '..')) {
-                    if (is_dir($src . '/' . $file)) {
+                    if (is_dir($src . '/' . $file))
                         self::recurse_copy($src . '/' . $file, $dst . '/' . $file);
-                    } else {
+                    else
                         copy($src . '/' . $file, $dst . '/' . $file);
-                    }
                 }
             }
             closedir($dir);

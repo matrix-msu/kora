@@ -4,6 +4,7 @@ use App\Field;
 use App\Project;
 Use App\ComboListField;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\OptionPreset;
 use Illuminate\Support\Facades\Auth;
@@ -56,7 +57,7 @@ class OptionPresetController extends Controller {
      *
      * @param  int $pid - Project ID
      * @param  Request $request
-     * @return string - Json array response
+     * @return JsonResponse
      */
     public function create($pid, Request $request) {
         $this->validate($request, [
@@ -69,32 +70,28 @@ class OptionPresetController extends Controller {
             $presets_project = Project::find($pid);
             $user = Auth::user();
             $pc = new ProjectController;
-            if(!$pc->isProjectAdmin($user,$presets_project)) {
-                flash()->overlay("You cannot create presets unless you are an admin of the project it belongs to.","Whoops");
-                return response()->json("You cannot create presets unless you are an admin of the project it belongs to.",500);
-            }
+            if(!$pc->isProjectAdmin($user,$presets_project))
+                return response()->json(["status"=>false,"message"=>"not_project_admin"],500);
         } else {
-            flash()->overlay("You cannot create presets outside of a project.","Whoops");
-            return response()->json("You cannot create presets outside of a project.",500);
+            return response()->json(["status"=>false,"message"=>"project_required"],500);
         }
         $type = $request->input("type");
         $name = $request->input("name");
         $value = $request->input("preset");
 
-        if($type == "List" || $type == "Schedule" || $type == "Geolocator") {
+        if($type == "List" || $type == "Schedule" || $type == "Geolocator")
             $value = implode("[!]", $value);
-        }
 
         $preset = OptionPreset::create(['pid' => $pid, 'type' => $type, 'name' => $name, 'preset' => $value]);
         $preset->save();
-        if($request->input("shared") == "true") {
+        if($request->input("shared") == "true")
             $preset->shared = 1;
-        } else {
+        else
             $preset->shared = 0;
-        }
+
         $preset->save();
-        flash()->success("The preset was created!");
-        return response()->json( ['status'=>true,'url'=>(action("OptionPresetController@index",compact('pid')))],200);
+        return response()->json( ['status'=>true,"message"=>"option_preset_created",
+            'url'=>(action("OptionPresetController@index",compact('pid')))],200);
     }
 
     /**
@@ -108,12 +105,10 @@ class OptionPresetController extends Controller {
         $preset = OptionPreset::find($id);
         $project = Project::find($pid);
 
-        if(!is_null($preset) && !is_null($project)) {
+        if(!is_null($preset) && !is_null($project))
             return view('optionPresets.edit', compact('preset', 'project', 'pid', 'id'));
-        } else {
-            flash()->overlay("The preset or project you're trying to edit doesn't exist","Whoops");
-            return redirect()->back();
-        }
+        else
+            return redirect()->back()->with('k3_global_error', 'preset_project_missing');
     }
 
     /**
@@ -122,28 +117,25 @@ class OptionPresetController extends Controller {
      * @param  int $pid - Project ID
      * @param  int $id - ID of the preset
      * @param  Request $request
-     * @return string - Json array response
+     * @return JsonResponse
      */
     public function update($pid,$id,Request $request) {
 
         $preset = OptionPreset::where('id', '=', $id)->first();
 
-        if(($preset->pid === null)) {
-            flash()->overlay("You can't edit a stock preset","Whoops");
-            return response()->json(["status"=>false,"message"=>"Can't edit a stock preset"],500);
-        }
+        if(($preset->pid === null))
+            return response()->json(["status"=>false,"message"=>"cant_change_stock"],500);
+
         if($preset->pid !== null) {
             $presets_project = $preset->project->first();
             $user = Auth::user();
             $pc = new ProjectController;
-            if(!$pc->isProjectAdmin($user,$presets_project)) {
-                flash()->overlay("You cannot create presets unless you are an admin of the project it belongs to.","Whoops");
-                return response()->json(["status"=>false,"message"=>"You cannot create presets unless you are an admin of the project it belongs to."],500);
-            }
+            if(!$pc->isProjectAdmin($user,$presets_project))
+                return response()->json(["status"=>false,"message"=>"not_admin"],500);
         }
 
         $this->validate($request,[
-           'action' => 'required|in:changeName,changeSharing,changeRegex',
+            'action' => 'required|in:changeName,changeSharing,changeRegex',
             'preset_name' => 'required_if:action,changeName',
             'preset_shared' => 'required_if:action,changeSharing',
             'preset_regex' => 'required_if:action,changeRegex'
@@ -153,56 +145,53 @@ class OptionPresetController extends Controller {
             $op = OptionPreset::find($id);
             $op->name = $request->input("preset_name");
             $op->save();
-            return response()->json(["status"=>true,"message"=>"The name has been updated"],200);
+
+            return response()->json(["status"=>true,"message"=>"preset_name_updated"],200);
         } else if($request->input("action") == 'changeSharing') {
             $op = OptionPreset::find($id);
-            if($request->input("preset_shared") == 'true') {
+            if($request->input("preset_shared") == 'true')
                 $op->shared = true;
-            } else {
+            else
                 $op->shared = false;
-            }
             $op->save();
-            return response()->json(["status"=>true,"message"=>"The sharing preference has been updated"],200);
+
+            return response()->json(["status"=>true,"message"=>"preset_sharing_updated"],200);
         } else if($request->input("action") == "changeRegex") {
             $op = OptionPreset::find($id);
             $op->preset = $request->input("preset_regex");
             $op->save();
 
-            return response()->json(["status"=>true,"message"=>"Updated the regex"],200);
+            return response()->json(["status"=>true,"message"=>"preset_regex_updated"],200);
         }
 
-        return response()->json(["status"=>false,"message"=>"The preset or action requested isn't valid"]);
+        return response()->json(["status"=>false,"message"=>"invalid_preset_request"],500);
     }
 
     /**
      * Delete a specified preset.
      *
      * @param  Request $request
-     * @return string - Json array response
+     * @return JsonResponse
      */
     public function delete(Request $request) {
         $id = $request->input("presetId");
         $preset = OptionPreset::where('id', '=', $id)->first();
         if($preset->pid == null) {
             if(!Auth::user()->admin) {
-                flash()->overlay("You do not have permission to modify a stock preset");
-                return response()->json(["status"=>false,"message"=>"Cannot modify stock preset"],500);
+                return response()->json(["status"=>false,"message"=>"preset_not_admin"],500);
             } else {
                 $preset->delete();
-                flash()->overlay("The option preset was deleted.", "Success!");
-                return response()->json(["status"=>true,"message"=>"Preset deleted"],200);
+                return response()->json(["status"=>true,"message"=>"preset_deleted"],200);
             }
         } else {
             $presets_project = $preset->project->first();
             $user = Auth::user();
             $pc = new ProjectController;
             if(!$pc->isProjectAdmin($user,$presets_project)) {
-                flash()->overlay("You cannot create presets unless you are an admin of the project it belongs to.","Whoops");
-                return response()->json("You cannot create presets unless you are an admin of the project it belongs to.",500);
+                return response()->json(["status"=>false,"message"=>"preset_not_admin"],500);
             } else {
                 $preset->delete();
-                flash()->overlay("The option preset was deleted.", "Success!");
-                return response()->json(["status"=>true,"message"=>"Preset deleted"],200);
+                return response()->json(["status"=>true,"message"=>"preset_deleted"],200);
             }
         }
     }
@@ -219,9 +208,8 @@ class OptionPresetController extends Controller {
         $shared_presets = OptionPreset::where('shared', '=', 1)->get();
 
         foreach($shared_presets as $key => $sp) {
-            if($sp->pid == $pid || $sp->pid == null) {
+            if($sp->pid == $pid || $sp->pid == null)
                 $shared_presets->forget($key);
-            }
         }
 
         $all_presets = ["Stock" => $stock_presets, "Project" => $project_presets, "Shared" => $shared_presets];
@@ -261,9 +249,8 @@ class OptionPresetController extends Controller {
             $onePresets = self::getPresetsIndex($pid);
             foreach($onePresets as $subset) {
                 foreach($subset as $key => $preset) {
-                    if($preset->type != $preset_field_compatibility->get($oneType)) {
+                    if($preset->type != $preset_field_compatibility->get($oneType))
                         $subset->forget($key);
-                    }
                 }
             }
             $comboPresets->put("one",$onePresets);
@@ -271,9 +258,8 @@ class OptionPresetController extends Controller {
             $twoPresets = self::getPresetsIndex($pid);
             foreach($twoPresets as $subset) {
                 foreach($subset as $key => $preset) {
-                    if($preset->type != $preset_field_compatibility->get($twoType)) {
+                    if($preset->type != $preset_field_compatibility->get($twoType))
                         $subset->forget($key);
-                    }
                 }
             }
             $comboPresets->put("two",$twoPresets);
@@ -283,9 +269,8 @@ class OptionPresetController extends Controller {
             $all_presets = self::getPresetsIndex($pid);
             foreach($all_presets as $subset) {
                 foreach($subset as $key => $preset) {
-                    if($preset->type != $preset_field_compatibility->get($field->type)) {
+                    if($preset->type != $preset_field_compatibility->get($field->type))
                         $subset->forget($key);
-                    }
                 }
             }
             return $all_presets;
@@ -299,7 +284,7 @@ class OptionPresetController extends Controller {
      * @param  int $fid - Form ID
      * @param  int $flid - Field ID
      * @param  Request $request
-     * @return string - Json array response
+     * @return JsonResponse
      */
     public function applyPreset($pid,$fid,$flid,Request $request) {
         $id = $request->input("id");
@@ -314,23 +299,16 @@ class OptionPresetController extends Controller {
             if(($preset->pid == $project->pid) || $preset->shared || is_null($preset->pid)) {
                 //Make sure preset is for this project or is shared
                 if(!$user->canEditFields(FormController::getForm($fid))) {
-                    flash()->overlay("You do not have permission to edit this field");
-                    return response()->json(["status"=>false,"message"=>"You do not have permission to edit this field"],500);
+                    return response()->json(["status"=>false,"message"=>"cant_edit_field"],500);
                 } else {
                     //TODO::modular?
                     if($field->type == "Text" && $preset->type == "Text") {
                         $field->getTypedField()->updateOptions("Regex",$preset->preset);
-                        flash()->overlay("The preset was applied to the regex","Good job!");
-                        return response()->json(["status"=>true,"presetval"=>$preset->preset],200);
                     } else if(in_array($field->type,["List","Generated List","Multi-Select List"]) && $preset->type=="List") {
                         $field->getTypedField()->updateOptions("Options",$preset->preset);
-                        flash()->overlay("The preset was applied to the options for the field","Good job!");
-                        return response()->json(["status"=>true,"presetval"=>$preset->preset],200);
                     } else if(in_array($field->type,["Schedule","Geolocator"]) && in_array($preset->type,["Schedule","Geolocator"])) {
                         $field->default = $preset->preset;
                         $field->save();
-                        flash()->overlay("The preset was applied to the defaults for the field","Good job!");
-                        return response()->json(["status"=>true,"presetval"=>$preset->preset],200);
                     } else if($field->type == "Combo List" &&  $preset->type == "Text") {
                         if($request->input("combo_subfield") == "one") {
                             $subfield = "[!Field1!]";
@@ -394,16 +372,15 @@ class OptionPresetController extends Controller {
                             }
                         }
                     } else {
-                        dd($request);
+                        return response()->json(["status"=>false,"message"=>"preset_invalid_field"],500);
                     }
+                    return response()->json(["status"=>true,"message"=>"preset_applied"],200);
                 }
             } else {
-                flash()->overlay("Make sure you selected a preset that belongs to this project, or is shared from another project, or is a stock preset","Whoops");
-                return response()->json(['status'=>false,"message"=>"preset is not valid for this project","preset_project_field_objects"=>$arr,"preset_pid"=>$preset->pid, "project_pid"=>$project->pid],500);
+                return response()->json(["status"=>false,"message"=>"invalid_preset_selected"],500);
             }
         } else {
-            flash()->overlay("Make sure you have permission to edit this field then try again","Whoops");
-            return response()->json(["status"=>false,"message"=>"Make sure you have at least edit permission for this field","values"=>$arr],500);
+            return response()->json(["status"=>false,"message"=>"apply_preset_failed"],500);
         }
     }
 
@@ -442,23 +419,20 @@ class OptionPresetController extends Controller {
      * @param  int $pid - Project ID
      * @param  int $id - ID of the preset
      * @param  Request $request
-     * @return string - Json array response on error
+     * @return JsonResponse
      */
     public function saveList($pid, $id, Request $request) {
         $preset = OptionPreset::where('id', '=', $id)->first();
 
-        if(($preset->pid === null)) {
-            flash()->overlay("You can't edit a stock preset","Whoops");
-            return response()->json("Can't edit a stock preset",500);
-        }
+        if(($preset->pid === null))
+            return response()->json(["status"=>false,"message"=>"cant_edit_stock"],500);
+
         if($preset->pid !== null) {
             $presets_project = $preset->project->first();
             $user = Auth::user();
             $pc = new ProjectController;
-            if(!$pc->isProjectAdmin($user,$presets_project)) {
-                flash()->overlay("You cannot create presets unless you are an admin of the project it belongs to.","Whoops");
-                return response()->json("You cannot create presets unless you are an admin of the project it belongs to.",500);
-            }
+            if(!$pc->isProjectAdmin($user,$presets_project))
+                return response()->json(["status"=>false,"message"=>"not_project_admin"],500);
         }
 
         if($request->action == 'SaveList') {
@@ -469,10 +443,12 @@ class OptionPresetController extends Controller {
             $dbOpt = '';
             if(isset($options[0]))
                 $dbOpt = implode("[!]",$options);
-            //$field = FieldController::getField($flid);
+
             $preset = OptionPreset::find($id);
             $preset->preset = $dbOpt;
             $preset->save();
         }
+
+        return response()->json(["status"=>true,"message"=>"preset_list_saved"],200);
     }
 }

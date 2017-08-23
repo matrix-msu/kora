@@ -59,7 +59,7 @@ class TokenController extends Controller {
         if (!is_null($request['projects']))
             $instance->projects()->attach($request['projects']);
 
-        return redirect('tokens');
+        return redirect('tokens')->with('k3_global_success', 'token_created');
     }
 
     /**
@@ -91,7 +91,7 @@ class TokenController extends Controller {
         $instance = self::getToken($request->id);
         $instance->delete();
 
-        flash()->overlay("Token has been deleted", "Success!");
+        return response()->json(["status"=>true,"message"=>"token_deleted"],200);
     }
 
     /**

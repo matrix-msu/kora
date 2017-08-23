@@ -19,11 +19,6 @@ class FormSearchController extends Controller {
     */
 
     /**
-     * @var string - Help message for displaying illegal search terms (DON'T DELETE)
-     */
-    const HELP_MESSAGE = "The following arguments were ignored by the search: ";
-
-    /**
      * Constructs controller and makes sure user is authenticated.
      */
     public function __construct() {
@@ -39,9 +34,8 @@ class FormSearchController extends Controller {
      * @return View
      */
     public function keywordSearch($pid, $fid) {
-        if(!FormController::validProjForm($pid,$fid)) {
-            return redirect('projects/'.$pid);
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $arg = trim((Request::input('query')));
         $method = intval(Request::input('method'));
@@ -54,11 +48,10 @@ class FormSearchController extends Controller {
             $session_method = Session::get("method");
             $session_ids = Session::get("searchids");
 
-            if($session_query == $arg && $session_method == $method && $session_ids == $pid.' '.$fid) { // This is the same search so we shouldn't re-execute the query.
+            if($session_query == $arg && $session_method == $method && $session_ids == $pid.' '.$fid) // This is the same search so we shouldn't re-execute the query.
                 $rids = unserialize(Session::get("rids"));
-            } else { // This is a new search, so we have to execute again.
+            else // This is a new search, so we have to execute again.
                 $do_query = true;
-            }
         } else { // We have never searched before, so we must execute.
             $do_query = true;
         }
@@ -69,11 +62,6 @@ class FormSearchController extends Controller {
             $args = explode(" ", $arg);
             $args = array_diff($args, $ignored);
             $arg = implode(" ", $args);
-
-            $ignored = implode(" ", $ignored);
-
-            if($ignored)
-                flash("The following arguments were ignored by the search: " . $ignored . '. ');
 
             $search = new Search($pid, $fid, $arg, $method);
 
@@ -113,7 +101,7 @@ class FormSearchController extends Controller {
         ]);
         $rid_paginator->setPath( env('BASE_URL') . 'keywordSearch/project/' . $pid . '/forms/' . $fid);
 
-        return view('search.results', compact("form", "filesize", "records", "rid_paginator"));
+        return view('search.results', compact("form", "filesize", "records", "rid_paginator", "ignored"));
     }
 
     /**
@@ -127,9 +115,8 @@ class FormSearchController extends Controller {
         $rids = Session::get("rids");
         $rids = is_array($rids) ? $rids : unserialize($rids);
 
-        if(!FormController::validProjForm($pid,$fid)) {
-            return redirect('projects/'.$pid);
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $query = Record::where("rid", "=", array_shift($rids));
         foreach($rids as $rid) {

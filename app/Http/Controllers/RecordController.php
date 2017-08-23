@@ -4,9 +4,9 @@ use App\RecordPreset;
 use App\Revision;
 use App\User;
 use App\Form;
-use App\Field;
 use App\Record;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -47,13 +47,11 @@ class RecordController extends Controller {
      * @return View
      */
 	public function index($pid, $fid) {
-        if(!FormController::validProjForm($pid,$fid)) {
-            return redirect('projects');
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
-        if(!self::checkPermissions($fid)) {
-            return redirect('projects/' . $pid . '/forms/' . $fid);
-        }
+        if(!FieldController::checkPermissions($fid))
+            return redirect('/projects/'.$pid)->with('k3_global_error', 'cant_view_form');
 
         $form = FormController::getForm($fid);
         $filesize = self::getFormFilesize($fid);
@@ -71,13 +69,11 @@ class RecordController extends Controller {
      * @return View
      */
 	public function create($pid, $fid) {
-        if(!FormController::validProjForm($pid,$fid)) {
-            return redirect('projects');
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
-        if(!self::checkPermissions($fid, 'ingest')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
+        if(!self::checkPermissions($fid, 'ingest'))
+            return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'cant_create_records');
 
         $form = FormController::getForm($fid);
         $presets = array();
@@ -101,27 +97,24 @@ class RecordController extends Controller {
      * @return Redirect
      */
 	public function store($pid, $fid, Request $request) {
-        if(!FormController::validProjForm($pid,$fid)) {
-            return redirect('projects');
-        }
-
         foreach($request->all() as $key => $value) {
             if(!is_numeric($key))
                 continue;
             $field = FieldController::getField($key);
             $message = $field->getTypedField()->validateField($field, $value, $request);
             if($message != '') {
-                flash()->error($message);
-
                 $arrayed_keys = array();
 
                 foreach($request->all() as $akey => $avalue) {
-                    if(is_array($avalue)) {
+                    if(is_array($avalue))
                         array_push($arrayed_keys,$akey);
-                    }
                 }
 
-                return redirect()->back()->withInput($request->except($arrayed_keys));
+                if($request->api)
+                    return response()->json(["status"=>false,"message"=>"record_validation_error","record_validation_error"=>$message],500);
+                else
+                    return redirect()->back()->withInput($request->except($arrayed_keys))
+                        ->with('k3_global_error', 'record_validation_error')->with('record_validation_error', $message);
             }
         }
 
@@ -159,13 +152,10 @@ class RecordController extends Controller {
                 RevisionController::storeRevision($record->rid, 'create');
         }
 
-        if($request->api) {
-            return $record->kid;
-        } else {
-            flash()->overlay("Your record has been successfully created!", "Good job!");
-
-            return redirect('projects/' . $pid . '/forms/' . $fid . '/records');
-        }
+        if($request->api)
+            return response()->json(["status"=>true,"message"=>"record_created","kid"=>$record->kid],200);
+        else
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/records')->with('k3_global_success', 'record_created');
 	}
 
     /**
@@ -177,13 +167,11 @@ class RecordController extends Controller {
      * @return View
      */
 	public function show($pid, $fid, $rid) {
-        if(!self::validProjFormRecord($pid, $fid, $rid)) {
-            return redirect('projects');
-        }
+        if(!self::validProjFormRecord($pid, $fid, $rid))
+            return redirect('projects')->with('k3_global_error', 'record_invalid');
 
-        if(!self::checkPermissions($fid)) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
+        if(!FieldController::checkPermissions($fid))
+            return redirect('/projects/'.$pid)->with('k3_global_error', 'cant_view_form');
 
         $form = FormController::getForm($fid);
         $record = self::getRecord($rid);
@@ -201,13 +189,11 @@ class RecordController extends Controller {
      * @return View
      */
 	public function edit($pid, $fid, $rid) {
-        if(!self::validProjFormRecord($pid, $fid, $rid)) {
-            return redirect('projects');
-        }
+        if(!self::validProjFormRecord($pid, $fid, $rid))
+            return redirect('projects')->with('k3_global_error', 'record_invalid');
 
-        if(!\Auth::user()->isOwner(self::getRecord($rid)) && !self::checkPermissions($fid, 'modify')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
+        if(!\Auth::user()->isOwner(self::getRecord($rid)) && !self::checkPermissions($fid, 'modify'))
+            return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'cant_edit_record');
 
         $form = FormController::getForm($fid);
         $record = self::getRecord($rid);
@@ -224,9 +210,8 @@ class RecordController extends Controller {
      * @return View
      */
     public function cloneRecord($pid, $fid, $rid) {
-        if(!self::validProjFormRecord($pid, $fid, $rid)) {
-            return redirect('projects');
-        }
+        if(!self::validProjFormRecord($pid, $fid, $rid))
+            return redirect('projects')->with('k3_global_error', 'record_invalid');
 
         $form = FormController::getForm($fid);
 
@@ -254,13 +239,10 @@ class RecordController extends Controller {
      * @return array - The records that were removed
      */
     public function cleanUp($pid, $fid) {
-        if(!FormController::validProjForm($pid,$fid)) {
-            return redirect('projects');
-        }
+        $form = FormController::getForm($fid);
 
-        if(!\Auth::user()->isFormAdmin(FormController::getForm($fid))) {
-            flash()->overlay("You do not have permission for that.", "Whoops");
-        }
+        if(!(\Auth::user()->isFormAdmin($form)))
+            return response()->json(["status"=>false,"message"=>"not_form_admin"],500);
 
         //
         // Using revisions, if a record's most recent change is a deletion,
@@ -318,18 +300,13 @@ class RecordController extends Controller {
      * @return Redirect
      */
 	public function update($pid, $fid, $rid, Request $request) {
-        if(!FormController::validProjForm($pid,$fid)) {
-            return redirect('projects');
-        }
         foreach($request->all() as $key => $value) {
             if(!is_numeric($key))
                 continue;
             $field = FieldController::getField($key);
             $message = $field->getTypedField()->validateField($field, $value, $request);
-            if($message != '') {
-                flash()->error($message);
-                return redirect()->back()->withInput();
-            }
+            if($message != '')
+                return redirect()->back()->withInput()->with('k3_global_error', 'record_validation_error')->with('record_validation_error', $message);
         }
 
         $record = Record::where('rid', '=', $rid)->first();
@@ -361,11 +338,10 @@ class RecordController extends Controller {
 
         RecordPresetController::updateIfExists($record->rid);
 
-        if(!$request->api) {
-            flash()->overlay("Your record has been successfully updated!", "Good job!");
-
-            return redirect('projects/' . $pid . '/forms/' . $fid . '/records/' . $rid);
-        }
+        if(!$request->api)
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/records/' . $rid)->with('k3_global_success', 'record_updated');
+        else
+            return response()->json(["status"=>true,"message"=>"record_updated"],200);
 	}
 
     /**
@@ -375,15 +351,14 @@ class RecordController extends Controller {
      * @param  int $fid - Form ID
      * @param  int $rid - Record ID
      * @param  bool $mass - Is deleting mass records
+     * @return Redirect
      */
     public function destroy($pid, $fid, $rid, $mass = false) {
-        if(!self::validProjFormRecord($pid, $fid, $rid)) {
-            return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid]);
-        }
+        if(!self::validProjFormRecord($pid, $fid, $rid))
+            return redirect('projects')->with('k3_global_error', 'record_invalid');
 
-        if(!\Auth::user()->isOwner(self::getRecord($rid)) && !self::checkPermissions($fid, 'destroy') ) {
-            return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid]);
-        }
+        if(!\Auth::user()->isOwner(self::getRecord($rid)) && !self::checkPermissions($fid, 'destroy'))
+            return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'cant_delete_record');
 
         $record = self::getRecord($rid);
 
@@ -392,7 +367,7 @@ class RecordController extends Controller {
 
         $record->delete();
 
-        flash()->overlay("Your record has been successfully deleted!", "Good job!");
+        return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_success', 'record_deleted');
 	}
 
     /**
@@ -400,16 +375,17 @@ class RecordController extends Controller {
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
+     * @return JsonResponse
      */
     public function deleteAllRecords($pid, $fid) {
         $form = FormController::getForm($fid);
 
         if(!\Auth::user()->isFormAdmin($form)) {
-            flash()->overlay("You do not have permission for that.", "Whoops");
+            return response()->json(["status"=>false,"message"=>"not_form_admin"],500);
         } else {
             Record::where("fid", "=", $fid)->delete();
 
-            flash()->overlay("All records deleted.", "Success!");
+            return response()->json(["status"=>true,"message"=>"all_record_deleted"],200);
         }
     }
 
@@ -421,13 +397,11 @@ class RecordController extends Controller {
      * @return View
      */
     public function importRecordsView($pid,$fid) {
-        if(!FormController::validProjForm($pid,$fid)) {
-            return redirect('projects');
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
-        if(!self::checkPermissions($fid, 'ingest')) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
+        if(!self::checkPermissions($fid, 'ingest'))
+            return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'cant_create_records');
 
         $form = FormController::getForm($fid);
 
@@ -498,33 +472,25 @@ class RecordController extends Controller {
      * @param  string $permission - Permission to search for
      * @return bool - Has permissions
      */
-    private function checkPermissions($fid, $permission='') {
+    private static function checkPermissions($fid, $permission='') {
         switch($permission) {
             case 'ingest':
-                if(!(\Auth::user()->canIngestRecords(FormController::getForm($fid)))) {
-                    flash()->overlay("You do not have permission to create records for that form.", "Whoops");
+                if(!(\Auth::user()->canIngestRecords(FormController::getForm($fid))))
                     return false;
-                }
-                return true;
+                break;
             case 'modify':
-                if(!(\Auth::user()->canModifyRecords(FormController::getForm($fid)))) {
-                    flash()->overlay("You do not have permission to edit records for that form.", "Whoops");
+                if(!(\Auth::user()->canModifyRecords(FormController::getForm($fid))))
                     return false;
-                }
-                return true;
+                break;
             case 'destroy':
-                if(!(\Auth::user()->canDestroyRecords(FormController::getForm($fid)))) {
-                    flash()->overlay("You do not have permission to delete records for that form.", "Whoops");
+                if(!(\Auth::user()->canDestroyRecords(FormController::getForm($fid))))
                     return false;
-                }
-                return true;
+                break;
             default: // "Read Only"
-                if(!(\Auth::user()->inAFormGroup(FormController::getForm($fid)))) {
-                    flash()->overlay("You do not have permission to view records for that form.", "Whoops");
-                    return false;
-                }
-                return true;
+                return false;
         }
+
+        return true;
     }
 
     /**
@@ -620,13 +586,11 @@ class RecordController extends Controller {
      * @return View
      */
     public function showMassAssignmentView($pid,$fid) {
-        if(!FormController::validProjForm($pid,$fid)) {
-            return redirect('projects');
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
-        if(!$this->checkPermissions($fid,'modify')) {
-            return redirect()->back();
-        }
+        if(!self::checkPermissions($fid, 'modify'))
+            return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'cant_edit_records');
 
         $form = FormController::getForm($fid);
         $all_fields = $form->fields()->get();
@@ -650,24 +614,19 @@ class RecordController extends Controller {
      * @return Redirect
      */
     public function massAssignRecords($pid, $fid, Request $request) {
-        if(!$this->checkPermissions($fid,'modify')) {
-            return redirect()->back();
-        }
+        if(!self::checkPermissions($fid, 'modify'))
+            return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'cant_edit_records');
 
         $flid = $request->input("field_selection");
-        if(!is_numeric($flid)) {
-            flash()->overlay("That is not a valid field");
-            return redirect()->back();
-        }
+        if(!is_numeric($flid))
+            return redirect()->back()->with('k3_global_error', 'field_invalid');
 
-        if($request->has($flid)) {
+        if($request->has($flid))
             $formFieldValue = $request->input($flid); //Note this only works when there is one form element being submitted, so if you have more, check Date
-        } else {
-            flash()->overlay("You didn't provide a value to assign to the records","Whoops");
-            return redirect()->back();
-        }
+        else
+            return redirect()->back()->with('k3_global_error', 'no_mass_value');
 
-        if ($request->has("overwrite"))
+        if($request->has("overwrite"))
             $overwrite = $request->input("overwrite"); //Overwrite field in all records, even if it has data
         else
             $overwrite = 0;
@@ -679,8 +638,7 @@ class RecordController extends Controller {
             $typedField->massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite);
         }
 
-        flash()->overlay("The records were updated","Good job!");
-        return redirect()->action('RecordController@index',compact('pid','fid'));
+        return redirect()->action('RecordController@index',compact('pid','fid'))->with('k3_global_success', 'mass_records_updated');
     }
 
     /**
@@ -693,10 +651,6 @@ class RecordController extends Controller {
      */
     public function createTest($pid, $fid, Request $request) {
         $numRecs = $request->test_records_num;
-
-        if(!FormController::validProjForm($pid,$fid)) {
-            return redirect('projects');
-        }
 
         $form = FormController::getForm($fid);
         $fields = $form->fields()->get();
@@ -716,8 +670,7 @@ class RecordController extends Controller {
             }
         }
 
-        flash()->overlay('Created test records.',"Good job!");
-        return redirect()->action('RecordController@index',compact('pid','fid'));
+        return redirect()->action('RecordController@index',compact('pid','fid'))->with('k3_global_success', 'test_records_created');
     }
 
     /**
@@ -725,16 +678,17 @@ class RecordController extends Controller {
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
+     * @return JsonResponse
      */
     public function deleteTestRecords($pid, $fid) {
         $form = FormController::getForm($fid);
 
         if(!\Auth::user()->isFormAdmin($form)) {
-            flash()->overlay("You do not have permission for that.", "Whoops");
+            return response()->json(["status"=>false,"message"=>"not_form_admin"],500);
         } else {
             Record::where("fid", "=", $fid)->where("isTest", "=", 1)->delete();
 
-            flash()->overlay("All records deleted.", "Success!");
+            return response()->json(["status"=>true,"message"=>"test_records_deleted"],200);
         }
     }
 }

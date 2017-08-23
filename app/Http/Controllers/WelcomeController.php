@@ -26,15 +26,14 @@ class WelcomeController extends Controller {
 	public function index() {
 		$languages_available = Config::get('app.locales_supported');
 		$not_installed = true;
-		if(!file_exists("../.env")) {
+		if(!file_exists("../.env"))
 			return view('welcome',compact('languages_available','not_installed'));
-		} else if(\Auth::guest() or !\Auth::user()->active) {
+		else if(\Auth::guest() or !\Auth::user()->active)
             return view('welcome',compact('languages_available'));
-        } else if(\Auth::user()->dash) {
+        else if(\Auth::user()->dash)
             return redirect('/dashboard');
-		} else {
+		else
             return redirect('/projects');
-        }
 	}
 
     /**
@@ -45,6 +44,7 @@ class WelcomeController extends Controller {
     public function setTemporaryLanguage() {
         $language = Request::input('templanguage');
         Session::put('guest_user_language',$language);
-        return("Visitor's language is now set to: ".$language);
+
+        return response()->json(["status"=>true,"message"=>"global_language_updated","language"=>$language],200);
     }
 }

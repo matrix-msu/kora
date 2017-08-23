@@ -51,15 +51,13 @@ class ExportController extends Controller {
      * @return Redirect
      */
     public function exportRecords($pid, $fid, $type) {
-        if(!FormController::validProjForm($pid,$fid)) {
-            return redirect('projects/'.$pid);
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $form = FormController::getForm($fid);
 
-        if(!\Auth::user()->isFormAdmin($form)) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
+        if(!(\Auth::user()->isFormAdmin($form)))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
         $rids = DB::table("records")->where("fid", "=", $fid)->select("rid")->get();
 
@@ -86,8 +84,7 @@ class ExportController extends Controller {
         } else { // File does not exist, so some kind of error occurred, and we redirect.
             $tracker->delete();
 
-            flash()->overlay("There was an error during exporting!", "Whoops");
-            return redirect("projects/" . $pid . "/forms/" . $fid . "/records");
+            return redirect("projects/" . $pid . "/forms/" . $fid . "/records")->with('k3_global_error', 'record_export_fail');
         }
     }
 
@@ -98,7 +95,8 @@ class ExportController extends Controller {
      * @return string - Json array of the status
      */
     public function checkRecordExport($fid) {
-        return json_encode(["finished" => !! DB::table("download_trackers")->where("fid", "=", $fid)->count()]);
+        return response()->json(["status"=>true,"message"=>"record_export_progress",
+            "finished" => !! DB::table("download_trackers")->where("fid", "=", $fid)->count()],200);
     }
 
     /**
@@ -109,15 +107,13 @@ class ExportController extends Controller {
      * @return string - The html to download the file
      */
     public function exportRecordFiles($pid, $fid) {
-        if(!FormController::validProjForm($pid,$fid)) {
-            return redirect('projects/'.$pid);
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $form = FormController::getForm($fid);
 
-        if(!\Auth::user()->isFormAdmin($form)) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
+        if(!(\Auth::user()->isFormAdmin($form)))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
         $path = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid;
         $zipPath = env('BASE_PATH').'storage/app/tmpFiles/';
@@ -163,15 +159,14 @@ class ExportController extends Controller {
      * @return mixed - Export file or data array
      */
     public function exportForm($pid, $fid, $download=true) {
-        if(!FormController::validProjForm($pid, $fid)) {
-            return redirect('projects/'.$pid);
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $form = FormController::getForm($fid);
 
-        if(!\Auth::user()->isFormAdmin($form)) {
-            return redirect('projects/' . $pid . '/forms/' . $fid);
-        }
+        if(!(\Auth::user()->isFormAdmin($form)))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
+
 
         $formArray = array();
 
@@ -252,15 +247,13 @@ class ExportController extends Controller {
      * @return string - html for the file
      */
     public function exportProject($pid) {
-        if(!ProjectController::validProj($pid)) {
-            return redirect('projects');
-        }
+        if(!ProjectController::validProj($pid))
+            return redirect('projects')->with('k3_global_error', 'project_invalid');
 
         $proj = ProjectController::getProject($pid);
 
-        if(!\Auth::user()->isProjectAdmin($proj)) {
-            return redirect('projects/' . $pid);
-        }
+        if(!\Auth::user()->isProjectAdmin($proj))
+            return redirect('projects')->with('k3_global_error', 'not_project_admin');
 
         $projArray = array();
 
@@ -303,9 +296,8 @@ class ExportController extends Controller {
     public static function exportWithRids(array $rids, $format = self::JSON) {
         $format = strtoupper($format);
 
-        if(! self::isValidFormat($format)) {
+        if(!self::isValidFormat($format))
             return null;
-        }
 
         $rids = json_encode($rids);
 

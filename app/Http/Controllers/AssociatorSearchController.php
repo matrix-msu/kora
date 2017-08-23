@@ -1,6 +1,4 @@
-<?php
-
-namespace App\Http\Controllers;
+<?php namespace App\Http\Controllers;
 
 use App\ListField;
 use App\Record;
@@ -110,11 +108,10 @@ class AssociatorSearchController extends Controller {
             $session_method = Session::get("method_assoc");
             $session_ids = Session::get("ids_assoc");
 
-            if($session_query == $arg && $session_method == $method && $session_ids == $pid.' '.$fid) { // This is the same search so we shouldn't re-execute the query.
+            if($session_query == $arg && $session_method == $method && $session_ids == $pid.' '.$fid) // This is the same search so we shouldn't re-execute the query.
                 $rids = unserialize(Session::get("rids_assoc"));
-            } else { // This is a new search, so we have to execute again.
+            else // This is a new search, so we have to execute again.
                 $do_query = true;
-            }
         } else { // We have never searched before, so we must execute.
             $do_query = true;
         }
@@ -128,7 +125,6 @@ class AssociatorSearchController extends Controller {
 
             if($arg!="") {
                 $search = new Search($pid, $fid, $arg, $method);
-
                 $rids = $search->formKeywordSearch();
             } else {
                 //If no search term given, return everything!!!!

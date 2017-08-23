@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Version;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -60,9 +61,9 @@ class InstallController extends Controller {
      * @return View
      */
 	public function index(Request $request) {
-		if(file_exists("../.env")) {
+		if(file_exists("../.env"))
 			return redirect('/');
-		}
+
 		$not_installed = true;
         $languages_available = Config::get('app.locales_supported');
 
@@ -75,9 +76,8 @@ class InstallController extends Controller {
      * @return View
      */
 	public function editEnvConfigs() {
-		if(!Auth::check()) {
+		if(!Auth::check())
 			return redirect("/");
-		}
 
 		if(!Auth::user()->admin) {
 			flash()->overlay("You must be an admin to see this","Whoops");
@@ -102,14 +102,9 @@ class InstallController extends Controller {
      * @return string - Json array of return status
      */
 	public function updateEnvConfigs(Request $request) {
-		if(!Auth::check()) {
-			return redirect("/");
-		}
+		if(!Auth::user()->admin)
+            return response()->json(["status"=>false,"message"=>"not_admin"],500);
 
-		if(!Auth::user()->admin) {
-			flash()->overlay("You must be an admin to see this","Whoops");
-			return redirect("/");
-		}
         $current_config = $this->getEnvConfigs();
 
         if($request->input("type") == "Recaptcha Public Key") {
@@ -133,15 +128,15 @@ class InstallController extends Controller {
             $current_config->put("mail_password",$request->input("value"));
 
         } else {
-            return response()->json(["status"=>false,"message"=>$request->input("type")." can't be changed or doesn't exist"],500);
+            return response()->json(["status"=>false,"message"=>"env_invalid_type"],500);
         }
 
         $write_status = $this->writeEnv($current_config,true);
 
         if($write_status == false) {
-            return response()->json(["status"=>false,"message"=>"Unable to update that setting"],500);
+            return response()->json(["status"=>false,"message"=>"env_cant_write"],500);
         } else {
-            return response()->json(["status"=>true,"message"=>"Updated"]);
+            return response()->json(["status"=>true,"message"=>"env_updated"],200);
         }
 
 	}
@@ -192,9 +187,9 @@ class InstallController extends Controller {
 
         $baseurl = $envstrings->get("baseurl_url");
         //Check if http:// is included in the base URL, and addi it if missing
-        if(!preg_match("/(http)(.*)/",$baseurl)) {
+        if(!preg_match("/(http)(.*)/",$baseurl))
             $baseurl = "http://".$baseurl;
-        }
+
         //Check for trailing slashes
         if(substr($baseurl,-1) != "/") {
             $baseurl = $baseurl."/";
@@ -204,9 +199,9 @@ class InstallController extends Controller {
 
         $storageurl = $envstrings->get("baseurl_storage");
         //Check if http:// is included in the base URL, and addi it if missing
-        if(!preg_match("/(http)(.*)/",$storageurl)) {
+        if(!preg_match("/(http)(.*)/",$storageurl))
             $storageurl = "http://".$storageurl;
-        }
+
         //Check for trailing slashes
         if(substr($storageurl,-1) != "/") {
             $storageurl = $storageurl."/";
@@ -250,13 +245,11 @@ class InstallController extends Controller {
 				$envfile = fopen("../.env", "w");
 
 			} catch(\Exception $e) { //Most likely if the file is owned by another user or PHP doesn't have permission
-                flash()->overlay("There was a problem opening the ENV file, the permissions may not be set correctly."."\n ".$e->getMessage());
 				return false;
 			}
             try {
                 if(!fwrite($envfile, $env_layout)) { //write to file and if nothing is written or error
                     fclose($envfile);
-                    flash()->overlay("There was a problem writing to the ENV file, you may need to fix it manually");
                     return false;
                 } else {
                     fclose(($envfile));
@@ -264,7 +257,6 @@ class InstallController extends Controller {
                     return true;
                 }
             } catch(\Exception $e) {
-                flash()->overlay("There was a problem writing to the ENV file, you may need to fix it manually"."\n ".$e->getMessage());
                 return false;
             }
 		}
@@ -295,43 +287,31 @@ class InstallController extends Controller {
 		$adminuser->put('user_language',$request->input('user_language'));
 
         if(!file_exists("../.env")) {
-            //flash()->overlay("The database connection settings do not exist",'Whoops!');
-            //return redirect('/install');
-            return response()->json(["status"=>false,"message"=>"No database settings"],500);
+            return redirect('/')->with('k3_global_error', 'no_db_settings');
         } else {
             try {
-                if(Schema::hasTable("users")) { //This indicates a migration has already been run
-                    //return redirect('/');
-                    return response()->json(["status"=>false,"message"=>"Kora 3 is already installed"],500);
-                }
+                if(Schema::hasTable("users")) //This indicates a migration has already been run
+                    return redirect('/')->with('k3_global_error', 'k3_already_installed');
             } catch(\Exception $e) {
-                flash()->overlay("Double check the database connection settings","Whoops");
-                //return redirect('/install');
-                return response()->json(["status"=>false,"message"=>"Database connection failed"],500);
+                return redirect('/')->with('k3_global_error', 'db_connection_failed');
             }
 
             try {
                 $status = Artisan::call("migrate", array('--force' => true));
             } catch(\Exception $e) {
-                flash()->overlay("Sorry, couldn't run the Artisan migrations, please check Laravel's logs for details. ","Whoops");
-                //return redirect('/');
-                return response()->json(["status"=>false,"message"=>"Artisan migrations failed check Laravel's logs"],500);
+                return redirect('/')->with('k3_global_error', 'artisan_migration_fail');
             }
 
             try {
                 $status = Artisan::call("key:generate");
             } catch(\Exception $e) {
-                flash()->overlay("Sorry, couldn't generate the application key through Artisan, please check Laravel's logs for details. ","Whoops");
-                //return redirect('/');
-                return response()->json(["status"=>false,"message"=>"Problem generating application key check Laravel's logs"],500);
+                return redirect('/')->with('k3_global_error', 'key_generation_fail');
             }
 
             try {
                 $status = $this->createDirectories();
             } catch(\Exception $e) {
-                flash()->overlay("Sorry, there was a problem creating some required directories.","Whoops");
-                //return redirect('/');
-                return response()->json(["status"=>false,"message"=>"Unable to create required directories","exception"=>$e->getMessage()],500);
+                return redirect('/')->with('k3_global_error', 'install_directories_failed');
             }
 
             try {
@@ -339,9 +319,7 @@ class InstallController extends Controller {
                 $v->version = UpdateController::getCurrentVersion();
                 $v->save();
             } catch(\Exception $e) {
-                flash()->overlay("Sorry, current version could not be added to database.", "Whoops");
-                //return redirect('/');
-                return response()->json(["status"=>false,"message"=>"Problem adding current version to the database"],500);
+                return redirect('/')->with('k3_global_error', 'k3_version_issue');
             }
 
             try {
@@ -357,8 +335,7 @@ class InstallController extends Controller {
                 $newuser->admin = 1;
                 $newuser->save();
             } catch(\Exception $e) {
-                flash()->overlay("The admin user account couldn't be created.","Whoops");
-                return response()->json(["status"=>false,"message"=>"Admin account creation failed"],500);
+                return redirect('/')->with('k3_global_error', 'admin_creation_fail');
             }
 
             try {
@@ -370,10 +347,9 @@ class InstallController extends Controller {
                     $newPreset = \App\OptionPreset::create(compact("name","pid","type","preset"));
                 }
             } catch(\Exception $e) {
-                flash()->overlay("A stock preset could not be created.","Whoops");
-                return response()->json(["status"=>false,"message"=>"Stock Preset Creation Failed"],500);
+                return redirect('/')->with('k3_global_error', 'stock_presets_failed');
             } finally {
-                return redirect("/");
+                return redirect("/")->with('k3_global_success', 'k3_db_installed');
             }
         }
     }
@@ -382,19 +358,15 @@ class InstallController extends Controller {
      * Begins the installation process.
      *
      * @param  Request $request
-     * @return string - Json array response
+     * @return JsonResponse
      */
 	public function installKora(Request $request) {
 		if(file_exists("../.env")) {
 			try {
-				if(Schema::hasTable("users")) { //This indicates a migration has already been run
-					//return redirect('/');
-					return response()->json(["status" => false, "message" => "Kora 3 is already installed"], 500);
-				}
+				if(Schema::hasTable("users")) //This indicates a migration has already been run
+					return response()->json(["status" => false, "message" => "k3_already_installed"], 500);
 			} catch(\Exception $e) {
-				flash()->overlay("Double check the database connection settings", "Whoops");
-				//return redirect('/install');
-				return response()->json(["status" => false, "message" => "Database connection failed"], 500);
+				return response()->json(["status" => false, "message" => "db_connection_failed"], 500);
 			}
 		}
 
@@ -436,41 +408,36 @@ class InstallController extends Controller {
 
 		$baseurl = $request->input("baseurl_url");
 		//Check if http:// is included in the base URL, and addi it if missing
-		if(!preg_match("/(http)(.*)/",$baseurl)) {
+		if(!preg_match("/(http)(.*)/",$baseurl))
 			$baseurl = "http://".$baseurl;
-		}
+
 		//Check for trailing slashes
-		if(substr($baseurl,-1) != "/") {
+		if(substr($baseurl,-1) != "/")
 			$baseurl = $baseurl."/";
-		}
 
 		$envstrings->put("baseurl_url",$baseurl);
 
         $storageurl = $request->input("baseurl_storage");
         //Check if http:// is included in the base URL, and addi it if missing
-        if(!preg_match("/(http)(.*)/",$storageurl)) {
+        if(!preg_match("/(http)(.*)/",$storageurl))
             $storageurl = "http://".$storageurl;
-        }
+
         //Check for trailing slashes
-        if(substr($storageurl,-1) != "/") {
+        if(substr($storageurl,-1) != "/")
             $storageurl = $storageurl."/";
-        }
 
         $envstrings->put("baseurl_storage",$storageurl);
 
 		try{
 			$dbtype = $envstrings->get('db_driver');
-			if($dbtype == "mysql") {
+			if($dbtype == "mysql")
 				$dbc = new \PDO('mysql:host='.$envstrings->get("db_host").';dbname='.$envstrings->get("db_database"),$envstrings->get('db_username'),$envstrings->get('db_password'));
-			} else if($dbtype == "pgsql") {
+			else if($dbtype == "pgsql")
 				$dbc = new \PDO('pgsql:host='.$envstrings->get("db_host").';dbname='.$envstrings->get("db_database"),$envstrings->get('db_username'),$envstrings->get('db_password'));
-			} elseif($dbtype == "sqlsrv") {
+			elseif($dbtype == "sqlsrv")
 				$dbc = new \PDO('pgsql:Server='.$envstrings->get("db_host").';Databasee='.$envstrings->get("db_database"),$envstrings->get('db_username'),$envstrings->get('db_password'));
-			}
 		} catch(\PDOException $e) {
-			flash()->overlay("Can't connect to the database with the information provided", "Whoops");
-			return response()->json(["status"=>false,"message"=>"Can't connect to the database with the information provided"],500);
-			//return (redirect()->back()->withInput());
+			return response()->json(["status"=>false,"message"=>"db_connection_failed"],500);
 		} finally {
 			$dbc = null; //required to close PDO connection
 		}
@@ -478,12 +445,10 @@ class InstallController extends Controller {
 
 		$status = $this->writeEnv($envstrings);
 
-		if($status == true) {
-			return response()->json(["status"=>true,"message"=>"success"],200);
-		} else {
-			flash()->overlay("Your settings couldn't be saved. Make sure that PHP has permission to save the ENV file","Whoops");
-			return response()->json(["status"=>false,"message"=>"permission error?"],500);
-		}
+		if($status == true)
+			return response()->json(["status"=>true,"message"=>"k3_install_success"],200);
+		else
+			return response()->json(["status"=>false,"message"=>"env_creation_failed"],500);
 	}
 
     /**
@@ -495,11 +460,10 @@ class InstallController extends Controller {
         foreach($this->DIRECTORIES as $dir) {
             if(!file_exists(ENV("BASE_PATH").$dir)) {
                 try {
-                    echo "mkdir on ". ENV("BASE_PATH") . $dir . "\n";
-                    echo '<br>';
                     mkdir(ENV("BASE_PATH") . $dir, 0775); //Notice the permission that is set and if it's OK!
+                    return true;
                 } catch(\Exception $e) {
-                    echo "Error  " . $e->getMessage() . "\n";
+                    return false;
                 }
             }
         }

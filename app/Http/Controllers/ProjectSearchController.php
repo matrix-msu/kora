@@ -155,12 +155,10 @@ class ProjectSearchController extends Controller {
                 if(\Auth::user()->inAFormGroup(FormController::getForm($kid_array[1]))) {
                     return redirect("/projects/" . $kid_array[0] . "/forms/" . $kid_array[1] . "/records/" . $kid_array[2]);
                 } else { // User did not have permission to view the record.
-                    flash()->overlay("You do not have permission to view records for that form.", "Whoops");
-                    return redirect()->back();
+                    return redirect()->back()->with('k3_global_error', 'cant_view_record');
                 }
             } else { // Record does not exist.
-                flash()->overlay("That record did not exist.", "Whoops");
-                return redirect()->back();
+                return redirect()->back()->with('k3_global_error', 'record_doesnt_exist');
             }
         }
 
@@ -184,11 +182,6 @@ class ProjectSearchController extends Controller {
             $query_pieces = explode(" ", $query);
             $query_pieces = array_diff($query_pieces, $ignored);
             $query = implode(" ", $query_pieces);
-
-            $ignored = implode(" ", $ignored);
-
-            if($ignored)
-                flash(FormSearchController::HELP_MESSAGE . $ignored . '. ');
 
             $user = Auth::user();
 
@@ -296,6 +289,11 @@ class ProjectSearchController extends Controller {
         return json_encode($returnArray);
     }
 
+    /**
+     * Caches global search results for a user.
+     *
+     * @param  Request
+     */
     public function cacheGlobalSearch(Request $request) {
         $html = $request->html;
 
@@ -323,6 +321,9 @@ class ProjectSearchController extends Controller {
         ]);
     }
 
+    /**
+     * Clears a user's global search cache.
+     */
     public function clearGlobalCache() {
         \Auth::user()->gsCaches()->delete();
     }

@@ -59,15 +59,13 @@ class ImportController extends Controller {
      * @return string - html for the file download
      */
     public function exportSample($pid, $fid, $type){
-        if(!FormController::validProjForm($pid,$fid)) {
-            return redirect('projects');
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $form = FormController::getForm($fid);
 
-        if(!\Auth::user()->isFormAdmin($form)) {
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
+        if(!(\Auth::user()->isFormAdmin($form)))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
         $fields = Field::where('fid', '=', $fid)->get();
 
@@ -119,9 +117,8 @@ class ImportController extends Controller {
     public function matchupFields($pid, $fid, Request $request) {
         $form = FormController::getForm($fid);
 
-        if(!\Auth::user()->admin && !\Auth::user()->isFormAdmin($form)) {
-            return 'Error: ';
-        }
+        if(!(\Auth::user()->isFormAdmin($form)))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
         //if zip file
         if(!is_null($request->file('files'))) {
@@ -229,7 +226,12 @@ class ImportController extends Controller {
      * @param  int $fid - Form ID
      * @param  Request $request
      */
-    public function importRecord($pid, $fid, Request $request){
+    public function importRecord($pid, $fid, Request $request) {
+        $form = FormController::getForm($fid);
+
+        if(!(\Auth::user()->isFormAdmin($form)))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
+
         $matchup = $request->table;
 
         $record = $request->record;
@@ -545,9 +547,8 @@ class ImportController extends Controller {
 	public function importForm($pid, Request $request) {
         $project = ProjectController::getProject($pid);
 
-        if(!\Auth::user()->admin && !\Auth::user()->isProjectAdmin($project)) {
-            return redirect('projects/'.$pid);
-        }
+        if(!\Auth::user()->isProjectAdmin($proj))
+            return redirect('projects')->with('k3_global_error', 'not_project_admin');
 
         $file = $request->file('form');
 
@@ -675,9 +676,8 @@ class ImportController extends Controller {
     public function importFormK2($pid, Request $request) {
         $project = ProjectController::getProject($pid);
 
-        if(!\Auth::user()->admin && !\Auth::user()->isProjectAdmin($project)) {
-            return redirect('projects/'.$pid);
-        }
+        if(!\Auth::user()->isProjectAdmin($proj))
+            return redirect('projects')->with('k3_global_error', 'not_project_admin');
 
         $file = $request->file('form');
         $scheme = simplexml_load_file($file);
@@ -999,11 +999,10 @@ class ImportController extends Controller {
                                 $dateStr = (string)$value;
                                 if($dateStr!="") {
                                     $dateArray = explode(' ',$dateStr);
-                                    if(FieldController::getFieldOption($field,'Era')=='Yes') {
+                                    if(FieldController::getFieldOption($field,'Era')=='Yes')
                                         $era = $dateArray[1];
-                                    } else {
+                                    else
                                         $era = 'CE';
-                                    }
                                     $dateParts = explode("/",$dateArray[0]);
 
                                     $date = new DateField();
@@ -1044,9 +1043,8 @@ class ImportController extends Controller {
                                 break;
                             case 'Documents':
                                 $realname='';
-                                if(isset($value->attributes()["originalName"])) {
+                                if(isset($value->attributes()["originalName"]))
                                     $realname = $value->attributes()["originalName"];
-                                }
                                 $localname = (string)$value;
 
                                 if($localname!='') {
@@ -1081,9 +1079,8 @@ class ImportController extends Controller {
                                 break;
                             case 'Gallery':
                                 $realname='';
-                                if(isset($value->attributes()["originalName"])) {
+                                if(isset($value->attributes()["originalName"]))
                                     $realname = $value->attributes()["originalName"];
-                                }
                                 $localname = (string)$value;
 
                                 if($localname!='') {
@@ -1166,9 +1163,7 @@ class ImportController extends Controller {
                 rmdir($zipDir);
         }
 
-        flash()->overlay("Your form has been successfully created!","Good job!");
-
-        return redirect('projects/'.$form->pid);
+        return redirect('projects/'.$form->pid)->with('k3_global_success', 'form_created');
     }
 
     /**
@@ -1295,9 +1290,8 @@ class ImportController extends Controller {
      * @return Redirect
      */
     public function importProject(Request $request) {
-        if(!\Auth::user()->admin) {
-            return redirect('projects/');
-        }
+        if(!\Auth::user()->admin)
+            return redirect('projects/')->with('k3_global_error', 'not_admin');
 
         $file = $request->file('project');
 
@@ -1351,8 +1345,6 @@ class ImportController extends Controller {
             $this->importFormNoFile($proj->pid,$form);
         }
 
-        flash()->overlay("Your project has been successfully created!","Good Job!");
-
-        return redirect('projects');
+        return redirect('projects')->with('k3_global_success', 'project_created');
     }
 }
