@@ -29,7 +29,6 @@
     color: palette(gray, slate);
     display: inline-block;
     font-size: 10px;
-    line-height: 50px;
     opacity: .2;
   }
 
@@ -77,6 +76,7 @@
   }
 
   .project-name {
+    padding-bottom: #{ $underline-padding + 4px };
     transition: all .2s ease-in-out;
 
     .name {

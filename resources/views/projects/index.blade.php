@@ -48,7 +48,7 @@
               </a>
             </div>
 
-            <a class="project-name" href="{{action("ProjectController@show",["pid" => $project->pid])}}">
+            <a class="project-name underline-middle-hover" href="{{action("ProjectController@show",["pid" => $project->pid])}}">
               <span class="name">{{$project->name}}</span>
               <i class="icon icon-arrow-right"></i>
             </a>

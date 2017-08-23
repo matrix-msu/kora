@@ -8,7 +8,7 @@
   .search {
     float: left;
     height: 20px;
-    padding-bottom: 8px;
+    padding-bottom: 5px;
 
     .icon {
       cursor: pointer;
@@ -34,8 +34,9 @@
     input {
       background: none;
       border: 0;
-      color: palette(gray, text);
       caret-color: palette(green, accent);
+      color: palette(gray, text);
+      cursor: pointer;
       font-size: 14px;
       margin: 0 5px;
       outline: none;
@@ -55,7 +56,7 @@
     font-size: 14px;
     line-height: 16px;
     margin: 0 7.5px;
-    padding: 0 0 10px;
+    padding: 0 0 5px;
 
     &:first-child {
       margin-left: 0;

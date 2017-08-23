@@ -3,12 +3,13 @@ require 'autoprefixer-rails'
 # Require any additional compass plugins here.
 
 # Set this to the root of your project when deployed:
-http_path = "/"
-css_dir = "public/assets/css"
-sass_dir = "resources/assets/scss"
-images_dir = "public/assets/images"
-javascripts_dir = "public/assets/javascripts"
-fonts_dir = "fonts"
+http_path = '/'
+css_dir = 'public/assets/css'
+sass_dir = 'resources/assets/scss'
+images_dir = 'public/assets/images'
+javascripts_dir = 'public/assets/javascripts'
+fonts_dir = 'fonts'
+output_style = :compressed
 
 on_stylesheet_saved do |file|
   css = File.read(file)
