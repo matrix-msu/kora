@@ -25,7 +25,6 @@ class VarCloner extends AbstractCloner
     protected function doClone($var)
     {
         $useExt = $this->useExt;
-        $i = 0;                         // Current iteration position in $queue
         $len = 1;                       // Length of $queue
         $pos = 0;                       // Number of cloned items past the first level
         $refsCounter = 0;               // Hard references counter
@@ -183,10 +182,13 @@ class VarCloner extends AbstractCloner
 
                     case 'resource':
                     case 'unknown type':
+                    case 'resource (closed)':
                         if (empty($resRefs[$h = (int) $v])) {
                             $stub = new Stub();
                             $stub->type = Stub::TYPE_RESOURCE;
-                            $stub->class = $zval['resource_type'] ?: get_resource_type($v);
+                            if ('Unknown' === $stub->class = $zval['resource_type'] ?: @get_resource_type($v)) {
+                                $stub->class = 'Closed';
+                            }
                             $stub->value = $v;
                             $stub->handle = $h;
                             $a = $this->castResource($stub, 0 < $i);
@@ -306,7 +308,7 @@ class VarCloner extends AbstractCloner
         } else {
             // check if we are nested in an output buffering handler to prevent a fatal error with ob_start() below
             $obFuncs = array('ob_clean', 'ob_end_clean', 'ob_flush', 'ob_end_flush', 'ob_get_contents', 'ob_get_flush');
-            foreach (debug_backtrace(PHP_VERSION_ID >= 50400 ? DEBUG_BACKTRACE_IGNORE_ARGS : false) as $frame) {
+            foreach (debug_backtrace(\PHP_VERSION_ID >= 50400 ? DEBUG_BACKTRACE_IGNORE_ARGS : false) as $frame) {
                 if (isset($frame['function'][0]) && !isset($frame['class']) && 'o' === $frame['function'][0] && in_array($frame['function'], $obFuncs)) {
                     $frame['line'] = 0;
                     break;

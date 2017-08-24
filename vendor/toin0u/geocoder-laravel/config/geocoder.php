@@ -2,19 +2,25 @@
 
 /**
  * This file is part of the GeocoderLaravel library.
- *
- * (c) Antoine Corcy <contact@sbin.dk>
- *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
+use Geocoder\Provider\Chain\Chain;
+use Geocoder\Provider\GeoPlugin\GeoPlugin;
+use Geocoder\Provider\GoogleMaps\GoogleMaps;
+use Http\Client\Curl\Client;
+
 return [
-    // Providers get called in the chain order given here.
-    // The first one to return a result will be used.
+    'cache-duration' => 999999999,
     'providers' => [
-        'Geocoder\Provider\GoogleMapsProvider' => ['fr-FR', 'Île-de-France', true],
-        'Geocoder\Provider\FreeGeoIpProvider'  => null,
+        Chain::class => [
+            GoogleMaps::class => [
+                'en-US',
+                env('GOOGLE_MAPS_API_KEY'),
+            ],
+            GeoPlugin::class  => [],
+        ],
     ],
-    'adapter'  => 'Geocoder\HttpAdapter\CurlHttpAdapter',
+    'adapter'  => Client::class,
 ];
