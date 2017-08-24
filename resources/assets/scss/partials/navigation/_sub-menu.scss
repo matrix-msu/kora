@@ -1,0 +1,81 @@
+.navigation-sub-menu {
+  background-color: palette(gray, dropdown);
+  border-radius: 0 0 5px 5px;
+  box-shadow: -16px 20px 30px 0 palette(black, base, .2);
+  opacity: 0;
+  padding-bottom: 5px;
+  position: absolute;
+  top: $navigation-height;
+  transition: all 250ms ease;
+  visibility: none;
+  width: 175px;
+  z-index: -100;
+
+  &.active {
+    opacity: 1;
+    visibility: visible;
+    z-index: auto;
+  }
+
+  img {
+    padding-right: 13px;
+  }
+
+  .header {
+    color: palette(white, base);
+    font-family: $ubuntu;
+    font-size: 16px;
+    height: 18px;
+    line-height: 18px;
+    padding: 20px;
+  }
+
+  .link {
+    color: palette(white, base);
+    font-family: $ubuntu;
+    font-size: 13px;
+
+    a {
+      align-items: center;
+      display: flex;
+      height: 14px;
+      line-height: 14px;
+      padding: 0 20px 8px;
+      transition: color 150ms ease;
+    }
+
+    a:hover {
+      color: palette(green, accent);
+    }
+
+    &:not(:first-child) a {
+      padding-top: 8px;
+    }
+
+    &:last-child a {
+      justify-content: space-between;
+      padding-bottom: 20px;
+    }
+
+    &.head a {
+      padding: 20px 0 20px 20px;
+    }
+
+    &.pre-spacer a {
+      padding-bottom: 20px;
+    }
+  }
+
+  .spacer {
+    border-bottom: 2px solid palette(white, base);
+    box-sizing: border-box;
+    height: 3px;
+    margin: 0 auto;
+    opacity: .1;
+    width: calc(100% - 40px);
+
+    + .link a {
+      padding-top: 20px;
+    }
+  }
+}

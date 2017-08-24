@@ -10,7 +10,8 @@
     "laracasts/flash": "~1.3",
     "google/recaptcha": "^1.1",
     "toin0u/geocoder-laravel": "@stable",
-    "stilliard/csvparser": "dev-master"
+    "stilliard/csvparser": "dev-master",
+    "devfactory/minify": "1.0.*"
   },
   "require-dev": {
     "phpunit/phpunit": "~4.0",

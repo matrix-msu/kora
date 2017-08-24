@@ -1,0 +1,11 @@
+.navigation-right {
+  float: right;
+  height: $navigation-height;
+  margin-top: 0;
+
+  .navigation-sub-menu {
+    border-radius: 0 0 0 5px;
+    right: 0;
+    width: 250px;
+  }
+}

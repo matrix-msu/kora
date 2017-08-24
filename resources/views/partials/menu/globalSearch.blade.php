@@ -1,5 +1,7 @@
 <li class="navigation-search">
-  <a href="#" id="kora_nav_search_cmdk" class="kora_nav_item_title"><img src="{{ env('BASE_URL') }}assets/images/search-light.svg"></a>
+  <a href="#" class="global-search-toggle navigation-toggle-js">
+    <i class="icon icon-search"></i>
+  </a>
   <ul class="navigation-sub-menu navigation-sub-menu-js">
     <li>
       <form id="kora_global_search" action="{{action("ProjectSearchController@globalSearch")}}">

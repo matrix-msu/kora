@@ -37,10 +37,6 @@
     display: inline-block;
     font-size: 6px;
     padding: 26px;
-
-    &.active {
-      transform: rotate(-180deg);
-    }
   }
 
   .move-actions {

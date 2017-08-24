@@ -1,3 +1,38 @@
+.navigation-search {
+  display: inline-block;
+  height: 100%;
+  vertical-align: middle;
+
+  .global-search-toggle {
+    display: inline-block;
+    transition: all .2s ease-in-out;
+    vertical-align: middle;
+
+    .icon-search {
+      display: inline-block;
+      font-size: 14px;
+      line-height: $navigation-height;
+      margin: 0 10px;
+      padding: 0;
+    }
+
+    &:hover {
+      color: palette(green, accent);
+    }
+  }
+
+  .navigation-sub-menu {
+    padding-bottom: 0;
+  }
+
+  .icon {
+
+    &.icon-search.active {
+      color: palette(green, accent);
+    }
+  }
+}
+
 #kora_global_search_input {
   background: transparent;
   border: 0;
