@@ -1,6 +1,4 @@
-<?php
-
-namespace App\FieldHelpers;
+<?php namespace App\FieldHelpers;
 
 //THIS TOOL IS PRIMARILY (see first class for exception) THE CONVERTER FUNCTION FOR USING OLD KORA 2 KORA_Search AND KORA_Clause FUNCTIONS
 //IDEALLY YOU HAVE USED EITHER Exodus OR THE K2 Importer TOOLS TO MIGRATE YOUR KORA 2 DATA

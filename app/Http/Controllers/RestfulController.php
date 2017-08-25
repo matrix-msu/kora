@@ -5,6 +5,7 @@ use App\Form;
 use App\Record;
 use App\Search;
 use App\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -34,27 +35,26 @@ class RestfulController extends Controller {
     /**
      * Gets the current version of Kora3.
      *
-     * @return string - Kora version
+     * @return JsonResponse - Kora version
      */
     public function getKoraVersion() {
         $instInfo = DB::table("versions")->first();
-        if(is_null($instInfo)) {
-            return "Failed to retrieve Kora version";
-        } else {
-            return $instInfo->version;
-        }
+        if(is_null($instInfo))
+            return response()->json(["status"=>false,"error"=>"Failed to retrieve Kora installation version"],500);
+        else
+            return response()->json(["status"=>true,"result"=>$instInfo->version],200);
     }
 
     /**
      * Get a basic list of the forms in a project.
      *
      * @param  int $pid - Project ID
-     * @return string - Json array of the forms
+     * @return JsonResponse - The forms
      */
     public function getProjectForms($pid) {
-        if(!ProjectController::validProj($pid)) {
-            return 'Invalid Project: '.$pid;
-        }
+        if(!ProjectController::validProj($pid))
+            return response()->json(["status"=>false,"error"=>"Invalid Project: ".$pid],500);
+
         $project = ProjectController::getProject($pid);
         $formMods = $project->forms()->get();
         $forms = array();
@@ -65,7 +65,7 @@ class RestfulController extends Controller {
             $fArray['description'] = $form->description;
             $forms[$form->fid] = $fArray;
         }
-        return json_encode($forms);
+        return response()->json(["status"=>true,"result"=>$forms],200);
     }
 
     /**
@@ -73,12 +73,12 @@ class RestfulController extends Controller {
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
-     * @return string - Json array of the fields
+     * @return JsonResponse - The fields
      */
     public function getFormFields($pid, $fid) {
-        if(!FormController::validProjForm($pid,$fid)) {
-            return "Invalid Project/Form Pair: ".$pid." ~ ".$fid;
-        }
+        if(!FormController::validProjForm($pid,$fid))
+            return response()->json(["status"=>false,"error"=>"Invalid Project/Form Pair: ".$pid." ~ ".$fid],500);
+
         $form = FormController::getForm($fid);
         $fieldMods = $form->fields()->get();
         $fields = array();
@@ -90,7 +90,7 @@ class RestfulController extends Controller {
             $fArray['description'] = $field->desc;
             $fields[$field->flid] = $fArray;
         }
-        return json_encode($fields);
+        return response()->json(["status"=>true,"result"=>$fields],200);
     }
 
     /**
@@ -98,22 +98,22 @@ class RestfulController extends Controller {
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
-     * @return int - Number of records
+     * @return JsonResponse - Number of records
      */
     public function getFormRecordCount($pid, $fid) {
-        if(!FormController::validProjForm($pid,$fid)) {
-            return "Invalid Project/Form Pair: ".$pid." ~ ".$fid;
-        }
+        if(!FormController::validProjForm($pid,$fid))
+            return response()->json(["status"=>false,"error"=>"Invalid Project/Form Pair: ".$pid." ~ ".$fid],500);
+
         $form = FormController::getForm($fid);
         $count = $form->records()->count();
-        return $count;
+        return response()->json(["status"=>true,"result"=>$count],200);
     }
 
     /**
      * Performs an API search on Kora3.
      *
      * @param  Request $request
-     * @return string - Json response of the records
+     * @return JsonResponse - The records
      */
     public function search(Request $request) {
         //get the forms
@@ -122,14 +122,13 @@ class RestfulController extends Controller {
         foreach($forms as $f) {
             //next, we authenticate the form
             $form = FormController::getForm($f->form);
-            if(is_null($form)) {
-                return 'Illegal form provided: '.$f->form;
-            }
+            if(is_null($form))
+                return response()->json(["status"=>false,"error"=>"Invalid Form: ".$form->fid],500);
+
             $validated = $this->validateToken($form,$f->token,"search");
             //Authentication failed
-            if(!$validated) {
-                return "The provided token is invalid for form: ".$form->name;
-            }
+            if(!$validated)
+                return response()->json(["status"=>false,"error"=>"Invalid search token provided"],500);
         }
         //now we actually do searches per form
         foreach($forms as $f) {
@@ -152,7 +151,7 @@ class RestfulController extends Controller {
                 if(!is_null($filters['sort'])) {
                     $returnRIDS = $this->sort_rids($returnRIDS,$filters['sort']);
                     if(!$returnRIDS)
-                        return "Illegal field type or invalid field provided for sort in form: " . $form->name;
+                        return response()->json(["status"=>false,"error"=>"Invalid field type, or invalid field, provided for sort in form: ". $form->name],500);
                 }
                 //see if we are returning the
                 if ($filters['size'])
@@ -167,8 +166,8 @@ class RestfulController extends Controller {
                     switch($query->search) {
                         case 'keyword':
                             //do a keyword search
-                            if (!isset($query->keys))
-                                return "You must provide keywords in a keyword search for form: " . $form->name;
+                            if(!isset($query->keys))
+                                return response()->json(["status"=>false,"error"=>"No keywords supplied in a keyword search for form: ". $form->name],500);
                             $keys = $query->keys;
                             $method = isset($query->method) ? $query->method : 'OR';
                             switch($method) {
@@ -182,7 +181,7 @@ class RestfulController extends Controller {
                                     $method = Search::SEARCH_EXACT;
                                     break;
                                 default:
-                                    return "Illegal method, ".$method.", provided for keyword search for form: " . $form->name;
+                                    return response()->json(["status"=>false,"error"=>"Invalid method, ".$method.", provided for keyword search for form: ". $form->name],500);
                                     break;
                             }
                             $search = new Search($form->pid, $form->fid, $keys, $method);
@@ -194,8 +193,8 @@ class RestfulController extends Controller {
                             break;
                         case 'advanced':
                             //do an advanced search
-                            if (!isset($query->fields))
-                                return "You must provide fields in an advanced search for form: " . $form->name;
+                            if(!isset($query->fields))
+                                return response()->json(["status"=>false,"error"=>"No fields supplied in an advanced search for form: ". $form->name],500);
                             $fields = $query->fields;
                             foreach($fields as $flid => $data) {
                                 $fieldModel = FieldController::getField($flid);
@@ -215,8 +214,8 @@ class RestfulController extends Controller {
                             break;
                         case 'kid':
                             //do a kid search
-                            if (!isset($query->kids))
-                                return "You must provide KIDs in a KID search for form: " . $form->name;
+                            if(!isset($query->kids))
+                                return response()->json(["status"=>false,"error"=>"No KIDs supplied in a KID search for form: ". $form->name],500);
                             $kids = $query->kids;
                             $rids = array();
                             for($i = 0; $i < sizeof($kids); $i++) {
@@ -228,7 +227,7 @@ class RestfulController extends Controller {
                             array_push($resultSets,$rids);
                             break;
                         default:
-                            return "You must provide a search query type for form: " . $form->name;
+                            return response()->json(["status"=>false,"error"=>"No search query type supplied for form: ". $form->name],500);
                             break;
                     }
                 }
@@ -249,16 +248,15 @@ class RestfulController extends Controller {
                 if(!is_null($filters['sort'])) {
                     $returnRIDS = $this->sort_rids($returnRIDS,$filters['sort']);
                     if(!$returnRIDS)
-                        return "Illegal field type or invalid field provided for sort in form: " . $form->name;
+                        return response()->json(["status"=>false,"error"=>"Invalid field type or invalid field provided for sort in form: ". $form->name],500);
                 }
                 //see if we are returning the
                 if($filters['size'])
-                    return sizeof($returnRIDS);
+                    return response()->json(["status"=>true,"result"=>sizeof($returnRIDS)],200);
                 else
-                    return $this->populateRecords($returnRIDS, $filters);
+                    return response()->json(["status"=>true,"result"=>$this->populateRecords($returnRIDS, $filters)],200);
             }
         }
-        return 'Successful search!';
     }
 
     /**
@@ -422,25 +420,25 @@ class RestfulController extends Controller {
      * Creates a new record.
      *
      * @param  Request $request
-     * @return string - Json response with the new RID, if successful
+     * @return JsonResponse - The new RID, if successful
      */
     public function create(Request $request) {
         //get the form
         $f = $request->form;
         //next, we authenticate the form
         $form = FormController::getForm($f);
-        if(is_null($form)) {
-            return 'Illegal form provided: '.$f->form;
-        }
+        if(is_null($form))
+            return response()->json(["status"=>false,"error"=>"Invalid Form: ".$form->fid],500);
+
         $validated = $this->validateToken($form,$request->token,"create");
         //Authentication failed
-        if(!$validated) {
-            return "The provided token is invalid for form: ".$form->name;
-        }
+        if(!$validated)
+            return response()->json(["status"=>false,"error"=>"Invalid create token provided"],500);
+
         //Gather field data to insert
-        if(!isset($request->fields)) {
-            return "You must provide data to insert into: ".$form->name;
-        }
+        if(!isset($request->fields))
+            return response()->json(["status"=>false,"error"=>"No data supplied to insert into: ".$form->name],500);
+
         $fields = json_decode($request->fields);
         $recRequest = new Request();
         $uToken = $this->fileToken(); //need a temp user id to interact, specifically for files
@@ -454,7 +452,7 @@ class RestfulController extends Controller {
                 $zip->extractTo(env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken);
                 $zip->close();
             } else {
-                return "There was an error extracting the provided zip";
+                return response()->json(["status"=>false,"error"=>"There was an error extracting the provided zip"],500);
             }
         }
         foreach($fields as $jsonField) {
@@ -465,8 +463,9 @@ class RestfulController extends Controller {
         }
         $recRequest['api'] = true;
         $recCon = new RecordController();
+        //TODO::do something with this
         $response = $recCon->store($form->pid,$form->fid,$recRequest);
-        return 'Created record: '.$response;
+        return response()->json(["status"=>true,"result"=>"Created Record: "],200);
     }
 
     /**
@@ -486,37 +485,37 @@ class RestfulController extends Controller {
     }
 
     /**
-     * Edit an existing record
+     * Edit an existing record.
      *
-     * @param  type $name - DESCRIPTION
-     * @return string - DESCRIPTION
+     * @param  Request $request
+     * @return JsonResponse - Status of record modification
      */
     public function edit(Request $request) {
         //get the form
         $f = $request->form;
         //next, we authenticate the form
         $form = FormController::getForm($f);
-        if(is_null($form)) {
-            return 'Illegal form provided: '.$f->form;
-        }
+        if(is_null($form))
+            return response()->json(["status"=>false,"error"=>"Invalid Form: ".$form->fid],500);
+
         $validated = $this->validateToken($form,$request->token,"edit");
         //Authentication failed
-        if(!$validated) {
-            return "The provided token is invalid for form: ".$form->name;
-        }
+        if(!$validated)
+            return response()->json(["status"=>false,"error"=>"Invalid create token provided"],500);
+
         //Gather field data to insert
-        if(!isset($request->kid)) {
-            return "You must provide a record kid for: ".$form->name;
-        }
+        if(!isset($request->kid))
+            return response()->json(["status"=>false,"error"=>"No record KID supplied to edit in: ".$form->name],500);
+
         //Gather field data to insert
-        if(!isset($request->fields)) {
-            return "You must provide data to insert into: ".$form->name;
-        }
+        if(!isset($request->fields))
+            return response()->json(["status"=>false,"error"=>"No data supplied to insert into: ".$form->name],500);
+
         $fields = json_decode($request->fields);
         $record = RecordController::getRecordByKID($request->kid);
-        if(is_null($record)) {
-            return 'Illegal record provided: '.$request->kid;
-        }
+        if(is_null($record))
+            return response()->json(["status"=>false,"error"=>"Invalid Record: ".$request->kid],500);
+
         $recRequest = new Request();
         $uToken = $this->fileToken(); //need a temp user id to interact, specifically for files
         $recRequest['userId'] = $uToken; //the new record will ultimately be owned by the root/sytem
@@ -534,7 +533,7 @@ class RestfulController extends Controller {
                 $zip->extractTo(env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken);
                 $zip->close();
             } else {
-                return "There was an error extracting the provided zip";
+                return response()->json(["status"=>false,"error"=>"There was an issue extracting the provided file zip"],500);
             }
         }
         foreach($fields as $jsonField) {
@@ -551,47 +550,46 @@ class RestfulController extends Controller {
         $recRequest['fieldsToEdit'] = $fieldsToEditArray; //what fields can be modified if keepfields
         $recCon = new RecordController();
         $recCon->update($form->pid,$form->fid,$record->rid,$recRequest);
-        return 'Modified record: '.$request->kid;
+        return response()->json(["status"=>true,"result"=>"Modified record: ".$request->kid],200);
     }
 
     /**
      * Delete a set of records from Kora3
      *
      * @param  Request $request
-     * @return string - Success/error message
+     * @return JsonResponse - Status of record deletion
      */
     public function delete(Request $request){
         //get the form
         $f = $request->form;
         //next, we authenticate the form
         $form = FormController::getForm($f);
-        if(is_null($form)) {
-            return 'Illegal form provided: '.$f->form;
-        }
+        if(is_null($form))
+            return response()->json(["status"=>false,"error"=>"Invalid Form: ".$form->fid],500);
+
         $validated = $this->validateToken($form,$request->token,"delete");
         //Authentication failed
-        if(!$validated) {
-            return "The provided token is invalid for form: ".$form->name;
-        }
+        if(!$validated)
+            return response()->json(["status"=>false,"error"=>"Invalid create token provided"],500);
+
         //Gather records to delete
-        if(!isset($request->kids)) {
-            return "You must provide KIDs to delete from: ".$form->name;
-        }
+        if(!isset($request->kids))
+            return response()->json(["status"=>false,"error"=>"No record KIDs supplied to delete in: ".$form->name],500);
+
         $kids = explode(",",$request->kids);
         $recsToDelete = array();
         for($i=0;$i<sizeof($kids);$i++) {
             $rid = explode("-",$kids[$i])[2];
             $record = RecordController::getRecord($rid);
-            if(is_null($record)) {
-                return 'Non-existent record provided: '.$kids[$i];
-            } else {
+            if(is_null($record))
+                return response()->json(["status"=>false,"error"=>"Supplied record does not exist: ".$kids[$i]],500);
+            else
                 array_push($recsToDelete,$record);
-            }
         }
         foreach($recsToDelete as $record) {
             $record->delete();
         }
-        return 'DELETE SUCCESS!';
+        return response()->json(["status"=>true,"result"=>"Deleted records"],200);
     }
 
     /**
@@ -605,9 +603,9 @@ class RestfulController extends Controller {
     //mimics the export python functionality to populate records
     private function populateRecords($rids,$filters,$format = self::JSON) {
         $format = strtoupper($format);
-        if( ! self::isValidFormat($format)) {
+        if( ! self::isValidFormat($format))
             return null;
-        }
+
         if($filters['fields'] == "ALL")
             $fields = json_encode(array());
         else

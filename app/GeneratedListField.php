@@ -83,11 +83,11 @@ class GeneratedListField extends BaseField {
         for($i=1;$i<sizeof($reqOpts);$i++) {
             if($request->regex!='' && !preg_match($request->regex, $reqOpts[$i])) {
                 if($return) {
-                    flash()->error("Option ".$reqOpts[$i]." does not match the required regex pattern.");
-                    return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')->withInput();
+                    return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+                        ->withInput()->with('k3_global_error', 'default_regex_mismatch')->with('default_regex_mismatch', $reqOpts[$i]);
                 } else {
                     $request->regex = '';
-                    $advString = "Option ".$reqOpts[$i]." does not match the required regex pattern.";
+                    return response()->json(["status"=>false,"message"=>"default_regex_mismatch","default_regex_mismatch"=>$reqOpts[$i]],500);
                 }
             }
             $options .= '[!]'.$reqOpts[$i];
@@ -100,10 +100,10 @@ class GeneratedListField extends BaseField {
         $field->updateOptions('Options', $options);
 
         if($return) {
-            flash()->overlay("Option updated!", "Good Job!");
-            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
+            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+                ->with('k3_global_success', 'field_options_updated');
         } else {
-            return $advString;
+            return response()->json(["status"=>true,"message"=>"field_options_updated"],200);
         }
     }
 
@@ -195,14 +195,14 @@ class GeneratedListField extends BaseField {
         $regex = FieldController::getFieldOption($field, 'Regex');
 
         if($req==1 && ($value==null | $value==""))
-            return $field->name." field is required.";
+            return $field->name."_required";
 
         foreach($value as $opt) {
             if(($regex!=null | $regex!="") && !preg_match($regex,$opt))
-                return "Value ".$opt." for field ".$field->name." does not match regex pattern.";
+                return $field->name."_".$opt."regex";
         }
 
-        return '';
+        return "field_validated";
     }
 
     /**

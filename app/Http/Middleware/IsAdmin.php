@@ -22,10 +22,8 @@ class IsAdmin {
 	 * @return mixed
 	 */
 	public function handle($request, Closure $next) {
-        if(!(\Auth::user()->admin)) {
-            flash()->overlay("You must be an admin to view that page.", "Whoops");
-            return redirect('/');
-        }
+        if(!(\Auth::user()->admin))
+            return redirect('/')->with('k3_global_error', 'not_admin');
 
         return $next($request);
     }

@@ -131,10 +131,6 @@ class Field extends Model {
      * @param  bool $req - Is the field required?
      */
     public function updateRequired($req) {
-        if(!self::checkPermissions($this->fid, 'edit')) {
-            return redirect('projects/'.$this->pid.'/forms/'.$this->fid.'/fields');
-        }
-
         $this->required = $req;
         $this->save();
 
@@ -148,10 +144,6 @@ class Field extends Model {
      * @param  Request $request
      */
     public function updateSearchable(Request $request) {
-        if(!self::checkPermissions($this->fid, 'edit')) {
-            return redirect('projects/' . $this->pid . '/forms/' . $this->fid . '/fields');
-        }
-
         $this->searchable = $request->searchable;
         $this->extsearch = $request->extsearch;
         $this->viewable = $request->viewable;
@@ -169,10 +161,6 @@ class Field extends Model {
      * @param  string $def - Default value of field
      */
     public function updateDefault($def) {
-        if(!self::checkPermissions($this->fid, 'edit')) {
-            return redirect('projects/'.$this->pid.'/forms/'.$this->fid.'/fields');
-        }
-
         $this->default = $def;
         $this->save();
 
@@ -187,10 +175,6 @@ class Field extends Model {
      * @param  string $value - Value for option
      */
     public function updateOptions($opt, $value) {
-        if(!self::checkPermissions($this->fid, 'edit')) {
-            return redirect('projects/'.$this->pid.'/forms/'.$this->fid.'/fields');
-        }
-
         $tag = '[!'.$opt.'!]';
         $array = explode($tag,$this->options);
         $this->options = $array[0].$tag.$value.$tag.$array[2];
@@ -198,42 +182,6 @@ class Field extends Model {
 
         //A field has been changed, so current record rollbacks become invalid.
         RevisionController::wipeRollbacks($this->fid);
-    }
-
-    /**
-     * Checks a users permissions to be able to create and manipulate fields in a form.
-     *
-     * @param  int $fid - Form ID
-     * @param  string $permission - Permission to check for
-     * @return bool - Has the permission
-     */
-    private static function checkPermissions($fid, $permission='') {
-        switch($permission) {
-            case 'create':
-                if(!(\Auth::user()->canCreateFields(FormController::getForm($fid))))  {
-                    flash()->overlay("You do not have permission to create fields for that form.", "Whoops.");
-                    return false;
-                }
-                return true;
-            case 'edit':
-                if(!(\Auth::user()->canEditFields(FormController::getForm($fid)))) {
-                    flash()->overlay("You do not have permission to edit fields for that form.", "Whoops.");
-                    return false;
-                }
-                return true;
-            case 'delete':
-                if(!(\Auth::user()->canDeleteFields(FormController::getForm($fid)))) {
-                    flash()->overlay("You do not have permission to delete fields for that form.", "Whoops.");
-                    return false;
-                }
-                return true;
-            default:
-                if(!(\Auth::user()->inAFormGroup(FormController::getForm($fid)))) {
-                    flash()->overlay("You do not have permission to view that field.", "Whoops.");
-                    return false;
-                }
-                return true;
-        }
     }
 
     /**
@@ -306,7 +254,7 @@ class Field extends Model {
                 return new GeneratedListField();
                 break;
             case self::_DATE:
-                //Workaround for keyword search
+                //Workaround for keyword search (Don't ask)
                 $df = new DateField();
                 $df->flid = $this->flid;
                 return $df;
@@ -339,7 +287,7 @@ class Field extends Model {
                 return new AssociatorField();
                 break;
             default:
-                throw new \Exception("Invalid field type in Field::getTypedField.");
+                throw new \Exception("field_type_exception");
         }
     }
 
@@ -399,7 +347,7 @@ class Field extends Model {
                 return new AssociatorField();
                 break;
             default:
-                throw new \Exception("Invalid field type in Field::getTypedField.");
+                throw new \Exception("field_type_exception");
         }
     }
 
@@ -460,7 +408,7 @@ class Field extends Model {
                 return AssociatorField::where("flid", "=", $this->flid)->where("rid", "=", $rid)->first();
                 break;
             default:
-                throw new \Exception("Invalid field type in Field::getTypedField.");
+                throw new \Exception("field_type_exception");
         }
     }
 }

@@ -4,6 +4,7 @@ use App\Form;
 use App\Field;
 use App\Record;
 use App\Revision;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -35,15 +36,13 @@ class RevisionController extends Controller {
      * @return View
      */
     public function index($pid, $fid) {
-        if(!FormController::validProjForm($pid,$fid)) {
-            return redirect('projects/'.$pid);
-        }
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
-        if(!\Auth::user()->admin && !\Auth::user()->isFormAdmin(FormController::getForm($fid))) {
-            $pid = FormController::getForm($fid)->pid;
-            flash()->overlay("You do not have permission to view that page.", "Whoops");
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
+        $form = FormController::getForm($fid);
+
+        if(!(\Auth::user()->isFormAdmin($form)))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
         $revisions = DB::table('revisions')->where('fid', '=', $fid)->orderBy('created_at', 'desc')->take(50)->get();
 
@@ -63,9 +62,8 @@ class RevisionController extends Controller {
             if(in_array($temp[$i], $rid_array))
                 $records[$temp[$i]] = $pid . '-' . $form->fid . '-' . $temp[$i];
         }
-        $message = 'Recent';
 
-        return view('revisions.index', compact('revisions', 'records', 'form', 'message'));
+        return view('revisions.index', compact('revisions', 'records', 'form'));
     }
 
     /**
@@ -77,26 +75,22 @@ class RevisionController extends Controller {
      * @return View
      */
     public function show($pid, $fid, $rid) {
-        if(!RecordController::validProjFormRecord($pid, $fid, $rid)) {
-            return redirect('projects/'.$pid.'/forms');
-        }
+        if(!RecordController::validProjFormRecord($pid, $fid, $rid))
+            return redirect('projects')->with('k3_global_error', 'record_invalid');
 
         $firstRevision = DB::table('revisions')->where('rid', '=', $rid)->orderBy('created_at','desc')->first();
-        if(is_null($firstRevision)) {
-            flash()->overlay("There is no revision history for this record.", "Whoops");
-            return $this->index($pid,$fid);
-        }
+        if(is_null($firstRevision))
+            return redirect()->action('RevisionController@index', ['pid' => $pid,'fid' => $fid])->with('k3_global_error', 'no_revision_history');
+
         $owner = DB::table('revisions')->where('rid', '=', $rid)->orderBy('created_at','desc')->first()->owner;
 
-        if(!\Auth::user()->admin && !\Auth::user()->isFormAdmin(FormController::getForm($fid)) && \Auth::user()->id != $owner) {
-            flash()->overlay("You do not have permission to view that page.", "Whoops");
-            return redirect('projects/'.$pid.'/forms/'.$fid);
-        }
-
         $form = FormController::getForm($fid);
+
+        if(!(\Auth::user()->isFormAdmin($form)) && \Auth::user()->id != $owner)
+            return redirect('projects/'.$pid)->with('k3_global_error', 'revision_permission_issue');
+
         $revisions = DB::table('revisions')->where('rid', '=', $rid)->orderBy('created_at','desc')->take(50)->get();
 
-        $pid = $form->pid;
         $records = array();
 
         $temp = array_values(array_unique(Revision::lists('rid')->all()));
@@ -104,29 +98,32 @@ class RevisionController extends Controller {
         for($i=0; $i < count($temp); $i++) {
             $records[$temp[$i]] = $pid.'-'.$form->fid.'-'.$temp[$i];
         }
-        $message = $pid.'-'.$fid.'-'.$rid;
+        $record = RecordController::getRecord($rid);
 
-        return view('revisions.index', compact('revisions', 'records', 'form', 'message', 'rid'))->render();
+        return view('revisions.index', compact('revisions', 'records', 'form', 'message', 'record'))->render();
     }
 
     /**
      * Execute a rollback to restore a record to a previous revision.
      *
      * @param  Request $request
+     * @return JsonResponse
      */
     public function rollback(Request $request) {
         $revision = Revision::where('id', '=', $request['revision'])->first();
         $form = FormController::getForm($revision->fid);
 
+        //Keep in mind that the rollback is the reverse of the revision type (i.e. executing a rollback on revision of
+        // type CREATE, will delete the created record).
         if($revision->type == Revision::CREATE) {
             $record = Record::where('rid', '=', $revision->rid)->first();
-            $revision = self::storeRevision($record->rid, Revision::DELETE);
+            self::storeRevision($record->rid, Revision::DELETE);
             $record->delete();
 
-            flash()->overlay("Record ".$form->pid.'-'.$form->fid.'-'.$revision->rid." has been deleted.", "Success!" );
+            return response()->json(["status"=>true,"message"=>"record_deleted","deleted_kid"=>$record->kid],200);
         } else if($revision->type == Revision::DELETE) {
             if(RecordController::exists($revision->rid)) {
-                flash()->overlay("Cannot recreate a record that already exists.");
+                return response()->json(["status"=>false,"message"=>"record_already_exists"],500);
             } else {
                 // We must create a new record
                 $record = new Record();
@@ -141,12 +138,13 @@ class RevisionController extends Controller {
                 self::rollback_routine($record, $form, $revision, false);
                 self::storeRevision($record->rid, Revision::CREATE);
 
-                flash()->overlay("Record " . $form->pid . '-' . $form->fid . '-' . $record->rid . " has been rolled back.", "Success!");
+                return response()->json(["status"=>true,"message"=>"record_created","created_kid"=>$record->kid],200);
             }
         } else {
             $record = RecordController::getRecord($revision->rid);
             self::rollback_routine($record, $form, $revision, true);
-            flash()->overlay("Record ".$form->pid.'-'.$form->fid.'-'.$record->rid." has been rolled back.", "Success!");
+
+            return response()->json(["status"=>true,"message"=>"record_modified","modified_kid"=>$record->kid],200);
         }
     }
 

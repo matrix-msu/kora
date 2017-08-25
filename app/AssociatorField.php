@@ -88,10 +88,10 @@ class AssociatorField extends BaseField {
         $field->updateOptions('SearchForms', $request->searchforms);
 
         if($return) {
-            flash()->overlay("Option updated!", "Good Job!");
-            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
+            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+                ->with('k3_global_success', 'field_options_updated');
         } else {
-            return '';
+            return response()->json(["status"=>true,"message"=>"field_options_updated"],200);
         }
     }
 
@@ -183,7 +183,9 @@ class AssociatorField extends BaseField {
         $req = $field->required;
 
         if($req==1 && ($value==null | $value==""))
-            return $field->name." field is required.";
+            return $field->name."_required";
+
+        return "field_validated";
     }
 
     /**
@@ -496,7 +498,7 @@ class AssociatorField extends BaseField {
                 }
             }
         } else {
-            array_push($preview, "NO PREVIEW AVAILABLE");
+            array_push($preview, "no_preview_available");
         }
 
         $html = "<a href='".env('BASE_URL')."projects/".$pid."/forms/".$fid."/records/".$rid."'>".$kid."</a>";

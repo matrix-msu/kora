@@ -104,10 +104,10 @@ class GalleryField extends FileTypeField  {
         $field->updateOptions('ThumbLarge', $large);
 
         if($return) {
-            flash()->overlay("Option updated!", "Good Job!");
-            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
+            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+                ->with('k3_global_success', 'field_options_updated');
         } else {
-            return '';
+            return response()->json(["status"=>true,"message"=>"field_options_updated"],200);
         }
     }
 
@@ -296,8 +296,10 @@ class GalleryField extends FileTypeField  {
 
         if($req==1) {
             if(glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') == false)
-                return $field->name." field is required. No files submitted.";
+                return $field->name."_required";
         }
+
+        return "field_validated";
     }
 
     /**
@@ -513,12 +515,10 @@ class GalleryField extends FileTypeField  {
      * @return string - html for the file download
      */
     public function getImgDisplay($pid, $filename, $type) {
-        if($type == 'thumbnail' | $type == 'medium') {
+        if($type == 'thumbnail' | $type == 'medium')
             $file_path = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$this->fid.'/r'.$this->rid.'/fl'.$this->flid.'/'.$type.'/'. $filename;
-        } else {
+        else
             $file_path = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$this->fid.'/r'.$this->rid.'/fl'.$this->flid . '/' . $filename;
-
-        }
 
         if(file_exists($file_path)) {
             // Send Download
@@ -527,7 +527,7 @@ class GalleryField extends FileTypeField  {
             ]);
         } else {
             // Error
-            exit("Requested file does not exist on our server!");
+            return response()->json(["status"=>false,"message"=>"file_doesnt_exist"],500);
         }
     }
 }

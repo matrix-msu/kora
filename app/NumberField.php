@@ -83,13 +83,12 @@ class NumberField extends BaseField {
         if($request->min!='' && $request->max!='') {
             if($request->min >= $request->max) {
                 if($return) {
-                    flash()->error('The max value is less than or equal to the minimum value. ');
-
-                    return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')->withInput();
+                    return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+                        ->withInput()->with('k3_global_error', 'max_min_invalid');
                 } else {
                     $request->min = '';
                     $request->max = '';
-                    $advString = 'The max value is less than or equal to the minimum value.';
+                    return response()->json(["status"=>false,"message"=>"max_min_invalid"],500);
                 }
             }
         }
@@ -97,12 +96,11 @@ class NumberField extends BaseField {
         if($request->default!='' && $request->max!='') {
             if($request->default > $request->max) {
                 if($return) {
-                    flash()->error('The max value is less than the default value. ');
-
-                    return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')->withInput();
+                    return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+                        ->withInput()->with('k3_global_error', 'default_above_max');
                 } else {
                     $request->default = '';
-                    $advString = 'The max value is less than the default value.';
+                    return response()->json(["status"=>false,"message"=>"default_above_max"],500);
                 }
             }
         }
@@ -110,12 +108,11 @@ class NumberField extends BaseField {
         if($request->default!='' && $request->min!='') {
             if($request->default < $request->min) {
                 if($return) {
-                    flash()->error('The minimum value is greater than the default value. ');
-
-                    return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')->withInput();
+                    return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+                        ->withInput()->with('k3_global_error', 'default_below_min');
                 } else {
                     $request->default = '';
-                    $advString = 'The minimum value is greater than the default value.';
+                    return response()->json(["status"=>false,"message"=>"default_below_min"],500);
                 }
             }
         }
@@ -129,10 +126,10 @@ class NumberField extends BaseField {
         $field->updateOptions('Unit', $request->unit);
 
         if($return) {
-            flash()->overlay("Option updated!", "Good Job!");
-            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
+            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+                ->with('k3_global_success', 'field_options_updated');
         } else {
-            return $advString;
+            return response()->json(["status"=>true,"message"=>"field_options_updated"],200);
         }
     }
 
@@ -225,7 +222,7 @@ class NumberField extends BaseField {
         $req = $field->required;
 
         if($req==1 && ($value==null | $value==""))
-            return $field->name." field is required.";
+            return $field->name."_required";
     }
 
     /**

@@ -102,7 +102,7 @@ class RecordController extends Controller {
                 continue;
             $field = FieldController::getField($key);
             $message = $field->getTypedField()->validateField($field, $value, $request);
-            if($message != '') {
+            if($message != 'field_validated') {
                 $arrayed_keys = array();
 
                 foreach($request->all() as $akey => $avalue) {
@@ -305,7 +305,7 @@ class RecordController extends Controller {
                 continue;
             $field = FieldController::getField($key);
             $message = $field->getTypedField()->validateField($field, $value, $request);
-            if($message != '')
+            if($message != 'field_validated')
                 return redirect()->back()->withInput()->with('k3_global_error', 'record_validation_error')->with('record_validation_error', $message);
         }
 
@@ -329,7 +329,7 @@ class RecordController extends Controller {
             $typedField = $field->getTypedFieldFromRID($record->rid);
             if(!is_null($typedField))
                 $typedField->editRecordField($value,$request);
-            else //doesnt exist yet
+            else if(!is_null($value)) //If it didnt exist and value was there, build it
                 $field->getTypedField()->createNewRecordField($field,$record,$value,$request);
         }
 

@@ -120,17 +120,15 @@ class DateField extends BaseField {
      * @return mixed - The result
      */
     public function updateOptions($field, Request $request, $return=true) {
-        $advString = '';
-
         if(DateField::validateDate($request->default_month,$request->default_day,$request->default_year)) {
             $default = '[M]' . $request->default_month . '[M][D]' . $request->default_day . '[D][Y]' . $request->default_year . '[Y]';
         } else {
             if($return) {
-                flash()->error("Invalid date. Either day given w/ no month provided, or day and month are impossible.");
-                return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')->withInput();
+                return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+                    ->withInput()->with('k3_global_error', 'default_invalid_date');
             } else {
                 $default = '';
-                $advString = "Invalid date. Either day given w/ no month provided, or day and month are impossible.";
+                return response()->json(["status"=>false,"message"=>"default_invalid_date"],500);
             }
         }
 
@@ -150,10 +148,10 @@ class DateField extends BaseField {
         $field->updateOptions('Era', $request->era);
 
         if($return) {
-            flash()->overlay("Option updated!", "Good Job!");
-            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
+            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+                ->with('k3_global_success', 'field_options_updated');
         } else {
-            return $advString;
+            return response()->json(["status"=>true,"message"=>"field_options_updated"],200);
         }
     }
 
@@ -268,15 +266,15 @@ class DateField extends BaseField {
         $year = $request->input('year_'.$field->flid,'');
 
         if($req==1 && $month=='' && $day=='' && $year=='')
-            return $field->name." field is required.";
+            return $field->name."_required";
 
         if(($year<$start | $year>$end) && ($month!='' | $day!=''))
-            return "Year supplied for field ".$field->name." is not in the range of ".$start." and :".$end.".";
+            return $field->name."_year_range";
 
         if(!DateField::validateDate($month,$day,$year))
-            return "Invalid date for field ".$field->name.". Either day given w/ no month provided, or day and month are impossible.";
+            return $field->name."_day_month_error";
 
-        return '';
+        return 'field_validated';
     }
 
     /**

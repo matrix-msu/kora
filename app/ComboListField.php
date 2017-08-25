@@ -4,6 +4,7 @@ use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -128,10 +129,10 @@ class ComboListField extends BaseField {
         $field->updateOptions('Field2', $flopt_two);
 
         if($return) {
-            flash()->overlay("Option updated!", "Good Job!");
-            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
+            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+                ->with('k3_global_success', 'field_options_updated');
         } else {
-            return '';
+            return response()->json(["status"=>true,"message"=>"field_options_updated"],200);
         }
     }
 
@@ -313,9 +314,9 @@ class ComboListField extends BaseField {
         $flid = $field->flid;
 
         if($req==1 && !isset($request[$flid.'_val']))
-            return $field->name." field is required.";
+            return $field->name."_required";
 
-        return '';
+        return 'field_validated';
     }
 
     /**
@@ -840,7 +841,7 @@ class ComboListField extends BaseField {
      *
      * @param  int $flid - Field ID
      * @param  Request $request
-     * @return string - Returns on error or blank on success
+     * @return JsonResponse - Returns success/error message
      */
     public static function validateComboListOpt($flid, $request) {
         $field = FieldController::getField($flid);
@@ -851,79 +852,76 @@ class ComboListField extends BaseField {
         $typetwo = $request->typetwo;
 
         if($valone=="" | $valtwo=="")
-            return "Value must be supplied for both fields.";
+            return response()->json(["status"=>false,"message"=>"combo_value_missing"],500);
 
-        if($typeone=='Text') {
-            $regex = self::getComboFieldOption($field,'Regex','one');
-            if(($regex!=null | $regex!="") && !preg_match($regex,$valone))
-                return "Value for field one does not match the required regex pattern.";
-        } else if($typeone=='Number') {
-            $max = self::getComboFieldOption($field,'Max','one');
-            $min = self::getComboFieldOption($field,'Min','one');
-            $inc = self::getComboFieldOption($field,'Increment','one');
-
-            if($valone<$min | $valone>$max)
-                return "Value for field one is not within the required range.";
-
-            if(fmod(floatval($valone),floatval($inc))!=0)
-                return "Value for field one is not a multiple of the required increment.";
-        } else if($typeone=='List') {
-            $opts = explode('[!]',self::getComboFieldOption($field,'Options','one'));
-
-            if(!in_array($valone,$opts))
-                return "Value for field one is not a valid list option.";
-        } else if($typeone=='Multi-Select List') {
-            $opts = explode('[!]',self::getComboFieldOption($field,'Options','one'));
-
-            if(sizeof(array_diff($valone,$opts))>0)
-                return "One or more values for field one are not a valid list options.";
-        } else if($typeone=='Generated List') {
-            $regex = self::getComboFieldOption($field,'Regex','one');
-
-            if($regex != null | $regex != "") {
-                foreach($valone as $val) {
-                    if(!preg_match($regex, $val))
-                        return "One or more values for field one do not match the required regex pattern.";
-                }
-            }
+        $validateOne = self::validateComboListField($field,$typeone,$valone);
+        if($validateOne!="sub_field_validated") {
+            $name = self::getComboFieldName($field,'one');
+            return response()->json(["status"=>false,"message"=>$validateOne,"sub_field_name"=>$name],500);
         }
 
-        if($typetwo=='Text') {
-            $regex = self::getComboFieldOption($field,'Regex','two');
-            if(($regex!=null | $regex!="") && !preg_match($regex,$valtwo))
-                return "Value for field two does not match the required regex pattern.";
-        } else if($typetwo=='Number') {
-            $max = self::getComboFieldOption($field,'Max','two');
-            $min = self::getComboFieldOption($field,'Min','two');
-            $inc = self::getComboFieldOption($field,'Increment','two');
-
-            if($valtwo<$min | $valtwo>$max)
-                return "Value for field two is not within the required range.";
-
-            if(fmod(floatval($valtwo),floatval($inc))!=0)
-                return "Value for field two is not a multiple of the required increment.";
-        } else if($typetwo=='List') {
-            $opts = explode('[!]',self::getComboFieldOption($field,'Options','two'));
-
-            if(!in_array($valtwo,$opts))
-                return "Value for field two is not a valid list option.";
-        } else if($typetwo=='Multi-Select List') {
-            $opts = explode('[!]',self::getComboFieldOption($field,'Options','two'));
-
-            if(sizeof(array_diff($valtwo,$opts))>0)
-                return "One or more values for field two are not a valid list options.";
-        } else if($typetwo=='Generated List') {
-            $regex = self::getComboFieldOption($field,'Regex','two');
-
-            if($regex != null | $regex != "") {
-                foreach($valtwo as $val) {
-                    if(!preg_match($regex, $val))
-                        return "One or more values for field two do not match the required regex pattern.";
-                }
-            }
+        $validateTwo = self::validateComboListField($field,$typetwo,$valtwo);
+        if($validateTwo!="sub_field_validated") {
+            $name = self::getComboFieldName($field,'two');
+            return response()->json(["status"=>false,"message"=>$validateTwo,"sub_field_name"=>$name],500);
         }
 
-        return '';
+        return response()->json(["status"=>true,"message"=>"combo_field_validated"],200);
+    }
+
+    /**
+     * Validates record data for a specific Combo List sub-field.
+     *
+     * @param  Field $field - Field model for the combo list
+     * @param  Field $type - Sub field type
+     * @param  Field $val - Sub field value to validate
+     * @return string - Returns success/error message
+     */
+    private static function validateComboListField($field, $type, $val) {
+        switch($type) {
+            case "Text":
+                $regex = self::getComboFieldOption($field, 'Regex', 'one');
+                if(($regex!=null | $regex!="") && !preg_match($regex, $val))
+                    return "regex_value_mismatch";
+                break;
+            case "Number":
+                $max = self::getComboFieldOption($field, 'Max', 'one');
+                $min = self::getComboFieldOption($field, 'Min', 'one');
+                $inc = self::getComboFieldOption($field, 'Increment', 'one');
+
+                if($val < $min | $val > $max)
+                    return "number_range_error";
+
+                if(fmod(floatval($val), floatval($inc)) != 0)
+                    return "number_increment_error";
+                break;
+            case "List":
+                $opts = explode('[!]', self::getComboFieldOption($field, 'Options', 'one'));
+
+                if(!in_array($val, $opts))
+                    return "invalid_list_option";
+                break;
+            case "Multi-Select List":
+                $opts = explode('[!]', self::getComboFieldOption($field, 'Options', 'one'));
+
+                if(sizeof(array_diff($val, $opts)) > 0)
+                    return "invalid_list_option";
+                break;
+            case "Generated List":
+                $regex = self::getComboFieldOption($field, 'Regex', 'one');
+
+                if($regex != null | $regex != "") {
+                    foreach ($val as $val) {
+                        if(!preg_match($regex, $val))
+                            return "regex_values_mismatch.";
+                    }
+                }
+                break;
+            default:
+                return "combo_type_error";
+        }
+
+        return "sub_field_validated";
     }
 
     /**

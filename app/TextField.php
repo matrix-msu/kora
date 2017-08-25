@@ -5,7 +5,6 @@ use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class TextField extends BaseField {
@@ -71,19 +70,17 @@ class TextField extends BaseField {
      * @return mixed - The result
      */
     public function updateOptions($field, Request $request, $return=true) {
-        $advString = '';
-
         if($request->regex!='') {
             $regArray = str_split($request->regex);
             if($regArray[0]!=end($regArray))
                 $request->regex = '/'.$request->regex.'/';
             if($request->default!='' && !preg_match($request->regex, $request->default)) {
                 if($return) {
-                    flash()->error('The default value does not match the given regex pattern.');
-                    return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')->withInput();
+                    return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+                        ->withInput()->with('k3_global_error', 'default_regex_mismatch');
                 } else {
                     $request->default = '';
-                    $advString = 'The default value does not match the given regex pattern.';
+                    return response()->json(["status"=>false,"message"=>"default_regex_mismatch"],500);
                 }
             }
         }
@@ -95,10 +92,10 @@ class TextField extends BaseField {
         $field->updateOptions('MultiLine', $request->multi);
 
         if($return) {
-            flash()->overlay("Option updated!", "Good Job!");
-            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
+            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+                ->with('k3_global_success', 'field_options_updated');
         } else {
-            return $advString;
+            return response()->json(["status"=>true,"message"=>"field_options_updated"],200);
         }
     }
 
@@ -191,12 +188,12 @@ class TextField extends BaseField {
         $regex = FieldController::getFieldOption($field, 'Regex');
 
         if($req==1 && ($value==null | $value==""))
-            return $field->name." field is required.";
+            return $field->slug."_required";
 
         if(($regex!=null | $regex!="") && !preg_match($regex,$value))
-            return "Value for field ".$field->name." does not match regex pattern.";
+            return $field->slug."_regex_mismatch";
 
-        return '';
+        return "field_validated";
     }
 
     /**

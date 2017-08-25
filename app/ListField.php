@@ -82,10 +82,10 @@ class ListField extends BaseField {
         $field->updateOptions('Options', $options);
 
         if($return) {
-            flash()->overlay("Option updated!", "Good Job!");
-            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
+            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+                ->with('k3_global_success', 'field_options_updated');
         } else {
-            return '';
+            return response()->json(["status"=>true,"message"=>"field_options_updated"],200);
         }
     }
 
@@ -177,12 +177,12 @@ class ListField extends BaseField {
         $list = ListField::getList($field);
 
         if($req==1 && ($value==null | $value==""))
-            return $field->name." field is required.";
+            return $field->name."_required";
 
         if($value!='' && !in_array($value,$list))
-            return "Value for field ".$field->name." not in list of options";
+            return $field->name."_invalid_option";
 
-        return '';
+        return "field_validated";
     }
 
     /**

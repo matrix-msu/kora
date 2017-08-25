@@ -4,6 +4,7 @@ use App\ComboListField;
 use App\Field;
 use App\FileTypeField;
 use App\GeolocatorField;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
@@ -39,7 +40,7 @@ class FieldAjaxController extends Controller {
      * @param  int $fid - Form ID
      * @param  int $flid - Field ID
      * @param  Request $request
-     * @return string - Returns on error or blank on success
+     * @return JsonResponse - Returns success/error message
      */
     public function validateComboListOpt($pid, $fid, $flid, Request $request) {
         if(!FieldController::validProjFormField($pid, $fid, $flid))

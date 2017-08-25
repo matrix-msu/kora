@@ -170,8 +170,7 @@ abstract class FileTypeField extends BaseField {
                 'Content-Length: '. filesize($file_path)
             ]);
         } else {
-            // Error
-            exit("Requested file does not exist on our server!");
+            return response()->json(["status"=>false,"message"=>"file_doesnt_exist"],500);
         }
     }
 

@@ -74,10 +74,10 @@ class RichTextField extends BaseField {
         $field->updateDefault($request->default);
 
         if($return) {
-            flash()->overlay("Option updated!", "Good Job!");
-            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options');
+            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+                ->with('k3_global_success', 'field_options_updated');
         } else {
-            return '';
+            return response()->json(["status"=>true,"message"=>"field_options_updated"],200);
         }
     }
 
@@ -170,8 +170,10 @@ class RichTextField extends BaseField {
         $req = $field->required;
 
         if($req==1 && ($value==null | $value=="")){
-            return $field->name." field is required.";
+            return $field->name."_required";
         }
+
+        return "field_validated";
     }
 
     /**
