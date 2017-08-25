@@ -1,0 +1,59 @@
+.navigation-left {
+  display: inline-block;
+  float: left;
+
+  .logo {
+    display: inline-block;
+    padding-left: 15px;
+    vertical-align: middle;
+
+    .icon:hover {
+      color: palette(green, accent);
+    }
+
+    // Replace this class with the image class once the placeholder is replaced.
+    .icon-placeholder {
+      display: inline-block;
+      font-size: 27px;
+      transition: all .2s ease-in-out;
+    }
+  }
+
+  .navigation-item {
+    box-sizing: border-box;
+    display: inline-block;
+    font-family: $ubuntu;
+    font-size: 12px;
+    position: relative;
+    vertical-align: middle;
+
+    a {
+      line-height: 50px;
+      transition: all .2s ease-in-out;
+    }
+
+    &:not(:first-child) {
+      margin-left: 16px;
+    }
+
+    .menu-toggle:hover {
+      color: palette(green, accent)
+    }
+
+    .icon-chevron {
+      font-size: 6px;
+      margin-left: 5px;
+    }
+  }
+}
+
+@media screen and (max-width: $max-mobile-xs-width) {
+  .navigation-left .navigation-item {
+    display: none;
+  }
+
+  // Replace .icon-placeholder with the image class when replaced
+  .navigation-left .logo .icon-placeholder {
+    margin: #{ ($navigation-height - 27px) / 2 } 0;
+  }
+}

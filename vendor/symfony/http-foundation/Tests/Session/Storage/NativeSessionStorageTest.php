@@ -11,6 +11,7 @@
 
 namespace Symfony\Component\HttpFoundation\Tests\Session\Storage;
 
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\NativeSessionHandler;
@@ -29,7 +30,7 @@ use Symfony\Component\HttpFoundation\Session\Storage\Proxy\SessionHandlerProxy;
  * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
  */
-class NativeSessionStorageTest extends \PHPUnit_Framework_TestCase
+class NativeSessionStorageTest extends TestCase
 {
     private $savePath;
 
@@ -195,7 +196,7 @@ class NativeSessionStorageTest extends \PHPUnit_Framework_TestCase
 
     public function testSetSaveHandler53()
     {
-        if (PHP_VERSION_ID >= 50400) {
+        if (\PHP_VERSION_ID >= 50400) {
             $this->markTestSkipped('Test skipped, for PHP 5.3 only.');
         }
 
@@ -248,7 +249,7 @@ class NativeSessionStorageTest extends \PHPUnit_Framework_TestCase
 
         session_start();
         $this->assertTrue(isset($_SESSION));
-        if (PHP_VERSION_ID >= 50400) {
+        if (\PHP_VERSION_ID >= 50400) {
             // this only works in PHP >= 5.4 where session_status is available
             $this->assertTrue($storage->getSaveHandler()->isActive());
         }

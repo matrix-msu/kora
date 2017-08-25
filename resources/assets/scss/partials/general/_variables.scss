@@ -12,7 +12,7 @@ $ubuntu-medium-italic: Ubuntu-Medium-Italic;
 $ubuntu-light: Ubuntu-Light;
 $ubuntu-light-italic: Ubuntu-Light-Italic;
 
-// Kora Font
+// Kora Icons
 $kora-icons: Kora-Icons;
 $icon-arrow: '\e900';
 $icon-chevron: '\e901';
@@ -21,6 +21,9 @@ $icon-hamburger: '\e903';
 $icon-search: '\e904';
 $icon-projects: '\e905';
 $icon-cancel: '\e906';
+$icon-logout: '\e907';
+$icon-placeholder: '\e908';
+$icon-dashboard: '\e909';
 
 // Site Responsiveness
 $max-site-width: 1440px;
@@ -34,3 +37,6 @@ $mobile-xs-margin-total: 50px;
 // Animation Constants
 $transform-scale-multiplier: 1.25;
 $underline-padding: 5px;
+
+// Navigation Bar Constants
+$navigation-height: 50px;

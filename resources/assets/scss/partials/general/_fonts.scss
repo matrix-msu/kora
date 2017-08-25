@@ -121,8 +121,14 @@ i {
 }
 
 .icon-chevron {
+  will-change: transform;
+
   &::before {
     content: $icon-chevron;
+  }
+
+  &.active {
+    transform: rotate(-180deg);
   }
 }
 
@@ -153,5 +159,23 @@ i {
 .icon-cancel {
   &::before {
     content: $icon-cancel;
+  }
+}
+
+.icon-logout {
+  &:before {
+    content: $icon-logout;
+  }
+}
+
+.icon-placeholder {
+  &:before {
+    content: $icon-placeholder;
+  }
+}
+
+.icon-dashboard {
+  &:before {
+    content: $icon-dashboard;
   }
 }

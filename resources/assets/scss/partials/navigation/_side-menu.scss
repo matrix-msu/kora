@@ -1,0 +1,22 @@
+.navigation-side-menu {
+  display: inline-block;
+  max-height: $navigation-height;
+  vertical-align: middle;
+
+  .side-menu-toggle {
+    display: inline-block;
+    max-height: $navigation-height;
+
+    &:hover .icon-hamburger {
+      color: palette(green, accent);
+    }
+  }
+
+  .icon-hamburger {
+    display: block;
+    box-shadow: 0 3px 5px 0 palette(box-shadow, base, .2);
+    font-size: 12px;
+    margin: #{($navigation-height - 12px) / 2} 10px;
+    transition: all .2s ease-in-out;
+  }
+}

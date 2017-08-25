@@ -49,60 +49,96 @@ class Inflector
             '/(matr|vert|ind)(ix|ex)$/i' => '\1ices',
             '/(x|ch|ss|sh)$/i' => '\1es',
             '/([^aeiouy]|qu)y$/i' => '\1ies',
-            '/(hive)$/i' => '\1s',
+            '/(hive|gulf)$/i' => '\1s',
             '/(?:([^f])fe|([lr])f)$/i' => '\1\2ves',
             '/sis$/i' => 'ses',
             '/([ti])um$/i' => '\1a',
             '/(p)erson$/i' => '\1eople',
             '/(m)an$/i' => '\1en',
             '/(c)hild$/i' => '\1hildren',
-            '/(buffal|tomat)o$/i' => '\1\2oes',
+            '/(f)oot$/i' => '\1eet',
+            '/(buffal|her|potat|tomat|volcan)o$/i' => '\1\2oes',
             '/(alumn|bacill|cact|foc|fung|nucle|radi|stimul|syllab|termin|vir)us$/i' => '\1i',
             '/us$/i' => 'uses',
             '/(alias)$/i' => '\1es',
-            '/(ax|cris|test)is$/i' => '\1es',
+            '/(analys|ax|cris|test|thes)is$/i' => '\1es',
             '/s$/' => 's',
             '/^$/' => '',
             '/$/' => 's',
         ),
         'uninflected' => array(
-            '.*[nrlm]ese', '.*deer', '.*fish', '.*measles', '.*ois', '.*pox', '.*sheep', 'people', 'cookie'
+            '.*[nrlm]ese',
+            '.*deer',
+            '.*fish',
+            '.*measles',
+            '.*ois',
+            '.*pox',
+            '.*sheep',
+            'people',
+            'cookie',
+            'police',
         ),
         'irregular' => array(
             'atlas' => 'atlases',
+            'axe' => 'axes',
             'beef' => 'beefs',
             'brother' => 'brothers',
             'cafe' => 'cafes',
+            'chateau' => 'chateaux',
+            'niveau' => 'niveaux',
             'child' => 'children',
             'cookie' => 'cookies',
             'corpus' => 'corpuses',
             'cow' => 'cows',
-            'criteria' => 'criterion',
+            'criterion' => 'criteria',
+            'curriculum' => 'curricula',
+            'demo' => 'demos',
+            'domino' => 'dominoes',
+            'echo' => 'echoes',
+            'foot' => 'feet',
+            'fungus' => 'fungi',
             'ganglion' => 'ganglions',
             'genie' => 'genies',
             'genus' => 'genera',
             'graffito' => 'graffiti',
+            'hippopotamus' => 'hippopotami',
             'hoof' => 'hoofs',
             'human' => 'humans',
+            'iris' => 'irises',
+            'larva' => 'larvae',
+            'leaf' => 'leaves',
             'loaf' => 'loaves',
             'man' => 'men',
+            'medium' => 'media',
+            'memorandum' => 'memoranda',
             'money' => 'monies',
             'mongoose' => 'mongooses',
+            'motto' => 'mottoes',
             'move' => 'moves',
             'mythos' => 'mythoi',
             'niche' => 'niches',
+            'nucleus' => 'nuclei',
             'numen' => 'numina',
             'occiput' => 'occiputs',
             'octopus' => 'octopuses',
             'opus' => 'opuses',
             'ox' => 'oxen',
+            'passerby' => 'passersby',
             'penis' => 'penises',
             'person' => 'people',
+            'plateau' => 'plateaux',
+            'runner-up' => 'runners-up',
             'sex' => 'sexes',
             'soliloquy' => 'soliloquies',
+            'son-in-law' => 'sons-in-law',
+            'syllabus' => 'syllabi',
             'testis' => 'testes',
+            'thief' => 'thieves',
+            'tooth' => 'teeth',
+            'tornado' => 'tornadoes',
             'trilby' => 'trilbys',
             'turf' => 'turfs',
+            'volcano' => 'volcanoes',
         )
     );
 
@@ -120,9 +156,10 @@ class Inflector
             '/(vert|ind)ices$/i' => '\1ex',
             '/^(ox)en/i' => '\1',
             '/(alias)(es)*$/i' => '\1',
+            '/(buffal|her|potat|tomat|volcan)oes$/i' => '\1o',
             '/(alumn|bacill|cact|foc|fung|nucle|radi|stimul|syllab|termin|viri?)i$/i' => '\1us',
             '/([ftw]ax)es/i' => '\1',
-            '/(cris|ax|test)es$/i' => '\1is',
+            '/(analys|ax|cris|test|thes)es$/i' => '\1is',
             '/(shoe|slave)s$/i' => '\1',
             '/(o)es$/i' => '\1',
             '/ouses$/' => 'ouse',
@@ -136,6 +173,7 @@ class Inflector
             '/(tive)s$/i' => '\1',
             '/(hive)s$/i' => '\1',
             '/(drive)s$/i' => '\1',
+            '/(dive)s$/i' => '\1',
             '/([^fo])ves$/i' => '\1fe',
             '/(^analy)ses$/i' => '\1sis',
             '/(analy|diagno|^ba|(p)arenthe|(p)rogno|(s)ynop|(t)he)ses$/i' => '\1\2sis',
@@ -143,6 +181,7 @@ class Inflector
             '/(p)eople$/i' => '\1\2erson',
             '/(m)en$/i' => '\1an',
             '/(c)hildren$/i' => '\1\2hild',
+            '/(f)eet$/i' => '\1oot',
             '/(n)ews$/i' => '\1\2ews',
             '/eaus$/' => 'eau',
             '/^(.*us)$/' => '\\1',
@@ -157,12 +196,21 @@ class Inflector
             '.*pox',
             '.*sheep',
             '.*ss',
+            'police',
+            'pants',
+            'clothes',
         ),
         'irregular' => array(
-            'criterion' => 'criteria',
-            'curves' => 'curve',
-            'foes' => 'foe',
-            'waves' => 'wave',
+            'caches'    => 'cache',
+            'criteria'  => 'criterion',
+            'curves'    => 'curve',
+            'emphases'  => 'emphasis',
+            'foes'      => 'foe',
+            'hoaxes'    => 'hoax',
+            'media'     => 'medium',
+            'neuroses'  => 'neurosis',
+            'waves'     => 'wave',
+            'oases'     => 'oasis',
         )
     );
 
@@ -175,9 +223,9 @@ class Inflector
         'Amoyese', 'bison', 'Borghese', 'bream', 'breeches', 'britches', 'buffalo', 'cantus',
         'carp', 'chassis', 'clippers', 'cod', 'coitus', 'Congoese', 'contretemps', 'corps',
         'debris', 'diabetes', 'djinn', 'eland', 'elk', 'equipment', 'Faroese', 'flounder',
-        'Foochowese', 'gallows', 'Genevese', 'Genoese', 'Gilbertese', 'graffiti',
+        'Foochowese', 'Furniture', 'gallows', 'Genevese', 'Genoese', 'Gilbertese', 'graffiti',
         'headquarters', 'herpes', 'hijinks', 'Hottentotese', 'information', 'innings',
-        'jackanapes', 'Kiplingese', 'Kongoese', 'Lucchese', 'mackerel', 'Maltese', '.*?media',
+        'jackanapes', 'Kiplingese', 'Kongoese', 'Lucchese', 'Luggage', 'mackerel', 'Maltese', '.*?media',
         'mews', 'moose', 'mumps', 'Nankingese', 'news', 'nexus', 'Niasese',
         'Pekingese', 'Piedmontese', 'pincers', 'Pistoiese', 'pliers', 'Portuguese',
         'proceedings', 'rabies', 'rice', 'rhinoceros', 'salmon', 'Sarawakese', 'scissors',
@@ -221,7 +269,7 @@ class Inflector
      */
     public static function classify($word)
     {
-        return str_replace(" ", "", ucwords(strtr($word, "_-", "  ")));
+        return str_replace(' ', '', ucwords(strtr($word, '_-', '  ')));
     }
 
     /**
@@ -234,6 +282,42 @@ class Inflector
     public static function camelize($word)
     {
         return lcfirst(self::classify($word));
+    }
+
+    /**
+     * Uppercases words with configurable delimeters between words.
+     *
+     * Takes a string and capitalizes all of the words, like PHP's built-in
+     * ucwords function.  This extends that behavior, however, by allowing the
+     * word delimeters to be configured, rather than only separating on
+     * whitespace.
+     *
+     * Here is an example:
+     * <code>
+     * <?php
+     * $string = 'top-o-the-morning to all_of_you!';
+     * echo \Doctrine\Common\Inflector\Inflector::ucwords($string);
+     * // Top-O-The-Morning To All_of_you!
+     *
+     * echo \Doctrine\Common\Inflector\Inflector::ucwords($string, '-_ ');
+     * // Top-O-The-Morning To All_Of_You!
+     * ?>
+     * </code>
+     *
+     * @param string $string The string to operate on.
+     * @param string $delimiters A list of word separators.
+     *
+     * @return string The string with all delimeter-separated words capitalized.
+     */
+    public static function ucwords($string, $delimiters = " \n\t\r\0\x0B-")
+    {
+        return preg_replace_callback(
+            '/[^' . preg_quote($delimiters, '/') . ']+/',
+            function($matches) {
+                return ucfirst($matches[0]);
+            },
+            $string
+        );
     }
 
     /**
@@ -337,7 +421,7 @@ class Inflector
 
         if (preg_match('/(.*)\\b(' . self::$plural['cacheIrregular'] . ')$/i', $word, $regs)) {
             self::$cache['pluralize'][$word] = $regs[1] . substr($word, 0, 1) . substr(self::$plural['merged']['irregular'][strtolower($regs[2])], 1);
-            
+
             return self::$cache['pluralize'][$word];
         }
 
@@ -390,7 +474,7 @@ class Inflector
 
         if (preg_match('/(.*)\\b(' . self::$singular['cacheIrregular'] . ')$/i', $word, $regs)) {
             self::$cache['singularize'][$word] = $regs[1] . substr($word, 0, 1) . substr(self::$singular['merged']['irregular'][strtolower($regs[2])], 1);
-            
+
             return self::$cache['singularize'][$word];
         }
 

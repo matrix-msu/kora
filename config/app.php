@@ -158,10 +158,10 @@ return [
 		'App\Providers\EventServiceProvider',
 		'App\Providers\RouteServiceProvider',
 		'App\Providers\ViewComposerServiceProvider',
-		
-		'Laracasts\Flash\FlashServiceProvider',
-		'Toin0u\Geocoder\GeocoderServiceProvider',
 
+		'Laracasts\Flash\FlashServiceProvider',
+		Geocoder\Laravel\Providers\GeocoderService::class,
+    'Devfactory\Minify\MinifyServiceProvider',
 	],
 
 	/*
@@ -213,6 +213,7 @@ return [
 		'Html'      => 'Illuminate\Html\HtmlFacade',
 		'Flash'     => 'Laracasts\Flash\Flash',
 		'Geocoder'  => 'Toin0u\Geocoder\Facade\Geocoder',
+    'Minify'    => 'Devfactory\Minify\Facades\MinifyFacade',
 	],
 
 ];

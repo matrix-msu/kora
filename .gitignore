@@ -1,11 +1,12 @@
 /node_modules
 .env
 /public/.htaccess
+/public/assets/javascripts/production/*
 .idea/
 phpunit.xml
 *.pyc
 /public/app
- 
+
 .DS_Store
 .sass-cache
 .csscomb.json
