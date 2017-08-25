@@ -32,34 +32,46 @@ class ProjectController extends Controller {
 
     /**
      * Gets the view for the main projects page.
+     * TODO::later sort initial pull by recent
      *
      * @return View
      */
 	public function index() {
-        $projectCollections = Project::all();
+        $projectCollections = Project::all()->sortBy("name");
 
-        $projectArrays = [];
         $projects = array();
+        $inactive = array();
+        $custom = array();
         $hasProjects = false;
-        $requestProjects = array();
+        $requestableProjects = array();
         foreach($projectCollections as $project) {
             if(\Auth::user()->admin || \Auth::user()->inAProjectGroup($project)) {
-                //TODO::$projectArrays[] = $project->buildFormSelectorArray(); //This data is used for project search
-                array_push($projects,$project);
+                if($project->active) {
+                    array_push($projects, $project);
+                    $seq = \Auth::user()->getCustomProjectSequence($project->pid);
+                    $custom[$seq] = $project;
+                } else {
+                    array_push($inactive, $project);
+                }
+
                 $hasProjects = true;
             } else if($project->active) {
-                $requestProjects[$project->name] = $project->pid;
+                $requestableProjects[$project->name] = $project->pid;
             }
         }
 
-        $c = new UpdateController();
+        //We need to sort the custom array
+        ksort($custom);
+
+        //TODO::Update stuff
+        /*$c = new UpdateController();
         $updateNotification = false;
         if($c->checkVersion() && !session('notified_of_update')) {
             session(['notified_of_update' => true]);
             $updateNotification = true;
-        }
+        }*/
 
-        return view('projects.index', compact('projects', 'projectArrays', 'hasProjects', 'requestProjects', 'updateNotification'));
+        return view('projects.index', compact('projects', 'inactive', 'custom', 'hasProjects', 'requestableProjects'));
 	}
 
     /**

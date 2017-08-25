@@ -392,6 +392,17 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
+     * Gets a sequence value a project for the User's custom view.
+     *
+     * @param  int $pid - Project ID
+     * @return int - The sequence
+     */
+    public function getCustomProjectSequence($pid) {
+        return DB::table("project_custom")->where("uid", "=", $this->id)
+            ->where("pid", "=", $pid)->first()->sequence;
+    }
+
+    /**
      * Checks for existence of profile pic and returns its URI.
      *
      * @return string - URI of profile pic
