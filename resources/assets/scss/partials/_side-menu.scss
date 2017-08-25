@@ -12,12 +12,12 @@
 
   .blanket {
     background: palette(black, base);
+    height: 100vh;
     left: -100vw;
     opacity: 0;
     position: absolute;
     top: 0;
     width: 0;
-    height: 100vh;
   }
 
   .content {
