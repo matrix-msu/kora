@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Html\FormBuilder;
 use Illuminate\Support\Facades\DB;
 
@@ -358,6 +357,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     public function delete() {
         DB::table("project_group_user")->where("user_id", "=", $this->id)->delete();
+        DB::table("project_custom")->where("uid", "=", $this->id)->delete();
         DB::table("form_group_user")->where("user_id", "=", $this->id)->delete();
         DB::table("backup_support")->where("user_id", "=", $this->id)->delete();
         DB::table("global_cache")->where("user_id", "=", $this->id)->delete();

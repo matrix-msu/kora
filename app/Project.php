@@ -83,6 +83,7 @@ class Project extends Model {
      */
     public function delete() {
         DB::table("project_token")->where("project_id", "=", $this->pid)->delete();
+        DB::table("project_custom")->where("pid", "=", $this->pid)->delete();
         DB::table("option_presets")->where("pid", "=", $this->pid)->delete();
 
         $project_groups = ProjectGroup::where("pid", "=", $this->pid)->get();
