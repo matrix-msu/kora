@@ -1,7 +1,6 @@
 /node_modules
 .env
 /public/.htaccess
-/public/assets/javascripts/production/*
 .idea/
 phpunit.xml
 *.pyc

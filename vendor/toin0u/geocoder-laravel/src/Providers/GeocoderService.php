@@ -34,7 +34,7 @@ class GeocoderService extends ServiceProvider
         $this->app->alias('Geocoder', Geocoder::class);
     }
 
-    public function provides() : array
+    public function provides()
     {
         return ['geocoder'];
     }
