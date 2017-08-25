@@ -38,6 +38,34 @@ $navBar.on("click", ".navigation-sub-menu-toggle-js", function() {
   $(this).next().toggle();
 });
 
+$navBar.on('click', '.side-menu-toggle-js', function() {
+  var $sideMenu = $('.side-menu-js');
+
+  $sideMenu.toggleClass('active');
+
+  if ($(window).width() < 1170) {
+    var $body = $('body');
+    var $sideMenuBlanket = $('.side-menu-js .blanket-js');
+
+    if ($sideMenu.hasClass('active')) {
+      $sideMenuBlanket.width('100vw');
+      $sideMenuBlanket.animate({
+        opacity: '.09'
+      }, 200, function() {
+        $body.css('overflow-y', 'hidden');
+      });
+
+    } else {
+      $sideMenuBlanket.animate({
+        opacity: '0'
+      }, 200, function() {
+        $body.css('overflow-y', '');
+        $sideMenuBlanket.width(0);
+      });
+    }
+  }
+});
+
 //If the nav isn't clicked, close all menus
 $(document).click(function(event) {
   if (!$(event.target).closest('.navigation-js').length) {
