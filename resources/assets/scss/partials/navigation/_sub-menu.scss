@@ -1,20 +1,19 @@
 .navigation-sub-menu {
   background-color: palette(gray, dropdown);
   border-radius: 0 0 5px 5px;
-  box-shadow: -16px 20px 30px 0 palette(black, base, .2);
-  opacity: 0;
+  box-shadow: 0 10px 30px 0 palette(black, base, .2);
+  opacity: 1;
   padding-bottom: 5px;
   position: absolute;
   top: $navigation-height;
-  transition: all 250ms ease;
-  visibility: none;
+  transform: translateY(-200%) ;
+  transition: all 250ms ease-in-out;
   width: 175px;
-  z-index: -100;
+  will-change: transform;
+  z-index: -1;
 
   &.active {
-    opacity: 1;
-    visibility: visible;
-    z-index: auto;
+    transform: translateY(0) ;
   }
 
   img {
@@ -28,6 +27,7 @@
     height: 18px;
     line-height: 18px;
     padding: 20px;
+    text-align: left;
   }
 
   .link {
