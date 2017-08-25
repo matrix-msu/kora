@@ -227,6 +227,25 @@ class UserController extends Controller {
         }
     }
 
+    public function saveProjectCustomOrder(Request $request) {
+        $pids = $request->pids;
+
+        //We are going to delete the old ones, and just rebuild the list entirely for the user
+        DB::table("project_custom")->where("uid", "=", $this->id)->delete();
+
+        //Rebuild it!
+        $rows = array();
+        $index = 0;
+        foreach($pids as $pid) {
+            $row = ["uid"=>\Auth::user()->id,"pid"=>$pid,"sequence"=>$index];
+            array_push($rows,$row);
+            $index++;
+        }
+
+        //Now save the new order
+        DB::table('users')->insert($rows);
+    }
+
     /**
      * Build permission set array of all the users projects
      *

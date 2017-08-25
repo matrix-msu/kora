@@ -236,3 +236,4 @@ Route::controllers([
 	'auth' => 'Auth\AuthController',
 	'password' => 'Auth\PasswordController',
 ]);
+Route::post("/auth/user/projectCustom", "UserController@saveProjectCustomOrder");
