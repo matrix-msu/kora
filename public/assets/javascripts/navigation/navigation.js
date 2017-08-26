@@ -2,6 +2,8 @@
 var $navBar = $(".navigation-js");
 var $subMenu = $(".navigation-sub-menu-js");
 var $deepMenu = $(".navigation-deep-menu-js");
+var $sideMenu = $('.side-menu-js');
+var $sideMenuBlanket = $('.side-menu-js .blanket-js');
 var $menuTitle = $('.navigation-left-js .navigation-toggle-js');
 var menuTitleIndex = $menuTitle.length - 1;
 
@@ -39,8 +41,6 @@ $navBar.on("click", ".navigation-sub-menu-toggle-js", function() {
 });
 
 $navBar.on('click', '.side-menu-toggle-js', function() {
-  var $sideMenu = $('.side-menu-js');
-
   $sideMenu.toggleClass('active');
 
   if ($(window).width() < 1170) {
@@ -64,6 +64,10 @@ $navBar.on('click', '.side-menu-toggle-js', function() {
       });
     }
   }
+});
+
+$sideMenuBlanket.on('click', function() {
+  $('.side-menu-toggle-js').click();
 });
 
 //If the nav isn't clicked, close all menus
