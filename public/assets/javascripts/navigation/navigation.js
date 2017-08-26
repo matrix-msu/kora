@@ -43,7 +43,7 @@ $navBar.on("click", ".navigation-sub-menu-toggle-js", function() {
 $navBar.on('click', '.side-menu-toggle-js', function() {
   $sideMenu.toggleClass('active');
 
-  if ($(window).width() < 1170) {
+  if ($(window).width() < 870) {
     var $body = $('body');
     var $sideMenuBlanket = $('.side-menu-js .blanket-js');
 
