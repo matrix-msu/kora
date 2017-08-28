@@ -24,10 +24,10 @@
         <i class="icon icon-cancel icon-cancel-js"></i>
       </div>
       <div class="sort-options sort-options-js">
-          <a class="option underline-middle active">Recently Modified</a>
-          <a class="option underline-middle">Custom</a>
-          <a class="option underline-middle">Alphabetical</a>
-          <a class="option underline-middle">Inactive</a>
+          <!-- <a href="modified" class="option underline-middle">Recently Modified</a> -->
+          <a href="custom" class="option underline-middle underline-middle-hover">Custom</a>
+          <a href="active" class="option underline-middle underline-middle-hover active">Alphabetical</a>
+          <a href="inactive" class="option underline-middle underline-middle-hover">Inactive</a>
       </div>
   </section>
   <section class="new-project-button">
@@ -38,77 +38,9 @@
     </form>
   </section>
   <section class="project-selection project-js project-selection-js">
-    @foreach($projects as $index=>$project)
-      <div class="project {{ $index == 0 ? 'active' : '' }}">
-        <div class="header {{ $index == 0 ? 'active' : '' }}">
-          <div class="left">
-            <div class="move-actions">
-              <a class="action move-action-js up-js" href="">
-                <i class="icon icon-arrow-up"></i>
-              </a>
-
-              <a class="action move-action-js down-js" href="">
-                <i class="icon icon-arrow-down"></i>
-              </a>
-            </div>
-
-            <a class="project-name underline-middle-hover" href="{{action("ProjectController@show",["pid" => $project->pid])}}">
-              <span class="name">{{$project->name}}</span>
-              <i class="icon icon-arrow-right"></i>
-            </a>
-          </div>
-          <div class="project-toggle-wrap">
-            <a href="#" class="project-toggle project-toggle-js">
-              <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
-            </a>
-          </div>
-        </div>
-
-        <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
-          <div class="id">
-            <span class="attribute">Unique Project ID: </span>
-            <span>{{$project->slug}}</span>
-          </div>
-
-          <div class="description">
-            {{$project->description}}
-          </div>
-
-          <div class="admins">
-            <span class="attribute">Project Admins: </span>
-            @foreach($project->adminGroup()->get() as $adminGroup)
-              <span>
-                {{$adminGroup->users()->lists("username")->implode("username",", ")}}
-              </span>
-            @endforeach
-          </div>
-
-          <div class="forms">
-            <span class="attribute">Project Forms:</span>
-            @foreach($project->forms()->get() as $form)
-              <span class="form"><a class="form-link underline-middle-hover" href="{{action("FormController@show",["pid" => $project->pid,"fid" => $form->fid])}}">{{$form->name}}</a></span>
-            @endforeach
-          </div>
-
-          <div class="footer">
-            <a class="quick-action underline-middle-hover" href="">
-              <i class="icon icon-edit"></i>
-              <span>Edit Project Info</span>
-            </a>
-
-            <a class="quick-action underline-middle-hover" href="">
-              <i class="icon icon-search"></i>
-              <span>Search Project Records</span>
-            </a>
-
-            <a class="quick-action" href="">
-              <span>Go to Project</span>
-              <i class="icon icon-arrow-right"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-    @endforeach
+    @include("partials.projects.active", ['isCustom' => false, 'active' => true])
+    @include("partials.projects.inactive", ['isCustom' => false, 'active' => false])
+    @include("partials.projects.custom", ['isCustom' => true, 'active' => false])
   </section>
   <section class="foot">
     <p class="permission-information">

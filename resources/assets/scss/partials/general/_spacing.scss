@@ -1,0 +1,42 @@
+@each $key, $size in $spacing {
+
+  .pa-#{$key} {
+    padding: #{$size};
+  }
+
+  .pt-#{$key} {
+    padding-top: #{$size};
+  }
+
+  .pr-#{$key} {
+    padding-right: #{$size};
+  }
+
+  .pb-#{$key} {
+    padding-bottom: #{$size};
+  }
+
+  .pl-#{$key} {
+    padding-left: #{$size};
+  }
+
+  .ma-#{$key} {
+    margin: #{$size};
+  }
+
+  .mt-#{$key} {
+    margin-top: #{$size};
+  }
+
+  .mr-#{$key} {
+    margin-right: #{$size};
+  }
+
+  .mb-#{$key} {
+    margin-bottom: #{$size};
+  }
+
+  .ml-#{$key} {
+    margin-left: #{$size};
+  }
+}

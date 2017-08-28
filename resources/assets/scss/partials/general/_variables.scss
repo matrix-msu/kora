@@ -1,5 +1,4 @@
 // Fonts
-
 $font-path: '../fonts';
 $kora-font-path: '#{$font-path}/kora-icons';
 
@@ -40,3 +39,13 @@ $underline-padding: 5px;
 
 // Navigation Bar Constants
 $navigation-height: 50px;
+
+// Margin Padding
+$spacing: (
+  xs: 10px,
+  sm: 15px,
+  m: 20px,
+  xl: 30px,
+  xxl: 45px,
+  xxxl: 60px
+);

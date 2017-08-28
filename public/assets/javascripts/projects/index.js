@@ -2,8 +2,13 @@ window.onload = function() {
   $('.sort-options-js a').click(function(e) {
     e.preventDefault();
 
+    var $this = $(this);
+    var $content = $('.' + $this.attr('href') + '-projects');
+
     $('.sort-options-js a').removeClass('active');
-    $(this).addClass('active');
+    $('.project-sort-js').removeClass('active');
+    $this.addClass('active');
+    $content.addClass('active')
   });
 
   $('.search-js i, .search-js input').click(function(e) {
@@ -73,7 +78,7 @@ window.onload = function() {
 
   });
 
-  $(".project-selection-js").sortable({
+  $(".project-custom-js").sortable({
     helper: 'clone',
     revert: true,
     containment: ".projects"
@@ -136,12 +141,5 @@ window.onload = function() {
             .insertAfter($nextProject);
         });
     }
-
-
-  });
-
-  $('#myButtonDown').click(function() {
-    var current = $('.markedLi');
-    current.next().after(current);
   });
 }
