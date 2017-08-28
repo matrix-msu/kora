@@ -3,7 +3,7 @@ window.onload = function() {
     e.preventDefault();
 
     var $this = $(this);
-    var $content = $('.' + $this.attr('href') + '-projects');
+    var $content = $('.' + $this.attr('href').substring(1) + '-projects');
 
     $('.sort-options-js a').removeClass('active');
     $('.project-sort-js').removeClass('active');

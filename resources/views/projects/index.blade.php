@@ -25,9 +25,9 @@
       </div>
       <div class="sort-options sort-options-js">
           <!-- <a href="modified" class="option underline-middle">Recently Modified</a> -->
-          <a href="custom" class="option underline-middle underline-middle-hover">Custom</a>
-          <a href="active" class="option underline-middle underline-middle-hover active">Alphabetical</a>
-          <a href="inactive" class="option underline-middle underline-middle-hover">Inactive</a>
+          <a href="#custom" class="option underline-middle underline-middle-hover">Custom</a>
+          <a href="#active" class="option underline-middle underline-middle-hover active">Alphabetical</a>
+          <a href="#inactive" class="option underline-middle underline-middle-hover">Inactive</a>
       </div>
   </section>
   <section class="new-project-button">
