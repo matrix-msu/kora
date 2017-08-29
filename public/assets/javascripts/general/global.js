@@ -1,8 +1,9 @@
 var touchMoving = false;
-var iOS = navigator.userAgent.toLowerCase().indexOf('iphone') >= 0 ||
-  navigator.userAgent.toLowerCase().indexOf('ipad') >= 0;
+var mobile = navigator.userAgent.toLowerCase().indexOf('iphone') >= 0 ||
+  navigator.userAgent.toLowerCase().indexOf('ipad') >= 0 ||
+  navigator.userAgent.toLowerCase().indexOf('mobile') >= 0;
 
-if (iOS) {
+if (mobile) {
   document.ontouchmove = function(e) {
     touchMoving = true;
   }
