@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
-use Psy\Util\Json;
 
 class ProjectGroupController extends Controller {
 
@@ -98,6 +97,10 @@ class ProjectGroupController extends Controller {
                 } else {
                     $this->emailUserProject("changed", $uid, $group->id);
                 }
+
+                //After all this, lets make sure they get the custom project added
+                $user = User::where("id","=",$uid)->get();
+                $user->addCustomProject($pid);
             }
 
             $group->users()->attach($request['users']);
@@ -181,6 +184,10 @@ class ProjectGroupController extends Controller {
 
             echo $idOld;
         }
+
+        //After all this, lets make sure they get the custom project added
+        $user = User::where("id","=",$request['userId'])->get();
+        $user->addCustomProject($instance->pid);
 
         $instance->users()->attach($request['userId']);
     }

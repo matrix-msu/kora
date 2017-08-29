@@ -76,10 +76,16 @@ class ProjectGroup extends Model {
         $adminGroup->pid = $project->pid;
         $adminGroup->save();
 
-        if(!is_null($request['admins']))
+        if(!is_null($request['admins'])) {
             $adminGroup->users()->attach($request['admins']);
-        else
+            foreach($request['admins'] as $uid) {
+                $user = User::where("id","=",$uid)->get();
+                $user->addCustomProject($adminGroup->pid);
+            }
+        } else {
             $adminGroup->users()->attach(array(\Auth::user()->id));
+            \Auth::user()->addCustomProject($adminGroup->pid);
+        }
 
         $adminGroup->create = 1;
         $adminGroup->edit = 1;

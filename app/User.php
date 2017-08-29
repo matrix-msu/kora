@@ -392,7 +392,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-     * Gets a sequence value a project for the User's custom view.
+     * Gets a sequence value a project for the user's custom view.
      *
      * @param  int $pid - Project ID
      * @return int - The sequence
@@ -400,6 +400,59 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function getCustomProjectSequence($pid) {
         return DB::table("project_custom")->where("uid", "=", $this->id)
             ->where("pid", "=", $pid)->first()->sequence;
+    }
+
+    /**
+     * Adds a project to a user's custom list
+     *
+     * @param  int $pid - Project ID
+     */
+    public function addCustomProject($pid) {
+        //Make sure it doesn't exist first
+        $check = DB::table("project_custom")->where("uid", "=", $this->id)->where("pid", "=", $pid)->get();
+
+        if(is_null($check)) {
+            $currSeqMax = DB::table("project_custom")->where("uid", "=", $this->id)->max("sequence");
+            $newSeq = $currSeqMax + 1;
+
+            DB::table('project_custom')->insert(
+                ['uid' => $this->id, 'pid' => $pid, 'sequence' => $newSeq]
+            );
+        }
+    }
+
+    /**
+     * Removes a project from a user's custom list
+     *
+     * @param  int $pid - Project ID
+     */
+    public function removeCustomProject($pid) {
+        $customs = DB::table("project_custom")->where("uid", "=", $this->id)->orderBy('sequence', 'asc')
+            ->get();
+
+        $found = false;
+        $delCustom = null;
+        foreach($customs as $custom) {
+            if($found) {
+                //Once we've found the page we are deleting, we need to change the sequence of any
+                // pages that follow.
+                $newSeq = $custom->sequence - 1;
+                DB::table('project_custom')
+                    ->where('id', $custom->id)
+                    ->update(['sequence' => $newSeq]);
+            }
+
+            if($custom->pid == $pid) {
+                $found = true;
+                $delCustom = $custom;
+                DB::table('project_custom')
+                    ->where('id', $custom->id)
+                    ->update(['sequence' => 1337]);
+            }
+        }
+
+        if(!is_null($delCustom))
+            DB::table('users')->where('id', '=', $delCustom->id)->delete();
     }
 
     /**
