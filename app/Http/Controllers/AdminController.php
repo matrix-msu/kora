@@ -1,5 +1,7 @@
 <?php namespace App\Http\Controllers;
 
+use App\Project;
+use App\ProjectGroup;
 use App\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -98,15 +100,38 @@ class AdminController extends Controller {
     public function update(Request $request) {
         $message = array();
         $user = User::where('id', '=', $request->users)->first();
-        $new_pass = $request->new_password;
+        $newPass = $request->new_password;
         $confirm = $request->confirm;
 
         // Has the user been given admin rights?
         if(!is_null($request->admin)) {
             $user->admin = 1;
+
+            $projects = Project::all();
+            foreach($projects as $project) {
+                $user->addCustomProject($project->pid);
+            }
+
             array_push($message,"admin");
         } else {
             $user->admin = 0;
+
+            //Build the list of project groups they are a part of
+            $safePids = array();
+            $guPairs = DB::table("project_group_user")->where("user_id", "=", $user->id);
+            foreach($guPairs as $gu) {
+                $group = ProjectGroup::where("id","=","project_group_id");
+                array_push($safePids,$group->pid);
+            }
+            $safePids = array_unique($safePids);
+
+            //If the user isnt apart of the project group, we want to remove their custom access to it
+            $projects = Project::all();
+            foreach($projects as $project) {
+                if(!in_array($project->pid,$safePids))
+                    $user->removeCustomProject($project->pid);
+            }
+
             array_push($message,"not_admin");
         }
 
@@ -122,20 +147,20 @@ class AdminController extends Controller {
         }
 
         // Handle password change cases.
-        if(!empty($new_pass) || !empty($confirm)) {
+        if(!empty($newPass) || !empty($confirm)) {
             // If passwords don't match.
-            if($new_pass != $confirm)
+            if($newPass != $confirm)
                 return redirect('admin/users')->with('k3_global_error', 'passwords_unmatched');
 
             // If password is less than 6 chars
-            if(strlen($new_pass)<6)
+            if(strlen($newPass)<6)
                 return redirect('admin/users')->with('k3_global_error', 'password_minimum');
 
             // If password contains spaces
-            if(preg_match('/\s/',$new_pass))
+            if(preg_match('/\s/',$newPass))
                 return redirect('admin/users')->with('k3_global_error', 'password_whitespaces');
 
-            $user->password = bcrypt($new_pass);
+            $user->password = bcrypt($newPass);
             array_push($message,"password");
         }
 
