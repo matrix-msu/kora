@@ -1,19 +1,31 @@
 var touchMoving = false;
-var mobile = navigator.userAgent.toLowerCase().indexOf('iphone') >= 0 ||
-  navigator.userAgent.toLowerCase().indexOf('ipad') >= 0 ||
-  navigator.userAgent.toLowerCase().indexOf('mobile') >= 0;
 
-if (mobile) {
-  document.ontouchmove = function(e) {
-    touchMoving = true;
-  }
+function checkMobileDevice() {
+  var agent = navigator.userAgent;
+  var regExpiPad = new RegExp('iPad');
+  var regExpiPhone = new RegExp('iPhone');
+  var regExpAndroid = new RegExp('Android');
+  var regExpAndroidPhone = new RegExp('Chrome/[.0-9]* Mobile');
+  var regExpAndroidTablet = new RegExp('Chrome/[.0-9]* (?!Mobile)');
 
-  document.ontouchend = function(e) {
-    touchMoving = false;
+  var mobile = regExpiPhone.test(agent) || regExpiPad.test(agent) ||
+    (regExpAndroid.test(agent) && regExpAndroidPhone.test(agent)) ||
+    (regExpAndroid.test(agent) && regExpAndroidTablet.test(agent));
+
+  if (mobile) {
+    document.ontouchmove = function(e) {
+      touchMoving = true;
+    }
+
+    document.ontouchend = function(e) {
+      touchMoving = false;
+    }
   }
 }
 
 $(document).ready(function() {
+  checkMobileDevice();
+
   $('.underline-middle-hover, .underline-left-hover').on('click touchend', function(e) {
     var el = $(this);
     var link = el.attr('href');
@@ -28,9 +40,3 @@ $(document).ready(function() {
     }
   });
 });
-
-var reg = new RegExp('Android');
-var reg2 = new RegExp('Chrome/[.0-9]* Mobile');
-
-alert(reg.test(navigator.userAgent) && reg2.test(navigator.userAgent));
-alert(navigator.userAgent);
