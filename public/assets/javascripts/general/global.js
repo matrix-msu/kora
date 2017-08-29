@@ -17,7 +17,10 @@ $(document).ready(function() {
     var el = $(this);
     var link = el.attr('href');
 
-    if (touchMoving) return false;
+    if (touchMoving) {
+      touchMoving = false;
+      return false;
+    }
 
     if (link.charAt(0) !== "#") {
       window.location = link;
