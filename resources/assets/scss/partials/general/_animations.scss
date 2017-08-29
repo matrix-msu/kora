@@ -4,11 +4,14 @@
 //
 .underline-middle,
 .underline-middle-hover {
+  @include transition();
+
   position: relative;
-  transition: all .2s ease-in-out;
 
   &::before,
   &::after {
+    @include transition();
+
     background-color: palette(green, accent);
     bottom: 0;
     content: '';
@@ -16,7 +19,6 @@
     margin: 5px 0 0;
     opacity: 0;
     position: absolute;
-    transition: all .2s ease-in-out;
     width: 0;
   }
 
@@ -49,10 +51,13 @@
 //
 .underline-left,
 .underline-left-hover {
+  @include transition();
+
   position: relative;
-  transition: all .2s ease-in-out;
 
   &::before {
+    @include transition();
+
     background-color: palette(green, accent);
     bottom: 0;
     content: '';
@@ -60,7 +65,6 @@
     margin: 5px 0 0;
     opacity: 0;
     position: absolute;
-    transition: all .2s ease-in-out;
     width: 0;
   }
 

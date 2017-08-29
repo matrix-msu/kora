@@ -13,9 +13,10 @@
 
     // Replace this class with the image class once the placeholder is replaced.
     .icon-placeholder {
+      @include transition();
+
       display: inline-block;
       font-size: 27px;
-      transition: all .2s ease-in-out;
     }
   }
 
@@ -28,8 +29,9 @@
     vertical-align: middle;
 
     a {
+      @include transition();
+
       line-height: 50px;
-      transition: all .2s ease-in-out;
     }
 
     &:not(:first-child) {

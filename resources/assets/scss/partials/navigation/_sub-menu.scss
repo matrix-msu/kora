@@ -1,4 +1,6 @@
 .navigation-sub-menu {
+  @include transition();
+
   background-color: palette(gray, dropdown);
   border-radius: 0 0 5px 5px;
   box-shadow: 0 10px 30px 0 palette(black, base, .2);
@@ -6,8 +8,7 @@
   padding-bottom: 5px;
   position: absolute;
   top: $navigation-height;
-  transform: translateY(-200%) ;
-  transition: all 250ms ease-in-out;
+  transform: translateY(-200%);
   width: 175px;
   will-change: transform;
   z-index: -1;
@@ -36,12 +37,13 @@
     font-size: 13px;
 
     a {
+      @include transition(color);
+
       align-items: center;
       display: flex;
       height: 14px;
       line-height: 14px;
       padding: 0 20px 8px;
-      transition: color 150ms ease;
     }
 
     a:hover {

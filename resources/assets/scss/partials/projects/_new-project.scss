@@ -8,6 +8,8 @@
   }
 
   input {
+    @include transition();
+
     background: palette(green, accent, .02);
     border: 1px solid palette(green, accent, .2);
     border-radius: 5px;
@@ -19,7 +21,6 @@
     line-height: 16px;
     padding: 0;
     text-align: center;
-    transition: all .2s ease-in-out;
     width: 100%;
 
     &:hover {

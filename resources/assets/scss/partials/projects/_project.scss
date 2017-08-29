@@ -1,10 +1,11 @@
 .project {
+  @include transition(box-shadow);
+
   background: palette(white, base);
   border-radius: 5px;
   box-shadow: 0 3px 5px 0 palette(box-shadow, base);
   margin: 30px auto;
   position: relative;
-  transition: box-shadow .2s ease-in-out;
 
   a {
     color: inherit;
