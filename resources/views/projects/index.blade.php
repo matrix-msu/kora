@@ -65,4 +65,8 @@
     '/assets/javascripts/navigation/navigation.js',
     '/assets/javascripts/general/global.js'
   ])->withFullUrl() !!}
+
+  <script type="text/javascript">
+    Kora.Projects.Index();
+  </script>
 @stop
