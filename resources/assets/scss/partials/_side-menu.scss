@@ -1,0 +1,48 @@
+.side-menu {
+  flex-basis: 0;
+  flex-grow: 0;
+  flex-shrink: 0;
+  position: relative;
+  transition: all .2s ease-in-out;
+
+  &.active,
+  &.fixed {
+    flex-basis: 250px;
+  }
+
+  .blanket {
+    background: palette(black, base);
+    height: 100vh;
+    left: -100vw;
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    width: 0;
+  }
+
+  .content {
+    background: palette(gray, slate);
+    height: calc(100vh - #{$navigation-height});
+    margin-top: $navigation-height;
+    position: fixed;
+    width: 250px;
+  }
+}
+
+@media screen and (max-width: 870px) {
+  .side-menu {
+    flex-basis: 250px;
+    height: calc(100vh - #{$navigation-height});
+    left: 100%;
+    position: absolute;
+    z-index: 3;
+
+    &.active {
+      left: calc(100% - 250px);
+    }
+
+    &.fixed {
+      flex-basis: 0;
+    }
+  }
+}

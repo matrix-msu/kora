@@ -60,16 +60,16 @@
 
 @function gradient($palette: 'background', $degree: 180deg) {
   $accent-start: #00c7b8;
-  $accent-start: #04b6af;
+  $accent-end: #04b6af;
   $background-start: #fbfbfc;
   $background-end: #f5f6f7;
   $warning-start: #ff6b83;
   $warning-end: #f56;
 
   $gradient-scales: (
-    accent:       linear-gradient($degree, $accent-start 0%, $accent-start 100%),
-    background:   linear-gradient($degree, $background-start 0%, $background-start 100%),
-    warning:      linear-gradient($degree, $warning-start 0%, $warning-start 100%)
+    accent:       linear-gradient($degree, $accent-start 0%, $accent-end 100%),
+    background:   linear-gradient($degree, $background-start 0%, $background-end 100%),
+    warning:      linear-gradient($degree, $warning-start 0%, $warning-end 100%)
   );
 
   @return map-get($gradient-scales, $palette);

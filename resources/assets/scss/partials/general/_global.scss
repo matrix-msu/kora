@@ -1,3 +1,8 @@
+body {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
 body,
 form {
   margin: 0;
@@ -13,10 +18,10 @@ form {
 
 ::-webkit-input-placeholder {
   font-family: $ubuntu-italic;
-  opacity: .8 !important;
 }
 
 :-ms-input-placeholder {
   font-family: $ubuntu-italic;
-  opacity: .8 !important;
 }
+
+@import 'spacing';

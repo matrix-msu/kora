@@ -30,11 +30,18 @@
     <body class="{{ str_hyphenated($page_title) }}-body">
       @include('partials.nav')
 
+      <div class="side-menu side-menu-js">
+        <div class="blanket blanket-js"></div>
+        <aside class="content">
+        </aside>
+      </div>
+
       <div class="{{ str_hyphenated($page_title) }}">
         @yield('header')
         @yield('body')
         @yield('footer')
       </div>
+
 
       @include('partials.javascripts')
     </body>
