@@ -42,16 +42,19 @@ class ProjectController extends Controller {
         $projects = array();
         $inactive = array();
         $custom = array();
+        $pSearch = array();
         $hasProjects = false;
         $requestableProjects = array();
         foreach($projectCollections as $project) {
             if(\Auth::user()->admin || \Auth::user()->inAProjectGroup($project)) {
                 if($project->active) {
                     array_push($projects, $project);
+                    array_push($pSearch, $project);
                     $seq = \Auth::user()->getCustomProjectSequence($project->pid);
                     $custom[$seq] = $project;
                 } else {
                     array_push($inactive, $project);
+                    array_push($pSearch, $project);
                 }
 
                 $hasProjects = true;
@@ -71,7 +74,7 @@ class ProjectController extends Controller {
             $updateNotification = true;
         }*/
 
-        return view('projects.index', compact('projects', 'inactive', 'custom', 'hasProjects', 'requestableProjects'));
+        return view('projects.index', compact('projects', 'inactive', 'custom', 'pSearch', 'hasProjects', 'requestableProjects'));
 	}
 
     /**
