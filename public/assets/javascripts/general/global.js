@@ -28,3 +28,9 @@ $(document).ready(function() {
     }
   });
 });
+
+var reg = new RegExp('Android');
+var reg2 = new RegExp('Chrome/[.0-9]* Mobile');
+
+alert(reg.test(navigator.userAgent) && reg2.test(navigator.userAgent));
+alert(navigator.userAgent);
