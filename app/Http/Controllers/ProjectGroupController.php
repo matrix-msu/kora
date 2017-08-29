@@ -128,6 +128,9 @@ class ProjectGroupController extends Controller {
             }
         }
 
+        $user = User::where("id","=",$request->userId)->get();
+        $user->removeCustomProject($instance->pid);
+
         $instance->users()->detach($request->userId);
 
         $this->emailUserProject("removed",$request->userId,$instance->id);
@@ -210,6 +213,9 @@ class ProjectGroupController extends Controller {
                     DB::table('form_group_user')->where('user_id', $user->id)->where('form_group_id', $fg->id)->delete();
                 }
             }
+
+            //Remove their custom project connection
+            $user->removeCustomProject($instance->pid);
 
             $this->emailUserProject("removed",$user->id,$instance->id);
         }

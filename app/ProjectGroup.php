@@ -55,7 +55,17 @@ class ProjectGroup extends Model {
      * Delete's the connections between group and users, and then deletes self.
      */
     public function delete() {
-        DB::table("project_group_user")->where("project_group_id", "=", $this->id)->delete();
+        $guBuilder = DB::table("project_group_user")->where("project_group_id", "=", $this->id);
+        $group_users = $guBuilder->get();
+
+        foreach($group_users as $group_user) {
+            //remove this project from that users custom list
+            $user = User::where("id","=",$group_user->user_id)->get();
+            $user->removeCustomProject($this->pid);
+        }
+
+        //then delete the group connections
+        $guBuilder->delete();
 
         parent::delete();
     }
