@@ -1,5 +1,6 @@
-var iOS = navigator.userAgent.indexOf('iphone') >= 0 || navigator.userAgent.indexOf('ipad') >= 0;
 var touchMoving = false;
+var iOS = navigator.userAgent.toLowerCase().indexOf('iphone') >= 0 ||
+  navigator.userAgent.toLowerCase().indexOf('ipad') >= 0;
 
 if (iOS) {
   document.ontouchmove = function(e) {
