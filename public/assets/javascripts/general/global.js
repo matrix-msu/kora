@@ -1,5 +1,4 @@
-var iOS = agent.indexOf('iphone') >= 0 || agent.indexOf('ipad') >= 0;
-var clickEvent = iOs ? 'touchend' : 'click';
+var iOS = navigator.userAgent.indexOf('iphone') >= 0 || navigator.userAgent.indexOf('ipad') >= 0;
 var touchMoving = false;
 
 if (iOS) {
