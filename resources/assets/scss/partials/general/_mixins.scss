@@ -4,3 +4,7 @@
   -webkit-overflow-scrolling: touch;
   -ms-overflow-style: -ms-autohiding-scrollbar;
 }
+
+@mixin transition($property: all) {
+  transition: $property .2s ease-in-out;
+}

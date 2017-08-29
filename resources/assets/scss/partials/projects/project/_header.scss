@@ -12,8 +12,9 @@
   }
 
   .icon {
+    @include transition();
+
     cursor: pointer;
-    transition: all 200ms ease-in-out;
     vertical-align: middle;
   }
 
@@ -43,8 +44,9 @@
     display: inline-block;
 
     .action {
+      @include transition();
+
       padding: 20px 0;
-      transition: all .2s ease-in-out;
       will-change: transform;
     }
 
@@ -72,8 +74,9 @@
   }
 
   .project-name {
+    @include transition();
+
     padding-bottom: #{ $underline-padding + 4px };
-    transition: all .2s ease-in-out;
 
     .name {
       margin: 15px 0;
@@ -81,7 +84,7 @@
     }
 
     .icon-arrow-right {
-      transition: all .2s ease-in-out;
+      @include transition();
     }
 
     &:hover .icon-arrow-right {
@@ -94,10 +97,11 @@
   }
 
   .project-toggle {
+    @include transition();
+
     display: block;
     opacity: .6;
     text-align: right;
-    transition: all .2s ease-in-out;
 
     &:hover {
       opacity: 1;

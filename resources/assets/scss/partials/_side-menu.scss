@@ -3,7 +3,7 @@
   flex-grow: 0;
   flex-shrink: 0;
   position: relative;
-  transition: all .2s ease-in-out;
+  @include transition();
 
   &.active,
   &.fixed {
