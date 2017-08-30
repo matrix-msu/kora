@@ -116,9 +116,15 @@ class FormGroup extends Model {
             $adminGroup->users()->attach($idArray);
 
             foreach($idArray as $uid) {
-                $user = User::where("id","=",$uid)->get();
+                $user = User::where("id","=",$uid)->first();
                 $user->addCustomForm($adminGroup->fid);
             }
+        }
+
+        //We want to now give this form to the custom list of all system admins
+        $admins = User::where("admin","=",1)->get();
+        foreach($admins as $admin) {
+            $admin->addCustomForm($adminGroup->fid);
         }
 
         $adminGroup->create = 1;

@@ -227,6 +227,11 @@ class UserController extends Controller {
         }
     }
 
+    /**
+     * Updates the users list of custom projects.
+     *
+     * @param  Request $request
+     */
     public function saveProjectCustomOrder(Request $request) {
         $pids = $request->pids;
 
@@ -246,6 +251,12 @@ class UserController extends Controller {
         DB::table('project_custom')->insert($rows);
     }
 
+    /**
+     * Updates the users list of custom forms for a project.
+     *
+     * @param  int $pid - Project ID
+     * @param  Request $request
+     */
     public function saveFormCustomOrder($pid, Request $request) {
         $fids = $request->fids;
 

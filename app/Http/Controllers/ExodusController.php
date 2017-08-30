@@ -197,6 +197,7 @@ class ExodusController extends Controller {
 
         //Projects
         $projects = $con->query("select * from project");
+        $koraSysAdmins = User::where("admin","=",1)->get(); //See Below
         while($p = $projects->fetch_assoc()) {
             if(in_array($p['pid'],$migratedProjects)) {
                 //make project
@@ -223,6 +224,11 @@ class ExodusController extends Controller {
 
                 //add to project conversion array
                 $projectArray[$p['pid']] = $proj->pid;
+
+                //Before we create the permissions group, add this project to any system admin custom list
+                foreach($koraSysAdmins as $admin) {
+                    $admin->addCustomProject($proj->pid);
+                }
 
                 //create permission groups
                 $permGroups = $con->query("select * from permGroup where pid=" . $p['pid']);
@@ -255,6 +261,9 @@ class ExodusController extends Controller {
                                 $gu = $userArray[$m['uid']];
                             else
                                 continue; //most likely get here because k2 Admin was added as a group user, but no need for that in kora 3
+                            //Add project to users custom list
+                            $guModel = User::where("id","=",$gu)->first();
+                            $guModel->addCustomProject($proj->pid);
                             array_push($groupUsers, $gu);
                         }
                         $k3Group->users()->attach($groupUsers);
@@ -398,6 +407,11 @@ class ExodusController extends Controller {
                     }
                 }
 
+                //Before we create the permissions group, add this form to any system admin custom list
+                foreach($koraSysAdmins as $admin) {
+                    $admin->addCustomForm($form->fid);
+                }
+
                 //create admin/default groups based on project groups
                 $permGroups = $con->query("select * from permGroup where pid=" . $f['pid']);
                 while($pg = $permGroups->fetch_assoc()) {
@@ -428,6 +442,7 @@ class ExodusController extends Controller {
                     $projGroup = ProjectGroup::where('name', '=', $nameOfProjectGroup)->where('pid', '=', $form->pid)->first();
                     if($migrateUsers) {
                         foreach($projGroup->users()->get() as $user) {
+                            $user->addCustomForm($form->fid);
                             array_push($groupUsers, $user->id);
                         }
                         $k3Group->users()->attach($groupUsers);

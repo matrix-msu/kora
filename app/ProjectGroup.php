@@ -89,12 +89,18 @@ class ProjectGroup extends Model {
         if(!is_null($request['admins'])) {
             $adminGroup->users()->attach($request['admins']);
             foreach($request['admins'] as $uid) {
-                $user = User::where("id","=",$uid)->get();
+                $user = User::where("id","=",$uid)->first();
                 $user->addCustomProject($adminGroup->pid);
             }
         } else {
             $adminGroup->users()->attach(array(\Auth::user()->id));
             \Auth::user()->addCustomProject($adminGroup->pid);
+        }
+
+        //We want to now give this project to the custom list of all system admins
+        $admins = User::where("admin","=",1)->get();
+        foreach($admins as $admin) {
+            $admin->addCustomProject($adminGroup->pid);
         }
 
         $adminGroup->create = 1;
