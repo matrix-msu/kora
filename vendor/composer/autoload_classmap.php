@@ -22,6 +22,7 @@ return array(
     'CreateExodusProgressTables' => $baseDir . '/database/migrations/2016_12_08_171347_CreateExodusProgressTables.php',
     'CreateFailedJobsTable' => $baseDir . '/database/migrations/2016_05_23_204859_create_failed_jobs_table.php',
     'CreateFieldsTable' => $baseDir . '/database/migrations/2015_05_01_140126_CreateFieldsTable.php',
+    'CreateFormCustomTable' => $baseDir . '/database/migrations/2017_08_30_171426_CreateFormCustomTable.php',
     'CreateFormGroupsTable' => $baseDir . '/database/migrations/2015_07_15_172743_create_form_groups_table.php',
     'CreateFormsTable' => $baseDir . '/database/migrations/2015_04_03_152745_CreateFormsTable.php',
     'CreateGalleryfieldsTable' => $baseDir . '/database/migrations/2015_00_00_000003_create_galleryfields_table.php',

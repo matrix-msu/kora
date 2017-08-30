@@ -1,5 +1,7 @@
 <?php namespace App\Http\Controllers;
 
+use App\Form;
+use App\FormGroup;
 use App\Project;
 use App\ProjectGroup;
 use App\User;
@@ -112,6 +114,11 @@ class AdminController extends Controller {
                 $user->addCustomProject($project->pid);
             }
 
+            $forms = Form::all();
+            foreach($forms as $form) {
+                $user->addCustomForm($form->fid);
+            }
+
             array_push($message,"admin");
         } else {
             $user->admin = 0;
@@ -120,16 +127,32 @@ class AdminController extends Controller {
             $safePids = array();
             $guPairs = DB::table("project_group_user")->where("user_id", "=", $user->id);
             foreach($guPairs as $gu) {
-                $group = ProjectGroup::where("id","=","project_group_id");
+                $group = ProjectGroup::where("id","=",$gu->project_group_id);
                 array_push($safePids,$group->pid);
             }
             $safePids = array_unique($safePids);
+
+            //Build the list of form groups they are a part of
+            $safeFids = array();
+            $guPairs = DB::table("form_group_user")->where("user_id", "=", $user->id);
+            foreach($guPairs as $gu) {
+                $group = FormGroup::where("id","=",$gu->form_group_id);
+                array_push($safeFids,$group->fid);
+            }
+            $safeFids = array_unique($safeFids);
 
             //If the user isnt apart of the project group, we want to remove their custom access to it
             $projects = Project::all();
             foreach($projects as $project) {
                 if(!in_array($project->pid,$safePids))
                     $user->removeCustomProject($project->pid);
+            }
+
+            //If the user isnt apart of the form group, we want to remove their custom access to it
+            $forms = Form::all();
+            foreach($forms as $form) {
+                if(!in_array($form->fid,$safeFids))
+                    $user->removeCustomFid($form->fid);
             }
 
             array_push($message,"not_admin");

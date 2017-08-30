@@ -1,6 +1,7 @@
 <?php namespace App;
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FormController;
 use App\Http\Controllers\ProjectController;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
@@ -359,6 +360,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         DB::table("project_group_user")->where("user_id", "=", $this->id)->delete();
         DB::table("project_custom")->where("uid", "=", $this->id)->delete();
         DB::table("form_group_user")->where("user_id", "=", $this->id)->delete();
+        DB::table("form_custom")->where("uid", "=", $this->id)->delete();
         DB::table("backup_support")->where("user_id", "=", $this->id)->delete();
         DB::table("global_cache")->where("user_id", "=", $this->id)->delete();
 
@@ -403,20 +405,68 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
+     * Gets a sequence value a form for the user's custom view.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return int - The sequence
+     */
+    public function getCustomFormSequence($fid) {
+        $form = FormController::getForm($fid);
+        $pid = $form->pid;
+
+        return DB::table("form_custom")->where("uid", "=", $this->id)
+            ->where("pid", "=", $pid)
+            ->where("fid", "=", $fid)->first()->sequence;
+    }
+
+    /**
      * Adds a project to a user's custom list
      *
      * @param  int $pid - Project ID
      */
     public function addCustomProject($pid) {
         //Make sure it doesn't exist first
-        $check = DB::table("project_custom")->where("uid", "=", $this->id)->where("pid", "=", $pid)->get();
+        $check = DB::table("project_custom")->where("uid", "=", $this->id)
+            ->where("pid", "=", $pid)->get();
 
         if(is_null($check)) {
             $currSeqMax = DB::table("project_custom")->where("uid", "=", $this->id)->max("sequence");
-            $newSeq = $currSeqMax + 1;
+            if(!is_null($currSeqMax))
+                $newSeq = $currSeqMax + 1;
+            else
+                $newSeq = 0;
 
             DB::table('project_custom')->insert(
                 ['uid' => $this->id, 'pid' => $pid, 'sequence' => $newSeq]
+            );
+        }
+    }
+
+    /**
+     * Adds a form to a user's custom list
+     *
+     * @param  int $fid - Form ID
+     */
+    public function addCustomForm($fid) {
+        $form = FormController::getForm($fid);
+        $pid = $form->pid;
+
+        //Make sure it doesn't exist first
+        $check = DB::table("form_custom")->where("uid", "=", $this->id)
+            ->where("pid", "=", $pid)
+            ->where("fid", "=", $fid)->get();
+
+        if(is_null($check)) {
+            $currSeqMax = DB::table("form_custom")->where("uid", "=", $this->id)
+                ->where("pid", "=", $pid)->max("sequence");
+            if(!is_null($currSeqMax))
+                $newSeq = $currSeqMax + 1;
+            else
+                $newSeq = 0;
+
+            DB::table('form_custom')->insert(
+                ['uid' => $this->id, 'pid' => $pid, 'fid' => $fid, 'sequence' => $newSeq]
             );
         }
     }
@@ -452,7 +502,46 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         }
 
         if(!is_null($delCustom))
-            DB::table('users')->where('id', '=', $delCustom->id)->delete();
+            DB::table('project_custom')->where('id', '=', $delCustom->id)->delete();
+    }
+
+    /**
+     * Removes a form from a user's custom list
+     *
+     * @param  int $fid - Form ID
+     */
+    public function removeCustomForm($fid) {
+        $form = FormController::getForm($fid);
+        $pid = $form->pid;
+
+        $customs = DB::table("form_custom")->where("uid", "=", $this->id)
+            ->where("pid", "=", $pid)
+            ->orderBy('sequence', 'asc')
+            ->get();
+
+        $found = false;
+        $delCustom = null;
+        foreach($customs as $custom) {
+            if($found) {
+                //Once we've found the page we are deleting, we need to change the sequence of any
+                // pages that follow.
+                $newSeq = $custom->sequence - 1;
+                DB::table('form_custom')
+                    ->where('id', $custom->id)
+                    ->update(['sequence' => $newSeq]);
+            }
+
+            if($custom->fid == $fid) {
+                $found = true;
+                $delCustom = $custom;
+                DB::table('form_custom')
+                    ->where('id', $custom->id)
+                    ->update(['sequence' => 1337]);
+            }
+        }
+
+        if(!is_null($delCustom))
+            DB::table('form_custom')->where('id', '=', $delCustom->id)->delete();
     }
 
     /**

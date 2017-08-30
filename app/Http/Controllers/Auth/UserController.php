@@ -231,7 +231,7 @@ class UserController extends Controller {
         $pids = $request->pids;
 
         //We are going to delete the old ones, and just rebuild the list entirely for the user
-        DB::table("project_custom")->where("uid", "=", $this->id)->delete();
+        DB::table("project_custom")->where("uid", "=", \Auth::user()->id)->delete();
 
         //Rebuild it!
         $rows = array();
@@ -243,7 +243,27 @@ class UserController extends Controller {
         }
 
         //Now save the new order
-        DB::table('users')->insert($rows);
+        DB::table('project_custom')->insert($rows);
+    }
+
+    public function saveFormCustomOrder($pid, Request $request) {
+        $fids = $request->fids;
+
+        //We are going to delete the old ones, and just rebuild the list entirely for the user
+        DB::table("form_custom")->where("uid", "=", \Auth::user()->id)
+            ->where("pid", "=", $pid)->delete();
+
+        //Rebuild it!
+        $rows = array();
+        $index = 0;
+        foreach($fids as $fid) {
+            $row = ["uid"=>\Auth::user()->id,"pid"=>$pid,"fid"=>$fid,"sequence"=>$index];
+            array_push($rows,$row);
+            $index++;
+        }
+
+        //Now save the new order
+        DB::table('form_custom')->insert($rows);
     }
 
     /**

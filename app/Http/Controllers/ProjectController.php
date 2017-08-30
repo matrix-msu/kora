@@ -154,9 +154,20 @@ class ProjectController extends Controller {
             return redirect('/projects')->with('k3_global_error', 'cant_view_project');
 
         $project = self::getProject($id);
-        $projectArrays = [$project->buildFormSelectorArray()];
+        $formCollections = $project->forms()->get()->sortBy("name");
 
-        return view('projects.show', compact('project', 'projectArrays'));
+        $forms = array();
+        $custom = array();
+        foreach($formCollections as $form){
+            array_push($forms,$form);
+            $seq = \Auth::user()->getCustomFormSequence($form->fid);
+            $custom[$seq] = $form;
+        }
+
+        //We need to sort the custom array
+        ksort($custom);
+
+        return view('projects.show', compact('project','forms', 'custom'));
 	}
 
     /**

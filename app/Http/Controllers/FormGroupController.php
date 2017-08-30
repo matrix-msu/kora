@@ -116,6 +116,10 @@ class FormGroupController extends Controller {
                 }
 
                 DB::table('form_group_user')->where('user_id', $uid)->where('form_group_id', $idOld)->delete();
+
+                //After all this, lets make sure they get the custom form added
+                $user = User::where("id","=",$uid)->get();
+                $user->addCustomForm($fid);
             }
 
             $group->users()->attach($request['users']);
@@ -131,7 +135,11 @@ class FormGroupController extends Controller {
      */
     public function removeUser(Request $request) {
         $instance = FormGroup::where('id', '=', $request['formGroup'])->first();
-        $instance->users()->detach($request['userId']);
+
+        $user = User::where("id","=",$request->userId)->get();
+        $user->removeCustomForm($instance->fid);
+
+        $instance->users()->detach($request->userId);
     }
 
     /**
@@ -188,6 +196,10 @@ class FormGroupController extends Controller {
             }
         }
 
+        //After all this, lets make sure they get the custom form added
+        $user = User::where("id","=",$request['userId'])->get();
+        $user->addCustomForm($instance->fid);
+
         $instance->users()->attach($request['userId']);
     }
 
@@ -198,6 +210,13 @@ class FormGroupController extends Controller {
      */
     public function deleteFormGroup(Request $request) {
         $instance = FormGroup::where('id', '=', $request['formGroup'])->first();
+
+        $users = $instance->users()->get();
+        foreach($users as $user) {
+            //Remove their custom form connection
+            $user->removeCustomForm($instance->pid);
+        }
+
         $instance->delete();
     }
 

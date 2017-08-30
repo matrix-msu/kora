@@ -65,7 +65,18 @@ class FormGroup extends Model {
      * Delete's the connections between group and users, and then deletes self.
      */
     public function delete() {
-        DB::table("form_group_user")->where("form_group_id", "=", $this->id)->delete();
+        $guBuilder = DB::table("form_group_user")->where("form_group_id", "=", $this->id)->delete();
+        $group_users = $guBuilder->get();
+
+        foreach($group_users as $group_user) {
+            //remove this project from that users custom list
+            $user = User::where("id","=",$group_user->user_id)->get();
+            $user->removeCustomForm($this->fid);
+        }
+
+        //then delete the group connections
+        $guBuilder->delete();
+
 
         parent::delete();
     }
@@ -101,8 +112,14 @@ class FormGroup extends Model {
         else
             $idArray = array_unique(array_merge(array(\Auth::user()->id), $idArray));
 
-        if(!empty($idArray))
+        if(!empty($idArray)) {
             $adminGroup->users()->attach($idArray);
+
+            foreach($idArray as $uid) {
+                $user = User::where("id","=",$uid)->get();
+                $user->addCustomForm($adminGroup->fid);
+            }
+        }
 
         $adminGroup->create = 1;
         $adminGroup->edit = 1;

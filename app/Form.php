@@ -102,6 +102,7 @@ class Form extends Model {
         DB::table("record_presets")->where("fid", "=", $this->fid)->delete();
         DB::table("associations")->where("dataForm", "=", $this->fid)->orWhere("assocForm", "=", $this->fid)->delete();
         DB::table("revisions")->where("fid", "=", $this->fid)->delete();
+        DB::table("form_custom")->where("fid", "=", $this->fid)->delete();
 
         FormGroup::where("fid", "=", $this->fid)->delete();
 
