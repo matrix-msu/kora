@@ -287,7 +287,7 @@ class ProjectController extends Controller {
     public function importProjectView() {
         if(!\Auth::user()->admin)
             return redirect('projects')->with('k3_global_error', 'not_admin');
-        
+
         return view('projects.import');
     }
 
