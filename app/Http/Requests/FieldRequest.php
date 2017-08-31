@@ -38,7 +38,7 @@ class FieldRequest extends Request {
                     'fid' => 'required|numeric',
                     'type' => 'required',
                     'name' => 'required|min:3',
-                    'slug' => 'required|alpha_num|min:3|unique:fields',
+                    'slug' => 'required|alpha_dash|min:3|unique:fields',
                     'desc' => 'required'
                 ];
             case 'PATCH':
@@ -47,7 +47,7 @@ class FieldRequest extends Request {
                     'fid' => 'required|numeric',
                     'type' => 'required',
                     'name' => 'required|min:3',
-                    'slug' => 'required|alpha_num|min:3|unique:fields,slug,'.$field->flid.',flid',
+                    'slug' => 'required|alpha_dash|min:3|unique:fields,slug,'.$field->flid.',flid',
                     'desc' => 'required'
                 ];
             default:
@@ -63,7 +63,7 @@ class FieldRequest extends Request {
     public function messages() {
         return [
             'slug.required' => "The reference name field is required.",
-            'slug.alpha_num' => "The reference name may only contain letters and numbers.",
+            'slug.alpha_dash' => "The reference name may only contain letters, numbers, underscores, and hyphens.",
             'slug.min' => "The reference name must be at least 3 characters.",
             'slug.unique' => "The reference name already exists. Please try another one."
         ];
