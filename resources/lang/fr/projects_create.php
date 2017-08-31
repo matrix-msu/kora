@@ -4,7 +4,8 @@ return [
 
 	//projects_create french translations
 
-	"new" => "Cr&eacute;ez un nouveau projet",
-	"project" => "Cr&eacute;er le projet",
+  "new" => "Nouveau Projet",
+	"description" => 'Remplissez le formulaire ci-dessous, puis s&eacute;lectionnez "Cr&eacute;er un projet"',
+  "create" => 'Cr&eacute;er le projet',
 
 ];

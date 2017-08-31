@@ -1,7 +1,22 @@
-@extends('app', ['page_title' => 'New Project'])
+@extends('app', ['page_title' => 'Create a Project', 'page_class' => 'new-project'])
 
-@section('content')
-    <h1>{{trans('projects_create.new')}}</h1>
+@section('stylesheets')
+  <!-- No Additional Stylesheets Necessary -->
+@stop
+
+@section('header')
+  <section class="head">
+      <div class="inner-wrap">
+        <h1 class="title">
+          <i class="icon icon-new-project"></i>
+          <span>New Project</span>
+        </h1>
+        <p class="description">Fill out the form below, and then select "Create Project"</p>
+      </div>
+  </section>
+@stop
+
+@section('body')
 
     <hr/>
 
@@ -13,7 +28,5 @@
 @stop
 
 @section('footer')
-    <script>
-        $('#admins').select2();
-    </script>
+
 @stop

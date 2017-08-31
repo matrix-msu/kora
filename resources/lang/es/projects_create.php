@@ -4,7 +4,8 @@ return [
 
 	//projects_create spanish translations
 
-	"new" => "Cree un nuevo proyecto",
-	"project" => "Crear proyecto",
+	"new" => "Nuevo proyecto",
+  "description" => 'Rellene el siguiente formulario y luego seleccione "Crear Proyecto"',
+  "create" => 'Crear el Proyecto',
 
 ];

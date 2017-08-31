@@ -197,3 +197,9 @@ i {
     content: $icon-minus;
   }
 }
+
+.icon-new-project {
+  &::before {
+    content: $icon-new-project;
+  }
+}

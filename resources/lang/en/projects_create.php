@@ -4,7 +4,8 @@ return [
 
 	//projects_create english translations
 
-	"new" => "Create a New Project",
-	"project" => "Create Project",
+	"new" => "New Project",
+  "description" => 'Fill out the form below, and then select "Create Project"',
+  "create" => 'Create Project',
 
 ];
