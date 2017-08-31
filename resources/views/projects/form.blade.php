@@ -27,8 +27,8 @@
     <input type="checkbox" value="active" id="active" name="check" />
     <label for="active">
       <span class="check"></span>
-      <span class="placeholder">Select to set the project as "active"</span>
-      <span class="placeholder-alt">Select to set the project as "inactive"</span>
+      <span class="placeholder">Project set to "inactive"</span>
+      <span class="placeholder-alt">Project set to "active"</span>
     </label>
   </div>
 </div>
