@@ -1,0 +1,44 @@
+.text-input,
+.text-area {
+  @include transition();
+
+  background-color: palette(white, base);
+  border: 1px solid palette(white, base);
+  border-radius: 5px;
+  box-shadow: 0 3px 5px 0 palette(box-shadow, base, .05);
+  box-sizing: border-box;
+  font-size: 14px;
+  height: 50px;
+  padding-left: map-get($spacing, m);
+  text-align: left;
+  width: 100%;
+
+  &:hover {
+    border: 1px solid palette(green, accent, .5);
+    box-shadow: 0 7px 10px 0 palette(box-shadow, base, .05);
+  }
+
+  &:focus {
+    border: 1px solid palette(green, accent, 1);
+    box-shadow: 0 7px 10px 0 palette(box-shadow, base, .05);
+    outline: none;
+  }
+}
+
+.text-area {
+  height: 100px;
+  padding: #{map-get($spacing, sm)} #{map-get($spacing, m)};
+  resize: vertical;
+}
+
+&:not(:first-of-type) {
+  padding: #{map-get($spacing, sm)} 0;
+}
+
+&:first-of-type {
+  padding: 0 0 #{map-get($spacing, sm)};
+}
+
+&:last-child {
+  padding: #{map-get($spacing, xxl)} 0 0;
+}

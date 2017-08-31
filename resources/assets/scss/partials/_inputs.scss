@@ -1,0 +1,15 @@
+.form-group {
+  color: palette(gray, text);
+  font-family: $ubuntu;
+
+  label {
+    display: block;
+    font-size: 16px;
+    padding: 0 0 10px;
+    text-align: left;
+  }
+
+  @import 'inputs/text';
+  @import 'inputs/buttons';
+  @import 'inputs/check-boxes';
+}
