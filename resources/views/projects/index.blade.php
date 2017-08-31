@@ -1,4 +1,4 @@
-@extends('app', ['page_title' => 'Projects'])
+@extends('app', ['page_title' => 'Projects', 'page_class' => 'projects'])
 
 @section('stylesheets')
   <!-- No Additional Stylesheets Necessary -->
@@ -62,6 +62,7 @@
     '/assets/javascripts/vendor/jquery/jquery.js',
     '/assets/javascripts/vendor/jquery/jquery-ui.js',
     '/assets/javascripts/projects/index.js',
+    '/assets/javascripts/projects/show.js',
     '/assets/javascripts/navigation/navigation.js',
     '/assets/javascripts/general/global.js'
   ])->withFullUrl() !!}

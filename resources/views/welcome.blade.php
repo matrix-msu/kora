@@ -1,4 +1,4 @@
-@extends('app', ['page_title' => 'Welcome'])
+@extends('app', ['page_title' => 'Welcome', 'page_class' => 'welcome'])
 
 @section('body')
 <style>
@@ -150,4 +150,3 @@
     </script>
 
 @stop
-

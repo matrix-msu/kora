@@ -1,4 +1,4 @@
-<div class="project {{ $index == 0 ? 'active' : '' }}">
+<div class="project card {{ $index == 0 ? 'active' : '' }}">
   <div class="header {{ $index == 0 ? 'active' : '' }}">
     <div class="left {{ !$isCustom ? 'pl-m' : null}}">
       @if ($isCustom)
@@ -13,13 +13,14 @@
         </div>
       @endif
 
-      <a class="project-name underline-middle-hover" href="{{action("ProjectController@show",["pid" => $project->pid])}}">
+      <a class="title underline-middle-hover" href="{{action("ProjectController@show",["pid" => $project->pid])}}">
         <span class="name">{{$project->name}}</span>
         <i class="icon icon-arrow-right"></i>
       </a>
     </div>
-    <div class="project-toggle-wrap">
-      <a href="#" class="project-toggle project-toggle-js">
+
+    <div class="card-toggle-wrap">
+      <a href="#" class="card-toggle project-toggle-js">
         <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
       </a>
     </div>

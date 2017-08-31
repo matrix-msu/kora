@@ -27,7 +27,7 @@
 
         <link rel="stylesheet" href="{{env('BASE_URL')}}/assets/css/app.css">
     </head>
-    <body class="{{ str_hyphenated($page_title) }}-body">
+    <body class="{{ str_hyphenated($page_class) }}-body">
       @include('partials.nav')
 
       <div class="side-menu side-menu-js">
@@ -36,7 +36,7 @@
         </aside>
       </div>
 
-      <div class="{{ str_hyphenated($page_title) }}">
+      <div class="{{ str_hyphenated($page_class) }}">
         @yield('header')
         @yield('body')
         @yield('footer')

@@ -73,7 +73,7 @@
     }
   }
 
-  .project-name {
+  .title {
     @include transition();
 
     padding-bottom: #{ $underline-padding + 4px };
@@ -92,11 +92,11 @@
     }
   }
 
-  .project-toggle-wrap {
+  .card-toggle-wrap {
     overflow: hidden;
   }
 
-  .project-toggle {
+  .card-toggle {
     @include transition();
 
     display: block;

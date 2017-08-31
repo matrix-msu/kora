@@ -4,7 +4,7 @@
       <i class="icon icon-chevron"></i>
     </a>
     <ul class="navigation-sub-menu navigation-sub-menu-js">
-        <li class="link head">
+        <li class="link link-head">
             <a href="{{ url('/dashboard') }}">
               <img src="{{ env('BASE_URL') }}assets/images/menu_dash.svg">
               <span>Dashboard</span>
@@ -26,7 +26,7 @@
       <i class="icon icon-chevron"></i>
     </a>
     <ul class="navigation-sub-menu navigation-sub-menu-js">
-        <li class="link head">
+        <li class="link link-head">
             <a href="{{ url('/projects') }}">
               <img src="{{ env('BASE_URL') }}assets/images/menu_proj.svg">
               <span>Projects</span>
@@ -44,7 +44,7 @@
         <?php $allowed_projects = \Auth::user()->allowedProjects() ?>
         @if(sizeof($allowed_projects) > 1)
             <li class="link">
-                <a href='#' class="$navigation-sub-menu-toggle-js">Jump to Project<img class="icon" src="{{ env('BASE_URL') }}assets/images/menu_plus.svg"></a>
+                <a href='#' class="navigation-sub-menu-toggle-js">Jump to Project<img class="icon" src="{{ env('BASE_URL') }}assets/images/menu_plus.svg"></a>
                 <ul class="navigation-deep-menu navigation-deep-menu-js">
                     @foreach($allowed_projects as $project)
                         <li class="kora_nav_deep_menu_item">

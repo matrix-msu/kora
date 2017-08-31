@@ -59,8 +59,12 @@
       padding-bottom: 20px;
     }
 
-    &.head a {
+    &.link-head a {
       padding: 20px 0 20px 20px;
+    }
+
+    &.link-head .icon {
+      margin-right: 10px;
     }
 
     &.pre-spacer a {

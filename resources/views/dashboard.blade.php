@@ -1,4 +1,4 @@
-@extends('app', ['page_title' => 'Dashboard'])
+@extends('app', ['page_title' => 'Dashboard', 'page_class' => 'dashboard'])
 
 @section('content')
     <h1>My Dashboard</h1>

@@ -163,19 +163,37 @@ i {
 }
 
 .icon-logout {
-  &:before {
+  &::before {
     content: $icon-logout;
   }
 }
 
 .icon-placeholder {
-  &:before {
+  &::before {
     content: $icon-placeholder;
   }
 }
 
 .icon-dashboard {
-  &:before {
+  &::before {
     content: $icon-dashboard;
+  }
+}
+
+.icon-project {
+  &::before {
+    content: $icon-project;
+  }
+}
+
+.icon-plus {
+  &::before {
+    content: $icon-plus;
+  }
+}
+
+.icon-minus {
+  &::before {
+    content: $icon-minus;
   }
 }
