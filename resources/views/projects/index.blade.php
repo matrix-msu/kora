@@ -6,7 +6,7 @@
 
 @section('header')
   <section class="head">
-      <div class="inner-wrap">
+      <div class="inner-wrap center">
         <h1 class="title">
           <i class="icon icon-projects"></i>
           <span>Projects</span>
@@ -17,7 +17,7 @@
 @stop
 
 @section('body')
-  <section class="filters">
+  <section class="filters center">
       <div class="underline-middle search search-js">
         <i class="icon icon-search"></i>
         <input type="text" placeholder="Find a Project">
@@ -30,19 +30,22 @@
           <a href="#inactive" class="option underline-middle underline-middle-hover">Inactive</a>
       </div>
   </section>
-  <section class="new-project-button">
+
+  <section class="new-project-button center">
     <form action="{{ action('ProjectController@create') }}">
       @if(\Auth::user()->admin)
         <input type="submit" value="Create a New Project">
       @endif
     </form>
   </section>
-  <section class="project-selection project-js project-selection-js">
+
+  <section class="project-selection center project-js project-selection-js">
     @include("partials.projects.active", ['isCustom' => false, 'active' => true])
     @include("partials.projects.inactive", ['isCustom' => false, 'active' => false])
     @include("partials.projects.custom", ['isCustom' => true, 'active' => false])
   </section>
-  <section class="foot">
+  
+  <section class="foot center">
     <p class="permission-information">
         Don't see the project you are looking for? You might not have the permissions...
     </p>

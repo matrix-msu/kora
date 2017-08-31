@@ -10,7 +10,7 @@
 
 @section('header')
   <section class="head">
-      <div class="inner-wrap">
+      <div class="inner-wrap center">
         <h1 class="title">
           <i class="icon icon-project"></i>
           <span>{{ $project->name }}</span>

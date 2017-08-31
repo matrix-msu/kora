@@ -6,7 +6,7 @@
 
 @section('header')
   <section class="head">
-      <div class="inner-wrap">
+      <div class="inner-wrap center">
         <h1 class="title">
           <i class="icon icon-new-project"></i>
           <span>New Project</span>
@@ -17,14 +17,11 @@
 @stop
 
 @section('body')
-
-    <hr/>
-
+  <section class="create-form">
     {!! Form::model($project = new \App\Project, ['url' => 'projects']) !!}
     @include('projects.form',['projectMode' => $projectMode])
     {!! Form::close() !!}
-
-    @include('errors.list')
+  </section>
 @stop
 
 @section('footer')
