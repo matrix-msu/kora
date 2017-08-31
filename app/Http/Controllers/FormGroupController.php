@@ -65,14 +65,14 @@ class FormGroupController extends Controller {
 
         $form = FormController::getForm($fid);
 
-        if($request['name'] == "") {
+        if($request->name == "") {
             return redirect(action('FormGroupController@index', ['fid'=>$form->fid]))->with('k3_global_error', 'form_group_noname');
         }
 
         $group = self::buildGroup($pid, $form->fid, $request);
 
-        if(!is_null($request['users'])) {
-            foreach($request['users'] as $uid) {
+        if(!is_null($request->users)) {
+            foreach($request->users as $uid) {
                 //remove them from an old group if they have one
                 //get any groups the user belongs to
                 $currGroups = DB::table('form_group_user')->where('user_id', $uid)->get();
@@ -122,7 +122,7 @@ class FormGroupController extends Controller {
                 $user->addCustomForm($fid);
             }
 
-            $group->users()->attach($request['users']);
+            $group->users()->attach($request->users);
         }
 
         return redirect(action('FormGroupController@index', ['pid'=>$form->pid, 'fid'=>$form->fid]))->with('k3_global_success', 'form_group_created');
@@ -134,7 +134,7 @@ class FormGroupController extends Controller {
      * @param  Request $request
      */
     public function removeUser(Request $request) {
-        $instance = FormGroup::where('id', '=', $request['formGroup'])->first();
+        $instance = FormGroup::where('id', '=', $request->formGroup)->first();
 
         $user = User::where("id","=",$request->userId)->get();
         $user->removeCustomForm($instance->fid);
@@ -148,10 +148,10 @@ class FormGroupController extends Controller {
      * @param  Request $request
      */
     public function addUser(Request $request) {
-        $instance = FormGroup::where('id', '=', $request['formGroup'])->first();
+        $instance = FormGroup::where('id', '=', $request->formGroup)->first();
 
         //get any groups the user belongs to
-        $currGroups = DB::table('form_group_user')->where('user_id', $request['userId'])->get();
+        $currGroups = DB::table('form_group_user')->where('user_id', $request->userId)->get();
         $newUser = true;
         $group = null;
         $idOld = 0;
@@ -168,7 +168,7 @@ class FormGroupController extends Controller {
 
         if(!$newUser) {
             //remove from old group
-            DB::table('form_group_user')->where('user_id', $request['userId'])->where('form_group_id', $idOld)->delete();
+            DB::table('form_group_user')->where('user_id', $request->userId)->where('form_group_id', $idOld)->delete();
 
             echo $idOld;
         } else {
@@ -181,7 +181,7 @@ class FormGroupController extends Controller {
 
             foreach($pGroups as $pg) {
                 //see if user belongs to project group
-                $uidPG = DB::table('project_group_user')->where('user_id', $request['userId'])->where('project_group_id', $pg->id)->get();
+                $uidPG = DB::table('project_group_user')->where('user_id', $request->userId)->where('project_group_id', $pg->id)->get();
 
                 if(!empty($uidPG))
                     $inProj = true;
@@ -191,16 +191,16 @@ class FormGroupController extends Controller {
             if(!$inProj) {
                 $default = ProjectGroup::where('name','=',$proj->name.' Default Group')->first();
                 DB::table('project_group_user')->insert([
-                    ['project_group_id' => $default->id, 'user_id' => $request['userId']]
+                    ['project_group_id' => $default->id, 'user_id' => $request->userId]
                 ]);
             }
         }
 
         //After all this, lets make sure they get the custom form added
-        $user = User::where("id","=",$request['userId'])->get();
+        $user = User::where("id","=",$request->userId)->get();
         $user->addCustomForm($instance->fid);
 
-        $instance->users()->attach($request['userId']);
+        $instance->users()->attach($request->userId);
     }
 
     /**
@@ -209,7 +209,7 @@ class FormGroupController extends Controller {
      * @param  Request $request
      */
     public function deleteFormGroup(Request $request) {
-        $instance = FormGroup::where('id', '=', $request['formGroup'])->first();
+        $instance = FormGroup::where('id', '=', $request->formGroup)->first();
 
         $users = $instance->users()->get();
         foreach($users as $user) {
@@ -226,7 +226,7 @@ class FormGroupController extends Controller {
      * @param  Request $request
      */
     public function updatePermissions(Request $request) {
-        $formGroup = FormGroup::where('id', '=', $request['formGroup'])->first();
+        $formGroup = FormGroup::where('id', '=', $request->formGroup)->first();
 
         //Because of some name convention problems in JavaScript we use a simple associative array to
         //relate the permissions passed by the request to the form group
@@ -269,7 +269,7 @@ class FormGroupController extends Controller {
      */
     private function buildGroup($pid, $fid, Request $request) {
         $group = new FormGroup();
-        $group->name = $request['name'];
+        $group->name = $request->name;
         $group->fid = $fid;
 
         $permissions = ['create','edit','delete','ingest','modify','destroy'];

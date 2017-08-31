@@ -211,7 +211,7 @@ class AdminController extends Controller {
      * @return View
      */
     public function batch(Request $request) {
-        $emails = str_replace(',', ' ', $request['emails']);
+        $emails = str_replace(',', ' ', $request->emails);
         $emails = preg_replace('!\s+!', ' ', $emails);
         $emails = array_unique(explode(' ', $emails));
 

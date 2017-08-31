@@ -110,7 +110,7 @@ class RevisionController extends Controller {
      * @return JsonResponse
      */
     public function rollback(Request $request) {
-        $revision = Revision::where('id', '=', $request['revision'])->first();
+        $revision = Revision::where('id', '=', $request->revision)->first();
         $form = FormController::getForm($revision->fid);
 
         //Keep in mind that the rollback is the reverse of the revision type (i.e. executing a rollback on revision of

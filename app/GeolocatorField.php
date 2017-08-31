@@ -3,9 +3,7 @@
 use App\FieldHelpers\gPoint;
 use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
-use Geocoder\Geocoder;
-use Geocoder\HttpAdapter\CurlHttpAdapter;
-use Geocoder\Provider\NominatimProvider;
+use Geocoder\Laravel\Facades\Geocoder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -593,7 +591,7 @@ SQL;
      * @return bool - Result of address validity
      */
     public static function validateAddress(Request $request) {
-        $address = $request['address'];
+        $address = $request->address;
 
         $coder = new Geocoder();
         $coder->registerProviders([
@@ -632,7 +630,7 @@ SQL;
             $utm = $con->utmZone.':'.$con->utmEasting.','.$con->utmNorthing;
 
             //to address
-            $con = new \Geocoder\Geocoder();
+            $con = new Geocoder();
             $con->registerProviders([
                 new NominatimProvider(
                     new CurlHttpAdapter(), 'http://nominatim.openstreetmap.org/', 'en'
@@ -662,7 +660,7 @@ SQL;
             $lon = $con->long;
 
             //to address
-            $con = new \Geocoder\Geocoder();
+            $con = new Geocoder();
             $con->registerProviders([
                 new NominatimProvider(
                     new CurlHttpAdapter(), 'http://nominatim.openstreetmap.org/', 'en'
@@ -682,7 +680,7 @@ SQL;
             $addr = $request->addr;
 
             //to latlon
-            $con = new \Geocoder\Geocoder();
+            $con = new Geocoder();
             $con->registerProviders([
                 new NominatimProvider(
                     new CurlHttpAdapter(), 'http://nominatim.openstreetmap.org/', 'en'

@@ -49,15 +49,15 @@ class TokenController extends Controller {
     {
         $instance = new Token();
         $instance->token = self::tokenGen();
-        $instance->title = $request['title'];
-        $instance->search = isset($request['search']) ? true : false;
-        $instance->create = isset($request['create']) ? true : false;
-        $instance->edit = isset($request['edit']) ? true : false;
-        $instance->delete = isset($request['delete']) ? true : false;
+        $instance->title = $request->title;
+        $instance->search = isset($request->search) ? true : false;
+        $instance->create = isset($request->create) ? true : false;
+        $instance->edit = isset($request->edit) ? true : false;
+        $instance->delete = isset($request->delete) ? true : false;
         $instance->save();
 
-        if (!is_null($request['projects']))
-            $instance->projects()->attach($request['projects']);
+        if (!is_null($request->projects))
+            $instance->projects()->attach($request->projects);
 
         return redirect('tokens')->with('k3_global_success', 'token_created');
     }
@@ -69,7 +69,7 @@ class TokenController extends Controller {
      */
     public function deleteProject(Request $request) {
         $instance = self::getToken($request->token);
-        $instance->projects()->detach($request['pid']);
+        $instance->projects()->detach($request->pid);
     }
 
     /**
@@ -79,7 +79,7 @@ class TokenController extends Controller {
      */
     public function addProject(Request $request) {
         $instance = self::getToken($request->token);
-        $instance->projects()->attach($request['pid']);
+        $instance->projects()->attach($request->pid);
     }
 
     /**

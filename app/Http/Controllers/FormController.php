@@ -63,7 +63,7 @@ class FormController extends Controller {
 
         $form->save();
 
-        if(!isset($request['preset'])) //Since the preset is copying the target form, no need to make a default page
+        if(!isset($request->preset)) //Since the preset is copying the target form, no need to make a default page
             PageController::makePageOnForm($form->fid,$form->slug." Default Page");
 
         $adminGroup = FormGroup::makeAdminGroup($form, $request);
@@ -71,8 +71,8 @@ class FormController extends Controller {
         $form->adminGID = $adminGroup->id;
         $form->save();
 
-        if(isset($request['preset']))
-            self::addPresets($form, $request['preset']);
+        if(isset($request->preset))
+            self::addPresets($form, $request->preset);
 
         return redirect('projects/'.$form->pid)->with('k3_global_success', 'form_created');
 	}
@@ -178,7 +178,7 @@ class FormController extends Controller {
             return response()->json(["status"=>false,"message"=>"form_invalid"],500);
 
         $form = self::getForm($fid);
-        if($request['preset'])
+        if($request->preset)
             $form->preset = 1;
         else
             $form->preset = 0;
