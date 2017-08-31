@@ -1,18 +1,16 @@
-@extends('app', ['page_title' => 'Project'])
+@extends('app', ['page_title' => $project->name])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $project->pid])
 @stop
 
-@section('content')
+@section('body')
     <h1>{{ $project->name }}</h1>
 
     <div><b>{{trans('projects_show.name')}}:</b> {{ $project->slug }}</div>
     <div><b>{{trans('projects_show.desc')}}:</b> {{ $project->description }}</div>
 
     <hr/>
-
-    @include('projectSearch.bar', ['projectArrays' => $projectArrays])
 
     @if (\Auth::user()->admin ||  \Auth::user()->isProjectAdmin($project))
         <hr/>
