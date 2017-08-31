@@ -326,7 +326,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                 $field->sequence = $collToPage[$collid."_seq"];
                 $field->type = $newType;
                 $field->name = $c['name'];
-                $slug = str_replace(' ','_',$c['name']).$this->fieldSlugGenerator();
+                $slug = str_replace(' ','_',$c['name']).'_'.$this->fieldSlugGenerator();
                 while(Field::slugExists($slug)) {
                     $slug .= $this->fieldSlugGenerator();
                 }
