@@ -21,7 +21,7 @@
     <hr/>
 
     {!! Form::model($project = new \App\Project, ['url' => 'projects']) !!}
-    @include('projects.form',['submitButtonText' => trans('projects_create.project')])
+    @include('projects.form',['projectMode' => $projectMode])
     {!! Form::close() !!}
 
     @include('errors.list')

@@ -13,13 +13,11 @@
     {!! Form::textarea('description',null,['class' => 'form-control']) !!}
 </div>
 
-@if($submitButtonText == 'Create Project')
-
+@if($projectMode == 'project_create')
 <div class="form-group">
     {!! Form::label('admins',trans('projects_form.admin').'(s): ') !!}
     {!! Form::select('admins[]',$users, null,['class' => 'form-control', 'multiple', 'id' => 'admins']) !!}
 </div>
-
 @endif
 
 <div class="form-group">
@@ -28,5 +26,9 @@
 </div>
 
 <div class="form-group">
-    {!! Form::submit($submitButtonText,['class' => 'btn btn-primary form-control']) !!}
+@if($projectMode == 'project_create')
+    {!! Form::submit('Create New Project',['class' => 'btn btn-primary form-control']) !!}
+@elseif($projectMode == 'project_edit')
+    {!! Form::submit('Edit Project',['class' => 'btn btn-primary form-control']) !!}
+@endif
 </div>

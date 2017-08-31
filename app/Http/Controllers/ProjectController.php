@@ -119,8 +119,9 @@ class ProjectController extends Controller {
      */
 	public function create() {
         $users = User::lists('username', 'id')->all();
+        $projectMode = "project_create";
 
-        return view('projects.create', compact('users'));
+        return view('projects.create', compact('users','projectMode'));
 	}
 
     /**
@@ -183,10 +184,12 @@ class ProjectController extends Controller {
         $user = \Auth::user();
         $project = self::getProject($id);
 
+        $projectMode = "project_edit";
+
         if(!\Auth::user()->isProjectAdmin($project))
             return redirect('projects')->with('k3_global_error', 'not_project_admin');
 
-        return view('projects.edit', compact('project'));
+        return view('projects.edit', compact('project','project_mode'));
 	}
 
     /**
