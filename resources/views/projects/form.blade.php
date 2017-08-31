@@ -21,8 +21,16 @@
 @endif
 
 <div class="form-group">
-    {!! Form::label('active',trans('projects_form.status').': ') !!}
-    {!! Form::select('active', ['1' => trans('projects_form.active'), '0' => trans('projects_form.inactive')], null,['class' => 'form-control']) !!}
+  <label>Activate Project?</label>
+
+  <div class="check-box">
+    <input type="checkbox" value="active" id="active" name="check" />
+    <label for="active">
+      <span class="check"></span>
+      <span class="placeholder">Select to set the project as "active"</span>
+      <span class="placeholder-alt">Select to set the project as "inactive"</span>
+    </label>
+  </div>
 </div>
 
 <div class="form-group">
