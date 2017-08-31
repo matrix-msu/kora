@@ -1,16 +1,28 @@
-@extends('app', ['page_title' => $project->name])
+@extends('app', ['page_title' => $project->name, 'page_class' => 'project-show'])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $project->pid])
 @stop
 
+@section('stylesheets')
+  <!-- No Additional Stylesheets Necessary -->
+@stop
+
+@section('header')
+  <section class="head">
+      <div class="inner-wrap">
+        <h1 class="title">
+          <i class="icon icon-project"></i>
+          <span>{{ $project->name }}</span>
+        </h1>
+        <p class="description">{{ $project->description }}</p>
+      </div>
+  </section>
+@stop
+
 @section('body')
-    <h1>{{ $project->name }}</h1>
 
     <div><b>{{trans('projects_show.name')}}:</b> {{ $project->slug }}</div>
-    <div><b>{{trans('projects_show.desc')}}:</b> {{ $project->description }}</div>
-
-    <hr/>
 
     @if (\Auth::user()->admin ||  \Auth::user()->isProjectAdmin($project))
         <hr/>
@@ -70,32 +82,24 @@
 @stop
 
 @section('footer')
-    <script>
-        $( ".panel-heading" ).on( "click", function() {
-            if ($(this).siblings('.collapseTest').css('display') == 'none' ){
-                $(this).siblings('.collapseTest').slideDown();
-            }else {
-                $(this).siblings('.collapseTest').slideUp();
-            }
-        });
 
-        function deleteForm(formName, fid) {
-            var encode = $('<div/>').html("{{ trans('projects_show.areyousure') }}").text();
-            var response = confirm(encode + formName + "?");
-            if (response) {
-                $.ajax({
-                    //We manually create the link in a cheap way because the JS isn't aware of the fid until runtime
-                    //We pass in a blank project to the action array and then manually add the id
-                    url: '{{ action('FormController@destroy',['pid' => $project->pid, 'fid' => '']) }}/'+fid,
-                    type: 'DELETE',
-                    data: {
-                        "_token": "{{ csrf_token() }}"
-                    },
-                    success: function (result) {
-                        location.reload();
-                    }
-                });
-            }
-        }
-    </script>
+@stop
+
+@section('javascripts')
+  {!! Minify::javascript([
+    '/assets/javascripts/vendor/jquery/jquery.js',
+    '/assets/javascripts/vendor/jquery/jquery-ui.js',
+    '/assets/javascripts/projects/index.js',
+    '/assets/javascripts/projects/show.js',
+    '/assets/javascripts/navigation/navigation.js',
+    '/assets/javascripts/general/global.js'
+  ])->withFullUrl() !!}
+
+  <script type="text/javascript">
+    var formDestroyUrl = '{{ action('FormController@destroy',['pid' => $project->pid, 'fid' => '']) }}';
+    var areYouSure = '{{ trans('projects_show.areyousure') }}';
+    var CSRFToken = '{{ csrf_token() }}';
+
+    Kora.Projects.Show();
+  </script>
 @stop

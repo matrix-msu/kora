@@ -1,10 +1,17 @@
 <li class="navigation-item">
     <a href="#" class="menu-toggle navigation-toggle-js">
+      <i class="icon icon-minus mr-sm"></i>
       <span>{{ \App\Http\Controllers\ProjectController::getProject($pid)->name }}</span>
       <i class="icon icon-chevron"></i>
     </a>
     <ul class="navigation-sub-menu navigation-sub-menu-js">
-        <li><a href="{{ url('/projects/'.$pid) }}">{{trans('partials_menu_project.home')}}</a></li>
+        <li class="link link-head">
+          <a href="{{ url('/projects/'.$pid) }}">
+            <i class="icon icon-project"></i>
+            <span>{{trans('partials_menu_project.home')}}</span>
+          </a>
+        </li>
+
         <?php $allowed_projects = \Auth::user()->allowedProjects() ?>
         @if(sizeof($allowed_projects) > 1)
             <li class="link" id="project-submenu">

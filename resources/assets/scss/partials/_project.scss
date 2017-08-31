@@ -1,23 +1,16 @@
-.projects-body {
+.project-show-body {
   background: gradient($palette: 'background', $degree: 180deg);
   font-family: $ubuntu;
   min-height: 100vh;
 }
 
-.projects {
+.project-show {
   margin: $navigation-height auto 0;
   width: 100%;
 
-  @import 'projects/filters';
-  @import 'projects/new-project';
-  @import 'projects/project-selection';
-  @import 'projects/foot';
 
   @media screen and (min-width: $max-mobile-xs-width) and (max-width: $max-tablet-width) {
-    .filters,
     .head .inner-wrap,
-    .new-project-button,
-    .project-selection,
     .foot {
       margin-left: $tablet-margin-total / 2;
       margin-right: $tablet-margin-total / 2;
@@ -28,8 +21,6 @@
 
   @media screen and (max-width: $max-mobile-xs-width) {
     .head .inner-wrap,
-    .new-project-button,
-    .project-selection,
     .foot {
       margin-left: $mobile-xs-margin-total / 2;
       margin-right: $mobile-xs-margin-total / 2;

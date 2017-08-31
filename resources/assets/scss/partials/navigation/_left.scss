@@ -35,7 +35,7 @@
     }
 
     &:not(:first-child) {
-      margin-left: 16px;
+      margin-left: 15px;
     }
 
     .menu-toggle:hover {
@@ -45,6 +45,10 @@
     .icon-chevron {
       font-size: 6px;
       margin-left: 5px;
+    }
+
+    .icon-minus {
+      color: palette(green, accent);
     }
   }
 }

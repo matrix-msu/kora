@@ -4,7 +4,7 @@
       <i class="icon icon-chevron"></i>
     </a>
     <ul class="navigation-sub-menu navigation-sub-menu-js">
-        <li class="link head">
+        <li class="link link-head">
             <a href="{{ url('/dashboard') }}">
               <img src="{{ env('BASE_URL') }}assets/images/menu_dash.svg">
               <span>Dashboard</span>
@@ -26,7 +26,7 @@
       <i class="icon icon-chevron"></i>
     </a>
     <ul class="navigation-sub-menu navigation-sub-menu-js">
-        <li class="link head">
+        <li class="link link-head">
             <a href="{{ url('/projects') }}">
               <img src="{{ env('BASE_URL') }}assets/images/menu_proj.svg">
               <span>Projects</span>
