@@ -1,0 +1,71 @@
+.card {
+  @include transition(box-shadow);
+
+  background: palette(white, base);
+  border-radius: 5px;
+  box-shadow: 0 3px 5px 0 palette(box-shadow, base);
+  margin: 30px auto;
+  position: relative;
+
+  a {
+    color: inherit;
+    text-decoration: none;
+
+    span {
+      display: inline-block;
+      padding: 20px 0;
+      vertical-align: middle;
+    }
+  }
+
+  &:hover {
+    box-shadow: 0 5px 7px 0 palette(box-shadow, base);
+  }
+
+  @import 'card/header';
+  @import 'card/content';
+  @import 'card/footer';
+}
+
+
+// Template for Creating a card
+//
+//
+// <div class="card">
+//   <div class="header">
+//     <div class="left ">
+//       <div class="move-actions">
+//         <a class="action move-action-js up-js" href="">
+//           <i class="icon icon-arrow-up"></i>
+//         </a>
+//
+//         <a class="action move-action-js down-js" href="">
+//           <i class="icon icon-arrow-down"></i>
+//         </a>
+//       </div>
+//
+//       <a class="title underline-middle-hover" href="">
+//         <span class="name">Sample Title</span>
+//         <i class="icon icon-arrow-right"></i>
+//       </a>
+//     </div>
+//
+//     <div class="card-toggle-wrap">
+//       <a href="#" class="card-toggle">
+//         <i class="icon icon-chevron active"></i>
+//       </a>
+//     </div>
+//   </div>
+//
+//   <div class="content content-js">
+//     <div class="description">
+//     </div>
+//
+//     <div class="footer">
+//       <a class="quick-action underline-middle-hover" href="">
+//         <i class="icon icon-edit"></i>
+//         <span>Sample Text</span>
+//       </a>
+//     </div>
+//   </div>
+// </div>
