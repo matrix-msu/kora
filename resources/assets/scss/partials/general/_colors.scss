@@ -43,7 +43,8 @@
     ),
 
     box-shadow: (
-      base: rgba($base-sidemenu, .05)
+      base: rgba($base-sidemenu, $alpha),
+      accent: rgba($base-accent, $alpha)
     )
 
     // blue: (

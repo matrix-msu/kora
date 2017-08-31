@@ -15,7 +15,7 @@
 
 @if($projectMode == 'project_create')
 <div class="form-group">
-    {!! Form::label('admins', trans('projects_form.admin').'(s): ') !!}
+    {!! Form::label('admins', 'Select Project Admins') !!}
     {!! Form::select('admins[]', $users, null, ['class' => 'form-control', 'multiple', 'id' => 'admins']) !!}
 </div>
 @endif
@@ -27,8 +27,8 @@
     <input type="checkbox" value="active" id="active" name="check" />
     <label for="active">
       <span class="check"></span>
-      <span class="placeholder">Project set to "inactive"</span>
-      <span class="placeholder-alt">Project set to "active"</span>
+      <span class="placeholder">Project is set to "inactive"</span>
+      <span class="placeholder-alt">Project is set to "active"</span>
     </label>
   </div>
 </div>

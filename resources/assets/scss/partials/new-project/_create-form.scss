@@ -47,8 +47,12 @@
       resize: vertical;
     }
 
-    &:not(:first-child) {
+    &:not(:first-of-type) {
       padding: #{map-get($spacing, sm)} 0;
+    }
+
+    &:last-child {
+      padding: #{map-get($spacing, xxl)} 0 0;
     }
 
     .btn {
@@ -57,7 +61,7 @@
       background: gradient($palette: 'accent', $degree: to right);
       border: 0;
       border-radius: 100px;
-      box-shadow: 0 10px 20px 0 palette(box-shadow, base, .05);
+      box-shadow: 0 10px 20px 0 palette(box-shadow, accent, .2);
       color: palette(white, base);
       cursor: pointer;
       font-family: $ubuntu;
@@ -69,7 +73,7 @@
 
       &:hover,
       &:focus {
-        box-shadow: 0 20px 60px 0 palette(box-shadow, base, .05);
+        box-shadow: 0 20px 60px 0 palette(box-shadow, accent, .2);
       }
 
       &:focus {
@@ -86,7 +90,7 @@
       box-shadow: 0 3px 5px 0 palette(box-shadow, base, .05);
       box-sizing: border-box;
       height: 50px;
-      margin: 20px auto;
+      margin: 0 auto;
       position: relative;
       width: 100%;
 
@@ -150,6 +154,7 @@
 
 
       input[type=checkbox] {
+        cursor: pointer;
         height: 50px;
         opacity: 0;
         width: 100%;

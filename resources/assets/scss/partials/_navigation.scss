@@ -1,6 +1,6 @@
 .navigation {
   background-color: palette(green, base);
-  box-shadow: 0 3px 5px 0 palette(box-shadow, base);
+  box-shadow: 0 3px 5px 0 palette(box-shadow, base, .05);
   font-family: $ubuntu-medium;
   height: $navigation-height;
   left: 0;
