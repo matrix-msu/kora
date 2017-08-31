@@ -1,22 +1,22 @@
 <div class="form-group">
-    {!! Form::label('name',trans('projects_form.name').': ') !!}
-    {!! Form::text('name',null,['class' => 'form-control']) !!}
+  {!! Form::label('name', 'Project Name') !!}
+  {!! Form::text('name', null, ['class' => 'text-input', 'placeholder' => 'Enter the project name here', 'autofocus']) !!}
 </div>
 
 <div class="form-group">
-    {!! Form::label('slug',trans('projects_form.slug').': ') !!}
-    {!! Form::text('slug',null,['class' => 'form-control']) !!}
+  {!! Form::label('slug', 'Unique Project Identifier') !!}
+  {!! Form::text('slug', null, ['class' => 'text-input', 'placeholder' => "Enter the project's unique ID here"]) !!}
 </div>
 
 <div class="form-group">
-    {!! Form::label('description',trans('projects_form.desc').': ') !!}
-    {!! Form::textarea('description',null,['class' => 'form-control']) !!}
+    {!! Form::label('description', 'Description') !!}
+    {!! Form::textarea('description', null, ['class' => 'text-area', 'placeholder' => "Enter the projects description here (max. 500 characters)"]) !!}
 </div>
 
 @if($projectMode == 'project_create')
 <div class="form-group">
-    {!! Form::label('admins',trans('projects_form.admin').'(s): ') !!}
-    {!! Form::select('admins[]',$users, null,['class' => 'form-control', 'multiple', 'id' => 'admins']) !!}
+    {!! Form::label('admins', trans('projects_form.admin').'(s): ') !!}
+    {!! Form::select('admins[]', $users, null, ['class' => 'form-control', 'multiple', 'id' => 'admins']) !!}
 </div>
 @endif
 
@@ -26,9 +26,9 @@
 </div>
 
 <div class="form-group">
-@if($projectMode == 'project_create')
-    {!! Form::submit('Create New Project',['class' => 'btn btn-primary form-control']) !!}
-@elseif($projectMode == 'project_edit')
-    {!! Form::submit('Edit Project',['class' => 'btn btn-primary form-control']) !!}
-@endif
+  @if($projectMode == 'project_create')
+      {!! Form::submit('Create Project',['class' => 'btn']) !!}
+  @elseif($projectMode == 'project_edit')
+      {!! Form::submit('Edit Project',['class' => 'btn']) !!}
+  @endif
 </div>
