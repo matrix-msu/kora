@@ -27,7 +27,6 @@ class ProjectController extends Controller {
     public function __construct() {
         $this->middleware('auth');
         $this->middleware('active');
-        $this->middleware('admin', ['except' => ['index', 'show', 'request']]);
     }
 
     /**
@@ -118,6 +117,9 @@ class ProjectController extends Controller {
      * @return View
      */
 	public function create() {
+        if(!\Auth::user()->admin)
+            return redirect('projects')->with('k3_global_error', 'not_admin');
+
         $users = User::lists('username', 'id')->all();
         $projectMode = "project_create";
 
@@ -131,6 +133,9 @@ class ProjectController extends Controller {
      * @return Redirect
      */
 	public function store(ProjectRequest $request) {
+        if(!\Auth::user()->admin)
+            return redirect('projects')->with('k3_global_error', 'not_admin');
+
         $project = Project::create($request->all());
 
         $adminGroup = ProjectGroup::makeAdminGroup($project, $request);
@@ -184,10 +189,10 @@ class ProjectController extends Controller {
         $user = \Auth::user();
         $project = self::getProject($id);
 
-        $projectMode = "project_edit";
-
         if(!\Auth::user()->isProjectAdmin($project))
             return redirect('projects')->with('k3_global_error', 'not_project_admin');
+
+        $projectMode = "project_edit";
 
         return view('projects.edit', compact('project','project_mode'));
 	}
@@ -201,6 +206,10 @@ class ProjectController extends Controller {
      */
 	public function update($id, ProjectRequest $request) {
         $project = self::getProject($id);
+
+        if(!\Auth::user()->isProjectAdmin($project))
+            return redirect('projects')->with('k3_global_error', 'not_project_admin');
+
         $project->update($request->all());
 
         ProjectGroupController::updateMainGroupNames($project);
@@ -215,13 +224,13 @@ class ProjectController extends Controller {
      * @return Redirect
      */
 	public function destroy($id) {
+        if(!\Auth::user()->admin)
+            return redirect('projects')->with('k3_global_error', 'not_admin');
+
         if(!self::validProj($id))
             return redirect()->action('ProjectController@index')->with('k3_global_error', 'project_invalid');
 
         $project = self::getProject($id);
-
-        if(!\Auth::user()->isProjectAdmin($project))
-            return redirect()->action('ProjectController@index')->with('k3_global_error', 'not_project_admin');
 
         $project->delete();
 
@@ -276,6 +285,9 @@ class ProjectController extends Controller {
      * @return View
      */
     public function importProjectView() {
+        if(!\Auth::user()->admin)
+            return redirect('projects')->with('k3_global_error', 'not_admin');
+        
         return view('projects.import');
     }
 
