@@ -1,10 +1,11 @@
-@import 'vendor/normalize/import-now';
 @import 'partials/general/variables';
+@import 'vendor/normalize/import-now';
 @import 'partials/general/colors';
 @import 'partials/general/fonts';
 @import 'partials/general/mixins';
 @import 'partials/general/global';
 @import 'partials/general/animations';
+@import 'vendor/chosen';
 @import 'partials/inputs';
 @import 'partials/card';
 @import 'partials/navigation';

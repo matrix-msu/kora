@@ -44,7 +44,7 @@
     @include("partials.projects.inactive", ['isCustom' => false, 'active' => false])
     @include("partials.projects.custom", ['isCustom' => true, 'active' => false])
   </section>
-  
+
   <section class="foot center">
     <p class="permission-information">
         Don't see the project you are looking for? You might not have the permissions...
@@ -64,6 +64,8 @@
   {!! Minify::javascript([
     '/assets/javascripts/vendor/jquery/jquery.js',
     '/assets/javascripts/vendor/jquery/jquery-ui.js',
+    '/assets/javascripts/vendor/chosen.js',
+    '/assets/javascripts/projects/create.js',
     '/assets/javascripts/projects/index.js',
     '/assets/javascripts/projects/show.js',
     '/assets/javascripts/navigation/navigation.js',
