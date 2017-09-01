@@ -40,7 +40,7 @@
       <span class="attribute">Project Admins: </span>
       @foreach($project->adminGroup()->get() as $adminGroup)
         <span>
-          {{$adminGroup->users()->lists("username")->implode("username",", ")}}
+          {{$adminGroup->users()->lists("name")->implode(", ")}}
         </span>
       @endforeach
     </div>

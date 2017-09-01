@@ -49,7 +49,12 @@ class ProjectController extends Controller {
                 if($project->active) {
                     array_push($projects, $project);
                     array_push($pSearch, $project);
+
                     $seq = \Auth::user()->getCustomProjectSequence($project->pid);
+                    if ($seq == null) {
+                      \Auth::user()->addCustomProject($project->pid);
+                    }
+
                     $custom[$seq] = $project;
                 } else {
                     array_push($inactive, $project);

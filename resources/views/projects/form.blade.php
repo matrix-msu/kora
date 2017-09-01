@@ -19,7 +19,7 @@
     {!! Form::select('admins[]', $users, null, [
       'class' => 'multi-select',
       'multiple',
-      'data-placeholder' => "Search and select the project admins", 
+      'data-placeholder' => "Search and select the project admins",
       'id' => 'admins'
     ]) !!}
 </div>
@@ -29,7 +29,7 @@
   <label>Activate Project?</label>
 
   <div class="check-box">
-    <input type="checkbox" value="active" id="active" name="check" />
+    <input type="checkbox" value="1" id="active" name="active" />
     <label for="active">
       <span class="check"></span>
       <span class="placeholder">Project is set to "inactive"</span>

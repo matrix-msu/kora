@@ -400,8 +400,10 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return int - The sequence
      */
     public function getCustomProjectSequence($pid) {
-        return DB::table("project_custom")->where("uid", "=", $this->id)
-            ->where("pid", "=", $pid)->first()->sequence;
+        $check = DB::table("project_custom")->where("uid", "=", $this->id)
+            ->where("pid", "=", $pid)->first();
+
+        return is_null($check) ? null : $check->sequence;
     }
 
     /**

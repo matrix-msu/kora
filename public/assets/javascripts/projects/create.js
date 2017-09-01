@@ -5,7 +5,12 @@ Kora.Projects.Create = function() {
 
   $('.multi-select').chosen({
     width: '100%',
-    placeholder: 'Search and select the project admins'
   });
 
+  $('form').on('submit', function() {
+    debugger;
+    e.preventDefault();
+    console.log($(this).serialize())
+    return false;
+  })
 }
