@@ -138,6 +138,7 @@ class ProjectController extends Controller {
      * @return Redirect
      */
 	public function store(ProjectRequest $request) {
+        var_dump($request);
         if(!\Auth::user()->admin)
             return redirect('projects')->with('k3_global_error', 'not_admin');
 

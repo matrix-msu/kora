@@ -15,8 +15,8 @@
 
 @if($projectMode == 'project_create')
 <div class="form-group">
-    {!! Form::label('admins', 'Select Project Admins') !!}
-    {!! Form::select('admins[]', $users, null, [
+    {!! Form::label('adminGID', 'Select Project Admins') !!}
+    {!! Form::select('adminGID[]', $users, null, [
       'class' => 'multi-select',
       'multiple',
       'data-placeholder' => "Search and select the project admins",
