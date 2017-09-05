@@ -232,6 +232,9 @@ Route::post("/projects/{pid}/forms/{fid}/advancedSearch/search", "AdvancedSearch
 // help routes
 Route::get("/help/search", "HelpController@search");
 
+//twitter routes
+Route::get("/twitter", "TwitterController@index");
+
 Route::controllers([
 	'auth' => 'Auth\AuthController',
 	'password' => 'Auth\PasswordController',
