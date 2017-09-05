@@ -417,9 +417,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         $form = FormController::getForm($fid);
         $pid = $form->pid;
 
-        return DB::table("form_custom")->where("uid", "=", $this->id)
+        $check = DB::table("form_custom")->where("uid", "=", $this->id)
             ->where("pid", "=", $pid)
-            ->where("fid", "=", $fid)->first()->sequence;
+            ->where("fid", "=", $fid)->first();
+
+        return is_null($check) ? null : $check->sequence;
     }
 
     /**

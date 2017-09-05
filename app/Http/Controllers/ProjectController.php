@@ -51,8 +51,9 @@ class ProjectController extends Controller {
                     array_push($pSearch, $project);
 
                     $seq = \Auth::user()->getCustomProjectSequence($project->pid);
-                    if ($seq == null) {
-                      \Auth::user()->addCustomProject($project->pid);
+                    if($seq == null) {
+                        \Auth::user()->addCustomProject($project->pid);
+                        $seq = \Auth::user()->getCustomProjectSequence($project->pid);
                     }
 
                     $custom[$seq] = $project;
@@ -172,7 +173,13 @@ class ProjectController extends Controller {
         $custom = array();
         foreach($formCollections as $form){
             array_push($forms,$form);
+
             $seq = \Auth::user()->getCustomFormSequence($form->fid);
+            if($seq == null) {
+                \Auth::user()->addCustomForm($form->fid);
+                $seq = \Auth::user()->getCustomFormSequence($form->fid);
+            }
+
             $custom[$seq] = $form;
         }
 
