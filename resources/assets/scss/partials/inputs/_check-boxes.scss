@@ -20,11 +20,11 @@
       background-color: palette(green, accent);
     }
 
-    &:checked + .check-box-background + .placeholder {
+    &:checked + .check-box-background + .check + .placeholder {
        opacity: 0;
     }
 
-    &:checked + .check-box-background + .placeholder-alt {
+    &:checked + .check-box-background + .check + .placeholder + .placeholder-alt {
       opacity: 1;
     }
 
