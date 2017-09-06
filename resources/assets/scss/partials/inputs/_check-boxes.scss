@@ -1,21 +1,56 @@
 // Check Box
+
 .check-box {
-  @include transition();
-
-  background-color: palette(white, base);
-  border: 1px solid palette(white, base);
-  border-radius: 100px;
-  box-shadow: 0 3px 5px 0 palette(box-shadow, base, .05);
-  box-sizing: border-box;
-  height: 50px;
-  margin: 0 auto;
   position: relative;
-  width: 100%;
 
-  &:hover,
-  &:hover label .check {
-    border: 1px solid palette(green, accent, .5);
-    box-shadow: 0 7px 10px 0 palette(box-shadow, base, .05);
+  input[type=checkbox] {
+    cursor: pointer;
+    height: 50px;
+    opacity: 0;
+    position: absolute;
+    width: 100%;
+    z-index: 2;
+
+    &:checked + .check-box-background {
+      border: 2px solid palette(green, accent, .5);
+      box-shadow: 0 7px 10px 0 palette(box-shadow, base, .05);
+    }
+
+    &:checked + .check-box-background + .check {
+      background-color: palette(green, accent);
+    }
+
+    &:checked + .check-box-background + .placeholder {
+       opacity: 0;
+    }
+
+    &:checked + .check-box-background + .placeholder-alt {
+      opacity: 1;
+    }
+
+    &:hover + .check-box-background {
+      border: 2px solid palette(green, accent, .5);
+      box-shadow: 0 7px 10px 0 palette(box-shadow, base, .05);
+    }
+
+    &:hover + .check-box-background + .check {
+      border: 1px solid palette(green, accent, .5);
+      box-shadow: 0 7px 10px 0 palette(box-shadow, base, .05);
+    }
+  }
+
+  .check-box-background {
+    @include transition();
+
+    background-color: palette(white, base);
+    border: 1px solid palette(white, base);
+    border-radius: 100px;
+    box-shadow: 0 3px 5px 0 palette(box-shadow, base, .05);
+    box-sizing: border-box;
+    height: 50px;
+    margin: 0 auto;
+    position: relative;
+    width: 100%;
   }
 
   .check {
@@ -28,13 +63,13 @@
     box-sizing: border-box;
     cursor: pointer;
     height: 25px;
-    left: 12.5px;
     position: absolute;
     text-align: center;
-    top: 11px;
+    top: 0;
+    transform: translateX(12.5px) translateY(11px);
     width: 25px;
 
-    &:after {
+    &::after {
       background: transparent;
       border: 2px solid palette(white, base);
       border-right: 0;
@@ -70,24 +105,17 @@
     font-family: $ubuntu-medium;
     opacity: 0;
   }
-
-
-  input[type=checkbox] {
-    cursor: pointer;
-    height: 50px;
-    opacity: 0;
-    width: 100%;
-
-    &:checked + label .check {
-      background-color: palette(green, accent);
-    }
-
-     &:checked + label .placeholder {
-       opacity: 0;
-    }
-
-    &:checked + label .placeholder-alt {
-      opacity: 1;
-   }
-  }
 }
+
+// Example checkbox
+//
+// <div class="form-group">
+//   <label>Activate Project?</label>
+//   <div class="check-box">
+//     <input type="checkbox" value="1" id="active" class="check-box-input" name="active" />
+//     <div class="check-box-background"></div>
+//     <span class="check"></span>
+//     <span class="placeholder">Project is set to "inactive"</span>
+//     <span class="placeholder-alt">Project is set to "active"</span>
+//   </div>
+// </div>
