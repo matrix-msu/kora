@@ -16,12 +16,4 @@ form {
   float: left;
 }
 
-::-webkit-input-placeholder {
-  font-family: $ubuntu-italic;
-}
-
-:-ms-input-placeholder {
-  font-family: $ubuntu-italic;
-}
-
 @import 'spacing';
