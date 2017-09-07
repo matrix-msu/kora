@@ -10,8 +10,8 @@
   input {
     @include transition();
 
-    background: palette(green, accent, .02);
-    border: 1px solid palette(green, accent, .2);
+    background: palette(green, accent, .03);
+    border: 2px solid palette(green, accent, .2);
     border-radius: 5px;
     color: palette(green, accent);
     cursor: pointer;
@@ -25,8 +25,12 @@
 
     &:hover {
       background-color: palette(white, base);
-      border: 1px solid palette(green, accent, 1);
-      box-shadow: 0 5px 10px 0 palette(green, accent, .05);
+      border: 2px solid palette(green, accent, .5);
+      box-shadow: 0 5px 10px 0 palette(green, accent, .10);
+    }
+
+    &:focus {
+      outline: none;
     }
   }
 }

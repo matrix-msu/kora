@@ -1,6 +1,11 @@
 <li class="navigation-profile">
   <a href="#" class="profile-toggle navigation-toggle-js">
-    <img class="profile-picture" src="{{env('STORAGE_URL') . 'profiles/'.\Auth::user()->id.'/'.\Auth::user()->profile}}">
+    <?php  $imgpath = 'profiles/' . \Auth::user()->id . '/' . \Auth::user()->profile ?>
+    @if(File::exists( env('BASE_PATH') . '/public/app/' . $imgpath ))
+      <img class="profile-picture" src="{{env('STORAGE_URL') . $imgpath}}">
+    @else
+      <i class="icon icon-user-little"></i>
+    @endif
   </a>
 
   <ul class="navigation-sub-menu navigation-sub-menu-js">
