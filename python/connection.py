@@ -272,7 +272,7 @@ class Cursor:
 
         cursor.execute(stmt, [rid])
 
-        if cursor.rowcount < 1: ## No fields were found.
+        if not cursor: ## No fields were found.
             raise StopIteration
 
         for row in cursor:
@@ -295,7 +295,7 @@ class Cursor:
 
         cursor.execute(stmt, [rid])
 
-        if cursor.rowcount < 1: ## No fields were found.
+        if not cursor: ## No fields were found.
             raise StopIteration
 
         for row in cursor:
@@ -373,7 +373,7 @@ class Cursor:
 
         cursor.execute(stmt, [rid, flid])
 
-        if cursor.rowcount < 1:
+        if not cursor:
             raise StopIteration
 
         for row in cursor:
