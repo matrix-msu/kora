@@ -8,3 +8,8 @@
 @mixin transition($property: all) {
   transition: $property .2s ease-in-out;
 }
+
+@mixin vertical-align($position: absolute, $transform: '') {
+  position: $position;  top: 50%;
+  transform: translateY(-50%) $transform;
+}

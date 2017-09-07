@@ -215,3 +215,47 @@ i {
     content: $icon-user-little;
   }
 }
+
+.icon-project-happy .path1 {
+  &::before {
+    color: palette(white, base);
+    content: $icon-project-happy-path1;
+
+  }
+}
+
+.icon-project-happy .path2 {
+  &::before {
+    color: palette(gray, text, .5);
+    content: $icon-project-happy-path2;
+    margin-left: -1.0966796875em;
+    text-shadow: none;
+  }
+}
+
+.icon-project-happy .path3 {
+  &::before {
+    color: palette(gray, text, .5);
+    content: $icon-project-happy-path3;
+    margin-left: -1.0966796875em;
+    text-shadow: none;
+  }
+}
+
+.icon-project-happy .path4 {
+  &::before {
+    color: palette(gray, text, .5);
+    content: $icon-project-happy-path4;
+    margin-left: -1.0966796875em;
+    text-shadow: none;
+  }
+}
+
+.icon-project-happy .path5 {
+  &::before {
+    color: palette(gray, text, .5);
+    content: $icon-project-happy-path5;
+    margin-left: -1.0966796875em;
+    text-shadow: none;
+  }
+}

@@ -25,4 +25,43 @@
     text-align: center;
     text-decoration: none;
   }
+
+  .request-permissions-submit {
+    padding-top: 25px;
+  }
+
+  .request-permissions-error {
+
+    .icon-container {
+      animation: wobble 2s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      will-change: transform;
+    }
+
+    .icon {
+      font-size: 120px;
+      text-shadow: 0 5px 15px palette(box-shadow, base, .1);
+    }
+
+    .text {
+      color: palette(gray, text);
+      display: inline-block;
+      font-family: $ubuntu;
+      font-size: 16px;
+      padding-left: 60px;
+      vertical-align: middle;
+    }
+
+    .submit {
+      padding-top: 40px;
+    }
+
+  }
+}
+
+@media screen and (max-width: $max-mobile-med-width) {
+  .foot .request-permissions-error .text {
+    padding: 20px 0 0;
+  }
 }

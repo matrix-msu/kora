@@ -40,3 +40,20 @@ $(document).ready(function() {
     }
   });
 });
+
+//Quick opens global search menu
+$(document).keydown(function(e) {
+  //CMD K, ctrl K
+  if ((e.metaKey || e.ctrlKey) && e.keyCode == 75) {
+    e.preventDefault();
+
+    $(".global-search-toggle").click();
+  }
+
+  // Escape key
+  if (e.keyCode == 27) {
+    if ($('.modal-js').hasClass('active')) {
+      Kora.Modal.close();
+    }
+  }
+});

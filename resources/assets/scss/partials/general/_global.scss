@@ -1,7 +1,7 @@
 body {
   display: flex;
   flex-direction: row-reverse;
-  -webkit-font-smoothing: subpixel-antialiased; 
+  -webkit-font-smoothing: subpixel-antialiased;
 }
 
 body,
@@ -15,6 +15,10 @@ form {
 
 .left {
   float: left;
+}
+
+.no-scroll {
+  overflow: hidden;
 }
 
 @import 'spacing';
