@@ -36,7 +36,7 @@ class ProjectController extends Controller {
      * @return View
      */
 	public function index() {
-        $projectCollections = Project::all()->sortBy("name");
+        $projectCollections = Project::all()->sortBy("name", SORT_NATURAL|SORT_FLAG_CASE);
 
         $projects = array();
         $inactive = array();
@@ -166,7 +166,7 @@ class ProjectController extends Controller {
             return redirect('/projects')->with('k3_global_error', 'cant_view_project');
 
         $project = self::getProject($id);
-        $formCollections = $project->forms()->get()->sortBy("name");
+        $formCollections = $project->forms()->get()->sortBy("name", SORT_NATURAL|SORT_FLAG_CASE);
 
         $forms = array();
         $custom = array();
