@@ -2,6 +2,7 @@
 .text-area {
   @include transition();
 
+  appearance: none;
   background-color: palette(white, base);
   border: 1px solid palette(white, base);
   border-radius: 5px;
