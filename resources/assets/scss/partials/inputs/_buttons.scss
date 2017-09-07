@@ -5,7 +5,7 @@
   background: gradient($palette: 'accent', $degree: to right);
   border: 0;
   border-radius: 100px;
-  box-shadow: 0 10px 20px 0 palette(box-shadow, accent, .2);
+  box-shadow: 0 10px 20px 0 palette(box-shadow, accent, .5);
   color: palette(white, base);
   cursor: pointer;
   font-family: $ubuntu;
