@@ -1,6 +1,8 @@
 body {
   display: flex;
   flex-direction: row-reverse;
+  -webkit-font-smoothing: antialiased;
+  -webkit-font-smoothing: subpixel-antialiased; 
 }
 
 body,
