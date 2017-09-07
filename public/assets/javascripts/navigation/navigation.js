@@ -14,7 +14,8 @@ $menuTitle.each(function(index) {
 });
 
 $navBar.on("click", ".navigation-toggle-js", function() {
-  var clicked = $(this).next();
+  var $clicked = $(this).next();
+  var $icon = $(this).children();
   var $parent = $(this).parent();
 
   $deepMenu.each(function() {
@@ -24,11 +25,17 @@ $navBar.on("click", ".navigation-toggle-js", function() {
   $subMenu.each(function() {
     var $this = $(this);
 
-    if ($this.get(0) !== clicked.get(0)) {
+    if ($this.get(0) !== $clicked.get(0)) {
       $this.removeClass('active');
     }
   });
-  clicked.toggleClass('active');
+  $clicked.toggleClass('active');
+
+  $('.navigation-toggle-js .icon').removeClass('active');
+  if ($clicked.hasClass('active')) {
+    $icon.addClass('active');
+  }
+
 
   //SPECIAL CASE FOR SEARCH
   if ($parent.hasClass('navigation-search')) {
@@ -41,7 +48,16 @@ $navBar.on("click", ".navigation-sub-menu-toggle-js", function() {
 });
 
 $navBar.on('click', '.side-menu-toggle-js', function() {
+  var $icon = $(this).children();
+
   $sideMenu.toggleClass('active');
+
+  $('.navigation-toggle-js .icon').removeClass('active');
+  if ($sideMenu.hasClass('active')) {
+    $icon.addClass('active');
+  } else {
+    $icon.removeClass('active');
+  }
 
   if ($(window).width() < 870) {
     var $body = $('body');
@@ -73,6 +89,8 @@ $sideMenuBlanket.on('click', function() {
 //If the nav isn't clicked, close all menus
 $(document).click(function(event) {
   if (!$(event.target).closest('.navigation-js').length) {
+    $('.navigation-toggle-js .icon').removeClass('active');
+
     $deepMenu.each(function() {
       $(this).removeClass('active');
     });

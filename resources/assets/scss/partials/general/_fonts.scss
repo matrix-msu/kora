@@ -203,3 +203,15 @@ i {
     content: $icon-new-project;
   }
 }
+
+.icon-user {
+  &::before {
+    content: $icon-user;
+  }
+}
+
+.icon-user-little {
+  &::before {
+    content: $icon-user-little;
+  }
+}
