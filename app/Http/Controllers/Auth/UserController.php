@@ -87,6 +87,7 @@ class UserController extends Controller {
      * @return JsonResponse - Status of update
      */
     public function changeprofile(Request $request) {
+        //TODO:: I want to restructure this when we get to profiles
         $user = Auth::user();
         $type = $request->input("type");
 
@@ -114,6 +115,7 @@ class UserController extends Controller {
                 }
                 break;
             case "name":
+                //TODO::Big thing to do during said restructure
                 $realname = $request->input("field");
 
                 if(empty($realname)) {
