@@ -1,0 +1,35 @@
+.header {
+  box-sizing: border-box;
+  color: palette(gray, text);
+  padding: 40px;
+  position: relative;
+  text-align: left;
+  width: 100%;
+
+  .title {
+    display: block;
+    font-family: $ubuntu;
+    font-size: 20px;
+    width: calc(100% - 22px);
+  }
+
+  .modal-toggle {
+    color: inherit;
+    font-size: 16px;
+    position: absolute;
+    right: 40px;
+    text-decoration: none;
+    top: 40px;
+  }
+}
+
+@media screen and (max-width: $max-mobile-xs-width) {
+  .header {
+    padding: 20px;
+
+    .modal-toggle {
+      right: 20px;
+      top: 20px;
+    }
+  }
+}

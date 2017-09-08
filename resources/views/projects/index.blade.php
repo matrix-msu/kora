@@ -50,9 +50,22 @@
         Don't see the project you are looking for? You might not have the permissions...
     </p>
     <p>
-    <a href="#" class="request-permissions underline-middle-hover">
+    <a href="#" class="request-permissions request-permissions-js underline-middle-hover">
         Request Permissions to a Project
     </a></p>
+    <div class="modal modal-js modal-mask request-permissions-modal-js">
+      <div class="content">
+        <div class="header">
+          <span class="title">Request Project Permissions</span>
+          <a href="#" class="modal-toggle modal-toggle-js">
+            <i class="icon icon-cancel"></i>
+          </a>
+        </div>
+        <div class="body">
+          @include("partials.projects.projectRequestModalForm")
+        </div>
+      </div>
+    </div>
   </section>
 @stop
 
@@ -65,6 +78,7 @@
     '/assets/javascripts/vendor/jquery/jquery.js',
     '/assets/javascripts/vendor/jquery/jquery-ui.js',
     '/assets/javascripts/vendor/chosen.js',
+    '/assets/javascripts/general/modal.js',
     '/assets/javascripts/projects/create.js',
     '/assets/javascripts/projects/index.js',
     '/assets/javascripts/projects/show.js',

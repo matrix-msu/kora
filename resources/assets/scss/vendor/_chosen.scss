@@ -6,9 +6,10 @@ $chosen-sprite-retina: url('chosen-sprite@2x.png') !default;
   display: inline-block;
   font-size: 14px;
   position: relative;
+  text-align: left;
   user-select: none;
   vertical-align: middle;
-
+  
   * {
     box-sizing: border-box;
   }

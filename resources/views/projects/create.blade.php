@@ -33,6 +33,7 @@
     '/assets/javascripts/vendor/jquery/jquery.js',
     '/assets/javascripts/vendor/jquery/jquery-ui.js',
     '/assets/javascripts/vendor/chosen.js',
+    '/assets/javascripts/general/modal.js',
     '/assets/javascripts/projects/create.js',
     '/assets/javascripts/projects/index.js',
     '/assets/javascripts/projects/show.js',

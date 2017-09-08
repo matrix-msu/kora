@@ -10,13 +10,15 @@
   }
 
   ::-webkit-input-placeholder {
+	color: palette(gray, text);
     font-family: $ubuntu-italic;
-    opacity: 1 !important;
+    opacity: .6 !important;
   }
 
   :-ms-input-placeholder {
+	color: palette(gray, text);
     font-family: $ubuntu-italic;
-    opacity: 1 !important;
+    opacity: .6 !important;
   }
 
   @import 'inputs/text';

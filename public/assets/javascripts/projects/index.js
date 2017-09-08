@@ -167,7 +167,22 @@ Kora.Projects.Index = function() {
     });
   }
 
+  function initializePermissionsModal() {
+    Kora.Modal.initialize();
+
+    $('.request-permissions-js').click(function(e) {
+      e.preventDefault();
+
+      Kora.Modal.open();
+    });
+
+    $('.multi-select').chosen({
+      width: '100%',
+    });
+  }
+
   initializeCustomSort();
   initializeFilters();
   initializeSearch();
+  initializePermissionsModal();
 }

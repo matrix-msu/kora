@@ -108,17 +108,6 @@ var gsRecentSearch = $("#kora_global_search_recent");
 var gsQuickResult = $("#kora_global_search_result");
 gsQuickResult.attr("style", "display: none;"); //INITIALIZE HERE
 var gsClearRecent = $("#kora_global_search_clear");
-var cmdKLink = $(".global-search-toggle");
-
-//Quick opens global search menu
-$(document).keydown(function(e) {
-  //CMD K, ctrl K
-  if ((e.metaKey || e.ctrlKey) && e.keyCode == 75) {
-    e.preventDefault();
-
-    cmdKLink.click();
-  }
-});
 
 //Performs quick search on typing
 gsTextInput.keyup(function() {

@@ -1,0 +1,47 @@
+.modal {
+  @include transition();
+
+  height: 100vh;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 100vw;
+  z-index: 10000;
+
+  &.modal-mask {
+    background-color: palette(gray, slate, .4);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &.active {
+    opacity: 1;
+    pointer-events: all;
+
+    .content {
+      @include vertical-align($transform: scale(1));
+
+      opacity: 1;
+    }
+  }
+
+  .content {
+    @include transition();
+    @include vertical-align($transform: scale(.2));
+
+    background: palette(gray, 'background');
+    border-radius: 5px;
+    box-shadow: 0 10px 20px 0 palette(box-shadow, base, .2);
+    left: 0;
+    margin: auto;
+    max-width: 840px;
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    width: 90%;
+    will-change: transform;
+
+    @import 'modal/header';
+    @import 'modal/body';
+  }
+}

@@ -80,3 +80,26 @@
     width: 100%;
   }
 }
+
+// wobble animation
+@keyframes wobble {
+  0%, 48%, 100% {
+    transform: rotate(0deg);
+  }
+
+  12%, 36% {
+    transform: rotate(7deg);
+  }
+
+  24% {
+    transform: rotate(15deg);
+  }
+
+  60%, 84% {
+    transform: rotate(-7deg);
+  }
+
+  72% {
+    transform: rotate(-15deg);
+  }
+}
