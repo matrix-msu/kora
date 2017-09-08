@@ -5,7 +5,7 @@
 
 <div class="form-group">
   {!! Form::label('slug', 'Unique Project Identifier') !!}
-  {!! Form::text('slug', null, ['class' => 'text-input', 'placeholder' => "Enter the project's unique ID here"]) !!}
+  {!! Form::text('slug', null, ['class' => 'text-input', 'placeholder' => "Enter the project's unique ID here (no spaces, alpha-numeric values only)"]) !!}
 </div>
 
 <div class="form-group">
