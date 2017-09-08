@@ -64,7 +64,7 @@ class ProjectController extends Controller {
 
                 $hasProjects = true;
             } else if($project->active) {
-                $requestableProjects[$project->pid] = $project->name. "|" . $project->slug;
+                $requestableProjects[$project->pid] = $project->name. " (" . $project->slug.")";
             }
         }
 
