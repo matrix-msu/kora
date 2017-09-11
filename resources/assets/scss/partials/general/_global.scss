@@ -9,6 +9,11 @@ form {
   margin: 0;
 }
 
+a.inactive {
+  cursor: text;
+  pointer-events: none;
+}
+
 .right {
   float: right;
 }

@@ -13,9 +13,11 @@
         </div>
       @endif
 
-      <a class="title underline-middle-hover" href="{{action("ProjectController@show",["pid" => $project->pid])}}">
+      <a class="title {{!$active ? 'inactive': 'underline-middle-hover'}}" href="{{action("ProjectController@show",["pid" => $project->pid])}}">
         <span class="name">{{$project->name}}</span>
-        <i class="icon icon-arrow-right"></i>
+        @if ($active)
+          <i class="icon icon-arrow-right"></i>
+        @endif
       </a>
     </div>
 
@@ -40,7 +42,15 @@
       <span class="attribute">Project Admins: </span>
       @foreach($project->adminGroup()->get() as $adminGroup)
         <span>
-          {{$adminGroup->users()->lists("first_name")->implode(", ")}}
+          {{
+            implode(
+              array_map(
+                create_function('$u', 'return $u->getFullNameAttribute();'),
+                $adminGroup->users()->get()->all()
+              ),
+              ", "
+            )
+          }}
         </span>
       @endforeach
     </div>
@@ -49,28 +59,37 @@
       <span class="attribute">Project Forms:</span>
       @foreach($project->forms()->get() as $form)
         <span class="form">
-          <a class="form-link underline-middle-hover" href="{{action("FormController@show",["pid" => $project->pid,"fid" => $form->fid])}}">
+          <a class="form-link {{!$active ? 'inactive': 'underline-middle-hover'}}" href="{{action("FormController@show",["pid" => $project->pid,"fid" => $form->fid])}}">
             {{$form->name}}
           </a>
         </span>
       @endforeach
     </div>
 
+    @if ($active)
+      <div class="footer">
+        <a class="quick-action underline-middle-hover" href="">
+          <i class="icon icon-edit"></i>
+          <span>Edit Project Info</span>
+        </a>
+
+        <a class="quick-action underline-middle-hover" href="">
+          <i class="icon icon-search"></i>
+          <span>Search Project Records</span>
+        </a>
+
+        <a class="quick-action underline-middle-hover" href="">
+          <span>Go to Project</span>
+          <i class="icon icon-arrow-right"></i>
+        </a>
+      </div>
+    @else
     <div class="footer">
       <a class="quick-action underline-middle-hover" href="">
         <i class="icon icon-edit"></i>
-        <span>Edit Project Info</span>
-      </a>
-
-      <a class="quick-action underline-middle-hover" href="">
-        <i class="icon icon-search"></i>
-        <span>Search Project Records</span>
-      </a>
-
-      <a class="quick-action underline-middle-hover" href="">
-        <span>Go to Project</span>
-        <i class="icon icon-arrow-right"></i>
+        <span>Unarchive</span>
       </a>
     </div>
+    @endif
   </div>
 </div>
