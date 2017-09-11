@@ -88,7 +88,21 @@ Kora.Projects.Index = function() {
     $(".project-custom-js").sortable({
       helper: 'clone',
       revert: true,
-      containment: ".projects"
+      containment: ".projects",
+      update: function(event, ui) {
+        pidsArray = $(".project-custom-js").sortable("toArray");
+
+        $.ajax({
+          url: saveCustomOrderUrl,
+          type: 'POST',
+          data: {
+            "_token": CSRFToken,
+            "pids": pidsArray,
+
+          },
+          success: function(result) {}
+        });
+      }
     });
 
     $('.move-action-js').click(function(e) {

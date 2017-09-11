@@ -1,11 +1,12 @@
 <?php namespace App\Http\Controllers\Auth;
 
 use App\Record;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class UserController extends Controller {

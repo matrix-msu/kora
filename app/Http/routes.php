@@ -239,5 +239,5 @@ Route::controllers([
 	'auth' => 'Auth\AuthController',
 	'password' => 'Auth\PasswordController',
 ]);
-Route::post("/auth/user/projectCustom", "UserController@saveProjectCustomOrder");
-Route::post("/auth/user/formCustom/{pid}", "UserController@saveFormCustomOrder");
+Route::post("/user/projectCustom", "Auth\UserController@saveProjectCustomOrder");
+Route::post("/user/formCustom/{pid}", "Auth\UserController@saveFormCustomOrder");

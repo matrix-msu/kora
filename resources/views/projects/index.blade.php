@@ -87,6 +87,8 @@
   ])->withFullUrl() !!}
 
   <script type="text/javascript">
+    var CSRFToken = '{{ csrf_token() }}';
+    var saveCustomOrderUrl = '{{ action('Auth\UserController@saveProjectCustomOrder') }}';
     Kora.Projects.Index();
   </script>
 @stop

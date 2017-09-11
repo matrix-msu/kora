@@ -1,4 +1,4 @@
-<div class="project card {{ $index == 0 ? 'active' : '' }}">
+<div class="project card {{ $index == 0 ? 'active' : '' }}" id="{{$project->pid}}">
   <div class="header {{ $index == 0 ? 'active' : '' }}">
     <div class="left {{ !$isCustom ? 'pl-m' : null}}">
       @if ($isCustom)
