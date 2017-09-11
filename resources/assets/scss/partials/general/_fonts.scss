@@ -63,9 +63,9 @@
   font-style: normal;
   font-weight: normal;
   src: url('#{$font-path}/ubuntu-regular.woff2') format('woff2'),
-url('#{$font-path}/ubuntu-regular.woff') format('woff'),
-url('#{$font-path}/ubuntu-regular.ttf') format('truetype'),
-url('#{$font-path}/ubuntu-regular.svg#ubunturegular') format('svg');
+    url('#{$font-path}/ubuntu-regular.woff') format('woff'),
+    url('#{$font-path}/ubuntu-regular.ttf') format('truetype'),
+    url('#{$font-path}/ubuntu-regular.svg#ubunturegular') format('svg');
 }
 
 @font-face {

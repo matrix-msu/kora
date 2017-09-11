@@ -25,7 +25,7 @@
 </div>
 @endif
 
-<div class="form-group">
+<!-- <div class="form-group">
   <label>Activate Project?</label>
   <div class="check-box">
     <input type="checkbox" value="1" id="active" class="check-box-input" name="active" />
@@ -34,7 +34,7 @@
     <span class="placeholder">Project is set to "inactive"</span>
     <span class="placeholder-alt">Project is set to "active"</span>
   </div>
-</div>
+</div> -->
 
 <div class="form-group">
   @if($projectMode == 'project_create')

@@ -27,7 +27,7 @@
           <!-- <a href="modified" class="option underline-middle">Recently Modified</a> -->
           <a href="#custom" class="option underline-middle underline-middle-hover">Custom</a>
           <a href="#active" class="option underline-middle underline-middle-hover active">Alphabetical</a>
-          <a href="#inactive" class="option underline-middle underline-middle-hover">Inactive</a>
+          <a href="#inactive" class="option underline-middle underline-middle-hover">Archived</a>
       </div>
   </section>
 
