@@ -24,8 +24,7 @@ class Project extends Model {
         'name',
         'slug',
         'description',
-        'adminGID',
-        'active'
+        'adminGID'
     ];
 
     /**

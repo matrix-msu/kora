@@ -139,6 +139,7 @@ class ProjectController extends Controller {
      * @return Redirect
      */
 	public function store(ProjectRequest $request) {
+	    dd($request);
         if(!\Auth::user()->admin)
             return redirect('projects')->with('k3_global_error', 'not_admin');
 
@@ -147,6 +148,7 @@ class ProjectController extends Controller {
         $adminGroup = ProjectGroup::makeAdminGroup($project, $request);
         ProjectGroup::makeDefaultGroup($project);
         $project->adminGID = $adminGroup->id;
+        $project->active = 1;
         $project->save();
 
         return redirect('projects')->with('k3_global_success', 'project_created');
@@ -301,6 +303,28 @@ class ProjectController extends Controller {
             return redirect('projects')->with('k3_global_error', 'not_admin');
 
         return view('projects.import');
+    }
+
+    /**
+     * Archives or restores a project.
+     *
+     * @param  Request $request
+     * @return View
+     */
+    public function setArchiveProject($pid, Request $request) {
+        if(!\Auth::user()->admin)
+            return redirect('projects')->with('k3_global_error', 'not_admin');
+
+        $project = ProjectController::getProject($pid);
+        $project->active = $request->archive;
+        $project->save();
+
+        if($request->archive)
+            $message = 'project_archived';
+        else
+            $message = 'project_restored';
+
+        return view('projects')->with('k3_global_success', $message);
     }
 
     /**
