@@ -24,28 +24,8 @@
 
     <div><b>{{trans('projects_show.name')}}:</b> {{ $project->slug }}</div>
 
-    @if (\Auth::user()->admin ||  \Auth::user()->isProjectAdmin($project))
-        <hr/>
-
-        <h4> {{trans('projects_show.admin')}}</h4>
-    <form action="{{action('ProjectGroupController@index', ['pid'=>$project->pid])}}" style="display: inline">
-        <button type="submit" class="btn btn-default">{{trans('projects_show.groups')}}</button>
-    </form>
-    <form action="{{action('OptionPresetController@index', ['pid'=>$project->pid])}}" style="display: inline">
-        <button type="submit" class="btn btn-default">{{trans('projects_show.presets')}}</button>
-    </form>
-    <form action="{{action('FormController@importFormViewK2',['pid' => $project->pid])}}" style="display: inline">
-        <button type="submit" class="btn btn-default">{{trans('projects_show.importk2')}}</button>
-    </form>
-    @endif
-    <hr/>
     <h2>{{trans('projects_show.forms')}}</h2>
-    @if(\Auth::user()->admin || \Auth::user()->isProjectAdmin($project))
-        <div>
-            <a href="{{ action('ExportController@exportProject',['pid' => $project->pid]) }}">[{{trans('projects_show.export')}}]</a>
-            <a href="{{ action('FormController@importFormView',['pid' => $project->pid]) }}">[{{trans('projects_show.import')}}]</a>
-        </div> <br>
-    @endif
+
     @foreach($project->forms as $form)
         @if(\Auth::user()->admin || \Auth::user()->inAFormGroup($form))
         <div class="panel panel-default">

@@ -75,7 +75,7 @@ class AssociationController extends Controller {
 	}
 
     /**
-     * Delete an existing association permission.
+     * Delete an existing association permission you've given.
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
@@ -88,6 +88,21 @@ class AssociationController extends Controller {
 
 		$assoc->delete();
 	}
+
+    /**
+     * Delete an existing association permission you've received.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     */
+    public function destroyReverse($pid, $fid, Request $request) {
+        $dataFormID = $request->assocfid;
+
+        $assoc = Association::where('assocForm','=',$fid)->where('dataForm','=',$dataFormID)->first();
+
+        $assoc->delete();
+    }
 
     /**
      * Gets all forms that a given form has given permission to.
