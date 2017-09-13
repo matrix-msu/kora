@@ -14,6 +14,9 @@
         <h1 class="title">
           <i class="icon icon-project"></i>
           <span>{{ $project->name }}</span>
+          <a href="{{ action('ProjectController@edit') }}" class="head-button">
+            <i class="icon icon-edit right"></i>
+          </a>
         </h1>
         <p class="description">{{ $project->description }}</p>
       </div>
