@@ -70,7 +70,7 @@ class FormGroup extends Model {
 
         foreach($group_users as $group_user) {
             //remove this project from that users custom list
-            $user = User::where("id","=",$group_user->user_id)->get();
+            $user = User::where("id","=",$group_user->user_id)->first();
             $user->removeCustomForm($this->fid);
         }
 
