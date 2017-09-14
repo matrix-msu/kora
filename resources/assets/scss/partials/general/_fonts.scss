@@ -295,3 +295,9 @@ i {
     content: $icon-project-edit;
   }
 }
+
+.icon-trash {
+  &::before {
+    content: $icon-trash;
+  }
+}

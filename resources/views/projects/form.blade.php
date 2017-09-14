@@ -69,7 +69,7 @@
     </a>
 
     <a class="btn dot-btn trash warning project-trash-js" data-title="Delete Project?" href="#">
-      <i class="icon icon-archive"></i>
+      <i class="icon icon-trash"></i>
     </a>
   </div>
 </div>

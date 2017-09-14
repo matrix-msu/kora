@@ -47,6 +47,8 @@ a.btn {
 
 // Dot Button
 a.btn.dot-btn {
+  @include transition();
+
   background: none;
   border-radius: 50px;
   box-sizing: border-box;
@@ -59,21 +61,35 @@ a.btn.dot-btn {
     .icon {
       color: palette(red, warning);
     }
+
+    &:hover {
+      background: palette(red, warning, 1);
+      border: 1px solid palette(red, warning, 1);
+    }
   }
 
   &.archive {
-    border: 1px solid palette(red, warning, .5);
+    border: 1px solid palette(gray, slate, .5);
+    box-shadow: 0 3px 5px 0 palette(box-shadow, base, .2);
 
     .icon {
       color: palette(gray, slate);
     }
+
+    &:hover {
+      background: palette(gray, slate, 1);
+      border: 1px solid palette(gray, slate, 1);
+      box-shadow: 0 7px 15px 0 palette(box-shadow, base, .2);
+    }
   }
 
-  &.warning:hover {
-    border: 1px solid palette(red, warning, 1);
+  &.warning:hover .icon {
+    color: palette(white, base);
   }
 
   .icon {
     font-size: 16;
+
+
   }
 }

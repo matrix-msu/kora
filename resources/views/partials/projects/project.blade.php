@@ -13,7 +13,7 @@
         </div>
       @endif
 
-      <a class="title {{!$active ? 'inactive': 'underline-middle-hover'}}" href="{{action("ProjectController@show",["pid" => $project->pid])}}">
+      <a class="title {{!$active ? 'inactive': 'underline-middle-hover'}}" href="{{ action("ProjectController@show",["pid" => $project->pid]) }}">
         <span class="name">{{$project->name}}</span>
         @if ($active)
           <i class="icon icon-arrow-right"></i>
@@ -66,26 +66,26 @@
       @endforeach
     </div>
 
-    @if ($active)
+    @if ($active || $isCustom)
       <div class="footer">
-        <a class="quick-action underline-middle-hover" href="">
+        <a class="quick-action underline-middle-hover" href="{{ action('ProjectController@edit',['pid' => $project->pid]) }}">
           <i class="icon icon-edit"></i>
           <span>Edit Project Info</span>
         </a>
 
-        <a class="quick-action underline-middle-hover" href="">
+        <a class="quick-action underline-middle-hover" href="#">
           <i class="icon icon-search"></i>
           <span>Search Project Records</span>
         </a>
 
-        <a class="quick-action underline-middle-hover" href="">
+        <a class="quick-action underline-middle-hover" href="{{ action('ProjectController@show',['pid' => $project->pid]) }}">
           <span>Go to Project</span>
           <i class="icon icon-arrow-right"></i>
         </a>
       </div>
     @else
     <div class="footer">
-      <a class="quick-action underline-middle-hover" href="">
+      <a class="quick-action underline-middle-hover" href="#">
         <i class="icon icon-edit"></i>
         <span>Unarchive</span>
       </a>
