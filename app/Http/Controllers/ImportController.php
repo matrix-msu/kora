@@ -547,39 +547,56 @@ class ImportController extends Controller {
 	public function importForm($pid, Request $request) {
         $project = ProjectController::getProject($pid);
 
-        if(!\Auth::user()->isProjectAdmin($proj))
+        if(!\Auth::user()->isProjectAdmin($project))
             return redirect('projects')->with('k3_global_error', 'not_project_admin');
 
         $file = $request->file('form');
+        $fName = $request->name;
+        $fSlug = $request->slug;
+        $fDesc = $request->description;
 
         $fileArray = json_decode(file_get_contents($file));
 
         $form = new Form();
 
+        if($fName == "")
+            $form->name = $fileArray->name;
+        else
+            $form->name = $fName;
+
+        if($fSlug == "")
+            $finalSlug = $fileArray->slug;
+        else
+            $finalSlug = $fSlug;
+
         $form->pid = $project->pid;
-        $form->name = $fileArray->name;
-        if(Form::where('slug', '=', $fileArray->slug)->exists()) {
+        if(Form::where('slug', '=', $finalSlug)->exists()) {
             $unique = false;
             $i=1;
             while(!$unique) {
-                if(Form::where('slug', '=', $fileArray->slug.$i)->exists()) {
+                if(Form::where('slug', '=', $finalSlug.$i)->exists()) {
                     $i++;
                 } else {
-                    $form->slug = $fileArray->slug.$i;
+                    $form->slug = $finalSlug.$i;
                     $unique = true;
                 }
             }
         } else {
-            $form->slug = $fileArray->slug;
+            $form->slug = $finalSlug;
         }
-        $form->description = $fileArray->desc;
+
+        if($fDesc == "")
+            $form->description = $fileArray->desc;
+        else
+            $form->description = $fDesc;
+
         $form->preset = $fileArray->preset;
         $form->public_metadata = $fileArray->metadata;
 
         $form->save();
 
         //make admin group
-        $admin = FormGroup::makeAdminGroup($form);
+        $admin = FormGroup::makeAdminGroup($form, $request);
         FormGroup::makeDefaultGroup($form);
         $form->adminGID = $admin->id;
         $form->save();
@@ -676,13 +693,17 @@ class ImportController extends Controller {
     public function importFormK2($pid, Request $request) {
         $project = ProjectController::getProject($pid);
 
-        if(!\Auth::user()->isProjectAdmin($proj))
+        if(!\Auth::user()->isProjectAdmin($project))
             return redirect('projects')->with('k3_global_error', 'not_project_admin');
 
         $file = $request->file('form');
         $scheme = simplexml_load_file($file);
         $collToPage = array();
         $fieldNameArrayForRecordInsert = array();
+
+        $fName = $request->name;
+        $fSlug = $request->slug;
+        $fDesc = $request->description;
 
         //init form
         $form = new Form();
@@ -692,7 +713,7 @@ class ImportController extends Controller {
         $form->public_metadata = 0;
         $form->save();
 
-        $admin = FormGroup::makeAdminGroup($form);
+        $admin = FormGroup::makeAdminGroup($form, $request);
         FormGroup::makeDefaultGroup($form);
         $form->adminGID = $admin->id;
         $form->save();
@@ -701,12 +722,18 @@ class ImportController extends Controller {
         foreach($scheme->children() as $category => $value) {
             if($category=='SchemeDesc') {
                 $name = $value->Name->__toString();
+                if($fName != "")
+                    $name = $fName;
                 $desc = $value->Description->__toString();
+                if($fDesc != "")
+                    $desc = $fDesc;
 
                 $form->name = $name;
                 $slug = str_replace(' ','_',$name);
+                if($fSlug != "")
+                    $slug = $fSlug;
                 $z=1;
-                while(Form::slugExists($slug)){
+                while(Form::slugExists($slug)) {
                     $slug .= $z;
                     $z++;
                 }
@@ -1283,6 +1310,8 @@ class ImportController extends Controller {
         }
     }
 
+
+
     /**
      * Import a k3Proj file into Kora3.
      *
@@ -1294,33 +1323,50 @@ class ImportController extends Controller {
             return redirect('projects/')->with('k3_global_error', 'not_admin');
 
         $file = $request->file('project');
+        $pName = $request->name;
+        $pSlug = $request->slug;
+        $pDesc = $request->description;
 
         $fileArray = json_decode(file_get_contents($file));
 
         $proj = new Project();
 
-        $proj->name = $fileArray->name;
-        if(Project::where('slug', '=', $fileArray->slug)->exists()) {
+        if($pName == "")
+            $proj->name = $fileArray->name;
+        else
+            $proj->name = $pName;
+
+        if($pSlug == "")
+            $finalSlug = $fileArray->slug;
+        else
+            $finalSlug = $pSlug;
+
+        if(Project::where('slug', '=', $finalSlug)->exists()) {
             $unique = false;
             $i=1;
             while(!$unique) {
-                if(Project::where('slug', '=', $fileArray->slug.$i)->exists()) {
+                if(Project::where('slug', '=', $finalSlug.$i)->exists()) {
                     $i++;
                 } else {
-                    $proj->slug = $fileArray->slug.$i;
+                    $proj->slug = $finalSlug->slug.$i;
                     $unique = true;
                 }
             }
         } else {
-            $proj->slug = $fileArray->slug;
+            $proj->slug = $finalSlug->slug;
         }
-        $proj->description = $fileArray->description;
+
+        if($pDesc == "")
+            $proj->description = $fileArray->description;
+        else
+            $proj->description = $pDesc;
+
         $proj->active = 1;
 
         $proj->save();
 
         //make admin group
-        $admin = ProjectGroup::makeAdminGroup($proj);
+        $admin = ProjectGroup::makeAdminGroup($proj, $request);
         ProjectGroup::makeDefaultGroup($proj);
         $proj->adminGID = $admin->id;
         $proj->save();
