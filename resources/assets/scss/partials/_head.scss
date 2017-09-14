@@ -29,6 +29,21 @@
       font-weight: 400;
       padding: 0 0 0 22px;
       vertical-align: middle;
+
+    }
+
+    .head-button {
+      @include transition();
+      text-decoration: none;
+
+      i {
+        color: palette(gray, text);
+        font-size: 22px;
+      }
+
+      &:hover {
+        opacity: .7;
+      }
     }
   }
 

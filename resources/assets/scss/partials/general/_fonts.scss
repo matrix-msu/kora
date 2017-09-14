@@ -259,3 +259,39 @@ i {
     text-shadow: none;
   }
 }
+
+.icon-archive {
+  &::before {
+    content: $icon-archive;
+  }
+}
+
+.icon-preset {
+  &::before {
+    content: $icon-preset;
+  }
+}
+
+.icon-record-search {
+  &::before {
+    content: $icon-record-search;
+  }
+}
+
+.icon-project-permissions {
+  &::before {
+    content: $icon-project-permissions;
+  }
+}
+
+.icon-project-import {
+  &::before {
+    content: $icon-project-import;
+  }
+}
+
+.icon-project-edit {
+  &::before {
+    content: $icon-project-edit;
+  }
+}
