@@ -323,7 +323,7 @@ class ProjectController extends Controller {
         else
             $message = 'project_restored';
 
-        return view('projects')->with('k3_global_success', $message);
+        return redirect()->action('ProjectController@index')->with('k3_global_success', $message);
     }
 
     /**
