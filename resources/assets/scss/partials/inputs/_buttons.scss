@@ -26,10 +26,54 @@
   &:focus {
     outline: none;
   }
+
+  &.warning {
+    background: gradient($palette: 'warning', $degree: to right);
+    box-shadow: 0 3px 5px 0 palette(box-shadow, warning, .2);
+
+    &:hover,
+    &:focus {
+      box-shadow: 0 7px 15px 0 palette(box-shadow, warning, .3);
+      opacity: 1;
+    }
+  }
 }
 
 a.btn {
   display: block;
   line-height: 50px;
   text-decoration: none;
+}
+
+// Dot Button
+a.btn.dot-btn {
+  background: none;
+  border-radius: 50px;
+  box-sizing: border-box;
+  height: 50px;
+  width: 50px;
+
+  &.trash {
+    border: 1px solid palette(red, warning, .2);
+
+    .icon {
+      color: palette(red, warning);
+    }
+  }
+
+  &.archive {
+    border: 1px solid palette(red, warning, .5);
+
+    .icon {
+      color: palette(gray, slate);
+    }
+  }
+
+  &.warning:hover {
+    border: 1px solid palette(red, warning, 1);
+  }
+
+  .icon {
+    font-size: 16;
+  }
 }

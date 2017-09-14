@@ -1,0 +1,37 @@
+.edit-project-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu;
+  min-height: 100vh;
+}
+
+.edit-project {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  .edit-form {
+    margin: #{map-get($spacing, xxxl)} auto;
+    max-width: calc(#{ $max-site-width } - 600px);
+    width: $max-site-width;
+  }
+
+  .edit-btn {
+    margin-top: 30px;
+  }
+
+  .form-group {
+    .spacer:first-child {
+      margin: 45px auto 60px;
+    }
+
+    .spacer:last-child {
+      margin: 60px auto 55px;
+    }
+
+    @import 'project-edit/project-cleanup';
+    @import 'project-edit/project-permissions';
+  }
+
+  .project-cleanup-submit {
+    padding: 25px 0 0;
+  }
+}

@@ -41,6 +41,11 @@
     width: 90%;
     will-change: transform;
 
+    &.small {
+      max-width: 340px;
+
+    }
+
     @import 'modal/header';
     @import 'modal/body';
   }

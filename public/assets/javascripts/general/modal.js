@@ -24,11 +24,12 @@ Kora.Modal.open = function($overide) {
 
 Kora.Modal.initialize = function() {
   $('.modal-js').on('click', function(e) {
-    e.preventDefault();
+
 
     if (e.target !== this) {
       return;
     } else {
+      e.preventDefault();
       Kora.Modal.close();
     }
   });

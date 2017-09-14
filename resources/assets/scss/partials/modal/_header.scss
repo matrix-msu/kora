@@ -23,6 +23,15 @@
   }
 }
 
+&.small .header {
+  padding: 25px;
+
+  .modal-toggle {
+    right: 25px;
+    top: 25px;
+  }
+}
+
 @media screen and (max-width: $max-mobile-xs-width) {
   .header {
     padding: 20px;

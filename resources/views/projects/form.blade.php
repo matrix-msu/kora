@@ -25,6 +25,23 @@
 </div>
 @endif
 
+@if($projectMode == 'project_edit')
+<div class="form-group">
+  <div class="spacer"></div>
+
+  <div class="project-permissions">
+    <span class="question">Need to Edit Project Permissions?</span>
+
+    <a class="action underline-middle-hover" href="#">
+      <span>Go to Project Permissions Page</span>
+      <i class="icon icon-arrow-right"></i>
+    </a>
+  </div>
+
+  <div class="spacer"></div>
+</div>
+@endif
+
 <!-- <div class="form-group">
   <label>Activate Project?</label>
   <div class="check-box">
@@ -40,6 +57,20 @@
   @if($projectMode == 'project_create')
       {!! Form::submit('Create Project',['class' => 'btn']) !!}
   @elseif($projectMode == 'project_edit')
-      {!! Form::submit('Edit Project',['class' => 'btn']) !!}
+      {!! Form::submit('Update Project',['class' => 'btn edit-btn']) !!}
   @endif
 </div>
+
+@if($projectMode == 'project_edit')
+<div class="form-group">
+  <div class="project-cleanup">
+    <a class="btn dot-btn archive warning project-archive-js" data-title="Archive Project?" href="#">
+      <i class="icon icon-archive"></i>
+    </a>
+
+    <a class="btn dot-btn trash warning project-trash-js" data-title="Delete Project?" href="#">
+      <i class="icon icon-archive"></i>
+    </a>
+  </div>
+</div>
+@endif

@@ -207,7 +207,7 @@ class ProjectController extends Controller {
 
         $projectMode = "project_edit";
 
-        return view('projects.edit', compact('project','project_mode'));
+        return view('projects.edit', compact('project','projectMode'));
 	}
 
     /**

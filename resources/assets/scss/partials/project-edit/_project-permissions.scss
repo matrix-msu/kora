@@ -1,0 +1,63 @@
+.project-permissions {
+  .question {
+    font-family: $ubuntu;
+    font-size: 16px;
+    line-height: 18px;
+  }
+
+  .action {
+    @include transition();
+
+    box-sizing: border-box;
+    color: palette(green, accent);
+    display: inline-block;
+    float: right;
+    margin: 0;
+    text-decoration: none;
+    vertical-align: middle;
+
+    .icon {
+      @include transition();
+
+      display: inline-block;
+      font-size: 12px;
+      margin: 0 5px 0 0;
+      padding: 0 0 #{ $underline-padding };
+    }
+
+    .icon-arrow-right {
+      font-size: 10px;
+      will-change: transform;
+    }
+
+    span {
+      color: inherit;
+      font-family: $ubuntu-medium;
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 18px;
+      padding: 0 0 #{ $underline-padding };
+    }
+
+    &:hover .icon-arrow-right {
+      perspective: 1000;
+      transform: translate3d(7px, 0, 0);
+    }
+  }
+}
+
+@media screen and (max-width: $max-mobile-med-width) {
+  .project-permissions {
+    text-align: center;
+
+    .question {
+      display: block;
+    }
+
+    .action {
+      margin-top: 15px;
+      float: initial;
+
+    }
+  }
+}
