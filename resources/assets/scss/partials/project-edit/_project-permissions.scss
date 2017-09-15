@@ -22,7 +22,7 @@
       display: inline-block;
       font-size: 12px;
       margin: 0 5px 0 0;
-      padding: 0 0 #{ $underline-padding };
+      padding: 0 0 #{ $underline-padding + 5px };
     }
 
     .icon-arrow-right {
@@ -36,7 +36,7 @@
       font-size: 16px;
       font-weight: 500;
       line-height: 18px;
-      padding: 0 0 #{ $underline-padding };
+      padding: 0 0 #{ $underline-padding + 5px };
     }
 
     &:hover .icon-arrow-right {

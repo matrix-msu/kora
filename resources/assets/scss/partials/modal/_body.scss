@@ -6,6 +6,8 @@
 
 &.small .body {
   padding: 0 25px 25px;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 @media screen and (max-width: $max-mobile-xs-width) {
