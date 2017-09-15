@@ -29,9 +29,19 @@
 
     @import 'project-edit/project-cleanup';
     @import 'project-edit/project-permissions';
+
+    &.project-cleanup-submit {
+      padding: 25px 0 0;
+    }
   }
 
-  .project-cleanup-submit {
-    padding: 25px 0 0;
+
+  .update-project-button {
+    height: 110px;
+    padding: 0;
+
+    .update-project-submit {
+      margin: 45px auto 15px;
+    }
   }
 }

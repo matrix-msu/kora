@@ -1,4 +1,4 @@
-@extends('app', ['page_title' => 'Edit {{$project->name}}', 'page_class' => 'edit-project'])
+@extends('app', ['page_title' => "Editing {$project->name}", 'page_class' => 'edit-project'])
 
 @section('stylesheets')
   <!-- No Additional Stylesheets Necessary -->

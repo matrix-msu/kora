@@ -18,7 +18,8 @@
 @import 'partials/project';
 
 @media screen and (min-width: $max-mobile-xs-width) and (max-width: $max-tablet-width) {
-  .center {
+  .center,
+  .fixed-bottom {
     margin-left: $tablet-margin-total / 2 !important;
     margin-right: $tablet-margin-total / 2 !important;
     max-width: $max-tablet-width - $tablet-margin-total !important;
@@ -27,7 +28,8 @@
 }
 
 @media screen and (max-width: $max-mobile-xs-width) {
-  .center {
+  .center,
+  .fixed-bottom {
     margin-left: $mobile-xs-margin-total / 2 !important;
     margin-right: $mobile-xs-margin-total / 2 !important;
     max-width: $max-mobile-xs-width - $mobile-xs-margin-total !important;

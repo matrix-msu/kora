@@ -88,8 +88,8 @@ a.btn.dot-btn {
   }
 
   .icon {
+    @include transition();
+
     font-size: 16;
-
-
   }
 }
