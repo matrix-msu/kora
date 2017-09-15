@@ -1,0 +1,51 @@
+.status {
+  @include transition();
+
+  background: gradient(accent, to right);
+  height: 30px;
+  opacity: 0;
+  position: relative;
+  width: 100%;
+
+  &.active {
+    opacity: 1;
+  }
+
+  &.error {
+    background: gradient(warning, to right);
+  }
+
+  .information {
+    box-sizing: border-box;
+    color: palette(white, base);
+    display: block;
+    font-family: $ubuntu;
+    font-size: 14px;
+    line-height: 16px;
+    padding: 7px 0;
+    text-align: center;
+  }
+
+  .dismiss {
+    @include transition(background);
+
+    background: palette(gray, slate, .1);
+    box-sizing: border-box;
+    color: palette(white, base);
+    display: block;
+    font-family: $ubuntu;
+    font-size: 14px;
+    height: 30px;
+    line-height: 16px;
+    padding: 7px 0;
+    position: absolute;
+    right: 0;
+    text-align: center;
+    top: 0;
+    width: 100px;
+
+    &:hover {
+      background: palette(gray, slate, .3);
+    }
+  }
+}

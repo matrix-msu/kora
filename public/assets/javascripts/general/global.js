@@ -35,7 +35,6 @@ function isScrolledIntoView($elem) {
 
 function setFixedElement(load = false) {
   if ($('.pre-fixed-js').length > 0) {
-    console.log(load);
     var $elementToFix = $('.pre-fixed-js');
     var $elementFixWrapper = $('.pre-fixed-js').parent();
 
@@ -54,6 +53,37 @@ function setFixedElement(load = false) {
 
 $(document).ready(function() {
   setFixedElement(true);
+
+  var $status = $('.status-js');
+  var $navigation = $('.navigation-js')
+  setTimeout(function() {
+    $status.addClass('active');
+    $navigation.addClass('show-status');
+
+    // setTimeout(function() {
+    //   $status.removeClass('active');
+    //   $navigation.removeClass('show-status');
+    // }, 4000);
+  }, 2000);
+
+  var once = 0;
+  $('.status-dismiss-js').on('click', function(e) {
+    e.preventDefault();
+
+    $status.removeClass('active');
+    $navigation.removeClass('show-status');
+
+    if (!once) {
+      setTimeout(function() {
+        $status.find('.information').html('This is an error status example');
+        $status.addClass('active').addClass('error');
+        $navigation.addClass('show-status');
+      }, 2000);
+      once = 1;
+    }
+  })
+
+
 
 
   checkMobileDevice();

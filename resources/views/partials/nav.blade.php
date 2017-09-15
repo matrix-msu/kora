@@ -1,4 +1,8 @@
 <nav class="navigation navigation-js">
+  <div class="status status-js">
+    <span class="information">This is a successful status example.</span>
+    <a href="#" class="dismiss status-dismiss-js">Dismiss</a>
+  </div>
   <ul class="navigation-left navigation-left-js">
     @if(Auth::guest())
       <li class="navigation-item">
