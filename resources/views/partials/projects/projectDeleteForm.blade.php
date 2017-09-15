@@ -5,7 +5,7 @@
   'class' => "delete-content-js"
 ]) !!}
   <span class="description">
-    Are you sure you wish to delete this Project?
+    Are you sure you wish to delete this Project? This cannot be undone. 
   </span>
 
   <div class="form-group project-cleanup-submit">
