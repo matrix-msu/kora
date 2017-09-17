@@ -58,7 +58,7 @@
   {!! Form::submit('Create Project',['class' => 'btn']) !!}
 </div>
 @elseif($projectMode == 'project_edit')
-<div class="form-group update-project-button">
+<div class="form-group project-update-button">
   {!! Form::submit('Update Project',['class' => 'btn edit-btn update-project-submit pre-fixed-js']) !!}
 </div>
 @endif

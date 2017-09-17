@@ -18,16 +18,39 @@
             <i class="icon icon-edit right"></i>
           </a>
         </h1>
-        <p class="description">{{ $project->description }}</p>
+        <p class="description">{{ $project->slug }}: {{ $project->description }}</p>
       </div>
   </section>
 @stop
 
 @section('body')
+  <section class="filters center">
+      <div class="underline-middle search search-js">
+        <i class="icon icon-search"></i>
+        <input type="text" placeholder="Find a Form">
+        <i class="icon icon-cancel icon-cancel-js"></i>
+      </div>
+      <div class="sort-options sort-options-js">
+          <!-- <a href="modified" class="option underline-middle">Recently Modified</a> -->
+          <a href="#custom" class="option underline-middle underline-middle-hover">Custom</a>
+          <a href="#active" class="option underline-middle underline-middle-hover active">Alphabetical</a>
+      </div>
+  </section>
 
-    <div><b>{{trans('projects_show.name')}}:</b> {{ $project->slug }}</div>
+  <section class="new-form-button center">
+    @if(\Auth::user()->canCreateForms($project))
+      <form action="{{ action('FormController@create', ['pid' => $project->pid]) }}">
+        @if(\Auth::user()->admin)
+          <input type="submit" value="Create a New Form">
+        @endif
+      </form>
+    @endif
+  </section>
 
-    <h2>{{trans('projects_show.forms')}}</h2>
+  <section class="form-selection center form-js form-selection-js">
+    @include("partials.projects.show.alphabetical", ['isCustom' => false])
+    @include("partials.projects.show.custom", ['isCustom' => true])
+  </section>
 
     @foreach($project->forms as $form)
         @if(\Auth::user()->admin || \Auth::user()->inAFormGroup($form))
@@ -56,12 +79,6 @@
         </div>
         @endif
     @endforeach
-
-    @if(\Auth::user()->canCreateForms($project))
-    <form action="{{ action('FormController@create', ['pid' => $project->pid]) }}">
-        <input type="submit" value="{{trans('projects_show.create')}}" class="btn btn-primary form-control">
-    </form>
-    @endif
 @stop
 
 @section('footer')
