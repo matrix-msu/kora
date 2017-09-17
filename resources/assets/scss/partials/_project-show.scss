@@ -1,0 +1,14 @@
+.project-show-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu;
+  min-height: 100vh;
+}
+
+.project-show {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  @import 'project-show/filters';
+  @import 'project-show/new-form';
+  @import 'project-show/form-selection';
+}

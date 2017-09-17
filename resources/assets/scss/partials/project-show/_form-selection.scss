@@ -1,0 +1,18 @@
+.form-selection {
+  background: none;
+  margin: auto;
+  max-width: calc(#{ $max-site-width } - 600px);
+  width: $max-site-width;
+
+  .form-sort {
+    display: none;
+
+    &.active {
+      display: block;
+    }
+  }
+
+  .form .content .id {
+    margin-bottom: 20px;
+  }
+}

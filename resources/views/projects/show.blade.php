@@ -48,37 +48,9 @@
   </section>
 
   <section class="form-selection center form-js form-selection-js">
-    @include("partials.projects.show.alphabetical", ['isCustom' => false])
-    @include("partials.projects.show.custom", ['isCustom' => true])
+    @include("partials.projects.show.alphabetical", ['isCustom' => false, 'active' => true])
+    @include("partials.projects.show.custom", ['isCustom' => true, 'active' => false])
   </section>
-
-    @foreach($project->forms as $form)
-        @if(\Auth::user()->admin || \Auth::user()->inAFormGroup($form))
-        <div class="panel panel-default">
-            <div class="panel-heading" style="font-size: 1.5em;">
-                <a href="{{ action('FormController@show',['pid' => $project->pid,'fid' => $form->fid]) }}">{{ $form->name }}</a>
-            </div>
-            <div class="collapseTest" style="display:none">
-                <div class="panel-body">
-                    <b>{{trans('projects_show.name')}}:</b> {{ $form->slug }}<br>
-                    <b>{{trans('projects_show.desc')}}:</b> {{ $form->description }}
-                </div>
-                <div class="panel-footer">
-                    @if(\Auth::user()->canEditForms($project))
-                    <span>
-                        <a href="{{ action('FormController@edit',['pid' => $project->pid, 'fid' => $form->fid]) }}">[{{trans('projects_show.edit')}}]</a>
-                    </span>
-                    @endif
-                    @if(\Auth::user()->canDeleteForms($project))
-                    <span>
-                        <a onclick="deleteForm('{{ $form->name }}', {{ $form->fid }})" href="javascript:void(0)">[{{trans('projects_show.delete')}}]</a>
-                    </span>
-                    @endif
-                </div>
-            </div>
-        </div>
-        @endif
-    @endforeach
 @stop
 
 @section('footer')
@@ -89,9 +61,8 @@
   @include('partials.projects.javascripts')
 
   <script type="text/javascript">
-    var formDestroyUrl = '{{ action('FormController@destroy',['pid' => $project->pid, 'fid' => '']) }}';
-    var areYouSure = '{{ trans('projects_show.areyousure') }}';
     var CSRFToken = '{{ csrf_token() }}';
+    var saveCustomOrderUrl = '{{ action('Auth\UserController@saveFormCustomOrder', ['pid' => $project->pid]) }}';
 
     Kora.Projects.Show();
   </script>
