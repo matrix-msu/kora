@@ -40,9 +40,9 @@
   </section>
 
   <section class="project-selection center project-js project-selection-js">
-    @include("partials.projects.active", ['isCustom' => false, 'active' => true])
-    @include("partials.projects.inactive", ['isCustom' => false, 'active' => false])
-    @include("partials.projects.custom", ['isCustom' => true, 'active' => false])
+    @include("partials.projects.index.active", ['isCustom' => false, 'active' => true])
+    @include("partials.projects.index.inactive", ['isCustom' => false, 'active' => false])
+    @include("partials.projects.index.custom", ['isCustom' => true, 'active' => false])
   </section>
 
   <section class="foot center">
