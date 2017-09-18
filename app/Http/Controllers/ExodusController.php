@@ -487,7 +487,7 @@ class ExodusController extends Controller {
 
         Artisan::call('queue:listen', [
             '--queue' => 'exodus',
-            '--timeout' => 1800
+            '--timeout' => 72000
         ]);
     }
 
