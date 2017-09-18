@@ -27,6 +27,13 @@
     width: 100%;
   }
 
+  .sub-text {
+  	color: palette(gray, text, .6);
+  	font-family: $ubuntu;
+  	font-size: 12px;
+  	line-height: 18px;
+  }
+
   @import 'inputs/text';
   @import 'inputs/selects';
   @import 'inputs/buttons';

@@ -9,7 +9,7 @@ $chosen-sprite-retina: url('chosen-sprite@2x.png') !default;
   text-align: left;
   user-select: none;
   vertical-align: middle;
-  
+
   * {
     box-sizing: border-box;
   }
@@ -28,7 +28,8 @@ $chosen-sprite-retina: url('chosen-sprite@2x.png') !default;
     z-index: 1010;
   }
 
-  &.chosen-with-drop .chosen-choices {
+  &.chosen-with-drop .chosen-choices,
+  &.chosen-with-drop .chosen-single {
     border-bottom: 1px solid palette(green, accent, .3);
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
@@ -38,7 +39,7 @@ $chosen-sprite-retina: url('chosen-sprite@2x.png') !default;
     clip: auto;
   }
 
-  a{
+  a {
     cursor: pointer;
   }
 
@@ -63,29 +64,56 @@ $chosen-sprite-retina: url('chosen-sprite@2x.png') !default;
 /* @group Single Chosen */
 .chosen-container-single{
   .chosen-single {
-    position: relative;
-    display: block;
-    overflow: hidden;
-    padding: 0 0 0 8px;
-    height: 25px;
-    border: 1px solid #aaa;
+    @include transition();
+
+    background-color: palette(white, base);
+    border: 1px solid palette(white, base);
     border-radius: 5px;
-    background-color: #fff;
-    background: linear-gradient(#fff 20%, #f6f6f6 50%, #eee 52%, #f4f4f4 100%);
-    background-clip: padding-box;
-    box-shadow: 0 0 3px #fff inset, 0 1px 1px rgba(#000,.1);
-    color: #444;
-    text-decoration: none;
-    white-space: nowrap;
-    line-height: 24px;
+    box-shadow: 0 3px 5px 0 palette(box-shadow, base, 0.05);
+    display: block;
+    height: auto;
+    margin: 0;
+    overflow: hidden;
+    padding: 0 10px 10px;
+    position: relative;
+    width: 100%;
+
+    &:hover {
+      border: 1px solid rgba(4,182,175,0.5);
+      box-shadow: 0 7px 10px 0 palette(box-shadow, base, 0.05);
+    }
+
+    &:before {
+      @include transition();
+
+      color: palette(gray, slate);
+      content: $icon-chevron;
+      display: inline-block;
+      float: right;
+      font-family: 'Kora-Icons';
+      font-size: 6px;
+      -moz-osx-font-smoothing: grayscale;
+      -webkit-font-smoothing: antialiased;
+      font-style: normal;
+      font-variant: normal;
+      font-weight: normal;
+      line-height: 24px;
+      margin: 10px 10px 0 0;
+      speak: none;
+      text-transform: none;
+      vertical-align: middle;
+      will-change: transform;
+    }
   }
   .chosen-default {
-    color: #999;
+    color: palette(gray, text, .6);
+    font-family: $ubuntu-italic;
   }
   .chosen-single span {
     display: block;
+    margin: 14px 0 0 10px;
     overflow: hidden;
-    margin-right: 26px;
+    padding: 0;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -108,20 +136,11 @@ $chosen-sprite-retina: url('chosen-sprite@2x.png') !default;
   &.chosen-disabled .chosen-single abbr:hover {
     background-position: -42px -10px;
   }
+
   .chosen-single div {
-    position: absolute;
-    top: 0;
-    right: 0;
-    display: block;
-    width: 18px;
-    height: 100%;
-    b {
-      display: block;
-      width: 100%;
-      height: 100%;
-      background: $chosen-sprite no-repeat 0px 2px;
-    }
+    display: none;
   }
+
   .chosen-search {
     position: relative;
     z-index: 1010;
@@ -356,25 +375,11 @@ $chosen-sprite-retina: url('chosen-sprite@2x.png') !default;
 /* @group Active  */
 .chosen-container-active{
   .chosen-single {
-    border: 1px solid #5897fb;
-    box-shadow: 0 0 5px rgba(#000,.3);
-  }
-  &.chosen-with-drop{
-    .chosen-single {
-      border: 1px solid #aaa;
-      -moz-border-radius-bottomright: 0;
-      border-bottom-right-radius: 0;
-      -moz-border-radius-bottomleft: 0;
-      border-bottom-left-radius: 0;
-      background-image: linear-gradient(#eee 20%, #fff 80%);
-      box-shadow: 0 1px 0 #fff inset;
-    }
-    .chosen-single div {
-      border-left: none;
-      background: transparent;
-      b {
-        background-position: -18px 2px;
-      }
+    border: 1px solid palette(green, accent);
+    box-shadow: 0 7px 10px 0 palette(box-shadow, base, 0.05);
+
+    &:before {
+      transform: rotate(-180deg);
     }
   }
   .chosen-choices {
@@ -470,17 +475,5 @@ $chosen-sprite-retina: url('chosen-sprite@2x.png') !default;
     padding: 4px 5px 4px 20px;
     background: $chosen-sprite no-repeat -30px -20px;
     direction: rtl;
-  }
-
-  &.chosen-container-single{
-    .chosen-single div b {
-      background-position: 6px 2px;
-    }
-
-    &.chosen-with-drop{
-      .chosen-single div b {
-        background-position: -12px 2px;
-      }
-    }
   }
 }
