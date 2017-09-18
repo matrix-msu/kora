@@ -5,8 +5,8 @@
   -ms-overflow-style: -ms-autohiding-scrollbar;
 }
 
-@mixin transition($property: all) {
-  transition: $property .2s ease-in-out;
+@mixin transition($property: all, $duration: .2s) {
+  transition: $property $duration ease-in-out;
 }
 
 @mixin vertical-align($position: absolute, $transform: '') {

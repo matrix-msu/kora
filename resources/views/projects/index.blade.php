@@ -40,9 +40,9 @@
   </section>
 
   <section class="project-selection center project-js project-selection-js">
-    @include("partials.projects.active", ['isCustom' => false, 'active' => true])
-    @include("partials.projects.inactive", ['isCustom' => false, 'active' => false])
-    @include("partials.projects.custom", ['isCustom' => true, 'active' => false])
+    @include("partials.projects.index.active", ['isCustom' => false, 'active' => true])
+    @include("partials.projects.index.inactive", ['isCustom' => false, 'active' => false])
+    @include("partials.projects.index.custom", ['isCustom' => true, 'active' => false])
   </section>
 
   <section class="foot center">
@@ -74,17 +74,7 @@
 @stop
 
 @section('javascripts')
-  {!! Minify::javascript([
-    '/assets/javascripts/vendor/jquery/jquery.js',
-    '/assets/javascripts/vendor/jquery/jquery-ui.js',
-    '/assets/javascripts/vendor/chosen.js',
-    '/assets/javascripts/general/modal.js',
-    '/assets/javascripts/projects/create.js',
-    '/assets/javascripts/projects/index.js',
-    '/assets/javascripts/projects/show.js',
-    '/assets/javascripts/navigation/navigation.js',
-    '/assets/javascripts/general/global.js'
-  ])->withFullUrl() !!}
+  @include('partials.projects.javascripts')
 
   <script type="text/javascript">
     var CSRFToken = '{{ csrf_token() }}';

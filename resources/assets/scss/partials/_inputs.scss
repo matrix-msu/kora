@@ -23,8 +23,15 @@
 
   .spacer {
     background: palette(gray, slate, 0.05);
-    height: 1px;
+    height: 2px;
     width: 100%;
+  }
+
+  .sub-text {
+  	color: palette(gray, text, .6);
+  	font-family: $ubuntu;
+  	font-size: 12px;
+  	line-height: 18px;
   }
 
   @import 'inputs/text';

@@ -26,4 +26,24 @@ a.inactive {
   overflow: hidden;
 }
 
+.fixed-bottom {
+  bottom: 0;
+  left: 0;
+  max-width: calc(#{ $max-site-width } - 600px);
+  position: fixed;
+  right: 0;
+  width: $max-site-width;
+}
+
+.fixed-bottom-slide {
+  @include transition();
+
+  animation: slideup .4s forwards;
+  left: 0;
+  max-width: calc(#{ $max-site-width } - 600px);
+  position: fixed;
+  right: 0;
+  width: $max-site-width;
+}
+
 @import 'spacing';

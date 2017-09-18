@@ -1,12 +1,12 @@
-.new-project-body {
+.project-create-body {
   background: gradient($palette: 'background', $degree: 180deg);
   font-family: $ubuntu;
   min-height: 100vh;
 }
 
-.new-project {
+.project-create {
   margin: $navigation-height auto 0;
   width: 100%;
 
-  @import 'project-new/create-form';
+  @import 'project-create/create-form';
 }

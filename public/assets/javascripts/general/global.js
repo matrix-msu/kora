@@ -23,7 +23,69 @@ function checkMobileDevice() {
   }
 }
 
+function isScrolledIntoView($elem) {
+  var docViewTop = $(window).scrollTop();
+  var docViewBottom = docViewTop + $(window).height();
+
+  var elemTop = $elem.offset().top;
+  var elemBottom = elemTop + $elem.height();
+
+  return ((docViewTop < elemTop) && (docViewBottom > elemBottom));
+}
+
+function setFixedElement(load = false) {
+  if ($('.pre-fixed-js').length > 0) {
+    var $elementToFix = $('.pre-fixed-js');
+    var $elementFixWrapper = $('.pre-fixed-js').parent();
+
+    if (!isScrolledIntoView($elementFixWrapper)) {
+      if (load) {
+        $elementToFix.addClass('fixed-bottom-slide');
+      } else {
+        $elementToFix.addClass('fixed-bottom');
+      }
+    } else if (isScrolledIntoView($elementFixWrapper)) {
+      $elementToFix.removeClass('fixed-bottom').removeClass('fixed-bottom-slide');
+    }
+  }
+}
+
+
 $(document).ready(function() {
+  setFixedElement(true);
+
+  var $status = $('.status-js');
+  var $navigation = $('.navigation-js')
+  setTimeout(function() {
+    $status.addClass('active');
+    $navigation.addClass('show-status');
+
+    // setTimeout(function() {
+    //   $status.removeClass('active');
+    //   $navigation.removeClass('show-status');
+    // }, 4000);
+  }, 2000);
+
+  var once = 0;
+  $('.status-dismiss-js').on('click', function(e) {
+    e.preventDefault();
+
+    $status.removeClass('active');
+    $navigation.removeClass('show-status');
+
+    if (!once) {
+      setTimeout(function() {
+        $status.find('.information').html('This is an error status example');
+        $status.addClass('active').addClass('error');
+        $navigation.addClass('show-status');
+      }, 2000);
+      once = 1;
+    }
+  })
+
+
+
+
   checkMobileDevice();
 
   $('.underline-middle-hover, .underline-left-hover').on('click touchend', function(e) {
@@ -57,3 +119,7 @@ $(document).keydown(function(e) {
     }
   }
 });
+
+$(document).on('scroll', function() {
+  setFixedElement();
+})

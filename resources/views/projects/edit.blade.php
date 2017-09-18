@@ -1,4 +1,4 @@
-@extends('app', ['page_title' => 'Edit {{$project->name}}', 'page_class' => 'edit-project'])
+@extends('app', ['page_title' => "Editing {$project->name}", 'page_class' => 'project-edit'])
 
 @section('stylesheets')
   <!-- No Additional Stylesheets Necessary -->
@@ -31,8 +31,8 @@
           </a>
         </div>
         <div class="body">
-          @include("partials.projects.projectArchiveForm")
-          @include("partials.projects.projectDeleteForm")
+          @include("partials.projects.edit.projectArchiveForm")
+          @include("partials.projects.edit.projectDeleteForm")
         </div>
       </div>
     </div>

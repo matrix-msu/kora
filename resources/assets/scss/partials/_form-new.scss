@@ -1,0 +1,24 @@
+.form-create-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu;
+  min-height: 100vh;
+}
+
+.form-create {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  .create-form {
+    margin: #{map-get($spacing, xxxl)} auto;
+    max-width: calc(#{ $max-site-width } - 600px);
+    width: $max-site-width;
+  }
+
+  .preset-select-container {
+    height: 0;
+
+    > div {
+      display: none;
+    }
+  }
+}

@@ -56,7 +56,7 @@ a.btn.dot-btn {
   width: 50px;
 
   &.trash {
-    border: 1px solid palette(red, warning, .2);
+    border: 2px solid palette(red, warning, .5);
 
     .icon {
       color: palette(red, warning);
@@ -64,13 +64,13 @@ a.btn.dot-btn {
 
     &:hover {
       background: palette(red, warning, 1);
-      border: 1px solid palette(red, warning, 1);
+      border: 2px solid palette(red, warning, 1);
     }
   }
 
   &.archive {
-    border: 1px solid palette(gray, slate, .5);
-    box-shadow: 0 3px 5px 0 palette(box-shadow, base, .2);
+    border: 2px solid palette(gray, slate, .2);
+    box-shadow: 0 3px 5px 0 palette(box-shadow, base, .05);
 
     .icon {
       color: palette(gray, slate);
@@ -78,8 +78,8 @@ a.btn.dot-btn {
 
     &:hover {
       background: palette(gray, slate, 1);
-      border: 1px solid palette(gray, slate, 1);
-      box-shadow: 0 7px 15px 0 palette(box-shadow, base, .2);
+      border: 2px solid palette(gray, slate, 1);
+      box-shadow: 0 5px 10px 0 palette(box-shadow, base, .1);
     }
   }
 
@@ -88,8 +88,8 @@ a.btn.dot-btn {
   }
 
   .icon {
+    @include transition();
+
     font-size: 16;
-
-
   }
 }

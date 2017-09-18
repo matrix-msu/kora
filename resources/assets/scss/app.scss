@@ -13,12 +13,15 @@
 @import 'partials/head';
 @import 'partials/side-menu';
 @import 'partials/projects';
-@import 'partials/new-project';
-@import 'partials/edit-project';
+@import 'partials/project-new';
+@import 'partials/project-edit';
+@import 'partials/project-show';
+@import 'partials/form-new';
 @import 'partials/project';
 
 @media screen and (min-width: $max-mobile-xs-width) and (max-width: $max-tablet-width) {
-  .center {
+  .center,
+  .fixed-bottom {
     margin-left: $tablet-margin-total / 2 !important;
     margin-right: $tablet-margin-total / 2 !important;
     max-width: $max-tablet-width - $tablet-margin-total !important;
@@ -27,7 +30,8 @@
 }
 
 @media screen and (max-width: $max-mobile-xs-width) {
-  .center {
+  .center,
+  .fixed-bottom {
     margin-left: $mobile-xs-margin-total / 2 !important;
     margin-right: $mobile-xs-margin-total / 2 !important;
     max-width: $max-mobile-xs-width - $mobile-xs-margin-total !important;

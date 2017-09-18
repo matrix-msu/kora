@@ -1,10 +1,10 @@
-.edit-project-body {
+.project-edit-body {
   background: gradient($palette: 'background', $degree: 180deg);
   font-family: $ubuntu;
   min-height: 100vh;
 }
 
-.edit-project {
+.project-edit {
   margin: $navigation-height auto 0;
   width: 100%;
 
@@ -29,9 +29,19 @@
 
     @import 'project-edit/project-cleanup';
     @import 'project-edit/project-permissions';
+
+    &.project-cleanup-submit {
+      padding: 25px 0 0;
+    }
   }
 
-  .project-cleanup-submit {
-    padding: 25px 0 0;
+
+  .project-update-button {
+    height: 110px;
+    padding: 0;
+
+    .update-project-submit {
+      margin: 45px auto 15px;
+    }
   }
 }

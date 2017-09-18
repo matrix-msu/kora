@@ -53,13 +53,16 @@
   </div>
 </div> -->
 
+@if($projectMode == 'project_create')
 <div class="form-group">
-  @if($projectMode == 'project_create')
-      {!! Form::submit('Create Project',['class' => 'btn']) !!}
-  @elseif($projectMode == 'project_edit')
-      {!! Form::submit('Update Project',['class' => 'btn edit-btn']) !!}
-  @endif
+  {!! Form::submit('Create Project',['class' => 'btn']) !!}
 </div>
+@elseif($projectMode == 'project_edit')
+<div class="form-group project-update-button">
+  {!! Form::submit('Update Project',['class' => 'btn edit-btn update-project-submit pre-fixed-js']) !!}
+</div>
+@endif
+
 
 @if($projectMode == 'project_edit')
 <div class="form-group">

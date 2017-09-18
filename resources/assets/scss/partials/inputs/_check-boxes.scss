@@ -119,3 +119,96 @@
 //     <span class="placeholder-alt">Project is set to "active"</span>
 //   </div>
 // </div>
+
+
+
+// check box half
+
+.check-box-half {
+  position: relative;
+
+  input[type=checkbox] {
+    cursor: pointer;
+    height: 25px;
+    opacity: 0;
+    position: absolute;
+    width: 100%;
+    z-index: 2;
+
+    &:checked + .check-box-background + .check {
+      background-color: palette(green, accent);
+    }
+
+    &:hover + .check-box-background + .check {
+      border: 1px solid palette(green, accent, .5);
+      box-shadow: 0 7px 10px 0 palette(box-shadow, base, .05);
+    }
+
+    &:checked + .check-box-background + .check + .placeholder,
+    &:hover + .check-box-background + .check + .placeholder {
+      color: palette(green, accent);
+    }
+
+    &:checked + .check-box-background + .check + .placeholder {
+      font-family: $ubuntu-medium;
+    }
+  }
+
+  .check-box-background {
+    @include transition();
+
+    background: none;
+    border: 0;
+    box-shadow: none;
+    box-sizing: border-box;
+    height: 25px;
+    margin: 0 auto;
+    position: relative;
+    width: 100%;
+  }
+
+  .check {
+    @include transition();
+
+    background: palette(white, base);
+    border: 1px solid palette(box-shadow, base, .1);
+    border-radius: 50px;
+    box-shadow: 0 3px 5px 0 palette(box-shadow, base, .05);
+    box-sizing: border-box;
+    cursor: pointer;
+    height: 25px;
+    position: absolute;
+    text-align: center;
+    top: 0;
+    width: 25px;
+
+    &::after {
+      background: transparent;
+      border: 2px solid palette(white, base);
+      border-right: 0;
+      border-top: 0;
+      content: '';
+      height: 4px;
+      left: 6px;
+      opacity: 1;
+      position: absolute;
+      top: 8px;
+      transform: rotate(-45deg);
+      width: 8px;
+    }
+  }
+
+  .placeholder {
+    @include transition();
+
+    color: palette(gray, text);
+    cursor: pointer;
+    font-family: $ubuntu;
+    font-size: 14px;
+    left: 35px;
+    position: absolute;
+    right: 0;
+    text-align: left;
+    top: 5px;
+  }
+}

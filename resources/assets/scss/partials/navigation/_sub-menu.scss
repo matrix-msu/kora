@@ -7,14 +7,14 @@
   opacity: 1;
   padding-bottom: 5px;
   position: absolute;
-  top: $navigation-height;
+  top: $navigation-height + $status-height;
   transform: translateY(-200%);
   width: 175px;
   will-change: transform;
   z-index: -1;
 
   &.active {
-    transform: translateY(0) ;
+    transform: translateY(0);
   }
 
   img {

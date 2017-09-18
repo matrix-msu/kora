@@ -1,27 +1,41 @@
-@extends('app')
+@extends('app', ['page_title' => 'Create a Form', 'page_class' => 'form-create'])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $project->pid])
 @stop
 
-@section('content')
-    <h1>{{trans('forms_create.new')}} {{ $project->name }}</h1>
+@section('stylesheets')
+  <!-- No Additional Stylesheets Necessary -->
+@stop
 
-    <hr/>
+@section('header')
+  <section class="head">
+      <div class="inner-wrap center">
+        <h1 class="title">
+          <i class="icon icon-form-new"></i>
+          <span>New Form</span>
+        </h1>
+        <p class="description">Fill out the form below, and then select "Create Form"</p>
+      </div>
+  </section>
+@stop
 
+@section('body')
+  <section class="create-form center">
     {!! Form::model($form = new \App\Form, ['url' => 'projects/'.$project->pid]) !!}
-        @include('forms.form',['submitButtonText' => trans('forms_create.create'), 'pid' => $project->pid])
+        @include('partials.forms.form',['submitButtonText' => 'Create Form', 'pid' => $project->pid])
     {!! Form::close() !!}
-
-    @include('errors.list')
+  </section>
 @stop
 
 @section('footer')
-    <script>
-        $('#admins').select2();
-        $('#presets').select2({
-            placeholder: '{{trans('forms_create.select')}}',
-            allowClear: true
-        });
-    </script>
+
+@stop
+
+@section('javascripts')
+  @include('partials.forms.javascripts')
+
+  <script type="text/javascript">
+    Kora.Forms.Create();
+  </script>
 @stop
