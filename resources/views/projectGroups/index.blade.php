@@ -1,8 +1,41 @@
-@extends('app')
+@extends('app', ['page_title' => "Permissions - {$project->name}", 'page_class' => 'project-permissions'])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $project->pid])
 @stop
+
+@section('stylesheets')
+  <!-- No Additional Stylesheets Necessary -->
+@stop
+
+@section('header')
+  <section class="head">
+      <div class="inner-wrap center">
+        <h1 class="title">
+          <i class="icon icon-project-permissions"></i>
+          <span>Project Permissions</span>
+        </h1>
+        <p class="description">Select a permission group below or create a new permission group to get started.</p>
+      </div>
+  </section>
+@stop
+
+@section('body')
+
+@stop
+
+@section('footer')
+
+@stop
+
+@section('javascripts')
+  @include('partials.projectGroups.javascripts')
+
+  <script type="text/javascript">
+    var CSRFToken = '{{ csrf_token() }}';
+  </script>
+@stop
+
 
 @section('content')
     <div class="container">

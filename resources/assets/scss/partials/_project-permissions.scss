@@ -1,0 +1,15 @@
+.project-permissions-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu;
+  min-height: 100vh;
+}
+
+.project-permissions {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  // @import 'projects/filters';
+  // @import 'projects/new-project';
+  // @import 'projects/project-selection';
+  // @import 'projects/foot';
+}
