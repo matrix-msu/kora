@@ -2,7 +2,7 @@
   {!! Form::open(['action' => 'ProjectController@request']) !!}
     <div class="form-group">
       {!! Form::label('request_project', 'Select the Project to Request Permissions') !!}
-      {!! Form::select('pid[]', $requestableProjects, null, [
+      {!! Form::select('pids[]', $requestableProjects, null, [
         'class' => 'multi-select',
         'multiple',
         'data-placeholder' => "Select the project you would like to request permissions to here    ",

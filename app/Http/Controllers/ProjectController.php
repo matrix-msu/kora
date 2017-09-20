@@ -90,8 +90,8 @@ class ProjectController extends Controller {
      */
     public function request(Request $request) {
         $projects = array();
-        if(!is_null($request->pid)) {
-            foreach($request->pid as $pid) {
+        if(!is_null($request->pids)) {
+            foreach($request->pids as $pid) {
                 $project = self::getProject($pid);
                 if(!is_null($project))
                     array_push($projects, $project);

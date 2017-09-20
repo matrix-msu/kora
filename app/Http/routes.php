@@ -20,7 +20,6 @@ Route::get('/projects/import','ProjectController@importProjectView');
 Route::post('/projects/import','ImportController@importProject');
 Route::resource('projects', 'ProjectController');
 Route::post('projects/request', 'ProjectController@request');
-Route::post('projects/archive', 'ProjectController@request');
 Route::post('projects/{pid}/archive', 'ProjectController@setArchiveProject');
 
 //project group routes
