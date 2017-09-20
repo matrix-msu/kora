@@ -44,6 +44,19 @@ class FormController extends Controller {
 
         $project = ProjectController::getProject($pid);
         $users = User::lists('username', 'id')->all();
+        $currProjectAdmins = $project->adminGroup()->first()->users()->get();
+        $admins = User::where("admin","=",1)->get();
+        foreach($admins as $admin) {
+            if(array_key_exists($admin->id,$users)) {
+                unset($users[$admin->id]);
+            }
+        }
+        foreach($currProjectAdmins as $pAdmin) {
+            if(array_key_exists($pAdmin->id,$users)) {
+                unset($users[$pAdmin->id]);
+            }
+        }
+
 
         $presets = array();
         foreach(Form::where('preset', '=', 1, 'and', 'pid', '=', $pid)->get() as $form)
