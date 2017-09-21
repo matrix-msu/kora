@@ -32,7 +32,6 @@
   <div class="form-group">
     <div class="check-box-half">
       <input type="checkbox" value="1" id="active" class="check-box-input preset-input-js" name="active" />
-      <div class="check-box-background"></div>
       <span class="check"></span>
       <span class="placeholder">Apply Form Preset?</span>
     </div>

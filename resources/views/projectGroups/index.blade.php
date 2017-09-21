@@ -31,54 +31,96 @@
 
   <section class="permission-group-selection center permission-group-js permission-group-selection">
     @foreach($projectGroups as $index=>$projectGroup)
-      @if($project->adminGID == $projectGroup->id)
-        <div class="permission-group card {{ $index == 0 ? 'active' : '' }}" id="{{$projectGroup->id}}">
-          <div class="header {{ $index == 0 ? 'active' : '' }}">
-            <div class="left pl-m">
-              <i class="icon icon-star"></i>
+      <?php
+        $specialGroup = ($project->adminGID == $projectGroup->id) ||
+          ($projectGroup->name != $project->name." Default Group")
+      ?>
 
-              <a class="title inactive" href="#">
-                <span class="name">{{ str_replace($project->name." ", "", $projectGroup->name) }}</span>
-              </a>
+      <div class="group card {{ $index == 0 ? 'active' : '' }}" id="{{$projectGroup->id}}">
+        <div class="header {{ $index == 0 ? 'active' : '' }}">
+          <div class="left pl-m">
+            @if ($project->adminGID == $projectGroup->id)
+              <i class="icon icon-star pr-xs"></i>
+            @elseif ($projectGroup->name == $project->name." Default Group")
+              <i class="icon icon-shield pr-xs"></i>
+            @endif
+
+            <a class="title inactive" href="#">
+              <span class="name">{{ str_replace($project->name." ", "", $projectGroup->name) }}</span>
+            </a>
+          </div>
+
+          <div class="card-toggle-wrap">
+            <a href="#" class="card-toggle project-toggle-js">
+              <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
+          <div class="allowed-actions">
+            <div class="form-group action">
+              <div class="check-box-half check-box-rectangle">
+                <input type="checkbox"
+                       {{ $project->adminGID == $projectGroup->id ? 'checked disabled' : '' }}
+                       value="1" id="active"
+                       class="check-box-input preset-input-js"
+                       name="active" />
+                <span class="check"></span>
+                <span class="placeholder">Can Create Forms</span>
+              </div>
             </div>
 
-            <div class="card-toggle-wrap">
-              <a href="#" class="card-toggle project-toggle-js">
-                <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
-              </a>
+            <div class="form-group action">
+              <div class="check-box-half check-box-rectangle">
+                <input type="checkbox"
+                       {{ $project->adminGID == $projectGroup->id ? 'checked disabled' : '' }}
+                       value="1" id="active"
+                       class="check-box-input preset-input-js"
+                       name="active" />
+                <span class="check"></span>
+                <span class="placeholder">Can Edit Forms</span>
+              </div>
+            </div>
+
+            <div class="form-group action">
+              <div class="check-box-half check-box-rectangle">
+                <input type="checkbox"
+                       {{ $project->adminGID == $projectGroup->id ? 'checked disabled' : '' }}
+                       value="1" id="active"
+                       class="check-box-input preset-input-js"
+                       name="active" />
+                <span class="check"></span>
+                <span class="placeholder">Can Delete Forms</span>
+              </div>
             </div>
           </div>
 
-          <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
-            <div class="id">
-              <span class="attribute">Unique Project ID: </span>
-              <span>{{$project->slug}}</span>
-            </div>
+          <div class="description">
+            {{$project->description}}
+          </div>
 
-            <div class="description">
-              {{$project->description}}
-            </div>
-
-            <div class="admins">
-              <spa`n class="attribute">Project Admins: </span>
-              @foreach($project->adminGroup()->get() as $adminGroup)
-                <span>
-                  {{
-                    implode(
-                      array_map(
-                        create_function('$u', 'return $u->getFullNameAttribute();'),
-                        $adminGroup->users()->get()->all()
-                      ),
-                      ", "
-                    )
-                  }}
-                </span>
-              @endforeach
-            </div>
+          <div class="admins">
+            <spa`n class="attribute">Project Admins: </span>
+            @foreach($project->adminGroup()->get() as $adminGroup)
+              <span>
+                {{
+                  implode(
+                    array_map(
+                      create_function('$u', 'return $u->getFullNameAttribute();'),
+                      $adminGroup->users()->get()->all()
+                    ),
+                    ", "
+                  )
+                }}
+              </span>
+            @endforeach
+          </div>
 
 
-              <div class="footer">
-                <a class="quick-action edit-group-name-js underline-middle-hover left" href="#">
+            <div class="footer {{$specialGroup ? 'pb-sm' : ''}}">
+              @if (!$specialGroup)
+                <a class="quick-action edit-group-name-js left" href="#">
                   <i class="icon icon-trash"></i>
                 </a>
 
@@ -86,11 +128,10 @@
                   <i class="icon icon-edit-little"></i>
                   <span>Edit Group Name</span>
                 </a>
-              </div>
-            @else
-          </div>
+              @endif
+            </div>
         </div>
-      @endif
+      </div>
     @endforeach
   </section>
 @stop
