@@ -1,4 +1,4 @@
-.new-project-button {
+.new-object-button {
   margin: 40px auto 0;
   max-width: calc(#{ $max-site-width } - 600px);
   width: $max-site-width;
@@ -37,7 +37,7 @@
 }
 
 @media screen and (max-width: $max-mobile-width) {
-  .new-project-button {
+  .new-object-button {
     margin-top: 25px;
   }
 }

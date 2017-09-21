@@ -39,7 +39,7 @@
     <div class="footer">
       @if(\Auth::user()->canEditForms($project))
         <a class="quick-action underline-middle-hover" href="{{ action('FormController@edit',['pid' => $project->pid, 'fid' => $form->fid]) }}">
-          <i class="icon icon-edit"></i>
+          <i class="icon icon-edit-little"></i>
           <span>Edit Form Info</span>
         </a>
       @endif

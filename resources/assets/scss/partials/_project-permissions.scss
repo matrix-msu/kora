@@ -8,8 +8,6 @@
   margin: $navigation-height auto 0;
   width: 100%;
 
-  // @import 'projects/filters';
-  // @import 'projects/new-project';
-  // @import 'projects/project-selection';
+  @import 'project-permissions/permission-group-selection';
   // @import 'projects/foot';
 }

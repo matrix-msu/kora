@@ -37,7 +37,7 @@
       </div>
   </section>
 
-  <section class="new-form-button center">
+  <section class="new-object-button center">
     @if(\Auth::user()->canCreateForms($project))
       <form action="{{ action('FormController@create', ['pid' => $project->pid]) }}">
         @if(\Auth::user()->admin)
