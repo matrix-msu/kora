@@ -3,6 +3,8 @@
 use App\ComboListField;
 use App\Field;
 use App\Http\Requests\FieldRequest;
+use App\Http\Requests\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -160,6 +162,59 @@ class FieldController extends Controller {
 
         return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_success', 'field_updated');
 	}
+
+    /**
+     * Update the options for a particular field.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $flid - Field ID
+     * @param  Request $request
+     * @return JsonResponse
+     */
+    public function updateFlag($pid, $fid, $flid, Request $request){
+        if(!FieldController::validProjFormField($pid, $fid, $flid))
+            return response()->json(["status"=>false,"message"=>"field_invalid"],500);
+
+        $field = FieldController::getField($flid);
+        $flag = $request->flag;
+        $value = $request->value;
+
+        switch($flag) {
+            case "required":
+                $field->required = $value;
+                $field->save();
+                break;
+            case "searchable":
+                $field->searchable = $value;
+                $field->save();
+                break;
+            case "advsearch":
+                $field->advsearch = $value;
+                $field->save();
+                break;
+            case "extsearch":
+                $field->extsearch = $value;
+                $field->save();
+                break;
+            case "viewable":
+                $field->viewable = $value;
+                $field->save();
+                break;
+            case "viewresults":
+                $field->viewresults = $value;
+                $field->save();
+                break;
+            case "extview":
+                $field->extview = $value;
+                $field->save();
+                break;
+            default:
+                return response()->json(["status"=>false,"message"=>"invalid_field_flag"],500);
+        }
+
+        return response()->json(["status"=>true,"message"=>"field_flag_updated"],200);
+    }
 
     /**
      * Delete a field model.

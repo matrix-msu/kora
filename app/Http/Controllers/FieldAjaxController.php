@@ -44,7 +44,7 @@ class FieldAjaxController extends Controller {
      */
     public function validateComboListOpt($pid, $fid, $flid, Request $request) {
         if(!FieldController::validProjFormField($pid, $fid, $flid))
-            return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'field_invalid');
+            return response()->json(["status"=>false,"message"=>"field_invalid"],500);
 
         return ComboListField::validateComboListOpt($flid, $request);
     }
