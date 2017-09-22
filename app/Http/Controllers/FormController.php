@@ -72,7 +72,7 @@ class FormController extends Controller {
      * @return Redirect
      */
 	public function store(FormRequest $request) {
-        $form = Form::create($request->all());
+	    $form = Form::create($request->all());
 
         $form->save();
 
@@ -84,8 +84,8 @@ class FormController extends Controller {
         $form->adminGID = $adminGroup->id;
         $form->save();
 
-        if(isset($request->preset))
-            self::addPresets($form, $request->preset);
+        if($request->preset[0]!="")
+            self::addPresets($form, $request->preset[0]);
 
         return redirect('projects/'.$form->pid)->with('k3_global_success', 'form_created');
 	}
