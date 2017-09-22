@@ -54,35 +54,36 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
         $collToPage = array();
         $oldControlInfo = array();
         $assocControlCheck = array();
-        $numRecords = $con->query("select distinct id from p".$oldPid."Data where schemeid=".$this->sid)->num_rows;
+        $assocFile = array();
+        $numRecords = $con->query('select distinct id from p'.$oldPid.'Data where schemeid='.$this->sid)->num_rows;
 
         $table_array = $this->makeBackupTableArray($numRecords);
         if($table_array == false) { return;}
-        Log::info("Started creating records for ".$this->form->slug.".");
+        Log::info('Started creating records for '.$this->form->slug.'.');
 
         $row_id = DB::table('exodus_partial_progress')->insertGetId(
             $table_array
         );
 
         //build nodes based off of collections
-        $colls = $con->query("select * from collection where schemeid=".$this->sid." order by sequence");
+        $colls = $con->query('select * from collection where schemeid='.$this->sid.' order by sequence');
         $pIndex = 0;
         while($c = $colls->fetch_assoc()) {
             $page = new Page();
             $page->fid = $newForm->fid;
             $page->title = $c['name'];
             $page->sequence = $pIndex;
-            $pIndex++;
+            ++$pIndex;
 
             $page->save();
 
             $collToPage[$c['collid']] = $page->id;
             //Each page needs to keep track of its own sequence for fields
-            $collToPage[$c['collid']."_seq"] = 0;
+            $collToPage[$c['collid'].'_seq'] = 0;
         }
 
         //build all the fields for the form
-        $controls = $con->query("select * from p".$oldPid."Control where schemeid=".$this->sid." order by sequence");
+        $controls = $con->query('select * from p'.$oldPid.'Control where schemeid='.$this->sid.' order by sequence');
         while($c = $controls->fetch_assoc()) {
             if($c['name'] != 'systimestamp' && $c['name'] != 'recordowner') {
                 $type = $c['type'];
@@ -124,13 +125,13 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                             if($rows > 1)
                                 $multiline = 1;
 
-                            $newOpts = "[!Regex!]" . $regex . "[!Regex!][!MultiLine!]" . $multiline . "[!MultiLine!]";
+                            $newOpts = '[!Regex!]' . $regex . '[!Regex!][!MultiLine!]' . $multiline . '[!MultiLine!]';
                             $newDef = $def;
-                            $newType = "Text";
+                            $newType = 'Text';
                         } else if($textType == 'rich') {
-                            $newOpts = "";
+                            $newOpts = '';
                             $newDef = $def;
-                            $newType = "Rich Text";
+                            $newType = 'Rich Text';
                         }
                         break;
                     case 'MultiTextControl':
@@ -141,7 +142,8 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                         $defOpts = '';
                         if(isset($def[0])) {
                             $defOpts = $def[0];
-                            for($i = 1; $i < sizeof($def); $i++) {
+                            $size = sizeof($def);
+                            for($i = 1; $i < $size; ++$i) {
                                 $defOpts .= '[!]' . $def[$i];
                             }
                         }
@@ -150,9 +152,9 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                         else
                             $regex = '';
 
-                        $newOpts = "[!Regex!]" . $regex . "[!Regex!][!Options!]" . $defOpts . "[!Options!]";
+                        $newOpts = '[!Regex!]' . $regex . '[!Regex!][!Options!]' . $defOpts . '[!Options!]';
                         $newDef = $defOpts;
-                        $newType = "Generated List";
+                        $newType = 'Generated List';
                         break;
                     case 'DateControl':
                         if(!$blankOpts) {
@@ -176,14 +178,14 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                         }
                         $circa = 'No';
                         $for = 'MMDDYYYY';
-                        if($prefix=="circa") {$circa="Yes";}
-                        if($format=="MDY") {$for="MMDDYYYY";}
-                        else if($format=="DMY") {$for="DDMMYYYY";}
-                        else if($format=="YMD") {$for="YYYYMMDD";}
+                        if($prefix=='circa') {$circa='Yes';}
+                        if($format=='MDY') {$for='MMDDYYYY';}
+                        else if($format=='DMY') {$for='DDMMYYYY';}
+                        else if($format=='YMD') {$for='YYYYMMDD';}
 
-                        $newOpts = "[!Circa!]".$circa."[!Circa!][!Start!]".$startY."[!Start!][!End!]".$endY."[!End!][!Format!]".$for."[!Format!][!Era!]".$era."[!Era!]";
-                        $newDef = "[M]".$defMon."[M][D]".$defDay."[D][Y]".$defYear."[Y]";
-                        $newType = "Date";
+                        $newOpts = '[!Circa!]'.$circa.'[!Circa!][!Start!]'.$startY.'[!Start!][!End!]'.$endY.'[!End!][!Format!]'.$for.'[!Format!][!Era!]'.$era.'[!Era!]';
+                        $newDef = '[M]'.$defMon.'[M][D]'.$defDay.'[D][Y]'.$defYear.'[Y]';
+                        $newType = 'Date';
                         break;
                     case 'MultiDateControl':
                         if(!$blankOpts) {
@@ -196,22 +198,23 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                             $def = array();
                         }
 
-                        if(isset($def["date"]))
-                            $def = $def["date"];
+                        if(isset($def['date']))
+                            $def = $def['date'];
                         else
                             $def=array();
 
                         $defOpts = '';
                         if(isset($def[0])) {
-                            $defOpts = "Event 1: " . $def[0]->month . "/" . $def[0]->day . "/" . $def[0]->year . " - " . $def[0]->month . "/" . $def[0]->day . "/" . $def[0]->year;
-                            for($i = 1; $i < sizeof($def); $i++) {
-                                $defOpts .= '[!]' . "Event " . ($i + 1) . ": " . $def[$i]->month . "/" . $def[$i]->day . "/" . $def[$i]->year . " - " . $def[$i]->month . "/" . $def[$i]->day . "/" . $def[$i]->year;
+                            $defOpts = 'Event 1: ' . $def[0]->month . '/' . $def[0]->day . '/' . $def[0]->year . ' - ' . $def[0]->month . '/' . $def[0]->day . '/' . $def[0]->year;
+                            $size = sizeof($def);
+                            for($i = 1; $i < $size; ++$i) {
+                                $defOpts .= '[!]' . 'Event ' . ($i + 1) . ': ' . $def[$i]->month . '/' . $def[$i]->day . '/' . $def[$i]->year . ' - ' . $def[$i]->month . '/' . $def[$i]->day . '/' . $def[$i]->year;
                             }
                         }
 
-                        $newOpts = "[!Start!]".$startY."[!Start!][!End!]".$endY."[!End!][!Calendar!]No[!Calendar!]";
+                        $newOpts = '[!Start!]'.$startY.'[!Start!][!End!]'.$endY.'[!End!][!Calendar!]No[!Calendar!]';
                         $newDef = $defOpts;
-                        $newType = "Schedule";
+                        $newType = 'Schedule';
                         break;
                     case 'FileControl':
                         if(!$blankOpts)
@@ -225,13 +228,14 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                         $allOpts = '';
                         if(isset($allowed[0])) {
                             $allOpts = $allowed[0];
-                            for($i = 1; $i < sizeof($allowed); $i++) {
+                            $size = sizeof($allowed);
+                            for($i = 1; $i < $size; ++$i) {
                                 $allOpts .= '[!]' . $allowed[$i];
                             }
                         }
 
-                        $newOpts = "[!FieldSize!]".$maxSize."[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!]".$allOpts."[!FileTypes!]";
-                        $newType = "Documents";
+                        $newOpts = '[!FieldSize!]'.$maxSize.'[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!]'.$allOpts.'[!FileTypes!]';
+                        $newType = 'Documents';
                         break;
                     case 'ImageControl':
                         if(!$blankOpts)
@@ -245,16 +249,17 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                         $allOpts = '';
                         if(isset($allowed[0])) {
                             $allOpts = $allowed[0];
-                            for($i = 1; $i < sizeof($allowed); $i++) {
-                                if($allowed[$i] != "image/pjpeg" && $allowed[$i] != "image/x-png")
+                            $size = sizeof($allowed);
+                            for($i = 1; $i < $size; ++$i) {
+                                if($allowed[$i] != 'image/pjpeg' && $allowed[$i] != 'image/x-png')
                                     $allOpts .= '[!]' . $allowed[$i];
                             }
                         }
                         $thumbW = (int)$optXML->thumbWidth;
                         $thumbH = (int)$optXML->thumbHeight;
 
-                        $newOpts = "[!FieldSize!]".$maxSize."[!FieldSize!][!ThumbSmall!]".$thumbW."x".$thumbH."[!ThumbSmall!][!ThumbLarge!]".($thumbW*2)."x".($thumbH*2)."[!ThumbLarge!][!MaxFiles!]0[!MaxFiles!][!FileTypes!]".$allOpts."[!FileTypes!]";
-                        $newType = "Gallery";
+                        $newOpts = '[!FieldSize!]'.$maxSize.'[!FieldSize!][!ThumbSmall!]'.$thumbW.'x'.$thumbH.'[!ThumbSmall!][!ThumbLarge!]'.($thumbW*2).'x'.($thumbH*2).'[!ThumbLarge!][!MaxFiles!]0[!MaxFiles!][!FileTypes!]'.$allOpts.'[!FileTypes!]';
+                        $newType = 'Gallery';
                         break;
                     case 'ListControl':
                         if(!$blankOpts)
@@ -264,7 +269,8 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                         $allOpts = '';
                         if(isset($opts[0])) {
                             $allOpts = $opts[0];
-                            for($i = 1; $i < sizeof($opts); $i++) {
+                            $size = sizeof($opts);
+                            for($i = 1; $i < $size; ++$i) {
                                 $allOpts .= '[!]' . $opts[$i];
                             }
                         }
@@ -273,9 +279,9 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                         else
                             $def = '';
 
-                        $newOpts = "[!Options!]".$allOpts."[!Options!]";
+                        $newOpts = '[!Options!]'.$allOpts.'[!Options!]';
                         $newDef = $def;
-                        $newType = "List";
+                        $newType = 'List';
                         break;
                     case 'MultiListControl':
                         if(!$blankOpts)
@@ -285,7 +291,8 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                         $allOpts = '';
                         if(isset($opts[0])) {
                             $allOpts = $opts[0];
-                            for($i = 1; $i < sizeof($opts); $i++) {
+                            $size = sizeof($opts);
+                            for($i = 1; $i < $size; ++$i) {
                                 $allOpts .= '[!]' . $opts[$i];
                             }
                         }
@@ -296,14 +303,15 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                         $defOpts = '';
                         if(isset($def[0])) {
                             $defOpts = $def[0];
-                            for($i = 1; $i < sizeof($def); $i++) {
+                            $size = sizeof($def);
+                            for($i = 1; $i < $size; ++$i) {
                                 $defOpts .= '[!]' . $def[$i];
                             }
                         }
 
-                        $newOpts = "[!Options!]".$allOpts."[!Options!]";
+                        $newOpts = '[!Options!]'.$allOpts.'[!Options!]';
                         $newDef = $defOpts;
-                        $newType = "Multi-Select List";
+                        $newType = 'Multi-Select List';
                         break;
                     case 'AssociatorControl':
                         if(!$blankOpts)
@@ -313,8 +321,8 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
 
                         $assocControlCheck[$c['cid']] = $opts;
 
-                        $newOpts = "[!SearchForms!][!SearchForms!]";
-                        $newType = "Associator";
+                        $newOpts = '[!SearchForms!][!SearchForms!]';
+                        $newType = 'Associator';
                         break;
                 }
 
@@ -323,10 +331,10 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                 $field->pid = $newForm->pid;
                 $field->fid = $newForm->fid;
                 $field->page_id = $collToPage[$collid];
-                $field->sequence = $collToPage[$collid."_seq"];
+                $field->sequence = $collToPage[$collid.'_seq'];
                 $field->type = $newType;
                 $field->name = $c['name'];
-                $slug = str_replace(' ','_',$c['name']).'_'.$this->fieldSlugGenerator();
+                $slug = str_replace(' ','_',$c['name']).$this->fieldSlugGenerator();
                 while(Field::slugExists($slug)) {
                     $slug .= $this->fieldSlugGenerator();
                 }
@@ -351,7 +359,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
         foreach($assocControlCheck as $cid => $sids) {
             $flid = $oldControlInfo[$cid];
 
-            $optString = "[!SearchForms!]";
+            $optString = '[!SearchForms!]';
             $subOpt = array();
 
             $af = FieldController::getField($flid);
@@ -359,20 +367,20 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
             foreach($sids as $sid) {
                 if(isset($this->formArray[$sid])) {
                     $optFID = $this->formArray[$sid];
-                    $optVal = "[fid]" . $optFID . "[fid][search]1[search][flids][flids]";
+                    $optVal = '[fid]' . $optFID . '[fid][search]1[search][flids][flids]';
                     array_push($subOpt, $optVal);
                 }
             }
 
-            $optString .= implode("[!]",$subOpt);
-            $optString .= "[!SearchForms!]";
+            $optString .= implode('[!]',$subOpt);
+            $optString .= '[!SearchForms!]';
 
             $af->options = $optString;
             $af->save();
         }
 
         //Dublin Core stuff//////////////////////////////////////////
-        $dublins = $con->query("select dublinCoreFields from scheme where schemeid=".$this->sid);
+        $dublins = $con->query('select dublinCoreFields from scheme where schemeid='.$this->sid);
         $dubs = $dublins->fetch_assoc(); //only one possible row
         if(!is_null($dubs['dublinCoreFields'])) {
             //load the xml
@@ -403,7 +411,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
         Log::info('Iterating through data');
 
         //Record stuff//////////////////////////////////////////
-        $records = $con->query("select D.*, C.name from p".$oldPid."Data D left join p".$oldPid."Control C on D.cid=C.cid where D.schemeid=".$this->sid);
+        $records = $con->query('select D.*, C.name from p'.$oldPid.'Data D left join p'.$oldPid.'Control C on D.cid=C.cid where D.schemeid='.$this->sid);
         $oldKidToNewRid = array();
 
         while($r = $records->fetch_assoc()) {
@@ -416,7 +424,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                 $recModel->save();
 
                 //increment table
-                DB::table("exodus_partial_progress")->where("id", $row_id)->increment("progress", 1, ["updated_at" => Carbon::now()]);
+                DB::table('exodus_partial_progress')->where('id', $row_id)->increment('progress', 1, ['updated_at' => Carbon::now()]);
 
                 $oldKidToNewRid[$r['id']] = $recModel->rid;
             } else {
@@ -425,12 +433,12 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
 
             if($r['cid']==0) {
                 continue; //This is the reverse association list, so we can bounce
-            } else if($r['name']=="systimestamp") {
+            } else if($r['name']=='systimestamp') {
                 continue; //we don't want to save the timestamp
-            } else if($r['name']=="recordowner") {
+            } else if($r['name']=='recordowner') {
                 //get the original record owner for some consistency, defaults to current user
                 $email = '';
-                $equery = $con->query("select email from user where username='".$r['value']."'");
+                $equery = $con->query('select email from user where username=\''.$r['value'].'\'');
                 if(!$equery) {
                     //if we get here, it's most likely an old project/scheme where the record owner is not in control 2
                     $recModel->owner = 1;
@@ -517,7 +525,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                             $y = (int)$date->year;
                             $dateStr = 'Event '.$i.': '.$m.'/'.$d.'/'.$y.' - '.$m.'/'.$d.'/'.$y;
                             array_push($formattedDates,$dateStr);
-                            $i++;
+                            ++$i;
                         }
 
                         $sched = new ScheduleField();
@@ -609,13 +617,13 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                                 $tImage = new \Imagick($newPath . $realname);
                             } catch(\ImagickException $e) {
                                 $thumb = false;
-                                Log::info("Issue creating thumbnail for record ".$recModel->rid.".");
+                                Log::info('Issue creating thumbnail for record '.$recModel->rid.'.');
                             }
                             try {
                                 $mImage = new \Imagick($newPath . $realname);
                             } catch(\ImagickException $e) {
                                 $medium = false;
-                                Log::info("Issue creating medium thumbnail for record ".$recModel->rid.".");
+                                Log::info('Issue creating medium thumbnail for record '.$recModel->rid.'.');
                             }
 
                             //Size check
@@ -685,20 +693,23 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                         $assoc->save();
 
                         //We want to save the Typed Field that will have the data eventually, matched to its values in Kora 2 KID form
-                        $dataToWrite = json_encode([$assoc->id => $kids]);
-                        $filename = env('BASE_PATH').ExodusController::EXODUS_DATA_PATH."assoc_".$assoc->id.".json";
-                        file_put_contents($filename,$dataToWrite);
+                        $assocFile[$assoc->id] = $kids;
                 }
             }
         }
 
+        //We want to save the Typed Field that will have the data eventually, matched to its values in Kora 2 KID form
+        $dataToWrite = json_encode($assocFile);
+        $filename = env('BASE_PATH').ExodusController::EXODUS_DATA_PATH.'assoc_'.$this->sid.'.json';
+        file_put_contents($filename,$dataToWrite);
+
         //We want to save the conversion array of Kora 2 KIDs to Kora 3 RIDs for this scheme
         $dataToWrite = json_encode($oldKidToNewRid);
-        $filename = env('BASE_PATH').ExodusController::EXODUS_CONVERSION_PATH."kid_to_rid_".$this->sid.".json";
+        $filename = env('BASE_PATH').ExodusController::EXODUS_CONVERSION_PATH.'kid_to_rid_'.$this->sid.'.json';
         file_put_contents($filename,$dataToWrite);
 
         //Last but not least, record presets!!!!!!!!!
-        $recordPresets = $records = $con->query("select * from recordPreset where schemeid=".$this->sid);
+        $recordPresets = $records = $con->query('select * from recordPreset where schemeid='.$this->sid);
         while($rp = $recordPresets->fetch_assoc()) {
             $preset = new RecordPreset();
             $preset->rid = $oldKidToNewRid[$rp['kid']];
@@ -714,8 +725,8 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
         //End Record stuff//////////////////////////////////////
 
         //Breath now
-        Log::info("Done creating records for ".$this->form->slug.".");
-        DB::table("exodus_overall_progress")->where("id", $this->exodus_id)->increment("progress",1,["updated_at"=>Carbon::now()]);
+        Log::info('Done creating records for '.$this->form->slug.'.');
+        DB::table('exodus_overall_progress')->where('id', $this->exodus_id)->increment('progress',1,['updated_at'=>Carbon::now()]);
 
         mysqli_close($con);
     }
@@ -729,7 +740,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
         $valid = '0123456789';
 
         $password = '';
-        for($i = 0; $i < 4; $i++) {
+        for($i = 0; $i < 4; ++$i) {
             $password .= $valid[( rand() % 10 )];
         }
         return $password;
