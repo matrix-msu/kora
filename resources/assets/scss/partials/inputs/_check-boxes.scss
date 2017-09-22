@@ -71,17 +71,21 @@
 
     &::after {
       background: transparent;
-      border: 2px solid palette(white, base);
-      border-right: 0;
-      border-top: 0;
-      content: '';
-      height: 4px;
+      color: palette(white, base);
+      content: $icon-check;
+      font-family: 'Kora-Icons';
+      font-size: 11px;
+      -moz-osx-font-smoothing: grayscale;
+      -webkit-font-smoothing: antialiased;
+      font-style: normal;
+      font-variant: normal;
+      font-weight: normal;
       left: 6px;
-      opacity: 1;
+      line-height: 1;
       position: absolute;
-      top: 8px;
-      transform: rotate(-45deg);
-      width: 8px;
+      speak: none;
+      text-transform: none;
+      top: 7px;
     }
   }
 
@@ -127,6 +131,12 @@
 .check-box-half {
   position: relative;
 
+  &.check-box-rectangle {
+    .check {
+      border-radius: 5px;
+    }
+  }
+
   input[type=checkbox] {
     cursor: pointer;
     height: 25px;
@@ -135,36 +145,27 @@
     width: 100%;
     z-index: 2;
 
-    &:checked + .check-box-background + .check {
+    &:checked + .check {
       background-color: palette(green, accent);
     }
 
-    &:hover + .check-box-background + .check {
+    &:hover + .check {
       border: 1px solid palette(green, accent, .5);
       box-shadow: 0 7px 10px 0 palette(box-shadow, base, .05);
     }
 
-    &:checked + .check-box-background + .check + .placeholder,
-    &:hover + .check-box-background + .check + .placeholder {
+    &:checked + .check + .placeholder,
+    &:hover + .check + .placeholder {
       color: palette(green, accent);
     }
 
-    &:checked + .check-box-background + .check + .placeholder {
-      font-family: $ubuntu-medium;
+    &:checked + .check + .placeholder {
+      font-weight: 900;
     }
-  }
 
-  .check-box-background {
-    @include transition();
-
-    background: none;
-    border: 0;
-    box-shadow: none;
-    box-sizing: border-box;
-    height: 25px;
-    margin: 0 auto;
-    position: relative;
-    width: 100%;
+    &:disabled {
+      cursor: not-allowed;
+    }
   }
 
   .check {
@@ -184,17 +185,21 @@
 
     &::after {
       background: transparent;
-      border: 2px solid palette(white, base);
-      border-right: 0;
-      border-top: 0;
-      content: '';
-      height: 4px;
+      color: palette(white, base);
+      content: $icon-check;
+      font-family: 'Kora-Icons';
+      font-size: 11px;
+      -moz-osx-font-smoothing: grayscale;
+      -webkit-font-smoothing: antialiased;
+      font-style: normal;
+      font-variant: normal;
+      font-weight: normal;
       left: 6px;
-      opacity: 1;
+      line-height: 1;
       position: absolute;
-      top: 8px;
-      transform: rotate(-45deg);
-      width: 8px;
+      speak: none;
+      text-transform: none;
+      top: 7px;
     }
   }
 
@@ -205,10 +210,8 @@
     cursor: pointer;
     font-family: $ubuntu;
     font-size: 14px;
-    left: 35px;
-    position: absolute;
-    right: 0;
+    line-height: 25px;
+    padding-left: 32px;
     text-align: left;
-    top: 5px;
   }
 }

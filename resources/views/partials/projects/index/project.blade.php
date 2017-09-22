@@ -69,7 +69,7 @@
     @if ($active || $isCustom)
       <div class="footer">
         <a class="quick-action underline-middle-hover" href="{{ action('ProjectController@edit',['pid' => $project->pid]) }}">
-          <i class="icon icon-edit"></i>
+          <i class="icon icon-edit-little"></i>
           <span>Edit Project Info</span>
         </a>
 
@@ -86,7 +86,7 @@
     @else
     <div class="footer">
       <a class="quick-action underline-middle-hover" href="#">
-        <i class="icon icon-edit"></i>
+        <i class="icon icon-edit-little"></i>
         <span>Unarchive</span>
       </a>
     </div>

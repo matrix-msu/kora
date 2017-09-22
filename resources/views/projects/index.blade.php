@@ -31,7 +31,7 @@
       </div>
   </section>
 
-  <section class="new-project-button center">
+  <section class="new-object-button center">
     <form action="{{ action('ProjectController@create') }}">
       @if(\Auth::user()->admin)
         <input type="submit" value="Create a New Project">

@@ -1,141 +1,283 @@
-@extends('app')
+@extends('app', ['page_title' => "Permissions - {$project->name}", 'page_class' => 'project-permissions'])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $project->pid])
 @stop
 
-@section('content')
-    <div class="container">
-        <div class="row">
-            <div class="col-md-10 col-md-offset-1">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3>{{trans('projectGroups_index.manage')}}</h3>
-                    </div>
+@section('stylesheets')
+  <!-- No Additional Stylesheets Necessary -->
+@stop
 
-                    <div class="panel-body">
+@section('header')
+  <section class="head">
+      <div class="inner-wrap center">
+        <h1 class="title">
+          <i class="icon icon-project-permissions"></i>
+          <span>Project Permissions</span>
+        </h1>
+        <p class="description">Select a permission group below or create a new permission group to get started.</p>
+      </div>
+  </section>
+@stop
+
+@section('body')
+  <section class="new-object-button center">
+    <form action="{{ action('ProjectController@create') }}">
+      @if(\Auth::user()->admin)
+        <input type="submit" value="Create a New Permissions Group">
+      @endif
+    </form>
+  </section>
+
+  <section class="permission-group-selection center permission-group-js permission-group-selection">
+    @foreach($projectGroups as $index=>$projectGroup)
+      <?php
+        $specialGroup = ($project->adminGID == $projectGroup->id) ||
+          ($projectGroup->name != $project->name." Default Group")
+      ?>
+
+      <div class="group card {{ $index == 0 ? 'active' : '' }}" id="{{$projectGroup->id}}">
+        <div class="header {{ $index == 0 ? 'active' : '' }}">
+          <div class="left pl-m">
+            @if ($project->adminGID == $projectGroup->id)
+              <i class="icon icon-star pr-xs"></i>
+            @elseif ($projectGroup->name == $project->name." Default Group")
+              <i class="icon icon-shield pr-xs"></i>
+            @endif
+
+            <a class="title inactive" href="#">
+              <span class="name">{{ str_replace($project->name." ", "", $projectGroup->name) }}</span>
+            </a>
+          </div>
+
+          <div class="card-toggle-wrap">
+            <a href="#" class="card-toggle project-toggle-js">
+              <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
+          <div class="allowed-actions">
+            <div class="form-group action">
+              <div class="check-box-half check-box-rectangle">
+                <input type="checkbox"
+                       {{ $project->adminGID == $projectGroup->id ? 'checked disabled' : '' }}
+                       value="1" id="active"
+                       class="check-box-input preset-input-js"
+                       name="active" />
+                <span class="check"></span>
+                <span class="placeholder">Can Create Forms</span>
+              </div>
+            </div>
+
+            <div class="form-group action">
+              <div class="check-box-half check-box-rectangle">
+                <input type="checkbox"
+                       {{ $project->adminGID == $projectGroup->id ? 'checked disabled' : '' }}
+                       value="1" id="active"
+                       class="check-box-input preset-input-js"
+                       name="active" />
+                <span class="check"></span>
+                <span class="placeholder">Can Edit Forms</span>
+              </div>
+            </div>
+
+            <div class="form-group action">
+              <div class="check-box-half check-box-rectangle">
+                <input type="checkbox"
+                       {{ $project->adminGID == $projectGroup->id ? 'checked disabled' : '' }}
+                       value="1" id="active"
+                       class="check-box-input preset-input-js"
+                       name="active" />
+                <span class="check"></span>
+                <span class="placeholder">Can Delete Forms</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="description">
+            {{$project->description}}
+          </div>
+
+          <div class="admins">
+            <spa`n class="attribute">Project Admins: </span>
+            @foreach($project->adminGroup()->get() as $adminGroup)
+              <span>
+                {{
+                  implode(
+                    array_map(
+                      create_function('$u', 'return $u->getFullNameAttribute();'),
+                      $adminGroup->users()->get()->all()
+                    ),
+                    ", "
+                  )
+                }}
+              </span>
+            @endforeach
+          </div>
 
 
+            <div class="footer {{$specialGroup ? 'pb-sm' : ''}}">
+              @if (!$specialGroup)
+                <a class="quick-action edit-group-name-js left" href="#">
+                  <i class="icon icon-trash"></i>
+                </a>
 
-                            @foreach($projectGroups as $projectGroup)
-                                @if($project->adminGID == $projectGroup->id)
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading">{{$projectGroup->name}}</div>
-
-                                        <div class="collapseTest" style="display: none">
-                                            <div class="panel-body">
-                                                <span>{{trans('projectGroups_index.users')}}:</span>
-                                                    <ul class="list-group" id="list{{$projectGroup->id}}">
-                                                @foreach($projectGroup->users()->get() as $user)
-                                                        <li class="list-group-item" id="list-element{{$projectGroup->id}}{{$user->id}}" name="{{$user->username}}">
-                                                            {{$user->username}} @if(\Auth::user()->id != $user->id)
-                                                                <a href="javascript:void(0)" onclick="removeUser({{$projectGroup->id}}, {{$user->id}}, {{$project->pid}})">[X]</a>
-                                                                                @endif
-                                                        </li>
-                                                @endforeach
-                                                    </ul>
-                                                <select onchange="addUser({{$projectGroup->id}}, {{$project->pid}})" id="dropdown{{$projectGroup->id}}">
-                                                    <option selected value="0">{{trans('projectGroups_index.add')}}</option>
-                                                    @foreach($all_users as $user)
-                                                        @if($projectGroup->hasUser($user))
-                                                        @else
-                                                            @if(\Auth::user()->id != $user->id)
-                                                                <option id="{{$user->id}}">{{$user->username}}</option>
-                                                            @endif
-                                                        @endif
-                                                    @endforeach
-                                                </select>
-                                                <hr/>
-                                                <div id="checkboxes">
-                                                    <span>{{trans('projectGroups_index.permissions')}}:</span>
-                                                    <ul class="list-group" id="perm-list{{$projectGroup->id}}">
-                                                        <li class="list-group-item">{{trans('projectGroups_index.create')}}: <input type="checkbox" id="create" checked disabled></li>
-                                                        <li class="list-group-item">{{trans('projectGroups_index.edit')}}: <input type="checkbox" id="edit" checked disabled></li>
-                                                        <li class="list-group-item">{{trans('projectGroups_index.delete')}}: <input type="checkbox" id="delete" checked disabled></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endif
-                            @endforeach
-
-                            @foreach($projectGroups as $projectGroup)
-                                @if($project->adminGID != $projectGroup->id)
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading">
-                                            @if($projectGroup->name == $project->name." Default Group")
-                                                {{$projectGroup->name}}
-                                            @else
-                                            <div class="projectGroupName">
-                                                {{$projectGroup->name}} <a class="nameEdit">[EDIT]</a>
-                                            </div>
-                                            <div class="projectGroupEdit" style="display:none">
-                                                <input type="text" class="newGroupName" placeholder="{{$projectGroup->name}}" gid="{{$projectGroup->id}}">
-                                                <a class="nameSave">[SAVE]</a> <a class="nameRevert">[X]</a>
-                                            </div>
-                                            @endif
-                                        </div>
-
-                                        <div class="collapseTest" style="display: none">
-                                            <div class="panel-body">
-                                                <span>{{trans('projectGroups_index.users')}}:</span>
-                                                <ul class="list-group" id="list{{$projectGroup->id}}">
-                                                    @foreach($projectGroup->users()->get() as $user)
-                                                        <li class="list-group-item" id="list-element{{$projectGroup->id}}{{$user->id}}" name="{{$user->username}}">
-                                                            {{$user->username}} <a href="javascript:void(0)" onclick="removeUser({{$projectGroup->id}}, {{$user->id}}, {{$project->pid}})">[X]</a>
-                                                        </li>
-                                                    @endforeach
-                                                </ul>
-
-                                                <select onchange="addUser({{$projectGroup->id}}, {{$project->pid}})" id="dropdown{{$projectGroup->id}}">
-                                                    <option selected value="0">{{trans('projectGroups_index.add')}}</option>
-                                                    @foreach($all_users as $user)
-                                                        @if($projectGroup->hasUser($user))
-                                                        @else
-                                                            @if(\Auth::user()->id != $user->id)
-                                                                <option id="{{$user->id}}">{{$user->username}}</option>
-                                                            @endif
-                                                        @endif
-                                                    @endforeach
-                                                </select>
-                                            <hr/>
-                                            <div id="checkboxes">
-                                                <span>{{trans('projectGroups_index.permissions')}}:</span>
-                                                <ul class="list-group" id="perm-list{{$projectGroup->id}}">
-                                                    <li class="list-group-item">{{trans('projectGroups_index.create')}}:
-                                                        <input type="checkbox" id="create{{$projectGroup->id}}" @if($projectGroup->create) checked="checked" @endif onclick="updatePermissions({{$projectGroup->id}})">
-                                                    </li>
-                                                    <li class="list-group-item">{{trans('projectGroups_index.edit')}}:
-                                                        <input type="checkbox" id="edit{{$projectGroup->id}}" @if($projectGroup->edit) checked="checked" @endif onclick="updatePermissions({{$projectGroup->id}})">
-                                                    </li>
-                                                    <li class="list-group-item">{{trans('projectGroups_index.delete')}}:
-                                                        <input type="checkbox" id="delete{{$projectGroup->id}}" @if($projectGroup->delete) checked="checked" @endif onclick="updatePermissions({{$projectGroup->id}})">
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                            @if($projectGroup->name != $project->name." Default Group")
-                                            <div class="panel-footer">
-                                                <a href="javascript:void(0)" onclick="deleteProjectGroup({{$projectGroup->id}})">[{{trans('projectGroups_index.deleteproj')}}]</a>
-                                            </div>
-                                            @endif
-                                        </div>
-                                    </div>
-                                @endif
-                            @endforeach
-
-                        <hr/>
-
-                        <h3>{{trans('projectGroups_index.createproj')}}</h3>
-
-                        @include('partials.newProjectGroup')
-
-                    </div>
-                </div>
+                <a class="quick-action edit-group-name-js underline-middle-hover" href="#">
+                  <i class="icon icon-edit-little"></i>
+                  <span>Edit Group Name</span>
+                </a>
+              @endif
             </div>
         </div>
+      </div>
+    @endforeach
+  </section>
+@stop
+
+@section('footer')
+
+@stop
+
+@section('javascripts')
+  @include('partials.projectGroups.javascripts')
+
+  <script type="text/javascript">
+    var CSRFToken = '{{ csrf_token() }}';
+  </script>
+@stop
+
+
+@section('content')
+  <div class="container">
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3>{{trans('projectGroups_index.manage')}}</h3>
+          </div>
+
+          <div class="panel-body">
+            @foreach($projectGroups as $projectGroup)
+              @if($project->adminGID == $projectGroup->id)
+                <div class="panel panel-default">
+                  <div class="collapseTest" style="display: none">
+                    <div class="panel-body">
+                      <span>{{trans('projectGroups_index.users')}}:</span>
+                      <ul class="list-group" id="list{{$projectGroup->id}}">
+                        @foreach($projectGroup->users()->get() as $user)
+                          <li class="list-group-item" id="list-element{{$projectGroup->id}}{{$user->id}}" name="{{$user->username}}">
+                            {{$user->username}}
+                            @if(\Auth::user()->id != $user->id)
+                              <a href="javascript:void(0)" onclick="removeUser({{$projectGroup->id}}, {{$user->id}}, {{$project->pid}})">[X]</a>
+                            @endif
+                          </li>
+                        @endforeach
+                      </ul>
+
+                      <select onchange="addUser({{$projectGroup->id}}, {{$project->pid}})" id="dropdown{{$projectGroup->id}}">
+                        <option selected value="0">{{trans('projectGroups_index.add')}}</option>
+                        @foreach($all_users as $user)
+                          @if($projectGroup->hasUser($user))
+                          @else
+                            @if(\Auth::user()->id != $user->id)
+                              <option id="{{$user->id}}">{{$user->username}}</option>
+                            @endif
+                          @endif
+                        @endforeach
+                      </select>
+                      <hr/>
+                      <div id="checkboxes">
+                        <span>{{trans('projectGroups_index.permissions')}}:</span>
+                        <ul class="list-group" id="perm-list{{$projectGroup->id}}">
+                          <li class="list-group-item">{{trans('projectGroups_index.create')}}: <input type="checkbox" id="create" checked disabled></li>
+                          <li class="list-group-item">{{trans('projectGroups_index.edit')}}: <input type="checkbox" id="edit" checked disabled></li>
+                          <li class="list-group-item">{{trans('projectGroups_index.delete')}}: <input type="checkbox" id="delete" checked disabled></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              @endif
+            @endforeach
+
+                  @foreach($projectGroups as $projectGroup)
+                      @if($project->adminGID != $projectGroup->id)
+                          <div class="panel panel-default">
+                              <div class="panel-heading">
+                                  @if($projectGroup->name == $project->name." Default Group")
+                                      {{$projectGroup->name}}
+                                  @else
+                                  <div class="projectGroupName">
+                                      {{$projectGroup->name}} <a class="nameEdit">[EDIT]</a>
+                                  </div>
+                                  <div class="projectGroupEdit" style="display:none">
+                                      <input type="text" class="newGroupName" placeholder="{{$projectGroup->name}}" gid="{{$projectGroup->id}}">
+                                      <a class="nameSave">[SAVE]</a> <a class="nameRevert">[X]</a>
+                                  </div>
+                                  @endif
+                              </div>
+
+                              <div class="collapseTest" style="display: none">
+                                  <div class="panel-body">
+                                      <span>{{trans('projectGroups_index.users')}}:</span>
+                                      <ul class="list-group" id="list{{$projectGroup->id}}">
+                                          @foreach($projectGroup->users()->get() as $user)
+                                              <li class="list-group-item" id="list-element{{$projectGroup->id}}{{$user->id}}" name="{{$user->username}}">
+                                                  {{$user->username}} <a href="javascript:void(0)" onclick="removeUser({{$projectGroup->id}}, {{$user->id}}, {{$project->pid}})">[X]</a>
+                                              </li>
+                                          @endforeach
+                                      </ul>
+
+                                      <select onchange="addUser({{$projectGroup->id}}, {{$project->pid}})" id="dropdown{{$projectGroup->id}}">
+                                          <option selected value="0">{{trans('projectGroups_index.add')}}</option>
+                                          @foreach($all_users as $user)
+                                              @if($projectGroup->hasUser($user))
+                                              @else
+                                                  @if(\Auth::user()->id != $user->id)
+                                                      <option id="{{$user->id}}">{{$user->username}}</option>
+                                                  @endif
+                                              @endif
+                                          @endforeach
+                                      </select>
+                                  <hr/>
+                                  <div id="checkboxes">
+                                      <span>{{trans('projectGroups_index.permissions')}}:</span>
+                                      <ul class="list-group" id="perm-list{{$projectGroup->id}}">
+                                          <li class="list-group-item">{{trans('projectGroups_index.create')}}:
+                                              <input type="checkbox" id="create{{$projectGroup->id}}" @if($projectGroup->create) checked="checked" @endif onclick="updatePermissions({{$projectGroup->id}})">
+                                          </li>
+                                          <li class="list-group-item">{{trans('projectGroups_index.edit')}}:
+                                              <input type="checkbox" id="edit{{$projectGroup->id}}" @if($projectGroup->edit) checked="checked" @endif onclick="updatePermissions({{$projectGroup->id}})">
+                                          </li>
+                                          <li class="list-group-item">{{trans('projectGroups_index.delete')}}:
+                                              <input type="checkbox" id="delete{{$projectGroup->id}}" @if($projectGroup->delete) checked="checked" @endif onclick="updatePermissions({{$projectGroup->id}})">
+                                          </li>
+                                      </ul>
+                                  </div>
+                              </div>
+                                  @if($projectGroup->name != $project->name." Default Group")
+                                  <div class="panel-footer">
+                                      <a href="javascript:void(0)" onclick="deleteProjectGroup({{$projectGroup->id}})">[{{trans('projectGroups_index.deleteproj')}}]</a>
+                                  </div>
+                                  @endif
+                              </div>
+                          </div>
+                      @endif
+                  @endforeach
+
+              <hr/>
+
+              <h3>{{trans('projectGroups_index.createproj')}}</h3>
+
+              @include('partials.newProjectGroup')
+
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 @stop
 
 @section('footer')

@@ -54,17 +54,17 @@ function setFixedElement(load = false) {
 $(document).ready(function() {
   setFixedElement(true);
 
-  var $status = $('.status-js');
-  var $navigation = $('.navigation-js')
-  setTimeout(function() {
-    $status.addClass('active');
-    $navigation.addClass('show-status');
-
-    // setTimeout(function() {
-    //   $status.removeClass('active');
-    //   $navigation.removeClass('show-status');
-    // }, 4000);
-  }, 2000);
+  // var $status = $('.status-js');
+  // var $navigation = $('.navigation-js')
+  // setTimeout(function() {
+  //   $status.addClass('active');
+  //   $navigation.addClass('show-status');
+  //
+  //   // setTimeout(function() {
+  //   //   $status.removeClass('active');
+  //   //   $navigation.removeClass('show-status');
+  //   // }, 4000);
+  // }, 2000);
 
   var once = 0;
   $('.status-dismiss-js').on('click', function(e) {

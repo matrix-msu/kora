@@ -132,9 +132,9 @@ i {
   }
 }
 
-.icon-edit {
+.icon-edit-little {
   &::before {
-    content: $icon-edit;
+    content: $icon-edit-little;
   }
 }
 
@@ -299,5 +299,86 @@ i {
 .icon-trash {
   &::before {
     content: $icon-trash;
+  }
+}
+
+.icon-field-new {
+  &::before {
+    content: $icon-field-new;
+  }
+}
+.icon-field {
+  &::before {
+    content: $icon-field;
+  }
+}
+.icon-zap {
+  &::before {
+    content: $icon-zap;
+  }
+}
+.icon-form-scheme-importer {
+  &::before {
+    content: $icon-form-scheme-importer;
+  }
+}
+.icon-form-record-search {
+  &::before {
+    content: $icon-form-record-search;
+  }
+}
+.icon-form-associations {
+  &::before {
+    content: $icon-form-associations;
+  }
+}
+.icon-form-permissions {
+  &::before {
+    content: $icon-form-permissions;
+  }
+}
+.icon-form-ddit {
+  &::before {
+    content: $icon-form-ddit;
+  }
+}
+.icon-form-import {
+  &::before {
+    content: $icon-form-import;
+  }
+}
+.icon-form-new {
+  &::before {
+    content: $icon-form-new;
+  }
+}
+.icon-form {
+  &::before {
+    content: $icon-form;
+  }
+}
+.icon-shield {
+  &::before {
+    content: $icon-shield;
+  }
+}
+.icon-user-add {
+  &::before {
+    content: $icon-user-add;
+  }
+}
+.icon-star {
+  &::before {
+    content: $icon-star;
+  }
+}
+.icon-check {
+  &::before {
+    content: $icon-check;
+  }
+}
+.icon-edit {
+  &::before {
+    content: $icon-edit;
   }
 }
