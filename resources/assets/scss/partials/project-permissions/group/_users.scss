@@ -1,0 +1,59 @@
+.users {
+  .user {
+    @include transition();
+
+    background-color: palette(white, base);
+    border: 1px solid palette(gray, slate, .1);
+    border-radius: 5px;
+    box-shadow: 0 3px 5px 0 palette(box-shadow, base, .03);
+    color: palette(gray, text);
+    display: inline-block;
+    font-family: $ubuntu;
+    font-size: 14px;
+    margin: 0 10px 10px 0;
+
+    a {
+      @include transition();
+
+      display: inline-block;
+    }
+
+    .name {
+      padding: 7px 0 7px 10px;
+    }
+
+    .name:hover {
+      color: palette(green, accent);
+    }
+
+    .cancel:hover .icon-cancel:hover {
+      opacity: 1;
+      transform: scale($transform-scale-multiplier);
+    }
+
+    .icon-cancel {
+      @include transition();
+
+      display: block;
+      font-size: 10px;
+      opacity: .2;
+      padding: 10px;
+    }
+
+    &:hover {
+      box-shadow: 0 6px 12px 0 palette(box-shadow, base, .06);
+    }
+  }
+
+  .user-add .icon {
+    @include transition();
+    
+    color: palette(green, accent, .6);
+    display: inline-block;
+  }
+
+  .user-add:hover .icon {
+    opacity: 1;
+    transform: scale($transform-scale-multiplier);
+  }
+}

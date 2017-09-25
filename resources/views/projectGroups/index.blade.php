@@ -33,7 +33,7 @@
     @foreach($projectGroups as $index=>$projectGroup)
       <?php
         $specialGroup = ($project->adminGID == $projectGroup->id) ||
-          ($projectGroup->name != $project->name." Default Group")
+          ($projectGroup->name == $project->name . " Default Group")
       ?>
 
       <div class="group card {{ $index == 0 ? 'active' : '' }}" id="{{$projectGroup->id}}">
@@ -96,27 +96,20 @@
             </div>
           </div>
 
-          <div class="description">
-            {{$project->description}}
-          </div>
+          <div class="users">
+            @foreach($projectGroup->users()->get() as $user)
+              <div class="user">
+                <a href="#" class="name">{{ $user->first_name }} {{ $user->last_name }}</a>
 
-          <div class="admins">
-            <spa`n class="attribute">Project Admins: </span>
-            @foreach($project->adminGroup()->get() as $adminGroup)
-              <span>
-                {{
-                  implode(
-                    array_map(
-                      create_function('$u', 'return $u->getFullNameAttribute();'),
-                      $adminGroup->users()->get()->all()
-                    ),
-                    ", "
-                  )
-                }}
-              </span>
+                <a href="#" class="cancel" onclick="removeUser({{$projectGroup->id}}, {{$user->id}}, {{$project->pid}})">
+                  <i class="icon icon-cancel"></i>
+                </a>
+              </div>
             @endforeach
+            <a href="#" class="user-add">
+              <i class="icon icon-user-add"></i>
+            </a>
           </div>
-
 
             <div class="footer {{$specialGroup ? 'pb-sm' : ''}}">
               @if (!$specialGroup)
