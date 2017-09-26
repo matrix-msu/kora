@@ -33,6 +33,7 @@ class Field extends Model {
         'desc',
         'required',
         'searchable',
+        'advsearch',
         'extsearch',
         'viewable',
         'viewresults',
@@ -108,6 +109,15 @@ class Field extends Model {
     }
 
     /**
+     * Advanced Search variable getter.
+     *
+     * @return bool - Is advanced searchable
+     */
+    public function isAdvancedSearchable() {
+        return $this->advsearch;
+    }
+
+    /**
      * Searchable variable getter.
      *
      * @return bool - Is searchable externally
@@ -145,6 +155,7 @@ class Field extends Model {
      */
     public function updateSearchable(Request $request) {
         $this->searchable = $request->searchable;
+        $this->advsearch = $request->advsearch;
         $this->extsearch = $request->extsearch;
         $this->viewable = $request->viewable;
         $this->viewresults = $request->viewresults;

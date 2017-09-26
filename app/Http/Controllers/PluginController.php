@@ -342,6 +342,7 @@ class PluginController extends Controller {
             $field->desc = $fieldArray->desc;
             $field->required = $fieldArray->required;
             $field->searchable = $fieldArray->searchable;
+            $field->advsearch = $fieldArray->advsearch;
             $field->extsearch = $fieldArray->extsearch;
             $field->viewable = $fieldArray->viewable;
             $field->viewresults = $fieldArray->viewresults;

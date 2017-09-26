@@ -27,6 +27,7 @@ class CreateFieldsTable extends Migration {
             $table->string('desc');
             $table->boolean('required');
 			$table->boolean('searchable');
+			$table->boolean('advsearch');
 			$table->boolean('extsearch');
 			$table->boolean('viewable');
 			$table->boolean('viewresults');

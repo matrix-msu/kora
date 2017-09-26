@@ -333,6 +333,7 @@ class FormController extends Controller {
             $new->desc = $field->desc;
             $new->required = $field->required;
             $new->searchable = $field->searchable;
+            $new->advsearch = $field->advsearch;
             $new->extsearch = $field->extsearch;
             $new->viewable = $field->viewable;
             $new->viewresults = $field->viewresults;

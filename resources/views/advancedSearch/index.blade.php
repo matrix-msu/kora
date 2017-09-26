@@ -10,7 +10,7 @@
 <span><h1>{{trans('advanced_search.title')}}</h1></span>
 <form method="POST" name="advanced_search" action="{{action("AdvancedSearchController@search", ["pid" => $pid, "fid" => $fid])}}">
 @foreach($fields as $field)
-    @if($field->searchable)
+    @if($field->advsearch)
         @include("advancedSearch.searchBoxes." . strtolower($field->type), $field)
     @endif
 @endforeach

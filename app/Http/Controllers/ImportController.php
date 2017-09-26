@@ -658,6 +658,7 @@ class ImportController extends Controller {
             $field->desc = $fieldArray->desc;
             $field->required = $fieldArray->required;
             $field->searchable = $fieldArray->searchable;
+            $field->advsearch = $fieldArray->advsearch;
             $field->extsearch = $fieldArray->extsearch;
             $field->viewable = $fieldArray->viewable;
             $field->viewresults = $fieldArray->viewresults;
@@ -763,6 +764,7 @@ class ImportController extends Controller {
                         $desc = $control->Description->__toString();
                         $req = (int)$control->Required;
                         $search = (int)$control->Searchable;
+                        $advsearch = (int)$control->advSearchable;
                         $showresults = (int)$control->showInResults;
                         $options = $control->options->__toString();
                         $optXML = simplexml_load_string($options);
@@ -924,6 +926,7 @@ class ImportController extends Controller {
                         $field->desc = $desc;
                         $field->required = $req;
                         $field->searchable = $search;
+                        $field->advsearch = $advsearch;
                         $field->extsearch = $search;
                         $field->viewable = $showresults;
                         $field->viewresults = $showresults;
@@ -1289,6 +1292,7 @@ class ImportController extends Controller {
             $field->desc = $fieldArray->desc;
             $field->required = $fieldArray->required;
             $field->searchable = $fieldArray->searchable;
+            $field->advsearch = $fieldArray->advsearch;
             $field->extsearch = $fieldArray->extsearch;
             $field->viewable = $fieldArray->viewable;
             $field->viewresults = $fieldArray->viewresults;

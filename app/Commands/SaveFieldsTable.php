@@ -56,6 +56,7 @@ class SaveFieldsTable extends Command implements SelfHandling, ShouldQueue {
                 $individual_field_data->put("desc", $field->desc);
                 $individual_field_data->put("required", $field->required);
                 $individual_field_data->put("searchable", $field->searchable);
+                $individual_field_data->put("advsearch", $field->advsearch);
                 $individual_field_data->put("extsearch", $field->extsearch);
                 $individual_field_data->put("viewable", $field->viewable);
                 $individual_field_data->put("viewresults", $field->viewresults);

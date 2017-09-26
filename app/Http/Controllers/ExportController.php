@@ -214,6 +214,7 @@ class ExportController extends Controller {
             $fieldArray['desc'] = $field->desc;
             $fieldArray['required'] = $field->required;
             $fieldArray['searchable'] = $field->searchable;
+            $fieldArray['advsearch'] = $field->advsearch;
             $fieldArray['extsearch'] = $field->extsearch;
             $fieldArray['viewable'] = $field->viewable;
             $fieldArray['viewresults'] = $field->viewresults;

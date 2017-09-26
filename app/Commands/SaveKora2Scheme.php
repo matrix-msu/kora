@@ -91,6 +91,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                 $desc = $c['description'];
                 $req = $c['required'];
                 $search = $c['searchable'];
+                $advsearch = $c['advSearchable'];
                 $showresults = $c['showInResults'];
                 $options = $c['options'];
                 ///CHECKS TO CLEAN UP XML ISSUES FROM OLD KORA
@@ -342,6 +343,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                 $field->desc = $desc;
                 $field->required = $req;
                 $field->searchable = $search;
+                $field->advSearch = $advsearch;
                 $field->extsearch = $search;
                 $field->viewable = $showresults;
                 $field->viewresults = $showresults;
