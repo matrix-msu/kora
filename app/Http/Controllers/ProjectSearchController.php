@@ -255,7 +255,10 @@ class ProjectSearchController extends Controller {
         foreach($projResults as $project) {
             if(\Auth::user()->admin || \Auth::user()->inAProjectGroup($project)) {
                 $result = "<li>Go to Project: <a type=\"Project\" href=\"".action("ProjectController@show",["pid" => $project->pid])
-                    ."\">".$project->name." (".$project->slug.")</a></li>";
+                    ."\">".$project->name;
+                if(Project::where("name","=",$project->name)->count() > 1)
+                    $result .= " (".$project->slug.")";
+                $result .= "</a></li>";
                 array_push($returnArray,$result);
             }
         }
@@ -263,7 +266,10 @@ class ProjectSearchController extends Controller {
         foreach($formResults as $form) {
             if(\Auth::user()->admin || \Auth::user()->inAFormGroup($form)) {
                 $result = "<li>Go to Form: <a type=\"Form\" href=\"".action("FormController@show",["pid" => $form->pid, "fid" => $form->fid])
-                    ."\">".$form->name." (".$form->slug.")</a></li>";
+                    ."\">".$form->name;
+                if(Form::where("name","=",$form->name)->count() > 1)
+                    $result .= " (".$form->slug.")";
+                $result .= "</a></li>";
                 array_push($returnArray,$result);
             }
         }
@@ -272,7 +278,10 @@ class ProjectSearchController extends Controller {
             $form = FormController::getForm($field->flid);
             if(\Auth::user()->admin || \Auth::user()->inAFormGroup($form)) {
                 $result = "<li>Go to Field: <a type=\"Field\" href=\"".action("FieldController@show",["pid" => $field->pid, "fid" => $field->fid, "flid" => $field->flid])
-                    ."\">".$field->name." (".$field->slug.")</a></li>";
+                    ."\">".$field->name;
+                if(Field::where("name","=",$field->name)->count() > 1)
+                    $result .= " (".$field->slug.")";
+                $result .= "</a></li>";
                 array_push($returnArray,$result);
             }
         }
