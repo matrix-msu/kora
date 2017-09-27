@@ -209,33 +209,31 @@ class InstallController extends Controller {
             $envstrings->put("baseurl_storage",$storageurl);
         }
 
-		$env_layout = "APP_ENV=local
-			APP_DEBUG=true".
-			//APP_KEY=" . ENV("APP_KEY") . "\n
-            "
-			DB_HOST=" . $envstrings->get('db_host') . "\n" . "
-			DB_DATABASE=" . $envstrings->get('db_database') . "\n" . "
-			DB_USERNAME=" . $envstrings->get('db_username') . "\n" . "
-			DB_PASSWORD=" . $envstrings->get('db_password') . "\n" . "
-			DB_DEFAULT=" . $envstrings->get('db_driver') . "\n" . "
-			DB_PREFIX=" . $envstrings->get('db_prefix') . "\n
+		$env_layout = "APP_ENV=local\n".
+			"APP_DEBUG=true\n\n".
 
-			MAIL_HOST=" . $envstrings->get('mail_host') . "\n
-			MAIL_FROM_ADDRESS=" . $envstrings->get('mail_from_address') . "\n
-			MAIL_FROM_NAME=" . $envstrings->get('mail_from_name') . "\n
-			MAIL_USER=" . $envstrings->get('mail_username') . "\n
-			MAIL_PASSWORD=" . $envstrings->get('mail_password') . "\n
+            "DB_HOST=" . $envstrings->get('db_host') . "\n" .
+            "DB_DATABASE=" . $envstrings->get('db_database') . "\n" .
+            "DB_USERNAME=" . $envstrings->get('db_username') . "\n" .
+            "DB_PASSWORD=" . $envstrings->get('db_password') . "\n" .
+            "DB_DEFAULT=" . $envstrings->get('db_driver') . "\n" .
+            "DB_PREFIX=" . $envstrings->get('db_prefix') . "\n\n" .
 
-			CACHE_DRIVER=file
-			SESSION_DRIVER=file
+			"MAIL_HOST=" . $envstrings->get('mail_host') . "\n" .
+			"MAIL_FROM_ADDRESS=" . $envstrings->get('mail_from_address') . "\n" .
+            "MAIL_FROM_NAME=" . $envstrings->get('mail_from_name') . "\n" .
+            "MAIL_USER=" . $envstrings->get('mail_username') . "\n" .
+            "MAIL_PASSWORD=" . $envstrings->get('mail_password') . "\n\n" .
 
-			BASE_URL=" . $envstrings->get('baseurl_url') . "\n
-			STORAGE_URL=" . $envstrings->get('baseurl_storage') . "\n
-			BASE_PATH=" . $envstrings->get('basepath') . "\n
+            "CACHE_DRIVER=file\n".
+			"SESSION_DRIVER=file\n\n".
 
-			RECAPTCHA_PUBLIC_KEY=" . $envstrings->get('recaptcha_public_key') . "\n
-			RECAPTCHA_PRIVATE_KEY=" . $envstrings->get('recaptcha_private_key') . "\n
-			";
+			"BASE_URL=" . $envstrings->get('baseurl_url') . "\n" .
+            "STORAGE_URL=" . $envstrings->get('baseurl_storage') . "\n" .
+            "BASE_PATH=" . $envstrings->get('basepath') . "\n\n" .
+
+            "RECAPTCHA_PUBLIC_KEY=" . $envstrings->get('recaptcha_public_key') . "\n" .
+            "RECAPTCHA_PRIVATE_KEY=" . $envstrings->get('recaptcha_private_key');
 
 
 		if(file_exists('../.env') && $overwrite==false) {
