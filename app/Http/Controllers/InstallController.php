@@ -210,7 +210,7 @@ class InstallController extends Controller {
         }
 
 		$env_layout = "APP_ENV=local\n".
-			"APP_DEBUG=true\n\n".
+			"APP_DEBUG=false\n\n".
 
             "DB_HOST=" . $envstrings->get('db_host') . "\n" .
             "DB_DATABASE=" . $envstrings->get('db_database') . "\n" .
