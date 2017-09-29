@@ -56,6 +56,9 @@ Route::post('/exodus/user/unlock','ExodusController@unlockUsers');
 Route::post('/exodus/start','ExodusController@startExodus');
 Route::post('/exodus/finish','ExodusController@finishExodus'); //
 
+//Kora Publisher
+Route::get('/publish', 'PublishController@index');
+
 //token routes
 Route::get('/tokens', 'TokenController@index');
 Route::post('/tokens/create', 'TokenController@create');

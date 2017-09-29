@@ -1,0 +1,10 @@
+.publish-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu;
+  min-height: 100vh;
+}
+
+.publish {
+  margin: $navigation-height auto 0;
+  width: 100%;
+}
