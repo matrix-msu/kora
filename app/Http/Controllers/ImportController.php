@@ -390,8 +390,8 @@ class ImportController extends Controller {
             $originKid = $record['kid'];
             $originRid = explode('-', $originKid)[2];
 
-            foreach($record['Fields'] as $field) {
-                $fieldSlug = $matchup[$field['name']];
+            foreach($record['Fields'] as $slug => $field) {
+                $fieldSlug = $matchup[$slug];
                 $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
                 $type = $field['type'];
 

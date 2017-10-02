@@ -77,7 +77,7 @@ class RecordExporter(Exporter):
             if  self._output == "JSON":
                 record_dict = {
                     "kid": cursor.kid_from_rid(rid),
-                    "Fields": []
+                    "Fields": {}
                 }
 
                 if self._meta == "True":
@@ -87,7 +87,6 @@ class RecordExporter(Exporter):
                     for table in get_base_field_types():
                         for field in cursor.get_field_data(table, rid):
                             field_dict = {
-                                "name": stash[field["flid"]]["slug"],
                                 "type": stash[field["flid"]]["type"],
                             }
 
@@ -98,7 +97,7 @@ class RecordExporter(Exporter):
                                 else:
                                     field_dict.update(field_formatters[table]( field, stash[field["flid"]]["options"]))
 
-                                record_dict["Fields"].append(field_dict)
+                                record_dict["Fields"][stash[field["flid"]]["slug"]] = field_dict
                 else:
                     record_dict.pop("Fields")
 
