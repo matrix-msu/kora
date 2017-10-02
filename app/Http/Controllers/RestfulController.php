@@ -245,7 +245,7 @@ class RestfulController extends Controller {
                     $returnRIDS = $this->logic_recursive($logic,$resultSets);
                 }
                 //sort
-                if(!is_null($filters['sort'])) {
+                if(!is_null($filters['sort']) && !empty($returnRIDS)) {
                     $returnRIDS = $this->sort_rids($returnRIDS,$filters['sort']);
                     if(!$returnRIDS)
                         return response()->json(["status"=>false,"error"=>"Invalid field type or invalid field provided for sort in form: ". $form->name],500);
@@ -634,6 +634,8 @@ class RestfulController extends Controller {
             $rids = array_slice($rids,0,$filters['count']);
 
         $rids = json_encode($rids);
+        if($rids=="{\"Records\":[]}")
+            return $rids;
         $exec_string = env("BASE_PATH") . "python/api.py \"$rids\" \"$format\" '$fields' \"$meta\" \"$data\" \"$assoc\"";
         exec($exec_string, $output);
         return $output[0];

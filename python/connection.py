@@ -271,11 +271,12 @@ class Cursor:
         stmt = "SELECT `fid`, `flid`, `rid`" + get_data_names(table) + " FROM " + self._prefix + table + " WHERE `rid` = %s"
 
         cursor.execute(stmt, [rid])
+        results = cursor.fetchall()
 
-        if not cursor: ## No fields were found.
+        if len(results) < 1: ## No fields were found.
             raise StopIteration
 
-        for row in cursor:
+        for row in results:
             yield row
 
         cursor.close()
@@ -294,11 +295,12 @@ class Cursor:
         stmt = "SELECT data.`flid`, data.`rid`, meta.`name`" + get_data_names(table) + " FROM " + self._prefix + table + " data LEFT JOIN " + self._prefix + "metadatas meta ON data.`flid` = meta.`flid` WHERE data.`rid` = %s and meta.`primary`=0"
 
         cursor.execute(stmt, [rid])
+        results = cursor.fetchall()
 
-        if not cursor: ## No fields were found.
+        if len(results) < 1: ## No fields were found.
             raise StopIteration
 
-        for row in cursor:
+        for row in results:
             yield row
 
         cursor.close()

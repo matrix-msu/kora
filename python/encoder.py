@@ -24,7 +24,7 @@ class DBEncoder(JSONEncoder):
             return obj.strftime("%Y-%m-%d %H:%m:%S")
 
         if isinstance(obj, date):
-            return obj.strftime("%Y-%m-%d")
+            return obj.isoformat()
 
         if isinstance(obj, decimal.Decimal):
             return float(obj)
