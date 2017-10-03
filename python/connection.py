@@ -255,6 +255,22 @@ class Cursor:
 
         cursor2.close()
 
+        cursor3 = self._cnx.cursor()
+
+        stmt = "SELECT distinct recs.kid FROM " + self._prefix + "associator_support as aSupp LEFT JOIN " + self._prefix + "records as recs on aSupp.rid=recs.rid WHERE aSupp.record = %s"
+
+        cursor3.execute(stmt, [rid])
+
+        arecords = cursor3.fetchall()
+
+        arids = []
+        for row in arecords:
+            arids.append(row["kid"])
+
+        meta["reverseAssociations"] = arids
+
+        cursor3.close()
+
         return meta
 
     def get_field_data(self, table, rid):
