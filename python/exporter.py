@@ -90,7 +90,7 @@ class RecordExporter(Exporter):
                                 "type": stash[field["flid"]]["type"],
                             }
 
-                            if not self._fields_displayed or field_dict["name"] in self._fields_displayed:
+                            if not self._fields_displayed or stash[field["flid"]]["slug"] in self._fields_displayed:
                                 ## Pass the field and field options to the appropriate field formatter based on its type.
                                 if table == "associator_fields":
                                     field_dict.update(field_formatters[table]( field, stash[field["flid"]]["options"], self._assoc_data))
