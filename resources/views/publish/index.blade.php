@@ -16,13 +16,5 @@
       '/assets/javascripts/general/global.js'
     ])->withFullUrl() !!}
 
-    <script src="{{ env('BASE_URL') }}grapejs/dist/grapes.min.js"></script>
-
-    <script type="text/javascript">
-        var editor = grapesjs.init({
-            container : '#gjs',
-            components: '<div class="txt-red">Hello world!</div>',
-            style: '.txt-red{color: red}',
-        });
-    </script>
+    @include('partials.publish.javascripts')
 @endsection

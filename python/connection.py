@@ -242,26 +242,18 @@ class Cursor:
         meta["created"] = row["created_at"].strftime("%Y-%m-%d %H:%M:%S")
         meta["updated"] = row["updated_at"].strftime("%Y-%m-%d %H:%M:%S")
 
-        cursor.close()
-
-        cursor2 = self._cnx.cursor()
-
         stmt = "SELECT `username` FROM " + self._prefix + "users WHERE `id` = %s"
 
-        cursor2.execute(stmt, [owner])
+        cursor.execute(stmt, [owner])
 
-        row2 = cursor2.fetchone()
+        row2 = cursor.fetchone()
         meta["owner"] = row2["username"]
-
-        cursor2.close()
-
-        cursor3 = self._cnx.cursor()
 
         stmt = "SELECT distinct recs.kid FROM " + self._prefix + "associator_support as aSupp LEFT JOIN " + self._prefix + "records as recs on aSupp.rid=recs.rid WHERE aSupp.record = %s"
 
-        cursor3.execute(stmt, [rid])
+        cursor.execute(stmt, [rid])
 
-        arecords = cursor3.fetchall()
+        arecords = cursor.fetchall()
 
         arids = []
         for row in arecords:
@@ -269,7 +261,7 @@ class Cursor:
 
         meta["reverseAssociations"] = arids
 
-        cursor3.close()
+        cursor.close()
 
         return meta
 
