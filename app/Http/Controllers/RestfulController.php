@@ -634,8 +634,8 @@ class RestfulController extends Controller {
             $rids = array_slice($rids,0,$filters['count']);
 
         $rids = json_encode($rids);
-        if($rids=="{\"Records\":[]}")
-            return $rids;
+        if($rids=="[]")
+            return "{\"Records\":[]}";
         $exec_string = env("BASE_PATH") . "python/api.py \"$rids\" \"$format\" '$fields' \"$meta\" \"$data\" \"$assoc\"";
         exec($exec_string, $output);
         return $output[0];
