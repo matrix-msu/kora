@@ -16,17 +16,20 @@
       @include transition();
 
       display: inline-block;
+      line-height: 30px;
+      vertical-align: middle;
+
     }
 
     .name {
-      padding: 7px 0 7px 10px;
+      padding-left: 10px;
     }
 
     .name:hover {
       color: palette(green, accent);
     }
 
-    .cancel:hover .icon-cancel:hover {
+    .cancel:hover .icon-cancel {
       opacity: 1;
       transform: scale($transform-scale-multiplier);
     }
@@ -38,6 +41,7 @@
       font-size: 10px;
       opacity: .2;
       padding: 10px;
+      will-change: transform;
     }
 
     &:hover {
@@ -47,13 +51,14 @@
 
   .user-add .icon {
     @include transition();
-    
+
     color: palette(green, accent, .6);
     display: inline-block;
+    will-change: transform;
   }
 
   .user-add:hover .icon {
-    opacity: 1;
+    color: palette(green, accent, 1);
     transform: scale($transform-scale-multiplier);
   }
 }

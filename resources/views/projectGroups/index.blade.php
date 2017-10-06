@@ -21,10 +21,17 @@
 @stop
 
 @section('body')
+  @include("partials.projectGroups.editNameModal")
+  @include("partials.projectGroups.newPermissionModal")
+  @include("partials.projectGroups.deletePermissionModal")
+  @include("partials.projectGroups.addUsersModal")
+  @include("partials.projectGroups.removeUserModal")
+  @include("partials.projectGroups.viewUserModal")
+
   <section class="new-object-button center">
-    <form action="{{ action('ProjectController@create') }}">
+    <form action="#">
       @if(\Auth::user()->admin)
-        <input type="submit" value="Create a New Permissions Group">
+        <input class="new-permission-js" type="submit" value="Create a New Permissions Group">
       @endif
     </form>
   </section>
@@ -51,7 +58,7 @@
           </div>
 
           <div class="card-toggle-wrap">
-            <a href="#" class="card-toggle project-toggle-js">
+            <a href="#" class="card-toggle permission-toggle-js">
               <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
             </a>
           </div>
@@ -63,7 +70,7 @@
               <div class="check-box-half check-box-rectangle">
                 <input type="checkbox"
                        {{ $project->adminGID == $projectGroup->id ? 'checked disabled' : '' }}
-                       value="1" id="active"
+                       value="1"
                        class="check-box-input preset-input-js"
                        name="active" />
                 <span class="check"></span>
@@ -75,7 +82,7 @@
               <div class="check-box-half check-box-rectangle">
                 <input type="checkbox"
                        {{ $project->adminGID == $projectGroup->id ? 'checked disabled' : '' }}
-                       value="1" id="active"
+                       value="1"
                        class="check-box-input preset-input-js"
                        name="active" />
                 <span class="check"></span>
@@ -87,7 +94,7 @@
               <div class="check-box-half check-box-rectangle">
                 <input type="checkbox"
                        {{ $project->adminGID == $projectGroup->id ? 'checked disabled' : '' }}
-                       value="1" id="active"
+                       value="1"
                        class="check-box-input preset-input-js"
                        name="active" />
                 <span class="check"></span>
@@ -99,21 +106,21 @@
           <div class="users">
             @foreach($projectGroup->users()->get() as $user)
               <div class="user">
-                <a href="#" class="name">{{ $user->first_name }} {{ $user->last_name }}</a>
+                <a href="#" class="name view-user-js">{{ $user->first_name }} {{ $user->last_name }}</a>
 
-                <a href="#" class="cancel" onclick="removeUser({{$projectGroup->id}}, {{$user->id}}, {{$project->pid}})">
+                <a href="#" class="cancel remove-user-js" onclick="removeUser({{$projectGroup->id}}, {{$user->id}}, {{$project->pid}})">
                   <i class="icon icon-cancel"></i>
                 </a>
               </div>
             @endforeach
-            <a href="#" class="user-add">
+            <a href="#" class="user-add add-users-js">
               <i class="icon icon-user-add"></i>
             </a>
           </div>
 
             <div class="footer {{$specialGroup ? 'pb-sm' : ''}}">
-              @if (!$specialGroup)
-                <a class="quick-action edit-group-name-js left" href="#">
+              @if ($specialGroup)
+                <a class="quick-action delete-permission-group-js left" href="#">
                   <i class="icon icon-trash"></i>
                 </a>
 
@@ -121,6 +128,7 @@
                   <i class="icon icon-edit-little"></i>
                   <span>Edit Group Name</span>
                 </a>
+
               @endif
             </div>
         </div>
@@ -138,6 +146,7 @@
 
   <script type="text/javascript">
     var CSRFToken = '{{ csrf_token() }}';
+    Kora.ProjectGroups.Index();
   </script>
 @stop
 

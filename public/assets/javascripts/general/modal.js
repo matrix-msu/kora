@@ -1,6 +1,6 @@
 var Kora = Kora || {};
 Kora.Modal = Kora.Modal || {};
-$modal = $('.modal-js');
+var $modal = $('.modal-js');
 
 Kora.Modal.close = function($overide) {
   $('body').removeClass('no-scroll');
@@ -24,7 +24,6 @@ Kora.Modal.open = function($overide) {
 
 Kora.Modal.initialize = function() {
   $('.modal-js').on('click', function(e) {
-
 
     if (e.target !== this) {
       return;
