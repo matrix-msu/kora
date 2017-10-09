@@ -122,27 +122,6 @@ Kora.ProjectGroups.Index = function() {
           initializeViewUserModal();
 
         });
-
-        // if (data.length > 0) {
-        //
-        //
-        //   $('#list' + data).children().each(function() {
-        //     //remove from list
-        //     if ($(this).attr('name') == username) {
-        //       $(this).remove();
-        //     }
-        //   });
-        //
-        //   $('#dropdown' + data).append("<option id='" + userId + "'>" + username + "</option>");
-        // }
-        //
-        // //
-        // // Add the user to the users currently in the group.
-        // // Then remove the user from the list that can be added to the group.
-        // //
-        // $("#list" + projectGroup).append('<li class="list-group-item" id="list-element' + projectGroup + userId + '" name="' + username + '">' +
-        //   username + ' <a href="javascript:void(0)" onclick="removeUser(' + projectGroup + ', ' + userId + ', ' + pid + ')">[X]</a></li>');
-        // $("#dropdown" + projectGroup + " option[id='" + userId + "']").remove();
       }
     });
   }
