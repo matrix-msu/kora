@@ -171,7 +171,7 @@ class FormGroupController extends Controller {
             DB::table('form_group_user')->where('user_id', $request->userId)->where('form_group_id', $idOld)->delete();
 
             echo $idOld;
-        } else {
+        } else if(!isset($request->dontLookBack)) {
             //add them to the project if they don't exist
             $inProj = false;
             $form = FormController::getForm($instance->fid);

@@ -176,8 +176,8 @@ class ProjectGroupController extends Controller {
             $defGroup = FormGroup::where('name', '=', $form->name . $tag)->get()->first();
             $FGC = new FormGroupController();
             $request->formGroup = $defGroup->id;
-            // TODO: Fix this id FormGroupController->addUser becomes plural
             $request->userId = $userID;
+            $request->dontLookBack = true;
             $FGC->addUser($request);
           }
 
