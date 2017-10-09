@@ -7,6 +7,14 @@
       </a>
     </div>
     <div class="body">
+      <div class="form-group">
+        {!! Form::label('name', 'Permissions Group Name') !!}
+        {!! Form::text('name', null, ['class' => 'text-input group-name-js', 'placeholder' => "Enter the new permissions group's name"]) !!}
+      </div>
+
+      <div class="form-group add-users-submit edit-group-name-submit-js">
+        {!! Form::submit('Update Permissions Group Name',['class' => 'btn edit-group-name-button-js']) !!}
+      </div>
     </div>
   </div>
 </div>
