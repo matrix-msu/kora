@@ -197,7 +197,7 @@ class FormGroupController extends Controller {
         }
 
         //After all this, lets make sure they get the custom form added
-        $user = User::where("id","=",$request->userId)->get();
+        $user = User::where("id","=",$request->userId)->first();
         $user->addCustomForm($instance->fid);
 
         $instance->users()->attach($request->userId);

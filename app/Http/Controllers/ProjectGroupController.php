@@ -117,18 +117,18 @@ class ProjectGroupController extends Controller {
     public function removeUser(Request $request) {
         $instance = ProjectGroup::where('id', '=', $request->projectGroup)->first();
 
-        if($request->pid == $instance->id)
+        if ($request->pid == $instance->id)
             self::wipeAdminRights($request);
 
         $forms = Form::where('pid', '=', $instance->pid)->get();
         foreach($forms as $form) {
-            $formGroups = FormGroup::where('fid','=',$form->fid)->get();
-            foreach($formGroups as $fg) {
-                DB::table('form_group_user')->where('user_id', $request->userId)->where('form_group_id', $fg->id)->delete();
-            }
+          $formGroups = FormGroup::where('fid','=',$form->fid)->get();
+          foreach($formGroups as $fg) {
+            DB::table('form_group_user')->where('user_id', $request->userId)->where('form_group_id', $fg->id)->delete();
+          }
         }
 
-        $user = User::where("id","=",$request->userId)->get();
+        $user = User::where("id",(int)$request->userId)->first();
         $user->removeCustomProject($instance->pid);
 
         $instance->users()->detach($request->userId);
@@ -141,58 +141,60 @@ class ProjectGroupController extends Controller {
      *
      * @param  Request $request
      */
-    public function addUser(Request $request) {
-        $instance = ProjectGroup::where('id', '=', $request->projectGroup)->first();
+    public function addUsers(Request $request) {
+      $instance = ProjectGroup::where('id', '=', $request->projectGroup)->first();
 
+      foreach ($request->userIDs as $userID) {
         //get any groups the user belongs to
-        $currGroups = DB::table('project_group_user')->where('user_id', $request->userId)->get();
+        $currGroups = DB::table('project_group_user')->where('user_id', $userID)->get();
         $newUser = true;
         $group = null;
         $idOld = 0;
 
         //foreach of the user's project groups, see if one belongs to the current project
         foreach($currGroups as $prev) {
-            $group = ProjectGroup::where('id', '=', $prev->project_group_id)->first();
-            if($group->pid==$instance->pid) {
-                $newUser = false;
-                $idOld = $group->id;
-                break;
-            }
+          $group = ProjectGroup::where('id', '=', $prev->project_group_id)->first();
+          if($group->pid == $instance->pid) {
+            $newUser = false;
+            $idOld = $group->id;
+            break;
+          }
         }
 
         if($newUser) {
-            $proj = ProjectController::getProject($instance->pid);
+          $proj = ProjectController::getProject($instance->pid);
 
-            if($instance->name == $proj->name.' Admin Group') {
-                $tag = ' Admin Group';
-            } else {
-                $tag = ' Default Group';
-            }
+          if($instance->name == $proj->name.' Admin Group') {
+            $tag = ' Admin Group';
+          } else {
+            $tag = ' Default Group';
+          }
 
-            //add to all forms
-            $forms = Form::where('pid', '=', $instance->pid)->get();
-            foreach($forms as $form) {
-                $defGroup = FormGroup::where('name', '=', $form->name . $tag)->get()->first();
-                $FGC = new FormGroupController();
-                $request->formGroup = $defGroup->id;
-                $FGC->addUser($request);
-            }
+          //add to all forms
+          $forms = Form::where('pid', '=', $instance->pid)->get();
+          foreach($forms as $form) {
+            $defGroup = FormGroup::where('name', '=', $form->name . $tag)->get()->first();
+            $FGC = new FormGroupController();
+            $request->formGroup = $defGroup->id;
+            // TODO: Fix this id FormGroupController->addUser becomes plural
+            $request->userId = $userID;
+            $FGC->addUser($request);
+          }
 
-            $this->emailUserProject("added", $request->userId, $instance->id);
+          $this->emailUserProject("added", $userID, $instance->id);
         } else {
-            //remove from old group
-            DB::table('project_group_user')->where('user_id', $request->userId)->where('project_group_id', $idOld)->delete();
-
-            $this->emailUserProject("changed", $request->userId, $instance->id);
-
-            echo $idOld;
+          //remove from old group
+          DB::table('project_group_user')->where('user_id', $userID)->where('project_group_id', $idOld)->delete();
+          $this->emailUserProject("changed", $userID, $instance->id);
+          echo $idOld;
         }
 
         //After all this, lets make sure they get the custom project added
-        $user = User::where("id","=",$request->userId)->get();
+        $user = User::where("id",$userID)->first();
         $user->addCustomProject($instance->pid);
 
-        $instance->users()->attach($request->userId);
+        $instance->users()->attach($userID);
+      }
     }
 
     /**
@@ -320,7 +322,7 @@ class ProjectGroupController extends Controller {
      */
     private function emailUserProject($type, $uid, $pgid) {
         $userMail = DB::table('users')->where('id', $uid)->value('email');
-        $name = DB::table('users')->where('id', $uid)->value('name');
+        $name = DB::table('users')->where('id', $uid)->value('first_name');
         $group = ProjectGroup::where('id', '=', $pgid)->first();
         $project = ProjectController::getProject($group->pid);
 

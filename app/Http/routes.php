@@ -26,7 +26,7 @@ Route::post('projects/{pid}/archive', 'ProjectController@setArchiveProject');
 Route::get('/projects/{pid}/manage/projectgroups', 'ProjectGroupController@index');
 Route::post('/projects/{pid}/manage/projectgroups/create', 'ProjectGroupController@create');
 Route::patch('projects/{pid}/manage/projectgroups/removeUser', 'ProjectGroupController@removeUser');
-Route::patch('projects/{pid}/manage/projectgroups/addUser', 'ProjectGroupController@addUser');
+Route::patch('projects/{pid}/manage/projectgroups/addUsers', 'ProjectGroupController@addUsers');
 Route::patch('projects/{pid}/manage/projectgroups/updatePermissions', 'ProjectGroupController@updatePermissions');
 Route::patch('projects/{pid}/manage/projectgroups/updateName', 'ProjectGroupController@updateName');
 Route::delete('projects/{pid}/manage/projectgroups/deleteProjectGroup', 'ProjectGroupController@deleteProjectGroup');

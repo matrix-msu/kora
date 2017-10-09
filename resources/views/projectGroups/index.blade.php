@@ -43,7 +43,7 @@
           ($projectGroup->name == $project->name . " Default Group")
       ?>
 
-      <div class="group card {{ $index == 0 ? 'active' : '' }}" id="{{$projectGroup->id}}">
+      <div class="group group-js card {{ $index == 0 ? 'active' : '' }}" id="{{$projectGroup->id}}">
         <div class="header {{ $index == 0 ? 'active' : '' }}">
           <div class="left pl-m">
             @if ($project->adminGID == $projectGroup->id)
@@ -103,19 +103,22 @@
             </div>
           </div>
 
-          <div class="users">
+          <div class="users users-js">
             @foreach($projectGroup->users()->get() as $user)
-              <div class="user">
+              <div class="user" id="list-element{{$projectGroup->id}}{{$user->id}}">
                 <a href="#" class="name view-user-js">{{ $user->first_name }} {{ $user->last_name }}</a>
 
-                <a href="#" class="cancel remove-user-js" onclick="removeUser({{$projectGroup->id}}, {{$user->id}}, {{$project->pid}})">
-                  <i class="icon icon-cancel"></i>
-                </a>
+                @if (\Auth::user()->id != $user->id)
+                  <a href="#" class="cancel remove-user-js" data-value="[{{$projectGroup->id}}, {{$user->id}}, {{$project->pid}}]">
+                    <i class="icon icon-cancel"></i>
+                  </a>
+                @endif
               </div>
             @endforeach
-            <a href="#" class="user-add add-users-js">
+            <a href="#" class="user-add add-users-js" data-select="add_user_select{{$projectGroup->id}}" data-group="{{$projectGroup->id}}" >
               <i class="icon icon-user-add"></i>
             </a>
+            @include("partials.projectGroups.addUsersBody")
           </div>
 
             <div class="footer {{$specialGroup ? 'pb-sm' : ''}}">
@@ -146,6 +149,10 @@
 
   <script type="text/javascript">
     var CSRFToken = '{{ csrf_token() }}';
+    var pid = '{{$project->pid}}';
+    var removeUserPath = '{{ action('ProjectGroupController@removeUser') }}'
+    var addUsersPath = '{{ action('ProjectGroupController@addUsers') }}'
+    var userClickEvent;
     Kora.ProjectGroups.Index();
   </script>
 @stop
@@ -169,7 +176,7 @@
                       <span>{{trans('projectGroups_index.users')}}:</span>
                       <ul class="list-group" id="list{{$projectGroup->id}}">
                         @foreach($projectGroup->users()->get() as $user)
-                          <li class="list-group-item" id="list-element{{$projectGroup->id}}{{$user->id}}" name="{{$user->username}}">
+                          <li class="list-group-item" name="{{$user->username}}">
                             {{$user->username}}
                             @if(\Auth::user()->id != $user->id)
                               <a href="javascript:void(0)" onclick="removeUser({{$projectGroup->id}}, {{$user->id}}, {{$project->pid}})">[X]</a>
@@ -380,82 +387,6 @@
                     }
                 });
             }
-        }
-
-        /**
-         * The Ajax to remove a user from a particular project's project group.
-         *
-         * @param projectGroup {int} The project group id.
-         * @param userId {int} The user id.
-         * @param pid {int} The project id.
-         */
-        function removeUser(projectGroup, userId, pid){
-            var username = $("#list-element"+projectGroup+userId).attr('name');
-
-            $.ajax({
-                url: '{{action('ProjectGroupController@removeUser')}}',
-                type: 'PATCH',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "userId": userId,
-                    "projectGroup": projectGroup,
-                    "pid" : pid
-                },
-                success: function(){
-                    var selector = $("#dropdown"+projectGroup);
-                    //
-                    // Remove the user from the list of users currently in the group.
-                    // Then add the user to the users that can be added to the group.
-                    //
-                    selector.attr('selected', '0');
-
-                    $("#list-element"+projectGroup+userId).remove();
-                    selector.append('<option id="'+userId+'">'+username+'</option>');
-                }
-            });
-        }
-
-        /**
-         * The Ajax to add a user to a particular project's project group.
-         *
-         * @param projectGroup {int} The project group id.
-         * @param pid {int} The project id.
-         */
-        function addUser(projectGroup, pid){
-            var selector = $("#dropdown"+projectGroup+" option:selected");
-
-            var userId = selector.attr('id');
-            var username = selector.text();
-
-            $.ajax({
-                url: '{{action('ProjectGroupController@addUser')}}',
-                type: 'PATCH',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "userId": userId,
-                    "projectGroup": projectGroup
-                },
-                success: function(data){
-                    if(data!=''){
-                        $('#list'+data).children().each(function(){
-                            //remove from list
-                            if($(this).attr('name')==username){
-                                $(this).remove();
-                            }
-                        });
-
-                        $('#dropdown'+data).append("<option id='"+userId+"'>"+username+"</option>");
-                    }
-
-                    //
-                    // Add the user to the users currently in the group.
-                    // Then remove the user from the list that can be added to the group.
-                    //
-                    $("#list"+projectGroup).append('<li class="list-group-item" id="list-element'+projectGroup+userId+'" name="'+username+'">'
-                                                    +username+' <a href="javascript:void(0)" onclick="removeUser('+projectGroup+', '+userId+', '+pid+')">[X]</a></li>');
-                    $("#dropdown"+projectGroup+" option[id='"+userId+"']").remove();
-                }
-            });
         }
 
         /**

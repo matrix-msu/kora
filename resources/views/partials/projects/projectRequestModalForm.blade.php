@@ -12,7 +12,7 @@
 
     <div class="form-group request-permissions-submit">
       {!! Form::submit('Request Project Permissions',['class' => 'btn']) !!}
-    <div>
+    </div>
   {!! Form::close() !!}
 @else
   <div class="request-permissions-error">

@@ -2,6 +2,150 @@ var Kora = Kora || {};
 Kora.ProjectGroups = Kora.ProjectGroups || {};
 
 Kora.ProjectGroups.Index = function() {
+  var self = Kora.ProjectGroups.Index;
+
+
+  /**
+   * Remove a user from a project's project group.
+   *
+   * @param projectGroup {int} The project group id.
+   * @param userId {int} The user id.
+   * @param pid {int} The project id.
+   */
+  self.removeUser = function(projectGroup, userId, pid) {
+    var $user = $("#list-element" + projectGroup + userId);
+    var username = $user.children('.view-user-js').html();
+
+    $.ajax({
+      url: removeUserPath,
+      type: 'PATCH',
+      data: {
+        "_token": CSRFToken,
+        "userId": userId,
+        "projectGroup": projectGroup,
+        "pid": pid
+      },
+      success: function() {
+        // Remove the user from the list of users currently in the group.
+        $user.fadeOut();
+        Kora.Modal.close();
+        // TODO: add the user to the users that can be added to the group.
+      }
+    });
+  }
+
+
+  /**
+   * Add users to a project's project group.
+   *
+   * @param projectGroup {int} The project group id.
+   * @param userIDs {array} The array of user ids.
+   * @param $select {jQuery} The selector for removing .
+   */
+  self.addUsers = function(projectGroup, userIDs, $select) {
+
+    $.ajax({
+      url: addUsersPath,
+      type: 'PATCH',
+      data: {
+        "_token": CSRFToken,
+        "userIDs": userIDs,
+        "projectGroup": projectGroup
+      },
+      success: function(data) {
+        // data is supposed to be the Old Group ID
+        var userMap = {} // A map of userID to their content
+        for (userID of userIDs) {
+          var userContent = $('#list-element' + data + userID).html();
+          userMap[userID] = userContent;
+        }
+
+
+        $('.multi-select').each(function(index) {
+          var $this = $(this);
+          var groupID = $this.data('group');
+
+          if (groupID == projectGroup) {
+            $this.find('option').each(function() {
+
+              // Remove from select if added to projectGroup
+              var val = $(this).attr('value');
+              if (userIDs.includes(val)) {
+                if (data.length == 0) {
+                  userMap[val] = $(this).html(); // We need the name for later.
+                }
+
+                $(this).remove();
+              }
+            });
+          } else {
+            // this select needs to have options added
+            for (userID of userIDs) {
+              var option = '<option value="' + userID + '">' + userMap[userID] + '</option>';
+              $this.append(option);
+            }
+          }
+        });
+
+        $('.group-js').each(function() {
+          var $this = $(this);
+          var $groupCard = $('#' + $this.attr('id') + " .users-js");
+          var $groupCardAddUser = $groupCard.find('.add-users-js')
+          var userContent = $('#list-element' + projectGroup + userID).html();
+
+          if ($this.attr('id') == projectGroup) {
+            // Add the user to the users currently in the group.
+            for (userID of userIDs) {
+              if (data.length > 0) {
+                var element = '<div class="user" id="list-element' + projectGroup + userID + '">';
+                element += userMap[userID];
+                element += '</div>';
+
+                $groupCardAddUser.before(element);
+              } else {
+                var element = '<div class="user" id="list-element' + projectGroup + userID;
+                element += '"><a href="#" class="name view-user-js">' + userMap[userID] + '</a>';
+                element += '<a href="#" class="cancel remove-user-js" data-value="[';
+                element += projectGroup + ", " + userID + ", " + pid + ']">';
+                element += '<i class="icon icon-cancel"></i></a></div>';
+                $groupCardAddUser.before(element);
+              }
+            }
+          } else {
+            // Remove the user from the users currently in the group.
+            for (userID of userIDs) {
+              $groupCard.find('#list-element' + $this.attr('id') + userID).remove();
+            }
+          }
+
+          initializeRemoveUserModal();
+          initializeViewUserModal();
+
+        });
+
+        // if (data.length > 0) {
+        //
+        //
+        //   $('#list' + data).children().each(function() {
+        //     //remove from list
+        //     if ($(this).attr('name') == username) {
+        //       $(this).remove();
+        //     }
+        //   });
+        //
+        //   $('#dropdown' + data).append("<option id='" + userId + "'>" + username + "</option>");
+        // }
+        //
+        // //
+        // // Add the user to the users currently in the group.
+        // // Then remove the user from the list that can be added to the group.
+        // //
+        // $("#list" + projectGroup).append('<li class="list-group-item" id="list-element' + projectGroup + userId + '" name="' + username + '">' +
+        //   username + ' <a href="javascript:void(0)" onclick="removeUser(' + projectGroup + ', ' + userId + ', ' + pid + ')">[X]</a></li>');
+        // $("#dropdown" + projectGroup + " option[id='" + userId + "']").remove();
+      }
+    });
+  }
 
   function initializePermissionsToggle() {
     $('.permission-toggle-js').click(function(e) {
@@ -47,10 +191,6 @@ Kora.ProjectGroups.Index = function() {
 
       Kora.Modal.open($('.new-permission-modal-js'));
     });
-
-    // $('.multi-select').chosen({
-    //   width: '100%',
-    // });
   }
 
   function initializeEditGroupNameModal() {
@@ -65,7 +205,41 @@ Kora.ProjectGroups.Index = function() {
     $('.add-users-js').click(function(e) {
       e.preventDefault();
 
-      Kora.Modal.open($('.add-users-modal-js'));
+      // Initialization of Modal with Users selectable
+      var selectID = $(this).data('select');
+      var groupID = $(this).data('group');
+      var $select = $("#" + selectID);
+      var $addUserModal = $('.add-users-modal-js');
+      var $addUserModalBody = $addUserModal.find('.body')
+      $addUserModalBody.html($select.html());
+
+      $addUserModalBody.find('.multi-select').chosen({
+        width: '100%',
+      });
+
+      // Submission of Adding a User
+      var submitUsers = function(groupID, $addUserModal, $select) {
+        return function(e) {
+          e.preventDefault();
+
+          values = $(".multi-select").chosen().val();
+
+          // Validation: at least one selected
+          if (values != null) {
+            self.addUsers(groupID, values, $select);
+            Kora.Modal.close($addUserModal);
+
+            // Kill the chosen element after Modal Close.
+            setTimeout(function() {
+              $(".multi-select").chosen('destroy');
+              $addUserModal.find('.body').html('');
+            }, 500);
+          }
+        };
+      }
+      $('.add-users-submit-js').on('click', submitUsers(groupID, $addUserModal, $select));
+
+      Kora.Modal.open($addUserModal);
     });
   }
 
@@ -73,7 +247,14 @@ Kora.ProjectGroups.Index = function() {
     $('.remove-user-js').click(function(e) {
       e.preventDefault();
 
+      var data = $(this).data('value');
+      var removeUser = function() {
+        self.removeUser(data[0], data[1], data[2]);
+      };
+
+      $('.user-remove-btn-js').on('click', removeUser);
       Kora.Modal.open($('.remove-user-modal-js'));
+
     });
   }
 

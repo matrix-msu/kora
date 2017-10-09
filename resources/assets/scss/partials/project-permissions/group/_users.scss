@@ -22,7 +22,7 @@
     }
 
     .name {
-      padding-left: 10px;
+      padding: 0 10px;
     }
 
     .name:hover {
@@ -40,7 +40,7 @@
       display: block;
       font-size: 10px;
       opacity: .2;
-      padding: 10px;
+      padding: 10px 10px 10px 0;
       will-change: transform;
     }
 
@@ -48,17 +48,22 @@
       box-shadow: 0 6px 12px 0 palette(box-shadow, base, .06);
     }
   }
-
-  .user-add .icon {
-    @include transition();
-
-    color: palette(green, accent, .6);
+  .user-add {
     display: inline-block;
-    will-change: transform;
-  }
+    margin-bottom: 10px;
 
-  .user-add:hover .icon {
-    color: palette(green, accent, 1);
-    transform: scale($transform-scale-multiplier);
+    .icon {
+      @include transition();
+
+      color: palette(green, accent, .6);
+      display: inline-block;
+      padding: 5px 0 11px;
+      will-change: transform;
+    }
+
+    &:hover .icon {
+      color: palette(green, accent, 1);
+      transform: scale($transform-scale-multiplier);
+    }
   }
 }
