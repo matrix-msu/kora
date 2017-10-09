@@ -40,7 +40,7 @@ Kora.ProjectGroups.Index = function() {
    *
    * @param projectGroup {int} The project group id.
    * @param userIDs {array} The array of user ids.
-   * @param $select {jQuery} The selector for removing .
+   * @param $select {jQuery} The selector for removing.
    */
   self.addUsers = function(projectGroup, userIDs, $select) {
 
@@ -126,6 +126,34 @@ Kora.ProjectGroups.Index = function() {
     });
   }
 
+  /**
+   * Edit project group name.
+   *
+   * @param gid {int} The project group id.
+   * @param newName {string} The new name of the group.
+   */
+  self.editGroupName = function(gid, newName) {
+    if (newName == '') {
+      // Validation: no blank name
+      $('.edit-group-name-button-js input').prop('disabled', true);
+      return;
+    } else {
+      $.ajax({
+        url: editNamePath,
+        type: 'PATCH',
+        data: {
+          "_token": CSRFToken,
+          "gid": gid,
+          "name": newName
+        },
+        success: function(response) {
+          $('#' + gid).find('.name-js').html(newName);
+          Kora.Modal.close();
+        }
+      });
+    }
+  }
+
   function initializePermissionsToggle() {
     $('.permission-toggle-js').click(function(e) {
       e.preventDefault();
@@ -176,6 +204,25 @@ Kora.ProjectGroups.Index = function() {
     $('.edit-group-name-js').click(function(e) {
       e.preventDefault();
 
+      // Initialization of Modal with Name editable
+      var groupName = $(this).data('name');
+      var gid = $(this).data('group');
+
+      var $editNameModal = $('.edit-group-name-modal-js');
+      var $editNameModalInput = $editNameModal.find('.group-name-js');
+      $editNameModalInput.val(groupName);
+
+      // Submission of Editing a Name
+      var submitNameChange = function(gid) {
+        return function(e) {
+          e.preventDefault();
+
+          var groupName = $('.edit-group-name-modal-js').find('.group-name-js').val();
+          self.editGroupName(gid, groupName);
+        }
+      }
+      $('.edit-group-name-submit-js').on('click', submitNameChange(gid));
+
       Kora.Modal.open($('.edit-group-name-modal-js'));
     });
   }
@@ -189,7 +236,7 @@ Kora.ProjectGroups.Index = function() {
       var groupID = $(this).data('group');
       var $select = $("#" + selectID);
       var $addUserModal = $('.add-users-modal-js');
-      var $addUserModalBody = $addUserModal.find('.body')
+      var $addUserModalBody = $addUserModal.find('.body');
       $addUserModalBody.html($select.html());
 
       $addUserModalBody.find('.multi-select').chosen({

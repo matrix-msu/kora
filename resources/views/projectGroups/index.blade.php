@@ -53,7 +53,7 @@
             @endif
 
             <a class="title inactive" href="#">
-              <span class="name">{{ str_replace($project->name." ", "", $projectGroup->name) }}</span>
+              <span class="name name-js">{{ str_replace($project->name." ", "", $projectGroup->name) }}</span>
             </a>
           </div>
 
@@ -122,12 +122,15 @@
           </div>
 
             <div class="footer {{$specialGroup ? 'pb-sm' : ''}}">
-              @if ($specialGroup)
+              @if (!$specialGroup)
                 <a class="quick-action delete-permission-group-js left" href="#">
                   <i class="icon icon-trash"></i>
                 </a>
 
-                <a class="quick-action edit-group-name-js underline-middle-hover" href="#">
+                <a class="quick-action edit-group-name-js underline-middle-hover"
+                   href="#"
+                   data-name="{{ str_replace($project->name." ", "", $projectGroup->name) }}"
+                   data-group="{{$projectGroup->id}}"
                   <i class="icon icon-edit-little"></i>
                   <span>Edit Group Name</span>
                 </a>
@@ -152,7 +155,7 @@
     var pid = '{{$project->pid}}';
     var removeUserPath = '{{ action('ProjectGroupController@removeUser') }}'
     var addUsersPath = '{{ action('ProjectGroupController@addUsers') }}'
-    var userClickEvent;
+    var editNamePath = '{{ action('ProjectGroupController@updateName', ["pid" => $project->pid]) }}'
     Kora.ProjectGroups.Index();
   </script>
 @stop
@@ -352,42 +355,6 @@
                 mainDiv.slideDown();
             }
         });
-
-        function changeGroupName(textBox){
-            textBox.attr('style','');
-            newName = textBox.val();
-            gid = textBox.attr('gid');
-            pid = {{$project->pid}};
-
-            editDiv = textBox.parent();
-            mainDiv = editDiv.siblings(".projectGroupName");
-
-            if(newName==''){
-                textBox.attr('style','border:3px solid red');
-                return;
-            }else {
-                $.ajax({
-                    url: '{{action('ProjectGroupController@updateName')}}',
-                    type: 'PATCH',
-                    data: {
-                        "_token": "{{ csrf_token() }}",
-                        "gid": gid,
-                        "name": newName,
-                        "pid" : pid
-                    },
-                    success: function (response) {
-                        divText = newName+" <a class='nameEdit'>[EDIT]</a>";
-                        mainDiv.html(divText);
-
-                        textBox.val('');
-                        textBox.attr('placeholder',newName);
-
-                        editDiv.slideUp();
-                        mainDiv.slideDown();
-                    }
-                });
-            }
-        }
 
         /**
          * The Ajax to delete a project group.
