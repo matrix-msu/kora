@@ -196,7 +196,12 @@ Kora.ProjectGroups.Index = function() {
     $('.new-permission-js').click(function(e) {
       e.preventDefault();
 
-      Kora.Modal.open($('.new-permission-modal-js'));
+      $newPermissionsModal = $('.new-permission-modal-js');
+      $newPermissionsModal.find('.multi-select').chosen({
+        width: '100%',
+      });
+
+      Kora.Modal.open($newPermissionsModal);
     });
   }
 
