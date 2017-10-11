@@ -1,0 +1,18 @@
+.new-permission-modal .body {
+  .actions {
+    padding: 25px 0;
+  }
+
+  .actions .action {
+    display: inline-block;
+    padding: 0 15px;
+
+    &:first-of-type {
+      padding-left: 0;
+    }
+
+    &:last-of-type {
+      padding-right: 0;
+    }
+  }
+}
