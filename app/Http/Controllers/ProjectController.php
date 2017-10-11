@@ -105,11 +105,15 @@ class ProjectController extends Controller {
                 $admins = $this->getProjectAdminNames($project);
 
                 foreach($admins as $user) {
-                    Mail::send('emails.request.access', compact('project'), function ($message) use($user) {
-                        $message->from(env('MAIL_FROM_ADDRESS'));
-                        $message->to($user->email);
-                        $message->subject('Kora Project Request');
-                    });
+                    try{
+                        Mail::send('emails.request.access', compact('project'), function ($message) use($user) {
+                            $message->from(env('MAIL_FROM_ADDRESS'));
+                            $message->to($user->email);
+                            $message->subject('Kora Project Request');
+                        });
+                    } catch(\Swift_TransportException $e) {
+                        //TODO::email error response
+                    }
                 }
             }
 

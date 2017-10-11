@@ -334,11 +334,15 @@ class ProjectGroupController extends Controller {
             $email = 'emails.project.changed';
         }
 
-        Mail::send($email, compact('project', 'name'), function ($message) use($userMail) {
-            $message->from(env('MAIL_FROM_ADDRESS'));
-            $message->to($userMail);
-            $message->subject('Kora Project Permissions');
-        });
+        try {
+            Mail::send($email, compact('project', 'name'), function ($message) use ($userMail) {
+                $message->from(env('MAIL_FROM_ADDRESS'));
+                $message->to($userMail);
+                $message->subject('Kora Project Permissions');
+            });
+        } catch(\Swift_TransportException $e) {
+            //TODO::email error response
+        }
     }
 
     /**

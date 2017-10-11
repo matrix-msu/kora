@@ -179,11 +179,15 @@ class AssociationController extends Controller {
         $users = $group->users()->get();
 
         foreach($users as $user) {
-            Mail::send('emails.request.assoc', compact('myForm','myProj','theirForm', 'theirProj'), function ($message) use($user) {
-                $message->from(env('MAIL_FROM_ADDRESS'));
-                $message->to($user->email);
-                $message->subject('Kora Form Association Request');
-            });
+            try {
+                Mail::send('emails.request.assoc', compact('myForm', 'myProj', 'theirForm', 'theirProj'), function ($message) use ($user) {
+                    $message->from(env('MAIL_FROM_ADDRESS'));
+                    $message->to($user->email);
+                    $message->subject('Kora Form Association Request');
+                });
+            } catch(\Swift_TransportException $e) {
+                //TODO::email error response
+            }
         }
 
         ////////REDIRECT BACK TO INDEX WITH SUCCESS MESSAGE

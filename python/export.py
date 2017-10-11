@@ -67,7 +67,7 @@ def export_routine(argv):
 
     writer = make_writer(writer_type, Writer.set_up(), fid, pid)
 
-    pool = multiprocessing.Pool(processes = 8)
+    pool = multiprocessing.Pool(processes = 4)
 
     ## Get "slice_on" rids at a time.
     slice_on = 500
