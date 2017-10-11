@@ -154,6 +154,30 @@ Kora.ProjectGroups.Index = function() {
     }
   }
 
+  /**
+   * Update the permissions of a particular project group.
+   *
+   * @param projectGroup {int} The project group id
+   */
+  self.updatePermissions = function(projectGroup) {
+    // If the box is checked, allow users in the project group to do that action within the project.
+    var permCreate = ($('#create-' + projectGroup).is(':checked') ? 1 : 0);
+    var permEdit = ($('#edit-' + projectGroup).is(':checked') ? 1 : 0);
+    var permDelete = ($('#delete-' + projectGroup).is(':checked') ? 1 : 0);
+
+    $.ajax({
+      url: updatePermissionsPath,
+      type: 'PATCH',
+      data: {
+        "_token": CSRFToken,
+        "projectGroup": projectGroup,
+        "permCreate": permCreate,
+        "permEdit": permEdit,
+        "permDelete": permDelete
+      }
+    });
+  }
+
   function initializePermissionsToggle() {
     $('.permission-toggle-js').click(function(e) {
       e.preventDefault();

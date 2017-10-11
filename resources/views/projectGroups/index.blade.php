@@ -69,10 +69,16 @@
             <div class="form-group action">
               <div class="check-box-half check-box-rectangle">
                 <input type="checkbox"
-                       {{ $project->adminGID == $projectGroup->id ? 'checked disabled' : '' }}
+                      @if ($project->adminGID == $projectGroup->id)
+                       checked disabled
+                      @elseif ($projectGroup->create)
+                        checked
+                      @endif
                        value="1"
                        class="check-box-input preset-input-js"
-                       name="active" />
+                       onclick="Kora.ProjectGroups.Index.updatePermissions({{$projectGroup->id}})"
+                       id="create-{{$projectGroup->id}}"
+                       name="create" />
                 <span class="check"></span>
                 <span class="placeholder">Can Create Forms</span>
               </div>
@@ -81,10 +87,16 @@
             <div class="form-group action">
               <div class="check-box-half check-box-rectangle">
                 <input type="checkbox"
-                       {{ $project->adminGID == $projectGroup->id ? 'checked disabled' : '' }}
+                      @if ($project->adminGID == $projectGroup->id)
+                       checked disabled
+                      @elseif ($projectGroup->edit)
+                        checked
+                      @endif
                        value="1"
                        class="check-box-input preset-input-js"
-                       name="active" />
+                       onclick="Kora.ProjectGroups.Index.updatePermissions({{$projectGroup->id}})"
+                       id="edit-{{$projectGroup->id}}"
+                       name="edit" />
                 <span class="check"></span>
                 <span class="placeholder">Can Edit Forms</span>
               </div>
@@ -93,10 +105,16 @@
             <div class="form-group action">
               <div class="check-box-half check-box-rectangle">
                 <input type="checkbox"
-                       {{ $project->adminGID == $projectGroup->id ? 'checked disabled' : '' }}
+                      @if ($project->adminGID == $projectGroup->id)
+                       checked disabled
+                      @elseif ($projectGroup->delete)
+                        checked
+                      @endif
                        value="1"
                        class="check-box-input preset-input-js"
-                       name="active" />
+                       onclick="Kora.ProjectGroups.Index.updatePermissions({{$projectGroup->id}})"
+                       id="delete-{{$projectGroup->id}}"
+                       name="delete" />
                 <span class="check"></span>
                 <span class="placeholder">Can Delete Forms</span>
               </div>
@@ -153,9 +171,10 @@
   <script type="text/javascript">
     var CSRFToken = '{{ csrf_token() }}';
     var pid = '{{$project->pid}}';
-    var removeUserPath = '{{ action('ProjectGroupController@removeUser') }}'
-    var addUsersPath = '{{ action('ProjectGroupController@addUsers') }}'
-    var editNamePath = '{{ action('ProjectGroupController@updateName', ["pid" => $project->pid]) }}'
+    var removeUserPath = '{{ action('ProjectGroupController@removeUser') }}';
+    var addUsersPath = '{{ action('ProjectGroupController@addUsers') }}';
+    var editNamePath = '{{ action('ProjectGroupController@updateName', ["pid" => $project->pid]) }}';
+    var updatePermissionsPath = '{{ action('ProjectGroupController@updatePermissions', ["pid" => $project->pid]) }}';
     Kora.ProjectGroups.Index();
   </script>
 @stop
@@ -282,9 +301,6 @@
               <hr/>
 
               <h3>{{trans('projectGroups_index.createproj')}}</h3>
-
-              @include('partials.newProjectGroup')
-
           </div>
         </div>
       </div>
@@ -377,45 +393,6 @@
                     }
                 });
             }
-        }
-
-        /**
-         * Update the permissions of a particular project group.
-         *
-         * @param projectGroup {int} The project
-         */
-        function updatePermissions(projectGroup){
-            var permCreate, permEdit, permDelete;
-
-            // If the box is checked, allow users in the project group to create forms within the project.
-            if ($("#create"+projectGroup).is(':checked'))
-                permCreate = 1;
-            else
-                permCreate = 0;
-
-            // Allow users to edit forms.
-            if ($("#edit"+projectGroup).is(':checked'))
-                permEdit = 1;
-            else
-                permEdit = 0;
-
-            // Allow users to delete forms.
-            if ($("#delete"+projectGroup).is(':checked'))
-                permDelete = 1;
-            else
-                permDelete = 0;
-
-            $.ajax({
-                url: '{{action('ProjectGroupController@updatePermissions')}}',
-                type: 'PATCH',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "projectGroup": projectGroup,
-                    "permCreate": permCreate,
-                    "permEdit": permEdit,
-                    "permDelete": permDelete
-                }
-            });
         }
 
         $('#users').select2();
