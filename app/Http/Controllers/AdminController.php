@@ -253,11 +253,15 @@ class AdminController extends Controller {
                         //
                         // Send a confirmation email.
                         //
-                        Mail::send('emails.batch-activation', compact('token', 'password', 'username'), function ($message) use ($email) {
-                            $message->from(env('MAIL_FROM_ADDRESS'));
-                            $message->to($email);
-                            $message->subject('Kora Account Activation');
-                        });
+                        try {
+                            Mail::send('emails.batch-activation', compact('token', 'password', 'username'), function ($message) use ($email) {
+                                $message->from(env('MAIL_FROM_ADDRESS'));
+                                $message->to($email);
+                                $message->subject('Kora Account Activation');
+                            });
+                        } catch(\Swift_TransportException $e) {
+                            //TODO::email error response
+                        }
                         $created++;
                     } else {
                         $skipped++;
