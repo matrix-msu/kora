@@ -69,6 +69,7 @@ Kora.ProjectGroups.Index = function() {
         "projectGroup": projectGroup
       },
       success: function(data) {
+        debugger;
         // data is supposed to be the Old Group ID
         var userMap = {} // A map of userID to their content
         for (userID of userIDs) {
@@ -124,7 +125,7 @@ Kora.ProjectGroups.Index = function() {
             // Add the user to the users currently in the group.
             for (userID of userIDs) {
               if (data.length > 0) {
-                var element = '<div class="use user-js" id="list-element' + projectGroup + userID + '">';
+                var element = '<div class="user user-js" id="list-element' + projectGroup + userID + '">';
                 element += userMap[userID];
                 element += '</div>';
 
