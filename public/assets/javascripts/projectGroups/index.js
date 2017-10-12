@@ -13,9 +13,6 @@ Kora.ProjectGroups.Index = function() {
    * @param pid {int} The project id.
    */
   self.removeUser = function(projectGroup, userID, pid) {
-    var $user = $("#list-element" + projectGroup + userID);
-    var userName = $user.children('.view-user-js').html();
-
     $.ajax({
       url: removeUserPath,
       type: 'PATCH',
@@ -26,6 +23,8 @@ Kora.ProjectGroups.Index = function() {
         "pid": pid
       },
       success: function() {
+        var $user = $("#list-element" + projectGroup + userID);
+        var userName = $user.children('.view-user-js').html();
         // Remove the user from the list of users currently in the group.
         $user.remove();
 
@@ -125,13 +124,13 @@ Kora.ProjectGroups.Index = function() {
             // Add the user to the users currently in the group.
             for (userID of userIDs) {
               if (data.length > 0) {
-                var element = '<div class="user" id="list-element' + projectGroup + userID + '">';
+                var element = '<div class="use user-js" id="list-element' + projectGroup + userID + '">';
                 element += userMap[userID];
                 element += '</div>';
 
                 $groupCardAddUser.before(element);
               } else {
-                var element = '<div class="user" id="list-element' + projectGroup + userID;
+                var element = '<div class="user user-js" id="list-element' + projectGroup + userID;
                 element += '"><a href="#" class="name view-user-js">' + userMap[userID] + '</a>';
                 element += '<a href="#" class="cancel remove-user-js" data-value="[';
                 element += projectGroup + ", " + userID + ", " + pid + ']">';
