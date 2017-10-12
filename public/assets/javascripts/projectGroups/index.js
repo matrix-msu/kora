@@ -120,7 +120,6 @@ Kora.ProjectGroups.Index = function() {
         $('.group-js').each(function() {
           var $this = $(this);
           var $groupCard = $('#' + $this.attr('id') + " .users-js");
-          var $groupCardAddUser = $groupCard.find('.add-users-js')
           var userContent = $('#list-element' + projectGroup + userID).html();
 
           if ($this.attr('id') == projectGroup) {
@@ -131,14 +130,14 @@ Kora.ProjectGroups.Index = function() {
                 element += userMap[userID];
                 element += '</div>';
 
-                $groupCardAddUser.before(element);
+                $groupCard.append(element);
               } else {
                 var element = '<div class="user user-js" id="list-element' + projectGroup + userID;
                 element += '"><a href="#" class="name view-user-js">' + userMap[userID] + '</a>';
                 element += '<a href="#" class="cancel remove-user-js" data-value="[';
                 element += projectGroup + ", " + userID + ", " + pid + ']">';
                 element += '<i class="icon icon-cancel"></i></a></div>';
-                $groupCardAddUser.before(element);
+                $groupCard.append(element);
               }
             }
           } else {
