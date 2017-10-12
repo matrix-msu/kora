@@ -182,6 +182,30 @@ Kora.ProjectGroups.Index = function() {
   }
 
   /**
+   * Edit project group name.
+   *
+   * @param gid {int} The project group id
+   */
+  self.deletePermissionsGroup = function(gid) {
+    $.ajax({
+      url: deletePermissionsPath,
+      type: 'DELETE',
+      data: {
+        "_token": CSRFToken,
+        "projectGroup": gid
+      },
+      success: function() {
+        Kora.Modal.close();
+
+        // Allow for Modal to close before page reload.
+        setTimeout(function() {
+          location.reload();
+        }, 500);
+      }
+    });
+  }
+
+  /**
    * Update the permissions of a particular project group.
    *
    * @param projectGroup {int} The project group id
@@ -351,6 +375,16 @@ Kora.ProjectGroups.Index = function() {
     $('.delete-permission-group-js').click(function(e) {
       e.preventDefault();
 
+      Kora.Modal.open($('.delete-permission-group-modal-js'));
+
+      var gid = $(this).data('group');
+      var deletePermissionsGroup = function(gid) {
+        return function() {
+          self.deletePermissionsGroup(gid);
+        }
+      };
+
+      $('.permissions-delete-submit-js').on('click', '.permissions-delete-btn-js', deletePermissionsGroup(gid));
       Kora.Modal.open($('.delete-permission-group-modal-js'));
     });
   }

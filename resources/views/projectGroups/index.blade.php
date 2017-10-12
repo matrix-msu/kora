@@ -138,7 +138,7 @@
 
             <div class="footer">
               @if (!$specialGroup)
-                <a class="quick-action delete-permission-group-js left" href="#">
+                <a class="quick-action delete-permission-group-js left" href="#" data-group="{{$projectGroup->id}}">
                   <i class="icon icon-trash"></i>
                 </a>
               @endif
@@ -180,6 +180,7 @@
     var addUsersPath = '{{ action('ProjectGroupController@addUsers') }}';
     var editNamePath = '{{ action('ProjectGroupController@updateName', ["pid" => $project->pid]) }}';
     var updatePermissionsPath = '{{ action('ProjectGroupController@updatePermissions', ["pid" => $project->pid]) }}';
+    var deletePermissionsPath = '{{ action('ProjectGroupController@deleteProjectGroup', ["pid" => $project->pid]) }}';
     Kora.ProjectGroups.Index();
   </script>
 @stop

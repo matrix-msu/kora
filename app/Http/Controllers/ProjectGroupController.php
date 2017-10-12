@@ -99,7 +99,7 @@ class ProjectGroupController extends Controller {
                 }
 
                 //After all this, lets make sure they get the custom project added
-                $user = User::where("id","=",$uid)->get();
+                $user = User::where("id","=",$uid)->first();
                 $user->addCustomProject($pid);
             }
 
