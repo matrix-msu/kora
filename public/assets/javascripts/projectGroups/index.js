@@ -69,7 +69,7 @@ Kora.ProjectGroups.Index = function() {
         "projectGroup": projectGroup
       },
       success: function(data) {
-        debugger;
+        console.log(data);
         // data is supposed to be the Old Group ID
         var userMap = {} // A map of userID to their content
         for (userID of userIDs) {
@@ -81,7 +81,9 @@ Kora.ProjectGroups.Index = function() {
           var $this = $(this);
           var groupID = $this.data('group');
 
-          if (groupID == projectGroup) {
+          if (typeof groupID == 'undefined') {
+            return true;
+          } else if (groupID == projectGroup) {
             $this.find('option').each(function() {
 
               // Remove from select if added to projectGroup
