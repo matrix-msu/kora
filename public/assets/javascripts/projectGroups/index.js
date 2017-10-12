@@ -12,24 +12,41 @@ Kora.ProjectGroups.Index = function() {
    * @param userId {int} The user id.
    * @param pid {int} The project id.
    */
-  self.removeUser = function(projectGroup, userId, pid) {
-    var $user = $("#list-element" + projectGroup + userId);
-    var username = $user.children('.view-user-js').html();
+  self.removeUser = function(projectGroup, userID, pid) {
+    var $user = $("#list-element" + projectGroup + userID);
+    var userName = $user.children('.view-user-js').html();
 
     $.ajax({
       url: removeUserPath,
       type: 'PATCH',
       data: {
         "_token": CSRFToken,
-        "userId": userId,
+        "userId": userID,
         "projectGroup": projectGroup,
         "pid": pid
       },
       success: function() {
         // Remove the user from the list of users currently in the group.
-        $user.fadeOut();
+        $user.remove();
+
+        // Add the user to the users that can be added to the group.
+        var option = '<option value="' + userID + '">' + userName + '</option>';
+        var $select = $('#select-' + projectGroup);
+        var canAddToSelect = true;
+
+        $select.children('option').each(function() {
+          if ($(this).val() == userID) {
+            canAddToSelect = false;
+            return;
+          }
+        });
+
+        if (canAddToSelect) {
+          $select.append(option);
+        }
+
+        // Close the modal.
         Kora.Modal.close();
-        // TODO: add the user to the users that can be added to the group.
       }
     });
   }
@@ -60,7 +77,6 @@ Kora.ProjectGroups.Index = function() {
           userMap[userID] = userContent;
         }
 
-
         $('.multi-select').each(function(index) {
           var $this = $(this);
           var groupID = $this.data('group');
@@ -82,7 +98,19 @@ Kora.ProjectGroups.Index = function() {
             // this select needs to have options added
             for (userID of userIDs) {
               var option = '<option value="' + userID + '">' + userMap[userID] + '</option>';
-              $this.append(option);
+
+              // check if if is already in this select list
+              var canAddToSelect = true;
+              $this.children('option').each(function() {
+                if ($(this).val() == userID) {
+                  canAddToSelect = false;
+                  return;
+                }
+              });
+
+              if (canAddToSelect) {
+                $this.append(option);
+              }
             }
           }
         });
@@ -117,8 +145,6 @@ Kora.ProjectGroups.Index = function() {
               $groupCard.find('#list-element' + $this.attr('id') + userID).remove();
             }
           }
-
-          initializeRemoveUserModal();
           initializeViewUserModal();
 
         });
@@ -277,7 +303,7 @@ Kora.ProjectGroups.Index = function() {
         return function(e) {
           e.preventDefault();
 
-          values = $(".multi-select").chosen().val();
+          values = $("#select-" + groupID).chosen().val();
 
           // Validation: at least one selected
           if (values != null) {
@@ -299,7 +325,7 @@ Kora.ProjectGroups.Index = function() {
   }
 
   function initializeRemoveUserModal() {
-    $('.remove-user-js').click(function(e) {
+    $(document).on('click', '.remove-user-js', function(e) {
       e.preventDefault();
 
       var data = $(this).data('value');
@@ -307,9 +333,8 @@ Kora.ProjectGroups.Index = function() {
         self.removeUser(data[0], data[1], data[2]);
       };
 
-      $('.user-remove-btn-js').on('click', removeUser);
+      $('.user-remove-submit-js').on('click', '.user-remove-btn-js', removeUser);
       Kora.Modal.open($('.remove-user-modal-js'));
-
     });
   }
 

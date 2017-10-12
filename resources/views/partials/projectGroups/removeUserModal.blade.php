@@ -11,7 +11,7 @@
         Are you sure you wish to remove this user from this group?
       </span>
 
-      <div class="form-group user-remove-submit">
+      <div class="form-group user-remove-submit user-remove-submit-js">
         <a class="btn warning user-remove-btn-js" href="#">
           Remove User From Group
         </a>

@@ -123,7 +123,7 @@
 
           <div class="users users-js">
             @foreach($projectGroup->users()->get() as $user)
-              <div class="user" id="list-element{{$projectGroup->id}}{{$user->id}}">
+              <div class="user user-js" id="list-element{{$projectGroup->id}}{{$user->id}}">
                 <a href="#" class="name view-user-js">{{ $user->first_name }} {{ $user->last_name }}</a>
 
                 @if (\Auth::user()->id != $user->id)

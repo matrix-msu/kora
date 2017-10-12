@@ -1,8 +1,8 @@
 <div class="hidden" id="add_user_select{{$projectGroup->id}}">
   @if (true)
     <div class="form-group">
-      {!! Form::label("select{{$projectGroup->id}}", 'Select User(s) to Add to Permissions Group') !!}
-      <select class="multi-select" id="select{{$projectGroup->id}}"
+      {!! Form::label("select-".$projectGroup->id, 'Select User(s) to Add to Permissions Group') !!}
+      <select class="multi-select" id="select-{{$projectGroup->id}}"
         data-placeholder="Search and select users to be added to the permissions group    "
         data-group="{{$projectGroup->id}}"
         multiple >
