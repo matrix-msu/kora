@@ -133,26 +133,31 @@
                 @endif
               </div>
             @endforeach
-            <a href="#" class="user-add add-users-js" data-select="add_user_select{{$projectGroup->id}}" data-group="{{$projectGroup->id}}" >
-              <i class="icon icon-user-add"></i>
-            </a>
             @include("partials.projectGroups.addUsersBody")
           </div>
 
-            <div class="footer {{$specialGroup ? 'pb-sm' : ''}}">
+            <div class="footer">
               @if (!$specialGroup)
-                <a class="quick-action delete-permission-group-js left" href="#">
+                <a class="quick-action delete-permission-group-js left" href="#" data-group="{{$projectGroup->id}}">
                   <i class="icon icon-trash"></i>
                 </a>
+              @endif
 
+                <a href="#" class="quick-action user-add add-users-js underline-middle-hover"
+                  data-select="add_user_select{{$projectGroup->id}}"
+                  data-group="{{$projectGroup->id}}" >
+                  <i class="icon icon-user-add"></i>
+                  <span>Add User(s) to Group</span>
+                </a>
+
+              @if (!$specialGroup)
                 <a class="quick-action edit-group-name-js underline-middle-hover"
                    href="#"
                    data-name="{{ str_replace($project->name." ", "", $projectGroup->name) }}"
-                   data-group="{{$projectGroup->id}}"
+                   data-group="{{$projectGroup->id}}" >
                   <i class="icon icon-edit-little"></i>
                   <span>Edit Group Name</span>
                 </a>
-
               @endif
             </div>
         </div>
@@ -175,6 +180,7 @@
     var addUsersPath = '{{ action('ProjectGroupController@addUsers') }}';
     var editNamePath = '{{ action('ProjectGroupController@updateName', ["pid" => $project->pid]) }}';
     var updatePermissionsPath = '{{ action('ProjectGroupController@updatePermissions', ["pid" => $project->pid]) }}';
+    var deletePermissionsPath = '{{ action('ProjectGroupController@deleteProjectGroup', ["pid" => $project->pid]) }}';
     Kora.ProjectGroups.Index();
   </script>
 @stop

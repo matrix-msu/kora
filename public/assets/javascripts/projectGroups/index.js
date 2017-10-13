@@ -13,9 +13,6 @@ Kora.ProjectGroups.Index = function() {
    * @param pid {int} The project id.
    */
   self.removeUser = function(projectGroup, userID, pid) {
-    var $user = $("#list-element" + projectGroup + userID);
-    var userName = $user.children('.view-user-js').html();
-
     $.ajax({
       url: removeUserPath,
       type: 'PATCH',
@@ -26,6 +23,8 @@ Kora.ProjectGroups.Index = function() {
         "pid": pid
       },
       success: function() {
+        var $user = $("#list-element" + projectGroup + userID);
+        var userName = $user.children('.view-user-js').html();
         // Remove the user from the list of users currently in the group.
         $user.remove();
 
@@ -70,6 +69,7 @@ Kora.ProjectGroups.Index = function() {
         "projectGroup": projectGroup
       },
       success: function(data) {
+        console.log(data);
         // data is supposed to be the Old Group ID
         var userMap = {} // A map of userID to their content
         for (userID of userIDs) {
@@ -81,7 +81,9 @@ Kora.ProjectGroups.Index = function() {
           var $this = $(this);
           var groupID = $this.data('group');
 
-          if (groupID == projectGroup) {
+          if (typeof groupID == 'undefined') {
+            return true;
+          } else if (groupID == projectGroup) {
             $this.find('option').each(function() {
 
               // Remove from select if added to projectGroup
@@ -118,25 +120,24 @@ Kora.ProjectGroups.Index = function() {
         $('.group-js').each(function() {
           var $this = $(this);
           var $groupCard = $('#' + $this.attr('id') + " .users-js");
-          var $groupCardAddUser = $groupCard.find('.add-users-js')
           var userContent = $('#list-element' + projectGroup + userID).html();
 
           if ($this.attr('id') == projectGroup) {
             // Add the user to the users currently in the group.
             for (userID of userIDs) {
               if (data.length > 0) {
-                var element = '<div class="user" id="list-element' + projectGroup + userID + '">';
+                var element = '<div class="user user-js" id="list-element' + projectGroup + userID + '">';
                 element += userMap[userID];
                 element += '</div>';
 
-                $groupCardAddUser.before(element);
+                $groupCard.append(element);
               } else {
-                var element = '<div class="user" id="list-element' + projectGroup + userID;
+                var element = '<div class="user user-js" id="list-element' + projectGroup + userID;
                 element += '"><a href="#" class="name view-user-js">' + userMap[userID] + '</a>';
                 element += '<a href="#" class="cancel remove-user-js" data-value="[';
                 element += projectGroup + ", " + userID + ", " + pid + ']">';
                 element += '<i class="icon icon-cancel"></i></a></div>';
-                $groupCardAddUser.before(element);
+                $groupCard.append(element);
               }
             }
           } else {
@@ -178,6 +179,30 @@ Kora.ProjectGroups.Index = function() {
         }
       });
     }
+  }
+
+  /**
+   * Edit project group name.
+   *
+   * @param gid {int} The project group id
+   */
+  self.deletePermissionsGroup = function(gid) {
+    $.ajax({
+      url: deletePermissionsPath,
+      type: 'DELETE',
+      data: {
+        "_token": CSRFToken,
+        "projectGroup": gid
+      },
+      success: function() {
+        Kora.Modal.close();
+
+        // Allow for Modal to close before page reload.
+        setTimeout(function() {
+          location.reload();
+        }, 500);
+      }
+    });
   }
 
   /**
@@ -350,6 +375,16 @@ Kora.ProjectGroups.Index = function() {
     $('.delete-permission-group-js').click(function(e) {
       e.preventDefault();
 
+      Kora.Modal.open($('.delete-permission-group-modal-js'));
+
+      var gid = $(this).data('group');
+      var deletePermissionsGroup = function(gid) {
+        return function() {
+          self.deletePermissionsGroup(gid);
+        }
+      };
+
+      $('.permissions-delete-submit-js').on('click', '.permissions-delete-btn-js', deletePermissionsGroup(gid));
       Kora.Modal.open($('.delete-permission-group-modal-js'));
     });
   }
