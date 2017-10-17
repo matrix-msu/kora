@@ -915,12 +915,7 @@ class ImportController extends Controller {
                         $collToPage[$collid."_seq"] += 1;
                         $field->type = $newType;
                         $field->name = $name;
-                        $slug = str_replace(' ','_',$name);
-                        $z=1;
-                        while(Field::slugExists($slug)) {
-                            $slug .= $z;
-                            $z++;
-                        }
+                        $slug = str_replace(' ','_',$name).'_'.$form->pid.'_'.$form->fid.'_';
                         $field->slug = $slug;
                         $fieldNameArrayForRecordInsert[$name] = $slug;
                         $field->desc = $desc;
