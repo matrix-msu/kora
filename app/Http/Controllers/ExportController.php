@@ -51,13 +51,13 @@ class ExportController extends Controller {
      * @return Redirect
      */
     public function exportRecords($pid, $fid, $type) {
-        if(!FormController::validProjForm($pid, $fid))
-            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
+        if(!FormController::validProjForm($pid,$fid))
+            return redirect('projects/'.$pid);
 
         $form = FormController::getForm($fid);
 
-        if(!(\Auth::user()->isFormAdmin($form)))
-            return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
+        if(!\Auth::user()->isFormAdmin($form))
+            return redirect('projects/'.$pid.'/forms/'.$fid);
 
         $rids = DB::table("records")->where("fid", "=", $fid)->select("rid")->get();
 
@@ -69,9 +69,9 @@ class ExportController extends Controller {
         // Download tracker to stop the loading bar when finished.
         $tracker = new DownloadTracker();
         $tracker->fid = $form->fid;
-        $tracker->save();
+        $tracker->save(); //TODO:: is this doing anything?
 
-        $output = self::exportWithRids($rids, $type);
+        $output = $this->exportWithRids($rids, $type);
 
         if(file_exists($output)) { // File exists, so we download it.
             header("Content-Disposition: attachment; filename=\"" . basename($output) . "\"");
@@ -84,7 +84,8 @@ class ExportController extends Controller {
         } else { // File does not exist, so some kind of error occurred, and we redirect.
             $tracker->delete();
 
-            return redirect("projects/" . $pid . "/forms/" . $fid . "/records")->with('k3_global_error', 'record_export_fail');
+            flash()->overlay(trans("records_index.exporterror"), trans("controller_admin.whoops"));
+            return redirect("projects/" . $pid . "/forms/" . $fid . "/records");
         }
     }
 
@@ -292,20 +293,425 @@ class ExportController extends Controller {
      *
      * @param  array $rids - The RIDs to gather data for
      * @param  string $format - File format to export
+     * @param  string $dataOnly - No file, just data!
      * @return string - The system path to the exported file
      */
-    public static function exportWithRids(array $rids, $format = self::JSON) {
+    public function exportWithRids(array $rids, $format = self::JSON, $dataOnly = false) {
         $format = strtoupper($format);
 
-        if(!self::isValidFormat($format))
+        if(! self::isValidFormat($format))
             return null;
 
-        $rids = json_encode($rids);
+        $chunks = array_chunk($rids, 500);
 
-        $exec_string = env("BASE_PATH") . "python/export.py \"$rids\" \"$format\"";
-        exec($exec_string, $output);
+        switch($format) {
+            case self::JSON:
+                $records = [];
 
-        return $output[0];
+                foreach($chunks as $chunk) {
+                    $records = self::getRecordMetadata($chunk);
+
+                    $datafields = self::getDataRows($chunk);
+                    foreach($datafields as $data){
+                        $kid = $data->pid.'-'.$data->fid.'-'.$data->rid;
+
+                        switch($data->type) {
+                            case Field::_TEXT:
+                                $records[$kid][$data->slug]['value'] = $data->value;
+                                $records[$kid][$data->slug]['type'] = $data->type;
+                                break;
+                            case Field::_RICH_TEXT:
+                                $records[$kid][$data->slug]['value'] = $data->value;
+                                $records[$kid][$data->slug]['type'] = $data->type;
+                                break;
+                            case Field::_NUMBER:
+                                $records[$kid][$data->slug]['value'] = $data->value;
+                                $records[$kid][$data->slug]['type'] = $data->type;
+                                break;
+                            case Field::_LIST:
+                                $records[$kid][$data->slug]['value'] = $data->value;
+                                $records[$kid][$data->slug]['type'] = $data->type;
+                                break;
+                            case Field::_MULTI_SELECT_LIST:
+                                $records[$kid][$data->slug]['value'] = explode('[!]',$data->value);
+                                $records[$kid][$data->slug]['type'] = $data->type;
+                                break;
+                            case Field::_GENERATED_LIST:
+                                $records[$kid][$data->slug]['value'] = explode('[!]',$data->value);
+                                $records[$kid][$data->slug]['type'] = $data->type;
+                                break;
+                            case Field::_COMBO_LIST:
+                                //$records[$kid][$data->slug] = $data->value; TODO::SUPPORT
+                                break;
+                            case Field::_DATE:
+                                $records[$kid][$data->slug]['value'] = [
+                                    'circa' => $data->value,
+                                    'month' => $data->val2,
+                                    'day' => $data->val3,
+                                    'year' => $data->val4,
+                                    'era' => $data->val5,
+                                    'date_object' => ""
+                                ]; //TODO::Date object
+                                $records[$kid][$data->slug]['type'] = $data->type;
+                                break;
+                            case Field::_SCHEDULE:
+                                //$records[$kid][$data->slug] = $data->value; TODO::SUPPORT
+                                break;
+                            case Field::_GEOLOCATOR:
+                                //$records[$kid][$data->slug] = $data->value; TODO::SUPPORT
+                                break;
+                            case Field::_DOCUMENTS:
+                                $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $value = array();
+                                $files = explode('[!]',$data->value);
+                                foreach($files as $file) {
+                                    $info = [
+                                        'name' => explode('[Name]',$file)[1],
+                                        'size' => floatval(explode('[Size]',$file)[1])/1000 . " mb",
+                                        'type' => explode('[Type]',$file)[1],
+                                        'url' => $url.explode('[Name]',$file)[1]
+                                    ];
+                                    array_push($value,$info);
+                                }
+                                $records[$kid][$data->slug]['value'] = $value;
+                                $records[$kid][$data->slug]['type'] = $data->type;
+                                break;
+                            case Field::_GALLERY:
+                                $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $value = array();
+                                $files = explode('[!]',$data->value);
+                                foreach($files as $file) {
+                                    $info = [
+                                        'name' => explode('[Name]',$file)[1],
+                                        'size' => floatval(explode('[Size]',$file)[1])/1000 . " mb",
+                                        'type' => explode('[Type]',$file)[1],
+                                        'url' => $url.explode('[Name]',$file)[1]
+                                    ];
+                                    array_push($value,$info);
+                                }
+                                $records[$kid][$data->slug]['value'] = $value;
+                                $records[$kid][$data->slug]['type'] = $data->type;
+                                break;
+                            case Field::_PLAYLIST:
+                                $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $value = array();
+                                $files = explode('[!]',$data->value);
+                                foreach($files as $file) {
+                                    $info = [
+                                        'name' => explode('[Name]',$file)[1],
+                                        'size' => floatval(explode('[Size]',$file)[1])/1000 . " mb",
+                                        'type' => explode('[Type]',$file)[1],
+                                        'url' => $url.explode('[Name]',$file)[1]
+                                    ];
+                                    array_push($value,$info);
+                                }
+                                $records[$kid][$data->slug]['value'] = $value;
+                                $records[$kid][$data->slug]['type'] = $data->type;
+                                break;
+                            case Field::_VIDEO:
+                                $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $value = array();
+                                $files = explode('[!]',$data->value);
+                                foreach($files as $file) {
+                                    $info = [
+                                        'name' => explode('[Name]',$file)[1],
+                                        'size' => floatval(explode('[Size]',$file)[1])/1000 . " mb",
+                                        'type' => explode('[Type]',$file)[1],
+                                        'url' => $url.explode('[Name]',$file)[1]
+                                    ];
+                                    array_push($value,$info);
+                                }
+                                $records[$kid][$data->slug]['value'] = $value;
+                                $records[$kid][$data->slug]['type'] = $data->type;
+                                break;
+                            case Field::_3D_MODEL:
+                                $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $file = $data->value;
+                                $value = array(
+                                    [
+                                        'name' => explode('[Name]',$file)[1],
+                                        'size' => floatval(explode('[Size]',$file)[1])/1000 . " mb",
+                                        'type' => explode('[Type]',$file)[1],
+                                        'url' => $url.explode('[Name]',$file)[1]
+                                    ]
+                                );
+                                $records[$kid][$data->slug]['value'] = $value;
+                                $records[$kid][$data->slug]['type'] = $data->type;
+                                break;
+                            case Field::_ASSOCIATOR:
+                                //$records[$kid][$data->slug] = $data->value; TODO::SUPPORT
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+
+                $records = json_encode($records);
+
+                if($dataOnly) {
+                    return $records;
+                } else {
+                    $dt = new \DateTime();
+                    $format = $dt->format('Y_m_d_H_i_s');
+                    $path = env("BASE_PATH") . "storage/app/exports/export_$format.json";
+
+                    file_put_contents($path, $records);
+
+                    return $path;
+                }
+                break;
+            case self::XML:
+                $records = '<?xml version="1.0" encoding="utf-8"?><Records>';
+                $recordData = [];
+
+                foreach($chunks as $chunk) {
+                    $datafields = self::getDataRows($chunk);
+
+                    foreach($datafields as $data) {
+                        $kid = $data->pid.'-'.$data->fid.'-'.$data->rid;
+
+                        $fieldxml = '<'.$data->slug.' type="'.$data->type.'">';
+                        switch($data->type) {
+                            case Field::_TEXT:
+                                $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
+                                break;
+                            case Field::_RICH_TEXT:
+                                $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
+                                break;
+                            case Field::_NUMBER:
+                                $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
+                                break;
+                            case Field::_LIST:
+                                $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
+                                break;
+                            case Field::_MULTI_SELECT_LIST:
+                                $opts = explode('[!]',$data->value);
+                                foreach($opts as $opt) {
+                                    $fieldxml .= '<value>'.htmlspecialchars($opt, ENT_XML1, 'UTF-8').'</value>';
+                                }
+                                break;
+                            case Field::_GENERATED_LIST:
+                                $opts = explode('[!]',$data->value);
+                                foreach($opts as $opt) {
+                                    $fieldxml .= '<value>'.htmlspecialchars($opt, ENT_XML1, 'UTF-8').'</value>';
+                                }
+                                break;
+                            case Field::_COMBO_LIST:
+                                //$records[$kid][$data->slug] = $data->value; TODO::SUPPORT
+                                break;
+                            case Field::_DATE:
+                                $fieldxml .= '<Circa>'.$data->value.'</Circa>';
+                                $fieldxml .= '<Month>'.$data->val2.'</Month>';
+                                $fieldxml .= '<Day>'.$data->val3.'</Day>';
+                                $fieldxml .= '<Year>'.$data->val4.'</Year>';
+                                $fieldxml .= '<Era>'.$data->val5.'</Era>';
+                                //TODO::Date object
+                                break;
+                            case Field::_SCHEDULE:
+                                //$records[$kid][$data->slug] = $data->value; TODO::SUPPORT
+                                break;
+                            case Field::_GEOLOCATOR:
+                                //$records[$kid][$data->slug] = $data->value; TODO::SUPPORT
+                                break;
+                            case Field::_DOCUMENTS:
+                                $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $files = explode('[!]',$data->value);
+                                foreach($files as $file) {
+                                    $fieldxml .= '<File>';
+                                    $fieldxml .= '<Name>' . htmlspecialchars(explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Name>';
+                                    $fieldxml .= '<Size>' . floatval(explode('[Size]',$file)[1])/1000 . ' mb</Size>';
+                                    $fieldxml .= '<Type>' . explode('[Type]',$file)[1] . '</Type>';
+                                    $fieldxml .= '<Url>' . htmlspecialchars($url.explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Url>';
+                                    $fieldxml .= '</File>';
+                                }
+                                break;
+                            case Field::_GALLERY:
+                                $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $files = explode('[!]',$data->value);
+                                foreach($files as $file) {
+                                    $fieldxml .= '<File>';
+                                    $fieldxml .= '<Name>' . htmlspecialchars(explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Name>';
+                                    $fieldxml .= '<Size>' . floatval(explode('[Size]',$file)[1])/1000 . ' mb</Size>';
+                                    $fieldxml .= '<Type>' . explode('[Type]',$file)[1] . '</Type>';
+                                    $fieldxml .= '<Url>' . htmlspecialchars($url.explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Url>';
+                                    $fieldxml .= '</File>';
+                                }
+                                break;
+                            case Field::_PLAYLIST:
+                                $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $files = explode('[!]',$data->value);
+                                foreach($files as $file) {
+                                    $fieldxml .= '<File>';
+                                    $fieldxml .= '<Name>' . htmlspecialchars(explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Name>';
+                                    $fieldxml .= '<Size>' . floatval(explode('[Size]',$file)[1])/1000 . ' mb</Size>';
+                                    $fieldxml .= '<Type>' . explode('[Type]',$file)[1] . '</Type>';
+                                    $fieldxml .= '<Url>' . htmlspecialchars($url.explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Url>';
+                                    $fieldxml .= '</File>';
+                                }
+                                break;
+                            case Field::_VIDEO:
+                                $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $files = explode('[!]',$data->value);
+                                foreach($files as $file) {
+                                    $fieldxml .= '<File>';
+                                    $fieldxml .= '<Name>' . htmlspecialchars(explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Name>';
+                                    $fieldxml .= '<Size>' . floatval(explode('[Size]',$file)[1])/1000 . ' mb</Size>';
+                                    $fieldxml .= '<Type>' . explode('[Type]',$file)[1] . '</Type>';
+                                    $fieldxml .= '<Url>' . htmlspecialchars($url.explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Url>';
+                                    $fieldxml .= '</File>';
+                                }
+                                break;
+                            case Field::_3D_MODEL:
+                                $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $file = $data->value;
+
+                                $fieldxml .= '<File>';
+                                $fieldxml .= '<Name>' . htmlspecialchars(explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Name>';
+                                $fieldxml .= '<Size>' . floatval(explode('[Size]',$file)[1])/1000 . ' mb</Size>';
+                                $fieldxml .= '<Type>' . explode('[Type]',$file)[1] . '</Type>';
+                                $fieldxml .= '<Url>' . htmlspecialchars($url.explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Url>';
+                                $fieldxml .= '</File>';
+                                break;
+                            case Field::_ASSOCIATOR:
+                                //$records[$kid][$data->slug] = $data->value; TODO::SUPPORT
+                                break;
+                            default:
+                                break;
+                        }
+
+                        $fieldxml .= '</'.$data->slug.'>';
+
+                        if(isset($recordData[$kid]))
+                            $recordData[$kid] .= $fieldxml;
+                        else
+                            $recordData[$kid] = $fieldxml;
+                    }
+                }
+
+                //Now we have an array of kids to their field data
+                //We need to loop back and add them to the xml
+                foreach($recordData as $kid => $data) {
+                    $records .= "<Record kid='$kid'>$data</Record>";
+                }
+
+                $records .= '</Records>';
+
+                if($dataOnly) {
+                    return $records;
+                } else {
+                    $dt = new \DateTime();
+                    $format = $dt->format('Y_m_d_H_i_s');
+                    $path = env("BASE_PATH") . "storage/app/exports/export_$format.xml";
+
+                    file_put_contents($path, $records);
+
+                    return $path;
+                }
+            default:
+                return '';
+                break;
+        }
+    }
+
+    /**
+     * Get the data rows back for a set of records.
+     *
+     * @param  int $rids - Record IDs
+     * @return array - Data for the records
+     */
+    public static function getDataRows($rids) {
+        $rid = implode(', ',$rids);
+        return DB::select("SELECT tf.rid as `rid`, tf.text as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+FROM kora3_text_fields as tf left join kora3_fields as fl on tf.flid=fl.flid where tf.rid in ($rid)
+union all
+
+SELECT nf.rid as `rid`, nf.number as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+FROM kora3_number_fields as nf left join kora3_fields as fl on nf.flid=fl.flid where nf.rid in ($rid)  
+union all
+
+SELECT rtf.rid as `rid`, rtf.rawtext as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+FROM kora3_rich_text_fields as rtf left join kora3_fields as fl on rtf.flid=fl.flid where rtf.rid in ($rid)  
+union all
+
+SELECT lf.rid as `rid`, lf.option as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+FROM kora3_list_fields as lf left join kora3_fields as fl on lf.flid=fl.flid where lf.rid in ($rid)  
+union all
+
+SELECT mslf.rid as `rid`, mslf.options as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+FROM kora3_multi_select_list_fields as mslf left join kora3_fields as fl on mslf.flid=fl.flid where mslf.rid in ($rid)  
+union all
+
+SELECT glf.rid as `rid`, glf.options as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+FROM kora3_generated_list_fields as glf left join kora3_fields as fl on glf.flid=fl.flid where glf.rid in ($rid)  
+union all
+
+SELECT clf.rid as `rid`, NULL as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+FROM kora3_combo_list_fields as clf left join kora3_fields as fl on clf.flid=fl.flid where clf.rid in ($rid) 
+union all
+
+SELECT df.rid as `rid`, df.circa as `value`, df.month as `val2`,df.day as `val3`,df.year as `val4`,df.era as `val5`,fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+FROM kora3_date_fields as df left join kora3_fields as fl on df.flid=fl.flid where df.rid in ($rid) 
+union all
+
+SELECT sf.rid as `rid`, NULL as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+FROM kora3_schedule_fields as sf left join kora3_fields as fl on sf.flid=fl.flid where sf.rid in ($rid) 
+union all
+
+SELECT docf.rid as `rid`, docf.documents as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+FROM kora3_documents_fields as docf left join kora3_fields as fl on docf.flid=fl.flid where docf.rid in ($rid) 
+union all
+
+SELECT galf.rid as `rid`, galf.images as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+FROM kora3_gallery_fields as galf left join kora3_fields as fl on galf.flid=fl.flid where galf.rid in ($rid) 
+union all
+
+SELECT pf.rid as `rid`, pf.audio as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+FROM kora3_playlist_fields as pf left join kora3_fields as fl on pf.flid=fl.flid where pf.rid in ($rid) 
+union all
+
+SELECT vf.rid as `rid`, vf.video as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+FROM kora3_video_fields as vf left join kora3_fields as fl on vf.flid=fl.flid where vf.rid in ($rid) 
+union all
+
+SELECT mf.rid as `rid`, mf.model as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+FROM kora3_model_fields as mf left join kora3_fields as fl on mf.flid=fl.flid where mf.rid in ($rid) 
+union all
+
+SELECT gf.rid as `rid`, NULL as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+FROM kora3_geolocator_fields as gf left join kora3_fields as fl on gf.flid=fl.flid where gf.rid in ($rid) 
+union all
+
+SELECT af.rid as `rid`, NULL as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+FROM kora3_associator_fields as af left join kora3_fields as fl on af.flid=fl.flid where af.rid in ($rid) ;");
+    }
+
+    /**
+     * Get the metadeta back for a set of records.
+     *
+     * @param  int $rid - Record IDs
+     * @return array - Metadata for the records
+     */
+    public static function getRecordMetadata($rids) {
+        $meta = [];
+        $kidPairs = [];
+        $rid = implode(', ',$rids);
+
+        $part1 = DB::select("SELECT r.rid, r.kid, r.created_at, r.updated_at, u.username FROM kora3_records as r LEFT JOIN kora3_users as u on r.owner=u.id WHERE r.rid in ($rid)");
+        foreach($part1 as $row) {
+            $meta[$row->kid]["created"] = $row->created_at;
+            $meta[$row->kid]["updated"] = $row->updated_at;
+            $meta[$row->kid]["owner"] = $row->username;
+            $kidPairs[$row->rid] = $row->kid;
+        }
+
+        $part2 = DB::select("SELECT aSupp.record as main, recs.kid as linker FROM kora3_associator_support as aSupp LEFT JOIN kora3_records as recs on aSupp.rid=recs.rid WHERE aSupp.record in ($rid)");
+
+        foreach($part2 as $row) {
+            $meta[$kidPairs[$row->main]]["reverseAssociations"][] = $row->linker;
+        }
+
+        return $meta;
     }
 
     /**

@@ -335,17 +335,14 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                 $field->sequence = $collToPage[$collid.'_seq'];
                 $field->type = $newType;
                 $field->name = $c['name'];
-                $slug = str_replace(' ','_',$c['name']).$this->fieldSlugGenerator();
-                while(Field::slugExists($slug)) {
-                    $slug .= $this->fieldSlugGenerator();
-                }
+                $slug = str_replace(' ','_',$c['name']).'_'.$newForm->pid.'_'.$newForm->fid.'_';
                 $field->slug = $slug;
                 $field->desc = $desc;
                 $field->required = $req;
                 $field->searchable = $search;
                 $field->advSearch = $advsearch;
                 $field->extsearch = $search;
-                $field->viewable = $showresults;
+                $field->viewable = 1;
                 $field->viewresults = $showresults;
                 $field->extview = $showresults;
                 $field->default = $newDef;
@@ -462,7 +459,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                 if(!isset($oldControlInfo[$r['cid']])) {continue;}
                 $flid = $oldControlInfo[$r['cid']];
                 $field = FieldController::getField($flid);
-                $value = $r['value'];
+                $value = utf8_encode($r['value']);
 
                 switch($field->type) {
                     case 'Text':
@@ -484,7 +481,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
 
                         break;
                     case 'Generated List':
-                        $mtc = (array)simplexml_load_string(utf8_encode($value))->text;
+                        $mtc = (array)simplexml_load_string($value)->text;
                         $optStr = implode('[!]',$mtc);
 
                         $gen = new GeneratedListField();
@@ -496,7 +493,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
 
                         break;
                     case 'Date':
-                        $dateXML = simplexml_load_string(utf8_encode($value));
+                        $dateXML = simplexml_load_string($value);
                         $circa=0;
                         if((string)$dateXML->prefix == 'circa')
                             $circa=1;
@@ -517,7 +514,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
 
                         break;
                     case 'Schedule':
-                        $mlc = simplexml_load_string(utf8_encode($value))->date;
+                        $mlc = simplexml_load_string($value)->date;
                         $formattedDates = array();
                         $i=1;
 
@@ -540,7 +537,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
 
                         break;
                     case 'Documents':
-                        $fileXML = simplexml_load_string(utf8_encode($value));
+                        $fileXML = simplexml_load_string($value);
                         $realname = (string)$fileXML->originalName;
                         $localname = (string)$fileXML->localName;
 
@@ -582,7 +579,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                         }
                         break;
                     case 'Gallery':
-                        $fileXML = simplexml_load_string(utf8_encode($value));
+                        $fileXML = simplexml_load_string($value);
                         $realname = (string)$fileXML->originalName;
                         $localname = (string)$fileXML->localName;
 
@@ -674,7 +671,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
 
                         break;
                     case 'Multi-Select List':
-                        $mlc = (array)simplexml_load_string(utf8_encode($value))->value;
+                        $mlc = (array)simplexml_load_string($value)->value;
                         $optStr = implode('[!]',$mlc);
 
                         $msl = new MultiSelectListField();
@@ -686,7 +683,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
 
                         break;
                     case 'Associator':
-                        $kids = (array)simplexml_load_string(utf8_encode($value))->kid;
+                        $kids = (array)simplexml_load_string($value)->kid;
 
                         $assoc = new AssociatorField();
                         $assoc->rid = $recModel->rid;
@@ -731,21 +728,6 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
         DB::table('exodus_overall_progress')->where('id', $this->exodus_id)->increment('progress',1,['updated_at'=>Carbon::now()]);
 
         mysqli_close($con);
-    }
-
-    /**
-     * Generates a slug for a field to prevent duplicates.
-     *
-     * @return int - 5 digit numeric tag
-     */
-    private function fieldSlugGenerator() {
-        $valid = '0123456789';
-
-        $password = '';
-        for($i = 0; $i < 4; ++$i) {
-            $password .= $valid[( rand() % 10 )];
-        }
-        return $password;
     }
 
     /**

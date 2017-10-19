@@ -209,10 +209,10 @@ class ExodusController extends Controller {
                     $unique = false;
                     $i = 1;
                     while(!$unique) {
-                        if(Project::where('slug', '=', $slug . $i)->exists()) {
+                        if(Project::where('slug', '=', $slug . '_' . $i)->exists()) {
                             $i++;
                         } else {
-                            $proj->slug = $slug . $i;
+                            $proj->slug = $slug . '_' . $i;
                             $unique = true;
                         }
                     }
@@ -355,10 +355,10 @@ class ExodusController extends Controller {
                     $unique = false;
                     $i = 1;
                     while(!$unique) {
-                        if(Form::where('slug', '=', $slug . $i)->exists()) {
+                        if(Form::where('slug', '=', $slug . '_' . $i)->exists()) {
                             $i++;
                         } else {
-                            $form->slug = $slug . $i;
+                            $form->slug = $slug . '_' . $i;
                             $unique = true;
                         }
                     }
