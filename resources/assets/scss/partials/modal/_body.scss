@@ -4,10 +4,16 @@
   padding: 0 40px 40px;
 }
 
-&.small .body {
-  padding: 0 25px 25px;
-  font-size: 14px;
-  line-height: 1.5;
+&.small {
+  .body {
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 0 25px 25px;
+  }
+
+  .form-group:last-child {
+    padding-top: 25px;
+  }
 }
 
 @media screen and (max-width: $max-mobile-xs-width) {
