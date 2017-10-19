@@ -15,7 +15,7 @@
     </div>
 
     <div class="form-group add-users-submit add-users-submit-js">
-      {!! Form::submit('Add User(s) to Permission Group',['class' => 'btn']) !!}
+      {!! Form::submit('Add User(s) to Group',['class' => 'btn']) !!}
     </div>
   @else
     <div class="request-permissions-error">

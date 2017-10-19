@@ -5,7 +5,7 @@
 
   .allowed-actions .action {
     display: inline-block;
-    padding: 0 15px;
+    padding: 0 14px;
 
     &:first-of-type {
       padding-left: 0;
@@ -17,4 +17,34 @@
   }
 
   @import 'group/users';
+  @import 'group/footer';
+}
+
+@media screen and (max-width: $max-mobile-med-width) {
+  .group .content {
+    .allowed-actions .action {
+
+      &:last-of-type {
+        display: block;
+        padding: 15px 0 0;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: $max-mobile-xs-width) {
+  .group .content {
+    .allowed-actions {
+      padding-bottom: 25px;
+    }
+
+    .allowed-actions .action {
+      display: block;
+      padding: 15px 0 0;
+
+      &:first-of-type {
+        padding-top: 0;
+      }
+    }
+  }
 }

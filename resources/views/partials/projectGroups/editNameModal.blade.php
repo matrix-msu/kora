@@ -13,7 +13,7 @@
       </div>
 
       <div class="form-group add-users-submit edit-group-name-submit-js">
-        {!! Form::submit('Update Permissions Group Name',['class' => 'btn edit-group-name-button-js']) !!}
+        {!! Form::submit('Update Group Name',['class' => 'btn edit-group-name-button-js']) !!}
       </div>
     </div>
   </div>

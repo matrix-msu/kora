@@ -52,7 +52,7 @@
               <i class="icon icon-shield pr-xs"></i>
             @endif
 
-            <a class="title inactive" href="#">
+            <a class="title permission-toggle-by-name-js" href="#">
               <span class="name name-js">{{ str_replace($project->name." ", "", $projectGroup->name) }}</span>
             </a>
           </div>
@@ -121,8 +121,24 @@
             </div>
           </div>
 
-          <div class="users users-js">
-            @foreach($projectGroup->users()->get() as $user)
+          <div class="users users-js" data-group="{{$projectGroup->id}}">
+            <?php
+              $users = $projectGroup->users()->get();
+            ?>
+            @if (sizeof($users) == 0)
+              <p class="no-users no-users-js">
+                <span>No users in this group, select</span>
+                <a href="#" class="user-add add-users-js underline-middle-hover"
+                  data-select="add_user_select{{$projectGroup->id}}"
+                  data-group="{{$projectGroup->id}}" >
+                  <i class="icon icon-user-add"></i>
+                  <span>Add User(s) to Group</span>
+                </a>
+                <span>to add some!</span>
+              </p>
+            @endif
+
+            @foreach($users as $user)
               <div class="user user-js" id="list-element{{$projectGroup->id}}{{$user->id}}">
                 <a href="#" class="name view-user-js">{{ $user->first_name }} {{ $user->last_name }}</a>
 
@@ -138,7 +154,7 @@
 
             <div class="footer">
               @if (!$specialGroup)
-                <a class="quick-action delete-permission-group-js left" href="#" data-group="{{$projectGroup->id}}">
+                <a class="quick-action trash-container delete-permission-group-js left" href="#" data-group="{{$projectGroup->id}}">
                   <i class="icon icon-trash"></i>
                 </a>
               @endif

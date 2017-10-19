@@ -24,9 +24,19 @@ Kora.ProjectGroups.Index = function() {
       },
       success: function() {
         var $user = $("#list-element" + projectGroup + userID);
+        var $parent = $user.parent();
         var userName = $user.children('.view-user-js').html();
-        // Remove the user from the list of users currently in the group.
-        $user.remove();
+
+        $user.fadeOut(function() {
+          // Remove the user from the list of users currently in the group.
+          $(this).remove();
+
+          // If was the last user of the group display no-users text
+
+          if ($parent.children('.user-js').length == 0) {
+            self.showNoUsersText($parent, projectGroup);
+          }
+        });
 
         // Add the user to the users that can be added to the group.
         var option = '<option value="' + userID + '">' + userName + '</option>';
@@ -52,6 +62,47 @@ Kora.ProjectGroups.Index = function() {
 
 
   /**
+   * Helper function for displaying a user in the project group.
+   *
+   * @param isUserMove {int} Whether or not the user was moved from a group
+   * @param pid {int} The project id
+   * @param userIDs {array} The list of userIDs
+   * @param userMap {object} The userMap for the function.
+   * @param $groupCard {jQuery} The parent element to append user.
+   */
+  self.showUser = function(isUserMove, pid, projectGroup, userIDs, userMap, $groupCard) {
+    // Add the user to the users currently in the group.
+    for (userID of userIDs) {
+      if (isUserMove.length > 0) {
+        var element = '<div style="display:none" class="user user-js" ';
+        element += 'id="list-element' + projectGroup + userID + '">';
+        element += userMap[userID];
+        element += '</div>';
+        $groupCard.append(element).children('.user-js').fadeIn();
+      } else {
+        var element = '<div style="display:none" class="user user-js" ';
+        element += 'id="list-element' + projectGroup + userID;
+        element += '"><a href="#" class="name view-user-js">' + userMap[userID] + '</a>';
+        element += '<a href="#" class="cancel remove-user-js" data-value="[';
+        element += projectGroup + ", " + userID + ", " + pid + ']">';
+        element += '<i class="icon icon-cancel"></i></a></div>';
+        $groupCard.append(element).children('.user-js').fadeIn();
+      }
+    }
+  }
+
+  self.showNoUsersText = function($groupCard, groupID) {
+    // Is the last user of the group so display no-users text
+    var element = '<p style="display: none" class="no-users no-users-js">';
+    element += '<span>No users in this group, select</span><a href="#" class="user-add ';
+    element += 'add-users-js underline-middle-hover" data-select="add_user_select' + groupID;
+    element += '" data-group="' + groupID + '">';
+    element += '<i class="icon icon-user-add"></i><span>Add User(s) to Group</span></a>';
+    element += '<span>to add some!</span></p>';
+    $groupCard.append(element).children('.no-users-js').fadeIn();
+  }
+
+  /**
    * Add users to a project's project group.
    *
    * @param projectGroup {int} The project group id.
@@ -69,7 +120,6 @@ Kora.ProjectGroups.Index = function() {
         "projectGroup": projectGroup
       },
       success: function(data) {
-        console.log(data);
         // data is supposed to be the Old Group ID
         var userMap = {} // A map of userID to their content
         for (userID of userIDs) {
@@ -120,30 +170,38 @@ Kora.ProjectGroups.Index = function() {
         $('.group-js').each(function() {
           var $this = $(this);
           var $groupCard = $('#' + $this.attr('id') + " .users-js");
+          var groupID = $groupCard.data('group');
           var userContent = $('#list-element' + projectGroup + userID).html();
 
           if ($this.attr('id') == projectGroup) {
-            // Add the user to the users currently in the group.
-            for (userID of userIDs) {
-              if (data.length > 0) {
-                var element = '<div class="user user-js" id="list-element' + projectGroup + userID + '">';
-                element += userMap[userID];
-                element += '</div>';
-
-                $groupCard.append(element);
-              } else {
-                var element = '<div class="user user-js" id="list-element' + projectGroup + userID;
-                element += '"><a href="#" class="name view-user-js">' + userMap[userID] + '</a>';
-                element += '<a href="#" class="cancel remove-user-js" data-value="[';
-                element += projectGroup + ", " + userID + ", " + pid + ']">';
-                element += '<i class="icon icon-cancel"></i></a></div>';
-                $groupCard.append(element);
-              }
+            // remove no-users p if exists
+            var $noUsers = $groupCard.children(".no-users-js");
+            if ($noUsers.length > 0) {
+              $noUsers.fadeOut(function() {
+                $(this).remove();
+                self.showUser(data, pid, projectGroup, userIDs, userMap, $groupCard);
+              })
+            } else {
+              self.showUser(data, pid, projectGroup, userIDs, userMap, $groupCard);
             }
           } else {
             // Remove the user from the users currently in the group.
+            usersInGroup = $groupCard.children('.user-js').length
             for (userID of userIDs) {
-              $groupCard.find('#list-element' + $this.attr('id') + userID).remove();
+              $elementToRemove = $groupCard.find('#list-element' + $this.attr('id') + userID);
+
+              if ($elementToRemove.length && usersInGroup == 1) {
+                $elementToRemove.fadeOut(function() {
+                  // Remove the user from the list of users currently in the group.
+                  $(this).remove();
+                  self.showNoUsersText($groupCard, groupID);
+                });
+              } else if ($elementToRemove.length) {
+                $elementToRemove.fadeOut(function() {
+                  // Remove the user from the list of users currently in the group.
+                  $(this).remove();
+                });
+              }
             }
           }
           initializeViewUserModal();
@@ -229,7 +287,18 @@ Kora.ProjectGroups.Index = function() {
     });
   }
 
-  function initializePermissionsToggle() {
+  function initializePermissionsToggles() {
+
+
+
+    $('.permission-toggle-by-name-js').click(function(e) {
+      e.preventDefault();
+
+      var $this = $(this);
+      var $cardToggle = $this.parent().next();
+      $cardToggle.children().click()
+    });
+
     $('.permission-toggle-js').click(function(e) {
       e.preventDefault();
 
@@ -308,7 +377,7 @@ Kora.ProjectGroups.Index = function() {
   }
 
   function initializeAddUsersModal() {
-    $('.add-users-js').click(function(e) {
+    $(document).on('click', '.add-users-js', function(e) {
       e.preventDefault();
 
       // Initialization of Modal with Users selectable
@@ -390,7 +459,7 @@ Kora.ProjectGroups.Index = function() {
   }
 
   Kora.Modal.initialize();
-  initializePermissionsToggle();
+  initializePermissionsToggles();
   initializeNewPermissionModal();
   initializeDeletePermissionModal();
   initializeEditGroupNameModal();

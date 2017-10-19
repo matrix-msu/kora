@@ -16,3 +16,32 @@
     }
   }
 }
+
+@media screen and (max-width: $max-mobile-med-width) {
+  .new-permission-modal .body {
+    .actions .action {
+
+      &:last-of-type {
+        display: block;
+        padding: 15px 0 0;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: $max-mobile-xs-width) {
+  .new-permission-modal .body {
+    .actions .action {
+      display: block;
+      padding: 10px 0 0;
+
+      &:first-of-type {
+        padding-top: 0;
+      }
+
+      &:last-of-type {
+        padding-top: 10px;
+      }
+    }
+  }
+}
