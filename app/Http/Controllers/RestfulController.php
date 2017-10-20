@@ -600,14 +600,13 @@ class RestfulController extends Controller {
     }
 
     /**
-     * Sends list of RIDs to python to generate the record data.
+     * Prepares list of rids and filters array for generating the record data.
      *
      * @param  array $rids - List of Record IDs
      * @param  array $filters - Filters from the search
      * @param  string $format - The return format for the results
      * @return string - Path to the results file
      */
-    //mimics the export python functionality to populate records
     private function populateRecords($rids,$filters,$format = self::JSON) {
         $format = strtoupper($format);
         if( ! self::isValidFormat($format))

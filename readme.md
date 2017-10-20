@@ -30,7 +30,6 @@ Change directory permissions to read access:
 Give write access to the following directories:
 
     chmod -R 0775 -R Kora3/bootstrap/cache/
-    chmod -R 0775 -R Kora3/python/
     chmod -R 0775 -R Kora3/storage/
     chmod -R 0775 -R Kora3/public/assets/javascripts/production/
 
