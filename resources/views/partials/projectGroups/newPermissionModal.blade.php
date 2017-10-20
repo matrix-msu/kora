@@ -48,7 +48,7 @@
           </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group users-select">
           {!! Form::label("users", 'Select User(s) in Permissions Group') !!}
           <select class="multi-select" id="users" name="users[]"
             data-placeholder="Search and select users to be added to the permissions group    "

@@ -34,6 +34,18 @@
   	line-height: 18px;
   }
 
+  &:not(:first-of-type) {
+    padding: #{map-get($spacing, sm)} 0;
+  }
+
+  &:first-of-type {
+    padding: 0 0 #{map-get($spacing, sm)};
+  }
+
+  &:last-child {
+    padding: #{map-get($spacing, xxl)} 0 0;
+  }
+
   @import 'inputs/text';
   @import 'inputs/selects';
   @import 'inputs/buttons';
