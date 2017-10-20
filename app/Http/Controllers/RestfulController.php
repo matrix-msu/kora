@@ -26,11 +26,13 @@ class RestfulController extends Controller {
      */
     const JSON = "JSON";
     const XML = "XML";
+    const KORA = "KORA_OLD";
+    const META = "META";
 
     /**
      * @var array - Valid output formats
      */
-    const VALID_FORMATS = [ self::JSON, self::XML ];
+    const VALID_FORMATS = [ self::JSON, self::XML, self::KORA, self::META ];
 
     /**
      * Gets the current version of Kora3.
@@ -118,6 +120,11 @@ class RestfulController extends Controller {
     public function search(Request $request) {
         //get the forms
         $forms = json_decode($request->forms);
+        //get the format
+        if(isset($request->format))
+            $apiFormat = $request->format;
+        else
+            $apiFormat = self::JSON;
         //next, we authenticate each form
         foreach($forms as $f) {
             //next, we authenticate the form
@@ -157,7 +164,7 @@ class RestfulController extends Controller {
                 if ($filters['size'])
                     return sizeof($returnRIDS);
                 else
-                    return $this->populateRecords($returnRIDS, $filters);
+                    return $this->populateRecords($returnRIDS, $filters, $apiFormat);
             } else {
                 $queries = $f->query;
                 $resultSets = array();
@@ -254,7 +261,7 @@ class RestfulController extends Controller {
                 if($filters['size'])
                     return response()->json(["status"=>true,"result"=>sizeof($returnRIDS)],200);
                 else
-                    return response()->json(["status"=>true,"result"=>$this->populateRecords($returnRIDS, $filters)],200);
+                    return response()->json(["status"=>true,"result"=>$this->populateRecords($returnRIDS, $filters, $apiFormat)],200);
             }
         }
     }
@@ -633,12 +640,13 @@ class RestfulController extends Controller {
         if(!is_null($filters['count']))
             $rids = array_slice($rids,0,$filters['count']);
 
-        $rids = json_encode($rids);
-        if($rids=="[]")
-            return "{\"Records\":[]}";
-        $exec_string = env("BASE_PATH") . "python/api.py \"$rids\" \"$format\" '$fields' \"$meta\" \"$data\" \"$assoc\"";
-        exec($exec_string, $output);
-        return $output[0];
+        if(empty($rids))
+            return "{}";
+
+        $expControl = new ExportController();
+        $output = $expControl->exportWithRids($rids,$format,true);
+
+        return $output;
     }
 
     /**

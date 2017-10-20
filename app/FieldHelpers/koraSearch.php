@@ -1,16 +1,15 @@
 <?php namespace App\FieldHelpers;
 
 //THIS TOOL IS PRIMARILY (see first class for exception) THE CONVERTER FUNCTION FOR USING OLD KORA 2 KORA_Search AND KORA_Clause FUNCTIONS
-//IDEALLY YOU HAVE USED EITHER Exodus OR THE K2 Importer TOOLS TO MIGRATE YOUR KORA 2 DATA
+//THIS WORKS IF YOU HAVE USED EITHER Exodus OR THE K2 Importer TOOLS TO MIGRATE YOUR KORA 2 DATA
 //Step 1
 ////Change your php includes of koraSearch.php from K2 to point at this file
 ////In your file, use the namespace tag "namespace App\FieldHelpers"
 //Step 2
 ////Replace your token, pid, and sid with a new search token, a k3 pid, and fid
 //Step 3
-////For base KORA_Clauses (i.e. ones that do not use AND/OR), change the control name to the new nickname of the
-////corresponding field
-////Do the same for field names in the order array if used
+////You do not need to update field names, unless you manually changed the nickname in Kora 3
+////Leave the original control names in your koraSearch, but the k3 nickname should be {K2 control name with underscores not spaces}_{pid}_{fid}_
 //Step 4
 ////If you are pointing to a K3 installation that needs http auth, as the 9th variable of KORA_Search, place an
 ////array in the format ["user"=>"{your_username}", "pass"=>"{your_password}"]
@@ -60,7 +59,7 @@ class kora3ApiExternalTool {
      */
     static function kidQueryBuilder($kids,$not=false) {
         $qkid = array();
-        $qkid["search"] = "KID";
+        $qkid["search"] = "kid";
         $qkid["kids"] = $kids;
         if($not)
             $qkid["not"] = $not;
@@ -81,60 +80,60 @@ class kora3ApiExternalTool {
 
         $qadv["fields"] = $advData;
         //Lets talk about the structure of $advData
-            //First off we have the index of the array values
-            //Each field is represented in the index
-            //The index will be a field's slug of flid
-                //$advData[FIELD_SLUG] = SEARCH_DATA_ARRAY
+        //First off we have the index of the array values
+        //Each field is represented in the index
+        //The index will be a field's slug of flid
+        //$advData[FIELD_SLUG] = SEARCH_DATA_ARRAY
 
-            //So what about that SEARCH_DATA_ARRAY
-            //That is going to be an array of info which is different per field type
-            //Foreach field type, I will list out the index and the expected value of that index
-                //SEARCH_DATA_ARRAY[PARAMETER_NAME] = PARAMETER_VALUE
+        //So what about that SEARCH_DATA_ARRAY
+        //That is going to be an array of info which is different per field type
+        //Foreach field type, I will list out the index and the expected value of that index
+        //SEARCH_DATA_ARRAY[PARAMETER_NAME] = PARAMETER_VALUE
 
-            //Text
-                //SDA[input] = string of text to search
-            //Rich Text
-                //SDA[input] = string of text to search
-            //Number
-                //SDA[left] = number of left bound to search (blank for -infinite)
-                //SDA[right] = number of right bound to search (blank for infinite)
-                //SDA[invert] = bitwise where 1 will search outside of bound
-            //List
-                //SDA[input] = string option to search
-            //Multi-Select List
-                //SDA[input] = array of string options to search
-            //Generated List
-                //SDA[input] = array of string options to search
-            //Date
-                //SDA[begin_month] = number representation of month to search
-                //SDA[begin_day] = number representation of day to search
-                //SDA[begin_year] = number representation of year to search
-                //SDA[end_month] = number representation of month to search
-                //SDA[end_day] = number representation of day to search
-                //SDA[end_year] = number representation of year to search
-            //Schedule
-                //SDA[begin_month] = number representation of month to search
-                //SDA[begin_day] = number representation of day to search
-                //SDA[begin_year] = number representation of year to search
-                //SDA[end_month] = number representation of month to search
-                //SDA[end_day] = number representation of day to search
-                //SDA[end_year] = number representation of year to search
-            //Geolocator
-                //SDA[type] = string of location type to search (LatLon, UTM, or Address)
-                //Only if LatLon
-                    //SDA[lat] = number of latitude to search
-                    //SDA[lon] = number of longitude to search
-                //Only if UTM
-                    //SDA[zone] = string of UTM zone to search
-                    //SDA[east] = number of easting to search
-                    //SDA[north] = number of northing to search
-                //Only if Address
-                    //SDA[address] = string of text to search
-                //SDA[range] = number of radius from location center to search
-            //Associator
-                //SDA[input] = array of RIDs to search
-            //Literally Any File Field Ever
-                //SDA[input] = string of filename to search
+        //Text
+        //SDA[input] = string of text to search
+        //Rich Text
+        //SDA[input] = string of text to search
+        //Number
+        //SDA[left] = number of left bound to search (blank for -infinite)
+        //SDA[right] = number of right bound to search (blank for infinite)
+        //SDA[invert] = bitwise where 1 will search outside of bound
+        //List
+        //SDA[input] = string option to search
+        //Multi-Select List
+        //SDA[input] = array of string options to search
+        //Generated List
+        //SDA[input] = array of string options to search
+        //Date
+        //SDA[begin_month] = number representation of month to search
+        //SDA[begin_day] = number representation of day to search
+        //SDA[begin_year] = number representation of year to search
+        //SDA[end_month] = number representation of month to search
+        //SDA[end_day] = number representation of day to search
+        //SDA[end_year] = number representation of year to search
+        //Schedule
+        //SDA[begin_month] = number representation of month to search
+        //SDA[begin_day] = number representation of day to search
+        //SDA[begin_year] = number representation of year to search
+        //SDA[end_month] = number representation of month to search
+        //SDA[end_day] = number representation of day to search
+        //SDA[end_year] = number representation of year to search
+        //Geolocator
+        //SDA[type] = string of location type to search (LatLon, UTM, or Address)
+        //Only if LatLon
+        //SDA[lat] = number of latitude to search
+        //SDA[lon] = number of longitude to search
+        //Only if UTM
+        //SDA[zone] = string of UTM zone to search
+        //SDA[east] = number of easting to search
+        //SDA[north] = number of northing to search
+        //Only if Address
+        //SDA[address] = string of text to search
+        //SDA[range] = number of radius from location center to search
+        //Associator
+        //SDA[input] = array of RIDs to search
+        //Literally Any File Field Ever
+        //SDA[input] = string of filename to search
         if($not)
             $qadv["not"] = $not;
 
@@ -176,8 +175,10 @@ class kora3ApiExternalTool {
         $form["meta"] = in_array("meta",$flags) ? in_array("meta",$flags) : false;
         $form["size"] = in_array("size",$flags) ? in_array("size",$flags) : false;
 
-        $form["index"] = $index;
-        $form["count"] = $count;
+        if(!is_null($index))
+            $form["index"] = $index;
+        if(!is_null($count))
+            $form["count"] = $count;
 
         if(is_array($fields) && empty($fields))
             $form["fields"] = "ALL";
@@ -188,7 +189,8 @@ class kora3ApiExternalTool {
             $form["sort"] = $sort;
 
         $form["query"] = $queries;
-        $form["logic"] = $qLogic;
+        if(!is_null($qLogic))
+            $form["logic"] = $qLogic;
 
         return $form;
     }
@@ -271,7 +273,9 @@ class KORA_Clause {
         else {
             $tool = new kora3ApiExternalTool();
             if($arg1=="KID") {
-                if(!is_array($arg2))
+                if($arg2 == "")
+                    $arg2 = array();
+                else if(!is_array($arg2))
                     $arg2 = array($arg2);
 
                 if($op=="="|$op=="=="|$op=="IN")
@@ -375,15 +379,40 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
         die("The query clause you provided must be an object of class KORA_Clause");
     }
 
+    //Format sort array and map controls to fields
     $newOrder = array();
     foreach($order as $o) {
-        array_push($newOrder,$o["field"]);
+        array_push($newOrder,fieldMapper($o["field"],$pid,$sid));
         $dir = $o["direction"];
         if($dir==SORT_DESC)
             $newDir = "DESC";
         else
             $newDir = "ASC";
         array_push($newOrder,$newDir);
+    }
+
+    //Map return controls to fields if not ALL
+    if(is_array($fields)) {
+        $fieldsMapped = array();
+        foreach($fields as $field) {
+            $f = fieldMapper($field,$pid,$sid);
+            array_push($fieldsMapped,$f);
+        }
+        $fields = $fieldsMapped;
+    }
+
+    //Map controls to fields in keyword searches
+    $queries = array();
+    foreach($koraClause->getQueries() as $q) {
+        if($q['search']=='keyword') {
+            $mapped = array();
+            foreach($q["fields"] as $f) {
+                array_push($mapped, fieldMapper($f, $pid, $sid));
+            }
+            $q["fields"] = $mapped;
+        }
+
+        array_push($queries, $q);
     }
 
     $output = array();
@@ -395,7 +424,7 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
         array("data","meta"),
         $fields,
         $newOrder,
-        $koraClause->getQueries(),
+        $queries,
         $koraClause->getLogic(),
         $start,
         $number
@@ -421,6 +450,7 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
 
     $data = array();
     $data["forms"] = json_encode($output);
+    $data["format"] = "KORA_OLD";
 
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, $env["BASE_URL"]."api/search");
@@ -434,7 +464,11 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
 
     $result = curl_exec($curl);
 
-    return json_decode($result);
+    return json_decode($result,true);
+}
+
+function fieldMapper($name, $pid, $fid) {
+    return str_replace(' ','_',$name).'_'.$pid.'_'.$fid.'_';
 }
 
 ?>
