@@ -51,6 +51,55 @@
       ]) !!}
     </div>
   </div>
+@else
+  <div class="form-group">
+    <label>Use this Form as a Preset?</label>
+    <div class="check-box">
+      <input type="checkbox" value="1" id="active" class="check-box-input" name="active" {{$form->preset ? 'checked': ''}} />
+      <div class="check-box-background"></div>
+      <span class="check"></span>
+      <span class="placeholder">Form is <strong>not</strong> being used as a preset</span>
+      <span class="placeholder-alt">Form is currently being used as a preset</span>
+    </div>
+
+    <p class="sub-text mt-sm">
+      Setting this form as a preset will  allow you to apply this forms information and layout structure to a new form.
+    </p>
+  </div>
+
+  <div class="form-group">
+    <div class="spacer"></div>
+
+    <div class="form-permissions">
+      <span class="question">Need to Edit Form Permissions?</span>
+
+      <a class="action underline-middle-hover" href="#">
+        <span>Go to Form Permissions Page</span>
+        <i class="icon icon-arrow-right"></i>
+      </a>
+    </div>
+
+    <div class="spacer"></div>
+  </div>
+
+  <div class="form-group">
+
+    <div class="form-permissions">
+      <span class="question">Test Record Management</span>
+    </div>
+
+  </div>
+
+  <div class="form-group">
+    <div class="spacer"></div>
+
+    <div class="form-permissions">
+      <span class="question">Current Form Filesize - TDB</span>
+    </div>
+
+    <div class="spacer"></div>
+  </div>
+
 @endif
 
 <div class="form-group">
