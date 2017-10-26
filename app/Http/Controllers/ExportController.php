@@ -532,7 +532,6 @@ class ExportController extends Controller {
                                 break;
                             case Field::_3D_MODEL:
                                 $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
-                                $value = array();
                                 $file = $data->value;
                                 $value = array(
                                     [
@@ -623,7 +622,6 @@ class ExportController extends Controller {
                                 break;
                             case Field::_DOCUMENTS:
                                 $url = 'p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
-                                $value = array();
                                 $files = explode('[!]',$data->value);
                                 $file = $files[0];
                                 $info = [
@@ -637,7 +635,6 @@ class ExportController extends Controller {
                                 break;
                             case Field::_GALLERY:
                                 $url = 'p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
-                                $value = array();
                                 $files = explode('[!]',$data->value);
                                 $file = $files[0];
                                 $info = [
@@ -791,7 +788,6 @@ class ExportController extends Controller {
                                 break;
                             case Field::_DOCUMENTS:
                                 $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
-                                $value = array();
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
                                     $fieldxml .= '<File>';
@@ -804,7 +800,6 @@ class ExportController extends Controller {
                                 break;
                             case Field::_GALLERY:
                                 $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
-                                $value = array();
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
                                     $fieldxml .= '<File>';
@@ -817,7 +812,6 @@ class ExportController extends Controller {
                                 break;
                             case Field::_PLAYLIST:
                                 $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
-                                $value = array();
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
                                     $fieldxml .= '<File>';
@@ -830,7 +824,6 @@ class ExportController extends Controller {
                                 break;
                             case Field::_VIDEO:
                                 $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
-                                $value = array();
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
                                     $fieldxml .= '<File>';

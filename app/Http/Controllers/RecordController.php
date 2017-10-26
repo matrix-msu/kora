@@ -54,11 +54,10 @@ class RecordController extends Controller {
             return redirect('/projects/'.$pid)->with('k3_global_error', 'cant_view_form');
 
         $form = FormController::getForm($fid);
-        $filesize = self::getFormFilesize($fid);
         $records = Record::where('fid', '=', $fid)->paginate(self::RECORDS_PER_PAGE);
         $records->setPath(env('BASE_URL').'projects/'.$pid.'/forms/'.$fid.'/records');
 
-        return view('records.index', compact('form', 'filesize', 'records'));
+        return view('records.index', compact('form', 'records'));
 	}
 
     /**
