@@ -1,0 +1,33 @@
+.form-record-management,
+.form-file-size {
+
+  .button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+
+    .btn {
+      width: calc(50% - 10px);
+    }
+  }
+}
+
+@media screen and (max-width: $max-mobile-l-width) {
+  .form-record-management,
+  .form-file-size {
+
+    .button-container {
+      display: initial;
+      margin-top: 20px;
+    }
+
+    a {
+      display: block;
+      width: 100%;
+    }
+
+    .btn:not(:first-child) {
+      margin-top: 20px;
+    }
+  }
+}

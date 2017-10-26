@@ -51,11 +51,15 @@
       ]) !!}
     </div>
   </div>
+
+  <div class="form-group">
+    {!! Form::submit($submitButtonText, ['class' => 'btn pre-fixed-js']) !!}
+  </div>
 @else
   <div class="form-group">
-    <label>Use this Form as a Preset?</label>
+    <label for="preset">Use this Form as a Preset?</label>
     <div class="check-box">
-      <input type="checkbox" value="1" id="active" class="check-box-input" name="active" {{$form->preset ? 'checked': ''}} />
+      <input type="checkbox" value="1" id="preset" class="check-box-input" name="preset" {{$form->preset ? 'checked': ''}} />
       <div class="check-box-background"></div>
       <span class="check"></span>
       <span class="placeholder">Form is <strong>not</strong> being used as a preset</span>
@@ -82,10 +86,15 @@
     <div class="spacer"></div>
   </div>
 
-  <div class="form-group">
+@if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
+  <div class="form-group no-padding">
 
-    <div class="form-permissions">
-      <span class="question">Test Record Management</span>
+    <div class="form-record-management">
+      <p class="title">Test Record Management</p>
+      <div class="button-container">
+        <a href="#" class="btn half-sub-btn">Create Test Record</a>
+        <a href="#" class="btn half-sub-btn warning disabled">Delete All Test Records?</a>
+      </div>
     </div>
 
   </div>
@@ -93,15 +102,20 @@
   <div class="form-group">
     <div class="spacer"></div>
 
-    <div class="form-permissions">
-      <span class="question">Current Form Filesize - TDB</span>
+    <div class="form-file-size">
+      <p class="title">Current Form Filesize - {{$filesize}}</p>
+      <div class="button-container">
+        <a href="#" class="btn half-sub-btn warning">Delete Old Record Files</a>
+        <a href="#" class="btn half-sub-btn warning">Delete All Form Records?</a>
+      </div>
     </div>
 
     <div class="spacer"></div>
+  </div>
+@endif
+
+  <div class="form-group form-update-button">
+    {!! Form::submit('Update Form',['class' => 'btn edit-btn update-form-submit pre-fixed-js']) !!}
   </div>
 
 @endif
-
-<div class="form-group">
-  {!! Form::submit($submitButtonText, ['class' => 'btn']) !!}
-</div>
