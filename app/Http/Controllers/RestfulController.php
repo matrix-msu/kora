@@ -25,14 +25,12 @@ class RestfulController extends Controller {
      * @var string - Standard output formats
      */
     const JSON = "JSON";
-    const XML = "XML";
     const KORA = "KORA_OLD";
-    const META = "META";
 
     /**
      * @var array - Valid output formats
      */
-    const VALID_FORMATS = [ self::JSON, self::XML, self::KORA, self::META ];
+    const VALID_FORMATS = [ self::JSON, self::KORA];
 
     /**
      * Gets the current version of Kora3.
@@ -609,30 +607,24 @@ class RestfulController extends Controller {
      */
     private function populateRecords($rids,$filters,$format = self::JSON) {
         $format = strtoupper($format);
-        if( ! self::isValidFormat($format))
-            return null;
+        if( !self::isValidFormat($format))
+            return 'Invalid format for export!';
 
-        if($filters['fields'] == "ALL")
-            $fields = json_encode(array());
-        else
-            $fields = json_encode($filters['fields']);
-
-        if($filters['meta'])
-            $meta = 'True';
-        else
-            $meta = 'False';
-        if($filters['data'])
-            $data = 'True';
-        else
-            $data = 'False';
-        if($filters['assoc'])
-            $assoc = 'True';
-        else
-            $assoc = 'False';
+        //Filter options that need to be passed to the export in a normal api search
+        if($format == self::JSON) {
+            $options = [
+                'fields' => $filters['fields'],
+                'meta' => $filters['meta'],
+                'data' => $filters['data'],
+                'assoc' => $filters['assoc']
+            ];
+        } else {
+            //Old Kora 2 searches don't need filters
+            $options = null;
+        }
 
         //Slice up array of RIDs to get the correct subset
         //There are done down here to ensure sorting has already taken place
-
         if(!is_null($filters['index']))
             $rids = array_slice($rids,$filters['index']);
 
@@ -643,7 +635,7 @@ class RestfulController extends Controller {
             return "{}";
 
         $expControl = new ExportController();
-        $output = $expControl->exportWithRids($rids,$format,true);
+        $output = $expControl->exportWithRids($rids,$format,true,$options);
 
         return $output;
     }

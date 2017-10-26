@@ -295,9 +295,10 @@ class ExportController extends Controller {
      * @param  array $rids - The RIDs to gather data for
      * @param  string $format - File format to export
      * @param  string $dataOnly - No file, just data!
+     * @param  array $options - Filters from the API that apply to the search (note: JSON only)
      * @return string - The system path to the exported file
      */
-    public function exportWithRids(array $rids, $format = self::JSON, $dataOnly = false) {
+    public function exportWithRids($rids, $format = self::JSON, $dataOnly = false, $options = null) {
         $format = strtoupper($format);
 
         if(! self::isValidFormat($format))
@@ -309,13 +310,32 @@ class ExportController extends Controller {
             case self::JSON:
                 $records = [];
 
-                foreach($chunks as $chunk) {
-                    $meta = self::getRecordMetadata($chunk);
-                    $records = array_merge($meta,$records);
+                //Check to see if we should bother with options
+                $useOpts = !is_null($options);
 
-                    $datafields = self::getDataRows($chunk);
+                //First option to check is the fields we want back, so lets pull out the slugs from options
+                $slugOpts = null;
+                if($useOpts && $options['fields'] != 'ALL')
+                    $slugOpts = $options['fields'];
+
+                foreach($chunks as $chunk) {
+                    //Next we see if metadata is requested
+                    if($useOpts && $options['meta']) {
+                        $meta = self::getRecordMetadata($chunk);
+                        $records = array_merge($meta,$records);
+                    }
+
+                    $datafields = self::getDataRows($chunk,$slugOpts);
                     foreach($datafields as $data){
                         $kid = $data->pid.'-'.$data->fid.'-'.$data->rid;
+
+                        //if we are hiding data, make sure the record reference still exists
+                        if($useOpts && !$options['data']) {
+                            if(!isset($records[$kid])) {
+                                $records[$kid] = [];
+                                continue; //move on to next row of data
+                            }
+                        }
 
                         switch($data->type) {
                             case Field::_TEXT:
@@ -526,7 +546,11 @@ class ExportController extends Controller {
                                 $records[$kid][$data->slug]['type'] = $data->type;
                                 break;
                             case Field::_ASSOCIATOR:
-                                $records[$kid][$data->slug]['value'] = explode(',',$data->value);
+                                if($useOpts && $options['assoc']) {
+                                    //TODO::assoc filling
+                                } else {
+                                    $records[$kid][$data->slug]['value'] = explode(',',$data->value);
+                                }
                                 $records[$kid][$data->slug]['type'] = $data->type;
                                 break;
                             default:
@@ -876,69 +900,78 @@ class ExportController extends Controller {
      * @param  int $rids - Record IDs
      * @return array - Data for the records
      */
-    public static function getDataRows($rids) {
+    public static function getDataRows($rids, $slugOpts=null) {
         $ridArray = implode(', ',$rids);
+        $slugQL = '';
+        if(!is_null($slugOpts)) {
+            foreach($slugOpts as $slug) {
+                $slugQL .= "'$slug',";
+            }
+            $slugQL = ' and fl.slug in ('.substr($slugQL, 0, -1).')';
+        }
+
         return DB::select("SELECT tf.rid as `rid`, tf.text as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_text_fields as tf left join kora3_fields as fl on tf.flid=fl.flid where tf.rid in ($ridArray)
+FROM kora3_text_fields as tf left join kora3_fields as fl on tf.flid=fl.flid where tf.rid in ($ridArray)$slugQL 
 union all
 
 SELECT nf.rid as `rid`, nf.number as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_number_fields as nf left join kora3_fields as fl on nf.flid=fl.flid where nf.rid in ($ridArray)  
+FROM kora3_number_fields as nf left join kora3_fields as fl on nf.flid=fl.flid where nf.rid in ($ridArray)$slugQL 
 union all
 
 SELECT rtf.rid as `rid`, rtf.rawtext as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_rich_text_fields as rtf left join kora3_fields as fl on rtf.flid=fl.flid where rtf.rid in ($ridArray)  
+FROM kora3_rich_text_fields as rtf left join kora3_fields as fl on rtf.flid=fl.flid where rtf.rid in ($ridArray)$slugQL 
 union all
 
 SELECT lf.rid as `rid`, lf.option as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_list_fields as lf left join kora3_fields as fl on lf.flid=fl.flid where lf.rid in ($ridArray)  
+FROM kora3_list_fields as lf left join kora3_fields as fl on lf.flid=fl.flid where lf.rid in ($ridArray)$slugQL 
 union all
 
 SELECT mslf.rid as `rid`, mslf.options as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_multi_select_list_fields as mslf left join kora3_fields as fl on mslf.flid=fl.flid where mslf.rid in ($ridArray)  
+FROM kora3_multi_select_list_fields as mslf left join kora3_fields as fl on mslf.flid=fl.flid where mslf.rid in ($ridArray)$slugQL 
 union all
 
 SELECT glf.rid as `rid`, glf.options as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_generated_list_fields as glf left join kora3_fields as fl on glf.flid=fl.flid where glf.rid in ($ridArray)  
+FROM kora3_generated_list_fields as glf left join kora3_fields as fl on glf.flid=fl.flid where glf.rid in ($ridArray)$slugQL 
 union all
 
 SELECT clf.rid as `rid`, GROUP_CONCAT(if(clf.field_num=1, clf.data, null) SEPARATOR '[!data!]' ) as `value`, GROUP_CONCAT(if(clf.field_num=2, clf.data, null) SEPARATOR '[!data!]' ) as `val2`, GROUP_CONCAT(if(clf.field_num=1, clf.number, null) SEPARATOR '[!data!]' ) as `val3`, GROUP_CONCAT(if(clf.field_num=2, clf.number, null) SEPARATOR '[!data!]' ) as `val4`, fl.options as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_combo_support as clf left join kora3_fields as fl on clf.flid=fl.flid where clf.rid in ($ridArray) group by `rid` 
+FROM kora3_combo_support as clf left join kora3_fields as fl on clf.flid=fl.flid where clf.rid in ($ridArray)$slugQL group by `rid` 
 union all
 
 SELECT df.rid as `rid`, df.circa as `value`, df.month as `val2`,df.day as `val3`,df.year as `val4`,df.era as `val5`,fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_date_fields as df left join kora3_fields as fl on df.flid=fl.flid where df.rid in ($ridArray) 
+FROM kora3_date_fields as df left join kora3_fields as fl on df.flid=fl.flid where df.rid in ($ridArray)$slugQL 
 union all
 
 SELECT sf.rid as `rid`, GROUP_CONCAT(sf.begin SEPARATOR '[!]') as `value`, GROUP_CONCAT(sf.end SEPARATOR '[!]') as `val2`, GROUP_CONCAT(sf.allday SEPARATOR '[!]') as `val3`, GROUP_CONCAT(sf.desc SEPARATOR '[!]') as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_schedule_support as sf left join kora3_fields as fl on sf.flid=fl.flid where sf.rid in ($ridArray) group by `rid` 
+FROM kora3_schedule_support as sf left join kora3_fields as fl on sf.flid=fl.flid where sf.rid in ($ridArray)$slugQL group by `rid` 
 union all
 
 SELECT docf.rid as `rid`, docf.documents as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_documents_fields as docf left join kora3_fields as fl on docf.flid=fl.flid where docf.rid in ($ridArray) 
+FROM kora3_documents_fields as docf left join kora3_fields as fl on docf.flid=fl.flid where docf.rid in ($ridArray)$slugQL 
 union all
 
 SELECT galf.rid as `rid`, galf.images as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_gallery_fields as galf left join kora3_fields as fl on galf.flid=fl.flid where galf.rid in ($ridArray) 
+FROM kora3_gallery_fields as galf left join kora3_fields as fl on galf.flid=fl.flid where galf.rid in ($ridArray)$slugQL 
 union all
 
 SELECT pf.rid as `rid`, pf.audio as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_playlist_fields as pf left join kora3_fields as fl on pf.flid=fl.flid where pf.rid in ($ridArray) 
+FROM kora3_playlist_fields as pf left join kora3_fields as fl on pf.flid=fl.flid where pf.rid in ($ridArray)$slugQL 
 union all
 
 SELECT vf.rid as `rid`, vf.video as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_video_fields as vf left join kora3_fields as fl on vf.flid=fl.flid where vf.rid in ($ridArray) 
+FROM kora3_video_fields as vf left join kora3_fields as fl on vf.flid=fl.flid where vf.rid in ($ridArray)$slugQL 
 union all
 
 SELECT mf.rid as `rid`, mf.model as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_model_fields as mf left join kora3_fields as fl on mf.flid=fl.flid where mf.rid in ($ridArray) 
+FROM kora3_model_fields as mf left join kora3_fields as fl on mf.flid=fl.flid where mf.rid in ($ridArray)$slugQL 
 union all
 
 SELECT gf.rid as `rid`, GROUP_CONCAT(gf.desc SEPARATOR '[!]') as `value`, GROUP_CONCAT(gf.address SEPARATOR '[!]') as `val2`, GROUP_CONCAT(CONCAT_WS('[!]', gf.lat, gf.lon) SEPARATOR '[!latlon!]') as `val3`, GROUP_CONCAT(CONCAT_WS('[!]', gf.zone, gf.easting, gf.northing) SEPARATOR '[!utm!]') as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_geolocator_support as gf left join kora3_fields as fl on gf.flid=fl.flid where gf.rid in ($ridArray) group by `rid`
+FROM kora3_geolocator_support as gf left join kora3_fields as fl on gf.flid=fl.flid where gf.rid in ($ridArray)$slugQL group by `rid` 
+union all
 
 SELECT af.rid as `rid`, GROUP_CONCAT(aRec.kid SEPARATOR ',') as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_associator_support as af left join kora3_fields as fl on af.flid=fl.flid left join kora3_records as aRec on af.record=aRec.rid where af.rid in ($ridArray) group by `rid` ;");
+FROM kora3_associator_support as af left join kora3_fields as fl on af.flid=fl.flid left join kora3_records as aRec on af.record=aRec.rid where af.rid in ($ridArray)$slugQL group by `rid` ;");
     }
 
     /**
