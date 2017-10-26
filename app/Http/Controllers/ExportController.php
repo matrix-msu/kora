@@ -1,6 +1,5 @@
 <?php namespace App\Http\Controllers;
 
-use App\Commands\ExportRecords;
 use App\DownloadTracker;
 use App\Field;
 use App\Form;
@@ -344,7 +343,54 @@ class ExportController extends Controller {
                                 $records[$kid][$data->slug]['type'] = $data->type;
                                 break;
                             case Field::_COMBO_LIST:
-                                //$records[$kid][$data->slug] = $data->value; TODO::SUPPORT
+                                $value = array();
+                                $dataone = explode('[!data!]',$data->value);
+                                $datatwo = explode('[!data!]',$data->val2);
+                                $numberone = explode('[!data!]',$data->val3);
+                                $numbertwo = explode('[!data!]',$data->val4);
+                                $typeone = explode('[Type]', explode('[!Field1!][Type]', $data->val5)[1])[0];
+                                $typetwo = explode('[Type]', explode('[!Field2!][Type]', $data->val5)[1])[0];
+                                if($typeone=='Number')
+                                    $cnt = sizeof($numberone);
+                                else
+                                    $cnt = sizeof($dataone);
+                                $nameone = explode('[Name]', explode('[Type][Name]', $data->val5)[1])[0];
+                                $nametwo = explode('[Name]', explode('[Type][Name]', $data->val5)[1])[0];
+
+                                for($c=0;$c<$cnt;$c++) {
+                                    $val = [];
+
+                                    switch($typeone) {
+                                        case Field::_MULTI_SELECT_LIST | Field::_GENERATED_LIST:
+                                            $valone = explode('[!]',$dataone[$c]);
+                                            break;
+                                        case Field::_NUMBER:
+                                            $valone = $numberone[$c];
+                                            break;
+                                        default:
+                                            $valone = $dataone[$c];
+                                            break;
+                                    }
+
+                                    switch($typetwo) {
+                                        case Field::_MULTI_SELECT_LIST | Field::_GENERATED_LIST:
+                                            $valtwo = explode('[!]',$datatwo[$c]);
+                                            break;
+                                        case Field::_NUMBER:
+                                            $valtwo = $numbertwo[$c];
+                                            break;
+                                        default:
+                                            $valtwo = $datatwo[$c];
+                                            break;
+                                    }
+
+                                    $val[$nameone] = $valone;
+                                    $val[$nametwo] = $valtwo;
+
+                                    array_push($value, $val);
+                                }
+                                $records[$kid][$data->slug]['value'] = $value;
+                                $records[$kid][$data->slug]['type'] = $data->type;
                                 break;
                             case Field::_DATE:
                                 $records[$kid][$data->slug]['value'] = [
@@ -357,10 +403,48 @@ class ExportController extends Controller {
                                 $records[$kid][$data->slug]['type'] = $data->type;
                                 break;
                             case Field::_SCHEDULE:
-                                //$records[$kid][$data->slug] = $data->value; TODO::SUPPORT
+                                $value = array();
+                                $begin = explode('[!]',$data->value);
+                                $cnt = sizeof($begin);
+                                $end = explode('[!]',$data->val2);
+                                $allday = explode('[!]',$data->val3);
+                                $desc = explode('[!]',$data->val4);
+                                for($i=0;$i<$cnt;$i++) {
+                                    $info = [
+                                        'begin' => $begin[$i],
+                                        'end' => $end[$i],
+                                        'allday' => $allday[$i],
+                                        'desc' => $desc[$i]
+                                    ];
+                                    array_push($value,$info);
+                                }
+                                $records[$kid][$data->slug]['value'] = $value;
+                                $records[$kid][$data->slug]['type'] = $data->type;
                                 break;
                             case Field::_GEOLOCATOR:
-                                //$records[$kid][$data->slug] = $data->value; TODO::SUPPORT
+                                $value = array();
+                                $desc = explode('[!]',$data->value);
+                                $cnt = sizeof($desc);
+                                $address = explode('[!]',$data->val2);
+                                $latlon = explode('[!latlon!]',$data->val3);
+                                $utm = explode('[!utm!]',$data->val3);
+                                for($i=0;$i<$cnt;$i++) {
+                                    $ll = explode('[!]',$latlon[$i]);
+                                    $u = explode('[!]',$utm[$i]);
+                                    $info = [
+                                        'desc' => $desc[$i],
+                                        'lat' => $ll[0],
+                                        'lon' => $ll[1],
+                                        'zone' => $u[0],
+                                        'east' => $u[1],
+                                        'north' => $u[2],
+                                        'address' => $address[$i],
+                                    ];
+
+                                    array_push($value,$info);
+                                }
+                                $records[$kid][$data->slug]['value'] = $value;
+                                $records[$kid][$data->slug]['type'] = $data->type;
                                 break;
                             case Field::_DOCUMENTS:
                                 $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
@@ -504,7 +588,14 @@ class ExportController extends Controller {
                                 ];
                                 break;
                             case Field::_SCHEDULE:
-                                //$records[$kid][$data->slug] = $data->value; TODO::SUPPORT
+                                $value = array();
+                                $begin = explode('[!]',$data->value);
+                                foreach($begin as $date) {
+                                    $harddate = explode(' ',$date)[0];
+                                    array_push($value,$harddate);
+                                }
+
+                                $records[$kid][$slug] = $value;
                                 break;
                             case Field::_DOCUMENTS:
                                 $url = 'p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
@@ -582,7 +673,54 @@ class ExportController extends Controller {
                                 }
                                 break;
                             case Field::_COMBO_LIST:
-                                //$records[$kid][$data->slug] = $data->value; TODO::SUPPORT
+                                $dataone = explode('[!data!]',$data->value);
+                                $datatwo = explode('[!data!]',$data->val2);
+                                $numberone = explode('[!data!]',$data->val3);
+                                $numbertwo = explode('[!data!]',$data->val4);
+                                $typeone = explode('[Type]', explode('[!Field1!][Type]', $data->val5)[1])[0];
+                                $typetwo = explode('[Type]', explode('[!Field2!][Type]', $data->val5)[1])[0];
+                                if($typeone=='Number')
+                                    $cnt = sizeof($numberone);
+                                else
+                                    $cnt = sizeof($dataone);
+                                $nameone = explode('[Name]', explode('[Type][Name]', $data->val5)[1])[0];
+                                $nametwo = explode('[Name]', explode('[Type][Name]', $data->val5)[1])[0];
+
+                                for($c=0;$c<$cnt;$c++) {
+                                    switch($typeone) {
+                                        case Field::_MULTI_SELECT_LIST | Field::_GENERATED_LIST:
+                                            $valone = '';
+                                            $vals = explode('[!]',$dataone[$c]);
+                                            foreach($vals as $v) {
+                                                $valone .= '<value>'.htmlspecialchars($v, ENT_XML1, 'UTF-8').'<value>';
+                                            }
+                                            break;
+                                        case Field::_NUMBER:
+                                            $valone = htmlspecialchars($numberone[$c], ENT_XML1, 'UTF-8');
+                                            break;
+                                        default:
+                                            $valone = htmlspecialchars($dataone[$c], ENT_XML1, 'UTF-8');
+                                            break;
+                                    }
+
+                                    switch($typetwo) {
+                                        case Field::_MULTI_SELECT_LIST | Field::_GENERATED_LIST:
+                                            $valtwo = '';
+                                            $vals = explode('[!]',$datatwo[$c]);
+                                            foreach($vals as $v) {
+                                                $valtwo .= '<value>'.htmlspecialchars($v, ENT_XML1, 'UTF-8').'<value>';
+                                            }
+                                            break;
+                                        case Field::_NUMBER:
+                                            $valtwo = htmlspecialchars($numbertwo[$c], ENT_XML1, 'UTF-8');
+                                            break;
+                                        default:
+                                            $valtwo = htmlspecialchars($datatwo[$c], ENT_XML1, 'UTF-8');
+                                            break;
+                                    }
+
+                                    $fieldxml .= '<Value><'.$nameone.'>'.$valone.'</'.$nameone.'><'.$nametwo.'>'.$valtwo.'</'.$nametwo.'></Value>';
+                                }
                                 break;
                             case Field::_DATE:
                                 $fieldxml .= '<Circa>'.$data->value.'</Circa>';
@@ -592,10 +730,40 @@ class ExportController extends Controller {
                                 $fieldxml .= '<Era>'.$data->val5.'</Era>';
                                 break;
                             case Field::_SCHEDULE:
-                                //$records[$kid][$data->slug] = $data->value; TODO::SUPPORT
+                                $begin = explode('[!]',$data->value);
+                                $cnt = sizeof($begin);
+                                $end = explode('[!]',$data->val2);
+                                $allday = explode('[!]',$data->val3);
+                                $desc = explode('[!]',$data->val4);
+                                for($i=0;$i<$cnt;$i++) {
+                                    $fieldxml .= '<Event>';
+                                    $fieldxml .= '<Title>' . htmlspecialchars($desc[$i], ENT_XML1, 'UTF-8') . '</Title>';
+                                    $fieldxml .= '<Begin>' . htmlspecialchars($begin[$i], ENT_XML1, 'UTF-8') . '</Begin>';
+                                    $fieldxml .= '<End>' . htmlspecialchars($end[$i], ENT_XML1, 'UTF-8') . '</End>';
+                                    $fieldxml .= '<All_Day>' . htmlspecialchars($allday[$i], ENT_XML1, 'UTF-8') . '</All_Day>';
+                                    $fieldxml .= '</Event>';
+                                }
                                 break;
                             case Field::_GEOLOCATOR:
-                                //$records[$kid][$data->slug] = $data->value; TODO::SUPPORT
+                                $value = array();
+                                $desc = explode('[!]',$data->value);
+                                $cnt = sizeof($desc);
+                                $address = explode('[!]',$data->val2);
+                                $latlon = explode('[!latlon!]',$data->val3);
+                                $utm = explode('[!utm!]',$data->val3);
+                                for($i=0;$i<$cnt;$i++) {
+                                    $ll = explode('[!]',$latlon[$i]);
+                                    $u = explode('[!]',$utm[$i]);
+                                    $fieldxml .= '<Location>';
+                                    $fieldxml .= '<Desc>' .$desc[$i]. '</Desc>';
+                                    $fieldxml .= '<Lat>' .$ll[0]. '</Lat>';
+                                    $fieldxml .= '<Lon>' .$ll[1]. '</Lon>';
+                                    $fieldxml .= '<Zone>' .$u[0]. '</Zone>';
+                                    $fieldxml .= '<East>' .$u[1]. '</East>';
+                                    $fieldxml .= '<North>' .$u[2]. '</North>';
+                                    $fieldxml .= '<Address>' .$address[$i]. '</Address>';
+                                    $fieldxml .= '</Location>';
+                                }
                                 break;
                             case Field::_DOCUMENTS:
                                 $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
@@ -709,69 +877,68 @@ class ExportController extends Controller {
      * @return array - Data for the records
      */
     public static function getDataRows($rids) {
-        $rid = implode(', ',$rids);
+        $ridArray = implode(', ',$rids);
         return DB::select("SELECT tf.rid as `rid`, tf.text as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_text_fields as tf left join kora3_fields as fl on tf.flid=fl.flid where tf.rid in ($rid)
+FROM kora3_text_fields as tf left join kora3_fields as fl on tf.flid=fl.flid where tf.rid in ($ridArray)
 union all
 
 SELECT nf.rid as `rid`, nf.number as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_number_fields as nf left join kora3_fields as fl on nf.flid=fl.flid where nf.rid in ($rid)  
+FROM kora3_number_fields as nf left join kora3_fields as fl on nf.flid=fl.flid where nf.rid in ($ridArray)  
 union all
 
 SELECT rtf.rid as `rid`, rtf.rawtext as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_rich_text_fields as rtf left join kora3_fields as fl on rtf.flid=fl.flid where rtf.rid in ($rid)  
+FROM kora3_rich_text_fields as rtf left join kora3_fields as fl on rtf.flid=fl.flid where rtf.rid in ($ridArray)  
 union all
 
 SELECT lf.rid as `rid`, lf.option as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_list_fields as lf left join kora3_fields as fl on lf.flid=fl.flid where lf.rid in ($rid)  
+FROM kora3_list_fields as lf left join kora3_fields as fl on lf.flid=fl.flid where lf.rid in ($ridArray)  
 union all
 
 SELECT mslf.rid as `rid`, mslf.options as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_multi_select_list_fields as mslf left join kora3_fields as fl on mslf.flid=fl.flid where mslf.rid in ($rid)  
+FROM kora3_multi_select_list_fields as mslf left join kora3_fields as fl on mslf.flid=fl.flid where mslf.rid in ($ridArray)  
 union all
 
 SELECT glf.rid as `rid`, glf.options as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_generated_list_fields as glf left join kora3_fields as fl on glf.flid=fl.flid where glf.rid in ($rid)  
+FROM kora3_generated_list_fields as glf left join kora3_fields as fl on glf.flid=fl.flid where glf.rid in ($ridArray)  
 union all
 
-SELECT clf.rid as `rid`, NULL as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_combo_list_fields as clf left join kora3_fields as fl on clf.flid=fl.flid where clf.rid in ($rid) 
+SELECT clf.rid as `rid`, GROUP_CONCAT(if(clf.field_num=1, clf.data, null) SEPARATOR '[!data!]' ) as `value`, GROUP_CONCAT(if(clf.field_num=2, clf.data, null) SEPARATOR '[!data!]' ) as `val2`, GROUP_CONCAT(if(clf.field_num=1, clf.number, null) SEPARATOR '[!data!]' ) as `val3`, GROUP_CONCAT(if(clf.field_num=2, clf.number, null) SEPARATOR '[!data!]' ) as `val4`, fl.options as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+FROM kora3_combo_support as clf left join kora3_fields as fl on clf.flid=fl.flid where clf.rid in ($ridArray) group by `rid` 
 union all
 
 SELECT df.rid as `rid`, df.circa as `value`, df.month as `val2`,df.day as `val3`,df.year as `val4`,df.era as `val5`,fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_date_fields as df left join kora3_fields as fl on df.flid=fl.flid where df.rid in ($rid) 
+FROM kora3_date_fields as df left join kora3_fields as fl on df.flid=fl.flid where df.rid in ($ridArray) 
 union all
 
-SELECT sf.rid as `rid`, NULL as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_schedule_fields as sf left join kora3_fields as fl on sf.flid=fl.flid where sf.rid in ($rid) 
+SELECT sf.rid as `rid`, GROUP_CONCAT(sf.begin SEPARATOR '[!]') as `value`, GROUP_CONCAT(sf.end SEPARATOR '[!]') as `val2`, GROUP_CONCAT(sf.allday SEPARATOR '[!]') as `val3`, GROUP_CONCAT(sf.desc SEPARATOR '[!]') as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+FROM kora3_schedule_support as sf left join kora3_fields as fl on sf.flid=fl.flid where sf.rid in ($ridArray) group by `rid` 
 union all
 
 SELECT docf.rid as `rid`, docf.documents as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_documents_fields as docf left join kora3_fields as fl on docf.flid=fl.flid where docf.rid in ($rid) 
+FROM kora3_documents_fields as docf left join kora3_fields as fl on docf.flid=fl.flid where docf.rid in ($ridArray) 
 union all
 
 SELECT galf.rid as `rid`, galf.images as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_gallery_fields as galf left join kora3_fields as fl on galf.flid=fl.flid where galf.rid in ($rid) 
+FROM kora3_gallery_fields as galf left join kora3_fields as fl on galf.flid=fl.flid where galf.rid in ($ridArray) 
 union all
 
 SELECT pf.rid as `rid`, pf.audio as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_playlist_fields as pf left join kora3_fields as fl on pf.flid=fl.flid where pf.rid in ($rid) 
+FROM kora3_playlist_fields as pf left join kora3_fields as fl on pf.flid=fl.flid where pf.rid in ($ridArray) 
 union all
 
 SELECT vf.rid as `rid`, vf.video as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_video_fields as vf left join kora3_fields as fl on vf.flid=fl.flid where vf.rid in ($rid) 
+FROM kora3_video_fields as vf left join kora3_fields as fl on vf.flid=fl.flid where vf.rid in ($ridArray) 
 union all
 
 SELECT mf.rid as `rid`, mf.model as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_model_fields as mf left join kora3_fields as fl on mf.flid=fl.flid where mf.rid in ($rid) 
+FROM kora3_model_fields as mf left join kora3_fields as fl on mf.flid=fl.flid where mf.rid in ($ridArray) 
 union all
 
-SELECT gf.rid as `rid`, NULL as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_geolocator_fields as gf left join kora3_fields as fl on gf.flid=fl.flid where gf.rid in ($rid) 
-union all
+SELECT gf.rid as `rid`, GROUP_CONCAT(gf.desc SEPARATOR '[!]') as `value`, GROUP_CONCAT(gf.address SEPARATOR '[!]') as `val2`, GROUP_CONCAT(CONCAT_WS('[!]', gf.lat, gf.lon) SEPARATOR '[!latlon!]') as `val3`, GROUP_CONCAT(CONCAT_WS('[!]', gf.zone, gf.easting, gf.northing) SEPARATOR '[!utm!]') as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+FROM kora3_geolocator_support as gf left join kora3_fields as fl on gf.flid=fl.flid where gf.rid in ($ridArray) group by `rid`
 
 SELECT af.rid as `rid`, GROUP_CONCAT(aRec.kid SEPARATOR ',') as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_associator_support as af left join kora3_fields as fl on af.flid=fl.flid left join kora3_records as aRec on af.record=aRec.rid where af.rid in ($rid) group by `rid` ;");
+FROM kora3_associator_support as af left join kora3_fields as fl on af.flid=fl.flid left join kora3_records as aRec on af.record=aRec.rid where af.rid in ($ridArray) group by `rid` ;");
     }
 
     /**
