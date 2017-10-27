@@ -310,6 +310,10 @@ class ExportController extends Controller {
             case self::JSON:
                 $records = [];
 
+                //There exist in case of assoc, but may just be empty
+                $assocRIDColl = array();
+                $assocMaster = array();
+
                 //Check to see if we should bother with options
                 $useOpts = !is_null($options);
 
@@ -546,7 +550,21 @@ class ExportController extends Controller {
                                 break;
                             case Field::_ASSOCIATOR:
                                 if($useOpts && $options['assoc']) {
-                                    //TODO::assoc filling
+                                    //First we need to format these kids as rids
+                                    $akids = array();
+                                    $vals = explode(',',$data->value);
+                                    foreach($vals as $akid) {
+                                        $arid = explode('-',$akid)[2];
+                                        array_push($assocRIDColl,$arid);
+                                        array_push($akids, $akid);
+                                    }
+
+                                    $ainfo = [
+                                        'kid' => $kid,
+                                        'slug' => $data->slug,
+                                        'akids' => $akids
+                                    ];
+                                    array_push($assocMaster,$ainfo);
                                 } else {
                                     $records[$kid][$data->slug]['value'] = explode(',',$data->value);
                                 }
@@ -555,6 +573,22 @@ class ExportController extends Controller {
                             default:
                                 break;
                         }
+                    }
+                }
+
+                //assoc stuff
+                if($useOpts && $options['assoc']) {
+                    //simplify the duplicates
+                    $arids = array_unique($assocRIDColl);
+                    $assocData = json_decode($this->exportWithRids($arids, $format, true),true);
+                    foreach($assocMaster as $am) {
+                        $value = array();
+                        $kid = $am['kid'];
+                        $slug = $am['slug'];
+                        foreach($am['akids'] as $akid) {
+                            $value[$akid] = $assocData[$akid];
+                        }
+                        $records[$kid][$slug]['value'] = $value;
                     }
                 }
 
