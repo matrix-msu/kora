@@ -220,6 +220,8 @@ class PageController extends Controller {
                 break;
             case self::_ADD:
                 $name = $request->newPageName;
+                if($name=='')
+                    response()->json(["status"=>false,"message"=>"page_name_required"],500);
                 $aboveID = $request->aboveID;
 
                 $found = false;

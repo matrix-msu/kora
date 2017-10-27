@@ -290,7 +290,7 @@ class ExportController extends Controller {
     }
 
     /**
-     * Builds out the record data for the given RIDs.
+     * Builds out the record data for the given RIDs. TODO::Modularize?
      *
      * @param  array $rids - The RIDs to gather data for
      * @param  string $format - File format to export
