@@ -40,7 +40,7 @@ function setFixedElement(load = false) {
 
     if (!isScrolledIntoView($elementFixWrapper)) {
       if (load) {
-        $elementToFix.addClass('fixed-bottom-slide');
+        $elementToFix.addClass('fixed-bottom fixed-bottom-slide');
       } else {
         $elementToFix.addClass('fixed-bottom');
       }

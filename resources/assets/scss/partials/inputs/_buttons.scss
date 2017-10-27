@@ -93,3 +93,36 @@ a.btn.dot-btn {
     font-size: 16;
   }
 }
+
+a.btn.half-sub-btn {
+  background: palette(white, base);
+  border: 2px solid palette(green, accent, .6);
+  border-radius: 100px;
+  box-sizing: border-box;
+  color: palette(green, accent);
+  display: inline-block;
+  font-family: $ubuntu-medium;
+  font-size: 14px;
+  line-height: 48px;
+  max-width: 406px;
+  min-width: 290px;
+  text-align: center;
+  width: 49%;
+
+  &.warning {
+    border: 2px solid palette(red, base, .8);
+    color: palette(red, base);
+    font-family: $ubuntu;
+  }
+
+  &.disabled {
+    box-shadow: 0 3px 5px 0 palette(box-shadow, accent, .05);
+    cursor: not-allowed;
+    opacity: .2;
+    pointer-events: none;
+
+    &:hover {
+      box-shadow: 0 3px 5px 0 palette(box-shadow, accent, .05);
+    }
+  }
+}
