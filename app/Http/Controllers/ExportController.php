@@ -385,7 +385,8 @@ class ExportController extends Controller {
                                     $val = [];
 
                                     switch($typeone) {
-                                        case Field::_MULTI_SELECT_LIST | Field::_GENERATED_LIST:
+                                        case Field::_MULTI_SELECT_LIST:
+                                        case Field::_GENERATED_LIST:
                                             $valone = explode('[!]',$dataone[$c]);
                                             break;
                                         case Field::_NUMBER:
@@ -397,7 +398,8 @@ class ExportController extends Controller {
                                     }
 
                                     switch($typetwo) {
-                                        case Field::_MULTI_SELECT_LIST | Field::_GENERATED_LIST:
+                                        case Field::_MULTI_SELECT_LIST:
+                                        case Field::_GENERATED_LIST:
                                             $valtwo = explode('[!]',$datatwo[$c]);
                                             break;
                                         case Field::_NUMBER:
@@ -743,7 +745,8 @@ class ExportController extends Controller {
 
                                 for($c=0;$c<$cnt;$c++) {
                                     switch($typeone) {
-                                        case Field::_MULTI_SELECT_LIST | Field::_GENERATED_LIST:
+                                        case Field::_MULTI_SELECT_LIST:
+                                        case Field::_GENERATED_LIST:
                                             $valone = '';
                                             $vals = explode('[!]',$dataone[$c]);
                                             foreach($vals as $v) {
@@ -759,7 +762,8 @@ class ExportController extends Controller {
                                     }
 
                                     switch($typetwo) {
-                                        case Field::_MULTI_SELECT_LIST | Field::_GENERATED_LIST:
+                                        case Field::_MULTI_SELECT_LIST:
+                                        case Field::_GENERATED_LIST:
                                             $valtwo = '';
                                             $vals = explode('[!]',$datatwo[$c]);
                                             foreach($vals as $v) {

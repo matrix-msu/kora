@@ -157,12 +157,12 @@ class ComboListField extends BaseField {
                 $options .= '[!Increment!]'.$request->{"inc_".$seq}.'[!Increment!]';
                 $options .= '[!Unit!]'.$request->{"unit_".$seq}.'[!Unit!]';
                 break;
-            case Field::_LIST | Field::_MULTI_SELECT_LIST:
+            case Field::_LIST:
+            case Field::_MULTI_SELECT_LIST:
                 $options .= '[!Options!]';
 
                 $reqOpts = $request->{"options_".$seq};
                 $options .= implode("[!]",$reqOpts);
-                $options .= $options;
                 $options .= '[!Options!]';
                 break;
             case Field::_GENERATED_LIST:
@@ -170,7 +170,6 @@ class ComboListField extends BaseField {
 
                 $reqOpts = $request->{"options_".$seq};
                 $options .= implode("[!]",$reqOpts);
-                $options .= $options;
                 $options .= '[!Options!]';
                 $options .= '[!Regex!]'.$request->{"regex_".$seq}.'[!Regex!]';
                 break;
@@ -278,7 +277,8 @@ class ComboListField extends BaseField {
             case Field::_NUMBER:
                 $val1 = 1337;
                 break;
-            case Field::_MULTI_SELECT_LIST||Field::_GENERATED_LIST:
+            case Field::_MULTI_SELECT_LIST:
+            case Field::_GENERATED_LIST:
                 $val1 = 'K3TR[!]1337[!]Test[!]Record';
                 break;
         }
@@ -292,7 +292,8 @@ class ComboListField extends BaseField {
             case Field::_NUMBER:
                 $val2 = 1337;
                 break;
-            case Field::_MULTI_SELECT_LIST||Field::_GENERATED_LIST:
+            case Field::_MULTI_SELECT_LIST:
+            case Field::_GENERATED_LIST:
                 $val2 = 'K3TR[!]1337[!]Test[!]Record';
                 break;
         }
