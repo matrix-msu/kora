@@ -966,7 +966,7 @@ FROM kora3_generated_list_fields as glf left join kora3_fields as fl on glf.flid
 union all
 
 SELECT clf.rid as `rid`, GROUP_CONCAT(if(clf.field_num=1, clf.data, null) SEPARATOR '[!data!]' ) as `value`, GROUP_CONCAT(if(clf.field_num=2, clf.data, null) SEPARATOR '[!data!]' ) as `val2`, GROUP_CONCAT(if(clf.field_num=1, clf.number, null) SEPARATOR '[!data!]' ) as `val3`, GROUP_CONCAT(if(clf.field_num=2, clf.number, null) SEPARATOR '[!data!]' ) as `val4`, fl.options as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_combo_support as clf left join kora3_fields as fl on clf.flid=fl.flid where clf.rid in ($ridArray)$slugQL group by `rid` 
+FROM kora3_combo_support as clf left join kora3_fields as fl on clf.flid=fl.flid where clf.rid in ($ridArray)$slugQL group by `rid`, `flid` 
 union all
 
 SELECT df.rid as `rid`, df.circa as `value`, df.month as `val2`,df.day as `val3`,df.year as `val4`,df.era as `val5`,fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
@@ -974,7 +974,7 @@ FROM kora3_date_fields as df left join kora3_fields as fl on df.flid=fl.flid whe
 union all
 
 SELECT sf.rid as `rid`, GROUP_CONCAT(sf.begin SEPARATOR '[!]') as `value`, GROUP_CONCAT(sf.end SEPARATOR '[!]') as `val2`, GROUP_CONCAT(sf.allday SEPARATOR '[!]') as `val3`, GROUP_CONCAT(sf.desc SEPARATOR '[!]') as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_schedule_support as sf left join kora3_fields as fl on sf.flid=fl.flid where sf.rid in ($ridArray)$slugQL group by `rid` 
+FROM kora3_schedule_support as sf left join kora3_fields as fl on sf.flid=fl.flid where sf.rid in ($ridArray)$slugQL group by `rid`, `flid` 
 union all
 
 SELECT docf.rid as `rid`, docf.documents as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
@@ -998,17 +998,18 @@ FROM kora3_model_fields as mf left join kora3_fields as fl on mf.flid=fl.flid wh
 union all
 
 SELECT gf.rid as `rid`, GROUP_CONCAT(gf.desc SEPARATOR '[!]') as `value`, GROUP_CONCAT(gf.address SEPARATOR '[!]') as `val2`, GROUP_CONCAT(CONCAT_WS('[!]', gf.lat, gf.lon) SEPARATOR '[!latlon!]') as `val3`, GROUP_CONCAT(CONCAT_WS('[!]', gf.zone, gf.easting, gf.northing) SEPARATOR '[!utm!]') as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_geolocator_support as gf left join kora3_fields as fl on gf.flid=fl.flid where gf.rid in ($ridArray)$slugQL group by `rid` 
+FROM kora3_geolocator_support as gf left join kora3_fields as fl on gf.flid=fl.flid where gf.rid in ($ridArray)$slugQL group by `rid`, `flid` 
 union all
 
 SELECT af.rid as `rid`, GROUP_CONCAT(aRec.kid SEPARATOR ',') as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_associator_support as af left join kora3_fields as fl on af.flid=fl.flid left join kora3_records as aRec on af.record=aRec.rid where af.rid in ($ridArray)$slugQL group by `rid` ;");
+FROM kora3_associator_support as af left join kora3_fields as fl on af.flid=fl.flid left join kora3_records as aRec on af.record=aRec.rid where af.rid in ($ridArray)$slugQL group by `rid`, `flid` ;");
     }
 
     /**
      * Get the metadeta back for a set of records.
      *
      * @param  int $rid - Record IDs
+     * @param  string $slugOpts - Optional flag to limit the fields you are getting back
      * @return array - Metadata for the records
      */
     public static function getRecordMetadata($rids) {

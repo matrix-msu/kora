@@ -74,11 +74,11 @@ class AssociatorSearchController extends Controller {
                 foreach($details['flids'] as $flid=>$type) {
                     if($type=='Text') {
                         $text = TextField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
-                        if($text->text != '')
+                        if(!is_null($text) && $text->text != '')
                             array_push($preview,$text->text);
                     } else if($type=='List') {
                         $list = ListField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
-                        if($list->option != '')
+                        if(!is_null($list) && $list->option != '')
                             array_push($preview,$list->option);
                     }
                 }
