@@ -239,7 +239,7 @@ class ImportController extends Controller {
         $recRequest = new Request();
         $recRequest['userId'] = \Auth::user()->id;
 
-        if($request->type=='xml') {
+        if($request->type==self::XML) {
             $record = simplexml_load_string($record);
 
             $originKid = $record->attributes()->kid;
@@ -251,6 +251,7 @@ class ImportController extends Controller {
                 $type = $field->attributes()->type;
 
                 //TODO::modular?
+                //TODO::add assoc
 
                 if($type == 'Text' | $type == 'Rich Text' | $type == 'Number' | $type == 'List')
                     $recRequest[$flid] = (string)$field;
@@ -292,7 +293,7 @@ class ImportController extends Controller {
                 } else if($type == 'Schedule') {
                     $events = array();
                     foreach($field->Event as $event) {
-                        $string = $event->Title . ': ' . $event->Start . ' - ' . $event->End;
+                        $string = $event->Title . ': ' . $event->Begin . ' - ' . $event->End;
                         array_push($events, $string);
                     }
                     $recRequest[$flid] = $events;
@@ -386,7 +387,7 @@ class ImportController extends Controller {
                     $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;
                 }
             }
-        } else if($request->type=='json') {
+        } else if($request->type==self::JSON) {
             $originKid = $record['kid'];
             $originRid = explode('-', $originKid)[2];
 
@@ -437,7 +438,7 @@ class ImportController extends Controller {
                 } else if($type == 'Schedule') {
                     $events = array();
                     foreach($field['events'] as $event) {
-                        $string = $event['title'] . ': ' . $event['start'] . ' - ' . $event['end'];
+                        $string = $event['title'] . ': ' . $event['begin'] . ' - ' . $event['end'];
                         array_push($events, $string);
                     }
                     $recRequest[$flid] = $events;
