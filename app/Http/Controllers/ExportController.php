@@ -379,7 +379,7 @@ class ExportController extends Controller {
                                 else
                                     $cnt = sizeof($dataone);
                                 $nameone = explode('[Name]', explode('[Type][Name]', $data->val5)[1])[0];
-                                $nametwo = explode('[Name]', explode('[Type][Name]', $data->val5)[1])[0];
+                                $nametwo = explode('[Name]', explode('[Type][Name]', $data->val5)[2])[0];
 
                                 for($c=0;$c<$cnt;$c++) {
                                     $val = [];
@@ -436,9 +436,16 @@ class ExportController extends Controller {
                                 $allday = explode('[!]',$data->val3);
                                 $desc = explode('[!]',$data->val4);
                                 for($i=0;$i<$cnt;$i++) {
+                                    if($allday[$i]==1) {
+                                        $formatBegin = date("m/d/Y", strtotime($begin[$i]));
+                                        $formatEnd = date("m/d/Y", strtotime($end[$i]));
+                                    } else {
+                                        $formatBegin = date("m/d/Y h:i A", strtotime($begin[$i]));
+                                        $formatEnd = date("m/d/Y h:i A", strtotime($end[$i]));
+                                    }
                                     $info = [
-                                        'begin' => $begin[$i],
-                                        'end' => $end[$i],
+                                        'begin' => $formatBegin,
+                                        'end' => $formatEnd,
                                         'allday' => $allday[$i],
                                         'desc' => $desc[$i]
                                     ];
@@ -741,7 +748,7 @@ class ExportController extends Controller {
                                 else
                                     $cnt = sizeof($dataone);
                                 $nameone = explode('[Name]', explode('[Type][Name]', $data->val5)[1])[0];
-                                $nametwo = explode('[Name]', explode('[Type][Name]', $data->val5)[1])[0];
+                                $nametwo = explode('[Name]', explode('[Type][Name]', $data->val5)[2])[0];
 
                                 for($c=0;$c<$cnt;$c++) {
                                     switch($typeone) {
@@ -750,7 +757,7 @@ class ExportController extends Controller {
                                             $valone = '';
                                             $vals = explode('[!]',$dataone[$c]);
                                             foreach($vals as $v) {
-                                                $valone .= '<value>'.htmlspecialchars($v, ENT_XML1, 'UTF-8').'<value>';
+                                                $valone .= '<value>'.htmlspecialchars($v, ENT_XML1, 'UTF-8').'</value>';
                                             }
                                             break;
                                         case Field::_NUMBER:
@@ -767,7 +774,7 @@ class ExportController extends Controller {
                                             $valtwo = '';
                                             $vals = explode('[!]',$datatwo[$c]);
                                             foreach($vals as $v) {
-                                                $valtwo .= '<value>'.htmlspecialchars($v, ENT_XML1, 'UTF-8').'<value>';
+                                                $valtwo .= '<value>'.htmlspecialchars($v, ENT_XML1, 'UTF-8').'</value>';
                                             }
                                             break;
                                         case Field::_NUMBER:
@@ -795,10 +802,17 @@ class ExportController extends Controller {
                                 $allday = explode('[!]',$data->val3);
                                 $desc = explode('[!]',$data->val4);
                                 for($i=0;$i<$cnt;$i++) {
+                                    if($allday[$i]==1) {
+                                        $formatBegin = date("m/d/Y", strtotime($begin[$i]));
+                                        $formatEnd = date("m/d/Y", strtotime($end[$i]));
+                                    } else {
+                                        $formatBegin = date("m/d/Y h:i A", strtotime($begin[$i]));
+                                        $formatEnd = date("m/d/Y h:i A", strtotime($end[$i]));
+                                    }
                                     $fieldxml .= '<Event>';
                                     $fieldxml .= '<Title>' . htmlspecialchars($desc[$i], ENT_XML1, 'UTF-8') . '</Title>';
-                                    $fieldxml .= '<Begin>' . htmlspecialchars($begin[$i], ENT_XML1, 'UTF-8') . '</Begin>';
-                                    $fieldxml .= '<End>' . htmlspecialchars($end[$i], ENT_XML1, 'UTF-8') . '</End>';
+                                    $fieldxml .= '<Begin>' . htmlspecialchars($formatBegin, ENT_XML1, 'UTF-8') . '</Begin>';
+                                    $fieldxml .= '<End>' . htmlspecialchars($formatEnd, ENT_XML1, 'UTF-8') . '</End>';
                                     $fieldxml .= '<All_Day>' . htmlspecialchars($allday[$i], ENT_XML1, 'UTF-8') . '</All_Day>';
                                     $fieldxml .= '</Event>';
                                 }
