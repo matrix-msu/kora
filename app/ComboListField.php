@@ -428,11 +428,9 @@ class ComboListField extends BaseField {
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $slug, 'type' => 'Combo List');
+                $fieldArray = [$slug => ['type' => 'Combo List']];
 
-                $fieldArray['values'] = array();
                 $valArray = array();
-
                 if($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List') {
                     $valArray[$nameone] = 'VALUE';
                 } else if($typeone == 'Multi-Select List' | $typeone == 'Generated List') {
@@ -445,7 +443,7 @@ class ComboListField extends BaseField {
                     $valArray[$nametwo] = array('VALUE 1','VALUE 2','so on...');
                 }
 
-                array_push($fieldArray['values'], $valArray);
+                $fieldArray[$slug]['value'][] = $valArray;
 
                 return $fieldArray;
                 break;

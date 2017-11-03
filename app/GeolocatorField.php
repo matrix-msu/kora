@@ -264,8 +264,8 @@ class GeolocatorField extends BaseField {
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $slug, 'type' => 'Geolocator');
-                $fieldArray['locations'] = array();
+                $fieldArray = [$slug => ['type' => 'Geolocator']];
+
                 $locArray = array();
 
                 $locArray['desc'] = 'LOCATION DESCRIPTION';
@@ -275,7 +275,7 @@ class GeolocatorField extends BaseField {
                 $locArray['east'] = 'i.e. 59233.235234';
                 $locArray['north'] = 'i.e. 52833.265454';
                 $locArray['address'] = 'TEXTUAL REPRESENTATION OF LOCATION';
-                array_push($fieldArray['locations'], $locArray);
+                $fieldArray[$slug]['value'] = $locArray;
 
                 return $fieldArray;
                 break;

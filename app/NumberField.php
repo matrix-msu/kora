@@ -296,8 +296,8 @@ class NumberField extends BaseField {
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $slug, 'type' => 'Number');
-                $fieldArray['number'] = 1337;
+                $fieldArray = [$slug => ['type' => 'Number']];
+                $fieldArray[$slug]['value'] = 1337;
 
                 return $fieldArray;
                 break;

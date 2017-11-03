@@ -378,20 +378,19 @@ class GalleryField extends FileTypeField  {
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $slug, 'type' => 'Gallery');
-                $fieldArray['files'] = array();
+                $fieldArray = [$slug => ['type' => 'Gallery']];
 
-                $fileArray = array();
+                $fileArray = [];
                 $fileArray['name'] = 'FILENAME 1';
-                array_push($fieldArray['files'], $fileArray);
+                $fieldArray[$slug]['value'][] = $fileArray;
 
-                $fileArray = array();
+                $fileArray = [];
                 $fileArray['name'] = 'FILENAME2';
-                array_push($fieldArray['files'], $fileArray);
+                $fieldArray[$slug]['value'][] = $fileArray;
 
-                $fileArray = array();
+                $fileArray = [];
                 $fileArray['name'] = 'so on...';
-                array_push($fieldArray['files'], $fileArray);
+                $fieldArray[$slug]['value'][] = $fileArray;
 
                 return $fieldArray;
                 break;

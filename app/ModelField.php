@@ -324,12 +324,11 @@ class ModelField extends FileTypeField  {
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $slug, 'type' => '3D-Model');
-                $fieldArray['files'] = array();
+                $fieldArray = [$slug => ['type' => '3D-Model']];
 
-                $fileArray = array();
+                $fileArray = [];
                 $fileArray['name'] = 'FILENAME 1';
-                array_push($fieldArray['files'], $fileArray);
+                $fieldArray[$slug]['value'][] = $fileArray;
 
                 return $fieldArray;
                 break;

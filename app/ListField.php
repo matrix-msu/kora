@@ -253,8 +253,8 @@ class ListField extends BaseField {
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $slug, 'type' => 'List');
-                $fieldArray['option'] = 'VALUE';
+                $fieldArray = [$slug => ['type' => 'List']];
+                $fieldArray[$slug]['value'] = 'VALUE';
 
                 return $fieldArray;
                 break;

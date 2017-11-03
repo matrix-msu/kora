@@ -396,12 +396,13 @@ class DateField extends BaseField {
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $slug, 'type' => 'Date');
-                $fieldArray['circa'] = '1 IF CIRCA. 0 IF NOT';
-                $fieldArray['month'] = 'NUMERIC VALUE OF MONTH (i.e. 08)';
-                $fieldArray['day'] = 19;
-                $fieldArray['year'] = 1990;
-                $fieldArray['era'] = 'CE OR BCE';
+                $fieldArray = [$slug => ['type' => 'Date']];
+
+                $fieldArray[$slug]['value']['circa'] = '1 IF CIRCA. 0 IF NOT';
+                $fieldArray[$slug]['value']['month'] = 'NUMERIC VALUE OF MONTH (i.e. 08)';
+                $fieldArray[$slug]['value']['day'] = 19;
+                $fieldArray[$slug]['value']['year'] = 1990;
+                $fieldArray[$slug]['value']['era'] = 'CE OR BCE';
 
                 return $fieldArray;
                 break;

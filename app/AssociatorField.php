@@ -267,8 +267,8 @@ class AssociatorField extends BaseField {
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $slug, 'type' => 'Associator');
-                $fieldArray['records'] = array("0-0-0","0-0-1");
+                $fieldArray = [$slug => ['type' => 'Associator']];
+                $fieldArray[$slug]['value'] = array("0-0-0","0-0-1");
 
                 return $fieldArray;
                 break;

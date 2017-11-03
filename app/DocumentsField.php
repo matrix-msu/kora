@@ -339,20 +339,19 @@ class DocumentsField extends FileTypeField {
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $slug, 'type' => 'Documents');
-                $fieldArray['files'] = array();
+                $fieldArray = [$slug => ['type' => 'Documents']];
 
-                $fileArray = array();
+                $fileArray = [];
                 $fileArray['name'] = 'FILENAME 1';
-                array_push($fieldArray['files'], $fileArray);
+                $fieldArray[$slug]['value'][] = $fileArray;
 
-                $fileArray = array();
+                $fileArray = [];
                 $fileArray['name'] = 'FILENAME2';
-                array_push($fieldArray['files'], $fileArray);
+                $fieldArray[$slug]['value'][] = $fileArray;
 
-                $fileArray = array();
+                $fileArray = [];
                 $fileArray['name'] = 'so on...';
-                array_push($fieldArray['files'], $fileArray);
+                $fieldArray[$slug]['value'][] = $fileArray;
 
                 return $fieldArray;
                 break;

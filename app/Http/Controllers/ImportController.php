@@ -86,15 +86,14 @@ class ImportController extends Controller {
                 echo $xml;
                 break;
             case 'JSON':
-                $json = array('Records' => array());
-                $recArray = array('kid' => "OPTIONAL KID FOR RECORD. USE TO COMPLETE ASSOCIATED REFERENCES", 'Fields' => array());
+                $tmpArray = array();
 
                 foreach($fields as $field) {
                     $fieldArray = $field->getTypedField()->getExportSample($field->slug, "JSON");
-                    array_push($recArray['Fields'], $fieldArray);
+                    $tmpArray = array_merge($fieldArray, $tmpArray);
                 }
 
-                array_push($json['Records'], $recArray);
+                $json = ['OPTIONAL KID TO COMPLETE ASSOCIATED REFERENCES. OTHERWISE IGNORE KID and COLON BEFORE RECORD ARRAY' => $tmpArray];
 
                 $json = json_encode($json);
 

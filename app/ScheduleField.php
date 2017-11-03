@@ -275,22 +275,21 @@ class ScheduleField extends BaseField {
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $slug, 'type' => 'Schedule');
-                $fieldArray['events'] = array();
+                $fieldArray = [$slug => ['type' => 'Schedule']];
 
                 $eventArray = array();
                 $eventArray['title'] = 'EVENT TITLE 1';
                 $eventArray['begin'] = '08/19/1990 12:00 AM';
                 $eventArray['end'] = '08/19/1990 12:30 AM';
                 $eventArray['allday'] = '0 FOR TIMED EVENT';
-                array_push($fieldArray['events'], $eventArray);
+                $fieldArray[$slug]['value'] = $eventArray;
 
                 $eventArray = array();
                 $eventArray['title'] = 'EVENT TITLE 2';
                 $eventArray['begin'] = '08/19/1990';
                 $eventArray['end'] = '08/20/1990';
                 $eventArray['allday'] = '1 FOR ALL DAY EVENT';
-                array_push($fieldArray['events'], $eventArray);
+                $fieldArray[$slug]['value'] = $eventArray;
 
                 return $fieldArray;
                 break;
