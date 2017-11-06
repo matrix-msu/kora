@@ -86,15 +86,14 @@ class ImportController extends Controller {
                 echo $xml;
                 break;
             case 'JSON':
-                $json = array('Records' => array());
-                $recArray = array('kid' => "OPTIONAL KID FOR RECORD. USE TO COMPLETE ASSOCIATED REFERENCES", 'Fields' => array());
+                $tmpArray = array();
 
                 foreach($fields as $field) {
                     $fieldArray = $field->getTypedField()->getExportSample($field->slug, "JSON");
-                    array_push($recArray['Fields'], $fieldArray);
+                    $tmpArray = array_merge($fieldArray, $tmpArray);
                 }
 
-                array_push($json['Records'], $recArray);
+                $json = ['OPTIONAL KID TO COMPLETE ASSOCIATED REFERENCES. OTHERWISE IGNORE KID and COLON BEFORE RECORD ARRAY' => $tmpArray];
 
                 $json = json_encode($json);
 
@@ -165,10 +164,10 @@ class ImportController extends Controller {
             case self::JSON:
                 $json = json_decode(file_get_contents($request->file('records')), true);
 
-                foreach($json['Records'] as $record) {
-                    array_push($recordObjs, $record);
-                    foreach($record['Fields'] as $fields) {
-                        array_push($tagNames, $fields['name']);
+                foreach($json as $kid => $record) {
+                    $recordObjs[$kid] = $record;
+                    foreach(array_keys($record) as $field) {
+                        array_push($tagNames, $field);
                     }
                 }
 
@@ -239,7 +238,7 @@ class ImportController extends Controller {
         $recRequest = new Request();
         $recRequest['userId'] = \Auth::user()->id;
 
-        if($request->type=='xml') {
+        if($request->type==self::XML) {
             $record = simplexml_load_string($record);
 
             $originKid = $record->attributes()->kid;
@@ -251,6 +250,7 @@ class ImportController extends Controller {
                 $type = $field->attributes()->type;
 
                 //TODO::modular?
+                //TODO::add assoc
 
                 if($type == 'Text' | $type == 'Rich Text' | $type == 'Number' | $type == 'List')
                     $recRequest[$flid] = (string)$field;
@@ -292,7 +292,7 @@ class ImportController extends Controller {
                 } else if($type == 'Schedule') {
                     $events = array();
                     foreach($field->Event as $event) {
-                        $string = $event->Title . ': ' . $event->Start . ' - ' . $event->End;
+                        $string = $event->Title . ': ' . $event->Begin . ' - ' . $event->End;
                         array_push($events, $string);
                     }
                     $recRequest[$flid] = $events;
@@ -386,32 +386,32 @@ class ImportController extends Controller {
                     $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;
                 }
             }
-        } else if($request->type=='json') {
-            $originKid = $record['kid'];
+        } else if($request->type==self::JSON) {
+            $originKid = $request->kid;
             $originRid = explode('-', $originKid)[2];
 
-            foreach($record['Fields'] as $slug => $field) {
+            foreach($record as $slug => $field) {
                 $fieldSlug = $matchup[$slug];
                 $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
                 $type = $field['type'];
 
                 if($type == 'Text') {
-                    $recRequest[$flid] = $field['text'];
+                    $recRequest[$flid] = $field['value'];
                 } else if($type == 'Rich Text') {
-                    $recRequest[$flid] = $field['richtext'];
+                    $recRequest[$flid] = $field['value'];
                 } else if($type == 'Number') {
-                    $recRequest[$flid] = $field['number'];
+                    $recRequest[$flid] = $field['value'];
                 } else if($type == 'List') {
-                    $recRequest[$flid] = $field['option'];
+                    $recRequest[$flid] = $field['value'];
                 } else if($type == 'Multi-Select List') {
-                    $recRequest[$flid] = $field['options'];
+                    $recRequest[$flid] = $field['value'];
                 } else if($type == 'Generated List') {
-                    $recRequest[$flid] = $field['options'];
+                    $recRequest[$flid] = $field['value'];
                 } else if($type == 'Combo List') {
                     $values = array();
                     $nameone = ComboListField::getComboFieldName(FieldController::getField($flid), 'one');
                     $nametwo = ComboListField::getComboFieldName(FieldController::getField($flid), 'two');
-                    foreach($field['values'] as $val) {
+                    foreach($field['value'] as $val) {
                         if(!is_array($val[$nameone]))
                             $fone = '[!f1!]' . $val[$nameone] . '[!f1!]';
                         else
@@ -428,22 +428,22 @@ class ImportController extends Controller {
                     $recRequest[$flid] = '';
                     $recRequest[$flid . '_val'] = $values;
                 } else if($type == 'Date') {
-                    $recRequest['circa_' . $flid] = $field['circa'];
-                    $recRequest['month_' . $flid] = $field['month'];
-                    $recRequest['day_' . $flid] = $field['day'];
-                    $recRequest['year_' . $flid] = $field['year'];
-                    $recRequest['era_' . $flid] = $field['era'];
+                    $recRequest['circa_' . $flid] = $field['value']['circa'];
+                    $recRequest['month_' . $flid] = $field['value']['month'];
+                    $recRequest['day_' . $flid] = $field['value']['day'];
+                    $recRequest['year_' . $flid] = $field['value']['year'];
+                    $recRequest['era_' . $flid] = $field['value']['era'];
                     $recRequest[$flid] = '';
                 } else if($type == 'Schedule') {
                     $events = array();
-                    foreach($field['events'] as $event) {
-                        $string = $event['title'] . ': ' . $event['start'] . ' - ' . $event['end'];
+                    foreach($field['value'] as $event) {
+                        $string = $event['desc'] . ': ' . $event['begin'] . ' - ' . $event['end'];
                         array_push($events, $string);
                     }
                     $recRequest[$flid] = $events;
                 } else if($type == 'Geolocator') {
                     $geo = array();
-                    foreach($field['locations'] as $loc) {
+                    foreach($field['value'] as $loc) {
                         $string = '[Desc]' . $loc['desc'] . '[Desc]';
                         $string .= '[LatLon]' . $loc['lat'] . ',' . $loc['lon'] . '[LatLon]';
                         $string .= '[UTM]' . $loc['zone'] . ':' . $loc['east'] . ',' . $loc['north'] . '[UTM]';
@@ -464,7 +464,7 @@ class ImportController extends Controller {
                     } else {
                         mkdir($newDir, 0775, true);
                     }
-                    foreach($field['files'] as $file) {
+                    foreach($field['value'] as $file) {
                         $name = $file['name'];
                         //move file from imp temp to tmp files
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
@@ -502,7 +502,7 @@ class ImportController extends Controller {
                         mkdir($newDir . '/thumbnail', 0775, true);
                         mkdir($newDir . '/medium', 0775, true);
                     }
-                    foreach($field['files'] as $file) {
+                    foreach($field['value'] as $file) {
                         $name = $file['name'];
                         //move file from imp temp to tmp files
                         copy($currDir . '/' . $name, $newDir . '/' . $name);

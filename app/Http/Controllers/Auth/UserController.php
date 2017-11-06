@@ -78,7 +78,7 @@ class UserController extends Controller {
         //move photo and return new path
         $file->move($pDir,$newFilename);
 
-        return response()->json(["status"=>true,"message"=>"MESSAGE_HERE","pic_url"=>$pURL.$newFilename],200);
+        return response()->json(["status"=>true,"message"=>"profile_pic_updated","pic_url"=>$pURL.$newFilename],200);
     }
 
     /**

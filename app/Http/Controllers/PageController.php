@@ -168,7 +168,7 @@ class PageController extends Controller {
                 $currSeq = $page->sequence;
 
                 if($currSeq != 0) {
-                    $aPage = Page::where('sequence','=',$currSeq-1)->get()->first();
+                    $aPage = Page::where('sequence','=',$currSeq-1)->where('fid','=',$fid)->get()->first();
 
                     $page->sequence = $currSeq-1;
                     $aPage->sequence = $currSeq;
@@ -184,7 +184,7 @@ class PageController extends Controller {
                 $currSeq = $page->sequence;
 
                 if($currSeq != ($pages->count()-1)) {
-                    $aPage = Page::where('sequence','=',$currSeq+1)->get()->first();
+                    $aPage = Page::where('sequence','=',$currSeq+1)->where('fid','=',$fid)->get()->first();
 
                     $page->sequence = $currSeq+1;
                     $aPage->sequence = $currSeq;
@@ -220,6 +220,8 @@ class PageController extends Controller {
                 break;
             case self::_ADD:
                 $name = $request->newPageName;
+                if($name=='')
+                    response()->json(["status"=>false,"message"=>"page_name_required"],500);
                 $aboveID = $request->aboveID;
 
                 $found = false;

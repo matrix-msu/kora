@@ -248,8 +248,8 @@ class RichTextField extends BaseField {
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $slug, 'type' => 'Rich Text');
-                $fieldArray['richtext'] = '<b>RICH TEXT VALUE</b>';
+                $fieldArray = [$slug => ['type' => 'Rich Text']];
+                $fieldArray[$slug]['value'] = '<b>RICH TEXT VALUE</b>';
 
                 return $fieldArray;
                 break;

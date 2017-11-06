@@ -263,8 +263,8 @@ class TextField extends BaseField {
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $slug, 'type' => 'Text');
-                $fieldArray['text'] = 'TEXT VALUE';
+                $fieldArray = [$slug => ['type' => 'Text']];
+                $fieldArray[$slug]['value'] = 'TEXT VALUE';
 
                 return $fieldArray;
                 break;

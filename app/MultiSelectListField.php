@@ -261,9 +261,8 @@ class MultiSelectListField extends BaseField {
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $slug, 'type' => 'Multi-Select List');
-                $options = array('LIST VALUE 1','LIST VALUE 2','so on...');
-                $fieldArray['options'] = $options;
+                $fieldArray = [$slug => ['type' => 'Multi-Select List']];
+                $fieldArray[$slug]['value'] = array('LIST VALUE 1','LIST VALUE 2','so on...');
 
                 return $fieldArray;
                 break;

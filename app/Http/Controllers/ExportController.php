@@ -290,7 +290,7 @@ class ExportController extends Controller {
     }
 
     /**
-     * Builds out the record data for the given RIDs.
+     * Builds out the record data for the given RIDs. TODO::Modularize?
      *
      * @param  array $rids - The RIDs to gather data for
      * @param  string $format - File format to export
@@ -309,6 +309,10 @@ class ExportController extends Controller {
         switch($format) {
             case self::JSON:
                 $records = [];
+
+                //There exist in case of assoc, but may just be empty
+                $assocRIDColl = array();
+                $assocMaster = array();
 
                 //Check to see if we should bother with options
                 $useOpts = !is_null($options);
@@ -375,13 +379,14 @@ class ExportController extends Controller {
                                 else
                                     $cnt = sizeof($dataone);
                                 $nameone = explode('[Name]', explode('[Type][Name]', $data->val5)[1])[0];
-                                $nametwo = explode('[Name]', explode('[Type][Name]', $data->val5)[1])[0];
+                                $nametwo = explode('[Name]', explode('[Type][Name]', $data->val5)[2])[0];
 
                                 for($c=0;$c<$cnt;$c++) {
                                     $val = [];
 
                                     switch($typeone) {
-                                        case Field::_MULTI_SELECT_LIST | Field::_GENERATED_LIST:
+                                        case Field::_MULTI_SELECT_LIST:
+                                        case Field::_GENERATED_LIST:
                                             $valone = explode('[!]',$dataone[$c]);
                                             break;
                                         case Field::_NUMBER:
@@ -393,7 +398,8 @@ class ExportController extends Controller {
                                     }
 
                                     switch($typetwo) {
-                                        case Field::_MULTI_SELECT_LIST | Field::_GENERATED_LIST:
+                                        case Field::_MULTI_SELECT_LIST:
+                                        case Field::_GENERATED_LIST:
                                             $valtwo = explode('[!]',$datatwo[$c]);
                                             break;
                                         case Field::_NUMBER:
@@ -430,9 +436,16 @@ class ExportController extends Controller {
                                 $allday = explode('[!]',$data->val3);
                                 $desc = explode('[!]',$data->val4);
                                 for($i=0;$i<$cnt;$i++) {
+                                    if($allday[$i]==1) {
+                                        $formatBegin = date("m/d/Y", strtotime($begin[$i]));
+                                        $formatEnd = date("m/d/Y", strtotime($end[$i]));
+                                    } else {
+                                        $formatBegin = date("m/d/Y h:i A", strtotime($begin[$i]));
+                                        $formatEnd = date("m/d/Y h:i A", strtotime($end[$i]));
+                                    }
                                     $info = [
-                                        'begin' => $begin[$i],
-                                        'end' => $end[$i],
+                                        'begin' => $formatBegin,
+                                        'end' => $formatEnd,
                                         'allday' => $allday[$i],
                                         'desc' => $desc[$i]
                                     ];
@@ -546,7 +559,21 @@ class ExportController extends Controller {
                                 break;
                             case Field::_ASSOCIATOR:
                                 if($useOpts && $options['assoc']) {
-                                    //TODO::assoc filling
+                                    //First we need to format these kids as rids
+                                    $akids = array();
+                                    $vals = explode(',',$data->value);
+                                    foreach($vals as $akid) {
+                                        $arid = explode('-',$akid)[2];
+                                        array_push($assocRIDColl,$arid);
+                                        array_push($akids, $akid);
+                                    }
+
+                                    $ainfo = [
+                                        'kid' => $kid,
+                                        'slug' => $data->slug,
+                                        'akids' => $akids
+                                    ];
+                                    array_push($assocMaster,$ainfo);
                                 } else {
                                     $records[$kid][$data->slug]['value'] = explode(',',$data->value);
                                 }
@@ -555,6 +582,22 @@ class ExportController extends Controller {
                             default:
                                 break;
                         }
+                    }
+                }
+
+                //assoc stuff
+                if($useOpts && $options['assoc']) {
+                    //simplify the duplicates
+                    $arids = array_unique($assocRIDColl);
+                    $assocData = json_decode($this->exportWithRids($arids, $format, true),true);
+                    foreach($assocMaster as $am) {
+                        $value = array();
+                        $kid = $am['kid'];
+                        $slug = $am['slug'];
+                        foreach($am['akids'] as $akid) {
+                            $value[$akid] = $assocData[$akid];
+                        }
+                        $records[$kid][$slug]['value'] = $value;
                     }
                 }
 
@@ -705,15 +748,16 @@ class ExportController extends Controller {
                                 else
                                     $cnt = sizeof($dataone);
                                 $nameone = explode('[Name]', explode('[Type][Name]', $data->val5)[1])[0];
-                                $nametwo = explode('[Name]', explode('[Type][Name]', $data->val5)[1])[0];
+                                $nametwo = explode('[Name]', explode('[Type][Name]', $data->val5)[2])[0];
 
                                 for($c=0;$c<$cnt;$c++) {
                                     switch($typeone) {
-                                        case Field::_MULTI_SELECT_LIST | Field::_GENERATED_LIST:
+                                        case Field::_MULTI_SELECT_LIST:
+                                        case Field::_GENERATED_LIST:
                                             $valone = '';
                                             $vals = explode('[!]',$dataone[$c]);
                                             foreach($vals as $v) {
-                                                $valone .= '<value>'.htmlspecialchars($v, ENT_XML1, 'UTF-8').'<value>';
+                                                $valone .= '<value>'.htmlspecialchars($v, ENT_XML1, 'UTF-8').'</value>';
                                             }
                                             break;
                                         case Field::_NUMBER:
@@ -725,11 +769,12 @@ class ExportController extends Controller {
                                     }
 
                                     switch($typetwo) {
-                                        case Field::_MULTI_SELECT_LIST | Field::_GENERATED_LIST:
+                                        case Field::_MULTI_SELECT_LIST:
+                                        case Field::_GENERATED_LIST:
                                             $valtwo = '';
                                             $vals = explode('[!]',$datatwo[$c]);
                                             foreach($vals as $v) {
-                                                $valtwo .= '<value>'.htmlspecialchars($v, ENT_XML1, 'UTF-8').'<value>';
+                                                $valtwo .= '<value>'.htmlspecialchars($v, ENT_XML1, 'UTF-8').'</value>';
                                             }
                                             break;
                                         case Field::_NUMBER:
@@ -757,10 +802,17 @@ class ExportController extends Controller {
                                 $allday = explode('[!]',$data->val3);
                                 $desc = explode('[!]',$data->val4);
                                 for($i=0;$i<$cnt;$i++) {
+                                    if($allday[$i]==1) {
+                                        $formatBegin = date("m/d/Y", strtotime($begin[$i]));
+                                        $formatEnd = date("m/d/Y", strtotime($end[$i]));
+                                    } else {
+                                        $formatBegin = date("m/d/Y h:i A", strtotime($begin[$i]));
+                                        $formatEnd = date("m/d/Y h:i A", strtotime($end[$i]));
+                                    }
                                     $fieldxml .= '<Event>';
                                     $fieldxml .= '<Title>' . htmlspecialchars($desc[$i], ENT_XML1, 'UTF-8') . '</Title>';
-                                    $fieldxml .= '<Begin>' . htmlspecialchars($begin[$i], ENT_XML1, 'UTF-8') . '</Begin>';
-                                    $fieldxml .= '<End>' . htmlspecialchars($end[$i], ENT_XML1, 'UTF-8') . '</End>';
+                                    $fieldxml .= '<Begin>' . htmlspecialchars($formatBegin, ENT_XML1, 'UTF-8') . '</Begin>';
+                                    $fieldxml .= '<End>' . htmlspecialchars($formatEnd, ENT_XML1, 'UTF-8') . '</End>';
                                     $fieldxml .= '<All_Day>' . htmlspecialchars($allday[$i], ENT_XML1, 'UTF-8') . '</All_Day>';
                                     $fieldxml .= '</Event>';
                                 }
@@ -928,7 +980,7 @@ FROM kora3_generated_list_fields as glf left join kora3_fields as fl on glf.flid
 union all
 
 SELECT clf.rid as `rid`, GROUP_CONCAT(if(clf.field_num=1, clf.data, null) SEPARATOR '[!data!]' ) as `value`, GROUP_CONCAT(if(clf.field_num=2, clf.data, null) SEPARATOR '[!data!]' ) as `val2`, GROUP_CONCAT(if(clf.field_num=1, clf.number, null) SEPARATOR '[!data!]' ) as `val3`, GROUP_CONCAT(if(clf.field_num=2, clf.number, null) SEPARATOR '[!data!]' ) as `val4`, fl.options as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_combo_support as clf left join kora3_fields as fl on clf.flid=fl.flid where clf.rid in ($ridArray)$slugQL group by `rid` 
+FROM kora3_combo_support as clf left join kora3_fields as fl on clf.flid=fl.flid where clf.rid in ($ridArray)$slugQL group by `rid`, `flid` 
 union all
 
 SELECT df.rid as `rid`, df.circa as `value`, df.month as `val2`,df.day as `val3`,df.year as `val4`,df.era as `val5`,fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
@@ -936,7 +988,7 @@ FROM kora3_date_fields as df left join kora3_fields as fl on df.flid=fl.flid whe
 union all
 
 SELECT sf.rid as `rid`, GROUP_CONCAT(sf.begin SEPARATOR '[!]') as `value`, GROUP_CONCAT(sf.end SEPARATOR '[!]') as `val2`, GROUP_CONCAT(sf.allday SEPARATOR '[!]') as `val3`, GROUP_CONCAT(sf.desc SEPARATOR '[!]') as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_schedule_support as sf left join kora3_fields as fl on sf.flid=fl.flid where sf.rid in ($ridArray)$slugQL group by `rid` 
+FROM kora3_schedule_support as sf left join kora3_fields as fl on sf.flid=fl.flid where sf.rid in ($ridArray)$slugQL group by `rid`, `flid` 
 union all
 
 SELECT docf.rid as `rid`, docf.documents as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
@@ -960,17 +1012,18 @@ FROM kora3_model_fields as mf left join kora3_fields as fl on mf.flid=fl.flid wh
 union all
 
 SELECT gf.rid as `rid`, GROUP_CONCAT(gf.desc SEPARATOR '[!]') as `value`, GROUP_CONCAT(gf.address SEPARATOR '[!]') as `val2`, GROUP_CONCAT(CONCAT_WS('[!]', gf.lat, gf.lon) SEPARATOR '[!latlon!]') as `val3`, GROUP_CONCAT(CONCAT_WS('[!]', gf.zone, gf.easting, gf.northing) SEPARATOR '[!utm!]') as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_geolocator_support as gf left join kora3_fields as fl on gf.flid=fl.flid where gf.rid in ($ridArray)$slugQL group by `rid` 
+FROM kora3_geolocator_support as gf left join kora3_fields as fl on gf.flid=fl.flid where gf.rid in ($ridArray)$slugQL group by `rid`, `flid` 
 union all
 
 SELECT af.rid as `rid`, GROUP_CONCAT(aRec.kid SEPARATOR ',') as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
-FROM kora3_associator_support as af left join kora3_fields as fl on af.flid=fl.flid left join kora3_records as aRec on af.record=aRec.rid where af.rid in ($ridArray)$slugQL group by `rid` ;");
+FROM kora3_associator_support as af left join kora3_fields as fl on af.flid=fl.flid left join kora3_records as aRec on af.record=aRec.rid where af.rid in ($ridArray)$slugQL group by `rid`, `flid` ;");
     }
 
     /**
      * Get the metadeta back for a set of records.
      *
      * @param  int $rid - Record IDs
+     * @param  string $slugOpts - Optional flag to limit the fields you are getting back
      * @return array - Metadata for the records
      */
     public static function getRecordMetadata($rids) {

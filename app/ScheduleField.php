@@ -259,13 +259,13 @@ class ScheduleField extends BaseField {
                 $xml = '<' . Field::xmlTagClear($slug) . ' type="Schedule">';
                 $value = '<Event>';
                 $value .= '<Title>' . utf8_encode('EVENT TITLE 1') . '</Title>';
-                $value .= '<Start>' . '08/19/1990 12:00 AM' . '</Start>';
+                $value .= '<Begin>' . '08/19/1990 12:00 AM' . '</Begin>';
                 $value .= '<End>' . '08/19/1990 12:30 AM' . '</End>';
                 $value .= '<All_Day>' . utf8_encode('0 FOR TIMED EVENT') . '</All_Day>';
                 $value .= '</Event>';
                 $value .= '<Event>';
                 $value .= '<Title>' . utf8_encode('EVENT TITLE 2') . '</Title>';
-                $value .= '<Start>' . '08/19/1990' . '</Start>';
+                $value .= '<Begin>' . '08/19/1990' . '</Begin>';
                 $value .= '<End>' . '08/20/1990' . '</End>';
                 $value .= '<All_Day>' . utf8_encode('1 FOR ALL DAY EVENT') . '</All_Day>';
                 $value .= '</Event>';
@@ -275,22 +275,21 @@ class ScheduleField extends BaseField {
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $slug, 'type' => 'Schedule');
-                $fieldArray['events'] = array();
+                $fieldArray = [$slug => ['type' => 'Schedule']];
 
                 $eventArray = array();
                 $eventArray['title'] = 'EVENT TITLE 1';
-                $eventArray['start'] = '08/19/1990 12:00 AM';
+                $eventArray['begin'] = '08/19/1990 12:00 AM';
                 $eventArray['end'] = '08/19/1990 12:30 AM';
                 $eventArray['allday'] = '0 FOR TIMED EVENT';
-                array_push($fieldArray['events'], $eventArray);
+                $fieldArray[$slug]['value'] = $eventArray;
 
                 $eventArray = array();
                 $eventArray['title'] = 'EVENT TITLE 2';
-                $eventArray['start'] = '08/19/1990';
+                $eventArray['begin'] = '08/19/1990';
                 $eventArray['end'] = '08/20/1990';
                 $eventArray['allday'] = '1 FOR ALL DAY EVENT';
-                array_push($fieldArray['events'], $eventArray);
+                $fieldArray[$slug]['value'] = $eventArray;
 
                 return $fieldArray;
                 break;

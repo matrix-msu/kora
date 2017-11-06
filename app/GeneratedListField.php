@@ -275,9 +275,8 @@ class GeneratedListField extends BaseField {
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = array('name' => $slug, 'type' => 'Generated List');
-                $options = array('LIST VALUE 1','LIST VALUE 2','so on...');
-                $fieldArray['options'] = $options;
+                $fieldArray = [$slug => ['type' => 'Generated List']];
+                $fieldArray[$slug]['value'] = array('LIST VALUE 1','LIST VALUE 2','so on...');
 
                 return $fieldArray;
                 break;
