@@ -231,6 +231,21 @@ class RestfulController extends Controller {
                                 $rids = $this->negative_results($form,$rids);
                             array_push($resultSets,$rids);
                             break;
+                        case 'legacy_kid':
+                            //do a kid search
+                            if (!isset($query->kids))
+                                return "You must provide KIDs in a Legacy KID search for form: " . $form->name;
+                            $kids = $query->kids;
+                            $rids = array();
+                            for($i = 0; $i < sizeof($kids); $i++) {
+                                $rid = Record::where('legacy_kid', '=', $kids[$i])->value('rid');
+                                array_push($rids,$rid);
+                            }
+                            $negative = isset($query->not) ? $query->not : false;
+                            if($negative)
+                                $rids = $this->negative_results($form,$rids);
+                            array_push($resultSets,$rids);
+                            break;
                         default:
                             return response()->json(["status"=>false,"error"=>"No search query type supplied for form: ". $form->name],500);
                             break;

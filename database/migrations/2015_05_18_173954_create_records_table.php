@@ -18,6 +18,7 @@ class CreateRecordsTable extends Migration {
 
 			$table->increments('rid');
             $table->string('kid');
+            $table->string('legacy_kid')->nullable();
             $table->integer('pid')->unsigned();
             $table->integer('fid')->unsigned();
             $table->integer('owner')->unsigned();

@@ -420,6 +420,7 @@ class SaveKora2Scheme extends CommandKora2 implements SelfHandling, ShouldQueue 
                 $recModel->fid = $newForm->fid;
                 $recModel->save();
                 $recModel->kid = $recModel->pid . '-' . $recModel->fid . '-' . $recModel->rid;
+                $recModel->legacy_kid = $r['id'];
                 $recModel->save();
 
                 //increment table
