@@ -63,7 +63,7 @@
       <div class="check-box-background"></div>
       <span class="check"></span>
       <span class="placeholder">Form is <strong>not</strong> being used as a preset</span>
-      <span class="placeholder-alt">Form is currently being used as a preset</span>
+      <span class="placeholder-alt">Form is being used as a preset</span>
     </div>
 
     <p class="sub-text mt-sm">
