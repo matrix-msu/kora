@@ -56,8 +56,10 @@ class AssociatorSearchController extends Controller {
                 if($opt_search == 1)
                     $flids = array();
                 foreach($opt_flids as $flid) {
-                    $field = FieldController::getField($flid);
-                    $flids[$flid] = $field->type;
+                    if($flid!='') {
+                        $field = FieldController::getField($flid);
+                        $flids[$flid] = $field->type;
+                    }
                 }
                 $activeForms[$opt_fid] = ['flids' => $flids];
             }
