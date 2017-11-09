@@ -1,20 +1,20 @@
-<div class="form-group">
+<div class="form-group mt-xl">
   {!! Form::label('name', 'Project Name') !!}
   {!! Form::text('name', null, ['class' => 'text-input', 'placeholder' => 'Enter the project name here', 'autofocus']) !!}
 </div>
 
-<div class="form-group">
+<div class="form-group mt-xl">
   {!! Form::label('slug', 'Unique Project Identifier') !!}
   {!! Form::text('slug', null, ['class' => 'text-input', 'placeholder' => "Enter the project's unique ID here (no spaces, alpha-numeric values only)"]) !!}
 </div>
 
-<div class="form-group">
+<div class="form-group mt-xl">
     {!! Form::label('description', 'Description') !!}
     {!! Form::textarea('description', null, ['class' => 'text-area', 'placeholder' => "Enter the projects description here (max. 500 characters)"]) !!}
 </div>
 
 @if($projectMode == 'project_create')
-<div class="form-group">
+<div class="form-group mt-xl">
     {!! Form::label('admins', 'Select Project Admins') !!}
     {!! Form::select('admins[]', $users, null, [
       'class' => 'multi-select',
@@ -26,7 +26,7 @@
 @endif
 
 @if($projectMode == 'project_edit')
-<div class="form-group">
+<div class="form-group mt-xl">
   <div class="spacer"></div>
 
   <div class="project-permissions">
@@ -54,7 +54,7 @@
 </div> -->
 
 @if($projectMode == 'project_create')
-<div class="form-group">
+<div class="form-group mt-100-xl">
   {!! Form::submit('Create Project',['class' => 'btn']) !!}
 </div>
 @elseif($projectMode == 'project_edit')
@@ -65,7 +65,7 @@
 
 
 @if($projectMode == 'project_edit')
-<div class="form-group">
+<div class="form-group mt-100-xl">
   <div class="project-cleanup">
     <a class="btn dot-btn archive warning project-archive-js" data-title="Archive Project?" href="#">
       <i class="icon icon-archive"></i>
