@@ -32,7 +32,7 @@
   <div class="project-permissions">
     <span class="question">Need to Edit Project Permissions?</span>
 
-    <a class="action underline-middle-hover" href="#">
+    <a class="action underline-middle-hover" href="{{ action('ProjectGroupController@index', ['pid' => $pid]) }}">
       <span>Go to Project Permissions Page</span>
       <i class="icon icon-arrow-right"></i>
     </a>
@@ -65,7 +65,7 @@
 
 
 @if($projectMode == 'project_edit')
-<div class="form-group mt-100-xl">
+<div class="form-group">
   <div class="project-cleanup">
     <a class="btn dot-btn archive warning project-archive-js" data-title="Archive Project?" href="#">
       <i class="icon icon-archive"></i>

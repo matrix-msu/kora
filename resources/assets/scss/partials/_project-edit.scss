@@ -19,12 +19,8 @@
   }
 
   .form-group {
-    .spacer:first-child {
-      margin: 45px auto 60px;
-    }
-
-    .spacer:last-child {
-      margin: 60px auto 55px;
+    .spacer {
+      margin: 60px auto;
     }
 
     @import 'project-edit/project-cleanup';
@@ -37,11 +33,12 @@
 
 
   .project-update-button {
-    height: 110px;
+    height: 65px;
+    margin: 100px auto 85px;
     padding: 0;
 
     .update-project-submit {
-      margin: 45px auto 15px;
+      margin: 0 auto 15px;
     }
   }
 }
