@@ -33,28 +33,30 @@
     </p>
   </div>
 
-  <div class="form-group mt-xxxl">
-    <div class="check-box-half">
-      <input type="checkbox" value="1" id="active" class="check-box-input preset-input-js" name="active" />
-      <span class="check"></span>
-      <span class="placeholder">Apply Form Preset?</span>
+  @if (count($presets) > 0)
+    <div class="form-group mt-xxxl">
+      <div class="check-box-half">
+        <input type="checkbox" value="1" id="active" class="check-box-input preset-input-js" name="active" />
+        <span class="check"></span>
+        <span class="placeholder">Apply Form Preset?</span>
+      </div>
+
+      <p class="sub-text mt-sm">
+        This will apply the form layout structure of the selected form preset to this newly created form.
+      </p>
     </div>
 
-    <p class="sub-text mt-sm">
-      This will apply the form layout structure of the selected form preset to this newly created form.
-    </p>
-  </div>
-
-  <div class="form-group preset-select-container preset-select-container-js">
-    <div class="preset-select-js mt-xl">
-      {!! Form::label('preset', 'Select a Preset') !!}
-      {!! Form::select('preset[]', [null=>null] + $presets, null, [
-        'class' => 'single-select',
-        'data-placeholder' => "Search and select the preset",
-        'id' => 'presets'
-      ]) !!}
+    <div class="form-group preset-select-container preset-select-container-js">
+      <div class="preset-select-js mt-xl">
+        {!! Form::label('preset', 'Select a Preset') !!}
+        {!! Form::select('preset[]', [null=>null] + $presets, null, [
+          'class' => 'single-select',
+          'data-placeholder' => "Search and select the preset",
+          'id' => 'presets'
+        ]) !!}
+      </div>
     </div>
-  </div>
+  @endif
 
   <div class="form-group mt-xxxl mb-max">
     {!! Form::submit($submitButtonText, ['class' => 'btn']) !!}
