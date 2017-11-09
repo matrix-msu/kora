@@ -10,7 +10,7 @@
       ]) !!}
     </div>
 
-    <div class="form-group request-permissions-submit">
+    <div class="form-group request-permissions-submit mt-xxl">
       {!! Form::submit('Request Project Permissions',['class' => 'btn']) !!}
     </div>
   {!! Form::close() !!}
@@ -23,7 +23,7 @@
     <p class="text">You already have access to everything!</p>
   </div>
 
-  <div class="form-group submit">
+  <div class="form-group submit mt-xxl">
     <a class="btn modal-toggle-js" href="#">Great!</a>
   <div>
 @endif
