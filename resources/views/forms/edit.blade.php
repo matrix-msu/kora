@@ -8,7 +8,7 @@
   <section class="head">
       <div class="inner-wrap center">
         <h1 class="title">
-          <i class="icon icon-project-edit"></i>
+          <i class="icon icon-form-edit"></i>
           <span>Edit Form</span>
         </h1>
         <p class="description">Edit the form information below, and then select “Update Form”</p>

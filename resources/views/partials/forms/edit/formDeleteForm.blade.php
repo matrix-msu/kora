@@ -8,7 +8,7 @@
     Are you sure you wish to delete this form? This cannot be undone.
   </span>
 
-  <div class="form-group form-cleanup-submit">
+  <div class="form-group">
     {!! Form::submit('Delete Form',['class' => 'btn warning']) !!}
   </div>
 {!! Form::close() !!}

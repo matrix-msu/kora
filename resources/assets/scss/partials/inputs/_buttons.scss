@@ -41,7 +41,7 @@
 
 a.btn {
   display: block;
-  line-height: 50px;
+  line-height: 47px;
   text-decoration: none;
 }
 
@@ -90,7 +90,7 @@ a.btn.dot-btn {
   .icon {
     @include transition();
 
-    font-size: 16;
+    font-size: 16px;
   }
 }
 
