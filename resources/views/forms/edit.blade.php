@@ -19,7 +19,7 @@
 @section('body')
   <section class="edit-form center">
     {!! Form::model($form,  ['method' => 'PATCH', 'action' => ['FormController@update',$form->pid, $form->fid]]) !!}
-    @include('partials.forms.form',['submitButtonText' => 'Update Form','pid' => $form->pid])
+    @include('partials.forms.form',['submitButtonText' => 'Update Form', 'pid' => $form->pid, 'type' => 'edit'])
     {!! Form::close() !!}
 
     <div class="modal modal-js modal-mask form-cleanup-modal-js">

@@ -1,6 +1,10 @@
 <div class="form-group mt-xl">
   {!! Form::label('name', 'Project Name') !!}
-  {!! Form::text('name', null, ['class' => 'text-input', 'placeholder' => 'Enter the project name here', 'autofocus']) !!}
+  @if ($type == 'edit')
+    {!! Form::text('name', null, ['class' => 'text-input', 'placeholder' => 'Enter the project name here']) !!}
+  @else
+    {!! Form::text('name', null, ['class' => 'text-input', 'placeholder' => 'Enter the project name here', 'autofocus']) !!}
+  @endif
 </div>
 
 <div class="form-group mt-xl">

@@ -2,7 +2,11 @@
 
 <div class="form-group">
   {!! Form::label('name', 'Form Name') !!}
-  {!! Form::text('name', null, ['class' => 'text-input', 'placeholder' => 'Enter the form name here', 'autofocus']) !!}
+  @if ($type == 'edit')
+    {!! Form::text('name', null, ['class' => 'text-input', 'placeholder' => 'Enter the form name here']) !!}
+  @else
+    {!! Form::text('name', null, ['class' => 'text-input', 'placeholder' => 'Enter the form name here', 'autofocus']) !!}
+  @endif
 </div>
 
 <div class="form-group mt-xl">
