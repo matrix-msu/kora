@@ -16,7 +16,7 @@
 </div>
 
 @if($submitButtonText == 'Create Form')
-  <div class="form-group">
+  <div class="form-group mt-xl">
     {!! Form::label('admins', 'Select Additional Form Admins') !!}
     {!! Form::select('admins[]', $users, null, [
       'class' => 'multi-select',
@@ -29,7 +29,7 @@
     </p>
   </div>
 
-  <div class="form-group">
+  <div class="form-group mt-xxxl">
     <div class="check-box-half">
       <input type="checkbox" value="1" id="active" class="check-box-input preset-input-js" name="active" />
       <span class="check"></span>
@@ -42,7 +42,7 @@
   </div>
 
   <div class="form-group preset-select-container preset-select-container-js">
-    <div class="preset-select-js">
+    <div class="preset-select-js mt-xl">
       {!! Form::label('preset', 'Select a Preset') !!}
       {!! Form::select('preset[]', [null=>null] + $presets, null, [
         'class' => 'single-select',
@@ -52,8 +52,8 @@
     </div>
   </div>
 
-  <div class="form-group">
-    {!! Form::submit($submitButtonText, ['class' => 'btn pre-fixed-js']) !!}
+  <div class="form-group mt-xxxl mb-max">
+    {!! Form::submit($submitButtonText, ['class' => 'btn']) !!}
   </div>
 @else
   <div class="form-group mt-xl">
