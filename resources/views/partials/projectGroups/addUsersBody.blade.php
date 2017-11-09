@@ -14,20 +14,10 @@
       </select>
     </div>
 
-    <div class="form-group add-users-submit add-users-submit-js">
+    <div class="form-group mt-xxl add-users-submit add-users-submit-js">
       {!! Form::submit('Add User(s) to Group',['class' => 'btn']) !!}
     </div>
   @else
-    <div class="request-permissions-error">
-      <p class="icon-container">
-        <!--  Leave this as a long string -->
-        <i class="icon icon-project-happy"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span></i>
-      </p>
-      <p class="text">You already have access to everything!</p>
-    </div>
 
-    <div class="form-group submit">
-      <a class="btn modal-toggle-js" href="#">Great!</a>
-    <div>
   @endif
 </div>
