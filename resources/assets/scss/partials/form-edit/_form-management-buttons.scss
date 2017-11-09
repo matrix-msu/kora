@@ -6,7 +6,7 @@
     justify-content: space-between;
     margin-top: 30px;
 
-    .btn {
+    .half-sub-btn {
       width: calc(50% - 10px);
     }
   }
@@ -19,11 +19,12 @@
     .button-container {
       display: initial;
       margin-top: 20px;
-    }
 
-    a {
-      display: block;
-      width: 100%;
+      .half-sub-btn {
+        display: block;
+        max-width: 100%;
+        width: 100%;
+      }
     }
 
     .btn:not(:first-child) {

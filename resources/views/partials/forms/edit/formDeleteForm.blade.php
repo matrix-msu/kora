@@ -5,7 +5,7 @@
   'class' => "delete-content-js"
 ]) !!}
   <span class="description">
-    Are you sure you wish to delete this Form? This cannot be undone.
+    Are you sure you wish to delete this form? This cannot be undone.
   </span>
 
   <div class="form-group form-cleanup-submit">
