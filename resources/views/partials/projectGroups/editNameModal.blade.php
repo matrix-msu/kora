@@ -12,7 +12,7 @@
         {!! Form::text('name', null, ['class' => 'text-input group-name-js', 'placeholder' => "Enter the new permissions group's name"]) !!}
       </div>
 
-      <div class="form-group add-users-submit edit-group-name-submit-js">
+      <div class="form-group mt-xxl add-users-submit edit-group-name-submit-js">
         {!! Form::submit('Update Group Name',['class' => 'btn edit-group-name-button-js']) !!}
       </div>
     </div>

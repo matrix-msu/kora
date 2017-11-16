@@ -1,20 +1,24 @@
-<div class="form-group">
+<div class="form-group mt-xl">
   {!! Form::label('name', 'Project Name') !!}
-  {!! Form::text('name', null, ['class' => 'text-input', 'placeholder' => 'Enter the project name here', 'autofocus']) !!}
+  @if ($type == 'edit')
+    {!! Form::text('name', null, ['class' => 'text-input', 'placeholder' => 'Enter the project name here']) !!}
+  @else
+    {!! Form::text('name', null, ['class' => 'text-input', 'placeholder' => 'Enter the project name here', 'autofocus']) !!}
+  @endif
 </div>
 
-<div class="form-group">
+<div class="form-group mt-xl">
   {!! Form::label('slug', 'Unique Project Identifier') !!}
   {!! Form::text('slug', null, ['class' => 'text-input', 'placeholder' => "Enter the project's unique ID here (no spaces, alpha-numeric values only)"]) !!}
 </div>
 
-<div class="form-group">
+<div class="form-group mt-xl">
     {!! Form::label('description', 'Description') !!}
     {!! Form::textarea('description', null, ['class' => 'text-area', 'placeholder' => "Enter the projects description here (max. 500 characters)"]) !!}
 </div>
 
 @if($projectMode == 'project_create')
-<div class="form-group">
+<div class="form-group mt-xl">
     {!! Form::label('admins', 'Select Project Admins') !!}
     {!! Form::select('admins[]', $users, null, [
       'class' => 'multi-select',
@@ -26,13 +30,13 @@
 @endif
 
 @if($projectMode == 'project_edit')
-<div class="form-group">
+<div class="form-group mt-xl">
   <div class="spacer"></div>
 
   <div class="project-permissions">
     <span class="question">Need to Edit Project Permissions?</span>
 
-    <a class="action underline-middle-hover" href="#">
+    <a class="action underline-middle-hover" href="{{ action('ProjectGroupController@index', ['pid' => $pid]) }}">
       <span>Go to Project Permissions Page</span>
       <i class="icon icon-arrow-right"></i>
     </a>
@@ -54,7 +58,7 @@
 </div> -->
 
 @if($projectMode == 'project_create')
-<div class="form-group">
+<div class="form-group mt-100-xl">
   {!! Form::submit('Create Project',['class' => 'btn']) !!}
 </div>
 @elseif($projectMode == 'project_edit')

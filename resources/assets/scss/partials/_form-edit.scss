@@ -19,30 +19,23 @@
   }
 
   .form-group {
-    .spacer:first-child {
-      margin: 45px auto 60px;
-    }
-
-    .spacer:last-child {
-      margin: 60px auto 55px;
+    .spacer {
+      margin: 60px auto;
     }
 
     @import 'form-edit/form-cleanup';
     @import 'form-edit/form-permissions';
     @import 'form-edit/form-management-buttons';
-
-    &.form-cleanup-submit {
-      padding: 25px 0 0;
-    }
   }
 
 
   .form-update-button {
-    height: 110px;
+    height: 65px;
+    margin: 100px auto 85px;
     padding: 0;
 
     .update-form-submit {
-      margin: 45px auto 15px;
+      margin: 0 auto 15px;
     }
   }
 }

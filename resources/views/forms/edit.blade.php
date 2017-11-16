@@ -8,7 +8,7 @@
   <section class="head">
       <div class="inner-wrap center">
         <h1 class="title">
-          <i class="icon icon-project-edit"></i>
+          <i class="icon icon-form-edit"></i>
           <span>Edit Form</span>
         </h1>
         <p class="description">Edit the form information below, and then select “Update Form”</p>
@@ -19,7 +19,7 @@
 @section('body')
   <section class="edit-form center">
     {!! Form::model($form,  ['method' => 'PATCH', 'action' => ['FormController@update',$form->pid, $form->fid]]) !!}
-    @include('partials.forms.form',['submitButtonText' => 'Update Form','pid' => $form->pid])
+    @include('partials.forms.form',['submitButtonText' => 'Update Form', 'pid' => $form->pid, 'type' => 'edit'])
     {!! Form::close() !!}
 
     <div class="modal modal-js modal-mask form-cleanup-modal-js">

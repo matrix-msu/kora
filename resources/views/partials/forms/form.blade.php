@@ -2,21 +2,25 @@
 
 <div class="form-group">
   {!! Form::label('name', 'Form Name') !!}
-  {!! Form::text('name', null, ['class' => 'text-input', 'placeholder' => 'Enter the form name here', 'autofocus']) !!}
+  @if ($type == 'edit')
+    {!! Form::text('name', null, ['class' => 'text-input', 'placeholder' => 'Enter the form name here']) !!}
+  @else
+    {!! Form::text('name', null, ['class' => 'text-input', 'placeholder' => 'Enter the form name here', 'autofocus']) !!}
+  @endif
 </div>
 
-<div class="form-group">
+<div class="form-group mt-xl">
   {!! Form::label('slug', 'Unique Form Identifier') !!}
   {!! Form::text('slug', null, ['class' => 'text-input', 'placeholder' => "Enter the forms's unique ID here (no spaces, alpha-numeric values only)"]) !!}
 </div>
 
-<div class="form-group">
+<div class="form-group mt-xl">
   {!! Form::label('description', 'Description') !!}
   {!! Form::textarea('description', null, ['class' => 'text-area', 'placeholder' => "Enter the projects description here (max. 500 characters)"]) !!}
 </div>
 
 @if($submitButtonText == 'Create Form')
-  <div class="form-group">
+  <div class="form-group mt-xl">
     {!! Form::label('admins', 'Select Additional Form Admins') !!}
     {!! Form::select('admins[]', $users, null, [
       'class' => 'multi-select',
@@ -29,41 +33,43 @@
     </p>
   </div>
 
-  <div class="form-group">
-    <div class="check-box-half">
-      <input type="checkbox" value="1" id="active" class="check-box-input preset-input-js" name="active" />
-      <span class="check"></span>
-      <span class="placeholder">Apply Form Preset?</span>
+  @if (count($presets) > 0)
+    <div class="form-group mt-xxxl">
+      <div class="check-box-half">
+        <input type="checkbox" value="1" id="active" class="check-box-input preset-input-js" name="active" />
+        <span class="check"></span>
+        <span class="placeholder">Apply Form Preset?</span>
+      </div>
+
+      <p class="sub-text mt-sm">
+        This will apply the form layout structure of the selected form preset to this newly created form.
+      </p>
     </div>
 
-    <p class="sub-text mt-sm">
-      This will apply the form layout structure of the selected form preset to this newly created form.
-    </p>
-  </div>
-
-  <div class="form-group preset-select-container preset-select-container-js">
-    <div class="preset-select-js">
-      {!! Form::label('preset', 'Select a Preset') !!}
-      {!! Form::select('preset[]', [null=>null] + $presets, null, [
-        'class' => 'single-select',
-        'data-placeholder' => "Search and select the preset",
-        'id' => 'presets'
-      ]) !!}
+    <div class="form-group preset-select-container preset-select-container-js">
+      <div class="preset-select-js mt-xl">
+        {!! Form::label('preset', 'Select a Preset') !!}
+        {!! Form::select('preset[]', [null=>null] + $presets, null, [
+          'class' => 'single-select',
+          'data-placeholder' => "Search and select the preset",
+          'id' => 'presets'
+        ]) !!}
+      </div>
     </div>
-  </div>
+  @endif
 
-  <div class="form-group">
-    {!! Form::submit($submitButtonText, ['class' => 'btn pre-fixed-js']) !!}
+  <div class="form-group mt-xxxl mb-max">
+    {!! Form::submit($submitButtonText, ['class' => 'btn']) !!}
   </div>
 @else
-  <div class="form-group">
+  <div class="form-group mt-xl">
     <label for="preset">Use this Form as a Preset?</label>
     <div class="check-box">
       <input type="checkbox" value="1" id="preset" class="check-box-input" name="preset" {{$form->preset ? 'checked': ''}} />
       <div class="check-box-background"></div>
       <span class="check"></span>
-      <span class="placeholder">Form is <strong>not</strong> being used as a preset</span>
-      <span class="placeholder-alt">Form is being used as a preset</span>
+      <span class="placeholder">Form is <strong>not</strong> set as a preset</span>
+      <span class="placeholder-alt">Form is set as a preset</span>
     </div>
 
     <p class="sub-text mt-sm">
@@ -118,4 +124,11 @@
     {!! Form::submit('Update Form',['class' => 'btn edit-btn update-form-submit pre-fixed-js']) !!}
   </div>
 
+  <div class="form-group">
+    <div class="form-cleanup">
+      <a class="btn dot-btn trash warning form-trash-js" data-title="Delete Form?" href="#">
+        <i class="icon icon-trash"></i>
+      </a>
+    </div>
+  </div>
 @endif

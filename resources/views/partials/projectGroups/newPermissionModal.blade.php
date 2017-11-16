@@ -59,7 +59,7 @@
           </select>
         </div>
 
-        <div class="form-group add-users-submit add-users-submit-js">
+        <div class="form-group mt-xxl add-users-submit add-users-submit-js">
           {!! Form::submit('Create New Permissions Group',['class' => 'btn']) !!}
         </div>
       {!! Form::close() !!}

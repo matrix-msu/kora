@@ -19,7 +19,7 @@
 @section('body')
   <section class="edit-form center">
     {!! Form::model($project,  ['method' => 'PATCH', 'action' => ['ProjectController@update', $project->pid]]) !!}
-    @include('projects.form',['projectMode' => $projectMode])
+    @include('partials.projects.form',['projectMode' => $projectMode, 'pid' => $project->pid, 'type' => 'edit'])
     {!! Form::close() !!}
 
     <div class="modal modal-js modal-mask project-cleanup-modal-js">
