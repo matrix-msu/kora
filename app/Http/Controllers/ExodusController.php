@@ -466,16 +466,11 @@ class ExodusController extends Controller {
 
         ini_set('max_execution_time',0);
         Log::info("Begin Exodus");
-        $exodus_id = DB::table('exodus_overall_progress')->insertGetId(['progress'=>0,'overall'=>0,'start'=>Carbon::now(),'created_at'=>Carbon::now(),'updated_at'=>Carbon::now()]);
+        $exodus_id = DB::table('exodus_overall_progress')->insertGetId(['progress'=>0,'overall'=>sizeof($formArray),'start'=>Carbon::now(),'created_at'=>Carbon::now(),'updated_at'=>Carbon::now()]);
         foreach($formArray as $sid=>$fid) {
-            $job = new SaveKora2Scheme($sid, $fid, $formArray, $pairArray, $dbInfo, $filePath, $exodus_id);
-            $this->dispatch($job->onQueue('exodus'));
+            $job = new ExodusHelperController();
+            $job->migrateControlsAndRecords($sid, $fid, $formArray, $pairArray, $dbInfo, $filePath, $exodus_id);
         }
-
-        Artisan::call('queue:listen', [
-            '--queue' => 'exodus',
-            '--timeout' => 33200
-        ]);
     }
 
     /**
@@ -495,11 +490,9 @@ class ExodusController extends Controller {
     }
 
     /**
-     * Finishes the Exodus process.
-     *
-     * @param  Request $request
+     * Finishes the Exodus process by completeing associations.
      */
-    public function finishExodus(Request $request) {
+    public function finishExodus() {
         //Stores the KID to RID conversions
         $masterConvertor = array();
 
