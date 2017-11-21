@@ -532,26 +532,35 @@
                                         @if($opt != '')
                                             <?php
                                             $name = explode('[Name]',$opt)[1];
-                                            $link = action('FieldAjaxController@getFileDownload',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name]);
+                                            $type = explode('.', $name)[1];
+                                            $texture_link = '';
+                                            if(in_array($type, array('stl','obj')))
+                                                $model_link = action('FieldAjaxController@getFileDownload',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name]);
+                                            else if(in_array($type, array('mtl')))
+                                                $texture_link = action('FieldAjaxController@getFileDownload',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name]);
                                             ?>
-                                            <div style="width:800px; margin:auto; position:relative;">
-                                                <canvas id="cv{{$field->flid.'_'.$record->rid}}" style="border: 1px solid;" width="325" height="200">
-                                                    It seems you are using an outdated browser that does not support canvas :-(
-                                                </canvas>
-                                            </div>
-
-                                            <script type="text/javascript">
-                                                var viewer = new JSC3D.Viewer(document.getElementById('cv{{$field->flid.'_'.$record->rid}}'));
-                                                viewer.setParameter('SceneUrl',         '{{$link}}');
-                                                viewer.setParameter('ModelColor',       '#CAA618');
-                                                viewer.setParameter('BackgroundColor1', '#E5D7BA');
-                                                viewer.setParameter('BackgroundColor2', '#383840');
-                                                viewer.setParameter('RenderMode',       'flat');
-                                                viewer.init();
-                                                viewer.update();
-                                            </script>
                                         @endif
                                     @endforeach
+                                    <div style="width:800px; margin:auto; position:relative;">
+				                        <canvas id="cv{{$field->flid.'_'.$record->rid}}" style="border: 1px solid;" width="325" height="200">
+				                            It seems you are using an outdated browser that does not support canvas :-(
+				                        </canvas>
+				                    </div>
+
+                                    <script type="text/javascript">
+				                        var viewer = new JSC3D.Viewer(document.getElementById('cv{{$field->flid.'_'.$record->rid}}'));
+                                        viewer.setParameter('SceneUrl', '{{$model_link}}');
+                                        viewer.setParameter('InitRotationX', 0);
+                                        viewer.setParameter('InitRotationY', 0);
+                                        viewer.setParameter('InitRotationZ', 0);
+                                        viewer.setParameter('ModelColor', '#CAA618');
+                                        viewer.setParameter('BackgroundColor1', '#ffffff');
+                                        viewer.setParameter('BackgroundColor2', '#383840');
+                                        viewer.setParameter('RenderMode', 'texture');
+                                        viewer.setParameter('Renderer',         'webgl');
+                                        viewer.init();
+                                        viewer.update();
+				                    </script>
                                 @endif
                             @endforeach
                         @elseif($field->type=='Associator')
