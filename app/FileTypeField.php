@@ -35,7 +35,7 @@ abstract class FileTypeField extends BaseField {
         Field::_GALLERY => ['image/jpeg','image/gif','image/png'],
         Field::_PLAYLIST => ['audio/mp3','audio/wav','audio/ogg'],
         Field::_VIDEO => ['video/mp4','video/ogg'],
-        Field::_3D_MODEL => ['obj','stl','application/octet-stream'],
+        Field::_3D_MODEL => ['obj','stl','application/octet-stream','image/jpeg','image/png'],
     ];
 
     /**

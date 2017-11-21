@@ -56,7 +56,7 @@ class ModelField extends FileTypeField  {
      * @return string - The default options
      */
     public function getDefaultOptions(Request $request) {
-        return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]2[!MaxFiles!][!FileTypes!][!FileTypes!]';
+        return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!][!FileTypes!]';
     }
 
     /**
