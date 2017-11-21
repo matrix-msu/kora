@@ -545,15 +545,17 @@ class ExportController extends Controller {
                                 break;
                             case Field::_3D_MODEL:
                                 $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
-                                $file = $data->value;
-                                $value = array(
-                                    [
+                                $value = array();
+                                $files = explode('[!]',$data->value);
+                                foreach($files as $file) {
+                                    $info = [
                                         'name' => explode('[Name]',$file)[1],
                                         'size' => floatval(explode('[Size]',$file)[1])/1000 . " mb",
                                         'type' => explode('[Type]',$file)[1],
                                         'url' => $url.explode('[Name]',$file)[1]
-                                    ]
-                                );
+                                    ];
+                                    array_push($value,$info);
+                                }
                                 $records[$kid][$data->slug]['value'] = $value;
                                 $records[$kid][$data->slug]['type'] = $data->type;
                                 break;
@@ -888,14 +890,15 @@ class ExportController extends Controller {
                                 break;
                             case Field::_3D_MODEL:
                                 $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
-                                $file = $data->value;
-
-                                $fieldxml .= '<File>';
-                                $fieldxml .= '<Name>' . htmlspecialchars(explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Name>';
-                                $fieldxml .= '<Size>' . floatval(explode('[Size]',$file)[1])/1000 . ' mb</Size>';
-                                $fieldxml .= '<Type>' . explode('[Type]',$file)[1] . '</Type>';
-                                $fieldxml .= '<Url>' . htmlspecialchars($url.explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Url>';
-                                $fieldxml .= '</File>';
+                                $files = explode('[!]',$data->value);
+                                foreach($files as $file) {
+                                    $fieldxml .= '<File>';
+                                    $fieldxml .= '<Name>' . htmlspecialchars(explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Name>';
+                                    $fieldxml .= '<Size>' . floatval(explode('[Size]',$file)[1])/1000 . ' mb</Size>';
+                                    $fieldxml .= '<Type>' . explode('[Type]',$file)[1] . '</Type>';
+                                    $fieldxml .= '<Url>' . htmlspecialchars($url.explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Url>';
+                                    $fieldxml .= '</File>';
+                                }
                                 break;
                             case Field::_ASSOCIATOR:
                                 $aRecs = explode(',',$data->value);

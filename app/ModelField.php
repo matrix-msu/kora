@@ -288,7 +288,7 @@ class ModelField extends FileTypeField  {
      */
     public function getRecordPresetArray($data, $exists=true) {
         if($exists)
-            $data['model'] = $this->model;
+            $data['model'] = explode('[!]', $this->model);
         else
             $data['model'] = null;
 
