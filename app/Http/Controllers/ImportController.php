@@ -71,8 +71,7 @@ class ImportController extends Controller {
 
         switch($type) {
             case 'XML':
-                $xml = '<?xml version="1.0" encoding="utf-8"?><Records>';
-                $xml .= '<Record kid="OPTIONAL KID FOR RECORD. USE TO COMPLETE ASSOCIATED REFERENCES">';
+                $xml = '<?xml version="1.0" encoding="utf-8"?><Records><Record>';
 
                 foreach($fields as $field) {
                     $xml .= $field->getTypedField()->getExportSample($field->slug, "XML");
@@ -93,7 +92,7 @@ class ImportController extends Controller {
                     $tmpArray = array_merge($fieldArray, $tmpArray);
                 }
 
-                $json = ['OPTIONAL KID TO COMPLETE ASSOCIATED REFERENCES. OTHERWISE IGNORE KID and COLON BEFORE RECORD ARRAY' => $tmpArray];
+                $json = [$tmpArray];
 
                 $json = json_encode($json);
 
@@ -311,7 +310,10 @@ class ImportController extends Controller {
                     $recRequest[$flid] = $geo;
                 } else if($type == 'Documents' | $type == 'Playlist' | $type == 'Video' | $type == '3D-Model') {
                     $files = array();
-                    $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
+                    if(is_null($originRid))
+                        $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                    else
+                        $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
                     $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id;
                     if(file_exists($newDir)) {
                         foreach(new \DirectoryIterator($newDir) as $file) {
@@ -333,7 +335,10 @@ class ImportController extends Controller {
                     $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;
                 } else if($type == 'Gallery') {
                     $files = array();
-                    $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
+                    if(is_null($originRid))
+                        $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                    else
+                        $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
                     $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id;
                     if(file_exists($newDir)) {
                         foreach(new \DirectoryIterator($newDir) as $file) {
@@ -391,7 +396,7 @@ class ImportController extends Controller {
             }
         } else if($request->type==self::JSON) {
             $originKid = $request->kid;
-            if(!is_null($originKid))
+            if(Record::isKIDPattern($originKid))
                 $originRid = explode('-', $originKid)[2];
             else
                 $originRid = null;
@@ -459,7 +464,10 @@ class ImportController extends Controller {
                     $recRequest[$flid] = $geo;
                 } else if($type == 'Documents' | $type == 'Playlist' | $type == 'Video' | $type == '3D-Model') {
                     $files = array();
-                    $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
+                    if(is_null($originRid))
+                        $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                    else
+                        $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
                     $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id;
                     if(file_exists($newDir)) {
                         foreach(new \DirectoryIterator($newDir) as $file) {
@@ -481,7 +489,10 @@ class ImportController extends Controller {
                     $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;
                 } else if($type == 'Gallery') {
                     $files = array();
-                    $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
+                    if(is_null($originRid))
+                        $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                    else
+                        $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
                     $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id;
                     if(file_exists($newDir)) {
                         foreach(new \DirectoryIterator($newDir) as $file) {
