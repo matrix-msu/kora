@@ -242,7 +242,10 @@ class ImportController extends Controller {
             $record = simplexml_load_string($record);
 
             $originKid = $record->attributes()->kid;
-            $originRid = explode('-', $originKid)[2];
+            if(!is_null($originKid))
+                $originRid = explode('-', $originKid)[2];
+            else
+                $originRid = null;
 
             foreach($record->children() as $key => $field) {
                 $fieldSlug = $matchup[$key];
@@ -388,7 +391,10 @@ class ImportController extends Controller {
             }
         } else if($request->type==self::JSON) {
             $originKid = $request->kid;
-            $originRid = explode('-', $originKid)[2];
+            if(!is_null($originKid))
+                $originRid = explode('-', $originKid)[2];
+            else
+                $originRid = null;
 
             foreach($record as $slug => $field) {
                 $fieldSlug = $matchup[$slug];
