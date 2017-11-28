@@ -251,6 +251,10 @@ class ImportController extends Controller {
                 $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
                 $type = $field->attributes()->type;
 
+                //Type wasnt provided so we have to hunt for it
+                if(is_null($type))
+                    $type = Field::where('slug', '=', $fieldSlug)->get()->first()->type;
+
                 //TODO::modular?
                 //TODO::add assoc
 
@@ -405,6 +409,10 @@ class ImportController extends Controller {
                 $fieldSlug = $matchup[$slug];
                 $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
                 $type = $field['type'];
+
+                //Type wasnt provided so we have to hunt for it
+                if(is_null($type))
+                    $type = Field::where('slug', '=', $fieldSlug)->get()->first()->type;
 
                 if($type == 'Text') {
                     $recRequest[$flid] = $field['value'];
