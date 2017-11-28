@@ -533,11 +533,8 @@
                                             <?php
                                             $name = explode('[Name]',$opt)[1];
                                             $type = explode('.', $name)[1];
-                                            $texture_link = '';
                                             if(in_array($type, array('stl','obj')))
                                                 $model_link = action('FieldAjaxController@getFileDownload',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name]);
-                                            else if(in_array($type, array('mtl')))
-                                                $texture_link = action('FieldAjaxController@getFileDownload',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name]);
                                             ?>
                                         @endif
                                     @endforeach
@@ -556,7 +553,8 @@
                                         viewer.setParameter('ModelColor', '#CAA618');
                                         viewer.setParameter('BackgroundColor1', '#ffffff');
                                         viewer.setParameter('BackgroundColor2', '#383840');
-                                        viewer.setParameter('RenderMode', 'texture');
+                                        viewer.setParameter('RenderMode', 'texturesmooth');
+                                        viewer.setParameter('MipMapping', 'on');
                                         viewer.setParameter('Renderer',         'webgl');
                                         viewer.init();
                                         viewer.update();

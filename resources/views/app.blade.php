@@ -22,6 +22,10 @@
             <link rel="stylesheet" type="text/css" href="{{ env('BASE_URL') }}slick/slick/slick-theme.css"/>
             <!-- For Playlist and Video -->
             <link rel="stylesheet" type="text/css" href="{{ env('BASE_URL') }}jplayer/pink.flag/css/jplayer.pink.flag.min.css"/>
+            <!-- For 3D Model -->
+            <script type="text/javascript" src="{{ env('BASE_URL') }}jsc3d/jsc3d.js"></script>
+            <script type="text/javascript" src="{{ env('BASE_URL') }}jsc3d/jsc3d.webgl.js"></script>
+            <script type="text/javascript" src="{{ env('BASE_URL') }}jsc3d/jsc3d.touch.js"></script>
           @endif
         @endif
 
