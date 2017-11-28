@@ -448,7 +448,8 @@
                         @if($opt != '')
                             <?php
                             $name = explode('[Name]',$opt)[1];
-                            $type = explode('.', $name)[1];
+                            $parts = explode('.', $name);
+                            $type = array_pop($parts);
                             if(in_array($type, array('stl','obj')))
                                 $model_link = action('FieldAjaxController@getFileDownload',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name]);
                             ?>
