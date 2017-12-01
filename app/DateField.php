@@ -482,15 +482,14 @@ class DateField extends BaseField {
     /**
      * Performs a keyword search on this field and returns any results.
      *
-     * @param  int $fid - Form ID
+     * @param  int $flid - Field ID
      * @param  string $arg - The keywords
-     * @param  string $method - Type of keyword search
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($fid, $arg, $method) {
+    public function keywordSearchTyped($flid, $arg) {
         $arg = str_replace(["*", "\""], "", $arg);
 
-        $field = FieldController::getField($this->flid);
+        $field = FieldController::getField($flid);
 
         // Boolean to decide if we should consider circa options.
         $circa = explode("[!Circa!]", $field->options)[1] == "Yes";
@@ -498,43 +497,48 @@ class DateField extends BaseField {
         // Boolean to decide if we should consider era.
         $era = explode("[!Era!]", $field->options)[1] == "On";
 
-        return self::buildQuery($arg, $circa, $era, $fid);
+        return self::buildQuery($arg, $circa, $era, $flid);
     }
 
     /**
      * Builds the query for a date field.
      *
-     * @param $search string - The query, a space separated string
+     * @param $arg string - The keyword to test
      * @param $circa bool - Should we search for date fields with circa turned on?
      * @param $era bool - Should we search for date fields with era turned on?
-     * @param $fid int - Form ID
-     * @return Builder - The query for the date field
+     * @param $flid int - Field ID
+     * @return array - The query for the date field
      */
-    private static function buildQuery($search, $circa, $era, $fid) {
-        $args = explode(" ", $search);
+    private static function buildQuery($arg, $circa, $era, $flid) {
+        //Checks to prevent false positives with default mysql values
+        $intVal = intval($arg);
+        if($intVal == 0)
+            $intVal = 999999;
+
+        $intMonth = intval(self::monthToNumber($arg));
+        if($intMonth == 0)
+            $intMonth = 999999;
 
         $query = DB::table("date_fields")
             ->select("rid")
-            ->where("fid", "=", $fid);
+            ->where("flid", "=", $flid);
 
         // This function acts as parenthesis around the or's of the date field requirements.
-        $query->where(function($query) use ($args, $circa, $era) {
-            foreach($args as $arg) {
-                $query->orWhere("day", "=", intval($arg))
-                    ->orWhere("year", "=", intval($arg));
+        $query = $query->where(function($sQuery) use ($arg, $circa, $era, $intVal, $intMonth) {
+            $sQuery->orWhere("day", "=", $intVal)->orWhere("year", "=", $intVal);
 
-                if(self::isMonth($arg))
-                    $query->orWhere("month", "=", intval(self::monthToNumber($arg)));
+            if(self::isMonth($arg))
+                $sQuery = $sQuery->orWhere("month", "=", $intMonth);
 
-                if($era && self::isValidEra($arg))
-                    $query->orWhere("era", "=", strtoupper($arg));
-            }
+            if($era && self::isValidEra($arg))
+                $sQuery = $sQuery->orWhere("era", "=", strtoupper($arg));
 
             if($circa && self::isCirca($arg))
-                $query->orWhere("circa", "=", 1);
+                $sQuery = $sQuery->orWhere("circa", "=", 1);
         });
 
-        return $query->distinct();
+        return $query->distinct()
+            ->lists('rid');
     }
 
     /**

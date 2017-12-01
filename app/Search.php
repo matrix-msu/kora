@@ -68,84 +68,78 @@ class Search {
         if($this->arg == "")
             return [];
 
-        $used_types = []; // Array to keep track of types of fields we have searched already.
-
         if(is_null($flids))
             $fields = Field::where("fid", "=", $this->fid)->get();
         else
             $fields = Field::where("flid", "IN", $flids)->get();
         $rids = [];
 
-        $processed = Search::processArgument($this->arg, $this->method);
+        switch($this->method) {
+            case self::SEARCH_OR:
+                //break up args
+                $args = explode(' ', $this->arg);
 
-        if($this->method != Search::SEARCH_AND) {
-            foreach($fields as $field) {
-                //This will account for both cases:
-                // If internal and searchable
-                // If external (api, korasearch) and ext-searchable
-                if( (!$external && $field->isSearchable()) | ($external && $field->isExternalSearchable()) ) {
-                    if(!isset($used_types[$field->type]))
-                        $used_types[$field->type] = true;
-
-                    $rids += $field->getTypedField()->keywordSearchTyped($field->fid, $processed, $this->method)->get();
-                }
-            }
-
-            // For some reason the query returns all the rids in an stdObject, this extracts the rid.
-            $rids = array_map(function ($result) {
-                return $result->rid;
-            }, $rids);
-        } else {
-            $rids_array = []; // Stores the results of each individual search.
-            $args = explode(" ", $processed);
-            foreach($args as $arg) {
-                //Were building these arrays of essentially, results for each individual search before intersecting
-                $rids_array[$arg] = array();
-            }
-
-            foreach($fields as $field) {
-                //This will account for both cases:
-                // If internal and searchable
-                // If external (api, korasearch) and ext-searchable
-                if( (!$external && $field->isSearchable()) | ($external && $field->isExternalSearchable()) ) {
-                    if(!isset($used_types[$field->type]))
-                        $used_types[$field->type] = true;
-
-                    foreach($args as $arg) {
-                        //For this field, search with each argument and store in perspective results array
-                        $currArray = $rids_array[$arg];
-                        $result = $field->getTypedField()->keywordSearchTyped($field->fid, $arg, $this->method)->get();
-                        $currArray = array_merge($currArray,$result);
-                        $rids_array[$arg] = $currArray;
+                //foreach args
+                foreach($args as $arg) {
+                    //add wildcard symbol
+                    $arg .= '*';
+                    //search the fields
+                    foreach($fields as $field) {
+                        $results = $field->getTypedField()->keywordSearchTyped($field->flid, $arg);
+                        $rids = array_merge($rids, $results);
                     }
                 }
-            }
 
-            foreach($rids_array as &$rid_array) {
-                $rid_array = array_map(function ($result) {
-                    return $result->rid;
-                }, $rid_array);
-            }
+                //make array unique
+                $rids = array_unique($rids);
+                break;
+            case self::SEARCH_AND:
+                //array set
+                $ridSets = array();
 
-            // Sorting by size of the array should make the intersection faster.
-            usort($rids_array, function($a, $b) {
-                $c_a = count($a);
-                $c_b = count($b);
+                //break up args
+                $args = explode(' ', $this->arg);
 
-                if($c_a == $c_b)
-                    return 0;
-                else
-                    return ($c_a < $c_b) ? -1 : 1;
-            });
+                //foreach args
+                foreach($args as $arg) {
+                    $set = array();
 
-            $rids = array_shift($rids_array); // Get the first array.
+                    //add wildcard symbol
+                    $arg .= '*';
+                    //search the fields
+                    foreach($fields as $field) {
+                        $results = $field->getTypedField()->keywordSearchTyped($field->flid, $arg);
+                        $set = array_merge($set, $results);
+                    }
+                    //create unique set of rids
+                    $set = array_unique($set);
+                    //add to array set
+                    array_push($ridSets, $set);
+                }
 
-            foreach($rids_array as $rid_array) { // Intersect until there are none left, this functions are the "and" portion of the search.
-                $rids = array_intersect($rids, $rid_array);
-            }
+                //run array intersect on the arrays
+                $rids = $ridSets[0];
+                for($i=1;$i<sizeof($ridSets);$i++) {
+                    $rids = array_intersect($rids, $ridSets[$i]);
+                }
+                break;
+            case self::SEARCH_EXACT:
+                //add wildcard symbol
+                $arg = $this->arg.'*';
+                //search the fields
+                foreach($fields as $field) {
+                    $results = $field->getTypedField()->keywordSearchTyped($field->flid, $arg);
+                    $rids = array_merge($rids, $results);
+                }
+
+                //make array unique
+                $rids = array_unique($rids);
+                break;
+            default:
+                break;
         }
 
-        return array_unique($rids);
+        return $rids;
     }
 
     /**
@@ -184,10 +178,14 @@ class Search {
      * Returns an array of values that will be ignored by the full text index.
      *
      * @param  string $string - The input to the search
-     * @return array -Tthe intersection of the input (as an array) and self::$STOP_WORDS
+     * @param  boolean $exact - If it's exact, we have to check the whole argument
+     * @return array - The intersection of the input (as an array) and self::$STOP_WORDS
      */
-    public static function showIgnoredArguments($string) {
-        $args = explode(" ", $string);
+    public static function showIgnoredArguments($string, $exact) {
+        if($exact)
+            $args = array($string);
+        else
+            $args = explode(" ", $string);
 
         $short = [];
         foreach($args as $arg) {

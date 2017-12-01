@@ -58,10 +58,20 @@ class FormSearchController extends Controller {
 
         if($do_query) {
             // Inform the user about arguments that will be ignored.
-            $ignored = Search::showIgnoredArguments($arg);
-            $args = explode(" ", $arg);
-            $args = array_diff($args, $ignored);
-            $arg = implode(" ", $args);
+            if($method==Search::SEARCH_EXACT) {
+                //Here we treat the argument as one single value
+                $ignored = Search::showIgnoredArguments($arg,true);
+            } else {
+                $ignored = Search::showIgnoredArguments($arg);
+                $args = explode(" ", $arg);
+                $args = array_diff($args, $ignored);
+                $arg = implode(" ", $args);
+            }
+
+            $ignored = implode(" ", $ignored);
+
+            if($ignored)
+                //TODO:: flash("The following arguments were ignored by the search: " . $ignored . '. ');
 
             $search = new Search($pid, $fid, $arg, $method);
 

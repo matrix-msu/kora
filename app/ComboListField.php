@@ -545,15 +545,14 @@ class ComboListField extends BaseField {
     /**
      * Performs a keyword search on this field and returns any results.
      *
-     * @param  int $fid - Form ID
+     * @param  int $flid - Field ID
      * @param  string $arg - The keywords
-     * @param  string $method - Type of keyword search
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($fid, $arg, $method) {
+    public function keywordSearchTyped($flid, $arg) {
         return DB::table(self::SUPPORT_NAME)
             ->select("rid")
-            ->where("fid", "=", $fid)
+            ->where("flid", "=", $flid)
             ->where(function($query) use ($arg) {
                 $num = $arg = str_replace(["*", "\""], "", $arg);
                 $num = floatval($num);
@@ -561,7 +560,8 @@ class ComboListField extends BaseField {
                 $query->whereRaw("MATCH (`data`) AGAINST (? IN BOOLEAN MODE)", [$arg])
                     ->orWhereBetween("number", [$num - NumberField::EPSILON, $num + NumberField::EPSILON]);
             })
-            ->distinct();
+            ->distinct()
+            ->lists('rid');
     }
 
     /**
