@@ -62,6 +62,8 @@ class Search {
     /**
      * Runs the keyword search routine on all field types.
      *
+     * @param  array $flids - Field IDs to search through
+     * @param  boolean $external - Is this search coming from an external source
      * @return array - Array of rids satisfying search parameters
      */
     public function formKeywordSearch($flids=null, $external=false) {
@@ -85,8 +87,13 @@ class Search {
                     $arg .= '*';
                     //search the fields
                     foreach($fields as $field) {
-                        $results = $field->getTypedField()->keywordSearchTyped($field->flid, $arg);
-                        $rids = array_merge($rids, $results);
+                        // These checks make sure the field is searchable for these cases:
+                        // If internal and searchable
+                        // If external (api, korasearch) and ext-searchable
+                        if( (!$external && $field->isSearchable()) | ($external && $field->isExternalSearchable()) ) {
+                            $results = $field->getTypedField()->keywordSearchTyped($field->flid, $arg);
+                            $rids = array_merge($rids, $results);
+                        }
                     }
                 }
 
@@ -108,8 +115,10 @@ class Search {
                     $arg .= '*';
                     //search the fields
                     foreach($fields as $field) {
-                        $results = $field->getTypedField()->keywordSearchTyped($field->flid, $arg);
-                        $set = array_merge($set, $results);
+                        if( (!$external && $field->isSearchable()) | ($external && $field->isExternalSearchable()) ) {
+                            $results = $field->getTypedField()->keywordSearchTyped($field->flid, $arg);
+                            $set = array_merge($set, $results);
+                        }
                     }
                     //create unique set of rids
                     $set = array_unique($set);
@@ -128,8 +137,10 @@ class Search {
                 $arg = $this->arg.'*';
                 //search the fields
                 foreach($fields as $field) {
-                    $results = $field->getTypedField()->keywordSearchTyped($field->flid, $arg);
-                    $rids = array_merge($rids, $results);
+                    if( (!$external && $field->isSearchable()) | ($external && $field->isExternalSearchable()) ) {
+                        $results = $field->getTypedField()->keywordSearchTyped($field->flid, $arg);
+                        $rids = array_merge($rids, $results);
+                    }
                 }
 
                 //make array unique
