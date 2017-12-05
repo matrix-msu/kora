@@ -491,33 +491,71 @@
                                         @if($opt != '')
                                             <?php
                                             $name = explode('[Name]',$opt)[1];
-                                            $link = action('FieldAjaxController@getFileDownload',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name]);
+                                            $parts = explode('.', $name);
+                                            $type = array_pop($parts);
+                                            if(in_array($type, array('stl','obj')))
+                                                $model_link = action('FieldAjaxController@getFileDownload',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name]);
                                             ?>
-                                            <div style="width:800px; margin:auto; position:relative;">
-                                                <canvas id="cv{{$field->flid.'_'.$record->rid}}" style="border: 1px solid;" width="325" height="200">
-                                                    It seems you are using an outdated browser that does not support canvas :-(
-                                                </canvas>
-                                            </div>
-
-                                            <script type="text/javascript">
-                                                var viewer = new JSC3D.Viewer(document.getElementById('cv{{$field->flid.'_'.$record->rid}}'));
-                                                viewer.setParameter('SceneUrl',         '{{$link}}');
-                                                viewer.setParameter('ModelColor',       '#CAA618');
-                                                viewer.setParameter('BackgroundColor1', '#E5D7BA');
-                                                viewer.setParameter('BackgroundColor2', '#383840');
-                                                viewer.setParameter('RenderMode',       'flat');
-                                                viewer.init();
-                                                viewer.update();
-                                            </script>
                                         @endif
                                     @endforeach
+                                    <div style="width:800px; margin:auto; position:relative;">
+				                        <canvas id="cv{{$field->flid.'_'.$record->rid}}" style="border: 1px solid;" width="325" height="200">
+				                            It seems you are using an outdated browser that does not support canvas :-(
+				                        </canvas><br>
+										<button id="cvfs{{$field->flid.'_'.$record->rid}}" type="button">FULLSCREEN</button>
+				                    </div>
+
+                                    <script type="text/javascript">
+				                        var viewer = new JSC3D.Viewer(document.getElementById('cv{{$field->flid.'_'.$record->rid}}'));
+                                        viewer.setParameter('SceneUrl', '{{$model_link}}');
+                                        viewer.setParameter('InitRotationX', 0);
+                                        viewer.setParameter('InitRotationY', 0);
+                                        viewer.setParameter('InitRotationZ', 0);
+                                        viewer.setParameter('ModelColor', '#CAA618');
+                                        viewer.setParameter('BackgroundColor1', '#ffffff');
+                                        viewer.setParameter('BackgroundColor2', '#383840');
+                                        viewer.setParameter('RenderMode', 'texturesmooth');
+                                        viewer.setParameter('MipMapping', 'on');
+                                        viewer.setParameter('Renderer',         'webgl');
+                                        viewer.init();
+                                        viewer.update();
+
+                                        var canvas = document.getElementById('cvfs{{$field->flid.'_'.$record->rid}}');
+
+                                        function fullscreen() {
+                                            var el = document.getElementById('cv{{$field->flid.'_'.$record->rid}}');
+
+                                            el.width  = window.innerWidth;
+                                            el.height = window.innerHeight;
+
+                                            if(el.webkitRequestFullScreen)
+                                                el.webkitRequestFullScreen();
+                                            else
+                                                el.mozRequestFullScreen();
+                                        }
+
+                                        function exitFullscreen() {
+                                            if(!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
+                                                var el = document.getElementById('cv{{$field->flid.'_'.$record->rid}}');
+
+                                                el.width  = 325;
+                                                el.height = 200;
+                                            }
+                                        }
+
+                                        canvas.addEventListener("click",fullscreen);
+                                        document.addEventListener('fullscreenchange', exitFullscreen);
+                                        document.addEventListener('webkitfullscreenchange', exitFullscreen);
+                                        document.addEventListener('mozfullscreenchange', exitFullscreen);
+                                        document.addEventListener('MSFullscreenChange', exitFullscreen);
+				                    </script>
                                 @endif
                             @endforeach
                         @elseif($field->type=='Associator')
                             @foreach($record->associatorfields as $af)
                                 @if($af->flid == $field->flid)
-                                    @foreach(explode('[!]',$af->records) as $opt)
-                                        <div>{{ $opt }}</div>
+                                    @foreach($af->records()->get() as $opt)
+                                        <div>{!! $af->getPreviewValues($opt->record) !!}</div>
                                     @endforeach
                                 @endif
                             @endforeach

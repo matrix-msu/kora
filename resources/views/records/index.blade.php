@@ -542,7 +542,8 @@
                                     <div style="width:800px; margin:auto; position:relative;">
 				                        <canvas id="cv{{$field->flid.'_'.$record->rid}}" style="border: 1px solid;" width="325" height="200">
 				                            It seems you are using an outdated browser that does not support canvas :-(
-				                        </canvas>
+				                        </canvas><br>
+										<button id="cvfs{{$field->flid.'_'.$record->rid}}" type="button">FULLSCREEN</button>
 				                    </div>
 
                                     <script type="text/javascript">
@@ -559,6 +560,35 @@
                                         viewer.setParameter('Renderer',         'webgl');
                                         viewer.init();
                                         viewer.update();
+
+                                        var canvas = document.getElementById('cvfs{{$field->flid.'_'.$record->rid}}');
+
+                                        function fullscreen() {
+                                            var el = document.getElementById('cv{{$field->flid.'_'.$record->rid}}');
+
+                                            el.width  = window.innerWidth;
+                                            el.height = window.innerHeight;
+
+                                            if(el.webkitRequestFullScreen)
+                                                el.webkitRequestFullScreen();
+                                            else
+                                                el.mozRequestFullScreen();
+                                        }
+
+                                        function exitFullscreen() {
+                                            if(!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
+                                                var el = document.getElementById('cv{{$field->flid.'_'.$record->rid}}');
+
+                                                el.width  = 325;
+                                                el.height = 200;
+                                            }
+                                        }
+
+                                        canvas.addEventListener("click",fullscreen);
+                                        document.addEventListener('fullscreenchange', exitFullscreen);
+                                        document.addEventListener('webkitfullscreenchange', exitFullscreen);
+                                        document.addEventListener('mozfullscreenchange', exitFullscreen);
+                                        document.addEventListener('MSFullscreenChange', exitFullscreen);
 				                    </script>
                                 @endif
                             @endforeach
