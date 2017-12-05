@@ -551,9 +551,9 @@
                                         viewer.setParameter('InitRotationX', 0);
                                         viewer.setParameter('InitRotationY', 0);
                                         viewer.setParameter('InitRotationZ', 0);
-                                        viewer.setParameter('ModelColor', '#CAA618');
-                                        viewer.setParameter('BackgroundColor1', '#ffffff');
-                                        viewer.setParameter('BackgroundColor2', '#383840');
+                                        viewer.setParameter('ModelColor', '{{\App\Http\Controllers\FieldController::getFieldOption($field,'ModelColor')}}');
+                                        viewer.setParameter('BackgroundColor1', '{{\App\Http\Controllers\FieldController::getFieldOption($field,'BackColorOne')}}');
+                                        viewer.setParameter('BackgroundColor2', '{{\App\Http\Controllers\FieldController::getFieldOption($field,'BackColorTwo')}}');
                                         viewer.setParameter('RenderMode', 'texturesmooth');
                                         viewer.setParameter('MipMapping', 'on');
                                         viewer.setParameter('Renderer',         'webgl');

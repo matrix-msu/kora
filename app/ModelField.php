@@ -56,7 +56,7 @@ class ModelField extends FileTypeField  {
      * @return string - The default options
      */
     public function getDefaultOptions(Request $request) {
-        return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!][!FileTypes!]';
+        return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!][!FileTypes!][!ModelColor!]#CAA618[!ModelColor!][!BackColorOne!]#ffffff[!BackColorOne!][!BackColorTwo!]#383840[!BackColorTwo!]';
     }
 
     /**
@@ -80,6 +80,9 @@ class ModelField extends FileTypeField  {
         $field->updateSearchable($request);
         $field->updateOptions('FieldSize', $request->filesize);
         $field->updateOptions('FileTypes', $filetype);
+        $field->updateOptions('ModelColor', $request->color);
+        $field->updateOptions('BackColorOne', $request->backone);
+        $field->updateOptions('BackColorTwo', $request->backtwo);
 
         if($return) {
             return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
