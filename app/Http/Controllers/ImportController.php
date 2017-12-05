@@ -396,6 +396,8 @@ class ImportController extends Controller {
                     }
                     $recRequest['file' . $flid] = $files;
                     $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;
+                } else if($type == 'Associator') {
+                    $recRequest[$flid] = (array)$field->Record;
                 }
             }
         } else if($request->type==self::JSON) {
@@ -554,6 +556,8 @@ class ImportController extends Controller {
                     }
                     $recRequest['file' . $flid] = $files;
                     $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;
+                } else if($type == 'Associator') {
+                    $recRequest[$flid] = $field['value'];
                 }
             }
         }
