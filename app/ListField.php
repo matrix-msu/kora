@@ -333,7 +333,7 @@ class ListField extends BaseField {
      */
     private static function buildAdvancedListQuery(Builder &$db_query, $input) {
         $db_query->whereRaw("MATCH (`option`) AGAINST (? IN BOOLEAN MODE)",
-            [Search::processArgument($input, Search::ADVANCED_METHOD)]);
+            ["\"" . $input . "\""]);
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////

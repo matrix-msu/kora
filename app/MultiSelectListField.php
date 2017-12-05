@@ -344,7 +344,7 @@ class MultiSelectListField extends BaseField {
         $db_query->where(function($db_query) use ($inputs) {
             foreach($inputs as $input) {
                 $db_query->orWhereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)",
-                    [Search::processArgument($input, Search::ADVANCED_METHOD)]);
+                    ["\"" . $input . "\""]);
             }
         });
     }

@@ -328,7 +328,7 @@ class TextField extends BaseField {
             ->select("rid")
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`text`) AGAINST (? IN BOOLEAN MODE)",
-                [Search::processArgument($query[$flid . "_input"], Search::ADVANCED_METHOD)])
+                ["\"" . $query[$flid . "_input"] . "\""])
             ->distinct();
     }
 

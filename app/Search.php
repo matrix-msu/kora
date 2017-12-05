@@ -154,38 +154,6 @@ class Search {
     }
 
     /**
-     * Process the argument for full text searching based on the search method.
-     *
-     * OR and AND: "fish" => "fish*" to match with "fishing". Note: we don't apply an asterisk to the beginning because
-     *         full text indexes do not apply backward due to the structure of the B-Tree.
-     * EXACT: "large fish" => "\"large fish\"" to only match with the phrase "large fish".
-     *
-     * @param  string $arg - The argument to be processed
-     * @param  int $method - The search method (or, and, exact)
-     * @return string - Processed argument
-     */
-    public static function processArgument($arg, $method) {
-        switch($method) {
-            case self::SEARCH_OR:
-                break;
-            case self::SEARCH_AND:
-                $args = explode(" ", $arg);
-
-                foreach($args as &$piece) {
-                    $piece .= "* "; // Boolean fulltext wildcard
-                }
-
-                $arg = trim(implode($args));
-                break;
-            case self::SEARCH_EXACT:
-                $arg = "\"" . $arg . "\"";
-                break;
-        }
-
-        return $arg;
-    }
-
-    /**
      * Returns an array of values that will be ignored by the full text index.
      *
      * @param  string $string - The input to the search
