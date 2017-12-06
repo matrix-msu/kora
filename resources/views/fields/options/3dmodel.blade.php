@@ -50,6 +50,24 @@
     </div>
 
     <div class="form-group">
+        {!! Form::label('color','Model Color: ') !!}
+        <input type="color" name="color" class="form-control"
+               value="{{\App\Http\Controllers\FieldController::getFieldOption($field, "ModelColor")}}">
+    </div>
+
+    <div class="form-group">
+        {!! Form::label('backone','Background Color One: ') !!}
+        <input type="color" name="backone" class="form-control"
+               value="{{\App\Http\Controllers\FieldController::getFieldOption($field, "BackColorOne")}}">
+    </div>
+
+    <div class="form-group">
+        {!! Form::label('backtwo','Background Color Two: ') !!}
+        <input type="color" name="backtwo" class="form-control"
+               value="{{\App\Http\Controllers\FieldController::getFieldOption($field, "BackColorTwo")}}">
+    </div>
+
+    <div class="form-group">
         {!! Form::submit(trans('field_options_generic.submit',['field'=>$field->name]),['class' => 'btn btn-primary form-control']) !!}
     </div>
     {!! Form::close() !!}
