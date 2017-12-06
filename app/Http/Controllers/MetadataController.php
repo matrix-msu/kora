@@ -48,7 +48,11 @@ class MetadataController extends Controller {
             return $obj->rid;
         }, $rids);
 
-        $output_file = ExportController::exportWithRids($rids,'META');
+        $eC = new ExportController();
+        $output_file = $eC->exportWithRids($rids,'META');
+
+        if($output_file=='no_records')
+            echo "There are no metadata records to export";
 
         if(file_exists($output_file)) {
             header("Content-Disposition: attachment; filename=\"" . basename($output_file) . "\"");
@@ -79,7 +83,11 @@ class MetadataController extends Controller {
             return $obj->rid;
         }, $rids);
 
-        $output_file = ExportController::exportWithRids($rids,'META');
+        $eC = new ExportController();
+        $output_file = $eC->exportWithRids($rids,'META');
+
+        if($output_file=='no_records')
+            echo "There are no metadata records to export";
 
         if(file_exists($output_file)) {
             header("Content-Disposition: attachment; filename=\"" . basename($output_file) . "\"");
