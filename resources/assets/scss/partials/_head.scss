@@ -47,6 +47,20 @@
     }
   }
 
+  .identifier {
+    display: inline-block;
+    margin: 0 0 20px;
+
+    span {
+      font-family: $ubuntu;
+      font-size: 14px;
+    }
+
+    span:first-child {
+      font-family: $ubuntu-medium;
+    }
+  }
+
   .description {
     align-self: center;
     font-size: 16px;
