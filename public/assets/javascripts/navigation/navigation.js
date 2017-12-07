@@ -45,7 +45,13 @@ $navBar.on("click", ".navigation-toggle-js", function() {
 });
 
 $navBar.on("click", ".navigation-sub-menu-toggle-js", function() {
-  $(this).next().toggle();
+  $menu = $(this).next('.navigation-deep-menu-js');
+
+  if ($menu.hasClass('active')) {
+    $menu.removeClass('active');
+  } else {
+    $menu.addClass('active');
+  }
 });
 
 $navBar.on('click', '.side-menu-toggle-js', function() {
