@@ -1,0 +1,31 @@
+.form-quick-options {
+  padding-bottom: 60px;
+
+  .button-container {
+    display: flex;
+    justify-content: space-between;
+
+    .half-sub-btn {
+      width: calc(50% - 10px);
+    }
+  }
+}
+
+@media screen and (max-width: $max-mobile-l-width) {
+  .form-quick-options {
+
+    .button-container {
+      display: initial;
+
+      .half-sub-btn {
+        display: block;
+        max-width: 100%;
+        width: 100%;
+      }
+    }
+
+    .btn:not(:first-child) {
+      margin-top: 20px;
+    }
+  }
+}

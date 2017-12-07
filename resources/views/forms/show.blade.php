@@ -1,8 +1,63 @@
-@extends('app')
+@extends('app', ['page_title' => "{$form->name} Form", 'page_class' => 'form-show'])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $form->pid])
     @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+@stop
+
+@section('stylesheets')
+  <!-- No Additional Stylesheets Necessary -->
+@stop
+
+@section('header')
+  <section class="head">
+    <div class="inner-wrap center">
+      <h1 class="title">
+        <i class="icon icon-form"></i>
+        <span>{{ $form->name }}</span>
+        <a href="{{ action('FormController@edit',['pid' => $form->pid, 'fid' => $form->fid]) }}" class="head-button">
+          <i class="icon icon-edit right"></i>
+        </a>
+      </h1>
+      <p class="identifier">
+        <span>Unique Form ID:</span>
+        <span>{{ $form->slug }}</span>
+      </p>
+      <p class="description">{{ $form->description }}</p>
+
+      <div class="form-group">
+        <div class="form-quick-options">
+          <div class="button-container">
+            <a href="#" class="btn half-sub-btn subdued">View & Search Form Records</a>
+            <a href="#" class="btn half-sub-btn">Create New Record</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+@stop
+
+
+@section('body')
+  <section class="filters center">
+    <div class="underline-middle search search-js">
+      <i class="icon icon-search"></i>
+      <input type="text" placeholder="Find a Field">
+      <i class="icon icon-cancel icon-cancel-js"></i>
+    </div>
+    <div class="show-options show-options-js">
+      <i class="icon icon-hamburger icon-hamburger-js"></i>
+      <i class="icon icon-hamburger icon-hamburger-js"></i>
+    </div>
+  </section>
+@stop
+
+@section('javascripts')
+  @include('partials.forms.javascripts')
+
+  <script type="text/javascript">
+    // Kora.Forms.Edit();
+  </script>
 @stop
 
 @section('content')

@@ -1,0 +1,21 @@
+.form-show-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu;
+  min-height: 100vh;
+}
+
+.form-show {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  .form-group {
+    .spacer {
+      margin: 60px auto;
+    }
+
+    @import 'form-edit/form-cleanup';
+  }
+
+  @import 'form-show/form-quick-options';
+  @import 'form-show/filters';
+}
