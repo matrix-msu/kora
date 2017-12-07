@@ -13,9 +13,9 @@
         </div>
       @endif
 
-      <a class="title {{!$active ? 'inactive': 'underline-middle-hover'}}" href="{{ action("ProjectController@show",["pid" => $project->pid]) }}">
+      <a class="title {{$archived ? 'inactive': 'underline-middle-hover'}}" href="{{ action("ProjectController@show",["pid" => $project->pid]) }}">
         <span class="name">{{$project->name}}</span>
-        @if ($active)
+        @if (!$archived)
           <i class="icon icon-arrow-right"></i>
         @endif
       </a>
@@ -59,14 +59,14 @@
       <span class="attribute">Project Forms:</span>
       @foreach($project->forms()->get() as $form)
         <span class="form">
-          <a class="form-link {{!$active ? 'inactive': 'underline-middle-hover'}}" href="{{action("FormController@show",["pid" => $project->pid,"fid" => $form->fid])}}">
+          <a class="form-link {{$archived ? 'inactive': 'underline-middle-hover'}}" href="{{action("FormController@show",["pid" => $project->pid,"fid" => $form->fid])}}">
             {{$form->name}}
           </a>
         </span>
       @endforeach
     </div>
 
-    @if ($active || $isCustom)
+    @if (!$archived)
       <div class="footer">
         <a class="quick-action underline-middle-hover" href="{{ action('ProjectController@edit',['pid' => $project->pid]) }}">
           <i class="icon icon-edit-little"></i>
@@ -84,12 +84,12 @@
         </a>
       </div>
     @else
-    <div class="footer">
-      <a class="quick-action underline-middle-hover" href="#">
-        <i class="icon icon-edit-little"></i>
-        <span>Unarchive</span>
-      </a>
-    </div>
+      <div class="footer">
+        <a class="quick-action underline-middle-hover" href="#">
+          <i class="icon icon-edit-little"></i>
+          <span>Unarchive</span>
+        </a>
+      </div>
     @endif
   </div>
 </div>
