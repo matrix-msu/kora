@@ -56,11 +56,11 @@
   @include('partials.forms.javascripts')
 
   <script type="text/javascript">
-    // Kora.Forms.Edit();
+    Kora.Forms.Show();
   </script>
 @stop
 
-@section('content')
+@section('contenty')
     <span><h1>{{ $form->name }}</h1></span>
 
     <div><b>{{trans('forms_show.slug')}}:</b> {{ $form->slug }}</div>
@@ -149,7 +149,7 @@
 
 @stop
 
-@section('footer')
+@section('footers')
     <script>
         $( ".panel-heading" ).on( "click", function() {
             if ($(this).siblings('.collapseTest').css('display') == 'none' ){
