@@ -5,7 +5,7 @@
   background: gradient($palette: 'accent', $degree: to right);
   border: 0;
   border-radius: 100px;
-  box-shadow: 0 3px 5px 0 palette(box-shadow, accent, .2);
+  box-shadow: 0 3px 5px 0 palette(box-shadow, accent, .1);
   color: palette(white, base);
   cursor: pointer;
   font-family: $ubuntu;
@@ -19,7 +19,7 @@
 
   &:hover,
   &:focus {
-    box-shadow: 0 7px 15px 0 palette(box-shadow, accent, .3);
+    box-shadow: 0 5px 10px 0 palette(box-shadow, accent, .2);
     opacity: 1;
   }
 
@@ -36,6 +36,10 @@
       box-shadow: 0 7px 15px 0 palette(box-shadow, warning, .3);
       opacity: 1;
     }
+  }
+
+  &.subdued {
+    border-color: palette(green, accent, .2);
   }
 }
 
@@ -108,6 +112,10 @@ a.btn.half-sub-btn {
   text-align: center;
   width: 49%;
 
+  &:hover {
+    border-color: palette(green, accent, 1);
+  }
+
   &.warning {
     border: 2px solid palette(red, base, .8);
     color: palette(red, base);
@@ -122,6 +130,15 @@ a.btn.half-sub-btn {
 
     &:hover {
       box-shadow: 0 3px 5px 0 palette(box-shadow, accent, .05);
+    }
+  }
+
+  &.subdued {
+    border-color: palette(green, accent, .2);
+    font-family: $ubuntu;
+
+    &:hover {
+      border-color: palette(green, accent, 1);
     }
   }
 }
