@@ -6,6 +6,7 @@
   margin-left: 155px;
   margin-top: -15px;
   max-height: 60vh;
+  opacity: 0;
   overflow: scroll;
   padding-top: 20px;
   position: absolute;
@@ -14,5 +15,11 @@
   .item {
     padding-bottom: 15px;
     padding-left: 20px;
+  }
+
+  &.active {
+    @include transition();
+    display: block;
+    opacity: 1;
   }
 }
