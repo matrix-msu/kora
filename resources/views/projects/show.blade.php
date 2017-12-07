@@ -18,6 +18,10 @@
             <i class="icon icon-edit right"></i>
           </a>
         </h1>
+        <p class="identifier">
+          <span>Unique Project ID:</span>
+          <span>{{ $project->slug }}</span>
+        </p>
         <p class="description">{{ $project->slug }}: {{ $project->description }}</p>
       </div>
   </section>
