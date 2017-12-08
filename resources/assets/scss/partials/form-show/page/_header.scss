@@ -1,0 +1,112 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+  position: relative;
+  z-index: 2;
+
+  &.active {
+    box-shadow: 0px 6px 13px -4px palette(white, base);
+  }
+
+  .icon {
+    @include transition();
+
+    cursor: pointer;
+    vertical-align: middle;
+  }
+
+  .icon-arrow-down,
+  .icon-arrow-up {
+    color: palette(gray, slate);
+    display: inline-block;
+    font-size: 10px;
+    opacity: .2;
+  }
+
+  .cancel-container {
+    align-items: center;
+    display: flex;
+    height: 92px;
+    justify-content: center;
+    text-decoration: none;
+    width: 92px;
+
+    &:hover .icon-cancel {
+      color: palette(gray, slate, .6);
+      transform: rotate(90deg) scale($transform-scale-multiplier);
+    }
+  }
+
+  .icon-cancel {
+    color: palette(gray, slate, .2);
+    display: inline-block;
+    font-size: 13px;
+    margin-top: 10px;
+  }
+
+  .move-actions {
+    align-items: center;
+    display: flex;
+    margin-top: 10px;
+
+    .action {
+      @include transition();
+
+      padding: 20px 0;
+      will-change: transform;
+    }
+
+    .action:first-child {
+      padding-left: 40px;
+      padding-right: 4px;
+    }
+
+    .action:last-child {
+      padding-left: 4px;
+      padding-right: 16px;
+    }
+
+    .action:hover .icon {
+      opacity: .6;
+    }
+
+    .action:hover .icon-arrow-up {
+      transform: rotate(-90deg) scale($transform-scale-multiplier);
+    }
+
+    .action:hover .icon-arrow-down {
+      transform: rotate(90deg) scale($transform-scale-multiplier);
+    }
+  }
+
+  .title-container {
+    align-items: center;
+    display: flex;
+  }
+
+  .title {
+    @include transition();
+
+    appearance: none;
+    background: none;
+    border: 2px solid transparent;
+    box-sizing: border-box;
+    color: palette(gray, text);
+    font-family: $ubuntu;
+    font-size: 14px;
+    line-height: 24px;
+    margin-top: 10px;
+    text-align: center;
+    width: 100%;
+
+    &:hover {
+      border-bottom: 2px solid palette(green, accent, .3);
+    }
+
+    &:focus {
+      border-bottom: 2px solid palette(green, accent, .7);
+      outline: none;
+    }
+  }
+}

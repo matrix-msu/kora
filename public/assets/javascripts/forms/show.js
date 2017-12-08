@@ -40,5 +40,13 @@ Kora.Forms.Show = function() {
     });
   }
 
+  function initializePage() {
+    $pageTitle = document.getElementsByClassName('page-title-js')[0];
+
+    $pageTitle.setAttribute('size',
+      $pageTitle.getAttribute('placeholder').length);
+  }
+
   initializeSearch();
+  initializePage()
 }

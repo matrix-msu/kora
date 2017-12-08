@@ -1,0 +1,16 @@
+.pages {
+  font-family: $ubuntu;
+  height: 20px;
+  margin: 45px auto 0;
+  max-width: calc(#{ $max-site-width } - 600px);
+  width: $max-site-width;
+
+  .page {
+    background-color: palette(gray, page, 1);
+    border-radius: 5px;
+    box-shadow: 0 20px 50px 0 palette(box-shadow, base, .05);
+    width: 100%;
+
+    @import 'page/header';
+  }
+}

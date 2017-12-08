@@ -50,6 +50,48 @@
       <i class="icon icon-condense icon-condense-js"></i>
     </div>
   </section>
+
+  <div class="pages center">
+    @foreach($pageLayout as $page)
+      <div class="page">
+        <div class="header">
+          <div class="move-actions">
+            <a class="action move-action-js up-js" page_id="{{$page["id"]}}" href="#">
+              <i class="icon icon-arrow-up"></i>
+            </a>
+
+            <a class="action move-action-js down-js" page_id="{{$page["id"]}}" href="#">
+              <i class="icon icon-arrow-down"></i>
+            </a>
+          </div>
+
+          <div class="form-group title-container">
+            {!! Form::text('name', null, ['class' => 'title page-title-js', 'placeholder' => $page["title"]]) !!}
+          </div>
+
+          <div>
+            <a href="#" page_id="{{$page["id"]}}" class="cancel-container delete-page-js">
+              <i class="icon icon-cancel"></i>
+            </a>
+          </div>
+        </div>
+
+        @foreach($page["fields"] as $field)
+            @include('forms.layout.printfield', ['field' => $field])
+        @endforeach
+
+        @if(\Auth::user()->canCreateFields($form))
+        <form method="DET" action="{{action('FieldController@create', ['pid' => $form->pid, 'fid' => $form->fid, 'rootPage' => $page["id"]]) }}">
+            <input type="submit" value="{{trans('forms_show.createfield')}}" class="btn btn-primary">
+        </form>
+        <button type="button" class="add_page" pageid="{{$page["id"]}}">ADD PAGE</button>
+        {!! Form::text("pagetext_".$page["id"], null, ['id' => "pagetext_".$page["id"]]) !!}
+        @endif
+
+        <br><br>
+      </div>
+    @endforeach
+  </div>
 @stop
 
 @section('javascripts')
@@ -60,12 +102,7 @@
   </script>
 @stop
 
-@section('contenty')
-    <span><h1>{{ $form->name }}</h1></span>
-
-    <div><b>{{trans('forms_show.slug')}}:</b> {{ $form->slug }}</div>
-    <div><b>{{trans('forms_show.desc')}}:</b> {{ $form->description }}</div>
-
+@section('content')
     <div>
         <a href="{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('forms_show.records')}}]</a>
         @if(\Auth::user()->canIngestRecords($form))
@@ -116,36 +153,6 @@
             <a href="{{ action('ExportController@exportForm',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('forms_show.export')}}]</a>
         </div> <br>
     @endif
-
-    <div id="form_pages">
-    @foreach($pageLayout as $page)
-        <h2>{{$page["title"]}}</h2>
-
-        @if(\Auth::user()->canCreateFields($form))
-        <button type="button" class="move_pageUp" pageid="{{$page["id"]}}">UP</button>
-        <button type="button" class="move_pageDown" pageid="{{$page["id"]}}">DOWN</button>
-        <button type="button" class="delete_page" pageid="{{$page["id"]}}">DELETE</button>
-        @endif
-
-        <hr>
-
-        @foreach($page["fields"] as $field)
-            @include('forms.layout.printfield', ['field' => $field])
-        @endforeach
-
-        <hr>
-
-        @if(\Auth::user()->canCreateFields($form))
-        <form method="DET" action="{{action('FieldController@create', ['pid' => $form->pid, 'fid' => $form->fid, 'rootPage' => $page["id"]]) }}">
-            <input type="submit" value="{{trans('forms_show.createfield')}}" class="btn btn-primary">
-        </form>
-        <button type="button" class="add_page" pageid="{{$page["id"]}}">ADD PAGE</button>
-        {!! Form::text("pagetext_".$page["id"], null, ['id' => "pagetext_".$page["id"]]) !!}
-        @endif
-
-        <br><br>
-    @endforeach
-    </div>
 
 @stop
 
