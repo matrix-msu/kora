@@ -439,7 +439,7 @@ JSC3D.Viewer.prototype.setBackgroudImageFromUrl = function(backgroundImageUrl) {
         self.generateBackground();
     };
 
-    img.crossOrigin = 'anonymous'; // explicitly enable cross-domain image
+    //img.crossOrigin = 'anonymous'; // explicitly enable cross-domain image
     img.src = encodeURI(backgroundImageUrl);
 };
 
@@ -4238,7 +4238,7 @@ JSC3D.Texture.prototype.createFromUrl = function(imageUrl, useMipmap) {
             JSC3D.console.logWarning('Failed to load texture image file "' + this.src + '". This texture will be discarded.');
     };
 
-    img.crossOrigin = 'anonymous'; // explicitly enable cross-domain image
+    //img.crossOrigin = 'anonymous'; // explicitly enable cross-domain image
     img.src = encodeURI(imageUrl);
 };
 
