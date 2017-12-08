@@ -46,9 +46,11 @@ class SaveRecordsTable extends Command implements SelfHandling, ShouldQueue {
 
                 $individual_record_data->put("rid", $record->rid);
                 $individual_record_data->put("kid", $record->kid);
+                $individual_record_data->put("legacy_kid", $record->legacy_kid);
                 $individual_record_data->put("pid", $record->pid);
                 $individual_record_data->put("fid", $record->fid);
                 $individual_record_data->put("owner", $record->owner);
+                $individual_record_data->put("isTest", $record->isTest);
                 $individual_record_data->put("created_at", $record->created_at->toDateTimeString());
                 $individual_record_data->put("updated_at", $record->updated_at->toDateTimeString());
 

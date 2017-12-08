@@ -35,7 +35,7 @@ abstract class FileTypeField extends BaseField {
         Field::_GALLERY => ['image/jpeg','image/gif','image/png'],
         Field::_PLAYLIST => ['audio/mp3','audio/wav','audio/ogg'],
         Field::_VIDEO => ['video/mp4','video/ogg'],
-        Field::_3D_MODEL => ['obj','stl','application/octet-stream'],
+        Field::_3D_MODEL => ['obj','stl','application/octet-stream','image/jpeg','image/png'],
     ];
 
     /**
@@ -186,29 +186,5 @@ abstract class FileTypeField extends BaseField {
                 for($i=1;$i<$c;$i++)
                     $types[$out[1][$i]]=$out[1][0];
         return $types;
-    }
-
-    /**
-     * Helps with keyword search for file typed fields.
-     *
-     * @param  string $arg - The keywords
-     * @param  string $method - Type of keyword search
-     * @return string - Updated keyword search
-     */
-    protected function processArgumentForFileField($arg, $method) {
-        // We only want to match with actual data in the name field
-        if($method == Search::SEARCH_EXACT) {
-            $arg = rtrim($arg, '"');
-            $arg .= "[Name]\"";
-        } else {
-            $args = explode(" ", $arg);
-
-            foreach($args as &$arg) {
-                $arg .= "[Name]";
-            }
-            $arg = implode(" ",$args);
-        }
-
-        return $arg;
     }
 }

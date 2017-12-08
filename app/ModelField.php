@@ -56,7 +56,7 @@ class ModelField extends FileTypeField  {
      * @return string - The default options
      */
     public function getDefaultOptions(Request $request) {
-        return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]1[!MaxFiles!][!FileTypes!][!FileTypes!]';
+        return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!][!FileTypes!][!ModelColor!]#CAA618[!ModelColor!][!BackColorOne!]#ffffff[!BackColorOne!][!BackColorTwo!]#383840[!BackColorTwo!]';
     }
 
     /**
@@ -80,6 +80,9 @@ class ModelField extends FileTypeField  {
         $field->updateSearchable($request);
         $field->updateOptions('FieldSize', $request->filesize);
         $field->updateOptions('FileTypes', $filetype);
+        $field->updateOptions('ModelColor', $request->color);
+        $field->updateOptions('BackColorOne', $request->backone);
+        $field->updateOptions('BackColorTwo', $request->backtwo);
 
         if($return) {
             return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
@@ -288,7 +291,7 @@ class ModelField extends FileTypeField  {
      */
     public function getRecordPresetArray($data, $exists=true) {
         if($exists)
-            $data['model'] = $this->model;
+            $data['model'] = explode('[!]', $this->model);
         else
             $data['model'] = null;
 
@@ -387,19 +390,17 @@ class ModelField extends FileTypeField  {
     /**
      * Performs a keyword search on this field and returns any results.
      *
-     * @param  int $fid - Form ID
+     * @param  int $flid - Field ID
      * @param  string $arg - The keywords
-     * @param  string $method - Type of keyword search
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($fid, $arg, $method) {
-        $arg = self::processArgumentForFileField($arg, $method);
-
+    public function keywordSearchTyped($flid, $arg) {
         return DB::table("model_fields")
             ->select("rid")
-            ->where("fid", "=", $fid)
+            ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`model`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-            ->distinct();
+            ->distinct()
+            ->lists('rid');
     }
 
     /**

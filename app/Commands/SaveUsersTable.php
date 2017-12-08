@@ -53,7 +53,8 @@ class SaveUsersTable extends Command implements SelfHandling, ShouldQueue {
                 $individual_user_data->put("admin", $user->admin);
                 $individual_user_data->put("active", $user->active);
                 $individual_user_data->put("username", $user->username);
-                $individual_user_data->put("name", $user->name);
+                $individual_user_data->put("first_name", $user->first_name);
+                $individual_user_data->put("last_name", $user->last_name);
                 $individual_user_data->put("profile", $user->profile);
                 $individual_user_data->put("email", $user->email);
                 $individual_user_data->put("password", $user->password);

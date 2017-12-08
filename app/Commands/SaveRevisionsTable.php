@@ -48,7 +48,6 @@ class SaveRevisionsTable extends Command implements SelfHandling, ShouldQueue {
                 $individual_revision_data->put("id", $revision->id);
                 $individual_revision_data->put("fid", $revision->fid);
                 $individual_revision_data->put("rid", $revision->rid);
-                $individual_revision_data->put("userId", $revision->userId);
                 $individual_revision_data->put("owner", $revision->owner);
                 $individual_revision_data->put("type", $revision->type);
                 $individual_revision_data->put("data", $revision->data);

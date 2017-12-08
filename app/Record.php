@@ -4,6 +4,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\DB;
 
 class Record extends Model {
 
@@ -208,6 +209,11 @@ class Record extends Model {
      */
     public function delete() {
         BaseField::deleteBaseFieldsByRID($this->rid);
+
+        //Delete reverse associations for everyones sake
+        DB::table(AssociatorField::SUPPORT_NAME)
+            ->where("record", "=", $this->rid)
+            ->delete();
 
         parent::delete();
     }

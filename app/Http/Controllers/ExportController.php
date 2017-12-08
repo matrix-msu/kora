@@ -3,12 +3,12 @@
 use App\DownloadTracker;
 use App\Field;
 use App\Form;
+use App\TextField;
 use Illuminate\Support\Facades\DB;
 use App\Metadata;
 use App\OptionPreset;
 use App\RecordPreset;
 use Carbon\Carbon;
-use CsvParser\Parser;
 use Illuminate\Support\Facades\Redirect;
 
 class ExportController extends Controller {
@@ -545,15 +545,17 @@ class ExportController extends Controller {
                                 break;
                             case Field::_3D_MODEL:
                                 $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
-                                $file = $data->value;
-                                $value = array(
-                                    [
+                                $value = array();
+                                $files = explode('[!]',$data->value);
+                                foreach($files as $file) {
+                                    $info = [
                                         'name' => explode('[Name]',$file)[1],
                                         'size' => floatval(explode('[Size]',$file)[1])/1000 . " mb",
                                         'type' => explode('[Type]',$file)[1],
                                         'url' => $url.explode('[Name]',$file)[1]
-                                    ]
-                                );
+                                    ];
+                                    array_push($value,$info);
+                                }
                                 $records[$kid][$data->slug]['value'] = $value;
                                 $records[$kid][$data->slug]['type'] = $data->type;
                                 break;
@@ -888,14 +890,15 @@ class ExportController extends Controller {
                                 break;
                             case Field::_3D_MODEL:
                                 $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
-                                $file = $data->value;
-
-                                $fieldxml .= '<File>';
-                                $fieldxml .= '<Name>' . htmlspecialchars(explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Name>';
-                                $fieldxml .= '<Size>' . floatval(explode('[Size]',$file)[1])/1000 . ' mb</Size>';
-                                $fieldxml .= '<Type>' . explode('[Type]',$file)[1] . '</Type>';
-                                $fieldxml .= '<Url>' . htmlspecialchars($url.explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Url>';
-                                $fieldxml .= '</File>';
+                                $files = explode('[!]',$data->value);
+                                foreach($files as $file) {
+                                    $fieldxml .= '<File>';
+                                    $fieldxml .= '<Name>' . htmlspecialchars(explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Name>';
+                                    $fieldxml .= '<Size>' . floatval(explode('[Size]',$file)[1])/1000 . ' mb</Size>';
+                                    $fieldxml .= '<Type>' . explode('[Type]',$file)[1] . '</Type>';
+                                    $fieldxml .= '<Url>' . htmlspecialchars($url.explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Url>';
+                                    $fieldxml .= '</File>';
+                                }
                                 break;
                             case Field::_ASSOCIATOR:
                                 $aRecs = explode(',',$data->value);
@@ -928,6 +931,149 @@ class ExportController extends Controller {
                     $dt = new \DateTime();
                     $format = $dt->format('Y_m_d_H_i_s');
                     $path = env("BASE_PATH") . "storage/app/exports/export_$format.xml";
+
+                    file_put_contents($path, $records);
+
+                    return $path;
+                }
+            case self::META:
+                //Check to see if any records in form
+                if(sizeof($rids)==0)
+                    return "no_records";
+
+                //We need one rid from the set to determine the project and form used in this metadata
+                $tempRid = $rids[0];
+                $tempKid = Record::where('rid','=',$tempRid)->first()->kid;
+                $kidParts = explode('-',$tempKid);
+
+                $resourceTitle = Form::where('fid','=',$kidParts[1])->first()->lod_resource;
+                $metaUrl = env("BASE_URL")."projects/".$kidParts[0]."/forms/".$kidParts[1]."/metadata/public#";
+
+                $records = '<?xml version="1.0"?><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" ';
+                $records .= 'xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#" ';
+                $records .= "xmlns:$resourceTitle=\"$metaUrl\">";
+                $recordData = [];
+
+                foreach($chunks as $chunk) {
+                    $datafields = self::getDataRows($chunk);
+
+                    foreach($datafields as $data) {
+                        $kid = $data->pid.'-'.$data->fid.'-'.$data->rid;
+                        $metaObj = Metadata::where('flid','=',$data->flid)->first();
+                        if(is_null($metaObj))
+                            continue;
+
+                        $metaFieldName = $metaObj->name;
+
+                        if($data->type==Field::_ASSOCIATOR)
+                            $fieldxml = "<".$resourceTitle.":".$metaFieldName.">";
+                        else
+                            $fieldxml = "<".$resourceTitle.":".$metaFieldName." rdf:parseType=\"Collection\">";
+
+                        switch($data->type) {
+                            case Field::_TEXT:
+                                $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
+                                break;
+                            case Field::_NUMBER:
+                                $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
+                                break;
+                            case Field::_LIST:
+                                $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
+                                break;
+                            case Field::_MULTI_SELECT_LIST:
+                                $fieldxml .= '<rdf:Seq>';
+                                $opts = explode('[!]',$data->value);
+                                foreach($opts as $opt) {
+                                    $fieldxml .= '<rdf:li>'.htmlspecialchars($opt, ENT_XML1, 'UTF-8').'</rdf:li>';
+                                }
+                                $fieldxml .= '</rdf:Seq>';
+                                break;
+                            case Field::_GENERATED_LIST:
+                                $fieldxml .= '<rdf:Seq>';
+                                $opts = explode('[!]',$data->value);
+                                foreach($opts as $opt) {
+                                    $fieldxml .= '<rdf:li>'.htmlspecialchars($opt, ENT_XML1, 'UTF-8').'</rdf:li>';
+                                }
+                                $fieldxml .= '</rdf:Seq>';
+                                break;
+                            case Field::_DATE:
+                                $info = "";
+                                if($data->value==1)
+                                    $info .= 'circa ';
+                                if($data->val2!="")
+                                    $info .= date("F", mktime(0, 0, 0, $data->val2, 10)).' ';
+                                if($data->val3!="")
+                                    $info .= $data->val3.' ';
+                                if($data->val4!="")
+                                    $info .= $data->val4.' ';
+                                if($data->val5!="")
+                                    $info .= $data->val5.' ';
+
+                                $fieldxml .= htmlspecialchars(trim($info), ENT_XML1, 'UTF-8');
+                                break;
+                            case Field::_GEOLOCATOR:
+                                $fieldxml .= '<rdf:Seq>';
+
+                                $latlon = explode('[!latlon!]',$data->val3);
+                                $desc = explode('[!]',$data->value);
+                                $cnt = sizeof($desc);
+
+                                for($i=0;$i<$cnt;$i++) {
+                                    $ll = explode('[!]',$latlon[$i]);
+                                    $lat = "<geo:lat>".$ll[0]."</geo:lat>";
+                                    $long = "<geo:long>".$ll[1]."</geo:long>";
+                                    $fieldxml .= "<geo:Point>".$lat.$long."</geo:Point>";
+                                }
+                                $fieldxml .= '</rdf:Seq>';
+                                break;
+                            case Field::_ASSOCIATOR:
+                                $aRecs = explode(',',$data->value);
+
+                                foreach($aRecs as $aRec) {
+                                    $aKidParts = explode('-',$aRec);
+
+                                    $aPrimary = Metadata::where('fid','=',$aKidParts[1])->where('primary','=',1)->first()->flid;
+                                    $aResourceIndexValue = TextField::where('flid','=',$aPrimary)->where('rid','=',$aKidParts[2])->first()->text;
+
+                                    $fieldxml .= "<rdf:Description rdf:about=\"".env("BASE_URL")."";
+                                    $fieldxml .= "projects/".$aKidParts[0]."/forms/".$aKidParts[1]."/metadata/public/";
+                                    $fieldxml .= "$aResourceIndexValue\" />";
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+
+                        $fieldxml .= "</".$resourceTitle.":".$metaFieldName.">";
+
+                        if(isset($recordData[$kid]))
+                            $recordData[$kid] .= $fieldxml;
+                        else
+                            $recordData[$kid] = $fieldxml;
+                    }
+                }
+
+                //Now we have an array of kids to their field data
+                //We need to loop back and add them to the xml
+                foreach($recordData as $kid => $data) {
+                    $records .= "<rdf:Description ";
+
+                    $parts = explode('-',$kid);
+                    $primary = Metadata::where('fid','=',$parts[1])->where('primary','=',1)->first()->flid;
+                    $resourceIndexValue = TextField::where('flid','=',$primary)->where('rid','=',$parts[2])->first()->text;
+
+                    $records .= "rdf:about=\"".env("BASE_URL")."projects/".$parts[0]."/forms/".$parts[1]."/metadata/public/".$resourceIndexValue."\">";
+                    $records .= "$data</rdf:Description>";
+                }
+
+                $records .= '</rdf:RDF>';
+
+                if($dataOnly) {
+                    return $records;
+                } else {
+                    $dt = new \DateTime();
+                    $format = $dt->format('Y_m_d_H_i_s');
+                    $path = env("BASE_PATH") . "storage/app/exports/export_$format.rdf";
 
                     file_put_contents($path, $records);
 

@@ -641,6 +641,48 @@ class RecordController extends Controller {
     }
 
     /**
+     * Mass assigns a value to a field in a set of records.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     * @return Redirect
+     */
+    public function massAssignRecordSet($pid, $fid, Request $request) {
+        if(!$this->checkPermissions($fid,'modify')) {
+            return redirect()->back();
+        }
+
+        $flid = $request->input("field_selection");
+        if(!is_numeric($flid)) {
+            flash()->overlay(trans('controller_record.notvalid'));
+            return redirect()->back();
+        }
+
+        if($request->has($flid)) {
+            $formFieldValue = $request->input($flid); //Note this only works when there is one form element being submitted, so if you have more, check Date
+        } else {
+            flash()->overlay(trans('controller_record.provide'),trans('controller_record.whoops'));
+            return redirect()->back();
+        }
+
+        if ($request->has("overwrite"))
+            $overwrite = $request->input("overwrite"); //Overwrite field in all records, even if it has data
+        else
+            $overwrite = 0;
+
+        $field = FieldController::getField($flid);
+        $typedField = $field->getTypedField();
+
+        foreach(Form::find($fid)->records()->whereIn('rid', $request->rids)->get() as $record) {
+            $typedField->massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite);
+        }
+
+        flash()->overlay(trans('controller_record.recupdate'),trans('controller_record.goodjob'));
+        return redirect()->action('RecordController@index',compact('pid','fid'));
+    }
+
+    /**
      * Creates several test records in a form for testing purposes.
      *
      * @param  int $pid - Project ID

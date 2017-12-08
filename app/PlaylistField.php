@@ -409,19 +409,17 @@ class PlaylistField extends FileTypeField  {
     /**
      * Performs a keyword search on this field and returns any results.
      *
-     * @param  int $fid - Form ID
+     * @param  int $flid - Field ID
      * @param  string $arg - The keywords
-     * @param  string $method - Type of keyword search
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($fid, $arg, $method) {
-        $arg = self::processArgumentForFileField($arg, $method);
-
+    public function keywordSearchTyped($flid, $arg) {
         return DB::table("playlist_fields")
             ->select("rid")
-            ->where("fid", "=", $fid)
+            ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`audio`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-            ->distinct();
+            ->distinct()
+            ->lists('rid');
     }
 
     /**

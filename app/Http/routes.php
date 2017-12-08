@@ -151,6 +151,7 @@ Route::get('/projects/{pid}/forms/{fid}/records','RecordController@index');
 Route::post('/projects/{pid}/forms/{fid}/records/createTest','RecordController@createTest');
 Route::get('projects/{pid}/forms/{fid}/records/massAssignRecords','RecordController@showMassAssignmentView');
 Route::post('projects/{pid}/forms/{fid}/records/massAssignRecords','RecordController@massAssignRecords');
+Route::post('projects/{pid}/forms/{fid}/records/massAssignRecordSet','RecordController@massAssignRecordSet');
 Route::patch('/projects/{pid}/forms/{fid}/records/{rid}','RecordController@update');
 Route::get('/projects/{pid}/forms/{fid}/records/create','RecordController@create');
 Route::get('/projects/{pid}/forms/{fid}/records/import','RecordController@importRecordsView');

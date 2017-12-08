@@ -294,17 +294,17 @@ class ListField extends BaseField {
     /**
      * Performs a keyword search on this field and returns any results.
      *
-     * @param  int $fid - Form ID
+     * @param  int $flid - Field ID
      * @param  string $arg - The keywords
-     * @param  string $method - Type of keyword search
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($fid, $arg, $method) {
+    public function keywordSearchTyped($flid, $arg) {
         return DB::table("list_fields")
             ->select("rid")
-            ->where("fid", "=", $fid)
+            ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`option`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-            ->distinct();
+            ->distinct()
+            ->lists('rid');
     }
 
     /**
@@ -333,7 +333,7 @@ class ListField extends BaseField {
      */
     private static function buildAdvancedListQuery(Builder &$db_query, $input) {
         $db_query->whereRaw("MATCH (`option`) AGAINST (? IN BOOLEAN MODE)",
-            [Search::processArgument($input, Search::ADVANCED_METHOD)]);
+            ["\"" . $input . "\""]);
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////

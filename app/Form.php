@@ -102,17 +102,23 @@ class Form extends Model {
         DB::table("record_presets")->where("fid", "=", $this->fid)->delete();
         DB::table("associations")->where("dataForm", "=", $this->fid)->orWhere("assocForm", "=", $this->fid)->delete();
         DB::table("revisions")->where("fid", "=", $this->fid)->delete();
-        DB::table("form_custom")->where("fid", "=", $this->fid)->delete();
 
         FormGroup::where("fid", "=", $this->fid)->delete();
 
-        $records = Record::where("fid", "=", $this->fid)->get();
-        $pages = Page::where("fid", "=", $this->fid)->get();
-
-        foreach($records as $record) {
-            $record->delete();
+        //Replicate the individual record delete but for all form recrods
+        Record::where("fid", "=", $this->fid)->delete();
+        foreach(BaseField::$MAPPED_FIELD_TYPES as $table_name) {
+            DB::table($table_name)->where("fid", "=", $this->fid)->delete();
         }
 
+        // Delete support tables.
+        $support_tables = [ScheduleField::SUPPORT_NAME, GeolocatorField::SUPPORT_NAME, ComboListField::SUPPORT_NAME, AssociatorField::SUPPORT_NAME];
+
+        foreach($support_tables as $support_table) {
+            DB::table($support_table)->where("fid", "=", $this->fid)->delete();
+        }
+
+        $pages = Page::where("fid", "=", $this->fid)->get();
         foreach($pages as $page) {
             $page->delete();
         }

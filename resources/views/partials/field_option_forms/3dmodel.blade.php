@@ -12,6 +12,24 @@
         '',['class' => 'form-control filetypes', 'Multiple', 'id' => 'list']) !!}
 </div>
 
+<div class="form-group">
+    {!! Form::label('color','Model Color: ') !!}
+    <input type="color" name="color" class="form-control"
+           value="#CAA618">
+</div>
+
+<div class="form-group">
+    {!! Form::label('backone','Background Color One: ') !!}
+    <input type="color" name="backone" class="form-control"
+           value="#ffffff">
+</div>
+
+<div class="form-group">
+    {!! Form::label('backtwo','Background Color Two: ') !!}
+    <input type="color" name="backtwo" class="form-control"
+           value="#383840">
+</div>
+
 <script>
     $('.filetypes').select2();
 </script>
