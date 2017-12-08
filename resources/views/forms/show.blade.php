@@ -54,7 +54,7 @@
   <div class="pages center">
     @foreach($pageLayout as $page)
       <div class="page">
-        <div class="header">
+        <div class="page-header">
           <div class="move-actions">
             <a class="action move-action-js up-js" page_id="{{$page["id"]}}" href="#">
               <i class="icon icon-arrow-up"></i>
@@ -76,19 +76,17 @@
           </div>
         </div>
 
-        @foreach($page["fields"] as $field)
-            @include('forms.layout.printfield', ['field' => $field])
+        @foreach($page["fields"] as $index=>$field)
+          @include('forms.layout.field', ['field' => $field])
         @endforeach
 
         @if(\Auth::user()->canCreateFields($form))
-        <form method="DET" action="{{action('FieldController@create', ['pid' => $form->pid, 'fid' => $form->fid, 'rootPage' => $page["id"]]) }}">
-            <input type="submit" value="{{trans('forms_show.createfield')}}" class="btn btn-primary">
-        </form>
-        <button type="button" class="add_page" pageid="{{$page["id"]}}">ADD PAGE</button>
-        {!! Form::text("pagetext_".$page["id"], null, ['id' => "pagetext_".$page["id"]]) !!}
+          <form method="DET" action="{{action('FieldController@create', ['pid' => $form->pid, 'fid' => $form->fid, 'rootPage' => $page["id"]]) }}">
+              <input type="submit" value="{{trans('forms_show.createfield')}}" class="btn btn-primary">
+          </form>
+          <button type="button" class="add_page" pageid="{{$page["id"]}}">ADD PAGE</button>
+          {!! Form::text("pagetext_".$page["id"], null, ['id' => "pagetext_".$page["id"]]) !!}
         @endif
-
-        <br><br>
       </div>
     @endforeach
   </div>

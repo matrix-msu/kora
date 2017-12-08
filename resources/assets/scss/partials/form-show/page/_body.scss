@@ -1,0 +1,17 @@
+.field {
+  margin-left: auto;
+  margin-right: auto;
+  width: calc(100% - 80px);
+
+  .quick-action.delete-field {
+    .icon {
+      @include transition();
+
+      font-size: 16px;
+    }
+
+    &:hover .icon {
+      color: palette(red, warning, 1);
+    }
+  }
+}

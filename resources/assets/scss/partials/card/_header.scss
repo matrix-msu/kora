@@ -33,6 +33,11 @@
     opacity: .2;
   }
 
+  .chevron-text {
+    color: palette(gray, text, .6);
+    margin-right: -10px;
+  }
+
   .icon-chevron {
     color: palette(gray, slate);
     display: inline-block;
@@ -104,9 +109,9 @@
     text-align: right;
 
     &:hover {
-      opacity: 1;
 
       .icon-chevron {
+        opacity: 1;
         transform: scale($transform-scale-multiplier);
       }
 
