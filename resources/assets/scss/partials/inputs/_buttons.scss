@@ -41,6 +41,13 @@
   &.subdued {
     border-color: palette(green, accent, .2);
   }
+
+  &.transparent {
+    background: palette(gray, page, .04);
+    border: 2px solid palette(green, accent, .2);
+    border-radius: 5px;
+    color: palette(green, accent);
+  }
 }
 
 a.btn {

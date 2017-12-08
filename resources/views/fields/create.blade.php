@@ -1,11 +1,11 @@
-@extends('app')
+@extends('app', ['page_title' => "Create {$form->name} Form Field", 'page_class' => 'field-create'])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $form->pid])
     @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
 @stop
 
-@section('content')
+@section('body')
     <h1>{{trans('fields_create.new')}} {{ $form->name }}</h1>
 
     <hr/>

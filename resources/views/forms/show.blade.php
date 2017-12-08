@@ -51,9 +51,9 @@
     </div>
   </section>
 
-  <div class="pages center">
+  <section class="pages center">
     @foreach($pageLayout as $page)
-      <div class="page">
+      <div class="page page-sort-js">
         <div class="page-header">
           <div class="move-actions">
             <a class="action move-action-js up-js" page_id="{{$page["id"]}}" href="#">
@@ -77,19 +77,28 @@
         </div>
 
         @foreach($page["fields"] as $index=>$field)
-          @include('forms.layout.field', ['field' => $field])
+          <div class="field-container">
+            @include('forms.layout.field', ['field' => $field])
+          </div>
         @endforeach
 
         @if(\Auth::user()->canCreateFields($form))
-          <form method="DET" action="{{action('FieldController@create', ['pid' => $form->pid, 'fid' => $form->fid, 'rootPage' => $page["id"]]) }}">
-              <input type="submit" value="{{trans('forms_show.createfield')}}" class="btn btn-primary">
+          <form method="DET" action="{{action('FieldController@create', ['pid' => $form->pid, 'fid' => $form->fid, 'rootPage' => $page['id']]) }}">
+            <div class="form-group new-field-button">
+              <input type="submit" value="Create New Field" class="btn transparent">
+            </div>
           </form>
-          <button type="button" class="add_page" pageid="{{$page["id"]}}">ADD PAGE</button>
-          {!! Form::text("pagetext_".$page["id"], null, ['id' => "pagetext_".$page["id"]]) !!}
         @endif
       </div>
+
+      @if(\Auth::user()->canCreateFields($form))
+        <div class="form-group new-page-button">
+          <a href="#" prev-page="{{$page["id"]}}" class="new-page-js btn transparent">Create New Page</a>
+        </div>
+      @endif
+
     @endforeach
-  </div>
+  </section>
 @stop
 
 @section('javascripts')

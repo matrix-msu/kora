@@ -1,4 +1,4 @@
-<div class="field card " id="{{$field->flid}}">
+<div class="field card {{ $index == 0 ? 'active' : '' }}" id="{{$field->flid}}">
   <div class="header {{ $index == 0 ? 'active' : '' }}">
     <div class="left">
       @if(\Auth::user()->canEditForms(\App\Http\Controllers\ProjectController::getProject($field->pid)))
@@ -28,7 +28,7 @@
     </div>
 
     <div class="card-toggle-wrap">
-      <a href="#" class="card-toggle project-toggle-js">
+      <a href="#" class="card-toggle field-toggle-js">
         <span class="chevron-text">{{$field->type}}</span>
         <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
       </a>

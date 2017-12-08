@@ -1,6 +1,11 @@
+.field-container {
+  box-sizing: border-box;
+  margin: 30px 0;
+  width: 100%;
+}
+
 .field {
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto;
   width: calc(100% - 80px);
 
   .quick-action.delete-field {
@@ -14,4 +19,14 @@
       color: palette(red, warning, 1);
     }
   }
+
+  .id {
+    margin-bottom: 5px;
+  }
+}
+
+.new-field-button {
+  margin: 0 auto;
+  padding: 25px 0 30px;
+  width: calc(100% - 80px);
 }
