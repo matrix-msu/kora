@@ -307,78 +307,171 @@ i {
     content: $icon-field-new;
   }
 }
+
 .icon-field {
   &::before {
     content: $icon-field;
   }
 }
+
 .icon-zap {
   &::before {
     content: $icon-zap;
   }
 }
+
 .icon-form-scheme-importer {
   &::before {
     content: $icon-form-scheme-importer;
   }
 }
+
 .icon-form-record-search {
   &::before {
     content: $icon-form-record-search;
   }
 }
+
 .icon-form-associations {
   &::before {
     content: $icon-form-associations;
   }
 }
+
 .icon-form-permissions {
   &::before {
     content: $icon-form-permissions;
   }
 }
+
 .icon-form-edit {
   &::before {
     content: $icon-form-edit;
   }
 }
+
 .icon-form-import {
   &::before {
     content: $icon-form-import;
   }
 }
+
 .icon-form-new {
   &::before {
     content: $icon-form-new;
   }
 }
+
 .icon-form {
   &::before {
     content: $icon-form;
   }
 }
+
 .icon-shield {
   &::before {
     content: $icon-shield;
   }
 }
+
 .icon-user-add {
   &::before {
     content: $icon-user-add;
   }
 }
+
 .icon-star {
   &::before {
     content: $icon-star;
   }
 }
+
 .icon-check {
   &::before {
     content: $icon-check;
   }
 }
+
 .icon-edit {
   &::before {
     content: $icon-edit;
+  }
+}
+
+.icon-record-import {
+  &::before {
+    content: $icon-record-import;
+  }
+}
+
+.icon-duplicate {
+  &::before {
+    content: $icon-duplicate;
+  }
+}
+
+.icon-clock {
+  &::before {
+    content: $icon-clock;
+  }
+}
+
+.icon-search-big {
+  &::before {
+    content: $icon-search-big;
+  }
+}
+
+.icon-play {
+  &::before {
+    content: $icon-play;
+  }
+}
+
+.icon-external-link {
+  &::before {
+    content: $icon-external-link;
+  }
+}
+
+.icon-download {
+  &::before {
+    content: $icon-download;
+  }
+}
+
+.icon-maximize {
+  &::before {
+    content: $icon-maximize;
+  }
+}
+
+.icon-expand {
+  &::before {
+    content: $icon-expand;
+  }
+}
+
+.icon-condense {
+  &::before {
+    content: $icon-condense;
+  }
+}
+
+.icon-record-new {
+  &::before {
+    content: $icon-record-new;
+  }
+}
+
+.icon-record-edit {
+  &::before {
+    content: $icon-record-edit;
+  }
+}
+
+.icon-record {
+  &::before {
+    content: $icon-record;
   }
 }

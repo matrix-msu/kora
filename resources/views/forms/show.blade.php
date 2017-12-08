@@ -46,8 +46,8 @@
       <i class="icon icon-cancel icon-cancel-js"></i>
     </div>
     <div class="show-options show-options-js">
-      <i class="icon icon-hamburger icon-hamburger-js"></i>
-      <i class="icon icon-hamburger icon-hamburger-js"></i>
+      <i class="icon icon-expand icon-expand-js"></i>
+      <i class="icon icon-condense icon-condense-js"></i>
     </div>
   </section>
 @stop
