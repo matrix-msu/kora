@@ -1,4 +1,5 @@
 //The first section handles closing/opening of menus
+console.log('here');
 var $navBar = $(".navigation-js");
 var $subMenu = $(".navigation-sub-menu-js");
 var $deepMenu = $(".navigation-deep-menu-js");

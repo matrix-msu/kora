@@ -19,6 +19,16 @@
   .pl-#{$key} {
     padding-left: #{$size};
   }
+    
+  .px-#{$key} {
+    padding-left: #{$size};
+    padding-right: #{$size};
+  }
+    
+  .py-#{$key} {
+    padding-top: #{$size};
+    padding-bottom: #{$size};
+  }
 
   .ma-#{$key} {
     margin: #{$size};
@@ -38,5 +48,15 @@
 
   .ml-#{$key} {
     margin-left: #{$size};
+  }
+
+  .mx-#{$key} {
+    margin-left: #{$size};
+    margin-right: #{$size};
+  }
+    
+  .my-#{$key} {
+    margin-top: #{$size};
+    margin-bottom: #{$size};
   }
 }

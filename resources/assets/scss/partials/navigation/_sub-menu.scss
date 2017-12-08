@@ -16,6 +16,28 @@
   &.active {
     transform: translateY(0);
   }
+    
+    &.langSel {
+        background-color: palette(gray, background);
+        margin-right: 20px;
+        opacity: 0;
+        padding: 15px 30px;
+        text-align: center;
+        transform: none;
+        width: auto;
+        will-change: opacity;
+        
+        &.active {
+            opacity: 1;
+            transform: none;
+        }
+        
+        a {
+            &:hover {
+                color: palette(green, accent);
+            }
+        }
+    }
 
   img {
     padding-right: 13px;

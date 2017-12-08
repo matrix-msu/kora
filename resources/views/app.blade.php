@@ -11,7 +11,7 @@
           @else
             <!-- For Schedule -->
             <link rel="stylesheet" href="{{ env('BASE_URL') }}bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
-            <link rel='stylesheet' href='{{ env('BASE_URL') }}bower_components/fullcalendar/dist/fullcalendar.css' />
+            <link rel='stylesheet' href="{{ env('BASE_URL') }}bower_components/fullcalendar/dist/fullcalendar.css" />
             <!-- For Geolocator -->
             <link rel="stylesheet" href="{{ env('BASE_URL') }}leaflet/leaflet.css" />
             <!-- For Documents -->
@@ -29,7 +29,7 @@
           @endif
         @endif
 
-        <link rel="stylesheet" href="{{env('BASE_URL')}}/assets/css/app.css">
+        <link rel="stylesheet" href="{{env('BASE_URL')}}assets/css/app.css">
     </head>
     <body class="{{ str_hyphenated($page_class) }}-body">
       @include('partials.nav')

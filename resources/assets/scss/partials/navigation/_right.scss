@@ -1,12 +1,45 @@
 .navigation-right {
-  background: palette(green, base);
-  height: $navigation-height;
-  margin-top: 0;
-  text-align: right;
+    background: palette(green, base);
+    height: $navigation-height;
+    margin-top: 0;
+    text-align: right;
 
-  .navigation-sub-menu {
-    border-radius: 0 0 0 5px;
-    right: 0;
-    width: 250px;
-  }
+    .navigation-sub-menu {
+        border-radius: 0 0 0 5px;
+        right: 0;
+        width: 250px;
+    }
+    
+    .navigation-item {
+        box-sizing: border-box;
+        display: inline-block;
+        font-family: $ubuntu;
+        font-size: 12px;
+        vertical-align: middle;
+
+        a {
+            @include transition();
+
+            line-height: 50px;
+        }
+
+        &:not(:first-child) {
+            margin-left: 15px;
+        }
+
+        .menu-toggle:hover {
+            color: palette(green, accent)
+        }
+
+        .icon-chevron {
+            display: inline-block;
+            font-size: 6px;
+            margin: 0 0 3px 5px;
+            vertical-align: middle;
+        }
+
+        .icon-minus {
+            color: palette(green, accent);
+        }
+    }
 }

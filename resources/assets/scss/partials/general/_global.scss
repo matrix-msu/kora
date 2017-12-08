@@ -14,6 +14,18 @@ a.inactive {
   pointer-events: none;
 }
 
+a.text {
+	@include transition();
+	color: palette(gray, text);
+	font-family: Ubuntu;
+    padding: 0 0 $underline-padding;
+	text-decoration: none;
+	
+	&:hover {
+		color: palette(green, accent);
+	}
+}
+
 .right {
   float: right;
 }
@@ -62,3 +74,4 @@ a.inactive {
 }
 
 @import 'spacing';
+

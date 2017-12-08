@@ -2,9 +2,11 @@
   @include transition(top);
   background-color: palette(green, base);
   box-shadow: 0 2px 10px 0 palette(box-shadow, base, .3);
+  box-sizing: border-box;
   font-family: $ubuntu-medium;
   height: $navigation-height + $status-height;
   left: 0;
+  padding: 0 20px;
   position: fixed;
   top: -$status-height;
   width: 100vw;
@@ -38,4 +40,5 @@
   @import 'navigation/sub-menu';
   @import 'navigation/deep-menu';
   @import 'navigation/side-menu';
+  @import 'navigation/auth-login';
 }
