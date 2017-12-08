@@ -1,13 +1,18 @@
+
+@if(Auth::guest())
+<nav class="navigation navigation-js auth">
+@else
 <nav class="navigation navigation-js">
+@endif
   <div class="status status-js">
     <span class="information">This is a successful status example.</span>
     <a href="#" class="dismiss status-dismiss-js">Dismiss</a>
   </div>
   <ul class="navigation-left navigation-left-js">
     @if(Auth::guest())
-      <li class="navigation-item">
-        <a href="{{ url('/auth/register') }}" class="navigation-toggle-js">Register</a>
-      </li>
+        <li class="navigation-item">
+            <a href="{{ url('/auth/register') }}" class="text navigation-toggle-js underline-middle-hover">Need to Sign Up?</a>
+        </li>
     @else
       <li class="logo">
         <a href="{{ url('/') }}" class="navigation-toggle-js">
@@ -19,16 +24,19 @@
     @endif
   </ul>
 
-  <ul class="navigation-right">
+  <ul class="navigation-right navigation-right-js">
     @if(Auth::guest())
-      <li class="navigation-item">
-        <a href="#" class="navigation-toggle-js">Current Language</a>
-        <ul class="navigation-sub-menu navigation-sub-menu-js">
-          <li class="link">Current Language</li>
-          <li class="link">Another Language</li>
-          <li class="link">Another Language</li>
-        </ul>
-      </li>
+        <li class="navigation-item">
+            <a href="#" class="text menu-toggle navigation-toggle-js underline-middle-hover">
+                <span>English</span>
+                <i class="icon icon-chevron"></i>
+            </a>
+            <ul class="navigation-sub-menu navigation-sub-menu-js langSel">
+                @foreach($languages_available->keys() as $lang)
+                    <li><a onclick='setTempLang({{$lang}})' href='#'>{{$languages_available->get($lang)[1]}}</a> </li>
+                @endforeach
+            </ul>
+        </li>
 
     @else
       @include("partials.menu.globalSearch")
