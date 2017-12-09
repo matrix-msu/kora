@@ -1,6 +1,16 @@
-exclude: ['public/**', 'node_modules/**']
+exclude: ['public/**', 'node_modules/**', 'resources/assets/scss/vendor/**']
 include: 'resources/assets/scss//*.s+(a|c)ss'
 
+linters:
+  NestingDepth:
+    enabled: true
+    max_depth: 4
+    ignore_parent_selectors: false
+
+  PropertySpelling:
+    enabled: true
+    extra_properties: ['caret-color']
+    disabled_properties: []
 
 options:
   formatter: stylish

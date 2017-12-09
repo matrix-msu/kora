@@ -1,9 +1,9 @@
 .card {
   @include transition(box-shadow);
 
-  background: palette(white, base);
+  background: palette('white', base);
   border-radius: 5px;
-  box-shadow: 0 3px 5px 0 palette(box-shadow, base, .05);
+  box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
   margin: 30px auto;
   position: relative;
 
@@ -19,7 +19,7 @@
   }
 
   &:hover {
-    box-shadow: 0 6px 12px 0 palette(box-shadow, base, .06);
+    box-shadow: 0 6px 12px 0 palette('box-shadow', base, .06);
   }
 
   @import 'card/header';

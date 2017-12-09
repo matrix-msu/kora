@@ -18,7 +18,7 @@
     }
 
     &:hover {
-      color: palette(green, accent);
+      color: palette('green', accent);
     }
   }
 
@@ -29,7 +29,7 @@
   .icon {
 
     &.icon-search.active {
-      color: palette(green, accent);
+      color: palette('green', accent);
     }
   }
 }
@@ -37,8 +37,8 @@
 #kora_global_search_input {
   background: transparent;
   border: 0;
-  caret-color: palette(green, accent);
-  color: palette(white, base);
+  caret-color: palette('green', accent);
+  color: palette('white', base);
   font-family: $ubuntu;
   font-size: 12px;
   font-weight: 500;
@@ -53,19 +53,19 @@
 }
 
 #kora_global_search_input::-webkit-input-placeholder {
-  color: palette(white, base);
+  color: palette('white', base);
 }
 
 #kora_global_search_input::-moz-placeholder {
-  color: palette(white, base);
+  color: palette('white', base);
 }
 
 #kora_global_search_input:-ms-input-placeholder {
-  color: palette(white, base);
+  color: palette('white', base);
 }
 
 #kora_global_search_input:-moz-placeholder {
-  color: palette(white, base);
+  color: palette('white', base);
 }
 
 #kora_global_search_submit {
@@ -85,7 +85,7 @@
 }
 
 #kora_global_search_spacer {
-  border-bottom: 2px solid palette(white, base);
+  border-bottom: 2px solid palette('white', base);
   box-sizing: border-box;
   margin: 0 0 0 20px;
   opacity: .1;
@@ -94,7 +94,7 @@
 
 #kora_global_search_recent {
   margin-left: 20px;
-  color: palette(white, base);
+  color: palette('white', base);
   font-family: $ubuntu;
   font-size: 12px;
   line-height: 13px;
@@ -102,7 +102,7 @@
 
 #kora_global_search_result {
   margin-left: 20px;
-  color: palette(white, base);
+  color: palette('white', base);
   font-family: $ubuntu;
   font-size: 12px;
   line-height: 13px;
@@ -122,7 +122,7 @@
 }
 
 #kora_global_search_result a {
-  color: palette(green, base) !important;
+  color: palette('green', base) !important;
   display: initial;
   line-height: 0;
 }
@@ -131,7 +131,7 @@
   background-color: rgba(255, 255, 255, .05);
   border: 0;
   border-radius: 0 0 0 5px;
-  color: palette(white, base);
+  color: palette('white', base);
   font-size: 13px;
   height: 48px;
   margin: 0;

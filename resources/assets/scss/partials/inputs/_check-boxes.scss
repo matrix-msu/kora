@@ -12,16 +12,16 @@
     z-index: 2;
 
     &:checked + .check-box-background {
-      border: 2px solid palette(green, accent, .5);
-      box-shadow: 0 7px 10px 0 palette(box-shadow, base, .05);
+      border: 2px solid palette('green', accent, .5);
+      box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
     }
 
     &:checked + .check-box-background + .check {
-      background-color: palette(green, accent);
+      background-color: palette('green', accent);
     }
 
     &:checked + .check-box-background + .check + .placeholder {
-       opacity: 0;
+      opacity: 0;
     }
 
     &:checked + .check-box-background + .check + .placeholder + .placeholder-alt {
@@ -29,23 +29,23 @@
     }
 
     &:hover + .check-box-background {
-      border: 2px solid palette(green, accent, .5);
-      box-shadow: 0 7px 10px 0 palette(box-shadow, base, .05);
+      border: 2px solid palette('green', accent, .5);
+      box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
     }
 
     &:hover + .check-box-background + .check {
-      border: 1px solid palette(green, accent, .5);
-      box-shadow: 0 7px 10px 0 palette(box-shadow, base, .05);
+      border: 1px solid palette('green', accent, .5);
+      box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
     }
   }
 
   .check-box-background {
     @include transition();
 
-    background-color: palette(white, base);
-    border: 1px solid palette(white, base);
+    background-color: palette('white', base);
+    border: 1px solid palette('white', base);
     border-radius: 100px;
-    box-shadow: 0 3px 5px 0 palette(box-shadow, base, .05);
+    box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
     box-sizing: border-box;
     height: 50px;
     margin: 0 auto;
@@ -56,10 +56,10 @@
   .check {
     @include transition();
 
-    background: palette(white, base);
-    border: 1px solid palette(box-shadow, base, .1);
+    background: palette('white', base);
+    border: 1px solid palette('box-shadow', base, .1);
     border-radius: 50px;
-    box-shadow: 0 3px 5px 0 palette(box-shadow, base, .05);
+    box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
     box-sizing: border-box;
     cursor: pointer;
     height: 25px;
@@ -71,7 +71,7 @@
 
     &::after {
       background: transparent;
-      color: palette(white, base);
+      color: palette('white', base);
       content: $icon-check;
       font-family: 'Kora-Icons';
       font-size: 11px;
@@ -93,7 +93,7 @@
   .placeholder-alt {
     @include transition();
 
-    color: palette(gray, text);
+    color: palette('gray', text);
     cursor: pointer;
     font-family: $ubuntu;
     font-size: 14px;
@@ -105,7 +105,7 @@
   }
 
   .placeholder-alt {
-    color: palette(green, accent);
+    color: palette('green', accent);
     font-family: $ubuntu-medium;
     opacity: 0;
   }
@@ -161,17 +161,17 @@
     z-index: 2;
 
     &:checked + .check {
-      background-color: palette(green, accent);
+      background-color: palette('green', accent);
     }
 
     &:hover + .check {
-      border: 1px solid palette(green, accent, .5);
-      box-shadow: 0 7px 10px 0 palette(box-shadow, base, .05);
+      border: 1px solid palette('green', accent, .5);
+      box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
     }
 
     &:checked + .check + .placeholder,
     &:hover + .check + .placeholder {
-      color: palette(green, accent);
+      color: palette('green', accent);
     }
 
     &:checked + .check + .placeholder {
@@ -186,10 +186,10 @@
   .check {
     @include transition();
 
-    background: palette(white, base);
-    border: 1px solid palette(box-shadow, base, .1);
+    background: palette('white', base);
+    border: 1px solid palette('box-shadow', base, .1);
     border-radius: 50px;
-    box-shadow: 0 3px 5px 0 palette(box-shadow, base, .05);
+    box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
     box-sizing: border-box;
     cursor: pointer;
     height: 25px;
@@ -200,7 +200,7 @@
 
     &::after {
       background: transparent;
-      color: palette(white, base);
+      color: palette('white', base);
       content: $icon-check;
       font-family: 'Kora-Icons';
       font-size: 11px;
@@ -221,7 +221,7 @@
   .placeholder {
     @include transition();
 
-    color: palette(gray, text);
+    color: palette('gray', text);
     cursor: pointer;
     font-family: $ubuntu;
     font-size: 14px;

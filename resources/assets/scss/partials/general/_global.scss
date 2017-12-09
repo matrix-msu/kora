@@ -15,14 +15,15 @@ a.inactive {
 }
 
 a.text {
-	@include transition();
-	color: palette(gray, text);
-	font-family: Ubuntu;
-    padding: 0 0 $underline-padding;
-	text-decoration: none;
-	
-	&:hover {
-		color: palette(green, accent);
+  @include transition();
+
+  color: palette('gray', text);
+  font-family: $ubuntu;
+  padding: 0 0 $underline-padding;
+  text-decoration: none;
+
+  &:hover {
+    color: palette('green', accent);
 	}
 }
 
@@ -74,4 +75,3 @@ a.text {
 }
 
 @import 'spacing';
-

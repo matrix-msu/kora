@@ -6,12 +6,12 @@
 
   .header {
     .icon {
-      color: palette(gray, slate, .7);
+      color: palette('gray', slate, .7);
       cursor: initial;
     }
 
     .name {
-      color: palette(gray, text);
+      color: palette('gray', text);
     }
   }
 

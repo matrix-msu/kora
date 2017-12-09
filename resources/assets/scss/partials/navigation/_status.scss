@@ -17,7 +17,7 @@
 
   .information {
     box-sizing: border-box;
-    color: palette(white, base);
+    color: palette('white', base);
     display: block;
     font-family: $ubuntu;
     font-size: 14px;
@@ -29,9 +29,9 @@
   .dismiss {
     @include transition(background);
 
-    background: palette(gray, slate, .1);
+    background: palette('gray', slate, .1);
     box-sizing: border-box;
-    color: palette(white, base);
+    color: palette('white', base);
     display: block;
     font-family: $ubuntu;
     font-size: 14px;
@@ -45,7 +45,7 @@
     width: 100px;
 
     &:hover {
-      background: palette(gray, slate, .3);
+      background: palette('gray', slate, .3);
     }
   }
 }

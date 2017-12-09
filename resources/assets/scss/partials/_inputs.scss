@@ -1,5 +1,5 @@
 .form-group {
-  color: palette(gray, text);
+  color: palette('gray', text);
   font-family: $ubuntu;
 
   label {
@@ -10,28 +10,28 @@
   }
 
   ::-webkit-input-placeholder {
-    color: palette(gray, text);
+    color: palette('gray', text);
     font-family: $ubuntu-italic;
-    opacity: .6 !important;
+    opacity: .6;
   }
 
   :-ms-input-placeholder {
-    color: palette(gray, text);
+    color: palette('gray', text);
     font-family: $ubuntu-italic;
-    opacity: .6 !important;
+    opacity: .6;
   }
 
   .spacer {
-    background: palette(gray, slate, 0.05);
+    background: palette('gray', slate, .05);
     height: 2px;
     width: 100%;
   }
 
   .sub-text {
-  	color: palette(gray, text, .6);
-  	font-family: $ubuntu;
-  	font-size: 12px;
-  	line-height: 18px;
+    color: palette('gray', text, .6);
+    font-family: $ubuntu;
+    font-size: 12px;
+    line-height: 18px;
     margin-bottom: 0;
   }
 

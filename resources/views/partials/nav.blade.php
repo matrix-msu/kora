@@ -31,7 +31,7 @@
                 <span>English</span>
                 <i class="icon icon-chevron"></i>
             </a>
-            <ul class="navigation-sub-menu navigation-sub-menu-js langSel">
+            <ul class="navigation-sub-menu navigation-sub-menu-js language-select">
                 @foreach($languages_available->keys() as $lang)
                     <li><a onclick='setTempLang({{$lang}})' href='#'>{{$languages_available->get($lang)[1]}}</a> </li>
                 @endforeach

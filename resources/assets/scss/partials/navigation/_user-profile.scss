@@ -9,12 +9,13 @@
     padding: 0 5px;
 
     &:hover {
-      color: palette(green, accent);
+      color: palette('green', accent);
+
+      .profile-picture {
+        border: 2px solid palette('green', accent);
+      }
     }
 
-    &:hover .profile-picture {
-      border: 2px solid palette(green, accent);
-    }
 
     .icon-user-little {
       @include transition();
@@ -27,15 +28,15 @@
   }
 
   .icon-user-little.active {
-    color: palette(green, accent);
+    color: palette('green', accent);
   }
 
   .profile-picture {
     @include transition();
 
-    border: 2px solid palette(white, base);
+    border: 2px solid palette('white', base);
     border-radius: 50%;
-    box-shadow: 0 3px 5px 0 palette(box-shadow, base, .2);
+    box-shadow: 0 3px 5px 0 palette('box-shadow', base, .2);
     box-sizing: border-box;
     height: 24px;
     margin: #{($navigation-height - 24px - 2px) / 2} 10px;

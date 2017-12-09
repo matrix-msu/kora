@@ -9,7 +9,7 @@
     @include transition();
 
     box-sizing: border-box;
-    color: palette(green, accent);
+    color: palette('green', accent);
     display: inline-block;
     float: right;
     margin: 0;
@@ -55,9 +55,8 @@
     }
 
     .action {
-      margin-top: 15px;
       float: initial;
-
+      margin-top: 15px;
     }
   }
 }

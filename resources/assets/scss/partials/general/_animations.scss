@@ -12,7 +12,7 @@
   &::after {
     @include transition();
 
-    background-color: palette(green, accent);
+    background-color: palette('green', accent);
     bottom: 0;
     content: '';
     height: 2px;
@@ -58,7 +58,7 @@
   &::before {
     @include transition();
 
-    background-color: palette(green, accent);
+    background-color: palette('green', accent);
     bottom: 0;
     content: '';
     height: 2px;

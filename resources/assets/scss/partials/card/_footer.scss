@@ -5,7 +5,7 @@
     @include transition();
 
     box-sizing: border-box;
-    color: palette(green, accent);
+    color: palette('green', accent);
     display: inline-block;
     margin-bottom: 15px;
     margin-left: 20px;
@@ -61,7 +61,8 @@
     .quick-action {
       margin: 0;
 
-      .icon, span {
+      .icon,
+      span {
         padding-top: 10px;
       }
 

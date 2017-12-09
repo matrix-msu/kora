@@ -1,4 +1,4 @@
-/* @group Base */
+// @group Base
 .chosen-container {
   display: inline-block;
   font-size: 14px;
@@ -12,12 +12,12 @@
   }
 
   .chosen-drop {
-    border: 1px solid palette(green, accent);
+    background: palette('white', base);
+    border: 1px solid palette('green', accent);
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
     border-top: 0;
-    background: palette(white, base);
-    box-shadow: 0 3px 5px 0 palette(box-shadow, base, 0.05);
+    box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
     clip: rect(0, 0, 0, 0);
     position: absolute;
     top: 100%;
@@ -27,7 +27,7 @@
 
   &.chosen-with-drop .chosen-choices,
   &.chosen-with-drop .chosen-single {
-    border-bottom: 1px solid palette(green, accent, .3);
+    border-bottom: 1px solid palette('green', accent, .3);
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
   }
@@ -42,31 +42,32 @@
 
   .search-choice, .chosen-single{
     .group-name{
+      color: #999999;
+      font-weight: normal;
       margin-right: 4px;
       overflow: hidden;
-      white-space: nowrap;
       text-overflow: ellipsis;
-      font-weight: normal;
-      color: #999999;
+      white-space: nowrap;
+
       &:after {
-        content: ":";
+        content: ':';
         padding-left: 2px;
         vertical-align: top;
       }
     }
   }
 }
-/* @end */
+// @end
 
-/* @group Single Chosen */
+// @group Single Chosen
 .chosen-container-single {
   .chosen-single {
     @include transition();
 
-    background-color: palette(white, base);
-    border: 1px solid palette(white, base);
+    background-color: palette('white', base);
+    border: 1px solid palette('white', base);
     border-radius: 5px;
-    box-shadow: 0 3px 5px 0 palette(box-shadow, base, 0.05);
+    box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
     display: block;
     height: auto;
     margin: 0;
@@ -76,14 +77,14 @@
     width: 100%;
 
     &:hover {
-      border: 1px solid rgba(4,182,175,0.5);
-      box-shadow: 0 7px 10px 0 palette(box-shadow, base, 0.05);
+      border: 1px solid rgba(4, 182, 175, .5);
+      box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
     }
 
     &:before {
       @include transition();
 
-      color: palette(gray, slate);
+      color: palette('gray', slate);
       content: $icon-chevron;
       display: inline-block;
       float: right;
@@ -102,10 +103,12 @@
       will-change: transform;
     }
   }
+
   .chosen-default {
-    color: palette(gray, text, .6);
+    color: palette('gray', text, .6);
     font-family: $ubuntu-italic;
   }
+
   .chosen-single span {
     display: block;
     margin: 14px 0 0 10px;
@@ -114,21 +117,25 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+
   .chosen-single-with-deselect span {
     margin-right: 38px;
   }
+
   .chosen-single abbr {
-    position: absolute;
-    top: 6px;
-    right: 26px;
     display: block;
-    width: 12px;
-    height: 12px;
     font-size: 1px;
+    height: 12px;
+    position: absolute;
+    right: 26px;
+    top: 6px;
+    width: 12px;
+
     &:hover {
       background-position: -42px -10px;
     }
   }
+
   &.chosen-disabled .chosen-single abbr:hover {
     background-position: -42px -10px;
   }
@@ -138,14 +145,14 @@
   }
 
   .chosen-search {
-    position: relative;
-    z-index: 1010;
     margin: 0;
     padding: 3px 4px;
+    position: relative;
     white-space: nowrap;
+    z-index: 1010;
 
     input[type="text"] {
-      background-color: palette(gray, 'background');
+      background-color: palette('gray', 'background');
       border: 0;
       border-radius: 5px;
       font-family: sans-serif;
@@ -158,44 +165,47 @@
       width: calc(100% - 40px);
     }
   }
+
   .chosen-drop {
-    margin-top: -1px;
     border-radius: 0 0 4px 4px;
     background-clip: padding-box;
+    margin-top: -1px;
   }
+
   &.chosen-container-single-nosearch .chosen-search {
+    clip: rect(0, 0, 0, 0);
     position: absolute;
-    clip: rect(0,0,0,0);
   }
 }
-/* @end */
+// @end
 
-/* @group Results */
+// @group Results
 .chosen-container .chosen-results {
   color: #444;
-  position: relative;
-  overflow-x: hidden;
-  overflow-y: auto;
   margin: 0 4px 4px 0;
-  padding: 0 0 0 4px;
   max-height: 240px;
   -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0 0 0 4px;
+  position: relative;
+
   li {
     @include transition();
 
     display: none;
+    line-height: 15px;
+    list-style: none;
     margin: 0;
     padding: 8px 20px;
-    list-style: none;
-    line-height: 15px;
-    word-wrap: break-word;
     -webkit-touch-callout: none;
+    word-wrap: break-word;
 
     &.active-result {
       cursor: pointer;
       display: list-item;
-      font-size: 13px;
       font-family: $ubuntu;
+      font-size: 13px;
     }
 
     &.disabled-result {
@@ -205,37 +215,41 @@
     }
 
     &.highlighted {
-      color: palette(green, accent);
+      color: palette('green', accent);
     }
+
     &.no-results {
       color: #777;
       display: list-item;
     }
+
     &.group-result {
+      cursor: default;
       display: list-item;
       font-weight: bold;
-      cursor: default;
     }
+
     &.group-option {
       padding-left: 15px;
     }
+
     em {
       font-style: normal;
       text-decoration: underline;
     }
   }
 }
-/* @end */
+// @end
 
-/* @group Multi Chosen */
+// @group Multi Chosen
 .chosen-container-multi{
   .chosen-choices {
     @include transition();
 
-    background-color: palette(white, base);
-    border: 1px solid palette(white, base);
+    background-color: palette('white', base);
+    border: 1px solid palette('white', base);
     border-radius: 5px;
-    box-shadow: 0 3px 5px 0 palette(box-shadow, base, 0.05);
+    box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
     cursor: text;
     height: auto;
     margin: 0;
@@ -245,14 +259,14 @@
     width: 100%;
 
     &:hover {
-      border: 1px solid rgba(4,182,175,0.5);
-	    box-shadow: 0 7px 10px 0 palette(box-shadow, base, 0.05);
+      border: 1px solid rgba(4, 182, 175, .5);
+      box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
     }
 
     &:before {
       @include transition();
 
-      color: palette(gray, slate);
+      color: palette('gray', slate);
       content: $icon-chevron;
       display: inline-block;
       float: right;
@@ -271,6 +285,7 @@
       will-change: transform;
     }
   }
+
   .chosen-choices li {
     float: left;
     list-style: none;
@@ -287,9 +302,9 @@
         border: 0 !important;
         border-radius: 0;
         box-shadow: none;
-        color: palette(gray, text, .6);
-        font-size: 14px;
+        color: palette('gray', text, .6);
         font-family: $ubuntu-italic;
+        font-size: 14px;
         font-weight: normal;
         line-height: normal;
         margin: 1px 0;
@@ -299,16 +314,16 @@
     }
 
     &.search-choice {
-      border: 1px solid palette(box-shadow, base, .1);
+      background-color: palette('white', base);
+      border: 1px solid palette('box-shadow', base, .1);
       border-radius: 3px;
-      background-color: palette(white, base);
-      box-shadow: 0 3px 5px 0 palette(box-shadow, base, .05);
-      color: palette(gray, text);
+      box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
+      color: palette('gray', text);
       cursor: default;
       font-family: $ubuntu;
       line-height: 14px;
-      max-width: 100%;
       margin: 10px 10px 0 0;
+      max-width: 100%;
       padding: 6px 10px;
       position: relative;
 
@@ -321,9 +336,9 @@
 
         display: inline-block;
         font-family: 'Kora-Icons';
+        font-size: 9px;
         -moz-osx-font-smoothing: grayscale;
         -webkit-font-smoothing: antialiased;
-        font-size: 9px;
         font-style: normal;
         font-variant: normal;
         font-weight: normal;
@@ -345,14 +360,16 @@
     }
 
     &.search-choice-disabled {
-      padding-right: 5px;
       border: 1px solid #ccc;
       background-color: #e4e4e4;
       background-image: linear-gradient(#f4f4f4 20%, #f0f0f0 50%, #e8e8e8 52%, #eee 100%);
       color: #666;
+      padding-right: 5px;
     }
+
     &.search-choice-focus {
       background: #d4d4d4;
+
       .search-choice-close {
         background-position: -42px -10px;
       }
@@ -369,24 +386,25 @@
     display: none;
   }
 }
-/* @end */
+// @end
 
-/* @group Active  */
-.chosen-container-active{
+// @group Active
+.chosen-container-active {
   .chosen-single {
-    border: 1px solid palette(green, accent);
-    box-shadow: 0 7px 10px 0 palette(box-shadow, base, 0.05);
+    border: 1px solid palette('green', accent);
+    box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
 
     &:before {
       transform: rotate(-180deg);
     }
   }
+
   .chosen-choices {
-    border: 1px solid palette(green, accent);
-    box-shadow: 0 7px 10px 0 palette(box-shadow, base, 0.05);
+    border: 1px solid palette('green', accent);
+    box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
 
     li.search-field input[type="text"] {
-      color: #222 !important;
+      color: #222;
       font-family: $ubuntu;
     }
 
@@ -395,22 +413,24 @@
     }
   }
 }
-/* @end */
+// @end
 
-/* @group Disabled Support */
+// @group Disabled Support
 .chosen-disabled {
-  opacity: 0.5 !important;
   cursor: default;
+  opacity: .5;
+
   .chosen-single {
     cursor: default;
   }
+
   .chosen-choices .search-choice .search-choice-close {
     cursor: default;
   }
 }
-/* @end */
+// @end
 
-/* @group Right to Left */
+// @group Right to Left
 .chosen-rtl {
   text-align: right;
 
@@ -420,9 +440,9 @@
   }
 
   .chosen-single span {
-    margin-right: 0;
-    margin-left: 26px;
     direction: rtl;
+    margin-left: 26px;
+    margin-right: 0;
   }
 
   .chosen-single-with-deselect span {
@@ -430,13 +450,13 @@
   }
 
   .chosen-single div {
-    right: auto;
     left: 3px;
+    right: auto;
   }
 
   .chosen-single abbr {
-    right: auto;
     left: 26px;
+    right: auto;
   }
 
   .chosen-choices li {
@@ -451,27 +471,28 @@
       padding: 3px 5px 3px 19px;
 
       .search-choice-close {
-        right: auto;
         left: 4px;
+        right: auto;
       }
     }
   }
+
   &.chosen-container-single .chosen-results {
     margin: 0 0 4px 4px;
     padding: 0 4px 0 0;
   }
 
   .chosen-results li.group-option {
-    padding-right: 15px;
     padding-left: 0;
+    padding-right: 15px;
   }
 
   &.chosen-container-active.chosen-with-drop .chosen-single div {
-    border-right: none;
+    border-right: 0;
   }
 
   .chosen-search input[type="text"] {
-    padding: 4px 5px 4px 20px;
     direction: rtl;
+    padding: 4px 5px 4px 20px;
   }
 }

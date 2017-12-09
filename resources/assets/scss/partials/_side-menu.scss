@@ -1,9 +1,10 @@
 .side-menu {
+  @include transition();
+
   flex-basis: 0;
   flex-grow: 0;
   flex-shrink: 0;
   position: relative;
-  @include transition();
 
   &.active,
   &.fixed {
@@ -11,7 +12,7 @@
   }
 
   .blanket {
-    background: palette(black, base);
+    background: palette('black', base);
     height: 100vh;
     left: -100vw;
     opacity: 0;
@@ -21,7 +22,7 @@
   }
 
   .content {
-    background: palette(gray, slate);
+    background: palette('gray', slate);
     height: calc(100vh - #{$navigation-height});
     margin-top: $navigation-height;
     position: fixed;

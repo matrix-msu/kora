@@ -11,29 +11,29 @@
   $base-text: #283c46;
   $base-warning: #ff6f81;
   $base-white: #fff;
-    $test: #549;
+  $test: #549;
 
   // hue-based scales
   $hue-scales: (
-    green: (
+    'green': (
       accent:         rgba($base-accent, $alpha),
       base:           rgba($base-green, $alpha)
     ),
 
-    red: (
+    'red': (
       base:           rgba($base-warning, $alpha),
       warning:        rgba($base-warning, $alpha)
     ),
 
-    white: (
+    'white': (
       base:           rgba($base-white, $alpha),
     ),
 
-    black: (
+    'black': (
       base:           rgba($base-black, $alpha)
     ),
 
-    gray: (
+    'gray': (
       background:     rgba($base-background, $alpha),
       base:           rgba($base-text, $alpha),
       drawer-slate:   rgba($base-sidemenu-drawer, $alpha),
@@ -44,13 +44,13 @@
       page:           rgba(#fafafb, $alpha)
     ),
 
-    box-shadow: (
+    'box-shadow': (
       base: rgba($base-sidemenu, $alpha),
       accent: rgba($base-accent, $alpha),
       warning: rgba($base-warning, $alpha)
     )
 
-    // blue: (
+    // 'box-shadow': (
     //   dark: adjust-color($base-blue, $hue: +.50725deg, $saturation: -5.13717%, $lightness: -8.23529%),
     //   base: $base-blue,
     //   light1: adjust-color($base-blue, $hue: +.05376deg, $saturation: -6.34637%, $lightness: +27.64706%),

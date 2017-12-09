@@ -1,9 +1,9 @@
 .navigation-sub-menu {
   @include transition();
 
-  background-color: palette(gray, dropdown);
+  background-color: palette('gray', dropdown);
   border-radius: 0 0 5px 5px;
-  box-shadow: 0 10px 30px 0 palette(black, base, .2);
+  box-shadow: 0 10px 30px 0 palette('black', base, .2);
   opacity: 1;
   padding-bottom: 5px;
   position: absolute;
@@ -16,35 +16,35 @@
   &.active {
     transform: translateY(0);
   }
-    
-    &.langSel {
-        background-color: palette(gray, background);
-        margin-right: 20px;
-        opacity: 0;
-        padding: 15px 30px;
-        text-align: center;
-        transform: none;
-        width: auto;
-        will-change: opacity;
-        
-        &.active {
-            opacity: 1;
-            transform: none;
-        }
-        
-        a {
-            &:hover {
-                color: palette(green, accent);
-            }
-        }
+
+  &.language-select {
+    background-color: palette('gray', background);
+    margin-right: 20px;
+    opacity: 0;
+    padding: 15px 30px;
+    text-align: center;
+    transform: none;
+    width: auto;
+    will-change: opacity;
+
+    &.active {
+      opacity: 1;
+      transform: none;
     }
+
+    a {
+      &:hover {
+        color: palette('green', accent);
+      }
+    }
+  }
 
   img {
     padding-right: 13px;
   }
 
   .header {
-    color: palette(white, base);
+    color: palette('white', base);
     font-family: $ubuntu;
     font-size: 16px;
     height: 18px;
@@ -54,7 +54,7 @@
   }
 
   .link {
-    color: palette(white, base);
+    color: palette('white', base);
     font-family: $ubuntu;
     font-size: 12px;
 
@@ -76,7 +76,7 @@
     }
 
     a:hover {
-      color: palette(green, accent);
+      color: palette('green', accent);
     }
 
     &:not(:first-child) a {
@@ -102,7 +102,7 @@
   }
 
   .spacer {
-    border-bottom: 2px solid palette(white, base);
+    border-bottom: 2px solid palette('white', base);
     box-sizing: border-box;
     height: 3px;
     margin: 0 auto;

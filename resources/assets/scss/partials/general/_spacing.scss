@@ -19,15 +19,15 @@
   .pl-#{$key} {
     padding-left: #{$size};
   }
-    
+
   .px-#{$key} {
     padding-left: #{$size};
     padding-right: #{$size};
   }
-    
+
   .py-#{$key} {
-    padding-top: #{$size};
     padding-bottom: #{$size};
+    padding-top: #{$size};
   }
 
   .ma-#{$key} {
@@ -54,9 +54,9 @@
     margin-left: #{$size};
     margin-right: #{$size};
   }
-    
+
   .my-#{$key} {
-    margin-top: #{$size};
     margin-bottom: #{$size};
+    margin-top: #{$size};
   }
 }

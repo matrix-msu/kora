@@ -9,7 +9,7 @@
   z-index: 10000;
 
   &.modal-mask {
-    background-color: palette(gray, slate, .4);
+    background-color: palette('gray', slate, .4);
     opacity: 0;
     pointer-events: none;
   }
@@ -29,9 +29,9 @@
     @include transition();
     @include vertical-align($transform: scale(.2));
 
-    background: palette(gray, 'background');
+    background: palette('gray', 'background');
     border-radius: 5px;
-    box-shadow: 0 10px 20px 0 palette(box-shadow, base, .2);
+    box-shadow: 0 10px 20px 0 palette('box-shadow', base, .2);
     left: 0;
     margin: auto;
     max-width: 840px;

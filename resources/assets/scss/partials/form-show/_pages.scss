@@ -5,9 +5,9 @@
   width: $max-site-width;
 
   .page {
-    background-color: palette(gray, page, 1);
+    background-color: palette('gray', page, 1);
     border-radius: 5px;
-    box-shadow: 0 20px 50px 0 palette(box-shadow, base, .05);
+    box-shadow: 0 20px 50px 0 palette('box-shadow', base, .05);
     width: 100%;
 
     @import 'page/header';

@@ -12,5 +12,7 @@
     }
   }
 
-  @import 'project';
+  .project .content {
+    @import 'project';
+  }
 }

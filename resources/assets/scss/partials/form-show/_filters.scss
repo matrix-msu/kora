@@ -25,18 +25,19 @@
     .icon-cancel {
       font-size: 0;
       opacity: 0;
+
+      &.active {
+        font-size: 10px;
+        opacity: 1;
+      }
     }
 
-    .icon-cancel.active {
-      font-size: 10px;
-      opacity: 1;
-    }
 
     input {
       background: none;
       border: 0;
-      caret-color: palette(green, accent);
-      color: palette(gray, text);
+      caret-color: palette('green', accent);
+      color: palette('gray', text);
       cursor: pointer;
       font-size: 14px;
       margin: 0 5px;
@@ -46,39 +47,40 @@
     }
 
     input::-webkit-input-placeholder {
-      color: palette(gray, text);
+      color: palette('gray', text);
       font-family: $ubuntu-italic;
-      opacity: .8 !important;
+      opacity: .8;
     }
 
     input:-ms-input-placeholder {
-      color: palette(gray, text);
+      color: palette('gray', text);
       font-family: $ubuntu-italic;
-      opacity: .8 !important;
+      opacity: .8;
     }
 
     &:active {
-      padding: 0 0 #{ $underline-padding +10 };
+      padding: 0 0 #{ $underline-padding + 10 };
     }
  }
 
   .show-options {
     text-align: right;
-  }
 
-  .show-options .icon {
-    @include transition();
+    .icon {
+      @include transition();
 
-    color: palette(gray, text, .8);
-    cursor: pointer;
-    font-size: 14px;
-    line-height: 16px;
-    margin: 0 7.5px;
+      color: palette('gray', text, .8);
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 16px;
+      margin: 0 7.5px;
 
-    &:hover {
-      color: palette(green, accent);
+      &:hover {
+        color: palette('green', accent);
+      }
     }
   }
+
 }
 
 @media screen and (max-width: $max-mobile-width) {

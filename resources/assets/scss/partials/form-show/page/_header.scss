@@ -7,7 +7,7 @@
   z-index: 2;
 
   &.active {
-    box-shadow: 0px 6px 13px -4px palette(white, base);
+    box-shadow: 0 6px 13px -4px palette('white', base);
   }
 
   .icon {
@@ -19,7 +19,7 @@
 
   .icon-arrow-down,
   .icon-arrow-up {
-    color: palette(gray, slate);
+    color: palette('gray', slate);
     display: inline-block;
     font-size: 10px;
     opacity: .2;
@@ -34,13 +34,13 @@
     width: 92px;
 
     &:hover .icon-cancel {
-      color: palette(gray, slate, .6);
+      color: palette('gray', slate, .6);
       transform: rotate(90deg) scale($transform-scale-multiplier);
     }
   }
 
   .icon-cancel {
-    color: palette(gray, slate, .2);
+    color: palette('gray', slate, .2);
     display: inline-block;
     font-size: 13px;
     margin-bottom: 5px;
@@ -92,7 +92,7 @@
     background: none;
     border: 2px solid transparent;
     box-sizing: border-box;
-    color: palette(gray, text);
+    color: palette('gray', text);
     font-family: $ubuntu;
     font-size: 14px;
     line-height: 24px;
@@ -100,11 +100,11 @@
     width: 100%;
 
     &:hover {
-      border-bottom: 2px solid palette(green, accent, .3);
+      border-bottom: 2px solid palette('green', accent, .3);
     }
 
     &:focus {
-      border-bottom: 2px solid palette(green, accent, .7);
+      border-bottom: 2px solid palette('green', accent, .7);
       outline: none;
     }
   }

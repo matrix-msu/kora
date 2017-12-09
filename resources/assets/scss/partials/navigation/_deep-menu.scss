@@ -1,7 +1,7 @@
 .navigation-deep-menu {
-  background-color: palette(gray, dropdown);
+  background-color: palette('gray', dropdown);
   border-radius: 0 5px 5px;
-  box-shadow: 0 20px 30px 0 palette($palette: black, $alpha: .2);
+  box-shadow: 0 20px 30px 0 palette('black', base, .2);
   display: none;
   margin-left: 155px;
   margin-top: -15px;

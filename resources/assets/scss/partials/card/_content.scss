@@ -1,5 +1,5 @@
 .content {
-  background: palette(white, base);
+  background: palette('white', base);
   display: none;
   margin: 10px 20px 0;
 
@@ -9,7 +9,7 @@
 
   span,
   .description {
-    color: palette(gray, text);
+    color: palette('gray', text);
     font-size: 14px;
     line-height: 19px;
 

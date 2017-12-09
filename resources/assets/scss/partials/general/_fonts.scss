@@ -218,7 +218,7 @@ i {
 
 .icon-project-happy .path1 {
   &::before {
-    color: palette(white, base);
+    color: palette('white', base);
     content: $icon-project-happy-path1;
 
   }
@@ -226,7 +226,7 @@ i {
 
 .icon-project-happy .path2 {
   &::before {
-    color: palette(gray, text, .5);
+    color: palette('gray', text, .5);
     content: $icon-project-happy-path2;
     margin-left: -1.0966796875em;
     text-shadow: none;
@@ -235,7 +235,7 @@ i {
 
 .icon-project-happy .path3 {
   &::before {
-    color: palette(gray, text, .5);
+    color: palette('gray', text, .5);
     content: $icon-project-happy-path3;
     margin-left: -1.0966796875em;
     text-shadow: none;
@@ -244,7 +244,7 @@ i {
 
 .icon-project-happy .path4 {
   &::before {
-    color: palette(gray, text, .5);
+    color: palette('gray', text, .5);
     content: $icon-project-happy-path4;
     margin-left: -1.0966796875em;
     text-shadow: none;
@@ -253,7 +253,7 @@ i {
 
 .icon-project-happy .path5 {
   &::before {
-    color: palette(gray, text, .5);
+    color: palette('gray', text, .5);
     content: $icon-project-happy-path5;
     margin-left: -1.0966796875em;
     text-shadow: none;

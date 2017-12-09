@@ -3,10 +3,10 @@
   @include transition();
 
   appearance: none;
-  background-color: palette(white, base);
-  border: 1px solid palette(white, base);
+  background-color: palette('white', base);
+  border: 1px solid palette('white', base);
   border-radius: 5px;
-  box-shadow: 0 3px 5px 0 palette(box-shadow, base, .05);
+  box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
   box-sizing: border-box;
   font-family: $ubuntu;
   font-size: 14px;
@@ -16,13 +16,13 @@
   width: 100%;
 
   &:hover {
-    border: 2px solid palette(green, accent, .3);
-    box-shadow: 0 7px 10px 0 palette(box-shadow, base, .05);
+    border: 2px solid palette('green', accent, .3);
+    box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
   }
 
   &:focus {
-    border: 2px solid palette(green, accent, .7);
-    box-shadow: 0 7px 10px 0 palette(box-shadow, base, .05);
+    border: 2px solid palette('green', accent, .7);
+    box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
     outline: none;
   }
 }

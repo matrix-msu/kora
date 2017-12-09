@@ -6,7 +6,7 @@
   width: $max-site-width;
 
   .permission-information {
-    color: palette(gray, text);
+    color: palette('gray', text);
     font-size: 14px;
     line-height: 16px;
     margin: 0 auto 30px;
@@ -16,7 +16,7 @@
   .request-permissions {
     @include transition(color);
 
-    color: palette(green, accent);
+    color: palette('green', accent);
     display: inline-block;
     font-family: $ubuntu-medium;
     font-size: 16px;
@@ -37,11 +37,11 @@
 
     .icon {
       font-size: 120px;
-      text-shadow: 0 5px 15px palette(box-shadow, base, .1);
+      text-shadow: 0 5px 15px palette('box-shadow', base, .1);
     }
 
     .text {
-      color: palette(gray, text);
+      color: palette('gray', text);
       display: inline-block;
       font-family: $ubuntu;
       font-size: 16px;

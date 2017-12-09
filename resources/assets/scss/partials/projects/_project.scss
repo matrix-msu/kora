@@ -1,27 +1,24 @@
-.project .content {
+.id {
+  margin-bottom: 20px;
+}
 
-  .id {
-    margin-bottom: 20px;
+.admins {
+  margin: 20px 0;
+}
+
+.forms {
+  .attribute {
+    padding-right: 14px;
   }
 
-  .admins {
-    margin: 20px 0;
+  .form {
+    color: palette('green', accent);
+    font-family: $ubuntu-medium;
   }
 
-  .forms {
-    .attribute {
-      padding-right: 14px;
-    }
-
-    .form {
-      color: palette(green, accent);
-      font-family: $ubuntu-medium;
-    }
-
-    .form-link {
-      display: inline-block;
-      margin: 0 14px 0 0;
-      padding: 0 0 #{ $underline-padding };
-    }
+  .form-link {
+    display: inline-block;
+    margin: 0 14px 0 0;
+    padding: 0 0 #{ $underline-padding };
   }
 }

@@ -8,7 +8,7 @@
     vertical-align: middle;
 
     .icon:hover {
-      color: palette(green, accent);
+      color: palette('green', accent);
     }
 
     // Replace this class with the image class once the placeholder is replaced.
@@ -38,7 +38,7 @@
     }
 
     .menu-toggle:hover {
-      color: palette(green, accent)
+      color: palette('green', accent);
     }
 
     .icon-chevron {
@@ -48,7 +48,7 @@
     }
 
     .icon-minus {
-      color: palette(green, accent);
+      color: palette('green', accent);
     }
   }
 }

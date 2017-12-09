@@ -7,7 +7,7 @@
     padding: 0;
 
     > span {
-      color: palette(gray, text, .6);
+      color: palette('gray', text, .6);
       display: inline-block;
       font-family: $ubuntu-medium;
       margin: 9px 0 14px;
@@ -15,7 +15,7 @@
     }
 
     .user-add {
-      color: palette(green, accent);
+      color: palette('green', accent);
       font-family: $ubuntu-medium;
       margin: 0 5px;
       padding: 0 0 $underline-padding;
@@ -33,11 +33,11 @@
   .user {
     @include transition();
 
-    background-color: palette(white, base);
-    border: 1px solid palette(gray, slate, .1);
+    background-color: palette('white', base);
+    border: 1px solid palette('gray', slate, .1);
     border-radius: 5px;
-    box-shadow: 0 3px 5px 0 palette(box-shadow, base, .03);
-    color: palette(gray, text);
+    box-shadow: 0 3px 5px 0 palette('box-shadow', base, .03);
+    color: palette('gray', text);
     display: inline-block;
     font-family: $ubuntu;
     font-size: 14px;
@@ -57,7 +57,7 @@
     }
 
     .name:hover {
-      color: palette(green, accent);
+      color: palette('green', accent);
     }
 
     .cancel:hover .icon-cancel {
@@ -76,7 +76,7 @@
     }
 
     &:hover {
-      box-shadow: 0 6px 12px 0 palette(box-shadow, base, .06);
+      box-shadow: 0 6px 12px 0 palette('box-shadow', base, .06);
     }
   }
 }

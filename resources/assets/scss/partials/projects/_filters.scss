@@ -25,18 +25,19 @@
     .icon-cancel {
       font-size: 0;
       opacity: 0;
+
+      &.active {
+        font-size: 10px;
+        opacity: 1;
+      }
     }
 
-    .icon-cancel.active {
-      font-size: 10px;
-      opacity: 1;
-    }
 
     input {
       background: none;
       border: 0;
-      caret-color: palette(green, accent);
-      color: palette(gray, text);
+      caret-color: palette('green', accent);
+      color: palette('gray', text);
       cursor: pointer;
       font-size: 14px;
       margin: 0 5px;
@@ -44,57 +45,58 @@
       vertical-align: middle;
       width: 100px;
     }
-    
+
     input::-webkit-input-placeholder {
-      color: palette(gray, text);
+      color: palette('gray', text);
       font-family: $ubuntu-italic;
-      opacity: .8 !important;
+      opacity: .8;
     }
 
     input:-ms-input-placeholder {
-      color: palette(gray, text);
+      color: palette('gray', text);
       font-family: $ubuntu-italic;
-      opacity: .8 !important;
+      opacity: .8;
     }
-    
+
     &:active {
-      padding: 0 0 #{ $underline-padding +10 };
+      padding: 0 0 #{ $underline-padding + 10 };
     }
  }
 
   .sort-options {
     text-align: right;
+
+    .option {
+      color: palette('gray', text, .8);
+      cursor: pointer;
+      font-family: $ubuntu;
+      font-size: 14px;
+      line-height: 16px;
+      margin: 0 7.5px;
+      padding: 0 0 #{ $underline-padding };
+      text-decoration: none;
+
+      &:first-child {
+        margin-left: 0;
+        padding-left: 0;
+      }
+
+      &:last-child {
+        margin-right: 0;
+        padding-right: 0;
+      }
+
+      &:hover {
+        color: palette('green', accent);
+      }
+
+      &.active {
+        color: palette('green', accent);
+        font-weight: 500;
+      }
+    }
   }
 
-  .sort-options .option {
-    color: palette(gray, text, .8);
-    cursor: pointer;
-    font-family: $ubuntu;
-    font-size: 14px;
-    line-height: 16px;
-    margin: 0 7.5px;
-    padding: 0 0 #{ $underline-padding };
-    text-decoration: none;
-
-    &:first-child {
-      margin-left: 0;
-      padding-left: 0;
-    }
-
-    &:last-child {
-      margin-right: 0;
-      padding-right: 0;
-    }
-
-    &:hover {
-      color: palette(green, accent);
-    }
-
-    &.active {
-      color: palette(green, accent);
-      font-weight: 500;
-    }
-  }
 }
 
 @media screen and (max-width: $max-mobile-width) {

@@ -6,9 +6,9 @@
     padding-top: 35px;
 
     .icon-trash {
-      color: palette(red, base);
+      color: palette('red', base);
       font-size: 14px;
-      padding: 0 0 5px 0;
+      padding: 0 0 5px;
       will-change: transform;
     }
 

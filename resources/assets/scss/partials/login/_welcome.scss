@@ -1,28 +1,28 @@
-.welcome {
-    margin: auto;
-	padding: 0 3%;
-    text-align: center;
-    width: $max-mobile-xs-width;
-	
-	.memory {
-		text-align: left;
-	
-		.check-box-half {
-			display: inline-block;
-		}
-	
-		.forgot {
-			display: inline-block;
-			float: right;
-			vertical-align: middle;
-		}
-	}
+.welcome-body {
+  background: url('../images/auth-bg.jpg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100vh;
 }
 
-.welcome-body {
-    background: url('../images/auth-bg.jpg');
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    height: 100vh;
+.welcome {
+  margin: auto;
+  padding: 0 3%;
+  text-align: center;
+  width: $max-mobile-xs-width;
+
+  .memory {
+    text-align: left;
+
+    .check-box-half {
+      display: inline-block;
+		}
+
+    .forgot {
+      display: inline-block;
+      float: right;
+      vertical-align: middle;
+		}
+	}
 }

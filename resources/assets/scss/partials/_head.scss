@@ -1,7 +1,7 @@
 .head {
-  background: palette(white, base);
-  box-shadow: 0 3px 5px 0 palette(box-shadow, base, .05);
-  color: palette(gray, text);
+  background: palette('white', base);
+  box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
+  color: palette('gray', text);
   font-family: $ubuntu;
   width: 100%;
 
@@ -31,19 +31,19 @@
       vertical-align: middle;
 
     }
+  }
 
-    .head-button {
-      @include transition();
-      text-decoration: none;
+  .head-button {
+    @include transition();
+    text-decoration: none;
 
-      i {
-        color: palette(gray, text);
-        font-size: 22px;
-      }
+    i {
+      color: palette('gray', text);
+      font-size: 22px;
+    }
 
-      &:hover {
-        opacity: .7;
-      }
+    &:hover {
+      opacity: .7;
     }
   }
 
