@@ -10,7 +10,7 @@
               <span>Dashboard</span>
             </a>
         </li>
-        <li class="spacer"></li>
+        <li class="spacer full"></li>
         <li class="link">
             <a href="#">Edit Dashboard</a>
         </li>
@@ -34,7 +34,7 @@
         </li>
 
         @if(\Auth::user()->admin==1)
-          <li class="spacer"></li>
+          <li class="spacer full"></li>
           <li class="link">
             <a href="{{ url('/projects/create') }}">Create New Project</a>
           </li>
@@ -53,7 +53,7 @@
 
               <ul class="navigation-deep-menu navigation-deep-menu-js">
                 @foreach($allowed_projects as $project)
-                  <li class="kora_nav_deep_menu_item">
+                  <li class="deep-menu-item">
                     <a href="{{ url('/projects/'.$project->pid) }}">{{ $project->name }}</a>
                   </li>
                 @endforeach

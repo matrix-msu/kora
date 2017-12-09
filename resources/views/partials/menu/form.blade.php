@@ -49,7 +49,7 @@
       </li>
 
       @if(\Auth::user()->canIngestRecords(\App\Http\Controllers\FormController::getForm($fid)))
-        <li class="link">
+        <li class="link pre-spacer">
           <a href="{{ action('RecordController@create',['pid' => $pid, 'fid' => $fid]) }}">Create New Record</a>
         </li>
       @endif

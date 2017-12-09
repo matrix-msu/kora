@@ -3,6 +3,10 @@
   max-height: $navigation-height;
   vertical-align: middle;
 
+  .navigation-sub-menu .header {
+    padding-bottom: 12px;
+  }
+
   .profile-toggle {
     display: inline-block;
     max-height: $navigation-height;

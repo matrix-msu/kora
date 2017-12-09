@@ -1,25 +1,40 @@
 .navigation-deep-menu {
+  @include transition();
+
   background-color: palette('gray', dropdown);
   border-radius: 0 5px 5px;
   box-shadow: 0 20px 30px 0 palette('black', base, .2);
   display: none;
-  margin-left: 155px;
-  margin-top: -15px;
+  margin-left: 171px;
+  margin-top: -42px;
   max-height: 60vh;
   opacity: 0;
   overflow: scroll;
-  padding-top: 20px;
+  padding: 0;
   position: absolute;
   width: 175px;
 
-  .item {
-    padding-bottom: 15px;
-    padding-left: 20px;
+  .deep-menu-item {
+    a {
+      padding: 8px 0 8px 20px;
+    }
+
+    &:first-child a {
+      padding-top: 20px;
+    }
+
+    &:last-child a {
+      padding-bottom: 20px;
+    }
   }
 
   &.active {
-    @include transition();
     display: block;
     opacity: 1;
   }
+}
+
+.link:last-child .navigation-deep-menu {
+  margin-left: 171px;
+  margin-top: -54px;
 }

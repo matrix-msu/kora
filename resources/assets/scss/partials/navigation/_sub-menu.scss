@@ -5,7 +5,6 @@
   border-radius: 0 0 5px 5px;
   box-shadow: 0 10px 30px 0 palette('black', base, .2);
   opacity: 1;
-  padding-bottom: 5px;
   position: absolute;
   top: $navigation-height + $status-height;
   transform: translateY(-200%);
@@ -58,14 +57,6 @@
     font-family: $ubuntu;
     font-size: 12px;
 
-    + .spacer {
-      margin-top: 12px;
-    }
-
-    &.link-head + .spacer {
-      margin-top: 0;
-    }
-
     a {
       @include transition(color);
 
@@ -76,7 +67,8 @@
     }
 
     .navigation-sub-menu-toggle {
-      display: inline-block;
+      display: block;
+      padding-right: 0;
     }
 
     .sub-menu-icon {
@@ -88,16 +80,16 @@
       color: palette('green', accent);
     }
 
-    &:not(:first-child) a {
+    &:not(:first-child) > a {
       padding-top: 8px;
     }
 
-    &:last-child a {
+    &:last-child > a {
       justify-content: space-between;
       padding-bottom: 20px;
     }
 
-    &.link-head a {
+    &.link-head > a {
       padding: 20px 0 20px 20px;
     }
 

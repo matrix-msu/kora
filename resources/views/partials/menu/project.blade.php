@@ -33,7 +33,7 @@
 
           <ul class="navigation-deep-menu navigation-deep-menu-js">
             @foreach($allowed_forms as $form)
-              <li class="link">
+              <li class="deep-menu-item">
                 <a href="{{ action('FormController@show', ['pid'=>$pid, 'fid' => $form->fid]) }}">{{ $form->name }}</a>
               </li>
             @endforeach
@@ -41,7 +41,7 @@
         </li>
       @endif
 
-      <li class="link">
+      <li class="link pre-spacer">
         <a href="#">Search Project Records</a>
       </li>
 

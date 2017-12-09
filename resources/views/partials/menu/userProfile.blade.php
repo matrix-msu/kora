@@ -27,7 +27,7 @@
     <li class="link pre-spacer">
       <a href="#">My Record History</a>
     </li>
-    <li class="spacer"></li>
+    <li class="spacer mt-0"></li>
     <li class="link">
       <a href="{{ url('/auth/logout') }}">
         <span class="left">Logout</span>
