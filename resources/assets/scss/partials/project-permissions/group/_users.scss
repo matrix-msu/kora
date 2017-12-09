@@ -13,21 +13,20 @@
       margin: 9px 0 14px;
       vertical-align: middle;
     }
+  }
 
-    .user-add {
-      color: palette('green', accent);
-      font-family: $ubuntu-medium;
-      margin: 0 5px;
-      padding: 0 0 $underline-padding;
-    }
+  .user-add {
+    color: palette('green', accent);
+    font-family: $ubuntu-medium;
+    margin: 0 5px;
+    padding: 0 0 $underline-padding;
 
-    .user-add span {
+    span {
       color: inherit;
       font-family: $ubuntu-medium;
       padding: 10px 0 10px 2px;
       vertical-align: top;
     }
-
   }
 
   .user {
@@ -60,10 +59,6 @@
       color: palette('green', accent);
     }
 
-    .cancel:hover .icon-cancel {
-      opacity: 1;
-      transform: scale($transform-scale-multiplier);
-    }
 
     .icon-cancel {
       @include transition();
@@ -73,6 +68,11 @@
       opacity: .2;
       padding: 10px 10px 10px 0;
       will-change: transform;
+    }
+
+    .icon-cancel:hover {
+      opacity: 1;
+      transform: scale($transform-scale-multiplier);
     }
 
     &:hover {
@@ -93,15 +93,15 @@
       > span:last-child {
         display: block;
       }
+    }
 
-      .user-add {
-        display: block;
-        margin: 0;
-        padding-top: 5px;
-        width: 160px;
-      }
+    .user-add {
+      display: block;
+      margin: 0;
+      padding-top: 5px;
+      width: 160px;
 
-      .user-add span {
+      span {
         padding: 0;
       }
     }

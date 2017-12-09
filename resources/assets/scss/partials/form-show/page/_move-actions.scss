@@ -1,0 +1,33 @@
+.move-actions {
+  align-items: flex-end;
+  display: flex;
+  margin-bottom: 10px;
+
+  .action {
+    padding: 0;
+
+    &:first-child {
+      padding-left: 40px;
+      padding-right: 4px;
+    }
+
+    &:last-child {
+      padding-left: 4px;
+      padding-right: 16px;
+    }
+
+    &:hover {
+      .icon {
+        opacity: .6;
+      }
+
+      .icon-arrow-up {
+        transform: rotate(-90deg) scale($transform-scale-multiplier);
+      }
+
+      .icon-arrow-down {
+        transform: rotate(90deg) scale($transform-scale-multiplier);
+      }
+    }
+  }
+}

@@ -46,39 +46,7 @@
     margin-bottom: 5px;
   }
 
-  .move-actions {
-    align-items: flex-end;
-    display: flex;
-    margin-bottom: 10px;
-
-    .action {
-      @include transition();
-
-      will-change: transform;
-    }
-
-    .action:first-child {
-      padding-left: 40px;
-      padding-right: 4px;
-    }
-
-    .action:last-child {
-      padding-left: 4px;
-      padding-right: 16px;
-    }
-
-    .action:hover .icon {
-      opacity: .6;
-    }
-
-    .action:hover .icon-arrow-up {
-      transform: rotate(-90deg) scale($transform-scale-multiplier);
-    }
-
-    .action:hover .icon-arrow-down {
-      transform: rotate(90deg) scale($transform-scale-multiplier);
-    }
-  }
+  @import 'move-actions';
 
   .title-container {
     align-items: flex-end;

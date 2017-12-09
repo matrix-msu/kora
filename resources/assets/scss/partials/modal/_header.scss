@@ -1,7 +1,6 @@
 .header {
   box-sizing: border-box;
   color: palette('gray', text);
-  padding: 35px 40px;
   position: relative;
   text-align: left;
   width: 100%;
@@ -10,35 +9,44 @@
     display: block;
     font-family: $ubuntu;
     font-size: 20px;
-    width: calc(100% - 22px);
+    padding: 35px 0 40px 35px;
+    width: calc(100% - 62px);
   }
 
   .modal-toggle {
+    @include transition();
     color: inherit;
     font-size: 13px;
+    padding: 35px 40px;
     position: absolute;
-    right: 40px;
+    right: 0;
     text-decoration: none;
-    top: 40px;
+    top: 5px;
+
+    &:hover {
+      transform: rotate(90deg) scale($transform-scale-multiplier);
+    }
   }
 }
 
 &.small .header {
-  padding: 25px;
+  .title {
+    padding: 25px 0 25px 25px;
+  }
 
   .modal-toggle {
-    right: 25px;
-    top: 25px;
+    padding: 25px;
   }
 }
 
 @media screen and (max-width: $max-mobile-xs-width) {
   .header {
-    padding: 20px;
+    .title {
+      padding: 20px;
+    }
 
     .modal-toggle {
-      right: 20px;
-      top: 20px;
+      padding: 20px;
     }
   }
 }
