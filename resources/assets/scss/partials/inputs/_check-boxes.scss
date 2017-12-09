@@ -3,7 +3,7 @@
 .check-box {
   position: relative;
 
-  input[type=checkbox] {
+  .check-box-input {
     cursor: pointer;
     height: 50px;
     opacity: 0;
@@ -14,28 +14,29 @@
     &:checked + .check-box-background {
       border: 2px solid palette('green', accent, .5);
       box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
-    }
 
-    &:checked + .check-box-background + .check {
-      background-color: palette('green', accent);
-    }
+      + .check {
+        // scss-lint:disable NestingDepth
+        background-color: palette('green', accent);
 
-    &:checked + .check-box-background + .check + .placeholder {
-      opacity: 0;
-    }
+        + .placeholder {
+          opacity: 0;
 
-    &:checked + .check-box-background + .check + .placeholder + .placeholder-alt {
-      opacity: 1;
+          + .placeholder-alt {
+            opacity: 1;
+          }
+        }
+      }
     }
 
     &:hover + .check-box-background {
       border: 2px solid palette('green', accent, .5);
       box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
-    }
 
-    &:hover + .check-box-background + .check {
-      border: 1px solid palette('green', accent, .5);
-      box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
+      + .check {
+        border: 1px solid palette('green', accent, .5);
+        box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
+      }
     }
   }
 
@@ -138,12 +139,12 @@
       width: 20px;
     }
 
-    .check:after {
+    .check::after {
       left: 4px;
-      top: 4px
+      top: 4px;
     }
 
-    input[type=checkbox] {
+    .check-box-input {
       height: 20px;
     }
 
@@ -152,7 +153,7 @@
     }
   }
 
-  input[type=checkbox] {
+  .check-box-input {
     cursor: pointer;
     height: 25px;
     opacity: 0;
@@ -167,15 +168,15 @@
     &:hover + .check {
       border: 1px solid palette('green', accent, .5);
       box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
+
+      + .placeholder {
+        font-weight: 900;
+      }
     }
 
     &:checked + .check + .placeholder,
     &:hover + .check + .placeholder {
       color: palette('green', accent);
-    }
-
-    &:checked + .check + .placeholder {
-      font-weight: 900;
     }
 
     &:disabled {
@@ -209,7 +210,7 @@
       font-style: normal;
       font-variant: normal;
       font-weight: normal;
-      left: 6px;
+      left: 7px;
       line-height: 1;
       position: absolute;
       speak: none;

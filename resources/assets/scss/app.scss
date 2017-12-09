@@ -24,6 +24,7 @@
 @import 'partials/publish';
 
 @media screen and (min-width: $max-mobile-xs-width) and (max-width: $max-tablet-width) {
+  // scss-lint:disable ImportantRule
   .center {
     margin-left: $tablet-margin-total / 2 !important;
     margin-right: $tablet-margin-total / 2 !important;
@@ -33,6 +34,7 @@
 }
 
 @media screen and (max-width: $max-mobile-xs-width) {
+  // scss-lint:disable ImportantRule
   .center {
     margin-left: $mobile-xs-margin-total / 2 !important;
     margin-right: $mobile-xs-margin-total / 2 !important;

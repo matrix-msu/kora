@@ -50,102 +50,104 @@
   }
 }
 
+// scss-lint:disable QualifyingElement
 a.btn {
   display: block;
   line-height: 47px;
   text-decoration: none;
-}
 
-// Dot Button
-a.btn.dot-btn {
-  @include transition();
-
-  background: none;
-  border-radius: 50px;
-  box-sizing: border-box;
-  height: 50px;
-  width: 50px;
-
-  &.trash {
-    border: 2px solid palette('red', warning, .5);
-
-    .icon {
-      color: palette('red', warning);
-    }
-
-    &:hover {
-      background: palette('red', warning, 1);
-      border: 2px solid palette('red', warning, 1);
-    }
-  }
-
-  &.archive {
-    border: 2px solid palette('gray', slate, .2);
-    box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
-
-    .icon {
-      color: palette('gray', slate);
-    }
-
-    &:hover {
-      background: palette('gray', slate, 1);
-      border: 2px solid palette('gray', slate, 1);
-      box-shadow: 0 5px 10px 0 palette('box-shadow', base, .1);
-    }
-  }
-
-  &.warning:hover .icon {
-    color: palette('white', base);
-  }
-
-  .icon {
+  // Dot Button
+  &.dot-btn {
     @include transition();
 
-    font-size: 16px;
-  }
-}
+    background: none;
+    border-radius: 50px;
+    box-sizing: border-box;
+    height: 50px;
+    width: 50px;
 
-a.btn.half-sub-btn {
-  background: palette('white', base);
-  border: 2px solid palette('green', accent, .6);
-  border-radius: 100px;
-  box-sizing: border-box;
-  color: palette('green', accent);
-  display: inline-block;
-  font-family: $ubuntu-medium;
-  font-size: 14px;
-  line-height: 48px;
-  max-width: 406px;
-  text-align: center;
-  width: 49%;
+    &.trash {
+      border: 2px solid palette('red', warning, .5);
 
-  &:hover {
-    border-color: palette('green', accent, 1);
-  }
+      .icon {
+        color: palette('red', warning);
+      }
 
-  &.warning {
-    border: 2px solid palette('red', base, .8);
-    color: palette('red', base);
-    font-family: $ubuntu;
-  }
+      &:hover {
+        background: palette('red', warning, 1);
+        border: 2px solid palette('red', warning, 1);
+      }
+    }
 
-  &.disabled {
-    box-shadow: 0 3px 5px 0 palette('box-shadow', accent, .05);
-    cursor: not-allowed;
-    opacity: .2;
-    pointer-events: none;
+    &.archive {
+      border: 2px solid palette('gray', slate, .2);
+      box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
 
-    &:hover {
-      box-shadow: 0 3px 5px 0 palette('box-shadow', accent, .05);
+      .icon {
+        color: palette('gray', slate);
+      }
+
+      &:hover {
+        background: palette('gray', slate, 1);
+        border: 2px solid palette('gray', slate, 1);
+        box-shadow: 0 5px 10px 0 palette('box-shadow', base, .1);
+      }
+    }
+
+    &.warning:hover .icon {
+      color: palette('white', base);
+    }
+
+    .icon {
+      @include transition();
+
+      font-size: 16px;
     }
   }
 
-  &.subdued {
-    border-color: palette('green', accent, .2);
-    font-family: $ubuntu;
+  // Half sized submit button
+  &.half-sub-btn {
+    background: palette('white', base);
+    border: 2px solid palette('green', accent, .6);
+    border-radius: 100px;
+    box-sizing: border-box;
+    color: palette('green', accent);
+    display: inline-block;
+    font-family: $ubuntu-medium;
+    font-size: 14px;
+    line-height: 48px;
+    max-width: 406px;
+    text-align: center;
+    width: 49%;
 
     &:hover {
       border-color: palette('green', accent, 1);
+    }
+
+    &.warning {
+      border: 2px solid palette('red', base, .8);
+      color: palette('red', base);
+      font-family: $ubuntu;
+    }
+
+    &.disabled {
+      box-shadow: 0 3px 5px 0 palette('box-shadow', accent, .05);
+      cursor: not-allowed;
+      opacity: .2;
+      pointer-events: none;
+
+      &:hover {
+        box-shadow: 0 3px 5px 0 palette('box-shadow', accent, .05);
+      }
+    }
+
+    &.subdued {
+      border-color: palette('green', accent, .2);
+      font-family: $ubuntu;
+
+      &:hover {
+        border-color: palette('green', accent, 1);
+      }
     }
   }
 }

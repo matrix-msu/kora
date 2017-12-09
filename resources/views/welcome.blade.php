@@ -39,6 +39,7 @@
             <div class="check-box-half">
                 <input type="checkbox"
                        value="1"
+                       class="check-box-input"
                        id="remember"
                        name="remember" />
                 <span class="check"></span>
@@ -62,7 +63,7 @@
 
 
 @section('footer')
-    
+
 
 @stop
 

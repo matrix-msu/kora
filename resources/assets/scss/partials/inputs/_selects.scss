@@ -40,8 +40,8 @@
     cursor: pointer;
   }
 
-  .search-choice, .chosen-single{
-    .group-name{
+  .search-choice, .chosen-single {
+    .group-name {
       color: #999999;
       font-weight: normal;
       margin-right: 4px;
@@ -49,7 +49,7 @@
       text-overflow: ellipsis;
       white-space: nowrap;
 
-      &:after {
+      &::after {
         content: ':';
         padding-left: 2px;
         vertical-align: top;
@@ -81,7 +81,7 @@
       box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
     }
 
-    &:before {
+    &::before {
       @include transition();
 
       color: palette('gray', slate);
@@ -167,8 +167,8 @@
   }
 
   .chosen-drop {
-    border-radius: 0 0 4px 4px;
     background-clip: padding-box;
+    border-radius: 0 0 4px 4px;
     margin-top: -1px;
   }
 
@@ -242,7 +242,7 @@
 // @end
 
 // @group Multi Chosen
-.chosen-container-multi{
+.chosen-container-multi {
   .chosen-choices {
     @include transition();
 
@@ -263,7 +263,7 @@
       box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
     }
 
-    &:before {
+    &::before {
       @include transition();
 
       color: palette('gray', slate);
@@ -349,7 +349,7 @@
         vertical-align: middle;
         will-change: transform;
 
-        &:before {
+        &::before {
           content: $icon-cancel;
         }
 
@@ -360,9 +360,9 @@
     }
 
     &.search-choice-disabled {
-      border: 1px solid #ccc;
       background-color: #e4e4e4;
       background-image: linear-gradient(#f4f4f4 20%, #f0f0f0 50%, #e8e8e8 52%, #eee 100%);
+      border: 1px solid #ccc;
       color: #666;
       padding-right: 5px;
     }
@@ -394,7 +394,7 @@
     border: 1px solid palette('green', accent);
     box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
 
-    &:before {
+    &::before {
       transform: rotate(-180deg);
     }
   }
@@ -408,7 +408,7 @@
       font-family: $ubuntu;
     }
 
-    &:before {
+    &::before {
       transform: rotate(-180deg);
     }
   }
