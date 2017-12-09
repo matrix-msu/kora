@@ -75,6 +75,15 @@
       padding: 0 20px 8px;
     }
 
+    .navigation-sub-menu-toggle {
+      display: inline-block;
+    }
+
+    .sub-menu-icon {
+      font-size: 10px;
+      margin-left: 10px;
+    }
+
     a:hover {
       color: palette('green', accent);
     }
@@ -93,12 +102,14 @@
     }
 
     &.link-head .icon {
+      font-size: 16px;
       margin-right: 10px;
     }
 
     &.pre-spacer a {
       padding-bottom: 20px;
     }
+
   }
 
   .spacer {

@@ -26,9 +26,9 @@
       <?php $allowed_forms = \Auth::user()->allowedForms($pid) ?>
       @if(sizeof($allowed_forms) > 0 )
         <li class="link" id="project-submenu">
-          <a href='#' class="navigation-sub-menu-toggle-js" data-toggle="dropdown">
+          <a href='#' class="navigation-sub-menu-toggle navigation-sub-menu-toggle-js" data-toggle="dropdown">
             <span>Jump to Form</span>
-            <img class="icon" src="http://localhost:8888/Kora3/public/assets/images/menu_plus.svg">
+            <i class="icon sub-menu-icon icon-plus"></i>
           </a>
 
           <ul class="navigation-deep-menu navigation-deep-menu-js">

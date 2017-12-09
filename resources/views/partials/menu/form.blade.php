@@ -26,10 +26,11 @@
         ?>
         @if($cnt > 0)
           <li class="link" id="form-submenu">
-            <a href='#' class="navigation-sub-menu-toggle-js" data-toggle="dropdown">
+            <a href='#' class="navigation-sub-menu-toggle navigation-sub-menu-toggle-js" data-toggle="dropdown">
               <span>Jump to Field</span>
-              <img class="icon" src="http://localhost:8888/Kora3/public/assets/images/menu_plus.svg">
+              <i class="icon sub-menu-icon icon-plus"></i>
             </a>
+
             <ul class="dropdown-menu scrollable-submenu">
                 @foreach($fieldsInForm as $field)
                   @if($field->flid != $passed_field->flid)

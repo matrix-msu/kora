@@ -31,7 +31,7 @@
     <li class="link">
       <a href="{{ url('/auth/logout') }}">
         <span class="left">Logout</span>
-        <img class="logout-icon right" src="{{ env('BASE_URL') }}assets/images/menu_logout.svg">
+        <i class="icon icon-logout"></i>
       </a>
     </li>
   </ul>
