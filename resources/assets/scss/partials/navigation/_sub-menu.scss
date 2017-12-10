@@ -9,14 +9,18 @@
   top: $navigation-height + $status-height;
   transform: translateY(-200%);
   width: 175px;
+  visibility: hidden;
   will-change: transform;
   z-index: -1;
 
   &.active {
     transform: translateY(0);
+    visibility: visible;
   }
 
   &.language-select {
+    @include transition();
+
     background-color: palette('gray', background);
     margin-right: 20px;
     opacity: 0;

@@ -1,10 +1,12 @@
 &.auth {
   background-color: transparent;
   box-shadow: none;
-  font-family: Ubuntu;
+  font-family: $ubuntu;
 
   .navigation-item {
     font-size: 16px;
+    padding-left: 25px;
+    padding-right: 25px;
 
     a {
       color: palette('gray', text);

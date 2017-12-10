@@ -32,6 +32,8 @@
     }
 
     .icon-chevron {
+      @include transition();
+      
       display: inline-block;
       font-size: 6px;
       margin: 0 0 3px 5px;
