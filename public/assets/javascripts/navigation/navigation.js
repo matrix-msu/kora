@@ -1,7 +1,7 @@
 //The first section handles closing/opening of menus
-var $navBar = $(".navigation-js");
-var $subMenu = $(".navigation-sub-menu-js");
-var $deepMenu = $(".navigation-deep-menu-js");
+var $navBar = $('.navigation-js');
+var $subMenu = $('.navigation-sub-menu-js');
+var $deepMenu = $('.navigation-deep-menu-js');
 var $sideMenu = $('.side-menu-js');
 var $sideMenuBlanket = $('.side-menu-js .blanket-js');
 var $menuTitle = $('.navigation-left-js .navigation-toggle-js');
@@ -13,7 +13,7 @@ $menuTitle.each(function(index) {
   }
 });
 
-$navBar.on("click", ".navigation-toggle-js", function() {
+$navBar.on('click', '.navigation-toggle-js', function() {
   var $clicked = $(this).next();
   var $icon = $(this).children();
   var $parent = $(this).parent();
@@ -36,14 +36,13 @@ $navBar.on("click", ".navigation-toggle-js", function() {
     $icon.addClass('active');
   }
 
-
   //SPECIAL CASE FOR SEARCH
   if ($parent.hasClass('navigation-search')) {
-    gsTextInput.focus();
+    $searchInput.focus();
   }
 });
 
-$navBar.on("click", ".navigation-sub-menu-toggle-js", function() {
+$navBar.on('click', '.navigation-sub-menu-toggle-js', function() {
   $menu = $(this).next('.navigation-deep-menu-js');
 
   if ($menu.hasClass('active')) {
@@ -107,74 +106,98 @@ $(document).click(function(event) {
   }
 });
 
+var typewatch = (function() {
+  var timer = 0;
+  return function(callback, ms) {
+    clearTimeout(timer);
+    timer = setTimeout(callback, ms);
+  };
+})();
+
 //This section handles the global search
-var gsForm = $("#kora_global_search");
-var gsTextInput = $("#kora_global_search_input");
-var gsRecentSearch = $("#kora_global_search_recent");
-var gsQuickResult = $("#kora_global_search_result");
-gsQuickResult.attr("style", "display: none;"); //INITIALIZE HERE
-var gsClearRecent = $("#kora_global_search_clear");
+var $searchForm = $('.global-search-form-js');
+var $searchInput = $('.global-search-input-js');
+var $recentSearch = $('.recent-search-results-js');
+var $searchResults = $('.search-results-js');
+var $clearResentSearchResults = $('.clear-search-results-js');
 
+$searchResults.parent().attr('style', 'display: none;'); //INITIALIZE HERE
 //Performs quick search on typing
-gsTextInput.keyup(function() {
+$searchInput.keyup(function() {
   var searchText = $(this).val();
+  typewatch(function() {
+    // executed only 500 ms after the last keyup event.
 
-  //We don't want to search the entire alphabet, need at least 2 characters
-  if (searchText != '' && searchText.length >= 2) {
-    gsRecentSearch.attr("style", "display: none;");
-    gsQuickResult.attr("style", "");
-    gsClearRecent.attr("style", "display: none;");
+    //We don't want to search the entire alphabet, need at least 2 characters
+    if (searchText != '' && searchText.length >= 2) {
+      $clearResentSearchResults.parent().slideUp(400, function() {
+        $recentSearch.parent().slideUp(400, function() {
+          //Perform quick search
+          $.ajax({
+            url: globalQuickSearchUrl,
+            type: 'POST',
+            data: {
+              '_token': CSRFToken,
+              'searchText': searchText
+            },
+            success: function(result) {
+              var resultObj = JSON.parse(result);
+              var resultStr = resultObj.join('');
 
-    //Perform quick search
-    $.ajax({
-      url: globalQuickSearchUrl,
-      type: 'POST',
-      data: {
-        "_token": CSRFToken,
-        "searchText": searchText
-      },
-      success: function(result) {
-        var resultObj = JSON.parse(result);
-        var resultStr = resultObj.join("");
-        gsQuickResult.html(resultStr);
-      }
-    });
-  } else {
-    gsRecentSearch.attr("style", "");
-    gsQuickResult.attr("style", "display: none;");
-    gsClearRecent.attr("style", "");
-  }
+              $searchResults.parent().slideUp(200, function() {
+                $searchResults.html(resultStr);
+              });
+
+              $searchResults.parent().slideDown(200);
+            }
+          });
+        });
+      });
+    } else {
+      $clearResentSearchResults.parent().slideDown(400, function() {
+        $recentSearch.parent().slideDown(400, function() {
+          $searchResults.parent().slideUp(200);
+        });
+      });
+    }
+  }, 500);
 });
 
 //Caches a global search before submitting the search itself
-gsForm.submit(function() {
-  var valToCache = gsTextInput.val();
+$searchForm.submit(function() {
+  var valToCache = $searchInput.val();
 
-  if (valToCache != "") {
-    var html = "<li><a href=\"" + globalSearchUrl + "?gsQuery=" + encodeURI(valToCache) + "\">Search: " + valToCache + "</a></li>";
+  if (valToCache != '') {
+    var html = '<li><a href="' +
+      globalSearchUrl + '?gsQuery=' + encodeURI(valToCache) +
+      '">' + valToCache + '</a></li>';
+
     cacheGlobalSearch(html);
   }
 });
 
 //Caches the use of a quick jump link
-gsQuickResult.on("click", "a", function() {
-  var uri = $(this).attr("href");
-  var type = $(this).attr("type");
-  var html = "<li><a href=\"" + uri + "\">" + type + ": " + $(this).text() + "</a></li>";
+$searchResults.on('click', 'a', function() {
+  var uri = $(this).attr('href');
+  var type = $(this).data('type');
+  var html = '<li><a href="' + uri + '">' + $(this).text() + '</a></li>';
+
   cacheGlobalSearch(html);
 });
 
 //Clears the user's recent cached results
-gsClearRecent.on("click", function() {
+$clearResentSearchResults.on('click', function() {
   $.ajax({
     url: clearGlobalCacheUrl,
     type: 'DELETE',
     data: {
-      "_token": CSRFToken
+      '_token': CSRFToken
     },
     success: function(result) {
       //remove from page
-      gsRecentSearch.text("");
+      $recentSearch.parent().slideUp(400, function() {
+        $recentSearch.text('');
+      });
     }
   });
 });
@@ -185,13 +208,14 @@ function cacheGlobalSearch(htmlString) {
     url: cacheGlobalSearchUrl,
     type: 'POST',
     data: {
-      "_token": CSRFToken,
-      "html": htmlString
+      '_token': CSRFToken,
+      'html': htmlString
     },
     success: function(result) {
       var resultObj = JSON.parse(result);
-      var resultStr = resultObj.join("");
-      gsQuickResult.html(resultStr);
+      var resultStr = resultObj.join('');
+
+      $searchResults.html(resultStr);
     }
   });
 }

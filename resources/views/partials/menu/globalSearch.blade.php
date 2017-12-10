@@ -4,30 +4,39 @@
   </a>
   <ul class="navigation-sub-menu navigation-sub-menu-js">
     <li>
-      <form id="kora_global_search" action="{{action("ProjectSearchController@globalSearch")}}">
-        <input id="kora_global_search_input" autocomplete="off" value="" placeholder="Start Typing to Search ..." name="gsQuery" />
-        <button id="kora_global_search_submit">
-          <img src="{{ env('BASE_URL') }}assets/images/menu_gSubmit.svg" alt="submit global search" />
+      <form
+        class="global-search-form global-search-form-js"
+        action="{{action("ProjectSearchController@globalSearch")}}"
+      >
+        <input
+          class="global-search-input global-search-input-js"
+          autocomplete="off" value=""
+          placeholder="&nbsp;&nbsp;&nbsp;&nbsp;Start Typing to Search ..."
+          name="gsQuery">
+        <button class="global-search-submit global-search-submit-js">
+          <i class="icon icon-chevron"></i>
         </button>
       </form>
     </li>
 
-    <li id="kora_global_search_spacer"></li>
+    <div class="spacer"></div>
 
-    <li>
-      <ul id="kora_global_search_recent">
+    <li class="recent-search-results-container">
+      <ul class="recent-search-results recent-search-results-js">
         @foreach(\Auth::user()->gsCaches()->orderby("id","desc")->get() as $cache)
           {!! $cache->html !!}
         @endforeach
       </ul>
     </li>
 
-    <li>
-      <ul id="kora_global_search_result"></ul>
+    <li class="search-results-container">
+      <ul class="search-results search-results-js"></ul>
     </li>
 
-    <li>
-      <button id="kora_global_search_clear">Clear Recent Search History</button>
+    <li class="clear-search-results-container ">
+      <button class="clear-search-results clear-search-results-js">
+        <span>Clear Recent Search History</span>
+      </button>
     </li>
   </ul>
 </li>
