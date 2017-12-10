@@ -88,7 +88,7 @@ $(document).ready(function() {
 
   checkMobileDevice();
 
-  $('.underline-middle-hover, .underline-left-hover').on('click touchend', function(e) {
+  $('a, .underline-middle-hover, .underline-left-hover').on('click touchend', function(e) {
     var el = $(this);
     var link = el.attr('href');
 
@@ -97,8 +97,10 @@ $(document).ready(function() {
       return false;
     }
 
-    if (link.charAt(0) !== "#") {
+    if (link.charAt(0) !== "#" && link.length > 0) {
       window.location = link;
+    } else {
+      e.preventDefault();
     }
   });
 });

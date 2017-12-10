@@ -78,13 +78,14 @@ Kora.Forms.Show = function() {
 
     });
 
-    $(".page-sort-js").sortable({
+    $('.field-sort-js').sortable({
       helper: 'clone',
       revert: true,
-      containment: ".form-show",
+      containment: '.form-show',
+      connectWith: $('.field-sort-js'),
       items: '.field-container',
       update: function(event, ui) {
-        pidsArray = $(".page-sort-js").sortable("toArray");
+        pidsArray = $('.field-sort-js').sortable('toArray');
 
         // $.ajax({
         //   url: saveCustomOrderUrl,
@@ -163,15 +164,71 @@ Kora.Forms.Show = function() {
   }
 
   function initializePage() {
+    Kora.Modal.initialize(); // Initialize modals
+
     pageTitles = document.getElementsByClassName('page-title-js');
     for (var i = 0; i < pageTitles.length; i++) {
       $pageTitle = pageTitles[i];
       $pageTitle.setAttribute('size',
         $pageTitle.getAttribute('placeholder').length);
     }
+
+    $('.delete-page-js').on('click', function(e) {
+      var page = $(e.target).parent().data('page');
+
+      var $deleteModal = $('.page-delete-modal-js');
+      $deleteModal.find('.delete-page-confirm-js').data('page', page);
+
+      Kora.Modal.open();
+    })
+  }
+
+  function initializePages() {
+    initializePage();
+
+    $('.pages-js').on('click', '.new-page-js', function() {
+      var pageID = $(this).data('prev-page');
+      var newPageNumber = $(this).data('new-page');
+      var title = 'Page #' + newPageNumber;
+
+      $.ajax({
+        //We manually create the link in a cheap way because our JS isn't aware of the fid until runtime
+        //We pass in a blank project to the action array and then manually add the id
+        url: modifyFormPageRoute,
+        type: 'POST',
+        data: {
+          '_token': CSRFToken,
+          'method': addMethod,
+          'aboveID': pageID,
+          'newPageName': title
+        },
+        success: function(result) {
+          location.reload();
+        }
+      });
+    });
+
+    $('.page-delete-modal-js').on('click', '.delete-page-confirm-js', function() {
+      var pageID = $(this).data('page');
+
+      $.ajax({
+        //We manually create the link in a cheap way because our JS isn't aware of the fid until runtime
+        //We pass in a blank project to the action array and then manually add the id
+        url: modifyFormPageRoute,
+        type: 'POST',
+        data: {
+          '_token': CSRFToken,
+          'method': delMethod,
+          'pageID': pageID
+        },
+        success: function(result) {
+          location.reload();
+        }
+      });
+    });
   }
 
   initializeSearch();
-  initializePage();
+  initializePages();
   initializeFieldSort();
 }

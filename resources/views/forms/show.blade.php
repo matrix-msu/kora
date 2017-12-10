@@ -51,9 +51,32 @@
     </div>
   </section>
 
-  <section class="pages center">
-    @foreach($pageLayout as $page)
-      <div class="page page-sort-js">
+  <div class="modal modal-js modal-mask page-delete-modal-js">
+    <div class="content small">
+      <div class="header">
+        <span class="title">Delete Page?</span>
+        <a href="#" class="modal-toggle modal-toggle-js">
+          <i class="icon icon-cancel"></i>
+        </a>
+      </div>
+      <div class="body">
+        <span class="description">
+          Are you sure you wish to delete this page from this form?
+          Doing so will also delete all of the fields within this page.
+          You must move all fields to a different form page if you wish
+          to keep them.
+        </span>
+
+        <div class="form-group">
+          <a href="#" class="btn warning delete-page-confirm-js">Delete Page</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="pages pages-js center">
+    @foreach($pageLayout as $idx=>$page)
+      <div class="page">
         <div class="page-header">
           <div class="move-actions">
             <a class="action move-action-js up-js" page_id="{{$page["id"]}}" href="#">
@@ -70,17 +93,19 @@
           </div>
 
           <div>
-            <a href="#" page_id="{{$page["id"]}}" class="cancel-container delete-page-js">
+            <a href="#" data-page="{{$page["id"]}}" class="cancel-container delete-page-js">
               <i class="icon icon-cancel"></i>
             </a>
           </div>
         </div>
 
+        <div class="field-sort-js" style="min-height: 10px;">
         @foreach($page["fields"] as $index=>$field)
-          <div class="field-container">
-            @include('forms.layout.field', ['field' => $field])
-          </div>
-        @endforeach
+            <div class="field-container">
+              @include('forms.layout.field', ['field' => $field])
+            </div>
+          @endforeach
+        </div>
 
         @if(\Auth::user()->canCreateFields($form))
           <form method="DET" action="{{action('FieldController@create', ['pid' => $form->pid, 'fid' => $form->fid, 'rootPage' => $page['id']]) }}">
@@ -93,7 +118,7 @@
 
       @if(\Auth::user()->canCreateFields($form))
         <div class="form-group new-page-button">
-          <a href="#" prev-page="{{$page["id"]}}" class="new-page-js btn transparent">Create New Page</a>
+          <a href="#" data-new-page="{{$idx + 2}}" data-prev-page="{{$page["id"]}}" class="new-page-js btn transparent">Create New Page</a>
         </div>
       @endif
 
@@ -105,6 +130,9 @@
   @include('partials.forms.javascripts')
 
   <script type="text/javascript">
+    var modifyFormPageRoute = "{{ action('PageController@modifyFormPage', ['pid' => $form->pid, 'fid' => $form->fid]) }}";
+    var addMethod = "{{\App\Http\Controllers\PageController::_ADD}}";
+    var delMethod = "{{\App\Http\Controllers\PageController::_DELETE}}";
     Kora.Forms.Show();
   </script>
 @stop
@@ -204,46 +232,6 @@
                     "_token": "{{ csrf_token() }}",
                     "method": "{{\App\Http\Controllers\PageController::_DOWN}}",
                     "pageID": page_id
-                },
-                success: function (result) {
-                    location.reload();
-                }
-            });
-        });
-
-        $( "#form_pages" ).on( "click", ".delete_page", function() {
-            var page_id = $(this).attr('pageid');
-
-            $.ajax({
-                //We manually create the link in a cheap way because our JS isn't aware of the fid until runtime
-                //We pass in a blank project to the action array and then manually add the id
-                url: '{{ action('PageController@modifyFormPage', ['pid' => $form->pid, 'fid' => $form->fid]) }}',
-                type: 'POST',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "method": "{{\App\Http\Controllers\PageController::_DELETE}}",
-                    "pageID": page_id
-                },
-                success: function (result) {
-                    location.reload();
-                }
-            });
-        });
-
-        $( "#form_pages" ).on( "click", ".add_page", function() {
-            var page_id = $(this).attr('pageid');
-            var title = $("#pagetext_"+page_id).val();
-
-            $.ajax({
-                //We manually create the link in a cheap way because our JS isn't aware of the fid until runtime
-                //We pass in a blank project to the action array and then manually add the id
-                url: '{{ action('PageController@modifyFormPage', ['pid' => $form->pid, 'fid' => $form->fid]) }}',
-                type: 'POST',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "method": "{{\App\Http\Controllers\PageController::_ADD}}",
-                    "aboveID": page_id,
-                    "newPageName": title
                 },
                 success: function (result) {
                     location.reload();

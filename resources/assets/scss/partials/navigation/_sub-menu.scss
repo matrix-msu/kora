@@ -8,8 +8,8 @@
   position: absolute;
   top: $navigation-height + $status-height;
   transform: translateY(-200%);
-  width: 175px;
   visibility: hidden;
+  width: 175px;
   will-change: transform;
   z-index: -1;
 
