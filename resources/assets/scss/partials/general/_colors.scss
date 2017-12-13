@@ -1,7 +1,7 @@
 @function palette($palette, $tone: base, $alpha: 1) {
   // main base colors
   $base-accent: #04b6af;
-  $base-background: #f5f6f7;
+  $base-background: #f4f5f6;
   $base-black: #000;
   $base-dropdown-menu: #21323b;
   $base-green: #007c83;
@@ -65,8 +65,8 @@
 @function gradient($palette: 'background', $degree: 180deg) {
   $accent-start: #00c7b8;
   $accent-end: #04b6af;
-  $background-start: #fbfbfc;
-  $background-end: #f5f6f7;
+  $background-start: #f9f9fa;
+  $background-end: #f4f5f6;
   $warning-start: #ff6b83;
   $warning-end: #f56;
 
