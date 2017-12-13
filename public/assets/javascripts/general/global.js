@@ -88,7 +88,7 @@ $(document).ready(function() {
 
   checkMobileDevice();
 
-  $('a, .underline-middle-hover, .underline-left-hover').on('click touchend', function(e) {
+  $(' .underline-middle-hover, .underline-left-hover').on('click touchend', function(e) {
     var el = $(this);
     var link = el.attr('href');
 
@@ -99,8 +99,8 @@ $(document).ready(function() {
 
     if (link.charAt(0) !== "#" && link.length > 0) {
       window.location = link;
-    } else {
-      e.preventDefault();
+    //} else {
+      //e.preventDefault();
     }
   });
 });
