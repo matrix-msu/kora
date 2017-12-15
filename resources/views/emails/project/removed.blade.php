@@ -1,5 +1,25 @@
-Hello {{$name}},
-<br><br>
-You have been removed from a group in the following project: {{$project->name}}
-<br><br>
-Please contact your project administrator if you have any questions
+@extends('email')
+
+@section('main-text')
+    You have been removed from the following Kora Project:
+@endsection
+
+@section('project-text')
+    {{$project->name}}
+@endsection
+
+@section('button-link')
+    {{action('ProjectController@index')}}
+@endsection
+
+@section('button-text')
+    View Projects Page
+@endsection
+
+@section('footer-text')
+    Your permissions have been updated by {{\Auth::user()->first_name}} {{\Auth::user()->last_name}}
+@endsection
+
+@section('footer-email')
+    ({{\Auth::user()->username}}, <a class="bold-highlight" href="mailto:{{\Auth::user()->email}}">{{\Auth::user()->email}}</a>)
+@endsection

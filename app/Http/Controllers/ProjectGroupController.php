@@ -235,11 +235,6 @@ class ProjectGroupController extends Controller {
     public function updatePermissions(Request $request) {
         $instance = ProjectGroup::where('id', '=', $request->projectGroup)->first();
 
-        $users = $instance->users()->get();
-        foreach($users as $user) {
-            $this->emailUserProject("changed",$user->id,$instance->id);
-        }
-
         if($request->permCreate)
             $instance->create = 1;
         else
@@ -256,6 +251,11 @@ class ProjectGroupController extends Controller {
             $instance->delete = 0;
 
         $instance->save();
+
+        $users = $instance->users()->get();
+        foreach($users as $user) {
+            $this->emailUserProject("changed",$user->id,$instance->id);
+        }
     }
 
     /**
@@ -335,7 +335,7 @@ class ProjectGroupController extends Controller {
         }
 
         try {
-            Mail::send($email, compact('project', 'name'), function ($message) use ($userMail) {
+            Mail::send($email, compact('project', 'name', 'group'), function ($message) use ($userMail) {
                 $message->from(env('MAIL_FROM_ADDRESS'));
                 $message->to($userMail);
                 $message->subject('Kora Project Permissions');

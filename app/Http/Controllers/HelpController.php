@@ -39,7 +39,7 @@ class HelpController extends Controller {
      * @return View
      */
     public function emailTest() {
-        return redirect('/');
+        //return redirect('/');
 
         //return view("email");
     }

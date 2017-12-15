@@ -33,6 +33,10 @@
             max-width: 400px;
         }
 
+        .top-list-item {
+            padding-top: 10px;
+        }
+
         /* END GLOBALS */
 
         .email {
