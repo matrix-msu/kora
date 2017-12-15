@@ -1,3 +1,17 @@
-{{trans('emails_activation.welcome')}} Kora 3! <br/>
-{{trans('emails_activation.clickhere')}}: <a href="{{action('Auth\UserController@activate', ['token' => \Auth::user()->regtoken])}}">{{trans('emails_activation.activate')}}</a>. <br/>
-{{trans('emails_activation.token')}}: {{\Auth::user()->regtoken}}.
+@extends('email')
+
+@section('main-text')
+    Welcome, to Kora! Click below to activate your account and get started:
+@endsection
+
+@section('button-link')
+    {{action('Auth\UserController@activate', ['token' => \Auth::user()->regtoken])}}
+@endsection
+
+@section('button-text')
+    Activate Account
+@endsection
+
+@section('post-action-text')
+    If the link does not work, you may manually activate within Kora using the token: {{\Auth::user()->regtoken}}
+@endsection
