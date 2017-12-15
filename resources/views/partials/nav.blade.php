@@ -32,8 +32,8 @@
                 <i class="icon icon-chevron"></i>
             </a>
             <ul class="navigation-sub-menu navigation-sub-menu-js language-select">
-                @foreach($languages_available->keys() as $lang)
-                    <li><a onclick='setTempLang({{$lang}})' href='#'>{{$languages_available->get($lang)[1]}}</a> </li>
+                @foreach(\Illuminate\Support\Facades\Config::get('app.locales_supported')->keys() as $lang)
+                    <li><a onclick='setTempLang({{$lang}})' href='#'>{{\Illuminate\Support\Facades\Config::get('app.locales_supported')->get($lang)[1]}}</a> </li>
                 @endforeach
             </ul>
         </li>

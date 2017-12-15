@@ -1,6 +1,6 @@
-@extends('app')
+@extends('app', ['page_title' => 'ResetP', 'page_class' => 'resetp'])
 
-@section('content')
+@section('body')
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-md-8 col-md-offset-2">
