@@ -4,6 +4,7 @@ Route::get('/', 'WelcomeController@index');
 Route::get('/home', 'WelcomeController@index');
 Route::post('/language','WelcomeController@setTemporaryLanguage');
 Route::get('/dashboard', 'DashboardController@dashboard');
+Route::get('/email', 'HelpController@emailTest'); //TEST ROUTE
 
 //api routes
 Route::get('/api/version','RestfulController@getKoraVersion');

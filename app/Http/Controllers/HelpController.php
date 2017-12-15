@@ -31,4 +31,16 @@ class HelpController extends Controller {
     public function search() {
         return view("help.search");
     }
+
+    /**
+     * This is for testing email layouts. Return view instead if you want to test. Also, I recommend creating a test
+     * view that extends the 'email' view, for proper testing.
+     *
+     * @return View
+     */
+    public function emailTest() {
+        return redirect('/');
+
+        //return view("email");
+    }
 }
