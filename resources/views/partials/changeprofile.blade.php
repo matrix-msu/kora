@@ -33,7 +33,7 @@
         <div class="input-group-btn">
             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{trans('partials_changeprofile.select')}} <span class="caret"></span></button>
             <ul class="dropdown-menu dropdown-menu-right">
-                @foreach($languages_available as $lang)
+                @foreach(getLangs() as $lang)
                     <li><a onclick="updateLanguage('{{$lang[0]}}')" href="#en">{{$lang[1]}}</a> </li>
                 @endforeach
             </ul>

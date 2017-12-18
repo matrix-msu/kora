@@ -22,13 +22,12 @@ trait AuthenticatesUsers
             return view('auth.authenticate');
         }
 
-        $languages_available = Config::get('app.locales_supported');
         $not_installed = true;
         if(!file_exists("../.env")){
-            return view('welcome',compact('languages_available','not_installed'));
+            return view('welcome',compact('not_installed'));
         }
         else{
-            return view('welcome',compact('languages_available'));
+            return view('welcome');
         }
     }
 

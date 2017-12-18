@@ -107,9 +107,8 @@
                             <div class="form-group">
                                 <label for="user_language" class="control-label">{{trans('install_install.language')}}</label>
                                 <select id="user_language" name="user_language" class="form-control">
-                                    <!--{{$languages_available = Config::get('app.locales_supported')}} -->
-                                    @foreach($languages_available->keys() as $lang)
-                                        <option value='{{$languages_available->get($lang)[0]}}'>{{$languages_available->get($lang)[1]}} </option>
+                                    @foreach(getLangs()->keys() as $lang)
+                                        <option value='{{getLangs()->get($lang)[0]}}'>{{getLangs()->get($lang)[1]}} </option>
                                     @endforeach
                                 </select>
                             </div>

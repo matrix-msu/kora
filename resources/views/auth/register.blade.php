@@ -89,9 +89,8 @@
                             <label class="col-md-4 control-label">{{trans('auth_register.language')}}</label>
                             <div class="col-md-6">
                                 <select name="language" class="form-control">
-                                    {{$languages_available = Config::get('app.locales_supported')}}
-                                    @foreach($languages_available->keys() as $lang)
-                                        <option value='{{$languages_available->get($lang)[0]}}'>{{$languages_available->get($lang)[1]}} </option>
+                                    @foreach(getLangs()->keys() as $lang)
+                                        <option value='{{getLangs()->get($lang)[0]}}'>{{getLangs()->get($lang)[1]}} </option>
                                     @endforeach
                                 </select>
                             </div>

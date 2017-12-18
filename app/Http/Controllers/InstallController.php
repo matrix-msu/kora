@@ -63,9 +63,8 @@ class InstallController extends Controller {
 			return redirect('/');
 
 		$not_installed = true;
-        $languages_available = Config::get('app.locales_supported');
 
-		return view('install.install',compact('languages_available','not_installed'));
+		return view('install.install',compact('not_installed'));
 	}
 
     /**

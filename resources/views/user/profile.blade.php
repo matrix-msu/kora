@@ -30,7 +30,7 @@
                         
                         <h3>{{trans('user_profile.info')}}:</h3>
 
-                        @include('partials.changeprofile',compact('languages_available'))
+                        @include('partials.changeprofile')
 
                         <hr>
 

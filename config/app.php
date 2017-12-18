@@ -63,7 +63,11 @@ return [
     | or it will fallback to the fallback set later on.  ['en','English'] is the format needed.
     |
     */
-    'locales_supported' => collect([['en','English'],['fr','Français'],['es','Español']]),
+    'locales_supported' => collect([
+        ['en','English'],
+        //['fr','Français'],
+        //['es','Español']
+    ]),
 
 	/*
 	|--------------------------------------------------------------------------

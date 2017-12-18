@@ -35,8 +35,6 @@ class UserController extends Controller {
      * @return View
      */
     public function index() {
-        $languages_available = Config::get('app.locales_supported');
-
         $user = Auth::user();
 
         $profile = $user->profile;
@@ -44,14 +42,14 @@ class UserController extends Controller {
         if($user->admin) {
             $admin = 1;
             $records = Record::where('owner', '=', $user->id)->orderBy('updated_at', 'desc')->take(30)->get();
-            return view('user/profile',compact('languages_available', 'admin', 'records', 'profile'));
+            return view('user/profile',compact('admin', 'records', 'profile'));
         } else {
             $admin = 0;
             $projects = self::buildProjectsArray($user);
             $forms = self::buildFormsArray($user);
             $records = Record::where('owner', '=', $user->id)->orderBy('updated_at', 'desc')->get();
 
-            return view('user/profile',compact('languages_available', 'admin', 'projects', 'forms', 'records', 'profile'));
+            return view('user/profile',compact('admin', 'projects', 'forms', 'records', 'profile'));
         }
     }
 
