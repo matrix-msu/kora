@@ -9,15 +9,11 @@
     <a href="#" class="dismiss status-dismiss-js">Dismiss</a>
   </div>
   <ul class="navigation-left navigation-left-js">
-    @if(isset($not_installed))
-          <li class="navigation-item">
-              <a href="{{ url('/install') }}" class="text navigation-toggle-js underline-middle-hover">Begin Installation</a>
-          </li>
-    @elseif(Auth::guest())
+    @if(Auth::guest() && isInstalled())
         <li class="navigation-item">
             <a href="{{ url('/auth/register') }}" class="text navigation-toggle-js underline-middle-hover">Need to Sign Up?</a>
         </li>
-    @else
+    @elseif(isInstalled())
       <li class="logo">
         <a href="{{ url('/') }}" class="navigation-toggle-js">
           <i class="icon icon-placeholder"></i>

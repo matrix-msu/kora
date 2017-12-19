@@ -7,7 +7,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Schema;
-use \Illuminate\Support\Facades\Config;
 use \Illuminate\Support\Facades\Artisan;
 use Illuminate\View\View;
 
@@ -62,9 +61,7 @@ class InstallController extends Controller {
 		if(file_exists("../.env"))
 			return redirect('/');
 
-		$not_installed = true;
-
-		return view('install.install',compact('not_installed'));
+		return view('install.install');
 	}
 
     /**

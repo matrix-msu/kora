@@ -1,6 +1,6 @@
-@extends('app')
+@extends('app',['page_title' => 'Kora Installation', 'page_class' => 'install'])
 
-@section('content')
+@section('body')
     <br><br><br><br>
     <!--<div class="container">-->
         <div class="row">

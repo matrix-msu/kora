@@ -2,14 +2,14 @@
 
 @section('body')
   <div>
-    @if(!isset($not_installed))
+    @if(isInstalled())
       <img src="{{ env('BASE_URL') }}logos/koraiii-logo-blue.svg">
     @else
       <img src="logos/koraiii-logo-blue.svg">
     @endif
   </div>
 
-  @if (Auth::guest() && !isset($not_installed))
+  @if (Auth::guest() && isInstalled())
     <div>
       @if (count($errors) > 0)
         <div class="error-alert">
@@ -56,6 +56,25 @@
         <p class="mt-xxl mb-0"><a class="text  underline-middle-hover" href="{{ url('/auth/register') }}">Need to Sign Up?</a></p>
       </form>
     </div>
+  @elseif (Auth::guest() && !isInstalled())
+    <div class="kora3 mt-xxl">
+        Kora 3
+    </div>
+
+    <div class="ready mt-xxl">
+        Ready for Initialization
+    </div>
+
+    <div class="commander mt-m">
+        We are ready to begin the Kora Initialization sequence, Commander.
+        Ready when you are.
+    </div>
+
+    <form class="form-horizontal" role="form" method="GET" action="{{ url('/install') }}">
+        <div class="form-group mt-xxl">
+            <button type="submit" class="btn btn-primary">Begin Initialization Sequence</button>
+        </div>
+    </form>
   @endif
 @stop
 
