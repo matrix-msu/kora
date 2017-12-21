@@ -33,6 +33,15 @@
     }
   }
 
+  .title, .no-icon {
+    > span {
+      font-size: 36px;
+      font-weight: 400;
+      padding: 0 0 0 0 !important;
+      vertical-align: middle;
+    }
+  }
+
   .head-button {
     @include transition();
     text-decoration: none;

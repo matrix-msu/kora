@@ -10,9 +10,9 @@
   </div>
   <ul class="navigation-left navigation-left-js">
     @if(Auth::guest() && isInstalled())
-        <li class="navigation-item">
-            <a href="{{ url('/auth/register') }}" class="text navigation-toggle-js underline-middle-hover">Need to Sign Up?</a>
-        </li>
+      <li class="navigation-item">
+        <a href="{{ url('/auth/register') }}" class="text navigation-toggle-js underline-middle-hover">Need to Sign Up?</a>
+      </li>
     @elseif(isInstalled())
       <li class="logo">
         <a href="{{ url('/') }}" class="navigation-toggle-js">

@@ -195,8 +195,8 @@ Route::post('/projects/{pid}/forms/{fid}/metadata/massassign','MetadataControlle
 
 //install routes
 Route::get('/install','InstallController@index');
-Route::post('/install/migrate',"InstallController@runMigrate");
-Route::post('/install/environment',"InstallController@installKora");
+Route::post('/install/begin',"InstallController@install");
+Route::post('/install/finish',"InstallController@installPartTwo");
 Route::get('/install/config',"InstallController@editEnvConfigs");
 Route::post('/install/config',"InstallController@updateEnvConfigs");
 
