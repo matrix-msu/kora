@@ -84,7 +84,10 @@
         <input class="text-input" placeholder="Confirm admin's password here" type="password" id="user_confirmpassword" name="user_confirmpassword">
     </div>
 
-    {{-- TODO: PROFILE GOES HERE --}}
+    <div class="form-group mt-xl">
+        <label for="user_profile">Profile Image</label>
+        <input class="user_profile" accept=".jpeg,.png,.bmp,.gif,.jpg" type="file" id="user_profile" name="user_profile">
+    </div>
 
     <div class="form-group mt-xl">
         <label for="user_organization">Organization</label>

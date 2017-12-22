@@ -4,7 +4,6 @@ use App\Http\Requests\InstallRequest;
 use App\Version;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Route;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use \Illuminate\Support\Facades\Artisan;
@@ -301,6 +300,18 @@ class InstallController extends Controller {
         $newuser->active = 1;
         $newuser->admin = 1;
         $newuser->save();
+
+        if(!is_null($request->file('user_profile'))) {
+            $file = $request->file('user_profile');
+            $pDir = env('BASE_PATH') . 'storage/app/profiles/1/';
+
+            $newFilename = $file->getClientOriginalName();
+            $newuser->profile = $newFilename;
+            $newuser->save();
+
+            //move photo and return new path
+            $file->move($pDir,$newFilename);
+        }
     }
 
     /**

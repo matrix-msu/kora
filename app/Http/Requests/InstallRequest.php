@@ -43,6 +43,7 @@ class InstallRequest extends Request {
             'user_lastname'=>'required',
             'user_organization'=>'required',
             'user_language'=>'required',
+            'user_profile'=>'',
             'mail_host'=>'required',
             'mail_from_address'=>'required|email',
             'mail_from_name'=>'required',
