@@ -338,7 +338,7 @@ class InstallController extends Controller {
     }
 
     /**
-     * TODO::Edits recaptcha and mail options in the ENV configuration file.
+     * Edits recaptcha and mail options in the ENV configuration file.
      *
      * @return View
      */
@@ -350,14 +350,16 @@ class InstallController extends Controller {
             flash()->overlay("You must be an admin to see this","Whoops");
             return redirect("/");
         }
-        $configs = new Collection();
-        $current_config = $this->getEnvConfigs();
 
-        $configs->push(["Recaptcha Private Key",$current_config->get("recaptcha_private_key")]);
-        $configs->push(["Recaptcha Public Key",$current_config->get("recaptcha_public_key")]);
-        $configs->push(["Mail Host",$current_config->get("mail_host")]);
-        $configs->push(["Mail User",$current_config->get("mail_username")]);
-        $configs->push(["Mail Password",""]);
+        $configs = array(
+            ['title'=>'Recaptcha Private Key', 'slug'=>'recaptcha_private', 'value'=>env('RECAPTCHA_PRIVATE_KEY')],
+            ['title'=>'Recaptcha Public Key',  'slug'=>'recaptcha_public',  'value'=>env('RECAPTCHA_PUBLIC_KEY')],
+            ['title'=>'Mail Host',             'slug'=>'mail_host',         'value'=>env('MAIL_HOST')],
+            ['title'=>'Mail From Address',     'slug'=>'mail_address',      'value'=>env('MAIL_FROM_ADDRESS')],
+            ['title'=>'Mail From Name',        'slug'=>'mail_name',         'value'=>env('MAIL_FROM_NAME')],
+            ['title'=>'Mail User',             'slug'=>'mail_user',         'value'=>env('MAIL_USER')],
+            ['title'=>'Mail Password',         'slug'=>'mail_password',     'value'=>env('MAIL_PASSWORD')],
+        );
 
         return view('install.config',compact('configs'));
     }
@@ -366,45 +368,14 @@ class InstallController extends Controller {
      * TODO::Updates recaptcha and mail options in the ENV configuration file.
      *
      * @param  Request $request
-     * @return string - Json array of return status
+     * @return Redirect
      */
     public function updateEnvConfigs(Request $request) {
         if(!Auth::user()->admin)
-            return response()->json(["status"=>false,"message"=>"not_admin"],500);
+            return redirect('projects')->with('k3_global_error', 'not_admin');
 
-        $current_config = $this->getEnvConfigs();
+        dd($request->all());
 
-        if($request->input("type") == "Recaptcha Public Key") {
-            $current_config->forget("recaptcha_public_key");
-            $current_config->put("recaptcha_public_key",$request->input("value"));
-
-        } else if($request->input("type") == "Recaptcha Private Key") {
-            $current_config->forget("recaptcha_private_key");
-            $current_config->put("recaptcha_private_key",$request->input("value"));
-
-        } else if($request->input("type") == "Mail Host") {
-            $current_config->forget("mail_host");
-            $current_config->put("mail_host",$request->input("value"));
-
-        } else if($request->input("type") == "Mail User") {
-            $current_config->forget("mail_username");
-            $current_config->put("mail_username",$request->input("value"));
-
-        } else if($request->input("type") == "Mail Password") {
-            $current_config->forget("mail_password");
-            $current_config->put("mail_password",$request->input("value"));
-
-        } else {
-            return response()->json(["status"=>false,"message"=>"env_invalid_type"],500);
-        }
-
-        $write_status = $this->writeEnv($current_config,true);
-
-        if($write_status == false) {
-            return response()->json(["status"=>false,"message"=>"env_cant_write"],500);
-        } else {
-            return response()->json(["status"=>true,"message"=>"env_updated"],200);
-        }
-
+        return redirect('install/config')->with('k3_global_success', 'kora_config_updated');
     }
 }
