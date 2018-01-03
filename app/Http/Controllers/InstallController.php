@@ -374,7 +374,51 @@ class InstallController extends Controller {
         if(!Auth::user()->admin)
             return redirect('projects')->with('k3_global_error', 'not_admin');
 
-        dd($request->all());
+        if(env('APP_DEBUG'))
+            $debug = 'true';
+        else
+            $debug = 'false';
+
+        $layout = "APP_ENV=" . env('APP_ENV') . "\n".
+            "APP_DEBUG=" . $debug . "\n\n".
+
+            "DB_HOST=" . env('DB_HOST') . "\n" .
+            "DB_DATABASE=" . env('DB_DATABASE') . "\n" .
+            "DB_USERNAME=" . env('DB_USERNAME') . "\n" .
+            "DB_PASSWORD=" . env('DB_PASSWORD') . "\n" .
+            "DB_DEFAULT=" . env('DB_DEFAULT') . "\n" .
+            "DB_PREFIX=" . env('DB_PREFIX') . "\n\n" .
+
+            "MAIL_HOST=" . $request->mail_host . "\n" .
+            "MAIL_FROM_ADDRESS=" . $request->mail_address . "\n" .
+            "MAIL_FROM_NAME=" . $request->mail_name . "\n" .
+            "MAIL_USER=" . $request->mail_user . "\n" .
+            "MAIL_PASSWORD=" . $request->mail_password . "\n\n" .
+
+            "CACHE_DRIVER=" . env('CACHE_DRIVER') . "\n".
+            "SESSION_DRIVER=" . env('SESSION_DRIVER') . "\n\n".
+
+            "BASE_URL=" . env('BASE_URL') . "\n" .
+            "STORAGE_URL=" . env('STORAGE_URL') . "\n" .
+            "BASE_PATH=" . env('BASE_PATH') . "\n\n" .
+
+            "RECAPTCHA_PUBLIC_KEY=" . $request->recaptcha_public . "\n" .
+            "RECAPTCHA_PRIVATE_KEY=" . $request->recaptcha_private;
+        
+        try {
+            Log::info("Beginning ENV Write");
+            $envfile = fopen("../.env", "w");
+
+            fwrite($envfile, $layout);
+
+            fclose($envfile);
+            chmod("../.env",0660);
+            Log::info("Ending ENV Write");
+        } catch(\Exception $e) { //Most likely if the file is owned by another user or PHP doesn't have permission
+            Log::info($e);
+            $this->resetInstall();
+            return redirect('install/config')->with('k3_global_error', 'env_cant_write');
+        }
 
         return redirect('install/config')->with('k3_global_success', 'kora_config_updated');
     }
