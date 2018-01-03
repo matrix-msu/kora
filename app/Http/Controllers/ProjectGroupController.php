@@ -2,6 +2,7 @@
 
 use App\Form;
 use App\FormGroup;
+use App\Project;
 use App\User;
 use App\ProjectGroup;
 use Illuminate\Http\JsonResponse;

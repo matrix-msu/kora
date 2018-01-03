@@ -44,9 +44,7 @@
   <section class="new-object-button center">
     @if(\Auth::user()->canCreateForms($project))
       <form action="{{ action('FormController@create', ['pid' => $project->pid]) }}">
-        @if(\Auth::user()->admin)
           <input type="submit" value="Create a New Form">
-        @endif
       </form>
     @endif
   </section>
