@@ -1,71 +1,42 @@
-@extends('app')
+@extends('app', ['page_title' => "Edit Config", 'page_class' => 'edit-config'])
 
-
-@section('content')
-    <div class="container">
-        <div class="row">
-            <div class="col-md-10 col-md-offset-1">
-                <div class="panel panel-default">
-                    <div class="panel-body">
-
-                        <span><h3>{{trans('install_config.env')}}</h3></span>
-                        <hr>
-                        @foreach($configs as $config => $value)
-                            <div class="form-group">
-                                <label class="">{{App\Services\Translator::translate($value[0])}}</label>
-                                <input id="{{$config}}"class="form-control" type="text" value="{{$value[1]}}">
-                                <button class="btn btn-primary form-control" onClick="updateEnvConfigs('{{$config}}','{{$value[0]}}')" type="submit">{{trans('install_config.update')}} {{$value[0]}}</button>
-                            </div>
-                        @endforeach
-
-
-                        <hr>
-
-                        @if (count($errors) > 0)
-                            <div class="alert alert-danger">
-                                <strong>{{trans('install_config.whoops')}}!</strong>  {{trans('install_config.makesure')}}<br><br>
-                                <ul>
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
+@section('header')
+    <section class="head">
+        <div class="inner-wrap center">
+            <h1 class="title">
+                <i class="icon icon-projects"></i>
+                <span>Kora Configuration File</span>
+            </h1>
+            <p class="description">Brief info on Configuration File Management, followed by instructions on how to use
+                the Configuration File Management page will go here.</p>
         </div>
-    </div>
-
-
+    </section>
 @stop
 
-@section('footer')
-    <script>
-        function updateEnvConfigs(id,config){
-            var updateURL ="{{action('InstallController@updateEnvConfigs')}}";
-            $.ajax({
-                url:updateURL,
-                method:'POST',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "type":config,
-                    "value": $('#'+id).val(),
-                },
-                success: function(data){
-                    //console.log($('#'+id).val());
-                   location.reload();
-                },
-                error: function(jqxhr, textStatus, errorThrown){
-                    console.log("Error in changing metadata visibility");
-                    console.log("text status: " + textStatus);
-                    console.log("error thrown: "+errorThrown);
+@section('body')
+    <section class="edit-config-form center">
+        <form method="post" action={{action("InstallController@updateEnvConfigs")}}>
+            <input type="hidden" name="_token" value="{{csrf_token()}}">
+            @foreach($configs as $config)
+                <div class="form-group mt-xl">
+                    <label for="{{$config['slug']}}">{{$config['title']}}</label>
+                    <input id="{{$config['slug']}}" name="{{$config['slug']}}" class="text-input" @if($config['slug']=='mail_password') type="password" @else type="text"@endif value="{{$config['value']}}">
+                </div>
+            @endforeach
+            <div class="form-group mt-xxl">
+                <button class="btn btn-primary" type="submit">Update Configuration File</button>
+            </div>
+        </form>
+    </section>
+@stop
 
-                    var encode = $('<div/>').html("{{ trans('install_config.problem') }}").text();
-                    alert(encode + "!");
-                }
-            });
-        }
-    </script>
-
+@section('javascripts')
+    {!! Minify::javascript([
+      '/assets/javascripts/vendor/jquery/jquery.js',
+      '/assets/javascripts/vendor/jquery/jquery-ui.js',
+      '/assets/javascripts/vendor/chosen.js',
+      '/assets/javascripts/general/modal.js',
+      '/assets/javascripts/navigation/navigation.js',
+      '/assets/javascripts/general/global.js'
+    ])->withFullUrl() !!}
 @stop

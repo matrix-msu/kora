@@ -1,13 +1,15 @@
 <?php namespace App\Http\Controllers\Auth;
 
+use App\Project;
+use App\ProjectGroup;
 use App\Record;
 use App\Http\Controllers\Controller;
 use App\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
 class UserController extends Controller {
@@ -196,9 +198,11 @@ class UserController extends Controller {
 
             \Auth::login($user);
 
+            $this->makeDefaultProject($user);
+
             return redirect('/')->with('k3_global_success', 'user_activated');
         } else {
-            return redirect('auth/activate')->with('k3_global_error', 'invalid_token');
+            return redirect('auth/activate')->with('k3_global_error', 'bad_activation_token');
         }
     }
 
@@ -211,9 +215,8 @@ class UserController extends Controller {
     public function activate($token) {
         //Since we are coming from an email client or otherwise, we need to make sure that no one on the browser is already
         // logged in.
-        if(!is_null(\Auth::user())) {
+        if(!is_null(\Auth::user()))
             \Auth::logout(\Auth::user()->id);
-        }
 
         $user = User::where('regtoken', '=', $token)->first();
 
@@ -225,8 +228,30 @@ class UserController extends Controller {
             $user->active = 1;
             $user->save();
 
+            $this->makeDefaultProject($user);
+
             return redirect('/')->with('k3_global_success', 'user_activated');
         }
+    }
+
+    /**
+     * Creates a default project for the new user. Kept private because this should only happen on activation by user.
+     *
+     * @param  User $user - User to make default project
+     */
+    private function makeDefaultProject($user) {
+        $default = new Project();
+
+        $default->name = "ZZTest ".$user->username;
+        $default->slug = "ZZTest_".$user->username;
+        $default->description = "Test project for user, ".$user->username;
+        $default->save();
+
+        $adminGroup = ProjectGroup::makeAdminGroup($default);
+        ProjectGroup::makeDefaultGroup($default);
+        $default->adminGID = $adminGroup->id;
+        $default->active = 1;
+        $default->save();
     }
 
     /**

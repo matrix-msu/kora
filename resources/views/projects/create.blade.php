@@ -1,7 +1,7 @@
 @extends('app', ['page_title' => 'Create a Project', 'page_class' => 'project-create'])
 
 @section('stylesheets')
-  <!-- No Additional Stylesheets Necessary -->
+    <!-- No Additional Stylesheets Necessary -->
 @stop
 
 @section('header')

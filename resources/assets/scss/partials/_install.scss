@@ -1,0 +1,12 @@
+.install-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu;
+  min-height: 100vh;
+}
+
+.install {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  @import 'install/install-form';
+}

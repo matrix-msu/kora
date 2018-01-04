@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
         <title>Kora 3 - {{ $page_title }}</title>
 
-        @if(!isset($not_installed))
+        @if(isInstalled())
           @if(View::hasSection('stylesheets'))
               @yield('stylesheets')
           @else

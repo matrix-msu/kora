@@ -2,7 +2,6 @@
 
 Use \Illuminate\Support\Facades\Request;
 use \Illuminate\Support\Facades\Session;
-use \Illuminate\Support\Facades\Config;
 use Illuminate\View\View;
 
 class WelcomeController extends Controller {
@@ -24,10 +23,7 @@ class WelcomeController extends Controller {
      * @return View
      */
 	public function index() {
-		$not_installed = true;
-		if(!file_exists("../.env"))
-			return view('welcome',compact('not_installed'));
-		else if(\Auth::guest() or !\Auth::user()->active)
+		if(\Auth::guest() or !\Auth::user()->active)
             return view('welcome');
         else if(\Auth::user()->dash)
             return redirect('/dashboard');

@@ -9,6 +9,7 @@
     <a href="#" class="dismiss status-dismiss-js">Dismiss</a>
   </div>
   <ul class="navigation-left navigation-left-js">
+<<<<<<< HEAD
     @if(Auth::guest())
       @if(strtolower($page_class) == "welcome")
         <li class="navigation-item">
@@ -20,6 +21,13 @@
         </li>
       @endif
     @else
+=======
+    @if(Auth::guest() && isInstalled())
+      <li class="navigation-item">
+        <a href="{{ url('/auth/register') }}" class="text navigation-toggle-js underline-middle-hover">Need to Sign Up?</a>
+      </li>
+    @elseif(isInstalled())
+>>>>>>> 3c6c376823d5520c6bb174521c07fb1d54b9d2fc
       <li class="logo">
         <a href="{{ url('/') }}" class="navigation-toggle-js">
           <i class="icon icon-placeholder"></i>

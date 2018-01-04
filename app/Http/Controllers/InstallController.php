@@ -1,14 +1,15 @@
 <?php namespace App\Http\Controllers;
 
+use App\Http\Requests\InstallRequest;
 use App\Version;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Schema;
-use \Illuminate\Support\Facades\Config;
 use \Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
 class InstallController extends Controller {
@@ -22,6 +23,11 @@ class InstallController extends Controller {
 	| migration so the rest of the controllers can function.  It also creates the
 	| first user. And sets the application key, and creates needed folders
 	*/
+
+    /**
+     * @var string - The version that will be assigned when you install Kora.
+     */
+	const INSTALLED_VERSION = '3.0';
 
     /**
      * @var array - Directories that will be created upon installation.
@@ -55,364 +61,171 @@ class InstallController extends Controller {
     /**
      * Gets home view for the installation page.
      *
-     * @param  Request $request
      * @return View
      */
-	public function index(Request $request) {
+	public function index() {
 		if(file_exists("../.env"))
 			return redirect('/');
 
-		$not_installed = true;
-
-		return view('install.install',compact('not_installed'));
+		return view('install.install');
 	}
 
     /**
-     * Edits recaptcha and mail options in the ENV configuration file.
+     * Install Kora 3 - Creates the env file.
      *
-     * @return View
+     * @param  InstallRequest $request
+     * @return JsonResponse
      */
-	public function editEnvConfigs() {
-		if(!Auth::check())
-			return redirect("/");
+	public function install(InstallRequest $request) {
+        Log::info("Beginning Installation");
 
-		if(!Auth::user()->admin) {
-			flash()->overlay("You must be an admin to see this","Whoops");
-			return redirect("/");
-		}
-		$configs = new Collection();
-        $current_config = $this->getEnvConfigs();
+        //Write the env file
+        $envData = $this->envBuilder($request);
+        try {
+            Log::info("Beginning ENV Write");
+            $envfile = fopen("../.env", "w");
 
-        $configs->push(["Recaptcha Private Key",$current_config->get("recaptcha_private_key")]);
-        $configs->push(["Recaptcha Public Key",$current_config->get("recaptcha_public_key")]);
-        $configs->push(["Mail Host",$current_config->get("mail_host")]);
-        $configs->push(["Mail User",$current_config->get("mail_username")]);
-        $configs->push(["Mail Password",""]);
+            fwrite($envfile, $envData);
 
-		return view('install.config',compact('configs'));
-	}
-
-    /**
-     * Updates recaptcha and mail options in the ENV configuration file.
-     *
-     * @param  Request $request
-     * @return string - Json array of return status
-     */
-	public function updateEnvConfigs(Request $request) {
-		if(!Auth::user()->admin)
-            return response()->json(["status"=>false,"message"=>"not_admin"],500);
-
-        $current_config = $this->getEnvConfigs();
-
-        if($request->input("type") == "Recaptcha Public Key") {
-            $current_config->forget("recaptcha_public_key");
-            $current_config->put("recaptcha_public_key",$request->input("value"));
-
-        } else if($request->input("type") == "Recaptcha Private Key") {
-            $current_config->forget("recaptcha_private_key");
-            $current_config->put("recaptcha_private_key",$request->input("value"));
-
-        } else if($request->input("type") == "Mail Host") {
-            $current_config->forget("mail_host");
-            $current_config->put("mail_host",$request->input("value"));
-
-        } else if($request->input("type") == "Mail User") {
-            $current_config->forget("mail_username");
-            $current_config->put("mail_username",$request->input("value"));
-
-        } else if($request->input("type") == "Mail Password") {
-            $current_config->forget("mail_password");
-            $current_config->put("mail_password",$request->input("value"));
-
-        } else {
-            return response()->json(["status"=>false,"message"=>"env_invalid_type"],500);
-        }
-
-        $write_status = $this->writeEnv($current_config,true);
-
-        if($write_status == false) {
+            fclose($envfile);
+            chmod("../.env",0660);
+            Log::info("Ending ENV Write ");
+        } catch(\Exception $e) { //Most likely if the file is owned by another user or PHP doesn't have permission
+            Log::info($e);
+            $this->resetInstall();
             return response()->json(["status"=>false,"message"=>"env_cant_write"],500);
-        } else {
-            return response()->json(["status"=>true,"message"=>"env_updated"],200);
         }
 
-	}
-
-    /**
-     * Gets information from the ENV file.
-     *
-     * @return Collection - The data pairs in the ENV
-     */
-    public function getEnvConfigs() {
-        $env2 = new Collection();
-
-		$env2->put("app_env",ENV("APP_ENV"));
-        $env2->put("app_key",ENV(("APP_KEY")));
-		$env2->put("app_debug",ENV("APP_DEBUG"));
-
-		$env2->put("db_host",ENV("DB_HOST"));
-		$env2->put("db_database",ENV("DB_DATABASE"));
-		$env2->put("db_username",ENV("DB_USERNAME"));
-		$env2->put("db_password",ENV("DB_PASSWORD"));
-		$env2->put("db_driver",ENV("DB_DEFAULT"));
-		$env2->put("db_prefix",ENV("DB_PREFIX"));
-
-		$env2->put("mail_host",ENV("MAIL_HOST"));
-		$env2->put("mail_from_address",ENV("MAIL_FROM_ADDRESS"));
-		$env2->put("mail_from_name",ENV("MAIL_FROM_NAME"));
-		$env2->put("mail_username",ENV("MAIL_USER"));
-		$env2->put("mail_password",ENV("MAIL_PASSWORD"));
-
-		$env2->put("baseurl_url",ENV("BASE_URL"));
-		$env2->put("baseurl_storage",ENV("STORAGE_URL"));
-		$env2->put("basepath",ENV("BASE_PATH"));
-
-        $env2->put("recaptcha_public_key",ENV("RECAPTCHA_PUBLIC_KEY"));
-        $env2->put("recaptcha_private_key",ENV("RECAPTCHA_PRIVATE_KEY"));
-
-        return $env2;
+        //Since we need to refresh the env variables before we install.
+        return response()->json(["status"=>true,"message"=>"env_saved"],200);
     }
 
     /**
-     * Writes initial data to the ENV upon install.
+     * Finish install of Kora 3 - Creates DB, directories, default values, admin user.
      *
-     * @param  Collection $envstrings - The data pairs to write
-     * @param  bool $overwrite - Should we overwrite if env exists?
-     * @return bool - Returns false on error
+     * @param  InstallRequest $request
+     * @return Redirect
      */
-	private function writeEnv(Collection $envstrings, $overwrite = false) {
+    public function installPartTwo(InstallRequest $request) {
+        //Test out the DB connection
+        $dbc = null;
+        try{
+            Log::info("Beginning DB Test");
+            switch(env('DB_DEFAULT')) {
+                case "mysql":
+                    $dbc = new \PDO('mysql:host='.env('DB_HOST').';dbname='.env('DB_DATABASE'), env('DB_USERNAME'), env('DB_PASSWORD'));
+                    break;
+                case "pgsql":
+                    $dbc = new \PDO('pgsql:host='.env('DB_HOST').';dbname='.env('DB_DATABASE'), env('DB_USERNAME'), env('DB_PASSWORD'));
+                    break;
+                case "sqlsrv":
+                    $dbc = new \PDO('pgsql:Server='.env('DB_HOST').';Databasee='.env('DB_DATABASE'), env('DB_USERNAME'), env('DB_PASSWORD'));
+                    break;
+                default:
+                    Log::info("Default type is missing. This is most likely an issue with Laravel failing to read the new ENV file.");
+                    $this->resetInstall($dbc);
+                    return redirect('/install')->withInput(Input::all())->with('k3_global_error', 'database_env_issue');
+            }
+            Log::info("Ending DB Test");
+        } catch(\PDOException $e) {
+            Log::info($e);
+            $this->resetInstall();
+            return redirect('/install')->withInput(Input::all())->with('k3_global_error', 'database_connection_failed');
+        }
 
-        $baseurl = $envstrings->get("baseurl_url");
+        //Install database tables
+        try {
+            Log::info("Beginning Artisan Migrate");
+            Artisan::call("migrate", array('--force' => true));
+            Log::info("Ending Artisan Migrate");
+        } catch(\Exception $e) {
+            Log::info($e);
+            $this->resetInstall($dbc);
+            return redirect('/install')->withInput(Input::all())->with('k3_global_error', 'db_creation_failed');
+        }
+        try {
+            Log::info("Beginning Artisan Key Creation");
+            Artisan::call("key:generate");
+            Log::info("Ending Artisan Key Creation");
+        } catch(\Exception $e) {
+            Log::info($e);
+            $this->resetInstall($dbc);
+            return redirect('/install')->withInput(Input::all())->with('k3_global_error', 'key_generation_fail');
+        }
+        try {
+            Log::info("Beginning Version Set");
+            $v = new Version();
+            $v->version = InstallController::INSTALLED_VERSION;
+            $v->save();
+            Log::info("Ending Version Set");
+        } catch(\Exception $e) {
+            Log::info($e);
+            $this->resetInstall($dbc);
+            return redirect('/install')->withInput(Input::all())->with('k3_global_error', 'k3_version_issue');
+        }
+
+        //Create all the needed directories for storage
+        try {
+            Log::info("Beginning Directory Creation");
+            $this->createDirectories();
+            Log::info("Ending Directory Creation");
+        } catch(\Exception $e) {
+            Log::info($e);
+            $this->resetInstall($dbc);
+            return redirect('/install')->withInput(Input::all())->with('k3_global_error', 'install_directories_failed');
+        }
+
+        //Create admin user
+        try {
+            Log::info("Beginning Admin Construction");
+            $this->makeAdmin($request);
+            Log::info("Ending Admin Construction");
+        } catch(\Exception $e) {
+            Log::info($e);
+            $this->resetInstall($dbc);
+            return redirect('/install')->withInput(Input::all())->with('k3_global_error', 'admin_creation_fail');
+        }
+
+        try {
+            Log::info("Beginning Preset Creation");
+            foreach($this->STOCKPRESETS as $name => $info) {
+                $pid = null;
+                $type = $info['type'];
+                $preset = $info['preset'];
+
+                \App\OptionPreset::create(compact("name","pid","type","preset"));
+            }
+            Log::info("Ending Preset Creation");
+        } catch(\Exception $e) {
+            Log::info($e);
+            $this->resetInstall($dbc);
+            return redirect('/install')->withInput(Input::all())->with('k3_global_error', 'stock_presets_failed');
+        }
+
+        //CLOSE THE CONNECTION
+        $dbc = null;
+
+        Log::info("Ending Installation");
+        return redirect('/')->with('k3_global_success', 'kora_success_install');
+    }
+
+    /**
+     * Build the text for the env config file.
+     *
+     * @param  InstallRequest $request
+     * @return string - The text to write to file
+     */
+    private function envBuilder(InstallRequest $request){
+        $baseurl = $request->baseurl_url;
         //Check if http:// is included in the base URL, and addi it if missing
         if(!preg_match("/(http)(.*)/",$baseurl))
             $baseurl = "http://".$baseurl;
 
         //Check for trailing slashes
-        if(substr($baseurl,-1) != "/") {
+        if(substr($baseurl,-1) != "/")
             $baseurl = $baseurl."/";
-            $envstrings->forget("baseurl_url");
-            $envstrings->put("baseurl_url",$baseurl);
-        }
 
-        $storageurl = $envstrings->get("baseurl_storage");
-        //Check if http:// is included in the base URL, and addi it if missing
-        if(!preg_match("/(http)(.*)/",$storageurl))
-            $storageurl = "http://".$storageurl;
-
-        //Check for trailing slashes
-        if(substr($storageurl,-1) != "/") {
-            $storageurl = $storageurl."/";
-            $envstrings->forget("baseurl_storage");
-            $envstrings->put("baseurl_storage",$storageurl);
-        }
-
-		$env_layout = "APP_ENV=local\n".
-			"APP_DEBUG=false\n\n".
-
-            "DB_HOST=" . $envstrings->get('db_host') . "\n" .
-            "DB_DATABASE=" . $envstrings->get('db_database') . "\n" .
-            "DB_USERNAME=" . $envstrings->get('db_username') . "\n" .
-            "DB_PASSWORD=" . $envstrings->get('db_password') . "\n" .
-            "DB_DEFAULT=" . $envstrings->get('db_driver') . "\n" .
-            "DB_PREFIX=" . $envstrings->get('db_prefix') . "\n\n" .
-
-			"MAIL_HOST=" . $envstrings->get('mail_host') . "\n" .
-			"MAIL_FROM_ADDRESS=" . $envstrings->get('mail_from_address') . "\n" .
-            "MAIL_FROM_NAME=" . $envstrings->get('mail_from_name') . "\n" .
-            "MAIL_USER=" . $envstrings->get('mail_username') . "\n" .
-            "MAIL_PASSWORD=" . $envstrings->get('mail_password') . "\n\n" .
-
-            "CACHE_DRIVER=file\n".
-			"SESSION_DRIVER=file\n\n".
-
-			"BASE_URL=" . $envstrings->get('baseurl_url') . "\n" .
-            "STORAGE_URL=" . $envstrings->get('baseurl_storage') . "\n" .
-            "BASE_PATH=" . $envstrings->get('basepath') . "\n\n" .
-
-            "RECAPTCHA_PUBLIC_KEY=" . $envstrings->get('recaptcha_public_key') . "\n" .
-            "RECAPTCHA_PRIVATE_KEY=" . $envstrings->get('recaptcha_private_key');
-
-
-		if(file_exists('../.env') && $overwrite==false) {
-			return false;
-		} else {
-			try {
-				$envfile = fopen("../.env", "w");
-
-			} catch(\Exception $e) { //Most likely if the file is owned by another user or PHP doesn't have permission
-				return false;
-			}
-            try {
-                if(!fwrite($envfile, $env_layout)) { //write to file and if nothing is written or error
-                    fclose($envfile);
-                    return false;
-                } else {
-                    fclose(($envfile));
-                    chmod("../.env",0660);
-                    return true;
-                }
-            } catch(\Exception $e) {
-                return false;
-            }
-		}
-	}
-
-    /**
-     * Executes php artisan migrate which will install all required databases.
-     *
-     * @param  Request $request
-     * @return Redirect
-     */
-    public function runMigrate(Request $request) {
-
-		$this->validate($request,[
-			'user_username'=>'required|alpha_dash',
-			'user_email'=>'required|email',
-			'user_password'=>'required|same:user_confirmpassword',
-			'user_confirmpassword'=>'required',
-			'user_realname'=>'required',
-			'user_language'=>'required',
-		]);
-
-		$adminuser = new Collection();
-		$adminuser->put('user_username',$request->input("user_username"));
-		$adminuser->put('user_email',$request->input("user_email"));
-		$adminuser->put('user_password',$request->input('user_password'));
-		$adminuser->put('user_realname',$request->input('user_realname'));
-		$adminuser->put('user_language',$request->input('user_language'));
-
-        if(!file_exists("../.env")) {
-            return redirect('/')->with('k3_global_error', 'no_db_settings');
-        } else {
-            try {
-                if(Schema::hasTable("users")) //This indicates a migration has already been run
-                    return redirect('/')->with('k3_global_error', 'k3_already_installed');
-            } catch(\Exception $e) {
-                return redirect('/')->with('k3_global_error', 'db_connection_failed');
-            }
-
-            try {
-                $status = Artisan::call("migrate", array('--force' => true));
-            } catch(\Exception $e) {
-                return redirect('/')->with('k3_global_error', 'artisan_migration_fail');
-            }
-
-            try {
-                $status = Artisan::call("key:generate");
-            } catch(\Exception $e) {
-                return redirect('/')->with('k3_global_error', 'key_generation_fail');
-            }
-
-            try {
-                $status = $this->createDirectories();
-            } catch(\Exception $e) {
-                return redirect('/')->with('k3_global_error', 'install_directories_failed');
-            }
-
-            try {
-                $v = new Version();
-                $v->version = UpdateController::getCurrentVersion();
-                $v->save();
-            } catch(\Exception $e) {
-                return redirect('/')->with('k3_global_error', 'k3_version_issue');
-            }
-
-            try {
-                $username = $adminuser->get('user_username');
-                $name = $adminuser->get('user_realname');
-                $email = $adminuser->get('user_email');
-                $password = bcrypt($adminuser->get('user_password'));
-                $organization = "";
-                $language = $adminuser->get('user_language');
-
-                $newuser = \App\User::create(compact("username","name","email","password","organization","language"));
-                $newuser->active = 1;
-                $newuser->admin = 1;
-                $newuser->save();
-            } catch(\Exception $e) {
-                return redirect('/')->with('k3_global_error', 'admin_creation_fail');
-            }
-
-            try {
-                foreach($this->STOCKPRESETS as $name => $info) {
-                    $pid = null;
-                    $type = $info['type'];
-                    $preset = $info['preset'];
-
-                    $newPreset = \App\OptionPreset::create(compact("name","pid","type","preset"));
-                }
-            } catch(\Exception $e) {
-                return redirect('/')->with('k3_global_error', 'stock_presets_failed');
-            } finally {
-                return redirect("/")->with('k3_global_success', 'k3_db_installed');
-            }
-        }
-    }
-
-    /**
-     * Begins the installation process.
-     *
-     * @param  Request $request
-     * @return JsonResponse
-     */
-	public function installKora(Request $request) {
-		if(file_exists("../.env")) {
-			try {
-				if(Schema::hasTable("users")) //This indicates a migration has already been run
-					return response()->json(["status" => false, "message" => "k3_already_installed"], 500);
-			} catch(\Exception $e) {
-				return response()->json(["status" => false, "message" => "db_connection_failed"], 500);
-			}
-		}
-
-		$envstrings = new Collection();
-		$this->validate($request,[
-			'db_driver'=>'required|in:mysql,pgsql,sqlsrv,sqlite',
-			'db_host'=>'required_if:db_driver,mysql,pgsql,sqlsrv',
-			'db_database'=>'required_if:db_driver,mysql,pgsql,sqlsrv|alpha_dash',
-			'db_username'=>'required_if:db_driver,mysql,pgsql,sqlsrv',
-			'db_password'=>'required_if:db_driver,mysql,pgsql,sqlsrv',
-			'db_prefix'=>'required|alpha_dash',
-			'mail_host'=>'required',
-			'mail_from_address'=>'required|email',
-			'mail_from_name'=>'required',
-			'mail_username'=>'required',
-			'mail_password'=>'required',
-			'recaptcha_public_key'=>'required',
-			'recaptcha_private_key'=>'required',
-			'baseurl_url'=>'required',
-			'baseurl_storage'=>'required',
-			'basepath'=>'required'
-		]);
-
-		$envstrings->put("db_driver",$request->input("db_driver"));
-		$envstrings->put("db_host",$request->input("db_host"));
-		$envstrings->put("db_database",$request->input("db_database"));
-		$envstrings->put("db_username",$request->input("db_username"));
-		$envstrings->put("db_password",$request->input("db_password"));
-		$envstrings->put("db_prefix",$request->input("db_prefix"));
-		$envstrings->put("mail_host",$request->input("mail_host"));
-		$envstrings->put("mail_from_address",$request->input("mail_from_address"));
-		$envstrings->put("mail_from_name",$request->input("mail_from_name"));
-		$envstrings->put("mail_username",$request->input("mail_username"));
-		$envstrings->put("mail_password",$request->input("mail_password"));
-		$envstrings->put("recaptcha_public_key",$request->input("recaptcha_public_key"));
-		$envstrings->put("recaptcha_private_key",$request->input("recaptcha_private_key"));
-
-		$envstrings->put("basepath",$request->input("basepath"));
-
-		$baseurl = $request->input("baseurl_url");
-		//Check if http:// is included in the base URL, and addi it if missing
-		if(!preg_match("/(http)(.*)/",$baseurl))
-			$baseurl = "http://".$baseurl;
-
-		//Check for trailing slashes
-		if(substr($baseurl,-1) != "/")
-			$baseurl = $baseurl."/";
-
-		$envstrings->put("baseurl_url",$baseurl);
-
-        $storageurl = $request->input("baseurl_storage");
+        $storageurl = $request->baseurl_storage;
         //Check if http:// is included in the base URL, and addi it if missing
         if(!preg_match("/(http)(.*)/",$storageurl))
             $storageurl = "http://".$storageurl;
@@ -421,46 +234,192 @@ class InstallController extends Controller {
         if(substr($storageurl,-1) != "/")
             $storageurl = $storageurl."/";
 
-        $envstrings->put("baseurl_storage",$storageurl);
+        $layout = "APP_ENV=local\n".
+            "APP_DEBUG=false\n\n".
 
-		try{
-			$dbtype = $envstrings->get('db_driver');
-			if($dbtype == "mysql")
-				$dbc = new \PDO('mysql:host='.$envstrings->get("db_host").';dbname='.$envstrings->get("db_database"),$envstrings->get('db_username'),$envstrings->get('db_password'));
-			else if($dbtype == "pgsql")
-				$dbc = new \PDO('pgsql:host='.$envstrings->get("db_host").';dbname='.$envstrings->get("db_database"),$envstrings->get('db_username'),$envstrings->get('db_password'));
-			elseif($dbtype == "sqlsrv")
-				$dbc = new \PDO('pgsql:Server='.$envstrings->get("db_host").';Databasee='.$envstrings->get("db_database"),$envstrings->get('db_username'),$envstrings->get('db_password'));
-		} catch(\PDOException $e) {
-			return response()->json(["status"=>false,"message"=>"db_connection_failed"],500);
-		} finally {
-			$dbc = null; //required to close PDO connection
-		}
+            "DB_HOST=" . $request->db_host . "\n" .
+            "DB_DATABASE=" . $request->db_database . "\n" .
+            "DB_USERNAME=" . $request->db_username . "\n" .
+            "DB_PASSWORD=" . $request->db_password . "\n" .
+            "DB_DEFAULT=" . $request->db_driver . "\n" .
+            "DB_PREFIX=" . $request->db_prefix . "\n\n" .
 
+            "MAIL_HOST=" . $request->mail_host . "\n" .
+            "MAIL_FROM_ADDRESS=" . $request->mail_from_address . "\n" .
+            "MAIL_FROM_NAME=" . $request->mail_from_name . "\n" .
+            "MAIL_USER=" . $request->mail_username . "\n" .
+            "MAIL_PASSWORD=" . $request->mail_password . "\n\n" .
 
-		$status = $this->writeEnv($envstrings);
+            "CACHE_DRIVER=file\n".
+            "SESSION_DRIVER=file\n\n".
 
-		if($status == true)
-			return response()->json(["status"=>true,"message"=>"k3_install_success"],200);
-		else
-			return response()->json(["status"=>false,"message"=>"env_creation_failed"],500);
-	}
+            "BASE_URL=" . $baseurl . "\n" .
+            "STORAGE_URL=" . $storageurl . "\n" .
+            "BASE_PATH=" . $request->basepath . "\n\n" .
+
+            "RECAPTCHA_PUBLIC_KEY=" . $request->recaptcha_public_key . "\n" .
+            "RECAPTCHA_PRIVATE_KEY=" . $request->recaptcha_private_key;
+
+        return $layout;
+    }
 
     /**
      * Creates all the directories for the installation process.
      *
-     * @return string - Success/error message
+     * @return bool - Directories created
      */
-    public function createDirectories() {
+    private function createDirectories() {
         foreach($this->DIRECTORIES as $dir) {
-            if(!file_exists(ENV("BASE_PATH").$dir)) {
+            if(!file_exists(env("BASE_PATH").$dir)) {
                 try {
-                    mkdir(ENV("BASE_PATH") . $dir, 0775); //Notice the permission that is set and if it's OK!
-                    return true;
+                    mkdir(env("BASE_PATH") . $dir, 0775); //Notice the permission that is set and if it's OK!
                 } catch(\Exception $e) {
                     return false;
                 }
             }
         }
+
+        return true;
+    }
+
+    /**
+     * Create the admin user for the installation.
+     *
+     * @param  InstallRequest $request
+     */
+    private function makeAdmin(InstallRequest $request) {
+        $username = $request->user_username;
+        $fname = $request->user_firstname;
+        $lname = $request->user_lastname;
+        $email = $request->user_email;
+        $password = bcrypt($request->user_password);
+        $organization = $request->user_organization;
+        $language = $request->user_language;
+
+        $newuser = \App\User::create(compact("username","fname","lname","email","password","organization","language"));
+        $newuser->active = 1;
+        $newuser->admin = 1;
+        $newuser->save();
+
+        if(!is_null($request->file('user_profile'))) {
+            $file = $request->file('user_profile');
+            $pDir = env('BASE_PATH') . 'storage/app/profiles/1/';
+
+            $newFilename = $file->getClientOriginalName();
+            $newuser->profile = $newFilename;
+            $newuser->save();
+
+            //move photo and return new path
+            $file->move($pDir,$newFilename);
+        }
+    }
+
+    /**
+     * Rolls back the install process so it can be rerun.
+     *
+     * @param  \PDO $dbc - Connection to the DB
+     */
+    private function resetInstall(\PDO $dbc = null) {
+        //Delete the ENV
+        if(file_exists("../.env"))
+            unlink("../.env");
+
+        //Empty the Database
+        if(!is_null($dbc)) {
+            if($result = $dbc->query("SHOW TABLES")) {
+                while($row = $result->fetch(\PDO::FETCH_NUM)) {
+                    $dbc->query('DROP TABLE IF EXISTS ' . $row[0]);
+                }
+            }
+        }
+
+        //Close the connection
+        $dbc = null;
+    }
+
+    /**
+     * Edits recaptcha and mail options in the ENV configuration file.
+     *
+     * @return View
+     */
+    public function editEnvConfigs() {
+        if(!Auth::check())
+            return redirect("/");
+
+        if(!Auth::user()->admin) {
+            flash()->overlay("You must be an admin to see this","Whoops");
+            return redirect("/");
+        }
+
+        $configs = array(
+            ['title'=>'Recaptcha Private Key', 'slug'=>'recaptcha_private', 'value'=>env('RECAPTCHA_PRIVATE_KEY')],
+            ['title'=>'Recaptcha Public Key',  'slug'=>'recaptcha_public',  'value'=>env('RECAPTCHA_PUBLIC_KEY')],
+            ['title'=>'Mail Host',             'slug'=>'mail_host',         'value'=>env('MAIL_HOST')],
+            ['title'=>'Mail From Address',     'slug'=>'mail_address',      'value'=>env('MAIL_FROM_ADDRESS')],
+            ['title'=>'Mail From Name',        'slug'=>'mail_name',         'value'=>env('MAIL_FROM_NAME')],
+            ['title'=>'Mail User',             'slug'=>'mail_user',         'value'=>env('MAIL_USER')],
+            ['title'=>'Mail Password',         'slug'=>'mail_password',     'value'=>env('MAIL_PASSWORD')],
+        );
+
+        return view('install.config',compact('configs'));
+    }
+
+    /**
+     * TODO::Updates recaptcha and mail options in the ENV configuration file.
+     *
+     * @param  Request $request
+     * @return Redirect
+     */
+    public function updateEnvConfigs(Request $request) {
+        if(!Auth::user()->admin)
+            return redirect('projects')->with('k3_global_error', 'not_admin');
+
+        if(env('APP_DEBUG'))
+            $debug = 'true';
+        else
+            $debug = 'false';
+
+        $layout = "APP_ENV=" . env('APP_ENV') . "\n".
+            "APP_DEBUG=" . $debug . "\n\n".
+
+            "DB_HOST=" . env('DB_HOST') . "\n" .
+            "DB_DATABASE=" . env('DB_DATABASE') . "\n" .
+            "DB_USERNAME=" . env('DB_USERNAME') . "\n" .
+            "DB_PASSWORD=" . env('DB_PASSWORD') . "\n" .
+            "DB_DEFAULT=" . env('DB_DEFAULT') . "\n" .
+            "DB_PREFIX=" . env('DB_PREFIX') . "\n\n" .
+
+            "MAIL_HOST=" . $request->mail_host . "\n" .
+            "MAIL_FROM_ADDRESS=" . $request->mail_address . "\n" .
+            "MAIL_FROM_NAME=" . $request->mail_name . "\n" .
+            "MAIL_USER=" . $request->mail_user . "\n" .
+            "MAIL_PASSWORD=" . $request->mail_password . "\n\n" .
+
+            "CACHE_DRIVER=" . env('CACHE_DRIVER') . "\n".
+            "SESSION_DRIVER=" . env('SESSION_DRIVER') . "\n\n".
+
+            "BASE_URL=" . env('BASE_URL') . "\n" .
+            "STORAGE_URL=" . env('STORAGE_URL') . "\n" .
+            "BASE_PATH=" . env('BASE_PATH') . "\n\n" .
+
+            "RECAPTCHA_PUBLIC_KEY=" . $request->recaptcha_public . "\n" .
+            "RECAPTCHA_PRIVATE_KEY=" . $request->recaptcha_private;
+        
+        try {
+            Log::info("Beginning ENV Write");
+            $envfile = fopen("../.env", "w");
+
+            fwrite($envfile, $layout);
+
+            fclose($envfile);
+            chmod("../.env",0660);
+            Log::info("Ending ENV Write");
+        } catch(\Exception $e) { //Most likely if the file is owned by another user or PHP doesn't have permission
+            Log::info($e);
+            $this->resetInstall();
+            return redirect('install/config')->with('k3_global_error', 'env_cant_write');
+        }
+
+        return redirect('install/config')->with('k3_global_success', 'kora_config_updated');
     }
 }

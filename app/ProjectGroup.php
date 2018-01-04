@@ -1,8 +1,8 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -34,7 +34,7 @@ class ProjectGroup extends Model {
     /**
      * Returns a project group's project.
      *
-     * @return HasOne
+     * @return BelongsTo
      */
     public function project() {
         return $this->belongsTo('App\Project');
@@ -86,7 +86,7 @@ class ProjectGroup extends Model {
         $adminGroup->pid = $project->pid;
         $adminGroup->save();
 
-        if(!is_null($request->admins)) {
+        if(!is_null($request) && !is_null($request->admins)) {
             $adminGroup->users()->attach($request->admins);
             foreach($request->admins as $uid) {
                 $user = User::where("id","=",$uid)->first();

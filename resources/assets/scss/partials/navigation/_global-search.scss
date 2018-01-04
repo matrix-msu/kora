@@ -151,12 +151,13 @@
   .clear-search-results {
     @include transition();
 
-    background-color: palette('white', base, .05);
+    background-color: palette('white', base, .04);
     border: 2px solid transparent;
     border-radius: 0 0 0 5px;
     box-sizing: border-box;
     color: palette('white', base);
     cursor: pointer;
+    font-family: $ubuntu;
     font-size: 13px;
     height: 53px;
     margin: 0;

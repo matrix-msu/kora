@@ -59,6 +59,25 @@
         </form>
       </div>
     </div>
+  @elseif (Auth::guest() && !isInstalled())
+    <div class="kora3 mt-xxl">
+        Kora 3
+    </div>
+
+    <div class="ready mt-xxl">
+        Ready for Initialization
+    </div>
+
+    <div class="commander mt-m">
+        We are ready to begin the Kora Initialization sequence, Commander.
+        Ready when you are.
+    </div>
+
+    <form class="form-horizontal" role="form" method="GET" action="{{ url('/install') }}">
+        <div class="form-group mt-xxl">
+            <button type="submit" class="btn btn-primary">Begin Initialization Sequence</button>
+        </div>
+    </form>
   @endif
 </div>
 @stop
