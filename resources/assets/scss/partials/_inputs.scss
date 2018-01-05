@@ -35,14 +35,26 @@
     margin-bottom: 0;
   }
 
+  &.half {
+    box-sizing: border-box;
+    display: inline-block;
+    text-align: left;
+    width: 50%;
+
+    + .half {
+      float: right;
+    }
+  }
+
   &.no-padding {
     padding: 0;
   }
 
-  @import 'inputs/text';
-  @import 'inputs/selects';
   @import 'inputs/buttons';
   @import 'inputs/check-boxes';
+  @import 'inputs/file';
+  @import 'inputs/selects';
+  @import 'inputs/text';
 }
 
 @import 'inputs/new-object-button';

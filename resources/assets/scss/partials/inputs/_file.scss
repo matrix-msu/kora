@@ -1,0 +1,90 @@
+// For profile pictures
+
+.profile-button {
+  @include transition();
+
+  background-color: palette('white', base, .5);
+  border: 2px dashed rgba(21,39,48,0.1);
+  border-radius: 5px;
+  padding: 30px;
+  text-align: center;
+
+  &:hover {
+    border: 2px solid palette('green', accent, .3);
+    box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
+  }
+
+  &:focus {
+    border: 2px solid palette('green', accent, .7);
+    box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
+    outline: none;
+  }
+
+  img {
+    border-radius: 50%;
+  }
+
+  .instruction {
+    color: palette('green', accent);
+  }
+
+  .remove {
+    z-index: 1;
+
+    &:hover {
+      color: palette('green', accent);
+      cursor: pointer;
+    }
+  }
+}
+
+.profile {
+  opacity: 0;
+  position: absolute;
+  z-index: -1;
+}
+
+.profile-input {
+  opacity: 0;
+  position: absolute;
+  z-index: -1;
+}
+
+.profile-label {
+  @include transition();
+
+  background-color: palette('white', base, .5);
+  border: 2px dashed rgba(21,39,48,0.1);
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 30px;
+  text-align: center;
+
+  &:focus {
+    border: 2px solid palette('green', accent, .7);
+    box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
+    outline: none;
+  }
+
+  &:hover {
+    border: 2px solid palette('green', accent, .3);
+    box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
+  }
+
+  img {
+    border-radius: 50%;
+  }
+
+  .instruction {
+    color: palette('green', accent);
+  }
+
+  .remove {
+    z-index: 1;
+
+    &:hover {
+      color: palette('green', accent);
+      cursor: pointer;
+    }
+  }
+}

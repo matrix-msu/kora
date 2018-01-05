@@ -1,18 +1,4 @@
-.welcome-body {
-  background: url('../images/auth-bg.jpg');
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  font-family: $ubuntu;
-  height: 100vh;
-}
-
 .welcome {
-  margin: auto;
-  padding: 0 3%;
-  text-align: center;
-  width: $max-mobile-xs-width;
-
   .memory {
     text-align: left;
 
@@ -24,13 +10,13 @@
       display: inline-block;
       float: right;
       vertical-align: middle;
-    }
-  }
+		}
+	}
 
   .kora3 {
     font-size: 36px;
     line-height: 42px;
-    text-shadow: 0 2px 4px 0 rgba(0,0,0,0.1);
+    text-shadow: 0 2px 4px 0 rgba(0,0,0,.1);
   }
 
   .ready {

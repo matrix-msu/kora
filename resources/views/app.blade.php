@@ -31,7 +31,7 @@
 
         <link rel="stylesheet" href="{{env('BASE_URL')}}assets/css/app.css">
     </head>
-    <body class="{{ str_hyphenated($page_class) }}-body">
+    <body class="{{ str_hyphenated($page_class) }}-body @if(Auth::guest()) auth-body @endif">
       @include('partials.nav')
 
       <div class="side-menu side-menu-js">
@@ -40,13 +40,41 @@
         </aside>
       </div>
 
-      <div class="{{ str_hyphenated($page_class) }}">
+
+      <div class="{{ str_hyphenated($page_class) }} @if(Auth::guest()) auth @endif">
         @yield('header')
         @yield('body')
+        @if(Auth::guest())
+          @include('partials.footer')
+        @endif
         @yield('footer')
       </div>
 
 
+
       @include('partials.javascripts')
+
+      @if(Auth::guest())
+        @include('partials.projects.javascripts')
+
+        <script>
+          function setTempLang(selected_lang){
+            var langURL ="{{action('WelcomeController@setTemporaryLanguage')}}";
+            console.log("Language change started: "+langURL);
+            $.ajax({
+              url:langURL,
+              method:'POST',
+              data: {
+                "_token": "{{ csrf_token() }}",
+                "templanguage": selected_lang
+              },
+              success: function(data){
+                console.log(data);
+                location.reload();
+              }
+            });
+          }
+        </script>
+      @endif
     </body>
 </html>

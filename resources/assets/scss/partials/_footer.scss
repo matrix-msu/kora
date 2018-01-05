@@ -1,0 +1,13 @@
+footer {
+  background: palette('gray', slate);
+
+  .footer-item {
+    display: inline-block;
+    height: 30px;
+
+    img {
+      height: inherit;
+      width: auto;
+    }
+  }
+}

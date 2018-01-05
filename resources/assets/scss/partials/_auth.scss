@@ -1,0 +1,36 @@
+.auth-body {
+  font-family: Ubuntu;
+  min-height: 100vh;
+  text-align: center;
+}
+
+.auth {
+  width: 100%;
+
+  .content {
+    background: url('../images/auth-bg.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: flex;
+    min-height: calc(100vh - 233px);
+  }
+
+  .form-container {
+    max-width: 600px;
+    width: 100%;
+  }
+
+  .head {
+    background: transparent;
+    box-shadow: none;
+
+    .title {
+      min-height: auto;
+      padding: 0 0 30px;
+    }
+  }
+}
+
+@import 'auth/welcome';
+@import 'auth/register';

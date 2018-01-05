@@ -9,16 +9,24 @@
     <a href="#" class="dismiss status-dismiss-js">Dismiss</a>
   </div>
   <ul class="navigation-left navigation-left-js">
-    @if(Auth::guest() && isInstalled())
-      <li class="navigation-item">
-        <a href="{{ url('/auth/register') }}" class="text navigation-toggle-js underline-middle-hover">Need to Sign Up?</a>
-      </li>
-    @elseif(isInstalled())
-      <li class="logo">
-        <a href="{{ url('/') }}" class="navigation-toggle-js">
-          <i class="icon icon-placeholder"></i>
-        </a>
-      </li>
+    @if(Auth::guest())
+      @if(strtolower($page_class) == "welcome")
+        <li class="navigation-item">
+          <a href="{{ url('/auth/register') }}" class="text navigation-toggle-js underline-middle-hover">Need to Sign Up?</a>
+        </li>
+      @else
+        <li class="navigation-item">
+          <a href="{{ url('/') }}" class="text navigation-toggle-js underline-middle-hover">Need to Login?</a>
+        </li>
+      @endif
+    @else
+      @if(isInstalled())
+        <li class="logo">
+          <a href="{{ url('/') }}" class="navigation-toggle-js">
+            <i class="icon icon-placeholder"></i>
+          </a>
+        </li>
+      @endif
       @include("partials.menu.dashboard")
       @yield('leftNavLinks')
     @endif

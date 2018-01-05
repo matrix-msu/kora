@@ -6,7 +6,7 @@
 @import 'partials/general/global';
 @import 'partials/general/animations';
 @import 'partials/inputs';
-@import 'partials/login';
+@import 'partials/auth';
 @import 'partials/install';
 @import 'partials/config';
 @import 'partials/tokens';
@@ -25,6 +25,7 @@
 @import 'partials/project';
 @import 'partials/project-permissions';
 @import 'partials/publish';
+@import 'partials/footer';
 
 @media screen and (min-width: $max-mobile-xs-width) and (max-width: $max-tablet-width) {
   // scss-lint:disable ImportantRule
