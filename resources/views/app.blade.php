@@ -53,6 +53,7 @@
 
 
       @include('partials.javascripts')
+
       @if(Auth::guest())
         @include('partials.projects.javascripts')
 
