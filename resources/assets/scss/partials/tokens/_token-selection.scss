@@ -1,0 +1,18 @@
+.token-selection {
+  background: none;
+  margin: auto;
+  max-width: calc(#{ $max-site-width } - 600px);
+  width: $max-site-width;
+
+  .token-sort {
+    display: none;
+
+    &.active {
+      display: block;
+    }
+  }
+
+  .token .content {
+    //@import 'token';
+  }
+}

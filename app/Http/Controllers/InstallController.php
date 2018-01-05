@@ -404,7 +404,7 @@ class InstallController extends Controller {
 
             "RECAPTCHA_PUBLIC_KEY=" . $request->recaptcha_public . "\n" .
             "RECAPTCHA_PRIVATE_KEY=" . $request->recaptcha_private;
-        
+
         try {
             Log::info("Beginning ENV Write");
             $envfile = fopen("../.env", "w");
