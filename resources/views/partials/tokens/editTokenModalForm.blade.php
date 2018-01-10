@@ -8,6 +8,7 @@
 
 <div class="form-group mt-xl">
     <label for="token_search">Select Token Type(s)</label>
+    {{--TODO::Make these auto check if the option is already selected. See the token index js--}}
 </div>
 <div class="actions">
     <div class="form-group action">

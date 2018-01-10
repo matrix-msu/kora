@@ -58,6 +58,17 @@
         </div>
 
         {{--This is where the list of projects goes--}}
+        <div class="token-projects mt-xl">
+            @foreach($token->projects()->get() as $tp)
+                <div class="token-project">
+                    <span><a class="token-project-delete-js" href="#"
+                             pid="{{$tp->pid}}" token="{{$token->id}}" pname="{{$tp->name}}">
+                            <i class="icon icon-cancel-circle"></i></a>
+                    </span>
+                    <span class="ml-xs">{{$tp->name}}</span>
+                </div>
+            @endforeach
+        </div>
 
         <div class="footer">
             <a class="quick-action left danger delete-token-js" href="#">
@@ -69,7 +80,7 @@
                 <span>Edit Token</span>
             </a>
 
-            <a class="quick-action underline-middle-hover" href="#">
+            <a class="quick-action underline-middle-hover add-projects-js" href="#">
                 <span>Add Projects to Token</span>
             </a>
         </div>

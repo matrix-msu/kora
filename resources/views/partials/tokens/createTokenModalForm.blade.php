@@ -57,7 +57,7 @@
 <div class="form-group token-project-select-container token-project-select-container-js">
     <div class="token-project-select-js">
         <label for="token_projects">Select Project(s)</label>
-        <select class="multi-select" id="token_projects" name="token_projects">
+        <select multiple class="multi-select" id="token_projects" name="token_projects[]">
             @foreach ($all_projects as $project)
                 <option value="{{$project->pid}}">{{$project->name}}</option>
             @endforeach

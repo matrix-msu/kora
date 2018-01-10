@@ -2,44 +2,6 @@ var Kora = Kora || {};
 Kora.Tokens = Kora.Tokens || {};
 
 Kora.Tokens.Index = function() {
-    function addProject(id) {
-        var selector = $('#dropdown' +id+ ' option:selected');
-
-        var pid = selector.attr('id');
-        var token = selector.attr('token');
-
-        $.ajax({
-            //Same method as deleteProject
-            url: addProjectUrl,
-            type: 'PATCH',
-            data: {
-                "_token": CSRFToken,
-                "pid": pid,
-                "token": token
-            },
-            success: function(){
-                location.reload();
-            }
-        });
-    }
-
-    function deleteProject(pid, token) {
-        $.ajax({
-            //We manually create the link in a cheap way because the JS isn't aware of the pid until runtime
-            //We pass in a blank project to the action array and then manually add the id
-            url: deleteProjectUrl,
-            type: 'PATCH',
-            data: {
-                "_token": CSRFToken,
-                "pid": pid,
-                "token": token
-            },
-            success: function(){
-                location.reload();
-            }
-        });
-    }
-
     function clearSearch() {
         $('.search-js .icon-cancel-js').click();
     }
@@ -84,7 +46,6 @@ Kora.Tokens.Index = function() {
         $('.sort-options-js a').removeClass('active');
         $('.token').addClass('hidden');
     }
-
 
     function initializeFilters() {
         $('.sort-options-js a').click(function(e) {
@@ -175,6 +136,7 @@ Kora.Tokens.Index = function() {
         });
 
         $('.delete-token-js').click(function(e) {
+            e.preventDefault();
             indexVal = $('#token_delete_modal_id');
 
             tokenDiv = $(this).parents('.token').first();
@@ -182,6 +144,55 @@ Kora.Tokens.Index = function() {
             indexVal.val(tokenDiv.attr('id'));
 
             Kora.Modal.open($('.delete-token-modal-js'));
+        });
+
+        $('.add-projects-js').click(function(e) {
+            e.preventDefault();
+            indexVal = $('#add_projects_modal_id');
+            projDiv = $('#add_token_projects');
+            projDiv.html(""); //clears old options
+
+            tokenDiv = $(this).parents('.token').first();
+            var tid = tokenDiv.attr('id')
+            indexVal.val(tid);
+
+            //GET LIST OF UNASSIGNED TOKENS
+            $.ajax({
+                //Same method as deleteProject
+                url: unProjectUrl,
+                type: 'POST',
+                data: {
+                    "_token": CSRFToken,
+                    "token": tid
+                },
+                success: function(projects){
+                    var phtml = '';
+                    projects.forEach(function(project, index) {
+                        phtml += '<option value='+project['pid']+' token="'+tid+'">'+project['name']+'</option>';
+                    });
+                    projDiv.html(phtml);
+                    projDiv.trigger("chosen:updated"); //refresh options
+
+                    Kora.Modal.open($('.add-projects-modal-js'));
+                }
+            });
+        });
+
+        $('.token-project-delete-js').click(function(e) {
+            e.preventDefault();
+            indexVal = $('#token_delete_project_modal_id');
+            pNameVal = $('#token_delete_project_modal_name');
+            projectVal = $('#token_delete_project_modal_pid');
+
+            var pid = $(this).attr('pid');
+            projectVal.val(pid);
+            var token = $(this).attr('token');
+            indexVal.val(token);
+
+            var pname = $(this).attr('pname');
+            pNameVal.text('Are you sure you want to remove project access for '+pname+' from this Token?');
+
+            Kora.Modal.open($('.delete-token-project-modal-js'));
         });
 
         $('.multi-select').chosen({

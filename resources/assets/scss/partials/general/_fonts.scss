@@ -481,3 +481,9 @@ i {
     content: $icon-token;
   }
 }
+
+.icon-cancel-circle {
+  &:before {
+    content: $icon-cancel-circle;
+  }
+}

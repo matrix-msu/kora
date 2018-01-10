@@ -64,6 +64,7 @@ Route::get('/publish', 'PublishController@index');
 Route::get('/tokens', 'TokenController@index');
 Route::post('/tokens/create', 'TokenController@create');
 Route::post('/tokens/store', 'TokenController@edit');
+Route::post('/tokens/unassigned', 'TokenController@getUnassignedProjects');
 Route::patch('/tokens/deleteProject', 'TokenController@deleteProject');
 Route::patch('/tokens/addProject', 'TokenController@addProject');
 Route::delete('/tokens/deleteToken', 'TokenController@deleteToken');
