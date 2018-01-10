@@ -4,7 +4,7 @@
     <section class="head">
         <div class="inner-wrap center">
             <h1 class="title">
-                <i class="icon icon-projects"></i>
+                <i class="icon icon-token"></i>
                 <span>Token Management</span>
             </h1>
             <p class="description">Brief info on user Token management, followed by instructions on how to use the
@@ -14,6 +14,8 @@
 @stop
 
 @section('body')
+    @include("partials.tokens.modals")
+
     <section class="filters center">
         <div class="underline-middle search search-js">
             <i class="icon icon-search"></i>
@@ -31,7 +33,7 @@
     </section>
 
     <section class="new-object-button center">
-        <input type="button" value="Create New Token">
+        <input type="button" value="Create New Token" class="create-token-js">
     </section>
 
     <section class="token-selection center token-js token-selection-js">
@@ -50,7 +52,6 @@
         var CSRFToken = '{{ csrf_token() }}';
         var addProjectUrl = '{{ action('TokenController@addProject') }}';
         var deleteProjectUrl = '{{ action('TokenController@deleteProject') }}';
-        var deleteTokenUrl = '{{ action('TokenController@deleteToken') }}';
         Kora.Tokens.Index();
     </script>
     <script>

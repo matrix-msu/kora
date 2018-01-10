@@ -40,24 +40,6 @@ Kora.Tokens.Index = function() {
         });
     }
 
-    function deleteToken(id) {
-        var encode = $('<div/>').html("{{trans('tokens_index.areyousure')}}").text();
-        var response = confirm(encode + '?');
-        if (response) {
-            $.ajax({
-                url: deleteTokenUrl,
-                type: 'DELETE',
-                data: {
-                    "_token": CSRFToken,
-                    "id": id
-                },
-                success: function(){
-                    location.reload();
-                }
-            });
-        }
-    }
-
     function clearSearch() {
         $('.search-js .icon-cancel-js').click();
     }
@@ -159,22 +141,56 @@ Kora.Tokens.Index = function() {
         });
     }
 
-    // function initializePermissionsModal() {
-    //     Kora.Modal.initialize();
-    //
-    //     $('.request-permissions-js').click(function(e) {
-    //         e.preventDefault();
-    //
-    //         Kora.Modal.open();
-    //     });
-    //
-    //     $('.multi-select').chosen({
-    //         width: '100%',
-    //     });
-    // }
+    function initializeTokenModals() {
+        Kora.Modal.initialize();
+
+        $('.create-token-js').click(function(e) {
+            e.preventDefault();
+
+            Kora.Modal.open($('.create-token-modal-js'));
+        });
+
+        $('.edit-token-js').click(function(e) {
+            e.preventDefault();
+            indexVal = $('#token_edit_modal_id');
+            titleVal = $('#token_edit_modal_name');
+            //TODO::Not sure how to check the boxes in javascript with the fancy boxes
+            // searchVal = $('#token_edit_modal_search');
+            // createVal = $('#token_edit_modal_create');
+            // editVal = $('#token_edit_modal_edit');
+            // deleteVal = $('#token_edit_modal_delete');
+
+            tokenDiv = $(this).parents('.token').first();
+            titleSpan = tokenDiv.find('.name').first();
+
+            indexVal.val(tokenDiv.attr('id'));
+            // SEE TODO ABOVE
+            // tokenDiv.hasClass('search') ? searchVal.val(1) : searchVal.val(0);
+            // tokenDiv.hasClass('create') ? createVal.val(1) : createVal.val(0);
+            // tokenDiv.hasClass('edit') ? editVal.val(1) : editVal.val(0);
+            // tokenDiv.hasClass('delete') ? deleteVal.val(1) : deleteVal.val(0);
+            titleVal.val(titleSpan.text());
+
+            Kora.Modal.open($('.edit-token-modal-js'));
+        });
+
+        $('.delete-token-js').click(function(e) {
+            indexVal = $('#token_delete_modal_id');
+
+            tokenDiv = $(this).parents('.token').first();
+
+            indexVal.val(tokenDiv.attr('id'));
+
+            Kora.Modal.open($('.delete-token-modal-js'));
+        });
+
+        $('.multi-select').chosen({
+            width: '100%',
+        });
+    }
 
     initializeFilters();
     initializeSearch();
     initializeToggle();
-    //initializePermissionsModal();
+    initializeTokenModals();
 }

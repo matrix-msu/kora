@@ -45,21 +45,39 @@ class TokenController extends Controller {
      * @param  Request $request
      * @return Redirect
      */
-    public function create(Request $request)
-    {
-        $instance = new Token();
-        $instance->token = self::tokenGen();
-        $instance->title = $request->title;
-        $instance->search = isset($request->search) ? true : false;
-        $instance->create = isset($request->create) ? true : false;
-        $instance->edit = isset($request->edit) ? true : false;
-        $instance->delete = isset($request->delete) ? true : false;
-        $instance->save();
+    public function create(Request $request) {
+        $token = new Token();
+        $token->token = self::tokenGen();
+        $token->title = $request->token_name;
+        $token->search = isset($request->token_search) ? true : false;
+        $token->create = isset($request->token_create) ? true : false;
+        $token->edit = isset($request->token_edit) ? true : false;
+        $token->delete = isset($request->token_delete) ? true : false;
+        $token->save();
 
         if (!is_null($request->projects))
-            $instance->projects()->attach($request->projects);
+            $token->projects()->attach($request->projects);
 
         return redirect('tokens')->with('k3_global_success', 'token_created');
+    }
+
+    /**
+     * Edit a token's permission types and its name.
+     *
+     * @param  Request $request
+     * @return Redirect
+     */
+    public function edit(Request $request) {
+        $token = self::getToken($request->token);
+
+        $token->title = $request->token_name;
+        $token->search = isset($request->token_search) ? true : false;
+        $token->create = isset($request->token_create) ? true : false;
+        $token->edit = isset($request->token_edit) ? true : false;
+        $token->delete = isset($request->token_delete) ? true : false;
+        $token->save();
+
+        return redirect('tokens')->with('k3_global_success', 'token_edited');
     }
 
     /**
@@ -68,8 +86,8 @@ class TokenController extends Controller {
      * @param  Request $request
      */
     public function deleteProject(Request $request) {
-        $instance = self::getToken($request->token);
-        $instance->projects()->detach($request->pid);
+        $token = self::getToken($request->token);
+        $token->projects()->detach($request->pid);
     }
 
     /**
@@ -78,20 +96,21 @@ class TokenController extends Controller {
      * @param  Request $request
      */
     public function addProject(Request $request) {
-        $instance = self::getToken($request->token);
-        $instance->projects()->attach($request->pid);
+        $token = self::getToken($request->token);
+        $token->projects()->attach($request->pid);
     }
 
     /**
      * Deletes a token from Kora3.
      *
      * @param  Request $request
+     * @return Redirect
      */
     public function deleteToken(Request $request) {
-        $instance = self::getToken($request->id);
-        $instance->delete();
+        $token = self::getToken($request->token);
+        $token->delete();
 
-        return response()->json(["status"=>true,"message"=>"token_deleted"],200);
+        return redirect('tokens')->with('k3_global_success', 'token_deleted');
     }
 
     /**

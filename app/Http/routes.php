@@ -63,6 +63,7 @@ Route::get('/publish', 'PublishController@index');
 //token routes
 Route::get('/tokens', 'TokenController@index');
 Route::post('/tokens/create', 'TokenController@create');
+Route::post('/tokens/store', 'TokenController@edit');
 Route::patch('/tokens/deleteProject', 'TokenController@deleteProject');
 Route::patch('/tokens/addProject', 'TokenController@addProject');
 Route::delete('/tokens/deleteToken', 'TokenController@deleteToken');

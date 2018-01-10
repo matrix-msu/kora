@@ -475,3 +475,9 @@ i {
     content: $icon-record;
   }
 }
+
+.icon-token {
+  &::before {
+    content: $icon-token;
+  }
+}
