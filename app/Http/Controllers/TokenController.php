@@ -2,6 +2,7 @@
 
 use App\Token;
 use App\Project;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
@@ -45,53 +46,99 @@ class TokenController extends Controller {
      * @param  Request $request
      * @return Redirect
      */
-    public function create(Request $request)
-    {
-        $instance = new Token();
-        $instance->token = self::tokenGen();
-        $instance->title = $request->title;
-        $instance->search = isset($request->search) ? true : false;
-        $instance->create = isset($request->create) ? true : false;
-        $instance->edit = isset($request->edit) ? true : false;
-        $instance->delete = isset($request->delete) ? true : false;
-        $instance->save();
+    public function create(Request $request) {
+        $token = new Token();
+        $token->token = self::tokenGen();
+        $token->title = $request->token_name;
+        $token->search = isset($request->token_search) ? true : false;
+        $token->create = isset($request->token_create) ? true : false;
+        $token->edit = isset($request->token_edit) ? true : false;
+        $token->delete = isset($request->token_delete) ? true : false;
+        $token->save();
 
-        if (!is_null($request->projects))
-            $instance->projects()->attach($request->projects);
+        if (!is_null($request->token_projects))
+            $token->projects()->attach($request->token_projects);
 
         return redirect('tokens')->with('k3_global_success', 'token_created');
+    }
+
+    /**
+     * Edit a token's permission types and its name.
+     *
+     * @param  Request $request
+     * @return Redirect
+     */
+    public function edit(Request $request) {
+        $token = self::getToken($request->token);
+
+        $token->title = $request->token_name;
+        $token->search = isset($request->token_search) ? true : false;
+        $token->create = isset($request->token_create) ? true : false;
+        $token->edit = isset($request->token_edit) ? true : false;
+        $token->delete = isset($request->token_delete) ? true : false;
+        $token->save();
+
+        return redirect('tokens')->with('k3_global_success', 'token_edited');
+    }
+
+    /**
+     * Get a list of projects the token doesn't own.
+     *
+     * @param  Request $request
+     * @return array - The project models
+     */
+    public function getUnassignedProjects(Request $request) {
+        $token = self::getToken($request->token);
+
+        $allProjects = Project::all();
+        $results = array();
+
+        foreach($allProjects as $project) {
+            if(!$token->hasProject($project)) {
+                array_push($results,$project);
+            }
+        }
+
+        return $results;
     }
 
     /**
      * Removes project authentication from a token.
      *
      * @param  Request $request
+     * @return JsonResponse
      */
     public function deleteProject(Request $request) {
-        $instance = self::getToken($request->token);
-        $instance->projects()->detach($request->pid);
+        $token = self::getToken($request->token);
+        $token->projects()->detach($request->pid);
+
+        return redirect('tokens')->with('k3_global_success', 'token_projects_deleted');
     }
 
     /**
      * Adds project authentication from a token.
      *
      * @param  Request $request
+     * @return Redirect
      */
     public function addProject(Request $request) {
-        $instance = self::getToken($request->token);
-        $instance->projects()->attach($request->pid);
+        $token = self::getToken($request->token);
+        $token->projects()->attach($request->token_projects);
+
+        return redirect('tokens')->with('k3_global_success', 'token_projects_added');
     }
 
     /**
      * Deletes a token from Kora3.
      *
      * @param  Request $request
+     * @return Redirect
      */
     public function deleteToken(Request $request) {
-        $instance = self::getToken($request->id);
-        $instance->delete();
+        $token = self::getToken($request->token);
+        $token->delete();
 
-        return response()->json(["status"=>true,"message"=>"token_deleted"],200);
+        return redirect('tokens')->with('k3_global_success', 'token_deleted');
     }
 
     /**

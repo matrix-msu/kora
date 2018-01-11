@@ -475,3 +475,15 @@ i {
     content: $icon-record;
   }
 }
+
+.icon-token {
+  &::before {
+    content: $icon-token;
+  }
+}
+
+.icon-cancel-circle {
+  &:before {
+    content: $icon-cancel-circle;
+  }
+}

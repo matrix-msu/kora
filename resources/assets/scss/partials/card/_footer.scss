@@ -48,6 +48,14 @@
       transform: translate3d(7px, 0, 0);
     }
   }
+
+  .left {
+    text-align: left;
+  }
+
+  .danger {
+    color: palette('red', warning);
+  }
 }
 
 @media screen and (max-width: $max-mobile-width) {

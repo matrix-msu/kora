@@ -1,0 +1,14 @@
+.tokens-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu-medium;
+  min-height: 100vh;
+}
+
+.tokens {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  @import 'tokens/filters';
+  @import 'tokens/token-selection';
+  @import 'tokens/modals';
+}
