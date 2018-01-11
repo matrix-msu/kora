@@ -50,6 +50,17 @@
     padding: 0;
   }
 
+  @media screen and (max-width: $max-mobile-med-width) {
+    &.half {
+      padding: 0;
+      width: 100%;
+
+      + .half {
+        float: none;
+      }
+    }
+  }
+
   @import 'inputs/buttons';
   @import 'inputs/check-boxes';
   @import 'inputs/file';
