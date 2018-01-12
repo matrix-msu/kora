@@ -1,0 +1,12 @@
+.my-profile-attributes {
+  margin: 60px auto 0;
+  max-width: calc(#{ $max-site-width } - 600px);
+  width: $max-site-width;
+
+  font-size: 18px;
+  line-height: 21px;
+
+  .attr-desc {
+    font-family: Ubuntu-Light;
+  }
+}

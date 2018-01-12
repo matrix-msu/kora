@@ -1,0 +1,14 @@
+.my-profile-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu-medium;
+  min-height: 100vh;
+}
+
+.my-profile {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  @import 'profile/attributes';
+  @import 'profile/history';
+  @import 'profile/permissions';
+}

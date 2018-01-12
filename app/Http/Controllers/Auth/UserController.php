@@ -32,27 +32,43 @@ class UserController extends Controller {
     }
 
     /**
+     * Quick link to get to the profile of the logged in user
+     *
+     * @return Redirect
+     */
+    public function redirect() {
+        return redirect('user/'.Auth::user()->id);
+    }
+
+    /**
      * Gets info for profile and returns profile view. Also gathers records and systems permission sets.
      *
      * @return View
      */
-    public function index() {
-        $user = Auth::user();
+    public function index($uid) {
+        $user = User::where('id',$uid)->get()->first();
 
         $profile = $user->profile;
 
         if($user->admin) {
             $admin = 1;
             $records = Record::where('owner', '=', $user->id)->orderBy('updated_at', 'desc')->take(30)->get();
-            return view('user/profile',compact('admin', 'records', 'profile'));
+            return view('user/profile',compact('user', 'admin', 'records', 'profile'));
         } else {
             $admin = 0;
             $projects = self::buildProjectsArray($user);
             $forms = self::buildFormsArray($user);
             $records = Record::where('owner', '=', $user->id)->orderBy('updated_at', 'desc')->get();
 
-            return view('user/profile',compact('admin', 'projects', 'forms', 'records', 'profile'));
+            return view('user/profile',compact('user', 'admin', 'projects', 'forms', 'records', 'profile'));
         }
+    }
+
+    public function editProfile($uid) {
+        if(!\Auth::user()->admin && \Auth::user()->id!=$uid)
+            return redirect('user')->with('k3_global_error', 'cannot_edit_profile');
+
+        dd('EDIT PROFILE HERE');
     }
 
     /**
