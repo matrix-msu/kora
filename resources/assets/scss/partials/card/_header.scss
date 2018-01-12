@@ -51,6 +51,11 @@
     @include transition();
 
     padding-bottom: #{ $underline-padding + 4px };
+    
+    span {
+      display: inline-block;
+      vertical-align: middle;
+    }
 
     .name {
       margin: 15px 0;

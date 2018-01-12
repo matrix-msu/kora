@@ -29,7 +29,7 @@
 
 			<div class="form-group mt-xl">
 				<label for="email">Your E-mail Address</label>
-				<input type="email" class="text-input" name="email" value="{{ old('email') }}">
+				<input type="email" class="text-input" name="email" value="{{ old('email') }}" placeholder="Enter your email here">
 			</div>
 
 			<div class="form-group mt-xl">

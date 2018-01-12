@@ -1,0 +1,13 @@
+.admin-users-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu-medium;
+  min-height: 100vh;
+}
+
+.admin-users {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  @import 'admin/filters';
+  @import 'admin/selection';
+}

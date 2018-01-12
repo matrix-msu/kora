@@ -24,17 +24,17 @@
 
 			<div class="form-group">
 				<label for="email">Enter Your Email</label>
-				<input type="email" class="text-input" name="email" value="{{ old('email') }}">
+				<input type="email" class="text-input" name="email" value="{{ old('email') }} placeholder="Enter your email here"">
 			</div>
 
 			<div class="form-group">
 				<label for="password">Enter New Password</label>
-				<input type="password" class="text-input" name="password">
+				<input type="password" class="text-input" name="password" placeholder="Enter new password here">
 			</div>
 
 			<div class="form-group">
 				<label for="password_confirmation">Confirm New Password</label>
-				<input type="password" class="text-input" name="password_confirmation">
+				<input type="password" class="text-input" name="password_confirmation" placeholder="Enter new password here">
 			</div>
 
 			<div class="form-group">

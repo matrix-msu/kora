@@ -1,26 +1,64 @@
-@extends('app')
+@extends('app', ['page_title' => 'Users', 'page_class' => 'admin-users'])
 
-@section('content')
-    <div class="container">
-        <div class="row">
-            <div class="col-md-10 col-md-offset-1">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-
-                        <img id="current_profile_pic" style="width:auto;height:200px" src="{{env('BASE_URL') . 'logos/blank_profile.jpg'}}">
-
-                        @include('admin.form')
-
-                        <hr/>
-
-                        @include('admin.batch')
-
-                    </div>
-                </div>
-            </div>
-        </div>
+@section('header')
+  <section class="head">
+    <div class="inner-wrap center">
+      <h1 class="title">
+        <i class="icon icon-user"></i>
+        <span>User Management</span>
+      </h1>
+      <p class="description">Brief info on user management,
+        followed by instructions on how to use the user management page will go here.
+        If you would to manage users on a project or form level,
+        go to the according permissions page within the project or form.</p>
     </div>
+  </section>
 @stop
+
+@section('body')
+  <section class="filters center">
+    <div class="underline-middle search search-js">
+      <i class="icon icon-search"></i>
+      <input type="text" placeholder="Find a User">
+      <i class="icon icon-cancel icon-cancel-js"></i>
+    </div>
+    <div class="sort-options sort-options-js">
+      <a href="#" class="text dropdown-white-toggle dropdown-white-toggle-js underline-middle-hover">
+          <span>Alphabetical (A-Z)</span>
+          <i class="icon icon-chevron"></i>
+      </a>
+      <ul class="dropdown-white dropdown-white-js mt-xl">
+        <li><a href="#az">Alphabetical (A-Z)</a></li>
+        <li><a href="#za">Alphabetical (Z-A)</a></li>
+        <li><a href="#nto">Newest to Oldest</a></li>
+        <li><a href="#otn">Oldest to Newest</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="new-object-button center">
+    <form action="{{ action('AdminController@batch') }}">
+      @if(\Auth::user()->admin)
+        <input type="submit" value="Invite New User(s)">
+      @endif
+    </form>
+  </section>
+  
+  <section class="user-selection user-selection-js">
+    @include('partials.admin.userManagement.users-sorted')
+  </section>
+@stop
+
+
+@section('javascripts')
+  @include('partials.admin.javascripts')
+
+  <script type="text/javascript">
+    var CSRFToken = '{{ csrf_token() }}';
+    Kora.Admin.Users();
+  </script>
+@stop
+
 
 @section('footer')
     <script>

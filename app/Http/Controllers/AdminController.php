@@ -88,9 +88,12 @@ class AdminController extends Controller {
      * @return View
      */
     public function users() {
-        $users = User::all();
+        $usersAz = User::orderBy('first_name')->get();
+        $usersZa = User::orderBy('first_name', 'desc')->get();
+        $usersNto = User::latest()->get();
+        $usersOtn = User::orderBy('created_at')->get();
 
-        return view('admin.users', compact('users'));
+        return view('admin.users', compact('usersAz', 'usersZa', 'usersNto', 'usersOtn'));
     }
 
     /**

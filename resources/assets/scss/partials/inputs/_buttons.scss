@@ -39,7 +39,7 @@
   }
 
   &.subdued {
-    border-color: palette('green', accent, .2);
+    border-color: palette('green', accent, .3);
   }
 
   &.transparent {
@@ -67,7 +67,8 @@ a.btn {
     width: 50px;
 
     &.trash {
-      border: 2px solid palette('red', warning, .5);
+      border: 2px solid palette('red', warning, .6);
+      box-shadow: 0 3px 5px 0 palette('box-shadow', warning, .1);
 
       .icon {
         color: palette('red', warning);
@@ -76,11 +77,12 @@ a.btn {
       &:hover {
         background: palette('red', warning, 1);
         border: 2px solid palette('red', warning, 1);
+        box-shadow: 0 5px 10px 0 palette('box-shadow', warning, .1);
       }
     }
 
     &.archive {
-      border: 2px solid palette('gray', slate, .2);
+      border: 2px solid palette('gray', slate, .4);
       box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
 
       .icon {
@@ -122,12 +124,19 @@ a.btn {
 
     &:hover {
       border-color: palette('green', accent, 1);
+      box-shadow: 0 5px 10px 0 palette('box-shadow', accent, .1);
     }
 
     &.warning {
-      border: 2px solid palette('red', base, .8);
+      box-shadow: 0 3px 5px 0 palette('box-shadow', warning, .1);
+      border: 2px solid palette('red', base, .6);
       color: palette('red', base);
-      font-family: $ubuntu;
+      font-family: $ubuntu-medium;
+      
+      &:hover {
+        border: 2px solid palette('red', base, 1);
+        box-shadow: 0 5px 10px 0 palette('box-shadow', warning, .1);
+      }
     }
 
     &.disabled {
