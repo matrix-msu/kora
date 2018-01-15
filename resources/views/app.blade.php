@@ -31,7 +31,7 @@
 
         <link rel="stylesheet" href="{{env('BASE_URL')}}assets/css/app.css">
     </head>
-    <body class="{{ str_hyphenated($page_class) }}-body @if(Auth::guest()) auth-body @endif">
+    <body class="{{ str_hyphenated($page_class) }}-body @if(Auth::guest() && isInstalled()) auth-body @endif">
       @include('partials.nav')
 
       <div class="side-menu side-menu-js">
@@ -41,12 +41,9 @@
       </div>
 
 
-      <div class="{{ str_hyphenated($page_class) }} @if(Auth::guest()) auth @endif">
+      <div class="{{ str_hyphenated($page_class) }} @if(Auth::guest() && isInstalled()) auth @endif">
         @yield('header')
         @yield('body')
-        @if(Auth::guest())
-          @include('partials.footer')
-        @endif
         @yield('footer')
       </div>
 

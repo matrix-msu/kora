@@ -197,6 +197,7 @@ Route::get('/projects/{pid}/forms/{fid}/metadata/public/{resource}','MetadataCon
 Route::post('/projects/{pid}/forms/{fid}/metadata/massassign','MetadataController@massAssign');
 
 //install routes
+Route::get('/helloworld','InstallController@helloworld');
 Route::get('/install','InstallController@index');
 Route::post('/install/begin',"InstallController@install");
 Route::post('/install/finish',"InstallController@installPartTwo");
