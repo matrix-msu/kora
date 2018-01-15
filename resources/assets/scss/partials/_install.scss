@@ -22,6 +22,7 @@
 .welcome-fresh {
   margin: $navigation-height auto 0;
   width: 100%;
+  font-family: $ubuntu;
 
   .content-install {
     max-width: calc(#{ $max-site-width } - 600px);
