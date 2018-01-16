@@ -1,9 +1,21 @@
-@extends('app', ['page_title' => "{$form->name} Permissions", 'page_class' => 'permissions'])
+@extends('app', ['page_title' => "{$form->name} Permissions", 'page_class' => 'form-permissions'])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $form->pid])
     @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
     @include('partials.menu.static', ['name' => 'Form Permissions'])
+@stop
+
+@section('header')
+    <section class="head">
+      <div class="inner-wrap center">
+        <h1 class="title">
+          <i class="icon icon-form-permissions"></i>
+          <span>Form Permissions</span>
+        </h1>
+        <p class="description">Select a permission group below or create a new permission group to get started.</p>
+      </div>
+  </section>
 @stop
 
 @section('content')
