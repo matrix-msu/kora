@@ -10,3 +10,39 @@
 
   @import 'install/install-form';
 }
+
+.welcome-fresh-body {
+  background: url('../images/auth-bg.jpg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  min-height: 100vh;
+}
+
+.welcome-fresh {
+  margin: $navigation-height auto 0;
+  width: 100%;
+  font-family: $ubuntu;
+
+  .content-install {
+    max-width: calc(#{ $max-site-width } - 600px);
+    margin: 30px auto 0;
+    text-align: center;
+
+    .kora3 {
+      font-size: 36px;
+      line-height: 42px;
+      text-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1);
+    }
+
+    .ready {
+      font-size: 24px;
+      line-height: 28px;
+    }
+
+    .commander {
+      font-size: 16px;
+      line-height: 28px;
+    }
+  }
+}

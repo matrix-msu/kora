@@ -27,10 +27,14 @@
     font-size: 12px;
     vertical-align: middle;
 
-    a {
+    a, .no-link {
       @include transition();
 
       line-height: 50px;
+    }
+
+    .no-link {
+      color: palette('white', base);
     }
 
     &:not(:first-child) {

@@ -14,7 +14,7 @@
         <li class="navigation-item">
           <a href="{{ url('/auth/register') }}" class="text navigation-toggle-js underline-middle-hover">Need to Sign Up?</a>
         </li>
-      @else
+      @elseif(isInstalled())
         <li class="navigation-item">
           <a href="{{ url('/') }}" class="text navigation-toggle-js underline-middle-hover">Need to Login?</a>
         </li>

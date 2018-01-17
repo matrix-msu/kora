@@ -176,8 +176,9 @@ Route::get('/projects/{pid}/forms/{fid}/records/revisions/{rid}', 'RevisionContr
 Route::get('/rollback', 'RevisionController@rollback');
 
 //user routes
-Route::get('/user', 'Auth\UserController@index');
-Route::get('/user/profile', 'Auth\UserController@index');
+Route::get('/user', 'Auth\UserController@redirect');
+Route::get('/user/{uid}', 'Auth\UserController@index');
+Route::get('/user/{uid}/edit', 'Auth\UserController@editProfile');
 Route::patch('/user/changepw', 'Auth\UserController@changepw');
 Route::get('/auth/activate', 'Auth\UserController@activateshow');
 Route::get('/user/activate/{token}', 'Auth\UserController@activate');
@@ -196,6 +197,7 @@ Route::get('/projects/{pid}/forms/{fid}/metadata/public/{resource}','MetadataCon
 Route::post('/projects/{pid}/forms/{fid}/metadata/massassign','MetadataController@massAssign');
 
 //install routes
+Route::get('/helloworld','InstallController@helloworld');
 Route::get('/install','InstallController@index');
 Route::post('/install/begin',"InstallController@install");
 Route::post('/install/finish',"InstallController@installPartTwo");

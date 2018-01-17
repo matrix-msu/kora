@@ -54,17 +54,17 @@
         Information on the main admin user for managing this Kora Installation
     </div>
 
-    <div class="form-group mt-xl">
+    <div class="form-group half mt-xl pr-m">
         <label for="user_firstname">First Name</label>
         <input class="text-input" placeholder="Enter admin's first name here" type="text" id="user_firstname" name="user_firstname" value="{{old('user_firstname')}}">
     </div>
 
-    <div class="form-group mt-xl">
+    <div class="form-group half mt-xl pl-m">
         <label for="user_lastname">Last Name</label>
         <input class="text-input" placeholder="Enter admin's last name here" type="text" id="user_lastname" name="user_lastname" value="{{old('user_lastname')}}">
     </div>
 
-    <div class="form-group mt-xl">
+    <div class="form-group mt-xl ">
         <label for="user_username">Username</label>
         <input class="text-input" placeholder="Enter admin's username here" type="text" id="user_username" name="user_username" value="{{old('user_username')}}">
     </div>
@@ -85,8 +85,13 @@
     </div>
 
     <div class="form-group mt-xl">
-        <label for="user_profile">Profile Image</label>
-        <input class="user_profile" accept=".jpeg,.png,.bmp,.gif,.jpg" type="file" id="user_profile" name="user_profile">
+        <label>Profile Image</label>
+        <input type="file" accept="image/*" name="user_profile" id="user_profile" class="profile-input" />
+        <label for="user_profile" class="profile-label">
+            <img src="{{ env('BASE_URL') }}logos/blank_profile.jpg" height="80px" width="80px" alt="Profile">
+            <p class="filename">Add a photo to help others identify you</p>
+            <p class="instruction mb-0">Drag and Drop or Select a Photo here</p>
+        </label>
     </div>
 
     <div class="form-group mt-xl">

@@ -59,6 +59,18 @@ class InstallController extends Controller {
     ];
 
     /**
+     * Gets home view for the uninstalled welcome page.
+     *
+     * @return View
+     */
+    public function helloworld() {
+        if(file_exists("../.env"))
+            return redirect('/');
+
+        return view('install.helloworld');
+    }
+
+    /**
      * Gets home view for the installation page.
      *
      * @return View
