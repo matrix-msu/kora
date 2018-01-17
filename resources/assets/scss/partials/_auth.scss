@@ -7,7 +7,7 @@
 .auth {
   width: 100%;
 
-  .content {
+  > .content {
     background: url('../images/auth-bg.jpg');
     background-position: center;
     background-repeat: no-repeat;
@@ -17,8 +17,9 @@
   }
 
   .form-container {
-    max-width: 600px;
-    width: 100%;
+    margin: #{map-get($spacing, 100-xl)} auto;
+    max-width: calc(#{ $max-site-width } - 600px);
+    width: $max-site-width;
   }
 
   .head {
