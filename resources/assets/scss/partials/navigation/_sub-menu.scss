@@ -22,6 +22,9 @@
     @include transition();
 
     background-color: palette('gray', background);
+    border-radius: 5px;
+    box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
+    font-size: 14px;
     margin-right: 20px;
     opacity: 0;
     padding: 15px 30px;
@@ -36,6 +39,8 @@
     }
 
     a {
+      padding: 0 !important;
+
       &:hover {
         color: palette('green', accent);
       }
