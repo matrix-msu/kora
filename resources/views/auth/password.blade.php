@@ -10,7 +10,7 @@
 		@endif
 
 		<section class="head">
-      <h1 class="title text-center">Reset Your Password</h1>
+      <h1 class="title text-center">Forgot your password?</h1>
     </section>
 
 		@if (count($errors) > 0)
@@ -28,7 +28,7 @@
 			<input type="hidden" name="_token" value="{{ csrf_token() }}">
 
 			<div class="form-group mt-xl">
-				<label for="email">Your E-mail Address</label>
+				<label for="email">Enter Your Email to Recover Password</label>
 				<input type="email" class="text-input" name="email" value="{{ old('email') }}" placeholder="Enter your email here">
 			</div>
 

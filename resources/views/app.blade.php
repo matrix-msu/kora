@@ -50,10 +50,6 @@
         @yield('footer')
       </div>
 
-
-
-      @include('partials.javascripts')
-
       @if(Auth::guest())
         @include('partials.projects.javascripts')
 
@@ -76,5 +72,7 @@
           }
         </script>
       @endif
+
+      @include('partials.javascripts')
     </body>
 </html>

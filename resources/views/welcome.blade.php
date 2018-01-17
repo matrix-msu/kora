@@ -48,7 +48,7 @@
               <span class="placeholder">Remember Me</span>
             </div>
 
-            <p class="forgot my-0"><a class="text underline-middle-hover" href="{{ url('/password/email') }}">Forgot Password?</a></p>
+            <p class="forgot my-0"><a class="text password-js underline-middle-hover" href="#">Forgot Password?</a></p>
           </div>
 
           <div class="form-group mt-xxxl">
@@ -80,8 +80,55 @@
     </form>
   @endif
 </div>
-@stop
+
+<div class="modal modal-js modal-mask">
+  <div class="content">
+    <div class="header">
+      <span class="title">Forgot Your Password?</span>
+      <a href="#" class="modal-toggle modal-toggle-js">
+        <i class="icon icon-cancel"></i>
+      </a>
+    </div>
+    <div class="body">
+      @if (count($errors) > 0)
+        <div class="alert alert-danger">
+          <strong>{{trans('auth_password.whoops')}}!</strong> {{trans('auth_password.problems')}}.<br><br>
+          <ul>
+            @foreach ($errors->all() as $error)
+              <li>{{ $error }}</li>
+            @endforeach
+          </ul>
+        </div>
+      @endif
+
+      <form class="form-horizontal" role="form" method="POST" action="{{ url('/password/email') }}">
+        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+
+        <div class="form-group mt-xl">
+          <label for="email">Enter Your Email to Recover Password</label>
+          <input type="email" class="text-input" name="email" value="{{ old('email') }}" placeholder="Enter your email here">
+        </div>
+
+        <div class="form-group mt-xl">
+          <button type="submit" class="btn btn-primary">Send Password Reset Link</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 
-@section('footer')
 @stop
+
+@section('javascripts')
+  <script>
+    Kora.Modal.initialize();
+
+    $('.password-js').click(function(e) {
+      e.preventDefault();
+
+      Kora.Modal.open();
+    });
+  </script>
+@stop
+

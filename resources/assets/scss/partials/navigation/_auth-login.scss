@@ -18,6 +18,12 @@
         color: palette('green', accent);
       }
     }
+    
+    .language-select {
+      a:first-child {
+        margin: 0;
+      }
+    }
   }
 
   .navigation-right {
