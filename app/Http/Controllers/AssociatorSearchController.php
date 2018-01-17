@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\ComboListField;
 use App\ListField;
 use App\Record;
 use App\Search;
@@ -43,7 +44,11 @@ class AssociatorSearchController extends Controller {
         $activeForms = array();
         $results = array();
 
-        $option = FieldController::getFieldOption($field,'SearchForms');
+        if(!is_null($request->combo))
+            $option = ComboListField::getComboFieldOption($field, 'SearchForms', $request->combo);
+        else
+            $option = FieldController::getFieldOption($field,'SearchForms');
+
         if($option!='') {
             $options = explode('[!]',$option);
 
@@ -53,15 +58,18 @@ class AssociatorSearchController extends Controller {
                 $opt_flids = explode('[flids]',$opt)[1];
                 $opt_flids = explode('-',$opt_flids);
 
-                if($opt_search == 1)
+                if($opt_search == 1) {
                     $flids = array();
-                foreach($opt_flids as $flid) {
-                    if($flid!='') {
-                        $field = FieldController::getField($flid);
-                        $flids[$flid] = $field->type;
+
+                    foreach($opt_flids as $flid) {
+                        if($flid!='') {
+                            $field = FieldController::getField($flid);
+                            $flids[$flid] = $field->type;
+                        }
                     }
+
+                    $activeForms[$opt_fid] = ['flids' => $flids];
                 }
-                $activeForms[$opt_fid] = ['flids' => $flids];
             }
         }
 
@@ -74,6 +82,7 @@ class AssociatorSearchController extends Controller {
                 $kid = $form->pid.'-'.$fid.'-'.$rid;
                 $preview = array();
                 foreach($details['flids'] as $flid=>$type) {
+                    //TODO:: add more previews
                     if($type=='Text') {
                         $text = TextField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
                         if(!is_null($text) && $text->text != '')
@@ -82,6 +91,8 @@ class AssociatorSearchController extends Controller {
                         $list = ListField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
                         if(!is_null($list) && $list->option != '')
                             array_push($preview,$list->option);
+                    } else {
+                        array_push($preview, 'Invalid Preview Field');
                     }
                 }
 

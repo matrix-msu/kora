@@ -29,7 +29,8 @@
         {!! Form::select('cftype1',
             [trans('fields_form.tf') => array('Text' => trans('fields_form.text'), 'Number' => trans('fields_form.number')),
             trans('fields_form.lf') => array('List' => trans('fields_form.list'), 'Multi-Select List' => trans('fields_form.mslist'),
-            'Generated List' => trans('fields_form.genlist'))],
+            'Generated List' => trans('fields_form.genlist')),
+            'Other' => array('Associator' => 'Associator')],
             null,['class' => 'form-control']) !!}
         {!! Form::label('cfname1',trans('fields_form.comboname').' 1: ') !!}
         {!! Form::text('cfname1',null,['class' => 'form-control']) !!}
@@ -38,7 +39,8 @@
         {!! Form::select('cftype2',
             [trans('fields_form.tf') => array('Text' => trans('fields_form.text'), 'Number' => trans('fields_form.number')),
             trans('fields_form.lf') => array('List' => trans('fields_form.list'), 'Multi-Select List' => trans('fields_form.mslist'),
-            'Generated List' => trans('fields_form.genlist'))],
+            'Generated List' => trans('fields_form.genlist')),
+            'Other' => array('Associator' => 'Associator')],
             null,['class' => 'form-control']) !!}
         {!! Form::label('cfname2',trans('fields_form.comboname').' 2: ') !!}
         {!! Form::text('cfname2',null,['class' => 'form-control']) !!}

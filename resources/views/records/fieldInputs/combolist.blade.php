@@ -34,7 +34,7 @@
                         }
                         ?>
                         <span style="float:left;width:40%;margin-bottom:10px">{{$value1}}</span>
-                    @elseif($oneType=='Multi-Select List' | $oneType=='Generated List')
+                    @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
                         <?php
                         $value1 = explode('[!f1!]',$defArray[$i])[1];
                         $value1Array = explode('[!]',$value1);
@@ -60,7 +60,7 @@
                         }
                         ?>
                         <span style="float:left;width:40%;margin-bottom:10px">{{$value2}}</span>
-                    @elseif($twoType=='Multi-Select List' | $twoType=='Generated List')
+                    @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $twoType=='Associator')
                         <?php
                         $value2 = explode('[!f2!]',$defArray[$i])[1];
                         $value2Array = explode('[!]',$value2);
@@ -102,8 +102,6 @@
         type1 = '{{$oneType}}';
         val2 = val2Div.val();
         type2 = '{{$twoType}}';
-        console.log(val1Div);
-        console.log(val2Div);
 
         //if we have number, we extract differently
         if(type1=='Number'){

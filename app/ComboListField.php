@@ -1,6 +1,8 @@
 <?php namespace App;
 
+use App\Http\Controllers\AssociationController;
 use App\Http\Controllers\FieldController;
+use App\Http\Controllers\FormController;
 use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
@@ -105,10 +107,10 @@ class ComboListField extends BaseField {
      */
     public function updateOptions($field, Request $request, $return=true) {
         $flopt_one ='[Type]'.$request->typeone.'[Type][Name]'.$request->nameone.'[Name]';
-        $flopt_one .= $this->formatUpdatedSubOptions($request,"one");
+        $flopt_one .= $this->formatUpdatedSubOptions($request,"one",$field->fid);
 
-        $flopt_two ='[Type]'.$request->typetwo.'[Type][Name]'.$request->nametwo.'[Name][Options]';
-        $flopt_two .= $this->formatUpdatedSubOptions($request,"two");
+        $flopt_two ='[Type]'.$request->typetwo.'[Type][Name]'.$request->nametwo.'[Name]';
+        $flopt_two .= $this->formatUpdatedSubOptions($request,"two",$field->fid);
 
         $default='';
         if(!is_null($request->defvalone) && $request->defvalone != '') {
@@ -141,9 +143,10 @@ class ComboListField extends BaseField {
      *
      * @param  Request $request
      * @param  string $seq - Is this the first or second sub field
+     * @param  int $fid - Form ID, mostly for associator use
      * @return string - The updated options
      */
-    private function formatUpdatedSubOptions($request, $seq) {
+    private function formatUpdatedSubOptions($request, $seq, $fid) {
         $options = "[Options]";
         $type = $request->{"type".$seq};
         switch($type) {
@@ -172,6 +175,32 @@ class ComboListField extends BaseField {
                 $options .= implode("[!]",$reqOpts);
                 $options .= '[!Options!]';
                 $options .= '[!Regex!]'.$request->{"regex_".$seq}.'[!Regex!]';
+                break;
+            case Field::_ASSOCIATOR:
+                $options .= '[!SearchForms!]';
+                $opt = array();
+
+                foreach(AssociationController::getAvailableAssociations($fid) as $a) {
+                    $f = FormController::getForm($a->dataForm);
+                    $box = 'checkbox_'.$f->fid.'_'.$seq;
+                    $preview = 'preview_'.$f->fid.'_'.$seq;
+
+                    $val = '[fid]'.$f->fid.'[fid]';
+                    if(!is_null($request->{$box}))
+                        $val .= '[search]1[search]';
+                    else
+                        $val .= '[search]0[search]';
+
+                    if(!is_null($request->{$preview}))
+                        $val .= '[flids]'.implode('-',$request->{$preview}).'[flids]';
+                    else
+                        $val .= '[flids][flids]';
+
+                    array_push($opt,$val);
+                }
+
+                $options .= implode('[!]',$opt);
+                $options .= '[!SearchForms!]';
                 break;
         }
         $options .= "[Options]";

@@ -81,7 +81,7 @@
                             }
                         ?>
                         <span style="float:left;width:40%;margin-bottom:10px">{{$value}}</span>
-                    @elseif($oneType=='Multi-Select List' | $oneType=='Generated List')
+                    @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
                         <?php
                             $value = explode('[!f1!]',$defArray[$i])[1];
                             $value = explode('[!]',$value);
@@ -107,7 +107,7 @@
                             }
                         ?>
                         <span style="float:left;width:40%;margin-bottom:10px">{{$value}}</span>
-                    @elseif($twoType=='Multi-Select List' | $twoType=='Generated List')
+                    @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $oneType=='Associator')
                         <?php
                             $value = explode('[!f2!]',$defArray[$i])[1];
                             $value = explode('[!]',$value);
@@ -147,6 +147,8 @@
         @include('partials.combofields.mslist',['field'=>$field,'fnum'=>'one'])
     @elseif($oneType=='Generated List')
         @include('partials.combofields.genlist',['field'=>$field,'fnum'=>'one'])
+    @elseif($oneType=='Associator')
+        @include('partials.combofields.associator',['field'=>$field,'fnum'=>'one'])
     @endif
 
     <br>
@@ -162,6 +164,8 @@
         @include('partials.combofields.mslist',['field'=>$field,'fnum'=>'two'])
     @elseif($twoType=='Generated List')
         @include('partials.combofields.genlist',['field'=>$field,'fnum'=>'two'])
+    @elseif($twoType=='Associator')
+        @include('partials.combofields.associator',['field'=>$field,'fnum'=>'two'])
     @endif
 
 
@@ -202,7 +206,7 @@
                             echo \App\ComboListField::getComboFieldOption($field,'Unit','one');
                     ?>';
                     div += '<span style="float:left;width:40%;margin-bottom:10px">'+val1+' '+unit+'</span>';
-                }else if(type1=='Multi-Select List' | type1=='Generated List'){
+                }else if(type1=='Multi-Select List' | type1=='Generated List' | type1=='Associator'){
                     div += '<span style="float:left;width:40%;margin-bottom:10px">';
                     for(k=0;k<val1.length;k++){
                         div += '<div>'+val1[k]+'</div>';
@@ -218,7 +222,7 @@
                             echo \App\ComboListField::getComboFieldOption($field,'Unit','two');
                     ?>';
                     div += '<span style="float:left;width:40%;margin-bottom:10px">'+val2+' '+unit+'</span>';
-                }else if(type2=='Multi-Select List' | type2=='Generated List'){
+                }else if(type2=='Multi-Select List' | type2=='Generated List' | type2=='Associator'){
                     div += '<span style="float:left;width:40%;margin-bottom:10px">';
                     for(k=0;k<val2.length;k++){
                         div += '<div>'+val2[k]+'</div>';
@@ -234,11 +238,15 @@
 
                 if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List')
                     $('#default_one').select2("val", "");
+                else if(type1=='Associator')
+                    $('#default_one').html("");
                 else
                     $('#default_one').val('');
 
                 if(type2=='Multi-Select List' | type2=='Generated List' | type2=='List')
                     $('#default_two').select2("val", "");
+                else if(type2=='Associator')
+                    $('#default_two').html("");
                 else
                     $('#default_two').val('');
             }
@@ -269,7 +277,7 @@
                         }else if(type1=='Number'){
                             val = $(this).text().split(" ")[0];
                             valone.push(val);
-                        }else if(type1=='Multi-Select List' | type1=='Generated List'){
+                        }else if(type1=='Multi-Select List' | type1=='Generated List' | type1=='Associator'){
                             val = '';
                             $(this).children().each(function(){
                                 if(val=='')
@@ -287,7 +295,7 @@
                         }else if(type2=='Number'){
                             val = $(this).text().split(" ")[0];
                             valtwo.push(val);
-                        }else if(type2=='Multi-Select List' | type2=='Generated List'){
+                        }else if(type2=='Multi-Select List' | type2=='Generated List' | type2=='Associator'){
                             val = '';
                             $(this).children().each(function(){
                                 if(val=='')
