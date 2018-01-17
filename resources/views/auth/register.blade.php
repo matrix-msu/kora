@@ -2,7 +2,7 @@
 
 @section('body')
 <div class="content">
-  <div class="form-container px-m py-100-xl mx-auto">
+  <div class="form-container center">
     <section class="head">
       <h1 class="title">Sign Up</h1>
     </section>

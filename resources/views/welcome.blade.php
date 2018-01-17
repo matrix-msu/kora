@@ -2,7 +2,7 @@
 
 @section('body')
 <div class="content">
-  <div class="form-container py-100-xl ma-auto">
+  <div class="form-container center">
     <div>
       <img src="{{ env('BASE_URL') }}logos/koraiii-logo-blue.svg">
     </div>
@@ -107,4 +107,3 @@
     });
   </script>
 @stop
-

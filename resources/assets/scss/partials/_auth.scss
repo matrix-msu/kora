@@ -17,8 +17,9 @@
   }
 
   .form-container {
-    max-width: 600px;
-    width: 100%;
+    margin: #{map-get($spacing, 100-xl)} auto;
+    max-width: calc(#{ $max-site-width } - 600px);
+    width: $max-site-width;
   }
 
   .head {
