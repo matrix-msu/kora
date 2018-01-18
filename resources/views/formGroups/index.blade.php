@@ -36,6 +36,10 @@
 
   <section class="permission-group-selection center permission-group-js permission-group-selection">
     @foreach($formGroups as $index=>$formGroup)
+      <?php
+        $specialGroup = ($form->adminGID == $formGroup->id) ||
+          ($formGroup->name == $form->name . " Default Group")
+      ?>
       <div class="group group-js card {{ $index == 0 ? 'active' : '' }}" id="{{$formGroup->id}}">
         <div class="header {{ $index == 0 ? 'active' : '' }}">
           <div class="left pl-m">
@@ -170,6 +174,43 @@
             </div>
           </div>
 
+          <div class="users users-js" data-group="{{$formGroup->id}}">
+            <?php
+              $users = $formGroup->users()->get();
+            ?>
+            @if (sizeof($users) == 0)
+              <p class="no-users no-users-js">
+                <span>No users in this group, select</span>
+                <a href="#" class="user-add add-users-js underline-middle-hover"
+                  data-select="add_user_select{{$formGroup->id}}"
+                  data-group="{{$formGroup->id}}" >
+                  <i class="icon icon-user-add"></i>
+                  <span>Add User(s) to Group</span>
+                </a>
+                <span>to add some!</span>
+              </p>
+            @endif
+
+            @foreach($users as $user)
+              <div class="user user-js" id="list-element{{$formGroup->id}}{{$user->id}}">
+                <a href="#" class="name view-user-js">{{ $user->first_name }} {{ $user->last_name }}</a>
+
+                @if (\Auth::user()->id != $user->id)
+                  <a href="#" class="cancel remove-user-js" data-value="[{{$formGroup->id}}, {{$user->id}}, {{$project->pid}}, {{$form->fid}}]">
+                    {{-- <i class="icon icon-cancel"><i/> --}}
+                  </a>
+                @endif
+              </div>
+            @endforeach
+            @include("partials.formGroups.addUsersBody")
+          </div>
+          <div class="footer">
+            @if (!$specialGroup)
+              <a class="quick-action trash-container delete-permission-group-js left" href="#" data-group="{{$formGroup->id}}">
+                <i class="icon icon-trash"></i>
+              </a>
+            @endif
+          </div>
         </div>
       </div>
     @endforeach

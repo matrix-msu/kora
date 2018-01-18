@@ -1,13 +1,13 @@
-<div class="hidden" id="add_user_select{{$projectGroup->id}}">
+<div class="hidden" id="add_user_select{{$formGroup->id}}">
   @if (true)
     <div class="form-group">
-      {!! Form::label("select-".$projectGroup->id, 'Select User(s) to Add to Permissions Group') !!}
-      <select class="multi-select" id="select-{{$projectGroup->id}}"
+      {!! Form::label("select-".$formGroup->id, 'Select User(s) to Add to Permissions Group') !!}
+      <select class="multi-select" id="select-{{$formGroup->id}}"
         data-placeholder="Search and select users to be added to the permissions group    "
-        data-group="{{$projectGroup->id}}"
+        data-group="{{$formGroup->id}}"
         multiple >
         @foreach($all_users as $user)
-          @if(!$projectGroup->hasUser($user) && \Auth::user()->id != $user->id)
+          @if(!$formGroup->hasUser($user) && \Auth::user()->id != $user->id)
             <option value="{{$user->id}}">{{$user->first_name}} {{$user->last_name}}</option>
           @endif
         @endforeach
