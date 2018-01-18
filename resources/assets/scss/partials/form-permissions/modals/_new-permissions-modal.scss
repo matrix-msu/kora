@@ -13,6 +13,13 @@
       &:last-of-type {
         padding-right: 0;
       }
+
+      .action-column {
+        height: 55px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
     }
   }
 
