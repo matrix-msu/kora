@@ -1,0 +1,51 @@
+.content {
+  .allowed-actions {
+    padding: 10px 0 40px;
+
+    &:first-child {
+      padding: 10px 0 10px;
+    }
+
+    .action {
+      display: inline-block;
+      padding: 0 14px;
+
+      &:first-of-type {
+        padding-left: 0;
+      }
+
+      &:last-of-type {
+        padding-right: 0;
+      }
+    }
+  }
+
+  @import 'group/users';
+  @import 'group/footer';
+}
+
+@media screen and (max-width: $max-mobile-med-width) {
+  .content {
+    .allowed-actions .action:last-of-type {
+      display: block;
+      padding: 15px 0 0;
+    }
+  }
+}
+
+@media screen and (max-width: $max-mobile-xs-width) {
+  .content {
+    .allowed-actions {
+      padding-bottom: 25px;
+
+      .action {
+        display: block;
+        padding: 15px 0 0;
+
+        &:first-of-type {
+          padding-top: 0;
+        }
+      }
+    }
+  }
+}

@@ -7,4 +7,7 @@
 .form-permissions {
   margin: $navigation-height auto 0;
   width: 100%;
+
+  @import 'form-permissions/permission-group-selection';
+  @import 'form-permissions/modals';
 }

@@ -1,0 +1,118 @@
+.users {
+  min-height: 42px;
+
+  .no-users {
+    margin: 0;
+    min-height: 42px;
+    padding: 0;
+
+    > span {
+      color: palette('gray', text, .6);
+      display: inline-block;
+      font-family: $ubuntu-medium;
+      margin: 9px 0 14px;
+      vertical-align: middle;
+    }
+  }
+
+  .user-add {
+    color: palette('green', accent);
+    font-family: $ubuntu-medium;
+    margin: 0 5px;
+    padding: 0 0 $underline-padding;
+
+    span {
+      color: inherit;
+      font-family: $ubuntu-medium;
+      padding: 10px 0 10px 2px;
+      vertical-align: top;
+    }
+  }
+
+  .user {
+    @include transition();
+
+    background-color: palette('white', base);
+    border: 1px solid palette('gray', slate, .1);
+    border-radius: 5px;
+    box-shadow: 0 3px 5px 0 palette('box-shadow', base, .03);
+    color: palette('gray', text);
+    display: inline-block;
+    font-family: $ubuntu;
+    font-size: 14px;
+    margin: 0 10px 10px 0;
+
+    a {
+      @include transition();
+
+      display: inline-block;
+      line-height: 30px;
+      vertical-align: middle;
+
+    }
+
+    .name {
+      padding: 0 10px;
+    }
+
+    .name:hover {
+      color: palette('green', accent);
+    }
+
+
+    .icon-cancel {
+      @include transition();
+
+      display: block;
+      font-size: 10px;
+      opacity: .2;
+      padding: 10px 10px 10px 0;
+      will-change: transform;
+    }
+
+    .icon-cancel:hover {
+      opacity: 1;
+      transform: scale($transform-scale-multiplier);
+    }
+
+    &:hover {
+      box-shadow: 0 6px 12px 0 palette('box-shadow', base, .06);
+    }
+  }
+}
+
+@media screen and (max-width: $max-mobile-med-width) {
+  .users {
+
+    .no-users {
+
+      > span {
+        margin: 0;
+      }
+
+      > span:last-child {
+        display: block;
+      }
+    }
+
+    .user-add {
+      display: block;
+      margin: 0;
+      padding-top: 5px;
+      width: 160px;
+
+      span {
+        padding: 0;
+      }
+    }
+  }
+}
+
+// @media screen and (max-width: $max-mobile-xs-width) {
+//   .group .content {
+//     .allowed-actions .action {
+//       display: block;
+//       padding: 15px 0 0;
+//     }
+//   }
+// }
