@@ -1,395 +1,233 @@
 @extends('app', ['page_title' => "{$form->name} Permissions", 'page_class' => 'form-permissions'])
 
 @section('leftNavLinks')
-    @include('partials.menu.project', ['pid' => $form->pid])
-    @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
-    @include('partials.menu.static', ['name' => 'Form Permissions'])
+  @include('partials.menu.project', ['pid' => $form->pid])
+  @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+  @include('partials.menu.static', ['name' => 'Form Permissions'])
 @stop
 
 @section('header')
-    <section class="head">
-      <div class="inner-wrap center">
-        <h1 class="title">
-          <i class="icon icon-form-permissions"></i>
-          <span>Form Permissions</span>
-        </h1>
-        <p class="description">Select a permission group below or create a new permission group to get started.</p>
-      </div>
+  <section class="head">
+    <div class="inner-wrap center">
+      <h1 class="title">
+        <i class="icon icon-form-permissions"></i>
+        <span>Form Permissions</span>
+      </h1>
+      <p class="description">Select a permission group below or create a new permission group to get started.</p>
+    </div>
   </section>
 @stop
 
-@section('content')
-    <div class="container">
-        <div class="row">
-            <div class="col-md-10 col-md-offset-1">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3>{{trans('formGroups_index.manage')}}</h3>
-                    </div>
+@section('body')
+  @include("partials.formGroups.editNameModal")
+  @include("partials.formGroups.newPermissionModal")
+  @include("partials.formGroups.deletePermissionModal")
+  @include("partials.formGroups.addUsersModal")
+  @include("partials.formGroups.removeUserModal")
+  @include("partials.formGroups.viewUserModal")
 
-                    <div class="panel-body">
+  <section class="new-object-button center">
+    @if(\Auth::user()->isProjectAdmin($project))
+      <form action="#">
+        <input class="new-permission-js" type="submit" value="Create a New Permissions Group">
+      </form>
+    @endif
+  </section>
 
-                        @foreach($formGroups as $formGroup)
-                            @if($form->adminGID == $formGroup->id)
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">{{$formGroup->name}}</div>
+  <section class="permission-group-selection center permission-group-js permission-group-selection">
+    @foreach($formGroups as $index=>$formGroup)
+      <?php
+        $specialGroup = ($form->adminGID == $formGroup->id) ||
+          ($formGroup->name == $form->name . " Default Group")
+      ?>
+      <div class="group group-js card {{ $index == 0 ? 'active' : '' }}" id="{{$formGroup->id}}">
+        <div class="header {{ $index == 0 ? 'active' : '' }}">
+          <div class="left pl-m">
+            @if ($form->adminGID == $formGroup->id)
+              <i class="icon icon-star pr-xs"></i>
+            @elseif ($formGroup->name == $form->name." Default Group")
+              <i class="icon icon-shield pr-xs"></i>
+            @endif
 
-                                    <div class="collapseTest" style="display: none">
-                                        <div class="panel-body">
-                                            <span>{{trans('formGroups_index.users')}}:</span>
-                                            <ul class="list-group" id="list{{$formGroup->id}}">
-                                                @foreach($formGroup->users()->get() as $user)
-                                                    <li class="list-group-item" id="list-element{{$formGroup->id}}{{$user->id}}" name="{{$user->username}}">
-                                                        {{$user->username}} @if(\Auth::user()->id != $user->id)
-                                                            <a href="javascript:void(0)" onclick="removeUser({{$formGroup->id}}, {{$user->id}})">[X]</a>
-                                                        @endif
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-                                            <select onchange="addUser({{$formGroup->id}})" id="dropdown{{$formGroup->id}}">
-                                                <option selected value="0">{{trans('formGroups_index.adduser')}}</option>
-                                                @foreach($all_users as $user)
-                                                    @if($formGroup->hasUser($user))
-                                                    @else
-                                                        <option id="{{$user->id}}">{{$user->username}}</option>
-                                                    @endif
-                                                @endforeach
-                                            </select>
-                                            <hr/>
-                                            <div id="checkboxes">
-                                                <span>{{trans('formGroups_index.permissions')}}:</span>
-                                                <ul class="list-group" id="perm-list{{$formGroup->id}}">
-                                                    <li class="list-group-item">{{trans('formGroups_index.cField')}}: <input type="checkbox" id="create" checked disabled></li>
-                                                    <li class="list-group-item">{{trans('formGroups_index.eField')}}: <input type="checkbox" id="edit" checked disabled></li>
-                                                    <li class="list-group-item">{{trans('formGroups_index.dField')}}: <input type="checkbox" id="delete" checked disabled></li>
-                                                    <li class="list-group-item">{{trans('formGroups_index.cRec')}} <input type="checkbox" id="ingest" checked disabled></li>
-                                                    <li class="list-group-item">{{trans('formGroups_index.eRec')}}: <input type="checkbox" id="modify" checked disabled></li>
-                                                    <li class="list-group-item">{{trans('formGroups_index.dRec')}}: <input type="checkbox" id="destroy" checked disabled></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
-                        @endforeach
+            <a class="title permission-toggle-by-name-js" href="#">
+              <span class="name name-js">{{ str_replace($form->name." ", "", $formGroup->name) }}</span>
+            </a>
+          </div>
 
-                        @foreach($formGroups as $formGroup)
-                            @if($form->adminGID != $formGroup->id)
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        @if($formGroup->name == $form->name." Default Group")
-                                            {{$formGroup->name}}
-                                        @else
-                                        <div class="formGroupName">
-                                            {{$formGroup->name}} <a class="nameEdit">[EDIT]</a>
-                                        </div>
-                                        <div class="formGroupEdit" style="display:none">
-                                            <input type="text" class="newGroupName" placeholder="{{$formGroup->name}}" gid="{{$formGroup->id}}">
-                                            <a class="nameSave">[SAVE]</a> <a class="nameRevert">[X]</a>
-                                        </div>
-                                        @endif
-                                    </div>
-
-                                    <div class="collapseTest" style="display: none">
-                                        <div class="panel-body">
-                                            <span>{{trans('formGroups_index.users')}}:</span>
-                                            <ul class="list-group" id="list{{$formGroup->id}}">
-                                                @foreach($formGroup->users()->get() as $user)
-                                                    <li class="list-group-item" id="list-element{{$formGroup->id}}{{$user->id}}" name="{{$user->username}}">
-                                                        {{$user->username}} <a href="javascript:void(0)" onclick="removeUser({{$formGroup->id}}, {{$user->id}})">[X]</a>
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-
-                                            <select onchange="addUser({{$formGroup->id}})" id="dropdown{{$formGroup->id}}">
-                                                <option selected value="0">{{trans('formGroups_index.adduser')}}</option>
-                                                @foreach($all_users as $user)
-                                                    @if($formGroup->hasUser($user))
-                                                    @else
-                                                        <option id="{{$user->id}}">{{$user->username}}</option>
-                                                    @endif
-                                                @endforeach
-                                            </select>
-                                            <hr/>
-                                            <div id="checkboxes">
-                                                <span>{{trans('formGroups_index.permissions')}}:</span>
-                                                <ul class="list-group" id="perm-list{{$formGroup->id}}">
-                                                    <li class="list-group-item">{{trans('formGroups_index.cField')}}:
-                                                        <input type="checkbox" id="create{{$formGroup->id}}" @if($formGroup->create) checked="checked" @endif onclick="updatePermissions({{$formGroup->id}})">
-                                                    </li>
-                                                    <li class="list-group-item">{{trans('formGroups_index.eField')}}:
-                                                        <input type="checkbox" id="edit{{$formGroup->id}}" @if($formGroup->edit) checked="checked" @endif onclick="updatePermissions({{$formGroup->id}})">
-                                                    </li>
-                                                    <li class="list-group-item">{{trans('formGroups_index.dField')}}:
-                                                        <input type="checkbox" id="delete{{$formGroup->id}}" @if($formGroup->delete) checked="checked" @endif onclick="updatePermissions({{$formGroup->id}})">
-                                                    </li>
-                                                    <li class="list-group-item">{{trans('formGroups_index.cRec')}}:
-                                                        <input type="checkbox" id="ingest{{$formGroup->id}}" @if($formGroup->ingest) checked="checked" @endif onclick="updatePermissions({{$formGroup->id}})">
-                                                    </li>
-                                                    <li class="list-group-item">{{trans('formGroups_index.eRec')}}:
-                                                        <input type="checkbox" id="modify{{$formGroup->id}}" @if($formGroup->modify) checked="checked" @endif onclick="updatePermissions({{$formGroup->id}})">
-                                                    </li>
-                                                    <li class="list-group-item">{{trans('formGroups_index.dRec')}}:
-                                                        <input type="checkbox" id="destroy{{$formGroup->id}}" @if($formGroup->destroy) checked="checked" @endif onclick="updatePermissions({{$formGroup->id}})">
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        @if($formGroup->name != $form->name." Default Group")
-                                        <div class="panel-footer">
-                                            <a href="javascript:void(0)" onclick="deleteFormGroup({{$formGroup->id}})">[{{trans('formGroups_index.deleteform')}}]</a>
-                                        </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            @endif
-                        @endforeach
-
-                        <hr/>
-
-                        <h3>{{trans('formGroups_index.createform')}}</h3>
-
-                        @include('partials.newFormGroup')
-
-                    </div>
-                </div>
-            </div>
+          <div class="card-toggle-wrap">
+            <a href="#" class="card-toggle permission-toggle-js">
+              <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
+            </a>
+          </div>
         </div>
-    </div>
+
+        <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
+          <div class="allowed-actions">
+            <div class="form-group action">
+              <div class="check-box-half check-box-rectangle">
+                <input type="checkbox"
+                  @if ($form->adminGID == $formGroup->id)
+                    checked disabled
+                  @elseif ($formGroup->create)
+                    checked
+                  @endif
+                  value="1"
+                  class="check-box-input preset-input-js"
+                  onclick="Kora.FormGroups.Index.updatePermissions({{$formGroup->id}})"
+                  id="create-{{$formGroup->id}}"
+                  name="create" />
+                <span class="check"></span>
+                <span class="placeholder">Can Create Fields</span>
+              </div>
+            </div>
+
+            <div class="form-group action">
+              <div class="check-box-half check-box-rectangle">
+                <input type="checkbox"
+                  @if ($form->adminGID == $formGroup->id)
+                    checked disabled
+                  @elseif ($formGroup->edit)
+                    checked
+                  @endif
+                  value="1"
+                  class="check-box-input preset-input-js"
+                  onclick="Kora.FormGroups.Index.updatePermissions({{$formGroup->id}})"
+                  id="edit-{{$formGroup->id}}"
+                  name="edit" />
+                <span class="check"></span>
+                <span class="placeholder">Can Edit Fields</span>
+              </div>
+            </div>
+
+            <div class="form-group action">
+              <div class="check-box-half check-box-rectangle">
+                <input type="checkbox"
+                  @if ($form->adminGID == $formGroup->id)
+                    checked disabled
+                  @elseif ($formGroup->delete)
+                    checked
+                  @endif
+                  value="1"
+                  class="check-box-input preset-input-js"
+                  onclick="Kora.FormGroups.Index.updatePermissions({{$formGroup->id}})"
+                  id="delete-{{$formGroup->id}}"
+                  name="delete" />
+                <span class="check"></span>
+                <span class="placeholder">Can Delete Fields</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="allowed-actions">
+            <div class="form-group action">
+              <div class="check-box-half check-box-rectangle">
+                <input type="checkbox"
+                  @if ($form->adminGID == $formGroup->id)
+                    checked disabled
+                  @elseif ($formGroup->ingest)
+                    checked
+                  @endif
+                  value="1"
+                  class="check-box-input preset-input-js"
+                  onclick="Kora.FormGroups.Index.updatePermissions({{$formGroup->id}})"
+                  id="ingest-{{$formGroup->id}}"
+                  name="ingest" />
+                <span class="check"></span>
+                <span class="placeholder">Can Create Records</span>
+              </div>
+            </div>
+
+            <div class="form-group action">
+              <div class="check-box-half check-box-rectangle">
+                <input type="checkbox"
+                  @if ($form->adminGID == $formGroup->id)
+                    checked disabled
+                  @elseif ($formGroup->modify)
+                    checked
+                  @endif
+                  value="1"
+                  class="check-box-input preset-input-js"
+                  onclick="Kora.FormGroups.Index.updatePermissions({{$formGroup->id}})"
+                  id="modify-{{$formGroup->id}}"
+                  name="modify" />
+                <span class="check"></span>
+                <span class="placeholder">Can Edit Records</span>
+              </div>
+            </div>
+
+            <div class="form-group action">
+              <div class="check-box-half check-box-rectangle">
+                <input type="checkbox"
+                  @if ($form->adminGID == $formGroup->id)
+                    checked disabled
+                  @elseif ($formGroup->destroy)
+                    checked
+                  @endif
+                  value="1"
+                  class="check-box-input preset-input-js"
+                  onclick="Kora.FormGroups.Index.updatePermissions({{$formGroup->id}})"
+                  id="destroy-{{$formGroup->id}}"
+                  name="destroy" />
+                <span class="check"></span>
+                <span class="placeholder">Can Delete Records</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="users users-js" data-group="{{$formGroup->id}}">
+            <?php
+              $users = $formGroup->users()->get();
+            ?>
+            @if (sizeof($users) == 0)
+              <p class="no-users no-users-js">
+                <span>No users in this group, select</span>
+                <a href="#" class="user-add add-users-js underline-middle-hover"
+                  data-select="add_user_select{{$formGroup->id}}"
+                  data-group="{{$formGroup->id}}" >
+                  <i class="icon icon-user-add"></i>
+                  <span>Add User(s) to Group</span>
+                </a>
+                <span>to add some!</span>
+              </p>
+            @endif
+
+            @foreach($users as $user)
+              <div class="user user-js" id="list-element{{$formGroup->id}}{{$user->id}}">
+                <a href="#" class="name view-user-js">{{ $user->first_name }} {{ $user->last_name }}</a>
+
+                @if (\Auth::user()->id != $user->id)
+                  <a href="#" class="cancel remove-user-js" data-value="[{{$formGroup->id}}, {{$user->id}}, {{$project->pid}}, {{$form->fid}}]">
+                    {{-- <i class="icon icon-cancel"><i/> --}}
+                  </a>
+                @endif
+              </div>
+            @endforeach
+            @include("partials.formGroups.addUsersBody")
+          </div>
+          <div class="footer">
+            @if (!$specialGroup)
+              <a class="quick-action trash-container delete-permission-group-js left" href="#" data-group="{{$formGroup->id}}">
+                <i class="icon icon-trash"></i>
+              </a>
+            @endif
+          </div>
+        </div>
+      </div>
+    @endforeach
+  </section>
 @stop
 
 @section('javascripts')
-    @include('partials.forms.javascripts')
-    <script>
-        $(".panel-heading").on("click", function(e){
-            if($(e.target).is(".nameEdit")) return;
-            if($(e.target).is(".nameSave")) return;
-            if($(e.target).is(".nameRevert")) return;
-            if($(e.target).is(".newGroupName")) return;
+  @include('partials.formGroups.javascripts')
 
-            if ($(this).siblings('.collapseTest').css('display') == 'none') {
-                $(this).siblings('.collapseTest').slideDown();
-            } else {
-                $(this).siblings('.collapseTest').slideUp();
-            }
-        });
-
-        $(".panel-heading").on("click", ".nameEdit", function(){
-            editButton = $(this);
-
-            mainDiv = editButton.parent();
-            editDiv = mainDiv.siblings(".formGroupEdit");
-
-            mainDiv.slideUp();
-            editDiv.slideDown();
-
-            textBox = editDiv.children('.newGroupName');
-            textBox.focus();
-        });
-
-        $(".panel-heading").on("click", ".nameSave", function() {
-            saveBtn = $(this);
-            textBox = saveBtn.siblings(".newGroupName");
-
-            changeGroupName(textBox);
-        });
-
-        $(".panel-heading").on("click", ".nameRevert", function() {
-            revertBtn = $(this);
-
-            editDiv = revertBtn.parent();
-            mainDiv = editDiv.siblings(".formGroupName");
-
-            mainDiv.slideDown();
-            editDiv.slideUp();
-        });
-
-        $('.newGroupName').keypress(function (e) {
-            textBox = $(this);
-
-            if(e.which == 13)  // the enter key code
-            {
-                changeGroupName(textBox);
-            }else if(e.keyCode==27){
-                editDiv = textBox.parent();
-                mainDiv = editDiv.siblings(".formGroupName");
-
-                editDiv.slideUp();
-                mainDiv.slideDown();
-            }
-        });
-
-        function changeGroupName(textBox){
-            textBox.attr('style','');
-            newName = textBox.val();
-            gid = textBox.attr('gid');
-            pid = {{$form->pid}};
-            fid = {{$form->fid}};
-
-            editDiv = textBox.parent();
-            mainDiv = editDiv.siblings(".formGroupName");
-
-            if(newName==''){
-                textBox.attr('style','border:3px solid red');
-                return;
-            }else {
-                $.ajax({
-                    url: '{{action('FormGroupController@updateName')}}',
-                    type: 'PATCH',
-                    data: {
-                        "_token": "{{ csrf_token() }}",
-                        "gid": gid,
-                        "name": newName,
-                        "pid" : pid,
-                        "fid" : fid
-                    },
-                    success: function (response) {
-                        divText = newName+" <a class='nameEdit'>[EDIT]</a>";
-                        mainDiv.html(divText);
-
-                        textBox.val('');
-                        textBox.attr('placeholder',newName);
-
-                        editDiv.slideUp();
-                        mainDiv.slideDown();
-                    }
-                });
-            }
-        }
-
-        function removeUser(formGroup, userId){
-            var username = $("#list-element"+formGroup+userId).attr('name');
-
-            $.ajax({
-                url: '{{action('FormGroupController@removeUser')}}',
-                type: 'PATCH',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "userId": userId,
-                    "formGroup": formGroup
-                },
-                success: function(){
-                    $("#dropdown"+formGroup).attr('selected', '0');
-
-                    $("#list-element"+formGroup+userId).remove();
-                    $("#dropdown"+formGroup).append('<option id="'+userId+'">'+username+'</option>');
-                }
-            });
-        }
-
-        function addUser(formGroup){
-            var selector = $("#dropdown"+formGroup+" option:selected");
-
-            var userId = selector.attr('id');
-            var username = selector.text();
-
-            $.ajax({
-                url: '{{action('FormGroupController@addUser')}}',
-                type: 'PATCH',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "userId": userId,
-                    "formGroup": formGroup
-                },
-                success: function(data){
-                    if(data!=''){
-                        $('#list'+data).children().each(function(){
-                            //remove from list
-                            if($(this).attr('name')==username){
-                                $(this).remove();
-                            }
-                        });
-
-                        $('#dropdown'+data).append("<option id='"+userId+"'>"+username+"</option>");
-                    }
-
-                    $("#list"+formGroup).append('<li class="list-group-item" id="list-element'+formGroup+userId+'" name="'+username+'">'
-                    +username+' <a href="javascript:void(0)" onclick="removeUser('+formGroup+', '+userId+')">[X]</a></li>');
-                    $("#dropdown"+formGroup+" option[id='"+userId+"']").remove();
-                }
-            });
-        }
-
-        function deleteFormGroup(formGroup){
-            var encode = $('<div/>').html("{{ trans('formGroups_index.deleteconfirm') }}").text();
-            var response = confirm(encode);
-            if (response) {
-                $.ajax({
-                    url: '{{action('FormGroupController@deleteFormGroup')}}',
-                    type: 'DELETE',
-                    data: {
-                        "_token": "{{ csrf_token() }}",
-                        "formGroup": formGroup
-                    },
-                    success: function() {
-                        location.reload();
-                    }
-                });
-            }
-        }
-
-        /**
-         * Update the permissions of a particular form group.
-         *
-         * Note that permissions create, edit, and delete refer to the creation, editing, and deletion of fields, respectfully.
-         * And that permissions ingest, modify, and destroy refer to the creation, editing, and deletion of records, respectfully.
-         *
-         * @param formGroup {int} The form group id.
-         */
-        function updatePermissions(formGroup){
-            var permCreate, permEdit, permDelete, permIngest, permModify, permDestroy;
-
-            // If the box is checked, allow users in the form group to create fields within the form.
-            if ($("#create"+formGroup).is(':checked'))
-                permCreate = 1;
-            else
-                permCreate = 0;
-
-            // Allow users to edit fields.
-            if ($("#edit"+formGroup).is(':checked'))
-                permEdit = 1;
-            else
-                permEdit = 0;
-
-            // Allow users to delete fields.
-            if ($("#delete"+formGroup).is(':checked'))
-                permDelete = 1;
-            else
-                permDelete = 0;
-
-            // If the box is checked, allow users in the form group to create records within the form.
-            if ($("#ingest"+formGroup).is(':checked'))
-                permIngest = 1;
-            else
-                permIngest = 0;
-
-            // Allow users to edit records.
-            if ($("#modify"+formGroup).is(':checked'))
-                permModify = 1;
-            else
-                permModify = 0;
-
-            // Allow users to delete records.
-            if ($("#destroy"+formGroup).is(':checked'))
-                permDestroy = 1;
-            else
-                permDestroy = 0;
-
-            $.ajax({
-                url: '{{action('FormGroupController@updatePermissions')}}',
-                type: 'PATCH',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "formGroup": formGroup,
-                    "permCreate": permCreate,
-                    "permEdit": permEdit,
-                    "permDelete": permDelete,
-                    "permIngest": permIngest,
-                    "permModify": permModify,
-                    "permDestroy": permDestroy
-                }
-            });
-        }
-
-    </script>
+  <script type="text/javascript">
+    var CSRFToken = '{{ csrf_token() }}';
+    var pid = '{{$project->pid}}';
+    var removeUserPath = '{{ action('FormGroupController@removeUser') }}';
+    var addUsersPath = '{{ action('FormGroupController@addUser') }}';
+    var editNamePath = '{{ action('FormGroupController@updateName', ["pid" => $project->pid, "fid" => $form->fid]) }}';
+    var updatePermissionsPath = '{{ action('FormGroupController@updatePermissions', ["pid" => $project->pid, "fid" => $form->fid]) }}';
+    var deletePermissionsPath = '{{ action('FormGroupController@deleteFormGroup', ["pid" => $project->pid, "fid" => $form->fid]) }}';
+    Kora.FormGroups.Index();
+  </script>
 @stop
