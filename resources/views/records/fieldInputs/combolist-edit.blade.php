@@ -38,7 +38,7 @@
                     }
                     ?>
                     <span style="float:left;width:40%;margin-bottom:10px">{{$value1}}</span>
-                @elseif($oneType=='Multi-Select List' | $oneType=='Generated List')
+                @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
                     <?php
                     $value1 = explode('[!f1!]',$valArray[$i])[1];
                     $value1Array = explode('[!]',$value1);
@@ -64,7 +64,7 @@
                     }
                     ?>
                     <span style="float:left;width:40%;margin-bottom:10px">{{$value2}}</span>
-                @elseif($twoType=='Multi-Select List' | $twoType=='Generated List')
+                @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $twoType=='Associator')
                     <?php
                     $value2 = explode('[!f2!]',$valArray[$i])[1];
                     $value2Array = explode('[!]',$value2);

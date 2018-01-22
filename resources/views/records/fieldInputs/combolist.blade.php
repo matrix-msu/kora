@@ -93,8 +93,8 @@
     $('#combo_inputs_{{$field->flid}}').on('click', '#combo_add_val_{{$field->flid}}', function() {
         $("#combo_error_{{$field->flid}}").text('');
 
-        val1Div = $(this).siblings('#default_one_{{$field->flid}}');
-        val2Div = $(this).siblings('#default_two_{{$field->flid}}');
+        val1Div = $('#default_one_{{$field->flid}}');
+        val2Div = $('#default_two_{{$field->flid}}');
         span1 = '';
         span2 = '';
 

@@ -176,6 +176,17 @@
                                                             <div>{{$val}}</div>
                                                         @endforeach
                                                     </span>
+                                                @elseif($oneType=='Associator')
+                                                    <?php
+                                                    $value1 = explode('[!f1!]',$valArray[$i])[1];
+                                                    $value1Array = explode('[!]',$value1);
+                                                    ?>
+
+                                                    <span style="float:left;width:50%;margin-bottom:10px">
+				                                        @foreach($value1Array as $val)
+                                                            <div>{{$val}}</div>
+                                                        @endforeach
+				                                    </span>
                                                 @endif
 
                                                 @if($twoType=='Text' | $twoType=='List')
@@ -201,6 +212,17 @@
                                                             <div>{{$val}}</div>
                                                         @endforeach
                                                     </span>
+                                                @elseif($twoType=='Associator')
+                                                    <?php
+                                                    $value2 = explode('[!f2!]',$valArray[$i])[1];
+                                                    $value2Array = explode('[!]',$value2);
+                                                    ?>
+
+                                                    <span style="float:left;width:50%;margin-bottom:10px">
+				                                        @foreach($value2Array as $val)
+                                                            <div>{{$val}}</div>
+                                                        @endforeach
+				                                    </span>
                                                 @endif
                                             </div>
                                         @endfor

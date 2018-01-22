@@ -310,6 +310,9 @@ class ComboListField extends BaseField {
             case Field::_GENERATED_LIST:
                 $val1 = 'K3TR[!]1337[!]Test[!]Record';
                 break;
+            case Field::_ASSOCIATOR:
+                $val1 = '1-3-37[!]1-3-37[!]1-3-37';
+                break;
         }
         switch($type2) {
             case Field::_TEXT:
@@ -324,6 +327,9 @@ class ComboListField extends BaseField {
             case Field::_MULTI_SELECT_LIST:
             case Field::_GENERATED_LIST:
                 $val2 = 'K3TR[!]1337[!]Test[!]Record';
+                break;
+            case Field::_ASSOCIATOR:
+                $val2 = '1-3-37[!]1-3-37[!]1-3-37';
                 break;
         }
         $this->save();
@@ -436,7 +442,7 @@ class ComboListField extends BaseField {
                 $xml .= '<' . Field::xmlTagClear($nameone) . '>';
                 if($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List') {
                     $xml .= utf8_encode('VALUE');
-                } else if($typeone == 'Multi-Select List' | $typeone == 'Generated List') {
+                } else if($typeone == 'Multi-Select List' | $typeone == 'Generated List' | $typeone == 'Associator') {
                     $xml .= '<value>'.utf8_encode('VALUE 1').'</value>';
                     $xml .= '<value>'.utf8_encode('VALUE 2').'</value>';
                     $xml .= '<value>'.utf8_encode('so on..').'</value>';
@@ -445,7 +451,7 @@ class ComboListField extends BaseField {
                 $xml .= '<' . Field::xmlTagClear($nametwo) . '>';
                 if($typetwo == 'Text' | $typetwo == 'Number' | $typetwo == 'List') {
                     $xml .= utf8_encode('VALUE');
-                } else if($typetwo == 'Multi-Select List' | $typetwo == 'Generated List') {
+                } else if($typetwo == 'Multi-Select List' | $typetwo == 'Generated List' | $typetwo == 'Associator') {
                     $xml .= '<value>'.utf8_encode('VALUE 1').'</value>';
                     $xml .= '<value>'.utf8_encode('VALUE 2').'</value>';
                     $xml .= '<value>'.utf8_encode('so on..').'</value>';
@@ -462,13 +468,13 @@ class ComboListField extends BaseField {
                 $valArray = array();
                 if($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List') {
                     $valArray[$nameone] = 'VALUE';
-                } else if($typeone == 'Multi-Select List' | $typeone == 'Generated List') {
+                } else if($typeone == 'Multi-Select List' | $typeone == 'Generated List' | $typeone == 'Associator') {
                     $valArray[$nameone] = array('VALUE 1','VALUE 2','so on...');
                 }
 
                 if($typetwo == 'Text' | $typetwo == 'Number' | $typetwo == 'List') {
                     $valArray[$nametwo] = 'VALUE';
-                } else if($typetwo == 'Multi-Select List' | $typetwo == 'Generated List') {
+                } else if($typetwo == 'Multi-Select List' | $typetwo == 'Generated List' | $typetwo == 'Associator') {
                     $valArray[$nametwo] = array('VALUE 1','VALUE 2','so on...');
                 }
 
@@ -691,7 +697,7 @@ class ComboListField extends BaseField {
         } else {
             if($type == Field::_LIST || $type == Field::_TEXT)
                 $inputs = [$query[$flid . "_" . $field_num . "_input"]];
-            else // Generated or Multi-Select List
+            else // Generated, Associator, or Multi-Select List
                 $inputs = $query[$flid . "_" . $field_num . "_input"];
 
             // Since we're using a raw query, we have to get the database prefix to match our alias.
