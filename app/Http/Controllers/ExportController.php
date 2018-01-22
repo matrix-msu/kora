@@ -620,11 +620,19 @@ class ExportController extends Controller {
             case self::KORA:
                 $records = array();
 
+                //Check to see if we should bother with options
+                $useOpts = !is_null($options);
+
+                //First option to check is the fields we want back, so lets pull out the slugs from options
+                $slugOpts = null;
+                if($useOpts && $options['fields'] != 'ALL')
+                    $slugOpts = $options['fields'];
+
                 foreach($chunks as $chunk) {
                     $meta = self::getRecordMetadataForOldKora($chunk);
                     $records = array_merge($meta,$records);
 
-                    $datafields = self::getDataRows($chunk);
+                    $datafields = self::getDataRows($chunk,$slugOpts);
                     foreach($datafields as $data) {
                         $kid = $data->pid.'-'.$data->fid.'-'.$data->rid;
                         $slug = str_replace('_'.$data->pid.'_'.$data->fid.'_', '', $data->slug);

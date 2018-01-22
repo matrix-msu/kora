@@ -462,7 +462,10 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
 
-    $result = curl_exec($curl);
+    if(!$result = curl_exec($curl))
+        trigger_error(curl_error($curl));
+
+    curl_close($curl);
 
     return json_decode($result,true);
 }

@@ -634,8 +634,10 @@ class RestfulController extends Controller {
                 'assoc' => $filters['assoc']
             ];
         } else {
-            //Old Kora 2 searches don't need filters
-            $options = null;
+            //Old Kora 2 searches only need field filters
+            $options = [
+                'fields' => $filters['fields']
+            ];
         }
 
         //Slice up array of RIDs to get the correct subset
