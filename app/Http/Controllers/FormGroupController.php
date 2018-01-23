@@ -118,7 +118,7 @@ class FormGroupController extends Controller {
                 DB::table('form_group_user')->where('user_id', $uid)->where('form_group_id', $idOld)->delete();
 
                 //After all this, lets make sure they get the custom form added
-                $user = User::where("id","=",$uid)->get();
+                $user = User::where("id","=",$uid)->first();
                 $user->addCustomForm($fid);
             }
 
