@@ -64,81 +64,59 @@
         <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
           <div class="allowed-actions">
             <div class="form-group action">
-              <div class="check-box-half check-box-rectangle">
-                <input type="checkbox"
-                  @if ($form->adminGID == $formGroup->id)
-                    checked disabled
-                  @elseif ($formGroup->create)
-                    checked
-                  @endif
-                  value="1"
-                  class="check-box-input preset-input-js"
-                  onclick="Kora.FormGroups.Index.updatePermissions({{$formGroup->id}})"
-                  id="create-{{$formGroup->id}}"
-                  name="create" />
-                <span class="check"></span>
-                <span class="placeholder">Can Create Fields</span>
+              <div class="action-column">
+                <div class="check-box-half check-box-rectangle">
+                  <input type="checkbox"
+                    @if ($form->adminGID == $formGroup->id)
+                      checked disabled
+                    @elseif ($formGroup->create)
+                      checked
+                    @endif
+                    value="1"
+                    class="check-box-input preset-input-js"
+                    onclick="Kora.FormGroups.Index.updatePermissions({{$formGroup->id}})"
+                    id="create-{{$formGroup->id}}"
+                    name="create" />
+                  <span class="check"></span>
+                  <span class="placeholder">Can Create Fields</span>
+                </div>
+                <div class="check-box-half check-box-rectangle">
+                  <input type="checkbox"
+                    @if ($form->adminGID == $formGroup->id)
+                      checked disabled
+                    @elseif ($formGroup->ingest)
+                      checked
+                    @endif
+                    value="1"
+                    class="check-box-input preset-input-js"
+                    onclick="Kora.FormGroups.Index.updatePermissions({{$formGroup->id}})"
+                    id="ingest-{{$formGroup->id}}"
+                    name="ingest" />
+                  <span class="check"></span>
+                  <span class="placeholder">Can Create Records</span>
+                </div>
               </div>
             </div>
 
             <div class="form-group action">
-              <div class="check-box-half check-box-rectangle">
-                <input type="checkbox"
-                  @if ($form->adminGID == $formGroup->id)
-                    checked disabled
-                  @elseif ($formGroup->edit)
-                    checked
-                  @endif
-                  value="1"
-                  class="check-box-input preset-input-js"
-                  onclick="Kora.FormGroups.Index.updatePermissions({{$formGroup->id}})"
-                  id="edit-{{$formGroup->id}}"
-                  name="edit" />
-                <span class="check"></span>
-                <span class="placeholder">Can Edit Fields</span>
-              </div>
-            </div>
+              <div class="action-column">
+                <div class="check-box-half check-box-rectangle">
+                  <input type="checkbox"
+                    @if ($form->adminGID == $formGroup->id)
+                      checked disabled
+                    @elseif ($formGroup->edit)
+                      checked
+                    @endif
+                    value="1"
+                    class="check-box-input preset-input-js"
+                    onclick="Kora.FormGroups.Index.updatePermissions({{$formGroup->id}})"
+                    id="edit-{{$formGroup->id}}"
+                    name="edit" />
+                  <span class="check"></span>
+                  <span class="placeholder">Can Edit Fields</span>
+                </div>
 
-            <div class="form-group action">
-              <div class="check-box-half check-box-rectangle">
-                <input type="checkbox"
-                  @if ($form->adminGID == $formGroup->id)
-                    checked disabled
-                  @elseif ($formGroup->delete)
-                    checked
-                  @endif
-                  value="1"
-                  class="check-box-input preset-input-js"
-                  onclick="Kora.FormGroups.Index.updatePermissions({{$formGroup->id}})"
-                  id="delete-{{$formGroup->id}}"
-                  name="delete" />
-                <span class="check"></span>
-                <span class="placeholder">Can Delete Fields</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="allowed-actions">
-            <div class="form-group action">
-              <div class="check-box-half check-box-rectangle">
-                <input type="checkbox"
-                  @if ($form->adminGID == $formGroup->id)
-                    checked disabled
-                  @elseif ($formGroup->ingest)
-                    checked
-                  @endif
-                  value="1"
-                  class="check-box-input preset-input-js"
-                  onclick="Kora.FormGroups.Index.updatePermissions({{$formGroup->id}})"
-                  id="ingest-{{$formGroup->id}}"
-                  name="ingest" />
-                <span class="check"></span>
-                <span class="placeholder">Can Create Records</span>
-              </div>
-            </div>
-
-            <div class="form-group action">
-              <div class="check-box-half check-box-rectangle">
+                <div class="check-box-half check-box-rectangle">
                 <input type="checkbox"
                   @if ($form->adminGID == $formGroup->id)
                     checked disabled
@@ -153,23 +131,42 @@
                 <span class="check"></span>
                 <span class="placeholder">Can Edit Records</span>
               </div>
+              </div>
             </div>
 
             <div class="form-group action">
-              <div class="check-box-half check-box-rectangle">
-                <input type="checkbox"
-                  @if ($form->adminGID == $formGroup->id)
-                    checked disabled
-                  @elseif ($formGroup->destroy)
-                    checked
-                  @endif
-                  value="1"
-                  class="check-box-input preset-input-js"
-                  onclick="Kora.FormGroups.Index.updatePermissions({{$formGroup->id}})"
-                  id="destroy-{{$formGroup->id}}"
-                  name="destroy" />
-                <span class="check"></span>
-                <span class="placeholder">Can Delete Records</span>
+              <div class="action-column">
+                <div class="check-box-half check-box-rectangle">
+                  <input type="checkbox"
+                    @if ($form->adminGID == $formGroup->id)
+                      checked disabled
+                    @elseif ($formGroup->delete)
+                      checked
+                    @endif
+                    value="1"
+                    class="check-box-input preset-input-js"
+                    onclick="Kora.FormGroups.Index.updatePermissions({{$formGroup->id}})"
+                    id="delete-{{$formGroup->id}}"
+                    name="delete" />
+                  <span class="check"></span>
+                  <span class="placeholder">Can Delete Fields</span>
+                </div>
+
+                <div class="check-box-half check-box-rectangle">
+                  <input type="checkbox"
+                    @if ($form->adminGID == $formGroup->id)
+                      checked disabled
+                    @elseif ($formGroup->destroy)
+                      checked
+                    @endif
+                    value="1"
+                    class="check-box-input preset-input-js"
+                    onclick="Kora.FormGroups.Index.updatePermissions({{$formGroup->id}})"
+                    id="destroy-{{$formGroup->id}}"
+                    name="destroy" />
+                  <span class="check"></span>
+                  <span class="placeholder">Can Delete Records</span>
+                </div>
               </div>
             </div>
           </div>
