@@ -2,10 +2,6 @@
   .allowed-actions {
     padding: 10px 0 40px;
 
-    &:first-child {
-      padding: 10px 0 10px;
-    }
-
     .action {
       display: inline-block;
       padding: 0 14px;
@@ -16,6 +12,13 @@
 
       &:last-of-type {
         padding-right: 0;
+      }
+
+      .action-column {
+        height: 55px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
       }
     }
   }
