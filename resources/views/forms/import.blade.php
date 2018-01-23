@@ -1,7 +1,8 @@
-@extends('app')
+@extends('app', ['page_title' => "Import Form Setup", 'page_class' => 'form-import-setup'])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $proj->pid])
+    @include('partials.menu.static', ['name' => 'Import Form Setup'])
 @stop
 
 @section('content')
