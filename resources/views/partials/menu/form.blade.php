@@ -16,7 +16,7 @@
       <li class="spacer full"></li>
 
       <li class="link">
-        <a href="{{action('FieldController@create', ['pid'=>$pid, 'fid' => $fid])}}">Create New Field</a>
+        {{-- <a href="{{action('FieldController@create', ['pid'=>$pid, 'fid' => $fid])}}">Create New Field</a> --}}
       </li>
 
       @if(isset($passed_field))
@@ -75,7 +75,7 @@
         </li>
 
         <li class="link">
-          <a href="{{ action('ExportController@exportRecords',['fid'=>$fid, 'pid' => $pid]) }}">Export All Records</a>
+          {{-- <a href="{{ action('ExportController@exportRecords',['fid'=>$fid, 'pid' => $pid]) }}">Export All Records</a> --}}
         </li>
 
         <li class="link">
