@@ -214,6 +214,16 @@
               <i class="icon icon-user-add"></i>
               <span>Add User(s) to Group</span>
             </a>
+
+            @if (!$specialGroup)
+              <a class="quick-action edit-group-name-js underline-middle-hover"
+                href="#"
+                data-name="{{ str_replace($form->name." ", "", $formGroup->name) }}"
+                data-group="{{$formGroup->id}}" >
+                <i class="icon icon-edit-little"></i>
+                <span>Edit Group Name</span>
+              </a>
+            @endif
           </div>
         </div>
       </div>
