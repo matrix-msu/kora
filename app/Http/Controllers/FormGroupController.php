@@ -136,7 +136,7 @@ class FormGroupController extends Controller {
     public function removeUser(Request $request) {
         $instance = FormGroup::where('id', '=', $request->formGroup)->first();
 
-        $user = User::where("id","=",$request->userId)->get();
+        $user = User::where("id","=",$request->userId)->first();
         $user->removeCustomForm($instance->fid);
 
         $instance->users()->detach($request->userId);

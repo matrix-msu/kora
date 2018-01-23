@@ -194,7 +194,7 @@
 
                 @if (\Auth::user()->id != $user->id)
                   <a href="#" class="cancel remove-user-js" data-value="[{{$formGroup->id}}, {{$user->id}}, {{$project->pid}}, {{$form->fid}}]">
-                    {{-- <i class="icon icon-cancel"><i/> --}}
+                    <i class="icon icon-cancel"></i>
                   </a>
                 @endif
               </div>
