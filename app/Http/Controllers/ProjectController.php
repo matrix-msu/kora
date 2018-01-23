@@ -130,7 +130,7 @@ class ProjectController extends Controller {
         if(!\Auth::user()->admin)
             return redirect('projects')->with('k3_global_error', 'not_admin');
 
-        $users = User::lists('username', 'id')->all();
+        $users = User::pluck('username', 'id')->all();
         $projectMode = "project_create";
 
         return view('projects.create', compact('users','projectMode'));

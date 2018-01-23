@@ -56,7 +56,7 @@ class RevisionController extends Controller {
         $pid = $form->pid;
         $records = array();
 
-        $temp = array_values(array_unique(Revision::lists('rid')->all()));
+        $temp = array_values(array_unique(Revision::pluck('rid')->all()));
 
         for($i=0; $i < count($temp); $i++) {
             if(in_array($temp[$i], $rid_array))
@@ -93,7 +93,7 @@ class RevisionController extends Controller {
 
         $records = array();
 
-        $temp = array_values(array_unique(Revision::lists('rid')->all()));
+        $temp = array_values(array_unique(Revision::pluck('rid')->all()));
 
         for($i=0; $i < count($temp); $i++) {
             $records[$temp[$i]] = $pid.'-'.$form->fid.'-'.$temp[$i];

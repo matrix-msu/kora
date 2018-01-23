@@ -43,7 +43,7 @@ class FormController extends Controller {
             return redirect('projects/'.$pid.'/forms')->with('k3_global_error', 'cant_create_form');
 
         $project = ProjectController::getProject($pid);
-        $users = User::lists('username', 'id')->all();
+        $users = User::pluck('username', 'id')->all();
         $currProjectAdmins = $project->adminGroup()->first()->users()->get();
         $admins = User::where("admin","=",1)->get();
         foreach($admins as $admin) {

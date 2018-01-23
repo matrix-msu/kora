@@ -400,7 +400,7 @@ class ModelField extends FileTypeField  {
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`model`) AGAINST (? IN BOOLEAN MODE)", [$arg])
             ->distinct()
-            ->lists('rid');
+            ->pluck('rid');
     }
 
     /**

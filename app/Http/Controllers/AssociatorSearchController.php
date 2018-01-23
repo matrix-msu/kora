@@ -141,7 +141,7 @@ class AssociatorSearchController extends Controller {
                 $rids = $search->formKeywordSearch();
             } else {
                 //If no search term given, return everything!!!!
-                $rids = Record::where("fid","=",$fid)->lists('rid')->all();
+                $rids = Record::where("fid","=",$fid)->pluck('rid')->all();
             }
 
             sort($rids);

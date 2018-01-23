@@ -44,7 +44,7 @@ class ProjectGroupController extends Controller {
             return redirect('projects')->with('k3_global_error', 'not_project_admin');
 
         $projectGroups = $project->groups()->get()->sortBy('id');
-        $users = User::lists('username', 'id')->all();
+        $users = User::pluck('username', 'id')->all();
         $all_users = User::all();
         return view('projectGroups.index', compact('project', 'projectGroups', 'users', 'all_users'));
     }

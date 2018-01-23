@@ -596,7 +596,7 @@ class ComboListField extends BaseField {
                     ->orWhereBetween("number", [$num - NumberField::EPSILON, $num + NumberField::EPSILON]);
             })
             ->distinct()
-            ->lists('rid');
+            ->pluck('rid');
     }
 
     /**

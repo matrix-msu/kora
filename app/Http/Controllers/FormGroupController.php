@@ -46,7 +46,7 @@ class FormGroupController extends Controller {
             return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
         $formGroups = $form->groups()->get();
-        $users = User::lists('username', 'id')->all();
+        $users = User::pluck('username', 'id')->all();
         $all_users = User::all();
         return view('formGroups.index', compact('form', 'formGroups', 'users', 'all_users', 'project'));
     }

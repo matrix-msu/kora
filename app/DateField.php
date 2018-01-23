@@ -538,7 +538,7 @@ class DateField extends BaseField {
         });
 
         return $query->distinct()
-            ->lists('rid');
+            ->pluck('rid');
     }
 
     /**
