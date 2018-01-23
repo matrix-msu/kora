@@ -216,7 +216,7 @@ class FormGroupController extends Controller {
         $users = $instance->users()->get();
         foreach($users as $user) {
             //Remove their custom form connection
-            $user->removeCustomForm($instance->pid);
+            $user->removeCustomForm($instance->fid);
         }
 
         $instance->delete();
