@@ -10,26 +10,26 @@
               @yield('stylesheets')
           @else
             <!-- For Schedule -->
-            <link rel="stylesheet" href="{{ env('BASE_URL') }}bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
-            <link rel='stylesheet' href="{{ env('BASE_URL') }}bower_components/fullcalendar/dist/fullcalendar.css" />
+            <link rel="stylesheet" href="{{ config('app.url') }}bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
+            <link rel='stylesheet' href="{{ config('app.url') }}bower_components/fullcalendar/dist/fullcalendar.css" />
             <!-- For Geolocator -->
-            <link rel="stylesheet" href="{{ env('BASE_URL') }}leaflet/leaflet.css" />
+            <link rel="stylesheet" href="{{ config('app.url') }}leaflet/leaflet.css" />
             <!-- For Documents -->
-            <link rel="stylesheet" href="{{ env('BASE_URL') }}fileUpload/css/jquery.fileupload.css">
-            <link rel="stylesheet" href="{{ env('BASE_URL') }}fileUpload/css/jquery.fileupload-ui.css">
+            <link rel="stylesheet" href="{{ config('app.url') }}fileUpload/css/jquery.fileupload.css">
+            <link rel="stylesheet" href="{{ config('app.url') }}fileUpload/css/jquery.fileupload-ui.css">
             <!-- For Gallery -->
-            <link rel="stylesheet" type="text/css" href="{{ env('BASE_URL') }}slick/slick/slick.css"/>
-            <link rel="stylesheet" type="text/css" href="{{ env('BASE_URL') }}slick/slick/slick-theme.css"/>
+            <link rel="stylesheet" type="text/css" href="{{ config('app.url') }}slick/slick/slick.css"/>
+            <link rel="stylesheet" type="text/css" href="{{ config('app.url') }}slick/slick/slick-theme.css"/>
             <!-- For Playlist and Video -->
-            <link rel="stylesheet" type="text/css" href="{{ env('BASE_URL') }}jplayer/pink.flag/css/jplayer.pink.flag.min.css"/>
+            <link rel="stylesheet" type="text/css" href="{{ config('app.url') }}jplayer/pink.flag/css/jplayer.pink.flag.min.css"/>
             <!-- For 3D Model -->
-            <script type="text/javascript" src="{{ env('BASE_URL') }}jsc3d/jsc3d.js"></script>
-            <script type="text/javascript" src="{{ env('BASE_URL') }}jsc3d/jsc3d.webgl.js"></script>
-            <script type="text/javascript" src="{{ env('BASE_URL') }}jsc3d/jsc3d.touch.js"></script>
+            <script type="text/javascript" src="{{ config('app.url') }}jsc3d/jsc3d.js"></script>
+            <script type="text/javascript" src="{{ config('app.url') }}jsc3d/jsc3d.webgl.js"></script>
+            <script type="text/javascript" src="{{ config('app.url') }}jsc3d/jsc3d.touch.js"></script>
           @endif
         @endif
 
-        <link rel="stylesheet" href="{{env('BASE_URL')}}assets/css/app.css">
+        <link rel="stylesheet" href="{{config('app.url')}}assets/css/app.css">
     </head>
     <body class="{{ str_hyphenated($page_class) }}-body @if(Auth::guest() && isInstalled()) auth-body @endif">
       @include('partials.nav')

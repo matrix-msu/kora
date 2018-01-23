@@ -1,7 +1,7 @@
 @extends('app', ['page_title' => 'Kora Publishing', 'page_class' => 'publish'])
 
 @section('stylesheets')
-    <link rel="stylesheet" href="{{ env('BASE_URL') }}grapejs/dist/css/grapes.min.css">
+    <link rel="stylesheet" href="{{ config('app.url') }}grapejs/dist/css/grapes.min.css">
 @endsection
 
 @section('body')

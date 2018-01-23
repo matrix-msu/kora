@@ -4,12 +4,12 @@ namespace Illuminate\Queue;
 
 use Closure;
 use DateTime;
-use RuntimeException;
+use Exception;
 use Illuminate\Support\Arr;
 use SuperClosure\Serializer;
 use Illuminate\Container\Container;
+use Illuminate\Contracts\Encryption\Encrypter;
 use Illuminate\Contracts\Queue\QueueableEntity;
-use Illuminate\Contracts\Encryption\Encrypter as EncrypterContract;
 
 abstract class Queue
 {
@@ -19,6 +19,13 @@ abstract class Queue
      * @var \Illuminate\Container\Container
      */
     protected $container;
+
+    /**
+     * The encrypter implementation.
+     *
+     * @var \Illuminate\Contracts\Encryption\Encrypter
+     */
+    protected $encrypter;
 
     /**
      * Push a new job onto the queue.
@@ -48,18 +55,6 @@ abstract class Queue
     }
 
     /**
-     * Marshal a push queue request and fire the job.
-     *
-     * @throws \RuntimeException
-     *
-     * @deprecated since version 5.1.
-     */
-    public function marshal()
-    {
-        throw new RuntimeException('Push queues only supported by Iron.');
-    }
-
-    /**
      * Push an array of jobs onto the queue.
      *
      * @param  array   $jobs
@@ -86,10 +81,12 @@ abstract class Queue
     {
         if ($job instanceof Closure) {
             return json_encode($this->createClosurePayload($job, $data));
-        } elseif (is_object($job)) {
+        }
+
+        if (is_object($job)) {
             return json_encode([
                 'job' => 'Illuminate\Queue\CallQueuedHandler@call',
-                'data' => ['command' => serialize(clone $job)],
+                'data' => ['commandName' => get_class($job), 'command' => serialize(clone $job)],
             ]);
         }
 
@@ -153,11 +150,11 @@ abstract class Queue
      *
      * @param  \Closure  $job
      * @param  mixed     $data
-     * @return string
+     * @return array
      */
     protected function createClosurePayload($job, $data)
     {
-        $closure = $this->crypt->encrypt((new Serializer)->serialize($job));
+        $closure = $this->getEncrypter()->encrypt((new Serializer)->serialize($job));
 
         return ['job' => 'IlluminateQueueClosure', 'data' => compact('closure')];
     }
@@ -214,13 +211,29 @@ abstract class Queue
     }
 
     /**
-     * Set the encrypter instance.
+     * Get the encrypter implementation.
      *
-     * @param  \Illuminate\Contracts\Encryption\Encrypter  $crypt
+     * @return  \Illuminate\Contracts\Encryption\Encrypter
+     *
+     * @throws \Exception
+     */
+    protected function getEncrypter()
+    {
+        if (is_null($this->encrypter)) {
+            throw new Exception('No encrypter has been set on the Queue.');
+        }
+
+        return $this->encrypter;
+    }
+
+    /**
+     * Set the encrypter implementation.
+     *
+     * @param  \Illuminate\Contracts\Encryption\Encrypter  $encrypter
      * @return void
      */
-    public function setEncrypter(EncrypterContract $crypt)
+    public function setEncrypter(Encrypter $encrypter)
     {
-        $this->crypt = $crypt;
+        $this->encrypter = $encrypter;
     }
 }

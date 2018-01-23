@@ -79,12 +79,12 @@ class BackupController extends Controller {
         }
 
         $available_backups = array();
-        foreach(new \DirectoryIterator(env('BASE_PATH')."storage/app/".$this->BACKUP_DIRECTORY."/") as $dir) {
+        foreach(new \DirectoryIterator(config('app.base_path')."storage/app/".$this->BACKUP_DIRECTORY."/") as $dir) {
             $name = $dir->getFilename();
             if(strpos($name, 'fileRestore') !== false)
                 continue;
             if($name!='.' && $name!='..' && $dir->isDir()) {
-                if(file_exists(env('BASE_PATH')."storage/app/".$this->BACKUP_DIRECTORY.'/'.$name.'/.kora3_backup'))
+                if(file_exists(config('app.base_path')."storage/app/".$this->BACKUP_DIRECTORY.'/'.$name.'/.kora3_backup'))
                     array_push($available_backups,$this->BACKUP_DIRECTORY.'/'.$name.'/.kora3_backup');
             }
         }
@@ -224,8 +224,8 @@ class BackupController extends Controller {
         $time = $labelParts[1];
 
         //time to move the files
-        $filepath = env('BASE_PATH')."storage/app/files/";
-        $newfilepath = env('BASE_PATH')."storage/app/".$this->BACKUP_DIRECTORY."/".$label."/files/";
+        $filepath = config('app.base_path')."storage/app/files/";
+        $newfilepath = config('app.base_path')."storage/app/".$this->BACKUP_DIRECTORY."/".$label."/files/";
         mkdir($newfilepath, 0775, true);
         $directory = new \RecursiveDirectoryIterator($filepath);
         $iterator = new \RecursiveIteratorIterator($directory);
@@ -259,7 +259,7 @@ class BackupController extends Controller {
         $k3['type'] = 'system_backup';
 
         //save json file
-        $path = env('BASE_PATH')."storage/app/".$this->BACKUP_DIRECTORY."/".$label."/";
+        $path = config('app.base_path')."storage/app/".$this->BACKUP_DIRECTORY."/".$label."/";
         $data['kora3'] = $k3;
         $json = json_encode($data);
         $newfile = $path . ".kora3_backup";
@@ -303,10 +303,10 @@ class BackupController extends Controller {
      * @param  Request $request
      */
     public function download($path, Request $request) {
-        $fullpath = env('BASE_PATH')."storage/app/".$this->BACKUP_DIRECTORY."/".$path."/";
+        $fullpath = config('app.base_path')."storage/app/".$this->BACKUP_DIRECTORY."/".$path."/";
 
         $zipname = $path.'.zip';
-        $zipdir = env('BASE_PATH')."storage/app/".$this->BACKUP_DIRECTORY."/";
+        $zipdir = config('app.base_path')."storage/app/".$this->BACKUP_DIRECTORY."/";
         $zip = new \ZipArchive();
         $zip->open($zipdir.$zipname, \ZipArchive::CREATE);
 
@@ -355,7 +355,7 @@ class BackupController extends Controller {
                     //Once we have a file, we need to do two things
                     //First, save the file name path to a variable
                     $filename = "backups/fileRestore___".time();
-                    $filepath = env("BASE_PATH")."storage/app/".$filename;
+                    $filepath = config('app.base_path')."storage/app/".$filename;
                     mkdir($filepath, 0775, true);
                     try {
                         //Second, unzip the file into the backups directory
@@ -401,7 +401,7 @@ class BackupController extends Controller {
         $this->lockUsers($users_exempt_from_lockout);
 
         //We need to gather the directory where the restored files are
-        $dir = env('BASE_PATH').'storage/app/'.$request->filename;
+        $dir = config('app.base_path').'storage/app/'.$request->filename;
 
         //Delete all existing data
         try {
@@ -412,8 +412,8 @@ class BackupController extends Controller {
         }
 
         //Delete the files directory
-        if(file_exists(env('BASE_PATH')."storage/app/files/")) //this check is to see if it was deleted in a failed restore
-            $this->recursiveRemoveDirectory(env('BASE_PATH')."storage/app/files/");
+        if(file_exists(config('app.base_path')."storage/app/files/")) //this check is to see if it was deleted in a failed restore
+            $this->recursiveRemoveDirectory(config('app.base_path')."storage/app/files/");
 
         //NEW PROCESS For restore using jobs
         ini_set('max_execution_time',0);
@@ -456,8 +456,8 @@ class BackupController extends Controller {
      * @param  Request $request
      */
     public function finishRestore(Request $request) {
-        $filepath = env('BASE_PATH').'storage/app/'.$request->filename.'/files/';
-        $newfilepath = env('BASE_PATH')."storage/app/files/";
+        $filepath = config('app.base_path').'storage/app/'.$request->filename.'/files/';
+        $newfilepath = config('app.base_path')."storage/app/files/";
 
         //time to move the files
         if(!file_exists($newfilepath))
@@ -551,7 +551,7 @@ class BackupController extends Controller {
             'project_id'=>'required_if:backup_type,project'
         ]);
 
-        $path = env('BASE_PATH')."storage/app/";
+        $path = config('app.base_path')."storage/app/";
 
         if($request->input("backup_source") == "server") {
             $filename = $path.$request->filename;

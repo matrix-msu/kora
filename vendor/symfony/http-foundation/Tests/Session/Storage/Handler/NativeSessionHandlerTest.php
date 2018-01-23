@@ -11,7 +11,6 @@
 
 namespace Symfony\Component\HttpFoundation\Tests\Session\Storage\Handler;
 
-use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\NativeSessionHandler;
 
 /**
@@ -22,20 +21,13 @@ use Symfony\Component\HttpFoundation\Session\Storage\Handler\NativeSessionHandle
  * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
  */
-class NativeSessionHandlerTest extends TestCase
+class NativeSessionHandlerTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstruct()
     {
         $handler = new NativeSessionHandler();
 
-        // note for PHPUnit optimisers - the use of assertTrue/False
-        // here is deliberate since the tests do not require the classes to exist - drak
-        if (\PHP_VERSION_ID < 50400) {
-            $this->assertFalse($handler instanceof \SessionHandler);
-            $this->assertTrue($handler instanceof NativeSessionHandler);
-        } else {
-            $this->assertTrue($handler instanceof \SessionHandler);
-            $this->assertTrue($handler instanceof NativeSessionHandler);
-        }
+        $this->assertTrue($handler instanceof \SessionHandler);
+        $this->assertTrue($handler instanceof NativeSessionHandler);
     }
 }

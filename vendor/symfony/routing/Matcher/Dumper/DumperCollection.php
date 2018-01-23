@@ -86,7 +86,7 @@ class DumperCollection implements \IteratorAggregate
     /**
      * Returns the root of the collection.
      *
-     * @return self The root collection
+     * @return DumperCollection The root collection
      */
     public function getRoot()
     {

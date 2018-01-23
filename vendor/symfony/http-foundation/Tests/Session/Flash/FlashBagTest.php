@@ -11,7 +11,6 @@
 
 namespace Symfony\Component\HttpFoundation\Tests\Session\Flash;
 
-use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 
 /**
@@ -19,7 +18,7 @@ use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
  *
  * @author Drak <drak@zikula.org>
  */
-class FlashBagTest extends TestCase
+class FlashBagTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var \Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface
@@ -131,25 +130,5 @@ class FlashBagTest extends TestCase
             'error' => array('Bar'),
             ), $this->bag->peekAll()
         );
-    }
-
-    /**
-     * @group legacy
-     */
-    public function testLegacyGetIterator()
-    {
-        $flashes = array('hello' => 'world', 'beep' => 'boop', 'notice' => 'nope');
-        foreach ($flashes as $key => $val) {
-            $this->bag->set($key, $val);
-        }
-
-        $i = 0;
-        foreach ($this->bag as $key => $val) {
-            $this->assertEquals(array($flashes[$key]), $val);
-            ++$i;
-        }
-
-        $this->assertEquals(count($flashes), $i);
-        $this->assertCount(0, $this->bag->all());
     }
 }

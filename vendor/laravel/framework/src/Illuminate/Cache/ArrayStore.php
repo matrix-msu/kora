@@ -6,6 +6,8 @@ use Illuminate\Contracts\Cache\Store;
 
 class ArrayStore extends TaggableStore implements Store
 {
+    use RetrievesMultipleKeys;
+
     /**
      * The array of stored values.
      *
@@ -16,7 +18,7 @@ class ArrayStore extends TaggableStore implements Store
     /**
      * Retrieve an item from the cache by key.
      *
-     * @param  string  $key
+     * @param  string|array  $key
      * @return mixed
      */
     public function get($key)
@@ -54,7 +56,7 @@ class ArrayStore extends TaggableStore implements Store
     }
 
     /**
-     * Increment the value of an item in the cache.
+     * Decrement the value of an item in the cache.
      *
      * @param  string  $key
      * @param  mixed   $value

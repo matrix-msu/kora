@@ -4,8 +4,8 @@
     <section class="head">
         <div class="inner-wrap center">
             <h1 class="title">
-                @if(!is_null($profile) && File::exists( env('BASE_PATH') . '/public/app/' . $profile ))
-                    <img class="profile-picture" src="{{env('STORAGE_URL') . $profile}}">
+                @if(!is_null($profile) && File::exists( config('app.base_path') . '/public/app/' . $profile ))
+                    <img class="profile-picture" src="{{config('app.storage_url') . $profile}}">
                 @else
                     <i class="icon icon-user"></i>
                 @endif
@@ -62,9 +62,9 @@
                     <div class="panel-body">
 
                         @if(!is_null($profile))
-                            <img id="current_profile_pic" style="width:auto;height:200px" src="{{env('STORAGE_URL') . 'profiles/'.\Auth::user()->id.'/'.$profile}}">
+                            <img id="current_profile_pic" style="width:auto;height:200px" src="{{config('app.storage_url') . 'profiles/'.\Auth::user()->id.'/'.$profile}}">
                         @else
-                            <img id="current_profile_pic" style="width:auto;height:200px" src="{{env('BASE_URL') . 'logos/blank_profile.jpg'}}">
+                            <img id="current_profile_pic" style="width:auto;height:200px" src="{{config('app.url') . 'logos/blank_profile.jpg'}}">
                         @endif
 
                         <div class="form-group">

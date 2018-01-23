@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use InvalidArgumentException;
 use Illuminate\Support\Traits\Macroable;
 use Illuminate\Contracts\Routing\UrlRoutable;
+use Illuminate\Routing\Exceptions\UrlGenerationException;
 use Illuminate\Contracts\Routing\UrlGenerator as UrlGeneratorContract;
 
 class UrlGenerator implements UrlGeneratorContract
@@ -129,15 +130,22 @@ class UrlGenerator implements UrlGeneratorContract
     /**
      * Get the URL for the previous request.
      *
+     * @param  mixed  $fallback
      * @return string
      */
-    public function previous()
+    public function previous($fallback = false)
     {
         $referrer = $this->request->headers->get('referer');
 
         $url = $referrer ? $this->to($referrer) : $this->getPreviousUrlFromSession();
 
-        return $url ?: $this->to('/');
+        if ($url) {
+            return $url;
+        } elseif ($fallback) {
+            return $this->to($fallback);
+        } else {
+            return $this->to('/');
+        }
     }
 
     /**
@@ -171,8 +179,8 @@ class UrlGenerator implements UrlGeneratorContract
         $root = $this->getRootUrl($scheme);
 
         if (($queryPosition = strpos($path, '?')) !== false) {
-            $query = substr($path, $queryPosition);
-            $path = substr($path, 0, $queryPosition);
+            $query = mb_substr($path, $queryPosition);
+            $path = mb_substr($path, 0, $queryPosition);
         } else {
             $query = '';
         }
@@ -313,6 +321,8 @@ class UrlGenerator implements UrlGeneratorContract
      * @param  mixed  $parameters
      * @param  bool   $absolute
      * @return string
+     *
+     * @throws \Illuminate\Routing\Exceptions\UrlGenerationException
      */
     protected function toRoute($route, $parameters, $absolute)
     {
@@ -320,10 +330,16 @@ class UrlGenerator implements UrlGeneratorContract
 
         $domain = $this->getRouteDomain($route, $parameters);
 
-        $uri = strtr(rawurlencode($this->addQueryString($this->trimUrl(
+        $uri = $this->addQueryString($this->trimUrl(
             $root = $this->replaceRoot($route, $domain, $parameters),
             $this->replaceRouteParameters($route->uri(), $parameters)
-        ), $parameters)), $this->dontEncode);
+        ), $parameters);
+
+        if (preg_match('/\{.*?\}/', $uri)) {
+            throw UrlGenerationException::forMissingParameters($route);
+        }
+
+        $uri = strtr(rawurlencode($uri), $this->dontEncode);
 
         return $absolute ? $uri : '/'.ltrim(str_replace($root, '', $uri), '/');
     }
@@ -338,7 +354,9 @@ class UrlGenerator implements UrlGeneratorContract
      */
     protected function replaceRoot($route, $domain, &$parameters)
     {
-        return $this->replaceRouteParameters($this->getRouteRoot($route, $domain), $parameters);
+        return $this->replaceRouteParameters(
+            $this->getRouteRoot($route, $domain), $parameters
+        );
     }
 
     /**
@@ -350,11 +368,13 @@ class UrlGenerator implements UrlGeneratorContract
      */
     protected function replaceRouteParameters($path, array &$parameters)
     {
-        if (count($parameters)) {
-            $path = preg_replace_sub(
-                '/\{.*?\}/', $parameters, $this->replaceNamedParameters($path, $parameters)
-            );
-        }
+        $path = $this->replaceNamedParameters($path, $parameters);
+
+        $path = preg_replace_callback('/\{.*?\}/', function ($match) use (&$parameters) {
+            return (empty($parameters) && ! Str::endsWith($match[0], '?}'))
+                        ? $match[0]
+                        : array_shift($parameters);
+        }, $path);
 
         return trim(preg_replace('/\{.*?\?\}/', '', $path), '/');
     }
@@ -382,7 +402,7 @@ class UrlGenerator implements UrlGeneratorContract
      */
     protected function addQueryString($uri, array $parameters)
     {
-        // If the URI has a fragment, we will move it to the end of the URI since it will
+        // If the URI has a fragment, we will move it to the end of this URI since it will
         // need to come after any query string that may be added to the URL else it is
         // not going to be available. We will remove it then append it back on here.
         if (! is_null($fragment = parse_url($uri, PHP_URL_FRAGMENT))) {

@@ -2,6 +2,7 @@
 
 use App\Form;
 use App\FormGroup;
+use App\Http\Controllers\Auth\AuthController;
 use App\Project;
 use App\ProjectGroup;
 use App\User;
@@ -10,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -168,7 +168,7 @@ class AdminController extends Controller {
         } else {
             $user->active = 0;
             //We need to give them a new regtoken so they can't use the old one to reactivate
-            $user->regtoken = AuthenticatesAndRegistersUsers::makeRegToken();
+            $user->regtoken = AuthController::makeRegToken();
             array_push($message,"not_active");
         }
 
@@ -249,7 +249,7 @@ class AdminController extends Controller {
                         $password = self::passwordGen();
                         $user->password = bcrypt($password);
                         $user->language = 'en';
-                        $token = AuthenticatesAndRegistersUsers::makeRegToken();
+                        $token = AuthController::makeRegToken();
                         $user->regtoken = $token;
                         $user->save();
 
@@ -258,7 +258,7 @@ class AdminController extends Controller {
                         //
                         try {
                             Mail::send('emails.batch-activation', compact('token', 'password', 'username'), function ($message) use ($email) {
-                                $message->from(env('MAIL_FROM_ADDRESS'));
+                                $message->from(config('mail.from.address'));
                                 $message->to($email);
                                 $message->subject('Kora Account Activation');
                             });

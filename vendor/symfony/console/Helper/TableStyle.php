@@ -11,6 +11,9 @@
 
 namespace Symfony\Component\Console\Helper;
 
+use Symfony\Component\Console\Exception\InvalidArgumentException;
+use Symfony\Component\Console\Exception\LogicException;
+
 /**
  * Defines the styles for a Table.
  *
@@ -34,12 +37,12 @@ class TableStyle
      *
      * @param string $paddingChar
      *
-     * @return $this
+     * @return TableStyle
      */
     public function setPaddingChar($paddingChar)
     {
         if (!$paddingChar) {
-            throw new \LogicException('The padding char must not be empty');
+            throw new LogicException('The padding char must not be empty');
         }
 
         $this->paddingChar = $paddingChar;
@@ -62,7 +65,7 @@ class TableStyle
      *
      * @param string $horizontalBorderChar
      *
-     * @return $this
+     * @return TableStyle
      */
     public function setHorizontalBorderChar($horizontalBorderChar)
     {
@@ -86,7 +89,7 @@ class TableStyle
      *
      * @param string $verticalBorderChar
      *
-     * @return $this
+     * @return TableStyle
      */
     public function setVerticalBorderChar($verticalBorderChar)
     {
@@ -110,7 +113,7 @@ class TableStyle
      *
      * @param string $crossingChar
      *
-     * @return $this
+     * @return TableStyle
      */
     public function setCrossingChar($crossingChar)
     {
@@ -134,7 +137,7 @@ class TableStyle
      *
      * @param string $cellHeaderFormat
      *
-     * @return $this
+     * @return TableStyle
      */
     public function setCellHeaderFormat($cellHeaderFormat)
     {
@@ -158,7 +161,7 @@ class TableStyle
      *
      * @param string $cellRowFormat
      *
-     * @return $this
+     * @return TableStyle
      */
     public function setCellRowFormat($cellRowFormat)
     {
@@ -182,7 +185,7 @@ class TableStyle
      *
      * @param string $cellRowContentFormat
      *
-     * @return $this
+     * @return TableStyle
      */
     public function setCellRowContentFormat($cellRowContentFormat)
     {
@@ -206,7 +209,7 @@ class TableStyle
      *
      * @param string $borderFormat
      *
-     * @return $this
+     * @return TableStyle
      */
     public function setBorderFormat($borderFormat)
     {
@@ -230,12 +233,12 @@ class TableStyle
      *
      * @param int $padType STR_PAD_*
      *
-     * @return $this
+     * @return TableStyle
      */
     public function setPadType($padType)
     {
         if (!in_array($padType, array(STR_PAD_LEFT, STR_PAD_RIGHT, STR_PAD_BOTH), true)) {
-            throw new \InvalidArgumentException('Invalid padding type. Expected one of (STR_PAD_LEFT, STR_PAD_RIGHT, STR_PAD_BOTH).');
+            throw new InvalidArgumentException('Invalid padding type. Expected one of (STR_PAD_LEFT, STR_PAD_RIGHT, STR_PAD_BOTH).');
         }
 
         $this->padType = $padType;

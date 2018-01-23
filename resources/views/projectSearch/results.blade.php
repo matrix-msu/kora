@@ -380,7 +380,7 @@
                                                 @if($aud != '')
                                                 <?php
                                                 $name = explode('[Name]',$aud)[1];
-                                                $link = env('STORAGE_URL').'files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$name;
+                                                $link = config('app.storage_url').'files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$name;
                                                 ?>
                                             {
                                                 title: "{{$name}}",
@@ -396,7 +396,7 @@
                                             @endforeach
                                         ];
                                         var options = {
-                                            swfPath: "{{env('BASE_PATH')}}public/jplayer/jquery.jplayer.swf",
+                                            swfPath: "{{config('app.base_path')}}public/jplayer/jquery.jplayer.swf",
                                             supplied: "mp3, oga, wav"
                                         };
                                         var myPlaylist = new jPlayerPlaylist(cssSelector, playlist, options);
@@ -463,7 +463,7 @@
                                                 @if($vid != '')
                                                 <?php
                                                 $name = explode('[Name]',$vid)[1];
-                                                $link = env('STORAGE_URL').'files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$name;
+                                                $link = config('app.storage_url').'files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$name;
                                                 ?>
                                             {
                                                 title: "{{$name}}",
@@ -477,7 +477,7 @@
                                             @endforeach
                                         ];
                                         var options = {
-                                            swfPath: "{{env('BASE_PATH')}}public/jplayer/jquery.jplayer.swf",
+                                            swfPath: "{{config('app.base_path')}}public/jplayer/jquery.jplayer.swf",
                                             supplied: "m4v, ogv"
                                         };
                                         var myPlaylist = new jPlayerPlaylist(cssSelector, playlist, options);

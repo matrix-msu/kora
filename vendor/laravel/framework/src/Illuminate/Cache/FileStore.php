@@ -4,11 +4,13 @@ namespace Illuminate\Cache;
 
 use Exception;
 use Illuminate\Support\Arr;
-use Illuminate\Contracts\Cache\Store;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Contracts\Cache\Store;
 
 class FileStore implements Store
 {
+    use RetrievesMultipleKeys;
+
     /**
      * The Illuminate Filesystem instance.
      *
@@ -39,7 +41,7 @@ class FileStore implements Store
     /**
      * Retrieve an item from the cache by key.
      *
-     * @param  string  $key
+     * @param  string|array  $key
      * @return mixed
      */
     public function get($key)
@@ -61,7 +63,9 @@ class FileStore implements Store
         // just return null. Otherwise, we'll get the contents of the file and get
         // the expiration UNIX timestamps from the start of the file's contents.
         try {
-            $expire = substr($contents = $this->files->get($path), 0, 10);
+            $expire = substr(
+                $contents = $this->files->get($path, true), 0, 10
+            );
         } catch (Exception $e) {
             return ['data' => null, 'time' => null];
         }
@@ -99,7 +103,7 @@ class FileStore implements Store
 
         $this->createCacheDirectory($path = $this->path($key));
 
-        $this->files->put($path, $value);
+        $this->files->put($path, $value, true);
     }
 
     /**
@@ -196,7 +200,7 @@ class FileStore implements Store
      */
     protected function path($key)
     {
-        $parts = array_slice(str_split($hash = md5($key), 2), 0, 2);
+        $parts = array_slice(str_split($hash = sha1($key), 2), 0, 2);
 
         return $this->directory.'/'.implode('/', $parts).'/'.$hash;
     }
@@ -215,7 +219,7 @@ class FileStore implements Store
             return 9999999999;
         }
 
-        return $time;
+        return (int) $time;
     }
 
     /**

@@ -1,24 +1,16 @@
 <?php namespace Geocoder\Laravel\Tests\Laravel5_3\Providers;
 
-use Geocoder\Exception\FunctionNotFound;
 use Geocoder\Laravel\Tests\Laravel5_3\TestCase;
 use Geocoder\Laravel\Exceptions\InvalidDumperException;
-use Geocoder\Laravel\Facades\Geocoder;
 use Geocoder\Laravel\ProviderAndDumperAggregator;
 use Geocoder\Laravel\Providers\GeocoderService;
-use Geocoder\Provider\Chain\Chain;
-use Geocoder\Provider\GeoPlugin\GeoPlugin;
-use Geocoder\Provider\MaxMindBinary\MaxMindBinary;
-use Geocoder\Provider\GoogleMaps\GoogleMaps;
-use Geocoder\Query\GeocodeQuery;
-use Geocoder\Query\ReverseQuery;
-use Geocoder\Model\Coordinates;
-use Http\Client\Curl\Client as CurlAdapter;
-use Illuminate\Support\Collection;
+use Geocoder\Provider\Chain;
+use Geocoder\Provider\FreeGeoIp;
+use Geocoder\Provider\GoogleMaps;
+use Geocoder\Provider\MaxMindBinary;
+use Geocoder\Exception\FunctionNotFound;
+use Ivory\HttpAdapter\CurlHttpAdapter;
 
-/**
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
- */
 class GeocoderServiceTest extends TestCase
 {
     public function setUp()
@@ -33,14 +25,13 @@ class GeocoderServiceTest extends TestCase
         // Arrange
 
         // Act
-        $results = app('geocoder')->reverse(38.8791981, -76.9818437)->get();
+        $result = app('geocoder')->reverse(38.8791981, -76.9818437)->all();
 
         // Assert
-        $this->assertEquals('1600', $results->first()->getStreetNumber());
-        $this->assertEquals('Pennsylvania Avenue Southeast', $results->first()->getStreetName());
-        $this->assertEquals('Washington', $results->first()->getLocality());
-        $this->assertEquals('20003', $results->first()->getPostalCode());
-        $this->assertTrue($results->isNotEmpty());
+        $this->assertEquals('1600', $result[0]->getStreetNumber());
+        $this->assertEquals('Pennsylvania Avenue Southeast', $result[0]->getStreetName());
+        $this->assertEquals('Washington', $result[0]->getLocality());
+        $this->assertEquals('20003', $result[0]->getPostalCode());
     }
 
     public function testItResolvesAGivenAddress()
@@ -48,17 +39,16 @@ class GeocoderServiceTest extends TestCase
         // Arrange
 
         // Act
-        $results = app('geocoder')
+        $result = app('geocoder')
             ->using('chain')
             ->geocode('1600 Pennsylvania Ave., Washington, DC USA')
-            ->get();
+            ->all();
 
         // Assert
-        $this->assertEquals('1600', $results->first()->getStreetNumber());
-        $this->assertEquals('Pennsylvania Avenue Northwest', $results->first()->getStreetName());
-        $this->assertEquals('Washington', $results->first()->getLocality());
-        $this->assertEquals('20500', $results->first()->getPostalCode());
-        $this->assertTrue($results->isNotEmpty());
+        $this->assertEquals('1600', $result[0]->getStreetNumber());
+        $this->assertEquals('Pennsylvania Avenue Northwest', $result[0]->getStreetName());
+        $this->assertEquals('Washington', $result[0]->getLocality());
+        $this->assertEquals('20500', $result[0]->getPostalCode());
     }
 
     public function testItResolvesAGivenIPAddress()
@@ -66,13 +56,12 @@ class GeocoderServiceTest extends TestCase
         // Arrange
 
         // Act
-        $results = app('geocoder')
-            ->geocode('72.229.28.185')
-            ->get();
+        $result = app('geocoder')
+            ->geocode('8.8.8.8')
+            ->all();
 
         // Assert
-        $this->assertTrue($results->isNotEmpty());
-        $this->assertEquals('US', $results->first()->getCountry()->getCode());
+        $this->assertEquals('US', $result[0]->getCountry()->getCode());
     }
 
     public function testItResolvesAGivenAddressWithUmlauts()
@@ -80,86 +69,96 @@ class GeocoderServiceTest extends TestCase
         // Arrange
 
         // Act
-        $results = app('geocoder')
+        $result = app('geocoder')
             ->geocode('Obere Donaustrasse 22, Wien, Österreich')
-            ->get();
+            ->all();
 
         // Assert
-        $this->assertEquals('22', $results->first()->getStreetNumber());
-        $this->assertEquals('Obere Donaustraße', $results->first()->getStreetName());
-        $this->assertEquals('Wien', $results->first()->getLocality());
-        $this->assertEquals('1020', $results->first()->getPostalCode());
-        $this->assertTrue($results->isNotEmpty());
+        $this->assertEquals('22', $result[0]->getStreetNumber());
+        $this->assertEquals('Obere Donaustraße', $result[0]->getStreetName());
+        $this->assertEquals('Wien', $result[0]->getLocality());
+        $this->assertEquals('1020', $result[0]->getPostalCode());
     }
 
     public function testItResolvesAGivenAddressWithUmlautsInRegion()
     {
         // Arrange
-        config()->set('geocoder.providers.Geocoder\Provider\Chain\Chain.Geocoder\Provider\GoogleMaps\GoogleMaps', [
+        config()->set('geocoder.providers.Geocoder\Provider\Chain.Geocoder\Provider\GoogleMaps', [
             'de-DE',
+            'Wien, Österreich',
+            true,
             null,
         ]);
         app()->register(GeocoderService::class);
 
         // Act
-        $results = app('geocoder')
+        $result = app('geocoder')
             ->geocode('Obere Donaustrasse 22, Wien, Österreich')
-            ->get();
+            ->all();
 
         // Assert
-        $this->assertEquals('22', $results->first()->getStreetNumber());
-        $this->assertEquals('Obere Donaustraße', $results->first()->getStreetName());
-        $this->assertEquals('Wien', $results->first()->getLocality());
-        $this->assertEquals('1020', $results->first()->getPostalCode());
-        $this->assertTrue($results->isNotEmpty());
+        $this->assertEquals('22', $result[0]->getStreetNumber());
+        $this->assertEquals('Obere Donaustraße', $result[0]->getStreetName());
+        $this->assertEquals('Wien', $result[0]->getLocality());
+        $this->assertEquals('1020', $result[0]->getPostalCode());
+    }
+
+    public function testItCanUseMaxMindBinaryWithoutProvider()
+    {
+        //Arrange
+        $this->expectException(FunctionNotFound::class);
+        $provider = new MaxMindBinary('dummy');
+
+        // Act
+        app('geocoder')->registerProvider($provider);
+
+        // Assert
+        // By getting past the constructor parameters requirements, we know we
+        // are instantiating the provider correctly.
     }
 
     public function testItCanUseASpecificProvider()
     {
-        $results = app('geocoder')
+        $result = app('geocoder')
             ->using('google_maps')
             ->geocode('1600 Pennsylvania Ave., Washington, DC USA')
-            ->get();
-        $this->assertEquals('1600', $results->first()->getStreetNumber());
-        $this->assertEquals('Pennsylvania Avenue Northwest', $results->first()->getStreetName());
-        $this->assertEquals('Washington', $results->first()->getLocality());
-        $this->assertEquals('20500', $results->first()->getPostalCode());
-        $this->assertTrue($results->isNotEmpty());
+            ->all();
+        $this->assertEquals('1600', $result[0]->getStreetNumber());
+        $this->assertEquals('Pennsylvania Avenue Northwest', $result[0]->getStreetName());
+        $this->assertEquals('Washington', $result[0]->getLocality());
+        $this->assertEquals('20500', $result[0]->getPostalCode());
     }
 
     public function testItDumpsAndAddress()
     {
-        $results = app('geocoder')
+        $result = app('geocoder')
             ->using('google_maps')
             ->geocode('1600 Pennsylvania Ave., Washington, DC USA')
             ->dump('geojson');
-        $jsonAddress = json_decode($results->first());
+        $jsonAddress = json_decode($result->first());
 
         $this->assertEquals('1600', $jsonAddress->properties->streetNumber);
-        $this->assertTrue($results->isNotEmpty());
     }
 
     public function testItThrowsAnExceptionForInvalidDumper()
     {
         $this->expectException(InvalidDumperException::class);
-        $results = app('geocoder')
+        $result = app('geocoder')
             ->using('google_maps')
             ->geocode('1600 Pennsylvania Ave., Washington, DC USA')
             ->dump('test');
-        $jsonAddress = json_decode($results->first());
+        $jsonAddress = json_decode($result->first());
 
         $this->assertEquals('1600', $jsonAddress->properties->streetNumber);
-        $this->assertTrue($results->isNotEmpty());
     }
 
     public function testConfig()
     {
-        $this->assertEquals(999999999, config('geocoder.cache-duration'));
         $this->assertTrue(is_array($providers = $this->app['config']->get('geocoder.providers')));
         $this->assertCount(3, $providers);
         $this->assertArrayHasKey(GoogleMaps::class, $providers[Chain::class]);
-        $this->assertArrayHasKey(GeoPlugin::class, $providers[Chain::class]);
-        $this->assertSame(CurlAdapter::class, $this->app['config']->get('geocoder.adapter'));
+        $this->assertArrayHasKey(FreeGeoIp::class, $providers[Chain::class]);
+        $this->assertSame(CurlHttpAdapter::class, $this->app['config']->get('geocoder.adapter'));
     }
 
     public function testLoadedProviders()
@@ -177,95 +176,12 @@ class GeocoderServiceTest extends TestCase
 
     public function testCacheIsUsed()
     {
-        $cacheKey = str_slug(strtolower(urlencode('1600 Pennsylvania Ave., Washington, DC USA')));
-
         $result = app('geocoder')->geocode('1600 Pennsylvania Ave., Washington, DC USA')
             ->get();
+        $cacheKey = str_slug(strtolower(urlencode('1600 Pennsylvania Ave., Washington, DC USA')));
 
-        $this->assertTrue(app('cache')->has("geocoder-{$cacheKey}"));
         $this->assertEquals($result, app('cache')->get("geocoder-{$cacheKey}"));
-    }
-
-    /**
-     * @SuppressWarnings(PHPMD.StaticAccess)
-     */
-    public function testGeocodeQueryProvidesResults()
-    {
-        $query = GeocodeQuery::create('1600 Pennsylvania Ave., Washington, DC USA');
-
-        $results = app('geocoder')->geocodeQuery($query)->get();
-
-        $this->assertInstanceOf(Collection::class, $results);
-        $this->assertTrue($results->isNotEmpty());
-    }
-
-    /**
-     * @SuppressWarnings(PHPMD.StaticAccess)
-     */
-    public function testReverseQueryProvidesResults()
-    {
-        $coordinates = new Coordinates(38.8791981, -76.9818437);
-        $query = ReverseQuery::create($coordinates);
-
-        $results = app('geocoder')->reverseQuery($query)->get();
-
-        $this->assertInstanceOf(Collection::class, $results);
-        $this->assertTrue($results->isNotEmpty());
-    }
-
-    public function testFacadeProvidesResults()
-    {
-        $results = Geocoder::geocode('1600 Pennsylvania Ave., Washington, DC USA')->get();
-
-        $this->assertInstanceOf(Collection::class, $results);
-        $this->assertTrue($results->isNotEmpty());
-    }
-
-    public function testItCanUseMaxMindBinaryWithoutProvider()
-    {
-        $provider = new MaxMindBinary(__DIR__ . '/../../assets/GeoIP.dat');
-
-        app('geocoder')->registerProvider($provider);
-    }
-
-    public function testGetNameReturnsString()
-    {
-        $this->assertEquals('provider_aggregator', app('geocoder')->getName());
-    }
-
-    public function testLimitingOfResults()
-    {
-        $expectedLimit = 1;
-        app('geocoder')->limit($expectedLimit);
-        $actualLimit = app('geocoder')->getLimit();
-        $results = app('geocoder')->using('chain')
-            ->geocode('1600 Pennsylvania Ave., Washington, DC USA')
-            ->get();
-
-        $this->assertEquals($expectedLimit, $actualLimit);
-        $this->assertEquals($expectedLimit, $results->count());
-    }
-
-    public function testFetchingAllResults()
-    {
-        $expectedResults = app('geocoder')
-            ->geocode('1600 Pennsylvania Ave., Washington, DC USA')
-            ->get()
-            ->all();
-        $actualResults = app('geocoder')
-            ->geocode('1600 Pennsylvania Ave., Washington, DC USA')
-            ->all();
-
-        $this->assertEquals($expectedResults, $actualResults);
-    }
-
-    public function testGetProviders()
-    {
-        $providers = app('geocoder')->getProviders();
-
-        $this->assertTrue($providers->has('chain'));
-        $this->assertTrue($providers->has('bing_maps'));
-        $this->assertTrue($providers->has('google_maps'));
+        $this->assertTrue(app('cache')->has("geocoder-{$cacheKey}"));
     }
 
     public function testJapaneseCharacterGeocoding()
@@ -277,5 +193,20 @@ class GeocoderServiceTest extends TestCase
 
         $this->assertEquals($cacheKey, '108-0075e69db1e4baace983bde6b8afe58cbae6b8afe58d97efbc92e4b881e79baeefbc91efbc96efbc8defbc93');
         $this->assertTrue(app('cache')->has("geocoder-{$cacheKey}"));
+    }
+
+    public function testFailedGeocodingCanBeCaught()
+    {
+        $result = 'success';
+
+        try {
+            app('geocoder')
+                ->geocode('asd,Afghanistan')
+                ->get();
+        } catch (\Throwable $exception) {
+            $result = 'failure';
+        }
+
+        $this->assertEquals('failure', $result);
     }
 }

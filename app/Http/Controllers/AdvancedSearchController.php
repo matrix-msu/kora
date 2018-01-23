@@ -161,7 +161,7 @@ class AdvancedSearchController extends Controller {
         $records = $query->get();
 
         $rid_paginator = new LengthAwarePaginator($rids, count($rids), RecordController::RECORDS_PER_PAGE, $page);
-        $rid_paginator->setPath( env('BASE_URL') . 'projects/' . $pid . '/forms/' . $fid . '/advancedSearch/results');
+        $rid_paginator->setPath( config('app.url') . 'projects/' . $pid . '/forms/' . $fid . '/advancedSearch/results');
 
         $form = Form::where("fid", "=", $fid)->first();
         return view('search.results', compact("form", "filesize", "records", "rid_paginator"));

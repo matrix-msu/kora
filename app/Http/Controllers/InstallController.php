@@ -258,7 +258,7 @@ class InstallController extends Controller {
 
             "MAIL_HOST=" . $request->mail_host . "\n" .
             "MAIL_FROM_ADDRESS=" . $request->mail_from_address . "\n" .
-            "MAIL_FROM_NAME=" . $request->mail_from_name . "\n" .
+            "MAIL_FROM_NAME=\"" . $request->mail_from_name . "\"\n" .
             "MAIL_USER=" . $request->mail_username . "\n" .
             "MAIL_PASSWORD=" . $request->mail_password . "\n\n" .
 
@@ -282,9 +282,9 @@ class InstallController extends Controller {
      */
     private function createDirectories() {
         foreach($this->DIRECTORIES as $dir) {
-            if(!file_exists(env("BASE_PATH").$dir)) {
+            if(!file_exists(config('app.base_path').$dir)) {
                 try {
-                    mkdir(env("BASE_PATH") . $dir, 0775); //Notice the permission that is set and if it's OK!
+                    mkdir(config('app.base_path') . $dir, 0775); //Notice the permission that is set and if it's OK!
                 } catch(\Exception $e) {
                     return false;
                 }
@@ -315,7 +315,7 @@ class InstallController extends Controller {
 
         if(!is_null($request->file('user_profile'))) {
             $file = $request->file('user_profile');
-            $pDir = env('BASE_PATH') . 'storage/app/profiles/1/';
+            $pDir = config('app.base_path') . 'storage/app/profiles/1/';
 
             $newFilename = $file->getClientOriginalName();
             $newuser->profile = $newFilename;
@@ -364,13 +364,13 @@ class InstallController extends Controller {
         }
 
         $configs = array(
-            ['title'=>'Recaptcha Private Key', 'slug'=>'recaptcha_private', 'value'=>env('RECAPTCHA_PRIVATE_KEY')],
-            ['title'=>'Recaptcha Public Key',  'slug'=>'recaptcha_public',  'value'=>env('RECAPTCHA_PUBLIC_KEY')],
-            ['title'=>'Mail Host',             'slug'=>'mail_host',         'value'=>env('MAIL_HOST')],
-            ['title'=>'Mail From Address',     'slug'=>'mail_address',      'value'=>env('MAIL_FROM_ADDRESS')],
-            ['title'=>'Mail From Name',        'slug'=>'mail_name',         'value'=>env('MAIL_FROM_NAME')],
-            ['title'=>'Mail User',             'slug'=>'mail_user',         'value'=>env('MAIL_USER')],
-            ['title'=>'Mail Password',         'slug'=>'mail_password',     'value'=>env('MAIL_PASSWORD')],
+            ['title'=>'Recaptcha Private Key', 'slug'=>'recaptcha_private', 'value'=>config('auth.recap_private')],
+            ['title'=>'Recaptcha Public Key',  'slug'=>'recaptcha_public',  'value'=>config('auth.recap_public')],
+            ['title'=>'Mail Host',             'slug'=>'mail_host',         'value'=>config('mail.host')],
+            ['title'=>'Mail From Address',     'slug'=>'mail_address',      'value'=>config('mail.from.address')],
+            ['title'=>'Mail From Name',        'slug'=>'mail_name',         'value'=>config('mail.from.name')],
+            ['title'=>'Mail User',             'slug'=>'mail_user',         'value'=>config('mail.username')],
+            ['title'=>'Mail Password',         'slug'=>'mail_password',     'value'=>config('mail.password')],
         );
 
         return view('install.config',compact('configs'));
@@ -386,12 +386,12 @@ class InstallController extends Controller {
         if(!Auth::user()->admin)
             return redirect('projects')->with('k3_global_error', 'not_admin');
 
-        if(env('APP_DEBUG'))
+        if(config('app.debug'))
             $debug = 'true';
         else
             $debug = 'false';
 
-        $layout = "APP_ENV=" . env('APP_ENV') . "\n".
+        $layout = "APP_ENV=" . config('app.env') . "\n".
             "APP_DEBUG=" . $debug . "\n\n".
 
             "DB_HOST=" . env('DB_HOST') . "\n" .
@@ -407,12 +407,12 @@ class InstallController extends Controller {
             "MAIL_USER=" . $request->mail_user . "\n" .
             "MAIL_PASSWORD=" . $request->mail_password . "\n\n" .
 
-            "CACHE_DRIVER=" . env('CACHE_DRIVER') . "\n".
-            "SESSION_DRIVER=" . env('SESSION_DRIVER') . "\n\n".
+            "CACHE_DRIVER=" . config('cache.default') . "\n".
+            "SESSION_DRIVER=" . config('session.driver') . "\n\n".
 
-            "BASE_URL=" . env('BASE_URL') . "\n" .
-            "STORAGE_URL=" . env('STORAGE_URL') . "\n" .
-            "BASE_PATH=" . env('BASE_PATH') . "\n\n" .
+            "BASE_URL=" . config('app.url') . "\n" .
+            "STORAGE_URL=" . config('app.storage_url') . "\n" .
+            "BASE_PATH=" . config('app.base_path') . "\n\n" .
 
             "RECAPTCHA_PUBLIC_KEY=" . $request->recaptcha_public . "\n" .
             "RECAPTCHA_PRIVATE_KEY=" . $request->recaptcha_private;

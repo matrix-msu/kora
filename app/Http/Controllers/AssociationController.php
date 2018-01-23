@@ -181,7 +181,7 @@ class AssociationController extends Controller {
         foreach($users as $user) {
             try {
                 Mail::send('emails.request.assoc', compact('myForm', 'myProj', 'theirForm', 'theirProj'), function ($message) use ($user) {
-                    $message->from(env('MAIL_FROM_ADDRESS'));
+                    $message->from(config('mail.from.address'));
                     $message->to($user->email);
                     $message->subject('Kora Form Association Request');
                 });

@@ -55,7 +55,7 @@ class RecordController extends Controller {
 
         $form = FormController::getForm($fid);
         $records = Record::where('fid', '=', $fid)->paginate(self::RECORDS_PER_PAGE);
-        $records->setPath(env('BASE_URL').'projects/'.$pid.'/forms/'.$fid.'/records');
+        $records->setPath(config('app.url').'projects/'.$pid.'/forms/'.$fid.'/records');
 
         return view('records.index', compact('form', 'records'));
 	}
@@ -265,7 +265,7 @@ class RecordController extends Controller {
                 $revisions[] = $revision; // ... add to the array.
         }
 
-        $base_path = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid;
+        $base_path = config('app.base_path').'storage/app/files/p'.$pid.'/f'.$fid;
 
         //
         // For each revision, delete it's associated record's files.
@@ -503,7 +503,7 @@ class RecordController extends Controller {
         $pid = $form->pid;
         $filesize = 0;
 
-        $basedir = env( "BASE_PATH" ) . "storage/app/files/p".$pid."/f".$fid;
+        $basedir = config('app.base_path') . "storage/app/files/p".$pid."/f".$fid;
         $filesize += self::dirCrawl($basedir);
 
         $filesize = self::fileSizeConvert($filesize);

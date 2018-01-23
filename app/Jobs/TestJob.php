@@ -2,13 +2,11 @@
 
 namespace App\Jobs;
 
-use App\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Support\Facades\Log;
 
-class TestJob extends Job implements SelfHandling
+class TestJob extends Job
 {
     use InteractsWithQueue, SerializesModels;
 

@@ -68,7 +68,7 @@ abstract class FileTypeField extends BaseField {
     public static function saveTmpFile($flid) {
         $field = FieldController::getField($flid);
         $uid = \Auth::user()->id;
-        $dir = env('BASE_PATH').'storage/app/tmpFiles/f'.$flid.'u'.$uid;
+        $dir = config('app.base_path').'storage/app/tmpFiles/f'.$flid.'u'.$uid;
 
         $maxFileNum = FieldController::getFieldOption($field, 'MaxFiles');
         $fileNumRequest = sizeof($_FILES['file'.$flid]['name']);
@@ -163,7 +163,7 @@ abstract class FileTypeField extends BaseField {
         $field = FieldController::getField($flid);
 
         // Check if file exists in app/storage/file folder
-        $file_path = env('BASE_PATH').'storage/app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $filename;
+        $file_path = config('app.base_path').'storage/app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $filename;
         if(file_exists($file_path)) {
             // Send Download
             return response()->download($file_path, $filename, [

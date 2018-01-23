@@ -272,7 +272,7 @@ class KORA_Clause {
         }
         else {
             $tool = new kora3ApiExternalTool();
-            if($arg1=="KID") {
+            if(strtoupper($arg1)=="KID") {
                 if($arg2 == "")
                     $arg2 = array();
                 else if(!is_array($arg2))
@@ -463,7 +463,7 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
     curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
 
     if(!$result = curl_exec($curl))
-        trigger_error(curl_error($curl));
+        return curl_error($curl);
 
     curl_close($curl);
 

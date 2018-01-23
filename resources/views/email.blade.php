@@ -156,7 +156,7 @@
 
 <div class="email">
     <div class="header max-width-large">
-        <img src="{{ env('BASE_URL') }}logos/k3Dummy.jpg" alt="Logo" title="Logo">
+        <img src="{{ config('app.url') }}logos/k3Dummy.jpg" alt="Logo" title="Logo">
     </div>
 
     <div class="content max-width-regular">

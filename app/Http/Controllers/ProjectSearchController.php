@@ -117,9 +117,9 @@ class ProjectSearchController extends Controller {
             "fids" => serialize($fids)
         ]);
         if($pid == 0) {
-            $rid_paginator->setPath( env('BASE_URL') . 'keywordSearch/');
+            $rid_paginator->setPath( config('app.url') . 'keywordSearch/');
         } else {
-            $rid_paginator->setPath( env('BASE_URL') . 'keywordSearch/project/' . $pid);
+            $rid_paginator->setPath( config('app.url') . 'keywordSearch/project/' . $pid);
         }
 
         if($pid == 0) {
@@ -221,7 +221,7 @@ class ProjectSearchController extends Controller {
             "query" => $query,
             "method" => $method,
         ]);
-        $rid_paginator->setPath( env('BASE_URL') . 'globalSearch/');
+        $rid_paginator->setPath( config('app.url') . 'globalSearch/');
 
         $projects = Project::all();
         $projectArrays = [];

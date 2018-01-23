@@ -11,13 +11,12 @@
 
 namespace Symfony\Component\Console\Tests\Input;
 
-use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
-class ArrayInputTest extends TestCase
+class ArrayInputTest extends \PHPUnit_Framework_TestCase
 {
     public function testGetFirstArgument()
     {
@@ -37,15 +36,24 @@ class ArrayInputTest extends TestCase
 
         $input = new ArrayInput(array('--foo'));
         $this->assertTrue($input->hasParameterOption('--foo'), '->hasParameterOption() returns true if an option is present in the passed parameters');
+
+        $input = new ArrayInput(array('--foo', '--', '--bar'));
+        $this->assertTrue($input->hasParameterOption('--bar'), '->hasParameterOption() returns true if an option is present in the passed parameters');
+        $this->assertFalse($input->hasParameterOption('--bar', true), '->hasParameterOption() returns false if an option is present in the passed parameters after an end of options signal');
     }
 
     public function testGetParameterOption()
     {
         $input = new ArrayInput(array('name' => 'Fabien', '--foo' => 'bar'));
         $this->assertEquals('bar', $input->getParameterOption('--foo'), '->getParameterOption() returns the option of specified name');
+        $this->assertFalse($input->getParameterOption('--bar'), '->getParameterOption() returns the default if an option is not present in the passed parameters');
 
         $input = new ArrayInput(array('Fabien', '--foo' => 'bar'));
         $this->assertEquals('bar', $input->getParameterOption('--foo'), '->getParameterOption() returns the option of specified name');
+
+        $input = new ArrayInput(array('--foo', '--', '--bar' => 'woop'));
+        $this->assertEquals('woop', $input->getParameterOption('--bar'), '->getParameterOption() returns the correct value if an option is present in the passed parameters');
+        $this->assertFalse($input->getParameterOption('--bar', false, true), '->getParameterOption() returns false if an option is present in the passed parameters after an end of options signal');
     }
 
     public function testParseArguments()
@@ -92,6 +100,18 @@ class ArrayInputTest extends TestCase
                 array('foo' => 'bar'),
                 '->parse() parses short options',
             ),
+            array(
+                array('--' => null, '-f' => 'bar'),
+                array(new InputOption('foo', 'f', InputOption::VALUE_OPTIONAL, '', 'default')),
+                array('foo' => 'default'),
+                '->parse() does not parse opts after an end of options signal',
+            ),
+            array(
+                array('--' => null),
+                array(),
+                array(),
+                '->parse() does not choke on end of options signal',
+            ),
         );
     }
 
@@ -100,12 +120,7 @@ class ArrayInputTest extends TestCase
      */
     public function testParseInvalidInput($parameters, $definition, $expectedExceptionMessage)
     {
-        if (method_exists($this, 'expectException')) {
-            $this->expectException('InvalidArgumentException');
-            $this->expectExceptionMessage($expectedExceptionMessage);
-        } else {
-            $this->setExpectedException('InvalidArgumentException', $expectedExceptionMessage);
-        }
+        $this->setExpectedException('InvalidArgumentException', $expectedExceptionMessage);
 
         new ArrayInput($parameters, $definition);
     }

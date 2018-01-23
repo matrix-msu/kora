@@ -12,8 +12,8 @@ use DateTimeInterface;
 use Illuminate\Support\Arr;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Contracts\Events\Dispatcher;
-use Doctrine\DBAL\Connection as DoctrineConnection;
 use Illuminate\Database\Query\Processors\Processor;
+use Doctrine\DBAL\Connection as DoctrineConnection;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Schema\Builder as SchemaBuilder;
 use Illuminate\Database\Query\Grammars\Grammar as QueryGrammar;
@@ -79,6 +79,20 @@ class Connection implements ConnectionInterface
     protected $fetchMode = PDO::FETCH_OBJ;
 
     /**
+     * The argument for the fetch mode.
+     *
+     * @var mixed
+     */
+    protected $fetchArgument;
+
+    /**
+     * The constructor arguments for the PDO::FETCH_CLASS fetch mode.
+     *
+     * @var array
+     */
+    protected $fetchConstructorArgument = [];
+
+    /**
      * The number of active transactions.
      *
      * @var int
@@ -137,13 +151,13 @@ class Connection implements ConnectionInterface
     /**
      * Create a new database connection instance.
      *
-     * @param  \PDO     $pdo
+     * @param  \PDO|\Closure     $pdo
      * @param  string   $database
      * @param  string   $tablePrefix
      * @param  array    $config
      * @return void
      */
-    public function __construct(PDO $pdo, $database = '', $tablePrefix = '', array $config = [])
+    public function __construct($pdo, $database = '', $tablePrefix = '', array $config = [])
     {
         $this->pdo = $pdo;
 
@@ -320,8 +334,61 @@ class Connection implements ConnectionInterface
 
             $statement->execute($me->prepareBindings($bindings));
 
-            return $statement->fetchAll($me->getFetchMode());
+            $fetchMode = $me->getFetchMode();
+            $fetchArgument = $me->getFetchArgument();
+            $fetchConstructorArgument = $me->getFetchConstructorArgument();
+
+            if ($fetchMode === PDO::FETCH_CLASS && ! isset($fetchArgument)) {
+                $fetchArgument = 'StdClass';
+                $fetchConstructorArgument = null;
+            }
+
+            return isset($fetchArgument)
+                ? $statement->fetchAll($fetchMode, $fetchArgument, $fetchConstructorArgument)
+                : $statement->fetchAll($fetchMode);
         });
+    }
+
+    /**
+     * Run a select statement against the database and returns a generator.
+     *
+     * @param  string  $query
+     * @param  array  $bindings
+     * @param  bool  $useReadPdo
+     * @return \Generator
+     */
+    public function cursor($query, $bindings = [], $useReadPdo = true)
+    {
+        $statement = $this->run($query, $bindings, function ($me, $query, $bindings) use ($useReadPdo) {
+            if ($me->pretending()) {
+                return [];
+            }
+
+            $statement = $this->getPdoForSelect($useReadPdo)->prepare($query);
+
+            $fetchMode = $me->getFetchMode();
+            $fetchArgument = $me->getFetchArgument();
+            $fetchConstructorArgument = $me->getFetchConstructorArgument();
+
+            if ($fetchMode === PDO::FETCH_CLASS && ! isset($fetchArgument)) {
+                $fetchArgument = 'StdClass';
+                $fetchConstructorArgument = null;
+            }
+
+            if (isset($fetchArgument)) {
+                $statement->setFetchMode($fetchMode, $fetchArgument, $fetchConstructorArgument);
+            } else {
+                $statement->setFetchMode($fetchMode);
+            }
+
+            $statement->execute($me->prepareBindings($bindings));
+
+            return $statement;
+        });
+
+        while ($record = $statement->fetch()) {
+            yield $record;
+        }
     }
 
     /**
@@ -463,7 +530,7 @@ class Connection implements ConnectionInterface
      * @param  \Closure  $callback
      * @return mixed
      *
-     * @throws \Throwable
+     * @throws \Exception|\Throwable
      */
     public function transaction(Closure $callback)
     {
@@ -498,29 +565,25 @@ class Connection implements ConnectionInterface
      * Start a new database transaction.
      *
      * @return void
-     *
-     * @throws \Exception
+     * @throws Exception
      */
     public function beginTransaction()
     {
-        if ($this->transactions == 0) {
+        ++$this->transactions;
+
+        if ($this->transactions == 1) {
             try {
-                $this->pdo->beginTransaction();
+                $this->getPdo()->beginTransaction();
             } catch (Exception $e) {
-                if ($this->causedByLostConnection($e)) {
-                    $this->reconnect();
-                    $this->pdo->beginTransaction();
-                } else {
-                    throw $e;
-                }
+                --$this->transactions;
+
+                throw $e;
             }
-        } elseif ($this->transactions >= 1 && $this->queryGrammar->supportsSavepoints()) {
-            $this->pdo->exec(
-                $this->queryGrammar->compileSavepoint('trans'.($this->transactions + 1))
+        } elseif ($this->transactions > 1 && $this->queryGrammar->supportsSavepoints()) {
+            $this->getPdo()->exec(
+                $this->queryGrammar->compileSavepoint('trans'.$this->transactions)
             );
         }
-
-        ++$this->transactions;
 
         $this->fireConnectionEvent('beganTransaction');
     }
@@ -533,10 +596,10 @@ class Connection implements ConnectionInterface
     public function commit()
     {
         if ($this->transactions == 1) {
-            $this->pdo->commit();
+            $this->getPdo()->commit();
         }
 
-        --$this->transactions;
+        $this->transactions = max(0, $this->transactions - 1);
 
         $this->fireConnectionEvent('committed');
     }
@@ -549,9 +612,9 @@ class Connection implements ConnectionInterface
     public function rollBack()
     {
         if ($this->transactions == 1) {
-            $this->pdo->rollBack();
+            $this->getPdo()->rollBack();
         } elseif ($this->transactions > 1 && $this->queryGrammar->supportsSavepoints()) {
-            $this->pdo->exec(
+            $this->getPdo()->exec(
                 $this->queryGrammar->compileSavepointRollBack('trans'.$this->transactions)
             );
         }
@@ -742,14 +805,14 @@ class Connection implements ConnectionInterface
     public function logQuery($query, $bindings, $time = null)
     {
         if (isset($this->events)) {
-            $this->events->fire('illuminate.query', [$query, $bindings, $time, $this->getName()]);
+            $this->events->fire(new Events\QueryExecuted(
+                $query, $bindings, $time, $this
+            ));
         }
 
-        if (! $this->loggingQueries) {
-            return;
+        if ($this->loggingQueries) {
+            $this->queryLog[] = compact('query', 'bindings', 'time');
         }
-
-        $this->queryLog[] = compact('query', 'bindings', 'time');
     }
 
     /**
@@ -761,7 +824,7 @@ class Connection implements ConnectionInterface
     public function listen(Closure $callback)
     {
         if (isset($this->events)) {
-            $this->events->listen('illuminate.query', $callback);
+            $this->events->listen(Events\QueryExecuted::class, $callback);
         }
     }
 
@@ -773,8 +836,17 @@ class Connection implements ConnectionInterface
      */
     protected function fireConnectionEvent($event)
     {
-        if (isset($this->events)) {
-            $this->events->fire('connection.'.$this->getName().'.'.$event, $this);
+        if (! isset($this->events)) {
+            return;
+        }
+
+        switch ($event) {
+            case 'beganTransaction':
+                return $this->events->fire(new Events\TransactionBeginning($this));
+            case 'committed':
+                return $this->events->fire(new Events\TransactionCommitted($this));
+            case 'rollingBack':
+                return $this->events->fire(new Events\TransactionRolledBack($this));
         }
     }
 
@@ -833,7 +905,7 @@ class Connection implements ConnectionInterface
         if (is_null($this->doctrineConnection)) {
             $driver = $this->getDoctrineDriver();
 
-            $data = ['pdo' => $this->pdo, 'dbname' => $this->getConfig('database')];
+            $data = ['pdo' => $this->getPdo(), 'dbname' => $this->getConfig('database')];
 
             $this->doctrineConnection = new DoctrineConnection($data, $driver);
         }
@@ -848,6 +920,10 @@ class Connection implements ConnectionInterface
      */
     public function getPdo()
     {
+        if ($this->pdo instanceof Closure) {
+            return $this->pdo = call_user_func($this->pdo);
+        }
+
         return $this->pdo;
     }
 
@@ -862,7 +938,7 @@ class Connection implements ConnectionInterface
             return $this->getPdo();
         }
 
-        return $this->readPdo ?: $this->pdo;
+        return $this->readPdo ?: $this->getPdo();
     }
 
     /**
@@ -938,7 +1014,7 @@ class Connection implements ConnectionInterface
      */
     public function getDriverName()
     {
-        return $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+        return $this->getConfig('driver');
     }
 
     /**
@@ -1046,14 +1122,38 @@ class Connection implements ConnectionInterface
     }
 
     /**
-     * Set the default fetch mode for the connection.
+     * Get the fetch argument to be applied when selecting.
+     *
+     * @return mixed
+     */
+    public function getFetchArgument()
+    {
+        return $this->fetchArgument;
+    }
+
+    /**
+     * Get custom constructor arguments for the PDO::FETCH_CLASS fetch mode.
+     *
+     * @return array
+     */
+    public function getFetchConstructorArgument()
+    {
+        return $this->fetchConstructorArgument;
+    }
+
+    /**
+     * Set the default fetch mode for the connection, and optional arguments for the given fetch mode.
      *
      * @param  int  $fetchMode
+     * @param  mixed  $fetchArgument
+     * @param  array  $fetchConstructorArgument
      * @return int
      */
-    public function setFetchMode($fetchMode)
+    public function setFetchMode($fetchMode, $fetchArgument = null, array $fetchConstructorArgument = [])
     {
         $this->fetchMode = $fetchMode;
+        $this->fetchArgument = $fetchArgument;
+        $this->fetchConstructorArgument = $fetchConstructorArgument;
     }
 
     /**

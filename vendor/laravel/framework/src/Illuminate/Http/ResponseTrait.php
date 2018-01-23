@@ -2,6 +2,8 @@
 
 namespace Illuminate\Http;
 
+use Illuminate\Http\Exception\HttpResponseException;
+
 trait ResponseTrait
 {
     /**
@@ -40,6 +42,32 @@ trait ResponseTrait
     }
 
     /**
+     * Add an array of headers to the response.
+     *
+     * @param  array  $headers
+     * @return $this
+     */
+    public function withHeaders(array $headers)
+    {
+        foreach ($headers as $key => $value) {
+            $this->headers->set($key, $value);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add a cookie to the response.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Cookie|mixed  $cookie
+     * @return $this
+     */
+    public function cookie($cookie)
+    {
+        return call_user_func_array([$this, 'withCookie'], func_get_args());
+    }
+
+    /**
      * Add a cookie to the response.
      *
      * @param  \Symfony\Component\HttpFoundation\Cookie|mixed  $cookie
@@ -54,5 +82,15 @@ trait ResponseTrait
         $this->headers->setCookie($cookie);
 
         return $this;
+    }
+
+    /**
+     * Throws the response in a HttpResponseException instance.
+     *
+     * @throws \Illuminate\Http\Exception\HttpResponseException
+     */
+    public function throwResponse()
+    {
+        throw new HttpResponseException($this);
     }
 }

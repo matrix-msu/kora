@@ -11,16 +11,16 @@
 
 namespace Symfony\Component\Console\Command;
 
-use Symfony\Component\Console\Descriptor\TextDescriptor;
-use Symfony\Component\Console\Descriptor\XmlDescriptor;
+use Symfony\Component\Console\Exception\ExceptionInterface;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\HelperSet;
+use Symfony\Component\Console\Exception\InvalidArgumentException;
+use Symfony\Component\Console\Exception\LogicException;
 
 /**
  * Base class for all commands.
@@ -49,7 +49,7 @@ class Command
      *
      * @param string|null $name The name of the command; passing null means it must be set in configure()
      *
-     * @throws \LogicException When the command name is empty
+     * @throws LogicException When the command name is empty
      */
     public function __construct($name = null)
     {
@@ -62,7 +62,7 @@ class Command
         $this->configure();
 
         if (!$this->name) {
-            throw new \LogicException(sprintf('The command defined in "%s" cannot have an empty name.', get_class($this)));
+            throw new LogicException(sprintf('The command defined in "%s" cannot have an empty name.', get_class($this)));
         }
     }
 
@@ -154,13 +154,13 @@ class Command
      *
      * @return null|int null or 0 if everything went fine, or an error code
      *
-     * @throws \LogicException When this abstract method is not implemented
+     * @throws LogicException When this abstract method is not implemented
      *
      * @see setCode()
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        throw new \LogicException('You must override the execute() method in the concrete command class.');
+        throw new LogicException('You must override the execute() method in the concrete command class.');
     }
 
     /**
@@ -202,7 +202,7 @@ class Command
      *
      * @return int The command exit code
      *
-     * @throws \Exception When binding input fails. Bypass this by calling {@link ignoreValidationErrors()}.
+     * @throws \Exception
      *
      * @see setCode()
      * @see execute()
@@ -219,7 +219,7 @@ class Command
         // bind the input against the command specific arguments/options
         try {
             $input->bind($this->definition);
-        } catch (\Exception $e) {
+        } catch (ExceptionInterface $e) {
             if (!$this->ignoreValidationErrors) {
                 throw $e;
             }
@@ -229,14 +229,7 @@ class Command
 
         if (null !== $this->processTitle) {
             if (function_exists('cli_set_process_title')) {
-                if (false === @cli_set_process_title($this->processTitle)) {
-                    if ('Darwin' === PHP_OS) {
-                        $output->writeln('<comment>Running "cli_get_process_title" as an unprivileged user is not supported on MacOS.</comment>');
-                    } else {
-                        $error = error_get_last();
-                        trigger_error($error['message'], E_USER_WARNING);
-                    }
-                }
+                cli_set_process_title($this->processTitle);
             } elseif (function_exists('setproctitle')) {
                 setproctitle($this->processTitle);
             } elseif (OutputInterface::VERBOSITY_VERY_VERBOSE === $output->getVerbosity()) {
@@ -274,16 +267,19 @@ class Command
      *
      * @param callable $code A callable(InputInterface $input, OutputInterface $output)
      *
-     * @return $this
+     * @return Command The current instance
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      *
      * @see execute()
      */
-    public function setCode($code)
+    public function setCode(callable $code)
     {
-        if (!is_callable($code)) {
-            throw new \InvalidArgumentException('Invalid callable provided to Command::setCode.');
+        if ($code instanceof \Closure) {
+            $r = new \ReflectionFunction($code);
+            if (null === $r->getClosureThis()) {
+                $code = \Closure::bind($code, $this);
+            }
         }
 
         $this->code = $code;
@@ -323,7 +319,7 @@ class Command
      *
      * @param array|InputDefinition $definition An array of argument and option instances or a definition instance
      *
-     * @return $this
+     * @return Command The current instance
      */
     public function setDefinition($definition)
     {
@@ -349,7 +345,7 @@ class Command
     }
 
     /**
-     * Gets the InputDefinition to be used to create XML and Text representations of this Command.
+     * Gets the InputDefinition to be used to create representations of this Command.
      *
      * Can be overridden to provide the original command representation when it would otherwise
      * be changed by merging with the application InputDefinition.
@@ -371,7 +367,7 @@ class Command
      * @param string $description A description text
      * @param mixed  $default     The default value (for InputArgument::OPTIONAL mode only)
      *
-     * @return $this
+     * @return Command The current instance
      */
     public function addArgument($name, $mode = null, $description = '', $default = null)
     {
@@ -389,7 +385,7 @@ class Command
      * @param string $description A description text
      * @param mixed  $default     The default value (must be null for InputOption::VALUE_NONE)
      *
-     * @return $this
+     * @return Command The current instance
      */
     public function addOption($name, $shortcut = null, $mode = null, $description = '', $default = null)
     {
@@ -408,9 +404,9 @@ class Command
      *
      * @param string $name The command name
      *
-     * @return $this
+     * @return Command The current instance
      *
-     * @throws \InvalidArgumentException When the name is invalid
+     * @throws InvalidArgumentException When the name is invalid
      */
     public function setName($name)
     {
@@ -431,7 +427,7 @@ class Command
      *
      * @param string $title The process title
      *
-     * @return $this
+     * @return Command The current instance
      */
     public function setProcessTitle($title)
     {
@@ -455,7 +451,7 @@ class Command
      *
      * @param string $description The description for the command
      *
-     * @return $this
+     * @return Command The current instance
      */
     public function setDescription($description)
     {
@@ -479,7 +475,7 @@ class Command
      *
      * @param string $help The help for the command
      *
-     * @return $this
+     * @return Command The current instance
      */
     public function setHelp($help)
     {
@@ -525,14 +521,14 @@ class Command
      *
      * @param string[] $aliases An array of aliases for the command
      *
-     * @return $this
+     * @return Command The current instance
      *
-     * @throws \InvalidArgumentException When an alias is invalid
+     * @throws InvalidArgumentException When an alias is invalid
      */
     public function setAliases($aliases)
     {
         if (!is_array($aliases) && !$aliases instanceof \Traversable) {
-            throw new \InvalidArgumentException('$aliases must be an array or an instance of \Traversable');
+            throw new InvalidArgumentException('$aliases must be an array or an instance of \Traversable');
         }
 
         foreach ($aliases as $alias) {
@@ -576,8 +572,6 @@ class Command
      * Add a command usage example.
      *
      * @param string $usage The usage, it'll be prefixed with the command name
-     *
-     * @return $this
      */
     public function addUsage($usage)
     {
@@ -607,59 +601,16 @@ class Command
      *
      * @return mixed The helper value
      *
-     * @throws \LogicException           if no HelperSet is defined
-     * @throws \InvalidArgumentException if the helper is not defined
+     * @throws LogicException           if no HelperSet is defined
+     * @throws InvalidArgumentException if the helper is not defined
      */
     public function getHelper($name)
     {
         if (null === $this->helperSet) {
-            throw new \LogicException(sprintf('Cannot retrieve helper "%s" because there is no HelperSet defined. Did you forget to add your command to the application or to set the application on the command using the setApplication() method? You can also set the HelperSet directly using the setHelperSet() method.', $name));
+            throw new LogicException(sprintf('Cannot retrieve helper "%s" because there is no HelperSet defined. Did you forget to add your command to the application or to set the application on the command using the setApplication() method? You can also set the HelperSet directly using the setHelperSet() method.', $name));
         }
 
         return $this->helperSet->get($name);
-    }
-
-    /**
-     * Returns a text representation of the command.
-     *
-     * @return string A string representing the command
-     *
-     * @deprecated since version 2.3, to be removed in 3.0.
-     */
-    public function asText()
-    {
-        @trigger_error('The '.__METHOD__.' method is deprecated since version 2.3 and will be removed in 3.0.', E_USER_DEPRECATED);
-
-        $descriptor = new TextDescriptor();
-        $output = new BufferedOutput(BufferedOutput::VERBOSITY_NORMAL, true);
-        $descriptor->describe($output, $this, array('raw_output' => true));
-
-        return $output->fetch();
-    }
-
-    /**
-     * Returns an XML representation of the command.
-     *
-     * @param bool $asDom Whether to return a DOM or an XML string
-     *
-     * @return string|\DOMDocument An XML string representing the command
-     *
-     * @deprecated since version 2.3, to be removed in 3.0.
-     */
-    public function asXml($asDom = false)
-    {
-        @trigger_error('The '.__METHOD__.' method is deprecated since version 2.3 and will be removed in 3.0.', E_USER_DEPRECATED);
-
-        $descriptor = new XmlDescriptor();
-
-        if ($asDom) {
-            return $descriptor->getCommandDocument($this);
-        }
-
-        $output = new BufferedOutput();
-        $descriptor->describe($output, $this);
-
-        return $output->fetch();
     }
 
     /**
@@ -669,12 +620,12 @@ class Command
      *
      * @param string $name
      *
-     * @throws \InvalidArgumentException When the name is invalid
+     * @throws InvalidArgumentException When the name is invalid
      */
     private function validateName($name)
     {
         if (!preg_match('/^[^\:]++(\:[^\:]++)*$/', $name)) {
-            throw new \InvalidArgumentException(sprintf('Command name "%s" is invalid.', $name));
+            throw new InvalidArgumentException(sprintf('Command name "%s" is invalid.', $name));
         }
     }
 }

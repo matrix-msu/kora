@@ -1,7 +1,7 @@
 <?php
     //We need to clean up any lingering files in tmp for this form
     $folder = 'f'.$field->flid.'u'.\Auth::user()->id;
-    $dir = env('BASE_PATH').'storage/app/tmpFiles/'.$folder;
+    $dir = config('app.base_path').'storage/app/tmpFiles/'.$folder;
     if(file_exists($dir)) {
         foreach (new \DirectoryIterator($dir) as $file) {
             if ($file->isFile()) {
@@ -18,7 +18,7 @@
     <span class="btn btn-success fileinput-button">
         <span>{{trans('records_fieldInput.addfile')}}...</span>
         <input id="file{{$field->flid}}" type="file" name="file{{$field->flid}}[]"
-               data-url="{{ env('BASE_URL') }}saveTmpFile/{{$field->flid}}" multiple>
+               data-url="{{ config('app.url') }}saveTmpFile/{{$field->flid}}" multiple>
         {!! Form::hidden($field->flid,'f'.$field->flid.'u'.\Auth::user()->id) !!}
     </span>
     <br/><br/>

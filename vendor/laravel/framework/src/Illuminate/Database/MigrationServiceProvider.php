@@ -37,6 +37,8 @@ class MigrationServiceProvider extends ServiceProvider
         // so that they may be easily accessed for registering with the consoles.
         $this->registerMigrator();
 
+        $this->registerCreator();
+
         $this->registerCommands();
     }
 
@@ -68,6 +70,18 @@ class MigrationServiceProvider extends ServiceProvider
             $repository = $app['migration.repository'];
 
             return new Migrator($repository, $app['db'], $app['files']);
+        });
+    }
+
+    /**
+     * Register the migration creator.
+     *
+     * @return void
+     */
+    protected function registerCreator()
+    {
+        $this->app->singleton('migration.creator', function ($app) {
+            return new MigrationCreator($app['files']);
         });
     }
 
@@ -147,6 +161,25 @@ class MigrationServiceProvider extends ServiceProvider
     }
 
     /**
+     * Register the "make" migration command.
+     *
+     * @return void
+     */
+    protected function registerMakeCommand()
+    {
+        $this->app->singleton('command.migrate.make', function ($app) {
+            // Once we have the migration creator registered, we will create the command
+            // and inject the creator. The creator is responsible for the actual file
+            // creation of the migrations, and may be extended by these developers.
+            $creator = $app['migration.creator'];
+
+            $composer = $app['composer'];
+
+            return new MigrateMakeCommand($creator, $composer);
+        });
+    }
+
+    /**
      * Register the "status" migration command.
      *
      * @return void
@@ -167,39 +200,6 @@ class MigrationServiceProvider extends ServiceProvider
     {
         $this->app->singleton('command.migrate.install', function ($app) {
             return new InstallCommand($app['migration.repository']);
-        });
-    }
-
-    /**
-     * Register the "make" migration command.
-     *
-     * @return void
-     */
-    protected function registerMakeCommand()
-    {
-        $this->registerCreator();
-
-        $this->app->singleton('command.migrate.make', function ($app) {
-            // Once we have the migration creator registered, we will create the command
-            // and inject the creator. The creator is responsible for the actual file
-            // creation of the migrations, and may be extended by these developers.
-            $creator = $app['migration.creator'];
-
-            $composer = $app['composer'];
-
-            return new MigrateMakeCommand($creator, $composer);
-        });
-    }
-
-    /**
-     * Register the migration creator.
-     *
-     * @return void
-     */
-    protected function registerCreator()
-    {
-        $this->app->singleton('migration.creator', function ($app) {
-            return new MigrationCreator($app['files']);
         });
     }
 

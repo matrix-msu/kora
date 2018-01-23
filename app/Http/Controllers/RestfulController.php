@@ -465,11 +465,11 @@ class RestfulController extends Controller {
         $recRequest['userId'] = $uToken; //the new record will ultimately be owned by the root/sytem
         if( !is_null($request->file("zipFile")) ) {
             $file = $request->file("zipFile");
-            $zipPath = $file->move(env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken);
+            $zipPath = $file->move(config('app.base_path') . 'storage/app/tmpFiles/impU' . $uToken);
             $zip = new \ZipArchive();
             $res = $zip->open($zipPath);
             if($res === TRUE) {
-                $zip->extractTo(env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken);
+                $zip->extractTo(config('app.base_path') . 'storage/app/tmpFiles/impU' . $uToken);
                 $zip->close();
             } else {
                 return response()->json(["status"=>false,"error"=>"There was an error extracting the provided zip"],500);
@@ -546,11 +546,11 @@ class RestfulController extends Controller {
         $fieldsToEditArray = array(); //These are the fields that are allowed to be editted if we are doing keepfields
         if( !is_null($request->file("zipFile")) ) {
             $file = $request->file("zipFile");
-            $zipPath = $file->move(env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken);
+            $zipPath = $file->move(config('app.base_path') . 'storage/app/tmpFiles/impU' . $uToken);
             $zip = new \ZipArchive();
             $res = $zip->open($zipPath);
             if($res === TRUE) {
-                $zip->extractTo(env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken);
+                $zip->extractTo(config('app.base_path') . 'storage/app/tmpFiles/impU' . $uToken);
                 $zip->close();
             } else {
                 return response()->json(["status"=>false,"error"=>"There was an issue extracting the provided file zip"],500);

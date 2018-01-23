@@ -309,7 +309,7 @@
             //
             // Build the delete file url.
             //
-            var baseUrl = '<?php echo env('BASE_URL'). 'deleteTmpFile/'; ?>';
+            var baseUrl = '<?php echo config('app.url'). 'deleteTmpFile/'; ?>';
             baseUrl += 'f' + flid + 'u' + userID + '/' + myUrlEncode(filename);
 
             //

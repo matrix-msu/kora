@@ -4,7 +4,7 @@
 <div class="content">
   <div class="form-container center">
     <div>
-      <img src="{{ env('BASE_URL') }}logos/koraiii-logo-blue.svg">
+      <img src="{{ config('app.url') }}logos/koraiii-logo-blue.svg">
     </div>
 
       <div>

@@ -23,25 +23,26 @@
         }
     ],
     "require": {
-        "php-http/curl-client": "^1.7",
-        "geocoder-php/chain-provider": "^4.0",
-        "geocoder-php/geo-plugin-provider": "^4.0",
-        "geocoder-php/google-maps-provider": "^4.0",
-        "guzzlehttp/psr7": "*",
-        "illuminate/cache": "5.*",
-        "illuminate/support": "5.*",
-        "php": "^7.0",
-        "willdurand/geocoder": "^4.0"
+        "php": ">=5.4",
+        "illuminate/cache": "~5.0",
+        "illuminate/support": "~5.0",
+        "willdurand/geocoder": "~3.3"
     },
     "require-dev": {
-        "doctrine/dbal": "^2.5",
         "fzaninotto/faker": "~1.4",
-        "geocoder-php/bing-maps-provider": "^4.0",
-        "geocoder-php/maxmind-binary-provider": "^4.0",
-        "laravel/laravel": "5.4.*",
         "mockery/mockery": "0.9.*",
         "phpunit/phpunit": "~5.0",
-        "satooshi/php-coveralls" : "dev-master@dev"
+        "symfony/css-selector": "3.1.*",
+        "symfony/dom-crawler": "3.1.*",
+        "doctrine/dbal": "^2.5",
+        "laravel/laravel": "^5.3",
+        "phploc/phploc": "^3.0",
+        "squizlabs/php_codesniffer": "^2.7",
+        "phpmd/phpmd": "^2.4",
+        "pdepend/pdepend": "^2.2",
+        "satooshi/php-coveralls" : "dev-master@dev",
+        "sebastian/phpcpd": "^2.0",
+        "jakub-onderka/php-parallel-lint": "^0.9.2"
     },
     "autoload": {
         "psr-4": {
@@ -55,15 +56,8 @@
         }
     },
     "extra": {
-        "laravel": {
-            "providers": [
-                "Geocoder\\Laravel\\Providers\\GeocoderService"
-            ]
+        "branch-alias": {
+            "dev-master": "1.0.0-dev"
         }
-    },
-    "prefer-stable": true,
-    "config": {
-        "preferred-install": "dist",
-        "sort-packages": true
     }
 }

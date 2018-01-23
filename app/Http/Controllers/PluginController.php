@@ -41,7 +41,7 @@ class PluginController extends Controller {
     public function index() {
         $newPlugs = array();
 
-        foreach(new \DirectoryIterator(env('BASE_PATH') . 'storage/app/plugins/') as $folder) {
+        foreach(new \DirectoryIterator(config('app.base_path') . 'storage/app/plugins/') as $folder) {
             if($folder->isDir() && $folder->getFilename()!='.' && $folder->getFilename()!='..') {
                 $results = DB::select("select * from ".env('DB_PREFIX')."plugins where name = :name", ['name'=>$folder->getFilename()]);
                 if(sizeof($results)==0)
@@ -64,7 +64,7 @@ class PluginController extends Controller {
         $values = array();
         $menus = array();
         $options = array();
-        $handle = fopen(env('BASE_PATH') . 'storage/app/plugins/' . $name . '/k3plugin.config', "r");
+        $handle = fopen(config('app.base_path') . 'storage/app/plugins/' . $name . '/k3plugin.config', "r");
         if($handle) {
             $values['name'] = $name;
             while(($buffer = fgets($handle, 4096)) !== false) {
@@ -158,9 +158,9 @@ class PluginController extends Controller {
             [$plugin->id, $proj->adminGID]);
 
         //import forms associated with plugin
-        foreach(new \DirectoryIterator(env('BASE_PATH') . 'storage/app/plugins/'.$name.'/Forms/') as $file) {
+        foreach(new \DirectoryIterator(config('app.base_path') . 'storage/app/plugins/'.$name.'/Forms/') as $file) {
             if($file->isFile())
-                $this->importForm($plugin->pid,env('BASE_PATH') . 'storage/app/plugins/'.$name.'/Forms/'.$file->getFilename());
+                $this->importForm($plugin->pid,config('app.base_path') . 'storage/app/plugins/'.$name.'/Forms/'.$file->getFilename());
         }
 
         return response()->json(["status"=>true,"message"=>"plugin_install_success"],200);
@@ -441,7 +441,7 @@ class PluginController extends Controller {
     public function loadView($name, $view) {
         $fullName = Plugin::where('url','=',$name)->first()->name;
 
-        include(env('BASE_PATH').'storage/app/plugins/'.$fullName.'/'.$name.'.php');
+        include(config('app.base_path').'storage/app/plugins/'.$fullName.'/'.$name.'.php');
 
         $namespace = "App\\Http\\Controllers\\";
         $nameClass = "{$namespace}".$name;
@@ -462,7 +462,7 @@ class PluginController extends Controller {
     public function action($name, $action, Request $request) {
         $fullName = Plugin::where('url','=',$name)->first()->name;
 
-        include(env('BASE_PATH').'storage/app/plugins/'.$fullName.'/'.$name.'.php');
+        include(config('app.base_path').'storage/app/plugins/'.$fullName.'/'.$name.'.php');
 
         $namespace = "App\\Http\\Controllers\\";
         $nameClass = "{$namespace}".$name;

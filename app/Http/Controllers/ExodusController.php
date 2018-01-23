@@ -2,9 +2,9 @@
 
 use App\Association;
 use App\AssociatorField;
-use App\Commands\SaveKora2Scheme;
 use App\Form;
 use App\FormGroup;
+use App\Http\Controllers\Auth\AuthController;
 use App\OptionPreset;
 use App\Project;
 use App\ProjectGroup;
@@ -12,10 +12,8 @@ use App\Token;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -137,8 +135,8 @@ class ExodusController extends Controller {
         $filePath = $request->filePath;
 
         //clear assoc directories
-        $this->recursiveRemoveDirectoryFiles(env('BASE_PATH').self::EXODUS_CONVERSION_PATH);
-        $this->recursiveRemoveDirectoryFiles(env('BASE_PATH').self::EXODUS_DATA_PATH);
+        $this->recursiveRemoveDirectoryFiles(config('app.base_path').self::EXODUS_CONVERSION_PATH);
+        $this->recursiveRemoveDirectoryFiles(config('app.base_path').self::EXODUS_DATA_PATH);
 
         //we should do the user table and project related tables and then divide all the scheme tasks into queued jobs
 
@@ -171,7 +169,7 @@ class ExodusController extends Controller {
                     $user->organization = $u['organization'];
                     $password = $this->passwordGen();
                     $user->password = bcrypt($password);
-                    $token = AuthenticatesAndRegistersUsers::makeRegToken();
+                    $token = AuthController::makeRegToken();
                     $user->regtoken = $token;
                     $user->save();
 
@@ -497,7 +495,7 @@ class ExodusController extends Controller {
         $masterConvertor = array();
 
         //Get all the conversion arrays for k2 KIDs to k3 RIDs
-        $dir1 = env('BASE_PATH').self::EXODUS_CONVERSION_PATH;
+        $dir1 = config('app.base_path').self::EXODUS_CONVERSION_PATH;
         $iterator = new \DirectoryIterator($dir1);
         foreach($iterator as $fileinfo) {
             if($fileinfo->isFile()) {
@@ -513,7 +511,7 @@ class ExodusController extends Controller {
         }
 
         //Get all the matchups of k3 Assoc Field ids to the k2 KID values
-        $dir2 = env('BASE_PATH').self::EXODUS_DATA_PATH;
+        $dir2 = config('app.base_path').self::EXODUS_DATA_PATH;
         $iterator = new \DirectoryIterator($dir2);
         foreach($iterator as $fileinfo) {
             if($fileinfo->isFile()) {

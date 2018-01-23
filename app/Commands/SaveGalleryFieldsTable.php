@@ -8,9 +8,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
 
-class SaveGalleryFieldsTable extends Command implements SelfHandling, ShouldQueue {
+class SaveGalleryFieldsTable extends Command implements ShouldQueue {
 
     /*
     |--------------------------------------------------------------------------

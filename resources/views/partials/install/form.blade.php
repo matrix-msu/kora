@@ -88,7 +88,7 @@
         <label>Profile Image</label>
         <input type="file" accept="image/*" name="user_profile" id="user_profile" class="profile-input" />
         <label for="user_profile" class="profile-label">
-            <img src="{{ env('BASE_URL') }}logos/blank_profile.jpg" height="80px" width="80px" alt="Profile">
+            <img src="{{ config('app.url') }}logos/blank_profile.jpg" height="80px" width="80px" alt="Profile">
             <p class="filename">Add a photo to help others identify you</p>
             <p class="instruction mb-0">Drag and Drop or Select a Photo here</p>
         </label>

@@ -29,13 +29,13 @@ class Cookie
     /**
      * Constructor.
      *
-     * @param string                                  $name     The name of the cookie
-     * @param string                                  $value    The value of the cookie
-     * @param int|string|\DateTime|\DateTimeInterface $expire   The time the cookie expires
-     * @param string                                  $path     The path on the server in which the cookie will be available on
-     * @param string                                  $domain   The domain that the cookie is available to
-     * @param bool                                    $secure   Whether the cookie should only be transmitted over a secure HTTPS connection from the client
-     * @param bool                                    $httpOnly Whether the cookie will be made accessible only through the HTTP protocol
+     * @param string                        $name     The name of the cookie
+     * @param string                        $value    The value of the cookie
+     * @param int|string|\DateTimeInterface $expire   The time the cookie expires
+     * @param string                        $path     The path on the server in which the cookie will be available on
+     * @param string                        $domain   The domain that the cookie is available to
+     * @param bool                          $secure   Whether the cookie should only be transmitted over a secure HTTPS connection from the client
+     * @param bool                          $httpOnly Whether the cookie will be made accessible only through the HTTP protocol
      *
      * @throws \InvalidArgumentException
      */
@@ -51,12 +51,12 @@ class Cookie
         }
 
         // convert expiration time to a Unix timestamp
-        if ($expire instanceof \DateTime || $expire instanceof \DateTimeInterface) {
+        if ($expire instanceof \DateTimeInterface) {
             $expire = $expire->format('U');
         } elseif (!is_numeric($expire)) {
             $expire = strtotime($expire);
 
-            if (false === $expire) {
+            if (false === $expire || -1 === $expire) {
                 throw new \InvalidArgumentException('The cookie expiration time is not valid.');
             }
         }
@@ -64,7 +64,7 @@ class Cookie
         $this->name = $name;
         $this->value = $value;
         $this->domain = $domain;
-        $this->expire = 0 < $expire ? (int) $expire : 0;
+        $this->expire = $expire;
         $this->path = empty($path) ? '/' : $path;
         $this->secure = (bool) $secure;
         $this->httpOnly = (bool) $httpOnly;
@@ -82,9 +82,9 @@ class Cookie
         if ('' === (string) $this->getValue()) {
             $str .= 'deleted; expires='.gmdate('D, d-M-Y H:i:s T', time() - 31536001);
         } else {
-            $str .= rawurlencode($this->getValue());
+            $str .= urlencode($this->getValue());
 
-            if (0 !== $this->getExpiresTime()) {
+            if ($this->getExpiresTime() !== 0) {
                 $str .= '; expires='.gmdate('D, d-M-Y H:i:s T', $this->getExpiresTime());
             }
         }

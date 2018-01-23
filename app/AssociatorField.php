@@ -505,7 +505,7 @@ class AssociatorField extends BaseField {
             array_push($preview, "no_preview_available");
         }
 
-        $html = "<a href='".env('BASE_URL')."projects/".$pid."/forms/".$fid."/records/".$rid."'>".$kid."</a>";
+        $html = "<a href='".config('app.url')."projects/".$pid."/forms/".$fid."/records/".$rid."'>".$kid."</a>";
 
         foreach($preview as $val) {
             $html .= " | ".$val;

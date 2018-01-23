@@ -3,7 +3,7 @@
 
     //clear the tmp files
     $folder = 'f'.$field->flid.'u'.\Auth::user()->id;
-    $dirTmp = env('BASE_PATH').'storage/app/tmpFiles/'.$folder;
+    $dirTmp = config('app.base_path').'storage/app/tmpFiles/'.$folder;
     if(file_exists($dirTmp)) {
         foreach (new \DirectoryIterator($dirTmp) as $file) {
             if ($file->isFile()) {
@@ -19,7 +19,7 @@
             $names[$key] = explode('[Name]',$file)[1];
         }
         //move things over from storage to tmp
-        $dir = env('BASE_PATH').'storage/app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid;
+        $dir = config('app.base_path').'storage/app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid;
         if(file_exists($dir)) {
             foreach (new \DirectoryIterator($dir) as $file) {
                 if ($file->isFile() && in_array($file->getFilename(),$names)) {
@@ -38,7 +38,7 @@
     <span class="btn btn-success fileinput-button">
         <span>{{trans('records_fieldInput.addfile')}}...</span>
         <input id="file{{$field->flid}}" type="file" name="file{{$field->flid}}[]"
-               data-url="{{ env('BASE_URL') }}saveTmpFile/{{$field->flid}}" multiple>
+               data-url="{{ config('app.url') }}saveTmpFile/{{$field->flid}}" multiple>
         {!! Form::hidden($field->flid,'f'.$field->flid.'u'.\Auth::user()->id) !!}
     </span>
     <br/><br/>
@@ -55,7 +55,7 @@
                 <button id="up" class="btn btn-default" type="button">{{trans('records_fieldInput.up')}}</button>
                 <button id="down"class="btn btn-default" type="button">{{trans('records_fieldInput.down')}}</button>
                 <button class="btn btn-danger delete" type="button" data-type="DELETE"
-                        data-url="{{env('BASE_URL')}}deleteTmpFile/{{$folder}}/{{urlencode($file)}}">
+                        data-url="{{config('app.url')}}deleteTmpFile/{{$folder}}/{{urlencode($file)}}">
                     <i class="glyphicon glyphicon-trash"></i>
                     {{trans('records_fieldInput.delete')}}
                 </button>

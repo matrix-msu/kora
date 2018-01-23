@@ -2,14 +2,14 @@
 
 use App\AssociatorField;
 use Carbon\Carbon;
-use Illuminate\Contracts\Bus\SelfHandling;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class SaveAssociatorFieldsTable extends Command implements SelfHandling {
+class SaveAssociatorFieldsTable extends Command implements ShouldQueue {
 
     /*
     |--------------------------------------------------------------------------

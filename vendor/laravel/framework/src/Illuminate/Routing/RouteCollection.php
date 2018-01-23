@@ -192,7 +192,7 @@ class RouteCollection implements Countable, IteratorAggregate
      * @param  array  $methods
      * @return \Illuminate\Routing\Route
      *
-     * @throws \Symfony\Component\Routing\Exception\MethodNotAllowedHttpException
+     * @throws \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException
      */
     protected function getRouteForMethods($request, array $methods)
     {
@@ -239,7 +239,7 @@ class RouteCollection implements Countable, IteratorAggregate
      * @param  string|null  $method
      * @return array
      */
-    protected function get($method = null)
+    public function get($method = null)
     {
         if (is_null($method)) {
             return $this->getRoutes();
@@ -289,6 +289,16 @@ class RouteCollection implements Countable, IteratorAggregate
     public function getRoutes()
     {
         return array_values($this->allRoutes);
+    }
+
+    /**
+     * Get all of the routes keyed by their HTTP verb / method.
+     *
+     * @return array
+     */
+    public function getRoutesByMethod()
+    {
+        return $this->routes;
     }
 
     /**

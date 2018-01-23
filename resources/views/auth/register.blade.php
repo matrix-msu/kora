@@ -56,7 +56,7 @@
         <label>Your Profile Image</label>
         <input type="file" accept="image/*" name="profile-pic" id="profile-pic" class="profile-input" />
         <label for="profile-pic" class="profile-label">
-          <img src="{{ env('BASE_URL') }}logos/blank_profile.jpg" height="80px" width="80px" alt="Profile">
+          <img src="{{ config('app.url') }}logos/blank_profile.jpg" height="80px" width="80px" alt="Profile">
           <p class="filename">Add a photo to help others identify you</p>
           <p class="instruction mb-0">Drag and Drop or Select a Photo here</p>
         </label>
@@ -84,7 +84,7 @@
       </div>
 
       <div class="form-group mt-xxxl">
-          <div style="padding: 5px" align="center" class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_PUBLIC_KEY') }}"></div>
+          <div style="padding: 5px" align="center" class="g-recaptcha" data-sitekey="{{ config('auth.recap_public') }}"></div>
       </div>
 
       <div class="form-group mt-xxxl" >
@@ -109,7 +109,7 @@
       fileInput.replaceWith(fileInput.val('').clone(true));
       filename.html("Add a photo to help others identify you");
       instruction.html("Drag and Drop or Select a Photo here");
-      pic.attr("src", "{{ env('BASE_URL') }}logos/blank_profile.jpg");
+      pic.attr("src", "{{ config('app.url') }}logos/blank_profile.jpg");
     };
 
     button.keydown(function(event) {

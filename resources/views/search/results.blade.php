@@ -65,7 +65,7 @@
             {{trans('records_index.exportRec')}}:
             <a href="{{ action('ExportController@exportRecords',['pid' => $form->pid, 'fid' => $form->fid, 'type'=>'xml']) }}">[XML]</a>
             <a href="{{ action('ExportController@exportRecords',['pid' => $form->pid, 'fid' => $form->fid, 'type'=>'json']) }}">[JSON]</a>
-            @if(file_exists(env('BASE_PATH') . 'storage/app/files/p'.$form->pid.'/f'.$form->fid.'/'))
+            @if(file_exists(config('app.base_path') . 'storage/app/files/p'.$form->pid.'/f'.$form->fid.'/'))
                 <a href="{{ action('ExportController@exportRecordFiles',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_index.exportFiles')}}]</a>
             @endif
         </div> <br>
@@ -420,7 +420,7 @@
                                                 @if($aud != '')
                                                 <?php
                                                 $name = explode('[Name]',$aud)[1];
-                                                $link = env('STORAGE_URL').'files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$name;
+                                                $link = config('app.storage_url').'files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$name;
                                                 ?>
                                             {
                                                 title: "{{$name}}",
@@ -436,7 +436,7 @@
                                             @endforeach
                                         ];
                                         var options = {
-                                            swfPath: "{{env('BASE_PATH')}}public/jplayer/jquery.jplayer.swf",
+                                            swfPath: "{{config('app.base_path')}}public/jplayer/jquery.jplayer.swf",
                                             supplied: "mp3, oga, wav"
                                         };
                                         var myPlaylist = new jPlayerPlaylist(cssSelector, playlist, options);
@@ -503,7 +503,7 @@
                                                 @if($vid != '')
                                                 <?php
                                                 $name = explode('[Name]',$vid)[1];
-                                                $link = env('STORAGE_URL').'files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$name;
+                                                $link = config('app.storage_url').'files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$name;
                                                 ?>
                                             {
                                                 title: "{{$name}}",
@@ -517,7 +517,7 @@
                                             @endforeach
                                         ];
                                         var options = {
-                                            swfPath: "{{env('BASE_PATH')}}public/jplayer/jquery.jplayer.swf",
+                                            swfPath: "{{config('app.base_path')}}public/jplayer/jquery.jplayer.swf",
                                             supplied: "m4v, ogv"
                                         };
                                         var myPlaylist = new jPlayerPlaylist(cssSelector, playlist, options);

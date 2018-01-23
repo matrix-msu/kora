@@ -9,13 +9,9 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
     public static $files = array (
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         '667aeda72477189d0494fecd327c3641' => __DIR__ . '/..' . '/symfony/var-dumper/Resources/functions/dump.php',
-        'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
-        'ddc0a4d7e61c0286f0f8593b1903e894' => __DIR__ . '/..' . '/clue/stream-filter/src/functions.php',
-        '8cff32064859f4559445b89279f3199c' => __DIR__ . '/..' . '/php-http/message/src/filters.php',
-        '2c102faa651ef8ea5874edb585946bce' => __DIR__ . '/..' . '/swiftmailer/swiftmailer/lib/swift_required.php',
         'bd9634f2d41831496de0d3dfe4c94881' => __DIR__ . '/..' . '/symfony/polyfill-php56/bootstrap.php',
+        '2c102faa651ef8ea5874edb585946bce' => __DIR__ . '/..' . '/swiftmailer/swiftmailer/lib/swift_required.php',
         'a16312f9300fed4a097923eacb0ba814' => __DIR__ . '/..' . '/igorw/get-in/src/get_in.php',
-        '65fec9ebcfbb3cbb4fd0d519687aea01' => __DIR__ . '/..' . '/danielstjules/stringy/src/Create.php',
         'e7223560d890eab89cda23685e711e2c' => __DIR__ . '/..' . '/psy/psysh/src/Psy/functions.php',
         '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
         '752af1c2bdb339e8474c3c31b22b7d54' => __DIR__ . '/..' . '/illuminate/html/helpers.php',
@@ -29,6 +25,10 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         'p' => 
         array (
             'phpDocumentor\\Reflection\\' => 25,
+        ),
+        'Z' => 
+        array (
+            'Zend\\Diactoros\\' => 15,
         ),
         'X' => 
         array (
@@ -57,7 +57,6 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
             'Symfony\\Component\\CssSelector\\' => 30,
             'Symfony\\Component\\Console\\' => 26,
             'SuperClosure\\' => 13,
-            'Stringy\\' => 8,
         ),
         'R' => 
         array (
@@ -80,38 +79,24 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         ),
         'I' => 
         array (
+            'Ivory\\HttpAdapter\\' => 18,
             'Illuminate\\Html\\' => 16,
             'Illuminate\\' => 11,
         ),
-        'H' => 
-        array (
-            'Http\\Promise\\' => 13,
-            'Http\\Message\\' => 13,
-            'Http\\Discovery\\' => 15,
-            'Http\\Client\\Curl\\' => 17,
-            'Http\\Client\\' => 12,
-        ),
         'G' => 
         array (
-            'GuzzleHttp\\Psr7\\' => 16,
-            'Geocoder\\Provider\\GoogleMaps\\' => 29,
-            'Geocoder\\Provider\\GeoPlugin\\' => 28,
-            'Geocoder\\Provider\\Chain\\' => 24,
             'Geocoder\\Laravel\\' => 17,
-            'Geocoder\\Http\\' => 14,
-            'Geocoder\\' => 9,
         ),
         'D' => 
         array (
+            'Dotenv\\' => 7,
             'Doctrine\\Instantiator\\' => 22,
-            'Doctrine\\Common\\Inflector\\' => 26,
             'Devfactory\\Minify\\' => 18,
         ),
         'C' => 
         array (
             'CsvParser\\' => 10,
             'Cron\\' => 5,
-            'Clue\\StreamFilter\\' => 18,
             'ClassPreloader\\' => 15,
             'Carbon\\' => 7,
         ),
@@ -127,6 +112,10 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
             0 => __DIR__ . '/..' . '/phpdocumentor/reflection-common/src',
             1 => __DIR__ . '/..' . '/phpdocumentor/type-resolver/src',
             2 => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src',
+        ),
+        'Zend\\Diactoros\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/zendframework/zend-diactoros/src',
         ),
         'XdgBaseDir\\' => 
         array (
@@ -204,10 +193,6 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         array (
             0 => __DIR__ . '/..' . '/jeremeamia/SuperClosure/src',
         ),
-        'Stringy\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/danielstjules/stringy/src',
-        ),
         'ReCaptcha\\' => 
         array (
             0 => __DIR__ . '/..' . '/google/recaptcha/src/ReCaptcha',
@@ -236,6 +221,10 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         array (
             0 => __DIR__ . '/..' . '/league/flysystem/src',
         ),
+        'Ivory\\HttpAdapter\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/egeloen/http-adapter/src',
+        ),
         'Illuminate\\Html\\' => 
         array (
             0 => __DIR__ . '/..' . '/illuminate/html',
@@ -244,62 +233,17 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         array (
             0 => __DIR__ . '/..' . '/laravel/framework/src/Illuminate',
         ),
-        'Http\\Promise\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/php-http/promise/src',
-        ),
-        'Http\\Message\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/php-http/message-factory/src',
-            1 => __DIR__ . '/..' . '/php-http/message/src',
-        ),
-        'Http\\Discovery\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/php-http/discovery/src',
-        ),
-        'Http\\Client\\Curl\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/php-http/curl-client/src',
-        ),
-        'Http\\Client\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/php-http/httplug/src',
-        ),
-        'GuzzleHttp\\Psr7\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/guzzlehttp/psr7/src',
-        ),
-        'Geocoder\\Provider\\GoogleMaps\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/geocoder-php/google-maps-provider',
-        ),
-        'Geocoder\\Provider\\GeoPlugin\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/geocoder-php/geo-plugin-provider',
-        ),
-        'Geocoder\\Provider\\Chain\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/geocoder-php/chain-provider',
-        ),
         'Geocoder\\Laravel\\' => 
         array (
             0 => __DIR__ . '/..' . '/toin0u/geocoder-laravel/src',
         ),
-        'Geocoder\\Http\\' => 
+        'Dotenv\\' => 
         array (
-            0 => __DIR__ . '/..' . '/geocoder-php/common-http',
-        ),
-        'Geocoder\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/willdurand/geocoder',
+            0 => __DIR__ . '/..' . '/vlucas/phpdotenv/src',
         ),
         'Doctrine\\Instantiator\\' => 
         array (
             0 => __DIR__ . '/..' . '/doctrine/instantiator/src/Doctrine/Instantiator',
-        ),
-        'Doctrine\\Common\\Inflector\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/doctrine/inflector/lib/Doctrine/Common/Inflector',
         ),
         'Devfactory\\Minify\\' => 
         array (
@@ -312,10 +256,6 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         'Cron\\' => 
         array (
             0 => __DIR__ . '/..' . '/mtdowling/cron-expression/src/Cron',
-        ),
-        'Clue\\StreamFilter\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/clue/stream-filter/src',
         ),
         'ClassPreloader\\' => 
         array (
@@ -365,11 +305,18 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
                 0 => __DIR__ . '/..' . '/tedivm/jshrink/src',
             ),
         ),
+        'G' => 
+        array (
+            'Geocoder' => 
+            array (
+                0 => __DIR__ . '/..' . '/willdurand/geocoder/src',
+            ),
+        ),
         'D' => 
         array (
-            'Dotenv' => 
+            'Doctrine\\Common\\Inflector\\' => 
             array (
-                0 => __DIR__ . '/..' . '/vlucas/phpdotenv/src',
+                0 => __DIR__ . '/..' . '/doctrine/inflector/lib',
             ),
             'Diff' => 
             array (
@@ -932,7 +879,6 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         'SebastianBergmann\\RecursionContext\\Exception' => __DIR__ . '/..' . '/sebastian/recursion-context/src/Exception.php',
         'SebastianBergmann\\RecursionContext\\InvalidArgumentException' => __DIR__ . '/..' . '/sebastian/recursion-context/src/InvalidArgumentException.php',
         'SebastianBergmann\\Version' => __DIR__ . '/..' . '/sebastian/version/src/Version.php',
-        'SessionHandlerInterface' => __DIR__ . '/..' . '/symfony/http-foundation/Resources/stubs/SessionHandlerInterface.php',
         'TestCase' => __DIR__ . '/../..' . '/tests/TestCase.php',
         'Text_Template' => __DIR__ . '/..' . '/phpunit/php-text-template/src/Template.php',
         'aCssAtBlockEndToken' => __DIR__ . '/..' . '/natxet/CssMin/src/CssMin.php',

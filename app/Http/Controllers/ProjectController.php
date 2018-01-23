@@ -107,7 +107,7 @@ class ProjectController extends Controller {
                 foreach($admins as $user) {
                     try{
                         Mail::send('emails.request.access', compact('project'), function ($message) use($user) {
-                            $message->from(env('MAIL_FROM_ADDRESS'));
+                            $message->from(config('mail.from.address'));
                             $message->to($user->email);
                             $message->subject('Kora Project Request');
                         });

@@ -15,6 +15,8 @@ return [
 
 	'debug' => env('APP_DEBUG', true),
 
+    'env' => env('APP_ENV', 'production'),
+
 	/*
 	|--------------------------------------------------------------------------
 	| Application URL
@@ -27,6 +29,8 @@ return [
 	*/
 
 	'url' => env('BASE_URL'),
+    'storage_url' => env('STORAGE_URL'),
+    'base_path' => env('BASE_PATH'),
 
 	/*
 	|--------------------------------------------------------------------------
@@ -128,12 +132,9 @@ return [
 		/*
 		 * Laravel Framework Service Providers...
 		 */
-		'Illuminate\Foundation\Providers\ArtisanServiceProvider',
 		'Illuminate\Auth\AuthServiceProvider',
-		'Illuminate\Bus\BusServiceProvider',
 		'Illuminate\Cache\CacheServiceProvider',
 		'Illuminate\Foundation\Providers\ConsoleSupportServiceProvider',
-		'Illuminate\Routing\ControllerServiceProvider',
 		'Illuminate\Cookie\CookieServiceProvider',
 		'Illuminate\Database\DatabaseServiceProvider',
 		'Illuminate\Encryption\EncryptionServiceProvider',
@@ -157,15 +158,13 @@ return [
 		 * Application Service Providers...
 		 */
 		'App\Providers\AppServiceProvider',
-		'App\Providers\BusServiceProvider',
-		'App\Providers\ConfigServiceProvider',
 		'App\Providers\EventServiceProvider',
 		'App\Providers\RouteServiceProvider',
 		'App\Providers\ViewComposerServiceProvider',
 
 		'Laracasts\Flash\FlashServiceProvider',
 		Geocoder\Laravel\Providers\GeocoderService::class,
-    'Devfactory\Minify\MinifyServiceProvider',
+        'Devfactory\Minify\MinifyServiceProvider',
 	],
 
 	/*
@@ -217,7 +216,7 @@ return [
 		'Html'      => 'Illuminate\Html\HtmlFacade',
 		'Flash'     => 'Laracasts\Flash\Flash',
 		'Geocoder'  => 'Toin0u\Geocoder\Facade\Geocoder',
-    'Minify'    => 'Devfactory\Minify\Facades\MinifyFacade',
+        'Minify'    => 'Devfactory\Minify\Facades\MinifyFacade',
 	],
 
 ];

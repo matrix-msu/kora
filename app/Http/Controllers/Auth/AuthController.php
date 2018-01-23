@@ -66,4 +66,21 @@ class AuthController extends Controller {
 			'language' => $data['language'],
 		]);
 	}
+
+    /**
+     * Generates a registration token for a new user
+     *
+     * @return string - The token
+     */
+    public static function makeRegToken(){
+        $valid = 'abcdefghijklmnopqrstuvwxyz';
+        $valid .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $valid .= '0123456789';
+
+        $token = '';
+        for ($i = 0; $i < 31; $i++){
+            $token .= $valid[( rand() % 62 )];
+        }
+        return $token;
+    }
 }

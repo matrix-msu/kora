@@ -46,7 +46,7 @@ class ProcessBuilder
      *
      * @param string[] $arguments An array of arguments
      *
-     * @return static
+     * @return ProcessBuilder
      */
     public static function create(array $arguments = array())
     {
@@ -58,7 +58,7 @@ class ProcessBuilder
      *
      * @param string $argument A command argument
      *
-     * @return $this
+     * @return ProcessBuilder
      */
     public function add($argument)
     {
@@ -74,7 +74,7 @@ class ProcessBuilder
      *
      * @param string|array $prefix A command prefix or an array of command prefixes
      *
-     * @return $this
+     * @return ProcessBuilder
      */
     public function setPrefix($prefix)
     {
@@ -91,7 +91,7 @@ class ProcessBuilder
      *
      * @param string[] $arguments
      *
-     * @return $this
+     * @return ProcessBuilder
      */
     public function setArguments(array $arguments)
     {
@@ -105,7 +105,7 @@ class ProcessBuilder
      *
      * @param null|string $cwd The working directory
      *
-     * @return $this
+     * @return ProcessBuilder
      */
     public function setWorkingDirectory($cwd)
     {
@@ -119,7 +119,7 @@ class ProcessBuilder
      *
      * @param bool $inheritEnv
      *
-     * @return $this
+     * @return ProcessBuilder
      */
     public function inheritEnvironmentVariables($inheritEnv = true)
     {
@@ -137,7 +137,7 @@ class ProcessBuilder
      * @param string      $name  The variable name
      * @param null|string $value The variable value
      *
-     * @return $this
+     * @return ProcessBuilder
      */
     public function setEnv($name, $value)
     {
@@ -155,7 +155,7 @@ class ProcessBuilder
      *
      * @param array $variables The variables
      *
-     * @return $this
+     * @return ProcessBuilder
      */
     public function addEnvironmentVariables(array $variables)
     {
@@ -169,11 +169,9 @@ class ProcessBuilder
      *
      * @param mixed $input The input as a string
      *
-     * @return $this
+     * @return ProcessBuilder
      *
      * @throws InvalidArgumentException In case the argument is invalid
-     *
-     * Passing an object as an input is deprecated since version 2.5 and will be removed in 3.0.
      */
     public function setInput($input)
     {
@@ -189,7 +187,7 @@ class ProcessBuilder
      *
      * @param float|null $timeout
      *
-     * @return $this
+     * @return ProcessBuilder
      *
      * @throws InvalidArgumentException
      */
@@ -218,7 +216,7 @@ class ProcessBuilder
      * @param string $name  The option name
      * @param string $value The option value
      *
-     * @return $this
+     * @return ProcessBuilder
      */
     public function setOption($name, $value)
     {
@@ -230,7 +228,7 @@ class ProcessBuilder
     /**
      * Disables fetching output and error output from the underlying process.
      *
-     * @return $this
+     * @return ProcessBuilder
      */
     public function disableOutput()
     {
@@ -242,7 +240,7 @@ class ProcessBuilder
     /**
      * Enables fetching output and error output from the underlying process.
      *
-     * @return $this
+     * @return ProcessBuilder
      */
     public function enableOutput()
     {
@@ -270,7 +268,6 @@ class ProcessBuilder
         $script = implode(' ', array_map(array(__NAMESPACE__.'\\ProcessUtils', 'escapeArgument'), $arguments));
 
         if ($this->inheritEnv) {
-            // include $_ENV for BC purposes
             $env = array_replace($_ENV, $_SERVER, $this->env);
         } else {
             $env = $this->env;

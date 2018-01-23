@@ -2,14 +2,14 @@
 
 namespace App\Commands;
 
-use Illuminate\Contracts\Bus\SelfHandling;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class SaveProjectCustomTable extends Command implements SelfHandling
+class SaveProjectCustomTable extends Command implements ShouldQueue
 {
     /*
     |--------------------------------------------------------------------------

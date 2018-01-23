@@ -39,7 +39,7 @@ class UpdateController extends Controller {
      */
     public function index() {
         //Determine if the user installed Kora 3 using Git (.git directory exists)
-        $git = is_dir( env('BASE_PATH'). DIRECTORY_SEPARATOR . '.git');
+        $git = is_dir( config('app.base_path'). DIRECTORY_SEPARATOR . '.git');
 
         //Determine if an update is needed (this is determined independent of how Kora was acquired).
         $update = self::checkVersion();
@@ -97,7 +97,7 @@ class UpdateController extends Controller {
         // Make new entries in the scripts table for
         // those that do not exist yet (ignores '.' and '..')
         //
-        $scriptNames = array_diff(scandir(env('BASE_PATH'). "scripts"), array('..', '.'));
+        $scriptNames = array_diff(scandir(config('app.base_path'). "scripts"), array('..', '.'));
         foreach($scriptNames as $scriptName) {
             if(is_null(Script::where('filename', '=', $scriptName)->first())) {
                 $script = new Script();
@@ -113,7 +113,7 @@ class UpdateController extends Controller {
             //
             foreach(Script::all() as $script) {
                 if(!$script->hasRun) {
-                    $includeString = env('BASE_PATH') . 'scripts' . DIRECTORY_SEPARATOR . $script->filename;
+                    $includeString = config('app.base_path') . 'scripts' . DIRECTORY_SEPARATOR . $script->filename;
                     include $includeString;
                     $script->hasRun = true;
                     $script->save();
@@ -143,7 +143,7 @@ class UpdateController extends Controller {
         //
         // Clear cached views.
         //
-        $viewsPath = env('BASE_PATH') . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'framework' . DIRECTORY_SEPARATOR . 'views';
+        $viewsPath = config('app.base_path') . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'framework' . DIRECTORY_SEPARATOR . 'views';
         $views = array_diff(scandir($viewsPath), array('..', '.', '.gitignore'));
 
         foreach($views as $view)

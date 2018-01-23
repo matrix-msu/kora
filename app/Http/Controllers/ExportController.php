@@ -117,8 +117,8 @@ class ExportController extends Controller {
         if(!(\Auth::user()->isFormAdmin($form)))
             return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
-        $path = env('BASE_PATH').'storage/app/files/p'.$pid.'/f'.$fid;
-        $zipPath = env('BASE_PATH').'storage/app/tmpFiles/';
+        $path = config('app.base_path').'storage/app/files/p'.$pid.'/f'.$fid;
+        $zipPath = config('app.base_path').'storage/app/tmpFiles/';
 
         // Initialize archive object
         $zip = new \ZipArchive();
@@ -480,7 +480,7 @@ class ExportController extends Controller {
                                 $records[$kid][$data->slug]['type'] = $data->type;
                                 break;
                             case Field::_DOCUMENTS:
-                                $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
                                 $value = array();
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
@@ -496,7 +496,7 @@ class ExportController extends Controller {
                                 $records[$kid][$data->slug]['type'] = $data->type;
                                 break;
                             case Field::_GALLERY:
-                                $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
                                 $value = array();
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
@@ -512,7 +512,7 @@ class ExportController extends Controller {
                                 $records[$kid][$data->slug]['type'] = $data->type;
                                 break;
                             case Field::_PLAYLIST:
-                                $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
                                 $value = array();
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
@@ -528,7 +528,7 @@ class ExportController extends Controller {
                                 $records[$kid][$data->slug]['type'] = $data->type;
                                 break;
                             case Field::_VIDEO:
-                                $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
                                 $value = array();
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
@@ -544,7 +544,7 @@ class ExportController extends Controller {
                                 $records[$kid][$data->slug]['type'] = $data->type;
                                 break;
                             case Field::_3D_MODEL:
-                                $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
                                 $value = array();
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
@@ -610,7 +610,7 @@ class ExportController extends Controller {
                 } else {
                     $dt = new \DateTime();
                     $format = $dt->format('Y_m_d_H_i_s');
-                    $path = env("BASE_PATH") . "storage/app/exports/export_$format.json";
+                    $path = config('app.base_path') . "storage/app/exports/export_$format.json";
 
                     file_put_contents($path, $records);
 
@@ -849,7 +849,7 @@ class ExportController extends Controller {
                                 }
                                 break;
                             case Field::_DOCUMENTS:
-                                $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
                                     $fieldxml .= '<File>';
@@ -861,7 +861,7 @@ class ExportController extends Controller {
                                 }
                                 break;
                             case Field::_GALLERY:
-                                $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
                                     $fieldxml .= '<File>';
@@ -873,7 +873,7 @@ class ExportController extends Controller {
                                 }
                                 break;
                             case Field::_PLAYLIST:
-                                $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
                                     $fieldxml .= '<File>';
@@ -885,7 +885,7 @@ class ExportController extends Controller {
                                 }
                                 break;
                             case Field::_VIDEO:
-                                $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
                                     $fieldxml .= '<File>';
@@ -897,7 +897,7 @@ class ExportController extends Controller {
                                 }
                                 break;
                             case Field::_3D_MODEL:
-                                $url = env("STORAGE_URL").'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
                                     $fieldxml .= '<File>';
@@ -938,7 +938,7 @@ class ExportController extends Controller {
                 } else {
                     $dt = new \DateTime();
                     $format = $dt->format('Y_m_d_H_i_s');
-                    $path = env("BASE_PATH") . "storage/app/exports/export_$format.xml";
+                    $path = config('app.base_path') . "storage/app/exports/export_$format.xml";
 
                     file_put_contents($path, $records);
 
@@ -955,7 +955,7 @@ class ExportController extends Controller {
                 $kidParts = explode('-',$tempKid);
 
                 $resourceTitle = Form::where('fid','=',$kidParts[1])->first()->lod_resource;
-                $metaUrl = env("BASE_URL")."projects/".$kidParts[0]."/forms/".$kidParts[1]."/metadata/public#";
+                $metaUrl = config('app.url')."projects/".$kidParts[0]."/forms/".$kidParts[1]."/metadata/public#";
 
                 $records = '<?xml version="1.0"?><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" ';
                 $records .= 'xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#" ';
@@ -1043,7 +1043,7 @@ class ExportController extends Controller {
                                     $aPrimary = Metadata::where('fid','=',$aKidParts[1])->where('primary','=',1)->first()->flid;
                                     $aResourceIndexValue = TextField::where('flid','=',$aPrimary)->where('rid','=',$aKidParts[2])->first()->text;
 
-                                    $fieldxml .= "<rdf:Description rdf:about=\"".env("BASE_URL")."";
+                                    $fieldxml .= "<rdf:Description rdf:about=\"".config('app.url')."";
                                     $fieldxml .= "projects/".$aKidParts[0]."/forms/".$aKidParts[1]."/metadata/public/";
                                     $fieldxml .= "$aResourceIndexValue\" />";
                                 }
@@ -1070,7 +1070,7 @@ class ExportController extends Controller {
                     $primary = Metadata::where('fid','=',$parts[1])->where('primary','=',1)->first()->flid;
                     $resourceIndexValue = TextField::where('flid','=',$primary)->where('rid','=',$parts[2])->first()->text;
 
-                    $records .= "rdf:about=\"".env("BASE_URL")."projects/".$parts[0]."/forms/".$parts[1]."/metadata/public/".$resourceIndexValue."\">";
+                    $records .= "rdf:about=\"".config('app.url')."projects/".$parts[0]."/forms/".$parts[1]."/metadata/public/".$resourceIndexValue."\">";
                     $records .= "$data</rdf:Description>";
                 }
 
@@ -1081,7 +1081,7 @@ class ExportController extends Controller {
                 } else {
                     $dt = new \DateTime();
                     $format = $dt->format('Y_m_d_H_i_s');
-                    $path = env("BASE_PATH") . "storage/app/exports/export_$format.rdf";
+                    $path = config('app.base_path') . "storage/app/exports/export_$format.rdf";
 
                     file_put_contents($path, $records);
 

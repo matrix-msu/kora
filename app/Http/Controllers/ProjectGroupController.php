@@ -337,7 +337,7 @@ class ProjectGroupController extends Controller {
 
         try {
             Mail::send($email, compact('project', 'name', 'group'), function ($message) use ($userMail) {
-                $message->from(env('MAIL_FROM_ADDRESS'));
+                $message->from(config('mail.from.address'));
                 $message->to($userMail);
                 $message->subject('Kora Project Permissions');
             });

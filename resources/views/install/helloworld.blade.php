@@ -4,7 +4,7 @@
     <div class="content-install">
         <div class="form-container py-100-xl ma-auto">
             <div>
-                <img src="{{ env('BASE_URL') }}logos/koraiii-logo-blue.svg">
+                <img src="{{ config('app.url') }}logos/koraiii-logo-blue.svg">
             </div>
 
             <div class="kora3 mt-xxl">

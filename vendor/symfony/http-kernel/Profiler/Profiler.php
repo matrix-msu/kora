@@ -78,7 +78,7 @@ class Profiler
      *
      * @param Response $response A Response instance
      *
-     * @return Profile|false A Profile instance
+     * @return Profile A Profile instance
      */
     public function loadProfileFromResponse(Response $response)
     {
@@ -130,38 +130,6 @@ class Profiler
     public function purge()
     {
         $this->storage->purge();
-    }
-
-    /**
-     * Exports the current profiler data.
-     *
-     * @param Profile $profile A Profile instance
-     *
-     * @return string The exported data
-     */
-    public function export(Profile $profile)
-    {
-        return base64_encode(serialize($profile));
-    }
-
-    /**
-     * Imports data into the profiler storage.
-     *
-     * @param string $data A data string as exported by the export() method
-     *
-     * @return Profile|false A Profile instance
-     */
-    public function import($data)
-    {
-        $profile = unserialize(base64_decode($data));
-
-        if ($this->storage->read($profile->getToken())) {
-            return false;
-        }
-
-        $this->saveProfile($profile);
-
-        return $profile;
     }
 
     /**

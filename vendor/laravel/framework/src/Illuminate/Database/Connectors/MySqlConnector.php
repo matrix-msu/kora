@@ -2,6 +2,8 @@
 
 namespace Illuminate\Database\Connectors;
 
+use PDO;
+
 class MySqlConnector extends Connector implements ConnectorInterface
 {
     /**
@@ -21,7 +23,7 @@ class MySqlConnector extends Connector implements ConnectorInterface
         // connection's behavior, and some might be specified by the developers.
         $connection = $this->createConnection($dsn, $config, $options);
 
-        if (isset($config['unix_socket'])) {
+        if (! empty($config['database'])) {
             $connection->exec("use `{$config['database']}`;");
         }
 
@@ -47,16 +49,7 @@ class MySqlConnector extends Connector implements ConnectorInterface
             )->execute();
         }
 
-        // If the "strict" option has been configured for the connection we will setup
-        // strict mode for this session. Strict mode enforces some extra rules when
-        // using the MySQL database system and is a quicker way to enforce them.
-        if (isset($config['strict'])) {
-            if ($config['strict']) {
-                $connection->prepare("set session sql_mode='STRICT_ALL_TABLES'")->execute();
-            } else {
-                $connection->prepare("set session sql_mode=''")->execute();
-            }
-        }
+        $this->setModes($connection, $config);
 
         return $connection;
     }
@@ -109,5 +102,27 @@ class MySqlConnector extends Connector implements ConnectorInterface
         return isset($port)
                         ? "mysql:host={$host};port={$port};dbname={$database}"
                         : "mysql:host={$host};dbname={$database}";
+    }
+
+    /**
+     * Set the modes for the connection.
+     *
+     * @param  \PDO  $connection
+     * @param  array  $config
+     * @return void
+     */
+    protected function setModes(PDO $connection, array $config)
+    {
+        if (isset($config['modes'])) {
+            $modes = implode(',', $config['modes']);
+
+            $connection->prepare("set session sql_mode='".$modes."'")->execute();
+        } elseif (isset($config['strict'])) {
+            if ($config['strict']) {
+                $connection->prepare("set session sql_mode='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'")->execute();
+            } else {
+                $connection->prepare("set session sql_mode='NO_ENGINE_SUBSTITUTION'")->execute();
+            }
+        }
     }
 }

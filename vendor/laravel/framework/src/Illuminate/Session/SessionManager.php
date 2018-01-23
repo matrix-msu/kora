@@ -77,7 +77,25 @@ class SessionManager extends Manager
 
         $lifetime = $this->app['config']['session.lifetime'];
 
-        return $this->buildSession(new DatabaseSessionHandler($connection, $table, $lifetime));
+        return $this->buildSession(new DatabaseSessionHandler($connection, $table, $lifetime, $this->app));
+    }
+
+    /**
+     * Create an instance of the legacy database session driver.
+     *
+     * @return \Illuminate\Session\Store
+     *
+     * @deprecated since version 5.2.
+     */
+    protected function createLegacyDatabaseDriver()
+    {
+        $connection = $this->getDatabaseConnection();
+
+        $table = $this->app['config']['session.table'];
+
+        $lifetime = $this->app['config']['session.lifetime'];
+
+        return $this->buildSession(new LegacyDatabaseSessionHandler($connection, $table, $lifetime));
     }
 
     /**

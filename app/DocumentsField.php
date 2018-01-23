@@ -102,17 +102,17 @@ class DocumentsField extends FileTypeField {
      * @param  Request $request
      */
     public function createNewRecordField($field, $record, $value, $request) {
-        if(glob(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/*.*') != false) {
+        if(glob(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/*.*') != false) {
             $this->flid = $field->flid;
             $this->rid = $record->rid;
             $this->fid = $field->fid;
             $infoString = '';
             $infoArray = array();
-            $newPath = env('BASE_PATH') . 'storage/app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid;
+            $newPath = config('app.base_path') . 'storage/app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid;
             mkdir($newPath, 0775, true);
-            if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
+            if(file_exists(config('app.base_path') . 'storage/app/tmpFiles/' . $value)) {
                 $types = self::getMimeTypes();
-                foreach(new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
+                foreach(new \DirectoryIterator(config('app.base_path') . 'storage/app/tmpFiles/' . $value) as $file) {
                     if($file->isFile()) {
                         if(!array_key_exists($file->getExtension(), $types))
                             $type = 'application/octet-stream';
@@ -120,7 +120,7 @@ class DocumentsField extends FileTypeField {
                             $type = $types[$file->getExtension()];
                         $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
                         $infoArray[$file->getFilename()] = $info;
-                        copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                        copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                             $newPath . '/' . $file->getFilename());
                     }
                 }
@@ -145,7 +145,7 @@ class DocumentsField extends FileTypeField {
      * @param  Request $request
      */
     public function editRecordField($value, $request) {
-        if(glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') != false) {
+        if(glob(config('app.base_path').'storage/app/tmpFiles/'.$value.'/*.*') != false) {
             $doc_files_exist = false; // if this remains false, then the files were deleted and row should be removed from table
 
             //clear the old files before moving the update over
@@ -153,23 +153,23 @@ class DocumentsField extends FileTypeField {
             //we keep old files around for revision purposes
             $newNames = array();
             //scan the tmpFile as these will be the "new ones"
-            if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
-                foreach(new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
+            if(file_exists(config('app.base_path') . 'storage/app/tmpFiles/' . $value)) {
+                foreach(new \DirectoryIterator(config('app.base_path') . 'storage/app/tmpFiles/' . $value) as $file) {
                     array_push($newNames,$file->getFilename());
                 }
             }
             //actually clear them
             $field = FieldController::getField($this->flid);
-            foreach(new \DirectoryIterator(env('BASE_PATH').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid) as $file) {
+            foreach(new \DirectoryIterator(config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid) as $file) {
                 if($file->isFile() and in_array($file->getFilename(),$newNames))
-                    unlink(env('BASE_PATH').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid.'/'.$file->getFilename());
+                    unlink(config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid.'/'.$file->getFilename());
             }
             //build new stuff
             $infoString = '';
             $infoArray = array();
-            if(file_exists(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value)) {
+            if(file_exists(config('app.base_path') . 'storage/app/tmpFiles/' . $value)) {
                 $types = self::getMimeTypes();
-                foreach(new \DirectoryIterator(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value) as $file) {
+                foreach(new \DirectoryIterator(config('app.base_path') . 'storage/app/tmpFiles/' . $value) as $file) {
                     if($file->isFile()) {
                         if(!array_key_exists($file->getExtension(),$types))
                             $type = 'application/octet-stream';
@@ -177,8 +177,8 @@ class DocumentsField extends FileTypeField {
                             $type =  $types[$file->getExtension()];
                         $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
                         $infoArray[$file->getFilename()] = $info;
-                        copy(env('BASE_PATH') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
-                            env('BASE_PATH').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid . '/' . $file->getFilename());
+                        copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                            config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid . '/' . $file->getFilename());
 
                         $doc_files_exist = true;
                     }
@@ -226,7 +226,7 @@ class DocumentsField extends FileTypeField {
         $infoArray = array();
         $maxfiles = FieldController::getFieldOption($field,'MaxFiles');
         if($maxfiles==0) {$maxfiles=1;}
-        $newPath = env('BASE_PATH') . 'storage/app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid;
+        $newPath = config('app.base_path') . 'storage/app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid;
         mkdir($newPath, 0775, true);
         for($q=0;$q<$maxfiles;$q++) {
             $types = self::getMimeTypes();
@@ -236,7 +236,7 @@ class DocumentsField extends FileTypeField {
                 $type = $types['txt'];
             $info = '[Name]documents' . $q . '.txt[Name][Size]24[Size][Type]' . $type . '[Type]';
             $infoArray['documents' . $q . '.txt'] = $info;
-            copy(env('BASE_PATH') . 'public/testFiles/documents.txt',
+            copy(config('app.base_path') . 'public/testFiles/documents.txt',
                 $newPath . '/documents' . $q . '.txt');
         }
         $infoString = implode('[!]',$infoArray);
@@ -256,7 +256,7 @@ class DocumentsField extends FileTypeField {
         $req = $field->required;
 
         if($req==1) {
-            if(glob(env('BASE_PATH').'storage/app/tmpFiles/'.$value.'/*.*') == false)
+            if(glob(config('app.base_path').'storage/app/tmpFiles/'.$value.'/*.*') == false)
                 return $field->name."_required";
         }
 
@@ -383,8 +383,8 @@ class DocumentsField extends FileTypeField {
      */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
         $files = array();
-        $currDir = env('BASE_PATH') . 'storage/app/tmpFiles/impU' . $uToken;
-        $newDir = env('BASE_PATH') . 'storage/app/tmpFiles/f' . $flid . 'u' . $uToken;
+        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . $uToken;
+        $newDir = config('app.base_path') . 'storage/app/tmpFiles/f' . $flid . 'u' . $uToken;
         if(file_exists($newDir)) {
             foreach(new \DirectoryIterator($newDir) as $file) {
                 if($file->isFile())

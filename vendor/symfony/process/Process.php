@@ -162,6 +162,7 @@ class Process
         $this->setTimeout($timeout);
         $this->useFileHandles = '\\' === DIRECTORY_SEPARATOR;
         $this->pty = false;
+        $this->enhanceWindowsCompatibility = true;
         $this->enhanceSigchildCompatibility = '\\' !== DIRECTORY_SEPARATOR && $this->isSigchildEnabled();
         $this->options = array_replace(array('suppress_errors' => true, 'binary_pipes' => true), $options);
     }
@@ -215,7 +216,7 @@ class Process
      * @throws RuntimeException       if PHP was compiled with --enable-sigchild and the enhanced sigchild compatibility mode is not enabled
      * @throws ProcessFailedException if the process didn't terminate successfully
      */
-    public function mustRun($callback = null)
+    public function mustRun(callable $callback = null)
     {
         if (!$this->enhanceSigchildCompatibility && $this->isSigchildEnabled()) {
             throw new RuntimeException('This PHP has been compiled with --enable-sigchild. You must use setEnhanceSigchildCompatibility() to use this method.');
@@ -247,7 +248,7 @@ class Process
      * @throws RuntimeException When process is already running
      * @throws LogicException   In case a callback is provided and output has been disabled
      */
-    public function start($callback = null)
+    public function start(callable $callback = null)
     {
         if ($this->isRunning()) {
             throw new RuntimeException('Process is already running');
@@ -313,14 +314,14 @@ class Process
      * @param callable|null $callback A PHP callback to run whenever there is some
      *                                output available on STDOUT or STDERR
      *
-     * @return $this
+     * @return Process The new process
      *
      * @throws RuntimeException When process can't be launched
      * @throws RuntimeException When process is already running
      *
      * @see start()
      */
-    public function restart($callback = null)
+    public function restart(callable $callback = null)
     {
         if ($this->isRunning()) {
             throw new RuntimeException('Process is already running');
@@ -347,7 +348,7 @@ class Process
      * @throws RuntimeException When process stopped after receiving signal
      * @throws LogicException   When process is not yet started
      */
-    public function wait($callback = null)
+    public function wait(callable $callback = null)
     {
         $this->requireProcessIsStarted(__FUNCTION__);
 
@@ -388,7 +389,7 @@ class Process
      *
      * @param int $signal A valid POSIX signal (see http://www.php.net/manual/en/pcntl.constants.php)
      *
-     * @return $this
+     * @return Process
      *
      * @throws LogicException   In case the process is not running
      * @throws RuntimeException In case --enable-sigchild is activated and the process can't be killed
@@ -404,7 +405,7 @@ class Process
     /**
      * Disables fetching output and error output from the underlying process.
      *
-     * @return $this
+     * @return Process
      *
      * @throws RuntimeException In case the process is already running
      * @throws LogicException   if an idle timeout is set
@@ -426,7 +427,7 @@ class Process
     /**
      * Enables fetching output and error output from the underlying process.
      *
-     * @return $this
+     * @return Process
      *
      * @throws RuntimeException In case the process is already running
      */
@@ -498,7 +499,7 @@ class Process
     /**
      * Clears the process output.
      *
-     * @return $this
+     * @return Process
      */
     public function clearOutput()
     {
@@ -557,7 +558,7 @@ class Process
     /**
      * Clears the process output.
      *
-     * @return $this
+     * @return Process
      */
     public function clearErrorOutput()
     {
@@ -910,16 +911,8 @@ class Process
         if ('\\' === DIRECTORY_SEPARATOR && $tty) {
             throw new RuntimeException('TTY mode is not supported on Windows platform.');
         }
-        if ($tty) {
-            static $isTtySupported;
-
-            if (null === $isTtySupported) {
-                $isTtySupported = (bool) @proc_open('echo 1 >/dev/null', array(array('file', '/dev/tty', 'r'), array('file', '/dev/tty', 'w'), array('file', '/dev/tty', 'w')), $pipes);
-            }
-
-            if (!$isTtySupported) {
-                throw new RuntimeException('TTY mode requires /dev/tty to be read/writable.');
-            }
+        if ($tty && (!file_exists('/dev/tty') || !is_readable('/dev/tty'))) {
+            throw new RuntimeException('TTY mode requires /dev/tty to be readable.');
         }
 
         $this->tty = (bool) $tty;
@@ -1030,22 +1023,6 @@ class Process
     }
 
     /**
-     * Gets the contents of STDIN.
-     *
-     * @return string|null The current contents
-     *
-     * @deprecated since version 2.5, to be removed in 3.0.
-     *             Use setInput() instead.
-     *             This method is deprecated in favor of getInput.
-     */
-    public function getStdin()
-    {
-        @trigger_error('The '.__METHOD__.' method is deprecated since version 2.5 and will be removed in 3.0. Use the getInput() method instead.', E_USER_DEPRECATED);
-
-        return $this->getInput();
-    }
-
-    /**
      * Gets the Process input.
      *
      * @return null|string The Process input
@@ -1053,26 +1030,6 @@ class Process
     public function getInput()
     {
         return $this->input;
-    }
-
-    /**
-     * Sets the contents of STDIN.
-     *
-     * @param string|null $stdin The new contents
-     *
-     * @return self The current Process instance
-     *
-     * @deprecated since version 2.5, to be removed in 3.0.
-     *             Use setInput() instead.
-     *
-     * @throws LogicException           In case the process is running
-     * @throws InvalidArgumentException In case the argument is invalid
-     */
-    public function setStdin($stdin)
-    {
-        @trigger_error('The '.__METHOD__.' method is deprecated since version 2.5 and will be removed in 3.0. Use the setInput() method instead.', E_USER_DEPRECATED);
-
-        return $this->setInput($stdin);
     }
 
     /**
@@ -1085,8 +1042,6 @@ class Process
      * @return self The current Process instance
      *
      * @throws LogicException In case the process is running
-     *
-     * Passing an object as an input is deprecated since version 2.5 and will be removed in 3.0.
      */
     public function setInput($input)
     {
@@ -1221,7 +1176,7 @@ class Process
             return $result = false;
         }
 
-        return $result = (bool) @proc_open('echo 1 >/dev/null', array(array('pty'), array('pty'), array('pty')), $pipes);
+        return $result = (bool) @proc_open('echo 1', array(array('pty'), array('pty'), array('pty')), $pipes);
     }
 
     /**
@@ -1252,13 +1207,12 @@ class Process
      */
     protected function buildCallback($callback)
     {
-        $that = $this;
         $out = self::OUT;
-        $callback = function ($type, $data) use ($that, $callback, $out) {
+        $callback = function ($type, $data) use ($callback, $out) {
             if ($out == $type) {
-                $that->addOutput($data);
+                $this->addOutput($data);
             } else {
-                $that->addErrorOutput($data);
+                $this->addErrorOutput($data);
             }
 
             if (null !== $callback) {

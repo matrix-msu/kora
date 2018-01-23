@@ -5,12 +5,11 @@ use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
-class SaveProjectsTable extends Command implements SelfHandling, ShouldQueue {
+class SaveProjectsTable extends Command implements ShouldQueue {
 
     /*
     |--------------------------------------------------------------------------

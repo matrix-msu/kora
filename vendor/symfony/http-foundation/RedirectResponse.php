@@ -66,7 +66,7 @@ class RedirectResponse extends Response
      *
      * @param string $url The URL to redirect to
      *
-     * @return $this
+     * @return RedirectResponse The current response
      *
      * @throws \InvalidArgumentException
      */
@@ -83,7 +83,7 @@ class RedirectResponse extends Response
 <html>
     <head>
         <meta charset="UTF-8" />
-        <meta http-equiv="refresh" content="0;url=%1$s" />
+        <meta http-equiv="refresh" content="1;url=%1$s" />
 
         <title>Redirecting to %1$s</title>
     </head>

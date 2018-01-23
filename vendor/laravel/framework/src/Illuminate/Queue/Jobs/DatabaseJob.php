@@ -2,8 +2,8 @@
 
 namespace Illuminate\Queue\Jobs;
 
-use Illuminate\Container\Container;
 use Illuminate\Queue\DatabaseQueue;
+use Illuminate\Container\Container;
 use Illuminate\Contracts\Queue\Job as JobContract;
 
 class DatabaseJob extends Job implements JobContract
@@ -37,7 +37,6 @@ class DatabaseJob extends Job implements JobContract
         $this->queue = $queue;
         $this->database = $database;
         $this->container = $container;
-        $this->job->attempts = $this->job->attempts + 1;
     }
 
     /**
