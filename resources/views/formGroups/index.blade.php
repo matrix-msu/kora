@@ -207,6 +207,13 @@
                 <i class="icon icon-trash"></i>
               </a>
             @endif
+
+            <a href="#" class="quick-action user-add add-users-js underline-middle-hover"
+              data-select="add_user_select{{$formGroup->id}}"
+              data-group="{{$formGroup->id}}">
+              <i class="icon icon-user-add"></i>
+              <span>Add User(s) to Group</span>
+            </a>
           </div>
         </div>
       </div>
@@ -220,8 +227,8 @@
   <script type="text/javascript">
     var CSRFToken = '{{ csrf_token() }}';
     var pid = '{{$project->pid}}';
-    var removeUserPath = '{{ action('FormGroupController@removeUser') }}';
-    var addUsersPath = '{{ action('FormGroupController@addUser') }}';
+    var removeUserPath = '{{ action('FormGroupController@removeUser', ["pid" => $project->pid, "fid" => $form->fid]) }}';
+    var addUsersPath = '{{ action('FormGroupController@addUser', ["pid" => $project->pid, "fid" => $form->fid]) }}';
     var editNamePath = '{{ action('FormGroupController@updateName', ["pid" => $project->pid, "fid" => $form->fid]) }}';
     var updatePermissionsPath = '{{ action('FormGroupController@updatePermissions', ["pid" => $project->pid, "fid" => $form->fid]) }}';
     var deletePermissionsPath = '{{ action('FormGroupController@deleteFormGroup', ["pid" => $project->pid, "fid" => $form->fid]) }}';

@@ -192,8 +192,8 @@
   <script type="text/javascript">
     var CSRFToken = '{{ csrf_token() }}';
     var pid = '{{$project->pid}}';
-    var removeUserPath = '{{ action('ProjectGroupController@removeUser') }}';
-    var addUsersPath = '{{ action('ProjectGroupController@addUsers') }}';
+    var removeUserPath = '{{ action('ProjectGroupController@removeUser', ["pid" => $project->pid]) }}';
+    var addUsersPath = '{{ action('ProjectGroupController@addUsers', ["pid" => $project->pid]) }}';
     var editNamePath = '{{ action('ProjectGroupController@updateName', ["pid" => $project->pid]) }}';
     var updatePermissionsPath = '{{ action('ProjectGroupController@updatePermissions', ["pid" => $project->pid]) }}';
     var deletePermissionsPath = '{{ action('ProjectGroupController@deleteProjectGroup', ["pid" => $project->pid]) }}';
@@ -404,7 +404,7 @@
             var response = confirm(encode + "?");
             if (response) {
                 $.ajax({
-                    url: '{{action('ProjectGroupController@deleteProjectGroup')}}',
+                    url: '{{action('ProjectGroupController@deleteProjectGroup', ["pid" => $project->pid])}}',
                     type: 'DELETE',
                     data: {
                         "_token": "{{ csrf_token() }}",
