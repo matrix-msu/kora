@@ -65,7 +65,7 @@ class FormGroup extends Model {
      * Delete's the connections between group and users, and then deletes self.
      */
     public function delete() {
-        $guBuilder = DB::table("form_group_user")->where("form_group_id", "=", $this->id)->delete();
+        $guBuilder = DB::table("form_group_user")->where("form_group_id", "=", $this->id);
         $group_users = $guBuilder->get();
 
         foreach($group_users as $group_user) {
@@ -76,7 +76,6 @@ class FormGroup extends Model {
 
         //then delete the group connections
         $guBuilder->delete();
-
 
         parent::delete();
     }

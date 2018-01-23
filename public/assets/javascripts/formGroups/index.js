@@ -455,7 +455,8 @@ Kora.FormGroups.Index = function() {
 
       var gid = $(this).data('group');
       var deletePermissionsGroup = function(gid) {
-        return function() {
+        return function(e) {
+          e.preventDefault();
           self.deletePermissionsGroup(gid);
         }
       };
