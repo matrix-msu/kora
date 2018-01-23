@@ -419,7 +419,7 @@ class PlaylistField extends FileTypeField  {
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`audio`) AGAINST (? IN BOOLEAN MODE)", [$arg])
             ->distinct()
-            ->lists('rid');
+            ->pluck('rid');
     }
 
     /**

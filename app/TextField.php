@@ -313,7 +313,7 @@ class TextField extends BaseField {
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`text`) AGAINST (? IN BOOLEAN MODE)", [$arg])
             ->distinct()
-            ->lists('rid');
+            ->pluck('rid');
     }
 
     /**

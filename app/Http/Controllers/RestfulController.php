@@ -152,7 +152,7 @@ class RestfulController extends Controller {
             //parse the query
             if(!isset($f->query)) {
                 //return all records
-                $returnRIDS = Record::where("fid","=",$form->fid)->lists('rid')->all();
+                $returnRIDS = Record::where("fid","=",$form->fid)->pluck('rid')->all();
                 if(!is_null($filters['sort'])) {
                     $returnRIDS = $this->sort_rids($returnRIDS,$filters['sort']);
                     if(!$returnRIDS)
@@ -287,7 +287,7 @@ class RestfulController extends Controller {
      * @return Collection - The RIDs not in the given set
      */
     private function negative_results($form, $rids) {
-        $negatives = Record::where('fid','=',$form->fid)->whereNotIn('rid',$rids)->lists('rid')->all();
+        $negatives = Record::where('fid','=',$form->fid)->whereNotIn('rid',$rids)->pluck('rid')->all();
         return $negatives;
     }
 

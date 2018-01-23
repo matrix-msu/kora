@@ -120,7 +120,7 @@ class MetadataController extends Controller {
                 $available_fields->push($field);
         }
 
-        $fields = $available_fields->lists('name','flid');
+        $fields = $available_fields->pluck('name','flid');
         $form = Form::find($fid);
 
         $resource_title = $form->lod_resource;
