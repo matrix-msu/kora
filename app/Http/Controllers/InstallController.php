@@ -301,14 +301,14 @@ class InstallController extends Controller {
      */
     private function makeAdmin(InstallRequest $request) {
         $username = $request->user_username;
-        $fname = $request->user_firstname;
-        $lname = $request->user_lastname;
+        $first_name = $request->user_firstname;
+        $last_name = $request->user_lastname;
         $email = $request->user_email;
         $password = bcrypt($request->user_password);
         $organization = $request->user_organization;
         $language = $request->user_language;
 
-        $newuser = \App\User::create(compact("username","fname","lname","email","password","organization","language"));
+        $newuser = \App\User::create(compact("username","first_name","last_name","email","password","organization","language"));
         $newuser->active = 1;
         $newuser->admin = 1;
         $newuser->save();
