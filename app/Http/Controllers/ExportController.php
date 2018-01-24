@@ -335,10 +335,9 @@ class ExportController extends Controller {
 
                         //if we are hiding data, make sure the record reference still exists
                         if($useOpts && !$options['data']) {
-                            if(!isset($records[$kid])) {
+                            if(!isset($records[$kid]))
                                 $records[$kid] = [];
-                                continue; //move on to next row of data
-                            }
+                            continue; //move on to next row of data
                         }
 
                         switch($data->type) {

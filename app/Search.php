@@ -167,12 +167,14 @@ class Search {
             $args = explode(" ", $string);
 
         $short = [];
+        $lower = [];
         foreach($args as $arg) {
             if (strlen($arg) <= 3)
                 $short[] = $arg;
+            $lower[] = strtolower($arg);
         }
 
-        return array_unique(array_merge(array_values(array_intersect($args, self::$STOP_WORDS)), $short));
+        return array_unique(array_merge(array_values(array_intersect($lower, self::$STOP_WORDS)), $short));
     }
 
     /**
