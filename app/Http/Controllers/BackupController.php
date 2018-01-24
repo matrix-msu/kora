@@ -43,12 +43,15 @@ class BackupController extends Controller {
         $this->middleware('admin');
         $this->middleware('active');
         $this->middleware('admin');
-        if(Auth::check()) {
-            if(Auth::user()->id != 1)
-                return redirect("/projects")->with('k3_global_error', 'not_admin')->send();
-        }
 
-        $this->ajax_error_list = new Collection(); //The Exception's getMessage() for data that didn't restore/backup
+        //Custom middleware for handling root user checks
+        $this->middleware(function ($request, $next) {
+            if (Auth::check())
+                if (Auth::user()->id != 1)
+                    return redirect("/projects")->with('k3_global_error', 'not_admin')->send();
+
+            return $next($request);
+        });
     }
 
     /**

@@ -8,18 +8,7 @@
     </div>
 
       <div>
-        @if (count($errors) > 0)
-          <div class="error-alert">
-            <strong>Whoops!</strong> There were some problems with your input.<br><br>
-            <ul>
-              @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-              @endforeach
-            </ul>
-          </div>
-        @endif
-
-        <form class="form-horizontal" role="form" method="POST" action="{{ url('/auth/login') }}">
+        <form class="form-horizontal" role="form" method="POST" action="{{ url('/login') }}">
           <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
           <div class="form-group mt-xxxl">
@@ -50,7 +39,7 @@
             <button type="submit" class="btn btn-primary">Login</button>
           </div>
 
-          <p class="mt-xxxl mb-0"><a class="text  underline-middle-hover" href="{{ url('/auth/register') }}">Need to Sign Up?</a></p>
+          <p class="mt-xxxl mb-0"><a class="text  underline-middle-hover" href="{{ url('/register') }}">Need to Sign Up?</a></p>
         </form>
       </div>
 

@@ -29,10 +29,18 @@
     </li>
     <li class="spacer mt-0"></li>
     <li class="link">
-      <a href="{{ url('/auth/logout') }}">
-        <span class="left">Logout</span>
-        <i class="icon icon-logout"></i>
-      </a>
+        <form id="global_logout_link" class="form-horizontal" role="form" method="POST" action="{{ url('/logout') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+              <a href="javascript: submitLogout()">
+                <span class="left">Logout</span>
+                <i class="icon icon-logout"></i>
+              </a>
+        </form>
+        <script>
+            function submitLogout() {
+                $( "#global_logout_link" ).submit();
+            }
+        </script>
     </li>
   </ul>
 </li>

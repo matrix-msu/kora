@@ -7,29 +7,18 @@
       <h1 class="title">Sign Up</h1>
     </section>
 
-    @if (count($errors) > 0)
-      <div class="alert alert-danger">
-          <strong>{{trans('auth_register.whoops')}}!</strong> {{trans('auth_register.problems')}}.<br><br>
-          <ul>
-              @foreach ($errors->all() as $error)
-                  <li>{{ $error }}</li>
-              @endforeach
-          </ul>
-      </div>
-    @endif
-
-    <form class="form-horizontal" role="form" method="POST" enctype="multipart/form-data" action="{{ url('/auth/register') }}">
+    <form class="form-horizontal" role="form" method="POST" enctype="multipart/form-data" action="{{ url('/register') }}">
       <input type="hidden" name="_token" value="{{ csrf_token() }}">
-      <input type="hidden" name="regtoken" value="{{\App\Http\Controllers\Auth\AuthController::makeRegToken()}}">
+      <input type="hidden" name="regtoken" value="{{\App\Http\Controllers\Auth\RegisterController::makeRegToken()}}">
 
       <div class="form-group half mt-xl pr-m">
         <label for="first-name">Your First Name</label>
-  			<input type="text" class="text-input" name="first-name" placeholder="Enter your first name here" value="{{ old('name') }}">
+  			<input type="text" class="text-input" name="first_name" placeholder="Enter your first name here" value="{{ old('name') }}">
       </div>
 
       <div class="form-group half mt-xl pl-m">
         <label for="first-name">Your Last Name</label>
-  			<input type="text" class="text-input" name="last-name" placeholder="Enter your last name here" value="{{ old('name') }}">
+  			<input type="text" class="text-input" name="last_name" placeholder="Enter your last name here" value="{{ old('name') }}">
       </div>
 
       <div class="form-group mt-xl">

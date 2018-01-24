@@ -36,12 +36,15 @@ class ExodusHelperController extends Controller {
         $this->middleware('auth');
         $this->middleware('active');
         $this->middleware('admin');
-        if(Auth::check()){
-            if(Auth::user()->id != 1){
-                flash()->overlay(trans('controller_backup.admin'),trans('controller_backup.whoops'));
-                return redirect("/projects")->send();
-            }
-        }
+
+        //Custom middleware for handling root user checks
+        $this->middleware(function ($request, $next) {
+            if (Auth::check())
+                if (Auth::user()->id != 1)
+                    return redirect("/projects")->with('k3_global_error', 'not_admin')->send();
+
+            return $next($request);
+        });
     }
 
     /**

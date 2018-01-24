@@ -2,7 +2,7 @@
 
 use App\Form;
 use App\FormGroup;
-use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Project;
 use App\ProjectGroup;
 use App\User;
@@ -168,7 +168,7 @@ class AdminController extends Controller {
         } else {
             $user->active = 0;
             //We need to give them a new regtoken so they can't use the old one to reactivate
-            $user->regtoken = AuthController::makeRegToken();
+            $user->regtoken = RegisterController::makeRegToken();
             array_push($message,"not_active");
         }
 
@@ -249,7 +249,7 @@ class AdminController extends Controller {
                         $password = self::passwordGen();
                         $user->password = bcrypt($password);
                         $user->language = 'en';
-                        $token = AuthController::makeRegToken();
+                        $token = RegisterController::makeRegToken();
                         $user->regtoken = $token;
                         $user->save();
 

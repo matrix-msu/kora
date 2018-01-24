@@ -12,7 +12,7 @@
     @if(Auth::guest())
       @if(strtolower($page_class) == "welcome")
         <li class="navigation-item">
-          <a href="{{ url('/auth/register') }}" class="text navigation-toggle-js underline-middle-hover">Need to Sign Up?</a>
+          <a href="{{ url('/register') }}" class="text navigation-toggle-js underline-middle-hover">Need to Sign Up?</a>
         </li>
       @elseif(isInstalled())
         <li class="navigation-item">
