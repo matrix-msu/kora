@@ -26,7 +26,7 @@ class WelcomeController extends Controller {
 	    if(!isInstalled())
             return redirect('/helloworld');
 		else if(\Auth::guest() or !\Auth::user()->active)
-            return view('welcome');
+            return view('/auth/activate');
         else if(\Auth::user()->dash)
             return redirect('/dashboard');
 		else
