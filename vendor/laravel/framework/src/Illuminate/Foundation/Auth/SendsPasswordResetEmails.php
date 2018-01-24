@@ -41,7 +41,7 @@ trait SendsPasswordResetEmails
             Mail::send($email, compact('token'), function ($message) use ($userMail) {
                 $message->from(config('mail.from.address'));
                 $message->to($userMail);
-                $message->subject('Kora Password Rest');
+                $message->subject('Kora Password Reset');
             });
         } catch(\Swift_TransportException $e) {
             //TODO::email error response
