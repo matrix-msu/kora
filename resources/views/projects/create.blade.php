@@ -1,5 +1,9 @@
 @extends('app', ['page_title' => 'Create a Project', 'page_class' => 'project-create'])
 
+@section('leftNavLinks')
+  @include('partials.menu.static', ['name' => 'New Project'])
+@stop
+
 @section('stylesheets')
     <!-- No Additional Stylesheets Necessary -->
 @stop

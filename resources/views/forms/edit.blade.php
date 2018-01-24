@@ -1,5 +1,11 @@
 @extends('app', ['page_title' => "Editing {$form->name}", 'page_class' => 'form-edit'])
 
+@section('leftNavLinks')
+  @include('partials.menu.project', ['pid' => $form->pid])
+  @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+  @include('partials.menu.static', ['name' => 'Edit Form'])
+@stop
+
 @section('stylesheets')
   <!-- No Additional Stylesheets Necessary -->
 @stop

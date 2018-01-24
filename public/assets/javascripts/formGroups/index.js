@@ -429,7 +429,8 @@ Kora.FormGroups.Index = function() {
       e.preventDefault();
 
       var data = $(this).data('value');
-      var removeUser = function() {
+      var removeUser = function(e) {
+        e.preventDefault();
         self.removeUser(data[0], data[1], data[2]);
       };
 
@@ -454,7 +455,8 @@ Kora.FormGroups.Index = function() {
 
       var gid = $(this).data('group');
       var deletePermissionsGroup = function(gid) {
-        return function() {
+        return function(e) {
+          e.preventDefault();
           self.deletePermissionsGroup(gid);
         }
       };

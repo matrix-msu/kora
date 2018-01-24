@@ -2,6 +2,7 @@
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $project->pid])
+    @include('partials.menu.static', ['name' => 'New Form'])
 @stop
 
 @section('stylesheets')

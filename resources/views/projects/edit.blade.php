@@ -1,5 +1,10 @@
 @extends('app', ['page_title' => "Editing {$project->name}", 'page_class' => 'project-edit'])
 
+@section('leftNavLinks')
+  @include('partials.menu.project', ['pid' => $project->pid])
+  @include('partials.menu.static', ['name' => 'Edit Project'])
+@stop
+
 @section('stylesheets')
   <!-- No Additional Stylesheets Necessary -->
 @stop

@@ -118,7 +118,7 @@ class FormGroupController extends Controller {
                 DB::table('form_group_user')->where('user_id', $uid)->where('form_group_id', $idOld)->delete();
 
                 //After all this, lets make sure they get the custom form added
-                $user = User::where("id","=",$uid)->get();
+                $user = User::where("id","=",$uid)->first();
                 $user->addCustomForm($fid);
             }
 
@@ -136,7 +136,7 @@ class FormGroupController extends Controller {
     public function removeUser(Request $request) {
         $instance = FormGroup::where('id', '=', $request->formGroup)->first();
 
-        $user = User::where("id","=",$request->userId)->get();
+        $user = User::where("id","=",$request->userId)->first();
         $user->removeCustomForm($instance->fid);
 
         $instance->users()->detach($request->userId);
@@ -150,57 +150,59 @@ class FormGroupController extends Controller {
     public function addUser(Request $request) {
         $instance = FormGroup::where('id', '=', $request->formGroup)->first();
 
-        //get any groups the user belongs to
-        $currGroups = DB::table('form_group_user')->where('user_id', $request->userId)->get();
-        $newUser = true;
-        $group = null;
-        $idOld = 0;
+        foreach ($request->userIDs as $userID) {
+            //get any groups the user belongs to
+            $currGroups = DB::table('form_group_user')->where('user_id', $userID)->get();
+            $newUser = true;
+            $group = null;
+            $idOld = 0;
 
-        //foreach of the user's form groups, see if one belongs to the current project
-        foreach($currGroups as $prev) {
-            $group = FormGroup::where('id', '=', $prev->form_group_id)->first();
-            if($group->fid==$instance->fid) {
-                $newUser = false;
-                $idOld = $group->id;
-                break;
+            //foreach of the user's form groups, see if one belongs to the current project
+            foreach($currGroups as $prev) {
+                $group = FormGroup::where('id', '=', $prev->form_group_id)->first();
+                if($group->fid==$instance->fid) {
+                    $newUser = false;
+                    $idOld = $group->id;
+                    break;
+                }
             }
+
+            if(!$newUser) {
+                //remove from old group
+                DB::table('form_group_user')->where('user_id', $userID)->where('form_group_id', $idOld)->delete();
+
+                echo $idOld;
+            } else if(!isset($request->dontLookBack)) {
+                //add them to the project if they don't exist
+                $inProj = false;
+                $form = FormController::getForm($instance->fid);
+                $proj = ProjectController::getProject($form->pid);
+                //get all project groups for this project
+                $pGroups = ProjectGroup::where('pid','=', $form->pid)->get();
+
+                foreach($pGroups as $pg) {
+                    //see if user belongs to project group
+                    $uidPG = DB::table('project_group_user')->where('user_id', $userID)->where('project_group_id', $pg->id)->get();
+
+                    if(!empty($uidPG))
+                        $inProj = true;
+                }
+
+                //not in project, lets add them
+                if(!$inProj) {
+                    $default = ProjectGroup::where('name','=',$proj->name.' Default Group')->first();
+                    DB::table('project_group_user')->insert([
+                        ['project_group_id' => $default->id, 'user_id' => $userID]
+                    ]);
+                }
+            }
+
+            //After all this, lets make sure they get the custom form added
+            $user = User::where("id","=",$userID)->first();
+            $user->addCustomForm($instance->fid);
+
+            $instance->users()->attach($userID);
         }
-
-        if(!$newUser) {
-            //remove from old group
-            DB::table('form_group_user')->where('user_id', $request->userId)->where('form_group_id', $idOld)->delete();
-
-            echo $idOld;
-        } else if(!isset($request->dontLookBack)) {
-            //add them to the project if they don't exist
-            $inProj = false;
-            $form = FormController::getForm($instance->fid);
-            $proj = ProjectController::getProject($form->pid);
-            //get all project groups for this project
-            $pGroups = ProjectGroup::where('pid','=', $form->pid)->get();
-
-            foreach($pGroups as $pg) {
-                //see if user belongs to project group
-                $uidPG = DB::table('project_group_user')->where('user_id', $request->userId)->where('project_group_id', $pg->id)->get();
-
-                if(!empty($uidPG))
-                    $inProj = true;
-            }
-
-            //not in project, lets add them
-            if(!$inProj) {
-                $default = ProjectGroup::where('name','=',$proj->name.' Default Group')->first();
-                DB::table('project_group_user')->insert([
-                    ['project_group_id' => $default->id, 'user_id' => $request->userId]
-                ]);
-            }
-        }
-
-        //After all this, lets make sure they get the custom form added
-        $user = User::where("id","=",$request->userId)->first();
-        $user->addCustomForm($instance->fid);
-
-        $instance->users()->attach($request->userId);
     }
 
     /**
@@ -214,7 +216,7 @@ class FormGroupController extends Controller {
         $users = $instance->users()->get();
         foreach($users as $user) {
             //Remove their custom form connection
-            $user->removeCustomForm($instance->pid);
+            $user->removeCustomForm($instance->fid);
         }
 
         $instance->delete();
