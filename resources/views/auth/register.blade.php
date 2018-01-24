@@ -43,8 +43,8 @@
 
       <div class="form-group mt-xl">
         <label>Your Profile Image</label>
-        <input type="file" accept="image/*" name="profile-pic" id="profile-pic" class="profile-input" />
-        <label for="profile-pic" class="profile-label">
+        <input type="file" accept="image/*" name="profile" id="profile" class="profile-input" />
+        <label for="profile" class="profile-label">
           <img src="{{ config('app.url') }}logos/blank_profile.jpg" height="80px" width="80px" alt="Profile">
           <p class="filename">Add a photo to help others identify you</p>
           <p class="instruction mb-0">Drag and Drop or Select a Photo here</p>
@@ -88,6 +88,7 @@
   @include('partials.javascripts')
 
   <script>
+    // For profile pic functionality
     var fileInput = $(".profile-input");
     var button = $(".profile-label");
     var pic = $(".profile-label img");
