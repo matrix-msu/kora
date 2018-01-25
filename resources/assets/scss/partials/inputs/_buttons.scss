@@ -16,6 +16,9 @@
   text-align: center;
   width: 100%;
 
+  &:focus {
+    outline: none;
+  }
 
   &:hover,
   &:focus {
@@ -23,18 +26,14 @@
     opacity: 1;
   }
 
-  &:focus {
-    outline: none;
-  }
+  &.secondary {
+    background: palette('white', base);
+    border: 2px solid palette('green', accent, .6);
+    box-shadow: 0 5px 10px 0 palette('box-shadow', accent, .1);
+    color: palette('green', accent);
 
-  &.warning {
-    background: gradient($palette: 'warning', $degree: to right);
-    box-shadow: 0 3px 5px 0 palette('box-shadow', warning, .2);
-
-    &:hover,
-    &:focus {
-      box-shadow: 0 7px 15px 0 palette('box-shadow', warning, .3);
-      opacity: 1;
+    &:hover {
+      border-color: palette('green', accent, 1);
     }
   }
 
@@ -47,6 +46,17 @@
     border: 2px solid palette('green', accent, .2);
     border-radius: 5px;
     color: palette('green', accent);
+  }
+
+  &.warning {
+    background: gradient($palette: 'warning', $degree: to right);
+    box-shadow: 0 3px 5px 0 palette('box-shadow', warning, .2);
+
+    &:hover,
+    &:focus {
+      box-shadow: 0 7px 15px 0 palette('box-shadow', warning, .3);
+      opacity: 1;
+    }
   }
 }
 
@@ -132,7 +142,7 @@ a.btn {
       border: 2px solid palette('red', base, .6);
       color: palette('red', base);
       font-family: $ubuntu-medium;
-      
+
       &:hover {
         border: 2px solid palette('red', base, 1);
         box-shadow: 0 5px 10px 0 palette('box-shadow', warning, .1);

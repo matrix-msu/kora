@@ -24,13 +24,15 @@ class WelcomeController extends Controller {
      */
 	public function index() {
 	    if(!isInstalled())
-            return redirect('/helloworld');
-		else if(\Auth::guest() or !\Auth::user()->active)
-            return view('/auth/activate');
-        else if(\Auth::user()->dash)
-            return redirect('/dashboard');
-		else
-            return redirect('/projects');
+        	return redirect('/helloworld');
+			else if(\Auth::guest())
+	 				return view('/welcome');
+			else if (!\Auth::user()->active)
+        	return view('/auth/activate');
+      else if(\Auth::user()->dash)
+        	return redirect('/dashboard');
+			else
+        	return redirect('/projects');
 	}
 
     /**

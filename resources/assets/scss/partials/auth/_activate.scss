@@ -1,0 +1,33 @@
+&.activate {
+  text-align: left;
+
+  .description {
+    padding: 0;
+  }
+
+  .row {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+
+    .half {
+      width: 50%;
+    }
+  }
+
+  .text {
+    color: palette('green', accent);
+  }
+
+  @media screen and (max-width: $max-mobile-l-width) {
+    .mb-xl-responsive {
+      margin-bottom: 30px;
+    }
+
+    .row {
+      .half {
+        width: 100%;
+      }
+    }
+  }
+}

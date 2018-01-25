@@ -1,37 +1,56 @@
-@extends('app')
+@extends('app', ['page_title' => 'Activate', 'page_class' => 'activate'])
 
-@section('content')
+@section('body')
+  <div class="content">
+    <div class="form-container center">
+      <section class="head">
+        <h1 class="title">Thanks for Signing Up!</h1>
+        <h2 class="sub-title">We've sent an email to INSERT EMAIL HERE</h2>
+        <p class="description">Once you receive the email, hit the "Active Account" button and you'll be all set!</p>
+      </section>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-md-10 col-md-offset-1">
-                <div class="panel panel-default">
-                    <div class="panel-body">
+      <div class="spacer"></div>
 
-                        <h3>{{trans('auth_activate.activateuser')}}</h3>
+      <form class="form-horizontal" role="form" method="POST" enctype="multipart/form-data" action="{{ url('\Auth\UserController@activator') }}">
+        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="regtoken" value="{{\App\Http\Controllers\Auth\RegisterController::makeRegToken()}}">
 
-                        {!! Form::open(['method' => 'POST', 'action' => 'Auth\UserController@activator']) !!}
-
-                        <div class="form-group">
-                            {!! Form::label('user', trans('auth_activate.username').': ') !!}
-                            {!! Form::text('user', null, ['class' => 'form-control']) !!}
-                        </div>
-
-                        <div class="form-group">
-                            {!! Form::label('token', trans('auth_activate.token').': ') !!}
-                            {!! Form::text('token', null, ['class' => 'form-control']) !!}
-                        </div>
-
-                        <div class="form-group">
-                            {!! Form::submit(trans('auth_activate.activateuser'), ['class' => 'btn btn-primary form-control']) !!}
-                        </div>
-
-                        {!! Form::close() !!}
-
-                    </div>
-                </div>
-            </div>
+        <p>You may also enter the activation token provided in the email to activate your account.</p>
+        <div class="form-group mt-xl pr-m">
+          <label for="activation-token">Activation Token</label>
+          <input type="text" class="text-input" name="activation-token" placeholder="Enter your activation token here">
         </div>
-    </div>
 
+        <div class="form-group mt-xxxl" >
+          <button type="submit" class="btn btn-primary">Activate Account</button>
+        </div>
+      </form>
+
+      <div class="spacer"></div>
+
+      <section class="row">
+        <div class="half">
+          <h2 class="mt-0 mb-xl">Didn't get the email?</h2>
+          <p class="mb-xl-responsive">Remember to check your spam folder!</p>
+        </div>
+        <div class="half">
+          <form class="form-horizontal" role="form" method="POST" enctype="multipart/form-data" action="">
+            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="regtoken" value="{{\App\Http\Controllers\Auth\RegisterController::makeRegToken()}}">
+
+            <div class="form-group" >
+              <button type="submit" class="btn secondary">Request Another Email</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <div class="spacer"></div>
+
+      <section>
+        <h2 class="mt-0 mb-xl">Requesting another email doesn't work?</h2>
+        <p>Contact the installation admin at <a class="text underline-middle-hover" href="mailto:anthonyDonofrio@gmail.com">anthonyDonofrio@gmail.com</a></p>
+      </section>
+    </div>
+  </div>
 @stop
