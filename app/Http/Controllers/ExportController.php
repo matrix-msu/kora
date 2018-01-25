@@ -1215,9 +1215,10 @@ FROM ".$prefix."associator_support as af left join ".$prefix."fields as fl on af
         $kidPairs = [];
         $rid = implode(', ',$rids);
 
-        $part1 = DB::select("SELECT r.rid, r.kid, r.pid, r.fid, r.updated_at, u.username FROM ".$prefix."records as r LEFT JOIN ".$prefix."users as u on r.owner=u.id WHERE r.rid in ($rid)");
+        $part1 = DB::select("SELECT r.rid, r.kid, r.legacy_kid, r.pid, r.fid, r.updated_at, u.username FROM ".$prefix."records as r LEFT JOIN ".$prefix."users as u on r.owner=u.id WHERE r.rid in ($rid)");
         foreach($part1 as $row) {
             $meta[$row->kid]["kid"] = $row->kid;
+            $meta[$row->kid]["legacy_kid"] = $row->legacy_kid;
             $meta[$row->kid]["pid"] = $row->pid;
             $meta[$row->kid]["schemeID"] = $row->fid;
             $meta[$row->kid]["systimestamp"] = $row->updated_at;
