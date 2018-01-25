@@ -101,6 +101,8 @@ class InstallController extends Controller {
 
             fclose($envfile);
             chmod("../.env",0660);
+            Log::info("Generating App Key");
+            Artisan::call('key:generate');
             Log::info("Ending ENV Write ");
         } catch(\Exception $e) { //Most likely if the file is owned by another user or PHP doesn't have permission
             Log::info($e);
@@ -246,8 +248,10 @@ class InstallController extends Controller {
         if(substr($storageurl,-1) != "/")
             $storageurl = $storageurl."/";
 
-        $layout = "APP_ENV=local\n".
-            "APP_DEBUG=false\n\n".
+        $layout =
+            "APP_ENV=local\n".
+            "APP_DEBUG=false\n".
+            "APP_KEY=\n\n".
 
             "DB_HOST=" . $request->db_host . "\n" .
             "DB_DATABASE=" . $request->db_database . "\n" .
@@ -377,7 +381,7 @@ class InstallController extends Controller {
     }
 
     /**
-     * TODO::Updates recaptcha and mail options in the ENV configuration file.
+     * Updates recaptcha and mail options in the ENV configuration file.
      *
      * @param  Request $request
      * @return Redirect
@@ -392,7 +396,8 @@ class InstallController extends Controller {
             $debug = 'false';
 
         $layout = "APP_ENV=" . config('app.env') . "\n".
-            "APP_DEBUG=" . $debug . "\n\n".
+            "APP_DEBUG=" . $debug . "\n".
+            "APP_KEY=" . config('app.key') . "\n\n".
 
             "DB_HOST=" . env('DB_HOST') . "\n" .
             "DB_DATABASE=" . env('DB_DATABASE') . "\n" .
@@ -403,7 +408,7 @@ class InstallController extends Controller {
 
             "MAIL_HOST=" . $request->mail_host . "\n" .
             "MAIL_FROM_ADDRESS=" . $request->mail_address . "\n" .
-            "MAIL_FROM_NAME=" . $request->mail_name . "\n" .
+            "MAIL_FROM_NAME=\"" . $request->mail_name . "\"\n" .
             "MAIL_USER=" . $request->mail_user . "\n" .
             "MAIL_PASSWORD=" . $request->mail_password . "\n\n" .
 
@@ -428,7 +433,6 @@ class InstallController extends Controller {
             Log::info("Ending ENV Write");
         } catch(\Exception $e) { //Most likely if the file is owned by another user or PHP doesn't have permission
             Log::info($e);
-            $this->resetInstall();
             return redirect('install/config')->with('k3_global_error', 'env_cant_write');
         }
 
