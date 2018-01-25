@@ -224,7 +224,11 @@ class RestfulController extends Controller {
                             $kids = $query->kids;
                             $rids = array();
                             for($i = 0; $i < sizeof($kids); $i++) {
-                                $rids[$i] = explode("-", $kids[$i])[2];
+                                $rid = explode("-", $kids[$i])[2];
+                                $record = Record::where('rid',$rid)->get()->first();
+                                if($record->fid != $form->fid)
+                                    return "The following KID is not apart of the requested form: " . $kids[$i];
+                                $rids[$i] = $record->rid;
                             }
                             $negative = isset($query->not) ? $query->not : false;
                             if($negative)
@@ -238,8 +242,11 @@ class RestfulController extends Controller {
                             $kids = $query->kids;
                             $rids = array();
                             for($i = 0; $i < sizeof($kids); $i++) {
-                                $rid = Record::where('legacy_kid', '=', $kids[$i])->value('rid');
-                                array_push($rids,$rid);
+                                $legacy_kid = $kids[$i];
+                                $record = Record::where('legacy_kid','=',$legacy_kid)->get()->first();
+                                if($record->fid != $form->fid)
+                                    return "The following legacy KID is not apart of the requested form: " . $kids[$i];
+                                array_push($rids,$record->rid);
                             }
                             $negative = isset($query->not) ? $query->not : false;
                             if($negative)
