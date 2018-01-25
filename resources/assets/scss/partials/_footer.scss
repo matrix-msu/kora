@@ -1,5 +1,7 @@
 footer {
   background: palette('gray', slate);
+  display: flex;
+  justify-content: center;
 
   .footer-item {
     display: inline-block;

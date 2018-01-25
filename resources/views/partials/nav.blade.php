@@ -1,5 +1,5 @@
 
-@if(Auth::guest())
+@if(Auth::guest() || !Auth::user()->active)
 <nav class="navigation navigation-js auth">
 @else
 <nav class="navigation navigation-js">
@@ -9,7 +9,7 @@
     <a href="#" class="dismiss status-dismiss-js">Dismiss</a>
   </div>
   <ul class="navigation-left navigation-left-js">
-    @if(Auth::guest())
+    @if(Auth::guest() || !Auth::user()->active)
       @if(strtolower($page_class) == "welcome")
         <li class="navigation-item">
           <a href="{{ url('/register') }}" class="text navigation-toggle-js underline-middle-hover">Need to Sign Up?</a>
@@ -33,7 +33,7 @@
   </ul>
 
   <ul class="navigation-right navigation-right-js">
-    @if(Auth::guest())
+    @if(Auth::guest() || !Auth::user()->active)
         <li class="navigation-item">
             <a href="#" class="text menu-toggle navigation-toggle-js underline-middle-hover">
                 <span>English</span>

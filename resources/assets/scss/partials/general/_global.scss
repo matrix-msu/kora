@@ -14,17 +14,19 @@ form {
   pointer-events: none;
 }
 
-.text {
-  @include transition();
+a {
+  &.text {
+    @include transition();
 
-  color: palette('gray', text);
-  font-family: $ubuntu;
-  padding: 0 0 $underline-padding;
-  text-decoration: none;
+    color: palette('gray', text);
+    font-family: $ubuntu;
+    padding: 0 0 $underline-padding;
+    text-decoration: none;
 
-  &:hover {
-    color: palette('green', accent);
-	}
+    &:hover {
+      color: palette('green', accent);
+  	}
+  }
 }
 
 .right {

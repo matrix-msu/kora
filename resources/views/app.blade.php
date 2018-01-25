@@ -31,7 +31,7 @@
 
         <link rel="stylesheet" href="{{config('app.url')}}assets/css/app.css">
     </head>
-    <body class="{{ str_hyphenated($page_class) }}-body @if(Auth::guest() && isInstalled()) auth-body @endif">
+    <body class="{{ str_hyphenated($page_class) }}-body @if((Auth::guest() || !Auth::user()->active) && isInstalled()) auth-body @endif">
       @include('partials.nav')
 
       <div class="side-menu side-menu-js">
@@ -41,7 +41,7 @@
       </div>
 
 
-      <div class="{{ str_hyphenated($page_class) }} @if(Auth::guest() && isInstalled()) auth @endif">
+      <div class="{{ str_hyphenated($page_class) }} @if((Auth::guest() || !Auth::user()->active) && isInstalled()) auth @endif">
         @yield('header')
         @yield('body')
         @yield('footer')
@@ -51,7 +51,7 @@
         @endif
       </div>
 
-      @if(Auth::guest())
+      @if(Auth::guest() || !Auth::user()->active)
         @include('partials.projects.javascripts')
 
         <script>
