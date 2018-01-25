@@ -1,0 +1,55 @@
+.new-permission-modal {
+  .actions {
+    padding: 40px 0;
+
+    .action {
+      display: inline-block;
+      padding: 0 15px;
+
+      &:first-of-type {
+        padding-left: 0;
+      }
+
+      &:last-of-type {
+        padding-right: 0;
+      }
+
+      .action-column {
+        height: 55px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+    }
+  }
+
+  .users-select {
+    padding-bottom: 0;
+  }
+}
+
+@media screen and (max-width: $max-mobile-med-width) {
+  .new-permission-modal {
+    .action:last-of-type {
+      display: block;
+      padding: 15px 0 0;
+    }
+  }
+}
+
+@media screen and (max-width: $max-mobile-xs-width) {
+  .new-permission-modal {
+    .action {
+      display: block;
+      padding: 10px 0 0;
+
+      &:first-of-type {
+        padding-top: 0;
+      }
+
+      &:last-of-type {
+        padding-top: 10px;
+      }
+    }
+  }
+}
