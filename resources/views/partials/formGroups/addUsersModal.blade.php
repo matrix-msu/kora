@@ -6,7 +6,7 @@
         <i class="icon icon-cancel"></i>
       </a>
     </div>
-    <div class="body">
-    </div>
+    <form class="body">
+    </form>
   </div>
 </div>
