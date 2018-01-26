@@ -36,7 +36,7 @@ class SaveFormGroupUsersTable extends Command implements ShouldQueue {
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        DB::table('form_group_user')->chunk(500, function($fgUsers) use ($table_path, $row_id) {
+        DB::table('form_group_user')->orderBy('form_group_id')->chunk(500, function($fgUsers) use ($table_path, $row_id) {
             $count = 0;
             $all_formgroupuser_data = new Collection();
 

@@ -39,7 +39,7 @@ class SaveAssociatorSupportTable extends Command implements ShouldQueue {
 
         $this->backup_fs->makeDirectory($table_path);
 
-        DB::table(AssociatorField::SUPPORT_NAME)->chunk(500, function($support_fields) use ($table_path, $row_id) {
+        DB::table(AssociatorField::SUPPORT_NAME)->orderBy('id')->chunk(500, function($support_fields) use ($table_path, $row_id) {
             $count = 0;
             $all_support_data = new Collection();
 

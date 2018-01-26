@@ -14,12 +14,20 @@ class Collection extends BaseCollection implements QueueableCollection
      *
      * @param  mixed  $key
      * @param  mixed  $default
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return \Illuminate\Database\Eloquent\Model|static
      */
     public function find($key, $default = null)
     {
         if ($key instanceof Model) {
             $key = $key->getKey();
+        }
+
+        if (is_array($key)) {
+            if ($this->isEmpty()) {
+                return new static;
+            }
+
+            return $this->whereIn($this->first()->getKeyName(), $key);
         }
 
         return Arr::first($this->items, function ($model) use ($key) {
@@ -65,20 +73,21 @@ class Collection extends BaseCollection implements QueueableCollection
      * Determine if a key exists in the collection.
      *
      * @param  mixed  $key
+     * @param  mixed  $operator
      * @param  mixed  $value
      * @return bool
      */
-    public function contains($key, $value = null)
+    public function contains($key, $operator = null, $value = null)
     {
-        if (func_num_args() == 2) {
-            return parent::contains($key, $value);
+        if (func_num_args() > 1 || $this->useAsCallable($key)) {
+            return parent::contains(...func_get_args());
         }
 
-        if ($this->useAsCallable($key)) {
-            return parent::contains($key);
+        if ($key instanceof Model) {
+            return parent::contains(function ($model) use ($key) {
+                return $model->is($key);
+            });
         }
-
-        $key = $key instanceof Model ? $key->getKey() : $key;
 
         return parent::contains(function ($model) use ($key) {
             return $model->getKey() == $key;
@@ -118,7 +127,7 @@ class Collection extends BaseCollection implements QueueableCollection
      * Run a map over each of the items.
      *
      * @param  callable  $callback
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Support\Collection|static
      */
     public function map(callable $callback)
     {
@@ -127,6 +136,31 @@ class Collection extends BaseCollection implements QueueableCollection
         return $result->contains(function ($item) {
             return ! $item instanceof Model;
         }) ? $result->toBase() : $result;
+    }
+
+    /**
+     * Reload a fresh model instance from the database for all the entities.
+     *
+     * @param  array|string  $with
+     * @return static
+     */
+    public function fresh($with = [])
+    {
+        if ($this->isEmpty()) {
+            return new static;
+        }
+
+        $model = $this->first();
+
+        $freshModels = $model->newQueryWithoutScopes()
+            ->with(is_string($with) ? func_get_args() : $with)
+            ->whereIn($model->getKeyName(), $this->modelKeys())
+            ->get()
+            ->getDictionary();
+
+        return $this->map(function ($model) use ($freshModels) {
+            return $model->exists ? $freshModels[$model->getKey()] : null;
+        });
     }
 
     /**

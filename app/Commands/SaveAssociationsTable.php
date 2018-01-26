@@ -36,7 +36,7 @@ class SaveAssociationsTable extends Command implements ShouldQueue {
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        DB::table('associations')->chunk(500, function($assocs) use ($table_path, $row_id) {
+        DB::table('associations')->orderBy('id')->chunk(500, function($assocs) use ($table_path, $row_id) {
             $count = 0;
             $all_association_data = new Collection();
 

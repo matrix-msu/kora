@@ -11,13 +11,14 @@
 
 namespace Symfony\Component\HttpFoundation\Tests\Session\Storage\Handler;
 
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler;
 
 /**
  * @requires extension pdo_sqlite
  * @group time-sensitive
  */
-class PdoSessionHandlerTest extends \PHPUnit_Framework_TestCase
+class PdoSessionHandlerTest extends TestCase
 {
     private $dbFile;
 
@@ -159,6 +160,9 @@ class PdoSessionHandlerTest extends \PHPUnit_Framework_TestCase
         if (defined('HHVM_VERSION')) {
             $this->markTestSkipped('PHPUnit_MockObject cannot mock the PDOStatement class on HHVM. See https://github.com/sebastianbergmann/phpunit-mock-objects/pull/289');
         }
+        if (ini_get('session.use_strict_mode')) {
+            $this->markTestSkipped('Strict mode needs no locking for new sessions.');
+        }
 
         $pdo = new MockPdo('pgsql');
         $selectStmt = $this->getMockBuilder('PDOStatement')->getMock();
@@ -268,6 +272,9 @@ class PdoSessionHandlerTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('', $data, 'Destroyed session returns empty string');
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function testSessionGC()
     {
         $previousLifeTime = ini_set('session.gc_maxlifetime', 1000);

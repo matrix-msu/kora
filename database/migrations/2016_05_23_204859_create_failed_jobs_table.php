@@ -19,6 +19,7 @@ class CreateFailedJobsTable extends Migration {
 			$table->text('connection');
 			$table->text('queue');
 			$table->text('payload');
+            $table->longText('exception');
 			$table->timestamp('failed_at');
 		});
 	}

@@ -39,7 +39,7 @@ class SaveComboSupportTable extends Command implements ShouldQueue {
 
         $this->backup_fs->makeDirectory($table_path);
 
-        DB::table(ComboListField::SUPPORT_NAME)->chunk(500, function($support_fields) use ($table_path, $row_id) {
+        DB::table(ComboListField::SUPPORT_NAME)->orderBy('id')->chunk(500, function($support_fields) use ($table_path, $row_id) {
             $count = 0;
             $all_support_data = new Collection();
 

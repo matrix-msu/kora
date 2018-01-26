@@ -39,9 +39,8 @@ class Paginator extends AbstractPaginator implements Arrayable, ArrayAccess, Cou
         $this->perPage = $perPage;
         $this->currentPage = $this->setCurrentPage($currentPage);
         $this->path = $this->path != '/' ? rtrim($this->path, '/') : $this->path;
-        $this->items = $items instanceof Collection ? $items : Collection::make($items);
 
-        $this->checkForMorePages();
+        $this->setItems($items);
     }
 
     /**
@@ -58,12 +57,15 @@ class Paginator extends AbstractPaginator implements Arrayable, ArrayAccess, Cou
     }
 
     /**
-     * Check for more pages. The last item will be sliced off.
+     * Set the items for the paginator.
      *
+     * @param  mixed  $items
      * @return void
      */
-    protected function checkForMorePages()
+    protected function setItems($items)
     {
+        $this->items = $items instanceof Collection ? $items : Collection::make($items);
+
         $this->hasMore = count($this->items) > ($this->perPage);
 
         $this->items = $this->items->slice(0, $this->perPage);
@@ -79,6 +81,34 @@ class Paginator extends AbstractPaginator implements Arrayable, ArrayAccess, Cou
         if ($this->hasMorePages()) {
             return $this->url($this->currentPage() + 1);
         }
+    }
+
+    /**
+     * Render the paginator using the given view.
+     *
+     * @param  string|null  $view
+     * @param  array  $data
+     * @return string
+     */
+    public function links($view = null, $data = [])
+    {
+        return $this->render($view, $data);
+    }
+
+    /**
+     * Render the paginator using the given view.
+     *
+     * @param  string|null  $view
+     * @param  array  $data
+     * @return string
+     */
+    public function render($view = null, $data = [])
+    {
+        return new HtmlString(
+            static::viewFactory()->make($view ?: static::$defaultSimpleView, array_merge($data, [
+                'paginator' => $this,
+            ]))->render()
+        );
     }
 
     /**
@@ -105,32 +135,6 @@ class Paginator extends AbstractPaginator implements Arrayable, ArrayAccess, Cou
     }
 
     /**
-     * Render the paginator using the given view.
-     *
-     * @param  string|null  $view
-     * @return string
-     */
-    public function links($view = null)
-    {
-        return $this->render($view);
-    }
-
-    /**
-     * Render the paginator using the given view.
-     *
-     * @param  string|null  $view
-     * @return string
-     */
-    public function render($view = null)
-    {
-        return new HtmlString(
-            static::viewFactory()->make($view ?: static::$defaultSimpleView, [
-                'paginator' => $this,
-            ])->render()
-        );
-    }
-
-    /**
      * Get the instance as an array.
      *
      * @return array
@@ -138,13 +142,14 @@ class Paginator extends AbstractPaginator implements Arrayable, ArrayAccess, Cou
     public function toArray()
     {
         return [
-            'per_page' => $this->perPage(),
             'current_page' => $this->currentPage(),
-            'next_page_url' => $this->nextPageUrl(),
-            'prev_page_url' => $this->previousPageUrl(),
-            'from' => $this->firstItem(),
-            'to' => $this->lastItem(),
             'data' => $this->items->toArray(),
+            'from' => $this->firstItem(),
+            'next_page_url' => $this->nextPageUrl(),
+            'path' => $this->path,
+            'per_page' => $this->perPage(),
+            'prev_page_url' => $this->previousPageUrl(),
+            'to' => $this->lastItem(),
         ];
     }
 

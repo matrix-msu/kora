@@ -19,7 +19,7 @@ trait ThrottlesLogins
     protected function hasTooManyLoginAttempts(Request $request)
     {
         return $this->limiter()->tooManyAttempts(
-            $this->throttleKey($request), 5, 1
+            $this->throttleKey($request), $this->maxAttempts(), $this->decayMinutes()
         );
     }
 
@@ -27,7 +27,7 @@ trait ThrottlesLogins
      * Increment the login attempts for the user.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return int
+     * @return void
      */
     protected function incrementLoginAttempts(Request $request)
     {
@@ -48,9 +48,15 @@ trait ThrottlesLogins
 
         $message = Lang::get('auth.throttle', ['seconds' => $seconds]);
 
+        $errors = [$this->username() => $message];
+
+        if ($request->expectsJson()) {
+            return response()->json($errors, 423);
+        }
+
         return redirect()->back()
             ->withInput($request->only($this->username(), 'remember'))
-            ->withErrors([$this->username() => $message]);
+            ->withErrors($errors);
     }
 
     /**
@@ -94,5 +100,25 @@ trait ThrottlesLogins
     protected function limiter()
     {
         return app(RateLimiter::class);
+    }
+
+    /**
+     * Get the maximum number of attempts to allow.
+     *
+     * @return int
+     */
+    public function maxAttempts()
+    {
+        return property_exists($this, 'maxAttempts') ? $this->maxAttempts : 5;
+    }
+
+    /**
+     * Get the number of minutes to throttle for.
+     *
+     * @return int
+     */
+    public function decayMinutes()
+    {
+        return property_exists($this, 'decayMinutes') ? $this->decayMinutes : 1;
     }
 }

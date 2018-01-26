@@ -37,7 +37,7 @@ class SaveScheduleSupportTable extends Command implements ShouldQueue {
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        DB::table(ScheduleField::SUPPORT_NAME)->chunk(500, function($schedsups) use ($table_path, $row_id) {
+        DB::table(ScheduleField::SUPPORT_NAME)->orderBy('id')->chunk(500, function($schedsups) use ($table_path, $row_id) {
             $count = 0;
             $all_schedulesupport_data = new Collection();
 

@@ -75,7 +75,7 @@ trait RegistersUsers
         //END CUSTOM
 
         return $this->registered($request, $user)
-            ?: redirect($this->redirectPath());
+                        ?: redirect($this->redirectPath());
     }
 
     /**
