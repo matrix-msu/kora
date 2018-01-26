@@ -1,8 +1,28 @@
-@extends('app')
+@extends('app', ['page_title' => "{$form->name} Association Permissions", 'page_class' => 'form-association-permissions'])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $form->pid])
     @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+    @include('partials.menu.static', ['name' => 'Form Associations'])
+@stop
+
+@section('header')
+    <section class="head">
+        <div class="inner-wrap center">
+            <h1 class="title">
+                <i class="icon icon-form-associations"></i>
+                <span>Form Association Permissions</span>
+            </h1>
+            <p class="description">This page allows you to grant association access for other forms. Associating other forms will allow them to search within this form. Select "Create a New Form Association" below, to begin creating a new form association. The newly associated form will then appear in the list below. You may also request association permission for this form to associate with other forms.</p>
+            <div class="content-sections">
+                <a href="#create" class="section underline-middle underline-middle-hover active">Create Form Association</a>
+                <a href="#request" class="section underline-middle underline-middle-hover">Request Form Association</a>
+            </div>
+        </div>
+    </section>
+@stop
+
+@section('body')
 @stop
 
 @section('content')
@@ -70,48 +90,6 @@
     </div>
 @stop
 
-@section('footer')
-    <script>
-        $('#form_select').on('click','#add_assoc', function(){
-            var assocfid = $('#selected_assoc').val();
-
-            $.ajax({
-                //Same method as deleteProject
-                url: '{{ action('AssociationController@create',['pid'=>$form->pid, 'fid'=>$form->fid])}}',
-                type: 'POST',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "assocfid": assocfid
-                },
-                success: function(){
-                    var name = $('option:selected', '#selected_assoc').text();
-                    $('option:selected', '#selected_assoc').remove();
-                    $('#form_allowed').append("<p id='form_assoc_listitem'>"+name+" <a class='delete_assoc' fid='"+assocfid+"' href='javascript:void(0)'>[X]</a></p>");
-                }
-            });
-        });
-
-        $('#form_allowed').on('click','.delete_assoc', function(){
-            var assocfid = $(this).attr('fid');
-            var listitem = $(this).parent();
-            var namelink = listitem.text();
-            var name = namelink.split(" [X]")[0];
-
-            $.ajax({
-                //Same method as deleteProject
-                url: '{{ action('AssociationController@destroy',['pid'=>$form->pid, 'fid'=>$form->fid])}}',
-                type: 'DELETE',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "assocfid": assocfid
-                },
-                success: function(){
-                    listitem.remove();
-                    html = "<option value='"+assocfid+"'>"+name+"</option>";
-                    curr = $('#selected_assoc').html();
-                    $('#selected_assoc').html(curr+html);
-                }
-            });
-        });
-    </script>
+@section('javascripts')
+    @include('partials.formAssociations.javascripts')
 @stop

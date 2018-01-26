@@ -168,10 +168,6 @@
     &:hover + .check {
       border: 1px solid palette('green', accent, .5);
       box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
-
-      + .placeholder {
-        font-weight: 900;
-      }
     }
 
     &:checked + .check + .placeholder,
