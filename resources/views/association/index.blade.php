@@ -117,6 +117,10 @@
     @include('partials.formAssociations.javascripts')
 
     <script type="text/javascript">
+        var CSRFToken = '{{ csrf_token() }}';
+        var pid = '{{ $project->pid }}';
+        var createAssociationPath = '{{ action('AssociationController@create', ["pid" => $project->pid, "fid" => $form->fid]) }}';
+        var requestAssociationPath = '{{ action('AssociationController@requestAccess', ["pid" => $project->pid, "fid" => $form->fid]) }}';
         Kora.FormAssociations.Index();
     </script>
 @stop

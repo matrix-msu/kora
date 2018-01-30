@@ -4,6 +4,16 @@ Kora.FormAssociations = Kora.FormAssociations || {};
 Kora.FormAssociations.Index = function() {
   var self = Kora.FormAssociations.Index;
 
+  /**
+   * Request association permissions for another group
+   * 
+   */
+  self.requestPermissions = function() {
+    $.ajax({
+
+    });
+  }
+
   function initializePermissionsToggles() {
     $('.toggle-by-name').click(function(e) {
       e.preventDefault();
@@ -56,6 +66,9 @@ Kora.FormAssociations.Index = function() {
       var submitAssociation = function() {
         return function(e) {
           e.preventDefault();
+
+          // self.requestPermissions();
+          Kora.Modal.close($requestPermissionsModal);
         }
       }
 
