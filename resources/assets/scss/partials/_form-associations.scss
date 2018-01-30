@@ -7,4 +7,7 @@
 .form-association-permissions {
   margin: $navigation-height auto 0;
   width: 100%;
+
+  @import 'form-associations/request';
+  @import 'form-associations/create';
 }
