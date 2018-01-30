@@ -121,4 +121,21 @@ return [
 
 	'pretend' => false,
 
+    /*
+	|--------------------------------------------------------------------------
+	| Markdown
+	|--------------------------------------------------------------------------
+	|
+	| Configuration for mail markdown.
+	|
+	*/
+
+    'markdown' => [
+        'theme' => 'default',
+
+        'paths' => [
+            resource_path('views/vendor/mail'),
+        ],
+    ],
+
 ];

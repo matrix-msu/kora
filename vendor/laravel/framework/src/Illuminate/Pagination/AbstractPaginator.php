@@ -8,6 +8,9 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Contracts\Support\Htmlable;
 
+/**
+ * @mixin \Illuminate\Support\Collection
+ */
 abstract class AbstractPaginator implements Htmlable
 {
     /**
@@ -60,7 +63,7 @@ abstract class AbstractPaginator implements Htmlable
     protected $pageName = 'page';
 
     /**
-     * The current page resolver callback.
+     * The current path resolver callback.
      *
      * @var \Closure
      */
@@ -106,21 +109,29 @@ abstract class AbstractPaginator implements Htmlable
     }
 
     /**
+     * Get the URL for the previous page.
+     *
+     * @return string|null
+     */
+    public function previousPageUrl()
+    {
+        if ($this->currentPage() > 1) {
+            return $this->url($this->currentPage() - 1);
+        }
+    }
+
+    /**
      * Create a range of pagination URLs.
      *
      * @param  int  $start
      * @param  int  $end
-     * @return string
+     * @return array
      */
     public function getUrlRange($start, $end)
     {
-        $urls = [];
-
-        for ($page = $start; $page <= $end; $page++) {
-            $urls[$page] = $this->url($page);
-        }
-
-        return $urls;
+        return collect(range($start, $end))->mapWithKeys(function ($page) {
+            return [$page => $this->url($page)];
+        })->all();
     }
 
     /**
@@ -148,18 +159,6 @@ abstract class AbstractPaginator implements Htmlable
                         .(Str::contains($this->path, '?') ? '&' : '?')
                         .http_build_query($parameters, '', '&')
                         .$this->buildFragment();
-    }
-
-    /**
-     * Get the URL for the previous page.
-     *
-     * @return string|null
-     */
-    public function previousPageUrl()
-    {
-        if ($this->currentPage() > 1) {
-            return $this->url($this->currentPage() - 1);
-        }
     }
 
     /**
@@ -217,7 +216,7 @@ abstract class AbstractPaginator implements Htmlable
      * @param  string  $value
      * @return $this
      */
-    public function addQuery($key, $value)
+    protected function addQuery($key, $value)
     {
         if ($key !== $this->pageName) {
             $this->query[$key] = $value;
@@ -253,11 +252,7 @@ abstract class AbstractPaginator implements Htmlable
      */
     public function firstItem()
     {
-        if (count($this->items) === 0) {
-            return;
-        }
-
-        return ($this->currentPage - 1) * $this->perPage + 1;
+        return count($this->items) > 0 ? ($this->currentPage - 1) * $this->perPage + 1 : null;
     }
 
     /**
@@ -267,11 +262,7 @@ abstract class AbstractPaginator implements Htmlable
      */
     public function lastItem()
     {
-        if (count($this->items) === 0) {
-            return;
-        }
-
-        return $this->firstItem() + $this->count() - 1;
+        return count($this->items) > 0 ? $this->firstItem() + $this->count() - 1 : null;
     }
 
     /**
@@ -282,6 +273,16 @@ abstract class AbstractPaginator implements Htmlable
     public function perPage()
     {
         return $this->perPage;
+    }
+
+    /**
+     * Determine if there are enough items to split into multiple pages.
+     *
+     * @return bool
+     */
+    public function hasPages()
+    {
+        return $this->currentPage() != 1 || $this->hasMorePages();
     }
 
     /**
@@ -305,13 +306,50 @@ abstract class AbstractPaginator implements Htmlable
     }
 
     /**
-     * Determine if there are enough items to split into multiple pages.
+     * Get the query string variable used to store the page.
      *
-     * @return bool
+     * @return string
      */
-    public function hasPages()
+    public function getPageName()
     {
-        return ! ($this->currentPage() == 1 && ! $this->hasMorePages());
+        return $this->pageName;
+    }
+
+    /**
+     * Set the query string variable used to store the page.
+     *
+     * @param  string  $name
+     * @return $this
+     */
+    public function setPageName($name)
+    {
+        $this->pageName = $name;
+
+        return $this;
+    }
+
+    /**
+     * Set the base path to assign to all URLs.
+     *
+     * @param  string  $path
+     * @return $this
+     */
+    public function withPath($path)
+    {
+        return $this->setPath($path);
+    }
+
+    /**
+     * Set the base path to assign to all URLs.
+     *
+     * @param  string  $path
+     * @return $this
+     */
+    public function setPath($path)
+    {
+        $this->path = $path;
+
+        return $this;
     }
 
     /**
@@ -408,42 +446,6 @@ abstract class AbstractPaginator implements Htmlable
     public static function defaultSimpleView($view)
     {
         static::$defaultSimpleView = $view;
-    }
-
-    /**
-     * Get the query string variable used to store the page.
-     *
-     * @return string
-     */
-    public function getPageName()
-    {
-        return $this->pageName;
-    }
-
-    /**
-     * Set the query string variable used to store the page.
-     *
-     * @param  string  $name
-     * @return $this
-     */
-    public function setPageName($name)
-    {
-        $this->pageName = $name;
-
-        return $this;
-    }
-
-    /**
-     * Set the base path to assign to all URLs.
-     *
-     * @param  string  $path
-     * @return $this
-     */
-    public function setPath($path)
-    {
-        $this->path = $path;
-
-        return $this;
     }
 
     /**

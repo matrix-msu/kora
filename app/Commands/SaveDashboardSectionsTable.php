@@ -36,7 +36,7 @@ class SaveDashboardSectionsTable extends Command implements ShouldQueue {
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        DB::table('dashboard_sections')->chunk(500, function($dashsecs) use ($table_path, $row_id) {
+        DB::table('dashboard_sections')->orderBy('id')->chunk(500, function($dashsecs) use ($table_path, $row_id) {
             $count = 0;
             $all_dashboardsection_data = new Collection();
 

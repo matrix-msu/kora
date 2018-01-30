@@ -4,7 +4,6 @@ namespace Illuminate\Foundation\Auth;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Lang;
 
 trait AuthenticatesUsers
 {
@@ -24,7 +23,7 @@ trait AuthenticatesUsers
      * Handle a login request to the application.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
      */
     public function login(Request $request)
     {
@@ -60,7 +59,8 @@ trait AuthenticatesUsers
     protected function validateLogin(Request $request)
     {
         $this->validate($request, [
-            $this->username() => 'required', 'password' => 'required',
+            $this->username() => 'required|string',
+            'password' => 'required|string',
         ]);
     }
 
@@ -72,9 +72,9 @@ trait AuthenticatesUsers
      */
     protected function attemptLogin(Request $request)
     {
+        //CUSTOM CODE TO ALLOW LOGIN WITH USER OR EMAIL
         $credentials = $this->credentials($request);
 
-        //CUSTOM CODE TO ALLOW LOGIN WITH USER OR EMAIL
         if (strpos($credentials['email'], '@') == false) {
             //logging in with username not email, so change the column-name
             $credentials['username'] = $credentials['email'];
@@ -134,11 +134,15 @@ trait AuthenticatesUsers
      */
     protected function sendFailedLoginResponse(Request $request)
     {
+        $errors = [$this->username() => trans('auth.failed')];
+
+        if ($request->expectsJson()) {
+            return response()->json($errors, 422);
+        }
+
         return redirect()->back()
             ->withInput($request->only($this->username(), 'remember'))
-            ->withErrors([
-                $this->username() => Lang::get('auth.failed'),
-            ]);
+            ->withErrors($errors);
     }
 
     /**
@@ -154,16 +158,14 @@ trait AuthenticatesUsers
     /**
      * Log the user out of the application.
      *
-     * @param \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function logout(Request $request)
     {
         $this->guard()->logout();
 
-        $request->session()->flush();
-
-        $request->session()->regenerate();
+        $request->session()->invalidate();
 
         return redirect('/');
     }

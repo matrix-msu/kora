@@ -37,7 +37,7 @@ class SaveFormCustomTable extends Command implements ShouldQueue
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        DB::table("form_custom")->chunk(500, function($fcustoms) use ($table_path, $row_id) {
+        DB::table("form_custom")->orderBy('id')->chunk(500, function($fcustoms) use ($table_path, $row_id) {
             $count = 0;
             $all_fcustoms_data = new Collection();
 

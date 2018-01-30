@@ -8,7 +8,7 @@
 //Step 2
 ////Replace your token, pid, and sid with a new search token, a k3 pid, and fid
 //Step 3
-////You do not need to update field names, unless you manually changed the nickname in Kora 3
+////You do not need to update field names, unless you manually changed the nickname in Kora 3 or you want KID clause to search for the "legacy_kid"
 ////Leave the original control names in your koraSearch, but the k3 nickname should be {K2 control name with underscores not spaces}_{pid}_{fid}_
 //Step 4
 ////If you are pointing to a K3 installation that needs http auth, as the 9th variable of KORA_Search, place an
@@ -55,11 +55,15 @@ class kora3ApiExternalTool {
      *
      * @param  array $kids - KIDs we are searching for
      * @param  bool $not - Get the negative results of the search
+     * @param  bool $legacy - Search for legacy kid instead
      * @return array - The query array
      */
-    static function kidQueryBuilder($kids,$not=false) {
+    static function kidQueryBuilder($kids,$not=false,$legacy=false) {
         $qkid = array();
-        $qkid["search"] = "kid";
+        if(!$legacy)
+            $qkid["search"] = "kid";
+        else
+            $qkid["search"] = "legacy_kid";
         $qkid["kids"] = $kids;
         if($not)
             $qkid["not"] = $not;
@@ -286,6 +290,21 @@ class KORA_Clause {
                     die("Illegal KID operator provided: ".$op);
 
                 $query = $tool::kidQueryBuilder($arg2, $not);
+                array_push($this->queries,$query);
+            } else if($arg1=="legacy_kid") {
+                if($arg2 == "")
+                    $arg2 = array();
+                else if(!is_array($arg2))
+                    $arg2 = array($arg2);
+
+                if($op=="="|$op=="=="|$op=="IN")
+                    $not = false;
+                else if($op=="NOT IN"|$op=="!="|$op=="!==")
+                    $not = true;
+                else
+                    die("Illegal KID operator provided: ".$op);
+
+                $query = $tool::kidQueryBuilder($arg2, $not, true);
                 array_push($this->queries,$query);
             } else {
                 if($op=="="|$op=="==") {

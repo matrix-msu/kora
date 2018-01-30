@@ -36,7 +36,7 @@ class SaveProjectGroupUsersTable extends Command implements ShouldQueue {
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        DB::table('project_group_user')->chunk(500, function($pgUsers) use ($table_path, $row_id) {
+        DB::table('project_group_user')->orderBy('project_group_id')->chunk(500, function($pgUsers) use ($table_path, $row_id) {
             $count = 0;
             $all_projectgroupuser_data = new Collection();
 

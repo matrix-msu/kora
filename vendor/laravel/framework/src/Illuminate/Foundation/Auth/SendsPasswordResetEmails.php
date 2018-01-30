@@ -3,7 +3,6 @@
 namespace Illuminate\Foundation\Auth;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 
 trait SendsPasswordResetEmails
@@ -26,7 +25,7 @@ trait SendsPasswordResetEmails
      */
     public function sendResetLinkEmail(Request $request)
     {
-        $this->validate($request, ['email' => 'required|email']);
+        $this->validateEmail($request);
 
         //CUSTOM CODE TO SEND EMAIL
         //Get the token and email
@@ -51,9 +50,9 @@ trait SendsPasswordResetEmails
         return redirect('/');
         //END CUSTOM
 
-        // We will send the password reset link to this user. Once we have attempted
-        // to send the link, we will examine the response then see the message we
-        // need to show to the user. Finally, we'll send out a proper response.
+//        // We will send the password reset link to this user. Once we have attempted
+//        // to send the link, we will examine the response then see the message we
+//        // need to show to the user. Finally, we'll send out a proper response.
 //        $response = $this->broker()->sendResetLink(
 //            $request->only('email')
 //        );
@@ -61,6 +60,17 @@ trait SendsPasswordResetEmails
 //        return $response == Password::RESET_LINK_SENT
 //                    ? $this->sendResetLinkResponse($response)
 //                    : $this->sendResetLinkFailedResponse($request, $response);
+    }
+
+    /**
+     * Validate the email for the given request.
+     *
+     * @param \Illuminate\Http\Request  $request
+     * @return void
+     */
+    protected function validateEmail(Request $request)
+    {
+        $this->validate($request, ['email' => 'required|email']);
     }
 
     /**

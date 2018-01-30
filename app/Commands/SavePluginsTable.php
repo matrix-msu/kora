@@ -36,7 +36,7 @@ class SavePluginsTable extends Command implements ShouldQueue {
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        DB::table('plugins')->chunk(500, function($plugins) use ($table_path, $row_id) {
+        DB::table('plugins')->orderBy('id')->chunk(500, function($plugins) use ($table_path, $row_id) {
             $count = 0;
             $all_plugins_data = new Collection();
 

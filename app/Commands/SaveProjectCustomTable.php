@@ -37,7 +37,7 @@ class SaveProjectCustomTable extends Command implements ShouldQueue
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        DB::table("project_custom")->chunk(500, function($pcustoms) use ($table_path, $row_id) {
+        DB::table("project_custom")->orderBy('id')->chunk(500, function($pcustoms) use ($table_path, $row_id) {
             $count = 0;
             $all_pcustoms_data = new Collection();
 

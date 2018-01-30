@@ -6,7 +6,7 @@
         <i class="icon icon-cancel"></i>
       </a>
     </div>
-    <div class="body">
+    <form class="body">
       <div class="form-group">
         {!! Form::label('name', 'Permissions Group Name') !!}
         {!! Form::text('name', null, ['class' => 'text-input group-name-js', 'placeholder' => "Enter the new permissions group's name"]) !!}
@@ -15,6 +15,6 @@
       <div class="form-group mt-xxl add-users-submit edit-group-name-submit-js">
         {!! Form::submit('Update Group Name',['class' => 'btn edit-group-name-button-js']) !!}
       </div>
-    </div>
+    </form>
   </div>
 </div>
