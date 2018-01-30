@@ -1,18 +1,13 @@
 .content {
   .allowed-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    max-width: 500px;
     padding: 10px 0 40px;
 
     .action {
       display: inline-block;
-      padding: 0 14px;
-
-      &:first-of-type {
-        padding-left: 0;
-      }
-
-      &:last-of-type {
-        padding-right: 0;
-      }
 
       .action-column {
         height: 55px;
@@ -29,9 +24,12 @@
 
 @media screen and (max-width: $max-mobile-med-width) {
   .content {
-    .allowed-actions .action:last-of-type {
-      display: block;
-      padding: 15px 0 0;
+    .allowed-actions {
+      max-width: 350px;
+      .action:last-of-type {
+        display: block;
+        padding: 15px 0 0;
+      }
     }
   }
 }
@@ -42,9 +40,6 @@
       padding-bottom: 25px;
 
       .action {
-        display: block;
-        padding: 15px 0 0;
-
         &:first-of-type {
           padding-top: 0;
         }
