@@ -10,6 +10,7 @@
 @stop
 
 @section('header')
+    {{var_dump($errors)}}
   <section class="head">
       <div class="inner-wrap center">
         <h1 class="title">
@@ -24,7 +25,7 @@
 @section('body')
   <section class="create-form center">
     {!! Form::model($form = new \App\Form, ['url' => 'projects/'.$project->pid]) !!}
-        @include('partials.forms.form',['submitButtonText' => 'Create Form','pid' => $form->pid, 'type' => 'create'])
+        @include('partials.forms.form',['submitButtonText' => 'Create Form','pid' => $project->pid, 'type' => 'create'])
     {!! Form::close() !!}
   </section>
 @stop
