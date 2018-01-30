@@ -487,3 +487,116 @@ i {
     content: $icon-cancel-circle;
   }
 }
+
+.icon-exodus {
+  &:before {
+    content: $icon-exodus;
+  }
+}
+
+.icon-block-add {
+  &:before {
+    content: $icon-block-add;
+  }
+}
+
+.icon-record-new-little {
+  &:before {
+    content: $icon-record-new-little;
+  }
+}
+
+.icon-field-new-little {
+  &:before {
+    content: $icon-field-new-little;
+  }
+}
+
+.icon-preset-little {
+  &:before {
+    content: $icon-preset-little;
+  }
+}
+
+.icon-duplicate-little {
+  &:before {
+    content: $icon-duplicate-little;
+  }
+}
+
+.icon-clock-little {
+  &:before {
+    content: $icon-clock-little;
+  }
+}
+
+.icon-unarchive {
+  &:before {
+    content: $icon-unarchive;
+  }
+}
+
+.icon-my-permissions {
+  &:before {
+    content: $icon-my-permissions;
+  }
+}
+
+.icon-my-record-history {
+  &:before {
+    content: $icon-my-record-history;
+  }
+}
+
+.icon-users {
+  &:before {
+    content: $icon-users;
+  }
+}
+
+.icon-update {
+  &:before {
+    content: $icon-update;
+  }
+}
+
+.icon-backup .path3 {
+  &:before {
+    content: $icon-backup-path3;
+    margin-left: -1.20703125em;
+    color: rgb(20, 61, 75);
+  }
+}
+
+.icon-backup .path2 {
+  &:before {
+    content: $icon-backup-path2;
+    margin-left: -1.20703125em;
+    color: rgb(21, 39, 48);
+  }
+}
+
+.icon-backup .path1 {
+  &:before {
+    content: $icon-backup-path1;
+    color: rgb(21, 39, 48);
+  }
+}
+
+.icon-env-file {
+  &:before {
+    content: $icon-env-file;
+  }
+}
+
+.icon-check-circle {
+  &:before {
+    content: $icon-check-circle;
+  }
+}
+
+.icon-more {
+  &:before {
+    content: $icon-more;
+  }
+}
