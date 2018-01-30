@@ -39,8 +39,8 @@
     margin: 60px 0;
     width: 100%;
   }
-
-  @import 'auth/activate';
-  @import 'auth/register';
-  @import 'auth/welcome';
 }
+
+@import 'auth/activate';
+@import 'auth/register';
+@import 'auth/welcome';

@@ -1,4 +1,4 @@
-&.activate {
+.activate {
   text-align: left;
 
   .description {
@@ -29,5 +29,14 @@
         width: 100%;
       }
     }
+  }
+}
+
+.activate-body {
+  .logo {
+    color: palette('green', accent);
+    line-height: normal;
+    margin: 15px 0 0;
+    padding: 0 0 5px;
   }
 }

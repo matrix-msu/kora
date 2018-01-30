@@ -46,7 +46,7 @@
         @yield('body')
         @yield('footer')
 
-        @if(Auth::guest() && isInstalled())
+        @if((Auth::guest() || !Auth::user()->active) && isInstalled())
           @include('partials.footer')
         @endif
       </div>
