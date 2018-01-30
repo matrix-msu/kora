@@ -53,9 +53,9 @@ class AssociationController extends Controller {
 		$associds = array();
 		foreach($assocs as $a) {
 			array_push($associds,$a->assocForm);
-		}
-
-		return view('association.index', compact('form', 'assocs', 'associds', 'project'));
+        }
+        $all_forms = Form::all()->where('fid', '!=', $fid);
+		return view('association.index', compact('form', 'assocs', 'associds', 'project', 'all_forms'));
 	}
 
     /**
