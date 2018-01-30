@@ -13,7 +13,7 @@
   }
 
   .pb-#{$key} {
-    padding-bottom: #{$size};
+    padding-bottom: #{$size} !important;
   }
 
   .pl-#{$key} {
