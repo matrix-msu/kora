@@ -43,7 +43,10 @@ class FieldController extends Controller {
             return redirect('projects/'.$pid.'/forms/'.$fid.'/fields')->with('k3_global_error', 'cant_create_field');
 
 		$form = FormController::getForm($fid);
-        return view('fields.create', compact('form','rootPage'));
+		$validFieldTypes = Field::$validFieldTypes;
+        $validComboListFieldTypes = ComboListField::$validComboListFieldTypes;
+
+        return view('fields.create', compact('form','rootPage', 'validFieldTypes', 'validComboListFieldTypes'));
 	}
 
     /**
