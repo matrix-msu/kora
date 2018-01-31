@@ -34,7 +34,7 @@
 
     <div class="form-group half pl-m">
         {!! Form::label('cfname1','Combo List Field Name 1: ') !!}
-        {!! Form::text('cfname1', null, ['class' => 'text-input', 'placeholder' => 'Enter the combo list sub-field name here']) !!}
+        {!! Form::text('cfname1', null, ['class' => 'text-input', 'placeholder' => 'Enter the combo list field name 1 here']) !!}
     </div>
 
     <section class="mt-xl">
@@ -44,7 +44,7 @@
         </div>
         <div class="form-group half pl-m">
             {!! Form::label('cfname2','Combo List Field Name 2: ') !!}
-            {!! Form::text('cfname2', null, ['class' => 'text-input', 'placeholder' => 'Enter the combo list sub-field name here']) !!}
+            {!! Form::text('cfname2', null, ['class' => 'text-input', 'placeholder' => 'Enter the combo list field name 2 here']) !!}
         </div>
     </section>
 </section>
