@@ -4,6 +4,16 @@ Kora.FormAssociations = Kora.FormAssociations || {};
 Kora.FormAssociations.Index = function() {
   var self = Kora.FormAssociations.Index;
 
+  /**
+   * Request association permissions for another group
+   * 
+   */
+  self.requestPermissions = function() {
+    $.ajax({
+
+    });
+  }
+
   function initializePermissionsToggles() {
     $('.toggle-by-name').click(function(e) {
       e.preventDefault();
@@ -38,13 +48,38 @@ Kora.FormAssociations.Index = function() {
         }
       }
 
-      $('.add-association-submit-js').click(submitAssociation())
+      $('.add-association-submit-js').click(submitAssociation());
       
       Kora.Modal.open($newPermissionsModal);
+    });
+  }
+
+  function initializeRequestPermissionModal() {
+    $('.request-permission-js').click(function(e) {
+      e.preventDefault();
+
+      $requestPermissionsModal = $('.request-permission-modal-js');
+      $requestPermissionsModal.find('.single-select').chosen({
+        width: '100%'
+      });
+
+      var submitAssociation = function() {
+        return function(e) {
+          e.preventDefault();
+
+          // self.requestPermissions();
+          Kora.Modal.close($requestPermissionsModal);
+        }
+      }
+
+      $('.request-association-submit-js').click(submitAssociation());
+
+      Kora.Modal.open($requestPermissionsModal);
     });
   }
 
   Kora.Modal.initialize();
   initializePermissionsToggles();
   initializeNewPermissionModal();
+  initializeRequestPermissionModal();
 }
