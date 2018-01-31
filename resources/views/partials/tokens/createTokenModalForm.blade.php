@@ -1,6 +1,6 @@
 <input type="hidden" name="_token" value="{{csrf_token()}}">
 
-<div class="form-group mt-xl">
+<div class="form-group mt-xxs">
     <label for="token_name">Token Name</label>
     <input class="text-input" placeholder="Enter the name of the new here" type="text" id="token_name" name="token_name" value="">
 </div>
@@ -65,6 +65,6 @@
     </div>
 </div>
 
-<div class="form-group mt-xl">
+<div class="form-group mt-xxl">
     {!! Form::submit('Create Token',['class' => 'btn']) !!}
 </div>

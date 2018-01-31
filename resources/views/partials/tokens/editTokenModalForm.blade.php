@@ -1,7 +1,7 @@
 <input type="hidden" name="_token" value="{{csrf_token()}}">
 <input id="token_edit_modal_id" type="hidden" name="token" value="">
 
-<div class="form-group mt-xl">
+<div class="form-group mt-xxs">
     <label for="token_name">Token Name</label>
     <input class="text-input" placeholder="Enter the name of the new here" type="text" id="token_edit_modal_name" name="token_name" value="">
 </div>
@@ -56,6 +56,6 @@
     </div>
 </div>
 
-<div class="form-group mt-xl">
+<div class="form-group">
     {!! Form::submit('Edit Token',['class' => 'btn']) !!}
 </div>

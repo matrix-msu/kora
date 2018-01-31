@@ -6,6 +6,6 @@
     Are you sure you want to delete this Token?
 </div>
 
-<div class="form-group mt-xl">
+<div class="form-group">
     {!! Form::submit('Delete Token',['class' => 'btn warning']) !!}
 </div>
