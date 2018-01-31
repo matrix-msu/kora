@@ -1,7 +1,7 @@
 <input type="hidden" name="_token" value="{{csrf_token()}}">
 
 <!-- Section 1 -->
-<div id="install-section-database">
+<section class="database-section">
     <div class="section-title">Database Setup</div>
 
     <div class="section-desc mt-m">
@@ -44,10 +44,10 @@
         <label for="db_prefix">Prefix</label>
         <input class="text-input" placeholder="Enter the prefix here" type="text" id="db_prefix" name="db_prefix" value="{{'kora3_'}}">
     </div>
-</div>
+</section>
 
 <!-- Section 2 -->
-<div id="install-section-adminuser">
+<section class="admin-section hidden">
     <div class="section-title">Admin User Setup</div>
 
     <div class="section-desc mt-m">
@@ -109,10 +109,10 @@
             </select>
         </div>
     </div>
-</div>
+</section>
 
 <!-- Section 3 -->
-<div id="install-section-mailserver">
+<section class="mail-section hidden">
     <div class="section-title">Mail Server Setup</div>
 
     <div class="section-desc mt-m">
@@ -143,10 +143,10 @@
         <label for="mail_password">Password</label>
         <input class="text-input" placeholder="Enter the mail server password here" type="password" id="mail_password" name="mail_password">
     </div>
-</div>
+</section>
 
 <!-- Section 4 -->
-<div id="install-section-recaptcha">
+<section class="recaptcha-section hidden">
     <div class="section-title">Recaptcha Setup</div>
 
     <div class="section-desc mt-m">
@@ -162,10 +162,10 @@
         <label for="recaptcha_private_key">Private Key</label>
         <input class="text-input" placeholder="Enter the recaptcha private key here" type="text" id="recaptcha_private_key" name="recaptcha_private_key" value="{{old('recaptcha_private_key')}}">
     </div>
-</div>
+</section>
 
 <!-- Section 5 -->
-<div id="install-section-base">
+<section class="base-section hidden">
     <div class="section-title">Base Setup</div>
 
     <div class="section-desc mt-m">
@@ -199,4 +199,4 @@
     <div class="form-group mt-xxl">
         <button id="install_submit" type="button" class="btn btn-primary">Complete Kora Initialization</button>
     </div>
-</div>
+</section>
