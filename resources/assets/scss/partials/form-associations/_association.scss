@@ -23,8 +23,8 @@
     }
   }
 
-  @import 'group/users';
-  @import 'group/footer';
+  @import 'association/description';
+  @import 'association/footer';
 }
 
 @media screen and (max-width: $max-mobile-med-width) {

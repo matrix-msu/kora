@@ -1,9 +1,10 @@
 .footer {
   // margin-top: 30px;
+  min-height: 50px;
 
   .trash-container {
     padding-right: 15px;
-    padding-top: 35px;
+    padding-top: 15px;
 
     .icon-trash {
       color: palette('red', base);

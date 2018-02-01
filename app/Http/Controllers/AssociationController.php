@@ -50,13 +50,13 @@ class AssociationController extends Controller {
 		//Associations to this form
 		$assocs = self::getAllowedAssociations($fid);
 		//Create an array of fids of those associations
-		$associds = array();
+		$associatedForms = array();
 		foreach($assocs as $a) {
-			array_push($associds,$a->assocForm);
+			array_push($associatedForms, FormController::getForm($a->assocForm));
         }
         $available_associations = self::getAvailableAssociations($fid);
         $requestable_associations = self::getRequestableAssociations($fid);
-		return view('association.index', compact('form', 'assocs', 'associds', 'project', 'available_associations', 'requestable_associations'));
+		return view('association.index', compact('form', 'assocs', 'associatedForms', 'project', 'available_associations', 'requestable_associations'));
 	}
 
     /**
@@ -196,9 +196,9 @@ class AssociationController extends Controller {
         //Associations to this form
         $assocs = self::getAllowedAssociations($fid);
         //Create an array of fids of those associations
-        $associds = array();
+        $associatedForms = array();
         foreach($assocs as $a) {
-            array_push($associds,$a->assocForm);
+            array_push($associatedForms,$a->assocForm);
         }
         //FIX THIS//
         flash()->overlay("Request for access successfully sent.", "Success!");

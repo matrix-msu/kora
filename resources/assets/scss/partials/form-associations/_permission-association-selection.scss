@@ -1,7 +1,8 @@
-.permission-group-selection {
+.permission-association-selection {
   background: none;
   margin: auto;
   max-width: calc(#{ $max-site-width } - 600px);
+  padding: 40px 0;
   width: $max-site-width;
 
   .header {
@@ -15,7 +16,13 @@
     }
   }
 
-  .group {
-    @import 'group';
+  >.description {
+    color: palette('gray', text);
+    font-size: 14px;
+    margin: 20px 0;
+  }
+
+  .association {
+    @import 'association';
   }
 }
