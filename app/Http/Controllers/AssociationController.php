@@ -54,9 +54,10 @@ class AssociationController extends Controller {
 		foreach($assocs as $a) {
 			array_push($associatedForms, FormController::getForm($a->assocForm));
         }
+        $associatable_forms = Form::all();
         $available_associations = self::getAvailableAssociations($fid);
         $requestable_associations = self::getRequestableAssociations($fid);
-		return view('association.index', compact('form', 'assocs', 'associatedForms', 'project', 'available_associations', 'requestable_associations'));
+		return view('association.index', compact('form', 'assocs', 'associatedForms', 'project', 'available_associations', 'requestable_associations', 'associatable_forms'));
 	}
 
     /**
@@ -72,7 +73,9 @@ class AssociationController extends Controller {
 		$assoc = new Association();
 		$assoc->dataForm = $fid;
 		$assoc->assocForm = $assocFormID;
-		$assoc->save();
+        $assoc->save();
+        
+        return response()->json(['k3_global_success' => 'assoc_access_requested']);
 	}
 
     /**

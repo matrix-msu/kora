@@ -23,6 +23,20 @@ Kora.FormAssociations.Index = function() {
     });
   }
 
+  self.createPermissions = function(assocfid) {
+    $.ajax({
+      url: createAssociationPath,
+      type: 'POST',
+      data: {
+        "_token": CSRFToken,
+        "assocfid": assocfid
+      },
+      success: function() {
+        Kora.Modal.close();
+      }
+    });
+  }
+
   function initializePermissionsToggles() {
     $('.toggle-by-name').click(function(e) {
       e.preventDefault();
@@ -97,6 +111,12 @@ Kora.FormAssociations.Index = function() {
       var submitAssociation = function() {
         return function(e) {
           e.preventDefault();
+          var assocFormID = $(this).siblings('.form-group').children('select').val();
+          if (assocFormID !== "") {
+            self.createPermissions(assocFormID);
+          } else {
+            // inform user that the field is required
+          }
         }
       }
 
@@ -118,7 +138,7 @@ Kora.FormAssociations.Index = function() {
       var submitAssociation = function() {
         return function(e) {
           e.preventDefault();
-          var rfid = $(this).siblings('.form-group').children('select').val()
+          var rfid = $(this).siblings('.form-group').children('select').val();
           if (rfid !== "") {
             self.requestPermissions(rfid);
           } else {
