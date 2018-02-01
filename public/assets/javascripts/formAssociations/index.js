@@ -7,10 +7,19 @@ Kora.FormAssociations.Index = function() {
   /**
    * Request association permissions for another group
    * 
+   * @param rfid {int} The form id being requested.
    */
-  self.requestPermissions = function() {
+  self.requestPermissions = function(rfid) {
     $.ajax({
-
+      url: requestAssociationPath,
+      type: 'POST',
+      data: {
+        "_token": CSRFToken,
+        "rfid": rfid
+      },
+      success: function() {
+        Kora.Modal.close();
+      }
     });
   }
 
@@ -66,9 +75,12 @@ Kora.FormAssociations.Index = function() {
       var submitAssociation = function() {
         return function(e) {
           e.preventDefault();
-
-          // self.requestPermissions();
-          Kora.Modal.close($requestPermissionsModal);
+          var rfid = $(this).siblings('.form-group').children('select').val()
+          if (rfid !== "") {
+            self.requestPermissions(rfid);
+          } else {
+            // inform user that the field is required
+          }
         }
       }
 
