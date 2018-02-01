@@ -28,5 +28,22 @@
         transform: scale($transform-scale-multiplier);
       }
     }
+
+    a {
+      .icon-cancel-circle {
+        @include transition();
+
+        display: inline-block;
+        font-size: 14px;
+        margin: 0 5px 0 0;
+        padding: 3px 0 #{ $underline-padding };
+        vertical-align: middle;
+        will-change: transform;
+      }
+
+      &:hover .icon-cancel-circle {
+        transform: scale($transform-scale-multiplier);
+      }
+    }
   }
 }

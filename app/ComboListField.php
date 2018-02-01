@@ -42,6 +42,15 @@ class ComboListField extends BaseField {
     ];
 
     /**
+     * @var array - This is an array of combo list field type values for creation
+     */
+    static public $validComboListFieldTypes = [
+        'Text Fields' => array('Text' => 'Text', 'Number' => 'Number'),
+        'List Fields' => array('List' => 'List', 'Multi-Select List' => 'Multi-Select List', 'Generated List' => 'Generated List'),
+        'Other' => array('Associator' => 'Associator')
+    ];
+
+    /**
      * Get the field options view.
      *
      * @return string - The view

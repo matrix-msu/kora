@@ -752,11 +752,9 @@ class ExodusHelperController extends Controller {
                             $kids = (array)simplexml_load_string($value)->kid;
 
                             $aid = DB::table('associator_fields')->insertGetId([
-                                [
-                                    'rid' => $recModel->rid,
-                                    'fid' => $recModel->fid,
-                                    'flid' => $field->flid
-                                ]
+                                'rid' => $recModel->rid,
+                                'fid' => $recModel->fid,
+                                'flid' => $field->flid
                             ]);
 
                             //We want to save the Typed Field that will have the data eventually, matched to its values in Kora 2 KID form

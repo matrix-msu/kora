@@ -43,7 +43,10 @@ class FieldController extends Controller {
             return redirect('projects/'.$pid.'/forms/'.$fid.'/fields')->with('k3_global_error', 'cant_create_field');
 
 		$form = FormController::getForm($fid);
-        return view('fields.create', compact('form','rootPage'));
+		$validFieldTypes = Field::$validFieldTypes;
+        $validComboListFieldTypes = ComboListField::$validComboListFieldTypes;
+
+        return view('fields.create', compact('form','rootPage', 'validFieldTypes', 'validComboListFieldTypes'));
 	}
 
     /**
@@ -118,50 +121,44 @@ class FieldController extends Controller {
 	}
 
     /**
-     * Get the edit view for a field.
+     * DEPRECATED - We are no longer editing the field separate from it's options. Therefore the options page above
+     *               will be the main edit view. This view will simply bounce to the options page
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @param  int $flid - Field ID
-     * @return View
+     * @return Redirect
      */
 	public function edit($pid, $fid, $flid) {
-        if(!self::validProjFormField($pid, $fid, $flid))
-            return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'field_invalid');
-
-        if(!self::checkPermissions($fid, 'edit'))
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields')->with('k3_global_error', 'cant_edit_field');
-
-        $field = self::getField($flid);
-
-        return view('fields.edit', compact('field', 'fid', 'pid','presets'));
+        return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
 	}
 
     /**
-     * Update a field's information.
+     * Update the options for a particular field.
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @param  int $flid - Field ID
      * @param  FieldRequest $request
-     * @return View
+     * @return Redirect
      */
-	public function update($pid, $fid, $flid, FieldRequest $request) {
+    public function update($pid, $fid, $flid, FieldRequest $request){
         if(!self::validProjFormField($pid, $fid, $flid))
             return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'field_invalid');
 
-        if(!self::checkPermissions($fid, 'edit'))
-            return redirect('projects/'.$pid.'/forms/'.$fid.'/fields')->with('k3_global_error', 'cant_edit_field');
+        $field = self::getField($flid);
 
-		$field = self::getField($flid);
+        $field->name = $request->name;
+        $field->slug = $request->slug;
+        $field->desc = $request->desc;
 
-        $field->update($request->all());
+        $field->save();
 
         //A field has been changed, so current record rollbacks become invalid.
         RevisionController::wipeRollbacks($fid);
 
-        return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_success', 'field_updated');
-	}
+        return $field->getTypedField()->updateOptions($field, $request);
+    }
 
     /**
      * Update the options for a particular field.
