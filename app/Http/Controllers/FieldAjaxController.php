@@ -133,21 +133,4 @@ class FieldAjaxController extends Controller {
 
         return view(Field::getTypedFieldStatic($type)->getAdvancedFieldOptionsView(), compact('field', 'form', 'proj','presets'));
     }
-
-    /**
-     * Update the options for a particular field.
-     *
-     * @param  int $pid - Project ID
-     * @param  int $fid - Form ID
-     * @param  int $flid - Field ID
-     * @param  Request $request
-     * @return Redirect
-     */
-    public function updateOptions($pid, $fid, $flid, Request $request){
-        if(!FieldController::validProjFormField($pid, $fid, $flid))
-            return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'field_invalid');
-
-        $field = FieldController::getField($flid);
-        return $field->getTypedField()->updateOptions($field, $request);
-    }
 }

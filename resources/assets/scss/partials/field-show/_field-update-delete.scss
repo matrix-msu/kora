@@ -1,0 +1,21 @@
+.field-update-button {
+  height: 65px;
+  margin: 100px auto 85px;
+  padding: 0;
+
+  .update-field-submit {
+    margin: 0 auto 15px;
+  }
+}
+
+.field-cleanup {
+  text-align: center;
+
+  .dot-btn {
+    display: inline-block;
+
+    .icon {
+      margin-left: 1px;
+    }
+  }
+}

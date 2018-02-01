@@ -25,7 +25,7 @@
 @section('body')
     <section class="create-field center">
         {!! Form::model($field = new \App\Field, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid,'onsubmit' => 'selectAll()']) !!}
-        @include('partials.fields.form', ['submitButtonText' => 'Create Field', 'pid' => $form->pid, 'fid' => $form->fid, 'type' => 'create'])
+        @include('partials.fields.form', ['submitButtonText' => 'Create Field', 'pid' => $form->pid, 'fid' => $form->fid])
         {!! Form::close() !!}
     </section>
 @stop

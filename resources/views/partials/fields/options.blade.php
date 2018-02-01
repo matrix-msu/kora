@@ -1,60 +1,34 @@
-{!! Form::hidden('pid',$pid) !!}
-{!! Form::hidden('fid',$fid) !!}
-{!! Form::hidden('page_id',$rootPage) !!}
+{!! Form::hidden('pid',$field->pid) !!}
+{!! Form::hidden('fid',$field->fid) !!}
+{!! Form::hidden('type',$field->type) !!}
+{!! Form::hidden('name',$field->name) !!}
+{!! Form::hidden('desc',$field->desc) !!}
 
 <div class="form-group">
     {!! Form::label('name', 'Field Name') !!}
-    {!! Form::text('name', null, ['class' => 'text-input', 'placeholder' => 'Enter the field name here', 'autofocus']) !!}
+    {!! Form::text('name', $field->name, ['class' => 'text-input', 'placeholder' => 'Enter the field name here', 'autofocus']) !!}
 </div>
 
 <div class="form-group mt-xl">
     {!! Form::label('slug', 'Unique Form Identifier') !!}
-    {!! Form::text('slug', null, ['class' => 'text-input', 'placeholder' => "Enter the field's unique ID here (no spaces, alpha-numeric values only)"]) !!}
+    {!! Form::text('slug', $field->slug, ['class' => 'text-input', 'placeholder' => "Enter the field's unique ID here (no spaces, alpha-numeric values only)"]) !!}
 </div>
 
 <div class="form-group mt-xl">
     {!! Form::label('desc', 'Description') !!}
-    {!! Form::textarea('desc', null, ['class' => 'text-area', 'placeholder' => "Enter the field's description here (max. 500 characters)"]) !!}
+    {!! Form::textarea('desc', $field->desc, ['class' => 'text-area', 'placeholder' => "Enter the field's description here (max. 500 characters)"]) !!}
+
+    <div class="spacer"></div>
 </div>
 
-<div class="form-group mt-xl">
-    {!! Form::label('type','Field Type: ') !!}
-    {!! Form::select('type', $validFieldTypes, null,['class' => 'single-select field-types-js']) !!}
-</div>
-
-<section class="hidden mt-xl combo-list-form-js">
-    <div class="form-group half pr-m">
-        {!! Form::label('cftype1','Combo List Field Type 1: ') !!}
-        {!! Form::select('cftype1', $validComboListFieldTypes, null,['class' => 'single-select']) !!}
-    </div>
-
-    <div class="form-group half pl-m">
-        {!! Form::label('cfname1','Combo List Field Name 1: ') !!}
-        {!! Form::text('cfname1', null, ['class' => 'text-input', 'placeholder' => 'Enter the combo list field name 1 here']) !!}
-    </div>
-
-    <section class="mt-xl">
-        <div class="form-group half pr-m">
-            {!! Form::label('cftype2','Combo List Field Type 2: ') !!}
-            {!! Form::select('cftype2', $validComboListFieldTypes, null,['class' => 'single-select']) !!}
-        </div>
-        <div class="form-group half pl-m">
-            {!! Form::label('cfname2','Combo List Field Name 2: ') !!}
-            {!! Form::text('cfname2', null, ['class' => 'text-input', 'placeholder' => 'Enter the combo list field name 2 here']) !!}
-        </div>
-    </section>
-</section>
-
-<div id="advance_options_div">
-    <div class="form-group mt-xxxl">
-        <button type="button" id="adv_opt" class="btn form-control">Show Advanced Field Options</button>
-    </div>
-</div>
+@yield('fieldOptions')
 
 <div class="form-group mt-xxxl">
+    <div class="spacer"></div>
+
     <label for="required">Required?</label>
     <div class="check-box">
-        <input type="checkbox" value="1" id="preset" class="check-box-input" name="required" />
+        <input type="checkbox" value="1" id="preset" class="check-box-input" name="required" {{$field->required ? 'checked': ''}} />
         <div class="check-box-background"></div>
         <span class="check"></span>
         <span class="placeholder">Select to set the field as required</span>
@@ -69,7 +43,7 @@
 <div class="form-group mt-xl">
     <label for="searchable">Searchable?</label>
     <div class="check-box">
-        <input type="checkbox" value="1" id="preset" class="check-box-input" name="searchable" />
+        <input type="checkbox" value="1" id="preset" class="check-box-input" name="searchable" {{$field->searchable ? 'checked': ''}} />
         <div class="check-box-background"></div>
         <span class="check"></span>
         <span class="placeholder">Select to set the field as searchable</span>
@@ -84,7 +58,7 @@
 <div class="form-group mt-xl">
     <label for="extsearch">Externally Searchable?</label>
     <div class="check-box">
-        <input type="checkbox" value="1" id="preset" class="check-box-input" name="extsearch" />
+        <input type="checkbox" value="1" id="preset" class="check-box-input" name="extsearch" {{$field->extsearch ? 'checked': ''}} />
         <div class="check-box-background"></div>
         <span class="check"></span>
         <span class="placeholder">Select to set the field as externally searchable</span>
@@ -99,7 +73,7 @@
 <div class="form-group mt-xl">
     <label for="viewable">Viewable?</label>
     <div class="check-box">
-        <input type="checkbox" value="1" id="preset" class="check-box-input" name="viewable" />
+        <input type="checkbox" value="1" id="preset" class="check-box-input" name="viewable" {{$field->viewable ? 'checked': ''}} />
         <div class="check-box-background"></div>
         <span class="check"></span>
         <span class="placeholder">Select to set the field as viewable</span>
@@ -114,7 +88,7 @@
 <div class="form-group mt-xl">
     <label for="viewresults">Viewable in Results?</label>
     <div class="check-box">
-        <input type="checkbox" value="1" id="preset" class="check-box-input" name="viewresults" />
+        <input type="checkbox" value="1" id="preset" class="check-box-input" name="viewresults" {{$field->viewresults ? 'checked': ''}} />
         <div class="check-box-background"></div>
         <span class="check"></span>
         <span class="placeholder">Select to set the field as viewable in results</span>
@@ -129,7 +103,7 @@
 <div class="form-group mt-xl">
     <label for="extview">Externally Viewable?</label>
     <div class="check-box">
-        <input type="checkbox" value="1" id="preset" class="check-box-input" name="extview" />
+        <input type="checkbox" value="1" id="preset" class="check-box-input" name="extview" {{$field->extview ? 'checked': ''}} />
         <div class="check-box-background"></div>
         <span class="check"></span>
         <span class="placeholder">Select to set the field as externally viewable</span>
@@ -139,13 +113,18 @@
     <p class="sub-text mt-sm">
         Data in this field will be shown in all searches, outside of Kora, containing records belonging to this form
     </p>
+
+    <div class="spacer"></div>
 </div>
 
-<div class="form-group mt-xxxl mb-max">
-    {!! Form::submit($submitButtonText,['class' => 'btn']) !!}
+<div class="form-group field-update-button">
+    {!! Form::submit('Update Field',['class' => 'btn edit-btn update-field-submit pre-fixed-js']) !!}
 </div>
 
-<script>
-
-
-</script>
+<div class="form-group">
+    <div class="field-cleanup">
+        <a class="btn dot-btn trash warning field-trash-js" data-title="Delete Field?" href="#">
+            <i class="icon icon-trash"></i>
+        </a>
+    </div>
+</div>
