@@ -486,7 +486,8 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
 
     curl_close($curl);
 
-    return json_decode($result,true);
+    $result = json_decode($result,true);
+    return $result['records'][0];
 }
 
 function fieldMapper($name, $pid, $fid) {
