@@ -34,6 +34,37 @@
                 </form>
             @endif
         </section>
+
+        <section class="permission-association-selection center permission-association-js">
+            <p class="description">The following forms are allowed to associate with this form and can search within:</p>
+            @foreach ($associatedForms as $index=>$form)
+                <div class="association association-js card {{ $index == 0 ? 'active' : '' }}" id="{{$form->id}}">
+                    <div class="header {{ $index == 0 ? 'active' : '' }}">
+                        <div class="left pl-m">
+                            <a class="title association-toggle-by-name-js" href="#">
+                                <span class="name name-js">{{ str_replace($form->project()->get()->first()->name." ", "", $form->name) }}</span>
+                            </a>
+                        </div>
+
+                        <div class="card-toggle-wrap">
+                            <a href="#" class="card-toggle association-toggle-js">
+                                <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
+                        <div class="description">
+                            <p>{{ $form->description }}</p>
+                        </div>
+                        <div class="footer">
+                            <a class="quick-action trash-container delete-permission-association-js left" href="#" data-form="{{$form->fid}}">
+                                <i class="icon icon-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </section>
         
     </section>
     <section class="request-section hidden">
@@ -60,12 +91,7 @@
                         <div id="form_select">{{trans('association_index.forms')}}:
                             <select id="selected_assoc">
                                 @foreach(\App\Form::all() as $f)
-                                    @if(!in_array($f->fid,$associds) && $f->fid != $form->fid)
-                                        <?php
-                                        $p = \App\Http\Controllers\ProjectController::getProject($f->pid);
-                                        ?>
-                                        <option value="{{$f->fid}}">{{$p->name}} | {{$f->name}}</option>
-                                    @endif
+                                
                                 @endforeach
                             </select>
                             <button id="add_assoc" class="btn btn-primary">{{trans('association_index.addallowed')}}</button>

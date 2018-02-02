@@ -13,8 +13,10 @@
           <select class="single-select" id="form" name="assocfid"
             data-placeholder="Select a form here">
             <option></option>
-            @foreach ($available_associations as $association)
-              <option value="{{$association->fid}}">{{$association->name}}</option>
+            @foreach ($associatable_forms as $association)
+              @if (!in_array($association, $associatedForms))
+                <option value="{{$association->fid}}">{{$association->name}}</option>
+              @endif
             @endforeach
           </select>
         </div>

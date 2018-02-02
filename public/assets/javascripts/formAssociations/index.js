@@ -23,6 +23,20 @@ Kora.FormAssociations.Index = function() {
     });
   }
 
+  self.createPermissions = function(assocfid) {
+    $.ajax({
+      url: createAssociationPath,
+      type: 'POST',
+      data: {
+        "_token": CSRFToken,
+        "assocfid": assocfid
+      },
+      success: function() {
+        Kora.Modal.close();
+      }
+    });
+  }
+
   function initializePermissionsToggles() {
     $('.toggle-by-name').click(function(e) {
       e.preventDefault();
@@ -40,6 +54,49 @@ Kora.FormAssociations.Index = function() {
         $('.request-section').addClass('hidden');
       }
     });
+
+    $('.association-toggle-by-name').click(function(e) {
+      e.preventDefault();
+
+      var $this = $(this);
+      var $cardToggle = $this.parent().next();
+      $cardToggle.children.click();
+    });
+
+    $('.association-toggle-js').click(function(e) {
+      e.preventDefault();
+
+      var $this = $(this);
+      var $header = $this.parent().parent();
+      var $form = $header.parent();
+      var $content = $header.next();
+
+      $this.children().toggleClass('active');
+      $form.toggleClass('active');
+      if ($form.hasClass('active')) {
+        $header.addClass('active');
+        $form.animate({
+          height: $form.height() + $content.outerHeight(true) + 'px'
+        }, 230);
+        $content.effect('slide', {
+          direction: 'up',
+          mode: 'show',
+          duration: 240
+        });
+      } else {
+        $form.animate({
+          height: '58px'
+        }, 230, function() {
+          $header.hasClass('active') ? $header.removeClass('active') : null;
+          $content.hasClass('active') ? $content.removeClass('active') : null;
+        });
+        $content.effect('slide', {
+          direction: 'up',
+          mode: 'hide',
+          duration: 240
+        });
+      }
+    });
   }
 
   function initializeNewPermissionModal() {
@@ -54,6 +111,12 @@ Kora.FormAssociations.Index = function() {
       var submitAssociation = function() {
         return function(e) {
           e.preventDefault();
+          var assocFormID = $(this).siblings('.form-group').children('select').val();
+          if (assocFormID !== "") {
+            self.createPermissions(assocFormID);
+          } else {
+            // inform user that the field is required
+          }
         }
       }
 
@@ -75,7 +138,7 @@ Kora.FormAssociations.Index = function() {
       var submitAssociation = function() {
         return function(e) {
           e.preventDefault();
-          var rfid = $(this).siblings('.form-group').children('select').val()
+          var rfid = $(this).siblings('.form-group').children('select').val();
           if (rfid !== "") {
             self.requestPermissions(rfid);
           } else {
