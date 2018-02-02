@@ -9,6 +9,7 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 
 class ComboListField extends BaseField {
 
@@ -28,7 +29,7 @@ class ComboListField extends BaseField {
     /**
      * @var string - Views for the typed field options
      */
-    const FIELD_OPTIONS_VIEW = "fields.options.combolist";
+    const FIELD_OPTIONS_VIEW = "partials.fields.options.combolist";
     const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.combolist";
 
     /**
@@ -111,10 +112,9 @@ class ComboListField extends BaseField {
      *
      * @param  Field $field - Field to update options
      * @param  Request $request
-     * @param  bool $return - Are we returning an error by string or redirect
-     * @return mixed - The result
+     * @return Redirect
      */
-    public function updateOptions($field, Request $request, $return=true) {
+    public function updateOptions($field, Request $request) {
         $flopt_one ='[Type]'.$request->typeone.'[Type][Name]'.$request->nameone.'[Name]';
         $flopt_one .= $this->formatUpdatedSubOptions($request,"one",$field->fid);
 
@@ -139,12 +139,8 @@ class ComboListField extends BaseField {
         $field->updateOptions('Field1', $flopt_one);
         $field->updateOptions('Field2', $flopt_two);
 
-        if($return) {
-            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
-                ->with('k3_global_success', 'field_options_updated');
-        } else {
-            return response()->json(["status"=>true,"message"=>"field_options_updated"],200);
-        }
+        return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+            ->with('k3_global_success', 'field_options_updated');
     }
 
     /**

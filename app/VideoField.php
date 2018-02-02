@@ -3,6 +3,7 @@
 use App\Http\Controllers\FieldController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 
 class VideoField extends FileTypeField {
 
@@ -18,7 +19,7 @@ class VideoField extends FileTypeField {
     /**
      * @var string - Views for the typed field options
      */
-    const FIELD_OPTIONS_VIEW = "fields.options.video";
+    const FIELD_OPTIONS_VIEW = "partials.fields.options.video";
     const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.video";
 
     /**
@@ -63,10 +64,9 @@ class VideoField extends FileTypeField {
      *
      * @param  Field $field - Field to update options
      * @param  Request $request
-     * @param  bool $return - Are we returning an error by string or redirect
-     * @return mixed - The result
+     * @return Redirect
      */
-    public function updateOptions($field, Request $request, $return=true) {
+    public function updateOptions($field, Request $request) {
         $filetype = $request->filetype[0];
         for($i=1;$i<sizeof($request->filetype);$i++) {
             $filetype .= '[!]'.$request->filetype[$i];
@@ -84,12 +84,8 @@ class VideoField extends FileTypeField {
         $field->updateOptions('MaxFiles', $request->maxfiles);
         $field->updateOptions('FileTypes', $filetype);
 
-        if($return) {
-            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
-                ->with('k3_global_success', 'field_options_updated');
-        } else {
-            return response()->json(["status"=>true,"message"=>"field_options_updated"],200);
-        }
+        return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+            ->with('k3_global_success', 'field_options_updated');
     }
 
     /**

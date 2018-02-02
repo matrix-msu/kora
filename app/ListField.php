@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 
 class ListField extends BaseField {
 
@@ -21,7 +22,7 @@ class ListField extends BaseField {
     /**
      * @var string - Views for the typed field options
      */
-    const FIELD_OPTIONS_VIEW = "fields.options.list";
+    const FIELD_OPTIONS_VIEW = "partials.fields.options.list";
     const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.list";
 
     /**
@@ -66,10 +67,9 @@ class ListField extends BaseField {
      *
      * @param  Field $field - Field to update options
      * @param  Request $request
-     * @param  bool $return - Are we returning an error by string or redirect
-     * @return mixed - The result
+     * @return Redirect
      */
-    public function updateOptions($field, Request $request, $return=true) {
+    public function updateOptions($field, Request $request) {
         $reqOpts = $request->options;
         $options = $reqOpts[0];
         for($i=1;$i<sizeof($reqOpts);$i++) {
@@ -81,12 +81,8 @@ class ListField extends BaseField {
         $field->updateDefault($request->default);
         $field->updateOptions('Options', $options);
 
-        if($return) {
-            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
-                ->with('k3_global_success', 'field_options_updated');
-        } else {
-            return response()->json(["status"=>true,"message"=>"field_options_updated"],200);
-        }
+        return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+            ->with('k3_global_success', 'field_options_updated');
     }
 
     /**

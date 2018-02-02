@@ -7,6 +7,7 @@ use DateTime;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 
 class DateField extends BaseField {
 
@@ -22,7 +23,7 @@ class DateField extends BaseField {
     /**
      * @var string - Views for the typed field options
      */
-    const FIELD_OPTIONS_VIEW = "fields.options.date";
+    const FIELD_OPTIONS_VIEW = "partials.fields.options.date";
     const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.date";
 
     /**
@@ -116,20 +117,14 @@ class DateField extends BaseField {
      *
      * @param  Field $field - Field to update options
      * @param  Request $request
-     * @param  bool $return - Are we returning an error by string or redirect
-     * @return mixed - The result
+     * @return Redirect
      */
-    public function updateOptions($field, Request $request, $return=true) {
+    public function updateOptions($field, Request $request) {
         if(DateField::validateDate($request->default_month,$request->default_day,$request->default_year)) {
             $default = '[M]' . $request->default_month . '[M][D]' . $request->default_day . '[D][Y]' . $request->default_year . '[Y]';
         } else {
-            if($return) {
-                return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
-                    ->withInput()->with('k3_global_error', 'default_invalid_date');
-            } else {
-                $default = '';
-                return response()->json(["status"=>false,"message"=>"default_invalid_date"],500);
-            }
+            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+                ->withInput()->with('k3_global_error', 'default_invalid_date');
         }
 
         if($request->start=='' | $request->start==0)
@@ -147,12 +142,8 @@ class DateField extends BaseField {
         $field->updateOptions('Circa', $request->circa);
         $field->updateOptions('Era', $request->era);
 
-        if($return) {
-            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
-                ->with('k3_global_success', 'field_options_updated');
-        } else {
-            return response()->json(["status"=>true,"message"=>"field_options_updated"],200);
-        }
+        return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+            ->with('k3_global_success', 'field_options_updated');
     }
 
     /**

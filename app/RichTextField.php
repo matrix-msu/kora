@@ -4,6 +4,7 @@ use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 
 class RichTextField extends BaseField {
 
@@ -19,7 +20,7 @@ class RichTextField extends BaseField {
     /**
      * @var string - Views for the typed field options
      */
-    const FIELD_OPTIONS_VIEW = "fields.options.richtext";
+    const FIELD_OPTIONS_VIEW = "partials.fields.options.richtext";
     const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.richtext";
 
     /**
@@ -65,20 +66,15 @@ class RichTextField extends BaseField {
      *
      * @param  Field $field - Field to update options
      * @param  Request $request
-     * @param  bool $return - Are we returning an error by string or redirect
-     * @return mixed - The result
+     * @return Redirect
      */
-    public function updateOptions($field, Request $request, $return=true) {
+    public function updateOptions($field, Request $request) {
         $field->updateRequired($request->required);
         $field->updateSearchable($request);
         $field->updateDefault($request->default);
 
-        if($return) {
-            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
-                ->with('k3_global_success', 'field_options_updated');
-        } else {
-            return response()->json(["status"=>true,"message"=>"field_options_updated"],200);
-        }
+        return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+            ->with('k3_global_success', 'field_options_updated');
     }
 
     /**

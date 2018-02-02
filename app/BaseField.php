@@ -146,10 +146,9 @@ abstract class BaseField extends Model {
      *
      * @param  Field $field - Field to update options
      * @param  Request $request
-     * @param  bool $return - Are we returning an error by string or redirect
      * @return mixed - The result
      */
-    abstract public function updateOptions($field, Request $request, $return=true);
+    abstract public function updateOptions($field, Request $request);
 
     /**
      * Creates a typed field to store record data.

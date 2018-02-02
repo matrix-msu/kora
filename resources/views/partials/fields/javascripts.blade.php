@@ -5,6 +5,7 @@
   '/assets/javascripts/general/modal.js',
   '/assets/javascripts/fields/create.js',
   '/assets/javascripts/fields/show.js',
+  '/assets/javascripts/fields/options.js',
   '/assets/javascripts/navigation/navigation.js',
   '/assets/javascripts/general/global.js'
 ])->withFullUrl() !!}

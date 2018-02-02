@@ -67,10 +67,9 @@ class TextField extends BaseField {
      *
      * @param  Field $field - Field to update options
      * @param  Request $request
-     * @param  bool $return - Are we returning an error by string or redirect
      * @return Redirect
      */
-    public function updateOptions($field, Request $request, $return=true) {
+    public function updateOptions($field, Request $request) {
         if($request->regex!='') {
             $regArray = str_split($request->regex);
             if($regArray[0]!=end($regArray))
