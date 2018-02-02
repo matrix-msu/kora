@@ -25,6 +25,7 @@
 @section('body')
     @include("partials.formAssociations.newPermissionModal")
     @include("partials.formAssociations.requestPermissionModal")
+    @include("partials.formAssociations.deletePermissionModal")
 
     <section class="create-section">
         <section class="new-object-button center">

@@ -175,8 +175,17 @@ Kora.FormAssociations.Index = function() {
     });
   }
 
+  function initializeDeletePermissionModal() {
+    $('.delete-permission-association-js').click(function (e) {
+      e.preventDefault();
+
+      Kora.Modal.open($('.delete-permission-association-modal-js'));
+    });
+  }
+
   Kora.Modal.initialize();
   initializePermissionsToggles();
   initializeNewPermissionModal();
   initializeRequestPermissionModal();
+  initializeDeletePermissionModal();
 }
