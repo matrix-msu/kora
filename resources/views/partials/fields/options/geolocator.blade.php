@@ -24,5 +24,5 @@
 @stop
 
 @section('fieldOptionsJS')
-
+    Kora.Fields.Options('Geolocator');
 @stop

@@ -3,26 +3,33 @@
 @section('fieldOptions')
     <div class="form-group">
         {!! Form::label('default','Default: ') !!}
-        {!! Form::text('default', $field->default, ['class' => 'text-input', 'placeholder' => 'Enter default value here']) !!}
+        <input type="number" name="default" class="text-input" value="{{ $field->default }}">
     </div>
 
     <div class="form-group mt-xl">
-        {!! Form::label('regex','Regex: ') !!}
-        {!! Form::text('regex', \App\Http\Controllers\FieldController::getFieldOption($field,'Regex'), ['class' => 'text-input', 'placeholder' => 'Enter regular expression pattern here']) !!}
+        {!! Form::label('min','Minimum Value: ') !!}
+        <input type="number" name="min" class="text-input" step="any" id="min"
+            value="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Min") }}">
     </div>
 
     <div class="form-group mt-xl">
-        <label for="multi">Multilined?</label>
-        <div class="check-box">
-            <input type="checkbox" value="1" id="preset" class="check-box-input" name="multi" {{\App\Http\Controllers\FieldController::getFieldOption($field,'MultiLine') ? 'checked': ''}} />
-            <div class="check-box-background"></div>
-            <span class="check"></span>
-            <span class="placeholder">Select to set the field as multilined</span>
-            <span class="placeholder-alt">Field is set to be multilined</span>
-        </div>
+        {!! Form::label('max','Max Value: ') !!}
+        <input type="number" name="max" class="text-input" step="any" id="max"
+            value="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Max") }}">
+    </div>
+
+    <div class="form-group mt-xl">
+        {!! Form::label('inc','Value Increment: ') !!}
+        <input type="number" name="inc" class="text-input" step="any" id="inc"
+            value="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Increment") }}">
+    </div>
+
+    <div class="form-group mt-xl">
+        {!! Form::label('unit','Unit of Measurement: ') !!}
+        {!! Form::text('unit', \App\Http\Controllers\FieldController::getFieldOption($field,'Unit'), ['class' => 'text-input']) !!}
     </div>
 @stop
 
 @section('fieldOptionsJS')
-
+    Kora.Fields.Options('Number');
 @stop
