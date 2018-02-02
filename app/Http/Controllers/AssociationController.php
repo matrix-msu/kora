@@ -75,7 +75,7 @@ class AssociationController extends Controller {
 		$assoc->assocForm = $assocFormID;
         $assoc->save();
         
-        return response()->json(['k3_global_success' => 'assoc_access_requested']);
+        return response()->json(['k3_global_success' => 'assoc_created']);
 	}
 
     /**

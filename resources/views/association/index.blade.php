@@ -37,12 +37,12 @@
 
         <section class="permission-association-selection center permission-association-js">
             <p class="description">The following forms are allowed to associate with this form and can search within:</p>
-            @foreach ($associatedForms as $index=>$form)
-                <div class="association association-js card {{ $index == 0 ? 'active' : '' }}" id="{{$form->id}}">
+            @foreach ($associatedForms as $index=>$f)
+                <div class="association association-js card {{ $index == 0 ? 'active' : '' }}" id="{{$f->id}}">
                     <div class="header {{ $index == 0 ? 'active' : '' }}">
                         <div class="left pl-m">
                             <a class="title association-toggle-by-name-js" href="#">
-                                <span class="name name-js">{{ str_replace($form->project()->get()->first()->name." ", "", $form->name) }}</span>
+                                <span class="name name-js">{{ str_replace($f->project()->get()->first()->name." ", "", $f->name) }}</span>
                             </a>
                         </div>
 
@@ -54,10 +54,10 @@
                     </div>
                     <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
                         <div class="description">
-                            <p>{{ $form->description }}</p>
+                            <p>{{ $f->description }}</p>
                         </div>
                         <div class="footer">
-                            <a class="quick-action trash-container delete-permission-association-js left" href="#" data-form="{{$form->fid}}">
+                            <a class="quick-action trash-container delete-permission-association-js left" href="#" data-form="{{$f->fid}}">
                                 <i class="icon icon-trash"></i>
                             </a>
                         </div>
