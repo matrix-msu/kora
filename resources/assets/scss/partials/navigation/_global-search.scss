@@ -131,8 +131,9 @@
     a {
       @include transition(color);
 
-      color: palette('green', base);
+      color: palette('green', accent);
       display: initial;
+      font-family: $ubuntu-medium;
       font-size: 14px;
       line-height: 0;
 
