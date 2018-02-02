@@ -31,7 +31,29 @@ Kora.FormAssociations.Index = function() {
         "_token": CSRFToken,
         "assocfid": assocfid
       },
-      success: function() {
+      success: function(response) {
+        var element = '<div class="association association-js card" id="' + response.form.fid + '">';
+        element += '<div class="header">';
+        element += '<div class="left pl-m">';
+        element += '<a class="title association-toggle-by-name-js" href="#">';
+        element += '<span class="name name-js">' + response.form.name + '</span>';
+        element += '</a>';
+        element += '</div>';
+        element += '<div class="card-toggle-wrap">'
+        element += '<a href="#" class="card-toggle association-toggle-js">'
+        element += '<i class="icon icon-chevron"></i>'
+        element += '</a></div></div>'
+        element += '<div class="content content-js">'
+        element += '<div class="description">'
+        element += '<p>' + response.form.description + '</p>'
+        element += '</div>'
+        element += '<div class="footer">'
+        element += '<a class="quick-action trash-container delete-permission-association-js left" href="#" data-form="' + response.form.fid + '">'
+        element += '<i class="icon icon-trash"></i>'
+        element += '</a>'
+        element += '</div></div></div>'
+        $('.permission-association-js').append(element);
+        initializePermissionsToggles();
         Kora.Modal.close();
       }
     });
@@ -55,12 +77,12 @@ Kora.FormAssociations.Index = function() {
       }
     });
 
-    $('.association-toggle-by-name').click(function(e) {
+    $('.association-toggle-by-name-js').click(function(e) {
       e.preventDefault();
 
       var $this = $(this);
       var $cardToggle = $this.parent().next();
-      $cardToggle.children.click();
+      $cardToggle.children().click();
     });
 
     $('.association-toggle-js').click(function(e) {
