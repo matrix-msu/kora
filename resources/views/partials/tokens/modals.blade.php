@@ -31,7 +31,7 @@
 </div>
 
 <div class="modal modal-js modal-mask delete-token-modal delete-token-modal-js">
-    <div class="content">
+    <div class="content small">
         <div class="header">
             <span class="title">Delete Token?</span>
             <a href="#" class="modal-toggle modal-toggle-js">
@@ -47,7 +47,7 @@
 </div>
 
 <div class="modal modal-js modal-mask delete-token-project-modal delete-token-project-modal-js">
-    <div class="content">
+    <div class="content small">
         <div class="header">
             <span class="title">Remove Token Project?</span>
             <a href="#" class="modal-toggle modal-toggle-js">

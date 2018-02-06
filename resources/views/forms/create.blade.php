@@ -10,7 +10,6 @@
 @stop
 
 @section('header')
-    {{var_dump($errors)}}
   <section class="head">
       <div class="inner-wrap center">
         <h1 class="title">

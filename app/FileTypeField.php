@@ -187,4 +187,18 @@ abstract class FileTypeField extends BaseField {
                     $types[$out[1][$i]]=$out[1][0];
         return $types;
     }
+
+    /**
+     * Searches standard list of MIME file types. Makes a clean list for html selects.
+     *
+     * @param  array - The MIME types
+     */
+    public static function getMimeTypesClean() {
+        $types=array();
+        foreach(@explode("\n",@file_get_contents('http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types'))as $x)
+            if(isset($x[0])&&$x[0]!=='#'&&preg_match_all('#([^\s]+)#',$x,$out)&&isset($out[1])&&($c=count($out[1]))>1)
+                for($i=1;$i<$c;$i++)
+                    $types[$out[1][0]]=$out[1][0];
+        return $types;
+    }
 }

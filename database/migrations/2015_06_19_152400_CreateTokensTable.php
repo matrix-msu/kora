@@ -31,8 +31,8 @@ class CreateTokensTable extends Migration {
         {
             $table->engine = 'MyISAM';
 
-            $table->integer('project_id')->unsigned()->index();
-            $table->foreign('project_id')->references('pid')->on('projects')->onDelete('cascade');
+            $table->integer('project_pid')->unsigned()->index();
+            $table->foreign('project_pid')->references('pid')->on('projects')->onDelete('cascade');
 
             $table->integer('token_id')->unsigned()->index();
             $table->foreign('token_id')->references('id')->on('tokens')->onDelete('cascade');

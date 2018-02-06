@@ -65,13 +65,13 @@
                              pid="{{$tp->pid}}" token="{{$token->id}}" pname="{{$tp->name}}">
                             <i class="icon icon-cancel-circle"></i></a>
                     </span>
-                    <span class="ml-xs">{{$tp->name}}</span>
+                    <span class="ml-xs tp-title">{{$tp->name}}</span>
                 </div>
             @endforeach
         </div>
 
         <div class="footer">
-            <a class="quick-action left danger delete-token-js" href="#">
+            <a class="quick-action trash-container left danger delete-token-js" href="#">
                 <i class="icon icon-trash"></i>
             </a>
 

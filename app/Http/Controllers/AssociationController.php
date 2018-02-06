@@ -50,12 +50,14 @@ class AssociationController extends Controller {
 		//Associations to this form
 		$assocs = self::getAllowedAssociations($fid);
 		//Create an array of fids of those associations
-		$associds = array();
+		$associatedForms = array();
 		foreach($assocs as $a) {
-			array_push($associds,$a->assocForm);
-		}
-
-		return view('association.index', compact('form', 'assocs', 'associds', 'project'));
+			array_push($associatedForms, FormController::getForm($a->assocForm));
+        }
+        $associatable_forms = Form::all();
+        $available_associations = self::getAvailableAssociations($fid);
+        $requestable_associations = self::getRequestableAssociations($fid);
+		return view('association.index', compact('form', 'assocs', 'associatedForms', 'project', 'available_associations', 'requestable_associations', 'associatable_forms'));
 	}
 
     /**
@@ -71,7 +73,14 @@ class AssociationController extends Controller {
 		$assoc = new Association();
 		$assoc->dataForm = $fid;
 		$assoc->assocForm = $assocFormID;
-		$assoc->save();
+        $assoc->save();
+        
+        return response()->json(
+            [
+                'k3_global_success' => 'assoc_created',
+                'form' => Form::where('fid', '=', $assocFormID)->get()->first(),
+            ]
+        );
 	}
 
     /**
@@ -173,7 +182,7 @@ class AssociationController extends Controller {
 
         //form admins only
         if(!(\Auth::user()->isFormAdmin($myForm)))
-            return redirect('projects/'.$myProj->pid)->with('k3_global_error', 'not_form_admin');
+            return response()->json(['k3_global_error' => 'not_form_admin']);
 
         $group = $theirForm->adminGroup()->first();
         $users = $group->users()->get();
@@ -195,16 +204,18 @@ class AssociationController extends Controller {
         //Associations to this form
         $assocs = self::getAllowedAssociations($fid);
         //Create an array of fids of those associations
-        $associds = array();
+        $associatedForms = array();
         foreach($assocs as $a) {
-            array_push($associds,$a->assocForm);
+            array_push($associatedForms,$a->assocForm);
         }
         //FIX THIS//
         flash()->overlay("Request for access successfully sent.", "Success!");
         ///////////
         $form=$myForm;
         $project=$myProj;
-        return view('association.index', compact('form', 'assocs', 'associds', 'project'))->with('k3_global_success', 'assoc_access_requested');
+        $available_associations = self::getAvailableAssociations($fid);
+        $requestable_associations = self::getRequestableAssociations($fid);
+        return response()->json(['k3_global_success' => 'assoc_access_requested']);
     }
 
     /**

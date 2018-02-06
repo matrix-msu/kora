@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 
 class GeneratedListField extends BaseField {
 
@@ -21,7 +22,7 @@ class GeneratedListField extends BaseField {
     /**
      * @var string - Views for the typed field options
      */
-    const FIELD_OPTIONS_VIEW = "fields.options.genlist";
+    const FIELD_OPTIONS_VIEW = "partials.fields.options.genlist";
     const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.genlist";
 
     /**
@@ -66,12 +67,9 @@ class GeneratedListField extends BaseField {
      *
      * @param  Field $field - Field to update options
      * @param  Request $request
-     * @param  bool $return - Are we returning an error by string or redirect
-     * @return mixed - The result
+     * @return Redirect
      */
-    public function updateOptions($field, Request $request, $return=true) {
-        $advString = '';
-
+    public function updateOptions($field, Request $request) {
         $reqDefs = $request->default;
         $default = $reqDefs[0];
         for($i=1;$i<sizeof($reqDefs);$i++) {
@@ -82,13 +80,8 @@ class GeneratedListField extends BaseField {
         $options = $reqOpts[0];
         for($i=1;$i<sizeof($reqOpts);$i++) {
             if($request->regex!='' && !preg_match($request->regex, $reqOpts[$i])) {
-                if($return) {
-                    return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
-                        ->withInput()->with('k3_global_error', 'default_regex_mismatch')->with('default_regex_mismatch', $reqOpts[$i]);
-                } else {
-                    $request->regex = '';
-                    return response()->json(["status"=>false,"message"=>"default_regex_mismatch","default_regex_mismatch"=>$reqOpts[$i]],500);
-                }
+                return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+                    ->withInput()->with('k3_global_error', 'default_regex_mismatch')->with('default_regex_mismatch', $reqOpts[$i]);
             }
             $options .= '[!]'.$reqOpts[$i];
         }
@@ -99,12 +92,8 @@ class GeneratedListField extends BaseField {
         $field->updateOptions('Regex', $request->regex);
         $field->updateOptions('Options', $options);
 
-        if($return) {
-            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
-                ->with('k3_global_success', 'field_options_updated');
-        } else {
-            return response()->json(["status"=>true,"message"=>"field_options_updated"],200);
-        }
+        return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+            ->with('k3_global_success', 'field_options_updated');
     }
 
     /**

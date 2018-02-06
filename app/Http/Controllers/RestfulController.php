@@ -136,6 +136,9 @@ class RestfulController extends Controller {
                 return response()->json(["status"=>false,"error"=>"Invalid search token provided"],500);
         }
         //now we actually do searches per form
+        $resultsGlobal = [];
+        $countGlobal = 0;
+
         foreach($forms as $f) {
             //initialize form
             $form = FormController::getForm($f->form);
@@ -158,11 +161,11 @@ class RestfulController extends Controller {
                     if(!$returnRIDS)
                         return response()->json(["status"=>false,"error"=>"Invalid field type, or invalid field, provided for sort in form: ". $form->name],500);
                 }
-                //see if we are returning the
-                if ($filters['size'])
-                    return sizeof($returnRIDS);
+                //see if we are returning the size
+                if($filters['size'])
+                    $countGlobal += sizeof($returnRIDS);
                 else
-                    return $this->populateRecords($returnRIDS, $filters, $apiFormat);
+                    $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
             } else {
                 $queries = $f->query;
                 $resultSets = array();
@@ -174,6 +177,17 @@ class RestfulController extends Controller {
                             if(!isset($query->keys))
                                 return response()->json(["status"=>false,"error"=>"No keywords supplied in a keyword search for form: ". $form->name],500);
                             $keys = $query->keys;
+                            //Check for limiting fields
+                            $flids = null;
+                            if(isset($query->fields)) {
+                                $flids = array();
+                                //takes care of converting slugs to flids
+                                foreach($query->fields as $qfield) {
+                                    $fieldMod = FieldController::getField($qfield);
+                                    array_push($flids,$fieldMod->flid);
+                                }
+                            }
+                            //Determine type of keyword search
                             $method = isset($query->method) ? $query->method : 'OR';
                             switch($method) {
                                 case 'OR':
@@ -190,7 +204,7 @@ class RestfulController extends Controller {
                                     break;
                             }
                             $search = new Search($form->pid, $form->fid, $keys, $method);
-                            $rids = $search->formKeywordSearch(null,true);
+                            $rids = $search->formKeywordSearch($flids,true);
                             $negative = isset($query->not) ? $query->not : false;
                             if($negative)
                                 $rids = $this->negative_results($form,$rids);
@@ -227,7 +241,7 @@ class RestfulController extends Controller {
                                 $rid = explode("-", $kids[$i])[2];
                                 $record = Record::where('rid',$rid)->get()->first();
                                 if($record->fid != $form->fid)
-                                    return "The following KID is not apart of the requested form: " . $kids[$i];
+                                    return response()->json(["status"=>false,"error"=>"The following KID is not apart of the requested form: " . $kids[$i]],500);
                                 $rids[$i] = $record->rid;
                             }
                             $negative = isset($query->not) ? $query->not : false;
@@ -238,14 +252,14 @@ class RestfulController extends Controller {
                         case 'legacy_kid':
                             //do a kid search
                             if (!isset($query->kids))
-                                return "You must provide KIDs in a Legacy KID search for form: " . $form->name;
+                                return response()->json(["status"=>false,"error"=>"You must provide KIDs in a Legacy KID search for form: " . $form->name],500);
                             $kids = $query->kids;
                             $rids = array();
                             for($i = 0; $i < sizeof($kids); $i++) {
                                 $legacy_kid = $kids[$i];
                                 $record = Record::where('legacy_kid','=',$legacy_kid)->get()->first();
                                 if($record->fid != $form->fid)
-                                    return "The following legacy KID is not apart of the requested form: " . $kids[$i];
+                                    return response()->json(["status"=>false,"error"=>"The following legacy KID is not apart of the requested form: " . $kids[$i]],500);
                                 array_push($rids,$record->rid);
                             }
                             $negative = isset($query->not) ? $query->not : false;
@@ -277,13 +291,20 @@ class RestfulController extends Controller {
                     if(!$returnRIDS)
                         return response()->json(["status"=>false,"error"=>"Invalid field type or invalid field provided for sort in form: ". $form->name],500);
                 }
-                //see if we are returning the
+                //see if we are returning the size
                 if($filters['size'])
-                    return response()->json(["status"=>true,"result"=>sizeof($returnRIDS)],200);
+                    $countGlobal += sizeof($returnRIDS);
                 else
-                    return response()->json(["status"=>true,"result"=>$this->populateRecords($returnRIDS, $filters, $apiFormat)],200);
+                    $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
             }
         }
+
+        $res = [
+            'count' => $countGlobal,
+            'records' => $resultsGlobal
+        ];
+
+        return response()->json(["status"=>true,"result"=>$res],200);
     }
 
     /**

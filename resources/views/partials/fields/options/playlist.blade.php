@@ -1,0 +1,26 @@
+@extends('fields.show')
+
+@section('fieldOptions')
+    <div class="form-group">
+        {!! Form::label('filesize','Max File Size (kb): ') !!}
+        <input type="number" name="filesize" class="text-input" step="1"
+               value="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "FieldSize") }}" min="0">
+    </div>
+
+    <div class="form-group mt-xl">
+        {!! Form::label('maxfiles','Max File Amount: ') !!}
+        <input type="number" name="maxfiles" class="text-input" step="1"
+               value="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "MaxFiles") }}" min="0">
+    </div>
+
+    <div class="form-group mt-xl">
+        {!! Form::label('filetype','Allowed File Types: ') !!}
+        {!! Form::select('filetype'.'[]',['audio/mp3' => 'MP3','audio/wav' => 'Wav','audio/ogg' => 'Ogg'],
+            explode('[!]',\App\Http\Controllers\FieldController::getFieldOption($field, "FileTypes")),
+            ['class' => 'multi-select', 'Multiple']) !!}
+    </div>
+@stop
+
+@section('fieldOptionsJS')
+    Kora.Fields.Options('Playlist');
+@stop

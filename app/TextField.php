@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 
 class TextField extends BaseField {
 
@@ -21,7 +22,7 @@ class TextField extends BaseField {
     /**
      * @var string - Views for the typed field options
      */
-    const FIELD_OPTIONS_VIEW = "fields.options.text";
+    const FIELD_OPTIONS_VIEW = "partials.fields.options.text";
     const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.text";
 
     /**
@@ -66,22 +67,16 @@ class TextField extends BaseField {
      *
      * @param  Field $field - Field to update options
      * @param  Request $request
-     * @param  bool $return - Are we returning an error by string or redirect
-     * @return mixed - The result
+     * @return Redirect
      */
-    public function updateOptions($field, Request $request, $return=true) {
+    public function updateOptions($field, Request $request) {
         if($request->regex!='') {
             $regArray = str_split($request->regex);
             if($regArray[0]!=end($regArray))
                 $request->regex = '/'.$request->regex.'/';
             if($request->default!='' && !preg_match($request->regex, $request->default)) {
-                if($return) {
-                    return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
-                        ->withInput()->with('k3_global_error', 'default_regex_mismatch');
-                } else {
-                    $request->default = '';
-                    return response()->json(["status"=>false,"message"=>"default_regex_mismatch"],500);
-                }
+                return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+                    ->withInput()->with('k3_global_error', 'default_regex_mismatch');
             }
         }
 
@@ -91,12 +86,8 @@ class TextField extends BaseField {
         $field->updateOptions('Regex', $request->regex);
         $field->updateOptions('MultiLine', $request->multi);
 
-        if($return) {
-            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
-                ->with('k3_global_success', 'field_options_updated');
-        } else {
-            return response()->json(["status"=>true,"message"=>"field_options_updated"],200);
-        }
+        return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+            ->with('k3_global_success', 'field_options_updated');
     }
 
     /**

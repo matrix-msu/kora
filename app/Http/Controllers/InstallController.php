@@ -4,7 +4,6 @@ use App\Http\Requests\InstallRequest;
 use App\Version;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use \Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Input;

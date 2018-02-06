@@ -1,0 +1,16 @@
+.field-create-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu;
+  min-height: 100vh;
+}
+
+.field-create {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  .create-field {
+    margin: #{map-get($spacing, xxxl)} auto;
+    max-width: calc(#{ $max-site-width } - 600px);
+    width: $max-site-width;
+  }
+}

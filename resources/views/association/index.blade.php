@@ -15,14 +15,100 @@
             </h1>
             <p class="description">This page allows you to grant association access for other forms. Associating other forms will allow them to search within this form. Select "Create a New Form Association" below, to begin creating a new form association. The newly associated form will then appear in the list below. You may also request association permission for this form to associate with other forms.</p>
             <div class="content-sections">
-                <a href="#create" class="section underline-middle underline-middle-hover active">Create Form Association</a>
-                <a href="#request" class="section underline-middle underline-middle-hover">Request Form Association</a>
+                <a href="#create" class="section underline-middle underline-middle-hover toggle-by-name active">Create Form Association</a>
+                <a href="#request" class="section underline-middle underline-middle-hover toggle-by-name">Request Form Association</a>
             </div>
         </div>
     </section>
 @stop
 
 @section('body')
+    @include("partials.formAssociations.newPermissionModal")
+    @include("partials.formAssociations.requestPermissionModal")
+    @include("partials.formAssociations.deletePermissionModal")
+
+    <section class="create-section">
+        <section class="new-object-button center">
+            @if(\Auth::user()->isProjectAdmin($project))
+                <form action="#">
+                    <input class="new-permission-js" type="submit" value="Create a New Form Association">
+                </form>
+            @endif
+        </section>
+
+        <section class="permission-association-selection center permission-association-js">
+            <p class="description">The following forms are allowed to associate with and can search within this form:</p>
+            @foreach ($associatedForms as $index=>$f)
+                <div class="association association-js card {{ $index == 0 ? 'active' : '' }}" id="{{$f->id}}">
+                    <div class="header {{ $index == 0 ? 'active' : '' }}">
+                        <div class="left pl-m">
+                            <a class="title association-toggle-by-name-js" href="#">
+                                <span class="name name-js">{{ str_replace($f->project()->get()->first()->name." ", "", $f->name) }}</span>
+                            </a>
+                        </div>
+
+                        <div class="card-toggle-wrap">
+                            <a href="#" class="card-toggle association-toggle-js">
+                                <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
+                        <div class="description">
+                            <p>{{ $f->description }}</p>
+                        </div>
+                        <div class="footer">
+                            <a class="quick-action trash-container delete-permission-association-js left" href="#" data-form="{{$f->fid}}">
+                                <i class="icon icon-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </section>
+        
+    </section>
+    <section class="request-section hidden">
+        <p class="description">You may also request association permissions for this form to associate with other forms. Select "Request Form Association" to begin. Once requested, a notification will be sent to the admins of the selected form to allow association from your form.</p>
+        <section class="new-object-button center">
+            @if(\Auth::user()->isProjectAdmin($project))
+                <form action="#">
+                    <input class="request-permission-js" type="submit" value="Request Form Association">
+                </form>
+            @endif
+        </section>
+        <section class="permission-association-selection center permission-association-js">
+            <p class="description">{{$form->name}} is allowed to associate with and can search within the following forms:</p>
+            @foreach ($available_associations as $index=>$a)
+                <?php $f = \App\Form::where('fid', '=', $a->dataForm)->first() ?>
+                <div class="association association-js card {{ $index == 0 ? 'active' : '' }}" id="{{$f->id}}">
+                    <div class="header {{ $index == 0 ? 'active' : '' }}">
+                        <div class="left pl-m">
+                            <a class="title association-toggle-by-name-js" href="#">
+                                <span class="name name-js">{{ str_replace($f->project()->get()->first()->name." ", "", $f->name) }}</span>
+                            </a>
+                        </div>
+
+                        <div class="card-toggle-wrap">
+                            <a href="#" class="card-toggle association-toggle-js">
+                                <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
+                        <div class="description">
+                            <p>{{ $f->description }}</p>
+                        </div>
+                        <div class="footer">
+                            <a class="quick-action trash-container delete-permission-association-js left" href="#" data-form="{{$a->fid}}">
+                                <i class="icon icon-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </section>
+    </section>
 @stop
 
 @section('content')
@@ -37,12 +123,7 @@
                         <div id="form_select">{{trans('association_index.forms')}}:
                             <select id="selected_assoc">
                                 @foreach(\App\Form::all() as $f)
-                                    @if(!in_array($f->fid,$associds) && $f->fid != $form->fid)
-                                        <?php
-                                        $p = \App\Http\Controllers\ProjectController::getProject($f->pid);
-                                        ?>
-                                        <option value="{{$f->fid}}">{{$p->name}} | {{$f->name}}</option>
-                                    @endif
+                                
                                 @endforeach
                             </select>
                             <button id="add_assoc" class="btn btn-primary">{{trans('association_index.addallowed')}}</button>
@@ -92,4 +173,12 @@
 
 @section('javascripts')
     @include('partials.formAssociations.javascripts')
+
+    <script type="text/javascript">
+        var CSRFToken = '{{ csrf_token() }}';
+        var pid = '{{ $project->pid }}';
+        var createAssociationPath = '{{ action('AssociationController@create', ["pid" => $project->pid, "fid" => $form->fid]) }}';
+        var requestAssociationPath = '{{ action('AssociationController@requestAccess', ["pid" => $project->pid, "fid" => $form->fid]) }}';
+        Kora.FormAssociations.Index();
+    </script>
 @stop

@@ -9,9 +9,6 @@
           @if(View::hasSection('stylesheets'))
               @yield('stylesheets')
           @else
-            <!-- For Schedule -->
-            <link rel="stylesheet" href="{{ config('app.url') }}bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
-            <link rel='stylesheet' href="{{ config('app.url') }}bower_components/fullcalendar/dist/fullcalendar.css" />
             <!-- For Geolocator -->
             <link rel="stylesheet" href="{{ config('app.url') }}leaflet/leaflet.css" />
             <!-- For Documents -->

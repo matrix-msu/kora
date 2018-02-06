@@ -3,6 +3,55 @@ Kora.Install = Kora.Install || {};
 
 Kora.Install.Create = function() {
 
+    function initializeInstallToggles() {
+        $('.toggle-by-name').click(function(e) {
+            e.preventDefault();
+
+            $this = $(this);
+            $this.addClass('active');
+            $this.siblings().removeClass('active');
+
+            $active = $this.attr("href");
+            if($active == "#database") {
+                $('.database-section').removeClass('hidden');
+                $('.admin-section').addClass('hidden');
+                $('.mail-section').addClass('hidden');
+                $('.recaptcha-section').addClass('hidden');
+                $('.base-section').addClass('hidden');
+            } else if($active == "#admin") {
+                $('.database-section').addClass('hidden');
+                $('.admin-section').removeClass('hidden');
+                $('.mail-section').addClass('hidden');
+                $('.recaptcha-section').addClass('hidden');
+                $('.base-section').addClass('hidden');
+            } else if($active == "#mail") {
+                $('.database-section').addClass('hidden');
+                $('.admin-section').addClass('hidden');
+                $('.mail-section').removeClass('hidden');
+                $('.recaptcha-section').addClass('hidden');
+                $('.base-section').addClass('hidden');
+            } else if($active == "#recaptcha") {
+                $('.database-section').addClass('hidden');
+                $('.admin-section').addClass('hidden');
+                $('.mail-section').addClass('hidden');
+                $('.recaptcha-section').removeClass('hidden');
+                $('.base-section').addClass('hidden');
+            } else if($active == "#base") {
+                $('.database-section').addClass('hidden');
+                $('.admin-section').addClass('hidden');
+                $('.mail-section').addClass('hidden');
+                $('.recaptcha-section').addClass('hidden');
+                $('.base-section').removeClass('hidden');
+            } else {
+                $('.database-section').removeClass('hidden');
+                $('.admin-section').addClass('hidden');
+                $('.mail-section').addClass('hidden');
+                $('.recaptcha-section').addClass('hidden');
+                $('.base-section').addClass('hidden');
+            }
+        });
+    }
+
     $('.single-select').chosen({
         width: '100%',
     });
@@ -45,5 +94,6 @@ Kora.Install.Create = function() {
     navbar.className += " install-nav";
     languageSelector.style.display = 'none';
 
+    initializeInstallToggles();
 }
 

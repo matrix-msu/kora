@@ -1,0 +1,14 @@
+.form-association-permissions-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu;
+  min-height: 100vh;
+}
+
+.form-association-permissions {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  @import 'form-associations/request';
+  @import 'form-associations/create';
+  @import 'form-associations/permission-association-selection';
+}

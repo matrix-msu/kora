@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 
 class NumberField extends BaseField {
 
@@ -21,7 +22,7 @@ class NumberField extends BaseField {
     /**
      * @var string - Views for the typed field options
      */
-    const FIELD_OPTIONS_VIEW = "fields.options.number";
+    const FIELD_OPTIONS_VIEW = "partials.fields.options.number";
     const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.number";
 
     /**
@@ -73,47 +74,27 @@ class NumberField extends BaseField {
      *
      * @param  Field $field - Field to update options
      * @param  Request $request
-     * @param  bool $return - Are we returning an error by string or redirect
-     * @return mixed - The result
+     * @return Redirect
      */
-    public function updateOptions($field, Request $request, $return=true) {
-        //these are help prevent interruption of correct parameters when error is found in advanced setup
-        $advString = '';
-
+    public function updateOptions($field, Request $request) {
         if($request->min!='' && $request->max!='') {
             if($request->min >= $request->max) {
-                if($return) {
-                    return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
-                        ->withInput()->with('k3_global_error', 'max_min_invalid');
-                } else {
-                    $request->min = '';
-                    $request->max = '';
-                    return response()->json(["status"=>false,"message"=>"max_min_invalid"],500);
-                }
+                return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+                    ->withInput()->with('k3_global_error', 'max_min_invalid');
             }
         }
 
         if($request->default!='' && $request->max!='') {
             if($request->default > $request->max) {
-                if($return) {
-                    return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
-                        ->withInput()->with('k3_global_error', 'default_above_max');
-                } else {
-                    $request->default = '';
-                    return response()->json(["status"=>false,"message"=>"default_above_max"],500);
-                }
+                return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+                    ->withInput()->with('k3_global_error', 'default_above_max');
             }
         }
 
         if($request->default!='' && $request->min!='') {
             if($request->default < $request->min) {
-                if($return) {
-                    return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
-                        ->withInput()->with('k3_global_error', 'default_below_min');
-                } else {
-                    $request->default = '';
-                    return response()->json(["status"=>false,"message"=>"default_below_min"],500);
-                }
+                return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+                    ->withInput()->with('k3_global_error', 'default_below_min');
             }
         }
 
@@ -125,12 +106,8 @@ class NumberField extends BaseField {
         $field->updateOptions('Increment', $request->inc);
         $field->updateOptions('Unit', $request->unit);
 
-        if($return) {
-            return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
-                ->with('k3_global_success', 'field_options_updated');
-        } else {
-            return response()->json(["status"=>true,"message"=>"field_options_updated"],200);
-        }
+        return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+            ->with('k3_global_success', 'field_options_updated');
     }
 
     /**

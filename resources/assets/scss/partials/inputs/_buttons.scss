@@ -168,5 +168,10 @@ a.btn {
         border-color: palette('green', accent, 1);
       }
     }
+
+    &.extend {
+      width: 100%;
+      max-width: none;
+    }
   }
 }

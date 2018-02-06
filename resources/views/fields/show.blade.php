@@ -1,16 +1,47 @@
-@extends('app')
+@extends('app', ['page_title' => $field->name, 'page_class' => 'field-show'])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $field->pid])
-    @include('partials.menu.form', ['pid' => $field->pid, 'fid' => $field->fid, 'passed_field' => $field])
+    @include('partials.menu.form', ['pid' => $field->pid, 'fid' => $field->fid])
+    @include('partials.menu.static', ['name' => $field->name])
 @stop
 
-@section('content')
-    <span><h1>{{ $field->name }}</h1></span>
-    <div><b>{{trans('fields_show.name')}}:</b> {{ $field->slug }}</div>
-    <div><b>{{trans('fields_show.type')}}:</b> {{ $field->type }}</div>
-    <div><b>{{trans('fields_show.desc')}}:</b> {{ $field->desc }}</div>
-    <hr/>
+@section('header')
+    <section class="head">
+        <div class="inner-wrap center">
+            <h1 class="title">
+                <i class="icon icon-field"></i>
+                <span>{{$field->name}}</span>
+            </h1>
+            <p class="description"><b>Field Type</b>: {{$field->type}}</p>
+        </div>
+    </section>
+@stop
 
-    @yield('fieldOptions')
+@section('body')
+    @include("partials.fields.modals.scheduleAddEventModal")
+
+    <section class="single-field center">
+        {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@update', $field->pid, $field->fid, $field->flid]]) !!}
+        @include('partials.fields.options', ['field'=>$field])
+        {!! Form::close() !!}
+
+        {{--TODO::@include('partials.option_preset')--}}
+
+        @include('partials.fields.modals.fieldCleanupModal', ['field'=>$field])
+    </section>
+@stop
+
+@section('footer')
+
+@stop
+
+@section('javascripts')
+    @include('partials.fields.javascripts')
+
+    <script type="text/javascript">
+        Kora.Fields.Show();
+
+        @yield('fieldOptionsJS')
+    </script>
 @stop

@@ -77,6 +77,17 @@ class Field extends Model {
     ];
 
     /**
+     * @var array - This is an array of field type values for creation
+     */
+    static public $validFieldTypes = [
+        'Text Fields' => array('Text' => 'Text', 'Rich Text' => 'Rich Text', 'Number' => 'Number'),
+        'List Fields' => array('List' => 'List', 'Multi-Select List' => 'Multi-Select List', 'Generated List' => 'Generated List', 'Combo List' => 'Combo List'),
+        'Date Fields' => array('Date' => 'Date', 'Schedule' => 'Schedule'),
+        'File Fields' => array('Documents' => 'Documents','Gallery' => 'Gallery (jpg, gif, png)','Playlist' => 'Playlist (mp3, wav, oga)', 'Video' => 'Video (mp4, ogv)','3D-Model' => '3D-Model (obj, stl)'),
+        'Specialty Fields' => array('Geolocator' => 'Geolocator (latlon, utm, textual)','Associator' => 'Associator')
+    ];
+
+    /**
      * @var array - This is an array of all sortable typed fields
      */
     const VALID_SORT = [self::_TEXT,self::_NUMBER,self::_LIST,self::_DATE];
