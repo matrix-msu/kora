@@ -47,7 +47,7 @@
 
 <div id="advance_options_div">
     <div class="form-group mt-xxxl">
-        <button type="button" id="adv_opt" class="btn form-control">Show Advanced Field Options</button>
+        <a href="#" id="adv_opt" class="btn half-sub-btn extend">Show Advanced Field Options</a>
     </div>
 </div>
 

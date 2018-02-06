@@ -6,10 +6,6 @@
     @include('partials.menu.static', ['name' => $field->name])
 @stop
 
-@section('stylesheets')
-    <!-- No Additional Stylesheets Necessary -->
-@stop
-
 @section('header')
     <section class="head">
         <div class="inner-wrap center">

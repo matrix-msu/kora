@@ -10,9 +10,6 @@
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0-rc.2/js/select2.min.js"></script>
   <!-- For Rich Text -->
   <script src="{{ config('app.url') }}ckeditor/ckeditor.js"></script>
-  <!-- For Schedule -->
-  <script type="text/javascript" src="{{ config('app.url') }}bower_components/moment/min/moment.min.js"></script>
-  <script type="text/javascript" src="{{ config('app.url') }}bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
 
   <script src='{{ config('app.url') }}bower_components/fullcalendar/dist/fullcalendar.js'></script>
   <!-- For Geolocator -->

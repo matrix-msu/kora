@@ -60,7 +60,7 @@ Kora.Fields.Options = function(fieldType) {
         listOpt.trigger("chosen:updated");
 
         listOpt.chosen().change(function() {
-            //figure out this
+            //TODO::figure out this
         });
 
         listOpt.bind("DOMSubtreeModified",function(){
@@ -78,7 +78,7 @@ Kora.Fields.Options = function(fieldType) {
         listOpt.trigger("chosen:updated");
 
         listOpt.chosen().change(function() {
-            //figure out this
+            //TODO::figure out this
         });
 
         listOpt.bind("DOMSubtreeModified",function(){
@@ -106,6 +106,47 @@ Kora.Fields.Options = function(fieldType) {
         });
     }
 
+    function initializeScheduleOptions() {
+        $('.add-new-event-js').on('click', function(e) {
+            e.preventDefault();
+
+            var nameInput = $('.event-name-js');
+            var sTimeInput = $('.event-start-time-js');
+            var eTimeInput = $('.event-end-time-js');
+
+            var name = nameInput.val().trim();
+            var sTime = sTimeInput.val().trim();
+            var eTime = eTimeInput.val().trim();
+
+            if(name==''|sTime==''|eTime=='') {
+                //TODO::show error
+            } else {
+                if($('.event-allday-js').is(":checked")) {
+                    sTime = sTime.split(" ")[0];
+                    eTime = eTime.split(" ")[0];
+                }
+
+                if(sTime>eTime) {
+                    //TODO::show error
+                }else {
+                    val = name + ': ' + sTime + ' - ' + eTime;
+
+                    if(val != '') {
+                        //Value is good so let's add it
+                        var option = $("<option>").val(val).text(val);
+                        var select = $('.default-event-js');
+
+                        select.prepend(option);
+                        select.find(option).prop('selected', true);
+                        select.trigger("chosen:updated");
+
+                        nameInput.val('');
+                    }
+                }
+            }
+        });
+    }
+
     initializeSelects();
 
     switch(fieldType) {
@@ -123,6 +164,9 @@ Kora.Fields.Options = function(fieldType) {
         case 'Multi-Select List':
             initializeSelectAddition();
             initializeMultiSelectListOptions();
+            break;
+        case 'Schedule':
+            initializeScheduleOptions();
             break;
         default:
             break;
