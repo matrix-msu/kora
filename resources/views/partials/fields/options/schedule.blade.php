@@ -14,38 +14,11 @@
         </select>
     </div>
 
-    <div class="form-group mt-xxxl">
-        {!! Form::label('eventname','Event Name: ') !!}
-        <input type="text" class="text-input event-name-js" id="eventname" maxlength="24"
-               placeholder="Enter a descriptive name for your new event"/>
-    </div>
-    <div class="form-group mt-sm half">
-        {!! Form::label('startdatetime','Start Time: ') !!}
-        <input type='text' class="text-input event-start-time-js"/>
-    </div>
-    <div class="form-group mt-sm half">
-        {!! Form::label('enddatetime','End Time: ') !!}
-        <input type='text' class="text-input event-end-time-js"/>
-    </div>
-    <div class="form-group mt-m">
-        <label for="allday">All Day?</label>
-        <div class="check-box">
-            <input type="checkbox" value="1" id="preset" class="check-box-input event-allday-js" name="allday" />
-            <div class="check-box-background"></div>
-            <span class="check"></span>
-            <span class="placeholder">Select to set the event as all day</span>
-            <span class="placeholder-alt">Event is set to be all day</span>
-        </div>
-
-        <p class="sub-text mt-sm">
-            Event is assigned to the entire 24 hour period of the day
-        </p>
-    </div>
-    <div class="form-group mt-sm">
-        <a href="#" class="btn half-sub-btn extend add-new-event-js">Add Event</a>
+    <div class="form-group mt-xl">
+        <a href="#" class="btn half-sub-btn extend add-new-default-event-js">Create New Default Event</a>
     </div>
 
-    <div class="form-group mt-xxxl">
+    <div class="form-group mt-xl">
         {!! Form::label('start','Start Year: ') !!}
         {!! Form::input('number', 'start', \App\Http\Controllers\FieldController::getFieldOption($field,'Start'),
             ['class' => 'text-input', 'min' => 0, 'max' => 9999]) !!}

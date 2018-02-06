@@ -107,6 +107,12 @@ Kora.Fields.Options = function(fieldType) {
     }
 
     function initializeScheduleOptions() {
+        $('.add-new-default-event-js').click(function(e) {
+            e.preventDefault();
+
+            Kora.Modal.open($('.schedule-add-event-modal-js'));
+        });
+
         $('.add-new-event-js').on('click', function(e) {
             e.preventDefault();
 
@@ -141,6 +147,7 @@ Kora.Fields.Options = function(fieldType) {
                         select.trigger("chosen:updated");
 
                         nameInput.val('');
+                        Kora.Modal.close($('.schedule-add-event-modal-js'));
                     }
                 }
             }
