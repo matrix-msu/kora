@@ -38,8 +38,9 @@
 
         <section class="permission-association-selection center permission-association-js">
             <p class="description">The following forms are allowed to associate with and can search within this form:</p>
-            @foreach ($associatedForms as $index=>$f)
-                <div class="association association-js card {{ $index == 0 ? 'active' : '' }}" id="{{$f->id}}">
+            @foreach ($assocs as $index=>$a)
+                <?php $f = \App\Form::where('fid', '=', $a->assocForm)->first() ?>
+                <div class="association association-js card {{ $index == 0 ? 'active' : '' }}" id="{{$f->fid}}">
                     <div class="header {{ $index == 0 ? 'active' : '' }}">
                         <div class="left pl-m">
                             <a class="title association-toggle-by-name-js" href="#">
@@ -58,7 +59,7 @@
                             <p>{{ $f->description }}</p>
                         </div>
                         <div class="footer">
-                            <a class="quick-action trash-container delete-permission-association-js left" href="#" data-form="{{$f->fid}}">
+                            <a class="quick-action trash-container delete-permission-association-js left" href="#" data-form="{{$a->assocForm}}" data-reverse="false">
                                 <i class="icon icon-trash"></i>
                             </a>
                         </div>
@@ -81,7 +82,7 @@
             <p class="description">{{$form->name}} is allowed to associate with and can search within the following forms:</p>
             @foreach ($available_associations as $index=>$a)
                 <?php $f = \App\Form::where('fid', '=', $a->dataForm)->first() ?>
-                <div class="association association-js card {{ $index == 0 ? 'active' : '' }}" id="{{$f->id}}">
+                <div class="association association-js card {{ $index == 0 ? 'active' : '' }}" id="{{$f->fid}}">
                     <div class="header {{ $index == 0 ? 'active' : '' }}">
                         <div class="left pl-m">
                             <a class="title association-toggle-by-name-js" href="#">
@@ -100,7 +101,7 @@
                             <p>{{ $f->description }}</p>
                         </div>
                         <div class="footer">
-                            <a class="quick-action trash-container delete-permission-association-js left" href="#" data-form="{{$a->fid}}">
+                            <a class="quick-action trash-container delete-permission-association-js left" href="#" data-form="{{$a->dataForm}}" data-reverse='true'>
                                 <i class="icon icon-trash"></i>
                             </a>
                         </div>
@@ -179,6 +180,8 @@
         var pid = '{{ $project->pid }}';
         var createAssociationPath = '{{ action('AssociationController@create', ["pid" => $project->pid, "fid" => $form->fid]) }}';
         var requestAssociationPath = '{{ action('AssociationController@requestAccess', ["pid" => $project->pid, "fid" => $form->fid]) }}';
+        var destroyAssociationPath = '{{ action('AssociationController@destroy', ["pid" => $project->pid, "fid" => $form->fid]) }}';
+        var destroyReverseAssociationPath = '{{ action('AssociationController@destroyReverse', ["pid" => $project->pid, "fid" => $form->fid]) }}';
         Kora.FormAssociations.Index();
     </script>
 @stop

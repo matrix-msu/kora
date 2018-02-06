@@ -95,7 +95,14 @@ class AssociationController extends Controller {
 
 		$assoc = Association::where('dataForm','=',$fid)->where('assocForm','=',$assocFormID)->first();
 
-		$assoc->delete();
+        $assoc->delete();
+
+        return response()->json(
+            [
+                'k3_global_success' => 'assoc_destroyed',
+                'assocfid' => $assocFormID
+            ]
+        );
 	}
 
     /**
@@ -111,6 +118,13 @@ class AssociationController extends Controller {
         $assoc = Association::where('assocForm','=',$fid)->where('dataForm','=',$dataFormID)->first();
 
         $assoc->delete();
+
+        return response()->json(
+            [
+                'k3_global_success' => 'assoc_destroyed',
+                'assocfid' => $dataFormID
+            ]
+        );
     }
 
     /**
