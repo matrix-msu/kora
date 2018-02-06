@@ -68,12 +68,12 @@
       <form class="form-horizontal" role="form" method="POST" action="{{ url('/password/email') }}">
         <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
-        <div class="form-group mt-xl">
+        <div class="form-group mt-xxl">
           <label for="email">Enter Your Email to Recover Password</label>
           <input type="email" class="text-input" name="email" value="{{ old('email') }}" placeholder="Enter your email here">
         </div>
 
-        <div class="form-group mt-xl">
+        <div class="form-group mt-xxl">
           <button type="submit" class="btn btn-primary">Send Password Reset Link</button>
         </div>
       </form>

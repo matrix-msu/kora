@@ -32,34 +32,31 @@ Kora.FormAssociations.Index = function() {
         "assocfid": assocfid
       },
       success: function(response) {
-        var element = '<div class="association association-js card" id="' + response.form.fid + '">';
-        element += '<div class="header">';
-        element += '<div class="left pl-m">';
-        element += '<a class="title association-toggle-by-name-js" href="#">';
-        element += '<span class="name name-js">' + response.form.name + '</span>';
-        element += '</a>';
-        element += '</div>';
-        element += '<div class="card-toggle-wrap">'
-        element += '<a href="#" class="card-toggle association-toggle-js">'
-        element += '<i class="icon icon-chevron"></i>'
-        element += '</a></div></div>'
-        element += '<div class="content content-js">'
-        element += '<div class="description">'
-        element += '<p>' + response.form.description + '</p>'
-        element += '</div>'
-        element += '<div class="footer">'
-        element += '<a class="quick-action trash-container delete-permission-association-js left" href="#" data-form="' + response.form.fid + '">'
-        element += '<i class="icon icon-trash"></i>'
-        element += '</a>'
-        element += '</div></div></div>'
+        var element = $('<div></div>').addClass('association association-js card').attr('id', response.form.fid);
+        var header = $('<div></div>').addClass('header');
+        var title = $('<div></div>').addClass('left pl-m');
+        var titleLink = $('<a></a>').addClass('title association-toggle-by-name-js').attr('href', '#');
+        var titleSpan = $('<span></span>').addClass('name name-js').text(response.form.name);
+        var cardToggle = $('<div></div>').addClass('card-toggle-wrap');
+        var cardToggleLink = $('<a></a>').addClass('card-toggle association-toggle-js').attr('href', '#')
+        cardToggleLink.append($('<i></i>').addClass('icon icon-chevron'));
+        var content = $('<div></div>').addClass('content content-js');
+        content.append($('<div></div>').addClass('description').append($('<p></p>').text(response.form.description)));
+        var footer = $('<div></div>').addClass('footer');
+        footer.append($('<a></a>').addClass('quick-action trash-container delete-permission-association-js left').attr('href', '#').attr('data-form', response.form.fid).append($('<i></i>').addClass('icon icon-trash')));
+        element.append(header.append(title.append(titleLink.append(titleSpan))).append(cardToggle.append(cardToggleLink)));
+        content.append(footer);
+        element.append(content);
         $('.permission-association-js').append(element);
         initializePermissionsToggles();
+        initializeDeletePermissionModal();
         Kora.Modal.close();
       }
     });
   }
 
   function initializePermissionsToggles() {
+    $('.toggle-by-name').unbind('click');
     $('.toggle-by-name').click(function(e) {
       e.preventDefault();
       
@@ -77,6 +74,7 @@ Kora.FormAssociations.Index = function() {
       }
     });
 
+    $('.association-toggle-by-name-js').unbind('click');
     $('.association-toggle-by-name-js').click(function(e) {
       e.preventDefault();
 
@@ -85,6 +83,7 @@ Kora.FormAssociations.Index = function() {
       $cardToggle.children().click();
     });
 
+    $('.association-toggle-js').unbind('click');
     $('.association-toggle-js').click(function(e) {
       e.preventDefault();
 
@@ -176,6 +175,7 @@ Kora.FormAssociations.Index = function() {
   }
 
   function initializeDeletePermissionModal() {
+    $('.delete-permission-association-js').unbind('click');
     $('.delete-permission-association-js').click(function (e) {
       e.preventDefault();
 
