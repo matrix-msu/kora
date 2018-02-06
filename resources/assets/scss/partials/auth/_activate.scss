@@ -1,8 +1,19 @@
 .activate {
   text-align: left;
 
-  .description {
-    padding: 0;
+  h2, p {
+    color: palette('gray', text);
+    font-family: Ubuntu;
+  }
+
+  .head {
+    .description {
+      padding: 0;
+    }
+  }
+
+  .mb-xl-responsive {
+    margin-bottom: 0;
   }
 
   .row {
@@ -17,6 +28,7 @@
 
   .text {
     color: palette('green', accent);
+    font-family: Ubuntu-Medium;
   }
 
   @media screen and (max-width: $max-mobile-l-width) {

@@ -27,15 +27,6 @@
   .instruction {
     color: palette('green', accent);
   }
-
-  .remove {
-    z-index: 1;
-
-    &:hover {
-      color: palette('green', accent);
-      cursor: pointer;
-    }
-  }
 }
 
 .profile {
@@ -60,23 +51,74 @@
   padding: 30px;
   text-align: center;
 
+  &.no-advanced-upload {
+    .instruction {
+      .no-dd {
+        display: block;
+      }
+
+      .dd {
+        display: none;
+      }
+    }
+  }
+
   &:focus {
     border: 2px solid palette('green', accent, .7);
     box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
     outline: none;
   }
 
-  &:hover {
+  &:hover,
+  &.is-dragover {
     border: 2px solid palette('green', accent, .3);
     box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
   }
 
-  img {
+  .icon-user-cont {
+    background: palette('white', base);
+    border: 2px solid rgba(21,39,48,0.2);
     border-radius: 50%;
+    display: flex;
+    height: 80px;
+    margin: auto;
+    overflow: hidden;
+    width: 80px;
+
+    img {
+      height: 100%;
+      object-fit: cover;
+      width: 100%;
+    }
+
+    .icon-user {
+      font-size: 28px;
+      margin: auto;
+    }
   }
 
   .instruction {
     color: palette('green', accent);
+
+    &.photo-selected {
+      .dd,
+      .no-dd {
+        display: none;
+      }
+
+      .select-new {
+        display: block;
+      }
+    }
+
+    .dd {
+      display: block;
+    }
+
+    .no-dd,
+    .select-new {
+      display: none;
+    }
   }
 
   .remove {
@@ -85,6 +127,12 @@
     &:hover {
       color: palette('green', accent);
       cursor: pointer;
+    }
+
+    .icon {
+      @include transition();
+
+      font-size: 12px;
     }
   }
 }
