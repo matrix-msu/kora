@@ -23,7 +23,7 @@ Kora.Fields.Options = function(fieldType) {
 
                 var select = container.siblings('.modify-select').first();
 
-                select.prepend(option);
+                select.append(option);
                 select.find(option).prop('selected', true);
                 select.trigger("chosen:updated");
             }
@@ -142,7 +142,7 @@ Kora.Fields.Options = function(fieldType) {
                         var option = $("<option>").val(val).text(val);
                         var select = $('.default-event-js');
 
-                        select.prepend(option);
+                        select.append(option);
                         select.find(option).prop('selected', true);
                         select.trigger("chosen:updated");
 
@@ -152,6 +152,111 @@ Kora.Fields.Options = function(fieldType) {
                 }
             }
         });
+    }
+
+    function intializeGeolocatorOptions() {
+        $('.add-new-default-location-js').click(function(e) {
+            e.preventDefault();
+
+            Kora.Modal.open($('.geolocator-add-location-modal-js'));
+        });
+
+        $('.location-type-js').on('change', function(e) {
+            newType = $(this).val();
+            if(newType=='LatLon') {
+                $('.lat-lon-switch-js').removeClass('hidden');
+                $('.utm-switch-js').addClass('hidden');
+                $('.address-switch-js').addClass('hidden');
+            } else if(newType=='UTM') {
+                $('.lat-lon-switch-js').addClass('hidden');
+                $('.utm-switch-js').removeClass('hidden');
+                $('.address-switch-js').addClass('hidden');
+            } else if(newType=='Address') {
+                $('.lat-lon-switch-js').addClass('hidden');
+                $('.utm-switch-js').addClass('hidden');
+                $('.address-switch-js').removeClass('hidden');
+            }
+        });
+
+        $('.add-new-location-js').click(function(e) {
+            e.preventDefault();
+
+            //check to see if description provided
+            var desc = $('.location-desc-js').val();
+            if(desc=='') {
+                //TODO::show error
+            } else {
+                var type = $('.location-type-js').val();
+
+                //determine if info is good for that type
+                var valid = true;
+                if(type == 'LatLon') {
+                    var lat = $('.location-lat-js').val();
+                    var lon = $('.location-lon-js').val();
+
+                    if(lat == '' | lon == '') {
+                        //TODO::show error
+                        valid = false;
+                    }
+                } else if(type == 'UTM') {
+                    var zone = $('.location-zone-js').val();
+                    var east = $('.location-east-js').val();
+                    var north = $('.location-north-js').val();
+
+                    if(zone == '' | east == '' | north == '') {
+                        //TODO::show error
+                        valid = false;
+                    }
+                } else if(type == 'Address') {
+                    var addr = $('.location-addr-js').val();
+
+                    if(addr == '') {
+                        //TODO::show error
+                        valid = false;
+                    }
+                }
+
+                //if still valid
+                if(valid) {
+                    //find info for other loc types
+                    if(type == 'LatLon')
+                        coordinateConvert({"_token": csrfToken,type:'latlon',lat:lat,lon:lon});
+                    else if(type == 'UTM')
+                        coordinateConvert({"_token": csrfToken,type:'utm',zone:zone,east:east,north:north});
+                    else if(type == 'Address')
+                        coordinateConvert({"_token": csrfToken,type:'geo',addr:addr});
+
+                    $('.location-lat-js').val(''); $('.location-lon-js').val('');
+                    $('.location-zone-js').val(''); $('.location-east-js').val(''); $('.location-north-js').val('');
+                    $('.location-addr-js').val('');
+                }
+            }
+        });
+
+        function coordinateConvert(data) {
+            $.ajax({
+                url: geoConvertUrl,
+                type: 'POST',
+                data: data,
+                success:function(result) {
+                    var desc = $('.location-desc-js').val();
+                    var fullresult = '[Desc]'+desc+'[Desc]'+result;
+                    var latlon = result.split('[LatLon]');
+                    var utm = result.split('[UTM]');
+                    var addr = result.split('[Address]');
+                    var fulltext = 'Description: '+desc+' | LatLon: '+latlon[1]+' | UTM: '+utm[1]+' | Address: '+addr[1];
+                    var option = $("<option/>", { value: fullresult, text: fulltext });
+
+                    var select = $('.default-location-js');
+                    select.append(option);
+                    select.find(option).prop('selected', true);
+                    select.trigger("chosen:updated");
+
+                    $('.location-desc-js').val('');
+                    Kora.Modal.close($('.geolocator-add-location-modal-js'));
+                }
+            });
+        }
     }
 
     initializeSelects();
@@ -167,6 +272,9 @@ Kora.Fields.Options = function(fieldType) {
         case 'List':
             initializeSelectAddition();
             initializeListOptions();
+            break;
+        case 'Geolocator':
+            intializeGeolocatorOptions();
             break;
         case 'Multi-Select List':
             initializeSelectAddition();

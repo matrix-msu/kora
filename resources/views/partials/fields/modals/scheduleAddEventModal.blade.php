@@ -9,7 +9,7 @@
         <div class="body">
             <div class="form-group">
                 {!! Form::label('eventname','Event Name: ') !!}
-                <input type="text" class="text-input event-name-js" id="eventname" maxlength="24"
+                <input type="text" class="text-input event-name-js" maxlength="24"
                        placeholder="Enter the Event name here"/>
             </div>
             <div class="form-group mt-xl half">

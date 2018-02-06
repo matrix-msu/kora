@@ -4,10 +4,12 @@ use App\FieldHelpers\gPoint;
 use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
 use Geocoder\Laravel\Facades\Geocoder;
+use Geocoder\Provider\Nominatim;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Ivory\HttpAdapter\CurlHttpAdapter;
 
 class GeolocatorField extends BaseField {
 
@@ -440,16 +442,9 @@ SQL;
      *                 Use ->Lat() and ->Long() to obtain converted values
      */
     private static function addressToPoint($address) {
-        $coder = new Geocoder();
-        $coder->registerProviders([
-            new NominatimProvider(
-                new CurlHttpAdapter(),
-                'http://nominatim.openstreetmap.org/',
-                'en'
-            )
-        ]);
+        $con = new Nominatim(new CurlHttpAdapter(),'http://nominatim.openstreetmap.org/','en');
 
-        $result = $coder->geocode($address);
+        $result = $con->geocode($address)->first();
         $point = new gPoint();
         $point->gPoint();
         $point->setLongLat($result->getLongitude(), $result->getLatitude());
@@ -589,17 +584,10 @@ SQL;
     public static function validateAddress(Request $request) {
         $address = $request->address;
 
-        $coder = new Geocoder();
-        $coder->registerProviders([
-            new NominatimProvider(
-                new CurlHttpAdapter(),
-                'http://nominatim.openstreetmap.org/',
-                'en'
-            )
-        ]);
+        $con = new Nominatim(new CurlHttpAdapter(),'http://nominatim.openstreetmap.org/','en');
 
         try {
-            $coder->geocode($address);
+            $con->geocode($address);
         } catch(\Exception $e) {
             return json_encode(false);
         }
@@ -626,17 +614,13 @@ SQL;
             $utm = $con->utmZone.':'.$con->utmEasting.','.$con->utmNorthing;
 
             //to address
-            $con = new Geocoder();
-            $con->registerProviders([
-                new NominatimProvider(
-                    new CurlHttpAdapter(), 'http://nominatim.openstreetmap.org/', 'en'
-                )
-            ]);
+            $con = new Nominatim(new CurlHttpAdapter(),'http://nominatim.openstreetmap.org/','en');
             try {
-                $res = $con->geocode($lat.', '.$lon);
-                $addr = $res->getStreetNumber().' '.$res->getStreetName().' '.$res->getCity().' '.$res->getRegion();
+                $res = $con->reverse($lat, $lon)->first();
+                $addrArray = array($res->getStreetNumber(),$res->getStreetName(),$res->getLocality());
+                $addr = implode(' ',$addrArray);
             } catch(\Exception $e) {
-                $addr = 'null';
+                $addr = 'Address Not Found';
             }
 
             $result = '[LatLon]'.$lat.','.$lon.'[LatLon][UTM]'.$utm.'[UTM][Address]'.$addr.'[Address]';
@@ -656,17 +640,13 @@ SQL;
             $lon = $con->long;
 
             //to address
-            $con = new Geocoder();
-            $con->registerProviders([
-                new NominatimProvider(
-                    new CurlHttpAdapter(), 'http://nominatim.openstreetmap.org/', 'en'
-                )
-            ]);
+            $con = new Nominatim(new CurlHttpAdapter(),'http://nominatim.openstreetmap.org/','en');
             try {
-                $res = $con->geocode($lat.', '.$lon);
-                $addr = $res->getStreetNumber().' '.$res->getStreetName().' '.$res->getCity().' '.$res->getRegion();
+                $res = $con->reverse($lat, $lon)->first();
+                $addrArray = array($res->getStreetNumber(),$res->getStreetName(),$res->getLocality());
+                $addr = implode(' ',$addrArray);
             } catch(\Exception $e) {
-                $addr = 'null';
+                $addr = 'Address Not Found';
             }
 
             $result = '[LatLon]'.$lat.','.$lon.'[LatLon][UTM]'.$zone.':'.$east.','.$north.'[UTM][Address]'.$addr.'[Address]';
@@ -676,14 +656,9 @@ SQL;
             $addr = $request->addr;
 
             //to latlon
-            $con = new Geocoder();
-            $con->registerProviders([
-                new NominatimProvider(
-                    new CurlHttpAdapter(), 'http://nominatim.openstreetmap.org/', 'en'
-                )
-            ]);
+            $con = new Nominatim(new CurlHttpAdapter(),'http://nominatim.openstreetmap.org/','en');
             try {
-                $res = $con->geocode($addr);
+                $res = $con->geocode($addr)->first();
                 $lat = $res->getLatitude();
                 $lon = $res->getLongitude();
             } catch(\Exception $e) {
