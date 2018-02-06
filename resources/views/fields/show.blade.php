@@ -19,6 +19,8 @@
 @stop
 
 @section('body')
+    @include("partials.fields.modals.scheduleAddEventModal")
+
     <section class="single-field center">
         {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@update', $field->pid, $field->fid, $field->flid]]) !!}
         @include('partials.fields.options', ['field'=>$field])

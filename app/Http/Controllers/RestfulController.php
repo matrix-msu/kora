@@ -177,6 +177,17 @@ class RestfulController extends Controller {
                             if(!isset($query->keys))
                                 return response()->json(["status"=>false,"error"=>"No keywords supplied in a keyword search for form: ". $form->name],500);
                             $keys = $query->keys;
+                            //Check for limiting fields
+                            $flids = null;
+                            if(isset($query->fields)) {
+                                $flids = array();
+                                //takes care of converting slugs to flids
+                                foreach($query->fields as $qfield) {
+                                    $fieldMod = FieldController::getField($qfield);
+                                    array_push($flids,$fieldMod->flid);
+                                }
+                            }
+                            //Determine type of keyword search
                             $method = isset($query->method) ? $query->method : 'OR';
                             switch($method) {
                                 case 'OR':
@@ -193,7 +204,7 @@ class RestfulController extends Controller {
                                     break;
                             }
                             $search = new Search($form->pid, $form->fid, $keys, $method);
-                            $rids = $search->formKeywordSearch(null,true);
+                            $rids = $search->formKeywordSearch($flids,true);
                             $negative = isset($query->not) ? $query->not : false;
                             if($negative)
                                 $rids = $this->negative_results($form,$rids);

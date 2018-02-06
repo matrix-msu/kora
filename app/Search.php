@@ -73,7 +73,7 @@ class Search {
         if(is_null($flids))
             $fields = Field::where("fid", "=", $this->fid)->get();
         else
-            $fields = Field::where("flid", "IN", $flids)->get();
+            $fields = Field::whereIn("flid", $flids)->get();
         $rids = [];
 
         switch($this->method) {

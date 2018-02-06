@@ -401,7 +401,11 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
     //Format sort array and map controls to fields
     $newOrder = array();
     foreach($order as $o) {
-        array_push($newOrder,fieldMapper($o["field"],$pid,$sid));
+        if($o["field"]=="systimestamp")
+            array_push($newOrder,"kora_meta_updated");
+        else
+            array_push($newOrder,fieldMapper($o["field"],$pid,$sid));
+
         $dir = $o["direction"];
         if($dir==SORT_DESC)
             $newDir = "DESC";
