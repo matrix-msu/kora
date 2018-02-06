@@ -388,11 +388,15 @@
 }
 // @end
 
-// @group Active
-.chosen-container-active {
+// @group Select menu is open
+.chosen-with-drop {
   .chosen-single {
     border: 1px solid palette('green', accent);
     box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
+
+    &:hover {
+      border: 1px solid palette('green', accent);
+    }
 
     &::before {
       transform: rotate(-180deg);
