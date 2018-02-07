@@ -483,120 +483,119 @@ i {
 }
 
 .icon-cancel-circle {
-  &:before {
+  &::before {
     content: $icon-cancel-circle;
   }
 }
 
 .icon-exodus {
-  &:before {
+  &::before {
     content: $icon-exodus;
   }
 }
 
 .icon-block-add {
-  &:before {
+  &::before {
     content: $icon-block-add;
   }
 }
 
 .icon-record-new-little {
-  &:before {
+  &::before {
     content: $icon-record-new-little;
   }
 }
 
 .icon-field-new-little {
-  &:before {
+  &::before {
     content: $icon-field-new-little;
   }
 }
 
 .icon-preset-little {
-  &:before {
+  &::before {
     content: $icon-preset-little;
   }
 }
 
 .icon-duplicate-little {
-  &:before {
+  &::before {
     content: $icon-duplicate-little;
   }
 }
 
 .icon-clock-little {
-  &:before {
+  &::before {
     content: $icon-clock-little;
   }
 }
 
 .icon-unarchive {
-  &:before {
+  &::before {
     content: $icon-unarchive;
   }
 }
 
 .icon-my-permissions {
-  &:before {
+  &::before {
     content: $icon-my-permissions;
   }
 }
 
 .icon-my-record-history {
-  &:before {
+  &::before {
     content: $icon-my-record-history;
   }
 }
 
 .icon-users {
-  &:before {
+  &::before {
     content: $icon-users;
   }
 }
 
 .icon-update {
-  &:before {
+  &::before {
     content: $icon-update;
   }
 }
 
 .icon-backup .path3 {
-  &:before {
+  &::before {
     content: $icon-backup-path3;
     margin-left: -1.20703125em;
-    color: rgb(20, 61, 75);
   }
 }
 
 .icon-backup .path2 {
-  &:before {
+  &::before {
+    color: palette('gray', slate);
     content: $icon-backup-path2;
     margin-left: -1.20703125em;
-    color: rgb(21, 39, 48);
   }
 }
 
 .icon-backup .path1 {
-  &:before {
+  &::before {
+    color: palette('gray', slate);
     content: $icon-backup-path1;
-    color: rgb(21, 39, 48);
   }
 }
 
 .icon-env-file {
-  &:before {
+  &::before {
     content: $icon-env-file;
   }
 }
 
 .icon-check-circle {
-  &:before {
+  &::before {
     content: $icon-check-circle;
   }
 }
 
 .icon-more {
-  &:before {
+  &::before {
     content: $icon-more;
   }
 }

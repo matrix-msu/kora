@@ -20,19 +20,19 @@
 }
 
 .welcome-fresh {
+  font-family: $ubuntu;
   margin: $navigation-height auto 0;
   width: 100%;
-  font-family: $ubuntu;
 
   .content-install {
-    max-width: calc(#{ $max-site-width } - 600px);
     margin: 30px auto 0;
+    max-width: calc(#{ $max-site-width } - 600px);
     text-align: center;
 
     .kora3 {
       font-size: 36px;
       line-height: 42px;
-      text-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1);
+      text-shadow: 0 2px 4px 0 palette('black', base, .1);
     }
 
     .ready {
