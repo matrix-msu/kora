@@ -3,13 +3,13 @@
   margin: auto;
   max-width: calc(#{ $max-site-width } - 600px);
   width: $max-site-width;
-  
+
   .card {
     .header {
       color: palette('gray', base);
     }
-    
-    .footer {      
+
+    .footer {
       .icon-trash {
         color: palette('red', base);
         font-size: 16px;
@@ -17,11 +17,11 @@
       }
     }
   }
-  
+
   .organization {
     margin-bottom: 30px;
   }
-  
+
   .status {
     span {
       display: inline-block;
@@ -29,7 +29,7 @@
       vertical-align: middle;
     }
   }
-  
+
   .user-sort {
     display: none;
 
