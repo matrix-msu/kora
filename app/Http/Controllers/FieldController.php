@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\AssociatorField;
 use App\ComboListField;
 use App\Field;
 use App\Http\Requests\FieldRequest;
@@ -111,10 +112,27 @@ class FieldController extends Controller {
         $presets = OptionPresetController::getPresetsSupported($pid,$field);
 
         //Combo has two presets so we make an exception
-        if($field->type=="Combo List") {
+        if($field->type == Field::_COMBO_LIST) {
             $presetsOne = $presets->get("one");
             $presetsTwo = $presets->get("two");
             return view(ComboListField::FIELD_OPTIONS_VIEW, compact('field', 'form', 'proj','presetsOne','presetsTwo'));
+        } else if($field->type == Field::_ASSOCIATOR) {
+            //we are building an array about the association permissions to populate the layout
+            $option = \App\Http\Controllers\FieldController::getFieldOption($field,'SearchForms');
+            $opt_layout = array();
+            if($option!=''){
+                $options = explode('[!]',$option);
+
+                foreach($options as $opt){
+                    $opt_fid = explode('[fid]',$opt)[1];
+                    $opt_search = explode('[search]',$opt)[1];
+                    $opt_flids = explode('[flids]',$opt)[1];
+                    $opt_flids = explode('-',$opt_flids);
+
+                    $opt_layout[$opt_fid] = ['search' => $opt_search, 'flids' => $opt_flids];
+                }
+            }
+            return view(AssociatorField::FIELD_OPTIONS_VIEW, compact('field', 'form', 'proj','presets','opt_layout'));
         } else {
             return view($field->getTypedField()->getFieldOptionsView(), compact('field', 'form', 'proj','presets'));
         }
