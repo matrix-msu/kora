@@ -59,10 +59,6 @@
 }
 
 @media screen and (max-width: $max-mobile-xs-width) {
-  .navigation-left .navigation-item {
-    display: none;
-  }
-
   // Replace .icon-placeholder with the image class when replaced
   .navigation-left .logo .icon-placeholder {
     margin: #{ ($navigation-height - 27px) / 2 } 0;

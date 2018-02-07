@@ -11,7 +11,7 @@
   <ul class="navigation-left navigation-left-js">
     @if(Auth::guest())
       @if(strtolower($page_class) == "welcome")
-        <li class="navigation-item">
+        <li class="navigation-item pr-0">
           <a href="{{ url('/register') }}" class="text navigation-toggle-js underline-middle-hover">Need to Sign Up?</a>
         </li>
       @elseif(isInstalled())
@@ -38,7 +38,7 @@
 
   <ul class="navigation-right navigation-right-js">
     @if(Auth::guest())
-        <li class="navigation-item">
+        <li class="navigation-item pl-0">
             <a href="#" class="text menu-toggle navigation-toggle-js underline-middle-hover">
                 <span>English</span>
                 <i class="icon icon-chevron"></i>

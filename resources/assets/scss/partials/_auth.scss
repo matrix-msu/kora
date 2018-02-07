@@ -2,6 +2,10 @@
   font-family: Ubuntu;
   min-height: 100vh;
   text-align: center;
+
+  .side-menu {
+    display: none;
+  }
 }
 
 .auth {
