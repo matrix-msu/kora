@@ -83,7 +83,7 @@
     <div class="form-permissions">
       <span class="question">Need to Edit Form Permissions?</span>
 
-      <a class="action underline-middle-hover" href="#">
+      <a class="action underline-middle-hover" href="{{action('FormGroupController@index', ['pid'=>$form->pid,'fid'=>$form->fid])}}">
         <span>Go to Form Permissions Page</span>
         <i class="icon icon-arrow-right"></i>
       </a>

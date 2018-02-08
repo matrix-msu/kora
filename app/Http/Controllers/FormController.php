@@ -145,7 +145,7 @@ class FormController extends Controller {
      * @return Redirect
      */
 	public function update($pid, $fid, FormRequest $request) {
-        if(!self::validProjForm($pid, $fid))
+	    if(!self::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         if(!self::checkPermissions($pid, 'edit'))
@@ -155,11 +155,19 @@ class FormController extends Controller {
 
         $form->update($request->all());
 
+        if(isset($request->preset)) {
+            $form->preset = $request->preset;
+        } else {
+            $form->preset = 0;
+        }
+
+        $form->save();
+
         FormGroupController::updateMainGroupNames($form);
 
         flash()->overlay("Your form has been successfully updated!","Good Job!");
 
-        return redirect('projects/'.$form->pid);
+        return redirect('projects/'.$form->pid.'/forms/'.$form->fid);
 	}
 
     /**
