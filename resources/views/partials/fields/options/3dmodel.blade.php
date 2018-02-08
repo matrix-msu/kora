@@ -34,5 +34,5 @@
 @stop
 
 @section('fieldOptionsJS')
-    Kora.Fields.Options('Model');
+    Kora.Fields.Options('3D-Model');
 @stop

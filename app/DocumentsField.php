@@ -21,7 +21,7 @@ class DocumentsField extends FileTypeField {
      * @var string - Views for the typed field options
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.documents";
-    const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.documents";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.documents";
 
     /**
      * @var array - Attributes that can be mass assigned to model

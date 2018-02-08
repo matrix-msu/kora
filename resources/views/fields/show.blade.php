@@ -19,8 +19,7 @@
 @stop
 
 @section('body')
-    @include("partials.fields.modals.scheduleAddEventModal")
-    @include("partials.fields.modals.geolocatorAddLocationModal")
+    @include("partials.fields.input-modals")
 
     <section class="single-field center">
         {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@update', $field->pid, $field->fid, $field->flid]]) !!}

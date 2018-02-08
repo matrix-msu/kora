@@ -7,7 +7,7 @@
 @stop
 
 @section('stylesheets')
-    <!-- No Additional Stylesheets Necessary -->
+    <link rel="stylesheet" href="{{ config('app.url') }}assets/css/vendor/datetimepicker/jquery.datetimepicker.min.css" />
 @stop
 
 @section('header')
@@ -23,6 +23,8 @@
 @stop
 
 @section('body')
+    @include("partials.fields.input-modals")
+
     <section class="create-field center">
         {!! Form::model($field = new \App\Field, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid,'onsubmit' => 'selectAll()']) !!}
         @include('partials.fields.form', ['submitButtonText' => 'Create Field', 'pid' => $form->pid, 'fid' => $form->fid])
@@ -38,6 +40,9 @@
     @include('partials.fields.javascripts')
 
     <script type="text/javascript">
+        advanceCreateURL = "{{ action('FieldAjaxController@getAdvancedOptionsPage',['pid' => $form->pid,'fid'=>$form->fid]) }}";
+        csrfToken = "{{ csrf_token() }}";
+
         Kora.Fields.Create();
     </script>
 @stop

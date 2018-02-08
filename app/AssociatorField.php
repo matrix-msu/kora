@@ -28,7 +28,7 @@ class AssociatorField extends BaseField {
      * @var string - Views for the typed field options
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.associator";
-    const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.associator";
+    const FIELD_ADV_OPTIONS_VIEW = null;
 
     /**
      * @var array - Attributes that can be mass assigned to model

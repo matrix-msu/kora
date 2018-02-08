@@ -21,7 +21,7 @@ class PlaylistField extends FileTypeField  {
      * @var string - Views for the typed field options
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.playlist";
-    const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.playlist";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.playlist";
 
     /**
      * @var array - Attributes that can be mass assigned to model

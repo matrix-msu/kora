@@ -30,7 +30,7 @@ class GeolocatorField extends BaseField {
      * @var string - Views for the typed field options
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.geolocator";
-    const FIELD_ADV_OPTIONS_VIEW = "partials.field_option_forms.geolocator";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.geolocator";
 
     /**
      * @var array - Attributes that can be mass assigned to model

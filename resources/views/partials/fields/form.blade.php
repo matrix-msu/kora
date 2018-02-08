@@ -45,10 +45,19 @@
     </section>
 </section>
 
-<div id="advance_options_div">
-    <div class="form-group mt-xxxl">
-        <a href="#" id="adv_opt" class="btn half-sub-btn extend">Show Advanced Field Options</a>
-    </div>
+<div class="form-group mt-xxxl">
+    <section class="advanced-options-show">
+        <a href="#" class="btn half-sub-btn extend advanced-options-btn-js">Show Advanced Field Options</a>
+    </section>
+    <section class="advanced-options-hide hidden">
+        <a href="#" class="btn half-sub-btn extend advanced-options-btn-js">Hide Advanced Field Options</a>
+    </section>
+</div>
+
+<section class="advance-options-section-js"></section>
+
+<div class="form-group mt-xxxl">
+    <div class="spacer"></div>
 </div>
 
 <div class="form-group mt-xxxl">
@@ -144,8 +153,3 @@
 <div class="form-group mt-xxxl mb-max">
     {!! Form::submit($submitButtonText,['class' => 'btn']) !!}
 </div>
-
-<script>
-
-
-</script>

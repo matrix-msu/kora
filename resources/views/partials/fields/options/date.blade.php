@@ -81,7 +81,7 @@
 
     <div class="form-group mt-xl">
         {!! Form::label('circa','Circa: ') !!}
-        {!! Form::select('circa', ['No' => 'No','Yes' => 'Yes'], \App\Http\Controllers\FieldController::getFieldOption($field,'Era'), ['class' => 'single-select']) !!}
+        {!! Form::select('circa', ['No' => 'No','Yes' => 'Yes'], \App\Http\Controllers\FieldController::getFieldOption($field,'Circa'), ['class' => 'single-select']) !!}
     </div>
 
     <div class="form-group mt-xl">

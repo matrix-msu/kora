@@ -26,53 +26,64 @@ Kora.Fields.Create = function() {
     }
 
     function initializeAdvancedOptions() {
-        $('#advance_options_div').on('click', '#adv_opt', function () {
+        function openAdvancedOptions() {
             //opens advanced options page for selected type
             $.ajax({
-                url: "{{ action('FieldAjaxController@getAdvancedOptionsPage',['pid' => $pid,'fid'=>$fid]) }}",
-                type: 'GET',
+                url: advanceCreateURL,
+                type: 'POST',
                 data: {
-                    "_token": "{{ csrf_token() }}",
-                    type: $(".field_types").val()
+                    "_token": csrfToken,
+                    type: $(".field-types-js").val()
                 },
                 success: function (result) {
-                    $('#advance_options_div').html(result);
+                    $('.advance-options-section-js').html(result);
+
+                    advCreation = true;
+                    $('.advanced-options-show').addClass('hidden');
+                    $('.advanced-options-hide').removeClass('hidden');
                 }
             });
+        }
 
-            //set adv to true
-            adv = true;
+        function closeAdvancedOptions() {
+            $('.advance-options-section-js').html('');
+            advCreation = false;
+            $('.advanced-options-show').removeClass('hidden');
+            $('.advanced-options-hide').addClass('hidden');
+        }
+
+        $('.advanced-options-btn-js').click(function(e) {
+            e.preventDefault();
+
+            if(!advCreation)
+                openAdvancedOptions();
+            else
+                closeAdvancedOptions();
         });
 
-        $('#field_types_div').on('focus', '.field_types', function () {
+        $('.field-types-js').on('focus', function(e) {
             // Store the current value on focus and on change
             previous = $(this).val();
-        }).on('change', '.field_types', function () {
-            if ($(this).val() == 'Combo List' | $(this).val() == 'Associator') {
-                $('#adv_opt').attr('disabled', 'disabled');
-            } else {
-                $('#adv_opt').removeAttr('disabled');
-            }
-
+        }).on('change', function(e) {
+            if($(this).val() == 'Combo List' | $(this).val() == 'Associator')
+                $('.advanced-options-btn-js').addClass('disabled');
+            else
+                $('.advanced-options-btn-js').removeClass('disabled');
 
             //if adv is true
-            if (adv) {
+            if(advCreation) {
                 //dialog warning
-                var encode = $('<div/>').html("{{ trans('fields_form.confirmchange') }}").text();
+                var encode = $('<div/>').html("Are you sure?").text();
                 if (!confirm(encode)) {
                     $('.field_types').val(previous);
                     return false;
                 }
                 //close advanced options page
-                button = '<div class="form-group">';
-                button += '<button type="button" id="adv_opt" class="btn form-control">Adv Stuff</button>';
-                button += '<div>';
-                $('#advance_options_div').html(button);
-                //set adv to false
-                adv = false;
+                closeAdvancedOptions();
             }
         });
     }
 
+    initializeAdvancedOptions();
     initializeComboListFields();
 }
