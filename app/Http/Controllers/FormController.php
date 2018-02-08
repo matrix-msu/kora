@@ -76,7 +76,7 @@ class FormController extends Controller {
 
         $form->save();
 
-        if(!isset($request->preset)) //Since the preset is copying the target form, no need to make a default page
+        if($request->preset[0]=="") //Since the preset is copying the target form, no need to make a default page
             PageController::makePageOnForm($form->fid,$form->slug." Default Page");
 
         $adminGroup = FormGroup::makeAdminGroup($form, $request);
