@@ -39,10 +39,12 @@
     box-sizing: border-box;
     display: inline-block;
     text-align: left;
+    padding-right: 15px;
     width: 50%;
 
     + .half {
       float: right;
+      padding-left: 15px;
     }
   }
 
@@ -52,10 +54,11 @@
 
   @media screen and (max-width: $max-mobile-med-width) {
     &.half {
-      padding: 0;
+      padding-right: 0;
       width: 100%;
 
       + .half {
+        padding-left: 0;
         float: none;
       }
     }

@@ -50,6 +50,7 @@ Kora.FormAssociations.Index = function() {
         $('.permission-association-js').append(element);
         initializePermissionsToggles();
         initializeDeletePermissionModal();
+        $('#new-form option[value='+response.form.fid+']').remove();
         Kora.Modal.close();
       }
     });
@@ -64,6 +65,7 @@ Kora.FormAssociations.Index = function() {
         "assocfid": assocfid
       },
       success: function(response) {
+        $('#new-form').append($('<option></option>').attr('value', response.assocfid).text(response.name));
         Kora.Modal.close();
         $('.create-section #'+response.assocfid).fadeOut(1000, function() {
           $(this).remove();
@@ -81,6 +83,7 @@ Kora.FormAssociations.Index = function() {
         "assocfid": assocfid
       },
       success: function(response) {
+        $('#request-form').append($('<option></option>').attr('value', response.assocfid).text(response.name));
         Kora.Modal.close();
         $('.request-section #'+response.assocfid).fadeOut(1000, function() {
           $(this).remove();

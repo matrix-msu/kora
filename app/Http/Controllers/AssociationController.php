@@ -97,10 +97,13 @@ class AssociationController extends Controller {
 
         $assoc->delete();
 
+        $form = Form::where('fid', '=', $assocFormID)->first();
+
         return response()->json(
             [
                 'k3_global_success' => 'assoc_destroyed',
-                'assocfid' => $assocFormID
+                'assocfid' => $assocFormID,
+                'name' => $form->name
             ]
         );
 	}
@@ -119,10 +122,13 @@ class AssociationController extends Controller {
 
         $assoc->delete();
 
+        $form = Form::where('fid', '=', $dataFormID)->first();
+
         return response()->json(
             [
                 'k3_global_success' => 'assoc_destroyed',
-                'assocfid' => $dataFormID
+                'assocfid' => $dataFormID,
+                'name' => $form->name
             ]
         );
     }

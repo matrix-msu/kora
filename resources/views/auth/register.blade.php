@@ -11,14 +11,14 @@
       <input type="hidden" name="_token" value="{{ csrf_token() }}">
       <input type="hidden" name="regtoken" value="{{\App\Http\Controllers\Auth\RegisterController::makeRegToken()}}">
 
-      <div class="form-group half mt-xl pr-m">
+      <div class="form-group half mt-xl">
         <label for="first-name">Your First Name</label>
   			<input type="text" class="text-input" name="first_name" placeholder="Enter your first name here" value="{{ old('first_name') }}">
       </div>
 
-      <div class="form-group half mt-xl pl-m">
+      <div class="form-group half mt-xl">
         <label for="first-name">Your Last Name</label>
-  			<input type="text" class="text-input" name="last_name" placeholder="Enter your last name here" value="{{ old('name') }}">
+  			<input type="text" class="text-input" name="last_name" placeholder="Enter your last name here" value="{{ old('last_name') }}">
       </div>
 
       <div class="form-group mt-xl">
@@ -31,12 +31,12 @@
         <input type="email" class="text-input" name="email" placeholder="Enter your email here" value="{{ old('email') }}">
       </div>
 
-      <div class="form-group half mt-xl pr-m">
+      <div class="form-group half mt-xl">
         <label for="password">Your Password</label>
   			<input type="password" class="text-input" name="password" placeholder="Enter your password here">
       </div>
 
-      <div class="form-group half mt-xl pl-m">
+      <div class="form-group half mt-xl">
         <label for="password_confirmation">Confirm Your Password</label>
   			<input type="password" class="text-input" name="password_confirmation" placeholder="Confirm your password here">
       </div>
@@ -73,6 +73,8 @@
               @foreach($languages_available->keys() as $lang)
                   <option value='{{$languages_available->get($lang)[0]}}'>{{$languages_available->get($lang)[1]}} </option>
               @endforeach
+              <option value='fr'>French</option>
+              <option value='sp'>Spanish</option>
           </select>
       </div>
 
@@ -89,8 +91,6 @@
 @stop
 
 @section('javascripts')
-  @include('partials.projects.javascripts')
-
   <!-- Google reCAPTCHA -->
   <script type="text/javascript" src="https://www.google.com/recaptcha/api.js" async defer></script>
 
