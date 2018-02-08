@@ -174,6 +174,7 @@ Kora.Forms.Show = function() {
     }
 
     $('.delete-page-js').on('click', function(e) {
+      e.preventDefault();
       var page = $(e.target).parent().data('page');
 
       var $deleteModal = $('.page-delete-modal-js');
@@ -186,7 +187,8 @@ Kora.Forms.Show = function() {
   function initializePages() {
     initializePage();
 
-    $('.pages-js').on('click', '.new-page-js', function() {
+    $('.pages-js').on('click', '.new-page-js', function(e) {
+      e.preventDefault();
       var pageID = $(this).data('prev-page');
       var newPageNumber = $(this).data('new-page');
       var title = 'Page #' + newPageNumber;
@@ -208,7 +210,8 @@ Kora.Forms.Show = function() {
       });
     });
 
-    $('.page-delete-modal-js').on('click', '.delete-page-confirm-js', function() {
+    $('.page-delete-modal-js').on('click', '.delete-page-confirm-js', function(e) {
+      e.preventDefault();
       var pageID = $(this).data('page');
 
       $.ajax({

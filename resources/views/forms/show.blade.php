@@ -110,7 +110,7 @@
         @if(\Auth::user()->canCreateFields($form))
           <form method="DET" action="{{action('FieldController@create', ['pid' => $form->pid, 'fid' => $form->fid, 'rootPage' => $page['id']]) }}">
             <div class="form-group new-field-button">
-              <input type="submit" value="Create New Field" class="btn transparent">
+              <input type="submit" value="Create New Field Here" class="btn transparent">
             </div>
           </form>
         @endif
@@ -118,7 +118,7 @@
 
       @if(\Auth::user()->canCreateFields($form))
         <div class="form-group new-page-button">
-          <a href="#" data-new-page="{{$idx + 2}}" data-prev-page="{{$page["id"]}}" class="new-page-js btn transparent">Create New Page</a>
+          <a href="#" data-new-page="{{$idx + 2}}" data-prev-page="{{$page["id"]}}" class="new-page-js btn transparent">Create New Form Page Here</a>
         </div>
       @endif
 
