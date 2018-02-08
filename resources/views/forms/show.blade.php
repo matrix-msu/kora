@@ -89,7 +89,7 @@
           </div>
 
           <div class="form-group title-container">
-            {!! Form::text('name', null, ['class' => 'title page-title-js', 'placeholder' => $page["title"]]) !!}
+            {!! Form::text('name', null, ['class' => 'title page-title-js', 'placeholder' => $page["title"], 'pageid' => $page["id"]]) !!}
           </div>
 
           <div>
@@ -133,6 +133,7 @@
     var modifyFormPageRoute = "{{ action('PageController@modifyFormPage', ['pid' => $form->pid, 'fid' => $form->fid]) }}";
     var addMethod = "{{\App\Http\Controllers\PageController::_ADD}}";
     var delMethod = "{{\App\Http\Controllers\PageController::_DELETE}}";
+    var renameMethod = "{{\App\Http\Controllers\PageController::_RENAME}}";
     Kora.Forms.Show();
   </script>
 @stop

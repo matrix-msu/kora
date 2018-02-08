@@ -168,9 +168,36 @@ Kora.Forms.Show = function() {
 
     pageTitles = document.getElementsByClassName('page-title-js');
     for (var i = 0; i < pageTitles.length; i++) {
-      $pageTitle = pageTitles[i];
-      $pageTitle.setAttribute('size',
-        $pageTitle.getAttribute('placeholder').length);
+      $pageTitle = $(pageTitles[i]);
+      $pageTitle.attr('size',
+        $pageTitle.attr('placeholder').length);
+      
+      $pageTitle.on('keyup blur', function(e) {
+        $this = $(this);
+        if ((e.key === "Enter" || e.type === "blur") && $this.val() !== '') {
+          $.ajax({
+            url: modifyFormPageRoute,
+            type: 'POST',
+            data: {
+              '_token': CSRFToken,
+              'method': renameMethod,
+              'pageID': $this.attr('pageid'),
+              'updatedName': $this.val()
+            }
+          })
+          $this.attr('placeholder', $this.val());
+          $this.attr('size', $this.val().length)
+          $this.val('');
+        }
+
+        if (e.key === "Enter") {
+          $this.blur()
+        }
+      });
+
+      $pageTitle.click(function(e) {
+        $(this).val($(this).attr('placeholder'));
+      });
     }
 
     $('.delete-page-js').on('click', function(e) {
