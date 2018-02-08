@@ -13,6 +13,14 @@
 
     .name {
       color: palette('gray', text);
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .pl-m {
+      max-width: calc(100% - 85px);
     }
   }
 
