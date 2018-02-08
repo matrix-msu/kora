@@ -9,8 +9,8 @@
     <div class="body">
       {!! Form::open(['method' => 'POST', 'action' => ['AssociationController@create', $project->pid, $form->fid]]) !!}
         <div class="form-group">
-          {!! Form::label("form", "Select a Form to Allow Association") !!}
-          <select class="single-select" id="form" name="assocfid"
+          {!! Form::label("new-form", "Select a Form to Allow Association") !!}
+          <select class="single-select" id="new-form" name="assocfid"
             data-placeholder="Select a form here">
             <option></option>
             @foreach ($associatable_forms as $association)

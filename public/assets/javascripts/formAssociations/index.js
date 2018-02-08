@@ -50,6 +50,7 @@ Kora.FormAssociations.Index = function() {
         $('.permission-association-js').append(element);
         initializePermissionsToggles();
         initializeDeletePermissionModal();
+        $('#new-form option[value='+response.form.fid+']').remove();
         Kora.Modal.close();
       }
     });
