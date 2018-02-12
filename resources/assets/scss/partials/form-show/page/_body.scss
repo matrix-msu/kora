@@ -9,14 +9,20 @@
   width: calc(100% - 80px);
 
   .quick-action.delete-field {
+    padding-right: 15px;
+    padding-top: 35px;
+
     .icon {
       @include transition();
 
-      font-size: 16px;
+      color: palette('red', warning, 1);
+      font-size: 14px;
+      padding: 0 0 5px;
+      will-change: transform;
     }
 
-    &:hover .icon {
-      color: palette('red', warning, 1);
+    &:hover .icon-trash {
+      transform: scale($transform-scale-multiplier);
     }
   }
 

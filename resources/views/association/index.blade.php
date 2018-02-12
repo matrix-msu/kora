@@ -70,7 +70,7 @@
         
     </section>
     <section class="request-section hidden">
-        <p class="description">You may also request association permissions for this form to associate with other forms. Select "Request Form Association" to begin. Once requested, a notification will be sent to the admins of the selected form to allow association from your form.</p>
+        <p class="description center">You may also request association permissions for this form to associate with other forms. Select "Request Form Association" to begin. Once requested, a notification will be sent to the admins of the selected form to allow association from your form.</p>
         <section class="new-object-button center">
             @if(\Auth::user()->isProjectAdmin($project))
                 <form action="#">
