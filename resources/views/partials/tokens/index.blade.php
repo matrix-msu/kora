@@ -34,12 +34,12 @@
         <div class="left pl-m">
             <a class="title">
                 <span class="name">{{$token->title}}</span>
-                <span class="sub-title hide">{{$typesHyphen}}</span>
             </a>
         </div>
 
         <div class="card-toggle-wrap">
             <a href="#" class="card-toggle token-toggle-js">
+                <span class="chevron-text">{{$typesHyphen}}</span>
                 <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
             </a>
         </div>
@@ -51,24 +51,34 @@
             <span>{{$token->token}}</span>
         </div>
 
-        <div class="description mt-xl">
-            <span>This token can
-                {{$typesDesc}}
-                within the following projects:</span>
-        </div>
+        @if($token->projects()->count() > 0)
+            <div class="description mt-xl">
+                <span>This token can
+                    {{$typesDesc}}
+                    within the following projects:</span>
+            </div>
 
-        {{--This is where the list of projects goes--}}
-        <div class="token-projects mt-xl">
-            @foreach($token->projects()->get() as $tp)
-                <div class="token-project">
-                    <span><a class="token-project-delete-js" href="#"
-                             pid="{{$tp->pid}}" token="{{$token->id}}" pname="{{$tp->name}}">
-                            <i class="icon icon-cancel-circle"></i></a>
-                    </span>
-                    <span class="ml-xs tp-title">{{$tp->name}}</span>
-                </div>
-            @endforeach
-        </div>
+            {{--This is where the list of projects goes--}}
+            <div class="token-projects mt-xl">
+                @foreach($token->projects()->get() as $tp)
+                    <div class="token-project">
+                        <span><a class="token-project-delete-js" href="#"
+                                 pid="{{$tp->pid}}" token="{{$token->id}}" pname="{{$tp->name}}">
+                                <i class="icon icon-cancel-circle"></i></a>
+                        </span>
+                        <span class="ml-xs tp-title">{{$tp->name}}</span>
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <div class="description mt-xl">
+                <span>No projects have been added to this token. Select
+                    <a class="empty-token-projects-link underline-middle-hover add-projects-js" href="#">
+                        Add Project(s) to Token
+                    </a>
+                    to add some!</span>
+            </div>
+        @endif
 
         <div class="footer">
             <a class="quick-action trash-container left danger delete-token-js" href="#">
@@ -81,7 +91,7 @@
             </a>
 
             <a class="quick-action underline-middle-hover add-projects-js" href="#">
-                <span>Add Projects to Token</span>
+                <span>Add Project(s) to Token</span>
             </a>
         </div>
     </div>

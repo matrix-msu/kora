@@ -11,11 +11,11 @@
     {{--TODO::Make these auto check if the option is already selected. See the token index js--}}
 </div>
 <div class="actions">
-    <div class="form-group action">
+    <div class="form-group action mt-xs">
         <div class="check-box-half check-box-rectangle">
             <input type="checkbox"
                    value="0"
-                   class="check-box-input"
+                   class="check-box-input search-checkbox-js"
                    name="token_search" />
             <span class="check"></span>
             <span class="placeholder">Search</span>
@@ -26,7 +26,7 @@
         <div class="check-box-half check-box-rectangle">
             <input type="checkbox"
                    value="0"
-                   class="check-box-input"
+                   class="check-box-input create-checkbox-js"
                    name="token_create" />
             <span class="check"></span>
             <span class="placeholder">Create</span>
@@ -37,7 +37,7 @@
         <div class="check-box-half check-box-rectangle">
             <input type="checkbox"
                    value="0"
-                   class="check-box-input"
+                   class="check-box-input edit-checkbox-js"
                    name="token_edit" />
             <span class="check"></span>
             <span class="placeholder">Edit</span>
@@ -48,7 +48,7 @@
         <div class="check-box-half check-box-rectangle">
             <input type="checkbox"
                    value="0"
-                   class="check-box-input"
+                   class="check-box-input delete-checkbox-js"
                    name="token_delete" />
             <span class="check"></span>
             <span class="placeholder">Delete</span>

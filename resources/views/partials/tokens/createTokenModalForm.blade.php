@@ -9,7 +9,7 @@
     <label for="token_search">Select Token Type(s)</label>
 </div>
 <div class="actions">
-    <div class="form-group action">
+    <div class="form-group action mt-xs">
         <div class="check-box-half check-box-rectangle">
             <input type="checkbox"
                    value="0"

@@ -73,7 +73,7 @@ Kora.Tokens.Index = function() {
             var $token = $header.parent();
             var $content = $header.next();
 
-            $this.children().toggleClass('active');
+            $this.children('.icon').toggleClass('active');
             $token.toggleClass('active');
             if ($token.hasClass('active')) {
                 $header.addClass('active');
@@ -113,23 +113,30 @@ Kora.Tokens.Index = function() {
 
         $('.edit-token-js').click(function(e) {
             e.preventDefault();
+
             indexVal = $('#token_edit_modal_id');
             titleVal = $('#token_edit_modal_name');
-            //TODO::Not sure how to check the boxes in javascript with the fancy boxes
-            // searchVal = $('#token_edit_modal_search');
-            // createVal = $('#token_edit_modal_create');
-            // editVal = $('#token_edit_modal_edit');
-            // deleteVal = $('#token_edit_modal_delete');
+
+            searchVal = $('#token_edit_modal_search');
+            createVal = $('#token_edit_modal_create');
+            editVal = $('#token_edit_modal_edit');
+            deleteVal = $('#token_edit_modal_delete');
 
             tokenDiv = $(this).parents('.token').first();
             titleSpan = tokenDiv.find('.name').first();
 
             indexVal.val(tokenDiv.attr('id'));
-            // SEE TODO ABOVE
-            // tokenDiv.hasClass('search') ? searchVal.val(1) : searchVal.val(0);
-            // tokenDiv.hasClass('create') ? createVal.val(1) : createVal.val(0);
-            // tokenDiv.hasClass('edit') ? editVal.val(1) : editVal.val(0);
-            // tokenDiv.hasClass('delete') ? deleteVal.val(1) : deleteVal.val(0);
+
+            //TODO:: close, but not yet
+            if(tokenDiv.hasClass('search'))
+                $('.search-checkbox-js').trigger("click");
+            if(tokenDiv.hasClass('create'))
+                $('.create-checkbox-js').trigger("click");
+            if(tokenDiv.hasClass('edit'))
+                $('.edit-checkbox-js').trigger("click");
+            if(tokenDiv.hasClass('delete'))
+                $('.delete-checkbox-js').trigger("click");
+
             titleVal.val(titleSpan.text());
 
             Kora.Modal.open($('.edit-token-modal-js'));
