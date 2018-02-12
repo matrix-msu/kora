@@ -12,5 +12,15 @@
     margin: #{map-get($spacing, xxxl)} auto;
     max-width: calc(#{ $max-site-width } - 600px);
     width: $max-site-width;
+
+    .field-meme-link {
+      color: palette('green', accent);
+      font-family: $ubuntu-medium;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 19px;
+      padding: 0 0 5px;
+      text-decoration: none;
+    }
   }
 }

@@ -1,4 +1,4 @@
-<div class="form-group mt-xl">
+<div class="form-group mt-xxxl">
     {!! Form::label('default_month','Default Month: ') !!}
     {!! Form::select('default_month',['' => '', '0' => 'Current Month',
         '1' => '01 - '.date("F", mktime(0, 0, 0, 1, 10)), '2' => '02 - '.date("F", mktime(0, 0, 0, 2, 10)),
@@ -59,12 +59,12 @@
 </div>
 
 <div class="form-group mt-xl">
-    {!! Form::label('circa','Circa: ') !!}
+    {!! Form::label('circa','Show Circa Approximations?: ') !!}
     {!! Form::select('circa', ['No' => 'No','Yes' => 'Yes'], 'No', ['class' => 'single-select']) !!}
 </div>
 
 <div class="form-group mt-xl">
-    {!! Form::label('era','Era: ') !!}
+    {!! Form::label('era','Show Era?: ') !!}
     {!! Form::select('era', ['No' => 'No','Yes' => 'Yes'], 'No', ['class' => 'single-select']) !!}
 </div>
 

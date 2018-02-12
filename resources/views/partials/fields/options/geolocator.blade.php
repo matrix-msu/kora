@@ -10,9 +10,9 @@
         </select>
     </div>
 
-    <div class="form-group mt-xl">
-        <a href="#" class="btn half-sub-btn extend add-new-default-location-js">Create New Default Location</a>
-    </div>
+    <section class="new-object-button form-group mt-xl">
+        <input type="button" class="add-new-default-location-js" value="Create New Default Location">
+    </section>
 
     <div class="form-group mt-xl">
         {!! Form::label('map','Map Display: ') !!}

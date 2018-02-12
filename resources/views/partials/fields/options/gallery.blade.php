@@ -45,7 +45,8 @@
     <div class="form-group mt-xl">
         {!! Form::label('filetype','Allowed File Types: ') !!}
         {!! Form::select('filetype'.'[]',['image/jpeg' => 'Jpeg','image/gif' => 'Gif','image/png' => 'Png','image/bmp' => 'Bmp'],
-            explode('[!]',\App\Http\Controllers\FieldController::getFieldOption($field, "FileTypes")), ['class' => 'multi-select', 'Multiple']) !!}
+            explode('[!]',\App\Http\Controllers\FieldController::getFieldOption($field, "FileTypes")),
+            ['class' => 'multi-select', 'Multiple', 'data-placeholder' => 'Search and Select the file types allowed here']) !!}
     </div>
 @stop
 

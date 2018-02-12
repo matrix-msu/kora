@@ -8,8 +8,8 @@
         </div>
         <div class="body">
             <div class="form-group">
-                {!! Form::label('locDesc', 'Location Description: ') !!}
-                <input type="text" class="text-input location-desc-js" placeholder="Enter the Location description here">
+                {!! Form::label('locDesc', 'Location Name: ') !!}
+                <input type="text" class="text-input location-desc-js" placeholder="Enter the Location name here">
             </div>
             <div class="form-group mt-xl">
                 {!! Form::label('locType', 'Location Type: ') !!}

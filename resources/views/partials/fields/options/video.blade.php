@@ -17,7 +17,7 @@
         {!! Form::label('filetype','Allowed File Types: ') !!}
         {!! Form::select('filetype'.'[]',['video/mp4' => 'MP4','video/ogg' => 'OGV'],
             explode('[!]',\App\Http\Controllers\FieldController::getFieldOption($field, "FileTypes")),
-            ['class' => 'multi-select', 'Multiple']) !!}
+            ['class' => 'multi-select', 'Multiple', 'data-placeholder' => 'Search and Select the file types allowed here']) !!}
     </div>
 @stop
 

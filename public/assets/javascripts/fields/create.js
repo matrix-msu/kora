@@ -9,6 +9,8 @@ Kora.Fields.Create = function() {
 
     //Global variable for whether advanced field creation is active
     var advCreation = false;
+    var previousType = '';
+    var currentType = '';
 
     function initializeComboListFields() {
         //In the case of returning to page for errors, show the CLF if applicable
@@ -26,8 +28,10 @@ Kora.Fields.Create = function() {
     }
 
     function initializeAdvancedOptions() {
+        Kora.Modal.initialize();
+
+        //opens advanced options page for selected type
         function openAdvancedOptions() {
-            //opens advanced options page for selected type
             $.ajax({
                 url: advanceCreateURL,
                 type: 'POST',
@@ -45,6 +49,7 @@ Kora.Fields.Create = function() {
             });
         }
 
+        //Closes the advanced options page and resets btn
         function closeAdvancedOptions() {
             $('.advance-options-section-js').html('');
             advCreation = false;
@@ -52,6 +57,17 @@ Kora.Fields.Create = function() {
             $('.advanced-options-hide').addClass('hidden');
         }
 
+        //Sets the field type and checks if new type should allow advanced
+        function setFieldType() {
+            $('.field-types-js').val(currentType);
+            $('.field-types-js').trigger('chosen:updated');
+            if(currentType == 'Combo List' | currentType == 'Associator')
+                $('.advanced-options-btn-js').addClass('disabled');
+            else
+                $('.advanced-options-btn-js').removeClass('disabled');
+        }
+
+        //Handles the click of the advanced creation btn
         $('.advanced-options-btn-js').click(function(e) {
             e.preventDefault();
 
@@ -61,25 +77,29 @@ Kora.Fields.Create = function() {
                 closeAdvancedOptions();
         });
 
-        $('.field-types-js').on('focus', function(e) {
+        //Handles modal submission of advanced options change
+        $('.change-field-type-js').click(function(e) {
+            setFieldType();
+            closeAdvancedOptions();
+            Kora.Modal.close($('.change-advanced-field-modal-js'));
+        });
+
+        //Special chosen js method for capturing the focus event
+        $('.field-types-js').on('chosen:showing_dropdown', function () {
             // Store the current value on focus and on change
-            previous = $(this).val();
+            previousType = $(this).val();
         }).on('change', function(e) {
-            if($(this).val() == 'Combo List' | $(this).val() == 'Associator')
-                $('.advanced-options-btn-js').addClass('disabled');
-            else
-                $('.advanced-options-btn-js').removeClass('disabled');
+            currentType = $(this).val();
 
             //if adv is true
             if(advCreation) {
-                //dialog warning
-                var encode = $('<div/>').html("Are you sure?").text();
-                if (!confirm(encode)) {
-                    $('.field_types').val(previous);
-                    return false;
-                }
-                //close advanced options page
-                closeAdvancedOptions();
+                //Change back to previous value until change is confirmed by user
+                $(this).val(previousType);
+                $(this).trigger('chosen:updated');
+                Kora.Modal.open($('.change-advanced-field-modal-js'));
+            } else {
+                //User input not needed since advanced options is not open
+                setFieldType();
             }
         });
     }

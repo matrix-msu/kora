@@ -16,7 +16,7 @@ Kora.Fields.Show = function() {
             );
 
             $cleanupModal.find('.delete-content-js').show();
-            Kora.Modal.open();
+            Kora.Modal.open($cleanupModal);
         });
     }
 

@@ -8,6 +8,10 @@
   margin: $navigation-height auto 0;
   width: 100%;
 
+  .head .title i {
+    font-size: 30px;
+  }
+
   .single-field {
     margin: #{map-get($spacing, xxxl)} auto;
     max-width: calc(#{ $max-site-width } - 600px);
@@ -18,6 +22,16 @@
     .spacer {
       margin: 60px auto;
     }
+  }
+
+  .field-meme-link {
+    color: palette('green', accent);
+    font-family: $ubuntu-medium;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 19px;
+    padding: 0 0 5px;
+    text-decoration: none;
   }
 
   @import 'field-show/field-update-delete';

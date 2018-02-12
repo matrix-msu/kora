@@ -107,6 +107,8 @@ Kora.Fields.Options = function(fieldType) {
     }
 
     function initializeScheduleOptions() {
+        Kora.Modal.initialize();
+
         $('.add-new-default-event-js').click(function(e) {
             e.preventDefault();
 
@@ -155,6 +157,8 @@ Kora.Fields.Options = function(fieldType) {
     }
 
     function intializeGeolocatorOptions() {
+        Kora.Modal.initialize();
+
         $('.add-new-default-location-js').click(function(e) {
             e.preventDefault();
 

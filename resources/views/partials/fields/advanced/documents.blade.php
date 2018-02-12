@@ -1,4 +1,4 @@
-<div class="form-group mt-xl">
+<div class="form-group mt-xxxl">
     {!! Form::label('filesize','Max File Size (kb): ') !!}
     <input type="number" name="filesize" class="text-input" step="1" value="0" min="0">
 </div>
@@ -9,8 +9,9 @@
 </div>
 
 <div class="form-group mt-xl">
-    <label for="filetype">Allowed File Types (<a href="https://en.wikipedia.org/wiki/MIME">MIME</a>): </label>
-    {!! Form::select('filetype'.'[]',\App\FileTypeField::getMimeTypesClean(), null, ['class' => 'multi-select', 'Multiple']) !!}
+    <label for="filetype">Allowed File Types (<a class="field-meme-link underline-middle-hover" href="https://en.wikipedia.org/wiki/MIME">MIME</a>): </label>
+    {!! Form::select('filetype'.'[]',\App\FileTypeField::getMimeTypesClean(), null,
+        ['class' => 'multi-select', 'Multiple', 'data-placeholder' => 'Search and Select the file types allowed here']) !!}
 </div>
 
 <script>

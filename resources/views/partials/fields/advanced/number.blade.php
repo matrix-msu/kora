@@ -1,4 +1,4 @@
-<div class="form-group mt-xl">
+<div class="form-group mt-xxxl">
     {!! Form::label('default','Default: ') !!}
     <input type="number" name="default" class="text-input" value="">
 </div>

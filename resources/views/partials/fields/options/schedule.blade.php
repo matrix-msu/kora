@@ -14,9 +14,9 @@
         </select>
     </div>
 
-    <div class="form-group mt-xl">
-        <a href="#" class="btn half-sub-btn extend add-new-default-event-js">Create New Default Event</a>
-    </div>
+    <section class="new-object-button form-group mt-xl">
+        <input type="button" class="add-new-default-event-js" value="Create New Default Event">
+    </section>
 
     <div class="form-group mt-xl">
         {!! Form::label('start','Start Year: ') !!}

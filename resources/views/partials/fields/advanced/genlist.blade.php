@@ -1,12 +1,12 @@
-<div class="form-group mt-xl">
-    {!! Form::label('default','Default : ') !!}
-    {!! Form::select('default[]', [], null, ['class' => 'multi-select genlist-default-js', 'multiple']) !!}
+<div class="form-group mt-xxxl">
+    {!! Form::label('options','List Options: ') !!}
+    <select multiple class="multi-select modify-select genlist-options-js" name="options[]"
+            data-placeholder="Select or Add Some Options"></select>
 </div>
 
 <div class="form-group mt-xl">
-    {!! Form::label('options','List Options: ') !!}
-    <select multiple class="multi-select modify-select genlist-options-js" name="options[]"
-        data-placeholder="Select or Add Some Options"></select>
+    {!! Form::label('default','Default : ') !!}
+    {!! Form::select('default[]', [], null, ['class' => 'multi-select genlist-default-js', 'multiple']) !!}
 </div>
 
 <div class="form-group mt-xl">

@@ -80,12 +80,12 @@
     </div>
 
     <div class="form-group mt-xl">
-        {!! Form::label('circa','Circa: ') !!}
+        {!! Form::label('circa','Show Circa Approximations?: ') !!}
         {!! Form::select('circa', ['No' => 'No','Yes' => 'Yes'], \App\Http\Controllers\FieldController::getFieldOption($field,'Circa'), ['class' => 'single-select']) !!}
     </div>
 
     <div class="form-group mt-xl">
-        {!! Form::label('era','Era: ') !!}
+        {!! Form::label('era','Show Era?: ') !!}
         {!! Form::select('era', ['No' => 'No','Yes' => 'Yes'], \App\Http\Controllers\FieldController::getFieldOption($field,'Era'), ['class' => 'single-select']) !!}
     </div>
 @stop

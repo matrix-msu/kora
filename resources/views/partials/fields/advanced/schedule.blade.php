@@ -1,12 +1,12 @@
-<div class="form-group mt-xl">
+<div class="form-group mt-xxxl">
     {!! Form::label('default','Default Value: ') !!}
     <select multiple class="multi-select default-event-js" name="default[]"
         data-placeholder="Add Events Below"></select>
 </div>
 
-<div class="form-group mt-xl">
-    <a href="#" class="btn half-sub-btn extend add-new-default-event-js">Create New Default Event</a>
-</div>
+<form class="new-object-button form-group mt-xl">
+    <input type="button" class="add-new-default-event-js" value="Create New Default Event">
+</form>
 
 <div class="form-group mt-xl">
     {!! Form::label('start','Start Year: ') !!}
