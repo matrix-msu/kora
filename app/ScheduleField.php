@@ -1,5 +1,6 @@
 <?php namespace App;
 
+use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
 use DateTime;
@@ -64,6 +65,22 @@ class ScheduleField extends BaseField {
      */
     public function getDefaultOptions(Request $request) {
         return '[!Start!]1900[!Start!][!End!]2020[!End!][!Calendar!]No[!Calendar!]';
+    }
+
+    /**
+     * Gets an array of all the fields options.
+     *
+     * @param  Field $field
+     * @return array - The options array
+     */
+    public function getOptionsArray(Field $field) {
+        $options = array();
+
+        $options['StartYear'] = FieldController::getFieldOption($field, 'Start');
+        $options['EndYear'] = FieldController::getFieldOption($field, 'End');
+        $options['CalendarView'] = FieldController::getFieldOption($field, 'Calendar');
+
+        return $options;
     }
 
     /**

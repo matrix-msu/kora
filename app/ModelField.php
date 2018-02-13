@@ -61,6 +61,25 @@ class ModelField extends FileTypeField  {
     }
 
     /**
+     * Gets an array of all the fields options.
+     *
+     * @param  Field $field
+     * @return array - The options array
+     */
+    public function getOptionsArray(Field $field) {
+        $options = array();
+
+        $options['FieldFileSize'] = FieldController::getFieldOption($field, 'FieldSize');
+        $options['MaxFileAmount'] = FieldController::getFieldOption($field, 'MaxFiles');
+        $options['AllowedFileTypes'] = explode('[!]',FieldController::getFieldOption($field, 'FileTypes'));
+        $options['ModelColor'] = FieldController::getFieldOption($field, 'ModelColor');
+        $options['BackColorOne'] = FieldController::getFieldOption($field, 'BackColorOne');
+        $options['BackColorTwo'] = FieldController::getFieldOption($field, 'BackColorTwo');
+
+        return $options;
+    }
+
+    /**
      * Update the options for a field
      *
      * @param  Field $field - Field to update options

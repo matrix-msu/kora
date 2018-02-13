@@ -88,6 +88,8 @@ class RestfulController extends Controller {
             $fArray['type'] = $field->type;
             $fArray['nickname'] = $field->slug;
             $fArray['description'] = $field->desc;
+            $fArray['options'] = Field::getTypedFieldStatic($field->type)->getOptionsArray($field);
+
             $fields[$field->flid] = $fArray;
         }
         return response()->json(["status"=>true,"result"=>$fields],200);

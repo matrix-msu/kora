@@ -70,6 +70,23 @@ class NumberField extends BaseField {
     }
 
     /**
+     * Gets an array of all the fields options.
+     *
+     * @param  Field $field
+     * @return array - The options array
+     */
+    public function getOptionsArray(Field $field) {
+        $options = array();
+
+        $options['MaxValue'] = FieldController::getFieldOption($field, 'Max');
+        $options['MinValue'] = FieldController::getFieldOption($field, 'Min');
+        $options['Increment'] = FieldController::getFieldOption($field, 'Increment');
+        $options['UnitOfMeasure'] = FieldController::getFieldOption($field, 'Unit');
+
+        return $options;
+    }
+
+    /**
      * Update the options for a field
      *
      * @param  Field $field - Field to update options

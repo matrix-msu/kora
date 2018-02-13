@@ -142,6 +142,14 @@ abstract class BaseField extends Model {
     abstract public function getDefaultOptions(Request $request);
 
     /**
+     * Gets an array of all the fields options.
+     *
+     * @param  Field $field
+     * @return array - The options array
+     */
+    abstract public function getOptionsArray(Field $field);
+
+    /**
      * Update the options for a field
      *
      * @param  Field $field - Field to update options
