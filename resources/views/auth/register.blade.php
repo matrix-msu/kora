@@ -7,38 +7,49 @@
       <h1 class="title">Sign Up</h1>
     </section>
 
+    @if (count($errors) > 0)
+      <div class="alert alert-danger">
+        <strong>Whoops!</strong> There were some problems with your input.<br><br>
+        <ul>
+          @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+          @endforeach
+        </ul>
+      </div>
+    @endif
+
     <form id="register-form" class="form-horizontal" role="form" method="POST" enctype="multipart/form-data" action="{{ url('/register') }}">
-      <input type="hidden" name="_token" value="{{ csrf_token() }}">
-      <input type="hidden" name="regtoken" value="{{\App\Http\Controllers\Auth\RegisterController::makeRegToken()}}">
+      <input type="hidden" id="_token" name="_token" value="{{ csrf_token() }}">
+      <input type="hidden" id="regtoken" name="regtoken" value="{{\App\Http\Controllers\Auth\RegisterController::makeRegToken()}}">
 
       <div class="form-group half mt-xl">
         <label for="first-name">Your First Name</label>
-  			<input type="text" class="text-input" name="first_name" placeholder="Enter your first name here" value="{{ old('first_name') }}">
+  			<input type="text" class="text-input" id="first_name" name="first_name" placeholder="Enter your first name here" value="{{ old('first_name') }}">
       </div>
 
       <div class="form-group half mt-xl">
         <label for="first-name">Your Last Name</label>
-  			<input type="text" class="text-input" name="last_name" placeholder="Enter your last name here" value="{{ old('last_name') }}">
+  			<input type="text" class="text-input" id="last_name" name="last_name" placeholder="Enter your last name here" value="{{ old('last_name') }}">
       </div>
 
       <div class="form-group mt-xl">
         <label for="username">Your Username</label>
-        <input type="text" class="text-input" name="username" placeholder="Enter your username here" value="{{ old('username') }}">
+        <input type="text" class="text-input" id="username" name="username" placeholder="Enter your username here" value="{{ old('username') }}">
       </div>
 
       <div class="form-group mt-xl">
         <label for="email">Your Email</label>
-        <input type="email" class="text-input" name="email" placeholder="Enter your email here" value="{{ old('email') }}">
+        <input type="email" class="text-input" id="email" name="email" placeholder="Enter your email here" value="{{ old('email') }}">
       </div>
 
       <div class="form-group half mt-xl">
         <label for="password">Your Password</label>
-  			<input type="password" class="text-input" name="password" placeholder="Enter your password here">
+  			<input type="password" class="text-input" id="password" name="password" placeholder="Enter your password here">
       </div>
 
       <div class="form-group half mt-xl">
         <label for="password_confirmation">Confirm Your Password</label>
-  			<input type="password" class="text-input" name="password_confirmation" placeholder="Confirm your password here">
+  			<input type="password" class="text-input" id="password_confirmation" name="password_confirmation" placeholder="Confirm your password here">
       </div>
 
       <div class="form-group mt-xl">
@@ -57,7 +68,7 @@
 
       <div class="form-group mt-xl">
         <label for="organization">Your Organization</label>
-  			<input type="text" class="text-input" name="organization" placeholder="Enter your organization here" value="{{ old('organization') }}">
+  			<input type="text" class="text-input" id="organization" name="organization" placeholder="Enter your organization here" value="{{ old('organization') }}">
       </div>
 
       {{--
@@ -73,8 +84,6 @@
               @foreach($languages_available->keys() as $lang)
                   <option value='{{$languages_available->get($lang)[0]}}'>{{$languages_available->get($lang)[1]}} </option>
               @endforeach
-              <option value='fr'>French</option>
-              <option value='sp'>Spanish</option>
           </select>
       </div>
 
@@ -184,15 +193,27 @@
         reader.readAsDataURL(droppedFile);
       });
 
-      /*
       form.submit(function(e) {
         e.preventDefault();
 
-        console.log(droppedFile);
-        return;
+        /*var _token = $("#_token").val();
+        var regtoken = $("#regtoken").val();
+        var first_name = $("#first_name").val();
+        var last_name = $("#last_name").val();
+        var username = $("#username").val();
+        var email = $("#email").val();
+        var password = $("#password").val();
+        var password_confirmation = $("#password_confirmation").val();
+        var profile = null;
+        if (droppedFile) {
+          profile = droppedFile;
+        }
+        var organization = $("#organization").val();
+        var language = "en";  // TODO: Add more language options*/
 
         var ajaxData = new FormData(form.get(0));
         if (droppedFile) {
+          ajaxData.delete('profile');
           ajaxData.append('profile', droppedFile);
         }
 
@@ -200,6 +221,19 @@
           url: form.attr('action'),
           type: form.attr('method'),
           data: ajaxData,
+          /*data: {
+            _token : _token,
+            regtoken : regtoken,
+            first_name : first_name,
+            last_name : last_name,
+            username : username,
+            email : email,
+            password : password,
+            password_confirmation : password_confirmation,
+            profile : profile,
+            organization : organization,
+            language : language
+          },*/
           dataType: 'json',
           cache: false,
           contentType: false,
@@ -207,15 +241,23 @@
           complete: function() {
             form.removeClass('is-uploading');
           },
-          success: function(data) {
-            form.addClass( data.success == true ? 'is-success' : 'is-error' );
+          success: function(response) {
+            //window.location.href = response.redirect;
+            console.log(response);
           },
-          error: function() {
+          error: function(error) {
             // Log the error, show an alert, whatever works for you
-            console.log("Could not submit form");
+            if (error.status == 200) {
+              location.reload();
+            } else {
+              responseJson = error.responseJSON;
+              $.each(responseJson, function() {
+                console.log(this[0]);
+              });
+            }
           }
         });
-      });*/
+      });
     }
   </script>
 @stop

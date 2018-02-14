@@ -5,7 +5,7 @@
     <div class="form-container center">
       <section class="head">
         <h1 class="title">Thanks for Signing Up!</h1>
-        <h2 class="sub-title">We've sent an email to INSERT EMAIL HERE</h2>
+        <h2 class="sub-title">We've sent an email to {{ Auth::user()->email }}</h2>
         <p class="description">Once you receive the email, hit the "Active Account" button and you'll be all set!</p>
       </section>
 
