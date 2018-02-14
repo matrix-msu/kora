@@ -68,6 +68,29 @@ class AssociatorField extends BaseField {
     }
 
     /**
+     * Gets an array of all the fields options.
+     *
+     * @param  Field $field
+     * @return array - The options array
+     */
+    public function getOptionsArray(Field $field) {
+        $options = array();
+
+        $searchForms = explode('[!]', FieldController::getFieldOption($field, 'SearchForms'));
+        $sfResult = array();
+        foreach($searchForms as $sForm) {
+            $res = array();
+            $res['FormID'] = explode('[fid]',$sForm)[1];
+            $res['Searchable'] = explode('[search]',$sForm)[1];
+            $res['PreviewFieldIDs'] = explode('-',explode('[flids]',$sForm)[1]);
+            array_push($sfResult,$res);
+        }
+        $options['SearchForms'] = $sfResult;
+
+        return $options;
+    }
+
+    /**
      * Update the options for a field
      *
      * @param  Field $field - Field to update options

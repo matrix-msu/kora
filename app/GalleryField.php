@@ -61,6 +61,24 @@ class GalleryField extends FileTypeField  {
     }
 
     /**
+     * Gets an array of all the fields options.
+     *
+     * @param  Field $field
+     * @return array - The options array
+     */
+    public function getOptionsArray(Field $field) {
+        $options = array();
+
+        $options['FieldFileSize'] = FieldController::getFieldOption($field, 'FieldSize');
+        $options['ThumbSmall'] = FieldController::getFieldOption($field, 'ThumbSmall');
+        $options['ThumbLarge'] = FieldController::getFieldOption($field, 'ThumbLarge');
+        $options['MaxFileAmount'] = FieldController::getFieldOption($field, 'MaxFiles');
+        $options['AllowedFileTypes'] = explode('[!]',FieldController::getFieldOption($field, 'FileTypes'));
+
+        return $options;
+    }
+
+    /**
      * Update the options for a field
      *
      * @param  Field $field - Field to update options

@@ -31,18 +31,20 @@ class InstallController extends Controller {
     /**
      * @var array - Directories that will be created upon installation.
      */
-    public $DIRECTORIES = ["storage/app/backups",
+    public $DIRECTORIES = [
+        "storage/app/backups",
+        "storage/app/backups/files",
 		"storage/app/backups/user_upload",
-		"storage/app/backups/files",
+        "storage/app/exodusAssoc",
+        "storage/app/exodusAssoc/conversions",
+        "storage/app/exodusAssoc/data",
+        "storage/app/exports",
+        "storage/app/files",
+        "storage/app/plugins",
+        "storage/app/presetFiles",
+        "storage/app/profiles",
 		"storage/app/tmpFiles",
 		"storage/app/tmpImport",
-		"storage/app/files",
-		"storage/app/exports",
-		"storage/app/profiles",
-		"storage/app/presetFiles",
-		"storage/app/plugins",
-		"storage/app/exodusAssoc/data",
-		"storage/app/exodusAssoc/conversions"
 	];
 
     /**

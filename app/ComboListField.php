@@ -93,6 +93,22 @@ class ComboListField extends BaseField {
     }
 
     /**
+     * Gets an array of all the fields options.
+     *
+     * @param  Field $field
+     * @return array - The options array
+     */
+    public function getOptionsArray(Field $field) {
+        //TODO::Finish this
+        $options = array();
+
+//        $options['Regex'] = FieldController::getFieldOption($field, 'Regex');
+//        $options['MultiLine'] = FieldController::getFieldOption($field, 'MultiLine');
+
+        return $options;
+    }
+
+    /**
      * Helper function to process default options for sub field.
      *
      * @param  string $type - Type of field

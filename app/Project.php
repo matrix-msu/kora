@@ -81,7 +81,7 @@ class Project extends Model {
      * Deletes all data belonging to the project, then deletes self.
      */
     public function delete() {
-        DB::table("project_token")->where("project_id", "=", $this->pid)->delete();
+        DB::table("project_token")->where("project_pid", "=", $this->pid)->delete();
         DB::table("project_custom")->where("pid", "=", $this->pid)->delete();
         DB::table("option_presets")->where("pid", "=", $this->pid)->delete();
 

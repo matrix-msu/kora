@@ -113,6 +113,24 @@ class DateField extends BaseField {
     }
 
     /**
+     * Gets an array of all the fields options.
+     *
+     * @param  Field $field
+     * @return array - The options array
+     */
+    public function getOptionsArray(Field $field) {
+        $options = array();
+
+        $options['CircaAllowed'] = FieldController::getFieldOption($field, 'Circa');
+        $options['StartYear'] = FieldController::getFieldOption($field, 'Start');
+        $options['EndYear'] = FieldController::getFieldOption($field, 'End');
+        $options['DateFormat'] = FieldController::getFieldOption($field, 'Format');
+        $options['EraAllowed'] = FieldController::getFieldOption($field, 'Era');
+
+        return $options;
+    }
+
+    /**
      * Update the options for a field
      *
      * @param  Field $field - Field to update options

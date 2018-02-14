@@ -63,6 +63,21 @@ class GeneratedListField extends BaseField {
     }
 
     /**
+     * Gets an array of all the fields options.
+     *
+     * @param  Field $field
+     * @return array - The options array
+     */
+    public function getOptionsArray(Field $field) {
+        $options = array();
+
+        $options['Regex'] = FieldController::getFieldOption($field, 'Regex');
+        $options['Options'] = explode('[!]',FieldController::getFieldOption($field, 'Options'));
+
+        return $options;
+    }
+
+    /**
      * Update the options for a field
      *
      * @param  Field $field - Field to update options

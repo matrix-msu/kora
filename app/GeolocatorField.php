@@ -1,6 +1,7 @@
 <?php namespace App;
 
 use App\FieldHelpers\gPoint;
+use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
 use Geocoder\Laravel\Facades\Geocoder;
@@ -67,6 +68,21 @@ class GeolocatorField extends BaseField {
      */
     public function getDefaultOptions(Request $request) {
         return '[!Map!]No[!Map!][!DataView!]LatLon[!DataView!]';
+    }
+
+    /**
+     * Gets an array of all the fields options.
+     *
+     * @param  Field $field
+     * @return array - The options array
+     */
+    public function getOptionsArray(Field $field) {
+        $options = array();
+
+        $options['MapView'] = FieldController::getFieldOption($field, 'Map');
+        $options['DataView'] = FieldController::getFieldOption($field, 'DataView');
+
+        return $options;
     }
 
     /**

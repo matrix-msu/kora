@@ -135,8 +135,6 @@ class ExodusController extends Controller {
         $permArray = array();
         $tokenArray = array();
 
-        $filePath = $request->filePath;
-
         //clear assoc directories
         $this->recursiveRemoveDirectoryFiles(config('app.base_path').self::EXODUS_CONVERSION_PATH);
         $this->recursiveRemoveDirectoryFiles(config('app.base_path').self::EXODUS_DATA_PATH);
