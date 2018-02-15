@@ -134,6 +134,8 @@
     var addMethod = "{{\App\Http\Controllers\PageController::_ADD}}";
     var delMethod = "{{\App\Http\Controllers\PageController::_DELETE}}";
     var renameMethod = "{{\App\Http\Controllers\PageController::_RENAME}}";
+    var upMethod = "{{\App\Http\Controllers\PageController::_UP}}";
+    var downMethod = "{{\App\Http\Controllers\PageController::_DOWN}}";
     Kora.Forms.Show();
   </script>
 @stop

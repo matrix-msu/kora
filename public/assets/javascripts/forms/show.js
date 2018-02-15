@@ -214,6 +214,7 @@ Kora.Forms.Show = function() {
       e.preventDefault();
 
       var $this = $(this);
+      var $pageID = $this.attr('page_id');
       var $page = $this.parent().parent().parent();
       var $pageAdd = $page.next();
       
@@ -261,6 +262,16 @@ Kora.Forms.Show = function() {
               .css('position', '')
               .insertAfter($page);
           });
+
+        $.ajax({
+          url: modifyFormPageRoute,
+          type: 'POST',
+          data: {
+            '_token': CSRFToken,
+            'method': upMethod,
+            'pageID': $pageID
+          }
+        });
       } else {
         var $nextPage = $pageAdd.next();
         var $nextPageAdd = $nextPage.next();
@@ -305,6 +316,16 @@ Kora.Forms.Show = function() {
               .css('position', '')
               .insertAfter($nextPage);
           });
+
+        $.ajax({
+          url: modifyFormPageRoute,
+          type: 'POST',
+          data: {
+            '_token': CSRFToken,
+            'method': downMethod,
+            'pageID': $pageID
+          }
+        });
       }
     });
   }
