@@ -195,7 +195,7 @@ Kora.Forms.Show = function() {
         }
       });
 
-      $pageTitle.click(function(e) {
+      $pageTitle.on('click focus', function(e) {
         $(this).val($(this).attr('placeholder'));
       });
     }
