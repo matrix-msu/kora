@@ -195,7 +195,7 @@ Kora.Forms.Show = function() {
         }
       });
 
-      $pageTitle.click(function(e) {
+      $pageTitle.on('click focus', function(e) {
         $(this).val($(this).attr('placeholder'));
       });
     }
@@ -208,7 +208,126 @@ Kora.Forms.Show = function() {
       $deleteModal.find('.delete-page-confirm-js').data('page', page);
 
       Kora.Modal.open();
-    })
+    });
+
+    $('.move-action-page-js').on('click', function(e) {
+      e.preventDefault();
+
+      var $this = $(this);
+      var $pageID = $this.attr('page_id');
+      var $page = $this.parent().parent().parent();
+      var $pageAdd = $page.next();
+      
+      if ($this.hasClass('up-js')) {
+        var $previousPageAdd = $page.prev();
+        var $previousPage = $previousPageAdd.prev();
+        if ($previousPageAdd.length == 0) {
+          // move to previous page if exists
+          return;
+        }
+
+        $previousPage.css('z-index', 999)
+          .css('position', 'relative')
+          .animate({
+            top: $page.height() + $previousPageAdd.height() + 120
+          }, 300);
+        $previousPageAdd.css('z-index', 999)
+          .css('position', 'relative')
+          .animate({
+            top: $page.height() + $previousPageAdd.height() + 120
+          }, 300);
+        $pageAdd.css('z-index', 1000)
+          .css('position', 'relative')
+          .animate({
+            top: '-' + ($previousPage.height() + $previousPageAdd.height() + 120)
+          }, 300);
+        $page.css('z-index', 1000)
+          .css('position', 'relative')
+          .animate({
+            top: '-' + ($previousPage.height() + $previousPageAdd.height() + 120)
+          }, 300, function() {
+            $previousPage.css('z-index', '')
+              .css('top', '')
+              .css('position', '');
+            $page.css('z-index', '')
+              .css('top', '')
+              .css('position', '')
+              .insertBefore($previousPage);
+            $previousPageAdd.css('z-index', '')
+              .css('top', '')
+              .css('position', '')
+              .insertAfter($previousPage);
+            $pageAdd.css('z-index', '')
+              .css('top', '')
+              .css('position', '')
+              .insertAfter($page);
+          });
+
+        $.ajax({
+          url: modifyFormPageRoute,
+          type: 'POST',
+          data: {
+            '_token': CSRFToken,
+            'method': upMethod,
+            'pageID': $pageID
+          }
+        });
+      } else {
+        var $nextPage = $pageAdd.next();
+        var $nextPageAdd = $nextPage.next();
+        if ($nextPage.length == 0) {
+          return;
+        }
+
+        $nextPage.css('z-index', 999)
+          .css('position', 'relative')
+          .animate({
+            top: '-' + ($page.height() + $pageAdd.height() + 120)
+          }, 300);
+        $nextPageAdd.css('z-index', 999)
+          .css('position', 'relative')
+          .animate({
+            top: '-' + ($page.height() + $pageAdd.height() + 120)
+          }, 300);
+
+        $pageAdd.css('z-index', 1000)
+          .css('position', 'relative')
+          .animate({
+            top: $nextPage.height() + $pageAdd.height() + 120
+          }, 300);
+        $page.css('z-index', 1000)
+          .css('position', 'relative')
+          .animate({
+            top: $nextPage.height() + $pageAdd.height() + 120
+          }, 300, function() {
+            $nextPage.css('z-index', '')
+              .css('top', '')
+              .css('position', '');
+            $page.css('z-index', '')
+              .css('top', '')
+              .css('position', '')
+              .insertAfter($nextPage);
+            $pageAdd.css('z-index', '')
+              .css('top', '')
+              .css('position', '')
+              .insertAfter($page);
+            $nextPageAdd.css('z-index', '')
+              .css('top', '')
+              .css('position', '')
+              .insertAfter($nextPage);
+          });
+
+        $.ajax({
+          url: modifyFormPageRoute,
+          type: 'POST',
+          data: {
+            '_token': CSRFToken,
+            'method': downMethod,
+            'pageID': $pageID
+          }
+        });
+      }
+    });
   }
 
   function initializePages() {

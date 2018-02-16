@@ -79,11 +79,11 @@
       <div class="page">
         <div class="page-header">
           <div class="move-actions">
-            <a class="action move-action-js up-js" page_id="{{$page["id"]}}" href="#">
+            <a class="action move-action-page-js up-js" page_id="{{$page["id"]}}" href="#">
               <i class="icon icon-arrow-up"></i>
             </a>
 
-            <a class="action move-action-js down-js" page_id="{{$page["id"]}}" href="#">
+            <a class="action move-action-page-js down-js" page_id="{{$page["id"]}}" href="#">
               <i class="icon icon-arrow-down"></i>
             </a>
           </div>
@@ -134,6 +134,8 @@
     var addMethod = "{{\App\Http\Controllers\PageController::_ADD}}";
     var delMethod = "{{\App\Http\Controllers\PageController::_DELETE}}";
     var renameMethod = "{{\App\Http\Controllers\PageController::_RENAME}}";
+    var upMethod = "{{\App\Http\Controllers\PageController::_UP}}";
+    var downMethod = "{{\App\Http\Controllers\PageController::_DOWN}}";
     Kora.Forms.Show();
   </script>
 @stop
