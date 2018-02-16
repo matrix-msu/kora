@@ -170,7 +170,7 @@ class RestfulController extends Controller {
                     $countArray[$form->fid] = sizeof($returnRIDS);
                 }
 
-                $resultsGlobal[] = $this->populateRecords($returnRIDS, $filters, $apiFormat);
+                $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
             } else {
                 $queries = $f->query;
                 $resultSets = array();
@@ -302,7 +302,7 @@ class RestfulController extends Controller {
                     $countArray[$form->fid] = sizeof($returnRIDS);
                 }
 
-                $resultsGlobal[] = $this->populateRecords($returnRIDS, $filters, $apiFormat);
+                $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
             }
         }
 
