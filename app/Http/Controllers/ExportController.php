@@ -628,6 +628,11 @@ class ExportController extends Controller {
                     $slugOpts = $options['fields'];
 
                 foreach($chunks as $chunk) {
+                    if($slugOpts=='KID') {
+                        $records = array_merge($chunk,$records);
+                        continue;
+                    }
+
                     $meta = self::getRecordMetadataForOldKora($chunk);
                     $records = array_merge($meta,$records);
 
