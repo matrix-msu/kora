@@ -629,7 +629,7 @@ class ExportController extends Controller {
 
                 foreach($chunks as $chunk) {
                     if($slugOpts=='KID') {
-                        $records = array_merge($chunk,$records);
+                        $records = array_merge(self::getKidsFromRids($chunk),$records);
                         continue;
                     }
 
@@ -1238,6 +1238,28 @@ FROM ".$prefix."associator_support as af left join ".$prefix."fields as fl on af
         }
 
         return $meta;
+    }
+
+
+
+    /**
+     * Get the kids back for a set of records for a KID koraSearch.
+     *
+     * @param  int $rid - Record IDs
+     * @return array - KIDs for the records
+     */
+    public static function getKidsFromRids($rids) {
+        $prefix = env('DB_PREFIX');
+        $rid = implode(', ',$rids);
+        $kids = array();
+
+        $rows = DB::select("SELECT kid FROM ".$prefix."records WHERE rid in ($rid)");
+
+        foreach($rows as $row) {
+            array_push($kids, $row->kid);
+        }
+
+        return $kids;
     }
 
     /**

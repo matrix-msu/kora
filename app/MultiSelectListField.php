@@ -24,6 +24,7 @@ class MultiSelectListField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.mslist";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.mslist";
+    const FIELD_INPUT_VIEW = "partials.records.input.mslist";
 
     /**
      * @var array - Attributes that can be mass assigned to model

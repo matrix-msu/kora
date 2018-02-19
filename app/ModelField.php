@@ -22,6 +22,7 @@ class ModelField extends FileTypeField  {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.3dmodel";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.3dmodel";
+    const FIELD_INPUT_VIEW = "partials.records.input.3dmodel";
 
     /**
      * @var array - Attributes that can be mass assigned to model

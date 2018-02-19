@@ -24,6 +24,7 @@ class TextField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.text";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.text";
+    const FIELD_INPUT_VIEW = "partials.records.input.text";
 
     /**
      * @var array - Attributes that can be mass assigned to model

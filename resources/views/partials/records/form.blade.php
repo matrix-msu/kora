@@ -1,0 +1,14 @@
+<input type="hidden" name="userId" value="{{\Auth::user()->id}}">
+
+@foreach(\App\Http\Controllers\PageController::getFormLayout($form->fid) as $page)
+    <section id="#{{$page["title"]}}" class="page-section-js hidden">
+        @foreach($page["fields"] as $field)
+            <?php $typedField = $field->getTypedField(); ?>
+            @include($typedField::FIELD_INPUT_VIEW, ['field' => $field])
+        @endforeach
+    </section>
+@endforeach
+
+<div class="form-group mt-xl">
+    {!! Form::submit($submitButtonText,['class' => 'btn']) !!}
+</div>
