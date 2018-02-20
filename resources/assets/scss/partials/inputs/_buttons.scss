@@ -8,22 +8,16 @@
   box-shadow: 0 3px 5px 0 palette('box-shadow', accent, .1);
   color: palette('white', base);
   cursor: pointer;
-  font-family: $ubuntu;
-  font-size: 16px;
+  font-family: $ubuntu-medium;
+  font-size: 14px;
   height: 50px;
-  line-height: 18px;
+  line-height: 16px;
   opacity: .9;
   text-align: center;
   width: 100%;
 
   &:focus {
     outline: none;
-  }
-
-  &:hover,
-  &:focus {
-    box-shadow: 0 5px 10px 0 palette('box-shadow', accent, .2);
-    opacity: 1;
   }
 
   &.secondary {
@@ -42,9 +36,10 @@
   }
 
   &.transparent {
-    background: palette('gray', page, .04);
-    border: 2px solid palette('green', accent, .2);
+    background: palette('white', base, .0);
+    border: 2px solid palette('green', accent, .4);
     border-radius: 5px;
+    box-shadow: 0 3px 5px 0 palette('green', accent, .05);
     color: palette('green', accent);
   }
 
@@ -57,6 +52,12 @@
       box-shadow: 0 7px 15px 0 palette('box-shadow', warning, .3);
       opacity: 1;
     }
+  }
+
+  &:hover {
+    background-color: palette('white', base, .9);
+    border: 2px solid palette('green', accent, .5);
+    box-shadow: 0 5px 10px 0 palette('green', accent, .10);
   }
 }
 
