@@ -10,12 +10,12 @@
             '7' => '07 - '.date("F", mktime(0, 0, 0, 7, 10)), '8' => '08 - '.date("F", mktime(0, 0, 0, 8, 10)),
             '9' => '09 - '.date("F", mktime(0, 0, 0, 9, 10)), '10' => '10 - '.date("F", mktime(0, 0, 0, 10, 10)),
             '11' => '11 - '.date("F", mktime(0, 0, 0, 11, 10)), '12' => '12 - '.date("F", mktime(0, 0, 0, 12, 10))],
-            ($field->default=='' ? null : explode('[M]',$field->default)[1]), ['class' => 'single-select']) !!}
+            ($field->default=='' ? null : explode('[M]',$field->default)[1]), ['class' => 'single-select', 'data-placeholder'=>"Select a Month"]) !!}
     </div>
 
     <div class="form-group mt-xl">
         {!! Form::label('default_day','Default Day: ') !!}
-        <select name="default_day" class="single-select">
+        <select name="default_day" class="single-select" data-placeholder="Select a Day">
             <option value=""></option>
             <?php
             if($field->default!='' && explode('[D]',$field->default)[1]=='0'){
@@ -39,7 +39,7 @@
 
     <div class="form-group mt-xl">
         {!! Form::label('default_year','Default Year: ') !!}
-        <select name="default_year" class="single-select default-year-js">
+        <select name="default_year" class="single-select default-year-js" data-placeholder="Select a Year">
             <option value=""></option>
             <?php
             if($field->default!='' && explode('[Y]',$field->default)[1]=='0'){

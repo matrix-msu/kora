@@ -5,7 +5,7 @@
         @foreach($page["fields"] as $field)
             <?php $typedField = $field->getTypedField(); ?>
             @include($typedField::FIELD_INPUT_VIEW, ['field' => $field])
-            <div class="form-group mt-sm">
+            <div class="form-group mt-xs">
                 <p class="sub-text">
                     {{$field->desc}}
                 </p>
@@ -13,7 +13,3 @@
         @endforeach
     </section>
 @endforeach
-
-<div class="form-group mt-xl">
-    {!! Form::submit($submitButtonText,['class' => 'btn']) !!}
-</div>
