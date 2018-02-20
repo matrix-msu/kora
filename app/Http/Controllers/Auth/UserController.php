@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -28,7 +29,7 @@ class UserController extends Controller {
      */
     public function __construct() {
         $this->middleware('auth', ['except' => ['activate', 'activator', 'activateshow']]);
-        $this->middleware('active', ['except' => ['activate', 'activator', 'activateshow']]);
+        $this->middleware('active', ['except' => ['activate', 'resendActivation', 'activator', 'activateshow']]);
     }
 
     /**
@@ -193,6 +194,24 @@ class UserController extends Controller {
      */
     public function activateshow() {
         return view('auth.activate');
+    }
+
+    /**
+     * Returns the view for the user activation page.
+     *
+     * @return View
+     */
+    public function resendActivation() {
+        $token = \Auth::user()->token;
+
+        Mail::send('emails.activation', compact('token'), function($message)
+        {
+            $message->from(env('MAIL_FROM_ADDRESS'));
+            $message->to(\Auth::user()->email);
+            $message->subject('Kora Account Activation');
+        });
+
+        return redirect('/auth/active')->with('k3_global_success', 'user_activate_resent');
     }
 
     /**

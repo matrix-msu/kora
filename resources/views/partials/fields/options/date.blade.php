@@ -38,7 +38,7 @@
     </div>
 
     <div class="form-group mt-xl">
-        {!! Form::label('default_year','Default '.trans('fields_options_date.year').': ') !!}
+        {!! Form::label('default_year','Default Year: ') !!}
         <select name="default_year" class="single-select default-year-js">
             <option value=""></option>
             <?php

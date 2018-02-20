@@ -1,0 +1,46 @@
+.file-upload-progress {
+  background: palette('green', accent, 1);
+  height: 18px;
+  width: 0;
+}
+
+.filenames {
+  a {
+    text-decoration: none;
+
+    .icon {
+      @include transition();
+
+      cursor: pointer;
+      vertical-align: middle;
+    }
+
+    .icon-arrow-down,
+    .icon-arrow-up {
+      color: palette('gray', slate);
+      display: inline-block;
+      font-size: 12px;
+      opacity: .2;
+    }
+
+    .danger {
+      color: palette('red', warning);
+      display: inline-block;
+      font-size: 16px;
+    }
+
+    &:hover {
+      .icon {
+        opacity: .6;
+      }
+
+      .icon-arrow-up {
+        transform: rotate(-90deg) scale($transform-scale-multiplier);
+      }
+
+      .icon-arrow-down {
+        transform: rotate(90deg) scale($transform-scale-multiplier);
+      }
+    }
+  }
+}
