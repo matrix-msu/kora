@@ -377,7 +377,20 @@ Kora.Forms.Show = function() {
     });
   }
 
+  function initializeFieldToggles() {
+    $('.expand-fields-js').on('click', function(e) {
+      e.preventDefault();
+      $('.card:not(.active) .field-toggle-js').click();
+    });
+
+    $('.collapse-fields-js').on('click', function(e) {
+      e.preventDefault();
+      $('.card.active .field-toggle-js').click();
+    });
+  }
+
   initializeSearch();
   initializePages();
   initializeFieldSort();
+  initializeFieldToggles();
 }

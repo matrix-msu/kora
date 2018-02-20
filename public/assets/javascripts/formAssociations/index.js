@@ -47,7 +47,7 @@ Kora.FormAssociations.Index = function() {
         element.append(header.append(title.append(titleLink.append(titleSpan))).append(cardToggle.append(cardToggleLink)));
         content.append(footer);
         element.append(content);
-        $('.permission-association-js').append(element);
+        $('.permission-association-js.create').append(element);
         initializePermissionsToggles();
         initializeDeletePermissionModal();
         $('#new-form option[value='+response.form.fid+']').remove();
