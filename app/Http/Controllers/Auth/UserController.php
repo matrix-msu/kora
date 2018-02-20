@@ -217,7 +217,7 @@ class UserController extends Controller {
             $message->subject('Kora Account Activation');
         });
 
-        return redirect('/auth/active')->with('k3_global_success', 'user_activate_resent');
+        return redirect('auth/activate')->with('k3_global_success', 'user_activate_resent');
     }
 
     /**
