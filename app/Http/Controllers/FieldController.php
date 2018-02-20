@@ -4,7 +4,7 @@ use App\AssociatorField;
 use App\ComboListField;
 use App\Field;
 use App\Http\Requests\FieldRequest;
-use App\Http\Requests\Request;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
