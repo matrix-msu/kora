@@ -193,7 +193,13 @@ class UserController extends Controller {
      * @return View
      */
     public function activateshow() {
-        return view('auth.activate');
+        if (is_null(\Auth::user())) {
+          return redirect('register');
+        } elseif (!\Auth::user()->active) {
+          return view('auth.activate');
+        } else {
+          return redirect('projects');
+        }
     }
 
     /**
@@ -211,7 +217,7 @@ class UserController extends Controller {
             $message->subject('Kora Account Activation');
         });
 
-        return redirect('/auth/active')->with('k3_global_success', 'user_activate_resent');
+        return redirect('auth/activate')->with('k3_global_success', 'user_activate_resent');
     }
 
     /**

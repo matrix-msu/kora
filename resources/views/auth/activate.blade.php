@@ -11,7 +11,7 @@
 
       <div class="spacer"></div>
 
-      <form class="form-horizontal" role="form" method="POST" enctype="multipart/form-data" action="{{ url('\Auth\UserController@activator') }}">
+      <form class="form-horizontal" role="form" method="POST" enctype="multipart/form-data" action="{{ action('Auth\UserController@activator') }}">
         <input type="hidden" name="_token" value="{{ csrf_token() }}">
         <input type="hidden" name="regtoken" value="{{\App\Http\Controllers\Auth\RegisterController::makeRegToken()}}">
 
@@ -34,7 +34,7 @@
           <p class="mb-xl-responsive">Remember to check your spam folder!</p>
         </div>
         <div class="half">
-          <form class="form-horizontal" role="form" method="POST" enctype="multipart/form-data" action="">
+          <form class="form-horizontal" role="form" method="POST" enctype="multipart/form-data" action="{{ action('Auth\UserController@resendActivation') }}">
             <input type="hidden" name="_token" value="{{ csrf_token() }}">
             <input type="hidden" name="regtoken" value="{{\App\Http\Controllers\Auth\RegisterController::makeRegToken()}}">
 

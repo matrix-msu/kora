@@ -36,7 +36,7 @@
             @endif
         </section>
 
-        <section class="permission-association-selection center permission-association-js">
+        <section class="permission-association-selection center permission-association-js create">
             <p class="description">The following forms are allowed to associate with and can search within this form:</p>
             @foreach ($assocs as $index=>$a)
                 <?php $f = \App\Form::where('fid', '=', $a->assocForm)->first() ?>
@@ -78,7 +78,7 @@
                 </form>
             @endif
         </section>
-        <section class="permission-association-selection center permission-association-js">
+        <section class="permission-association-selection center permission-association-js request">
             <p class="description">{{$form->name}} is allowed to associate with and can search within the following forms:</p>
             @foreach ($available_associations as $index=>$a)
                 <?php $f = \App\Form::where('fid', '=', $a->dataForm)->first() ?>

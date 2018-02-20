@@ -377,7 +377,37 @@ Kora.Forms.Show = function() {
     });
   }
 
+  function initializeFieldToggles() {
+    $('.expand-fields-js').on('click', function(e) {
+      e.preventDefault();
+      $('.card:not(.active) .field-toggle-js').click();
+    });
+
+    $('.collapse-fields-js').on('click', function(e) {
+      e.preventDefault();
+      $('.card.active .field-toggle-js').click();
+    });
+  }
+
+  function initializeCheckboxes() {
+    $('.preset-input-js').on('change', function(e) {
+      var url = $(this).parents('.allowed-actions').attr('update-flag-url');
+
+      $.ajax({
+        url: url,
+        type: 'PATCH',
+        data: {
+          '_token': CSRFToken,
+          'flag': this.name,
+          'value': this.checked ? 1 : 0
+        }
+      });
+    });
+  }
+
   initializeSearch();
   initializePages();
   initializeFieldSort();
+  initializeFieldToggles();
+  initializeCheckboxes();
 }
