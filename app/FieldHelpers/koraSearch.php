@@ -414,7 +414,8 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
         array_push($newOrder,$newDir);
     }
 
-    //Map return controls to fields if not ALL
+    //Map return controls to fields if not ALL or KID
+    //KID is a k3 custom for the legacy koraSearch that gets you a list of records
     if(is_array($fields)) {
         $fieldsMapped = array();
         foreach($fields as $field) {

@@ -452,11 +452,12 @@ class ExodusHelperController extends Controller {
         ini_set('display_errors', '1');
         ini_set('memory_limit','1G'); //We might be pulling a lot of rows so this is a safety precaution
         $records = $con->query('select D.*, C.name from p'.$oldPid.'Data D left join p'.$oldPid.'Control C on D.cid=C.cid where D.schemeid='.$ogSid);
-        $rows = $records->fetch_all(MYSQLI_ASSOC);
+        $recrows = $records->fetch_all(MYSQLI_ASSOC);
         $oldKidToNewRid = array();
         $filePartNum = 1;
 
-        $chunks = array_chunk($rows, 500);
+        $chunks = array_chunk($recrows, 500);
+        unset($recrows);
 
         foreach($chunks as $chunk) {
             foreach($chunk as $r) {
@@ -785,15 +786,24 @@ class ExodusHelperController extends Controller {
             }
         }
 
+        unset($chunks);
+
         //We want to save the Typed Field that will have the data eventually, matched to its values in Kora 2 KID form
         $dataToWrite = json_encode($assocFile);
         $filename = config('app.base_path').ExodusController::EXODUS_DATA_PATH.'assoc_'.$ogSid.'_'.$filePartNum.'.json';
         file_put_contents($filename,$dataToWrite);
 
         //We want to save the conversion array of Kora 2 KIDs to Kora 3 RIDs for this scheme
-        $dataToWrite = json_encode($oldKidToNewRid);
-        $filename = config('app.base_path').ExodusController::EXODUS_CONVERSION_PATH.'kid_to_rid_'.$ogSid.'.json';
-        file_put_contents($filename,$dataToWrite);
+        $ridChunks = array_chunk($oldKidToNewRid, 500, true);
+        $partIndex = 0;
+        foreach($ridChunks as $ridc) {
+            $dataToWrite = json_encode($ridc);
+            $filename = env('BASE_PATH').ExodusController::EXODUS_CONVERSION_PATH.'kid_to_rid_'.$ogSid.'_'.$partIndex.'.json';
+            file_put_contents($filename,$dataToWrite);
+            $partIndex++;
+        }
+
+        unset($ridChunks);
 
         //Last but not least, record presets!!!!!!!!!
         $recordPresets = $records = $con->query('select * from recordPreset where schemeid='.$ogSid);

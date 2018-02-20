@@ -492,6 +492,8 @@ class ExodusController extends Controller {
      * Finishes the Exodus process by completeing associations.
      */
     public function finishExodus() {
+        Log::info("Finishing Exodus");
+
         //Stores the KID to RID conversions
         $masterConvertor = array();
 
@@ -534,6 +536,8 @@ class ExodusController extends Controller {
                 }
             }
         }
+
+        Log::info("Exodus Complete");
     }
 
     /**

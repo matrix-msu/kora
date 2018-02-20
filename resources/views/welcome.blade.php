@@ -57,7 +57,7 @@
 <div class="modal modal-js modal-mask">
   <div class="content">
     <div class="header">
-      <span class="title pb-0">Forgot Your Password?</span>
+      <span class="title">Forgot Your Password?</span>
       <a href="#" class="modal-toggle modal-toggle-js">
         <i class="icon icon-cancel"></i>
       </a>

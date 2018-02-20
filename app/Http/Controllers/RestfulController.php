@@ -139,6 +139,7 @@ class RestfulController extends Controller {
         }
         //now we actually do searches per form
         $resultsGlobal = [];
+        $countArray = array();
         $countGlobal = 0;
 
         foreach($forms as $f) {
@@ -164,10 +165,12 @@ class RestfulController extends Controller {
                         return response()->json(["status"=>false,"error"=>"Invalid field type, or invalid field, provided for sort in form: ". $form->name],500);
                 }
                 //see if we are returning the size
-                if($filters['size'])
+                if($filters['size']) {
                     $countGlobal += sizeof($returnRIDS);
-                else
-                    $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
+                    $countArray[$form->fid] = sizeof($returnRIDS);
+                }
+
+                $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
             } else {
                 $queries = $f->query;
                 $resultSets = array();
@@ -294,15 +297,18 @@ class RestfulController extends Controller {
                         return response()->json(["status"=>false,"error"=>"Invalid field type or invalid field provided for sort in form: ". $form->name],500);
                 }
                 //see if we are returning the size
-                if($filters['size'])
+                if($filters['size']) {
                     $countGlobal += sizeof($returnRIDS);
-                else
-                    $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
+                    $countArray[$form->fid] = sizeof($returnRIDS);
+                }
+
+                $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
             }
         }
 
+        $countArray["global"] = $countGlobal;
         $res = [
-            'count' => $countGlobal,
+            'counts' => $countArray,
             'records' => $resultsGlobal
         ];
 

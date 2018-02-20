@@ -22,6 +22,7 @@ class PlaylistField extends FileTypeField  {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.playlist";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.playlist";
+    const FIELD_INPUT_VIEW = "partials.records.input.playlist";
 
     /**
      * @var array - Attributes that can be mass assigned to model
