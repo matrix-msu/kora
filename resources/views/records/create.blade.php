@@ -8,6 +8,8 @@
 
 @section('stylesheets')
     <link rel="stylesheet" href="{{ config('app.url') }}assets/css/vendor/datetimepicker/jquery.datetimepicker.min.css" />
+    {{--<link rel="stylesheet" href="{{ config('app.url') }}assets/css/vendor/fileUpload/jquery.fileupload.css">--}}
+    {{--<link rel="stylesheet" href="{{ config('app.url') }}assets/css/vendor/fileUpload/jquery.fileupload-ui.css">--}}
 @stop
 
 @section('header')
@@ -29,6 +31,8 @@
 @stop
 
 @section('body')
+    @include("partials.fields.input-modals")
+
     <section class="filters center">
         <div class="record-preset">
             <div class="form-group">
@@ -108,9 +112,12 @@
 @section('javascripts')
     @include('partials.records.javascripts')
 
+    <script src="{{ config('app.url') }}assets/javascripts/vendor/ckeditor/ckeditor.js"></script>
+
     <script type="text/javascript">
         getPresetDataUrl = "{{action('RecordPresetController@getData')}}";
         moveFilesUrl = '{{action('RecordPresetController@moveFilesToTemp')}}';
+        geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => 0]) }}';
         csrfToken = "{{ csrf_token() }}";
         userID = "{{\Auth::user()->id}}";
         baseFileUrl = "{{config('app.url'). 'deleteTmpFile/'}}";

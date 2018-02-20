@@ -28,7 +28,6 @@
 @stop
 
 @section('fieldOptionsJS')
-    geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}';
     csrfToken = "{{ csrf_token() }}";
 
     Kora.Fields.Options('Geolocator');

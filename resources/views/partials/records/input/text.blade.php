@@ -1,12 +1,10 @@
-<div class="form-group">
-    {!! Form::label($field->flid, $field->name.': ') !!}
-    @if($field->required==1)
-        <b style="color:red;font-size:20px">*</b>
-    @endif
+<div class="form-group mt-xl">
+    <label>@if($field->required==1)<span class="oval-icon"></span> @endif{{$field->name}}: </label>
+
     @if(\App\Http\Controllers\FieldController::getFieldOption($field,'MultiLine')==0)
-        {!! Form::text($field->flid, $field->default, ['class' => 'form-control']) !!}
+        {!! Form::text($field->flid, $field->default, ['class' => 'text-input']) !!}
     @endif
     @if(\App\Http\Controllers\FieldController::getFieldOption($field,'MultiLine')==1)
-        {!! Form::textarea($field->flid, $field->default, ['class' => 'form-control']) !!}
+        {!! Form::textarea($field->flid, $field->default, ['class' => 'text-area']) !!}
     @endif
 </div>

@@ -172,6 +172,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::patch('/user/changepw', 'Auth\UserController@changepw');
     Route::get('/auth/activate', 'Auth\UserController@activateshow');
     Route::get('/user/activate/{token}', 'Auth\UserController@activate');
+    Route::post('/auth/resendActivate', 'Auth\UserController@resendActivation');
     Route::post('/auth/activator', 'Auth\UserController@activator');
     Route::post('/user/profile', 'Auth\UserController@changeprofile');
     Route::post('/user/picture', 'Auth\UserController@changepicture');

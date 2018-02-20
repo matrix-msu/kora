@@ -53,11 +53,6 @@
       @endif
 
       @if(\Auth::user()->canEditFields($form))
-        <a class="quick-action underline-middle-hover" href="{{ action('FieldController@edit',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => $field->flid]) }}">
-          <i class="icon icon-field"></i>
-          <span>Edit Field</span>
-        </a>
-
         <a class="quick-action underline-middle-hover" href="{{ action('FieldController@show',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => $field->flid]) }}">
           <span>View Field Options</span>
           <i class="icon icon-arrow-right"></i>

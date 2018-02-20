@@ -5,6 +5,11 @@
         @foreach($page["fields"] as $field)
             <?php $typedField = $field->getTypedField(); ?>
             @include($typedField::FIELD_INPUT_VIEW, ['field' => $field])
+            <div class="form-group mt-sm">
+                <p class="sub-text">
+                    {{$field->desc}}
+                </p>
+            </div>
         @endforeach
     </section>
 @endforeach
