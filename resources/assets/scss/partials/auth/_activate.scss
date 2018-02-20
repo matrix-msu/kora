@@ -1,9 +1,13 @@
 .activate {
   text-align: left;
 
+  h2 {
+    font-family: Ubuntu-Medium;
+  }
+
   h2, p {
     color: palette('gray', text);
-    font-family: Ubuntu;
+    font-weight: normal;
   }
 
   .head {

@@ -192,7 +192,13 @@ class UserController extends Controller {
      * @return View
      */
     public function activateshow() {
-        return view('auth.activate');
+        if (is_null(\Auth::user())) {
+          return redirect('register');
+        } elseif (!\Auth::user()->active) {
+          return view('auth.activate');
+        } else {
+          return redirect('projects');
+        }
     }
 
     /**
