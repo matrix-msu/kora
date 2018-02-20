@@ -24,6 +24,7 @@ class ListField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.list";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.list";
+    const FIELD_INPUT_VIEW = "partials.records.input.list";
 
     /**
      * @var array - Attributes that can be mass assigned to model

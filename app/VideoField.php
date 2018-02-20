@@ -21,6 +21,7 @@ class VideoField extends FileTypeField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.video";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.video";
+    const FIELD_INPUT_VIEW = "partials.records.input.video";
 
     /**
      * @var array - Attributes that can be mass assigned to model

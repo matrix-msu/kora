@@ -1,0 +1,27 @@
+.record-create-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu;
+  min-height: 100vh;
+}
+
+.record-create {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  .create-record {
+    margin: #{map-get($spacing, xxxl)} auto;
+    max-width: calc(#{ $max-site-width } - 600px);
+    width: $max-site-width;
+  }
+
+  .oval-icon {
+    background-color: palette('green', accent, 1);
+    border-radius: 12px;
+    box-shadow: 0 5px 10px 0 palette('box-shadow', accent, .05);
+    display: inline-block;
+    height: 12px;
+    width: 12px;
+  }
+
+  @import 'record-create/filters';
+}
