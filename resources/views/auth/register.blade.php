@@ -196,21 +196,6 @@
       form.submit(function(e) {
         e.preventDefault();
 
-        /*var _token = $("#_token").val();
-        var regtoken = $("#regtoken").val();
-        var first_name = $("#first_name").val();
-        var last_name = $("#last_name").val();
-        var username = $("#username").val();
-        var email = $("#email").val();
-        var password = $("#password").val();
-        var password_confirmation = $("#password_confirmation").val();
-        var profile = null;
-        if (droppedFile) {
-          profile = droppedFile;
-        }
-        var organization = $("#organization").val();
-        var language = "en";  // TODO: Add more language options*/
-
         var ajaxData = new FormData(form.get(0));
         if (droppedFile) {
           ajaxData.delete('profile');
@@ -221,32 +206,17 @@
           url: form.attr('action'),
           type: form.attr('method'),
           data: ajaxData,
-          /*data: {
-            _token : _token,
-            regtoken : regtoken,
-            first_name : first_name,
-            last_name : last_name,
-            username : username,
-            email : email,
-            password : password,
-            password_confirmation : password_confirmation,
-            profile : profile,
-            organization : organization,
-            language : language
-          },*/
           dataType: 'json',
           cache: false,
           contentType: false,
           processData: false,
-          complete: function() {
-            form.removeClass('is-uploading');
-          },
           success: function(response) {
-            //window.location.href = response.redirect;
-            console.log(response);
+            // Will never reach this point because laravel redirecting is actually an error
+            location.reload();
           },
           error: function(error) {
-            // Log the error, show an alert, whatever works for you
+            // TODO: Handle errors. Currently can get all errors, just need to display them
+
             if (error.status == 200) {
               location.reload();
             } else {
