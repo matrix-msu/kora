@@ -96,6 +96,7 @@ class RecordController extends Controller {
      * @return Redirect
      */
 	public function store($pid, $fid, Request $request) {
+	    //Validates records
         foreach($request->all() as $key => $value) {
             if(!is_numeric($key))
                 continue;
@@ -117,14 +118,24 @@ class RecordController extends Controller {
             }
         }
 
-        if($request->mass_creation == "on")
+        //Handle Mass Creation
+        $numRecs = 1;
+        if(isset($request->mass_creation_num)) {
             $numRecs = $request->mass_creation_num;
-        else
-            $numRecs = 1;
+            //safeguard
+            if($numRecs > 1000)
+                $numRecs = 1000;
+        }
 
-        //safeguard
-        if($numRecs>1000)
-            $numRecs = 1000;
+        //Handle record preset
+        $makePreset = false;
+        $presetName = '';
+        if(isset($request->record_preset_name)) {
+            $presetName = $request->record_preset_name;
+            if(strlen($presetName) < 3)
+                return redirect()->back()->withInput($request)->with('k3_global_error', 'record_validation_error')->with('record_validation_error', 'present_name_short');
+            $makePreset = true;
+        }
 
         for($i = 0; $i < $numRecs ; $i++) {
             $record = new Record();
@@ -145,10 +156,22 @@ class RecordController extends Controller {
             //
             // Only create a revision if the record was not mass created.
             // This prevents clutter from an operation that the user
-            // will obviously not want to undo using revisions.
+            // will likely not want to undo using revisions.
             //
-            if(!$request->mass_creation == "on")
+            if($numRecs > 1)
                 RevisionController::storeRevision($record->rid, 'create');
+
+            //If we are making a preset, let's make sure it's done, and done once
+            if($makePreset) {
+                $makePreset = false; //prevents a preset being made for every duplicate record
+
+                $rpc = new RecordPresetController();
+                $presetRequest = new Request();
+                $presetRequest->name = $presetName;
+                $presetRequest->rid = $record->rid;
+
+                $rpc->presetRecord($presetRequest);
+            }
         }
 
         if($request->api)

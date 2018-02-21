@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use DateTime;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
@@ -243,7 +244,7 @@ class ScheduleField extends BaseField {
      */
     public function getRecordPresetArray($data, $exists=true) {
         if($exists)
-            $data['events'] = ScheduleField::eventsToOldFormat($this->events()->get());
+            $data['events'] = self::eventsToOldFormat($this->events()->get());
         else
             $data['events'] = null;
 
@@ -549,11 +550,11 @@ class ScheduleField extends BaseField {
     /**
      * Turns the support table into the old format beforehand.
      *
-     * @param  array $events - Events from support
+     * @param  Collection $events - Events from support
      * @param  bool $array_string - Array of old format or string of old format
      * @return mixed - String or array of old format
      */
-    public static function eventsToOldFormat(array $events, $array_string = false) {
+    public static function eventsToOldFormat($events, $array_string = false) {
         $formatted = [];
         foreach($events as $event) {
             if($event->allday) {
