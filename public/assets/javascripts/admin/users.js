@@ -1,5 +1,5 @@
 var Kora = Kora || {};
-Kora.Admin = Kora.Projects || {};
+Kora.Admin = Kora.Admin || {};
 
 Kora.Admin.Users = function() {
 
@@ -40,7 +40,7 @@ Kora.Admin.Users = function() {
       $searchInput.val('').blur().parent().removeClass('active');
     });
   }
-  
+
   function initializeCustomSort() {
     // Initialize Custom Sort
     $('.user-toggle-js').click(function(e) {
@@ -109,14 +109,14 @@ Kora.Admin.Users = function() {
   function initializeFilters() {
     // Initially set it to first filter in the list
     setFilter($($('.sort-options-js ul a').get(0)));
-    
+
     $('.sort-options-js ul a').click(function(e) {
       e.preventDefault();
 
       setFilter($(this));
     });
   }
-  
+
   function setFilter(that) {
     var $content = $('.users-' + that.attr('href').substring(1));
 

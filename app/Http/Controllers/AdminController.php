@@ -201,10 +201,14 @@ class AdminController extends Controller {
      * @return JsonResponse - User deleted
      */
     public function deleteUser($id) {
+        if(!\Auth::user()->admin) {
+            return response()->json(["status" => false, "message" => "not_admin"], 200);
+        }
+
         $user = User::where('id', '=', $id)->first();
         $user->delete();
 
-        return response()->json(["status"=>true,"message"=>"user_deleted"],200);
+        return response()->json(["status" => true, "message" => "user_deleted"], 200);
     }
 
     /**
