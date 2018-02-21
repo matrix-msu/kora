@@ -1,11 +1,11 @@
-<div class="form-group mt-xl">
+<div class="form-group mt-xxxl">
     <label>@if($field->required==1)<span class="oval-icon"></span> @endif{{$field->name}}: </label>
 </div>
 <input type="hidden" name={{$field->flid}} value="{{$field->flid}}">
 
 @if(\App\Http\Controllers\FieldController::getFieldOption($field, 'Circa')=='Yes')
-    <div class="form-group mt-xl">
-        <label for="{{'circa'.$field->flid}}">Mark this date as an approximate?</label>
+    <div class="form-group mt-xxs">
+        <label for="{{'circa'.$field->flid}}">Mark this date as an approximate (circa)?</label>
         <div class="check-box">
             <input type="checkbox" value="1" id="preset" class="check-box-input" name="{{'circa'.$field->flid}}"/>
             <div class="check-box-background"></div>
@@ -21,7 +21,7 @@
     if($defMonth=='0')
         $defMonth = \Carbon\Carbon::now()->month;
 ?>
-<div class="form-group mt-xl">
+<div class="form-group mt-xxs">
     {!! Form::label('month_'.$field->flid,'Month: ') !!}
     {!! Form::select('month_'.$field->flid,['' => '',
         '1' => '01 - '.date("F", mktime(0, 0, 0, 1, 10)), '2' => '02 - '.date("F", mktime(0, 0, 0, 2, 10)),
@@ -30,12 +30,12 @@
         '7' => '07 - '.date("F", mktime(0, 0, 0, 7, 10)), '8' => '08 - '.date("F", mktime(0, 0, 0, 8, 10)),
         '9' => '09 - '.date("F", mktime(0, 0, 0, 9, 10)), '10' => '10 - '.date("F", mktime(0, 0, 0, 10, 10)),
         '11' => '11 - '.date("F", mktime(0, 0, 0, 11, 10)), '12' => '12 - '.date("F", mktime(0, 0, 0, 12, 10))],
-        $defMonth, ['class' => 'single-select']) !!}
+        $defMonth, ['class' => 'single-select', 'data-placeholder'=>"Select a Month"]) !!}
 </div>
 
-<div class="form-group mt-xl">
+<div class="form-group mt-xxs">
     {!! Form::label('day_'.$field->flid,'Day: ') !!}
-    <select name="day_{{$field->flid}}" class="single-select">
+    <select name="day_{{$field->flid}}" class="single-select" data-placeholder="Select a Day">
         <option value=""></option>
         <?php
             $currDay=0;
@@ -56,9 +56,9 @@
     </select>
 </div>
 
-<div class="form-group mt-xl">
+<div class="form-group mt-xxs">
     {!! Form::label('year_'.$field->flid,'Year: ') !!}
-    <select name="year_{{$field->flid}}" class="single-select">
+    <select name="year_{{$field->flid}}" class="single-select" data-placeholder="Select a Year">
         <option value=""></option>
         <?php
             $currYear=0;
@@ -81,7 +81,7 @@
 </div>
 
 @if(\App\Http\Controllers\FieldController::getFieldOption($field, 'Era')=='Yes')
-    <div class="form-group mt-xl">
+    <div class="form-group mt-xxs">
         {!! Form::label('era'.$field->flid,'Era: ') !!}
         {!! Form::select('era_'.$field->flid,['CE'=>'CE','BCE'=>'BCE'],'CE', ['class' => 'single-select']) !!}
     </div>

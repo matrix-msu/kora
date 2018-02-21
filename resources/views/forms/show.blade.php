@@ -110,7 +110,7 @@
         @if(\Auth::user()->canCreateFields($form))
           <form method="DET" action="{{action('FieldController@create', ['pid' => $form->pid, 'fid' => $form->fid, 'rootPage' => $page['id']]) }}">
             <div class="form-group new-field-button">
-              <input type="submit" value="Create New Field Here" class="btn transparent">
+              <input type="submit" value="Create New Field Here">
             </div>
           </form>
         @endif

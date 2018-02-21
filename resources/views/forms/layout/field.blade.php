@@ -45,6 +45,107 @@
       {{$field->desc}}
     </div>
 
+    <div class="allowed-actions" update-flag-url="{{ action('FieldController@updateFlag', ['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}">
+      <div class="form-group action">
+        <div class="action-column">
+          <div class="check-box-half check-box-rectangle">
+            <input type="checkbox"
+              @if ($field->required)
+                checked
+              @endif
+              class="check-box-input preset-input-js"
+              name="required"
+              />
+            <span class="check"></span>
+            <span class="placeholder">Required</span>
+          </div>
+          <div class="check-box-half check-box-rectangle">
+            <input type="checkbox"
+              @if ($field->viewable)
+                checked
+              @endif
+              class="check-box-input preset-input-js"
+              name="viewable"
+            />
+            <span class="check"></span>
+            <span class="placeholder">Viewable</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group action">
+        <div class="action-column">
+         <div class="check-box-half check-box-rectangle">
+            <input type="checkbox"
+              @if ($field->searchable)
+                checked
+              @endif
+              class="check-box-input preset-input-js"
+              name="searchable"
+              />
+            <span class="check"></span>
+            <span class="placeholder">Searchable</span>
+          </div>
+          <div class="check-box-half check-box-rectangle">
+            <input type="checkbox"
+              @if ($field->viewresults)
+                checked
+              @endif
+              class="check-box-input preset-input-js"
+              name="viewresults"
+            />
+            <span class="check"></span>
+            <span class="placeholder">Viewable in Results</span>
+          </div> 
+        </div>
+      </div>
+
+      <div class="form-group action">
+        <div class="action-column">
+         <div class="check-box-half check-box-rectangle">
+            <input type="checkbox"
+              @if ($field->extsearch)
+                checked
+              @endif
+              class="check-box-input preset-input-js"
+              name="extsearch"
+              />
+            <span class="check"></span>
+            <span class="placeholder">Externally Searchable</span>
+          </div>
+          <div class="check-box-half check-box-rectangle">
+            <input type="checkbox"
+              @if ($field->extview)
+                checked
+              @endif
+              class="check-box-input preset-input-js"
+              name="extview"
+            />
+            <span class="check"></span>
+            <span class="placeholder">Externally Viewable</span>
+          </div> 
+        </div>
+      </div>
+
+      <div class="form-group action">
+        <div class="action-column">
+          <div class="check-box-half check-box-rectangle">
+            <input type="checkbox"
+              @if ($field->advsearch)
+                checked
+              @endif
+              disabled
+              class="check-box-input preset-input-js"
+              name="advsearch"
+              title="Coming Soon"
+            />
+            <span class="check"></span>
+            <span class="placeholder">Advanced Searchable</span>
+          </div> 
+        </div>
+      </div>
+    </div>
+
     <div class="footer">
       @if(\Auth::user()->canDeleteFields($form))
         <a class="quick-action delete-field delete-field-js left" href="#">

@@ -244,15 +244,16 @@ Kora.Records.Create = function() {
                     // del += '<button class="btn btn-danger" type="button" data-type="' + file.deleteType + '" data-url="' + file.deleteUrl + '" >';
                     // del += '<i class="glyphicon glyphicon-trash" />Delete</button>';
                     // del += '</div>';
-                    var del = '<div class="form-group mt-sm uploaded-file">';
-                    del += '<a href="#" class="upload-fileup-js" flid="{{$field->flid}}">';
+                    var del = '<div class="form-group mt-xxs uploaded-file">';
+                    del += '<input type="hidden" name="'+inputName+'[]" value ="'+file.name+'">';
+                    del += '<a href="#" class="upload-fileup-js">';
                     del += '<i class="icon icon-arrow-up"></i>';
                     del += '</a>';
-                    del += '<a href="#" class="upload-filedown-js" flid="{{$field->flid}}">';
+                    del += '<a href="#" class="upload-filedown-js">';
                     del += '<i class="icon icon-arrow-down"></i>';
                     del += '</a>';
-                    del += '<span class="ml-sm">TestFile.exe</span>';
-                    del += '<a href="#" class="upload-filedelete-js ml-sm" flid="{{$field->flid}}">';
+                    del += '<span class="ml-sm">' + file.name + '</span>';
+                    del += '<a href="#" class="upload-filedelete-js ml-sm" data-type="' + file.deleteType + '" data-url="' + file.deleteUrl + '">';
                     del += '<i class="icon icon-trash danger"></i>';
                     del += '</a>';
                     del += '</div>';
@@ -262,8 +263,7 @@ Kora.Records.Create = function() {
                 //Reset progress bar
                 var progressBar = '.progress-bar-'+lastClickedFlid+'-js';
                 $(progressBar).css(
-                    'width',
-                    0
+                    {"width": 0, "height": 0, "margin-top": 0}
                 );
             },
             fail: function (e,data){
@@ -284,46 +284,51 @@ Kora.Records.Create = function() {
                 var progress = parseInt(data.loaded / data.total * 100, 10);
 
                 $(progressBar).css(
-                    'width',
-                    progress + '%'
+                    {"width": progress + '%', "height": '18px', "margin-top": '10px'}
                 );
             }
         });
 
-        // $('#filenames{{$field->flid}}').on('click','.delete',function(){
-        //     var div = $(this).parent();
-        //     $.ajax({
-        //         url: $(this).attr('data-url'),
-        //         type: 'DELETE',
-        //         dataType: 'json',
-        //         data: {
-        //             "_token": '{{csrf_token()}}'
-        //         },
-        //         success: function (data) {
-        //             div.remove();
-        //         }
-        //     });
-        // });
-        //
-        // $('#filenames{{$field->flid}}').on('click','#up',function(){
-        //     fileDiv = $(this).parent('#uploaded_file_div');
-        //
-        //     if(fileDiv.prev('#uploaded_file_div').length==1){
-        //         prevDiv = fileDiv.prev('#uploaded_file_div');
-        //
-        //         fileDiv.insertBefore(prevDiv);
-        //     }
-        // });
-        //
-        // $('#filenames{{$field->flid}}').on('click','#down',function(){
-        //     fileDiv = $(this).parent('#uploaded_file_div');
-        //
-        //     if(fileDiv.next('#uploaded_file_div').length==1){
-        //         nextDiv = fileDiv.next('#uploaded_file_div');
-        //
-        //         fileDiv.insertAfter(nextDiv);
-        //     }
-        // });
+        $('.filenames').on('click', '.upload-filedelete-js', function(e) {
+            e.preventDefault();
+
+            var div = $(this).parent('.uploaded-file');
+            $.ajax({
+                url: $(this).attr('data-url'),
+                type: 'DELETE',
+                dataType: 'json',
+                data: {
+                    "_token": csrfToken
+                },
+                success: function (data) {
+                    div.remove();
+                }
+            });
+        });
+
+        $('.filenames').on('click', '.upload-fileup-js', function(e) {
+            e.preventDefault();
+
+            fileDiv = $(this).parent('.uploaded-file');
+
+            if(fileDiv.prev('.uploaded-file').length==1){
+                prevDiv = fileDiv.prev('.uploaded-file');
+
+                fileDiv.insertBefore(prevDiv);
+            }
+        });
+
+        $('.filenames').on('click', '.upload-filedown-js', function(e) {
+            e.preventDefault();
+
+            fileDiv = $(this).parent('.uploaded-file');
+
+            if(fileDiv.next('.uploaded-file').length==1){
+                nextDiv = fileDiv.next('.uploaded-file');
+
+                fileDiv.insertAfter(nextDiv);
+            }
+        });
     }
 
     function initializePageNavigation() {

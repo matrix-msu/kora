@@ -1,7 +1,19 @@
+.progress-bar-div {
+  background: palette('gray', slate, .05);
+  border-radius: 5px;
+  box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
+}
+
 .file-upload-progress {
   background: palette('green', accent, 1);
-  height: 18px;
+  border-radius: 5px;
+  height: 0;
   width: 0;
+}
+
+.new-object-button,
+.low-margin {
+  margin-top: 10px;
 }
 
 .filenames {
@@ -40,6 +52,10 @@
 
       .icon-arrow-down {
         transform: rotate(90deg) scale($transform-scale-multiplier);
+      }
+
+      .icon-trash {
+        transform: scale($transform-scale-multiplier);
       }
     }
   }

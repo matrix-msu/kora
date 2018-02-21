@@ -8,8 +8,6 @@
 
 @section('stylesheets')
     <link rel="stylesheet" href="{{ config('app.url') }}assets/css/vendor/datetimepicker/jquery.datetimepicker.min.css" />
-    {{--<link rel="stylesheet" href="{{ config('app.url') }}assets/css/vendor/fileUpload/jquery.fileupload.css">--}}
-    {{--<link rel="stylesheet" href="{{ config('app.url') }}assets/css/vendor/fileUpload/jquery.fileupload-ui.css">--}}
 @stop
 
 @section('header')
@@ -62,13 +60,13 @@
 
         {!! Form::model($record = new \App\Record, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid.'/records',
             'enctype' => 'multipart/form-data', 'id' => 'new_record_form']) !!}
-            @include('partials.records.form',['submitButtonText' => 'Create New Record', 'form' => $form])
+            @include('partials.records.form',['form' => $form])
 
             <div class="form-group mt-xxxl">
                 <div class="spacer"></div>
             </div>
 
-            <div class="form-group mt-xl">
+            <div class="form-group mt-xxxl">
                 <div class="check-box-half">
                     <input type="checkbox" value="1" id="active" class="check-box-input duplicate-check-js" name="active" />
                     <span class="check"></span>
@@ -81,11 +79,11 @@
             </div>
 
             <div class="form-group mt-xl duplicate-record-js hidden">
-                <label>{!! Form::label('mass_creation_num', 'Select duplication amount (max 1000): ') !!}</label>
+                {!! Form::label('mass_creation_num', 'Select duplication amount (max 1000): ') !!}
                 <input type="number" name="mass_creation_num" class="text-input" value="1" step="1" max="1000" min="2">
             </div>
 
-            <div class="form-group mt-xl">
+            <div class="form-group mt-xxxl">
                 <div class="check-box-half">
                     <input type="checkbox" value="1" id="active" class="check-box-input newRecPre-check-js" name="active" />
                     <span class="check"></span>
@@ -98,8 +96,12 @@
             </div>
 
             <div class="form-group mt-xl newRecPre-record-js hidden">
-                <label>{!! Form::label('record_preset_name', 'Record Preset Name: ') !!}</label>
-                <input type="text" name="record_preset_name" class="text-input">
+                {!! Form::label('record_preset_name', 'Record Preset Name: ') !!}
+                <input type="text" name="record_preset_name" class="text-input" placeholder="Add Record Preset Name">
+            </div>
+
+            <div class="form-group mt-xxxl">
+                {!! Form::submit('Create New Record',['class' => 'btn']) !!}
             </div>
         {!! Form::close() !!}
     </section>
