@@ -7,7 +7,7 @@
     <div class="form-group mt-xxs">
         <label for="{{'circa'.$field->flid}}">Mark this date as an approximate (circa)?</label>
         <div class="check-box">
-            <input type="checkbox" value="1" id="preset" class="check-box-input" name="{{'circa'.$field->flid}}"/>
+            <input type="checkbox" value="1" id="preset" class="check-box-input" name="{{'circa_'.$field->flid}}"/>
             <div class="check-box-background"></div>
             <span class="check"></span>
             <span class="placeholder">Value is <strong>not</strong> approximate</span>

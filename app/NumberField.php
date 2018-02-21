@@ -218,6 +218,8 @@ class NumberField extends BaseField {
 
         if($req==1 && ($value==null | $value==""))
             return $field->name."_required";
+
+        return 'field_validated';
     }
 
     /**

@@ -237,7 +237,7 @@ class GeolocatorField extends BaseField {
      */
     public function getRecordPresetArray($data, $exists=true) {
         if($exists)
-            $data['locations'] = GeolocatorField::locationsToOldFormat($this->locations()->get());
+            $data['locations'] = self::locationsToOldFormat($this->locations()->get());
         else
             $data['locations'] = null;
 
@@ -573,11 +573,11 @@ SQL;
     /**
      * Turns the support table into the old format beforehand.
      *
-     * @param  array $locations - Locations from support
+     * @param  Collection $locations - Locations from support
      * @param  bool $array_string - Array of old format or string of old format
      * @return mixed - String or array of old format
      */
-    public static function locationsToOldFormat(array $locations, $array_string = false) {
+    public static function locationsToOldFormat($locations, $array_string = false) {
         $formatted = [];
         foreach($locations as $location) {
             $formatted[] = "[Desc]" . $location->desc . "[Desc][LatLon]"

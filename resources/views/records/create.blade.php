@@ -35,7 +35,7 @@
         <div class="record-preset">
             <div class="form-group">
                 <div class="check-box-half">
-                    <input type="checkbox" value="1" id="active" class="check-box-input" name="active" />
+                    <input type="checkbox" value="1" id="active" class="check-box-input preset-check-js" name="active" />
                     <span class="check"></span>
                     <span class="placeholder">Use a Record Preset</span>
                 </div>
@@ -48,9 +48,9 @@
     </section>
 
     <section class="create-record center">
-        <div class="form-group mt-xl hidden">
+        <div class="form-group mt-xl preset-record-div-js hidden">
             <label>{!! Form::label('presetlabel', 'Select a Preset: ') !!}</label>
-            <select class="single-select" id="presetselect" onchange="populate()">
+            <select class="single-select preset-record-js">
                 <option disabled selected>Select a Record Preset</option>
                 @for($i=0; $i < sizeof($presets); $i++)
                     <option value="{{$presets[$i]['id']}}">{{$presets[$i]['name']}}</option>
@@ -68,7 +68,7 @@
 
             <div class="form-group mt-xxxl">
                 <div class="check-box-half">
-                    <input type="checkbox" value="1" id="active" class="check-box-input duplicate-check-js" name="active" />
+                    <input type="checkbox" value="1" id="active" class="check-box-input duplicate-check-js" />
                     <span class="check"></span>
                     <span class="placeholder">Duplicate Record</span>
                 </div>
@@ -80,12 +80,12 @@
 
             <div class="form-group mt-xl duplicate-record-js hidden">
                 {!! Form::label('mass_creation_num', 'Select duplication amount (max 1000): ') !!}
-                <input type="number" name="mass_creation_num" class="text-input" value="1" step="1" max="1000" min="2">
+                <input type="number" name="mass_creation_num" class="text-input" value="2" step="1" max="1000" min="2" disabled>
             </div>
 
             <div class="form-group mt-xxxl">
                 <div class="check-box-half">
-                    <input type="checkbox" value="1" id="active" class="check-box-input newRecPre-check-js" name="active" />
+                    <input type="checkbox" value="1" id="active" class="check-box-input newRecPre-check-js" />
                     <span class="check"></span>
                     <span class="placeholder">Create New Record Preset from this New Record</span>
                 </div>
@@ -97,7 +97,7 @@
 
             <div class="form-group mt-xl newRecPre-record-js hidden">
                 {!! Form::label('record_preset_name', 'Record Preset Name: ') !!}
-                <input type="text" name="record_preset_name" class="text-input" placeholder="Add Record Preset Name">
+                <input type="text" name="record_preset_name" class="text-input" placeholder="Add Record Preset Name" disabled>
             </div>
 
             <div class="form-group mt-xxxl">
