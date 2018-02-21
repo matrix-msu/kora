@@ -37,7 +37,9 @@
         </section>
 
         <section class="permission-association-selection center permission-association-js create">
-            <p class="description">The following forms are allowed to associate with and can search within this form:</p>
+            @if (count($assocs) !== 0)
+                <p class="description">The following forms are allowed to associate with and can search within this form:</p>
+            @endif
             @foreach ($assocs as $index=>$a)
                 <?php $f = \App\Form::where('fid', '=', $a->assocForm)->first() ?>
                 <div class="association association-js card {{ $index == 0 ? 'active' : '' }}" id="{{$f->fid}}">
@@ -79,7 +81,9 @@
             @endif
         </section>
         <section class="permission-association-selection center permission-association-js request">
-            <p class="description">{{$form->name}} is allowed to associate with and can search within the following forms:</p>
+            @if (count($available_associations) !== 0)
+                <p class="description">{{$form->name}} is allowed to associate with and can search within the following forms:</p>
+            @endif
             @foreach ($available_associations as $index=>$a)
                 <?php $f = \App\Form::where('fid', '=', $a->dataForm)->first() ?>
                 <div class="association association-js card {{ $index == 0 ? 'active' : '' }}" id="{{$f->fid}}">

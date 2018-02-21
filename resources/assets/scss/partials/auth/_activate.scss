@@ -8,10 +8,16 @@
   h2, p {
     color: palette('gray', text);
     font-weight: normal;
+
+  }
+
+  p {
+    font-size: 14px;
   }
 
   .head {
     .description {
+      font-size: 14px;
       padding: 0;
     }
   }

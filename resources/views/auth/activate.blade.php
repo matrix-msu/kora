@@ -21,7 +21,7 @@
           <input type="text" class="text-input" name="activation-token" placeholder="Enter your activation token here">
         </div>
 
-        <div class="form-group mt-xxxl" >
+        <div class="form-group mt-xl" >
           <button type="submit" class="btn btn-primary">Activate Account</button>
         </div>
       </form>
