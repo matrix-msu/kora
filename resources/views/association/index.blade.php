@@ -44,12 +44,13 @@
                     <div class="header {{ $index == 0 ? 'active' : '' }}">
                         <div class="left pl-m">
                             <a class="title association-toggle-by-name-js" href="#">
-                                <span class="name name-js">{{ str_replace($f->project()->get()->first()->name." ", "", $f->name) }}</span>
+                                <span class="name name-js">{{ $f->name }}</span>
                             </a>
                         </div>
 
                         <div class="card-toggle-wrap">
                             <a href="#" class="card-toggle association-toggle-js">
+                                <span class="chevron-text">{{ $f->project()->get()->first()->name }}</span>
                                 <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
                             </a>
                         </div>
@@ -92,6 +93,7 @@
 
                         <div class="card-toggle-wrap">
                             <a href="#" class="card-toggle association-toggle-js">
+                                <span class="chevron-text">{{ $f->project()->get()->first()->name }}</span>
                                 <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
                             </a>
                         </div>
