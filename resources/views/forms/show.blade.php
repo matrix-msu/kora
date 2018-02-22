@@ -74,6 +74,26 @@
     </div>
   </div>
 
+  <div class="modal modal-js modal-mask field-delete-modal-js">
+    <div class="content small">
+      <div class="header">
+        <span class="title">Delete Field?</span>
+        <a href="#" class="modal-toggle modal-toggle-js">
+          <i class="icon icon-cancel"></i>
+        </a>
+      </div>
+      <div class="body">
+        <span class="description">
+          Are you sure you wish to delete this field from this page?
+        </span>
+
+        <div class="form-group">
+          <a href="#" class="btn warning delete-field-confirm-js">Delete Field</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <section class="pages pages-js center">
     @foreach($pageLayout as $idx=>$page)
       <div class="page">

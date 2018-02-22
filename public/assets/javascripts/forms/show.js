@@ -207,8 +207,19 @@ Kora.Forms.Show = function() {
       var $deleteModal = $('.page-delete-modal-js');
       $deleteModal.find('.delete-page-confirm-js').data('page', page);
 
-      Kora.Modal.open();
+      Kora.Modal.open($deleteModal);
     });
+
+    $('.delete-field-js').on('click', function(e) {
+      e.preventDefault();
+      var field = $(this).parents('.field').attr('id');
+      var url = $(this).parents('.field').attr('delete-url');
+
+      var $deleteModal = $('.field-delete-modal-js');
+      $deleteModal.find('.delete-field-confirm-js').attr('field', field).attr('delete-url', url);
+
+      Kora.Modal.open($deleteModal);
+    })
 
     $('.move-action-page-js').on('click', function(e) {
       e.preventDefault();
@@ -374,6 +385,23 @@ Kora.Forms.Show = function() {
           location.reload();
         }
       });
+    });
+
+    $('.field-delete-modal-js').on('click', '.delete-field-confirm-js', function(e) {
+      e.preventDefault();
+      var fieldID = $(this).attr('field');
+      var url = $(this).attr('delete-url');
+      
+      $.ajax({
+        url: url,
+        type: 'DELETE',
+        data: {
+          '_token': CSRFToken,
+        },
+        success: function(result) {
+          location.reload();
+        }
+      })
     });
   }
 
