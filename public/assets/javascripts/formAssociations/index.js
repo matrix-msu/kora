@@ -51,6 +51,7 @@ Kora.FormAssociations.Index = function() {
         initializePermissionsToggles();
         initializeDeletePermissionModal();
         $('#new-form option[value='+response.form.fid+']').remove();
+        $('.create-description-js').removeClass('hidden');
         Kora.Modal.close();
       }
     });
@@ -65,6 +66,9 @@ Kora.FormAssociations.Index = function() {
         "assocfid": assocfid
       },
       success: function(response) {
+        if ($('.permission-association-js.create .card').size() === 1) {
+          $('.create-description-js').addClass('hidden');
+        }
         $('#new-form').append($('<option></option>').attr('value', response.assocfid).text(response.name));
         Kora.Modal.close();
         $('.create-section #'+response.assocfid).fadeOut(1000, function() {
@@ -83,6 +87,9 @@ Kora.FormAssociations.Index = function() {
         "assocfid": assocfid
       },
       success: function(response) {
+        if ($('.permission-association-js.request .card').size() === 1) {
+          $('.request-description-js').addClass('hidden');
+        }
         $('#request-form').append($('<option></option>').attr('value', response.assocfid).text(response.name));
         Kora.Modal.close();
         $('.request-section #'+response.assocfid).fadeOut(1000, function() {
