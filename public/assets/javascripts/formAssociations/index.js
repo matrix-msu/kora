@@ -71,7 +71,7 @@ Kora.FormAssociations.Index = function() {
         }
         $('#new-form').append($('<option></option>').attr('value', response.assocfid).text(response.name));
         Kora.Modal.close();
-        $('.create-section #'+response.assocfid).fadeOut(1000, function() {
+        $('.create-section #create-'+response.assocfid).fadeOut(1000, function() {
           $(this).remove();
         });
       }
@@ -92,7 +92,7 @@ Kora.FormAssociations.Index = function() {
         }
         $('#request-form').append($('<option></option>').attr('value', response.assocfid).text(response.name));
         Kora.Modal.close();
-        $('.request-section #'+response.assocfid).fadeOut(1000, function() {
+        $('.request-section #request-'+response.assocfid).fadeOut(1000, function() {
           $(this).remove();
         });
       }

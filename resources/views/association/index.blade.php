@@ -40,7 +40,7 @@
             <p class="description create-description-js {{count($assocs) === 0 ? 'hidden' : ''}}">The following forms are allowed to associate with and can search within this form:</p>
             @foreach ($assocs as $index=>$a)
                 <?php $f = \App\Form::where('fid', '=', $a->assocForm)->first() ?>
-                <div class="association association-js card {{ $index == 0 ? 'active' : '' }}" id="{{$f->fid}}">
+                <div class="association association-js card {{ $index == 0 ? 'active' : '' }}" id="create-{{$f->fid}}">
                     <div class="header {{ $index == 0 ? 'active' : '' }}">
                         <div class="left pl-m">
                             <a class="title association-toggle-by-name-js" href="#">
@@ -82,7 +82,7 @@
             <p class="description request-description-js {{count($available_associations) === 0 ? 'hidden' : ''}}">{{$form->name}} is allowed to associate with and can search within the following forms:</p>
             @foreach ($available_associations as $index=>$a)
                 <?php $f = \App\Form::where('fid', '=', $a->dataForm)->first() ?>
-                <div class="association association-js card {{ $index == 0 ? 'active' : '' }}" id="{{$f->fid}}">
+                <div class="association association-js card {{ $index == 0 ? 'active' : '' }}" id="request-{{$f->fid}}">
                     <div class="header {{ $index == 0 ? 'active' : '' }}">
                         <div class="left pl-m">
                             <a class="title association-toggle-by-name-js" href="#">
