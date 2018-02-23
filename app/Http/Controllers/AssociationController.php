@@ -74,11 +74,14 @@ class AssociationController extends Controller {
 		$assoc->dataForm = $fid;
 		$assoc->assocForm = $assocFormID;
         $assoc->save();
+
+        $form = Form::where('fid', '=', $assocFormID)->get()->first();
         
         return response()->json(
             [
                 'k3_global_success' => 'assoc_created',
-                'form' => Form::where('fid', '=', $assocFormID)->get()->first(),
+                'form' => $form,
+                'project_name' => $form->project()->get()->first()->name
             ]
         );
 	}

@@ -38,7 +38,8 @@ Kora.FormAssociations.Index = function() {
         var titleLink = $('<a></a>').addClass('title association-toggle-by-name-js').attr('href', '#');
         var titleSpan = $('<span></span>').addClass('name name-js').text(response.form.name);
         var cardToggle = $('<div></div>').addClass('card-toggle-wrap');
-        var cardToggleLink = $('<a></a>').addClass('card-toggle association-toggle-js').attr('href', '#')
+        var cardToggleLink = $('<a></a>').addClass('card-toggle association-toggle-js').attr('href', '#');
+        cardToggleLink.append($('<span></span>').addClass('chevron-text').text(response.project_name));
         cardToggleLink.append($('<i></i>').addClass('icon icon-chevron'));
         var content = $('<div></div>').addClass('content content-js');
         content.append($('<div></div>').addClass('description').append($('<p></p>').text(response.form.description)));
@@ -51,6 +52,7 @@ Kora.FormAssociations.Index = function() {
         initializePermissionsToggles();
         initializeDeletePermissionModal();
         $('#new-form option[value='+response.form.fid+']').remove();
+        $('.create-description-js').removeClass('hidden');
         Kora.Modal.close();
       }
     });
@@ -65,9 +67,12 @@ Kora.FormAssociations.Index = function() {
         "assocfid": assocfid
       },
       success: function(response) {
+        if ($('.permission-association-js.create .card').size() === 1) {
+          $('.create-description-js').addClass('hidden');
+        }
         $('#new-form').append($('<option></option>').attr('value', response.assocfid).text(response.name));
         Kora.Modal.close();
-        $('.create-section #'+response.assocfid).fadeOut(1000, function() {
+        $('.create-section #create-'+response.assocfid).fadeOut(1000, function() {
           $(this).remove();
         });
       }
@@ -83,9 +88,12 @@ Kora.FormAssociations.Index = function() {
         "assocfid": assocfid
       },
       success: function(response) {
+        if ($('.permission-association-js.request .card').size() === 1) {
+          $('.request-description-js').addClass('hidden');
+        }
         $('#request-form').append($('<option></option>').attr('value', response.assocfid).text(response.name));
         Kora.Modal.close();
-        $('.request-section #'+response.assocfid).fadeOut(1000, function() {
+        $('.request-section #request-'+response.assocfid).fadeOut(1000, function() {
           $(this).remove();
         });
       }
@@ -129,7 +137,7 @@ Kora.FormAssociations.Index = function() {
       var $form = $header.parent();
       var $content = $header.next();
 
-      $this.children().toggleClass('active');
+      $this.children('.icon-chevron').toggleClass('active');
       $form.toggleClass('active');
       if ($form.hasClass('active')) {
         $header.addClass('active');

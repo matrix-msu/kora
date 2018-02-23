@@ -14,7 +14,7 @@
             data-placeholder="Select a form here">
             <option></option>
             @foreach ($requestable_associations as $association)
-              <option value="{{$association->fid}}">{{$association->name}}</option>
+              <option value="{{$association->fid}}">{{$association->project()->get()->first()->name}} - {{$association->name}}</option>
             @endforeach
           </select>
         </div>

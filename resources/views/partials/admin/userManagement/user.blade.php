@@ -1,8 +1,9 @@
-<div class="user card {{ $index == 0 ? 'active' : '' }}" id="{{$user->id}}">
+<div class="user card {{ $index == 0 ? 'active' : '' }}" id="user-{{$user->id}}">
   <div class="header {{ $index == 0 ? 'active' : '' }}">
     <div class="left pl-m">
       <div class="title">
-        <span class="name mr-xl">{{$user->first_name}} {{$user->last_name}}</span> <span class="name">{{$user->username}}</span>
+        <span class="name mr-xl">{{$user->first_name}} {{$user->last_name}}</span>
+        <span class="username">{{$user->username}}</span>
       </div>
     </div>
 
@@ -28,7 +29,7 @@
                    value="1"
                    class="check-box-input"
                    id="active"
-                   name="active" 
+                   name="active"
                    {{$user->active ? 'checked' : ''}}/>
             <span class="check"></span>
             <span class="placeholder">Active</span>
@@ -40,7 +41,7 @@
                    value="1"
                    class="check-box-input"
                    id="admin"
-                   name="admin" 
+                   name="admin"
                    {{$user->admin ? 'checked' : ''}} />
             <span class="check"></span>
             <span class="placeholder">Admin</span>
@@ -50,15 +51,15 @@
     </div>
 
     <div class="footer">
-      <a class="quick-action left" href="#">
+      <a class="quick-action left delete-user" href="#">
         <span><i class="icon icon-trash"></i></span>
       </a>
-      
+
       <a class="quick-action underline-middle-hover" href="#">
         <i class="icon icon-edit-little"></i>
         <span>View User Profile</span>
       </a>
-      
+
       <a class="quick-action underline-middle-hover" href="{{ action('AdminController@update',['id' => $user->id]) }}">
         <i class="icon icon-edit-little"></i>
         <span>Edit User Profile</span>

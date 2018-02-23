@@ -43,7 +43,7 @@
       @endif
     </form>
   </section>
-  
+
   <section class="user-selection user-selection-js">
     @include('partials.admin.userManagement.users-sorted')
   </section>
@@ -68,32 +68,37 @@
          */
         window.onload = function() {
             checker();
+            initializeDeleteUser();
         };
 
         /**
          * Deletes a user.
          */
-        function deleteUser(){
-            var selector = $('#dropdown option:selected');
+        function initializeDeleteUser() {
+          $('.delete-user').click(function(e) {
+            e.preventDefault();
 
-            var id = selector.attr('value');
-            var name = selector.text();
+            var card = $(this).parent().parent().parent();
+            var id = card.attr('id').substring(5);
+            var name = card.find('.username').html();
 
             var encode = $('<div/>').html("{{ trans('admin_users.deleteconfirm') }}").text();
             var response = confirm(encode + name + '?');
 
             if(response) {
-                $.ajax({
-                    url: '{{action('AdminController@deleteUser',[''])}}/'+id,
-                    type: 'DELETE',
-                    data: {
-                        "_token": "{{ csrf_token() }}"
-                    },
-                    success: function() {
-                        location.reload();
-                    }
-                });
+              $.ajax({
+                url: "{{ action('AdminController@deleteUser',['']) }}/" + id,
+                type: 'DELETE',
+                data: {
+                  "_token": "{{ csrf_token() }}"
+                },
+                success: function(data) {
+                  // TODO: Handle messages sent back from controller
+                  location.reload();
+                }
+              });
             }
+          });
         }
 
         /**

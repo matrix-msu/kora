@@ -1,7 +1,7 @@
 .content {
   background: palette('white', base);
   display: none;
-  margin: 10px 20px 0;
+  padding: 10px 20px 0;
 
   &.active {
     display: block;

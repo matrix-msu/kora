@@ -15,7 +15,7 @@
             <option></option>
             @foreach ($associatable_forms as $association)
               @if (!in_array($association, $associatedForms))
-                <option value="{{$association->fid}}">{{$association->name}}</option>
+                <option value="{{$association->fid}}">{{$association->project()->get()->first()->name}} - {{$association->name}}</option>
               @endif
             @endforeach
           </select>

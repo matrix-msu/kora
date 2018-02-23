@@ -253,9 +253,10 @@ class FieldController extends Controller {
         //we need to restructure page sequence on delete
         PageController::restructurePageSequence($pageID);
 
-        RevisionController::wipeRollbacks($form->fid);
+        // RevisionController::wipeRollbacks($form->fid);
 
-        return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_success', 'field_deleted');
+        // return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_success', 'field_deleted');
+        return response()->json(["status"=>true, "message"=>"deleted"], 200);
 	}
 
     /**
