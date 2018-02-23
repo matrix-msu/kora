@@ -8,6 +8,7 @@
   '/assets/javascripts/vendor/fileUpload/jquery.fileupload.js',
   '/assets/javascripts/general/modal.js',
   '/assets/javascripts/records/create.js',
+  '/assets/javascripts/records/index.js',
   '/assets/javascripts/navigation/navigation.js',
   '/assets/javascripts/general/global.js'
 ])->withFullUrl() !!}

@@ -1,0 +1,38 @@
+.record-index-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu;
+  min-height: 100vh;
+}
+
+.record-index {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  .view-records {
+    margin: #{map-get($spacing, xxxl)} auto;
+    max-width: calc(#{ $max-site-width } - 600px);
+    width: $max-site-width;
+
+    .search-input {
+      box-sizing: border-box;
+      display: inline-block;
+      text-align: left;
+      padding-right: 15px;
+      width: 80%;
+
+      + .search-input {
+        float: right;
+        padding-left: 15px;
+        width: 20%;
+      }
+    }
+
+    .records-title {
+      font-size: 30px;
+      height: 34px;
+      line-height: 35px;
+    }
+
+    @import 'record-show/card';
+  }
+}

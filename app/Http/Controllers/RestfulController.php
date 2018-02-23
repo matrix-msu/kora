@@ -428,7 +428,7 @@ class RestfulController extends Controller {
                     $tiebreaker = $this->sort_rids($recurRids,$copySort);
                     //we know the answer will be an array of a and b's rid
                     //if a is first
-                    if($tiebreaker[0]==$a_key)
+                    if(isset($tiebreaker[0]) && $tiebreaker[0]==$a_key)
                         return -1*$dir;
                     else
                         return 1*$dir;

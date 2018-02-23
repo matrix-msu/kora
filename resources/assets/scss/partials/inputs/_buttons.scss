@@ -118,6 +118,16 @@ a.btn {
     }
   }
 
+  &.half-btn {
+    display: inline-block;
+    font-family: $ubuntu-medium;
+    font-size: 14px;
+    line-height: 48px;
+    max-width: 406px;
+    text-align: center;
+    width: 49%;
+  }
+
   // Half sized submit button
   &.half-sub-btn {
     background: palette('white', base);

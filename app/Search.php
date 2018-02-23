@@ -156,16 +156,11 @@ class Search {
     /**
      * Returns an array of values that will be ignored by the full text index.
      *
-     * @param  string $string - The input to the search
+     * @param  array $args - The input to the search
      * @param  boolean $exact - If it's exact, we have to check the whole argument
      * @return array - The intersection of the input (as an array) and self::$STOP_WORDS
      */
-    public static function showIgnoredArguments($string, $exact) {
-        if($exact)
-            $args = array($string);
-        else
-            $args = explode(" ", $string);
-
+    public static function showIgnoredArguments($args, $exact) {
         $short = [];
         $lower = [];
         foreach($args as $arg) {
