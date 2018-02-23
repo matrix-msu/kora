@@ -109,7 +109,18 @@ Kora.Records.Show = function() {
         });
     }
 
+    function initializeDeleteRecord() {
+        $('.delete-record-js').click(function (e) {
+            e.preventDefault();
+
+            var $modal = $('.delete-record-modal-js');
+
+            Kora.Modal.open($modal);
+        });
+    }
+
     initializeToggle();
     initializeDesignateRecordPreset();
     initializeAlreadyRecordPreset();
+    initializeDeleteRecord();
 }

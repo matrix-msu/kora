@@ -1,4 +1,3 @@
-
 <div class="modal modal-js modal-mask already-record-preset-modal-js">
     <div class="content small">
         <div class="header">
