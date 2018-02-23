@@ -49,7 +49,7 @@
 
     <section class="create-record center">
         <div class="form-group mt-xl preset-record-div-js hidden">
-            <label>{!! Form::label('presetlabel', 'Select a Preset: ') !!}</label>
+            {!! Form::label('presetlabel', 'Select a Preset: ') !!}
             <select class="single-select preset-record-js">
                 <option disabled selected>Select a Record Preset</option>
                 @for($i=0; $i < sizeof($presets); $i++)

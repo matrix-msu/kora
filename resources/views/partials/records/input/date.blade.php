@@ -4,7 +4,7 @@
 <input type="hidden" name={{$field->flid}} value="{{$field->flid}}">
 
 @if(\App\Http\Controllers\FieldController::getFieldOption($field, 'Circa')=='Yes')
-    <div class="form-group mt-xxs">
+    <div class="form-group mt-sm">
         <label for="{{'circa'.$field->flid}}">Mark this date as an approximate (circa)?</label>
         <div class="check-box">
             <input type="checkbox" value="1" id="preset" class="check-box-input" name="{{'circa_'.$field->flid}}"/>
@@ -21,7 +21,7 @@
     if($defMonth=='0')
         $defMonth = \Carbon\Carbon::now()->month;
 ?>
-<div class="form-group mt-xxs">
+<div class="form-group mt-sm">
     {!! Form::label('month_'.$field->flid,'Month: ') !!}
     {!! Form::select('month_'.$field->flid,['' => '',
         '1' => '01 - '.date("F", mktime(0, 0, 0, 1, 10)), '2' => '02 - '.date("F", mktime(0, 0, 0, 2, 10)),
@@ -33,7 +33,7 @@
         $defMonth, ['class' => 'single-select', 'data-placeholder'=>"Select a Month"]) !!}
 </div>
 
-<div class="form-group mt-xxs">
+<div class="form-group mt-sm">
     {!! Form::label('day_'.$field->flid,'Day: ') !!}
     <select name="day_{{$field->flid}}" class="single-select" data-placeholder="Select a Day">
         <option value=""></option>
@@ -56,7 +56,7 @@
     </select>
 </div>
 
-<div class="form-group mt-xxs">
+<div class="form-group mt-sm">
     {!! Form::label('year_'.$field->flid,'Year: ') !!}
     <select name="year_{{$field->flid}}" class="single-select" data-placeholder="Select a Year">
         <option value=""></option>
@@ -81,7 +81,7 @@
 </div>
 
 @if(\App\Http\Controllers\FieldController::getFieldOption($field, 'Era')=='Yes')
-    <div class="form-group mt-xxs">
+    <div class="form-group mt-sm">
         {!! Form::label('era'.$field->flid,'Era: ') !!}
         {!! Form::select('era_'.$field->flid,['CE'=>'CE','BCE'=>'BCE'],'CE', ['class' => 'single-select']) !!}
     </div>
