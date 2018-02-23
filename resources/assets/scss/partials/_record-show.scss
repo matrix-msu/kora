@@ -1,0 +1,39 @@
+.record-show-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu;
+  min-height: 100vh;
+}
+
+.record-show {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  .head {
+    .description {
+      a {
+        color: palette('green', accent);
+        font-size: 14px;
+        font-family: $ubuntu-bold;
+        margin-right: 18px;
+        padding-bottom: #{ $underline-padding };
+        text-decoration: none;
+      }
+    }
+  }
+
+  .record-preset-link {
+    color: palette('green', accent);
+    font-family: $ubuntu-medium;
+    text-decoration: none;
+  }
+
+  .view-record {
+    margin: #{map-get($spacing, xxxl)} auto;
+    max-width: calc(#{ $max-site-width } - 600px);
+    width: $max-site-width;
+
+    @import 'record-show/page-card';
+  }
+
+
+}

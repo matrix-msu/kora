@@ -1,4 +1,24 @@
 .record {
+  .record-page {
+    .record-page-title {
+      height: 22px;
+      font-family: $ubuntu-bold-italic;
+      font-size: 16px;
+      line-height: 22px;
+      text-align: center;
+    }
+
+    .record-page-spacer {
+      background: palette('gray', slate, .05);
+      height: 2px;
+      width: 100%;
+    }
+  }
+
+  .record-page:first-child {
+    margin-top: 0;
+  }
+
   .field-title {
     font-family: $ubuntu-bold;
   }

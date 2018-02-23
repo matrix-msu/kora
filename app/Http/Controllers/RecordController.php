@@ -198,8 +198,10 @@ class RecordController extends Controller {
         $form = FormController::getForm($fid);
         $record = self::getRecord($rid);
         $owner = User::where('id', '=', $record->owner)->first();
+        $numRevisions = Revision::where('rid',$rid)->count();
+        $alreadyPreset = (RecordPreset::where('rid',$rid)->count() > 0);
 
-        return view('records.show', compact('record', 'form', 'pid', 'owner'));
+        return view('records.show', compact('record', 'form', 'owner', 'numRevisions', 'alreadyPreset'));
 	}
 
     /**

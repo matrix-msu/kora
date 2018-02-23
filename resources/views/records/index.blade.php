@@ -7,7 +7,7 @@
 @stop
 
 @section('stylesheets')
-    {{--<link rel="stylesheet" href="{{ config('app.url') }}assets/css/vendor/datetimepicker/jquery.datetimepicker.min.css" />--}}
+
 @stop
 
 @section('header')
