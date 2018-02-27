@@ -108,13 +108,56 @@ Kora.Forms.Show = function() {
       var $header = $headerInnerWrapper.parent();
       var $field = $header.parent();
       var $fieldContainer = $field.parent();
+      var $page = $fieldContainer.parent().parent();
       var url = $field.attr('move-url');
       var seq = $field.attr('sequence');
       // $field.prev().before(current);
       if ($this.hasClass('up-js')) {
         var $previousField = $fieldContainer.prev();
         if ($previousField.length == 0 || !$previousField.hasClass('field-container')) {
-          // move to previous page if exists
+          var $previousPage = $page.prev().prev();
+          if ($previousPage.length !== 0) {
+            var $previousFieldContainer = $previousPage.children('.field-sort-js');
+            var $createPageButton = $previousPage.next();
+            var $createFieldButton = $previousPage.children('form');
+
+            $page.css('z-index', 999)
+              .css('position', 'relative');
+            $previousPage.css('z-index', 999)
+              .css('position', 'relative');
+            $createPageButton.css('z-index', 999)
+              .css('position', 'relative');
+            $createFieldButton.css('z-index', 999)
+              .css('position', 'relative');
+            $previousFieldContainer.css('z-index', 999)
+              .css('position', 'relative')
+              .animate({
+                height: $previousFieldContainer.height() + $fieldContainer.height() + 60
+              }, 300).css('overflow', '');
+            $fieldContainer.css('z-index', 1000)
+              .css('position', 'relative')
+              .animate({
+                top: '-' + ($fieldContainer.height() * 2 + $createPageButton.height() + 60),
+                height: 0
+              }, 300, function() {
+                $page.css('z-index', '')
+                  .css('position', '');
+                $previousPage.css('z-index', '')
+                  .css('position', '');
+                $createPageButton.css('z-index', '')
+                  .css('position', '');
+                $createFieldButton.css('z-index', '')
+                  .css('position', '');
+                $fieldContainer.css('z-index', '')
+                  .css('top', '')
+                  .css('position', '')
+                  .css('height', '');
+                $previousFieldContainer.css('z-index', '')
+                  .css('position', '')
+                  .css('height', '')
+                  .append($fieldContainer);
+              }).css('overflow', '');
+          }
           return;
         }
 
@@ -149,7 +192,46 @@ Kora.Forms.Show = function() {
       } else {
         var $nextField = $fieldContainer.next();
         if ($nextField.length == 0 || !$nextField.hasClass('field-container')) {
-          // move to next page if exists
+          var $nextPage = $fieldContainer.parent().parent().next().next();
+          if ($nextPage.length !== 0) {
+            var $nextFieldContainer = $nextPage.children('.field-sort-js');
+            var $createPageButton = $nextPage.next();
+            var $createFieldButton = $nextPage.children('form');
+
+            $nextPage.css('z-index', 999)
+              .css('position', 'relative');
+            $createPageButton.css('z-index', 999)
+              .css('position', 'relative');
+            $createFieldButton.css('z-index', 999)
+              .css('position', 'relative');
+            $nextFieldContainer.css('z-index', 999)
+              .css('position', 'relative')
+              .animate({
+                'margin-top': $fieldContainer.height() + 60
+              }, 300).css('overflow', '');
+            $fieldContainer.css('z-index', 1000)
+              .css('position', 'relative')
+              .animate({
+                top: ($fieldContainer.height() + $createPageButton.height() + 60),
+                height: 0
+              }, 300, function() {
+                $nextPage.css('z-index', '')
+                  .css('position', '');
+                $createPageButton.css('z-index', '')
+                  .css('position', '');
+                $createFieldButton.css('z-index', '')
+                  .css('position', '');
+                $fieldContainer.css('z-index', '')
+                  .css('top', '')
+                  .css('height', '')
+                  .css('position', '');
+                $nextFieldContainer.css('z-index', '')
+                  .css('position', '')
+                  .css('height', '')
+                  .css('margin-top', '')
+                  .prepend($fieldContainer);
+              }).css('overflow', '');
+          }
           return;
         }
 
