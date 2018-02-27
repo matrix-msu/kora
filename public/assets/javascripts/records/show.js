@@ -119,8 +119,134 @@ Kora.Records.Show = function() {
         });
     }
 
+    function initializeTypedFieldDisplays() {
+        //GALLERY
+        $('.gallery-field-display').slick({
+            dots: true,
+            infinite: true,
+            speed: 500,
+            fade: true,
+            cssEase: 'linear'
+        });
+
+        //PLAYLIST
+        $('.jp-audio-js').each(function() {
+            var audioID = $(this).attr('audio-id');
+            var audioLink = $(this).attr('audio-link');
+            var swfpath = $(this).attr('swf-path');
+
+            var cssSelector = {
+                jPlayer: "#jquery_jplayer_"+audioID,
+                cssSelectorAncestor: "#jp_container_"+audioID
+            };
+            var playlist = [];
+            $(this).children('.jp-audio-file-js').each(function() {
+                var audioName = $(this).attr('audio-name');
+                var audioType = $(this).attr('audio-type');
+
+                if(audioType=="audio/mpeg")
+                    var audioVal = {title: audioName, mp3: audioLink+audioName};
+                else if(audioType=="audio/ogg")
+                    var audioVal = {title: audioName, oga: audioLink+audioName};
+                else if(audioType=="audio/x-wav")
+                    var audioVal = {title: audioName, wav: audioLink+audioName};
+
+                playlist.push(audioVal);
+            });
+            var options = {
+                swfPath: swfpath,
+                supplied: "mp3, oga, wav"
+            };
+            var myPlaylist = new jPlayerPlaylist(cssSelector, playlist, options);
+        });
+
+        //VIDEO
+        $('.jp-video-js').each(function() {
+            var videoID = $(this).attr('video-id');
+            var videoLink = $(this).attr('video-link');
+            var swfpath = $(this).attr('swf-path');
+
+            var cssSelector = {
+                jPlayer: "#jquery_jplayer_"+videoID,
+                cssSelectorAncestor: "#jp_container_"+videoID
+            };
+            var playlist = [];
+            $(this).children('.jp-video-file-js').each(function() {
+                var videoName = $(this).attr('video-name');
+                var videoType = $(this).attr('video-type');
+
+                if(videoType=="video/mp4")
+                    var videoVal = {title: videoName, m4v: videoLink+videoName};
+                else if(videoType=="video/ogg")
+                    var videoVal = {title: videoName, ogv: videoLink+videoName};
+
+                playlist.push(videoVal);
+            });
+            var options = {
+                swfPath: swfpath,
+                supplied: "m4v, ogv"
+            };
+            var myPlaylist = new jPlayerPlaylist(cssSelector, playlist, options);
+        });
+
+        //MODEL
+        $('.model-player-div-js').each(function() {
+            var modelID = $(this).attr('model-id');
+            var modelLink = $(this).attr('model-link');
+
+            var modelColor = $(this).attr('model-color');
+            var bg1Color = $(this).attr('bg1-color');
+            var bg2Color = $(this).attr('bg2-color');
+
+            var viewer = new JSC3D.Viewer(document.getElementById('cv'+modelID));
+            viewer.setParameter('SceneUrl', modelLink);
+            viewer.setParameter('InitRotationX', 0);
+            viewer.setParameter('InitRotationY', 0);
+            viewer.setParameter('InitRotationZ', 0);
+            viewer.setParameter('ModelColor', modelColor);
+            viewer.setParameter('BackgroundColor1', bg1Color);
+            viewer.setParameter('BackgroundColor2', bg2Color);
+            viewer.setParameter('RenderMode', 'texturesmooth');
+            viewer.setParameter('MipMapping', 'on');
+            viewer.setParameter('Renderer', 'webgl');
+            viewer.init();
+            viewer.update();
+
+            var canvas = document.getElementById('cvfs'+modelID);
+
+            //TODO:: We need to rebuild this?
+            // function fullscreen() {
+            //     var el = document.getElementById('cv'+modelID);
+            //
+            //     el.width  = window.innerWidth;
+            //     el.height = window.innerHeight;
+            //
+            //     if(el.webkitRequestFullScreen)
+            //         el.webkitRequestFullScreen();
+            //     else
+            //         el.mozRequestFullScreen();
+            // }
+            //
+            // function exitFullscreen() {
+            //     if(!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
+            //         var el = document.getElementById('cv'+modelID);
+            //
+            //         el.width  = 750;
+            //         el.height = 400;
+            //     }
+            // }
+            //
+            // canvas.addEventListener("click",fullscreen);
+            // document.addEventListener('fullscreenchange', exitFullscreen);
+            // document.addEventListener('webkitfullscreenchange', exitFullscreen);
+            // document.addEventListener('mozfullscreenchange', exitFullscreen);
+            // document.addEventListener('MSFullscreenChange', exitFullscreen);
+        });
+    }
+
     initializeToggle();
     initializeDesignateRecordPreset();
     initializeAlreadyRecordPreset();
     initializeDeleteRecord();
+    initializeTypedFieldDisplays();
 }

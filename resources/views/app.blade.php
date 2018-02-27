@@ -11,17 +11,6 @@
           @else
             <!-- For Geolocator -->
             <link rel="stylesheet" href="{{ config('app.url') }}leaflet/leaflet.css" />
-            <!-- For Documents -->
-            <link rel="stylesheet" href="{{ config('app.url') }}fileUpload/css/jquery.fileupload.css">
-            <link rel="stylesheet" href="{{ config('app.url') }}fileUpload/css/jquery.fileupload-ui.css">
-            <!-- For Gallery -->
-
-            <!-- For Playlist and Video -->
-            <link rel="stylesheet" type="text/css" href="{{ config('app.url') }}jplayer/pink.flag/css/jplayer.pink.flag.min.css"/>
-            <!-- For 3D Model -->
-            <script type="text/javascript" src="{{ config('app.url') }}jsc3d/jsc3d.js"></script>
-            <script type="text/javascript" src="{{ config('app.url') }}jsc3d/jsc3d.webgl.js"></script>
-            <script type="text/javascript" src="{{ config('app.url') }}jsc3d/jsc3d.touch.js"></script>
           @endif
         @endif
 
