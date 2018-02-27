@@ -8,6 +8,7 @@
   margin: $navigation-height auto 100px;
   width: 100%;
 
+  @import 'admin/card';
   @import 'admin/filters';
   @import 'admin/selection';
 }
