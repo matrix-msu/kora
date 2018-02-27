@@ -23,6 +23,7 @@ class ModelField extends FileTypeField  {
     const FIELD_OPTIONS_VIEW = "partials.fields.options.3dmodel";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.3dmodel";
     const FIELD_INPUT_VIEW = "partials.records.input.3dmodel";
+    const FIELD_DISPLAY_VIEW = "partials.records.display.3dmodel";
 
     /**
      * @var array - Attributes that can be mass assigned to model
@@ -58,7 +59,9 @@ class ModelField extends FileTypeField  {
      * @return string - The default options
      */
     public function getDefaultOptions(Request $request) {
-        return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!][!FileTypes!][!ModelColor!]#CAA618[!ModelColor!][!BackColorOne!]#ffffff[!BackColorOne!][!BackColorTwo!]#383840[!BackColorTwo!]';
+        return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!]obj[!]stl[!]application/octet-stream[!]
+        image/jpeg[!]image/png[!FileTypes!][!ModelColor!]#CAA618[!ModelColor!][!BackColorOne!]#ffffff[!BackColorOne!]
+        [!BackColorTwo!]#383840[!BackColorTwo!]';
     }
 
     /**

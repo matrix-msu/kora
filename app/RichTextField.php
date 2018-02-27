@@ -23,6 +23,7 @@ class RichTextField extends BaseField {
     const FIELD_OPTIONS_VIEW = "partials.fields.options.richtext";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.richtext";
     const FIELD_INPUT_VIEW = "partials.records.input.richtext";
+    const FIELD_DISPLAY_VIEW = "partials.records.display.richtext";
 
     /**
      * @var array - Attributes that can be mass assigned to model

@@ -5,7 +5,9 @@
 
 <div class="form-group mt-xl">
     {!! Form::label('filetype','Allowed File Types (MIME): ') !!}
-    {!! Form::select('filetype'.'[]',['obj' => 'OBJ','stl' => 'STL'], null, ['class' => 'multi-select', 'Multiple']) !!}
+    {!! Form::select('filetype'.'[]',['obj' => 'OBJ','stl' => 'STL','image/jpeg' => 'JPEG Texture',
+        'image/png' => 'PNG Texture','application/octet-stream' => 'Other'], getDefaultTypes('3D-Model'),
+        ['class' => 'multi-select', 'Multiple']) !!}
 </div>
 
 <div class="form-group mt-xl">

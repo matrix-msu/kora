@@ -11,7 +11,7 @@
 <div class="form-group mt-xl">
     {!! Form::label('filetype','Allowed File Types: ') !!}
     {!! Form::select('filetype'.'[]',['audio/mp3' => 'MP3','audio/wav' => 'Wav','audio/ogg' => 'Ogg'],
-        null, ['class' => 'multi-select', 'Multiple', 'data-placeholder' => 'Search and Select the file types allowed here']) !!}
+        getDefaultTypes('Playlist'), ['class' => 'multi-select', 'Multiple', 'data-placeholder' => 'Search and Select the file types allowed here']) !!}
 </div>
 
 <script>

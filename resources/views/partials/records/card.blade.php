@@ -26,8 +26,12 @@
                             <div class="field-title mt-xl">{{$field->name}}: </div>
 
                             <section class="field-data">
-                                {{--<?php $typedField = $field->getTypedField(); ?>--}}
-                                {{--@include($typedField::FIELD_DISPLAY_VIEW, ['field' => $field])--}}
+                                <?php $typedField = $field->getTypedFieldFromRID($record->rid); ?>
+                                @if(!is_null($typedField))
+                                    @include($typedField::FIELD_DISPLAY_VIEW, ['field' => $field, 'typedField' => $typedField])
+                                @else
+                                    <span class="record-no-data">No Data Inputted</span>
+                                @endif
                             </section>
                         @endif
                     @endforeach

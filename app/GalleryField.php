@@ -23,6 +23,7 @@ class GalleryField extends FileTypeField  {
     const FIELD_OPTIONS_VIEW = "partials.fields.options.gallery";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.gallery";
     const FIELD_INPUT_VIEW = "partials.records.input.gallery";
+    const FIELD_DISPLAY_VIEW = "partials.records.display.gallery";
 
     /**
      * @var array - Attributes that can be mass assigned to model
@@ -58,7 +59,8 @@ class GalleryField extends FileTypeField  {
      * @return string - The default options
      */
     public function getDefaultOptions(Request $request) {
-        return '[!FieldSize!]0[!FieldSize!][!ThumbSmall!]150x150[!ThumbSmall!][!ThumbLarge!]300x300[!ThumbLarge!][!MaxFiles!]0[!MaxFiles!][!FileTypes!][!FileTypes!]';
+        return '[!FieldSize!]0[!FieldSize!][!ThumbSmall!]150x150[!ThumbSmall!][!ThumbLarge!]300x300[!ThumbLarge!]
+        [!MaxFiles!]0[!MaxFiles!][!FileTypes!]image/jpeg[!]image/gif[!]image/png[!]image/bmp[!FileTypes!]';
     }
 
     /**

@@ -1,0 +1,22 @@
+.documents-link {
+  color: palette('green', accent);
+  font-family: $ubuntu-medium;
+  padding-bottom: #{ $underline-padding };
+}
+
+.jp-center {
+  margin: auto;
+}
+
+.model-player-div {
+  margin:auto;
+  position:relative;
+  width:800px;
+}
+
+//IF YOU CHANGE THIS HEIGHT, CHANGE IT IN THE RECORD DISPLAY FULLSCREEN JAVASCRIPT FUNCTIONS
+.model-player-canvas {
+  border: 1px solid;
+  height: 400px;
+  width: 750px;
+}

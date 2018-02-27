@@ -22,4 +22,13 @@
   .field-title {
     font-family: $ubuntu-bold;
   }
+
+  .field-data {
+    .record-no-data {
+      color: palette('gray', text, .4);
+      font-family: $ubuntu-italic;
+    }
+
+    @import 'typed-fields';
+  }
 }

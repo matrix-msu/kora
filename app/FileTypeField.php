@@ -32,7 +32,7 @@ abstract class FileTypeField extends BaseField {
      * @var array - Maps file field constant names to valid file memes
      */
     public static $FILE_MIME_TYPES = [
-        Field::_GALLERY => ['image/jpeg','image/gif','image/png'],
+        Field::_GALLERY => ['image/jpeg','image/gif','image/png','image/bmp'],
         Field::_PLAYLIST => ['audio/mp3','audio/wav','audio/ogg'],
         Field::_VIDEO => ['video/mp4','video/ogg'],
         Field::_3D_MODEL => ['obj','stl','application/octet-stream','image/jpeg','image/png'],
@@ -97,11 +97,7 @@ abstract class FileTypeField extends BaseField {
 
         $validTypes = true;
         $fileTypes = explode('[!]',FieldController::getFieldOption($field, 'FileTypes'));
-        $fileTypesRequest = array();
-        if($field->type != Field::_3D_MODEL)
-            $fileTypesRequest = $_FILES['file'.$flid]['type'];
-        else
-            $fileTypesRequest[] = pathinfo($_FILES['file'.$flid]['name'][0], PATHINFO_EXTENSION);
+        $fileTypesRequest = $_FILES['file'.$flid]['type'];
 
         if((sizeof($fileTypes)!=1 | $fileTypes[0]!='') && $field->type != Field::_3D_MODEL) {
             foreach($fileTypesRequest as $type) {

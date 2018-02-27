@@ -17,4 +17,13 @@
   .field-title:first-child {
     margin-top: 20px;
   }
+
+  .field-data {
+    .record-no-data {
+      color: palette('gray', text, .4);
+      font-family: $ubuntu-italic;
+    }
+
+    @import 'typed-fields';
+  }
 }

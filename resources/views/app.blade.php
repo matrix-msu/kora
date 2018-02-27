@@ -15,8 +15,7 @@
             <link rel="stylesheet" href="{{ config('app.url') }}fileUpload/css/jquery.fileupload.css">
             <link rel="stylesheet" href="{{ config('app.url') }}fileUpload/css/jquery.fileupload-ui.css">
             <!-- For Gallery -->
-            <link rel="stylesheet" type="text/css" href="{{ config('app.url') }}slick/slick/slick.css"/>
-            <link rel="stylesheet" type="text/css" href="{{ config('app.url') }}slick/slick/slick-theme.css"/>
+
             <!-- For Playlist and Video -->
             <link rel="stylesheet" type="text/css" href="{{ config('app.url') }}jplayer/pink.flag/css/jplayer.pink.flag.min.css"/>
             <!-- For 3D Model -->

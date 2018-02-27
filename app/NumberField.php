@@ -25,6 +25,7 @@ class NumberField extends BaseField {
     const FIELD_OPTIONS_VIEW = "partials.fields.options.number";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.number";
     const FIELD_INPUT_VIEW = "partials.records.input.number";
+    const FIELD_DISPLAY_VIEW = "partials.records.display.number";
 
     /**
      * Epsilon value for comparison purposes. Used to match between values in MySQL.
