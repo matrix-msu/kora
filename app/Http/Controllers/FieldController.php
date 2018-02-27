@@ -230,7 +230,7 @@ class FieldController extends Controller {
 
         return response()->json(["status"=>true,"message"=>"field_flag_updated"],200);
     }
-
+    
     /**
      * Delete a field model.
      *

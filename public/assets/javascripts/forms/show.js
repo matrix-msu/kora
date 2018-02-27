@@ -108,6 +108,8 @@ Kora.Forms.Show = function() {
       var $header = $headerInnerWrapper.parent();
       var $field = $header.parent();
       var $fieldContainer = $field.parent();
+      var url = $field.attr('move-url');
+      var seq = $field.attr('sequence');
       // $field.prev().before(current);
       if ($this.hasClass('up-js')) {
         var $previousField = $fieldContainer.prev();
@@ -134,6 +136,16 @@ Kora.Forms.Show = function() {
               .css('position', '')
               .insertBefore($previousField);
           });
+
+        $.ajax({
+          url: url,
+          type: 'POST',
+          data: {
+            '_token': CSRFToken,
+            'direction': upMethod,
+            'sequence': seq
+          }
+        });
       } else {
         var $nextField = $fieldContainer.next();
         if ($nextField.length == 0 || !$nextField.hasClass('field-container')) {
@@ -159,6 +171,16 @@ Kora.Forms.Show = function() {
               .css('position', '')
               .insertAfter($nextField);
           });
+
+        $.ajax({
+          url: url,
+          type: 'POST',
+          data: {
+            '_token': CSRFToken,
+            'direction': downMethod,
+            'sequence': seq
+          }
+        })
       }
     });
   }
