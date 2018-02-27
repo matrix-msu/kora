@@ -44,7 +44,7 @@
     </form>
   </section>
 
-  <section class="user-selection user-selection-js">
+  <section class="user-selection user-selection-js center">
     @include('partials.admin.userManagement.users-sorted')
   </section>
 @stop

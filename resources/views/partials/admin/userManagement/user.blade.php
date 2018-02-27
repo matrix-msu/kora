@@ -1,10 +1,13 @@
 <div class="user card {{ $index == 0 ? 'active' : '' }}" id="user-{{$user->id}}">
   <div class="header {{ $index == 0 ? 'active' : '' }}">
     <div class="left pl-m">
-      <div class="title">
-        <span class="name mr-xl">{{$user->first_name}} {{$user->last_name}}</span>
-        <span class="username">{{$user->username}}</span>
-      </div>
+      <span class="title">
+        <span class="name mr-xl">
+          @if ($user->first_name) <span class="mr-m">{{$user->first_name}}</span> @endif
+          @if ($user->last_name) <span class="mr-m">{{$user->last_name}}</span> @endif
+          @if ($user->username) <span class="mr-m username">{{$user->username}}</span> @endif
+        </span>
+      </span>
     </div>
 
     <div class="card-toggle-wrap">
