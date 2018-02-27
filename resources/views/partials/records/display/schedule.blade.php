@@ -3,36 +3,17 @@
         <div>{{ $event }}</div>
     @endforeach
 @else
-    <div id='calendar{{$field->flid}}'></div>
-    <script>
-        jQuery('#calendar{{$field->flid}}').fullCalendar({
-            header: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'month,agendaWeek,agendaDay'
-            },
-            events: [
-                    @foreach(App\ScheduleField::eventsToOldFormat($typedField->events()->get()) as $event)
-                {
-                    <?php
-                        $nameTime = explode(': ',$event);
-                        $times = explode(' - ',$nameTime[1]);
-                        $allDay = true;
-                        if(strpos($nameTime[1],'PM') | strpos($nameTime[1],'AM')){
-                            $allDay = false;
-                        }
-                        ?>
-                    title: '{{ $nameTime[0] }}',
-                    start: '{{ $times[0] }}',
-                    end: '{{ $times[1] }}',
-                    @if($allDay)
-                    allDay: true
-                    @else
-                    allDay: false
-                    @endif
-                },
-                @endforeach
-            ]
-        });
-    </script>
+    <div class="schedule-cal-js">
+        @foreach(App\ScheduleField::eventsToOldFormat($typedField->events()->get()) as $event)
+            <?php
+                $nameTime = explode(': ',$event);
+                $times = explode(' - ',$nameTime[1]);
+                $allDay = true;
+                if(strpos($nameTime[1],'PM') | strpos($nameTime[1],'AM'))
+                    $allDay = false;
+            ?>
+            <span class="schedule-event-js hidden" event-title="{{$nameTime[0]}}" event-start="{{$times[0]}}"
+                  event-end="{{$times[1]}}" event-all-day="{{$allDay}}"></span>
+        @endforeach
+    </div>
 @endif

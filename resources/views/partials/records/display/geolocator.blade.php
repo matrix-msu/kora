@@ -9,28 +9,11 @@
         @endif
     @endforeach
 @else
-    <div id="map{{$field->flid}}" style="height:270px;"></div>
-    <?php $locs = array(); ?>
-    @foreach( App\GeolocatorField::locationsToOldFormat($typedField->locations()->get()) as $location)
-        <?php
-        $loc = array();
-        $desc = explode('[Desc]',$location)[1];
-        $x = explode(',', explode('[LatLon]',$location)[1])[0];
-        $y = explode(',', explode('[LatLon]',$location)[1])[1];
-
-        $loc['desc'] = $desc;
-        $loc['x'] = $x;
-        $loc['y'] = $y;
-
-        array_push($locs,$loc);
-        ?>
-    @endforeach
-    <script>
-        var map{{$field->flid}} = L.map('map{{$field->flid}}').setView([{{$locs[0]['x']}}, {{$locs[0]['y']}}], 13);
-        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(map{{$field->flid}});
-                @foreach($locs as $loc)
-        var marker = L.marker([{{$loc['x']}}, {{$loc['y']}}]).addTo(map{{$field->flid}});
-        marker.bindPopup("{{$loc['desc']}}");
+    <div id="map{{$field->flid}}_{{$record->rid}}" class="geolocator-map geolocator-map-js" map-id="{{$field->flid}}_{{$record->rid}}">
+        @foreach( App\GeolocatorField::locationsToOldFormat($typedField->locations()->get()) as $location)
+            <span class="geolocator-location-js hidden" loc-desc="{{explode('[Desc]',$location)[1]}}"
+                  loc-x="{{explode(',', explode('[LatLon]',$location)[1])[0]}}"
+                  loc-y="{{explode(',', explode('[LatLon]',$location)[1])[1]}}"></span>
         @endforeach
-    </script>
+    </div>
 @endif

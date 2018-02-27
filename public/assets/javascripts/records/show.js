@@ -129,6 +129,20 @@ Kora.Records.Show = function() {
             cssEase: 'linear'
         });
 
+        //GEOLOCATOR
+        $('.geolocator-map-js').each(function() {
+            var mapID = $(this).attr('map-id');
+
+            var firstLoc = $(this).children('.geolocator-location-js').first();
+            var mapRecord = L.map('map'+mapID).setView([firstLoc.attr('loc-x'), firstLoc.attr('loc-y')], 13);
+            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(mapRecord);
+
+            $(this).children('.geolocator-location-js').each(function() {
+                var marker = L.marker([$(this).attr('loc-x'), $(this).attr('loc-y')]).addTo(mapRecord);
+                marker.bindPopup($(this).attr('loc-desc'));
+            });
+        });
+
         //PLAYLIST
         $('.jp-audio-js').each(function() {
             var audioID = $(this).attr('audio-id');
@@ -158,6 +172,28 @@ Kora.Records.Show = function() {
                 supplied: "mp3, oga, wav"
             };
             var myPlaylist = new jPlayerPlaylist(cssSelector, playlist, options);
+        });
+
+        //SCHEDULE
+        $('.schedule-cal-js').each(function() {
+            var eve = [];
+            $(this).children('.schedule-event-js').each(function() {
+                var eventTitle = $(this).attr('event-title');
+                var eventStart = $(this).attr('event-start');
+                var eventEnd = $(this).attr('event-end');
+                var eventAllDay = $(this).attr('event-all-day');
+
+                eve.push({title:eventTitle,start:eventStart,end:eventEnd,allDay:eventAllDay});
+            });
+
+            jQuery('.schedule-cal-js').fullCalendar({
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay'
+                },
+                events: eve
+            });
         });
 
         //VIDEO

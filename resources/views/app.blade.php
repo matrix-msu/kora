@@ -6,12 +6,7 @@
         <title>Kora 3 - {{ $page_title }}</title>
 
         @if(isInstalled())
-          @if(View::hasSection('stylesheets'))
-              @yield('stylesheets')
-          @else
-            <!-- For Geolocator -->
-            <link rel="stylesheet" href="{{ config('app.url') }}leaflet/leaflet.css" />
-          @endif
+            @yield('stylesheets')
         @endif
 
         <link rel="stylesheet" href="{{config('app.url')}}assets/css/app.css">

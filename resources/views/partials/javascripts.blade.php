@@ -8,8 +8,4 @@
   <script type="text/javascript" src="https://www.google.com/recaptcha/api.js" async defer></script>
   <!-- Files for select 2-->
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0-rc.2/js/select2.min.js"></script>
-  <!-- For Schedule -->
-  <script src='{{ config('app.url') }}bower_components/fullcalendar/dist/fullcalendar.js'></script>
-  <!-- For Geolocator -->
-  <script src="{{ config('app.url') }}leaflet/leaflet.js"></script>
 @endif
