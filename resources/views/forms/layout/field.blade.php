@@ -1,4 +1,8 @@
-<div class="field card {{ $index == 0 ? 'active' : '' }}" id="{{$field->flid}}" delete-url="{{action('FieldController@destroy', ['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid])}}">
+<div class="field card {{ $index == 0 ? 'active' : '' }}" id="{{$field->flid}}" 
+  delete-url="{{action('FieldController@destroy', ['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid])}}"
+  move-url="{{action('PageController@moveField', ['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid])}}"
+  sequence="{{$field->sequence}}"
+  >
   <div class="header {{ $index == 0 ? 'active' : '' }}">
     <div class="left">
       @if(\Auth::user()->canEditForms(\App\Http\Controllers\ProjectController::getProject($field->pid)))
