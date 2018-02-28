@@ -239,20 +239,9 @@ class RecordController extends Controller {
             return redirect('projects')->with('k3_global_error', 'record_invalid');
 
         $form = FormController::getForm($fid);
+        $record = self::getRecord($rid);
 
-        $rpc = new RecordPresetController();
-        $cloneArray = $rpc->getRecordArray($rid);
-
-        $presets = array();
-
-        foreach(RecordPreset::where('fid', '=', $fid)->get() as $preset)
-            $presets[] = ['id' => $preset->id, 'name' => $preset->name];
-
-        $fields = array(); //array of field ids
-        foreach($form->fields()->get() as $field)
-            $fields[] = $field->flid;
-
-        return view('records.create', compact('form', 'rid', 'presets', 'fields', 'cloneArray'));
+        return view('records.clone', compact('record', 'form'));
     }
 
     /**
