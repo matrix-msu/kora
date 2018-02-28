@@ -29,6 +29,12 @@
     width: 12px;
   }
 
+  .record-preset-link {
+    color: palette('green', accent);
+    font-family: $ubuntu-medium;
+    text-decoration: none;
+  }
+
   @import 'record-create/filters';
   @import 'record-create/field-inputs';
 }

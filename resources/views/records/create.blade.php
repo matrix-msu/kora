@@ -60,7 +60,7 @@
 
         {!! Form::model($record = new \App\Record, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid.'/records',
             'enctype' => 'multipart/form-data', 'id' => 'new_record_form']) !!}
-            @include('partials.records.form',['form' => $form])
+            @include('partials.records.form',['form' => $form, 'editRecord' => false])
 
             <div class="form-group mt-xxxl">
                 <div class="spacer"></div>

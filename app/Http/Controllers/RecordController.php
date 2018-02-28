@@ -325,6 +325,7 @@ class RecordController extends Controller {
      * @return Redirect
      */
 	public function update($pid, $fid, $rid, Request $request) {
+	    //Validate record
         foreach($request->all() as $key => $value) {
             if(!is_numeric($key))
                 continue;
@@ -332,6 +333,16 @@ class RecordController extends Controller {
             $message = $field->getTypedField()->validateField($field, $value, $request);
             if($message != 'field_validated')
                 return redirect()->back()->withInput()->with('k3_global_error', 'record_validation_error')->with('record_validation_error', $message);
+        }
+
+        //Handle record preset
+        $makePreset = false;
+        $presetName = '';
+        if(isset($request->record_preset_name)) {
+            $presetName = $request->record_preset_name;
+            if(strlen($presetName) < 3)
+                return redirect()->back()->withInput($request)->with('k3_global_error', 'record_validation_error')->with('record_validation_error', 'present_name_short');
+            $makePreset = true;
         }
 
         $record = Record::where('rid', '=', $rid)->first();
@@ -361,7 +372,18 @@ class RecordController extends Controller {
         $revision->oldData = RevisionController::buildDataArray($record);
         $revision->save();
 
-        RecordPresetController::updateIfExists($record->rid);
+        //Make new preset
+        if($makePreset) {
+            $rpc = new RecordPresetController();
+            $presetRequest = new Request();
+            $presetRequest->name = $presetName;
+            $presetRequest->rid = $record->rid;
+
+            $rpc->presetRecord($presetRequest);
+        } else {
+            //Otherwise, let's update the preset if it exists
+            RecordPresetController::updateIfExists($record->rid);
+        }
 
         if(!$request->api)
             return redirect('projects/' . $pid . '/forms/' . $fid . '/records/' . $rid)->with('k3_global_success', 'record_updated');

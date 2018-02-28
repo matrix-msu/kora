@@ -4,10 +4,20 @@
 <input type="hidden" name={{$field->flid}} value="{{$field->flid}}">
 
 @if(\App\Http\Controllers\FieldController::getFieldOption($field, 'Circa')=='Yes')
+    <?php
+        if($hasData)
+            $isCirca = $typedField->circa;
+        else
+            $isCirca = 0;
+    ?>
     <div class="form-group mt-sm">
         <label for="{{'circa'.$field->flid}}">Mark this date as an approximate (circa)?</label>
         <div class="check-box">
-            <input type="checkbox" value="1" id="preset" class="check-box-input" name="{{'circa_'.$field->flid}}"/>
+            <input type="checkbox" value="1" id="preset" class="check-box-input" name="{{'circa_'.$field->flid}}"
+            @if($isCirca)
+                checked
+            @endif
+            >
             <div class="check-box-background"></div>
             <span class="check"></span>
             <span class="placeholder">Value is <strong>not</strong> approximate</span>
@@ -17,9 +27,13 @@
 @endif
 
 <?php
-    $defMonth = $field->default=='' ? null : explode('[M]',$field->default)[1];
-    if($defMonth=='0')
-        $defMonth = \Carbon\Carbon::now()->month;
+    if($hasData) {
+        $defMonth = $typedField->month;
+    } else {
+        $defMonth = $field->default=='' ? null : explode('[M]',$field->default)[1];
+        if($defMonth=='0')
+            $defMonth = \Carbon\Carbon::now()->month;
+    }
 ?>
 <div class="form-group mt-sm">
     {!! Form::label('month_'.$field->flid,'Month: ') !!}
@@ -45,10 +59,18 @@
             $i = 1;
             while ($i <= 31)
             {
-                if(($field->default!='' && explode('[D]',$field->default)[1]==$i) | $i==$currDay){
-                    echo "<option value=" . $i . " selected>" . $i . "</option>";
-                }else{
+                if($editRecord && $hasData) {
+                    if($i==$typedField->day)
+                        echo "<option value=" . $i . " selected>" . $i . "</option>";
+                    else
+                        echo "<option value=" . $i . ">" . $i . "</option>";
+                } else if($editRecord) {
                     echo "<option value=" . $i . ">" . $i . "</option>";
+                } else {
+                    if(($field->default!='' && explode('[D]',$field->default)[1]==$i) | $i==$currDay)
+                        echo "<option value=" . $i . " selected>" . $i . "</option>";
+                    else
+                        echo "<option value=" . $i . ">" . $i . "</option>";
                 }
                 $i++;
             }
@@ -69,10 +91,18 @@
             $j = \App\Http\Controllers\FieldController::getFieldOption($field, 'End');
             while ($i <= $j)
             {
-                if(($field->default!='' && explode('[Y]',$field->default)[1]==$i) | $i==$currYear){
-                    echo "<option value=" . $i . " selected>" . $i . "</option>";
-                }else{
+                if($editRecord && $hasData) {
+                    if($i==$typedField->year)
+                        echo "<option value=" . $i . " selected>" . $i . "</option>";
+                    else
+                        echo "<option value=" . $i . ">" . $i . "</option>";
+                } else if($editRecord) {
                     echo "<option value=" . $i . ">" . $i . "</option>";
+                } else {
+                    if(($field->default!='' && explode('[Y]',$field->default)[1]==$i) | $i==$currYear)
+                        echo "<option value=" . $i . " selected>" . $i . "</option>";
+                    else
+                        echo "<option value=" . $i . ">" . $i . "</option>";
                 }
                 $i++;
             }
@@ -81,8 +111,14 @@
 </div>
 
 @if(\App\Http\Controllers\FieldController::getFieldOption($field, 'Era')=='Yes')
+    <?php
+        if($hasData)
+            $eraVal = $typedField->era;
+        else
+            $eraVal = 'CE';
+    ?>
     <div class="form-group mt-sm">
         {!! Form::label('era'.$field->flid,'Era: ') !!}
-        {!! Form::select('era_'.$field->flid,['CE'=>'CE','BCE'=>'BCE'],'CE', ['class' => 'single-select']) !!}
+        {!! Form::select('era_'.$field->flid,['CE'=>'CE','BCE'=>'BCE'],$eraVal, ['class' => 'single-select']) !!}
     </div>
 @endif

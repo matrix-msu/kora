@@ -1,7 +1,22 @@
+<?php
+    if($editRecord && $hasData) {
+        $selected = App\GeolocatorField::locationsToOldFormat($typedField->locations()->get());
+        $listOpts = array();
+        foreach($selected as $val){
+            $listOpts[$val] = 'Description: '.explode('[Desc]',$val)[1].' | LatLon: '.explode('[LatLon]',$val)[1].' | UTM: '.explode('[UTM]',$val)[1].' | Address: '.explode('[Address]',$val)[1];
+        }
+    } else if($editRecord) {
+        $selected = null;
+        $listOpts = array();
+    } else {
+        $selected = explode('[!]',$field->default);
+        $listOpts = \App\GeolocatorField::getLocationList($field);
+    }
+?>
 <div class="form-group mt-xxxl">
     <label>@if($field->required==1)<span class="oval-icon"></span> @endif{{$field->name}}: </label>
-    {!! Form::select($field->flid.'[]',\App\GeolocatorField::getLocationList($field), explode('[!]',$field->default),
-        ['class' => 'multi-select '.$field->flid.'-location-js', 'Multiple', 'data-placeholder' => "Add Locations Below"]) !!}
+    {!! Form::select($field->flid.'[]', $listOpts, $selected, ['class' => 'multi-select '.$field->flid.'-location-js',
+        'Multiple', 'data-placeholder' => "Add Locations Below"]) !!}
 </div>
 
 <section class="new-object-button form-group mt-xl">

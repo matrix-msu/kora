@@ -1,7 +1,22 @@
+<?php
+    if($editRecord && $hasData) {
+        $selected = App\ScheduleField::eventsToOldFormat($typedField->events()->get());
+        $listOpts = array();
+        foreach($selected as $val){
+            $listOpts[$val] = $val;
+        }
+    } else if($editRecord) {
+        $selected = null;
+        $listOpts = array();
+    } else {
+        $selected = explode('[!]',$field->default);
+        $listOpts = \App\ScheduleField::getDateList($field);
+    }
+?>
 <div class="form-group mt-xxxl">
     <label>@if($field->required==1)<span class="oval-icon"></span> @endif{{$field->name}}: </label>
-    {!! Form::select($field->flid.'[]',\App\ScheduleField::getDateList($field),
-        explode('[!]',$field->default),['class' => 'multi-select  '.$field->flid.'-event-js', 'Multiple', 'data-placeholder' => "Add Events Below"]) !!}
+    {!! Form::select($field->flid.'[]', $listOpts, $selected,['class' => 'multi-select  '.$field->flid.'-event-js',
+        'Multiple', 'data-placeholder' => "Add Events Below"]) !!}
 </div>
 
 <section class="new-object-button form-group mt-xl">

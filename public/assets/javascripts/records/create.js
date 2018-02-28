@@ -653,6 +653,24 @@ Kora.Records.Create = function() {
         });
     }
 
+    function initializeAlreadyRecordPreset() {
+        $('.already-preset-js').click(function (e) {
+            e.preventDefault();
+
+            var $modal = $('.already-record-preset-modal-js');
+
+            Kora.Modal.open($modal);
+        });
+
+        $('.gotchya-js').click(function (e) {
+            e.preventDefault();
+
+            var $modal = $('.already-record-preset-modal-js');
+
+            Kora.Modal.close($modal);
+        });
+    }
+
     initializeSelectAddition();
     initializeSpecialInputs();
     initializeScheduleOptions();
@@ -662,4 +680,5 @@ Kora.Records.Create = function() {
     initializeRecordPresets();
     initializeDuplicateRecord();
     initializeNewRecordPreset();
+    initializeAlreadyRecordPreset();
 }

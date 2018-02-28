@@ -1,25 +1,32 @@
 <?php
+    $value = array();
+
     //We need to clean up any lingering files in tmp for this form
     $folder = 'f'.$field->flid.'u'.\Auth::user()->id;
-    $dir = config('app.base_path').'storage/app/tmpFiles/'.$folder;
-    if(file_exists($dir)) {
-        //clear tmp and thumb folders
-        foreach (new \DirectoryIterator($dir) as $file) {
-            if ($file->isFile()) {
-                unlink($dir.'/'.$file->getFilename());
-            }
+    $dirTmp = config('app.base_path').'storage/app/tmpFiles/'.$folder;
+    if(file_exists($dirTmp)) {
+        //clear tmp folder
+        foreach(new \DirectoryIterator($dirTmp) as $file) {
+            if($file->isFile())
+                unlink($dirTmp.'/'.$file->getFilename());
         }
-        if(file_exists($dir.'/thumbnail')) {
-            foreach (new \DirectoryIterator($dir.'/thumbnail') as $file) {
-                if ($file->isFile()) {
-                    unlink($dir.'/thumbnail/'.$file->getFilename());
-                }
-            }
+    } else {
+        mkdir($dirTmp,0775,true); //Make it!
+    }
+
+    //If this is an edit, we need to move things around
+    if($editRecord && $hasData){
+        $names = explode('[!]',$typedField->images);
+        foreach($names as $key => $file){
+            $names[$key] = explode('[Name]',$file)[1];
         }
-        if(file_exists($dir.'/medium')) {
-            foreach (new \DirectoryIterator($dir.'/medium') as $file) {
-                if ($file->isFile()) {
-                    unlink($dir.'/medium/'.$file->getFilename());
+        //move things over from storage to tmp
+        $dir = config('app.base_path').'storage/app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid;
+        if(file_exists($dir)) {
+            foreach (new \DirectoryIterator($dir) as $file) {
+                if ($file->isFile() && in_array($file->getFilename(),$names)) {
+                    copy($dir.'/'.$file->getFilename(),$dirTmp.'/'.$file->getFilename());
+                    array_push($value,$file->getFilename());
                 }
             }
         }
@@ -32,6 +39,21 @@
 </div>
 
 <section class="filenames filenames-{{$field->flid}}-js">
+    @foreach($value as $file)
+        <div class="form-group mt-xxs uploaded-file">
+            <input type="hidden" name="file{{$field->flid}}[]" value ="{{$file}}">
+            <a href="#" class="upload-fileup-js">
+                <i class="icon icon-arrow-up"></i>
+            </a>
+            <a href="#" class="upload-filedown-js">
+                <i class="icon icon-arrow-down"></i>
+            </a>
+            <span class="ml-sm">{{$file}}</span>
+            <a href="#" class="upload-filedelete-js ml-sm" data-url="{{config('app.url')}}deleteTmpFile/{{$folder}}/{{urlencode($file)}}">
+                <i class="icon icon-trash danger"></i>
+            </a>
+        </div>
+    @endforeach
 </section>
 
 <div class="form-group progress-bar-div">
