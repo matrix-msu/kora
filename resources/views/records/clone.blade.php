@@ -54,21 +54,9 @@
             <div class="spacer"></div>
         </div>
 
-        <div class="form-group mt-xxxl">
-            <div class="check-box-half">
-                <input type="checkbox" value="1" id="active" class="check-box-input duplicate-check-js" />
-                <span class="check"></span>
-                <span class="placeholder">Duplicate Record</span>
-            </div>
-
-            <p class="sub-text mt-sm">
-                This will create multiples of this record. You can set the number of duplicates after selecting.
-            </p>
-        </div>
-
-        <div class="form-group mt-xl duplicate-record-js hidden">
+        <div class="form-group mt-xl duplicate-record-js">
             {!! Form::label('mass_creation_num', 'Select duplication amount (max 1000): ') !!}
-            <input type="number" name="mass_creation_num" class="text-input" value="2" step="1" max="1000" min="2" disabled>
+            <input type="number" name="mass_creation_num" class="text-input" value="2" step="1" max="1000" min="1">
         </div>
 
         <div class="form-group mt-xxxl">
