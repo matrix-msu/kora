@@ -1,8 +1,27 @@
+<?php
+    if($editRecord && $hasData) {
+        $options = array();
+        $values = $typedField->records()->get();
+        foreach($values as $value){
+            $aRec = \App\Http\Controllers\RecordController::getRecord($value->record);
+            $options[$aRec->kid] = $aRec->kid;
+        }
+
+        $selected = $options;
+        $listOpts = $options;
+    } else if($editRecord) {
+        $selected = null;
+        $listOpts = array();
+    } else {
+        $selected = \App\AssociatorField::getAssociatorList($field);
+        $listOpts = \App\AssociatorField::getAssociatorList($field);
+    }
+?>
 <div class="form-group mt-xxxl">
     <div class="form-group">
         <label>@if($field->required==1)<span class="oval-icon"></span> @endif{{$field->name}}: </label>
-        {!! Form::select($field->flid.'[]', \App\AssociatorField::getAssociatorList($field), \App\AssociatorField::getAssociatorList($field),
-            ['class' => 'multi-select assoc-default-records-js', 'multiple', "data-placeholder" => "Search below to add associated records"]) !!}
+        {!! Form::select($field->flid.'[]', $listOpts, $selected, ['class' => 'multi-select assoc-default-records-js',
+            'multiple', "data-placeholder" => "Search below to add associated records"]) !!}
     </div>
 
     <div class="form-group mt-xs">
