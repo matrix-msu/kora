@@ -74,7 +74,7 @@ class FieldController extends Controller {
 
         //if advanced options was selected we should call the correct one
         $advError = false;
-        if($request->advance) {
+        if($request->advanced) {
             $result = $field->getTypedField()->updateOptions($field, $request, false);
             if($result != '')
                 $advError = true;

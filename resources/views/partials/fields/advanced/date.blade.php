@@ -1,3 +1,4 @@
+{!! Form::hidden('advanced',true) !!}
 <div class="form-group mt-xxxl">
     {!! Form::label('default_month','Default Month: ') !!}
     {!! Form::select('default_month',['' => '', '0' => 'Current Month',

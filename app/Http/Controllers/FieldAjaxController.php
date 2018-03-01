@@ -131,6 +131,6 @@ class FieldAjaxController extends Controller {
 
         $type = $request->type;
 
-        return view(Field::getTypedFieldStatic($type)->getAdvancedFieldOptionsView(), compact('field', 'form', 'proj','presets'));
+        return view(Field::getTypedFieldStatic($type)->getAdvancedFieldOptionsView(), compact('fid'));
     }
 }

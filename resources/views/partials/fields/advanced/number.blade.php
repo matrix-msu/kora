@@ -1,3 +1,4 @@
+{!! Form::hidden('advanced',true) !!}
 <div class="form-group mt-xxxl">
     {!! Form::label('default','Default: ') !!}
     <input type="number" name="default" class="text-input" value="">
