@@ -80,9 +80,9 @@ Kora.Forms.Show = function() {
 
     $('.field-sort-js').sortable({
       helper: 'clone',
-      revert: true,
+      // revert: true,
       containment: '.form-show',
-      connectWith: $('.field-sort-js'),
+      connectWith: '.field-sort-js',
       items: '.field-container',
       update: function(event, ui) {
         pidsArray = $('.field-sort-js').sortable('toArray');
