@@ -80,9 +80,9 @@ Kora.Forms.Show = function() {
 
     $('.field-sort-js').sortable({
       helper: 'clone',
-      revert: true,
+      // revert: true,
       containment: '.form-show',
-      connectWith: $('.field-sort-js'),
+      connectWith: '.field-sort-js',
       items: '.field-container',
       update: function(event, ui) {
         pidsArray = $('.field-sort-js').sortable('toArray');
@@ -137,7 +137,7 @@ Kora.Forms.Show = function() {
             $fieldContainer.css('z-index', 1000)
               .css('position', 'relative')
               .animate({
-                top: '-' + ($fieldContainer.height() * 2 + $createPageButton.height() + 60),
+                top: '-' + ($fieldContainer.height() + $createFieldButton.height() + $createPageButton.height() + 240),
                 height: 0
               }, 300, function() {
                 $page.css('z-index', '')
@@ -157,29 +157,32 @@ Kora.Forms.Show = function() {
                   .css('height', '')
                   .append($fieldContainer);
               }).css('overflow', '');
-          }
-          return;
-        }
 
-        $previousField.css('z-index', 999)
+            $.ajax({
+
+            });
+          }
+        } else {
+          $previousField.css('z-index', 999)
           .css('position', 'relative')
           .animate({
             top: $field.height()
           }, 300);
-        $fieldContainer.css('z-index', 1000)
-          .css('position', 'relative')
-          .animate({
-            top: '-' + $previousField.height()
-          }, 300, function() {
-            $previousField.css('z-index', '')
-              .css('top', '')
-              .css('position', '');
-            $fieldContainer.css('z-index', '')
-              .css('top', '')
-              .css('position', '')
-              .insertBefore($previousField);
-          });
-
+          $fieldContainer.css('z-index', 1000)
+            .css('position', 'relative')
+            .animate({
+              top: '-' + $previousField.height()
+            }, 300, function() {
+              $previousField.css('z-index', '')
+                .css('top', '')
+                .css('position', '');
+              $fieldContainer.css('z-index', '')
+                .css('top', '')
+                .css('position', '')
+                .insertBefore($previousField);
+            });
+        }
+        
         $.ajax({
           url: url,
           type: 'POST',
@@ -195,7 +198,7 @@ Kora.Forms.Show = function() {
           var $nextPage = $fieldContainer.parent().parent().next().next();
           if ($nextPage.length !== 0) {
             var $nextFieldContainer = $nextPage.children('.field-sort-js');
-            var $createPageButton = $nextPage.next();
+            var $createPageButton = $page.next();
             var $createFieldButton = $nextPage.children('form');
 
             $nextPage.css('z-index', 999)
@@ -212,8 +215,9 @@ Kora.Forms.Show = function() {
             $fieldContainer.css('z-index', 1000)
               .css('position', 'relative')
               .animate({
-                top: ($fieldContainer.height() + $createPageButton.height() + 60),
-                height: 0
+                top: ($createFieldButton.height() + $createPageButton.height() + 240),
+                height: 0,
+                margin: 0
               }, 300, function() {
                 $nextPage.css('z-index', '')
                   .css('position', '');
@@ -224,6 +228,7 @@ Kora.Forms.Show = function() {
                 $fieldContainer.css('z-index', '')
                   .css('top', '')
                   .css('height', '')
+                  .css('margin', '')
                   .css('position', '');
                 $nextFieldContainer.css('z-index', '')
                   .css('position', '')
@@ -232,27 +237,26 @@ Kora.Forms.Show = function() {
                   .prepend($fieldContainer);
               }).css('overflow', '');
           }
-          return;
+        } else {
+          $nextField.css('z-index', 999)
+            .css('position', 'relative')
+            .animate({
+              top: '-' + $field.height()
+            }, 300);
+          $fieldContainer.css('z-index', 1000)
+            .css('position', 'relative')
+            .animate({
+              top: $nextField.height()
+            }, 300, function() {
+              $nextField.css('z-index', '')
+                .css('top', '')
+                .css('position', '');
+              $fieldContainer.css('z-index', '')
+                .css('top', '')
+                .css('position', '')
+                .insertAfter($nextField);
+            });
         }
-
-        $nextField.css('z-index', 999)
-          .css('position', 'relative')
-          .animate({
-            top: '-' + $field.height()
-          }, 300);
-        $fieldContainer.css('z-index', 1000)
-          .css('position', 'relative')
-          .animate({
-            top: $nextField.height()
-          }, 300, function() {
-            $nextField.css('z-index', '')
-              .css('top', '')
-              .css('position', '');
-            $fieldContainer.css('z-index', '')
-              .css('top', '')
-              .css('position', '')
-              .insertAfter($nextField);
-          });
 
         $.ajax({
           url: url,
