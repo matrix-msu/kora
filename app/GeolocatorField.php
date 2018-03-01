@@ -383,7 +383,8 @@ class GeolocatorField extends BaseField {
                     ->orWhereRaw("MATCH (`address`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
             })
             ->distinct()
-            ->pluck('rid');
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**

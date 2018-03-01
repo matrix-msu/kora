@@ -389,7 +389,8 @@ class ScheduleField extends BaseField {
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`desc`) AGAINST (? IN BOOLEAN MODE)", [$arg])
             ->distinct()
-            ->pluck('rid');
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**

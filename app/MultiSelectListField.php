@@ -324,7 +324,8 @@ class MultiSelectListField extends BaseField {
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)", [$arg])
             ->distinct()
-            ->pluck('rid');
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**

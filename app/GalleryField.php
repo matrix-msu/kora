@@ -498,7 +498,8 @@ class GalleryField extends FileTypeField  {
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`images`) AGAINST (? IN BOOLEAN MODE)", [$arg])
             ->distinct()
-            ->pluck('rid');
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**

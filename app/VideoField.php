@@ -432,7 +432,8 @@ class VideoField extends FileTypeField {
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`video`) AGAINST (? IN BOOLEAN MODE)", [$arg])
             ->distinct()
-            ->pluck('rid');
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**

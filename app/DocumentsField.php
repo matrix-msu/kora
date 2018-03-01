@@ -433,7 +433,8 @@ class DocumentsField extends FileTypeField {
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`documents`) AGAINST (? IN BOOLEAN MODE)", [$arg])
             ->distinct()
-            ->pluck('rid');
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**

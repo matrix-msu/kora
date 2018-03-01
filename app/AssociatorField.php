@@ -107,10 +107,21 @@ class AssociatorField extends BaseField {
             $default = implode('[!]',$reqDefs);
         }
 
+        $searchForms = array();
+        foreach($request->all() as $key=>$value) {
+            if(substr( $key, 0, 8 ) === "checkbox") {
+                $fid = explode('_',$key)[1];
+                $preview = $request->input("preview_".$fid);
+                $val = "[fid]{$fid}[fid][search]1[search][flids]{$preview}[flids]";
+
+                array_push($searchForms,$val);
+            }
+        }
+
         $field->updateRequired($request->required);
         $field->updateSearchable($request);
         $field->updateDefault($default);
-        $field->updateOptions('SearchForms', $request->searchforms);
+        $field->updateOptions('SearchForms', implode('[!]',$searchForms));
 
         return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
             ->with('k3_global_success', 'field_options_updated');
@@ -342,7 +353,8 @@ class AssociatorField extends BaseField {
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`record`) AGAINST (? IN BOOLEAN MODE)", [$arg])
             ->distinct()
-            ->pluck('rid');
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**

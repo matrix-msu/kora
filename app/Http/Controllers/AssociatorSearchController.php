@@ -76,7 +76,17 @@ class AssociatorSearchController extends Controller {
         foreach($activeForms as $fid => $details) {
             $form = FormController::getForm($fid);
 
-            $rids = self::search($form->pid, $fid, $keyword);
+            if(Record::isKIDPattern($keyword)) {
+                //KID Search
+                $record = Record::where('kid','=',$keyword)->first();
+                if(!is_null($record) && $record->fid==$fid)
+                    $rids = array($record->rid);
+                else
+                    $rids = array();
+            } else {
+                //Form Search
+                $rids = self::search($form->pid, $fid, $keyword);
+            }
 
             foreach($rids as $rid) {
                 $kid = $form->pid.'-'.$fid.'-'.$rid;

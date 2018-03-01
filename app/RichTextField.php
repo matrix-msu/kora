@@ -309,7 +309,8 @@ class RichTextField extends BaseField {
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`searchable_rawtext`) AGAINST (? IN BOOLEAN MODE)", [$arg])
             ->distinct()
-            ->pluck('rid');
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**

@@ -364,7 +364,8 @@ class NumberField extends BaseField {
                 ->where("flid", "=", $flid)
                 ->whereBetween("number", [$arg - self::EPSILON, $arg + self::EPSILON])
                 ->distinct()
-                ->pluck('rid');
+                ->pluck('rid')
+                ->toArray();
         } else {
             return array();
         }
