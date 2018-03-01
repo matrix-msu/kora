@@ -137,7 +137,7 @@ Kora.Forms.Show = function() {
             $fieldContainer.css('z-index', 1000)
               .css('position', 'relative')
               .animate({
-                top: '-' + ($fieldContainer.height() * 2 + $createPageButton.height() + 60),
+                top: '-' + ($fieldContainer.height() + $createFieldButton.height() + $createPageButton.height() + 240),
                 height: 0
               }, 300, function() {
                 $page.css('z-index', '')
@@ -195,7 +195,7 @@ Kora.Forms.Show = function() {
           var $nextPage = $fieldContainer.parent().parent().next().next();
           if ($nextPage.length !== 0) {
             var $nextFieldContainer = $nextPage.children('.field-sort-js');
-            var $createPageButton = $nextPage.next();
+            var $createPageButton = $page.next();
             var $createFieldButton = $nextPage.children('form');
 
             $nextPage.css('z-index', 999)
@@ -212,8 +212,9 @@ Kora.Forms.Show = function() {
             $fieldContainer.css('z-index', 1000)
               .css('position', 'relative')
               .animate({
-                top: ($fieldContainer.height() + $createPageButton.height() + 60),
-                height: 0
+                top: ($createFieldButton.height() + $createPageButton.height() + 240),
+                height: 0,
+                margin: 0
               }, 300, function() {
                 $nextPage.css('z-index', '')
                   .css('position', '');
@@ -224,6 +225,7 @@ Kora.Forms.Show = function() {
                 $fieldContainer.css('z-index', '')
                   .css('top', '')
                   .css('height', '')
+                  .css('margin', '')
                   .css('position', '');
                 $nextFieldContainer.css('z-index', '')
                   .css('position', '')
