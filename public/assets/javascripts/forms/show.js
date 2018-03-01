@@ -157,29 +157,32 @@ Kora.Forms.Show = function() {
                   .css('height', '')
                   .append($fieldContainer);
               }).css('overflow', '');
-          }
-          return;
-        }
 
-        $previousField.css('z-index', 999)
+            $.ajax({
+
+            });
+          }
+        } else {
+          $previousField.css('z-index', 999)
           .css('position', 'relative')
           .animate({
             top: $field.height()
           }, 300);
-        $fieldContainer.css('z-index', 1000)
-          .css('position', 'relative')
-          .animate({
-            top: '-' + $previousField.height()
-          }, 300, function() {
-            $previousField.css('z-index', '')
-              .css('top', '')
-              .css('position', '');
-            $fieldContainer.css('z-index', '')
-              .css('top', '')
-              .css('position', '')
-              .insertBefore($previousField);
-          });
-
+          $fieldContainer.css('z-index', 1000)
+            .css('position', 'relative')
+            .animate({
+              top: '-' + $previousField.height()
+            }, 300, function() {
+              $previousField.css('z-index', '')
+                .css('top', '')
+                .css('position', '');
+              $fieldContainer.css('z-index', '')
+                .css('top', '')
+                .css('position', '')
+                .insertBefore($previousField);
+            });
+        }
+        
         $.ajax({
           url: url,
           type: 'POST',
@@ -234,27 +237,26 @@ Kora.Forms.Show = function() {
                   .prepend($fieldContainer);
               }).css('overflow', '');
           }
-          return;
+        } else {
+          $nextField.css('z-index', 999)
+            .css('position', 'relative')
+            .animate({
+              top: '-' + $field.height()
+            }, 300);
+          $fieldContainer.css('z-index', 1000)
+            .css('position', 'relative')
+            .animate({
+              top: $nextField.height()
+            }, 300, function() {
+              $nextField.css('z-index', '')
+                .css('top', '')
+                .css('position', '');
+              $fieldContainer.css('z-index', '')
+                .css('top', '')
+                .css('position', '')
+                .insertAfter($nextField);
+            });
         }
-
-        $nextField.css('z-index', 999)
-          .css('position', 'relative')
-          .animate({
-            top: '-' + $field.height()
-          }, 300);
-        $fieldContainer.css('z-index', 1000)
-          .css('position', 'relative')
-          .animate({
-            top: $nextField.height()
-          }, 300, function() {
-            $nextField.css('z-index', '')
-              .css('top', '')
-              .css('position', '');
-            $fieldContainer.css('z-index', '')
-              .css('top', '')
-              .css('position', '')
-              .insertAfter($nextField);
-          });
 
         $.ajax({
           url: url,
