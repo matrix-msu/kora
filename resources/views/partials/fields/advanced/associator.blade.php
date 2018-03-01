@@ -1,5 +1,10 @@
 {!! Form::hidden('advanced',true) !!}
-<div class="form-group mt-xxxl">{!! Form::label('','Search Configuration: ') !!}</div>
+<div class="form-group mt-xxxl">
+    {!! Form::label('','Search Configuration: ') !!}
+    <p class="sub-text">
+        If no forms are available, have a Form Admin request permission to forms by using the Association Permissions page
+    </p>
+</div>
 @foreach(\App\Http\Controllers\AssociationController::getAvailableAssociations($fid) as $a)
     <?php
     $f = \App\Http\Controllers\FormController::getForm($a->dataForm);

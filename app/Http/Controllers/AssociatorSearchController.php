@@ -125,43 +125,21 @@ class AssociatorSearchController extends Controller {
     private function search($pid, $fid, $arg, $method=Search::SEARCH_OR) {
         $rids = [];
 
-        $do_query = false;
-        if(Session::has("query_assoc")) { // Have we ever searched before?
-            $session_query = Session::get("query_assoc");
-            $session_method = Session::get("method_assoc");
-            $session_ids = Session::get("ids_assoc");
-
-            if($session_query == $arg && $session_method == $method && $session_ids == $pid.' '.$fid) // This is the same search so we shouldn't re-execute the query.
-                $rids = unserialize(Session::get("rids_assoc"));
-            else // This is a new search, so we have to execute again.
-                $do_query = true;
-        } else { // We have never searched before, so we must execute.
-            $do_query = true;
-        }
-
-        if($do_query) {
-            // Inform the user about arguments that will be ignored.
+        // Inform the user about arguments that will be ignored.
+        if($arg!="") {
             $ignored = Search::showIgnoredArguments($arg);
             $args = explode(" ", $arg);
             $args = array_diff($args, $ignored);
             $arg = implode(" ", $args);
 
-            if($arg!="") {
-                $search = new Search($pid, $fid, $arg, $method);
-                $rids = $search->formKeywordSearch();
-            } else {
-                //If no search term given, return everything!!!!
-                $rids = Record::where("fid","=",$fid)->pluck('rid')->all();
-            }
-
-            sort($rids);
-
-            Session::put("rids_assoc", serialize($rids));
+            $search = new Search($pid, $fid, $arg, $method);
+            $rids = $search->formKeywordSearch();
+        } else {
+            //If no search term given, return everything!!!!
+            $rids = Record::where("fid","=",$fid)->pluck('rid')->all();
         }
 
-        Session::put("query_assoc", $arg);
-        Session::put("method_assoc", $method);
-        Session::put("ids_assoc", $pid.' '.$fid);
+        sort($rids);
 
         return $rids;
     }

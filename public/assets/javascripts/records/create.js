@@ -47,6 +47,59 @@ Kora.Records.Create = function() {
         });
     }
 
+    function intializeAssociatorOptions() {
+        $('.assoc-search-records-js').on('keypress', function(e) {
+            var keyCode = e.keyCode || e.which;
+            if(keyCode === 13) {
+                e.preventDefault();
+
+                var keyword = $(this).val();
+                var assocSearchURI = $(this).attr('search-url');
+                //var resultsBox = $('.assoc-select-records-js');
+                var resultsBox = $(this).parent().next().children('.assoc-select-records-js').first();
+                //Clear old values
+                resultsBox.html('');
+                resultsBox.trigger("chosen:updated");
+
+                $.ajax({
+                    url: assocSearchURI,
+                    type: 'POST',
+                    data: {
+                        "_token": csrfToken,
+                        "keyword": keyword
+                    },
+                    success: function (result) {
+                        for(var kid in result) {
+                            var preview = result[kid];
+                            var opt = "<option value='"+kid+"'>"+kid+": "+preview+"</option>";
+
+                            resultsBox.append(opt);
+                            resultsBox.trigger("chosen:updated");
+                        }
+                    }
+                });
+            }
+        });
+
+        $('.assoc-select-records-js').change(function() {
+            defaultBox = $('.assoc-default-records-js');
+
+            $(this).children('option').each(function() {
+                if($(this).is(':selected')) {
+                    option = $("<option/>", { value: $(this).attr("value"), text: $(this).text() });
+
+                    defaultBox.append(option);
+                    defaultBox.find(option).prop('selected', true);
+                    defaultBox.trigger("chosen:updated");
+
+                    $(this).prop("selected", false);
+                }
+            });
+
+            $(this).trigger("chosen:updated");
+        });
+    }
+
     function initializeScheduleOptions() {
         Kora.Modal.initialize();
 
@@ -673,6 +726,7 @@ Kora.Records.Create = function() {
 
     initializeSelectAddition();
     initializeSpecialInputs();
+    intializeAssociatorOptions();
     initializeScheduleOptions();
     intializeGeolocatorOptions();
     intializeFileUploaderOptions();
