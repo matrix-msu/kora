@@ -581,19 +581,20 @@ Kora.Records.Create = function() {
                         applyFilePreset(field['model'], presetID, flid);
                         break;
 
-                    // case 'Associator': //TODO::remember to do this
-                    //     var r, records = field['records'];
-                    //     var selector = $('#'+flid);
-                    //     $('#'+flid+' option[value!="0"]').remove();
-                    //
-                    //     for (r=0; r < records.length; r++) {
-                    //         selector.append($('<option/>', {
-                    //             value: records[r],
-                    //             text: records[r],
-                    //             selected: 'selected'
-                    //         }));
-                    //     }
-                    //     break;
+                    case 'Associator':
+                        var r, records = field['records'];
+                        console.log(field['records']);
+                        var selector = $('#'+flid);
+                        $('#'+flid+' option[value!="0"]').remove();
+
+                        for (r=0; r < records.length; r++) {
+                            selector.append($('<option/>', {
+                                value: records[r],
+                                text: records[r],
+                                selected: 'selected'
+                            })).trigger("chosen:updated");
+                        }
+                        break;
 
                 }
             }

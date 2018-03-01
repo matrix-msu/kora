@@ -21,7 +21,7 @@
     <div class="form-group">
         <label>@if($field->required==1)<span class="oval-icon"></span> @endif{{$field->name}}: </label>
         {!! Form::select($field->flid.'[]', $listOpts, $selected, ['class' => 'multi-select assoc-default-records-js',
-            'multiple', "data-placeholder" => "Search below to add associated records"]) !!}
+            'multiple', "data-placeholder" => "Search below to add associated records", 'id' => $field->flid]) !!}
     </div>
 
     <div class="form-group mt-xs">
