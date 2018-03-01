@@ -1,3 +1,3 @@
-@foreach($af->records()->get() as $opt)
-    <div>{!! $af->getPreviewValues($opt->record) !!}</div>
+@foreach($typedField->records()->get() as $opt)
+    <div>{!! $typedField->getPreviewValues($opt->record) !!}</div>
 @endforeach

@@ -30,7 +30,7 @@ class AssociatorField extends BaseField {
     const FIELD_OPTIONS_VIEW = "partials.fields.options.associator";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.associator";
     const FIELD_INPUT_VIEW = "partials.records.input.associator";
-    const FIELD_DISPLAY_VIEW = null;
+    const FIELD_DISPLAY_VIEW = "partials.records.display.associator";
 
     /**
      * @var array - Attributes that can be mass assigned to model
@@ -538,7 +538,7 @@ class AssociatorField extends BaseField {
             array_push($preview, "no_preview_available");
         }
 
-        $html = "<a href='".config('app.url')."projects/".$pid."/forms/".$fid."/records/".$rid."'>".$kid."</a>";
+        $html = "<a class='mt-xxxs documents-link underline-middle-hover' href='".config('app.url')."projects/".$pid."/forms/".$fid."/records/".$rid."'>".$kid."</a>";
 
         foreach($preview as $val) {
             $html .= " | ".$val;

@@ -82,7 +82,7 @@ Kora.Records.Create = function() {
         });
 
         $('.assoc-select-records-js').change(function() {
-            defaultBox = $('.assoc-default-records-js');
+            defaultBox = $(this).parent().siblings().first().children('.assoc-default-records-js');
 
             $(this).children('option').each(function() {
                 if($(this).is(':selected')) {
