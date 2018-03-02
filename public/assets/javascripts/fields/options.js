@@ -334,10 +334,12 @@ Kora.Fields.Options = function(fieldType) {
         });
 
         $('.add-combo-value-js').click(function() {
-            val1 = $('#default_one').val();
-            val2 = $('#default_two').val();
-            console.log(val1);
-            console.log(val2);
+            inputOne = $('#default_one');
+            inputTwo = $('#default_two');
+
+            val1 = inputOne.val();
+            val2 = inputTwo.val();
+
             defaultDiv = $('.combo-value-div-js');
 
             if(val1=='' | val2==''){
@@ -375,13 +377,13 @@ Kora.Fields.Options = function(fieldType) {
 
                 defaultDiv.html(defaultDiv.html()+div);
 
-                $('#default_one').val('');
+                inputOne.val('');
                 if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List' | type1=='Associator')
-                    $('#default_one').trigger("chosen:updated");
+                    inputOne.trigger("chosen:updated");
 
-                $('#default_two').val('');
+                inputTwo.val('');
                 if(type2=='Multi-Select List' | type2=='Generated List' | type2=='List' | type2=='Associator')
-                    $('#default_two').trigger("chosen:updated");
+                    inputTwo.trigger("chosen:updated");
             }
         });
 

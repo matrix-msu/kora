@@ -1,3 +1,9 @@
+.combo-list-empty {
+  color: palette('gray', text, .4);
+  font-family: $ubuntu-italic;
+  font-size: 14px;
+}
+
 .progress-bar-div {
   background: palette('gray', slate, .05);
   border-radius: 5px;

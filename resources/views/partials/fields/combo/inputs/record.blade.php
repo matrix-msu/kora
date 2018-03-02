@@ -5,9 +5,9 @@
         @else
             mt-xl
         @endif
-        ">
+            ">
         {!! Form::label('default_'.$fnum, $cfName.': ') !!}
-        {!! Form::text('default_'.$fnum, null, ['id' => 'default_'.$fnum, 'class' => 'text-input', 'placeholder' => 'Enter text value here']) !!}
+        {!! Form::text('default_'.$fnum, null, ['id' => 'default_'.$fnum.'_'.$flid, 'class' => 'text-input', 'placeholder' => 'Enter text value here']) !!}
     </div>
 @elseif($type=='Number')
     <div class="form-group
@@ -18,7 +18,7 @@
         @endif
             ">
         {!! Form::label('default_'.$fnum, $cfName.' ('.\App\ComboListField::getComboFieldOption($field, "Unit", $fnum).'): ') !!}
-        <input type="number" id="default_{{$fnum}}" name="default_{{$fnum}}" class="text-input" value="" placeholder="Enter number here"
+        <input type="number" id="default_{{$fnum}}_{{$flid}}" name="default_{{$fnum}}" class="text-input" value="" placeholder="Enter number here"
                step="{{ \App\ComboListField::getComboFieldOption($field, "Increment", $fnum) }}"
                min="{{ \App\ComboListField::getComboFieldOption($field, "Min", $fnum) }}"
                max="{{ \App\ComboListField::getComboFieldOption($field, "Max", $fnum) }}">
@@ -33,7 +33,7 @@
             ">
         {!! Form::label('default_'.$fnum, $cfName.': ') !!}
         {!! Form::select('default_'.$fnum,\App\ComboListField::getComboList($field,false,$fnum), null,
-            ['id' => 'default_'.$fnum, 'class' => 'single-select']) !!}
+            ['id' => 'default_'.$fnum.'_'.$flid, 'class' => 'single-select']) !!}
     </div>
 @elseif($type=='Multi-Select List')
     <div class="form-group
@@ -45,7 +45,7 @@
             ">
         {!! Form::label('default_'.$fnum, $cfName.': ') !!}
         {!! Form::select('default_'.$fnum.'[]',\App\ComboListField::getComboList($field,false,$fnum), null,
-        ['id' => 'default_'.$fnum, 'class' => 'multi-select', 'multiple']) !!}
+        ['id' => 'default_'.$fnum.'_'.$flid, 'class' => 'multi-select', 'multiple']) !!}
     </div>
 @elseif($type=='Generated List')
     <div class="form-group
@@ -57,7 +57,7 @@
             ">
         {!! Form::label('default_'.$fnum, $cfName.': ') !!}
         {!! Form::select('default_'.$fnum.'[]',\App\ComboListField::getComboList($field,false,$fnum), null,
-        ['id' => 'default_'.$fnum, 'class' => 'multi-select modify-select', 'multiple']) !!}
+        ['id' => 'default_'.$fnum.'_'.$flid, 'class' => 'multi-select modify-select', 'multiple']) !!}
     </div>
 @elseif($type=='Associator')
     <div class="form-group
@@ -68,13 +68,14 @@
         @endif
             ">
         {!! Form::label('default_'.$fnum, $cfName.': ') !!}
-        {!! Form::select('default_'.$fnum.'[]', [], null, ['id' => 'default_'.$fnum, 'class' => 'multi-select assoc-default-records-js',
+        {!! Form::select('default_'.$fnum.'[]', [], null, ['id' => 'default_'.$fnum.'_'.$flid, 'class' => 'multi-select assoc-default-records-js',
             'multiple', "data-placeholder" => "Search below to add associated records"]) !!}
     </div>
 
     <div class="form-group mt-xs">
         {!! Form::label('search','Search Associations: ') !!}
-        <input type="text" class="text-input assoc-search-records-js" placeholder="Enter search term or KID to find associated records (populated below)">
+        <input type="text" class="text-input assoc-search-records-js" placeholder="Enter search term or KID to find associated records (populated below)"
+           search-url="{{ action('AssociatorSearchController@assocSearch',['pid' => $field->pid,'fid'=>$field->fid, 'flid'=>$field->flid]) }}">
     </div>
 
     <div class="form-group mt-xs">
