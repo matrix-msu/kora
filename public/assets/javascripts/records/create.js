@@ -55,7 +55,6 @@ Kora.Records.Create = function() {
 
                 var keyword = $(this).val();
                 var assocSearchURI = $(this).attr('search-url');
-                //var resultsBox = $('.assoc-select-records-js');
                 var resultsBox = $(this).parent().next().children('.assoc-select-records-js').first();
                 //Clear old values
                 resultsBox.html('');

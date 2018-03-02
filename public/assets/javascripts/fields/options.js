@@ -328,75 +328,138 @@ Kora.Fields.Options = function(fieldType) {
     }
 
     function initializeComboListOptions(){
-        $('#combo_defaults').on('click', '.delete_combo_def', function() {
+        $('.combo-value-div-js').on('click', '.delete-combo-value-js', function() {
             parentDiv = $(this).parent();
             parentDiv.remove();
         });
 
-        $('.form-group').on('click', '.add_option', function() {
+        $('.add-combo-value-js').click(function() {
             val1 = $('#default_one').val();
             val2 = $('#default_two').val();
-            type1 = '{{$oneType}}';
-            type2 = '{{$twoType}}';
+            console.log(val1);
+            console.log(val2);
+            defaultDiv = $('.combo-value-div-js');
 
             if(val1=='' | val2==''){
+                //TODO::Error out
                 console.log('Both fields must be filled out');
-            }else{
-                div = '<div class="default">';
-
-                if(type1=='Text' | type1=='List'){
-                    div += '<span style="float:left;width:40%;margin-bottom:10px">'+val1+'</span>';
-                }else if(type1=='Number'){
-                    // unit = '<?php
-                    // if($oneType=='Number')
-                    //     echo \App\ComboListField::getComboFieldOption($field,'Unit','one');
-                    //     ?>';
-                    // div += '<span style="float:left;width:40%;margin-bottom:10px">'+val1+' '+unit+'</span>';
-                }else if(type1=='Multi-Select List' | type1=='Generated List' | type1=='Associator'){
-                    div += '<span style="float:left;width:40%;margin-bottom:10px">';
-                    for(k=0;k<val1.length;k++){
-                        div += '<div>'+val1[k]+'</div>';
-                    }
-                    div += '</span>';
+            } else {
+                //Remove empty div if applicable
+                if(defaultDiv.children('.combo-list-empty').first()) {
+                    defaultDiv.children('.combo-list-empty').first().remove();
                 }
 
-                if(type2=='Text' | type2=='List'){
-                    div += '<span style="float:left;width:40%;margin-bottom:10px">'+val2+'</span>';
-                }else if(type2=='Number'){
-                    // unit = '<?php
-                    // if($twoType=='Number')
-                    //     echo \App\ComboListField::getComboFieldOption($field,'Unit','two');
-                    //     ?>';
-                    //div += '<span style="float:left;width:40%;margin-bottom:10px">'+val2+' '+unit+'</span>';
-                }else if(type2=='Multi-Select List' | type2=='Generated List' | type2=='Associator'){
-                    div += '<span style="float:left;width:40%;margin-bottom:10px">';
-                    for(k=0;k<val2.length;k++){
-                        div += '<div>'+val2[k]+'</div>';
-                    }
-                    div += '</span>';
+                div = '<div class="combo-value-item-js">';
+
+                if(type1=='Text' | type1=='List' | type1=='Number') {
+                    div += '<input type="hidden" name="default_combo_one[]" value="'+val1+'">';
+                    div += '<span>['+name1+']: '+val1+'</span>';
+                } else if(type1=='Multi-Select List' | type1=='Generated List' | type1=='Associator') {
+                    div += '<input type="hidden" name="default_combo_one[]" value="'+val1.join('[!]')+'">';
+                    div += '<span>['+name1+']: '+val1.join(' | ')+'</span>';
                 }
 
-                div += '<span class="delete_combo_def" style="float:left;width:20%;margin-bottom:10px"><a>[X]</a></span>';
+                div += '<span> ~ </span>';
+
+                if(type2=='Text' | type2=='List' | type2=='Number') {
+                    div += '<input type="hidden" name="default_combo_two[]" value="'+val2+'">';
+                    div += '<span>['+name2+']: '+val2+'</span>';
+                } else if(type2=='Multi-Select List' | type2=='Generated List' | type2=='Associator') {
+                    div += '<input type="hidden" name="default_combo_two[]" value="'+val2.join('[!]')+'">';
+                    div += '<span>['+name2+']: '+val2.join(' | ')+'</span>';
+                }
+
+                div += '<span class="delete-combo-value-js pl-m"><a class="underline-middle-hover">[X]</a></span>';
 
                 div += '</div>';
 
-                $('#combo_defaults').html($('#combo_defaults').html()+div);
+                defaultDiv.html(defaultDiv.html()+div);
 
-                if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List')
-                    $('#default_one').select2("val", "");
-                else if(type1=='Associator')
-                    $('#default_one').html("");
-                else
-                    $('#default_one').val('');
+                $('#default_one').val('');
+                if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List' | type1=='Associator')
+                    $('#default_one').trigger("chosen:updated");
 
-                if(type2=='Multi-Select List' | type2=='Generated List' | type2=='List')
-                    $('#default_two').select2("val", "");
-                else if(type2=='Associator')
-                    $('#default_two').html("");
-                else
-                    $('#default_two').val('');
+                $('#default_two').val('');
+                if(type2=='Multi-Select List' | type2=='Generated List' | type2=='List' | type2=='Associator')
+                    $('#default_two').trigger("chosen:updated");
             }
         });
+
+        //ASSOCIATOR OPTIONS
+        //Sets up association configurations
+        $('.association-check-js').click(function() {
+            var assocDiv = $(this).closest('.form-group').next();
+            var input = assocDiv.children('select').first();
+            if(this.checked) {
+                assocDiv.fadeIn();
+                input.prop('disabled', false).trigger("chosen:updated");
+            } else {
+                assocDiv.hide();
+                input.prop('disabled', true).trigger("chosen:updated");
+            }
+        });
+
+        $('.assoc-search-records-js').on('keypress', function(e) {
+            var keyCode = e.keyCode || e.which;
+            if(keyCode === 13) {
+                e.preventDefault();
+
+                var keyword = $(this).val();
+                var resultsBox = $(this).parent().next().children('.assoc-select-records-js').first();
+                //Clear old values
+                resultsBox.html('');
+                resultsBox.trigger("chosen:updated");
+
+                $.ajax({
+                    url: assocSearchURI,
+                    type: 'POST',
+                    data: {
+                        "_token": csrfToken,
+                        "keyword": keyword
+                    },
+                    success: function (result) {
+                        for(var kid in result) {
+                            var preview = result[kid];
+                            var opt = "<option value='"+kid+"'>"+kid+": "+preview+"</option>";
+
+                            resultsBox.append(opt);
+                            resultsBox.trigger("chosen:updated");
+                        }
+                    }
+                });
+            }
+        });
+
+        $('.assoc-select-records-js').change(function() {
+            defaultBox = $(this).parent().siblings().first().children('.assoc-default-records-js');
+
+            $(this).children('option').each(function() {
+                if($(this).is(':selected')) {
+                    option = $("<option/>", { value: $(this).attr("value"), text: $(this).text() });
+
+                    defaultBox.append(option);
+                    defaultBox.find(option).prop('selected', true);
+                    defaultBox.trigger("chosen:updated");
+
+                    $(this).prop("selected", false);
+                }
+            });
+
+            $(this).trigger("chosen:updated");
+        });
+
+        //LIST OPTIONS
+        var listOpt = $('.list-options-js');
+        listOpt.find('option').prop('selected', true);
+        listOpt.trigger("chosen:updated");
+
+        listOpt = $('.mslist-options-js');
+        listOpt.find('option').prop('selected', true);
+        listOpt.trigger("chosen:updated");
+
+        listOpt = $('.genlist-options-js');
+        listOpt.find('option').prop('selected', true);
+        listOpt.trigger("chosen:updated");
     }
 
     initializeSelects();
@@ -427,6 +490,7 @@ Kora.Fields.Options = function(fieldType) {
             intializeAssociatorOptions();
             break;
         case 'Combo List':
+            initializeSelectAddition();
             initializeComboListOptions();
             break;
         default:

@@ -11,164 +11,130 @@
     $defArray = explode('[!def!]',$defs);
     ?>
 
-    {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldAjaxController@updateOptions', $field->pid, $field->fid, $field->flid], 'onsubmit' => 'selectAll()', 'id' => 'comboform']) !!}
-    @include('fields.options.hiddens')
     {!! Form::hidden('typeone',$oneType) !!}
     {!! Form::hidden('typetwo',$twoType) !!}
     {!! Form::hidden('nameone',$oneName) !!}
     {!! Form::hidden('nametwo',$twoName) !!}
-    <div class="form-group">
-        {!! Form::label('required',trans('fields_options_combolist.req').': ') !!}
-        {!! Form::select('required',['false', 'true'], $field->required, ['class' => 'form-control']) !!}
+
+    <div class="form-group half pr-m">
+        {!! Form::label('nameone','Combo List Field Name 1: ') !!}
+        {!! Form::text('nameone',$oneName, ['class' => 'text-input']) !!}
     </div>
 
-    <div class="form-group">
-        {!! Form::label('searchable',trans('fields_options_combolist.search').': ') !!}
-        {!! Form::select('searchable',['false', 'true'], $field->searchable, ['class' => 'form-control']) !!}
+    <div class="form-group half pl-m">
+        {!! Form::label('nametwo','Combo List Field Name 2: ') !!}
+        {!! Form::text('nametwo',$twoName, ['class' => 'text-input']) !!}
     </div>
 
-    <div class="form-group">
-        {!! Form::label('extsearch',trans('fields_options_combolist.extsearch').': ') !!}
-        {!! Form::select('extsearch',['false', 'true'], $field->extsearch, ['class' => 'form-control']) !!}
+    <div class="form-group mt-xxxl">
+        <div class="spacer"></div>
     </div>
 
-    <div class="form-group">
-        {!! Form::label('viewable',trans('fields_options_combolist.viewable').': ') !!}
-        {!! Form::select('viewable',['false', 'true'], $field->viewable, ['class' => 'form-control']) !!}
-    </div>
+    <section class="combo-list-defaults">
+        <div class="form-group combo-value-div-js">
+            {!! Form::label('default', 'Default: ') !!}
+            @if($defs!=null && $defs!='')
+                @for($i=0;$i<sizeof($defArray);$i++)
+                    <div class="combo-value-item-js">
+                        @if($oneType=='Text' | $oneType=='List' | $oneType=='Number')
+                            <?php $value = explode('[!f1!]',$defArray[$i])[1]; ?>
+                            {!! Form::hidden("default_combo_one[]",$value) !!}
+                            <span>[{{$oneName}}]: {{$value}}</span>
+                        @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
+                            <?php
+                            $valPre = explode('[!f1!]',$defArray[$i])[1];
+                            $value = explode('[!]',$valPre);
+                            ?>
+                            {!! Form::hidden("default_combo_one[]",$valPre) !!}
+                            <span>[{{$oneName}}]: {{implode(' | ',$value)}}</span>
+                        @endif
+                        <span> ~ </span>
+                        @if($twoType=='Text' | $twoType=='List' | $twoType=='Number')
+                            <?php $value = explode('[!f2!]',$defArray[$i])[1]; ?>
+                            {!! Form::hidden("default_combo_two[]",$value) !!}
+                            <span>[{{$twoName}}]: {{$value}}</span>
+                        @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $twoType=='Associator')
+                            <?php
+                            $valPre = explode('[!f2!]',$defArray[$i])[1];
+                            $value = explode('[!]',$valPre);
+                            ?>
+                            {!! Form::hidden("default_combo_two[]",$valPre) !!}
+                            <span>[{{$twoName}}]: {{implode(' | ',$value)}}</span>
+                        @endif
 
-    <div class="form-group">
-        {!! Form::label('viewresults',trans('fields_options_combolist.viewresults').': ') !!}
-        {!! Form::select('viewresults',['false', 'true'], $field->viewresults, ['class' => 'form-control']) !!}
-    </div>
-
-    <div class="form-group">
-        {!! Form::label('extview',trans('fields_options_combolist.extview').': ') !!}
-        {!! Form::select('extview',['false', 'true'], $field->extview, ['class' => 'form-control']) !!}
-    </div>
-
-    <hr>
-
-    <div class="form-group">
-        {!! Form::label('nameone',trans('fields_options_combolist.nameone').': ') !!}
-        {!! Form::text('nameone',$oneName, ['class' => 'form-control']) !!}
-    </div>
-
-    <div class="form-group">
-        {!! Form::label('nametwo',trans('fields_options_combolist.nametwo').': ') !!}
-        {!! Form::text('nametwo',$twoName, ['class' => 'form-control']) !!}
-    </div>
-
-    <div id="combo_defaults" style="overflow: auto">
-        {!! Form::label('default', trans('fields_options_combolist.default').': ') !!}
-        <div>
-            <span style="float:left;width:40%;margin-bottom:10px"><b>{{$oneName}}</b></span>
-            <span style="float:left;width:40%;margin-bottom:10px"><b>{{$twoName}}</b></span>
-            <span style="float:left;width:20%;margin-bottom:10px"><b>{{trans('fields_options_combolist.remove')}}</b></span>
+                        <span class="delete-combo-value-js pl-m"><a class="underline-middle-hover">[X]</a></span>
+                    </div>
+                @endfor
+            @else
+                <div class="combo-list-empty">Add Values to Combo List Below</div>
+            @endif
         </div>
-        @if($defs!=null && $defs!='')
-            @for($i=0;$i<sizeof($defArray);$i++)
-                <div class="default">
-                    @if($oneType=='Text' | $oneType=='List')
-                        <?php $value = explode('[!f1!]',$defArray[$i])[1]; ?>
-                        <span style="float:left;width:40%;margin-bottom:10px">{{$value}}</span>
-                    @elseif($oneType=='Number')
-                        <?php
-                        $value = explode('[!f1!]',$defArray[$i])[1];
-                        $unit = \App\ComboListField::getComboFieldOption($field,'Unit','one');
-                        if($unit!=null && $unit!=''){
-                            $value .= ' '.$unit;
-                        }
-                        ?>
-                        <span style="float:left;width:40%;margin-bottom:10px">{{$value}}</span>
-                    @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
-                        <?php
-                        $value = explode('[!f1!]',$defArray[$i])[1];
-                        $value = explode('[!]',$value);
-                        ?>
-
-                        <span style="float:left;width:40%;margin-bottom:10px">
-                            @foreach($value as $val)
-                                <div>{{$val}}</div>
-                            @endforeach
-                        </span>
-                    @endif
+    </section>
 
 
-                    @if($twoType=='Text' | $twoType=='List')
-                        <?php $value = explode('[!f2!]',$defArray[$i])[1]; ?>
-                        <span style="float:left;width:40%;margin-bottom:10px">{{$value}}</span>
-                    @elseif($twoType=='Number')
-                        <?php
-                        $value = explode('[!f2!]',$defArray[$i])[1];
-                        $unit = \App\ComboListField::getComboFieldOption($field,'Unit','two');
-                        if($unit!=null && $unit!=''){
-                            $value .= ' '.$unit;
-                        }
-                        ?>
-                        <span style="float:left;width:40%;margin-bottom:10px">{{$value}}</span>
-                    @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $oneType=='Associator')
-                        <?php
-                        $value = explode('[!f2!]',$defArray[$i])[1];
-                        $value = explode('[!]',$value);
-                        ?>
+    <section class="combo-list-input-one">
+        @include('partials.fields.combo.inputs.defaults',['field'=>$field, 'type'=>$oneType, 'cfName'=>$oneName, 'fnum'=>'one'])
+    </section>
+    <section class="combo-list-input-two">
+        @include('partials.fields.combo.inputs.defaults',['field'=>$field, 'type'=>$twoType, 'cfName'=>$twoName, 'fnum'=>'two'])
+    </section>
 
-                        <span style="float:left;width:40%;margin-bottom:10px">
-                            @foreach($value as $val)
-                                <div>{{$val}}</div>
-                            @endforeach
-                        </span>
-                    @endif
+    <section class="new-object-button form-group mt-xxxl">
+        <input class="add-combo-value-js" type="button" value="Add Default Value">
+    </section>
 
-                    <span class="delete_combo_def" style="float:left;width:20%;margin-bottom:10px"><a>[X]</a></span>
-                </div>
-            @endfor
+    <div class="form-group mt-xxxl">
+        <div class="spacer"></div>
+    </div>
+
+    <section class="combo-list-options-one">
+        <h4>Field Options for {{ $oneName }}</h4>
+        @if($oneType=='Text')
+            @include('partials.fields.combo.options.text',['field'=>$field,'fnum'=>'one'])
+        @elseif($oneType=='Number')
+            @include('partials.fields.combo.options.number',['field'=>$field,'fnum'=>'one'])
+        @elseif($oneType=='List')
+            @include('partials.fields.combo.options.list',['field'=>$field,'fnum'=>'one'])
+        @elseif($oneType=='Multi-Select List')
+            @include('partials.fields.combo.options.mslist',['field'=>$field,'fnum'=>'one'])
+        @elseif($oneType=='Generated List')
+            @include('partials.fields.combo.options.genlist',['field'=>$field,'fnum'=>'one'])
+        @elseif($oneType=='Associator')
+            @include('partials.fields.combo.options.associator',['field'=>$field,'fnum'=>'one'])
         @endif
+    </section>
+
+    <div class="form-group mt-xxxl">
+        <div class="spacer"></div>
     </div>
 
+    <section class="combo-list-options-two">
+        <h4>Field Options for {{ $twoName }}</h4>
+        @if($twoType=='Text')
+            @include('partials.fields.combo.options.text',['field'=>$field,'fnum'=>'two'])
+        @elseif($twoType=='Number')
+            @include('partials.fields.combo.options.number',['field'=>$field,'fnum'=>'two'])
+        @elseif($twoType=='List')
+            @include('partials.fields.combo.options.list',['field'=>$field,'fnum'=>'two'])
+        @elseif($twoType=='Multi-Select List')
+            @include('partials.fields.combo.options.mslist',['field'=>$field,'fnum'=>'two'])
+        @elseif($twoType=='Generated List')
+            @include('partials.fields.combo.options.genlist',['field'=>$field,'fnum'=>'two'])
+        @elseif($twoType=='Associator')
+            @include('partials.fields.combo.options.associator',['field'=>$field,'fnum'=>'two'])
+        @endif
+    </section>
 
-    <div class="form-group">
-        @include('partials.combofields.default_inputs',['field'=>$field, 'type'=>$oneType, 'fnum'=>'one'])
-        @include('partials.combofields.default_inputs',['field'=>$field, 'type'=>$twoType, 'fnum'=>'two'])
-        <br>
-        <button type="button" class="btn btn-primary add_option">Add Default Value</button>
-    </div>
-
-    <br>
-
-    <h4>{{trans('fields_options_combolist.options')}} {{ $oneName }}</h4>
-    @if($oneType=='Text')
-        @include('partials.combofields.text',['field'=>$field,'fnum'=>'one'])
-    @elseif($oneType=='Number')
-        @include('partials.combofields.number',['field'=>$field,'fnum'=>'one'])
-    @elseif($oneType=='List')
-        @include('partials.combofields.list',['field'=>$field,'fnum'=>'one'])
-    @elseif($oneType=='Multi-Select List')
-        @include('partials.combofields.mslist',['field'=>$field,'fnum'=>'one'])
-    @elseif($oneType=='Generated List')
-        @include('partials.combofields.genlist',['field'=>$field,'fnum'=>'one'])
-    @elseif($oneType=='Associator')
-        @include('partials.combofields.associator',['field'=>$field,'fnum'=>'one'])
-    @endif
-
-    <br>
-
-    <h4>{{trans('fields_options_combolist.options')}} {{ $twoName }}</h4>
-    @if($twoType=='Text')
-        @include('partials.combofields.text',['field'=>$field,'fnum'=>'two'])
-    @elseif($twoType=='Number')
-        @include('partials.combofields.number',['field'=>$field,'fnum'=>'two'])
-    @elseif($twoType=='List')
-        @include('partials.combofields.list',['field'=>$field,'fnum'=>'two'])
-    @elseif($twoType=='Multi-Select List')
-        @include('partials.combofields.mslist',['field'=>$field,'fnum'=>'two'])
-    @elseif($twoType=='Generated List')
-        @include('partials.combofields.genlist',['field'=>$field,'fnum'=>'two'])
-    @elseif($twoType=='Associator')
-        @include('partials.combofields.associator',['field'=>$field,'fnum'=>'two'])
-    @endif
+    {{--//TODO::PRESETS--}}
 @stop
 
 @section('fieldOptionsJS')
+    assocSearchURI = "{{ action('AssociatorSearchController@assocSearch',['pid' => $field->pid,'fid'=>$field->fid, 'flid'=>$field->flid]) }}";
+    csrfToken = "{{ csrf_token() }}";
+    type1 = '{{$oneType}}';
+    type2 = '{{$twoType}}';
+    name1 = '{{$oneName}}';
+    name2 = '{{$twoName}}';
+
     Kora.Fields.Options('Combo List');
 @stop

@@ -140,14 +140,14 @@ class ComboListField extends BaseField {
         $flopt_two .= $this->formatUpdatedSubOptions($request,"two",$field->fid);
 
         $default='';
-        if(!is_null($request->defvalone) && $request->defvalone != '') {
-            $default .= '[!f1!]'.$request->defvalone[0].'[!f1!]';
-            $default .= '[!f2!]'.$request->defvaltwo[0].'[!f2!]';
+        if(!is_null($request->default_combo_one) && $request->default_combo_one != '') {
+            $default .= '[!f1!]'.$request->default_combo_one[0].'[!f1!]';
+            $default .= '[!f2!]'.$request->default_combo_two[0].'[!f2!]';
 
-            for($i=1;$i<sizeof($request->defvalone);$i++) {
+            for($i=1;$i<sizeof($request->default_combo_one);$i++) {
                 $default .= '[!def!]';
-                $default .= '[!f1!]'.$request->defvalone[$i].'[!f1!]';
-                $default .= '[!f2!]'.$request->defvaltwo[$i].'[!f2!]';
+                $default .= '[!f1!]'.$request->default_combo_one[$i].'[!f1!]';
+                $default .= '[!f2!]'.$request->default_combo_two[$i].'[!f2!]';
             }
         }
 
@@ -206,20 +206,15 @@ class ComboListField extends BaseField {
                 foreach(AssociationController::getAvailableAssociations($fid) as $a) {
                     $f = FormController::getForm($a->dataForm);
                     $box = 'checkbox_'.$f->fid.'_'.$seq;
-                    $preview = 'preview_'.$f->fid.'_'.$seq;
+                    if(!is_null($request->{$box})) {
+                        $preview = 'preview_' . $f->fid . '_' . $seq;
 
-                    $val = '[fid]'.$f->fid.'[fid]';
-                    if(!is_null($request->{$box}))
+                        $val = '[fid]' . $f->fid . '[fid]';
                         $val .= '[search]1[search]';
-                    else
-                        $val .= '[search]0[search]';
+                        $val .= '[flids]' . $request->{$preview} . '[flids]';
 
-                    if(!is_null($request->{$preview}))
-                        $val .= '[flids]'.implode('-',$request->{$preview}).'[flids]';
-                    else
-                        $val .= '[flids][flids]';
-
-                    array_push($opt,$val);
+                        array_push($opt, $val);
+                    }
                 }
 
                 $options .= implode('[!]',$opt);

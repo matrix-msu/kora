@@ -3,7 +3,7 @@
 @section('fieldOptions')
     <div class="form-group">
         {!! Form::label('default','Default: ') !!}
-        <input type="number" name="default" class="text-input" value="{{ $field->default }}">
+        <input type="number" name="default" class="text-input" value="{{ $field->default }}" placeholder="Enter number here">
     </div>
 
     <div class="form-group mt-xl">
