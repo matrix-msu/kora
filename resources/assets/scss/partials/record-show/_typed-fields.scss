@@ -24,3 +24,17 @@
   height: 400px;
   width: 800px;
 }
+
+.combo-list-display {
+  overflow: auto;
+
+  .combo-column {
+    float:left;
+    margin-bottom:10px;
+    width:50%;
+  }
+
+  .combo-title {
+    font-family: $ubuntu-medium-italic;
+  }
+}

@@ -342,36 +342,35 @@ Kora.Fields.Options = function(fieldType) {
 
             defaultDiv = $('.combo-value-div-js');
 
-            if(val1=='' | val2==''){
+            if(val1=='' | val2=='' | val1==null | val2==null){
                 //TODO::Error out
+                console.log(val1);
+                console.log(val2);
                 console.log('Both fields must be filled out');
             } else {
                 //Remove empty div if applicable
-                if(defaultDiv.children('.combo-list-empty').first()) {
+                if(defaultDiv.children('.combo-list-empty').first())
                     defaultDiv.children('.combo-list-empty').first().remove();
-                }
 
                 div = '<div class="combo-value-item-js">';
 
                 if(type1=='Text' | type1=='List' | type1=='Number') {
                     div += '<input type="hidden" name="default_combo_one[]" value="'+val1+'">';
-                    div += '<span>['+name1+']: '+val1+'</span>';
+                    div += '<span class="combo-column">'+val1+'</span>';
                 } else if(type1=='Multi-Select List' | type1=='Generated List' | type1=='Associator') {
                     div += '<input type="hidden" name="default_combo_one[]" value="'+val1.join('[!]')+'">';
-                    div += '<span>['+name1+']: '+val1.join(' | ')+'</span>';
+                    div += '<span class="combo-column">'+val1.join(' | ')+'</span>';
                 }
-
-                div += '<span> ~ </span>';
 
                 if(type2=='Text' | type2=='List' | type2=='Number') {
                     div += '<input type="hidden" name="default_combo_two[]" value="'+val2+'">';
-                    div += '<span>['+name2+']: '+val2+'</span>';
+                    div += '<span class="combo-column">'+val2+'</span>';
                 } else if(type2=='Multi-Select List' | type2=='Generated List' | type2=='Associator') {
                     div += '<input type="hidden" name="default_combo_two[]" value="'+val2.join('[!]')+'">';
-                    div += '<span>['+name2+']: '+val2.join(' | ')+'</span>';
+                    div += '<span class="combo-column">'+val2.join(' | ')+'</span>';
                 }
 
-                div += '<span class="delete-combo-value-js pl-m"><a class="underline-middle-hover">[X]</a></span>';
+                div += '<span class="combo-delete delete-combo-value-js"><a class="underline-middle-hover">[X]</a></span>';
 
                 div += '</div>';
 
