@@ -1,3 +1,4 @@
+{!! Form::hidden('advanced',true) !!}
 <div class="form-group mt-xxxl">
     {!! Form::label('options','List Options: ') !!}
     <select multiple class="multi-select modify-select list-options-js" name="options[]"

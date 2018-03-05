@@ -47,6 +47,124 @@ Kora.Records.Create = function() {
         });
     }
 
+    function intializeAssociatorOptions() {
+        $('.assoc-search-records-js').on('keypress', function(e) {
+            var keyCode = e.keyCode || e.which;
+            if(keyCode === 13) {
+                e.preventDefault();
+
+                var keyword = $(this).val();
+                var assocSearchURI = $(this).attr('search-url');
+                var resultsBox = $(this).parent().next().children('.assoc-select-records-js').first();
+                //Clear old values
+                resultsBox.html('');
+                resultsBox.trigger("chosen:updated");
+
+                $.ajax({
+                    url: assocSearchURI,
+                    type: 'POST',
+                    data: {
+                        "_token": csrfToken,
+                        "keyword": keyword
+                    },
+                    success: function (result) {
+                        for(var kid in result) {
+                            var preview = result[kid];
+                            var opt = "<option value='"+kid+"'>"+kid+": "+preview+"</option>";
+
+                            resultsBox.append(opt);
+                            resultsBox.trigger("chosen:updated");
+                        }
+                    }
+                });
+            }
+        });
+
+        $('.assoc-select-records-js').change(function() {
+            defaultBox = $(this).parent().siblings().first().children('.assoc-default-records-js');
+
+            $(this).children('option').each(function() {
+                if($(this).is(':selected')) {
+                    option = $("<option/>", { value: $(this).attr("value"), text: $(this).text() });
+
+                    defaultBox.append(option);
+                    defaultBox.find(option).prop('selected', true);
+                    defaultBox.trigger("chosen:updated");
+
+                    $(this).prop("selected", false);
+                }
+            });
+
+            $(this).trigger("chosen:updated");
+        });
+    }
+
+    function initializeComboListOptions(){
+        $('.combo-value-div-js').on('click', '.delete-combo-value-js', function() {
+            parentDiv = $(this).parent();
+            parentDiv.remove();
+        });
+
+        $('.add-combo-value-js').click(function() {
+            flid = $(this).attr('flid');
+            inputOne = $('#default_one_'+flid);
+            inputTwo = $('#default_two_'+flid);
+
+            val1 = inputOne.val();
+            val2 = inputTwo.val();
+            name1 = inputOne.closest('.combo-list-input-one').attr('cfName');
+            name2 = inputTwo.closest('.combo-list-input-two').attr('cfName');
+            type1 = inputOne.closest('.combo-list-input-one').attr('cfType');
+            type2 = inputTwo.closest('.combo-list-input-two').attr('cfType');
+
+            defaultDiv = $('.combo-value-div-js-'+flid);
+
+            if(val1=='' | val2==''){
+                //TODO::Error out
+                console.log('Both fields must be filled out');
+            } else {
+                //Remove empty div if applicable
+                if(defaultDiv.children('.combo-list-empty').first()) {
+                    defaultDiv.children('.combo-list-empty').first().remove();
+                }
+
+                div = '<div class="combo-value-item-js">';
+
+                if(type1=='Text' | type1=='List' | type1=='Number') {
+                    div += '<input type="hidden" name="'+flid+'_combo_one[]" value="'+val1+'">';
+                    div += '<span>['+name1+']: '+val1+'</span>';
+                } else if(type1=='Multi-Select List' | type1=='Generated List' | type1=='Associator') {
+                    div += '<input type="hidden" name="'+flid+'_combo_one[]" value="'+val1.join('[!]')+'">';
+                    div += '<span>['+name1+']: '+val1.join(' | ')+'</span>';
+                }
+
+                div += '<span> ~ </span>';
+
+                if(type2=='Text' | type2=='List' | type2=='Number') {
+                    div += '<input type="hidden" name="'+flid+'_combo_two[]" value="'+val2+'">';
+                    div += '<span>['+name2+']: '+val2+'</span>';
+                } else if(type2=='Multi-Select List' | type2=='Generated List' | type2=='Associator') {
+                    div += '<input type="hidden" name="'+flid+'_combo_two[]" value="'+val2.join('[!]')+'">';
+                    div += '<span>['+name2+']: '+val2.join(' | ')+'</span>';
+                }
+
+                div += '<span class="delete-combo-value-js pl-m"><a class="underline-middle-hover">[X]</a></span>';
+
+                div += '</div>';
+
+                defaultDiv.html(defaultDiv.html()+div);
+
+                inputOne.val('');
+                if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List' | type1=='Associator')
+                    inputOne.trigger("chosen:updated");
+
+                inputTwo.val('');
+                if(type2=='Multi-Select List' | type2=='Generated List' | type2=='List' | type2=='Associator')
+                    inputTwo.trigger("chosen:updated");
+            }
+        });
+    }
+
     function initializeScheduleOptions() {
         Kora.Modal.initialize();
 
@@ -528,19 +646,20 @@ Kora.Records.Create = function() {
                         applyFilePreset(field['model'], presetID, flid);
                         break;
 
-                    // case 'Associator': //TODO::remember to do this
-                    //     var r, records = field['records'];
-                    //     var selector = $('#'+flid);
-                    //     $('#'+flid+' option[value!="0"]').remove();
-                    //
-                    //     for (r=0; r < records.length; r++) {
-                    //         selector.append($('<option/>', {
-                    //             value: records[r],
-                    //             text: records[r],
-                    //             selected: 'selected'
-                    //         }));
-                    //     }
-                    //     break;
+                    case 'Associator':
+                        var r, records = field['records'];
+                        console.log(field['records']);
+                        var selector = $('#'+flid);
+                        $('#'+flid+' option[value!="0"]').remove();
+
+                        for (r=0; r < records.length; r++) {
+                            selector.append($('<option/>', {
+                                value: records[r],
+                                text: records[r],
+                                selected: 'selected'
+                            })).trigger("chosen:updated");
+                        }
+                        break;
 
                 }
             }
@@ -653,8 +772,28 @@ Kora.Records.Create = function() {
         });
     }
 
+    function initializeAlreadyRecordPreset() {
+        $('.already-preset-js').click(function (e) {
+            e.preventDefault();
+
+            var $modal = $('.already-record-preset-modal-js');
+
+            Kora.Modal.open($modal);
+        });
+
+        $('.gotchya-js').click(function (e) {
+            e.preventDefault();
+
+            var $modal = $('.already-record-preset-modal-js');
+
+            Kora.Modal.close($modal);
+        });
+    }
+
     initializeSelectAddition();
     initializeSpecialInputs();
+    intializeAssociatorOptions();
+    initializeComboListOptions();
     initializeScheduleOptions();
     intializeGeolocatorOptions();
     intializeFileUploaderOptions();
@@ -662,4 +801,5 @@ Kora.Records.Create = function() {
     initializeRecordPresets();
     initializeDuplicateRecord();
     initializeNewRecordPreset();
+    initializeAlreadyRecordPreset();
 }

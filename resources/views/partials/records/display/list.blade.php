@@ -1,0 +1,1 @@
+{{ $typedField->option }}

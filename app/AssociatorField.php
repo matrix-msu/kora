@@ -28,8 +28,9 @@ class AssociatorField extends BaseField {
      * @var string - Views for the typed field options
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.associator";
-    const FIELD_ADV_OPTIONS_VIEW = null;
-    const FIELD_INPUT_VIEW = null;
+    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.associator";
+    const FIELD_INPUT_VIEW = "partials.records.input.associator";
+    const FIELD_DISPLAY_VIEW = "partials.records.display.associator";
 
     /**
      * @var array - Attributes that can be mass assigned to model
@@ -106,10 +107,21 @@ class AssociatorField extends BaseField {
             $default = implode('[!]',$reqDefs);
         }
 
+        $searchForms = array();
+        foreach($request->all() as $key=>$value) {
+            if(substr( $key, 0, 8 ) === "checkbox") {
+                $fid = explode('_',$key)[1];
+                $preview = $request->input("preview_".$fid);
+                $val = "[fid]{$fid}[fid][search]1[search][flids]{$preview}[flids]";
+
+                array_push($searchForms,$val);
+            }
+        }
+
         $field->updateRequired($request->required);
         $field->updateSearchable($request);
         $field->updateDefault($default);
-        $field->updateOptions('SearchForms', $request->searchforms);
+        $field->updateOptions('SearchForms', implode('[!]',$searchForms));
 
         return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
             ->with('k3_global_success', 'field_options_updated');
@@ -341,7 +353,8 @@ class AssociatorField extends BaseField {
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`record`) AGAINST (? IN BOOLEAN MODE)", [$arg])
             ->distinct()
-            ->pluck('rid');
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**
@@ -525,7 +538,7 @@ class AssociatorField extends BaseField {
             array_push($preview, "no_preview_available");
         }
 
-        $html = "<a href='".config('app.url')."projects/".$pid."/forms/".$fid."/records/".$rid."'>".$kid."</a>";
+        $html = "<a class='mt-xxxs documents-link underline-middle-hover' href='".config('app.url')."projects/".$pid."/forms/".$fid."/records/".$rid."'>".$kid."</a>";
 
         foreach($preview as $val) {
             $html .= " | ".$val;

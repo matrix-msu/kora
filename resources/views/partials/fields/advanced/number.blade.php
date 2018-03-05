@@ -1,6 +1,7 @@
+{!! Form::hidden('advanced',true) !!}
 <div class="form-group mt-xxxl">
     {!! Form::label('default','Default: ') !!}
-    <input type="number" name="default" class="text-input" value="">
+    <input type="number" name="default" class="text-input" value="" placeholder="Enter number here">
 </div>
 
 <div class="form-group mt-xl">

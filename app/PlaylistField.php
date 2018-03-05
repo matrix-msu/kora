@@ -23,6 +23,7 @@ class PlaylistField extends FileTypeField  {
     const FIELD_OPTIONS_VIEW = "partials.fields.options.playlist";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.playlist";
     const FIELD_INPUT_VIEW = "partials.records.input.playlist";
+    const FIELD_DISPLAY_VIEW = "partials.records.display.playlist";
 
     /**
      * @var array - Attributes that can be mass assigned to model
@@ -58,7 +59,7 @@ class PlaylistField extends FileTypeField  {
      * @return string - The default options
      */
     public function getDefaultOptions(Request $request) {
-        return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!][!FileTypes!]';
+        return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!]audio/mp3[!]audio/wav[!]audio/ogg[!FileTypes!]';
     }
 
     /**
@@ -432,7 +433,8 @@ class PlaylistField extends FileTypeField  {
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`audio`) AGAINST (? IN BOOLEAN MODE)", [$arg])
             ->distinct()
-            ->pluck('rid');
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**

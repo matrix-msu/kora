@@ -34,5 +34,11 @@
     text-decoration: none;
   }
 
+  .combo-list-empty {
+    color: palette('gray', text, .4);
+    font-family: $ubuntu-italic;
+    font-size: 14px;
+  }
+
   @import 'field-show/field-update-delete';
 }

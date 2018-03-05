@@ -31,6 +31,7 @@ class ScheduleField extends BaseField {
     const FIELD_OPTIONS_VIEW = "partials.fields.options.schedule";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.schedule";
     const FIELD_INPUT_VIEW = "partials.records.input.schedule";
+    const FIELD_DISPLAY_VIEW = "partials.records.display.schedule";
 
     /**
      * @var array - Attributes that can be mass assigned to model
@@ -388,7 +389,8 @@ class ScheduleField extends BaseField {
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`desc`) AGAINST (? IN BOOLEAN MODE)", [$arg])
             ->distinct()
-            ->pluck('rid');
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**

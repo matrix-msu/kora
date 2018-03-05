@@ -160,7 +160,7 @@ class Search {
      * @param  boolean $exact - If it's exact, we have to check the whole argument
      * @return array - The intersection of the input (as an array) and self::$STOP_WORDS
      */
-    public static function showIgnoredArguments($args, $exact) {
+    public static function showIgnoredArguments($args, $exact = false) {
         $short = [];
         $lower = [];
         foreach($args as $arg) {

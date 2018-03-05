@@ -26,3 +26,12 @@ function str_hyphenated($string) {
  function isInstalled() {
      return file_exists("../.env");
  }
+
+/**
+ * Gets the default meme list for special file fields.
+ *
+ * @return bool - is installed
+ */
+function getDefaultTypes($type) {
+    return \App\FileTypeField::$FILE_MIME_TYPES[$type];
+}

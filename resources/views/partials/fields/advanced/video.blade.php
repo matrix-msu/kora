@@ -1,3 +1,4 @@
+{!! Form::hidden('advanced',true) !!}
 <div class="form-group mt-xxxl">
     {!! Form::label('filesize','Max File Size (kb): ') !!}
     <input type="number" name="filesize" class="text-input" step="1" value="0" min="0">
@@ -10,7 +11,7 @@
 
 <div class="form-group mt-xl">
     {!! Form::label('filetype','Allowed File Types: ') !!}
-    {!! Form::select('filetype'.'[]',['video/mp4' => 'MP4','video/ogg' => 'OGV'], null,
+    {!! Form::select('filetype'.'[]',['video/mp4' => 'MP4','video/ogg' => 'OGV'], getDefaultTypes('Video'),
         ['class' => 'multi-select', 'Multiple', 'data-placeholder' => 'Search and Select the file types allowed here']) !!}
 </div>
 

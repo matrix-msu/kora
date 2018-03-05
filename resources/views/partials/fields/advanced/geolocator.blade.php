@@ -1,3 +1,4 @@
+{!! Form::hidden('advanced',true) !!}
 <div class="form-group mt-xxxl">
     {!! Form::label('default','Default Value: ') !!}
     <select multiple class="multi-select default-location-js" name="default[]"

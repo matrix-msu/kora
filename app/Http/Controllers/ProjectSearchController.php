@@ -64,8 +64,8 @@ class ProjectSearchController extends Controller {
 
         if($do_query) {
             // Inform the user about arguments that will be ignored.
-            $ignored = Search::showIgnoredArguments($arg);
             $args = explode(" ", $arg);
+            $ignored = Search::showIgnoredArguments($args,($method==Search::SEARCH_EXACT));
             $args = array_diff($args, $ignored);
             $arg = implode(" ", $args);
 
@@ -178,8 +178,8 @@ class ProjectSearchController extends Controller {
 
         if($do_query) {
             // Inform the user about arguments that will be ignored.
-            $ignored = Search::showIgnoredArguments($query);
             $query_pieces = explode(" ", $query);
+            $ignored = Search::showIgnoredArguments($query_pieces);
             $query_pieces = array_diff($query_pieces, $ignored);
             $query = implode(" ", $query_pieces);
 

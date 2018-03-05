@@ -54,7 +54,8 @@ class RecordController extends Controller {
             return redirect('/projects/'.$pid)->with('k3_global_error', 'cant_view_form');
 
         $form = FormController::getForm($fid);
-        $records = Record::where('fid', '=', $fid)->paginate(self::RECORDS_PER_PAGE);
+        $records = Record::where('fid', '=', $fid)->paginate(100);
+        //$records = Record::where('fid', '=', $fid)->paginate(self::RECORDS_PER_PAGE);
         $records->setPath(config('app.url').'projects/'.$pid.'/forms/'.$fid.'/records');
 
         return view('records.index', compact('form', 'records'));
@@ -238,20 +239,9 @@ class RecordController extends Controller {
             return redirect('projects')->with('k3_global_error', 'record_invalid');
 
         $form = FormController::getForm($fid);
+        $record = self::getRecord($rid);
 
-        $rpc = new RecordPresetController();
-        $cloneArray = $rpc->getRecordArray($rid);
-
-        $presets = array();
-
-        foreach(RecordPreset::where('fid', '=', $fid)->get() as $preset)
-            $presets[] = ['id' => $preset->id, 'name' => $preset->name];
-
-        $fields = array(); //array of field ids
-        foreach($form->fields()->get() as $field)
-            $fields[] = $field->flid;
-
-        return view('records.create', compact('form', 'rid', 'presets', 'fields', 'cloneArray'));
+        return view('records.clone', compact('record', 'form'));
     }
 
     /**
@@ -324,6 +314,7 @@ class RecordController extends Controller {
      * @return Redirect
      */
 	public function update($pid, $fid, $rid, Request $request) {
+	    //Validate record
         foreach($request->all() as $key => $value) {
             if(!is_numeric($key))
                 continue;
@@ -331,6 +322,16 @@ class RecordController extends Controller {
             $message = $field->getTypedField()->validateField($field, $value, $request);
             if($message != 'field_validated')
                 return redirect()->back()->withInput()->with('k3_global_error', 'record_validation_error')->with('record_validation_error', $message);
+        }
+
+        //Handle record preset
+        $makePreset = false;
+        $presetName = '';
+        if(isset($request->record_preset_name)) {
+            $presetName = $request->record_preset_name;
+            if(strlen($presetName) < 3)
+                return redirect()->back()->withInput($request)->with('k3_global_error', 'record_validation_error')->with('record_validation_error', 'present_name_short');
+            $makePreset = true;
         }
 
         $record = Record::where('rid', '=', $rid)->first();
@@ -360,7 +361,18 @@ class RecordController extends Controller {
         $revision->oldData = RevisionController::buildDataArray($record);
         $revision->save();
 
-        RecordPresetController::updateIfExists($record->rid);
+        //Make new preset
+        if($makePreset) {
+            $rpc = new RecordPresetController();
+            $presetRequest = new Request();
+            $presetRequest->name = $presetName;
+            $presetRequest->rid = $record->rid;
+
+            $rpc->presetRecord($presetRequest);
+        } else {
+            //Otherwise, let's update the preset if it exists
+            RecordPresetController::updateIfExists($record->rid);
+        }
 
         if(!$request->api)
             return redirect('projects/' . $pid . '/forms/' . $fid . '/records/' . $rid)->with('k3_global_success', 'record_updated');

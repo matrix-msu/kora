@@ -1,4 +1,8 @@
-<div class="field card {{ $index == 0 ? 'active' : '' }}" id="{{$field->flid}}" delete-url="{{action('FieldController@destroy', ['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid])}}">
+<div class="field card {{ $index == 0 ? 'active' : '' }}" id="{{$field->flid}}" 
+  delete-url="{{action('FieldController@destroy', ['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid])}}"
+  move-url="{{action('PageController@moveField', ['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid])}}"
+  sequence="{{$field->sequence}}"
+  >
   <div class="header {{ $index == 0 ? 'active' : '' }}">
     <div class="left">
       @if(\Auth::user()->canEditForms(\App\Http\Controllers\ProjectController::getProject($field->pid)))
@@ -14,7 +18,11 @@
       @endif
 
       @if($field->type=='Associator' and sizeof(\App\Http\Controllers\AssociationController::getAvailableAssociations($field->fid))==0)
-        <font color="red">{{$field->name}}</font>
+        {{-- TODO: Change this to indicate action needs to be taken --}}
+        <a class="title underline-middle-hover" href="{{ action('FieldController@show', ['pid' => $form->pid, 'fid' => $form->fid, 'flid' => $field->flid]) }}">
+          <span class="name">{{$field->name}}</span>
+          <i class="icon icon-arrow-right"></i>
+        </a>
       @elseif(\Auth::user()->canEditFields($form))
         <a class="title underline-middle-hover" href="{{ action('FieldController@show',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => $field->flid]) }}">
           <span class="name">{{$field->name}}</span>

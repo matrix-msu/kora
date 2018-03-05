@@ -31,7 +31,8 @@ class ComboListField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.combolist";
     const FIELD_ADV_OPTIONS_VIEW = null;
-    const FIELD_INPUT_VIEW = null;
+    const FIELD_INPUT_VIEW = "partials.records.input.combolist";
+    const FIELD_DISPLAY_VIEW = null;
 
     /**
      * @var array - Attributes that can be mass assigned to model
@@ -139,14 +140,14 @@ class ComboListField extends BaseField {
         $flopt_two .= $this->formatUpdatedSubOptions($request,"two",$field->fid);
 
         $default='';
-        if(!is_null($request->defvalone) && $request->defvalone != '') {
-            $default .= '[!f1!]'.$request->defvalone[0].'[!f1!]';
-            $default .= '[!f2!]'.$request->defvaltwo[0].'[!f2!]';
+        if(!is_null($request->default_combo_one) && $request->default_combo_one != '') {
+            $default .= '[!f1!]'.$request->default_combo_one[0].'[!f1!]';
+            $default .= '[!f2!]'.$request->default_combo_two[0].'[!f2!]';
 
-            for($i=1;$i<sizeof($request->defvalone);$i++) {
+            for($i=1;$i<sizeof($request->default_combo_one);$i++) {
                 $default .= '[!def!]';
-                $default .= '[!f1!]'.$request->defvalone[$i].'[!f1!]';
-                $default .= '[!f2!]'.$request->defvaltwo[$i].'[!f2!]';
+                $default .= '[!f1!]'.$request->default_combo_one[$i].'[!f1!]';
+                $default .= '[!f2!]'.$request->default_combo_two[$i].'[!f2!]';
             }
         }
 
@@ -205,20 +206,15 @@ class ComboListField extends BaseField {
                 foreach(AssociationController::getAvailableAssociations($fid) as $a) {
                     $f = FormController::getForm($a->dataForm);
                     $box = 'checkbox_'.$f->fid.'_'.$seq;
-                    $preview = 'preview_'.$f->fid.'_'.$seq;
+                    if(!is_null($request->{$box})) {
+                        $preview = 'preview_' . $f->fid . '_' . $seq;
 
-                    $val = '[fid]'.$f->fid.'[fid]';
-                    if(!is_null($request->{$box}))
+                        $val = '[fid]' . $f->fid . '[fid]';
                         $val .= '[search]1[search]';
-                    else
-                        $val .= '[search]0[search]';
+                        $val .= '[flids]' . $request->{$preview} . '[flids]';
 
-                    if(!is_null($request->{$preview}))
-                        $val .= '[flids]'.implode('-',$request->{$preview}).'[flids]';
-                    else
-                        $val .= '[flids][flids]';
-
-                    array_push($opt,$val);
+                        array_push($opt, $val);
+                    }
                 }
 
                 $options .= implode('[!]',$opt);
@@ -239,7 +235,7 @@ class ComboListField extends BaseField {
      * @param  Request $request
      */
     public function createNewRecordField($field, $record, $value, $request) {
-        if($request->input($field->flid.'_val') != null) {
+        if($request->input($field->flid.'_combo_one') != null) {
             $this->flid = $field->flid;
             $this->rid = $record->rid;
             $this->fid = $field->fid;
@@ -249,7 +245,13 @@ class ComboListField extends BaseField {
             $type_2 = self::getComboFieldType($field, 'two');
 
             // Add combo data to support table.
-            $this->addData($request->input($field->flid.'_val'), $type_1, $type_2);
+            $data = array();
+            for($i=0;$i<sizeof($request->input($field->flid.'_combo_one'));$i++) {
+                $value = '[!f1!]'.$request->input($field->flid.'_combo_one')[$i].'[!f1!]';
+                $value .= '[!f2!]'.$request->input($field->flid.'_combo_two')[$i].'[!f2!]';
+                array_push($data, $value);
+            }
+            $this->addData($data, $type_1, $type_2);
         }
     }
 
@@ -260,13 +262,20 @@ class ComboListField extends BaseField {
      * @param  Request $request
      */
     public function editRecordField($value, $request) {
-        if(!is_null($this) && !is_null($request->input($this->flid.'_val'))) {
+        if(!is_null($this) && !is_null($request->input($this->flid.'_combo_one'))) {
             $field = FieldController::getField($this->flid);
             $type_1 = self::getComboFieldType($field, 'one');
             $type_2 = self::getComboFieldType($field, 'two');
 
-            $this->updateData($request->{$field->flid.'_val'}, $type_1, $type_2);
-        } else if(!is_null($this) && is_null($request->input($this->flid.'_val'))) {
+            // Add combo data to support table.
+            $data = array();
+            for($i=0;$i<sizeof($request->input($field->flid.'_combo_one'));$i++) {
+                $value = '[!f1!]'.$request->input($field->flid.'_combo_one')[$i].'[!f1!]';
+                $value .= '[!f2!]'.$request->input($field->flid.'_combo_two')[$i].'[!f2!]';
+                array_push($data, $value);
+            }
+            $this->updateData($data, $type_1, $type_2);
+        } else if(!is_null($this) && is_null($request->input($this->flid.'_combo_one'))) {
             $this->delete();
             $this->deleteData();
         }
@@ -618,7 +627,8 @@ class ComboListField extends BaseField {
                     ->orWhereBetween("number", [$num - NumberField::EPSILON, $num + NumberField::EPSILON]);
             })
             ->distinct()
-            ->pluck('rid');
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**

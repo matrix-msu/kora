@@ -1,6 +1,7 @@
+{!! Form::hidden('advanced',true) !!}
 <div class="form-group mt-xxxl">
     {!! Form::label('filesize','Max File Size (kb): ') !!}
-    <input type="number" name="filesize" class="text-input" step="1" value="" min="0">
+    <input type="number" name="filesize" class="text-input" step="1" value="0" min="0">
 </div>
 
 <div class="form-group mt-xl half pr-m">
@@ -35,7 +36,7 @@
 <div class="form-group mt-xl">
     {!! Form::label('filetype','Allowed File Types: ') !!}
     {!! Form::select('filetype'.'[]',['image/jpeg' => 'Jpeg','image/gif' => 'Gif','image/png' => 'Png','image/bmp' => 'Bmp'],
-        null, ['class' => 'multi-select', 'Multiple', 'data-placeholder' => 'Search and Select the file types allowed here']) !!}
+        getDefaultTypes('Gallery'), ['class' => 'multi-select', 'Multiple', 'data-placeholder' => 'Search and Select the file types allowed here']) !!}
 </div>
 
 <script>

@@ -22,6 +22,7 @@ class VideoField extends FileTypeField {
     const FIELD_OPTIONS_VIEW = "partials.fields.options.video";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.video";
     const FIELD_INPUT_VIEW = "partials.records.input.video";
+    const FIELD_DISPLAY_VIEW = "partials.records.display.video";
 
     /**
      * @var array - Attributes that can be mass assigned to model
@@ -57,7 +58,7 @@ class VideoField extends FileTypeField {
      * @return string - The default options
      */
     public function getDefaultOptions(Request $request) {
-        return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!][!FileTypes!]';
+        return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!]video/mp4[!]video/ogg[!FileTypes!]';
     }
 
     /**
@@ -431,7 +432,8 @@ class VideoField extends FileTypeField {
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`video`) AGAINST (? IN BOOLEAN MODE)", [$arg])
             ->distinct()
-            ->pluck('rid');
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**

@@ -25,6 +25,7 @@ class MultiSelectListField extends BaseField {
     const FIELD_OPTIONS_VIEW = "partials.fields.options.mslist";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.mslist";
     const FIELD_INPUT_VIEW = "partials.records.input.mslist";
+    const FIELD_DISPLAY_VIEW = "partials.records.display.mslist";
 
     /**
      * @var array - Attributes that can be mass assigned to model
@@ -323,7 +324,8 @@ class MultiSelectListField extends BaseField {
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)", [$arg])
             ->distinct()
-            ->pluck('rid');
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**

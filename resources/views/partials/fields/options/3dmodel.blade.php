@@ -9,7 +9,8 @@
 
     <div class="form-group mt-xl">
         {!! Form::label('filetype','Allowed File Types (MIME): ') !!}
-        {!! Form::select('filetype'.'[]',['obj' => 'OBJ','stl' => 'STL'],
+        {!! Form::select('filetype'.'[]',['obj' => 'OBJ','stl' => 'STL','image/jpeg' => 'JPEG Texture',
+            'image/png' => 'PNG Texture','application/octet-stream' => 'Other'],
             explode('[!]',\App\Http\Controllers\FieldController::getFieldOption($field, "FileTypes")),
             ['class' => 'multi-select', 'Multiple']) !!}
     </div>

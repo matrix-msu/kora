@@ -219,6 +219,15 @@ class Record extends Model {
     }
 
     /**
+     * Determines if the record is a record preset.
+     *
+     * @return bool - Is a preset
+     */
+    public function isPreset() {
+        return (RecordPreset::where('rid',$this->rid)->count()>0);
+    }
+
+    /**
      * Determines if a string is a KID pattern.
      * For reference, the KID pattern is PID-FID-RID, i.e. three sets of integers separated by hyphens.
      *

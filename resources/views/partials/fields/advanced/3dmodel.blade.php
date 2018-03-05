@@ -1,3 +1,4 @@
+{!! Form::hidden('advanced',true) !!}
 <div class="form-group mt-xxxl">
     {!! Form::label('filesize','Max File Size (kb): ') !!}
     <input type="number" name="filesize" class="text-input" step="1" value="0" min="0">
@@ -5,7 +6,9 @@
 
 <div class="form-group mt-xl">
     {!! Form::label('filetype','Allowed File Types (MIME): ') !!}
-    {!! Form::select('filetype'.'[]',['obj' => 'OBJ','stl' => 'STL'], null, ['class' => 'multi-select', 'Multiple']) !!}
+    {!! Form::select('filetype'.'[]',['obj' => 'OBJ','stl' => 'STL','image/jpeg' => 'JPEG Texture',
+        'image/png' => 'PNG Texture','application/octet-stream' => 'Other'], getDefaultTypes('3D-Model'),
+        ['class' => 'multi-select', 'Multiple']) !!}
 </div>
 
 <div class="form-group mt-xl">
