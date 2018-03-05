@@ -1,9 +1,17 @@
 .card {
-  .name {
-    font-size: 0;
+  .header {
+    .title {
+      .name {
+        font-size: 0;
 
-    span {
-      font-size: 16px;
+        span {
+          font-size: 14px;
+        }
+
+        .profile {
+          font-size: 16px;
+        }
+      }
     }
   }
 }
