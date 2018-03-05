@@ -3,6 +3,13 @@
     <div class="left pl-m">
       <span class="title">
         <span class="name mr-xl">
+          <span class="profile mr-m">
+          @if ($user->profile)
+            <img src="{{$user->getProfilePicUrl()}}" alt="Profile Pic">
+          @else
+            <i class="icon icon-user-little"></i>
+          @endif
+          </span>
           @if ($user->first_name) <span class="mr-m">{{$user->first_name}}</span> @endif
           @if ($user->last_name) <span class="mr-m">{{$user->last_name}}</span> @endif
           @if ($user->username) <span class="mr-m username">{{$user->username}}</span> @endif
