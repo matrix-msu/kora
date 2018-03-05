@@ -41,6 +41,9 @@
           <li class="link">
             <a href="{{ url('/projects/import') }}">Import Project Setup</a>
           </li>
+          <li class="link">
+            <a href="{{ url('/tokens') }}">Token Management</a>
+          </li>
         @endif
 
         <?php $allowed_projects = \Auth::user()->allowedProjects() ?>
