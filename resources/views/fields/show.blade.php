@@ -13,7 +13,7 @@
                 <i class="icon icon-field"></i>
                 <span>{{$field->name}}</span>
             </h1>
-            <p class="description"><b>Field Type</b>: {{$field->type}}</p>
+            <p class="description"><span class="head-field-type">Field Type: </span>{{$field->type}}</p>
         </div>
     </section>
 @stop

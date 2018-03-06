@@ -31,8 +31,8 @@
         <input type="checkbox" value="1" id="preset" class="check-box-input" name="required" {{$field->required ? 'checked': ''}} />
         <div class="check-box-background"></div>
         <span class="check"></span>
-        <span class="placeholder">Select to set the field as required</span>
-        <span class="placeholder-alt">Field is set to be required</span>
+        <span class="placeholder">Set field as required</span>
+        <span class="placeholder-alt">Field is required</span>
     </div>
 
     <p class="sub-text mt-sm">
@@ -46,8 +46,8 @@
         <input type="checkbox" value="1" id="preset" class="check-box-input" name="searchable" {{$field->searchable ? 'checked': ''}} />
         <div class="check-box-background"></div>
         <span class="check"></span>
-        <span class="placeholder">Select to set the field as searchable</span>
-        <span class="placeholder-alt">Field is set to be searchable</span>
+        <span class="placeholder">Set field as searchable</span>
+        <span class="placeholder-alt">Field is searchable</span>
     </div>
 
     <p class="sub-text mt-sm">
@@ -61,8 +61,8 @@
         <input type="checkbox" value="1" id="preset" class="check-box-input" name="extsearch" {{$field->extsearch ? 'checked': ''}} />
         <div class="check-box-background"></div>
         <span class="check"></span>
-        <span class="placeholder">Select to set the field as externally searchable</span>
-        <span class="placeholder-alt">Field is set to be externally searchable</span>
+        <span class="placeholder">Set field as externally searchable</span>
+        <span class="placeholder-alt">Field is externally searchable</span>
     </div>
 
     <p class="sub-text mt-sm">
@@ -76,8 +76,8 @@
         <input type="checkbox" value="1" id="preset" class="check-box-input" name="viewable" {{$field->viewable ? 'checked': ''}} />
         <div class="check-box-background"></div>
         <span class="check"></span>
-        <span class="placeholder">Select to set the field as viewable</span>
-        <span class="placeholder-alt">Field is set to be viewable</span>
+        <span class="placeholder">Set field as viewable</span>
+        <span class="placeholder-alt">Field is viewable</span>
     </div>
 
     <p class="sub-text mt-sm">
@@ -91,8 +91,8 @@
         <input type="checkbox" value="1" id="preset" class="check-box-input" name="viewresults" {{$field->viewresults ? 'checked': ''}} />
         <div class="check-box-background"></div>
         <span class="check"></span>
-        <span class="placeholder">Select to set the field as viewable in results</span>
-        <span class="placeholder-alt">Field is set to be viewable in results</span>
+        <span class="placeholder">Set field as viewable in results</span>
+        <span class="placeholder-alt">Field is viewable in results</span>
     </div>
 
     <p class="sub-text mt-sm">
@@ -106,8 +106,8 @@
         <input type="checkbox" value="1" id="preset" class="check-box-input" name="extview" {{$field->extview ? 'checked': ''}} />
         <div class="check-box-background"></div>
         <span class="check"></span>
-        <span class="placeholder">Select to set the field as externally viewable</span>
-        <span class="placeholder-alt">Field is set to be externally viewable</span>
+        <span class="placeholder">Set field as externally viewable</span>
+        <span class="placeholder-alt">Field is externally viewable</span>
     </div>
 
     <p class="sub-text mt-sm">
