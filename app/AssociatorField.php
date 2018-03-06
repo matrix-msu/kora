@@ -78,16 +78,21 @@ class AssociatorField extends BaseField {
     public function getOptionsArray(Field $field) {
         $options = array();
 
-        $searchForms = explode('[!]', FieldController::getFieldOption($field, 'SearchForms'));
-        $sfResult = array();
-        foreach($searchForms as $sForm) {
-            $res = array();
-            $res['FormID'] = explode('[fid]',$sForm)[1];
-            $res['Searchable'] = explode('[search]',$sForm)[1];
-            $res['PreviewFieldIDs'] = explode('-',explode('[flids]',$sForm)[1]);
-            array_push($sfResult,$res);
+        $searchForms = FieldController::getFieldOption($field, 'SearchForms');
+        if($searchForms != "") {
+            $searchForms = explode('[!]', $searchForms);
+            $sfResult = array();
+            foreach($searchForms as $sForm) {
+                $res = array();
+                $res['FormID'] = explode('[fid]',$sForm)[1];
+                $res['Searchable'] = explode('[search]',$sForm)[1];
+                $res['PreviewFieldIDs'] = explode('-',explode('[flids]',$sForm)[1]);
+                array_push($sfResult,$res);
+            }
+            $options['SearchForms'] = $sfResult;
+        } else {
+            $options['SearchForms'] = array();
         }
-        $options['SearchForms'] = $sfResult;
 
         return $options;
     }
