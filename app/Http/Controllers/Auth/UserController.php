@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers\Auth;
 
+use App\Form;
 use App\Project;
 use App\ProjectGroup;
 use App\Record;
