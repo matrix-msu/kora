@@ -29,6 +29,12 @@ a {
   }
 }
 
+h2 {
+  color: palette('gray', text);
+  font-family: Ubuntu-Medium;
+  font-weight: normal;
+}
+
 .right {
   float: right;
 }

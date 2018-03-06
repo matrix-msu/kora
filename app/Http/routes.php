@@ -34,6 +34,7 @@ Route::group(['middleware' => 'web'], function () {
 
 //admin routes
     Route::get('/admin/users', 'AdminController@users');
+    Route::get('/admin/users/{id}/edit', 'AdminController@editUser');
     Route::patch('/admin/update', 'AdminController@update');
     Route::patch('/admin/batch', 'AdminController@batch');
     Route::delete('admin/deleteUser/{id}', 'AdminController@deleteUser');
