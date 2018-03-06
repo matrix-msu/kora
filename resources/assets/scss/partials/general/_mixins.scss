@@ -5,6 +5,12 @@
   -ms-overflow-style: -ms-autohiding-scrollbar;
 }
 
+@mixin transform($transformation) {
+  transform: $transformation;
+  -ms-transform: $transformation;
+  -webkit-transform: $transformation;
+}
+
 @mixin transition($property: all, $duration: .2s) {
   transition: $property $duration ease-in-out;
 }

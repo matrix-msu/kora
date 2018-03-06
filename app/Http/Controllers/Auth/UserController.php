@@ -65,11 +65,17 @@ class UserController extends Controller {
         }
     }
 
-    public function editProfile($uid) {
-        if(!\Auth::user()->admin && \Auth::user()->id!=$uid)
+    public function editProfile(Request $request) {
+        if (!\Auth::user()->admin && \Auth::user()->id!=$request->uid)
             return redirect('user')->with('k3_global_error', 'cannot_edit_profile');
 
-        dd('EDIT PROFILE HERE');
+        if (\Auth::user()->admin) {
+          $user = User::where('id', '=', $request->uid)->first();
+        } else {
+          $user = \Auth::user();
+        }
+
+        return view('user/edit', compact('user'));
     }
 
     /**

@@ -5,7 +5,7 @@
         <span class="name mr-xl">
           <span class="profile mr-m">
           @if ($user->profile)
-            <img src="{{$user->getProfilePicUrl()}}" alt="Profile Pic">
+            <img src="{{ $user->getProfilePicUrl() }}" alt="Profile Pic">
           @else
             <i class="icon icon-user-little"></i>
           @endif
@@ -70,7 +70,7 @@
         <span>View User Profile</span>
       </a>
 
-      <a class="quick-action underline-middle-hover" href="{{ action('AdminController@update',['id' => $user->id]) }}">
+      <a class="quick-action underline-middle-hover" href="{{ url('user/'.$user->id.'/edit') }}">
         <i class="icon icon-edit-little"></i>
         <span>Edit User Profile</span>
       </a>
