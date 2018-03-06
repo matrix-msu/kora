@@ -419,12 +419,16 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
     //Map return controls to fields if not ALL or KID
     //KID is a k3 custom for the legacy koraSearch that gets you a list of records
     if(is_array($fields)) {
-        $fieldsMapped = array();
-        foreach($fields as $field) {
-            $f = fieldMapper($field,$pid,$sid);
-            array_push($fieldsMapped,$f);
+        if(empty($fields) | $fields[0]=="ALL") {
+            $fields = "ALL";
+        } else {
+            $fieldsMapped = array();
+            foreach ($fields as $field) {
+                $f = fieldMapper($field, $pid, $sid);
+                array_push($fieldsMapped, $f);
+            }
+            $fields = $fieldsMapped;
         }
-        $fields = $fieldsMapped;
     }
 
     //Map controls to fields in keyword searches

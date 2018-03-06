@@ -683,7 +683,7 @@ class ExportController extends Controller {
                                 $records[$kid][$slug] = $value;
                                 break;
                             case Field::_DOCUMENTS:
-                                $url = 'p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = 'r'.$data->rid.'/fl'.$data->flid . '/';
                                 $files = explode('[!]',$data->value);
                                 $file = $files[0];
                                 $info = [
@@ -696,7 +696,7 @@ class ExportController extends Controller {
                                 $records[$kid][$slug] = $info;
                                 break;
                             case Field::_GALLERY:
-                                $url = 'p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = 'r'.$data->rid.'/fl'.$data->flid . '/';
                                 $files = explode('[!]',$data->value);
                                 $file = $files[0];
                                 $info = [
