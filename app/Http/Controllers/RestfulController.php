@@ -155,6 +155,8 @@ class RestfulController extends Controller {
             $filters['sort'] = isset($f->sort) ? $f->sort : null; //how should the data be sorted
             $filters['index'] = isset($f->index) ? $f->index : null; //where the array of results should start
             $filters['count'] = isset($f->count) ? $f->count : null; //how many records we should grab from that index
+            //WARNING::IF FIELD NAMES SHARE A TITLE WITHIN THE SAME FIELD, THIS WOULD IN THEORY BREAK
+            $filters['realnames'] = isset($f->realnames) ? $f->realnames : false; //do we want records indexed by titles rather than slugs
             //parse the query
             if(!isset($f->query)) {
                 //return all records
@@ -667,7 +669,8 @@ class RestfulController extends Controller {
                 'fields' => $filters['fields'],
                 'meta' => $filters['meta'],
                 'data' => $filters['data'],
-                'assoc' => $filters['assoc']
+                'assoc' => $filters['assoc'],
+                'realnames' => $filters['realnames']
             ];
         } else {
             //Old Kora 2 searches only need field filters
