@@ -59,14 +59,14 @@
             </div>
 
             {{--This is where the list of projects goes--}}
-            <div class="token-projects mt-xl">
+            <div class="token-projects mt-sm">
                 @foreach($token->projects()->get() as $tp)
                     <div class="token-project">
                         <span><a class="token-project-delete-js" href="#"
                                  pid="{{$tp->pid}}" token="{{$token->id}}" pname="{{$tp->name}}">
                                 <i class="icon icon-cancel-circle"></i></a>
                         </span>
-                        <span class="ml-xs tp-title">{{$tp->name}}</span>
+                        <span class="tp-title">{{$tp->name}}</span>
                     </div>
                 @endforeach
             </div>

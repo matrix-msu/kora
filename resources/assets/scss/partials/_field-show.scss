@@ -12,6 +12,10 @@
     font-size: 30px;
   }
 
+  .head .head-field-type {
+    font-family: $ubuntu-medium;
+  }
+
   .single-field {
     margin: #{map-get($spacing, xxxl)} auto;
     max-width: calc(#{ $max-site-width } - 600px);
