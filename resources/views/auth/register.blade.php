@@ -197,8 +197,8 @@
         e.preventDefault();
 
         var ajaxData = new FormData(form.get(0));
+
         if (droppedFile) {
-          ajaxData.delete('profile');
           ajaxData.append('profile', droppedFile);
         }
 
@@ -220,7 +220,8 @@
             if (error.status == 200) {
               location.reload();
             } else {
-              responseJson = error.responseJSON;
+              console.log(error);
+              var responseJson = error.responseJSON;
               $.each(responseJson, function() {
                 console.log(this[0]);
               });
