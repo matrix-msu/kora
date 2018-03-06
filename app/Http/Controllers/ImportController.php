@@ -666,7 +666,7 @@ class ImportController extends Controller {
 
             $field->pid = $project->pid;
             $field->fid = $form->fid;
-            $field->page_id = $fieldArray->page_id;
+            $field->page_id = $pConvert[$fieldArray->page_id];
             $field->sequence = $fieldArray->sequence;
             $field->type = $fieldArray->type;
             $field->name = $fieldArray->name;
@@ -1295,7 +1295,7 @@ class ImportController extends Controller {
 
             $field->pid = $project->pid;
             $field->fid = $form->fid;
-            $field->page_id = $fieldArray->page_id;
+            $field->page_id = $pConvert[$fieldArray->page_id];
             $field->sequence = $fieldArray->sequence;
             $field->type = $fieldArray->type;
             $field->name = $fieldArray->name;
