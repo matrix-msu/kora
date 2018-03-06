@@ -340,30 +340,34 @@ class ExportController extends Controller {
                             continue; //move on to next row of data
                         }
 
+                        $fieldIndex = $data->slug;
+                        if($useOpts && $options['realnames'])
+                            $fieldIndex = $data->name;
+
                         switch($data->type) {
                             case Field::_TEXT:
-                                $records[$kid][$data->slug]['value'] = $data->value;
-                                $records[$kid][$data->slug]['type'] = $data->type;
+                                $records[$kid][$fieldIndex]['value'] = $data->value;
+                                $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_RICH_TEXT:
-                                $records[$kid][$data->slug]['value'] = $data->value;
-                                $records[$kid][$data->slug]['type'] = $data->type;
+                                $records[$kid][$fieldIndex]['value'] = $data->value;
+                                $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_NUMBER:
-                                $records[$kid][$data->slug]['value'] = $data->value;
-                                $records[$kid][$data->slug]['type'] = $data->type;
+                                $records[$kid][$fieldIndex]['value'] = $data->value;
+                                $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_LIST:
-                                $records[$kid][$data->slug]['value'] = $data->value;
-                                $records[$kid][$data->slug]['type'] = $data->type;
+                                $records[$kid][$fieldIndex]['value'] = $data->value;
+                                $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_MULTI_SELECT_LIST:
-                                $records[$kid][$data->slug]['value'] = explode('[!]',$data->value);
-                                $records[$kid][$data->slug]['type'] = $data->type;
+                                $records[$kid][$fieldIndex]['value'] = explode('[!]',$data->value);
+                                $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_GENERATED_LIST:
-                                $records[$kid][$data->slug]['value'] = explode('[!]',$data->value);
-                                $records[$kid][$data->slug]['type'] = $data->type;
+                                $records[$kid][$fieldIndex]['value'] = explode('[!]',$data->value);
+                                $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_COMBO_LIST:
                                 $value = array();
@@ -414,18 +418,18 @@ class ExportController extends Controller {
 
                                     array_push($value, $val);
                                 }
-                                $records[$kid][$data->slug]['value'] = $value;
-                                $records[$kid][$data->slug]['type'] = $data->type;
+                                $records[$kid][$fieldIndex]['value'] = $value;
+                                $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_DATE:
-                                $records[$kid][$data->slug]['value'] = [
+                                $records[$kid][$fieldIndex]['value'] = [
                                     'circa' => $data->value,
                                     'month' => $data->val2,
                                     'day' => $data->val3,
                                     'year' => $data->val4,
                                     'era' => $data->val5
                                 ];
-                                $records[$kid][$data->slug]['type'] = $data->type;
+                                $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_SCHEDULE:
                                 $value = array();
@@ -450,8 +454,8 @@ class ExportController extends Controller {
                                     ];
                                     array_push($value,$info);
                                 }
-                                $records[$kid][$data->slug]['value'] = $value;
-                                $records[$kid][$data->slug]['type'] = $data->type;
+                                $records[$kid][$fieldIndex]['value'] = $value;
+                                $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_GEOLOCATOR:
                                 $value = array();
@@ -475,8 +479,8 @@ class ExportController extends Controller {
 
                                     array_push($value,$info);
                                 }
-                                $records[$kid][$data->slug]['value'] = $value;
-                                $records[$kid][$data->slug]['type'] = $data->type;
+                                $records[$kid][$fieldIndex]['value'] = $value;
+                                $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_DOCUMENTS:
                                 $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
@@ -491,8 +495,8 @@ class ExportController extends Controller {
                                     ];
                                     array_push($value,$info);
                                 }
-                                $records[$kid][$data->slug]['value'] = $value;
-                                $records[$kid][$data->slug]['type'] = $data->type;
+                                $records[$kid][$fieldIndex]['value'] = $value;
+                                $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_GALLERY:
                                 $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
@@ -507,8 +511,8 @@ class ExportController extends Controller {
                                     ];
                                     array_push($value,$info);
                                 }
-                                $records[$kid][$data->slug]['value'] = $value;
-                                $records[$kid][$data->slug]['type'] = $data->type;
+                                $records[$kid][$fieldIndex]['value'] = $value;
+                                $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_PLAYLIST:
                                 $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
@@ -523,8 +527,8 @@ class ExportController extends Controller {
                                     ];
                                     array_push($value,$info);
                                 }
-                                $records[$kid][$data->slug]['value'] = $value;
-                                $records[$kid][$data->slug]['type'] = $data->type;
+                                $records[$kid][$fieldIndex]['value'] = $value;
+                                $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_VIDEO:
                                 $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
@@ -539,8 +543,8 @@ class ExportController extends Controller {
                                     ];
                                     array_push($value,$info);
                                 }
-                                $records[$kid][$data->slug]['value'] = $value;
-                                $records[$kid][$data->slug]['type'] = $data->type;
+                                $records[$kid][$fieldIndex]['value'] = $value;
+                                $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_3D_MODEL:
                                 $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
@@ -555,8 +559,8 @@ class ExportController extends Controller {
                                     ];
                                     array_push($value,$info);
                                 }
-                                $records[$kid][$data->slug]['value'] = $value;
-                                $records[$kid][$data->slug]['type'] = $data->type;
+                                $records[$kid][$fieldIndex]['value'] = $value;
+                                $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_ASSOCIATOR:
                                 if($useOpts && $options['assoc']) {
@@ -576,9 +580,9 @@ class ExportController extends Controller {
                                     ];
                                     array_push($assocMaster,$ainfo);
                                 } else {
-                                    $records[$kid][$data->slug]['value'] = explode(',',$data->value);
+                                    $records[$kid][$fieldIndex]['value'] = explode(',',$data->value);
                                 }
-                                $records[$kid][$data->slug]['type'] = $data->type;
+                                $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             default:
                                 break;
@@ -640,6 +644,7 @@ class ExportController extends Controller {
                     foreach($datafields as $data) {
                         $kid = $data->pid.'-'.$data->fid.'-'.$data->rid;
                         $slug = str_replace('_'.$data->pid.'_'.$data->fid.'_', '', $data->slug);
+                        $slug = str_replace('_', ' ', $slug); //Now that the tag is gone, remove space fillers
 
                         switch($data->type) {
                             case Field::_TEXT:
@@ -678,7 +683,7 @@ class ExportController extends Controller {
                                 $records[$kid][$slug] = $value;
                                 break;
                             case Field::_DOCUMENTS:
-                                $url = 'p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = 'r'.$data->rid.'/fl'.$data->flid . '/';
                                 $files = explode('[!]',$data->value);
                                 $file = $files[0];
                                 $info = [
@@ -691,7 +696,7 @@ class ExportController extends Controller {
                                 $records[$kid][$slug] = $info;
                                 break;
                             case Field::_GALLERY:
-                                $url = 'p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = 'r'.$data->rid.'/fl'.$data->flid . '/';
                                 $files = explode('[!]',$data->value);
                                 $file = $files[0];
                                 $info = [
@@ -1114,67 +1119,67 @@ class ExportController extends Controller {
             $slugQL = ' and fl.slug in ('.substr($slugQL, 0, -1).')';
         }
 
-        return DB::select("SELECT tf.rid as `rid`, tf.text as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+        return DB::select("SELECT tf.rid as `rid`, tf.text as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
 FROM ".$prefix."text_fields as tf left join ".$prefix."fields as fl on tf.flid=fl.flid where tf.rid in ($ridArray)$slugQL 
 union all
 
-SELECT nf.rid as `rid`, nf.number as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+SELECT nf.rid as `rid`, nf.number as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
 FROM ".$prefix."number_fields as nf left join ".$prefix."fields as fl on nf.flid=fl.flid where nf.rid in ($ridArray)$slugQL 
 union all
 
-SELECT rtf.rid as `rid`, rtf.rawtext as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+SELECT rtf.rid as `rid`, rtf.rawtext as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
 FROM ".$prefix."rich_text_fields as rtf left join ".$prefix."fields as fl on rtf.flid=fl.flid where rtf.rid in ($ridArray)$slugQL 
 union all
 
-SELECT lf.rid as `rid`, lf.option as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+SELECT lf.rid as `rid`, lf.option as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
 FROM ".$prefix."list_fields as lf left join ".$prefix."fields as fl on lf.flid=fl.flid where lf.rid in ($ridArray)$slugQL 
 union all
 
-SELECT mslf.rid as `rid`, mslf.options as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+SELECT mslf.rid as `rid`, mslf.options as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
 FROM ".$prefix."multi_select_list_fields as mslf left join ".$prefix."fields as fl on mslf.flid=fl.flid where mslf.rid in ($ridArray)$slugQL 
 union all
 
-SELECT glf.rid as `rid`, glf.options as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+SELECT glf.rid as `rid`, glf.options as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
 FROM ".$prefix."generated_list_fields as glf left join ".$prefix."fields as fl on glf.flid=fl.flid where glf.rid in ($ridArray)$slugQL 
 union all
 
-SELECT clf.rid as `rid`, GROUP_CONCAT(if(clf.field_num=1, clf.data, null) SEPARATOR '[!data!]' ) as `value`, GROUP_CONCAT(if(clf.field_num=2, clf.data, null) SEPARATOR '[!data!]' ) as `val2`, GROUP_CONCAT(if(clf.field_num=1, clf.number, null) SEPARATOR '[!data!]' ) as `val3`, GROUP_CONCAT(if(clf.field_num=2, clf.number, null) SEPARATOR '[!data!]' ) as `val4`, fl.options as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+SELECT clf.rid as `rid`, GROUP_CONCAT(if(clf.field_num=1, clf.data, null) SEPARATOR '[!data!]' ) as `value`, GROUP_CONCAT(if(clf.field_num=2, clf.data, null) SEPARATOR '[!data!]' ) as `val2`, GROUP_CONCAT(if(clf.field_num=1, clf.number, null) SEPARATOR '[!data!]' ) as `val3`, GROUP_CONCAT(if(clf.field_num=2, clf.number, null) SEPARATOR '[!data!]' ) as `val4`, fl.options as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
 FROM ".$prefix."combo_support as clf left join ".$prefix."fields as fl on clf.flid=fl.flid where clf.rid in ($ridArray)$slugQL group by `rid`, `flid` 
 union all
 
-SELECT df.rid as `rid`, df.circa as `value`, df.month as `val2`,df.day as `val3`,df.year as `val4`,df.era as `val5`,fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+SELECT df.rid as `rid`, df.circa as `value`, df.month as `val2`,df.day as `val3`,df.year as `val4`,df.era as `val5`,fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
 FROM ".$prefix."date_fields as df left join ".$prefix."fields as fl on df.flid=fl.flid where df.rid in ($ridArray)$slugQL 
 union all
 
-SELECT sf.rid as `rid`, GROUP_CONCAT(sf.begin SEPARATOR '[!]') as `value`, GROUP_CONCAT(sf.end SEPARATOR '[!]') as `val2`, GROUP_CONCAT(sf.allday SEPARATOR '[!]') as `val3`, GROUP_CONCAT(sf.desc SEPARATOR '[!]') as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+SELECT sf.rid as `rid`, GROUP_CONCAT(sf.begin SEPARATOR '[!]') as `value`, GROUP_CONCAT(sf.end SEPARATOR '[!]') as `val2`, GROUP_CONCAT(sf.allday SEPARATOR '[!]') as `val3`, GROUP_CONCAT(sf.desc SEPARATOR '[!]') as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
 FROM ".$prefix."schedule_support as sf left join ".$prefix."fields as fl on sf.flid=fl.flid where sf.rid in ($ridArray)$slugQL group by `rid`, `flid` 
 union all
 
-SELECT docf.rid as `rid`, docf.documents as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+SELECT docf.rid as `rid`, docf.documents as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
 FROM ".$prefix."documents_fields as docf left join ".$prefix."fields as fl on docf.flid=fl.flid where docf.rid in ($ridArray)$slugQL 
 union all
 
-SELECT galf.rid as `rid`, galf.images as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+SELECT galf.rid as `rid`, galf.images as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
 FROM ".$prefix."gallery_fields as galf left join ".$prefix."fields as fl on galf.flid=fl.flid where galf.rid in ($ridArray)$slugQL 
 union all
 
-SELECT pf.rid as `rid`, pf.audio as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+SELECT pf.rid as `rid`, pf.audio as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
 FROM ".$prefix."playlist_fields as pf left join ".$prefix."fields as fl on pf.flid=fl.flid where pf.rid in ($ridArray)$slugQL 
 union all
 
-SELECT vf.rid as `rid`, vf.video as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+SELECT vf.rid as `rid`, vf.video as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
 FROM ".$prefix."video_fields as vf left join ".$prefix."fields as fl on vf.flid=fl.flid where vf.rid in ($ridArray)$slugQL 
 union all
 
-SELECT mf.rid as `rid`, mf.model as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+SELECT mf.rid as `rid`, mf.model as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
 FROM ".$prefix."model_fields as mf left join ".$prefix."fields as fl on mf.flid=fl.flid where mf.rid in ($ridArray)$slugQL 
 union all
 
-SELECT gf.rid as `rid`, GROUP_CONCAT(gf.desc SEPARATOR '[!]') as `value`, GROUP_CONCAT(gf.address SEPARATOR '[!]') as `val2`, GROUP_CONCAT(CONCAT_WS('[!]', gf.lat, gf.lon) SEPARATOR '[!latlon!]') as `val3`, GROUP_CONCAT(CONCAT_WS('[!]', gf.zone, gf.easting, gf.northing) SEPARATOR '[!utm!]') as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+SELECT gf.rid as `rid`, GROUP_CONCAT(gf.desc SEPARATOR '[!]') as `value`, GROUP_CONCAT(gf.address SEPARATOR '[!]') as `val2`, GROUP_CONCAT(CONCAT_WS('[!]', gf.lat, gf.lon) SEPARATOR '[!latlon!]') as `val3`, GROUP_CONCAT(CONCAT_WS('[!]', gf.zone, gf.easting, gf.northing) SEPARATOR '[!utm!]') as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
 FROM ".$prefix."geolocator_support as gf left join ".$prefix."fields as fl on gf.flid=fl.flid where gf.rid in ($ridArray)$slugQL group by `rid`, `flid` 
 union all
 
-SELECT af.rid as `rid`, GROUP_CONCAT(aRec.kid SEPARATOR ',') as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid 
+SELECT af.rid as `rid`, GROUP_CONCAT(aRec.kid SEPARATOR ',') as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
 FROM ".$prefix."associator_support as af left join ".$prefix."fields as fl on af.flid=fl.flid left join ".$prefix."records as aRec on af.record=aRec.rid where af.rid in ($ridArray)$slugQL group by `rid`, `flid` ;");
     }
 

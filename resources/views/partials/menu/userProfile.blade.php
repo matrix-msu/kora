@@ -27,6 +27,11 @@
     <li class="link pre-spacer">
       <a href="#">My Record History</a>
     </li>
+    @if(\Auth::user()->admin==1)
+      <li class="link pre-spacer">
+          <a href="{{ url('/tokens') }}">Token Management</a>
+      </li>
+    @endif
     <li class="spacer mt-0"></li>
     <li class="link">
         <form id="global_logout_link" class="form-horizontal" role="form" method="POST" action="{{ url('/logout') }}">

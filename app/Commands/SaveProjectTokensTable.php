@@ -36,14 +36,14 @@ class SaveProjectTokensTable extends Command implements ShouldQueue {
         );
 
         $this->backup_fs->makeDirectory($table_path);
-        DB::table('project_token')->orderBy('project_id')->chunk(500, function($projToks) use ($table_path, $row_id) {
+        DB::table('project_token')->orderBy('project_pid')->chunk(500, function($projToks) use ($table_path, $row_id) {
             $count = 0;
             $all_projecttoken_data = new Collection();
 
             foreach($projToks as $projtoken) {
                 $individual_projecttoken_data = new Collection();
 
-                $individual_projecttoken_data->put("project_id", $projtoken->project_id);
+                $individual_projecttoken_data->put("project_pid", $projtoken->project_pid);
                 $individual_projecttoken_data->put("token_id", $projtoken->token_id);
 
                 $all_projecttoken_data->push($individual_projecttoken_data);

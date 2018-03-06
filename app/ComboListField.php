@@ -32,7 +32,7 @@ class ComboListField extends BaseField {
     const FIELD_OPTIONS_VIEW = "partials.fields.options.combolist";
     const FIELD_ADV_OPTIONS_VIEW = null;
     const FIELD_INPUT_VIEW = "partials.records.input.combolist";
-    const FIELD_DISPLAY_VIEW = null;
+    const FIELD_DISPLAY_VIEW = "partials.records.display.combolist";
 
     /**
      * @var array - Attributes that can be mass assigned to model
@@ -424,7 +424,7 @@ class ComboListField extends BaseField {
      */
     public function getRecordPresetArray($data, $exists=true) {
         if($exists)
-            $data['combolists'] = ComboListField::dataToOldFormat($this->data()->get());
+            $data['combolists'] = ComboListField::dataToOldFormat($this->data()->get()->toArray());
         else
             $data['combolists'] = null;
 
@@ -444,7 +444,7 @@ class ComboListField extends BaseField {
         $name_2 = self::getComboFieldName($field, 'two');
 
         return [
-            'options' => self::dataToOldFormat($this->data()->get()),
+            'options' => self::dataToOldFormat($this->data()->get()->toArray()),
             'name_1' => $name_1,
             'name_2' => $name_2
         ];

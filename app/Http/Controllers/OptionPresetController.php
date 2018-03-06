@@ -303,9 +303,19 @@ class OptionPresetController extends Controller {
                 } else {
                     //TODO::modular?
                     if($field->type == "Text" && $preset->type == "Text") {
-                        $field->getTypedField()->updateOptions("Regex",$preset->preset);
+                        $typedField = $field->getTypedField();
+                        $req = new Request();
+                        $req->options = $preset->preset;
+                        $req->default = $typedField->default;
+                        $req->required = $typedField->required;
+                        $typedField->updateOptions($field, $req);
                     } else if(in_array($field->type,["List","Generated List","Multi-Select List"]) && $preset->type=="List") {
-                        $field->getTypedField()->updateOptions("Options",$preset->preset);
+                        $typedField = $field->getTypedField();
+                        $req = new Request();
+                        $req->options = explode('[!]',$preset->preset);
+                        $req->default = $typedField->default;
+                        $req->required = $typedField->required;
+                        $typedField->updateOptions($field, $req);
                     } else if(in_array($field->type,["Schedule","Geolocator"]) && in_array($preset->type,["Schedule","Geolocator"])) {
                         $field->default = $preset->preset;
                         $field->save();

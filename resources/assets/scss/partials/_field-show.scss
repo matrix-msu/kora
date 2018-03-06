@@ -39,6 +39,25 @@
     font-family: $ubuntu-italic;
     font-size: 14px;
   }
+  .combo-list-display {
+    overflow: auto;
+
+    .combo-column {
+      float:left;
+      margin-bottom:10px;
+      width:40%;
+    }
+
+    .combo-delete {
+      float:left;
+      margin-bottom:10px;
+      width:15%;
+    }
+
+    .combo-title {
+      font-family: $ubuntu-medium-italic;
+    }
+  }
 
   @import 'field-show/field-update-delete';
 }

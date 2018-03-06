@@ -289,7 +289,7 @@ class ExodusController extends Controller {
                 foreach($tokenProjs as $tpid) {
                     $newPid = $projectArray[$tpid];
                     DB::table('project_token')->insert(
-                        ['project_id' => $newPid, 'token_id' => $token->id]
+                        ['project_pid' => $newPid, 'token_id' => $token->id]
                     );
                 }
             }

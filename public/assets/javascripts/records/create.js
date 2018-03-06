@@ -100,7 +100,7 @@ Kora.Records.Create = function() {
     }
 
     function initializeComboListOptions(){
-        $('.combo-value-div-js').on('click', '.delete-combo-value-js', function() {
+        $('.combo-list-display').on('click', '.delete-combo-value-js', function() {
             parentDiv = $(this).parent();
             parentDiv.remove();
         });
@@ -112,47 +112,44 @@ Kora.Records.Create = function() {
 
             val1 = inputOne.val();
             val2 = inputTwo.val();
-            name1 = inputOne.closest('.combo-list-input-one').attr('cfName');
-            name2 = inputTwo.closest('.combo-list-input-two').attr('cfName');
             type1 = inputOne.closest('.combo-list-input-one').attr('cfType');
             type2 = inputTwo.closest('.combo-list-input-two').attr('cfType');
 
             defaultDiv = $('.combo-value-div-js-'+flid);
 
-            if(val1=='' | val2==''){
+            if(val1=='' | val2=='' | val1==null | val2==null){
                 //TODO::Error out
+                console.log(val1);
+                console.log(val2);
                 console.log('Both fields must be filled out');
             } else {
                 //Remove empty div if applicable
-                if(defaultDiv.children('.combo-list-empty').first()) {
+                if(defaultDiv.children('.combo-list-empty').first())
                     defaultDiv.children('.combo-list-empty').first().remove();
-                }
 
                 div = '<div class="combo-value-item-js">';
 
                 if(type1=='Text' | type1=='List' | type1=='Number') {
                     div += '<input type="hidden" name="'+flid+'_combo_one[]" value="'+val1+'">';
-                    div += '<span>['+name1+']: '+val1+'</span>';
+                    div += '<span class="combo-column">'+val1+'</span>';
                 } else if(type1=='Multi-Select List' | type1=='Generated List' | type1=='Associator') {
                     div += '<input type="hidden" name="'+flid+'_combo_one[]" value="'+val1.join('[!]')+'">';
-                    div += '<span>['+name1+']: '+val1.join(' | ')+'</span>';
+                    div += '<span class="combo-column">'+val1.join(' | ')+'</span>';
                 }
-
-                div += '<span> ~ </span>';
 
                 if(type2=='Text' | type2=='List' | type2=='Number') {
                     div += '<input type="hidden" name="'+flid+'_combo_two[]" value="'+val2+'">';
-                    div += '<span>['+name2+']: '+val2+'</span>';
+                    div += '<span class="combo-column">'+val2+'</span>';
                 } else if(type2=='Multi-Select List' | type2=='Generated List' | type2=='Associator') {
                     div += '<input type="hidden" name="'+flid+'_combo_two[]" value="'+val2.join('[!]')+'">';
-                    div += '<span>['+name2+']: '+val2.join(' | ')+'</span>';
+                    div += '<span class="combo-column">'+val2.join(' | ')+'</span>';
                 }
 
-                div += '<span class="delete-combo-value-js pl-m"><a class="underline-middle-hover">[X]</a></span>';
+                div += '<span class="combo-delete delete-combo-value-js"><a class="underline-middle-hover">[X]</a></span>';
 
                 div += '</div>';
 
-                defaultDiv.html(defaultDiv.html()+div);
+                defaultDiv.children('.combo-list-display').first().append(div);
 
                 inputOne.val('');
                 if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List' | type1=='Associator')
@@ -487,180 +484,163 @@ Kora.Records.Create = function() {
             var presetID = $('#presetselect').val();
 
             var i;
-            var filename;
             for (i = 0; i < flids.length; i++) {
                 var flid = flids[i];
                 var field = data[flid];
 
-                switch (field['type']) {
-                    //TODO:: modular?
-                    case 'Text':
-                        $('[name='+flid+']').val(field['text']);
-                        break;
-
-                    case 'Rich Text':
-                        CKEDITOR.instances[flid].setData(field['rawtext']);
-                        break;
-
-                    case 'Number':
-                        $('[name='+flid+']').val(field['number']);
-                        break;
-
-                    case 'List':
-                        $('[name='+flid+']').val(field['option']).trigger("chosen:updated");
-                        break;
-
-                    case 'Multi-Select List':
-                        $('#list'+flid).val(field['options']).trigger("chosen:updated");
-                        break;
-
-                    case 'Generated List':
-                        var options = field['options'];
-                        var valArray = [];
-                        var h = 0;
-                        var selector = $("#list" + flid);
-                        for (var k = 0; k < options.length; k++) {
-                            if ($("#list" + flid + " option[value='" + options[k] + "']").length > 0) {
-                                valArray[h] = options[k];
-                                h++;
+                if(field != null) {
+                    switch (field['type']) {
+                        //TODO:: modular?
+                        case 'Text':
+                            $('[name=' + flid + ']').val(field['text']);
+                            break;
+                        case 'Rich Text':
+                            CKEDITOR.instances[flid].setData(field['rawtext']);
+                            break;
+                        case 'Number':
+                            $('[name=' + flid + ']').val(field['number']);
+                            break;
+                        case 'List':
+                            $('[name=' + flid + ']').val(field['option']).trigger("chosen:updated");
+                            break;
+                        case 'Multi-Select List':
+                            $('#list' + flid).val(field['options']).trigger("chosen:updated");
+                            break;
+                        case 'Generated List':
+                            var options = field['options'];
+                            var valArray = [];
+                            var h = 0;
+                            var selector = $("#list" + flid);
+                            for (var k = 0; k < options.length; k++) {
+                                if ($("#list" + flid + " option[value='" + options[k] + "']").length > 0) {
+                                    valArray[h] = options[k];
+                                    h++;
+                                }
+                                else {
+                                    selector.append($('<option/>', {
+                                        value: options[k],
+                                        text: options[k],
+                                        selected: 'selected'
+                                    }));
+                                    valArray[h] = options[k];
+                                    h++;
+                                }
                             }
-                            else {
+                            selector.val(valArray).trigger("chosen:updated");
+                            break;
+                        case 'Date':
+                            var date = field['data'];
+
+                            if (date['circa'])
+                                $('[name=circa_' + flid + ']').prop('checked', true);
+                            $('[name=month_' + flid + ']').val(date['month']).trigger("chosen:updated");
+                            $('[name=day_' + flid + ']').val(date['day']).trigger("chosen:updated");
+                            $('[name=year_' + flid + ']').val(date['year']).trigger("chosen:updated");
+                            $('[name=era_' + flid + ']').val(date['era']).trigger("chosen:updated");
+                            break;
+                        case 'Schedule':
+                            var j, events = field['events'];
+                            var selector = $('.' + flid + '-event-js');
+                            $('.' + flid + '-event-js option[value!="0"]').remove();
+
+                            for (j = 0; j < events.length; j++) {
                                 selector.append($('<option/>', {
-                                    value: options[k],
-                                    text: options[k],
+                                    value: events[j],
+                                    text: events[j],
                                     selected: 'selected'
-                                }));
-                                valArray[h] = options[k];
-                                h++;
+                                })).trigger("chosen:updated");
                             }
-                        }
-                        selector.val(valArray).trigger("chosen:updated");
-                        break;
+                            break;
+                        case 'Geolocator':
+                            var l, locations = field['locations'];
+                            var selector = $('.' + flid + '-location-js');
+                            $('.' + flid + '-location-js option[value!="0"]').remove();
 
-                    case 'Date':
-                        var date = field['data'];
+                            for (l = 0; l < locations.length; l++) {
+                                selector.append($('<option/>', {
+                                    value: locations[l],
+                                    text: locations[l],
+                                    selected: 'selected'
+                                })).trigger("chosen:updated");
+                            }
+                            break;
+                        case 'Combo List':
+                            var p, combos = field['combolists'];
+                            var selector = $('.combo-value-div-js-' + flid);
 
-                        if(date['circa'])
-                            $('[name=circa_'+flid+']').prop('checked', true);
-                        $('[name=month_'+flid+']').val(date['month']).trigger("chosen:updated");
-                        $('[name=day_'+flid+']').val(date['day']).trigger("chosen:updated");
-                        $('[name=year_'+flid+']').val(date['year']).trigger("chosen:updated");
-                        $('[name=era_'+flid+']').val(date['era']).trigger("chosen:updated");
-                        break;
+                            // Empty defaults, we need to do this as the preset may have done so.
+                            // However if it hasn't, the defaults will be in the preset so this is safe.
+                            selector.find('.combo-value-item-js').each(function () {
+                                $(this).remove();
+                            });
+                            selector.find('.combo-list-empty').each(function () {
+                                $(this).remove();
+                            });
 
-                    case 'Schedule':
-                        var j,  events = field['events'];
-                        var selector = $('.'+flid+'-event-js');
-                        $('.'+flid+'-event-js option[value!="0"]').remove();
+                            for (p = 0; p < combos.length; p++) {
+                                var rawData = combos[p];
 
-                        for (j=0; j < events.length; j++) {
-                            selector.append($('<option/>', {
-                                value: events[j],
-                                text: events[j],
-                                selected: 'selected'
-                            })).trigger("chosen:updated");
-                        }
-                        break;
+                                var field1RawData = rawData.split('[!f1!]')[1];
+                                var field2RawData = rawData.split('[!f2!]')[1];
 
-                    case 'Geolocator':
-                        var l, locations = field['locations'];
-                        var selector = $('.'+flid+'-location-js');
-                        $('.'+flid+'-location-js option[value!="0"]').remove();
+                                var field1ToPrint = field1RawData.split('[!]');
+                                var field2ToPrint = field2RawData.split('[!]');
 
-                        for (l=0; l < locations.length; l++) {
-                            selector.append($('<option/>', {
-                                value: locations[l],
-                                text: locations[l],
-                                selected: 'selected'
-                            })).trigger("chosen:updated");
-                        }
-                        break;
+                                var html = '<div class="combo-value-item-js">';
 
-                    // case 'Combo List': //TODO::remember to do this
-                    //     var p, combos = field['combolists'];
-                    //     var selector = $('#combo_list_'+flid);
-                    //
-                    //     // Empty defaults, we need to do this as the preset may have done so.
-                    //     // However if it hasn't, the defaults will be in the preset so this is safe.
-                    //     selector.children("#val_"+flid).each(function(){
-                    //         $(this).remove();
-                    //     });
-                    //
-                    //     for(p=0; p < combos.length; p++) {
-                    //         var rawData = combos[p];
-                    //
-                    //         var field1RawData = rawData.split('[!f1!]')[1];
-                    //         var field2RawData = rawData.split('[!f2!]')[1];
-                    //
-                    //         var field1ToPrint = field1RawData.split('[!]');
-                    //         var field2ToPrint = field2RawData.split('[!]');
-                    //
-                    //         var html = "";
-                    //         html += '<div id="val_'+flid+'">';
-                    //
-                    //         if (field1ToPrint.length == 1) {
-                    //             html += '<span style="float:left;width:40%;margin-bottom:10px">'+field1ToPrint+'</span>';
-                    //         }
-                    //         else {
-                    //             html += '<span style="float:left;width:40%;margin-bottom:10px">';
-                    //             for (var q = 0; q < field1ToPrint.length; q++) {
-                    //                 html += '<div>'+field1ToPrint[q]+'</div>';
-                    //             }
-                    //             html+= '</span>';
-                    //         }
-                    //         if (field2ToPrint.length == 1) {
-                    //             html += '<span style="float:left;width:40%;margin-bottom:10px">'+field2ToPrint+'</span>';
-                    //         }
-                    //         else {
-                    //             html += '<span style="float:left;width:40%;margin-bottom:10px">';
-                    //             for (var r = 0; r < field2ToPrint.length; r++) {
-                    //                 html += '<div>'+field2ToPrint[r]+'</div>';
-                    //             }
-                    //             html += '</span>';
-                    //         }
-                    //         html += '<input name="'+flid+'_val[]" type="hidden" value="'+rawData+'" id="'+flid+'_val[]">';
-                    //         html += '<span class="delete_combo_def_11" style="float:left;width:20%;margin-bottom:10px"><a>[X]</a></span>';
-                    //         html += '</div>';
-                    //
-                    //         selector.append(html);
-                    //     }
-                    //     break;
+                                if (field1ToPrint.length == 1) {
+                                    html += '<input type="hidden" name="' + flid + '_combo_one[]" value="' + field1ToPrint + '">';
+                                    html += '<span class="combo-column">' + field1ToPrint + '</span>';
+                                } else {
+                                    html += '<input type="hidden" name="' + flid + '_combo_one[]" value="' + field1ToPrint.join('[!]') + '">';
+                                    html += '<span class="combo-column">' + field1ToPrint.join(' | ') + '</span>';
+                                }
 
-                    case 'Documents':
-                        applyFilePreset(field['documents'], presetID, flid);
-                        break;
+                                if (field2ToPrint.length == 1) {
+                                    html += '<input type="hidden" name="' + flid + '_combo_two[]" value="' + field2ToPrint + '">';
+                                    html += '<span class="combo-column">' + field2ToPrint + '</span>';
+                                } else {
+                                    html += '<input type="hidden" name="' + flid + '_combo_two[]" value="' + field2ToPrint.join('[!]') + '">';
+                                    html += '<span class="combo-column">' + field2ToPrint.join(' | ') + '</span>';
+                                }
 
-                    case 'Gallery':
-                        applyFilePreset(field['images'], presetID, flid);
-                        break;
+                                html += '<span class="combo-delete delete-combo-value-js"><a class="underline-middle-hover">[X]</a></span>';
 
-                    case 'Playlist':
-                        applyFilePreset(field['audio'], presetID, flid);
-                        break;
+                                html += '</div>';
 
-                    case 'Video':
-                        applyFilePreset(field['video'], presetID, flid);
-                        break;
+                                selector.children('.combo-list-display').first().append(html);
+                            }
+                            break;
+                        case 'Documents':
+                            applyFilePreset(field['documents'], presetID, flid);
+                            break;
+                        case 'Gallery':
+                            applyFilePreset(field['images'], presetID, flid);
+                            break;
+                        case 'Playlist':
+                            applyFilePreset(field['audio'], presetID, flid);
+                            break;
+                        case 'Video':
+                            applyFilePreset(field['video'], presetID, flid);
+                            break;
+                        case '3D-Model':
+                            applyFilePreset(field['model'], presetID, flid);
+                            break;
+                        case 'Associator':
+                            var r, records = field['records'];
+                            console.log(field['records']);
+                            var selector = $('#' + flid);
+                            $('#' + flid + ' option[value!="0"]').remove();
 
-                    case '3D-Model':
-                        applyFilePreset(field['model'], presetID, flid);
-                        break;
-
-                    case 'Associator':
-                        var r, records = field['records'];
-                        console.log(field['records']);
-                        var selector = $('#'+flid);
-                        $('#'+flid+' option[value!="0"]').remove();
-
-                        for (r=0; r < records.length; r++) {
-                            selector.append($('<option/>', {
-                                value: records[r],
-                                text: records[r],
-                                selected: 'selected'
-                            })).trigger("chosen:updated");
-                        }
-                        break;
-
+                            for (r = 0; r < records.length; r++) {
+                                selector.append($('<option/>', {
+                                    value: records[r],
+                                    text: records[r],
+                                    selected: 'selected'
+                                })).trigger("chosen:updated");
+                            }
+                            break;
+                    }
                 }
             }
         }

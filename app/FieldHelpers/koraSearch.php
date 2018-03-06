@@ -322,6 +322,8 @@ class KORA_Clause {
                 } else
                     die("Illegal keyword operator provided: ".$op);
 
+                //Strip away %
+                $arg2 = str_replace("%","",$arg2);
                 $query = $tool::keywordQueryBuilder($arg2, $method, $not, array($arg1));
                 array_push($this->queries,$query);
             }
@@ -393,7 +395,7 @@ class KORA_Clause {
  * @param  array $userInfo - Server authentication for connecting to private servers
  * @return array - The records to return from the search
  */
-function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=null,$number=null,$userInfo = array()) {
+function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=0,$number=0,$userInfo = array()) {
     if(!$koraClause instanceof KORA_Clause) {
         die("The query clause you provided must be an object of class KORA_Clause");
     }
@@ -417,12 +419,16 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
     //Map return controls to fields if not ALL or KID
     //KID is a k3 custom for the legacy koraSearch that gets you a list of records
     if(is_array($fields)) {
-        $fieldsMapped = array();
-        foreach($fields as $field) {
-            $f = fieldMapper($field,$pid,$sid);
-            array_push($fieldsMapped,$f);
+        if(empty($fields) | $fields[0]=="ALL") {
+            $fields = "ALL";
+        } else {
+            $fieldsMapped = array();
+            foreach ($fields as $field) {
+                $f = fieldMapper($field, $pid, $sid);
+                array_push($fieldsMapped, $f);
+            }
+            $fields = $fieldsMapped;
         }
-        $fields = $fieldsMapped;
     }
 
     //Map controls to fields in keyword searches
@@ -438,6 +444,12 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
 
         array_push($queries, $q);
     }
+
+    //Format the start/number for legacy.
+    if($start==0)
+        $start=null;
+    if($number==0)
+        $number=null;
 
     $output = array();
     $tool = new kora3ApiExternalTool();

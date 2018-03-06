@@ -31,42 +31,46 @@
     </div>
 
     <section class="combo-list-defaults">
-        <div class="form-group combo-value-div-js">
+        <div class="form-group combo-list-display combo-value-div-js">
             {!! Form::label('default', 'Default: ') !!}
+            <div>
+                <span class="combo-column combo-title">{{$oneName}}</span>
+                <span class="combo-column combo-title">{{$twoName}}</span>
+            </div>
             @if($defs!=null && $defs!='')
                 @for($i=0;$i<sizeof($defArray);$i++)
                     <div class="combo-value-item-js">
                         @if($oneType=='Text' | $oneType=='List' | $oneType=='Number')
                             <?php $value = explode('[!f1!]',$defArray[$i])[1]; ?>
                             {!! Form::hidden("default_combo_one[]",$value) !!}
-                            <span>[{{$oneName}}]: {{$value}}</span>
+                            <span class="combo-column">{{$value}}</span>
                         @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
                             <?php
                             $valPre = explode('[!f1!]',$defArray[$i])[1];
                             $value = explode('[!]',$valPre);
                             ?>
                             {!! Form::hidden("default_combo_one[]",$valPre) !!}
-                            <span>[{{$oneName}}]: {{implode(' | ',$value)}}</span>
+                            <span class="combo-column">{{implode(' | ',$value)}}</span>
                         @endif
-                        <span> ~ </span>
+
                         @if($twoType=='Text' | $twoType=='List' | $twoType=='Number')
                             <?php $value = explode('[!f2!]',$defArray[$i])[1]; ?>
                             {!! Form::hidden("default_combo_two[]",$value) !!}
-                            <span>[{{$twoName}}]: {{$value}}</span>
+                            <span class="combo-column">{{$value}}</span>
                         @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $twoType=='Associator')
                             <?php
                             $valPre = explode('[!f2!]',$defArray[$i])[1];
                             $value = explode('[!]',$valPre);
                             ?>
                             {!! Form::hidden("default_combo_two[]",$valPre) !!}
-                            <span>[{{$twoName}}]: {{implode(' | ',$value)}}</span>
+                            <span class="combo-column">{{implode(' | ',$value)}}</span>
                         @endif
 
-                        <span class="delete-combo-value-js pl-m"><a class="underline-middle-hover">[X]</a></span>
+                        <span class="combo-delete delete-combo-value-js"><a class="underline-middle-hover">[X]</a></span>
                     </div>
                 @endfor
             @else
-                <div class="combo-list-empty">Add Values to Combo List Below</div>
+                <div class="combo-list-empty"><span class="combo-column">Add Values to Combo List Below</span></div>
             @endif
         </div>
     </section>
