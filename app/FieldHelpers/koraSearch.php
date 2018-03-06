@@ -319,6 +319,14 @@ class KORA_Clause {
                 } else if($op=="NOT LIKE") {
                     $not = true;
                     $method = "OR";
+                } else if($op=="IN") {
+                    $not = false;
+                    $method = "OR";
+                    $arg2 = implode(' ',$arg2);
+                } else if($op=="NOT IN") {
+                    $not = true;
+                    $method = "OR";
+                    $arg2 = implode(' ',$arg2);
                 } else
                     die("Illegal keyword operator provided: ".$op);
 
