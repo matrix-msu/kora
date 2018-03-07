@@ -89,6 +89,12 @@ class RestfulController extends Controller {
             $fArray['nickname'] = $field->slug;
             $fArray['description'] = $field->desc;
             $fArray['options'] = Field::getTypedFieldStatic($field->type)->getOptionsArray($field);
+            $fArray['required'] = $field->required;
+            $fArray['searchable'] = $field->searchable;
+            $fArray['extsearch'] = $field->extsearch;
+            $fArray['viewable'] = $field->viewable;
+            $fArray['viewresults'] = $field->viewresults;
+            $fArray['extview'] = $field->extview;
 
             $fields[$field->flid] = $fArray;
         }
@@ -155,10 +161,8 @@ class RestfulController extends Controller {
             $filters['sort'] = isset($f->sort) ? $f->sort : null; //how should the data be sorted
             $filters['index'] = isset($f->index) ? $f->index : null; //where the array of results should start
             $filters['count'] = isset($f->count) ? $f->count : null; //how many records we should grab from that index
-            //WARNING::IF FIELD NAMES SHARE A NAME WITHIN THE SAME FIELD, THIS WOULD IN THEORY BREAK
-            $filters['realnames'] = isset($f->realnames) ? $f->realnames : false; //do we want records indexed by name rather than slugs
-            //THIS SOLELY SERVES LEGACY. YOU PROBABLY WILL NEVER USE THIS. DON'T THINK ABOUT IT
-            $filters['under'] = isset($f->under) ? $f->under : false; //Replace field spaces with underscores
+            //WARNING::IF FIELD NAMES SHARE A TITLE WITHIN THE SAME FIELD, THIS WOULD IN THEORY BREAK
+            $filters['realnames'] = isset($f->realnames) ? $f->realnames : false; //do we want records indexed by titles rather than slugs
             //parse the query
             if(!isset($f->query)) {
                 //return all records
@@ -249,8 +253,8 @@ class RestfulController extends Controller {
                             for($i = 0; $i < sizeof($kids); $i++) {
                                 $rid = explode("-", $kids[$i])[2];
                                 $record = Record::where('rid',$rid)->get()->first();
-                                if($record->fid != $form->fid)
-                                    return response()->json(["status"=>false,"error"=>"The following KID is not apart of the requested form: " . $kids[$i]],500);
+                                //if($record->fid != $form->fid)
+                                    //return response()->json(["status"=>false,"error"=>"The following KID is not apart of the requested form: " . $kids[$i]],500);
                                 $rids[$i] = $record->rid;
                             }
                             $negative = isset($query->not) ? $query->not : false;
@@ -267,8 +271,8 @@ class RestfulController extends Controller {
                             for($i = 0; $i < sizeof($kids); $i++) {
                                 $legacy_kid = $kids[$i];
                                 $record = Record::where('legacy_kid','=',$legacy_kid)->get()->first();
-                                if($record->fid != $form->fid)
-                                    return response()->json(["status"=>false,"error"=>"The following legacy KID is not apart of the requested form: " . $kids[$i]],500);
+                                //if($record->fid != $form->fid)
+                                    //return response()->json(["status"=>false,"error"=>"The following legacy KID is not apart of the requested form: " . $kids[$i]],500);
                                 array_push($rids,$record->rid);
                             }
                             $negative = isset($query->not) ? $query->not : false;
@@ -675,9 +679,9 @@ class RestfulController extends Controller {
                 'realnames' => $filters['realnames']
             ];
         } else {
+            //Old Kora 2 searches only need field filters
             $options = [
-                'fields' => $filters['fields'],
-                'under' => $filters['under']
+                'fields' => $filters['fields']
             ];
         }
 
