@@ -8,5 +8,5 @@
 </div>
 
 <div class="form-group">
-    {!! Form::submit('Delete Token',['class' => 'btn warning']) !!}
+    {!! Form::submit('Remove Token Project',['class' => 'btn warning']) !!}
 </div>
