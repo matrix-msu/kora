@@ -234,13 +234,13 @@ class UserController extends Controller {
      * @return Redirect
      */
     public function activator(Request $request) {
-        $user = User::where('username', '=', $request->user)->first();
+        $user = User::where('username', '=', \Auth::user()->username)->first();
         if($user==null)
             return redirect('auth/activate')->with('k3_global_error', 'user_doesnt_exist');
 
-        $token = trim($request->token);
+        $token = trim($request->activationtoken);
 
-        if($user->regtoken == $token && !empty($user->regtoken) && !($user->active ==1)) {
+        if(!empty($user->regtoken) && strcmp($user->regtoken, $token) == 0 && !($user->active == 1)) {
             $user->active = 1;
             $user->save();
 
@@ -250,6 +250,7 @@ class UserController extends Controller {
 
             return redirect('/')->with('k3_global_success', 'user_activated');
         } else {
+            dd($user->regtoken);
             return redirect('auth/activate')->with('k3_global_error', 'bad_activation_token');
         }
     }

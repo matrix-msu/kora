@@ -18,7 +18,7 @@
         <p>You may also enter the activation token provided in the email to activate your account.</p>
         <div class="form-group mt-xl pr-m">
           <label for="activation-token">Activation Token</label>
-          <input type="text" class="text-input" name="activation-token" placeholder="Enter your activation token here">
+          <input type="text" class="text-input" name="activationtoken" placeholder="Enter your activation token here">
         </div>
 
         <div class="form-group mt-xl" >
