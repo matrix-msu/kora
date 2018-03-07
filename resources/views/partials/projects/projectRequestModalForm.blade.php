@@ -1,11 +1,11 @@
 @if (count($requestableProjects) > 0)
   {!! Form::open(['action' => 'ProjectController@request']) !!}
     <div class="form-group">
-      {!! Form::label('request_project', 'Select the Project to Request Permissions') !!}
+      {!! Form::label('request_project', 'Select the Project(s) to Request Permissions') !!}
       {!! Form::select('pids[]', $requestableProjects, null, [
         'class' => 'multi-select',
         'multiple',
-        'data-placeholder' => "Select the project you would like to request permissions to here    ",
+        'data-placeholder' => "Select the project(s) you would like to request permissions to here    ",
         'id' => 'request_project'
       ]) !!}
     </div>
