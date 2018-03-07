@@ -178,6 +178,7 @@ class kora3ApiExternalTool {
         $form["data"] = in_array("data",$flags) ? in_array("data",$flags) : false;
         $form["meta"] = in_array("meta",$flags) ? in_array("meta",$flags) : false;
         $form["size"] = in_array("size",$flags) ? in_array("size",$flags) : false;
+        $form["under"] = in_array("under",$flags) ? in_array("under",$flags) : false;
 
         if(!is_null($index))
             $form["index"] = $index;
@@ -401,9 +402,10 @@ class KORA_Clause {
  * @param  int $start - In final result set, what record should we start at
  * @param  int $number - Determines, starting from $index, how many records to return
  * @param  array $userInfo - Server authentication for connecting to private servers
+ * @param  bool $underScores - Determines if a search should return the field names with underscores or spaces
  * @return array - The records to return from the search
  */
-function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=0,$number=0,$userInfo = array()) {
+function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=0,$number=0,$userInfo = array(),$underScores=false) {
     if(!$koraClause instanceof KORA_Clause) {
         die("The query clause you provided must be an object of class KORA_Clause");
     }
@@ -459,13 +461,19 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
     if($number==0)
         $number=null;
 
+    //Filters
+    if($underScores)
+        $filters = array("data","meta","under");
+    else
+        $filters = array("data","meta");
+
     $output = array();
     $tool = new kora3ApiExternalTool();
 
     $fsArray = $tool->formSearchBuilder(
         $sid,
         $token,
-        array("data","meta"),
+        $filters,
         $fields,
         $newOrder,
         $queries,

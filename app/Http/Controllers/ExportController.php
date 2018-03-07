@@ -644,7 +644,8 @@ class ExportController extends Controller {
                     foreach($datafields as $data) {
                         $kid = $data->pid.'-'.$data->fid.'-'.$data->rid;
                         $slug = str_replace('_'.$data->pid.'_'.$data->fid.'_', '', $data->slug);
-                        $slug = str_replace('_', ' ', $slug); //Now that the tag is gone, remove space fillers
+                        if(!$useOpts || !$options['under'])
+                            $slug = str_replace('_', ' ', $slug); //Now that the tag is gone, remove space fillers
 
                         switch($data->type) {
                             case Field::_TEXT:
