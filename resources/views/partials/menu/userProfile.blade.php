@@ -28,8 +28,11 @@
       <a href="#">My Record History</a>
     </li>
     @if(\Auth::user()->admin==1)
+      <li class="link">
+        <a href="{{ url('/tokens') }}">Token Management</a>
+      </li>
       <li class="link pre-spacer">
-          <a href="{{ url('/tokens') }}">Token Management</a>
+        <a href="{{ url('/admin/users') }}">User Management</a>
       </li>
     @endif
     <li class="spacer mt-0"></li>
