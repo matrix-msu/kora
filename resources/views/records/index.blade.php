@@ -28,6 +28,7 @@
 @stop
 
 @section('body')
+    @include("partials.records.modals.deleteRecordModal", ['record' => null])
     <section class="view-records center">
         <section class="search-records">
             <form method="GET" action="{{action('FormSearchController@keywordSearch',['pid' => $form->pid, 'fid' => $form->fid])}}" >
@@ -76,6 +77,8 @@
     <script src="{{ config('app.url') }}assets/javascripts/vendor/leaflet/leaflet.js"></script>
 
     <script type="text/javascript">
+        var deleteRecordURL = "{{action('RecordController@destroy', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => ''])}}";
+
         Kora.Records.Index();
     </script>
 @stop

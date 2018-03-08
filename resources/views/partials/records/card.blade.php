@@ -40,7 +40,7 @@
         </div>
 
         <div class="footer">
-            <a class="quick-action trash-container left danger delete-record-js" href="#">
+            <a class="quick-action trash-container left danger delete-record-js" rid="{{$record->rid}}" href="#">
                 <i class="icon icon-trash"></i>
             </a>
 

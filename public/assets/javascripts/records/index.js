@@ -67,6 +67,21 @@ Kora.Records.Index = function() {
         });
     }
 
+    function initializeDeleteRecord() {
+        Kora.Modal.initialize();
+
+        $('.delete-record-js').click(function (e) {
+            e.preventDefault();
+
+            var $modal = $('.delete-record-modal-js');
+
+            var url = deleteRecordURL+'/'+$(this).attr('rid');
+            $('.delete-record-form-js').attr('action', url);
+
+            Kora.Modal.open($modal);
+        });
+    }
+
     function initializeTypedFieldDisplays() {
         //GALLERY
         $('.gallery-field-display').slick({
@@ -239,5 +254,6 @@ Kora.Records.Index = function() {
 
     initializeSelectAddition();
     initializeToggle();
+    initializeDeleteRecord();
     initializeTypedFieldDisplays();
 }

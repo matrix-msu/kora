@@ -7,10 +7,18 @@
             </a>
         </div>
         <div class="body">
-            {!! Form::open([
-              'method' => 'DELETE',
-              'action' => ['RecordController@destroy', 'pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid]
-            ]) !!}
+            @if(!is_null($record))
+                {!! Form::open([
+                  'method' => 'DELETE',
+                  'action' => ['RecordController@destroy', 'pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid]
+                ]) !!}
+            @else
+                {!! Form::open([
+                  'method' => 'DELETE',
+                  'action' => ['RecordController@destroy', 'pid' => $form->pid, 'fid' => $form->fid, 'rid' => ''],
+                  'class' => 'delete-record-form-js'
+                ]) !!}
+            @endif
                 <div class="form-group">
                     Are you sure you want to delete this Record?
                 </div>
