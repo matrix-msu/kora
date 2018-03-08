@@ -2,10 +2,10 @@
   .record-page {
     .record-page-title {
       height: 22px;
-      font-family: $ubuntu-bold-italic;
-      font-size: 16px;
+      font-family: $ubuntu-medium-italic;
+      font-size: 18px;
       line-height: 22px;
-      text-align: center;
+      text-align: left;
     }
 
     .record-page-spacer {
@@ -20,7 +20,8 @@
   }
 
   .field-title {
-    font-family: $ubuntu-bold;
+    font-family: $ubuntu-medium;
+    font-size: 16px;
   }
 
   .field-data {
@@ -30,5 +31,21 @@
     }
 
     @import 'typed-fields';
+  }
+
+  .trash-container {
+    padding-right: 15px;
+    padding-top: 35px;
+
+    .icon-trash {
+      color: palette('red', base);
+      font-size: 14px;
+      padding: 0 0 5px;
+      will-change: transform;
+    }
+
+    &:hover .icon-trash {
+      transform: scale($transform-scale-multiplier);
+    }
   }
 }

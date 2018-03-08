@@ -33,7 +33,8 @@
             <form method="GET" action="{{action('FormSearchController@keywordSearch',['pid' => $form->pid, 'fid' => $form->fid])}}" >
                 <div class="form-group search-input mt-xl">
                     {!! Form::label('keywords','Search Via Keyword(s) or KID : ') !!}
-                    {!! Form::select('keywords[]',[], null, ['class' => 'multi-select modify-select', 'multiple']) !!}
+                    {!! Form::select('keywords[]',[], null, ['class' => 'multi-select modify-select',
+                    'multiple', 'data-placeholder' => 'Type keyword and press enter']) !!}
                 </div>
                 <div class="form-group search-input mt-xl">
                     {!! Form::label('method','or / and / exact') !!}
@@ -41,8 +42,10 @@
                 </div>
 
                 <div class="form-group mt-xxxl">
-                    <a href="#" class="btn half-sub-btn pr-m" data-unsp-sanitized="clean">View Advanced Search Options</a>
-                    <a href="#" class="btn half-btn pl-m" data-unsp-sanitized="clean">Search</a>
+                    <div class="search-button-container">
+                        <a href="#" class="btn half-sub-btn mb-sm" data-unsp-sanitized="clean">View Advanced Search Options</a>
+                        <a href="#" class="btn half-btn mb-sm" data-unsp-sanitized="clean">Search</a>
+                    </div>
                 </div>
             </form>
 
