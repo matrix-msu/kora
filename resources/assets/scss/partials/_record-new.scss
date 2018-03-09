@@ -15,18 +15,19 @@
   }
 
   .required-tip {
+    color: palette('gray', text);
     padding-top: 5px;
   }
 
   .oval-icon {
     background-color: palette('green', accent, 1);
-    border-radius: 12px;
+    border-radius: 10px;
     box-shadow: 0 5px 10px 0 palette('box-shadow', accent, .05);
     display: inline-block;
-    height: 12px;
-    margin-right: 8px;
+    height: 10px;
+    margin-right: 3px;
     vertical-align: middle;
-    width: 12px;
+    width: 10px;
   }
 
   .record-preset-link {
@@ -37,4 +38,5 @@
 
   @import 'record-create/filters';
   @import 'record-create/field-inputs';
+  @import 'record-create/edit-button';
 }

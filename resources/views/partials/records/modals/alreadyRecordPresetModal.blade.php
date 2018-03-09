@@ -1,7 +1,7 @@
 <div class="modal modal-js modal-mask already-record-preset-modal-js">
     <div class="content small">
         <div class="header">
-            <span class="title">Already a Preset!</span>
+            <span class="title">Designated as Preset</span>
             <a href="#" class="modal-toggle modal-toggle-js">
                 <i class="icon icon-cancel"></i>
             </a>

@@ -18,9 +18,12 @@
 
     a {
       color: palette('green', accent);
-      font-family: $ubuntu-medium;
+      font-family: $ubuntu;
       text-decoration: none;
-      padding-bottom: $underline-padding;
+
+      &:hover {
+        color: palette('green', base);
+      }
     }
   }
 
