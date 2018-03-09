@@ -353,13 +353,14 @@ class AssociatorField extends BaseField {
      * @return array - The RIDs that match search
      */
     public function keywordSearchTyped($flid, $arg) {
+        $arg = explode('-',$arg);
+        $rid = end($arg);
         return DB::table(self::SUPPORT_NAME)
             ->select("rid")
             ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`record`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+            ->whereRaw("MATCH (`record`) AGAINST (? IN BOOLEAN MODE)", ["\"" . $rid . "\""])
             ->distinct()
-            ->pluck('rid')
-            ->toArray();
+            ->lists('rid');
     }
 
     /**
