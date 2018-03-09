@@ -211,6 +211,16 @@ class PlaylistField extends FileTypeField  {
             if(!$pla_files_exist) {
                 $this->delete();
             }
+        } else {
+            //DELETE THE FILES SINCE WE REMOVED THEM
+            $field = FieldController::getField($this->flid);
+            foreach(new \DirectoryIterator(config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid) as $file) {
+                if($file->isFile()) {
+                    unlink(config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid.'/'.$file->getFilename());
+                }
+            }
+
+            $this->delete();
         }
     }
 

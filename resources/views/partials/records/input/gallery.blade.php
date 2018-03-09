@@ -26,6 +26,8 @@
             foreach (new \DirectoryIterator($dir) as $file) {
                 if ($file->isFile() && in_array($file->getFilename(),$names)) {
                     copy($dir.'/'.$file->getFilename(),$dirTmp.'/'.$file->getFilename());
+                    copy($dir.'/medium/'.$file->getFilename(),$dirTmp.'/medium/'.$file->getFilename());
+                    copy($dir.'/thumbnail/'.$file->getFilename(),$dirTmp.'/thumbnail/'.$file->getFilename());
                     array_push($value,$file->getFilename());
                 }
             }
