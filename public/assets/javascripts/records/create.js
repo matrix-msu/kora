@@ -459,10 +459,16 @@ Kora.Records.Create = function() {
     function initializeRecordPresets() {
         $('.preset-check-js').click(function() {
             var presetDiv = $('.preset-record-div-js');
-            if(this.checked)
+            if(this.checked) {
                 presetDiv.fadeIn();
-            else
+            } else {
                 presetDiv.hide();
+                //CLEAR FIELDS
+                $('.preset-clear-text-js').each(function(){ $(this).val(''); });
+                $('.preset-clear-chosen-js').each(function(){ $(this).val(''); $(this).trigger("chosen:updated"); });
+                $('.preset-clear-file-js').html('');
+                $('.preset-clear-combo-js').each(function(){ $('.combo-value-item-js',this).remove(); });
+            }
         });
 
         $('.preset-record-js').change(function() {

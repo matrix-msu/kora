@@ -38,7 +38,7 @@
     {!! Form::hidden($field->flid,'f'.$field->flid.'u'.\Auth::user()->id) !!}
 </div>
 
-<section class="filenames filenames-{{$field->flid}}-js">
+<section class="filenames filenames-{{$field->flid}}-js preset-clear-file-js">
     @foreach($value as $file)
         <div class="form-group mt-xxs uploaded-file">
             <input type="hidden" name="file{{$field->flid}}[]" value ="{{$file}}">

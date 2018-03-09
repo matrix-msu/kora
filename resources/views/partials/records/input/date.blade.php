@@ -44,12 +44,12 @@
         '7' => '07 - '.date("F", mktime(0, 0, 0, 7, 10)), '8' => '08 - '.date("F", mktime(0, 0, 0, 8, 10)),
         '9' => '09 - '.date("F", mktime(0, 0, 0, 9, 10)), '10' => '10 - '.date("F", mktime(0, 0, 0, 10, 10)),
         '11' => '11 - '.date("F", mktime(0, 0, 0, 11, 10)), '12' => '12 - '.date("F", mktime(0, 0, 0, 12, 10))],
-        $defMonth, ['class' => 'single-select', 'data-placeholder'=>"Select a Month"]) !!}
+        $defMonth, ['class' => 'single-select preset-clear-chosen-js', 'data-placeholder'=>"Select a Month"]) !!}
 </div>
 
 <div class="form-group mt-sm">
     {!! Form::label('day_'.$field->flid,'Day: ') !!}
-    <select name="day_{{$field->flid}}" class="single-select" data-placeholder="Select a Day">
+    <select name="day_{{$field->flid}}" class="single-select preset-clear-chosen-js" data-placeholder="Select a Day">
         <option value=""></option>
         <?php
             $currDay=0;
@@ -80,7 +80,7 @@
 
 <div class="form-group mt-sm">
     {!! Form::label('year_'.$field->flid,'Year: ') !!}
-    <select name="year_{{$field->flid}}" class="single-select" data-placeholder="Select a Year">
+    <select name="year_{{$field->flid}}" class="single-select preset-clear-chosen-js" data-placeholder="Select a Year">
         <option value=""></option>
         <?php
             $currYear=0;

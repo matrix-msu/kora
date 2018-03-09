@@ -13,7 +13,7 @@
         @endif
         {{$field->name.' ('.\App\Http\Controllers\FieldController::getFieldOption($field, "Unit")}}: </label>
 
-    <input type="number" name="{{ $field->flid }}" class="text-input" value="{{ $numVal }}" placeholder="Enter number here"
+    <input type="number" name="{{ $field->flid }}" class="text-input preset-clear-text-js" value="{{ $numVal }}" placeholder="Enter number here"
             step="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Increment") }}"
             max="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Max") }}"
             min="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Min") }}">

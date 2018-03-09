@@ -33,12 +33,6 @@
     @include("partials.fields.input-modals")
 
     <section class="filters center">
-        <div class="record-preset">
-            <div class="form-group">
-                <div class="check-box-half">
-                </div>
-            </div>
-        </div>
         <div class="required-tip">
             <span class="oval-icon"></span>
             <span> = Required Field</span>

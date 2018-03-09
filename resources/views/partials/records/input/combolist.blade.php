@@ -21,7 +21,7 @@
     }
     ?>
 
-    <div class="combo-list-display">
+    <div class="combo-list-display preset-clear-combo-js">
         <div>
             <span class="combo-column combo-title">{{$oneName}}</span>
             <span class="combo-column combo-title">{{$twoName}}</span>
