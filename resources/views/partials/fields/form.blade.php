@@ -66,7 +66,7 @@
         <input type="checkbox" value="1" id="preset" class="check-box-input" name="required" />
         <div class="check-box-background"></div>
         <span class="check"></span>
-        <span class="placeholder">Select to set the field as required</span>
+        <span class="placeholder">Set field as required</span>
         <span class="placeholder-alt">Field is set to be required</span>
     </div>
 
@@ -78,15 +78,15 @@
 <div class="form-group mt-xl">
     <label for="searchable">Searchable?</label>
     <div class="check-box">
-        <input type="checkbox" value="1" id="preset" class="check-box-input" name="searchable" />
+        <input type="checkbox" value="1" id="preset" class="check-box-input" name="searchable" checked />
         <div class="check-box-background"></div>
         <span class="check"></span>
-        <span class="placeholder">Select to set the field as searchable</span>
-        <span class="placeholder-alt">Field is set to be searchable</span>
+        <span class="placeholder">Set field as searchable</span>
+        <span class="placeholder-alt">Field is searchable</span>
     </div>
 
     <p class="sub-text mt-sm">
-        Data in this field will be analyzed in searches from outside of kora
+        Data in this field will be analyzed in searches inside of kora
     </p>
 </div>
 
@@ -96,8 +96,8 @@
         <input type="checkbox" value="1" id="preset" class="check-box-input" name="extsearch" />
         <div class="check-box-background"></div>
         <span class="check"></span>
-        <span class="placeholder">Select to set the field as externally searchable</span>
-        <span class="placeholder-alt">Field is set to be externally searchable</span>
+        <span class="placeholder">Set field as searchable</span>
+        <span class="placeholder-alt">Field is externally searchable</span>
     </div>
 
     <p class="sub-text mt-sm">
@@ -108,11 +108,11 @@
 <div class="form-group mt-xl">
     <label for="viewable">Viewable?</label>
     <div class="check-box">
-        <input type="checkbox" value="1" id="preset" class="check-box-input" name="viewable" />
+        <input type="checkbox" value="1" id="preset" class="check-box-input" name="viewable" checked />
         <div class="check-box-background"></div>
         <span class="check"></span>
-        <span class="placeholder">Select to set the field as viewable</span>
-        <span class="placeholder-alt">Field is set to be viewable</span>
+        <span class="placeholder">Set field as viewable</span>
+        <span class="placeholder-alt">Field is viewable</span>
     </div>
 
     <p class="sub-text mt-sm">
@@ -123,11 +123,11 @@
 <div class="form-group mt-xl">
     <label for="viewresults">Viewable in Results?</label>
     <div class="check-box">
-        <input type="checkbox" value="1" id="preset" class="check-box-input" name="viewresults" />
+        <input type="checkbox" value="1" id="preset" class="check-box-input" name="viewresults" checked />
         <div class="check-box-background"></div>
         <span class="check"></span>
-        <span class="placeholder">Select to set the field as viewable in results</span>
-        <span class="placeholder-alt">Field is set to be viewable in results</span>
+        <span class="placeholder">Set field as viewable in results</span>
+        <span class="placeholder-alt">Field is viewable in results</span>
     </div>
 
     <p class="sub-text mt-sm">
@@ -141,8 +141,8 @@
         <input type="checkbox" value="1" id="preset" class="check-box-input" name="extview" />
         <div class="check-box-background"></div>
         <span class="check"></span>
-        <span class="placeholder">Select to set the field as externally viewable</span>
-        <span class="placeholder-alt">Field is set to be externally viewable</span>
+        <span class="placeholder">Set field as externally viewable</span>
+        <span class="placeholder-alt">Field is externally viewable</span>
     </div>
 
     <p class="sub-text mt-sm">

@@ -79,8 +79,9 @@ Kora.Records.Show = function() {
                         var presetLink = $('.designate-preset-js');
 
                         presetLink.text('Designated as Preset');
-                        presetLink.addClass('already-preset-js');
                         presetLink.removeClass('designate-preset-js');
+                        presetLink.unbind('click');
+                        presetLink.addClass('already-preset-js');
 
                         Kora.Modal.close($modal);
                     }
@@ -92,7 +93,7 @@ Kora.Records.Show = function() {
     }
 
     function initializeAlreadyRecordPreset() {
-        $('.already-preset-js').click(function (e) {
+        $('.record-show').on('click','.already-preset-js',function (e) {
             e.preventDefault();
 
             var $modal = $('.already-record-preset-modal-js');
