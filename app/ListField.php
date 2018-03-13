@@ -316,7 +316,8 @@ class ListField extends BaseField {
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`option`) AGAINST (? IN BOOLEAN MODE)", [$arg])
             ->distinct()
-            ->pluck('rid');
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**
