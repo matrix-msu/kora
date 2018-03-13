@@ -3,7 +3,7 @@
         <div>{{ $event }}</div>
     @endforeach
 @else
-    <div class="schedule-cal-js">
+    <div class="schedule-cal-js mt-xxs">
         @foreach(App\ScheduleField::eventsToOldFormat($typedField->events()->get()) as $event)
             <?php
                 $nameTime = explode(': ',$event);

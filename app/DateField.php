@@ -609,15 +609,6 @@ class DateField extends BaseField {
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     /**
-     * Gets formatted value of record field to compare for sort. Only implement if field is sortable.
-     *
-     * @return string - The value
-     */
-    public function getValueForSort() {
-        return DateTime::createFromFormat("Y-m-d", $this->year . "-" . $this->month . "-" . $this->day);
-    }
-
-    /**
      * Overwrites model save to save the record data as a date object that search will use.
      *
      * @param  array $options - Record data to save

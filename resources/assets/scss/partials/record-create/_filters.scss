@@ -18,17 +18,31 @@
 
     a {
       color: palette('green', accent);
-      font-family: $ubuntu-medium;
+      font-family: $ubuntu;
       text-decoration: none;
-      padding-bottom: $underline-padding;
+
+      &:hover {
+        color: palette('green', base);
+      }
     }
   }
 
   .required-tip {
+    color: palette('gray', text);
     font-size: 14px;
     text-align: right;
   }
 
+  @media screen and (max-width: $max-mobile-width) {
+    .required-tip {
+      padding-top: 20px;
+      text-align: left;
+    }
+
+    .already-preset {
+      float: none;
+    }
+  }
 }
 
 @media screen and (max-width: $max-mobile-width) {

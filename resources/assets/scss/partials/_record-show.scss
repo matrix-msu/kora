@@ -14,6 +14,7 @@
         @include transition();
 
         color: palette('red', warning, 1);
+        font-size: 18px;
         padding: 0 0 5px;
         will-change: transform;
       }
@@ -27,7 +28,7 @@
       a {
         color: palette('green', accent);
         font-size: 14px;
-        font-family: $ubuntu-bold;
+        font-family: $ubuntu-medium;
         margin-right: 18px;
         padding-bottom: #{ $underline-padding };
         text-decoration: none;

@@ -15,7 +15,7 @@
 ?>
 <div class="form-group mt-xxxl">
     <label>@if($field->required==1)<span class="oval-icon"></span> @endif{{$field->name}}: </label>
-    {!! Form::select($field->flid.'[]', $listOpts, $selected, ['class' => 'multi-select '.$field->flid.'-location-js',
+    {!! Form::select($field->flid.'[]', $listOpts, $selected, ['class' => 'multi-select '.$field->flid.'-location-js preset-clear-chosen-js',
         'Multiple', 'data-placeholder' => "Add Locations Below"]) !!}
 </div>
 

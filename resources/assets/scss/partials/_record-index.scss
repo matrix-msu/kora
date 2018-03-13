@@ -27,6 +27,45 @@
       }
     }
 
+    .search-button-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+
+      .half-sub-btn, .half-btn {
+        width: calc(50% - 10px);
+      }
+    }
+
+    @media screen and (max-width: $max-mobile-l-width) {
+      .search-input {
+        display: block;
+        margin-top: 20px;
+        padding-right: 0px;
+        width: 100%;
+
+        + .search-input {
+          float: left;
+          padding-left: 0px;
+          width: 100%;
+        }
+      }
+
+      .search-button-container {
+        display: initial;
+
+        .half-sub-btn {
+          margin-bottom: 0;
+        }
+
+        .half-sub-btn, .half-btn {
+          margin-top: 40px;
+          max-width: 100%;
+          width: 100%;
+        }
+      }
+    }
+
     .records-title {
       font-size: 30px;
       height: 34px;

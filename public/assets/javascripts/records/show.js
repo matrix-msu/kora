@@ -79,8 +79,9 @@ Kora.Records.Show = function() {
                         var presetLink = $('.designate-preset-js');
 
                         presetLink.text('Designated as Preset');
-                        presetLink.addClass('already-preset-js');
                         presetLink.removeClass('designate-preset-js');
+                        presetLink.unbind('click');
+                        presetLink.addClass('already-preset-js');
 
                         Kora.Modal.close($modal);
                     }
@@ -92,7 +93,7 @@ Kora.Records.Show = function() {
     }
 
     function initializeAlreadyRecordPreset() {
-        $('.already-preset-js').click(function (e) {
+        $('.record-show').on('click','.already-preset-js',function (e) {
             e.preventDefault();
 
             var $modal = $('.already-record-preset-modal-js');
@@ -135,6 +136,7 @@ Kora.Records.Show = function() {
 
             var firstLoc = $(this).children('.geolocator-location-js').first();
             var mapRecord = L.map('map'+mapID).setView([firstLoc.attr('loc-x'), firstLoc.attr('loc-y')], 13);
+            mapRecord.scrollWheelZoom.disable();
             L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(mapRecord);
 
             $(this).children('.geolocator-location-js').each(function() {
@@ -177,9 +179,16 @@ Kora.Records.Show = function() {
         //SCHEDULE
         $('.schedule-cal-js').each(function() {
             var eve = [];
+            //Get the date where the calendar should focus
+            var receivedDefault = false;
+            var defDate = '';
             $(this).children('.schedule-event-js').each(function() {
                 var eventTitle = $(this).attr('event-title');
                 var eventStart = $(this).attr('event-start');
+                if(!receivedDefault) {
+                    receivedDefault = true;
+                    defDate = eventStart;
+                }
                 var eventEnd = $(this).attr('event-end');
                 var eventAllDay = $(this).attr('event-all-day');
 
@@ -192,7 +201,8 @@ Kora.Records.Show = function() {
                     center: 'title',
                     right: 'month,agendaWeek,agendaDay'
                 },
-                events: eve
+                events: eve,
+                defaultDate: defDate
             });
         });
 

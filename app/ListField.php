@@ -363,11 +363,17 @@ class ListField extends BaseField {
     }
 
     /**
-     * Gets formatted value of record field to compare for sort. Only implement if field is sortable.
+     * Sorts a set of rids by this typed field. Only implement if field is sortable.
      *
-     * @return string - The value
+     * @param $rids - Records to sort
+     * @param $dir - Directorion to sort
+     * @return string - The sorted array
      */
-    public function getValueForSort() {
-        return $this->option;
+    public function sortRidsByType($rids,$dir) {
+        return DB::table('list_fields')
+            ->select('rid','option AS value')
+            ->whereIn('rid',$rids)
+            ->orderBy('option', $dir)
+            ->get()->toArray();
     }
 }

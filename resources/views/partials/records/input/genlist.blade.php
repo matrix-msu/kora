@@ -15,6 +15,6 @@
 ?>
 <div class="form-group mt-xxxl">
     <label>@if($field->required==1)<span class="oval-icon"></span> @endif{{$field->name}}: </label>
-    {!! Form::select($field->flid.'[]',$listOpts, $selected, ['class' => 'multi-select modify-select', 'multiple',
+    {!! Form::select($field->flid.'[]',$listOpts, $selected, ['class' => 'multi-select modify-select preset-clear-chosen-js', 'multiple',
         'id' => 'list'.$field->flid]) !!}
 </div>

@@ -16,7 +16,7 @@
                 {!! Form::label('startdatetime','Start Time: ') !!}
                 <input type='text' class="text-input event-start-time-js"/>
             </div>
-            <div class="form-group mt-xl half">
+            <div class="form-group mt-xl half cal-padding-fix">
                 {!! Form::label('enddatetime','End Time: ') !!}
                 <input type='text' class="text-input event-end-time-js"/>
             </div>

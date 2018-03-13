@@ -33,7 +33,7 @@ class Kernel extends HttpKernel {
             'language' => \App\Http\Middleware\SetLanguage::class,
         ],
         'api' => [
-            'throttle:60,1',
+            //'throttle:60,1', //TODO::Might want to install this after php7 upgrade
             'bindings',
         ],
     ];

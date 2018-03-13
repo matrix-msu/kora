@@ -32,7 +32,7 @@ Kora.FormAssociations.Index = function() {
         "assocfid": assocfid
       },
       success: function(response) {
-        var element = $('<div></div>').addClass('association association-js card').attr('id', response.form.fid);
+        var element = $('<div></div>').addClass('association association-js card').attr('id', 'create-' + response.form.fid);
         var header = $('<div></div>').addClass('header');
         var title = $('<div></div>').addClass('left pl-m');
         var titleLink = $('<a></a>').addClass('title association-toggle-by-name-js').attr('href', '#');

@@ -90,7 +90,7 @@ class Field extends Model {
     /**
      * @var array - This is an array of all sortable typed fields
      */
-    const VALID_SORT = [self::_TEXT,self::_NUMBER,self::_LIST,self::_DATE];
+    const VALID_SORT = [self::_TEXT,self::_NUMBER,self::_LIST];
 
     /**
      * Returns a field's form.

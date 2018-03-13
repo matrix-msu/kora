@@ -145,9 +145,13 @@ class GalleryField extends FileTypeField  {
             $infoArray = array();
             $newPath = config('app.base_path') . 'storage/app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid;
             //make the three directories
-            mkdir($newPath, 0775, true);
-            mkdir($newPath . '/thumbnail', 0775, true);
-            mkdir($newPath . '/medium', 0775, true);
+            if(!file_exists($newPath))
+                mkdir($newPath, 0775, true);
+            if(!file_exists($newPath . '/thumbnail'))
+                mkdir($newPath . '/thumbnail', 0775, true);
+            if(!file_exists($newPath . '/medium'))
+                mkdir($newPath . '/medium', 0775, true);
+
             if(file_exists(config('app.base_path') . 'storage/app/tmpFiles/' . $value)) {
                 $types = self::getMimeTypes();
                 foreach(new \DirectoryIterator(config('app.base_path') . 'storage/app/tmpFiles/' . $value) as $file) {
@@ -246,6 +250,18 @@ class GalleryField extends FileTypeField  {
 
             if(!$gal_files_exist)
                 $this->delete();
+        } else {
+            //DELETE THE FILES SINCE WE REMOVED THEM
+            $field = FieldController::getField($this->flid);
+            foreach(new \DirectoryIterator(config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid) as $file) {
+                if($file->isFile()) {
+                    unlink(config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid.'/'.$file->getFilename());
+                    unlink(config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid.'/thumbnail/'.$file->getFilename());
+                    unlink(config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid.'/medium/'.$file->getFilename());
+                }
+            }
+
+            $this->delete();
         }
     }
 

@@ -51,7 +51,7 @@
     </div>
 
     <p class="sub-text mt-sm">
-        Data in this field will be analyzed in searches from outside of kora
+        Data in this field will be analyzed in searches inside of kora
     </p>
 </div>
 

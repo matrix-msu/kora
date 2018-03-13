@@ -89,6 +89,12 @@ class RestfulController extends Controller {
             $fArray['nickname'] = $field->slug;
             $fArray['description'] = $field->desc;
             $fArray['options'] = Field::getTypedFieldStatic($field->type)->getOptionsArray($field);
+            $fArray['required'] = $field->required;
+            $fArray['searchable'] = $field->searchable;
+            $fArray['extsearch'] = $field->extsearch;
+            $fArray['viewable'] = $field->viewable;
+            $fArray['viewresults'] = $field->viewresults;
+            $fArray['extview'] = $field->extview;
 
             $fields[$field->flid] = $fArray;
         }
@@ -120,6 +126,8 @@ class RestfulController extends Controller {
     public function search(Request $request) {
         //get the forms
         $forms = json_decode($request->forms);
+        if(is_null($forms))
+            return response()->json(["status"=>false,"error"=>"Unable to process forms array"],500);
         //get the format
         if(isset($request->format))
             $apiFormat = $request->format;
@@ -227,12 +235,14 @@ class RestfulController extends Controller {
                                 //Check permission to search externally
                                 if(!$fieldModel->isExternalSearchable())
                                     continue;
-                                $request->request->add([$flid.'_dropdown' => 'on']);
-                                $request->request->add([$flid.'_valid' => 1]);
-                                $request = $fieldModel->getTypedField()->setRestfulAdvSearch($data,$flid,$request);
+                                $request->request->add([$fieldModel->flid.'_dropdown' => 'on']);
+                                $request->request->add([$fieldModel->flid.'_valid' => 1]);
+                                $request = $fieldModel->getTypedField()->setRestfulAdvSearch($data,$fieldModel->flid,$request);
                             }
                             $advSearch = new AdvancedSearchController();
                             $rids = $advSearch->apisearch($form->pid, $form->fid, $request);
+                            if(is_null($rids))
+                                $rids=[];
                             $negative = isset($query->not) ? $query->not : false;
                             if($negative)
                                 $rids = $this->negative_results($form,$rids);
@@ -247,8 +257,8 @@ class RestfulController extends Controller {
                             for($i = 0; $i < sizeof($kids); $i++) {
                                 $rid = explode("-", $kids[$i])[2];
                                 $record = Record::where('rid',$rid)->get()->first();
-                                if($record->fid != $form->fid)
-                                    return response()->json(["status"=>false,"error"=>"The following KID is not apart of the requested form: " . $kids[$i]],500);
+                                //if($record->fid != $form->fid)
+                                    //return response()->json(["status"=>false,"error"=>"The following KID is not apart of the requested form: " . $kids[$i]],500);
                                 $rids[$i] = $record->rid;
                             }
                             $negative = isset($query->not) ? $query->not : false;
@@ -265,8 +275,8 @@ class RestfulController extends Controller {
                             for($i = 0; $i < sizeof($kids); $i++) {
                                 $legacy_kid = $kids[$i];
                                 $record = Record::where('legacy_kid','=',$legacy_kid)->get()->first();
-                                if($record->fid != $form->fid)
-                                    return response()->json(["status"=>false,"error"=>"The following legacy KID is not apart of the requested form: " . $kids[$i]],500);
+                                //if($record->fid != $form->fid)
+                                    //return response()->json(["status"=>false,"error"=>"The following legacy KID is not apart of the requested form: " . $kids[$i]],500);
                                 array_push($rids,$record->rid);
                             }
                             $negative = isset($query->not) ? $query->not : false;
@@ -341,106 +351,108 @@ class RestfulController extends Controller {
         $fieldSlug = $sortFields[0];
         $direction = $sortFields[1];
         $newOrderArray = array();
-        $noSortValue = array();
-        if($fieldSlug=="kora_meta_owner") {
-            foreach($rids as $rid) {
-                $record = RecordController::getRecord($rid);
-                $owner = User::where('id','=',$record->owner)->first();
-                $newOrderArray[$rid] = $owner->username;
+
+        if($fieldSlug=='kora_meta_owner') {
+            $userRecords = DB::table('records')->join('users','users.id','=','records.owner')
+                            ->select('records.rid','users.username')
+                            ->whereIn('records.rid',$rids)
+                            ->orderBy('users.username', $direction)
+                            ->get()->toArray();
+
+            foreach($userRecords as $rec) {
+                $newOrderArray[$rec->rid] = $rec->username;
             }
-        } else if($fieldSlug=="kora_meta_created") {
-            foreach($rids as $rid) {
-                $record = RecordController::getRecord($rid);
-                $created = $record->created_at;
-                $newOrderArray[$rid] = $created;
+        } else if($fieldSlug=='kora_meta_created') {
+            $createdRecords = DB::table('records')
+                ->select('rid','created_at')
+                ->whereIn('rid',$rids)
+                ->orderBy('created_at', $direction)
+                ->get()->toArray();
+
+            foreach($createdRecords as $rec) {
+                $newOrderArray[$rec->rid] = $rec->created_at;
             }
-        } else if($fieldSlug=="kora_meta_updated") {
-            foreach($rids as $rid) {
-                $record = RecordController::getRecord($rid);
-                $updated = $record->updated_at;
-                $newOrderArray[$rid] = $updated;
+        } else if($fieldSlug=='kora_meta_updated') {
+            $updatedRecords = DB::table('records')
+                ->select('rid','updated_at')
+                ->whereIn('rid',$rids)
+                ->orderBy('updated_at', $direction)
+                ->get()->toArray();
+
+            foreach($updatedRecords as $rec) {
+                $newOrderArray[$rec->rid] = $rec->updated_at;
             }
-        } else if($fieldSlug=="kora_meta_kid") {
-            foreach($rids as $rid) {
-                $newOrderArray[$rid] = $rid;
+        } else if($fieldSlug=='kora_meta_kid') {
+            $kidRecords = DB::table('records')
+                ->select('rid')
+                ->whereIn('rid',$rids)
+                ->orderBy('rid', $direction)
+                ->get()->toArray();
+
+            foreach($kidRecords as $rec) {
+                $newOrderArray[$rec->rid] = $rec->rid;
             }
         } else {
             $field = FieldController::getField($fieldSlug);
             if(!$field->isSortable())
                 return false;
             //for each rid
-            foreach($rids as $rid) {
-                //based on type
-                $typedField = $field->getTypedFieldFromRID($rid);
-                if(!is_null($typedField))
-                    $newOrderArray[$rid] = $typedField->getValueForSort();
-                else
-                    array_push($noSortValue, $rid);
+            $typedField = $field->getTypedField();
+            $dataRecords = $typedField->sortRidsByType($rids,$direction);
+
+            foreach($dataRecords as $rec) {
+                $newOrderArray[$rec->rid] = $rec->value;
             }
         }
-        //sort new array
-        $extraData = array($sortFields,$direction,$newOrderArray);
-        uksort($newOrderArray, function($a_key,$b_key) use ($extraData) {
-            $sortArray = $extraData[0]; //we need to remove the original sort term and direction to determine if we have tiebreakers defined
-            $copySort = $sortArray;
-            array_shift($copySort); //this removes the first sort field
-            array_shift($copySort); //this removes the first direction
-            //determine direction to know if we should flip the result
-            $dir = $extraData[1];
-            if($dir=="ASC")
-                $dir = 1;
-            else if("DESC")
-                $dir = -1;
-            else
-                $dir = 1;
-            //using a key sort, but we really want compare the values (like a uasort)
-            //this is the only way we can have both the keys and the values in the compare function
-            $copyArray = $extraData[2]; //a copy of the newOrderArray
-            $a = $copyArray[$a_key];
-            $b = $copyArray[$b_key];
-            if(is_a($a,'DateTime') | (is_numeric($a) && is_numeric($b))) {
-                if($a==$b) {
-                    if(!empty($copySort)) {
-                        //do things to tiebreak
-                        //get the rids were working with
-                        $recurRids = array($a_key,$b_key);
-                        //run through sort again passing rids and new sort array
-                        $tiebreaker = $this->sort_rids($recurRids,$copySort);
-                        //we know the answer will be an array of a and b's rid
-                        //if a is first
-                        if($tiebreaker[0]==$a_key)
-                            return -1*$dir;
-                        else
-                            return 1*$dir;
-                    } else {
-                        return 0;
-                    }
-                } else if($a>$b) {
-                    return 1*$dir;
-                } else if($a<$b) {
-                    return -1*$dir;
+
+        //Deal with ties
+        //Is there a tiebreaker rule?
+        array_shift($sortFields); //remove field slug
+        array_shift($sortFields); //remove direction
+        if(!empty($sortFields)) {
+            //Since we have a tiebreaker, foreach set of ties, call this function recursively
+            $keysOnly = array_keys($newOrderArray);
+            $finalResult = array();
+
+            //Cycle through result keys (rids)
+            for($i=0;$i<sizeof($keysOnly);$i++) {
+                //This handles the case where we are on the last key, so nothing to compare
+                //Add to results and bounce
+                if(!isset($keysOnly[$i+1])) {
+                    array_push($finalResult,$keysOnly[$i]);
+                    continue;
                 }
-            } else {
-                $answer = strcmp($a, $b)*$dir;
-                if($answer==0 && !empty($copySort)) {
-                    //do things to tiebreak
-                    //get the rids were working with
-                    $recurRids = array($a_key,$b_key);
-                    //run through sort again passing rids and new sort array
-                    $tiebreaker = $this->sort_rids($recurRids,$copySort);
-                    //we know the answer will be an array of a and b's rid
-                    //if a is first
-                    if(isset($tiebreaker[0]) && $tiebreaker[0]==$a_key)
-                        return -1*$dir;
-                    else
-                        return 1*$dir;
+
+                //If the next key's value is the same, do stuff
+                $thisKey = $keysOnly[$i];
+                $nextKey = $keysOnly[$i+1];
+                if($newOrderArray[$thisKey] == $newOrderArray[$nextKey]) {
+                    //First step is to get all keys that match it
+                    $tieKeys = array_keys($newOrderArray,$newOrderArray[$thisKey]);
+                    //Run the tie breaker
+                    $tieResult = $this->sort_rids($tieKeys,$sortFields);
+                    //Add results to the final
+                    $finalResult = array_merge($finalResult,$tieResult);
+
+                    //We need to take the size of the tied values, and then increment $i by that size - 1
+                    //The minus one makes up for the fact that the for loop will also add to the index ($i++)
+                    //This will land us on the next proper index to continue
+                    $inc = sizeof($tieKeys)-1;
+                    $i += $inc;
                 } else {
-                    return $answer;
+                    //No tie to settle, so add this key to the finalResult
+                    array_push($finalResult,$thisKey);
                 }
             }
-        });
-        //convert to plain array of rids
-        $finalResult = array_keys($newOrderArray);
+        } else {
+            //convert to plain array of rids
+            $finalResult = array_keys($newOrderArray);
+        }
+
+        //Add missing records
+        $missing = array_diff($rids, $finalResult);
+        $finalResult = array_merge($finalResult, $missing);
+
         return $finalResult;
     }
 

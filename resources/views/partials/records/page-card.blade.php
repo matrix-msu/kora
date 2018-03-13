@@ -15,20 +15,25 @@
 
     <div class="content active">
         <div class="description">
-            @foreach($page["fields"] as $field)
-                @if($field->viewable)
-                    <div class="field-title mt-xl">{{$field->name}}: </div>
+            @if($page["fields"]->count() > 0)
+                @foreach($page["fields"] as $field)
+                    @if($field->viewable)
+                        <div class="field-title mt-xl">{{$field->name}}: </div>
 
-                    <section class="field-data">
-                        <?php $typedField = $field->getTypedFieldFromRID($record->rid); ?>
-                        @if(!is_null($typedField))
-                            @include($typedField::FIELD_DISPLAY_VIEW, ['field' => $field, 'typedField' => $typedField])
-                        @else
-                            <span class="record-no-data">No Data Inputted</span>
-                        @endif
-                    </section>
-                @endif
-            @endforeach
+                        <section class="field-data">
+                            <?php $typedField = $field->getTypedFieldFromRID($record->rid); ?>
+                            @if(!is_null($typedField))
+                                @include($typedField::FIELD_DISPLAY_VIEW, ['field' => $field, 'typedField' => $typedField])
+                            @else
+                                <span class="record-no-data">No Data Inputted</span>
+                            @endif
+                        </section>
+                    @endif
+                @endforeach
+            @else
+                <div class="field-title no-field">No fields added to this page</div>
+            @endif
+            <div class="field-title"> </div>
         </div>
     </div>
 </div>

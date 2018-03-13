@@ -174,7 +174,7 @@ class ProjectGroupController extends Controller {
           //add to all forms
           $forms = Form::where('pid', '=', $instance->pid)->get();
           foreach($forms as $form) {
-            $defGroup = FormGroup::where('name', '=', $form->name . $tag)->get()->first();
+            $defGroup = FormGroup::where('name', '=', $form->name . $tag)->where('fid','=',$form->fid)->get()->first();
             $FGC = new FormGroupController();
             $request->formGroup = $defGroup->id;
             $request->userId = $userID;

@@ -3,7 +3,7 @@
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $form->pid])
     @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
-    @include('partials.menu.static', ['name' => $record->kid])
+    @include('partials.menu.record', ['record' => $record])
     @include('partials.menu.static', ['name' => 'Duplicate Record'])
 @stop
 
@@ -33,12 +33,6 @@
     @include("partials.fields.input-modals")
 
     <section class="filters center">
-        <div class="record-preset">
-            <div class="form-group">
-                <div class="check-box-half">
-                </div>
-            </div>
-        </div>
         <div class="required-tip">
             <span class="oval-icon"></span>
             <span> = Required Field</span>

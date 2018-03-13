@@ -3,7 +3,7 @@
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $form->pid])
     @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
-    @include('partials.menu.static', ['name' => $record->kid])
+    @include('partials.menu.record', ['record' => $record])
     @include('partials.menu.static', ['name' => 'Edit Record'])
 @stop
 
@@ -48,7 +48,7 @@
             <div class="already-preset">
                 <div class="form-group">
                     <div class="check-box-half pt-xxs">
-                        <a class="underline-middle-hover already-preset-js" href="#">Designated as Preset</a>
+                        <a class="already-preset-js" href="#">Designated as Preset</a>
                     </div>
                 </div>
             </div>
@@ -70,8 +70,8 @@
 
         @include('partials.records.form',['form' => $form, 'editRecord' => true])
 
-        <div class="form-group mt-xxxl">
-            {!! Form::submit('Update Record',['class' => 'btn']) !!}
+        <div class="form-group record-update-button mt-xxxl">
+            {!! Form::submit('Update Record',['class' => 'btn edit-btn update-record-submit pre-fixed-js']) !!}
         </div>
 
         {!! Form::close() !!}

@@ -38,6 +38,14 @@
     text-decoration: none;
   }
 
+  .new-object-button {
+    width: calc(100%);
+  }
+
+  .cal-padding-fix {
+    padding-left: 0 !important;
+  }
+
   .combo-list-empty {
     color: palette('gray', text, .4);
     font-family: $ubuntu-italic;

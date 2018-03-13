@@ -26,6 +26,8 @@
             foreach (new \DirectoryIterator($dir) as $file) {
                 if ($file->isFile() && in_array($file->getFilename(),$names)) {
                     copy($dir.'/'.$file->getFilename(),$dirTmp.'/'.$file->getFilename());
+                    copy($dir.'/medium/'.$file->getFilename(),$dirTmp.'/medium/'.$file->getFilename());
+                    copy($dir.'/thumbnail/'.$file->getFilename(),$dirTmp.'/thumbnail/'.$file->getFilename());
                     array_push($value,$file->getFilename());
                 }
             }
@@ -38,7 +40,7 @@
     {!! Form::hidden($field->flid,'f'.$field->flid.'u'.\Auth::user()->id) !!}
 </div>
 
-<section class="filenames filenames-{{$field->flid}}-js">
+<section class="filenames filenames-{{$field->flid}}-js preset-clear-file-js">
     @foreach($value as $file)
         <div class="form-group mt-xxs uploaded-file">
             <input type="hidden" name="file{{$field->flid}}[]" value ="{{$file}}">

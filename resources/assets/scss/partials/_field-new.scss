@@ -2,6 +2,10 @@
   background: gradient($palette: 'background', $degree: 180deg);
   font-family: $ubuntu;
   min-height: 100vh;
+
+  .cal-padding-fix {
+    padding-left: 0 !important;
+  }
 }
 
 .field-create {
@@ -21,6 +25,10 @@
       line-height: 19px;
       padding: 0 0 5px;
       text-decoration: none;
+    }
+
+    .new-object-button {
+      width: calc(100%);
     }
   }
 }
