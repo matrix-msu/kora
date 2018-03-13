@@ -96,7 +96,7 @@
 
   <section class="pages pages-js center">
     @foreach($pageLayout as $idx=>$page)
-      <div class="page">
+      <div class="page" page-id="{{$page["id"]}}">
         <div class="page-header">
           <div class="move-actions">
             <a class="action move-action-page-js up-js" page_id="{{$page["id"]}}" href="#">
