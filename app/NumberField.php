@@ -428,17 +428,15 @@ class NumberField extends BaseField {
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     /**
-     * Sorts a set of rids by this typed field. Only implement if field is sortable.
+     * Gets list of RIDs and values for sort.
      *
-     * @param $rids - Records to sort
-     * @param $dir - Directorion to sort
-     * @return string - The sorted array
+     * @param $rids - Record IDs
+     * @param $flid - Field ID
+     * @return string - The value array
      */
-    public function sortRidsByType($rids,$dir) {
-        return DB::table('number_fields')
-            ->select('rid','number AS value')
-            ->whereIn('rid',$rids)
-            ->orderBy('number', $dir)
-            ->get()->toArray();
+    public function getRidValuesForSort($rids,$flid) {
+        $prefix = env('DB_PREFIX');
+        $ridArray = implode(',',$rids);
+        return DB::select("SELECT `rid`, `number` AS `value` FROM ".$prefix."number_fields WHERE `flid`=$flid AND `rid` IN ($ridArray)");
     }
 }

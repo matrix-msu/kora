@@ -396,13 +396,24 @@ class RestfulController extends Controller {
             $field = FieldController::getField($fieldSlug);
             if(!$field->isSortable())
                 return false;
-            //for each rid
-            $typedField = $field->getTypedField();
-            $dataRecords = $typedField->sortRidsByType($rids,$direction);
 
-            foreach($dataRecords as $rec) {
-                $newOrderArray[$rec->rid] = $rec->value;
+            $typedField = $field->getTypedField();
+            $chunks = array_chunk($rids, 500);
+
+            //Get the values
+            foreach($chunks as $chunk) {
+                $dataResults = $typedField->getRidValuesForSort($chunk, $field->flid);
+                //Filter results
+                foreach($dataResults as $rec) {
+                    $newOrderArray[$rec->rid] = $rec->value;
+                }
             }
+
+            //Sort that stuff
+            if($direction=="ASC")
+                asort($newOrderArray);
+            else if($direction=="DESC")
+                arsort($newOrderArray);
         }
 
         //Deal with ties
