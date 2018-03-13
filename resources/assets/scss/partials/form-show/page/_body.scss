@@ -44,7 +44,7 @@
       &:last-of-type {
         padding-right: 0;
 
-        @media screen and (max-width: $max-mobile-l-width) {
+        @media screen and (max-width: $max-tablet-width) {
           display: block;
           padding: 15px 0 0;
         }
@@ -58,7 +58,7 @@
       }
     }
 
-    @media screen and (max-width: $max-mobile-med-width) {
+    @media screen and (max-width: $max-mobile-width) {
       padding-bottom: 25px;
 
       .action {
