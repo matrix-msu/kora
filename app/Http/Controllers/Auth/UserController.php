@@ -250,7 +250,6 @@ class UserController extends Controller {
 
             return redirect('/')->with('k3_global_success', 'user_activated');
         } else {
-            dd($user->regtoken);
             return redirect('auth/activate')->with('k3_global_error', 'bad_activation_token');
         }
     }

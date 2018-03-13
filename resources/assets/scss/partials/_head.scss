@@ -55,16 +55,16 @@
   }
 
   .head-button {
-    @include transition();
     text-decoration: none;
 
     i {
+      @include transition();
       color: palette('gray', text);
       font-size: 22px;
-    }
 
-    &:hover {
-      opacity: .7;
+      &:hover {
+        color: palette('green', accent)
+      }
     }
   }
 
@@ -87,7 +87,7 @@
     font-size: 16px;
     line-height: 1.5;
     margin: 0;
-    padding: 0 0 60px;
+    padding: 0 0 #{map-get($spacing, xxl)};
   }
 
   .content-sections {

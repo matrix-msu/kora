@@ -61,9 +61,11 @@
     </div>
 
     <div class="footer">
-      <a class="quick-action left delete-user" href="#">
-        <span><i class="icon icon-trash"></i></span>
-      </a>
+      @if ($user->id != 1)
+        <a class="quick-action left delete-user" href="#">
+          <span><i class="icon icon-trash"></i></span>
+        </a>
+      @endif
 
       <a class="quick-action underline-middle-hover" href="#">
         <i class="icon icon-edit-little"></i>

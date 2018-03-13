@@ -85,8 +85,13 @@ Kora.Forms.Show = function() {
       connectWith: '.field-sort-js',
       items: '.field-container',
       update: function(event, ui) {
-        pidsArray = $('.field-sort-js').sortable('toArray');
+        var pidObject = {};
+        var $pages = $('.page').map(function() { return $(this).attr('page-id') }).get();
+        $.each($pages, function(i, page) {
+          pidObject[page] = $('.page[page-id="'+page+'"]').find('.field.card').map(function() { return this.id }).get();
+        });
 
+        console.log(pidObject);
         // $.ajax({
         //   url: saveCustomOrderUrl,
         //   type: 'POST',

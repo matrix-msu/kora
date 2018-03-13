@@ -117,6 +117,7 @@
     var filename = $(".filename");
     var instruction = $(".instruction");
 
+    // Remove selected profile pic
     function resetFileInput() {
       fileInput.replaceWith(fileInput.val('').clone(true));
       filename.html("Add a photo to help others identify you");
@@ -125,6 +126,7 @@
       droppedFile = false;
     };
 
+    // Profile pic is added, populate profile pic label, set up remove event
     function newProfilePic(pic, name) {
       picCont.html("<img src='"+pic+"' alt='Profile Picture'>");
       filename.html(name + "<span class='remove ml-xs'><i class='icon icon-cancel'></i></span>");
@@ -138,17 +140,22 @@
       });
     }
 
+    // When hovering over input, hitting enter or space opens the menu
     button.keydown(function(event) {
       if ( event.keyCode == 13 || event.keyCode == 32 ) {
           fileInput.focus();
       }
     });
 
+    // Clicking input opens menu
     button.click(function(event) {
       fileInput.focus();
     });
 
+    // For clicking on input to select an image
     fileInput.change(function(event) {
+      event.preventDefault();
+
       if (this.files && this.files[0]) {
         var name = this.value.substring(this.value.lastIndexOf('\\') + 1);
         var reader = new FileReader();
@@ -183,12 +190,15 @@
         button.removeClass('is-dragover');
       })
       .on('drop', function(e) {
-        droppedFile = e.originalEvent.dataTransfer.files[0];
+        e.stopPropagation();
+        e.preventDefault();
 
+        droppedFile = e.originalEvent.dataTransfer.files[0];
         var reader = new FileReader();
         reader.onload = function (e) {
           picCont.html("<img src='"+e.target.result+"' alt='Profile Picture'>");
           newProfilePic(e.target.result, droppedFile.name);
+          droppedFile = e.target.result;
         };
         reader.readAsDataURL(droppedFile);
       });
@@ -199,7 +209,8 @@
         var ajaxData = new FormData(form.get(0));
 
         if (droppedFile) {
-          ajaxData.append('profile', droppedFile);
+          // This solution does not work with drag and drop, possibly need to change the file type
+          ajaxData.append("profile", droppedFile);
         }
 
         $.ajax({
