@@ -308,7 +308,7 @@ class ExportController extends Controller {
 
         switch($format) {
             case self::JSON:
-                $records = [];
+                $records = array();
 
                 //There exist in case of assoc, but may just be empty
                 $assocRIDColl = array();
@@ -333,12 +333,12 @@ class ExportController extends Controller {
                     foreach($datafields as $data){
                         $kid = $data->pid.'-'.$data->fid.'-'.$data->rid;
 
-                        //if we are hiding data, make sure the record reference still exists
-                        if($useOpts && !$options['data']) {
-                            if(!isset($records[$kid]))
-                                $records[$kid] = [];
+                        if(!isset($records[$kid]))
+                            $records[$kid] = [];
+
+                        //if we are hiding data
+                        if($useOpts && !$options['data'])
                             continue; //move on to next row of data
-                        }
 
                         $fieldIndex = $data->slug;
                         if($useOpts && $options['realnames'])
@@ -1181,7 +1181,7 @@ FROM ".$prefix."geolocator_support as gf left join ".$prefix."fields as fl on gf
 union all
 
 SELECT af.rid as `rid`, GROUP_CONCAT(aRec.kid SEPARATOR ',') as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
-FROM ".$prefix."associator_support as af left join ".$prefix."fields as fl on af.flid=fl.flid left join ".$prefix."records as aRec on af.record=aRec.rid where af.rid in ($ridArray)$slugQL group by `rid`, `flid` ;");
+FROM ".$prefix."associator_support as af left join ".$prefix."fields as fl on af.flid=fl.flid left join ".$prefix."records as aRec on af.record=aRec.rid where af.rid in ($ridArray)$slugQL group by `rid`, `flid` ORDER BY field(`rid`, $ridArray) ;");
     }
 
     /**
@@ -1197,7 +1197,7 @@ FROM ".$prefix."associator_support as af left join ".$prefix."fields as fl on af
         $kidPairs = [];
         $rid = implode(', ',$rids);
 
-        $part1 = DB::select("SELECT r.rid, r.kid, r.created_at, r.updated_at, u.username FROM ".$prefix."records as r LEFT JOIN ".$prefix."users as u on r.owner=u.id WHERE r.rid in ($rid)");
+        $part1 = DB::select("SELECT r.rid, r.kid, r.created_at, r.updated_at, u.username FROM ".$prefix."records as r LEFT JOIN ".$prefix."users as u on r.owner=u.id WHERE r.rid in ($rid) ORDER BY field(r.rid, $rid)");
         foreach($part1 as $row) {
             $meta[$row->kid]["created"] = $row->created_at;
             $meta[$row->kid]["updated"] = $row->updated_at;
@@ -1226,7 +1226,7 @@ FROM ".$prefix."associator_support as af left join ".$prefix."fields as fl on af
         $kidPairs = [];
         $rid = implode(', ',$rids);
 
-        $part1 = DB::select("SELECT r.rid, r.kid, r.legacy_kid, r.pid, r.fid, r.updated_at, u.username FROM ".$prefix."records as r LEFT JOIN ".$prefix."users as u on r.owner=u.id WHERE r.rid in ($rid)");
+        $part1 = DB::select("SELECT r.rid, r.kid, r.legacy_kid, r.pid, r.fid, r.updated_at, u.username FROM ".$prefix."records as r LEFT JOIN ".$prefix."users as u on r.owner=u.id WHERE r.rid in ($rid) ORDER BY field(r.rid, $rid)");
         foreach($part1 as $row) {
             $meta[$row->kid]["kid"] = $row->kid;
             $meta[$row->kid]["legacy_kid"] = $row->legacy_kid;
