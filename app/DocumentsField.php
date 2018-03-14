@@ -260,7 +260,7 @@ class DocumentsField extends FileTypeField {
                 $type = $types['txt'];
             $info = '[Name]documents' . $q . '.txt[Name][Size]24[Size][Type]' . $type . '[Type]';
             $infoArray['documents' . $q . '.txt'] = $info;
-            copy(config('app.base_path') . 'public/testFiles/documents.txt',
+            copy(config('app.base_path') . 'public/assets/testFiles/documents.txt',
                 $newPath . '/documents' . $q . '.txt');
         }
         $infoString = implode('[!]',$infoArray);

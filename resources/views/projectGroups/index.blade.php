@@ -417,7 +417,5 @@
                 });
             }
         }
-
-        $('#users').select2();
     </script>
 @stop

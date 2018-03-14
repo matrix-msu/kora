@@ -310,11 +310,11 @@ class GalleryField extends FileTypeField  {
                 $type = $types['png'];
             $info = '[Name]gallery' . $q . '.png[Name][Size]54827[Size][Type]' . $type . '[Type]';
             $infoArray['gallery' . $q . '.png'] = $info;
-            copy(config('app.base_path') . 'public/testFiles/gallery.png',
+            copy(config('app.base_path') . 'public/assets/testFiles/gallery.png',
                 $newPath . '/gallery' . $q . '.png');
-            copy(config('app.base_path') . 'public/testFiles/medium/gallery.png',
+            copy(config('app.base_path') . 'public/assets/testFiles/medium/gallery.png',
                 $newPath . '/medium/gallery' . $q . '.png');
-            copy(config('app.base_path') . 'public/testFiles/thumbnail/gallery.png',
+            copy(config('app.base_path') . 'public/assets/testFiles/thumbnail/gallery.png',
                 $newPath . '/thumbnail/gallery' . $q . '.png');
         }
         $infoString = implode('[!]',$infoArray);

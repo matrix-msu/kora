@@ -64,7 +64,7 @@
                         @if(!is_null($profile))
                             <img id="current_profile_pic" style="width:auto;height:200px" src="{{config('app.storage_url') . 'profiles/'.\Auth::user()->id.'/'.$profile}}">
                         @else
-                            <img id="current_profile_pic" style="width:auto;height:200px" src="{{config('app.url') . 'logos/blank_profile.jpg'}}">
+                            <img id="current_profile_pic" style="width:auto;height:200px" src="{{config('app.url') . 'assets/images/blank_profile.jpg'}}">
                         @endif
 
                         <div class="form-group">

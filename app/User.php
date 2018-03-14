@@ -562,6 +562,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         if(!is_null($this->profile))
             return config('app.storage_url') . 'profiles/'.$this->id.'/'.$this->profile;
         else
-            return config('app.url') . 'logos/blank_profile.jpg';
+            return config('app.url') . 'assets/images/blank_profile.jpg';
     }
 }

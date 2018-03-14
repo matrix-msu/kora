@@ -260,7 +260,7 @@ class ModelField extends FileTypeField  {
         else
             $type = $types['stl'];
         $infoString = '[Name]model.stl[Name][Size]9484[Size][Type]' . $type . '[Type]';
-        copy(config('app.base_path') . 'public/testFiles/model.stl',
+        copy(config('app.base_path') . 'public/assets/testFiles/model.stl',
             $newPath . '/model.stl');
 
         $this->model = $infoString;
