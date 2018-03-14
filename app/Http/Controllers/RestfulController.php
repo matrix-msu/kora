@@ -165,6 +165,8 @@ class RestfulController extends Controller {
             $filters['count'] = isset($f->count) ? $f->count : null; //how many records we should grab from that index
             //WARNING::IF FIELD NAMES SHARE A TITLE WITHIN THE SAME FIELD, THIS WOULD IN THEORY BREAK
             $filters['realnames'] = isset($f->realnames) ? $f->realnames : false; //do we want records indexed by titles rather than slugs
+            //THIS SOLELY SERVES LEGACY. YOU PROBABLY WILL NEVER USE THIS. DON'T THINK ABOUT IT
+            $filters['under'] = isset($f->under) ? $f->under : false; //Replace field spaces with underscores
             //parse the query
             if(!isset($f->query)) {
                 //return all records
@@ -696,7 +698,8 @@ class RestfulController extends Controller {
         } else {
             //Old Kora 2 searches only need field filters
             $options = [
-                'fields' => $filters['fields']
+                'fields' => $filters['fields'],
+                'under' => $filters['under']
             ];
         }
 
