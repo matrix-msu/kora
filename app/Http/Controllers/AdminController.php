@@ -226,6 +226,10 @@ class AdminController extends Controller {
            return response()->json(["status" => false, "message" => "not_admin"], 200);
        }
 
+       if ($id == 1) {
+           return response()->json(["status" => false, "message" => "attempt to deactivate root admin"], 200);
+       }
+
        $user = User::where('id', '=', $id)->first();
        if ($user->active) {
          // User already active, need to deactivate
@@ -255,6 +259,10 @@ class AdminController extends Controller {
       public function updateAdmin($id) {
         if(!\Auth::user()->admin) {
             return response()->json(["status" => false, "message" => "not_admin"], 200);
+        }
+
+        if ($id == 1) {
+            return response()->json(["status" => false, "message" => "attempt to remove admin status from root admin"], 200);
         }
 
         $user = User::where('id', '=', $id)->first();
