@@ -216,6 +216,59 @@ class AdminController extends Controller {
     }
 
     /**
+     * Updates activation for a user
+     *
+     * @param  int $id - The ID of user to be updated
+     * @return JsonResponse - User activation toggled
+     */
+     public function updateActivation($id) {
+       if(!\Auth::user()->admin) {
+           return response()->json(["status" => false, "message" => "not_admin"], 200);
+       }
+
+       $user = User::where('id', '=', $id)->first();
+       if ($user->active) {
+         // User already active, need to deactivate
+         $user->active = 0;
+
+         // We need to give them a new regtoken so they can't use the old one to reactivate
+         $user->regtoken = RegisterController::makeRegToken();
+       } else {
+         // User not active, need to activate
+         $user->active = 1;
+       }
+       $user->save();
+
+       if ($user->active) {
+         return response()->json(["status" => true, "message" => "user_activated", "action" => "activation"], 200);
+       } else {
+         return response()->json(["status" => true, "message" => "user_deactivated", "action" => "activation"], 200);
+       }
+     }
+
+     /**
+      * Updates administration status for a user
+      *
+      * @param  int $id - The ID of user to be updated
+      * @return JsonResponse - User admin toggled
+      */
+      public function updateAdmin($id) {
+        if(!\Auth::user()->admin) {
+            return response()->json(["status" => false, "message" => "not_admin"], 200);
+        }
+
+        $user = User::where('id', '=', $id)->first();
+        $user->admin = ($user->admin ? 0 : 1);
+        $user->save();
+
+        if ($user->admin) {
+          return response()->json(["status" => true, "message" => "user_admin", "action" => "admin"], 200);
+        } else {
+          return response()->json(["status" => true, "message" => "user_not_admin", "action" => "admin"], 200);
+        }
+      }
+
+    /**
      * Batch invites users to Kora3 using list of emails.
      *
      * @param  Request $request
