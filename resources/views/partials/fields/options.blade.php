@@ -56,6 +56,21 @@
 </div>
 
 <div class="form-group mt-xl">
+    <label for="advsearch">Advanced Searchable?</label>
+    <div class="check-box">
+        <input type="checkbox" value="1" id="preset" class="check-box-input" name="advsearch" {{$field->advsearch ? 'checked': ''}} />
+        <div class="check-box-background"></div>
+        <span class="check"></span>
+        <span class="placeholder">Set field as advanced searchable</span>
+        <span class="placeholder-alt">Field is advanced searchable</span>
+    </div>
+
+    <p class="sub-text mt-sm">
+        Data in this field will be analysed in advanced searches inside of Kora
+    </p>
+</div>
+
+<div class="form-group mt-xl">
     <label for="extsearch">Externally Searchable?</label>
     <div class="check-box">
         <input type="checkbox" value="1" id="preset" class="check-box-input" name="extsearch" {{$field->extsearch ? 'checked': ''}} />

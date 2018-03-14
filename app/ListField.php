@@ -316,7 +316,8 @@ class ListField extends BaseField {
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`option`) AGAINST (? IN BOOLEAN MODE)", [$arg])
             ->distinct()
-            ->pluck('rid');
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**
@@ -363,17 +364,15 @@ class ListField extends BaseField {
     }
 
     /**
-     * Sorts a set of rids by this typed field. Only implement if field is sortable.
+     * Gets list of RIDs and values for sort.
      *
-     * @param $rids - Records to sort
-     * @param $dir - Directorion to sort
-     * @return string - The sorted array
+     * @param $rids - Record IDs
+     * @param $flid - Field ID
+     * @return string - The value array
      */
-    public function sortRidsByType($rids,$dir) {
-        return DB::table('list_fields')
-            ->select('rid','option AS value')
-            ->whereIn('rid',$rids)
-            ->orderBy('option', $dir)
-            ->get()->toArray();
+    public function getRidValuesForSort($rids,$flid) {
+        $prefix = env('DB_PREFIX');
+        $ridArray = implode(',',$rids);
+        return DB::select("SELECT `rid`, `option` AS `value` FROM ".$prefix."list_fields WHERE `flid`=$flid AND `rid` IN ($ridArray)");
     }
 }

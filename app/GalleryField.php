@@ -206,11 +206,14 @@ class GalleryField extends FileTypeField  {
             }
             //actually clear them
             $field = FieldController::getField($this->flid);
-            foreach(new \DirectoryIterator(config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid) as $file) {
+            $fileBase = config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid;
+            foreach(new \DirectoryIterator($fileBase) as $file) {
                 if($file->isFile() and in_array($file->getFilename(),$newNames)) {
-                    unlink(config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid.'/'.$file->getFilename());
-                    unlink(config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid.'/thumbnail/'.$file->getFilename());
-                    unlink(config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid.'/medium/'.$file->getFilename());
+                    unlink($fileBase.'/'.$file->getFilename());
+                    if(file_exists($fileBase.'/thumbnail/'.$file->getFilename()))
+                        unlink($fileBase.'/thumbnail/'.$file->getFilename());
+                    if(file_exists($fileBase.'/medium/'.$file->getFilename()))
+                        unlink($fileBase.'/medium/'.$file->getFilename());
                 }
             }
             //build new stuff
@@ -227,11 +230,11 @@ class GalleryField extends FileTypeField  {
                         $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
                         $infoArray[$file->getFilename()] = $info;
                         copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
-                            config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid . '/' . $file->getFilename());
+                            $fileBase . '/' . $file->getFilename());
                         copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename(),
-                            config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid . '/thumbnail/' . $file->getFilename());
+                            $fileBase . '/thumbnail/' . $file->getFilename());
                         copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/medium/' . $file->getFilename(),
-                            config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid . '/medium/' . $file->getFilename());
+                            $fileBase . '/medium/' . $file->getFilename());
 
                         $gal_files_exist = true;
                     }
@@ -253,11 +256,14 @@ class GalleryField extends FileTypeField  {
         } else {
             //DELETE THE FILES SINCE WE REMOVED THEM
             $field = FieldController::getField($this->flid);
-            foreach(new \DirectoryIterator(config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid) as $file) {
+            $fileBase = config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid;
+            foreach(new \DirectoryIterator($fileBase) as $file) {
                 if($file->isFile()) {
-                    unlink(config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid.'/'.$file->getFilename());
-                    unlink(config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid.'/thumbnail/'.$file->getFilename());
-                    unlink(config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid.'/medium/'.$file->getFilename());
+                    unlink($fileBase.'/'.$file->getFilename());
+                    if(file_exists($fileBase.'/thumbnail/'.$file->getFilename()))
+                        unlink($fileBase.'/thumbnail/'.$file->getFilename());
+                    if(file_exists($fileBase.'/medium/'.$file->getFilename()))
+                        unlink($fileBase.'/medium/'.$file->getFilename());
                 }
             }
 

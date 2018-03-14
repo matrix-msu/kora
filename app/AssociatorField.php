@@ -360,7 +360,8 @@ class AssociatorField extends BaseField {
             ->where("flid", "=", $flid)
             ->whereRaw("MATCH (`record`) AGAINST (? IN BOOLEAN MODE)", ["\"" . $rid . "\""])
             ->distinct()
-            ->lists('rid');
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**
