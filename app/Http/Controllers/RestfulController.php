@@ -138,7 +138,7 @@ class RestfulController extends Controller {
             //next, we authenticate the form
             $form = FormController::getForm($f->form);
             if(is_null($form))
-                return response()->json(["status"=>false,"error"=>"Invalid Form: ".$form->fid],500);
+                return response()->json(["status"=>false,"error"=>"Invalid Form: ".$f->form],500);
 
             $validated = $this->validateToken($form,$f->token,"search");
             //Authentication failed
