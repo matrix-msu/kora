@@ -4,7 +4,11 @@
   <section class="head">
     <div class="inner-wrap center">
       <h1 class="title">
-        <i class="icon icon-user"></i>
+        @if ($user->profile)
+          <img src="{{ $user->getProfilePicUrl() }}" alt="Profile Pic">
+        @else
+          <i class="icon icon-user-little"></i>
+        @endif
         <span>Editing First Last</span>
       </h1>
       <p class="description">Edit First Last's profile information below, and then
@@ -36,12 +40,12 @@
         <input type="hidden" id="regtoken" name="regtoken" value="{{\App\Http\Controllers\Auth\RegisterController::makeRegToken()}}">
 
         <div class="form-group mt-xl">
-          <label for="username">Your Username</label>
+          <label for="username">User Name</label>
           <input type="text" class="text-input" id="username" name="username" placeholder="Enter username here" value="{{ $user->username }}">
         </div>
 
         <div class="form-group mt-xl">
-          <label for="email">Your Email</label>
+          <label for="email">Email Address</label>
           <input type="email" class="text-input" id="email" name="email" placeholder="Enter email here" value="{{ $user->email }}">
         </div>
 
@@ -56,7 +60,7 @@
         </div>
 
         <div class="form-group mt-xl">
-          <label>Your Profile Image</label>
+          <label>Profile Image</label>
           <input type="file" accept="image/*" name="profile" id="profile" class="profile-input" />
           <label for="profile" class="profile-label">
             <div class="icon-user-cont"><i class="icon icon-user"></i></div>

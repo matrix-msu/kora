@@ -1,12 +1,12 @@
 <input type="hidden" id="regtoken" name="regtoken" value="{{\App\Http\Controllers\Auth\RegisterController::makeRegToken()}}">
 
 <div class="form-group mt-xl">
-  <label for="username">Your Username</label>
+  <label for="username">User Name</label>
   <input type="text" class="text-input" id="username" name="username" placeholder="Enter username here" value="{{ $user->username }}">
 </div>
 
 <div class="form-group mt-xl">
-  <label for="email">Your Email</label>
+  <label for="email">Email Address</label>
   <input type="email" class="text-input" id="email" name="email" placeholder="Enter email here" value="{{ $user->email }}">
 </div>
 
@@ -21,7 +21,7 @@
 </div>
 
 <div class="form-group mt-xl">
-  <label>Your Profile Image</label>
+  <label>Profile Image</label>
   <input type="file" accept="image/*" name="profile" id="profile" class="profile-input" />
   <label for="profile" class="profile-label">
     <div class="icon-user-cont"><i class="icon icon-user"></i></div>
@@ -35,15 +35,9 @@
 </div>
 
 <div class="form-group mt-xl">
-  <label for="organization">Your Organization</label>
+  <label for="organization">Organization</label>
   <input type="text" class="text-input" id="organization" name="organization" placeholder="Enter organization here" value="{{ $user->organization }}">
 </div>
-
-{{--
-<div class="form-group">
-    <label for="language">Language</label>
-        <input type="text" class="form-control" name="language" value="{{ App::getLocale() }}">
-</div> --}}
 
 <div class="form-group mt-xl">
     <label for="language">Language</label>
@@ -64,7 +58,7 @@
 
 <div class="form-group mt-xl">
   <label for="password">Enter Current Passowrd</label>
-  <input type="password" class="text-input" id="password" name="password" placeholder="Enter password here">
+  <input type="password" class="text-input" id="password" name="password" placeholder="Enter password here" disabled>
 </div>
 
 <div class="form-group mt-100-xl" >

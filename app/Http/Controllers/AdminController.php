@@ -205,6 +205,10 @@ class AdminController extends Controller {
             return response()->json(["status" => false, "message" => "not_admin"], 200);
         }
 
+        if ($id == 1) {
+            return response()->json(["status" => false, "message" => "attempt to delete root admin"], 200);
+        }
+
         $user = User::where('id', '=', $id)->first();
         $user->delete();
 

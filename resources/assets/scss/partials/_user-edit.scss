@@ -9,7 +9,7 @@
   width: 100%;
 
   .form-container {
-    margin: #{map-get($spacing, 100-xl)} auto;
+    margin: #{map-get($spacing, xxxl)} auto;
     max-width: calc(#{ $max-site-width } - 600px);
     width: $max-site-width;
   }
@@ -43,6 +43,17 @@
         font-size: 6px;
       }
     }
+  }
+
+  .head-profile-pic {
+    border: solid 2px palette('white', base);
+    border-radius: 50%;
+    box-shadow: 0 3px 5px 0 palette('box-shadow', base, .2);
+    height: 44px;
+    margin-right: #{map-get($spacing, xl)};
+    object-fit: cover;
+    vertical-align: middle;
+    width: 44px;
   }
 
   @import 'user/form';
