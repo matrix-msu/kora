@@ -520,7 +520,11 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
     curl_close($curl);
 
     $result = json_decode($result,true);
-    return $result['records'][0];
+
+    if(isset($result['records']))
+        return $result['records'][0];
+    else
+        return $result;
 }
 
 function fieldMapper($name, $pid, $fid) {

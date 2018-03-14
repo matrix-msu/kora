@@ -260,7 +260,7 @@ class PlaylistField extends FileTypeField  {
                 $type = $types['mp3'];
             $info = '[Name]playlist' . $q . '.mp3[Name][Size]198658[Size][Type]' . $type . '[Type]';
             $infoArray['playlist' . $q . '.mp3'] = $info;
-            copy(config('app.base_path') . 'public/testFiles/playlist.mp3',
+            copy(config('app.base_path') . 'public/assets/testFiles/playlist.mp3',
                 $newPath . '/playlist' . $q . '.mp3');
         }
         $infoString = implode('[!]',$infoArray);

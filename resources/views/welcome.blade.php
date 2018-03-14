@@ -3,7 +3,7 @@
 @section('body')
 <div class="content">
   <div class="form-container center">
-    <img class="logo" src="{{ config('app.url') }}logos/koraiii-logo-blue.svg">
+    <img class="logo" src="{{ config('app.url') }}assets/logos/koraiii-logo-blue.svg">
 
     @if (count($errors) > 0)
       <div class="alert alert-danger">

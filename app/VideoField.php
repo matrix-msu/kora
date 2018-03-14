@@ -258,7 +258,7 @@ class VideoField extends FileTypeField {
                 $type = $types['mp4'];
             $info = '[Name]video' . $q . '.mp4[Name][Size]1055736[Size][Type]' . $type . '[Type]';
             $infoArray['video' . $q . '.mp4'] = $info;
-            copy(config('app.base_path') . 'public/testFiles/video.mp4',
+            copy(config('app.base_path') . 'public/assets/testFiles/video.mp4',
                 $newPath . '/video' . $q . '.mp4');
         }
         $infoString = implode('[!]',$infoArray);
