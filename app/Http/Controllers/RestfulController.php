@@ -121,7 +121,7 @@ class RestfulController extends Controller {
      * Performs an API search on Kora3.
      *
      * @param  Request $request
-     * @return JsonResponse - The records
+     * @return mixed - The records
      */
     public function search(Request $request) {
         //get the forms
@@ -319,12 +319,10 @@ class RestfulController extends Controller {
         }
 
         $countArray["global"] = $countGlobal;
-        $res = [
+        return [
             'counts' => $countArray,
             'records' => $resultsGlobal
         ];
-
-        return response()->json(["status"=>true,"result"=>$res],200);
     }
 
     /**
