@@ -91,6 +91,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/projects/{pid}/forms/{fid}/preset', 'FormController@preset');
     Route::post('/projects/{pid}', 'FormController@store');
     Route::post('/projects/{pid}/forms/{fid}/pages/modify', 'PageController@modifyFormPage');
+    Route::post('/projects/{pid}/forms/{fid}/pages/layout', 'PageController@saveFullFormLayout');
 
 //export routes
     Route::get('/projects/{pid}/forms/{fid}/exportRecords/{type}', 'ExportController@exportRecords');

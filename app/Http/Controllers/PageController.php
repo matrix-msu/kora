@@ -357,4 +357,38 @@ class PageController extends Controller {
 
         return response()->json(["status"=>true,"message"=>"page_moved"],200);
     }
+
+    /**
+     * Save entire form layout via array.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     * @return JsonResponse
+     */
+    public function saveFullFormLayout($pid, $fid, Request $request) {
+        if(!FieldController::checkPermissions($fid, 'edit'))
+            return response()->json(["status"=>false,"message"=>"cant_edit_field"],500);
+
+        $formLayout = $request->layout;
+        $pSeq = 0;
+
+        foreach($formLayout as $pageID => $fields) {
+            $page = Page::where('id',$pageID)->first();
+            $page->sequence = $pSeq;
+            $page->save();
+            $pSeq++;
+
+            $fSeq = 0;
+            foreach($fields as $flid) {
+                $field = FieldController::getField($flid);
+                $field->page_id = $pageID;
+                $field->sequence = $fSeq;
+                $field->save();
+                $fSeq++;
+            }
+        }
+
+        return response()->json(["status"=>true,"message"=>"form_layout_saved"],200);
+    }
 }
