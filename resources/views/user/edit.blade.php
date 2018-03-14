@@ -4,11 +4,15 @@
   <section class="head">
     <div class="inner-wrap center">
       <h1 class="title">
-        <i class="icon icon-user"></i>
+        @if ($user->profile)
+          <img class="head-profile-pic" src="{{ $user->getProfilePicUrl() }}" alt="Profile Pic">
+        @else
+          <i class="icon icon-user-little"></i>
+        @endif
         <span>Editing {{ $user->first_name }} {{  $user->last_name }}</span>
       </h1>
       @if (\Auth::user()->admin)
-          @if ($user->first)
+          @if ($user->first_name && $user->last_name)
             <p class="description">Edit {{ $user->first_name }} {{ $user->last_name }}'s profile information below, and then select "Update Profile"</p>
           @else
             <p class="description">Edit {{ $user->username }}'s profile information below, and then select "Update Profile"</p>

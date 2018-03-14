@@ -10,6 +10,15 @@
     }
 
     .footer {
+      .delete-user {
+        &:hover {
+          i {
+            transform: scale(1.25);
+          }
+        }
+
+      }
+
       .icon-trash {
         color: palette('red', base);
         font-size: 16px;

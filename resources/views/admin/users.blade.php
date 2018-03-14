@@ -4,7 +4,7 @@
   <section class="head">
     <div class="inner-wrap center">
       <h1 class="title">
-        <i class="icon icon-user"></i>
+        <i class="icon icon-users"></i>
         <span>User Management</span>
       </h1>
       <p class="description">Brief info on user management,
