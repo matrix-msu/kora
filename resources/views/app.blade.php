@@ -54,6 +54,6 @@
         </script>
       @endif
 
-      @include('partials.javascripts')
+      @yield('javascripts')
     </body>
 </html>
