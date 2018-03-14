@@ -56,77 +56,127 @@
   <script type="text/javascript">
     var CSRFToken = '{{ csrf_token() }}';
     Kora.Admin.Users();
-  </script>
-@stop
 
+    /**
+     * Deletes a user.
+     */
+    function initializeDeleteUser() {
+      $('.delete-user').click(function(e) {
+        e.preventDefault();
 
-@section('footer')
-    <script>
+        var card = $(this).parent().parent().parent();
+        var id = card.attr('id').substring(5);
+        var name = card.find('.username').html();
 
-        /**
-         * Check the appropriate boxes based on the initially loaded user.
-         */
-        window.onload = function() {
-            checker();
-            initializeDeleteUser();
-        };
+        var encode = $('<div/>').html("{{ trans('admin_users.deleteconfirm') }}").text();
+        var response = confirm(encode + name + '?');
 
-        /**
-         * Deletes a user.
-         */
-        function initializeDeleteUser() {
-          $('.delete-user').click(function(e) {
-            e.preventDefault();
-
-            var card = $(this).parent().parent().parent();
-            var id = card.attr('id').substring(5);
-            var name = card.find('.username').html();
-
-            var encode = $('<div/>').html("{{ trans('admin_users.deleteconfirm') }}").text();
-            var response = confirm(encode + name + '?');
-
-            if(response) {
-              $.ajax({
-                url: "{{ action('AdminController@deleteUser',['']) }}/" + id,
-                type: 'DELETE',
-                data: {
-                  "_token": "{{ csrf_token() }}"
-                },
-                success: function(data) {
-                  // TODO: Handle messages sent back from controller
-                  location.reload();
-                }
-              });
+        if(response) {
+          $.ajax({
+            url: "{{ action('AdminController@deleteUser',['']) }}/" + id,
+            type: 'DELETE',
+            data: {
+              "_token": "{{ csrf_token() }}"
+            },
+            success: function(data) {
+              // TODO: Handle messages sent back from controller
+              location.reload();
             }
           });
         }
+      });
+    }
 
-        /**
-         * Check the boxes for a particular user.
-         */
-        function checker(){
-            var selector = $('#dropdown option:selected');
+    /**
+     * Initialize event handling for each user for updating status or deletion
+     */
+    function initializeCardEvents() {
+      $(".card").each(function() {
+        var card = $(this);
+        var id = card.attr('id').substring(5);
+        var name = card.find('.username').html();
 
-            var admin = selector.attr('admin');
-            var active = selector.attr('active');
-            var picurl = selector.attr('picurl');
+        // Toggles activation for a user
+        card.find('#active').click(function(e) {
+          e.preventDefault();
 
-            // If they are an admin, check the admin box.
-            if (admin==1)
-                $('#admin').prop('checked', true);
+          $.ajax({
+            url: "{{ action('AdminController@updateActivation',['']) }}/" + id,
+            type: 'PATCH',
+            data: {
+              "_token": "{{ csrf_token() }}"
+            },
+            success: function(data) {
+              // TODO: Handle messages sent back from controller
+              if (data.status) {
+                // User updated successfully
+                checker(card, data.action);
+              }
+            }
+          });
+        });
 
-            else
-                $('#admin').prop('checked', false);
+        // Toggles administration status for a user
+        card.find('#admin').click(function(e) {
+          e.preventDefault();
 
-            // If they are an active user, check the active box.
-            if (active==1)
-                $('#active').prop('checked', true);
+          $.ajax({
+            url: "{{ action('AdminController@updateAdmin',['']) }}/" + id,
+            type: 'PATCH',
+            data: {
+              "_token": "{{ csrf_token() }}"
+            },
+            success: function(data) {
+              // TODO: Handle messages sent back from controller
+              if (data.status) {
+                // User updated successfully
+                checker(card, data.action);
+              }
+            }
+          });
+        });
 
-            else
-                $('#active').prop('checked', false);
+        // Deletes a user
+        card.find('.delete-user').click(function(e) {
+          e.preventDefault();
 
-            $('#current_profile_pic').attr('src',picurl);
+          var encode = $('<div/>').html("{{ trans('admin_users.deleteconfirm') }}").text();
+          var response = confirm(encode + name + '?');
+
+          if(response) {
+            $.ajax({
+              url: "{{ action('AdminController@deleteUser',['']) }}/" + id,
+              type: 'DELETE',
+              data: {
+                "_token": "{{ csrf_token() }}"
+              },
+              success: function(data) {
+                // TODO: Handle messages sent back from controller
+                location.reload();
+              }
+            });
+          }
+        });
+      });
+    }
+
+    /**
+     * Check the boxes for a particular user.
+     */
+    function checker(card, action) {
+        // If they are an admin, check the admin box.
+        if (action == "admin") {
+            var admin = card.find('#admin');
+            admin.prop('checked', !admin.prop('checked'));
         }
 
-    </script>
+        // If they are an active user, check the active box.
+        if (action == "activation") {
+            var check = card.find('#active')
+            check.prop('checked', !check.prop('checked'));
+        }
+    }
+
+    initializeCardEvents();
+  </script>
 @stop
