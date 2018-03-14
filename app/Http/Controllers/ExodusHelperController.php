@@ -372,6 +372,7 @@ class ExodusHelperController extends Controller {
                 $field->fid = $newForm->fid;
                 $field->page_id = $collToPage[$collid];
                 $field->sequence = $collToPage[$collid.'_seq'];
+                $collToPage[$collid.'_seq'] += 1;
                 $field->type = $newType;
                 $field->name = $c['name'];
                 $slug = str_replace(' ','_',$c['name']).'_'.$newForm->pid.'_'.$newForm->fid.'_';
