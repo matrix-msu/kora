@@ -142,10 +142,8 @@
               @if ($field->advsearch)
                 checked
               @endif
-              disabled
               class="check-box-input preset-input-js"
               name="advsearch"
-              title="Coming Soon"
             />
             <span class="check"></span>
             <span class="placeholder">Advanced Searchable</span>
