@@ -1,0 +1,13 @@
+.record-revisions-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu;
+  min-height: 100vh;
+}
+
+.record-revisions {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  @import 'record-revisions/record-select';
+  @import 'record-revisions/filters';
+}

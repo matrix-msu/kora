@@ -19,7 +19,7 @@
           </select>
         </div>
 
-        <div class="form-group mt-xxl request-association-submit request-association-submit-js">
+        <div class="form-group mt-xxl request-assopciation-submit request-association-submit-js">
           {!! Form::submit('Request Form Association', ['class' => 'btn']) !!}
         </div>
       {!! Form::close() !!}

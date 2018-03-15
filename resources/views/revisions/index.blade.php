@@ -1,129 +1,58 @@
-@extends('app')
+@extends('app', ['page_title' => "Record Revisions", 'page_class' => 'record-revisions'])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $form->pid])
     @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+    @include('partials.menu.static', ['name' => 'Record Revisions'])
 @stop
 
-@section('content')
-    <div class="container">
-        <div class="row">
-            <div class="col-md-10 col-md-offset-1">
-                <div class="panel panel-default">
-
-                    <div class="panel-heading">
-                        <span><h3>{{$message}} {{trans('revisions_index.history')}}</h3></span>
-                        @if($message != 'Recent')
-                            @if(App\Http\Controllers\RecordController::exists($rid))
-                                <a href="{{action('RecordController@show', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $rid])}}">[{{trans('revisions_index.show')}}]</a>
-                            @else
-                                [{{trans('revisions_index.delete')}}]
-                            @endif
-                        @endif
-                    </div>
-
-                    <div class="panel-body">
-                        {!! Form::label('search', trans('revisions_index.search').': ') !!}
-                        {!! Form::select('search', $records, ['class'=>'form-control']) !!}
-                        <button class="btn btn-primary" onclick="showRecordRevisions(1, '')">{{trans('revisions_index.showrev')}}</button>
-
-                        @if($message != 'Recent')
-                            <button class="btn btn-primary" onclick="showRecordRevisions(-1, '')">{{trans('revisions_index.back')}}</button>
-                        @endif
-
-                        <hr/>
-
-                        <div id="revisions">
-                            @include('revisions.printrevisions')
-                        </div>
-
-                        <div style="display:none; margin-top: 1em;" id="progress" class="progress">
-                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
-                                {{trans('update_index.loading')}}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+@section('header')
+    <section class="head">
+        <div class="inner-wrap center">
+            <h1 class="title">
+                <i class="icon icon-clock"></i>
+                <span>Record Revisions</span>
+            </h1>
+            <p class="description">
+                Use this page to view and manage record revisions within this form.
+                Record revisions allow you to see all of the changes made to all the records within the form,
+                and gives you the ability to revert records to a previous revision.
+            </p>
         </div>
-    </div>
+    </section>
 @stop
 
-@section('footer')
-    <script>
-    $('#search').select2({ width: 'hybrid'});
+@section('body')
+    <section class="record-select-section center">
+        <div class="form-group">
+            <label for="record-select">Select Record(s) to Show Revisions For</label>
+            <select class="multi-select" id="record-select" name="record"
+                data-placeholder="Currently Showing All Records">
+                <option></option>
+            </select>
+        </div>
+    </section>
+    <section class="filters center">
+        <div class="pagination-options pagination-options-js">
+            <select class="page-count option-dropdown-js" id="page-count-dropdown">
+                <option>10 per page</option>
+                <option>20 per page</option>
+                <option>30 per page</option>
+            </select>
+            <select class="order option-dropdown-js" id="order-dropdown">
+                <option>Last Modified Descending</option>
+                <option>Last Modified Ascending</option>
+                <option>ID Descending</option>
+                <option>ID Ascending</option>
+            </select>
+        </div>
+        <div class="show-options show-options-js">
+            <a href="#" class="expand-fields-js" title="Expand all fields"><i class="icon icon-expand icon-expand-js"></i></a>
+            <a href="#" class="collapse-fields-js" title="Collapse all fields"><i class="icon icon-condense icon-condense-js"></i></a>
+        </div>
+    </section>
+@stop
 
-
-    /**
-     * Shows recent record revisions based on a simple flagging system.
-     *
-     * This function is a little silly but it gets the job done. The cases for flag are:
-     *  1: The user wants to show the revisions for a particular record using the search box.
-     * -1: The user wants to show the recent revision history for all records.
-     *  0: The user wants to show the revisions for a certain record using a text link on the recent revision page.
-     *
-     * @param flag {int} The action that should be taken, listed above.
-     * @param value {string} The KID (PID-FID-RID) of the record that we want to show (only used in case 0);
-     */
-    function showRecordRevisions(flag, value) {
-        if(flag==1){
-            window.location.href = $('#search').val();
-        }
-        else if(flag==-1){
-            window.location.href = 'recent';
-        }
-        else if(flag==0){
-            window.location.href = value;
-        }
-    }
-
-    /**
-     * Sends the ajax call to roll back a revision.
-     * See RevisionController::rollback for more information.
-     *
-     * @param revision {int} The id of the revision.
-     */
-    function rollback(revision) {
-        var encode = $('<div/>').html("{{trans('revisions_index.areyousure')}}").text();
-        resp = confirm(encode + '?');
-        if(resp) {
-
-            showProgress();
-
-            $.ajax({
-              url: '{{action('RevisionController@rollback')}}',
-              type: 'GET',
-              data: {
-                  "_token": "{{ csrf_token() }}",
-                  "revision": revision
-              },
-              success: function(){
-                  location.reload();
-              }
-            });
-        }
-    }
-
-    /**
-     * Shows the progress bar.
-     */
-    function showProgress() {
-        var revisions = $("#revisions");
-        revisions.slideUp();
-
-        var progress = $("#progress");
-        progress.css("display", "");
-    }
-
-    /**
-     * The collapsing display jQuery.
-     */
-    $( ".panel-heading" ).on( "click", function() {
-        if ($(this).siblings('.collapseTest').css('display') == 'none' ){
-            $(this).siblings('.collapseTest').slideDown();
-        }else {
-            $(this).siblings('.collapseTest').slideUp();
-        }
-    });
-    </script>
+@section('javascripts')
+    @include('partials.revisions.javascripts')
 @stop
