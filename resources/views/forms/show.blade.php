@@ -151,6 +151,7 @@
 
   <script type="text/javascript">
     var modifyFormPageRoute = "{{ action('PageController@modifyFormPage', ['pid' => $form->pid, 'fid' => $form->fid]) }}";
+    var saveFullFormLayoutRoute = "{{ action('PageController@saveFullFormLayout', ['pid' => $form->pid, 'fid' => $form->fid]) }}";
     var addMethod = "{{\App\Http\Controllers\PageController::_ADD}}";
     var delMethod = "{{\App\Http\Controllers\PageController::_DELETE}}";
     var renameMethod = "{{\App\Http\Controllers\PageController::_RENAME}}";
