@@ -1,0 +1,61 @@
+.record-preset-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu;
+  min-height: 100vh;
+}
+
+.record-preset {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  .manage-presets {
+    margin: #{map-get($spacing, xxxl)} auto;
+    max-width: calc(#{ $max-site-width } - 600px);
+    width: $max-site-width;
+  }
+
+  .preset {
+    .header {
+      .record-gone {
+        color: palette('gray', text, 1);
+      }
+
+      .sub-title {
+        color: palette('gray', text, 1);
+        font-size: 16px;
+      }
+    }
+
+    .content {
+      .preset-value-div {
+        margin-bottom: #{map-get($spacing, xl)};
+
+        .preset-value-title {
+          font-family: $ubuntu-medium;
+        }
+      }
+
+      .preset-value-div:last-of-type {
+        margin-bottom: 0;
+      }
+    }
+
+    .footer {
+      .trash-container {
+        padding-right: 15px;
+        padding-top: 35px;
+
+        .icon-trash {
+          color: palette('red', base);
+          font-size: 14px;
+          padding: 0 0 5px;
+          will-change: transform;
+        }
+
+        &:hover .icon-trash {
+          transform: scale($transform-scale-multiplier);
+        }
+      }
+    }
+  }
+}
