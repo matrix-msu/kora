@@ -32,8 +32,7 @@ Kora.Records.Batch = function() {
             var flid = $(this).val();
 
             //MAKE BUTTON WORK
-            $('.batch-submit-js').removeAttr('disabled');
-            $('.batch-submit-js').removeClass('btn-disabled');
+            $('.batch-submit-js').removeClass('disabled');
 
             $('.batch-field-section-js').each(function() {
                var divID = $(this).attr('id');

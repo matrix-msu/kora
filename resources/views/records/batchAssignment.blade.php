@@ -67,7 +67,7 @@
             </div>
 
             <div class="form-group mt-xxxl">
-                {!! Form::submit('Batch Assigned Field Values',['class' => 'btn btn-disabled batch-submit-js', 'disabled']) !!}
+                {!! Form::submit('Batch Assigned Field Values',['class' => 'btn disabled batch-submit-js']) !!}
             </div>
         </section>
     </form>
