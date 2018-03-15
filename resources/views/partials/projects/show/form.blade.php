@@ -28,7 +28,7 @@
 
   <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
     <div class="id">
-      <span class="attribute">Nick Name: </span>
+      <span class="attribute">Unique Form ID: </span>
       <span>{{$form->slug}}</span>
     </div>
 

@@ -45,7 +45,7 @@
 
   <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
     <div class="id">
-      <span class="attribute">Nick Name: </span>
+      <span class="attribute">Unique Field ID: </span>
       <span>{{$field->slug}}</span>
     </div>
 
