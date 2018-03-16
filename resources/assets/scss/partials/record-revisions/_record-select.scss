@@ -1,0 +1,5 @@
+.record-select-section {
+  margin: #{map-get($spacing, xxxl)} auto;
+  max-width: calc(#{ $max-site-width } - 600px);
+  width: $max-site-width;
+}
