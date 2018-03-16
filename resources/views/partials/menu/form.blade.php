@@ -15,43 +15,44 @@
 
       <li class="spacer full"></li>
 
-      <li class="link">
-        {{-- <a href="{{action('FieldController@create', ['pid'=>$pid, 'fid' => $fid])}}">Create New Field</a> --}}
-      </li>
-
-      @if(isset($passed_field))
-        <?php
-          $fieldsInForm = \App\Field::where('fid', '=', $fid)->get()->all();
-          $cnt = sizeof($fieldsInForm);
-        ?>
-        @if($cnt > 0)
-          <li class="link" id="form-submenu">
-            <a href='#' class="navigation-sub-menu-toggle navigation-sub-menu-toggle-js" data-toggle="dropdown">
-              <span>Jump to Field</span>
-              <i class="icon sub-menu-icon icon-plus"></i>
-            </a>
-
-            <ul class="dropdown-menu scrollable-submenu">
-                @foreach($fieldsInForm as $field)
-                  @if($field->flid != $passed_field->flid)
-                    <li class="link">
-                      <a href="{{ url('/projects/'.$pid).'/forms/'.$field->fid .'/fields/'.$field->flid.'/options'}}">{{ $field->name }}</a>
-                    </li>
-                  @endif
-                @endforeach
-            </ul>
-          </li>
-        @endif
-      @endif
+      {{--<li class="link">--}}
+         {{--<a href="{{action('FieldController@create', ['pid'=>$pid, 'fid' => $fid])}}">Create New Field</a> --}}
+      {{--</li>--}}
 
       <li class="link">
         <a href="{{ url('/projects/'.$pid).'/forms/'.$fid.'/records'}}">View Form Records</a>
       </li>
 
+      <?php
+      $fieldsInForm = \App\Field::where('fid', '=', $fid)->get()->all();
+      $cnt = sizeof($fieldsInForm);
+      ?>
+
       @if(\Auth::user()->canIngestRecords(\App\Http\Controllers\FormController::getForm($fid)))
-        <li class="link pre-spacer">
+        <li class="link
+        @if($cnt == 0)
+            pre-spacer
+        @endif
+        ">
           <a href="{{ action('RecordController@create',['pid' => $pid, 'fid' => $fid]) }}">Create New Record</a>
         </li>
+      @endif
+
+      @if($cnt > 0)
+          <li class="link pre-spacer" id="form-submenu">
+              <a href='#' class="navigation-sub-menu-toggle navigation-sub-menu-toggle-js" data-toggle="dropdown">
+                  <span>Jump to Field</span>
+                  <i class="icon sub-menu-icon icon-plus"></i>
+              </a>
+
+              <ul class="navigation-deep-menu navigation-deep-menu-js">
+                  @foreach($fieldsInForm as $field)
+                      <li class="deep-menu-item">
+                          <a href="{{ url('/projects/'.$pid).'/forms/'.$field->fid .'/fields/'.$field->flid.'/options'}}">{{ $field->name }}</a>
+                      </li>
+                  @endforeach
+              </ul>
+          </li>
       @endif
 
       @if(\Auth::user()->canIngestRecords(\App\Http\Controllers\FormController::getForm($fid)))
