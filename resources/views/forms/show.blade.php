@@ -15,11 +15,6 @@
       <h1 class="title">
         <i class="icon icon-form"></i>
         <span>{{ $form->name }}</span>
-          @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
-              <a href="{{ action('ExportController@exportForm',['pid' => $form->pid, 'fid' => $form->fid]) }}" class="head-button">
-                  <i class="icon icon-download ml-sm"></i>
-              </a>
-          @endif
         <a href="{{ action('FormController@edit',['pid' => $form->pid, 'fid' => $form->fid]) }}" class="head-button">
           <i class="icon icon-edit right"></i>
         </a>

@@ -14,11 +14,6 @@
         <h1 class="title">
           <i class="icon icon-project"></i>
           <span>{{ $project->name }}</span>
-          @if(\Auth::user()->admin || \Auth::user()->isProjectAdmin($project))
-              <a href="{{ action('ExportController@exportProject',['pid' => $project->pid]) }}" class="head-button">
-                <i class="icon icon-download ml-sm"></i>
-              </a>
-          @endif
           <a href="{{ action('ProjectController@edit',['pid' => $project->pid]) }}" class="head-button">
             <i class="icon icon-edit right"></i>
           </a>
