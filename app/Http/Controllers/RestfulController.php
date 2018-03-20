@@ -4,8 +4,6 @@ use App\Field;
 use App\Form;
 use App\Record;
 use App\Search;
-use App\User;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -35,21 +33,21 @@ class RestfulController extends Controller {
     /**
      * Gets the current version of Kora3.
      *
-     * @return JsonResponse - Kora version
+     * @return mixed - Kora version
      */
     public function getKoraVersion() {
         $instInfo = DB::table("versions")->first();
         if(is_null($instInfo))
             return response()->json(["status"=>false,"error"=>"Failed to retrieve Kora installation version"],500);
         else
-            return response()->json(["status"=>true,"result"=>$instInfo->version],200);
+            return $instInfo->version;
     }
 
     /**
      * Get a basic list of the forms in a project.
      *
      * @param  int $pid - Project ID
-     * @return JsonResponse - The forms
+     * @return mixed - The forms
      */
     public function getProjectForms($pid) {
         if(!ProjectController::validProj($pid))
@@ -65,7 +63,7 @@ class RestfulController extends Controller {
             $fArray['description'] = $form->description;
             $forms[$form->fid] = $fArray;
         }
-        return response()->json(["status"=>true,"result"=>$forms],200);
+        return $forms;
     }
 
     /**
@@ -73,7 +71,7 @@ class RestfulController extends Controller {
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
-     * @return JsonResponse - The fields
+     * @return mixed - The fields
      */
     public function getFormFields($pid, $fid) {
         if(!FormController::validProjForm($pid,$fid))
@@ -98,7 +96,7 @@ class RestfulController extends Controller {
 
             $fields[$field->flid] = $fArray;
         }
-        return response()->json(["status"=>true,"result"=>$fields],200);
+        return $fields;
     }
 
     /**
@@ -106,7 +104,7 @@ class RestfulController extends Controller {
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
-     * @return JsonResponse - Number of records
+     * @return mixed - Number of records
      */
     public function getFormRecordCount($pid, $fid) {
         if(!FormController::validProjForm($pid,$fid))
@@ -114,7 +112,7 @@ class RestfulController extends Controller {
 
         $form = FormController::getForm($fid);
         $count = $form->records()->count();
-        return response()->json(["status"=>true,"result"=>$count],200);
+        return $count;
     }
 
     /**
@@ -126,13 +124,18 @@ class RestfulController extends Controller {
     public function search(Request $request) {
         //get the forms
         $forms = json_decode($request->forms);
-        if(is_null($forms))
+        if(is_null($forms) || !is_array($forms))
             return response()->json(["status"=>false,"error"=>"Unable to process forms array"],500);
+
         //get the format
         if(isset($request->format))
             $apiFormat = $request->format;
         else
             $apiFormat = self::JSON;
+        $apiFormat = strtoupper($apiFormat);
+        if(!self::isValidFormat($apiFormat))
+            return response()->json(["status"=>false,"error"=>"Invalid format provided: $apiFormat"],500);;
+
         //next, we authenticate each form
         foreach($forms as $f) {
             //next, we authenticate the form
@@ -143,16 +146,19 @@ class RestfulController extends Controller {
             $validated = $this->validateToken($form,$f->token,"search");
             //Authentication failed
             if(!$validated)
-                return response()->json(["status"=>false,"error"=>"Invalid search token provided"],500);
+                return response()->json(["status"=>false,"error"=>"Invalid search token provided for form: ".$form->name],500);
         }
+
         //now we actually do searches per form
         $resultsGlobal = [];
         $countArray = array();
         $countGlobal = 0;
+        $minorErrors = array(); //Some errors we may not want to error out on
 
         foreach($forms as $f) {
             //initialize form
             $form = FormController::getForm($f->form);
+
             //things we will be returning
             $filters = array();
             $filters['data'] = isset($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves
@@ -167,6 +173,7 @@ class RestfulController extends Controller {
             $filters['realnames'] = isset($f->realnames) ? $f->realnames : false; //do we want records indexed by titles rather than slugs
             //THIS SOLELY SERVES LEGACY. YOU PROBABLY WILL NEVER USE THIS. DON'T THINK ABOUT IT
             $filters['under'] = isset($f->under) ? $f->under : false; //Replace field spaces with underscores
+
             //parse the query
             if(!isset($f->query)) {
                 //return all records
@@ -259,9 +266,10 @@ class RestfulController extends Controller {
                             for($i = 0; $i < sizeof($kids); $i++) {
                                 $rid = explode("-", $kids[$i])[2];
                                 $record = Record::where('rid',$rid)->get()->first();
-                                //if($record->fid != $form->fid)
-                                    //return response()->json(["status"=>false,"error"=>"The following KID is not apart of the requested form: " . $kids[$i]],500);
-                                $rids[$i] = $record->rid;
+                                if($record->fid != $form->fid)
+                                    array_push($minorErrors,"The following KID is not apart of the requested form: " . $kids[$i]);
+                                else
+                                    $rids[$i] = $record->rid;
                             }
                             $negative = isset($query->not) ? $query->not : false;
                             if($negative)
@@ -277,9 +285,10 @@ class RestfulController extends Controller {
                             for($i = 0; $i < sizeof($kids); $i++) {
                                 $legacy_kid = $kids[$i];
                                 $record = Record::where('legacy_kid','=',$legacy_kid)->get()->first();
-                                //if($record->fid != $form->fid)
-                                    //return response()->json(["status"=>false,"error"=>"The following legacy KID is not apart of the requested form: " . $kids[$i]],500);
-                                array_push($rids,$record->rid);
+                                if($record->fid != $form->fid)
+                                    array_push($minorErrors,"The following legacy KID is not apart of the requested form: " . $kids[$i]);
+                                else
+                                    array_push($rids,$record->rid);
                             }
                             $negative = isset($query->not) ? $query->not : false;
                             if($negative)
@@ -323,7 +332,8 @@ class RestfulController extends Controller {
         $countArray["global"] = $countGlobal;
         return [
             'counts' => $countArray,
-            'records' => $resultsGlobal
+            'records' => $resultsGlobal,
+            'warnings' => $minorErrors
         ];
     }
 
@@ -501,7 +511,7 @@ class RestfulController extends Controller {
      * Creates a new record.
      *
      * @param  Request $request
-     * @return JsonResponse - The new RID, if successful
+     * @return mixed - The new RID, if successful
      */
     public function create(Request $request) {
         //get the form
@@ -546,7 +556,7 @@ class RestfulController extends Controller {
         $recCon = new RecordController();
         //TODO::do something with this
         $response = $recCon->store($form->pid,$form->fid,$recRequest);
-        return response()->json(["status"=>true,"result"=>"Created Record: "],200);
+        return "Created Record: ";
     }
 
     /**
@@ -569,7 +579,7 @@ class RestfulController extends Controller {
      * Edit an existing record.
      *
      * @param  Request $request
-     * @return JsonResponse - Status of record modification
+     * @return mixed - Status of record modification
      */
     public function edit(Request $request) {
         //get the form
@@ -631,14 +641,15 @@ class RestfulController extends Controller {
         $recRequest['fieldsToEdit'] = $fieldsToEditArray; //what fields can be modified if keepfields
         $recCon = new RecordController();
         $recCon->update($form->pid,$form->fid,$record->rid,$recRequest);
-        return response()->json(["status"=>true,"result"=>"Modified record: ".$request->kid],200);
+
+        return "Modified record: ".$request->kid;
     }
 
     /**
      * Delete a set of records from Kora3
      *
      * @param  Request $request
-     * @return JsonResponse - Status of record deletion
+     * @return mixed - Status of record deletion
      */
     public function delete(Request $request){
         //get the form
@@ -670,7 +681,7 @@ class RestfulController extends Controller {
         foreach($recsToDelete as $record) {
             $record->delete();
         }
-        return response()->json(["status"=>true,"result"=>"Deleted records"],200);
+        return "Deleted records";
     }
 
     /**
@@ -682,10 +693,6 @@ class RestfulController extends Controller {
      * @return string - Path to the results file
      */
     private function populateRecords($rids,$filters,$format = self::JSON) {
-        $format = strtoupper($format);
-        if( !self::isValidFormat($format))
-            return 'Invalid format for export!';
-
         //Filter options that need to be passed to the export in a normal api search
         if($format == self::JSON) {
             $options = [
