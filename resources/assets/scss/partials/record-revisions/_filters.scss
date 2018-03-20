@@ -37,6 +37,7 @@
         padding: 0 20px;
         position: fixed;
         text-align: center;
+        z-index: 999;
 
         .active-result {
           @include transition();
