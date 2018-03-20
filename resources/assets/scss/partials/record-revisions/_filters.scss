@@ -28,17 +28,28 @@
         @include transition();
 
         background: palette('white', base);
-        height: 0;
+        box-shadow: 0 10px 20px 0 palette('box-shadow', base, 0.15);
+        font-size: 12px;
         list-style-type: none;
+        max-height: 0;
         overflow: hidden;
         padding: 0 20px;
         position: fixed;
+        text-align: center;
+
+        .active-result {
+          margin: 10px;
+        }
+
+        .result-selected {
+          color: palette('green', accent)
+        }
       }
 
       &.chosen-with-drop {
         .chosen-results {
-          height: 100px;
-          padding: 20px;
+          max-height: 200px;
+          padding: 10px 20px;
         }
       }
 
