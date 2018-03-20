@@ -241,9 +241,16 @@ class RestfulController extends Controller {
                             $fields = $query->fields;
                             foreach($fields as $flid => $data) {
                                 $fieldModel = FieldController::getField($flid);
-                                //Check permission to search externally
-                                if(!$fieldModel->isExternalSearchable())
+                                //Check if it's in this form
+                                if($fieldModel->fid != $form->fid) {
+                                    array_push($minorErrors, "The following field in advanced search is not apart of the requested form: " . $fieldModel->name);
                                     continue;
+                                }
+                                //Check permission to search externally
+                                if(!$fieldModel->isExternalSearchable()) {
+                                    array_push($minorErrors, "The following field in advanced search is not externally searchable: " . $fieldModel->name);
+                                    continue;
+                                }
                                 $request->request->add([$fieldModel->flid.'_dropdown' => 'on']);
                                 $request->request->add([$fieldModel->flid.'_valid' => 1]);
                                 $request = $fieldModel->getTypedField()->setRestfulAdvSearch($data,$fieldModel->flid,$request);
