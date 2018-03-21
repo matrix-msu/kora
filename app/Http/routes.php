@@ -254,6 +254,7 @@ Route::group(['middleware' => 'api'], function () {
 //api routes
     Route::get('/api/version', 'RestfulController@getKoraVersion');
     Route::get('/api/projects/{pid}/forms', 'RestfulController@getProjectForms');
+    Route::post('/api/projects/{pid}/forms/create', 'RestfulController@createForm');
     Route::get('/api/projects/{pid}/forms/{fid}/fields', 'RestfulController@getFormFields');
     Route::get('/api/projects/{pid}/forms/{fid}/recordCount', 'RestfulController@getFormRecordCount');
     Route::post('/api/search', 'RestfulController@search');

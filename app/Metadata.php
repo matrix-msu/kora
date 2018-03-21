@@ -30,6 +30,10 @@ class Metadata extends Model {
      */
     protected $primaryKey = "flid";
 
+    /**
+     * @var string - Force the table name since 5.4 assumes the singular
+     */
+    protected $table = "metadatas";
 
     /**
      * Returns the field that this metadata represents.

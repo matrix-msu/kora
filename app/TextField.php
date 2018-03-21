@@ -116,7 +116,7 @@ class TextField extends BaseField {
      * @param  Request $request
      */
     public function createNewRecordField($field, $record, $value, $request) {
-        if(!empty($value) && !is_null($value)) {
+        if($value!="" && !is_null($value)) {
             $this->flid = $field->flid;
             $this->rid = $record->rid;
             $this->fid = $field->fid;

@@ -638,7 +638,7 @@ class RecordController extends Controller {
             else
                 $fields->push($field);
         }
-        return view('records.mass-assignment',compact('form','fields','pid','fid'));
+        return view('records.batchAssignment',compact('form','fields','pid','fid'));
     }
 
     /**

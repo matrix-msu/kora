@@ -45,7 +45,7 @@
 
   <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
     <div class="id">
-      <span class="attribute">Nick Name: </span>
+      <span class="attribute">Unique Field ID: </span>
       <span>{{$field->slug}}</span>
     </div>
 
@@ -142,10 +142,8 @@
               @if ($field->advsearch)
                 checked
               @endif
-              disabled
               class="check-box-input preset-input-js"
               name="advsearch"
-              title="Coming Soon"
             />
             <span class="check"></span>
             <span class="placeholder">Advanced Searchable</span>
