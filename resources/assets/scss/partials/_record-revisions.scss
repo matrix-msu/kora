@@ -10,4 +10,22 @@
 
   @import 'record-revisions/record-select';
   @import 'record-revisions/filters';
+  
+  .revisions {
+    margin: 40px auto 0;
+    max-width: calc(#{$max-site-width} - 600px);
+    width: $max-site-width;
+
+    .revision {
+      a.disabled {
+        pointer-events: none;
+      }
+
+      .deleted-description {
+        a {
+          color: palette('green', accent)
+        }
+      }
+    }
+  }
 }
