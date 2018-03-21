@@ -428,9 +428,9 @@ class RestfulController extends Controller {
 
             //Sort that stuff
             if($direction=="ASC")
-                asort($newOrderArray);
+                uasort($newOrderArray, 'self::compareASCII');
             else if($direction=="DESC")
-                arsort($newOrderArray);
+                uasort($newOrderArray, 'self::rCompareASCII');
         }
 
         //Deal with ties
@@ -482,6 +482,24 @@ class RestfulController extends Controller {
         $finalResult = array_merge($finalResult, $missing);
 
         return $finalResult;
+    }
+
+    /**
+     * Compares strings for sort, taking into account special characters to treat them as english. Second is reverse.
+     *
+     * @param  mixed $a
+     * @param  mixed $b
+     * @return int - The comparison result
+     */
+    private function compareASCII($a, $b) {
+        $at = iconv('UTF-8', 'ASCII//TRANSLIT', $a);
+        $bt = iconv('UTF-8', 'ASCII//TRANSLIT', $b);
+        return strcmp($at, $bt);
+    }
+    private function rCompareASCII($a, $b) {
+        $at = iconv('UTF-8', 'ASCII//TRANSLIT', $a);
+        $bt = iconv('UTF-8', 'ASCII//TRANSLIT', $b);
+        return strcmp($at, $bt)*(-1);
     }
 
     /**
