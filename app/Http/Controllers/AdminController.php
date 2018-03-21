@@ -104,87 +104,50 @@ class AdminController extends Controller {
      */
     public function update(Request $request) {
         $message = array();
-        $user = User::where('id', '=', $request->users)->first();
+        $user = User::where('id', '=', $request->id)->first();
+        $newFirstName = $request->first_name;
+        $newLastName = $request->last_name;
+        $newOrganization = $request->organization;
+        $newLanguage = $request->language;
         $newPass = $request->new_password;
         $confirm = $request->confirm;
 
-        // Has the user been given admin rights?
-        if(!is_null($request->admin)) {
-            $user->admin = 1;
-
-            $projects = Project::all();
-            foreach($projects as $project) {
-                $user->addCustomProject($project->pid);
-            }
-
-            $forms = Form::all();
-            foreach($forms as $form) {
-                $user->addCustomForm($form->fid);
-            }
-
-            array_push($message,"admin");
-        } else {
-            $user->admin = 0;
-
-            //Build the list of project groups they are a part of
-            $safePids = array();
-            $guPairs = DB::table("project_group_user")->where("user_id", "=", $user->id);
-            foreach($guPairs as $gu) {
-                $group = ProjectGroup::where("id","=",$gu->project_group_id);
-                array_push($safePids,$group->pid);
-            }
-            $safePids = array_unique($safePids);
-
-            //Build the list of form groups they are a part of
-            $safeFids = array();
-            $guPairs = DB::table("form_group_user")->where("user_id", "=", $user->id);
-            foreach($guPairs as $gu) {
-                $group = FormGroup::where("id","=",$gu->form_group_id);
-                array_push($safeFids,$group->fid);
-            }
-            $safeFids = array_unique($safeFids);
-
-            //If the user isnt apart of the project group, we want to remove their custom access to it
-            $projects = Project::all();
-            foreach($projects as $project) {
-                if(!in_array($project->pid,$safePids))
-                    $user->removeCustomProject($project->pid);
-            }
-
-            //If the user isnt apart of the form group, we want to remove their custom access to it
-            $forms = Form::all();
-            foreach($forms as $form) {
-                if(!in_array($form->fid,$safeFids))
-                    $user->removeCustomFid($form->fid);
-            }
-
-            array_push($message,"not_admin");
+        // Look for changes, update what was changed
+        if ($newFirstName != $user->first_name) {
+          $user->first_name = $newFirstName;
+          array_push($message, "first_name");
         }
 
-        // Has the user been activated?
-        if(!is_null($request->active)) {
-            $user->active = 1;
-            array_push($message,"active");
-        } else {
-            $user->active = 0;
-            //We need to give them a new regtoken so they can't use the old one to reactivate
-            $user->regtoken = RegisterController::makeRegToken();
-            array_push($message,"not_active");
+        if ($newLastName != $user->last_name) {
+          $user->last_name = $newLastName;
+          array_push($message, "last_name");
+        }
+
+        if ($newOrganization != $user->organization) {
+          $user->organization = $newOrganization;
+          array_push($message, "organization");
+        }
+
+        // TODO: When multiple languages implemented, update language change
+        // Need to test comparing language code vs language name (en vs English)
+        if ($newLanguage != $user->language) {
+          //$user->language = $newLanguage;
+          //array_push($message, "language");
         }
 
         // Handle password change cases.
         if(!empty($newPass) || !empty($confirm)) {
             // If passwords don't match.
             if($newPass != $confirm)
-                return redirect('admin/users')->with('k3_global_error', 'passwords_unmatched');
+                return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'passwords_unmatched');
 
             // If password is less than 6 chars
             if(strlen($newPass)<6)
-                return redirect('admin/users')->with('k3_global_error', 'password_minimum');
+                return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'password_minimum');
 
             // If password contains spaces
             if(preg_match('/\s/',$newPass))
-                return redirect('admin/users')->with('k3_global_error', 'password_whitespaces');
+                return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'password_whitespaces');
 
             $user->password = bcrypt($newPass);
             array_push($message,"password");
@@ -215,65 +178,97 @@ class AdminController extends Controller {
         return response()->json(["status" => true, "message" => "user_deleted"], 200);
     }
 
-    /**
-     * Updates activation for a user
-     *
-     * @param  int $id - The ID of user to be updated
-     * @return JsonResponse - User activation toggled
-     */
-     public function updateActivation($id) {
-       if(!\Auth::user()->admin) {
-           return response()->json(["status" => false, "message" => "not_admin"], 200);
-       }
-
-       if ($id == 1) {
-           return response()->json(["status" => false, "message" => "attempt to deactivate root admin"], 200);
-       }
-
-       $user = User::where('id', '=', $id)->first();
-       if ($user->active) {
-         // User already active, need to deactivate
-         $user->active = 0;
-
-         // We need to give them a new regtoken so they can't use the old one to reactivate
-         $user->regtoken = RegisterController::makeRegToken();
-       } else {
-         // User not active, need to activate
-         $user->active = 1;
-       }
-       $user->save();
-
-       if ($user->active) {
-         return response()->json(["status" => true, "message" => "user_activated", "action" => "activation"], 200);
-       } else {
-         return response()->json(["status" => true, "message" => "user_deactivated", "action" => "activation"], 200);
-       }
-     }
-
      /**
-      * Updates administration status for a user
+      * Updates admin and activation status of a user
+      * Adds or removes access to projects, forms, and groups
       *
       * @param  int $id - The ID of user to be updated
       * @return JsonResponse - User admin toggled
       */
-      public function updateAdmin($id) {
-        if(!\Auth::user()->admin) {
-            return response()->json(["status" => false, "message" => "not_admin"], 200);
+      public function updateStatus(Request $request) {
+        if ($request->id == 1) {
+          return response()->json(["status" => false, "message" => "root_admin_error"], 200);
         }
 
-        if ($id == 1) {
-            return response()->json(["status" => false, "message" => "attempt to remove admin status from root admin"], 200);
-        }
+        $user = User::where('id', '=', $request->id)->first();
+        $message = array();
 
-        $user = User::where('id', '=', $id)->first();
-        $user->admin = ($user->admin ? 0 : 1);
-        $user->save();
+        if ($request->status == "admin") {
+          // Updating admin status
+          $action = "admin";
 
-        if ($user->admin) {
-          return response()->json(["status" => true, "message" => "user_admin", "action" => "admin"], 200);
+          if ($user->admin) {
+            // Revoking admin status
+            $user->admin = 0;
+
+            //Build the list of project groups they are a part of
+            $safePids = array();
+            $guPairs = DB::table("project_group_user")->where('user_id', '=', $user->id)->get();
+            foreach($guPairs as $gu) {
+                $group = ProjectGroup::where("id","=",$gu->project_group_id)->first();
+                array_push($safePids,$group->pid);
+            }
+            $safePids = array_unique($safePids);
+
+            //Build the list of form groups they are a part of
+            $safeFids = array();
+            $guPairs = DB::table("form_group_user")->where("user_id", "=", $user->id)->get();
+            foreach($guPairs as $gu) {
+                $group = FormGroup::where("id","=",$gu->form_group_id)->first();
+                array_push($safeFids,$group->fid);
+            }
+            $safeFids = array_unique($safeFids);
+
+            //If the user isn't a part of the project group, we want to remove their custom access to it
+            $projects = Project::all();
+            foreach($projects as $project) {
+                if(!in_array($project->pid,$safePids))
+                    $user->removeCustomProject($project->pid);
+            }
+
+            //If the user isn't a part of the form group, we want to remove their custom access to it
+            $forms = Form::all();
+            foreach($forms as $form) {
+                if(!in_array($form->fid,$safeFids))
+                    $user->removeCustomForm($form->fid);
+            }
+
+            array_push($message, "not_admin");
+          } else {
+            // User granted admin status
+            $user->admin = 1;
+
+            // Give permissions to all projects
+            $projects = Project::all();
+            foreach($projects as $project) {
+                $user->addCustomProject($project->pid);
+            }
+
+            $forms = Form::all();
+            foreach($forms as $form) {
+                $user->addCustomForm($form->fid);
+            }
+
+            array_push($message, "admin");
+          }
         } else {
-          return response()->json(["status" => true, "message" => "user_not_admin", "action" => "admin"], 200);
+          // Updating activation status
+          $action = "activation";
+
+          if ($user->active) {
+            // User already active, need to deactivate
+            $user->active = 0;
+
+            // We need to give them a new regtoken so they can't use the old one to reactivate
+            $user->regtoken = RegisterController::makeRegToken();
+          } else {
+            // User not active, need to activate
+            $user->active = 1;
+          }
         }
+
+        $user->save();
+        return response()->json(["status" => true, "message" => $message, "action" => $action], 200);
       }
 
     /**

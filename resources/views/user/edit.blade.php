@@ -53,15 +53,10 @@
 
 
 @section('javascripts')
-  @include('partials.admin.javascripts')
+  @include('partials.user.javascripts')
 
   <script type="text/javascript">
     var CSRFToken = '{{ csrf_token() }}';
-    //Kora.Admin.Users();
-
-    $(".chosen-select").chosen({
-      disable_search_threshold: 10,
-      width: '100%'
-    });
+    Kora.User.Edit();
   </script>
 @stop
