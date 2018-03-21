@@ -1226,7 +1226,7 @@ class ImportController extends Controller {
      * @param  int $pid - Project ID
      * @param  array $fileArray - Form structure info
      */
-    private function importFormNoFile($pid, $fileArray) {
+    public function importFormNoFile($pid, $fileArray) {
         $project = ProjectController::getProject($pid);
 
         $form = new Form();

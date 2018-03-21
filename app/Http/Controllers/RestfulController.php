@@ -67,6 +67,35 @@ class RestfulController extends Controller {
     }
 
     /**
+     * Get a basic list of the forms in a project.
+     *
+     * @param  int $pid - Project ID
+     * @return mixed - The forms
+     */
+    public function createForm($pid, Request $request) {
+        if(!ProjectController::validProj($pid))
+            return response()->json(["status"=>false,"error"=>"Invalid Project: ".$pid],500);
+
+        $proj = ProjectController::getProject($pid);
+
+        $validated = $this->validateToken($proj->pid,$request->token,"create");
+        //Authentication failed
+        if(!$validated)
+            return response()->json(["status"=>false,"error"=>"Invalid create token provided"],500);
+
+        //Gather form data to insert
+        if(!isset($request->k3Form))
+            return response()->json(["status"=>false,"error"=>"No form data supplied to insert into: ".$proj->name],500);
+
+        $formData = json_decode($request->k3Form);
+
+        $ic = new ImportController();
+        $ic->importFormNoFile($proj->pid,$formData);
+
+        return "Form Created!";
+    }
+
+    /**
      * Get a basic list of the fields in a form.
      *
      * @param  int $pid - Project ID
@@ -143,7 +172,7 @@ class RestfulController extends Controller {
             if(is_null($form))
                 return response()->json(["status"=>false,"error"=>"Invalid Form: ".$f->form],500);
 
-            $validated = $this->validateToken($form,$f->token,"search");
+            $validated = $this->validateToken($form->pid,$f->token,"search");
             //Authentication failed
             if(!$validated)
                 return response()->json(["status"=>false,"error"=>"Invalid search token provided for form: ".$form->name],500);
@@ -546,7 +575,7 @@ class RestfulController extends Controller {
         if(is_null($form))
             return response()->json(["status"=>false,"error"=>"Invalid Form: ".$form->fid],500);
 
-        $validated = $this->validateToken($form,$request->token,"create");
+        $validated = $this->validateToken($form->pid,$request->token,"create");
         //Authentication failed
         if(!$validated)
             return response()->json(["status"=>false,"error"=>"Invalid create token provided"],500);
@@ -614,7 +643,7 @@ class RestfulController extends Controller {
         if(is_null($form))
             return response()->json(["status"=>false,"error"=>"Invalid Form: ".$form->fid],500);
 
-        $validated = $this->validateToken($form,$request->token,"edit");
+        $validated = $this->validateToken($form->pid,$request->token,"edit");
         //Authentication failed
         if(!$validated)
             return response()->json(["status"=>false,"error"=>"Invalid create token provided"],500);
@@ -684,7 +713,7 @@ class RestfulController extends Controller {
         if(is_null($form))
             return response()->json(["status"=>false,"error"=>"Invalid Form: ".$form->fid],500);
 
-        $validated = $this->validateToken($form,$request->token,"delete");
+        $validated = $this->validateToken($form->pid,$request->token,"delete");
         //Authentication failed
         if(!$validated)
             return response()->json(["status"=>false,"error"=>"Invalid create token provided"],500);
@@ -765,14 +794,14 @@ class RestfulController extends Controller {
     /**
      * Makes sure provided token is valid and has the needed permission.
      *
-     * @param  Form $form - Form being searched/modified
+     * @param  Int $pid - Project being searched/modified
      * @param  string $token - Provided token to check
      * @param  string $permission - Type of API action being taken
      * @return bool - Is valid and has permission
      */
-    private function validateToken($form,$token,$permission) {
+    private function validateToken($pid,$token,$permission) {
         //Get all the projects tokens
-        $project = ProjectController::getProject($form->pid);
+        $project = ProjectController::getProject($pid);
         $tokens = $project->tokens()->get();
         //compare
         foreach($tokens as $t) {
