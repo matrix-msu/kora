@@ -1,6 +1,8 @@
 .revision {
   .edit-section {
     border: 1px solid palette('gray', slate, 0.1);
+    border-radius: 5px;
+    box-shadow: 0 3px 5px 0 palette('box-shadow', base, 0.05);
     margin: 10px 0;
     padding: 15px;
   }
@@ -14,6 +16,10 @@
 
     &:last-child {
       margin: 10px 0 0;
+    }
+
+    &:last-child:first-child {
+      margin: 0;
     }
 
     .field-title {
