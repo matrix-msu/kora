@@ -93,6 +93,7 @@
     function initializeCardEvents() {
       $(".card").each(function() {
         var card = $(this);
+        var form = card.find("form");
         var id = card.attr('id').substring(5);
         var name = card.find('.username').html();
 
@@ -101,10 +102,11 @@
           e.preventDefault();
 
           $.ajax({
-            url: "{{ action('AdminController@updateActivation',['']) }}/" + id,
+            url: form.prop("action"),
             type: 'PATCH',
             data: {
-              "_token": "{{ csrf_token() }}"
+              "_token": "{{ csrf_token() }}",
+              "status": "active"
             },
             success: function(data) {
               // TODO: Handle messages sent back from controller
@@ -121,10 +123,11 @@
           e.preventDefault();
 
           $.ajax({
-            url: "{{ action('AdminController@updateAdmin',['']) }}/" + id,
+            url: form.prop("action"),
             type: 'PATCH',
             data: {
-              "_token": "{{ csrf_token() }}"
+              "_token": "{{ csrf_token() }}",
+              "status": "admin"
             },
             success: function(data) {
               // TODO: Handle messages sent back from controller
@@ -132,7 +135,7 @@
                 // User updated successfully
                 checker(card, data.action);
               }
-            }
+            },
           });
         });
 

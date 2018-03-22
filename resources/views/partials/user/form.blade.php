@@ -2,12 +2,12 @@
 
 <div class="form-group mt-xl">
   <label for="username">User Name</label>
-  <input type="text" class="text-input" id="username" name="username" placeholder="Enter username here" value="{{ $user->username }}">
+  <input disabled type="text" class="text-input" id="username" name="username" placeholder="Enter username here" value="{{ $user->username }}">
 </div>
 
 <div class="form-group mt-xl">
   <label for="email">Email Address</label>
-  <input type="email" class="text-input" id="email" name="email" placeholder="Enter email here" value="{{ $user->email }}">
+  <input disabled type="email" class="text-input" id="email" name="email" placeholder="Enter email here" value="{{ $user->email }}">
 </div>
 
 <div class="form-group half mt-xl">
@@ -24,9 +24,14 @@
   <label>Profile Image</label>
   <input type="file" accept="image/*" name="profile" id="profile" class="profile-input" />
   <label for="profile" class="profile-label">
-    <div class="icon-user-cont"><i class="icon icon-user"></i></div>
-    <p class="filename">Add a photo to help others identify you</p>
-    <p class="instruction mb-0">
+      @if ($user->profile)
+        <div class="icon-user-cont"><img src="{{ $user->getProfilePicUrl() }}" alt='Profile Picture'></div>
+        <p class="filename">{{ $user->getProfilePicFilename() }}</p>
+      @else
+        <div class="icon-user-cont"><i class="icon icon-user"></i></div>
+        <p class="filename">Add a photo to help others identify you</p>
+      @endif
+    <p class="instruction mb-0 @if($user->profile) photo-selected @endif">
       <span class="dd">Drag and Drop or Select a Photo here</span>
       <span class="no-dd">Select a Photo here</span>
       <span class="select-new">Select a Different Photo?</span>
@@ -52,13 +57,13 @@
 <h2 class="mt-xxxl mb-xl">Update Password</h2>
 
 <div class="form-group mt-xl">
-  <label for="password">Enter Current Passowrd</label>
-  <input type="password" class="text-input" id="password" name="password" placeholder="Enter password here">
+  <label for="new_password">Enter New Passowrd</label>
+  <input type="password" class="text-input" id="new_password" name="new_password" placeholder="Enter password here">
 </div>
 
 <div class="form-group mt-xl">
-  <label for="password">Enter Current Passowrd</label>
-  <input type="password" class="text-input" id="password" name="password" placeholder="Enter password here" disabled>
+  <label for="confirm">Confirm New Passowrd</label>
+  <input type="password" class="text-input" id="confirm" name="confirm" placeholder="Enter password here" disabled>
 </div>
 
 <div class="form-group mt-100-xl" >

@@ -27,37 +27,40 @@
   <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
     <div class="organization">
       <span class="attribute">Organization:</span>
-      <span class="mr-xl">Matrix</span>
+      <span class="mr-xl">{{ ($user->organization ? $user->organization : 'None') }}</span>
       <span>{{$user->email}}</span>
     </div>
 
     <div class="status">
-      <div class="form-group">
-        <span>
-          <div class="check-box-half check-box-rectangle">
-            <input type="checkbox"
-                   value="1"
-                   class="check-box-input"
-                   id="active"
-                   name="active"
-                   {{$user->active ? 'checked' : ''}}/>
-            <span class="check"></span>
-            <span class="placeholder">Active</span>
-          </div>
-        </span>
-        <span>
-          <div class="check-box-half check-box-rectangle">
-            <input type="checkbox"
-                   value="1"
-                   class="check-box-input"
-                   id="admin"
-                   name="admin"
-                   {{$user->admin ? 'checked' : ''}} />
-            <span class="check"></span>
-            <span class="placeholder">Admin</span>
-          </div>
-        </span>
-      </div>
+      {!! Form::model($user,  ['method' => 'PATCH', 'action' => ['AdminController@updateStatus', $user->id]]) !!}
+        <input name="_token" type="hidden" value="{{ csrf_token() }}"/>
+        <div class="form-group">
+          <span>
+            <div class="check-box-half check-box-rectangle">
+              <input type="checkbox"
+                     value="1"
+                     class="check-box-input"
+                     id="active"
+                     name="active"
+                     {{$user->active ? 'checked' : ''}}/>
+              <span class="check"></span>
+              <span class="placeholder">Active</span>
+            </div>
+          </span>
+          <span>
+            <div class="check-box-half check-box-rectangle">
+              <input type="checkbox"
+                     value="1"
+                     class="check-box-input"
+                     id="admin"
+                     name="admin"
+                     {{$user->admin ? 'checked' : ''}} />
+              <span class="check"></span>
+              <span class="placeholder">Admin</span>
+            </div>
+          </span>
+        </div>
+      {!! Form::close() !!}
     </div>
 
     <div class="footer">

@@ -564,4 +564,16 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         else
             return config('app.url') . 'assets/images/blank_profile.jpg';
     }
+
+    /**
+     * Checks for existence of profile pic and returns the filename
+     *
+     * @return string Filename of profile
+     */
+    public function getProfilePicFilename() {
+        if(!is_null($this->profile))
+            return $this->profile;
+        else
+            return 'blank_profile.jpg';
+    }
 }
