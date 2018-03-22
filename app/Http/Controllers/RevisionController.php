@@ -250,15 +250,18 @@ class RevisionController extends Controller {
     public static function formatRevision($id) {
         $revision = Revision::where('id','=',$id)->get()->first();
         $data = json_decode($revision->data, true);
+        $oldData = json_decode($revision->oldData, true);
+
         $formatted = array();
-        if ($revision->type == "edit") {
-            $oldData = json_decode($revision->oldData, true);
-            foreach ($oldData as $type => $fields) {
-                foreach ($fields as $id => $field) {
-                    if ($data[$type][$id]['data'] !== $field['data']) {
-                        $formatted["current"][$id] = $data[$type][$id];
-                        $formatted["old"][$id] = $field;
+        foreach ($data as $type => $fields) {
+            foreach ($fields as $id => $field) {
+                if ($revision->type == "edit") {
+                    if ($oldData[$type][$id]['data'] !== $field['data']) {
+                        $formatted["old"][$id] = $oldData[$type][$id];
+                        $formatted["current"][$id] = $field;
                     }
+                } elseif ($revision->type == "create" || $revision->type == "delete") {
+                    $formatted[$id] = $field;
                 }
             }
         }
