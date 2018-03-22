@@ -240,4 +240,28 @@ class RevisionController extends Controller {
     public static function wipeRollbacks($fid) {
         Revision::where('fid','=',$fid)->update(["rollback" => 0]);
     }
+
+    /**
+     * Formats a revision for display
+     * 
+     * @param int $id - The ID of the revision
+     * @return array - The formatted data in an array
+     */
+    public static function formatRevision($id) {
+        $revision = Revision::where('id','=',$id)->get()->first();
+        $data = json_decode($revision->data, true);
+        $formatted = array();
+        if ($revision->type == "edit") {
+            $oldData = json_decode($revision->oldData, true);
+            foreach ($oldData as $type => $fields) {
+                foreach ($fields as $id => $field) {
+                    if ($data[$type][$id]['data'] !== $field['data']) {
+                        $formatted["current"][$id] = $data[$type][$id];
+                        $formatted["old"][$id] = $field;
+                    }
+                }
+            }
+        }
+        return $formatted;
+    }
 }

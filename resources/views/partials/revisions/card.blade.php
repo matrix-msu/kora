@@ -3,7 +3,7 @@
     $datetime = explode(' ', $revision->updated_at);
     $showLink = action("RevisionController@show", ["pid" => $form->pid, "fid" => $form->fid, "rid" => $revision->rid]);
     $type = ucfirst($revision->type === "edit" ? 'edited' : $revision->type.'d');
-    $data = json_decode($revision->data, true);
+    $data = \App\Http\Controllers\RevisionController::formatRevision($revision->id);
 ?>
 <div class="revision card all {{ $index == 0 ? 'active' : '' }}" id="{{$revision->id}}">
     <div class="header {{ $index == 0 ? 'active' : '' }}">
@@ -29,12 +29,18 @@
             @if ($type === 'Edited')
                 <span>Edits Made</span>
                 <div class="edit-section">
-                    @foreach ($data as $type => $field)
-                        
+                    @foreach ($data["current"] as $id => $field)
+                        <div class="field-title">{{$field["name"]}}</div>
+                        <div class="field-data">{{$field["data"]}}</div>
                     @endforeach
-                    {{var_dump($data)}}
                 </div>
                 <span>Before</span>
+                <div class="edit-section">
+                    @foreach ($data["old"] as $id => $field)
+                        <div class="field-title">{{$field["name"]}}</div>
+                        <div class="field-data">{{$field["data"]}}</div>
+                    @endforeach
+                </div>
             @else
                 <p class="deleted-description">
                     This record has been deleted, 

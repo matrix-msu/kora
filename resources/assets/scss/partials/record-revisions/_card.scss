@@ -1,0 +1,26 @@
+.revision {
+  .edit-section {
+    border: 1px solid palette('gray', slate, 0.1);
+    margin: 10px 0;
+    padding: 15px;
+  }
+
+  .field-title {
+    font-family: $ubuntu-medium;
+    font-size: 14px;
+  }
+
+  .no-field {
+    color: palette('gray', text, .4);
+    font-family: $ubuntu-medium-italic;
+  }
+
+  .field-data {
+    .record-no-data {
+      color: palette('gray', text, .4);
+      font-family: $ubuntu-italic;
+    }
+
+    @import 'typed-fields';
+  }
+}
