@@ -47,7 +47,17 @@ Kora.Revisions.Index = function() {
                     duration: 240
                 });
             }
-		})
+        });
+
+        $('.expand-fields-js').on('click', function(e) {
+            e.preventDefault();
+            $('.card:not(.active) .revision-toggle-js').click();
+        });
+
+        $('.collapse-fields-js').on('click', function(e) {
+            e.preventDefault();
+            $('.card.active .revision-toggle-js').click();
+        });
 	}
 
     initializeOptionDropdowns();
