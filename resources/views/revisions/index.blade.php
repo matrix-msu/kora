@@ -29,6 +29,9 @@
             <select class="multi-select" id="record-select" name="record"
                 data-placeholder="Currently Showing All Records">
                 <option></option>
+                @foreach ($records as $index=>$record)
+                    <option>{{$record}}</option>
+                @endforeach
             </select>
         </div>
     </section>
@@ -50,6 +53,11 @@
             <a href="#" class="expand-fields-js" title="Expand all fields"><i class="icon icon-expand icon-expand-js"></i></a>
             <a href="#" class="collapse-fields-js" title="Collapse all fields"><i class="icon icon-condense icon-condense-js"></i></a>
         </div>
+    </section>
+    <section class="revisions revisions-js center">
+        @foreach ($revisions as $index=>$revision)
+            @include('partials.revisions.card')
+        @endforeach
     </section>
 @stop
 

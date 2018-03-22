@@ -1,5 +1,3 @@
-<input type="hidden" name="_token" value="{{csrf_token()}}">
-
 <!-- Section 1 -->
 <section class="database-section">
     <div class="section-title">Database Setup</div>
@@ -184,7 +182,7 @@
         <label for="baseurl_storage">Storage URL</label>
         <input class="text-input" placeholder="Enter the base storage url here" type="text" id="baseurl_storage" name="baseurl_storage" value="{{old('baseurl_storage')}}">
         <p class="sub-text  mt-xxs">
-            Create a symlink in {projectRoot}/public/, point it to {projectRoot}/storage/app/, and then enter the {UrlAbove}/{SymlinkName}/
+            Enter the {UrlAbove}/{SymlinkName}/, where the SymlinkName is the one you created earlier via command line
         </p>
     </div>
 
