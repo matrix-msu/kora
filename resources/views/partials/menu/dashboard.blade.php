@@ -35,7 +35,7 @@
 
         @if(\Auth::user()->admin==1)
           <li class="spacer full"></li>
-          <li class="link">
+          <li class="link first">
             <a href="{{ url('/projects/create') }}">Create New Project</a>
           </li>
           <li class="link">
