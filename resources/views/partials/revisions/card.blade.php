@@ -3,7 +3,7 @@
     $datetime = explode(' ', $revision->updated_at);
     $showLink = action("RevisionController@show", ["pid" => $form->pid, "fid" => $form->fid, "rid" => $revision->rid]);
     $type = ucfirst($revision->type === "edit" ? 'edited' : $revision->type.'d');
-    $data = json_decode($revision->data, true);
+    $data = \App\Http\Controllers\RevisionController::formatRevision($revision->id);
 ?>
 <div class="revision card all {{ $index == 0 ? 'active' : '' }}" id="{{$revision->id}}">
     <div class="header {{ $index == 0 ? 'active' : '' }}">
@@ -26,24 +26,40 @@
 
     <div class="content {{ $index == 0 ? 'active' : '' }}">
         <div class="description">
-            @if ($type === 'Edited')
-                <span>Edits Made</span>
-                <div class="edit-section">
-                    @foreach ($data as $type => $field)
-                        
-                    @endforeach
-                    {{var_dump($data)}}
-                </div>
-                <span>Before</span>
-            @else
+            @if (!$exists)
                 <p class="deleted-description">
                     This record has been deleted, 
                     but you still have the option to 
                     <a class="underline-middle-hover" href="#">re-activate the record</a> 
                     to its previous state that is listed below.
                 </p>
-
-                
+            @endif
+            @if ($type === 'Edited')
+                <span>Edits Made</span>
+                <div class="edit-section">
+                    @foreach ($data["current"] as $id => $field)
+                        <div class="field">
+                            <div class="field-title">{{$field["name"]}}</div>
+                            <div class="field-data">{{$field["data"]}}</div>
+                        </div>
+                    @endforeach
+                </div>
+                <span>Before</span>
+                <div class="edit-section">
+                    @foreach ($data["old"] as $id => $field)
+                        <div class="field">
+                            <div class="field-title">{{$field["name"]}}</div>
+                            <div class="field-data">{{$field["data"]}}</div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                @foreach ($data as $id => $field)
+                    <div class="field">
+                        <div class="field-title">{{$field["name"]}}</div>
+                        <div class="field-data">{{$field["data"]}}</div>
+                    </div>
+                @endforeach
             @endif
         </div>
 
@@ -52,16 +68,17 @@
                 <span>See Revisions for this Record Only</span>
             </a>
 
-            <a class="quick-action underline-middle-hover change-revision-js" revisionid="{{$revision->id}}" href="#">
-                <i class="icon icon-edit-little"></i>
-                <span>Change revision Name</span>
-            </a>
-
-            @if(\App\Http\Controllers\RecordController::exists($revision->rid))
+            @if ($exists)
                 <a class="quick-action underline-middle-hover" href="{{ action("RecordController@show",
                     ["pid" => $form->pid, "fid" => $form->fid, "rid" => $revision->rid]) }}">
-                    <span>View Original Record</span>
-                    <i class="icon icon-arrow-right"></i>
+                    <i class="icon icon-unarchive"></i>
+                    <span>Restore Field(s) to this point</span>
+                </a>
+            @else
+               <a class="quick-action underline-middle-hover" href="{{ action("RecordController@show",
+                    ["pid" => $form->pid, "fid" => $form->fid, "rid" => $revision->rid]) }}">
+                    <i class="icon icon-unarchive"></i>
+                    <span>Re-Activate Record</span>
                 </a>
             @endif
         </div>

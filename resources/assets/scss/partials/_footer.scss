@@ -3,6 +3,17 @@ footer {
   display: flex;
   justify-content: center;
 
+    
+  span {
+      text-decoration: none;
+      border: 1px solid #FFFFFF;
+      box-shadow: 0 2px 14px 0 rgba(255,255,255,0.5);
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+  }
+    
+    
   .footer-item {
     display: inline-block;
     height: 30px;
@@ -11,5 +22,6 @@ footer {
       height: inherit;
       width: auto;
     }
+      
   }
 }

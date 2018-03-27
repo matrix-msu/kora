@@ -35,6 +35,7 @@
 
   .global-search-form {
     text-align: left;
+    background-color: #283c46;
   }
 
   .global-search-input {
@@ -51,6 +52,7 @@
     outline: 0;
     padding: 0;
     width: calc(100% - 62px);
+    border-left: 2px solid palette('green', accent);
 
     &:focus {
       outline-width: 0;
@@ -152,7 +154,7 @@
   .clear-search-results {
     @include transition();
 
-    background-color: palette('white', base, .04);
+    background-color: palette('white', base, 0);
     border: 2px solid transparent;
     border-radius: 0 0 0 5px;
     box-sizing: border-box;
@@ -171,8 +173,6 @@
     }
 
     &:hover {
-      background-color: palette('white', base, 0);
-      border-top-color: palette('white', base, .05);
       color: palette('green', accent);
     }
   }

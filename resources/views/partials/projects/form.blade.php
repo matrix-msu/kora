@@ -14,7 +14,7 @@
 
 <div class="form-group mt-xl">
     {!! Form::label('description', 'Description') !!}
-    {!! Form::textarea('description', null, ['class' => 'text-area', 'placeholder' => "Enter the projects description here (max. 500 characters)"]) !!}
+    {!! Form::textarea('description', null, ['class' => 'text-area', 'placeholder' => "Enter the projects description here"]) !!}
 </div>
 
 @if($projectMode == 'project_create')

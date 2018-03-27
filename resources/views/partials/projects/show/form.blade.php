@@ -45,12 +45,12 @@
       @endif
 
       <a class="quick-action underline-middle-hover" href="#">
-        <i class="icon icon-search"></i>
+        <i class="icon icon-record"></i>
         <span>Form Records</span>
       </a>
 
       <a class="quick-action underline-middle-hover" href="#">
-        <i class="icon icon-search"></i>
+        <i class="icon icon-record-new-little"></i>
         <span>Create New Records</span>
       </a>
 

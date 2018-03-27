@@ -2,30 +2,34 @@
 ***
 
 ### Installation
-Clone the repository
+Clone the repository:
     
     git clone git@github.com:matrix-msu/Kora3.git
 
 Temporarily give write access to the directory:
     
-    chmod -R 0775 -R Kora3/
+    chmod -R 0775 Kora3/
 
-Create `.htaccess` from the example in `Kora3/public`
+Create `.htaccess` from the example in `Kora3/public`:
 
     cp Kora3/public/.htaccess.example Kora3/public/.htaccess
 
-Configure the `RewriteBase` rule in the newly created `.htaccess` if the installation is **not** located at the root of your url similar to the example below.
+Configure the `RewriteBase` rule in the newly created `.htaccess` if the installation is **not** located at the root of your url similar to the example below:
 
-    Ex: http://www.example.com/digitalRepo/Kora3/
+    Ex: http://www.example.com/digitalRepo/Kora3/public
     RewriteBase /digitalRepo/Kora3/public
+    
+Change directory into Kora3/public. Create a symlink using the following command (keep track of the name you choose):
 
-Navigate to your Kora3  url and click install
+	ln -s ../storage/app {link_name}
+
+Navigate to your Kora3 url and click install. Remember to return here once you complete the installation:
 
     URL: http://www.example.com/digitalRepo/Kora3/public
 
 Change directory permissions to read access:
     
-    chmod -R 0755 -R Kora3/
+    chmod -R 0755 Kora3/
     
 Give write access to the following directories:
 

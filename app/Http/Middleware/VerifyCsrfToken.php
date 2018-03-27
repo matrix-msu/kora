@@ -26,8 +26,12 @@ class VerifyCsrfToken extends BaseVerifier {
         'api/create',
         'api/edit',
         'api/projects/{pid}/forms',
+        'api/projects/{pid}/forms/create',
         'api/projects/{pid}/forms/{fid}/fields',
         'api/projects/{pid}/forms/{fid}/recordCount',
+        
+        'install/begin',
+        'install/finish'
     ];
 
 	/**

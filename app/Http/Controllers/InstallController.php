@@ -103,7 +103,8 @@ class InstallController extends Controller {
             fclose($envfile);
             chmod("../.env",0660);
             Log::info("Generating App Key");
-            Artisan::call('key:generate');
+            $shellRes = shell_exec('cd .. && php artisan key:generate');
+            Log::info($shellRes);
             Log::info("Ending ENV Write ");
         } catch(\Exception $e) { //Most likely if the file is owned by another user or PHP doesn't have permission
             Log::info($e);
@@ -151,21 +152,13 @@ class InstallController extends Controller {
         //Install database tables
         try {
             Log::info("Beginning Artisan Migrate");
-            Artisan::call("migrate", array('--force' => true));
+            $shellRes = shell_exec('cd .. && php artisan migrate --force');
+            Log::info($shellRes);
             Log::info("Ending Artisan Migrate");
         } catch(\Exception $e) {
             Log::info($e);
             $this->resetInstall($dbc);
             return redirect('/install')->withInput(Input::all())->with('k3_global_error', 'db_creation_failed');
-        }
-        try {
-            Log::info("Beginning Artisan Key Creation");
-            Artisan::call("key:generate");
-            Log::info("Ending Artisan Key Creation");
-        } catch(\Exception $e) {
-            Log::info($e);
-            $this->resetInstall($dbc);
-            return redirect('/install')->withInput(Input::all())->with('k3_global_error', 'key_generation_fail');
         }
         try {
             Log::info("Beginning Version Set");

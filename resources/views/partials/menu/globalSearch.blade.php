@@ -19,8 +19,6 @@
       </form>
     </li>
 
-    <div class="spacer"></div>
-
     <li class="recent-search-results-container">
       <ul class="recent-search-results recent-search-results-js">
         @foreach(\Auth::user()->gsCaches()->orderby("id","desc")->get() as $cache)
