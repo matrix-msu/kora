@@ -128,22 +128,41 @@ Kora.Admin.Users = function() {
     $content.addClass('active');
   }
 
-  function initializePermissionsModal() {
+  /**
+    * Modal for deleting a user
+    */
+  function initializeCleanUpModals() {
     Kora.Modal.initialize();
 
-    $('.request-permissions-js').click(function(e) {
+    $('.user-trash-js').click(function(e) {
       e.preventDefault();
 
-      Kora.Modal.open();
-    });
+      var card = $(this).parent().parent().parent();
+      var id = card.attr('id').substring(5);
 
-    $('.multi-select').chosen({
-      width: '100%',
+      Kora.Modal.open();
+
+      $('.user-cleanup-submit').click(function(e) {
+        e.preventDefault();
+
+        var deleteForm = $(".modal form");
+        var actionURL = deleteForm.attr("action");
+
+        $.ajax({
+          url: actionURL + "/" + id,
+          type: 'DELETE',
+          data: deleteForm.serialize(),
+          success: function(data) {
+            // TODO: Handle messages sent back from controller
+            location.reload();
+          }
+        });
+      });
     });
   }
 
   initializeFilters();
   initializeCustomSort()
   initializeSearch();
-  initializePermissionsModal();
+  initializeCleanUpModals();
 }

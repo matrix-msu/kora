@@ -15,7 +15,7 @@ trait SendsPasswordResetEmails
      */
     public function showLinkRequestForm()
     {
-        return view('auth.passwords.email');
+        return view('emails.password');
     }
 
     /**
@@ -30,7 +30,7 @@ trait SendsPasswordResetEmails
 
         //CUSTOM CODE TO SEND EMAIL
         //Get the token and email
-        $token = $request->token;
+        $token = $request->_token;
         $userMail = $request->email;
 
         //Email prep
