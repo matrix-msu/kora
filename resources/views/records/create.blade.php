@@ -12,6 +12,7 @@
 
 @section('header')
     <section class="head">
+        <a class="rotate" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-record-new"></i>
@@ -58,9 +59,13 @@
             </select>
         </div>
 
+        <div class="required-tp">
+            
         {!! Form::model($record = new \App\Record, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid.'/records',
             'enctype' => 'multipart/form-data', 'id' => 'new_record_form']) !!}
+            
             @include('partials.records.form',['form' => $form, 'editRecord' => false])
+        </div>
 
             <div class="form-group mt-xxxl">
                 <div class="spacer"></div>

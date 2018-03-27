@@ -15,8 +15,8 @@
 
       <li class="spacer full"></li>
 
-      <li class="link">
-        <a href="{{ url('/projects/'.$pid).'/forms/'.$fid.'/records'}}">View Form Records</a>
+      <li class="link first">
+        <a  href="{{ url('/projects/'.$pid).'/forms/'.$fid.'/records'}}">View Form Records</a>
       </li>
 
       @if(\Auth::user()->canCreateFields($form))
@@ -59,8 +59,8 @@
       @endif
 
       @if(\Auth::user()->canIngestRecords(\App\Http\Controllers\FormController::getForm($fid)))
-        <li class="spacer full"></li>
-        <li class="link">
+        <li class="spacer"></li>
+        <li class="link first">
           <a href="{{ action('RecordController@importRecordsView',['pid' => $pid, 'fid' => $fid]) }}">Import Records</a>
         </li>
       @endif

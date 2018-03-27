@@ -121,6 +121,9 @@ var $recentSearch = $('.recent-search-results-js');
 var $searchResults = $('.search-results-js');
 var $clearResentSearchResults = $('.clear-search-results-js');
 
+//Hide "clearResentSearchResults" when there is no recent searches
+
+
 $searchResults.parent().attr('style', 'display: none;'); //INITIALIZE HERE
 //Performs quick search on typing
 $searchInput.keyup(function() {
@@ -195,9 +198,11 @@ $clearResentSearchResults.on('click', function() {
     },
     success: function(result) {
       //remove from page
+    $clearResentSearchResults.parent().slideUp(400, function() {
       $recentSearch.parent().slideUp(400, function() {
         $recentSearch.text('');
       });
+     });
     }
   });
 });

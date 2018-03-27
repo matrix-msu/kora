@@ -11,6 +11,7 @@
 
 @section('header')
   <section class="head">
+      <a class="rotate" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
       <div class="inner-wrap center">
         <h1 class="title">
           <i class="icon icon-project-edit"></i>

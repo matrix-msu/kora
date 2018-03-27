@@ -4,7 +4,26 @@
   color: palette('gray', text);
   font-family: $ubuntu;
   width: 100%;
+  position: relative;
 
+   .rotate{
+    text-decoration: none;
+    transform: rotate(90deg);
+    display: inline-block;
+    border: 1px solid rgba(16,42,54,0.05);
+    padding: 20px;
+    position: absolute;
+    i{
+      font-size: 8px;
+      color: palette('green');
+      width: 50px;
+      height: 50px;
+      border-radius: 5px;
+      box-shadow: 0 3px 5px 0 rgba(21,39,48,0.03);   
+        
+    }
+  }
+    
   h1,
   h2 {
     font-weight: normal;
@@ -20,7 +39,7 @@
   .title {
     margin: 0;
     min-height: 45px;
-    padding: 60px 0 30px;
+    padding: 56px 0 30px;
     text-align: left;
 
     i {
@@ -111,4 +130,10 @@
       }
     }
   }
+}
+
+@media screen and (max-width: 720px){
+    .rotate {
+        display: none !important;
+    }
 }

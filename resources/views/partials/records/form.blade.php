@@ -16,7 +16,9 @@
                     $hasData = false;
                 }
             ?>
+            
             @include($typedField::FIELD_INPUT_VIEW, ['field' => $field, 'hasData' => $hasData, 'editRecord' => $editRecord])
+        
             <div class="form-group mt-xs">
                 <p class="sub-text">
                     {{$field->desc}}
