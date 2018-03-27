@@ -237,6 +237,14 @@ class RestfulController extends Controller {
                                 //takes care of converting slugs to flids
                                 foreach($query->fields as $qfield) {
                                     $fieldMod = FieldController::getField($qfield);
+                                    if(is_null($fieldMod)) {
+                                        array_push($minorErrors, "The following field in keyword search does not exist: " . $qfield);
+                                        continue;
+                                    }
+                                    if($fieldMod->fid != $form->fid) {
+                                        array_push($minorErrors, "The following field in keyword search is not apart of the requested form: " . $fieldMod->name);
+                                        continue;
+                                    }
                                     array_push($flids,$fieldMod->flid);
                                 }
                             }
