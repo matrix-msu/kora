@@ -47,4 +47,24 @@
       }
     }
   }
+  
+  .pages {
+    .page-link {
+      color: palette('gray', text);
+      display: inline-block;
+      height: 30px;
+      line-height: 30px;
+      margin: 5px 0;
+      text-align: center;
+      text-decoration: none;
+      width: 40px;
+
+      &.active {
+        background: white;
+        border: 1px solid palette('gray', slate, 0.1);
+        border-radius: 5px;
+        box-shadow: 0 3px 5px 0 palette('gray', slate, 0.05);
+      }
+    }
+  }
 }

@@ -67,7 +67,9 @@
             </a>
         </div>
         <div class="pages">
-
+            <a href="#" class="page-link active">1</a>
+            <a href="#" class="page-link">2</a>
+            <a href="#" class="page-link">3</a>
         </div>
         <div class="next page">
             <a href="#">
