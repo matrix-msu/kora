@@ -284,42 +284,48 @@ class Restful_1_5_Controller extends Controller {
                 //TODO::modular?
                 switch($field->type) {
                     case Field::_TEXT:
-                        $where = "MATCH (`text`) AGAINST ($key IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."text_fields where `flid`=".$field->flid."AND $where";
+                        $key = $key.'*';
+                        $where = "MATCH (`text`) AGAINST (\"$key\" IN BOOLEAN MODE)";
+                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."text_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_RICH_TEXT:
-                        $where = "MATCH (`searchable_rawtext`) AGAINST ($key IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."rich_text_fields where `flid`=".$field->flid."AND $where";
+                        $key = $key.'*';
+                        $where = "MATCH (`searchable_rawtext`) AGAINST (\"$key\" IN BOOLEAN MODE)";
+                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."rich_text_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_NUMBER:
                         $bottom = $key - NumberField::EPSILON;
                         $top = $key + NumberField::EPSILON;
                         $where = "`number` BETWEEN $bottom AND $top";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."number_fields where `flid`=".$field->flid."AND $where";
+                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."number_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_LIST:
-                        $where = "MATCH (`option`) AGAINST ($key IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."list_fields where `flid`=".$field->flid."AND $where";
+                        $key = $key.'*';
+                        $where = "MATCH (`option`) AGAINST (\"$key\" IN BOOLEAN MODE)";
+                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."list_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_MULTI_SELECT_LIST:
-                        $where = "MATCH (`options`) AGAINST ($key IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."multi_select_list_fields where `flid`=".$field->flid."AND $where";
+                        $key = $key.'*';
+                        $where = "MATCH (`options`) AGAINST (\"$key\" IN BOOLEAN MODE)";
+                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."multi_select_list_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_GENERATED_LIST:
-                        $where = "MATCH (`options`) AGAINST ($key IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."generated_list_fields where `flid`=".$field->flid."AND $where";
+                        $key = $key.'*';
+                        $where = "MATCH (`options`) AGAINST (\"$key\" IN BOOLEAN MODE)";
+                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."generated_list_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_COMBO_LIST:
                         $bottom = $key - NumberField::EPSILON;
                         $top = $key + NumberField::EPSILON;
-                        $where = "(MATCH (`data`) AGAINST ($key IN BOOLEAN MODE) OR `number` BETWEEN $bottom AND $top)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."combo_list_fields where `flid`=".$field->flid."AND $where";
+                        $key = $key.'*';
+                        $where = "(MATCH (`data`) AGAINST (\"$key\" IN BOOLEAN MODE) OR `number` BETWEEN $bottom AND $top)";
+                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."combo_list_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_DATE:
@@ -342,49 +348,56 @@ class Restful_1_5_Controller extends Controller {
                         if($circa && self::isCirca($key))
                             $where .= " OR `circa`=1";
 
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."date_fields where `flid`=".$field->flid."AND ($where)";
+                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."date_fields where `flid`=".$field->flid." AND ($where)";
                         $selectFinal[] = $select;
                         break;
                     case Field::_SCHEDULE:
-                        $where = "MATCH (`desc`) AGAINST ($key IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."schedule_support where `flid`=".$field->flid."AND $where";
+                        $key = $key.'*';
+                        $where = "MATCH (`desc`) AGAINST (\"$key\" IN BOOLEAN MODE)";
+                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."schedule_support where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_DOCUMENTS:
-                        $where = "MATCH (`documents`) AGAINST ($key IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."documents_fields where `flid`=".$field->flid."AND $where";
+                        $key = $key.'*';
+                        $where = "MATCH (`documents`) AGAINST (\"$key\" IN BOOLEAN MODE)";
+                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."documents_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_GALLERY:
-                        $where = "MATCH (`images`) AGAINST ($key IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."gallery_fields where `flid`=".$field->flid."AND $where";
+                        $key = $key.'*';
+                        $where = "MATCH (`images`) AGAINST (\"$key\" IN BOOLEAN MODE)";
+                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."gallery_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_PLAYLIST:
-                        $where = "MATCH (`audio`) AGAINST ($key IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."playlist_fields where `flid`=".$field->flid."AND $where";
+                        $key = $key.'*';
+                        $where = "MATCH (`audio`) AGAINST (\"$key\" IN BOOLEAN MODE)";
+                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."playlist_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_VIDEO:
-                        $where = "MATCH (`video`) AGAINST ($key IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."video_fields where `flid`=".$field->flid."AND $where";
+                        $key = $key.'*';
+                        $where = "MATCH (`video`) AGAINST (\"$key\" IN BOOLEAN MODE)";
+                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."video_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_3D_MODEL:
-                        $where = "MATCH (`model`) AGAINST ($key IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."model_fields where `flid`=".$field->flid."AND $where";
+                        $key = $key.'*';
+                        $where = "MATCH (`model`) AGAINST (\"$key\" IN BOOLEAN MODE)";
+                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."model_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_GEOLOCATOR:
-                        $where = "MATCH (`desc`) AGAINST ($key IN BOOLEAN MODE) OR MATCH (`address`) AGAINST ($key IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."geolocator_fields where `flid`=".$field->flid."AND ($where)";
+                        $key = $key.'*';
+                        $where = "MATCH (`desc`) AGAINST (\"$key\" IN BOOLEAN MODE) OR MATCH (`address`) AGAINST ($key IN BOOLEAN MODE)";
+                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."geolocator_fields where `flid`=".$field->flid." AND ($where)";
                         $selectFinal[] = $select;
                         break;
                     case Field::_ASSOCIATOR:
                         $key = explode('-',$key);
-                        $rid = "\"" . end($key) . "\"";
-                        $where = "MATCH (`record`) AGAINST ($rid IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."associator_fields where `flid`=".$field->flid."AND $where";
+                        $rid = end($key);
+                        $where = "MATCH (`record`) AGAINST (\"$rid\" IN BOOLEAN MODE)";
+                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."associator_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     default:
