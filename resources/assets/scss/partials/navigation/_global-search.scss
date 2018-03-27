@@ -35,6 +35,7 @@
 
   .global-search-form {
     text-align: left;
+    background-color: #283c46;
   }
 
   .global-search-input {
@@ -145,14 +146,12 @@
 
   .clear-search-results-container {
     @include transition(height);
-
-    height: 53px;
   }
 
   .clear-search-results {
     @include transition();
 
-    background-color: palette('white', base, .04);
+    background-color: palette('white', base, 0);
     border: 2px solid transparent;
     border-radius: 0 0 0 5px;
     box-sizing: border-box;
@@ -160,9 +159,8 @@
     cursor: pointer;
     font-family: $ubuntu;
     font-size: 13px;
-    height: 53px;
     margin: 0;
-    padding: 18px 0 18px 20px;
+    padding: 9px 0 18px 20px;
     text-align: left;
     width: 100%;
 
@@ -171,8 +169,6 @@
     }
 
     &:hover {
-      background-color: palette('white', base, 0);
-      border-top-color: palette('white', base, .05);
       color: palette('green', accent);
     }
   }

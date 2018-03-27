@@ -44,13 +44,13 @@
         </a>
       @endif
 
-      <a class="quick-action underline-middle-hover" href="#">
-        <i class="icon icon-search"></i>
+      <a class="quick-action underline-middle-hover" href="{{ url('/projects/'.$form->pid).'/forms/'.$form->fid.'/records'}}">
+        <i class="icon icon-formRecords-Little"></i>
         <span>Form Records</span>
       </a>
 
-      <a class="quick-action underline-middle-hover" href="#">
-        <i class="icon icon-search"></i>
+      <a class="quick-action underline-middle-hover" href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">
+        <i class="icon icon-recordNew-Little"></i>
         <span>Create New Records</span>
       </a>
 

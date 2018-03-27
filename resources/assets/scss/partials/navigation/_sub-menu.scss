@@ -94,12 +94,11 @@
     }
 
     &:last-child > a {
-      justify-content: space-between;
       padding-bottom: 20px;
     }
 
     &.link-head > a {
-      padding: 20px 0 20px 20px;
+      padding: 20px 20px 20px 20px;
     }
 
     &.link-head .icon {
@@ -122,11 +121,18 @@
     width: calc(100% - 40px);
 
     + .link a {
+      padding-bottom: 20px;
       padding-top: 20px;
     }
+      
+    + .first a{
+     padding-bottom: 8px;   
+   }
 
     &.full {
       width: 100%;
     }
   }
+
+  
 }

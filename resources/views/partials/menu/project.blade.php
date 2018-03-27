@@ -15,7 +15,7 @@
     @if (\Auth::user()->admin ||  \Auth::user()->isProjectAdmin(\App\Http\Controllers\ProjectController::getProject($pid)))
       <li class="spacer full"></li>
 
-      <li class="link">
+      <li class="link first">
         <a href="{{action('FormController@create', ['pid'=>$pid])}}">Create New Form</a>
       </li>
 
@@ -47,7 +47,7 @@
 
       <li class="spacer"></li>
 
-      <li class="link">
+      <li class="link first">
         <a href="{{ action('ProjectController@edit', ['pid'=>$pid]) }}">Edit Project Information</a>
       </li>
 

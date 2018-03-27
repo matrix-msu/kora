@@ -65,7 +65,7 @@
 
     <div class="footer">
       @if ($user->id != 1)
-        <a class="quick-action left delete-user" href="#">
+        <a class="quick-action left delete-user-temp user-trash-js" href="#">
           <span><i class="icon icon-trash"></i></span>
         </a>
       @endif

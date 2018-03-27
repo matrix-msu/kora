@@ -1,6 +1,6 @@
 @extends('app', ['page_title' => 'Reset Password', 'page_class' => 'reset'])
 
-@section('content')
+@section('body')
 <div class="content">
   <div class="form-container py-100-xl ma-auto">
     <section class="head">
@@ -24,7 +24,7 @@
 
 			<div class="form-group">
 				<label for="email">Enter Your Email</label>
-				<input type="email" class="text-input" name="email" value="{{ old('email') }} placeholder="Enter your email here"">
+				<input type="email" class="text-input" name="email" value="{{ old('email') }}" placeholder="Enter your email here">
 			</div>
 
 			<div class="form-group">

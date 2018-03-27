@@ -3,6 +3,18 @@ footer {
   display: flex;
   justify-content: center;
 
+    
+  a {
+      text-decoration: none;
+      width: 30px;
+      height: 30px;
+      
+      img{
+        color: white;
+      }
+  }
+    
+    
   .footer-item {
     display: inline-block;
     height: 30px;
@@ -11,5 +23,8 @@ footer {
       height: inherit;
       width: auto;
     }
+      
   }
+    
+    
 }

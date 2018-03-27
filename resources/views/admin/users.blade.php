@@ -46,6 +46,20 @@
 
   <section class="user-selection user-selection-js center">
     @include('partials.admin.userManagement.users-sorted')
+
+    <div class="modal modal-js modal-mask users-cleanup-modal-js">
+      <div class="content small">
+        <div class="header">
+          <span class="title title-js">Delete User?</span>
+          <a href="#" class="modal-toggle modal-toggle-js">
+            <i class="icon icon-cancel"></i>
+          </a>
+        </div>
+        <div class="body">
+          @include("partials.admin.userManagement.userDeleteForm")
+        </div>
+      </div>
+    </div>
   </section>
 @stop
 
@@ -59,6 +73,7 @@
 
     /**
      * Deletes a user.
+     * Use ajax for live update
      */
     function initializeDeleteUser() {
       $('.delete-user').click(function(e) {

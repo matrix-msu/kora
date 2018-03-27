@@ -102,15 +102,18 @@
 @media screen and (max-width: $max-mobile-width) {
   .filters {
     height: 66px;
+    margin-bottom: 37px;
 
     .search {
       display: inline-block;
       float: none;
+      padding-bottom: 20px;
     }
 
     .sort-options {
       height: 38px;
       text-align: left;
+      
 
       .option {
         display: inline-block;
@@ -125,7 +128,6 @@
   .filters {
     margin-left: $mobile-xs-margin-total / 2;
     max-width: $max-mobile-xs-width - $mobile-xs-margin-total;
-    overflow-x: hidden;
     width: calc(100% - #{$mobile-xs-margin-total / 2 });
 
     .sort-options {
