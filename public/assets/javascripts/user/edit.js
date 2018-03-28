@@ -29,6 +29,37 @@ Kora.User.Edit = function() {
     });
   }
 
+  /**
+    * Modal for deleting a user
+    */
+  function initializeCleanUpModals() {
+    Kora.Modal.initialize();
+
+    $('.user-trash-js').click(function(e) {
+      e.preventDefault();
+
+      Kora.Modal.open();
+
+      $('.user-cleanup-submit').click(function(e) {
+        e.preventDefault();
+
+        //var deleteForm = $(".modal form");
+        //var actionURL = deleteForm.attr("action");
+
+        /*$.ajax({
+          url: actionURL + "/" + id,
+          type: 'DELETE',
+          data: deleteForm.serialize(),
+          success: function(data) {
+            // TODO: Handle messages sent back from controller
+            location.reload();
+          }
+        });*/
+      });
+    });
+  }
+
   initializeChosen();
   initializePasswordChange();
+  initializeCleanUpModals();
 }

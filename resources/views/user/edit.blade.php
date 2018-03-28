@@ -48,6 +48,29 @@
       @include('partials.user.form', ['id' => $user->id, 'type' => 'edit'])
     {!! Form::close() !!}
     </form>
+
+    <div class="modal modal-js modal-mask user-cleanup-modal-js">
+      <div class="content small">
+        <div class="header">
+          @if (\Auth::user()->admin && \Auth::user()->id != $user->id)
+            <span class="title title-js">Delete User</span>
+          @else
+            <span class="title title-js">Delete Account</span>
+          @endif
+          <a href="#" class="modal-toggle modal-toggle-js">
+            <i class="icon icon-cancel"></i>
+          </a>
+        </div>
+        <div class="body">
+          @if (\Auth::user()->admin && \Auth::user()->id != $user->id)
+            @include("partials.admin.userManagement.userDeleteForm", ['user' => $user])
+          @else
+            @include("partials.user.userDeleteForm", ['user' => $user])
+          @endif
+        </div>
+      </div>
+    </div>
+  </section>
   </section>
 @stop
 
