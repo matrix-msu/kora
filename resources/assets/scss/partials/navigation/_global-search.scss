@@ -52,7 +52,6 @@
     outline: 0;
     padding: 0;
     width: calc(100% - 62px);
-    border-left: 2px solid palette('green', accent);
 
     &:focus {
       outline-width: 0;
@@ -147,8 +146,6 @@
 
   .clear-search-results-container {
     @include transition(height);
-
-    height: 53px;
   }
 
   .clear-search-results {
@@ -162,9 +159,8 @@
     cursor: pointer;
     font-family: $ubuntu;
     font-size: 13px;
-    height: 53px;
     margin: 0;
-    padding: 18px 0 18px 20px;
+    padding: 9px 0 18px 20px;
     text-align: left;
     width: 100%;
 

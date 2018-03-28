@@ -262,4 +262,7 @@ Route::group(['middleware' => 'api'], function () {
     Route::delete('/api/delete', 'RestfulController@delete');
     Route::post('/api/create', 'RestfulController@create');
     Route::put('/api/edit', 'RestfulController@edit');
+
+//api 1.5 routes
+    Route::post('/api/1_5/search', 'Restful_1_5_Controller@search');
 });

@@ -121,12 +121,18 @@
     width: calc(100% - 40px);
 
     + .link a {
-      padding-top: 20px;
       padding-bottom: 20px;
+      padding-top: 20px;
     }
+      
+    + .first a{
+     padding-bottom: 8px;   
+   }
 
     &.full {
       width: 100%;
     }
   }
+
+  
 }

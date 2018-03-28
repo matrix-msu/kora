@@ -112,6 +112,17 @@ i {
   }
 }
 
+.icon-recordNew-Little {
+  &:before {
+    content: $icon-recordNew-Little; 
+  }
+}
+.icon-formRecords-Little {
+  &:before {
+    content: $icon-formRecords-Little; 
+  }
+}
+
 .icon-arrow-up {
   transform: rotate(-90deg);
 }
@@ -129,6 +140,14 @@ i {
 
   &.active {
     transform: rotate(-180deg);
+  }
+
+  &.left {
+    transform: rotate(90deg);
+  }
+
+  &.right {
+    transform: rotate(-90deg);
   }
 }
 
