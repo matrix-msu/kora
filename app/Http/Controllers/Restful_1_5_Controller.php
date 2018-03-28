@@ -346,11 +346,12 @@ class Restful_1_5_Controller extends Controller {
 			//Union statements together and run SQL statement
             $selectFinal = implode(' UNION ', $selectFinal);
             $ridsUnclean = DB::select($selectFinal);
-            //echo sizeof($ridsUnclean),"<br>";
             $rids = [];
             
+            //Transform objects to array
             foreach($ridsUnclean as $rid) {
-	            $rids[]=$rid->rid;
+	            if(!is_null($rid->rid))
+	            	$rids[]=$rid->rid;
             }
 
 			//Apply method
