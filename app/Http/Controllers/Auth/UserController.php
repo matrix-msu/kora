@@ -95,9 +95,9 @@ class UserController extends Controller {
         $user->delete();
 
         if (\Auth::user()->admin) {
-          redirect('admin/users')-.with('k3_global_success', 'user_deleted');
+          redirect('admin/users')->with('k3_global_success', 'user_deleted');
         } else {
-          redirect('/')-.with('k3_global_success', 'account_deleted');
+          redirect('/')->with('k3_global_success', 'account_deleted');
         }
     }
 

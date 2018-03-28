@@ -137,6 +137,12 @@ Kora.Admin.Users = function() {
     $('.user-trash-js').click(function(e) {
       e.preventDefault();
 
+      var cleanupModal = $(".users-cleanup-modal-js");
+      cleanupModal.find('.delete-content-js').show();
+      cleanupModal.find('.invite-content-js').hide();
+      cleanupModal.find('.content').addClass('small');
+      cleanupModal.find('.title-js').html('Delete User?');
+
       var card = $(this).parent().parent().parent();
       var id = card.attr('id').substring(5);
 
@@ -158,6 +164,19 @@ Kora.Admin.Users = function() {
           }
         });
       });
+    });
+
+
+    $('.new-object-button-js').click(function(e) {
+      e.preventDefault();
+
+      var cleanupModal = $(".users-cleanup-modal-js");
+      cleanupModal.find('.delete-content-js').hide();
+      cleanupModal.find('.invite-content-js').show();
+      cleanupModal.find('.content').removeClass('small');
+      cleanupModal.find('.title-js').html('Invite User(s)');
+
+      Kora.Modal.open();
     });
   }
 
