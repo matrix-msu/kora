@@ -59,6 +59,25 @@
             @include('partials.revisions.card')
         @endforeach
     </section>
+    <section class="pagination center">
+        <div class="previous page disabled">
+            <a href="#">
+                <i class="icon icon-chevron left"></i>
+                <span class="name underline-middle-hover">Previous</span>
+            </a>
+        </div>
+        <div class="pages">
+            <a href="#" class="page-link active">1</a>
+            <a href="#" class="page-link">2</a>
+            <a href="#" class="page-link">3</a>
+        </div>
+        <div class="next page">
+            <a href="#">
+                <i class="icon icon-chevron right"></i>
+                <span class="name underline-middle-hover">Next</span>
+            </a>
+        </div>
+    </section>
 @stop
 
 @section('javascripts')
