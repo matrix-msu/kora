@@ -73,7 +73,7 @@ class AdvancedSearchController extends Controller {
             $field = FieldController::getField($flid);
             $result = array_map(function($returned) {
                 return $returned->rid;
-            }, $field->getTypedField()->getAdvancedSearchQuery($flid, $query)->get());
+            }, $field->getTypedField()->getAdvancedSearchQuery($flid, $query)->get()->toArray());
 
             //This is a negative search so we want the opposite results of what the search would produce
             if(isset($request[$flid."_negative"]))
@@ -116,7 +116,7 @@ class AdvancedSearchController extends Controller {
             $field = FieldController::getField($flid);
             $result = array_map(function($returned) {
                 return $returned->rid;
-            }, $field->getTypedField()->getAdvancedSearchQuery($flid, $query)->get());
+            }, $field->getTypedField()->getAdvancedSearchQuery($flid, $query)->get()->toArray());
             $results[] = $result;
         }
 

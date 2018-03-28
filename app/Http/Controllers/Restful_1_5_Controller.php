@@ -166,11 +166,73 @@ class Restful_1_5_Controller extends Controller {
                             array_push($resultSets,$rids);
                             break;
                         case 'advanced':
-                           //do an advanced search
+                            //do an advanced search
+                            if(!isset($query->fields))
+                                return response()->json(["status"=>false,"error"=>"No fields supplied in an advanced search for form: ". $form->name],500);
+                            $fields = $query->fields;
+                            foreach($fields as $flid => $data) {
+                                $fieldModel = FieldController::getField($flid);
+                                //Check if it's in this form
+                                if($fieldModel->fid != $form->fid) {
+                                    array_push($minorErrors, "The following field in advanced search is not apart of the requested form: " . $fieldModel->name);
+                                    continue;
+                                }
+                                //Check permission to search externally
+                                if(!$fieldModel->isExternalSearchable()) {
+                                    array_push($minorErrors, "The following field in advanced search is not externally searchable: " . $fieldModel->name);
+                                    continue;
+                                }
+                                $request->request->add([$fieldModel->flid.'_dropdown' => 'on']);
+                                $request->request->add([$fieldModel->flid.'_valid' => 1]);
+                                $request = $fieldModel->getTypedField()->setRestfulAdvSearch($data,$fieldModel->flid,$request);
+                            }
+                            $advSearch = new AdvancedSearchController();
+                            $rids = $advSearch->apisearch($form->pid, $form->fid, $request);
+                            if(is_null($rids))
+                                $rids=[];
+                            $negative = isset($query->not) ? $query->not : false;
+                            if($negative)
+                                $rids = $this->negative_results($form,$rids);
+                            array_push($resultSets,$rids);
+                            break;
                         case 'kid':
                             //do a kid search
+                            if(!isset($query->kids))
+                                return response()->json(["status"=>false,"error"=>"No KIDs supplied in a KID search for form: ". $form->name],500);
+                            $kids = $query->kids;
+                            $rids = array();
+                            for($i = 0; $i < sizeof($kids); $i++) {
+                                $rid = explode("-", $kids[$i])[2];
+                                $record = Record::where('rid',$rid)->get()->first();
+                                if($record->fid != $form->fid)
+                                    array_push($minorErrors,"The following KID is not apart of the requested form: " . $kids[$i]);
+                                else
+                                    $rids[$i] = $record->rid;
+                            }
+                            $negative = isset($query->not) ? $query->not : false;
+                            if($negative)
+                                $rids = $this->negative_results($form,$rids);
+                            array_push($resultSets,$rids);
+                            break;
                         case 'legacy_kid':
                             //do a kid search
+                            if (!isset($query->kids))
+                                return response()->json(["status"=>false,"error"=>"You must provide KIDs in a Legacy KID search for form: " . $form->name],500);
+                            $kids = $query->kids;
+                            $rids = array();
+                            for($i = 0; $i < sizeof($kids); $i++) {
+                                $legacy_kid = $kids[$i];
+                                $record = Record::where('legacy_kid','=',$legacy_kid)->get()->first();
+                                if($record->fid != $form->fid)
+                                    array_push($minorErrors,"The following legacy KID is not apart of the requested form: " . $kids[$i]);
+                                else
+                                    array_push($rids,$record->rid);
+                            }
+                            $negative = isset($query->not) ? $query->not : false;
+                            if($negative)
+                                $rids = $this->negative_results($form,$rids);
+                            array_push($resultSets,$rids);
+                            break;
                         default:
                             return response()->json(["status"=>false,"error"=>"No search query type supplied for form: ". $form->name],500);
                             break;
