@@ -44,7 +44,8 @@ class RevisionController extends Controller {
         if(!(\Auth::user()->isFormAdmin($form)))
             return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
-        $revisions = DB::table('revisions')->where('fid', '=', $fid)->orderBy('created_at', 'desc')->paginate(10);
+        $pagination = app('request')->input('page-count') === null ? 10 : app('request')->input('page-count');
+        $revisions = DB::table('revisions')->where('fid', '=', $fid)->orderBy('created_at', 'desc')->paginate($pagination);
 
         $rid_array = array();
         foreach($revisions as $revision) {

@@ -38,9 +38,9 @@
     <section class="filters center">
         <div class="pagination-options pagination-options-js">
             <select class="page-count option-dropdown-js" id="page-count-dropdown">
-                <option>10 per page</option>
-                <option>20 per page</option>
-                <option>30 per page</option>
+                <option value="10">10 per page</option>
+                <option value="20" {{app('request')->input('page-count') === '20' ? 'selected' : ''}}>20 per page</option>
+                <option value="30" {{app('request')->input('page-count') === '30' ? 'selected' : ''}}>30 per page</option>
             </select>
             <select class="order option-dropdown-js" id="order-dropdown">
                 <option>Last Modified Descending</option>

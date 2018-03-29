@@ -10,7 +10,10 @@ Kora.Revisions.Index = function() {
 		$('.option-dropdown-js').chosen({
 			disable_search_threshold: 10,
 			width: 'auto'
-		});
+		}).change(function() {
+            console.log($(this).val());
+            window.location = window.location.pathname + "?page-count=" + $(this).val();
+        });
 	}
 
 	function initializeToggle() {
