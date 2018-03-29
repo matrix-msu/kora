@@ -41,6 +41,15 @@
 @import 'partials/publish';
 @import 'partials/footer';
 
+@media screen and (min-width: $max-tablet-width) and (max-width: $max-with-aside-width) {
+  // scss-lint:disable ImportantRule
+  .center {
+    &.with-aside {
+      width: calc(#{ $max-site-width } - 850px) !important;
+    }
+  }
+}
+
 @media screen and (min-width: $max-mobile-xs-width) and (max-width: $max-tablet-width) {
   // scss-lint:disable ImportantRule
   .center {

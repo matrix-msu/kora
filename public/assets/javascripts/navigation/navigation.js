@@ -59,8 +59,12 @@ $navBar.on('click', '.side-menu-toggle-js', function() {
 
   $('.navigation-toggle-js .icon').removeClass('active');
   if ($sideMenu.hasClass('active')) {
+    setCookie('sidebar', 1);
     $icon.addClass('active');
+    $('.center').addClass('with-aside');
   } else {
+    $('.center').removeClass('with-aside');
+    eraseCookie('sidebar');
     $icon.removeClass('active');
   }
 
