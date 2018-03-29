@@ -281,6 +281,7 @@ class AdminController extends Controller {
         $emails = str_replace(',', ' ', $request->emails);
         $emails = preg_replace('!\s+!', ' ', $emails);
         $emails = array_unique(explode(' ', $emails));
+        $personal_message = $request->message;
 
         // The user hasn't entered anything.
         if($emails[0] == "") {
@@ -321,7 +322,7 @@ class AdminController extends Controller {
                         // Send a confirmation email.
                         //
                         try {
-                            Mail::send('emails.batch-activation', compact('token', 'password', 'username'), function ($message) use ($email) {
+                            Mail::send('emails.batch-activation', compact('token', 'password', 'username', 'personal_message'), function ($message) use ($email) {
                                 $message->from(config('mail.from.address'));
                                 $message->to($email);
                                 $message->subject('Kora Account Activation');
