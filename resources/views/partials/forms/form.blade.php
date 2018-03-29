@@ -16,7 +16,7 @@
 
 <div class="form-group mt-xl">
   {!! Form::label('description', 'Description') !!}
-  {!! Form::textarea('description', null, ['class' => 'text-area', 'placeholder' => "Enter the projects description here"]) !!}
+  {!! Form::textarea('description', null, ['class' => 'text-area', 'placeholder' => "Enter the projects description here (max. 255 characters)"]) !!}
 </div>
 
 @if($submitButtonText == 'Create Form')
