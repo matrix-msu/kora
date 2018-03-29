@@ -231,13 +231,7 @@ class AssociationController extends Controller {
         foreach($assocs as $a) {
             array_push($associatedForms,$a->assocForm);
         }
-        //FIX THIS//
-        flash()->overlay("Request for access successfully sent.", "Success!");
-        ///////////
-        $form=$myForm;
-        $project=$myProj;
-        $available_associations = self::getAvailableAssociations($fid);
-        $requestable_associations = self::getRequestableAssociations($fid);
+
         return response()->json(['k3_global_success' => 'assoc_access_requested']);
     }
 
