@@ -61,10 +61,13 @@ Kora.Fields.Create = function() {
         function setFieldType() {
             $('.field-types-js').val(currentType);
             $('.field-types-js').trigger('chosen:updated');
-            if(currentType == 'Combo List')
+            if(currentType == 'Combo List') {
                 $('.advanced-options-btn-js').addClass('disabled');
-            else
+                $('.combo-list-form-js').show();
+            } else {
                 $('.advanced-options-btn-js').removeClass('disabled');
+                $('.combo-list-form-js').hide();
+            }
         }
 
         //Handles the click of the advanced creation btn

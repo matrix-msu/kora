@@ -14,7 +14,7 @@
         </select>
     </div>
 
-    <section class="new-object-button form-group mt-xl">
+    <section class="new-object-button low-margin form-group">
         <input type="button" class="add-new-default-event-js" value="Create New Default Event">
     </section>
 
