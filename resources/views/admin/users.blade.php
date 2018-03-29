@@ -36,27 +36,24 @@
     </div>
   </section>
 
-  <section class="new-object-button center">
-    <form action="{{ action('AdminController@batch') }}">
-      @if(\Auth::user()->admin)
-        <input type="submit" value="Invite New User(s)">
-      @endif
-    </form>
+  <section class="new-object-button new-object-button-js center">
+    <input type="button" value="Invite New User(s)">
   </section>
 
   <section class="user-selection user-selection-js center">
     @include('partials.admin.userManagement.users-sorted')
 
     <div class="modal modal-js modal-mask users-cleanup-modal-js">
-      <div class="content small">
+      <div class="content">
         <div class="header">
-          <span class="title title-js">Delete User?</span>
+          <span class="title title-js"></span>
           <a href="#" class="modal-toggle modal-toggle-js">
             <i class="icon icon-cancel"></i>
           </a>
         </div>
         <div class="body">
           @include("partials.admin.userManagement.userDeleteForm")
+          @include("partials.admin.userManagement.inviteForm")
         </div>
       </div>
     </div>

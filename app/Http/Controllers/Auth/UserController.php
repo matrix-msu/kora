@@ -80,6 +80,28 @@ class UserController extends Controller {
     }
 
     /**
+      * User deleting own account
+      */
+    public function delete(Request $request) {
+        if (!\Auth::user()->admin && \Auth::user()->id != $request->uid) {
+          return redirect('user/'.\Auth::user()->id)->with('k3_global_error', 'cannot_delete_profile');
+        }
+
+        if ($request->uid == 1) {
+          return redirect('/user'.\Auth::user()->id)->with('k3_global_error', 'cannot_delete_root_admin');
+        }
+
+        $user = User::where('id', '=', $request->id)->first();
+        $user->delete();
+
+        if (\Auth::user()->admin) {
+          redirect('admin/users')->with('k3_global_success', 'user_deleted');
+        } else {
+          redirect('/')->with('k3_global_success', 'account_deleted');
+        }
+    }
+
+    /**
      * Changes the user profile picture and returns the pic URI.
      *
      * @param  Request $request
