@@ -4,17 +4,25 @@ use App\Http\Controllers\ExodusController;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
 
-/// 1) THIS SCRIPT ALLOWS YOU TO RUN PROJECT MIGRATION FROM THE COMMAND LINE
-///
-/// 2) MAKE SURE YOUR COMMAND LINE USER HAS FULL ACCESS TO ALL FILES AND FOLDERS IN KORA
-///
-/// 3) THIS SCRIPT DOES NOT SUPPORT USER AND TOKEN MIGRATION
-///
-/// 4) IT PRIMARILY IS USED FOR LARGER PROJECTS THAT THE WEB MIGRATION CANT HANDLE
-///
-/// 5) THIS SCRIPT DOES NOT LOCK USERS OUT SO BE AWARE OF THAT
-
 class ExodusScript extends Command {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Exodus Script
+    |--------------------------------------------------------------------------
+    |
+    | 1) THIS SCRIPT ALLOWS YOU TO RUN PROJECT MIGRATION FROM THE COMMAND LINE
+    |
+    | 2) MAKE SURE YOUR COMMAND LINE USER HAS FULL ACCESS TO ALL FILES AND FOLDERS IN KORA
+    |
+    | 3) THIS SCRIPT DOES NOT SUPPORT USER AND TOKEN MIGRATION
+    |
+    | 4) IT PRIMARILY IS USED FOR LARGER PROJECTS THAT THE WEB MIGRATION CANT HANDLE
+    |
+    | 5) THIS SCRIPT DOES NOT LOCK USERS OUT SO BE AWARE OF THAT
+    |
+    */
+
     /**
      * The name and signature of the console command.
      *
