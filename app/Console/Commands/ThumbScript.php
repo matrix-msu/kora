@@ -140,6 +140,12 @@ class ThumbScript extends Command {
             $medium[0] = 300;
             $medium[1] = 300;
         }
+        
+        //Make directories if they are missing
+        if(!file_exists($imagePath.'thumbnail/'))
+        	mkdir($imagePath.'thumbnail/',775);
+        if(!file_exists($imagePath.'medium/'))
+        	mkdir($imagePath.'medium/',775);
 
         $tImage->thumbnailImage($small[0],$small[1],true);
         $tImage->writeImage($imagePath.'thumbnail/'.$imageName);
