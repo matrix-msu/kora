@@ -9,6 +9,7 @@
   padding: 5px 0;
   position: absolute;
   width: 250px;
+  z-index: 10000;
 
   a {
     color: palette('white', 'base');
