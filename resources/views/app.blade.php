@@ -22,7 +22,8 @@
 
       <div class="side-menu side-menu-js <?php if ($sidebarCookie) { echo 'active'; } ?>">
         <div class="blanket blanket-js"></div>
-        <aside class="content">
+        <aside class="aside-content">
+          @yield('aside-content')
         </aside>
       </div>
 

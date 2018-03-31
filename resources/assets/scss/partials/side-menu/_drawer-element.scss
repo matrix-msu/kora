@@ -1,0 +1,74 @@
+@mixin active-drawer-element() {
+  background-color: palette('gray', 'drawer-slate');
+  box-shadow: inset 0 3px 5px 0 palette('box-shadow', 'drawer-black', .05);
+  color: palette('white', 'base');
+  font-weight: bold;
+}
+
+.drawer-element {
+  @include transition();
+
+  color: palette('white', 'base', .6);
+  font-family: $ubuntu;
+  line-height: 40px;
+
+  &.active {
+    @include active-drawer-element();
+  }
+
+  &:hover {
+    @include active-drawer-element();
+
+    .icon-chevron {
+      transform: scale($transform-scale-multiplier);
+
+      &.active {
+        transform: rotate(-180deg) scale($transform-scale-multiplier);
+      }
+    }
+  }
+
+  li {
+    list-style-type: none;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  .spacer {
+    background: palette('white', 'base', .15);
+    height: 2px;
+    margin: 10px 20px;
+    width: calc(100% - 40px);
+  }
+
+  .drawer-toggle {
+    color: inherit;
+    display: block;
+    font-size: 14px;
+    height: 100%;
+    text-decoration: none;
+    vertical-align: middle;
+  }
+
+  .icon {
+    @include transition();
+
+    color: inherit;
+    font-size: 14px;
+    line-height: inherit;
+    margin: 0 15px;
+  }
+
+  .icon-chevron {
+    float: right;
+    font-size: 6px;
+
+    &.active {
+      transform: rotate(-180deg);
+    }
+  }
+
+  @import 'drawer-element/drawer-content';
+}

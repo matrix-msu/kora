@@ -234,3 +234,48 @@ function cacheGlobalSearch(htmlString) {
     }
   });
 }
+
+function closeSidemenuDrawers() {
+  var $drawers = $('.drawer-element-js');
+  $drawers.each(function() {
+    $this = $(this);
+    $drawerToggle = $this.children('.drawer-toggle-js');
+    $drawerContent = $drawerToggle.next();
+
+    if ($this.hasClass('active')) {
+      console.log("hi")
+
+      $drawerToggle.removeClass('active');
+      $drawerToggle.children().last().removeClass('active');
+      $drawerContent.find('.drawer-deep-menu-js').removeClass('active');
+      $drawerContent.slideToggle('fast');
+      $this.removeClass('active');
+    }
+  });
+}
+
+$sideMenu.on('click', '.drawer-toggle-js', function() {
+  var $drawerElement = $(this).parent();
+  var $drawerContent = $(this).next();
+  var $icon = $(this).children().last();
+
+  if ($drawerElement.hasClass('active')) {
+    closeSidemenuDrawers();
+    return;
+  }
+
+  closeSidemenuDrawers();
+  $drawerElement.toggleClass('active');
+  $icon.toggleClass('active');
+  $drawerContent.slideToggle('fast');
+});
+
+$sideMenu.on('click', '.drawer-sub-menu-toggle-js', function() {
+  $menu = $(this).next('.drawer-deep-menu-js');
+
+  if ($menu.hasClass('active')) {
+    $menu.removeClass('active');
+  } else {
+    $menu.addClass('active');
+  }
+});
