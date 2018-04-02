@@ -78,8 +78,8 @@
           <a href="{{action('RecordPresetController@index', ['pid'=>$pid, 'fid'=>$fid])}}">Manage Record Presets</a>
         </li>
 
-        <li class="link">
-          {{-- <a href="{{ action('ExportController@exportRecords',['fid'=>$fid, 'pid' => $pid]) }}">Export All Records</a> --}}
+        <li class="link export-record-open">
+            <a href="#">Export All Records</a>
         </li>
 
         <li class="link">
@@ -104,3 +104,5 @@
       </li>
   </ul>
 </li>
+
+@include('partials.records.modals.exportRecordsModal', ['fid'=>$fid, 'pid'=>$pid])

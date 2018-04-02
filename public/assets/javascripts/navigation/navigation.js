@@ -234,3 +234,21 @@ function cacheGlobalSearch(htmlString) {
     }
   });
 }
+
+$('.export-record-open').click(function(e) {
+    e.preventDefault();
+    Kora.Modal.initialize();
+
+    //We have to manually close the menu
+    $(this).parents('.navigation-sub-menu-js').first().siblings('.navigation-toggle-js').first().click();
+
+    var $exportRecordsModal = $('.export-records-modal-js');
+
+    Kora.Modal.open($exportRecordsModal);
+});
+
+$('.export-record-link').click(function() {
+    var $exportRecordsModal = $('.export-records-modal-js');
+
+    Kora.Modal.close($exportRecordsModal);
+});

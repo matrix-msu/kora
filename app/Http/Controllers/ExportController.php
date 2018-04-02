@@ -60,7 +60,7 @@ class ExportController extends Controller {
         if(!\Auth::user()->isFormAdmin($form))
             return redirect('projects/'.$pid.'/forms/'.$fid);
 
-        $rids = DB::table("records")->where("fid", "=", $fid)->select("rid")->get();
+        $rids = DB::table("records")->where("fid", "=", $fid)->select("rid")->get()->toArray();
 
         // The DB call returns an array of StdObj so we get the rids out of the objects.
         $rids = array_map( function($obj) {
@@ -463,7 +463,7 @@ class ExportController extends Controller {
                                 $cnt = sizeof($desc);
                                 $address = explode('[!]',$data->val2);
                                 $latlon = explode('[!latlon!]',$data->val3);
-                                $utm = explode('[!utm!]',$data->val3);
+                                $utm = explode('[!utm!]',$data->val4);
                                 for($i=0;$i<$cnt;$i++) {
                                     $ll = explode('[!]',$latlon[$i]);
                                     $u = explode('[!]',$utm[$i]);
@@ -843,7 +843,7 @@ class ExportController extends Controller {
                                 $cnt = sizeof($desc);
                                 $address = explode('[!]',$data->val2);
                                 $latlon = explode('[!latlon!]',$data->val3);
-                                $utm = explode('[!utm!]',$data->val3);
+                                $utm = explode('[!utm!]',$data->val4);
                                 for($i=0;$i<$cnt;$i++) {
                                     $ll = explode('[!]',$latlon[$i]);
                                     $u = explode('[!]',$utm[$i]);
