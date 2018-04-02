@@ -1,0 +1,47 @@
+.drawer-content {
+  background-color: inherit;
+  color: palette('white', 'base', .6);
+  display: none;
+  font-weight: normal;
+  margin: 0;
+  padding: 0;
+
+  .content-link {
+
+    background-color: inherit;
+    font-family: $ubuntu;
+    font-size: 12px;
+    line-height: 25px;
+    margin-bottom: 5px;
+    text-decoration: none;
+
+    .icon {
+      font-size: 10px;
+      margin-left: 10px;
+    }
+
+    a {
+      @include transition();
+
+      color: palette('white', 'base', .6);
+      display: block;
+      padding-left: 20px;
+
+      &:hover {
+        color: palette('white', 'base');
+      }
+    }
+
+    &.head {
+      background-color: inherit;
+
+      a {
+        border-left: 4px solid palette('green', 'accent');
+        color: palette('white', 'base');
+        padding-left: 16px;
+      }
+    }
+
+    @import 'drawer-deep-menu';
+  }
+}
