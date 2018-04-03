@@ -96,7 +96,11 @@ class RevisionController extends Controller {
         if(!(\Auth::user()->isFormAdmin($form)) && \Auth::user()->id != $owner)
             return redirect('projects/'.$pid)->with('k3_global_error', 'revision_permission_issue');
 
-        $revisions = DB::table('revisions')->where('rid', '=', $rid)->orderBy('created_at','desc')->take(50)->get();
+        $pagination = app('request')->input('page-count') === null ? 10 : app('request')->input('page-count');
+        $order = app('request')->input('order') === null ? 'lmd' : app('request')->input('order');
+        $order_type = substr($order, 0, 2) === "lm" ? "created_at" : "id";
+        $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
+        $revisions = DB::table('revisions')->where('rid', '=', $rid)->orderBy('created_at','desc')->paginate($pagination);
 
         $records = array();
 

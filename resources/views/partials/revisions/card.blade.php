@@ -49,7 +49,9 @@
                     @foreach ($data["old"] as $id => $field)
                         <div class="field">
                             <div class="field-title">{{$field["name"]}}</div>
-                            <div class="field-data">{{$field["data"]}}</div>
+                            <div class="field-data">
+                                {{$field["data"]}}
+                            </div>
                         </div>
                     @endforeach
                 </div>
