@@ -12,44 +12,102 @@ Kora.Install.Create = function() {
             $this.siblings().removeClass('active');
 
             $active = $this.attr("href");
-            if($active == "#database") {
-                $('.database-section').removeClass('hidden');
-                $('.admin-section').addClass('hidden');
-                $('.mail-section').addClass('hidden');
-                $('.recaptcha-section').addClass('hidden');
-                $('.base-section').addClass('hidden');
-            } else if($active == "#admin") {
-                $('.database-section').addClass('hidden');
-                $('.admin-section').removeClass('hidden');
-                $('.mail-section').addClass('hidden');
-                $('.recaptcha-section').addClass('hidden');
-                $('.base-section').addClass('hidden');
-            } else if($active == "#mail") {
-                $('.database-section').addClass('hidden');
-                $('.admin-section').addClass('hidden');
-                $('.mail-section').removeClass('hidden');
-                $('.recaptcha-section').addClass('hidden');
-                $('.base-section').addClass('hidden');
-            } else if($active == "#recaptcha") {
-                $('.database-section').addClass('hidden');
-                $('.admin-section').addClass('hidden');
-                $('.mail-section').addClass('hidden');
-                $('.recaptcha-section').removeClass('hidden');
-                $('.base-section').addClass('hidden');
-            } else if($active == "#base") {
-                $('.database-section').addClass('hidden');
-                $('.admin-section').addClass('hidden');
-                $('.mail-section').addClass('hidden');
-                $('.recaptcha-section').addClass('hidden');
-                $('.base-section').removeClass('hidden');
-            } else {
-                $('.database-section').removeClass('hidden');
-                $('.admin-section').addClass('hidden');
-                $('.mail-section').addClass('hidden');
-                $('.recaptcha-section').addClass('hidden');
-                $('.base-section').addClass('hidden');
-            }
+            activatePage($active);
         });
+
+        $('.previous-page-js').click(function(e) {
+            e.preventDefault();
+
+            var activeLink = $('.page-link.active').first();
+            var prevLink = activeLink.prev();
+
+            var pageVal = prevLink.attr("href");
+            activatePage(pageVal);
+        });
+
+        $('.next-page-js').click(function(e) {
+            e.preventDefault();
+
+            var activeLink = $('.page-link.active').first();
+            var nextLink = activeLink.next();
+
+            var pageVal = nextLink.attr("href");
+            activatePage(pageVal);
+        });
+
+        $('.page-link').click(function(e) {
+            e.preventDefault();
+
+            var pageVal = $(this).attr("href");
+            activatePage(pageVal);
+        });
+    }
+
+    function activatePage(active) {
+        //Remove actives
+        $('.page-link').removeClass('active');
+        $('.toggle-by-name').removeClass('active');
+
+        //Set states of Prev/Next buttons
+        if(active=="#database")
+            $('.previous.page').addClass('disabled');
+        else
+            $('.previous.page').removeClass('disabled');
+        if(active=="#base")
+            $('.next.page').addClass('disabled');
+        else
+            $('.next.page').removeClass('disabled');
+
+        //Set actives
+        if(active == "#database") {
+            $('.database-link').addClass('active');
+
+            $('.database-section').removeClass('hidden');
+            $('.admin-section').addClass('hidden');
+            $('.mail-section').addClass('hidden');
+            $('.recaptcha-section').addClass('hidden');
+            $('.base-section').addClass('hidden');
+        } else if(active == "#admin") {
+            $('.admin-link').addClass('active');
+
+            $('.database-section').addClass('hidden');
+            $('.admin-section').removeClass('hidden');
+            $('.mail-section').addClass('hidden');
+            $('.recaptcha-section').addClass('hidden');
+            $('.base-section').addClass('hidden');
+        } else if(active == "#mail") {
+            $('.mail-link').addClass('active');
+
+            $('.database-section').addClass('hidden');
+            $('.admin-section').addClass('hidden');
+            $('.mail-section').removeClass('hidden');
+            $('.recaptcha-section').addClass('hidden');
+            $('.base-section').addClass('hidden');
+        } else if(active == "#recaptcha") {
+            $('.recaptcha-link').addClass('active');
+
+            $('.database-section').addClass('hidden');
+            $('.admin-section').addClass('hidden');
+            $('.mail-section').addClass('hidden');
+            $('.recaptcha-section').removeClass('hidden');
+            $('.base-section').addClass('hidden');
+        } else if(active == "#base") {
+            $('.base-link').addClass('active');
+
+            $('.database-section').addClass('hidden');
+            $('.admin-section').addClass('hidden');
+            $('.mail-section').addClass('hidden');
+            $('.recaptcha-section').addClass('hidden');
+            $('.base-section').removeClass('hidden');
+        } else {
+            $('.database-link').addClass('active');
+
+            $('.database-section').removeClass('hidden');
+            $('.admin-section').addClass('hidden');
+            $('.mail-section').addClass('hidden');
+            $('.recaptcha-section').addClass('hidden');
+            $('.base-section').addClass('hidden');
+        }
     }
 
     $('.single-select').chosen({
