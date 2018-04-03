@@ -27,11 +27,6 @@ class RecordController extends Controller {
     */
 
     /**
-     * @var int - Number of allowed records per page
-     */
-    const RECORDS_PER_PAGE = 10;
-
-    /**
      * Constructs controller and makes sure user is authenticated.
      */
     public function __construct() {
@@ -54,14 +49,10 @@ class RecordController extends Controller {
         if(!FieldController::checkPermissions($fid))
             return redirect('/projects/'.$pid)->with('k3_global_error', 'cant_view_form');
 
-        if(isset($request->{'page-count'}))
-            $perPage = $request->{'page-count'};
-        else
-            $perPage = self::RECORDS_PER_PAGE;
-
         $form = FormController::getForm($fid);
-        $records = Record::where('fid', '=', $fid)->paginate($perPage);
-        $records->setPath(config('app.url').'projects/'.$pid.'/forms/'.$fid.'/records');
+
+        $pagination = app('request')->input('page-count') === null ? 10 : app('request')->input('page-count');
+        $records = Record::where('fid', '=', $fid)->orderBy('rid', 'asc')->paginate($pagination);
 
         $total = Record::count();
 

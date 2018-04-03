@@ -61,6 +61,8 @@
                 Showing {{sizeof($records)}} of {{$total}} Records
             </div>
 
+            @include('partials.records.pagination')
+
             <section class="filters center">
                 <div class="pagination-options pagination-options-js">
                     <select class="page-count option-dropdown-js" id="page-count-dropdown">
@@ -69,10 +71,10 @@
                         <option value="30" {{app('request')->input('page-count') === '30' ? 'selected' : ''}}>30 per page</option>
                     </select>
                     <select class="order option-dropdown-js" id="order-dropdown">
-                        <option>Last Modified Descending</option>
-                        <option>Last Modified Ascending</option>
-                        <option>ID Descending</option>
                         <option>ID Ascending</option>
+                        <option>ID Descending</option>
+                        <option>Last Modified Ascending</option>
+                        <option>Last Modified Descending</option>
                     </select>
                 </div>
                 <div class="show-options show-options-js">
@@ -84,6 +86,8 @@
             @foreach($records as $index => $record)
                 @include('partials.records.card')
             @endforeach
+
+            @include('partials.records.pagination')
         </section>
     </section>
 @stop
