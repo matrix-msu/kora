@@ -44,21 +44,28 @@ class RecordController extends Controller {
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
+     * @param  Request $request
      * @return View
      */
-	public function index($pid, $fid) {
+	public function index($pid, $fid, Request $request) {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         if(!FieldController::checkPermissions($fid))
             return redirect('/projects/'.$pid)->with('k3_global_error', 'cant_view_form');
 
+        if(isset($request->{'page-count'}))
+            $perPage = $request->{'page-count'};
+        else
+            $perPage = self::RECORDS_PER_PAGE;
+
         $form = FormController::getForm($fid);
-        $records = Record::where('fid', '=', $fid)->paginate(100);
-        //$records = Record::where('fid', '=', $fid)->paginate(self::RECORDS_PER_PAGE);
+        $records = Record::where('fid', '=', $fid)->paginate($perPage);
         $records->setPath(config('app.url').'projects/'.$pid.'/forms/'.$fid.'/records');
 
-        return view('records.index', compact('form', 'records'));
+        $total = Record::count();
+
+        return view('records.index', compact('form', 'records', 'total'));
 	}
 
     /**

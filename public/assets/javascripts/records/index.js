@@ -11,6 +11,15 @@ Kora.Records.Index = function() {
         width: '100%',
     });
 
+    function initializeOptionDropdowns() {
+        $('.option-dropdown-js').chosen({
+            disable_search_threshold: 10,
+            width: 'auto'
+        }).change(function() {
+            console.log($(this).val());
+            window.location = window.location.pathname + "?page-count=" + $(this).val();
+        });
+    }
 
     function initializeSelectAddition() {
         $('.chosen-search-input').on('keyup', function(e) {
@@ -64,6 +73,16 @@ Kora.Records.Index = function() {
                 });
             }
 
+        });
+
+        $('.expand-fields-js').on('click', function(e) {
+            e.preventDefault();
+            $('.card:not(.active) .record-toggle-js').click();
+        });
+
+        $('.collapse-fields-js').on('click', function(e) {
+            e.preventDefault();
+            $('.card.active .record-toggle-js').click();
         });
     }
 
@@ -252,6 +271,7 @@ Kora.Records.Index = function() {
         });
     }
 
+    initializeOptionDropdowns();
     initializeSelectAddition();
     initializeToggle();
     initializeDeleteRecord();
