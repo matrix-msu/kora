@@ -29,13 +29,6 @@
     width: 10px;
   }
 
-  .required-tp {
-    padding-top: 5px;
-
-    .form-group label{
-        padding-left: 20px;
-    }
-  }
   .record-preset-link {
     color: palette('green', accent);
     font-family: $ubuntu-medium;
