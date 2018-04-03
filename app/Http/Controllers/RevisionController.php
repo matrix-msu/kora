@@ -7,6 +7,7 @@ use App\Revision;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Input;
 use Illuminate\View\View;
 
 class RevisionController extends Controller {
@@ -64,7 +65,9 @@ class RevisionController extends Controller {
                 $records[$temp[$i]] = $pid . '-' . $form->fid . '-' . $temp[$i];
         }
 
-        return view('revisions.index', compact('revisions', 'records', 'form'));
+        return view('revisions.index', compact('revisions', 'records', 'form', [
+            'revisions' => $revisions->appends(Input::except('page'))
+            ]));
     }
 
     /**
