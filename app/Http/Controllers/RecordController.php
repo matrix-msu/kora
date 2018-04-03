@@ -39,10 +39,9 @@ class RecordController extends Controller {
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
-     * @param  Request $request
      * @return View
      */
-	public function index($pid, $fid, Request $request) {
+	public function index($pid, $fid) {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
@@ -52,7 +51,10 @@ class RecordController extends Controller {
         $form = FormController::getForm($fid);
 
         $pagination = app('request')->input('page-count') === null ? 10 : app('request')->input('page-count');
-        $records = Record::where('fid', '=', $fid)->orderBy('rid', 'asc')->paginate($pagination);
+        $order = app('request')->input('order') === null ? 'lmd' : app('request')->input('order');
+        $order_type = substr($order, 0, 2) === "lm" ? "updated_at" : "rid";
+        $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
+        $records = Record::where('fid', '=', $fid)->orderBy($order_type, $order_direction)->paginate($pagination);
 
         $total = Record::count();
 

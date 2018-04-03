@@ -71,10 +71,10 @@
                         <option value="30" {{app('request')->input('page-count') === '30' ? 'selected' : ''}}>30 per page</option>
                     </select>
                     <select class="order option-dropdown-js" id="order-dropdown">
-                        <option>ID Ascending</option>
-                        <option>ID Descending</option>
-                        <option>Last Modified Ascending</option>
-                        <option>Last Modified Descending</option>
+                        <option value="lmd">Last Modified Descending</option>
+                        <option value="lma" {{app('request')->input('order') === 'lma' ? 'selected' : ''}}>Last Modified Ascending</option>
+                        <option value="idd" {{app('request')->input('order') === 'idd' ? 'selected' : ''}}>ID Descending</option>
+                        <option value="ida" {{app('request')->input('order') === 'ida' ? 'selected' : ''}}>ID Ascending</option>
                     </select>
                 </div>
                 <div class="show-options show-options-js">
