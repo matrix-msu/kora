@@ -8,11 +8,11 @@
             </h1>
             <p class="description">Fill out the following forms to fully initialize Kora 3</p>
             <div class="content-sections">
-                <a href="#database" class="section underline-middle underline-middle-hover toggle-by-name active">Database</a>
-                <a href="#admin" class="section underline-middle underline-middle-hover toggle-by-name">Admin</a>
-                <a href="#mail" class="section underline-middle underline-middle-hover toggle-by-name">Mail</a>
-                <a href="#recaptcha" class="section underline-middle underline-middle-hover toggle-by-name">Recaptcha</a>
-                <a href="#base" class="section underline-middle underline-middle-hover toggle-by-name">Base</a>
+                <a href="#database" class="database-link section underline-middle underline-middle-hover toggle-by-name active">Database</a>
+                <a href="#admin" class="admin-link section underline-middle underline-middle-hover toggle-by-name">Admin</a>
+                <a href="#mail" class="mail-link section underline-middle underline-middle-hover toggle-by-name">Mail</a>
+                <a href="#recaptcha" class="recaptcha-link section underline-middle underline-middle-hover toggle-by-name">Recaptcha</a>
+                <a href="#base" class="base-link section underline-middle underline-middle-hover toggle-by-name">Base</a>
             </div>
         </div>
     </section>
@@ -23,6 +23,28 @@
         <form method="post" id="install_form" action={{action("InstallController@installPartTwo")}}>
             @include('partials.install.form')
         </form>
+    </section>
+
+    <section class="pagination center">
+        <div class="previous page disabled">
+            <a href="#">
+                <i class="icon icon-chevron left previous-page-js"></i>
+                <span class="name underline-middle-hover">Previous Page</span>
+            </a>
+        </div>
+        <div class="pages">
+            <a href="#database" class="page-link database-link active">1</a>
+            <a href="#admin" class="page-link admin-link">2</a>
+            <a href="#mail" class="page-link mail-link">3</a>
+            <a href="#recaptcha" class="page-link recaptcha-link">4</a>
+            <a href="#base" class="page-link base-link">5</a>
+        </div>
+        <div class="next page">
+            <a href="#">
+                <i class="icon icon-chevron right next-page-js"></i>
+                <span class="name underline-middle-hover">Next Page</span>
+            </a>
+        </div>
     </section>
 @stop
 
