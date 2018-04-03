@@ -11,8 +11,14 @@ Kora.Revisions.Index = function() {
 			disable_search_threshold: 10,
 			width: 'auto'
 		}).change(function() {
-            console.log($(this).val());
-            window.location = window.location.pathname + "?page-count=" + $(this).val();
+            var type = $(this).attr('id');
+            if (type === 'page-count-dropdown') {
+                var order = getURLParameter('order');
+                window.location = window.location.pathname + "?page-count=" + $(this).val() + (order ? "&order=" + order : '');
+            } else if (type === 'order-dropdown') {
+                var pageCount = getURLParameter('page-count');
+                window.location = window.location.pathname + "?order=" + $(this).val() + (pageCount ? "&page-count=" + pageCount : '');
+            }
         });
 	}
 
