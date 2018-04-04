@@ -18,7 +18,7 @@
         <a class="rotate" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
         <div class="inner-wrap center">
             <h1 class="title">
-                <i class="icon icon-form-record-search mr-sm"></i>
+                <i class="icon icon-record-search mr-sm"></i>
                 <span>Search Project Records</span>
             </h1>
             <p class="description">Enter keywords to search below. A keyword is required in order to search project
