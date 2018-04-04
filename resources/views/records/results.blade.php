@@ -35,11 +35,11 @@
             <form method="GET" action="{{action('FormSearchController@keywordSearch',['pid' => $form->pid, 'fid' => $form->fid])}}" class="keyword-search-js">
                 <div class="form-group search-input mt-xl">
                     {!! Form::label('keywords','Search Via Keyword(s) or KID : ') !!}
-                    {!! Form::text('keywords', null, ['class' => 'text-input', 'placeholder' => 'Type space separated keywords']) !!}
+                    {!! Form::text('keywords', app('request')->input('keywords'), ['class' => 'text-input keywords-get-js', 'placeholder' => 'Type space separated keywords']) !!}
                 </div>
                 <div class="form-group search-input mt-xl">
                     {!! Form::label('method','or / and / exact') !!}
-                    {!! Form::select('method',[0 => 'or',1 => 'and',2 => 'exact'], 0, ['class' => 'single-select']) !!}
+                    {!! Form::select('method',[0 => 'or',1 => 'and',2 => 'exact'], app('request')->input('method'), ['class' => 'single-select method-get-js']) !!}
                 </div>
 
                 <div class="form-group mt-xxxl">
@@ -50,7 +50,7 @@
                 </div>
             </form>
 
-            <div class="form-group mt-xxxl">
+            <div class="form-group mt-xxxl scroll-to-here-js">
                 <div class="spacer"></div>
             </div>
         </section>
@@ -60,16 +60,17 @@
                 Showing {{sizeof($records)}} of {{$total}} Records
             </div>
 
+            @if(sizeof($records)>0)
             @include('partials.records.pagination')
 
             <section class="filters center">
                 <div class="pagination-options pagination-options-js">
-                    <select class="page-count option-dropdown-js" id="page-count-dropdown">
+                    <select class="page-count results-option-dropdown-js" id="page-count-dropdown">
                         <option value="10">10 per page</option>
                         <option value="20" {{app('request')->input('page-count') === '20' ? 'selected' : ''}}>20 per page</option>
                         <option value="30" {{app('request')->input('page-count') === '30' ? 'selected' : ''}}>30 per page</option>
                     </select>
-                    <select class="order option-dropdown-js" id="order-dropdown">
+                    <select class="order results-option-dropdown-js" id="order-dropdown">
                         <option value="lmd">Last Modified Descending</option>
                         <option value="lma" {{app('request')->input('order') === 'lma' ? 'selected' : ''}}>Last Modified Ascending</option>
                         <option value="idd" {{app('request')->input('order') === 'idd' ? 'selected' : ''}}>ID Descending</option>
@@ -87,6 +88,7 @@
             @endforeach
 
             @include('partials.records.pagination')
+            @endif
         </section>
     </section>
 @stop

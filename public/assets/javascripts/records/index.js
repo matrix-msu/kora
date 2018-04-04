@@ -25,21 +25,29 @@ Kora.Records.Index = function() {
                 window.location = window.location.pathname + "?order=" + $(this).val() + (pageCount ? "&page-count=" + pageCount : '');
             }
         });
+
+        $('.results-option-dropdown-js').chosen({
+            disable_search_threshold: 10,
+            width: 'auto'
+        }).change(function() {
+            var type = $(this).attr('id');
+            var keywords = $('.keywords-get-js').val();
+            var method = $('.method-get-js').val();
+            if (type === 'page-count-dropdown') {
+                var order = getURLParameter('order');
+                window.location = window.location.pathname + "?keywords=" + encodeURIComponent(keywords) + "&method=" + method + "&page-count=" + $(this).val() + (order ? "&order=" + order : '');
+            } else if (type === 'order-dropdown') {
+                var pageCount = getURLParameter('page-count');
+                window.location = window.location.pathname + "?keywords=" + encodeURIComponent(keywords) + "&method=" + method + "&order=" + $(this).val() + (pageCount ? "&page-count=" + pageCount : '');
+            }
+        });
     }
 
-    function initializeSelectAddition() {
-        $('.chosen-search-input').on('keyup', function(e) {
-            var container = $(this).parents('.chosen-container').first();
+    function initializeSearchInteractions() {
+        $('.submit-search-js').click(function(e) {
+            e.preventDefault();
 
-            if (e.which === 13 && container.find('li.no-results').length > 0) {
-                var option = $("<option>").val(this.value).text(this.value);
-
-                var select = container.siblings('.modify-select').first();
-
-                select.append(option);
-                select.find(option).prop('selected', true);
-                select.trigger("chosen:updated");
-            }
+            $('.keyword-search-js').submit();
         });
     }
 
@@ -277,9 +285,18 @@ Kora.Records.Index = function() {
         });
     }
 
+    function initializeScrollTo() {
+        if($('.scroll-to-here-js').length) {
+            $('html, body').animate({
+                scrollTop: $(".scroll-to-here-js").offset().top
+            }, 1000);
+        }
+    }
+
     initializeOptionDropdowns();
-    initializeSelectAddition();
+    initializeSearchInteractions();
     initializeToggle();
     initializeDeleteRecord();
     initializeTypedFieldDisplays();
+    initializeScrollTo();
 }
