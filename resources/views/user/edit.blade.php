@@ -7,7 +7,7 @@
         @if ($user->profile)
           <img class="head-profile-pic" src="{{ $user->getProfilePicUrl() }}" alt="Profile Pic">
         @else
-          <i class="icon icon-user-little"></i>
+          <i class="icon icon-user"></i>
         @endif
         <span>Editing {{ $user->first_name }} {{  $user->last_name }}</span>
       </h1>

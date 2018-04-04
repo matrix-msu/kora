@@ -62,47 +62,72 @@
     &:active {
       padding: 0 0 #{ $underline-padding + 10 };
     }
- }
+  }
 
   .sort-options {
     position: relative;
     text-align: right;
 
-    .icon {
-      display: inline-block;
-      font-size: 6px;
-      vertical-align: middle;
-    }
-
-    .option {
-      color: palette('gray', text, .8);
+    .chosen-container-single {
       cursor: pointer;
-      font-family: $ubuntu;
-      font-size: 14px;
-      line-height: 16px;
-      margin: 0 7.5px;
-      padding: 0 0 #{ $underline-padding };
-      text-decoration: none;
+      display: inline-block;
 
-      &:first-child {
-        margin-left: 0;
-        padding-left: 0;
+      .chosen-single {        
+        span::after {
+          @include transition();
+          
+          content: $icon-chevron;
+          display: inline-block;
+          font-family: 'Kora-Icons';
+          font-size: 45%;
+          margin-left: 10px;
+          vertical-align: middle;
+        }
       }
 
-      &:last-child {
-        margin-right: 0;
-        padding-right: 0;
+      .chosen-results {
+        @include transition();
+
+        background: palette('white', base);
+        border-radius: 5px;
+        box-shadow: 0 10px 20px 0 palette('box-shadow', base, 0.15);
+        font-size: 12px;
+        list-style-type: none;
+        max-height: 0;
+        overflow: hidden;
+        padding: 0 20px;
+        position: fixed;
+        text-align: center;
+        z-index: 999;
+
+        .active-result {
+          @include transition();
+          margin: 10px;
+
+          &:hover, &.result-selected {
+            color: palette('green', accent)
+          }
+        }
       }
 
-      &:hover {
-        color: palette('green', accent);
+      &.chosen-with-drop {
+        .chosen-results {
+          max-height: 200px;
+          padding: 10px 20px;
+        }
+        
+        .chosen-single {
+          span::after {
+            transform: rotate(180deg);
+          }
+        }
       }
 
-      &.active {
-        color: palette('green', accent);
-        font-weight: 500;
+      &.chosen-container-single-nosearch {
+        .chosen-search {
+          display: none;
+        }
       }
     }
   }
-
 }

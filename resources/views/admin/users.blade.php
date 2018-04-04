@@ -23,16 +23,16 @@
       <i class="icon icon-cancel icon-cancel-js"></i>
     </div>
     <div class="sort-options sort-options-js">
-      <a href="#" class="text dropdown-white-toggle dropdown-white-toggle-js underline-middle-hover">
+      <!--<a href="#" class="text dropdown-white-toggle dropdown-white-toggle-js underline-middle-hover">
           <span>Alphabetical (A-Z)</span>
           <i class="icon icon-chevron"></i>
-      </a>
-      <ul class="dropdown-white dropdown-white-js mt-xl">
-        <li><a href="#az">Alphabetical (A-Z)</a></li>
-        <li><a href="#za">Alphabetical (Z-A)</a></li>
-        <li><a href="#nto">Newest to Oldest</a></li>
-        <li><a href="#otn">Oldest to Newest</a></li>
-      </ul>
+      </a>-->
+      <select class="order option-dropdown-js underline-middle" id="order-dropdown">
+          <option value="az">Alphabetical (A-Z)</option>
+          <option value="za">Alphabetical (Z-A)</option>
+          <option value="nto">Newest to Oldest</option>
+          <option value="otn">Oldest to Newest</option>
+      </select>
     </div>
   </section>
 
@@ -69,113 +69,6 @@
     Kora.Admin.Users();
 
     /**
-     * Deletes a user.
-     * Use ajax for live update
-     */
-    function initializeDeleteUser() {
-      $('.delete-user').click(function(e) {
-        e.preventDefault();
-
-        var card = $(this).parent().parent().parent();
-        var id = card.attr('id').substring(5);
-        var name = card.find('.username').html();
-
-        var encode = $('<div/>').html("{{ trans('admin_users.deleteconfirm') }}").text();
-        var response = confirm(encode + name + '?');
-
-        if(response) {
-          $.ajax({
-            url: "{{ action('AdminController@deleteUser',['']) }}/" + id,
-            type: 'DELETE',
-            data: {
-              "_token": "{{ csrf_token() }}"
-            },
-            success: function(data) {
-              // TODO: Handle messages sent back from controller
-              location.reload();
-            }
-          });
-        }
-      });
-    }
-
-    /**
-     * Initialize event handling for each user for updating status or deletion
-     */
-    function initializeCardEvents() {
-      $(".card").each(function() {
-        var card = $(this);
-        var form = card.find("form");
-        var id = card.attr('id').substring(5);
-        var name = card.find('.username').html();
-
-        // Toggles activation for a user
-        card.find('#active').click(function(e) {
-          e.preventDefault();
-
-          $.ajax({
-            url: form.prop("action"),
-            type: 'PATCH',
-            data: {
-              "_token": "{{ csrf_token() }}",
-              "status": "active"
-            },
-            success: function(data) {
-              // TODO: Handle messages sent back from controller
-              if (data.status) {
-                // User updated successfully
-                checker(card, data.action);
-              }
-            }
-          });
-        });
-
-        // Toggles administration status for a user
-        card.find('#admin').click(function(e) {
-          e.preventDefault();
-
-          $.ajax({
-            url: form.prop("action"),
-            type: 'PATCH',
-            data: {
-              "_token": "{{ csrf_token() }}",
-              "status": "admin"
-            },
-            success: function(data) {
-              // TODO: Handle messages sent back from controller
-              if (data.status) {
-                // User updated successfully
-                checker(card, data.action);
-              }
-            },
-          });
-        });
-
-        // Deletes a user
-        card.find('.delete-user').click(function(e) {
-          e.preventDefault();
-
-          var encode = $('<div/>').html("{{ trans('admin_users.deleteconfirm') }}").text();
-          var response = confirm(encode + name + '?');
-
-          if(response) {
-            $.ajax({
-              url: "{{ action('AdminController@deleteUser',['']) }}/" + id,
-              type: 'DELETE',
-              data: {
-                "_token": "{{ csrf_token() }}"
-              },
-              success: function(data) {
-                // TODO: Handle messages sent back from controller
-                location.reload();
-              }
-            });
-          }
-        });
-      });
-    }
-
-    /**
      * Check the boxes for a particular user.
      */
     function checker(card, action) {
@@ -191,7 +84,5 @@
             check.prop('checked', !check.prop('checked'));
         }
     }
-
-    initializeCardEvents();
   </script>
 @stop
