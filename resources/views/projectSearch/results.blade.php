@@ -40,21 +40,20 @@
                     {!! Form::select('method',[0 => 'or',1 => 'and',2 => 'exact'], app('request')->input('method'), ['class' => 'single-select method-get-js']) !!}
                 </div>
 
-                <div class="form-group mt-xl">
+                <div class="form-group search-spacer mt-xl">
                     {!! Form::label('forms','Search and Select Form(s) to Filter Results') !!}
                     {!! Form::select('forms[]',$forms, ( !is_null(app('request')->input('forms')) ? app('request')->input('forms') : "ALL" ), ['multiple',
                         'class' => 'multi-select forms-get-js', 'data-placeholder' => 'Select Form(s) to search']) !!}
                 </div>
 
-                <div class="form-group mt-xxxl">
+                <div class="form-group search-spacer mt-xxxl">
                     <div class="search-button-container">
-                        <a href="#" class="btn half-sub-btn mb-sm" data-unsp-sanitized="clean">View Advanced Search Options</a>
-                        <a href="#" class="btn half-btn mb-sm submit-search-js" data-unsp-sanitized="clean">Search</a>
+                        <a href="#" class="btn mb-sm submit-search-js" data-unsp-sanitized="clean">Search</a>
                     </div>
                 </div>
             </form>
 
-            <div class="form-group mt-xxxl scroll-to-here-js">
+            <div class="form-group search-spacer mt-xxxl scroll-to-here-js">
                 <div class="spacer"></div>
             </div>
         </section>
