@@ -42,7 +42,7 @@
       @endif
 
       <li class="link pre-spacer">
-        <a href="#">Search Project Records</a>
+        <a href="{{ action('ProjectSearchController@keywordSearch', ['pid'=>$pid]) }}">Search Project Records</a>
       </li>
 
       <li class="spacer"></li>

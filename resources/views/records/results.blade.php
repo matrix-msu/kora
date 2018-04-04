@@ -22,8 +22,8 @@
                 <i class="icon icon-form-record-search mr-sm"></i>
                 <span>Search Form Records</span>
             </h1>
-            <p class="description">Enter keywords to search below. A keyword is required in order to search project
-                records. You can also search by a specific form, and filter by “Or”, “And”, or “Exact” keyword results. </p>
+            <p class="description">Enter keywords to search below. A keyword is required in order to search form
+                records. You can also filter by “Or”, “And”, or “Exact” keyword results. </p>
         </div>
     </section>
 @stop

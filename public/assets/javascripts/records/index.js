@@ -17,7 +17,7 @@ Kora.Records.Index = function() {
             width: 'auto'
         }).change(function() {
             var type = $(this).attr('id');
-            if (type === 'page-count-dropdown') {
+            if(type === 'page-count-dropdown') {
                 var order = getURLParameter('order');
                 window.location = window.location.pathname + "?page-count=" + $(this).val() + (order ? "&order=" + order : '');
             } else if (type === 'order-dropdown') {
@@ -31,14 +31,25 @@ Kora.Records.Index = function() {
             width: 'auto'
         }).change(function() {
             var type = $(this).attr('id');
+
+            var subBaseUrl = "";
             var keywords = $('.keywords-get-js').val();
+            subBaseUrl += "?keywords=" + encodeURIComponent(keywords);
             var method = $('.method-get-js').val();
-            if (type === 'page-count-dropdown') {
+            subBaseUrl += "&method=" + method;
+            if($('.forms-get-js').length) {
+                var forms = $('.forms-get-js').val();
+                for(var f=0;f<forms.length;f++) {
+                    subBaseUrl += "&forms%5B%5D=" + forms[f];
+                }
+            }
+
+            if(type === 'page-count-dropdown') {
                 var order = getURLParameter('order');
-                window.location = window.location.pathname + "?keywords=" + encodeURIComponent(keywords) + "&method=" + method + "&page-count=" + $(this).val() + (order ? "&order=" + order : '');
+                window.location = window.location.pathname + subBaseUrl + "&page-count=" + $(this).val() + (order ? "&order=" + order : '');
             } else if (type === 'order-dropdown') {
                 var pageCount = getURLParameter('page-count');
-                window.location = window.location.pathname + "?keywords=" + encodeURIComponent(keywords) + "&method=" + method + "&order=" + $(this).val() + (pageCount ? "&page-count=" + pageCount : '');
+                window.location = window.location.pathname + subBaseUrl + "&order=" + $(this).val() + (pageCount ? "&page-count=" + pageCount : '');
             }
         });
     }
@@ -48,6 +59,12 @@ Kora.Records.Index = function() {
             e.preventDefault();
 
             $('.keyword-search-js').submit();
+        });
+
+        $('.keywords-get-js').on('keyup', function(e) {
+            if (e.which === 13) {
+                $('.keyword-search-js').submit();
+            }
         });
     }
 

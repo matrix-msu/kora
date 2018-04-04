@@ -37,51 +37,31 @@ class ProjectSearchController extends Controller {
      * @param  int $pid - Project ID
      * @return View
      */
-    public function keywordSearch($pid = 0) {
-        $arg = trim((Request::input('query')));
-        $method = intval(Request::input('method'));
-        $fids = Request::input("forms");
+    public function keywordSearch($pid, Request $request) {
+        if(isset($request->keywords)) {
+            //DO THE SEARCH
+            $arg = trim($request->keywords);
+            $method = intval($request->method);
+            $fids = $request->forms;
 
-        $page = (isset($_GET['page'])) ? intval(strip_tags($_GET['page'])) : $page = 1;
-
-        $do_query = false;
-        if(Session::has("query") && Session::has("fids")) { // Have we ever searched before?
-            $session_query = Session::get("query");
-            $session_method = Session::get("method");
-            $session_fids = unserialize(Session::get("fids"));
-
-            if($session_query == $arg &&
-                $session_method == $method &&
-                array_diff($session_fids, $fids) === array_diff($fids, $session_fids)) { // This is the same search so we shouldn't re-execute the query.
-
-                $rids = unserialize(Session::get("rids"));
-            } else { // This is a new search, so we have to execute again.
-                $do_query = true;
-            }
-        } else { // We have never searched before, so we must execute.
-            $do_query = true;
-        }
-
-        if($do_query) {
             // Inform the user about arguments that will be ignored.
             $args = explode(" ", $arg);
-            $ignored = Search::showIgnoredArguments($args,($method==Search::SEARCH_EXACT));
+            $ignored = Search::showIgnoredArguments($args, ($method == Search::SEARCH_EXACT));
             $args = array_diff($args, $ignored);
             $arg = implode(" ", $args);
 
             $ignored = implode(" ", $ignored);
 
-            if($ignored)
-                flash(FormSearchController::HELP_MESSAGE . $ignored . '. ');
+            //TODO::Flash ignored warnings
 
-            $forms = Form::where(function($query) use($fids) {
-                foreach($fids as $fid) {
-                    $query->orWhere("fid", "=", $fid);
-                }
-            })->get();
+            //Determine if we are searching all forms in project, or just specific ones
+            if(in_array("ALL",$fids))
+                $forms = Form::where('pid','=',$pid)->get();
+            else
+                $forms = Form::whereIn('fid',$fids)->get();
 
             $rids = [];
-            foreach($forms as $form) {
+            foreach ($forms as $form) {
                 $search = new Search($form->pid, $form->fid, $arg, $method);
                 $rids = array_merge($search->formKeywordSearch(), $rids);
             }
@@ -91,49 +71,29 @@ class ProjectSearchController extends Controller {
 
             sort($rids);
 
-            Session::put("rids", serialize($rids));
-            Session::put("fids", serialize($fids));
-        }
+            $recBuilder = Record::whereIn("rid", $rids);
+            $total = $recBuilder->count();
 
-        Session::put("query", $arg);
-        Session::put("method", $method);
-
-        $record_count = $page * RecordController::RECORDS_PER_PAGE;
-        $slice = array_slice($rids, $record_count - RecordController::RECORDS_PER_PAGE, $record_count);
-
-        if(empty($rids)) {
+            $pagination = app('request')->input('page-count') === null ? 10 : app('request')->input('page-count');
+            $order = app('request')->input('order') === null ? 'lmd' : app('request')->input('order');
+            $order_type = substr($order, 0, 2) === "lm" ? "updated_at" : "rid";
+            $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
+            $records = $recBuilder->orderBy($order_type, $order_direction)->paginate($pagination);
+        } else {
+            //INITIAL PAGE VISIT
             $records = [];
-        } else {
-            $records = Record::where(function($query) use ($slice) {
-                foreach($slice as $rid) {
-                    $query->orWhere("rid", "=", $rid);
-                }
-            })->get();
-        }
-        $rid_paginator = new LengthAwarePaginator($rids, count($rids), RecordController::RECORDS_PER_PAGE, $page);
-        $rid_paginator->appends([
-            "query" => $arg,
-            "method" => $method,
-            "fids" => serialize($fids)
-        ]);
-        if($pid == 0) {
-            $rid_paginator->setPath( config('app.url') . 'keywordSearch/');
-        } else {
-            $rid_paginator->setPath( config('app.url') . 'keywordSearch/project/' . $pid);
+            $total = 0;
+            $ignored = [];
         }
 
-        if($pid == 0) {
-            $projects = Project::all();
-            $projectArrays = [];
-            foreach($projects as $project) {
-                $projectArrays[] = $project->buildFormSelectorArray();
-            }
-        } else {
-            $project = ProjectController::getProject($pid);
-            $projectArrays = [$project->buildFormSelectorArray()];
+        $project = ProjectController::getProject($pid);
+        $forms = array("ALL" => 'All Forms');
+        $allForms = $project->forms()->get();
+        foreach($allForms as $f) {
+            $forms[$f->fid] = $f->name;
         }
 
-        return view("projectSearch.results", compact("records", "ignored", "rid_paginator", "pid", "projectArrays"));
+        return view('projectSearch.results', compact("project", "forms", "records", "total", "ignored"));
     }
 
     /**

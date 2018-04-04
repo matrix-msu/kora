@@ -223,7 +223,6 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/keywordSearch/project/{pid}/forms/{fid}/delete', 'FormSearchController@deleteSubset');
 
 //project search routes
-    Route::get("keywordSearch", 'ProjectSearchController@keywordSearch');
     Route::get("keywordSearch/project/{pid}", "ProjectSearchController@keywordSearch");
 
 //global search routes
