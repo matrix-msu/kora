@@ -2,9 +2,27 @@ var Kora = Kora || {};
 Kora.Admin = Kora.Admin || {};
 
 Kora.Admin.Users = function() {
+  
+  function initializeOptionDropdowns() {
+    $('.option-dropdown-js').chosen({
+      disable_search_threshold: 10,
+      width: 'auto'
+    });
+  }
 
+  /**
+   * Clear search results
+   */
   function clearSearch() {
     $('.search-js .icon-cancel-js').click();
+  }
+  
+  /**
+   * Clear sorting 
+   */
+  function clearSortResults() {
+    // Clear previous filter results
+    $('.user-sort-js').removeClass('active');
   }
 
   function initializeSearch() {
@@ -100,32 +118,27 @@ Kora.Admin.Users = function() {
     });
   }
 
-  function clearFilterResults() {
-    // Clear previous filter results
-    $('.sort-options-js ul a').removeClass('active');
-    $('.user-sort-js').removeClass('active');
-  }
-
   function initializeFilters() {
     // Initially set it to first filter in the list
-    setFilter($($('.sort-options-js ul a').get(0)));
+    var sortOptions = $(".option-dropdown-js")
+    setFilter(sortOptions.val());
 
-    $('.sort-options-js ul a').click(function(e) {
-      e.preventDefault();
-
-      setFilter($(this));
+    $(sortOptions).change(function(e) {
+      setFilter($(this).val());
     });
   }
-
-  function setFilter(that) {
-    var $content = $('.users-' + that.attr('href').substring(1));
+  
+  /**
+   * Display sorted users
+   */
+  function setFilter(sort) {
+    var content = $('.users-' + sort);
 
     clearSearch();
-    clearFilterResults();
+    clearSortResults();
 
-    // Toggle self animation and display corresponding content
-    that.addClass('active');
-    $content.addClass('active');
+    // Display corresponding content
+    content.addClass('active');
   }
 
   /**
@@ -146,14 +159,16 @@ Kora.Admin.Users = function() {
       var card = $(this).parent().parent().parent();
       var id = card.attr('id').substring(5);
 
-      Kora.Modal.open();
+      // Unbind any click events to prevent other users from being deleted
+      $('.user-cleanup-submit').unbind("click");
 
+      // Submitting delete form with ajax to reload page at same position
       $('.user-cleanup-submit').click(function(e) {
         e.preventDefault();
 
         var deleteForm = $(".modal form");
         var actionURL = deleteForm.attr("action");
-
+        
         $.ajax({
           url: actionURL + "/" + id,
           type: 'DELETE',
@@ -164,6 +179,8 @@ Kora.Admin.Users = function() {
           }
         });
       });
+      
+      Kora.Modal.open();
     });
 
 
@@ -179,9 +196,65 @@ Kora.Admin.Users = function() {
       Kora.Modal.open();
     });
   }
+  
+  /**
+   * Initialize event handling for each user for updating status or deletion
+   */
+  function initializeCardEvents() {
+    $(".card").each(function() {
+      var card = $(this);
+      var form = card.find("form");
+      var id = card.attr('id').substring(5);
+      var name = card.find('.username').html();
 
+      // Toggles activation for a user
+      card.find('#active').click(function(e) {
+        e.preventDefault();
+
+        $.ajax({
+          url: form.prop("action"),
+          type: 'PATCH',
+          data: {
+            "_token": CSRFToken,
+            "status": "active"
+          },
+          success: function(data) {
+            // TODO: Handle messages sent back from controller
+            if (data.status) {
+              // User updated successfully
+              checker(card, data.action);
+            }
+          }
+        });
+      });
+
+      // Toggles administration status for a user
+      card.find('#admin').click(function(e) {
+        e.preventDefault();
+
+        $.ajax({
+          url: form.prop("action"),
+          type: 'PATCH',
+          data: {
+            "_token": CSRFToken,
+            "status": "admin"
+          },
+          success: function(data) {
+            // TODO: Handle messages sent back from controller
+            if (data.status) {
+              // User updated successfully
+              checker(card, data.action);
+            }
+          },
+        });
+      });
+    });
+  }
+  
+  initializeOptionDropdowns();
   initializeFilters();
   initializeCustomSort()
   initializeSearch();
   initializeCleanUpModals();
+  initializeCardEvents()
 }
