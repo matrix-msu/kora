@@ -21,12 +21,14 @@
     width: 0;
   }
 
-  .content {
+  .aside-content {
     background: palette('gray', slate);
     height: calc(100vh - #{$navigation-height});
     margin-top: $navigation-height;
     position: fixed;
     width: 250px;
+
+    @import 'side-menu/drawer-element';
   }
 }
 

@@ -37,14 +37,14 @@ class FormRequest extends Request {
                     'pid' => 'required|numeric',
                     'name' => 'required|min:3',
                     'slug' => 'required|alpha_dash|min:3|unique:forms',
-                    'description' => 'required',
+                    'description' => 'required|max:255',
                 ];
             case 'PATCH':
                 return [
                     'pid' => 'required|numeric',
                     'name' => 'required|min:3',
                     'slug' => 'required|alpha_dash|min:3|unique:forms,slug,'.$form->fid.',fid',
-                    'description' => 'required',
+                    'description' => 'required|max:255',
                 ];
             default:
                 break;

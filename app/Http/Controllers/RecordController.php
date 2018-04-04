@@ -27,11 +27,6 @@ class RecordController extends Controller {
     */
 
     /**
-     * @var int - Number of allowed records per page
-     */
-    const RECORDS_PER_PAGE = 10;
-
-    /**
      * Constructs controller and makes sure user is authenticated.
      */
     public function __construct() {
@@ -54,11 +49,16 @@ class RecordController extends Controller {
             return redirect('/projects/'.$pid)->with('k3_global_error', 'cant_view_form');
 
         $form = FormController::getForm($fid);
-        $records = Record::where('fid', '=', $fid)->paginate(100);
-        //$records = Record::where('fid', '=', $fid)->paginate(self::RECORDS_PER_PAGE);
-        $records->setPath(config('app.url').'projects/'.$pid.'/forms/'.$fid.'/records');
 
-        return view('records.index', compact('form', 'records'));
+        $pagination = app('request')->input('page-count') === null ? 10 : app('request')->input('page-count');
+        $order = app('request')->input('order') === null ? 'lmd' : app('request')->input('order');
+        $order_type = substr($order, 0, 2) === "lm" ? "updated_at" : "rid";
+        $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
+        $records = Record::where('fid', '=', $fid)->orderBy($order_type, $order_direction)->paginate($pagination);
+
+        $total = Record::count();
+
+        return view('records.index', compact('form', 'records', 'total'));
 	}
 
     /**

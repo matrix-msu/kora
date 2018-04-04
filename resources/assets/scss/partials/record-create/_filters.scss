@@ -1,14 +1,17 @@
 .filters {
   font-family: $ubuntu;
   height: 20px;
-  margin: 30px auto 0;
+  margin: 40px auto 0;
   max-width: calc(#{ $max-site-width } - 600px);
   width: $max-site-width;
 
   .record-preset {
+    display: inline;
     float: left;
     height: 20px;
+    margin: auto 0;
     padding-bottom: $underline-padding;
+    width: auto;
   }
 
   .already-preset {
@@ -29,17 +32,20 @@
 
   .required-tip {
     color: palette('gray', text);
+    display: inline;
     font-size: 14px;
-    text-align: right;
+    float: right;
   }
 
   @media screen and (max-width: $max-mobile-width) {
     .required-tip {
-      padding-top: 20px;
-      text-align: left;
+      display: block;
+      padding-top: 30px;
+      float: none;
     }
 
     .already-preset {
+      display: block;
       float: none;
     }
   }
@@ -47,10 +53,10 @@
 
 @media screen and (max-width: $max-mobile-width) {
   .filters {
-    height: 66px;
+    height: 100px;
 
     .record-preset {
-      display: inline-block;
+      display: block;
       float: none;
     }
   }

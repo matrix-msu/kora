@@ -14,7 +14,7 @@
     </div>
 
     <div class="form-group mt-xl">
-        <label for="filetype">Allowed File Types (<a class="field-meme-link underline-middle-hover" href="https://en.wikipedia.org/wiki/MIME">MIME</a>): </label>
+        <label for="filetype">Allowed File Types (<a target="_blank" class="field-meme-link underline-middle-hover" href="https://en.wikipedia.org/wiki/MIME">MIME</a>): </label>
         <?php
             $values = array();
             foreach(explode('[!]',\App\Http\Controllers\FieldController::getFieldOption($field, "FileTypes")) as $opt){

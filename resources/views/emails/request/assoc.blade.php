@@ -1,5 +1,21 @@
-Hello Kora3 Form Administrator!
-<br><br>
-The following form ({{$myProj->name}} | {{$myForm->name}}), is requesting associator access to the following form: {{$theirProj->name}} | {{$theirForm->name}}
-<br><br>
-Visit the Manage Associations page <a href="{{action('AssociationController@index', ['pid'=>$theirForm->pid,'fid'=>$theirForm->fid])}}">here</a> to grant access
+@extends('email')
+
+@section('main-text')
+    The form ({{$myProj->name}} | {{$myForm->name}}), is requesting associator access to the following form:
+@endsection
+
+@section('project-text')
+    {{$theirProj->name}} | {{$theirForm->name}}
+@endsection
+
+@section('button-link')
+    {{action('AssociationController@index', ['pid'=>$theirForm->pid,'fid'=>$theirForm->fid])}}
+@endsection
+
+@section('button-text')
+    Go to Form Association Page
+@endsection
+
+@section('post-action-text')
+    Visit the Form Associations page for “{{$theirProj->name}} | {{$theirForm->name}}” and Create a new Form Association to the “{{$myProj->name}} | {{$myForm->name}}” form.
+@endsection

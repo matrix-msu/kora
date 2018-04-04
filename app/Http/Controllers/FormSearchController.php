@@ -38,22 +38,22 @@ class FormSearchController extends Controller {
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $args = $request->keywords;
+        $argArray = explode(' ',$args);
         $method = intval($request->method);
 
         // Inform the user about arguments that will be ignored.
         if($method==Search::SEARCH_EXACT) {
             //Here we treat the argument as one single value
-            $ignored = Search::showIgnoredArguments($args,true);
+            $ignored = Search::showIgnoredArguments($argArray,true);
         } else {
-            $ignored = Search::showIgnoredArguments($args);
-            $args = array_diff($args, $ignored);
+            $ignored = Search::showIgnoredArguments($argArray);
+            $args = array_diff($argArray, $ignored);
             $arg = implode(" ", $args);
         }
 
         $ignored = implode(" ", $ignored);
 
-        if($ignored)
-            //TODO:: flash("The following arguments were ignored by the search: " . $ignored . '. ');
+        //TODO:: flash("The following arguments were ignored by the search: " . $ignored . '. ');
 
         $search = new Search($pid, $fid, $arg, $method);
 
@@ -67,10 +67,18 @@ class FormSearchController extends Controller {
 
         sort($rids);
 
-        $records = Record::whereIn("rid", "=", $rids)->get();
+        $recBuilder = Record::whereIn("rid", $rids);
+        $total = $recBuilder->count();
+
+        $pagination = app('request')->input('page-count') === null ? 10 : app('request')->input('page-count');
+        $order = app('request')->input('order') === null ? 'lmd' : app('request')->input('order');
+        $order_type = substr($order, 0, 2) === "lm" ? "updated_at" : "rid";
+        $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
+        $records = $recBuilder->orderBy($order_type, $order_direction)->paginate($pagination);
+
         $form = FormController::getForm($fid);
 
-        return view('records.subset', compact("form", "records"));
+        return view('records.results', compact("form", "records", "total", "ignored"));
     }
 
     /**

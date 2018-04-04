@@ -38,15 +38,15 @@
     <section class="filters center">
         <div class="pagination-options pagination-options-js">
             <select class="page-count option-dropdown-js" id="page-count-dropdown">
-                <option>10 per page</option>
-                <option>20 per page</option>
-                <option>30 per page</option>
+                <option value="10">10 per page</option>
+                <option value="20" {{app('request')->input('page-count') === '20' ? 'selected' : ''}}>20 per page</option>
+                <option value="30" {{app('request')->input('page-count') === '30' ? 'selected' : ''}}>30 per page</option>
             </select>
             <select class="order option-dropdown-js" id="order-dropdown">
-                <option>Last Modified Descending</option>
-                <option>Last Modified Ascending</option>
-                <option>ID Descending</option>
-                <option>ID Ascending</option>
+                <option value="lmd">Last Modified Descending</option>
+                <option value="lma" {{app('request')->input('order') === 'lma' ? 'selected' : ''}}>Last Modified Ascending</option>
+                <option value="idd" {{app('request')->input('order') === 'idd' ? 'selected' : ''}}>ID Descending</option>
+                <option value="ida" {{app('request')->input('order') === 'ida' ? 'selected' : ''}}>ID Ascending</option>
             </select>
         </div>
         <div class="show-options show-options-js">
@@ -59,25 +59,7 @@
             @include('partials.revisions.card')
         @endforeach
     </section>
-    <section class="pagination center">
-        <div class="previous page disabled">
-            <a href="#">
-                <i class="icon icon-chevron left"></i>
-                <span class="name underline-middle-hover">Previous</span>
-            </a>
-        </div>
-        <div class="pages">
-            <a href="#" class="page-link active">1</a>
-            <a href="#" class="page-link">2</a>
-            <a href="#" class="page-link">3</a>
-        </div>
-        <div class="next page">
-            <a href="#">
-                <i class="icon icon-chevron right"></i>
-                <span class="name underline-middle-hover">Next</span>
-            </a>
-        </div>
-    </section>
+    @include('partials.revisions.pagination')
 @stop
 
 @section('javascripts')

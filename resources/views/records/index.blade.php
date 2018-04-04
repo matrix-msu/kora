@@ -32,11 +32,10 @@
     @include("partials.records.modals.deleteRecordModal", ['record' => null])
     <section class="view-records center">
         <section class="search-records">
-            <form method="GET" action="{{action('FormSearchController@keywordSearch',['pid' => $form->pid, 'fid' => $form->fid])}}" >
+            <form method="GET" action="{{action('FormSearchController@keywordSearch',['pid' => $form->pid, 'fid' => $form->fid])}}" class="keyword-search-js">
                 <div class="form-group search-input mt-xl">
                     {!! Form::label('keywords','Search Via Keyword(s) or KID : ') !!}
-                    {!! Form::select('keywords[]',[], null, ['class' => 'multi-select modify-select',
-                    'multiple', 'data-placeholder' => 'Type keyword and press enter']) !!}
+                    {!! Form::text('keywords', null, ['class' => 'text-input', 'placeholder' => 'Type space separated keywords']) !!}
                 </div>
                 <div class="form-group search-input mt-xl">
                     {!! Form::label('method','or / and / exact') !!}
@@ -46,7 +45,7 @@
                 <div class="form-group mt-xxxl">
                     <div class="search-button-container">
                         <a href="#" class="btn half-sub-btn mb-sm" data-unsp-sanitized="clean">View Advanced Search Options</a>
-                        <a href="#" class="btn half-btn mb-sm" data-unsp-sanitized="clean">Search</a>
+                        <a href="#" class="btn half-btn mb-sm submit-search-js" data-unsp-sanitized="clean">Search</a>
                     </div>
                 </div>
             </form>
@@ -58,12 +57,36 @@
 
         <section class="display-records">
             <div class="form-group records-title mt-xxxl">
-                Showing all Records for Now!
+                Showing {{sizeof($records)}} of {{$total}} Records
             </div>
+
+            @include('partials.records.pagination')
+
+            <section class="filters center">
+                <div class="pagination-options pagination-options-js">
+                    <select class="page-count option-dropdown-js" id="page-count-dropdown">
+                        <option value="10">10 per page</option>
+                        <option value="20" {{app('request')->input('page-count') === '20' ? 'selected' : ''}}>20 per page</option>
+                        <option value="30" {{app('request')->input('page-count') === '30' ? 'selected' : ''}}>30 per page</option>
+                    </select>
+                    <select class="order option-dropdown-js" id="order-dropdown">
+                        <option value="lmd">Last Modified Descending</option>
+                        <option value="lma" {{app('request')->input('order') === 'lma' ? 'selected' : ''}}>Last Modified Ascending</option>
+                        <option value="idd" {{app('request')->input('order') === 'idd' ? 'selected' : ''}}>ID Descending</option>
+                        <option value="ida" {{app('request')->input('order') === 'ida' ? 'selected' : ''}}>ID Ascending</option>
+                    </select>
+                </div>
+                <div class="show-options show-options-js">
+                    <a href="#" class="expand-fields-js" title="Expand all fields"><i class="icon icon-expand icon-expand-js"></i></a>
+                    <a href="#" class="collapse-fields-js" title="Collapse all fields"><i class="icon icon-condense icon-condense-js"></i></a>
+                </div>
+            </section>
 
             @foreach($records as $index => $record)
                 @include('partials.records.card')
             @endforeach
+
+            @include('partials.records.pagination')
         </section>
     </section>
 @stop

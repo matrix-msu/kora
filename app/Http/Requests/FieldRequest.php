@@ -39,7 +39,7 @@ class FieldRequest extends Request {
                     'type' => 'required',
                     'name' => 'required|min:3',
                     'slug' => 'required|alpha_dash|min:3|unique:fields',
-                    'desc' => 'required'
+                    'desc' => 'required|max:255'
                 ];
             case 'PATCH':
                 return [
@@ -48,7 +48,7 @@ class FieldRequest extends Request {
                     'type' => 'required',
                     'name' => 'required|min:3',
                     'slug' => 'required|alpha_dash|min:3|unique:fields,slug,'.$field->flid.',flid',
-                    'desc' => 'required'
+                    'desc' => 'required|max:255'
                 ];
             default:
                 break;

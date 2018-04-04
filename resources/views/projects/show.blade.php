@@ -4,6 +4,10 @@
     @include('partials.menu.project', ['pid' => $project->pid])
 @stop
 
+@section('aside-content')
+  @include('partials.sideMenu.project', ['pid' => $project->pid])
+@stop
+
 @section('stylesheets')
   <!-- No Additional Stylesheets Necessary -->
 @stop

@@ -10,7 +10,7 @@
 </div>
 
 <div class="form-group mt-xl">
-    <label for="filetype">Allowed File Types (<a class="field-meme-link underline-middle-hover" href="https://en.wikipedia.org/wiki/MIME">MIME</a>): </label>
+    <label for="filetype">Allowed File Types (<a target="_blank" class="field-meme-link underline-middle-hover" href="https://en.wikipedia.org/wiki/MIME">MIME</a>): </label>
     {!! Form::select('filetype'.'[]',\App\FileTypeField::getMimeTypesClean(), null,
         ['class' => 'multi-select', 'Multiple', 'data-placeholder' => 'Search and Select the file types allowed here']) !!}
 </div>

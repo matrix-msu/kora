@@ -73,5 +73,7 @@
     }
 
     @import 'record-show/card';
+    @import 'record-index/filters';
+    @import 'record-index/pagination';
   }
 }

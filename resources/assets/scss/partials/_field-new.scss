@@ -30,5 +30,11 @@
     .new-object-button {
       width: calc(100%);
     }
+
+    .new-object-button,
+    .low-margin {
+      margin-top: 10px;
+      width: calc(100%);
+    }
   }
 }

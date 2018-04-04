@@ -36,13 +36,13 @@ class ProjectRequest extends Request {
                 return [
                     'name' => 'required|min:3',
                     'slug' => 'required|alpha_dash|min:3|unique:projects',
-                    'description' => 'required',
+                    'description' => 'required|max:255',
                 ];
             case 'PATCH':
                 return [
                     'name' => 'required|min:3',
                     'slug' => 'required|alpha_dash|min:3|unique:projects,slug,'.$project->pid.',pid',
-                    'description' => 'required',
+                    'description' => 'required|max:255',
                 ];
             default:
                 break;

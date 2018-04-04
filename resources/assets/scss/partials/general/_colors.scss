@@ -7,6 +7,7 @@
   $base-green: #007c83;
   $base-sidemenu: #152730;
   $base-sidemenu-drawer: #14252e;
+  $base-sidemenu-drawer-text: #f7f8fa;
   $base-sidemenu-footer: #11222a;
   $base-text: #283c46;
   $base-warning: #ff6f81;
@@ -37,6 +38,7 @@
       background:     rgba($base-background, $alpha),
       base:           rgba($base-text, $alpha),
       drawer-slate:   rgba($base-sidemenu-drawer, $alpha),
+      drawer-text:    rgba($base-sidemenu-drawer-text, $alpha),
       footer-slate:   rgba($base-sidemenu-drawer, $alpha),
       dropdown:       rgba($base-dropdown-menu, $alpha),
       slate:          rgba($base-sidemenu, $alpha),
@@ -46,6 +48,7 @@
 
     'box-shadow': (
       base: rgba($base-sidemenu, $alpha),
+      drawer-black: rgba($base-black, $alpha),
       accent: rgba($base-accent, $alpha),
       warning: rgba($base-warning, $alpha)
     )

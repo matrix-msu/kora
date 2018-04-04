@@ -264,5 +264,15 @@ Route::group(['middleware' => 'api'], function () {
     Route::put('/api/edit', 'RestfulController@edit');
 
 //api 1.5 routes
+    //New functions
     Route::post('/api/1_5/search', 'Restful_1_5_Controller@search');
+    //Old routes we are bouncing to old functions
+    Route::get('/api/1_5/version', 'RestfulController@getKoraVersion');
+    Route::get('/api/1_5/projects/{pid}/forms', 'RestfulController@getProjectForms');
+    Route::post('/api/1_5/projects/{pid}/forms/create', 'RestfulController@createForm');
+    Route::get('/api/1_5/projects/{pid}/forms/{fid}/fields', 'RestfulController@getFormFields');
+    Route::get('/api/1_5/projects/{pid}/forms/{fid}/recordCount', 'RestfulController@getFormRecordCount');
+    Route::delete('/api/1_5/delete', 'RestfulController@delete');
+    Route::post('/api/1_5/create', 'RestfulController@create');
+    Route::put('/api/1_5/edit', 'RestfulController@edit');
 });

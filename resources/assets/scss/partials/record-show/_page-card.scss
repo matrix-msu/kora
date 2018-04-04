@@ -1,4 +1,8 @@
 .page {
+  .content {
+    padding-top: 0;
+  }
+
   .page-title {
     color: palette('gray', text);
     font-family: $ubuntu-medium-italic;
@@ -18,10 +22,6 @@
   .no-field {
     color: palette('gray', text, .4);
     font-family: $ubuntu-medium-italic;
-  }
-
-  .field-title:first-child {
-    margin-top: 20px;
   }
 
   .field-data {

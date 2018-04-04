@@ -7,6 +7,7 @@ use App\Revision;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Input;
 use Illuminate\View\View;
 
 class RevisionController extends Controller {
@@ -44,7 +45,11 @@ class RevisionController extends Controller {
         if(!(\Auth::user()->isFormAdmin($form)))
             return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
-        $revisions = DB::table('revisions')->where('fid', '=', $fid)->orderBy('created_at', 'desc')->take(50)->get();
+        $pagination = app('request')->input('page-count') === null ? 10 : app('request')->input('page-count');
+        $order = app('request')->input('order') === null ? 'lmd' : app('request')->input('order');
+        $order_type = substr($order, 0, 2) === "lm" ? "created_at" : "id";
+        $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
+        $revisions = DB::table('revisions')->where('fid', '=', $fid)->orderBy($order_type, $order_direction)->paginate($pagination);
 
         $rid_array = array();
         foreach($revisions as $revision) {
@@ -63,7 +68,9 @@ class RevisionController extends Controller {
                 $records[$temp[$i]] = $pid . '-' . $form->fid . '-' . $temp[$i];
         }
 
-        return view('revisions.index', compact('revisions', 'records', 'form'));
+        return view('revisions.index', compact('revisions', 'records', 'form', [
+            'revisions' => $revisions->appends(Input::except('page'))
+            ]));
     }
 
     /**
@@ -89,7 +96,11 @@ class RevisionController extends Controller {
         if(!(\Auth::user()->isFormAdmin($form)) && \Auth::user()->id != $owner)
             return redirect('projects/'.$pid)->with('k3_global_error', 'revision_permission_issue');
 
-        $revisions = DB::table('revisions')->where('rid', '=', $rid)->orderBy('created_at','desc')->take(50)->get();
+        $pagination = app('request')->input('page-count') === null ? 10 : app('request')->input('page-count');
+        $order = app('request')->input('order') === null ? 'lmd' : app('request')->input('order');
+        $order_type = substr($order, 0, 2) === "lm" ? "created_at" : "id";
+        $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
+        $revisions = DB::table('revisions')->where('rid', '=', $rid)->orderBy('created_at','desc')->paginate($pagination);
 
         $records = array();
 

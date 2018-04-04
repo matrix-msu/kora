@@ -9,6 +9,12 @@
     font-size: 14px;
     line-height: 1.5;
     padding: 0 25px 25px;
+
+    .export-record-link {
+      color: palette('green', 'accent');
+      display: inline;
+      font-family: $ubuntu-medium;
+    }
   }
 
   .form-group:last-child {

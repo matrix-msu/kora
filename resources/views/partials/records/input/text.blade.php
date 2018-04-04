@@ -13,6 +13,12 @@
         {!! Form::text($field->flid, $textValue, ['class' => 'text-input preset-clear-text-js']) !!}
     @endif
     @if(\App\Http\Controllers\FieldController::getFieldOption($field,'MultiLine')==1)
-        {!! Form::textarea($field->flid, $textValue, ['class' => 'text-area preset-clear-text-js']) !!}
+        <?php
+            $newLineCnt = substr_count($textValue, "\n");
+            $taHeight = $newLineCnt*15;
+            if($taHeight < 100)
+                $taHeight = 100;
+        ?>
+        {!! Form::textarea($field->flid, $textValue, ['class' => 'text-area preset-clear-text-js', 'style' => 'height:'.$taHeight.'px']) !!}
     @endif
 </div>

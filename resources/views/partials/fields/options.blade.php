@@ -16,7 +16,7 @@
 
 <div class="form-group mt-xl">
     {!! Form::label('desc', 'Description') !!}
-    {!! Form::textarea('desc', $field->desc, ['class' => 'text-area', 'placeholder' => "Enter the field's description here (max. 500 characters)"]) !!}
+    {!! Form::textarea('desc', $field->desc, ['class' => 'text-area', 'placeholder' => "Enter the field's description here (max. 255 characters)"]) !!}
 
     <div class="spacer"></div>
 </div>

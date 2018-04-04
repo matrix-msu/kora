@@ -273,7 +273,7 @@ class FieldController extends Controller {
      * @param  int $fid - Form ID
      * @param  int $flid - Field ID
      */
-	public function destroy($pid, $fid, $flid) {
+	public function destroy($pid, $fid, $flid, Request $request) {
         if(!self::validProjFormField($pid, $fid, $flid))
             return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_error', 'field_invalid');
 
@@ -281,17 +281,16 @@ class FieldController extends Controller {
             return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_error', 'cant_delete_field');
 
         $field = self::getField($flid);
-        $form = FormController::getForm($fid);
         $pageID = $field->page_id; //capture before delete
         $field->delete();
 
         //we need to restructure page sequence on delete
         PageController::restructurePageSequence($pageID);
 
-        // RevisionController::wipeRollbacks($form->fid);
-
-        // return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_success', 'field_deleted');
-        return response()->json(["status"=>true, "message"=>"deleted"], 200);
+        if(isset($request->redirect_route))
+            return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_success', 'field_deleted');
+        else
+            return response()->json(["status"=>true, "message"=>"deleted"], 200);
 	}
 
     /**

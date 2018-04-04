@@ -12,5 +12,10 @@
     margin: #{map-get($spacing, xxxl)} auto;
     max-width: calc(#{ $max-site-width } - 600px);
     width: $max-site-width;
+
+    .new-object-button,
+    .low-margin {
+      margin-top: 10px;
+    }
   }
 }
