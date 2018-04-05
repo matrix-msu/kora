@@ -136,6 +136,19 @@ Kora.Projects.Show = function() {
               .css('top', '')
               .css('position', '')
               .insertBefore($previousForm);
+
+              fidsArray = $(".form-custom-js").sortable("toArray");
+
+              $.ajax({
+                  url: saveCustomOrderUrl,
+                  type: 'POST',
+                  data: {
+                      "_token": CSRFToken,
+                      "fids": fidsArray,
+
+                  },
+                  success: function(result) {}
+              });
           });
       } else {
         var $nextForm = $form.next();
@@ -160,6 +173,19 @@ Kora.Projects.Show = function() {
               .css('top', '')
               .css('position', '')
               .insertAfter($nextForm);
+
+              fidsArray = $(".form-custom-js").sortable("toArray");
+
+              $.ajax({
+                  url: saveCustomOrderUrl,
+                  type: 'POST',
+                  data: {
+                      "_token": CSRFToken,
+                      "fids": fidsArray,
+
+                  },
+                  success: function(result) {}
+              });
           });
       }
     });
