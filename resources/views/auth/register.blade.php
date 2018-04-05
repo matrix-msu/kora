@@ -100,15 +100,12 @@
 @stop
 
 @section('javascripts')
+  @include('partials.auth.javascripts')
+
   <!-- Google reCAPTCHA -->
   <script type="text/javascript" src="https://www.google.com/recaptcha/api.js" async defer></script>
 
   <script>
-    $(".chosen-select").chosen({
-      disable_search_threshold: 10,
-      width: '100%'
-    });
-
     // For profile pic functionality
     var form = $("#register-form");
     var fileInput = $(".profile-input");
@@ -241,5 +238,7 @@
         });
       });
     }
+    
+    Kora.Auth.Register();
   </script>
 @stop
