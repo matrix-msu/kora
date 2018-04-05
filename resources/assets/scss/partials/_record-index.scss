@@ -23,6 +23,7 @@
       + .search-input {
         float: right;
         padding-left: 15px;
+        padding-right: 0;
         width: 20%;
       }
     }
@@ -48,6 +49,16 @@
           float: left;
           padding-left: 0px;
           width: 100%;
+        }
+      }
+
+      .search-spacer {
+        display: block;
+        float: left;
+        width: 100%;
+
+        .spacer {
+          margin-bottom: 60px;
         }
       }
 

@@ -12,7 +12,9 @@
           class="global-search-input global-search-input-js"
           autocomplete="off" value=""
           placeholder="&nbsp;&nbsp;&nbsp;&nbsp;Start Typing to Search ..."
-          name="gsQuery">
+          name="keywords">
+        <input type="hidden" name="method" value="2">
+        <input type="hidden" name="projects[]" value="ALL">
         <button class="global-search-submit global-search-submit-js">
           <i class="icon icon-chevron"></i>
         </button>

@@ -13,7 +13,7 @@
         </div>
       @endif
 
-      <a class="title {{!$active ? 'inactive': 'underline-middle-hover'}}" href="{{ action('FormController@show',['pid' => $project->pid, 'fid' => $form->fid]) }}">
+      <a class="title underline-middle-hover" href="{{ action('FormController@show',['pid' => $project->pid, 'fid' => $form->fid]) }}">
         <span class="name">{{$form->name}}</span>
           <i class="icon icon-arrow-right"></i>
       </a>

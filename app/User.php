@@ -437,9 +437,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function addCustomProject($pid) {
         //Make sure it doesn't exist first
         $check = DB::table("project_custom")->where("uid", "=", $this->id)
-            ->where("pid", "=", $pid)->get();
+            ->where("pid", "=", $pid)->first();
 
-        if(empty($check)) {
+        if(is_null($check)) {
             $currSeqMax = DB::table("project_custom")->where("uid", "=", $this->id)->max("sequence");
             if(!is_null($currSeqMax))
                 $newSeq = $currSeqMax + 1;
@@ -464,9 +464,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         //Make sure it doesn't exist first
         $check = DB::table("form_custom")->where("uid", "=", $this->id)
             ->where("pid", "=", $pid)
-            ->where("fid", "=", $fid)->get();
+            ->where("fid", "=", $fid)->first();
 
-        if(empty($check)) {
+        if(is_null($check)) {
             $currSeqMax = DB::table("form_custom")->where("uid", "=", $this->id)
                 ->where("pid", "=", $pid)->max("sequence");
             if(!is_null($currSeqMax))

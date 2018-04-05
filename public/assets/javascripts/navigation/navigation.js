@@ -182,8 +182,7 @@ $searchForm.submit(function() {
 
   if (valToCache != '') {
     var html = '<li><a href="' +
-      globalSearchUrl + '?gsQuery=' + encodeURI(valToCache) +
-      '">' + valToCache + '</a></li>';
+      globalSearchUrl + '?keywords=' + encodeURI(valToCache) + '&method=2&projects%5B%5D=ALL">' + valToCache + '</a></li>';
 
     cacheGlobalSearch(html);
   }

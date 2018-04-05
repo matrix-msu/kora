@@ -74,7 +74,7 @@
           <span>Edit Project Info</span>
         </a>
 
-        <a class="quick-action underline-middle-hover" href="#">
+        <a class="quick-action underline-middle-hover" href="{{ action('ProjectSearchController@keywordSearch', ['pid'=>$project->pid]) }}">
           <i class="icon icon-search"></i>
           <span>Search Project Records</span>
         </a>

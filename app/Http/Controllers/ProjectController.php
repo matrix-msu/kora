@@ -340,6 +340,9 @@ class ProjectController extends Controller {
         $group = $project->adminGroup()->first();
         $users = $group->users()->get();
 
+        $admins = User::where('admin','=',1)->get();
+        $users = $users->merge($admins)->unique();
+
         return $users;
     }
 }

@@ -1,8 +1,7 @@
-@extends('app', ['page_title' => 'Project Records', 'page_class' => 'record-index'])
+@extends('app', ['page_title' => 'Search Kora', 'page_class' => 'record-index'])
 
 @section('leftNavLinks')
-    @include('partials.menu.project', ['pid' => $project->pid])
-    @include('partials.menu.static', ['name' => 'Project Records'])
+
 @stop
 
 @section('stylesheets')
@@ -18,11 +17,12 @@
         <a class="rotate" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
         <div class="inner-wrap center">
             <h1 class="title">
-                <i class="icon icon-record-search mr-sm"></i>
-                <span>Search Project Records</span>
+                <i class="icon icon-search-big mr-sm"></i>
+                <span>Search Kora</span>
             </h1>
-            <p class="description">Enter keywords to search below. A keyword is required in order to search project
-                records. You can also search by a specific form, and filter by “Or”, “And”, or “Exact” keyword results. </p>
+            <p class="description">To search Kora, Enter keywords to in the first field below. You can also search by
+                specific projects, and filter by “Or”, “And”, or “Exact” keyword results. Select “Search” to input your
+                search query. You can also scroll beneath this section to begin exploring all Kora results.</p>
         </div>
     </section>
 @stop
@@ -30,7 +30,7 @@
 @section('body')
     <section class="view-records center">
         <section class="search-records">
-            <form method="GET" action="{{action('ProjectSearchController@keywordSearch',['pid' => $project->pid])}}" class="keyword-search-js">
+            <form method="GET" action="{{action('ProjectSearchController@globalSearch')}}" class="keyword-search-js">
                 <div class="form-group search-input mt-xl">
                     {!! Form::label('keywords','Search Via Keyword(s) or KID : ') !!}
                     {!! Form::text('keywords', app('request')->input('keywords'), ['class' => 'text-input keywords-get-js', 'placeholder' => 'Type space separated keywords']) !!}
@@ -41,9 +41,9 @@
                 </div>
 
                 <div class="form-group search-spacer mt-xl">
-                    {!! Form::label('forms','Search and Select Form(s) to Filter Results') !!}
-                    {!! Form::select('forms[]',$forms, ( !is_null(app('request')->input('forms')) ? app('request')->input('forms') : "ALL" ), ['multiple',
-                        'class' => 'multi-select forms-get-js', 'data-placeholder' => 'Select Form(s) to search']) !!}
+                    {!! Form::label('projects','Search and Select Projects(s) to Filter Results') !!}
+                    {!! Form::select('projects[]',$projects, ( !is_null(app('request')->input('projects')) ? app('request')->input('projects') : "ALL" ), ['multiple',
+                        'class' => 'multi-select projects-get-js', 'data-placeholder' => 'Select Projects(s) to search']) !!}
                 </div>
 
                 <div class="form-group search-spacer mt-xxxl">
