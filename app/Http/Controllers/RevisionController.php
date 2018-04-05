@@ -268,14 +268,74 @@ class RevisionController extends Controller {
             foreach ($fields as $id => $field) {
                 if ($revision->type == "edit") {
                     if ($oldData[$type][$id]['data'] !== $field['data']) {
-                        $formatted["old"][$id] = $oldData[$type][$id];
-                        $formatted["current"][$id] = $field;
+                        $formatted["old"][$id] = RevisionController::formatData($type, $oldData[$type][$id]);
+                        $formatted["current"][$id] = RevisionController::formatData($type, $field);
                     }
                 } elseif ($revision->type == "create" || $revision->type == "delete") {
-                    $formatted[$id] = $field;
+                    $formatted[$id] = RevisionController::formatData($type, $field);
                 }
             }
         }
         return $formatted;
+    }
+
+    /**
+     * Formats data for display
+     * 
+     * @param string $type - The data type of the field
+     * @param array $field - The field data
+     * @return array - The formatted field data
+     */
+    public static function formatData($type, $field) {
+        $data = $field["data"];
+        switch($type) {
+            case 'Date':
+                $stringDate = '';
+                if($data['circa']) {$stringDate .= 'circa ';}
+                $stringDate .= implode('/', array($data['month'],$data['day'],$data['year']));
+                $stringDate .= ' '.$data['era'];
+                $data = $stringDate;
+                break;
+            case 'Documents':
+            case 'Gallery':
+            case 'Model':
+            case 'Playlist':
+            case 'Video':
+                $stringFile = '';
+                foreach($data as $file) {
+                    $stringFile .= '<div>'.explode('[Name]',$file)[1].'</div>';
+                }
+                $data = $stringFile;
+                break;
+            case 'Multi-Select List':
+            case 'Generated List':
+            case 'Schedule':
+            case 'Associator':
+                $stringList = '';
+                foreach($data as $listItem) {
+                    $stringList .= '<div>'.$listItem.'</div>';
+                }
+                $data = $stringList;
+            break;
+            case 'Geolocator':
+                $stringLoc = '';
+                foreach($data as $loc) {
+                    $stringLoc .= '<div>'.explode('[Desc]',$loc)[1].': '.explode('[LatLon]',$loc)[1].'</div>';
+                }
+                $data = $stringLoc;
+                break;
+            case 'Combo List':
+                $stringCombo = '';
+                foreach($data as $comboItem) {
+                    $stringCombo .= '<div>'.explode('[!f1!]',$comboItem)[1].' ~~~ '.explode('[!f2!]',$comboItem)[1].'</div>';
+                }
+                $data = $stringCombo;
+                break;
+            default:
+                break;
+            
+        }
+        $field["data"] = $data;
+        return $field;
     }
 }
