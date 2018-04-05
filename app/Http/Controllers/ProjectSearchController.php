@@ -103,94 +103,68 @@ class ProjectSearchController extends Controller {
      * @return View
      */
     public function globalSearch(Request $request) {
-        $query = trim($request->gsQuery);
-        $method = "GLOBAL";
+        if(isset($request->keywords)) {
+            //DO THE SEARCH
+            $arg = trim($request->keywords);
+            $method = intval($request->method);
+            $pids = $request->projects;
 
-        $page = (isset($_GET['page'])) ? intval(strip_tags($_GET['page'])) : $page = 1;
-
-        if(Record::isKIDPattern($query) && count(explode(" ", $query)) == 1) { // Query is a KID and only a single query was entered.
-            $kid_array = explode("-", $query);
-
-            if(RecordController::validProjFormRecord($kid_array[0], $kid_array[1], $kid_array[2])) {
-                if(\Auth::user()->inAFormGroup(FormController::getForm($kid_array[1]))) {
-                    return redirect("/projects/" . $kid_array[0] . "/forms/" . $kid_array[1] . "/records/" . $kid_array[2]);
-                } else { // User did not have permission to view the record.
-                    return redirect()->back()->with('k3_global_error', 'cant_view_record');
-                }
-            } else { // Record does not exist.
-                return redirect()->back()->with('k3_global_error', 'record_doesnt_exist');
-            }
-        }
-
-        $do_query = true;
-        if(Session::has("query") && Session::has("method")) {
-            $session_query = Session::get("query");
-            $session_method = Session::get("method");
-
-            if($query == $session_query && $method == $session_method) {
-                $rids = unserialize(Session::get("rids"));
-            } else {
-                $do_query = true;
-            }
-        } else {
-            $do_query = true;
-        }
-
-        if($do_query) {
             // Inform the user about arguments that will be ignored.
-            $query_pieces = explode(" ", $query);
-            $ignored = Search::showIgnoredArguments($query_pieces);
-            $query_pieces = array_diff($query_pieces, $ignored);
-            $query = implode(" ", $query_pieces);
+            $args = explode(" ", $arg);
+            $ignored = Search::showIgnoredArguments($args, $method);
+            $args = array_diff($args, $ignored);
+            $arg = implode(" ", $args);
 
-            $user = Auth::user();
+            $ignored = implode(" ", $ignored);
 
-            $projects = $user->allowedProjects();
+            //TODO::Flash ignored warnings
+
+            //Determine if we are searching all forms in project, or just specific ones
+            if(in_array("ALL",$pids))
+                $projects = Project::all();
+            else
+                $projects = Project::whereIn('pid',$pids)->get();
 
             $rids = [];
-            foreach($projects as $project) {
-                $forms = $user->allowedForms($project->pid);
-
+            foreach($projects as $proj) {
+                $forms = $proj->forms()->get();
                 foreach($forms as $form) {
-                    // Global search is always an exact search.
-                    $search = new Search($form->pid, $form->fid, $query, Search::SEARCH_EXACT);
+                    if(!Auth::user()->inAFormGroup($form))
+                        continue;
+                    $search = new Search($form->pid, $form->fid, $arg, $method);
                     $rids = array_merge($search->formKeywordSearch(), $rids);
                 }
             }
 
-            Session::put("rids", serialize($rids));
-        }
+            if(empty($rids))
+                $rids = [];
 
-        Session::put("query", $query);
-        Session::put("method", $method);
+            sort($rids);
 
-        $record_count = $page * RecordController::RECORDS_PER_PAGE;
-        $slice = array_slice($rids, $record_count - RecordController::RECORDS_PER_PAGE, $record_count);
+            $recBuilder = Record::whereIn("rid", $rids);
+            $total = $recBuilder->count();
 
-        if(empty($rids)) {
-            $records = [];
+            $pagination = app('request')->input('page-count') === null ? 10 : app('request')->input('page-count');
+            $order = app('request')->input('order') === null ? 'lmd' : app('request')->input('order');
+            $order_type = substr($order, 0, 2) === "lm" ? "updated_at" : "rid";
+            $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
+            $records = $recBuilder->orderBy($order_type, $order_direction)->paginate($pagination);
         } else {
-            $records = Record::where(function($builder) use ($slice) {
-                foreach($slice as $rid) {
-                    $builder->orWhere("rid", "=", $rid);
-                }
-            })->get();
-        }
-        $rid_paginator = new LengthAwarePaginator($rids, count($rids), RecordController::RECORDS_PER_PAGE, $page);
-        $rid_paginator->appends([
-            "query" => $query,
-            "method" => $method,
-        ]);
-        $rid_paginator->setPath( config('app.url') . 'globalSearch/');
-
-        $projects = Project::all();
-        $projectArrays = [];
-        foreach($projects as $project) {
-            $projectArrays[] = $project->buildFormSelectorArray();
+            //INITIAL PAGE VISIT
+            $records = [];
+            $total = 0;
+            $ignored = [];
         }
 
-        $pid = 0;
-        return view("projectSearch.results", compact("records", "ignored", "rid_paginator", "pid", "projectArrays"));
+        $projects = array("ALL" => 'All Projects');
+        $allProjects = Project::all();
+        foreach($allProjects as $p) {
+            if(!Auth::user()->inAProjectGroup($p))
+                continue;
+            $projects[$p->pid] = $p->name;
+        }
+
+        return view('globalSearch.results', compact("projects", "records", "total", "ignored"));
     }
 
     /**

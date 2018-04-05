@@ -43,6 +43,12 @@ Kora.Records.Index = function() {
                     subBaseUrl += "&forms%5B%5D=" + forms[f];
                 }
             }
+            if($('.projects-get-js').length) {
+                var projs = $('.projects-get-js').val();
+                for(var p=0;p<projs.length;p++) {
+                    subBaseUrl += "&projects%5B%5D=" + projs[p];
+                }
+            }
 
             if(type === 'page-count-dropdown') {
                 var order = getURLParameter('order');
