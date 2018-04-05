@@ -50,6 +50,7 @@
     @include("partials.projects.index.custom", ['isCustom' => true, 'active' => false, 'archived' => false])
   </section>
 
+  @if(!Auth::user()->admin)
   <section class="foot center">
     <p class="permission-information">
         Don't see the project you are looking for? You might not have the permissions...
@@ -72,6 +73,7 @@
       </div>
     </div>
   </section>
+  @endif
 @stop
 
 @section('footer')
