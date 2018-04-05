@@ -13,10 +13,10 @@
       Hello, {{ Auth::user()->username }}!
     </li>
     <li class="link">
-      <a href="{{ url('/user') }}">View My Profile</a>
+      <a href="{{ action('Auth\UserController@index',['uid'=>Auth::user()->id]) }}">View My Profile</a>
     </li>
     <li class="link">
-      <a href="#">Edit My Profile</a>
+      <a href="{{action('Auth\UserController@editProfile',['uid'=>Auth::user()->id])}}">Edit My Profile</a>
     </li>
     <li class="link">
       <a href="#">My Preferences</a>
@@ -30,10 +30,10 @@
     @if(\Auth::user()->admin==1)
       <li class="spacer mt-0"></li>
       <li class="link first">
-        <a href="{{ url('/tokens') }}">Token Management</a>
+        <a href="{{ action('TokenController@index') }}">Token Management</a>
       </li>
       <li class="link pre-spacer">
-        <a href="{{ url('/admin/users') }}">User Management</a>
+        <a href="{{ action('AdminController@users') }}">User Management</a>
       </li>
     @endif
     <li class="spacer mt-0"></li>
