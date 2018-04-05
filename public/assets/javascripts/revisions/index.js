@@ -20,7 +20,31 @@ Kora.Revisions.Index = function() {
                 window.location = window.location.pathname + "?order=" + $(this).val() + (pageCount ? "&page-count=" + pageCount : '');
             }
         });
-	}
+    }
+    
+    function initializePaginationShortcut() {
+        $('.page-link.active').click(function(e) {
+            e.preventDefault();
+
+            var $this = $(this);
+            var maxInput = $this.siblings().last().text()
+            $this.html('<input class="page-input" type="number" min="1" max="'+ maxInput +'">');
+            var $input = $('.page-input');
+            $input.focus();
+            $input.on('blur keydown', function(e) {
+                if (e.key !== "Enter" && e.key !== "Tab") return;
+                if ($input[0].checkValidity()) {
+                    var url = window.location.toString();
+                    if (url.includes('page=')) {
+                        window.location = url.replace(/page=\d*/, "page="+$input.val());
+                    } else {
+                        var queryVar = url.includes('?') ? '&' : '?';
+                        window.location = url + queryVar + "page=" + $input.val();
+                    }
+                }
+            });
+        })
+    }
 
 	function initializeToggle() {
 		$('.revision-toggle-js').click(function(e) {
@@ -70,6 +94,7 @@ Kora.Revisions.Index = function() {
 	}
 
     initializeOptionDropdowns();
+    initializePaginationShortcut();
     initializeToggle();
 }
 

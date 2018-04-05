@@ -64,6 +64,19 @@
         border: 1px solid palette('gray', slate, 0.1);
         border-radius: 5px;
         box-shadow: 0 3px 5px 0 palette('gray', slate, 0.05);
+
+        .page-input {
+          border: none;
+          text-align: center;
+          -moz-appearance: textfield;
+          width: 20px;
+
+          &::-webkit-inner-spin-button,
+          &::-webkit-outer-spin-button {
+            margin: 0;
+            -webkit-appearance: none;
+          }
+        }
       }
     }
   }
