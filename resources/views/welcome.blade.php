@@ -78,11 +78,11 @@
     </div>
   </div>
 </div>
-
-
 @stop
 
 @section('javascripts')
+  @include('partials.auth.javascripts')
+
   <script>
     Kora.Modal.initialize();
 

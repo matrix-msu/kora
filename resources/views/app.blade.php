@@ -38,12 +38,13 @@
         @endif
       </div>
 
+      @yield('javascripts')
+      
       @if(Auth::guest() || !Auth::user()->active)
-        @include('partials.projects.javascripts')
-
         <script>
+          var langURL ="{{action('WelcomeController@setTemporaryLanguage')}}";
+          
           function setTempLang(selected_lang){
-            var langURL ="{{action('WelcomeController@setTemporaryLanguage')}}";
             console.log("Language change started: "+langURL);
             $.ajax({
               url:langURL,
@@ -60,7 +61,5 @@
           }
         </script>
       @endif
-
-      @yield('javascripts')
     </body>
 </html>
