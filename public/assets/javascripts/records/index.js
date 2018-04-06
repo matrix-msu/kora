@@ -76,6 +76,30 @@ Kora.Records.Index = function() {
         });
     }
 
+    function initializePaginationShortcut() {
+        $('.page-link.active').click(function(e) {
+            e.preventDefault();
+
+            var $this = $(this);
+            var maxInput = $this.siblings().last().text()
+            $this.html('<input class="page-input" type="number" min="1" max="'+ maxInput +'">');
+            var $input = $('.page-input');
+            $input.focus();
+            $input.on('blur keydown', function(e) {
+                if (e.key !== "Enter" && e.key !== "Tab") return;
+                if ($input[0].checkValidity()) {
+                    var url = window.location.toString();
+                    if (url.includes('page=')) {
+                        window.location = url.replace(/page=\d*/, "page="+$input.val());
+                    } else {
+                        var queryVar = url.includes('?') ? '&' : '?';
+                        window.location = url + queryVar + "page=" + $input.val();
+                    }
+                }
+            });
+        })
+    }
+
     function initializeSearchInteractions() {
         $('.submit-search-js').click(function(e) {
             e.preventDefault();
@@ -358,6 +382,7 @@ Kora.Records.Index = function() {
 
     initializeSelectAddition();
     initializeOptionDropdowns();
+    initializePaginationShortcut();
     initializeSearchInteractions();
     initializeToggle();
     initializeDeleteRecord();
