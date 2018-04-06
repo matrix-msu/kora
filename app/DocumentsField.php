@@ -22,6 +22,7 @@ class DocumentsField extends FileTypeField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.documents";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.documents";
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.filetype";
     const FIELD_INPUT_VIEW = "partials.records.input.documents";
     const FIELD_DISPLAY_VIEW = "partials.records.display.documents";
 

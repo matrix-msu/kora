@@ -1,9 +1,9 @@
-@extends('app', ['page_title' => 'Form Records', 'page_class' => 'record-index'])
+@extends('app', ['page_title' => 'Advanced Search', 'page_class' => 'record-index'])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $form->pid])
     @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
-    @include('partials.menu.static', ['name' => 'Form Records'])
+    @include('partials.menu.static', ['name' => 'Advanced Search'])
 @stop
 
 @section('stylesheets')
@@ -20,10 +20,9 @@
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-form-record-search mr-sm"></i>
-                <span>Search Form Records</span>
+                <span>Advanced Search Results</span>
             </h1>
-            <p class="description">Enter keywords to search below. A keyword is required in order to search form
-                records. You can also filter by “Or”, “And”, or “Exact” keyword results. </p>
+            <p class="description">View advanced search results or submit a new advanced search. </p>
         </div>
     </section>
 @stop
@@ -32,26 +31,7 @@
     @include("partials.records.modals.deleteRecordModal", ['record' => null])
     <section class="view-records center">
         <section class="search-records">
-            <form method="GET" action="{{action('FormSearchController@keywordSearch',['pid' => $form->pid, 'fid' => $form->fid])}}" class="keyword-search-js">
-                <div class="form-group search-input mt-xl">
-                    {!! Form::label('keywords','Search Via Keyword(s) or KID : ') !!}
-                    {!! Form::text('keywords', app('request')->input('keywords'), ['class' => 'text-input keywords-get-js', 'placeholder' => 'Type space separated keywords']) !!}
-                </div>
-                <div class="form-group search-input mt-xl">
-                    {!! Form::label('method','or / and / exact') !!}
-                    {!! Form::select('method',[0 => 'or',1 => 'and',2 => 'exact'], app('request')->input('method'), ['class' => 'single-select method-get-js']) !!}
-                </div>
-
-                <div class="form-group mt-xxxl">
-                    <div class="search-button-container">
-                        <a href="#" class="btn half-sub-btn mb-sm open-advanced-js" data-unsp-sanitized="clean">View Advanced Search Options</a>
-                        <a href="#" class="btn half-sub-btn mb-sm close-advanced-js hidden" data-unsp-sanitized="clean">Hide Advanced Search Options</a>
-                        <a href="#" class="btn half-btn mb-sm submit-search-js" data-unsp-sanitized="clean">Search</a>
-                    </div>
-                </div>
-            </form>
-
-            <section class="advanced-search-drawer advanced-search-drawer-js mt-xxxl hidden">
+            <section class="advanced-search-drawer">
                 @include('partials.records.adv-form')
             </section>
 
@@ -65,17 +45,16 @@
                 Showing {{sizeof($records)}} of {{$total}} Records
             </div>
 
-            @if(sizeof($records)>0)
             @include('partials.records.pagination')
 
             <section class="filters center">
                 <div class="pagination-options pagination-options-js">
-                    <select class="page-count results-option-dropdown-js" id="page-count-dropdown">
+                    <select class="page-count option-dropdown-js" id="page-count-dropdown">
                         <option value="10">10 per page</option>
                         <option value="20" {{app('request')->input('page-count') === '20' ? 'selected' : ''}}>20 per page</option>
                         <option value="30" {{app('request')->input('page-count') === '30' ? 'selected' : ''}}>30 per page</option>
                     </select>
-                    <select class="order results-option-dropdown-js" id="order-dropdown">
+                    <select class="order option-dropdown-js" id="order-dropdown">
                         <option value="lmd">Last Modified Descending</option>
                         <option value="lma" {{app('request')->input('order') === 'lma' ? 'selected' : ''}}>Last Modified Ascending</option>
                         <option value="idd" {{app('request')->input('order') === 'idd' ? 'selected' : ''}}>ID Descending</option>
@@ -93,7 +72,6 @@
             @endforeach
 
             @include('partials.records.pagination')
-            @endif
         </section>
     </section>
 @stop

@@ -232,9 +232,8 @@ Route::group(['middleware' => 'web'], function () {
     Route::delete("clearGlobalCache", "ProjectSearchController@clearGlobalCache");
 
 //advanced search routes
-    Route::get("/projects/{pid}/forms/{fid}/advancedSearch", "AdvancedSearchController@index");
-    Route::get("/projects/{pid}/forms/{fid}/advancedSearch/results", "AdvancedSearchController@results");
-    Route::post("/projects/{pid}/forms/{fid}/advancedSearch/search", "AdvancedSearchController@search");
+    Route::get("/projects/{pid}/forms/{fid}/advancedSearch/results", "AdvancedSearchController@recent");
+    Route::post("/projects/{pid}/forms/{fid}/advancedSearch/results", "AdvancedSearchController@search");
 
 // help routes
     Route::get("/help/search", "HelpController@search");

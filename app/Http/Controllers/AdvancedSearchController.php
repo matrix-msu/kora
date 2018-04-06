@@ -29,37 +29,16 @@ class AdvancedSearchController extends Controller {
     }
 
     /**
-     * Gets a list of all fields in the form and returns the advanced search view.
-     *
-     * @param  int $pid - Project ID
-     * @param  int $fid - Form ID
-     * @return View
-     */
-    public function index($pid, $fid) {
-        if(!FormController::validProjForm($pid, $fid))
-            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
-
-        $fields = Field::where("fid", "=", $fid)->get();
-        return view("advancedSearch.index", compact("pid", "fid", "fields"));
-    }
-
-    /**
      * Performs the advanced search and stores results in the session.
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @param  Request $request
-     * @return Redirect
+     * @return View
      */
     public function search($pid, $fid, Request $request) {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
-
-        $form = FormController::getForm($fid);
-        $stash = $form->getFieldStash();
-
-        $request = $request->all();
-        array_pop($request); // Pop off the CSRF token.
 
         $results = [];
 
@@ -68,7 +47,8 @@ class AdvancedSearchController extends Controller {
             return $notRid["rid"];
         }, Record::select("rid")->where('fid', '=', $fid)->get()->toArray());
 
-        foreach($this->processRequest($request) as $flid => $query) {
+        $processed = $this->processRequest($request->all());
+        foreach($processed as $flid => $query) {
             // Result will be returned as an array of stdObjects so we have to extract the rid.
             $field = FieldController::getField($flid);
             $result = array_map(function($returned) {
@@ -89,7 +69,55 @@ class AdvancedSearchController extends Controller {
             $rids = array_intersect($rids, $result);
         }
 
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/advancedSearch/results')->with("rids", $rids);
+        if(empty($rids))
+            $rids = [];
+
+        //store these for later, primarily subset operations like delete, mass assign, etc
+        Session::put('form_rid_search_subset', $rids);
+        Session::put('advanced_search_recents', $rids);
+
+        sort($rids);
+
+        $recBuilder = Record::whereIn("rid", $rids);
+        $total = $recBuilder->count();
+
+        $pagination = 10;
+        $order_type = "updated_at";
+        $order_direction = "desc";
+        $records = $recBuilder->orderBy($order_type, $order_direction)->paginate($pagination);
+
+        $form = FormController::getForm($fid);
+
+        return view('advancedSearch.results', compact("form", "records", "total"));
+    }
+
+    /**
+     * Gets the most recent advanced search.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return View
+     */
+    public function recent($pid, $fid) {
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
+
+        $rids = Session::get('advanced_search_recents');
+
+        sort($rids);
+
+        $recBuilder = Record::whereIn("rid", $rids);
+        $total = $recBuilder->count();
+
+        $pagination = app('request')->input('page-count') === null ? 10 : app('request')->input('page-count');
+        $order = app('request')->input('order') === null ? 'lmd' : app('request')->input('order');
+        $order_type = substr($order, 0, 2) === "lm" ? "updated_at" : "rid";
+        $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
+        $records = $recBuilder->orderBy($order_type, $order_direction)->paginate($pagination);
+
+        $form = FormController::getForm($fid);
+
+        return view('advancedSearch.results', compact("form", "records", "total"));
     }
 
     /**
@@ -104,14 +132,10 @@ class AdvancedSearchController extends Controller {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
-        $form = FormController::getForm($fid);
-        $stash = $form->getFieldStash();
-
-        $request = $request->all();
-
         $results = [];
 
-        foreach($this->processRequest($request) as $flid => $query) {
+        $processed = $this->processRequest($request->all());
+        foreach($processed as $flid => $query) {
             // Result will be returned as an array of stdObjects so we have to extract the rid.
             $field = FieldController::getField($flid);
             $result = array_map(function($returned) {
@@ -131,43 +155,6 @@ class AdvancedSearchController extends Controller {
     }
 
     /**
-     * Processes and prepares the results for the results view, including pagination.
-     *
-     * @param  int $pid - Project ID
-     * @param  int $fid - Form ID
-     * @return View
-     */
-    public function results($pid, $fid) {
-        if(!FormController::validProjForm($pid, $fid))
-            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
-
-        $page = (isset($_GET['page'])) ? intval(strip_tags($_GET['page'])) : $page = 1;
-
-        if(Session::has("rids"))
-            $rids = Session::get("rids");
-        else
-            $rids = [];
-
-        $controller = new RecordController();
-        $filesize = $controller->getFormFilesize($fid);
-
-        $record_count = $page * RecordController::RECORDS_PER_PAGE;
-        $slice = array_slice($rids, $record_count - RecordController::RECORDS_PER_PAGE, $record_count);
-
-        $query = Record::where("rid", "=", array_shift($slice));
-        foreach($slice as $rid) {
-            $query->orWhere("rid", "=", $rid);
-        }
-        $records = $query->get();
-
-        $rid_paginator = new LengthAwarePaginator($rids, count($rids), RecordController::RECORDS_PER_PAGE, $page);
-        $rid_paginator->setPath( config('app.url') . 'projects/' . $pid . '/forms/' . $fid . '/advancedSearch/results');
-
-        $form = Form::where("fid", "=", $fid)->first();
-        return view('search.results', compact("form", "filesize", "records", "rid_paginator"));
-    }
-
-    /**
      * Takes the request variables for an advanced search an processed them for use.
      *
      * @param  array $request - Variables from the request
@@ -175,38 +162,54 @@ class AdvancedSearchController extends Controller {
      */
     private function processRequest(array $request) {
         $processed = [];
-        $query = [];
-        // Process the search request.
-        $prev_flid = -1;
-        foreach($request as $key => $value) {
-            $flid = explode("_", $key)[0];
-            if($flid != $prev_flid) { // On a new input group.
 
-                // Only add the new query if it is valid.
-                if(isset($query[$prev_flid . "_valid"]) && isset($query[$prev_flid . "_dropdown"])) {
-                    if($query[$prev_flid . "_valid"] == "1")
-                        $processed[$prev_flid] = $query;
-                } else if(isset($query[$prev_flid . "_1_valid"]) && isset($query[$prev_flid . "_2_valid"])) {
-                    if($query[$prev_flid . "_1_valid"] == "1" || $query[$prev_flid . "_2_valid"] == "1")
-                        $processed[$prev_flid] = $query;
+        foreach($request as $key => $value) {
+            if(is_numeric($key)) {
+                $flid = $key;
+                $field = Field::where('flid',$flid)->first();
+
+                switch($field->type) {
+                    //TODO::Modular?
+                    case 'Date':
+                    case 'Schedule':
+                        if(
+                            $request[$flid.'_begin_month'] != '' && $request[$flid.'_begin_day'] != '' && $request[$flid.'_begin_year'] != '' &&
+                            $request[$flid.'_end_month'] != '' && $request[$flid.'_end_day'] != '' && $request[$flid.'_end_year'] != ''
+                        ) {
+                            $processed[$flid][$flid.'_begin_month'] = $request[$flid.'_begin_month'];
+                            $processed[$flid][$flid.'_begin_day'] = $request[$flid.'_begin_day'];
+                            $processed[$flid][$flid.'_begin_year'] = $request[$flid.'_begin_year'];
+                            $processed[$flid][$flid.'_end_month'] = $request[$flid.'_end_month'];
+                            $processed[$flid][$flid.'_end_day'] = $request[$flid.'_end_day'];
+                            $processed[$flid][$flid.'_end_year'] = $request[$flid.'_end_year'];
+
+                            if(isset($request[$flid.'_begin_era']))
+                                $processed[$flid][$flid.'_begin_era'] = $request[$flid.'_begin_era'];
+                            if(isset($request[$flid.'_end_era']))
+                                $processed[$flid][$flid.'_end_era'] = $request[$flid.'_end_era'];
+                        } else {
+                            //TODO::advanced error
+                        }
+                        break;
+                    case 'Number':
+                        if($request[$flid.'_left'] != '' | $request[$flid.'_right'] != '') {
+                            $processed[$flid][$flid.'_left'] = $request[$flid.'_left'];
+                            $processed[$flid][$flid.'_right'] = $request[$flid.'_right'];
+                            if(isset($request[$flid.'_invert']))
+                                $processed[$flid][$flid.'_invert'] = $request[$flid.'_invert'];
+                        } else {
+                            //TODO::advanced error
+                        }
+                        break;
+                    default:
+                        if($request[$flid.'_input'] != '')
+                            $processed[$flid][$flid.'_input'] = $request[$flid.'_input'];
+                        break;
                 }
 
-                $query = [];
-                $query[$key] = $value;
-                $prev_flid = $flid;
-            } else {
-                $query[$key] = $value;
-                $prev_flid = $flid;
+                if(isset($request[$flid.'_negative']))
+                    $processed[$flid][$flid.'_negative'] = $request[$flid.'_negative'];
             }
-        }
-
-        // Check the last query.
-        if(isset($query[$prev_flid . "_valid"])) {
-            if($query[$prev_flid . "_valid"] == "1")
-                $processed[$prev_flid] = $query;
-        } else if(isset($query[$prev_flid . "_1_valid"]) && isset($query[$prev_flid . "_2_valid"])) {
-            if($query[$prev_flid . "_1_valid"] == "1" || $query[$prev_flid . "_2_valid"] == "1")
-                $processed[$prev_flid] = $query;
         }
 
         return $processed;

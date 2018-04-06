@@ -24,6 +24,7 @@ class GeneratedListField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.genlist";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.genlist";
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.genlist";
     const FIELD_INPUT_VIEW = "partials.records.input.genlist";
     const FIELD_DISPLAY_VIEW = "partials.records.display.genlist";
 
