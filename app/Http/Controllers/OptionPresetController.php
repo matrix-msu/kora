@@ -36,8 +36,12 @@ class OptionPresetController extends Controller {
      * @return View
      */
     public function index($pid) {
+        $project = ProjectController::getProject($pid);
+
+        if(!\Auth::user()->isProjectAdmin($project))
+            return redirect('projects')->with('k3_global_error', 'not_project_admin');
+
         $all_presets = $this->getPresetsIndex($pid);
-        $project = Project::find($pid);
         return view('optionPresets/index', compact('project', 'all_presets'));
     }
 
@@ -48,7 +52,11 @@ class OptionPresetController extends Controller {
      * @return View
      */
     public function newPreset($pid) {
-        $project = Project::find($pid);
+        $project = ProjectController::getProject($pid);
+
+        if(!\Auth::user()->isProjectAdmin($project))
+            return redirect('projects')->with('k3_global_error', 'not_project_admin');
+
         return view('optionPresets.create',compact('project','pid'));
     }
 
@@ -102,8 +110,12 @@ class OptionPresetController extends Controller {
      * @return View
      */
     public function edit($pid, $id) {
+        $project = ProjectController::getProject($pid);
+
+        if(!\Auth::user()->isProjectAdmin($project))
+            return redirect('projects')->with('k3_global_error', 'not_project_admin');
+
         $preset = OptionPreset::find($id);
-        $project = Project::find($pid);
 
         if(!is_null($preset) && !is_null($project))
             return view('optionPresets.edit', compact('preset', 'project', 'pid', 'id'));
