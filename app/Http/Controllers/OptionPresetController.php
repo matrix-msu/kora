@@ -57,7 +57,7 @@ class OptionPresetController extends Controller {
         if(!\Auth::user()->isProjectAdmin($project))
             return redirect('projects')->with('k3_global_error', 'not_project_admin');
 
-        return view('optionPresets.create',compact('project','pid'));
+        return view('optionPresets.create',compact('project'));
     }
 
     /**
@@ -71,8 +71,7 @@ class OptionPresetController extends Controller {
         $this->validate($request, [
             'preset' => 'required',
             'type' => 'required|in:Text,List,Schedule,Geolocator',
-            'name' => 'required',
-            'shared' => 'required',
+            'name' => 'required'
         ]);
         if(Project::find($pid) != null) {
             $presets_project = Project::find($pid);
@@ -83,23 +82,23 @@ class OptionPresetController extends Controller {
         } else {
             return response()->json(["status"=>false,"message"=>"project_required"],500);
         }
-        $type = $request->input("type");
-        $name = $request->input("name");
-        $value = $request->input("preset");
+        $type = $request->type;
+        $name = $request->name;
+        $value = $request->preset;
 
         if($type == "List" || $type == "Schedule" || $type == "Geolocator")
             $value = implode("[!]", $value);
 
         $preset = OptionPreset::create(['pid' => $pid, 'type' => $type, 'name' => $name, 'preset' => $value]);
         $preset->save();
-        if($request->input("shared") == "true")
+        if(isset($request->shared))
             $preset->shared = 1;
         else
             $preset->shared = 0;
 
         $preset->save();
-        return response()->json( ['status'=>true,"message"=>"option_preset_created",
-            'url'=>(action("OptionPresetController@index",compact('pid')))],200);
+
+        return redirect('projects/'.$pid.'/presets')->with('k3_global_success', 'field_preset_created');
     }
 
     /**
@@ -118,9 +117,9 @@ class OptionPresetController extends Controller {
         $preset = OptionPreset::find($id);
 
         if(!is_null($preset) && !is_null($project))
-            return view('optionPresets.edit', compact('preset', 'project', 'pid', 'id'));
+            return view('optionPresets.edit', compact('preset', 'project'));
         else
-            return redirect()->back()->with('k3_global_error', 'preset_project_missing');
+            return redirect()->back()->with('k3_global_error', 'cant_edit_preset');
     }
 
     /**
@@ -131,52 +130,38 @@ class OptionPresetController extends Controller {
      * @param  Request $request
      * @return JsonResponse
      */
-    public function update($pid,$id,Request $request) {
-
-        $preset = OptionPreset::where('id', '=', $id)->first();
-
-        if(($preset->pid === null))
-            return response()->json(["status"=>false,"message"=>"cant_change_stock"],500);
-
-        if($preset->pid !== null) {
-            $presets_project = $preset->project->first();
+    public function update($pid, $id, Request $request) {
+        $this->validate($request, [
+            'preset' => 'required',
+            'name' => 'required'
+        ]);
+        if(Project::find($pid) != null) {
+            $presets_project = Project::find($pid);
             $user = Auth::user();
             $pc = new ProjectController;
             if(!$pc->isProjectAdmin($user,$presets_project))
-                return response()->json(["status"=>false,"message"=>"not_admin"],500);
+                return response()->json(["status"=>false,"message"=>"not_project_admin"],500);
+        } else {
+            return response()->json(["status"=>false,"message"=>"project_required"],500);
         }
 
-        $this->validate($request,[
-            'action' => 'required|in:changeName,changeSharing,changeRegex',
-            'preset_name' => 'required_if:action,changeName',
-            'preset_shared' => 'required_if:action,changeSharing',
-            'preset_regex' => 'required_if:action,changeRegex'
-        ]);
+        $preset = OptionPreset::find($id);
 
-        if($request->input("action") == 'changeName') {
-            $op = OptionPreset::find($id);
-            $op->name = $request->input("preset_name");
-            $op->save();
+        $preset->name = $request->name;
 
-            return response()->json(["status"=>true,"message"=>"preset_name_updated"],200);
-        } else if($request->input("action") == 'changeSharing') {
-            $op = OptionPreset::find($id);
-            if($request->input("preset_shared") == 'true')
-                $op->shared = true;
-            else
-                $op->shared = false;
-            $op->save();
+        if($preset->type == "List" || $preset->type == "Schedule" || $preset->type == "Geolocator")
+            $preset->preset = implode("[!]", $request->preset);
+        else
+            $preset->preset = $request->preset;
 
-            return response()->json(["status"=>true,"message"=>"preset_sharing_updated"],200);
-        } else if($request->input("action") == "changeRegex") {
-            $op = OptionPreset::find($id);
-            $op->preset = $request->input("preset_regex");
-            $op->save();
+        if(isset($request->shared))
+            $preset->shared = 1;
+        else
+            $preset->shared = 0;
 
-            return response()->json(["status"=>true,"message"=>"preset_regex_updated"],200);
-        }
+        $preset->save();
 
-        return response()->json(["status"=>false,"message"=>"invalid_preset_request"],500);
+        return redirect('projects/'.$pid.'/presets')->with('k3_global_success', 'field_preset_edited');
     }
 
     /**
@@ -186,8 +171,10 @@ class OptionPresetController extends Controller {
      * @return JsonResponse
      */
     public function delete(Request $request) {
-        $id = $request->input("presetId");
-        $preset = OptionPreset::where('id', '=', $id)->first();
+        $id = $request->presetId;
+        $preset = OptionPreset::find($id);
+
+        //If Stock preset
         if($preset->pid == null) {
             if(!Auth::user()->admin) {
                 return response()->json(["status"=>false,"message"=>"preset_not_admin"],500);
@@ -197,9 +184,8 @@ class OptionPresetController extends Controller {
             }
         } else {
             $presets_project = $preset->project->first();
-            $user = Auth::user();
             $pc = new ProjectController;
-            if(!$pc->isProjectAdmin($user,$presets_project)) {
+            if(!$pc->isProjectAdmin(Auth::user(),$presets_project)) {
                 return response()->json(["status"=>false,"message"=>"preset_not_admin"],500);
             } else {
                 $preset->delete();
@@ -215,9 +201,9 @@ class OptionPresetController extends Controller {
      * @return array - The presets
      */
     public static function getPresetsIndex($pid) {
-        $project_presets = OptionPreset::where('pid', '=', $pid)->get();
-        $stock_presets = OptionPreset::where('pid', '=', null)->get();
-        $shared_presets = OptionPreset::where('shared', '=', 1)->get();
+        $project_presets = OptionPreset::where('pid', '=', $pid)->orderBy('id','asc')->get();
+        $stock_presets = OptionPreset::where('pid', '=', null)->orderBy('id','asc')->get();
+        $shared_presets = OptionPreset::where('shared', '=', 1)->orderBy('id','asc')->get();
 
         foreach($shared_presets as $key => $sp) {
             if($sp->pid == $pid || $sp->pid == null)
@@ -235,7 +221,7 @@ class OptionPresetController extends Controller {
      * @param  string $type - Field type to compare
      * @return bool - Result of the comparison
      */
-    public static function supportsPresets($type) {
+    public static function supportsPresets($type) { //TODO::Evaluate Usage
         $preset_field_compatibility = collect(['Text'=>'Text','List'=>'List','Multi-Select List'=>'List',
             'Generated List'=>'List','Geolocator'=>'Geolocator','Schedule'=>'Schedule']);
         return $preset_field_compatibility->has($type);
@@ -248,7 +234,7 @@ class OptionPresetController extends Controller {
      * @param  Field $field - Field to check
      * @return mixed - List of compatible presets for field
      */
-    public static function getPresetsSupported($pid,$field) {
+    public static function getPresetsSupported($pid,$field) { //TODO::Evaluate Usage
         //You need to update this if a new field with presets gets added!
         //Note that combolist is different
         $comboPresets = new Collection();
@@ -298,7 +284,7 @@ class OptionPresetController extends Controller {
      * @param  Request $request
      * @return JsonResponse
      */
-    public function applyPreset($pid,$fid,$flid,Request $request) {
+    public function applyPreset($pid,$fid,$flid,Request $request) { //TODO::Evaluate Usage
         $id = $request->input("id");
         $preset = OptionPreset::findOrFail($id);
         $project = Project::findOrFail($pid);
@@ -406,35 +392,6 @@ class OptionPresetController extends Controller {
         }
     }
 
-
-    /**
-     * Gets list items from a preset.
-     *
-     * @param  int $id - ID of the preset
-     * @param  bool $blankOpt - Inserts a blank option as the first value
-     * @return array - The list items
-     */
-    public static function getList($id, $blankOpt = false) {
-        $dbOpt = OptionPreset::find($id)->preset;
-        $options = array();
-
-        if($dbOpt == '') {
-            //skip
-        } else if(!strstr($dbOpt, '[!]')) {
-            $options = [$dbOpt => $dbOpt];
-        } else {
-            $opts = explode('[!]', $dbOpt);
-            foreach($opts as $opt) {
-                $options[$opt] = $opt;
-            }
-        }
-
-        if($blankOpt)
-            $options = array('' => '') + $options;
-
-        return $options;
-    }
-
     /**
      * Saves list items to a preset
      *
@@ -443,7 +400,7 @@ class OptionPresetController extends Controller {
      * @param  Request $request
      * @return JsonResponse
      */
-    public function saveList($pid, $id, Request $request) {
+    public function saveList($pid, $id, Request $request) { //TODO::Evaluate Usage
         $preset = OptionPreset::where('id', '=', $id)->first();
 
         if(($preset->pid === null))

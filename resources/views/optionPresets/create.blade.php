@@ -1,518 +1,116 @@
-@extends('app')
+@extends('app', ['page_title' => 'Create Field Value Presets', 'page_class' => 'option-preset-create'])
+
+@section('stylesheets')
+    <link rel="stylesheet" href="{{ config('app.url') }}assets/css/vendor/datetimepicker/jquery.datetimepicker.min.css" />
+@stop
+
+@section('aside-content')
+    @include('partials.sideMenu.dashboard')
+@stop
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $project->pid])
 @stop
 
-@section('content')
-    <h1>{{trans('optionPresets_create.create')}}</h1>
-    <hr/>
-
-
-    <div class="form-group">
-        <label for="preset_type">{{trans('optionPresets_create.type')}}</label>
-        <select name="preset_type" id="preset_type" class="form-control">
-            <option value="default">{{trans('optionPresets_create.preset')}}</option>
-            <option value="text">{{trans('optionPresets_create.textregex')}}</option>
-            <option value="list">{{trans('optionPresets_create.list')}}</option>
-            <option value="schedule">{{trans('optionPresets_create.schedule')}}</option>
-            <option value="geolocator">{{trans('optionPresets_create.geo')}}</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label for="preset_name">{{trans('optionPresets_create.name')}}:</label>
-        <input name="preset_name" id="preset_name" class="form-control" type="text" value="Name">
-    </div>
-
-    <div id="preset_default">
-
-    </div>
-    <div style="display:none" id="preset_text" class="form-group">
-        <label for="preset_regex">{{trans('optionPresets_create.regex')}}:</label>
-        <input name="preset_regex" id="preset_text_regex" class="form-control" type="text" value="">
-    </div>
-
-    <div style="display:none" id="preset_list" class="list_option_form form-group">
-        <label for="preset_list_options">{{trans('optionPresets_create.options')}}:</label>
-        <select name="preset_list_options" id="preset_list_options" multiple class="form-control list_options listtype_options">
-        </select>
-        <button class="btn btn-primary remove_option">{{trans('optionPresets_create.delete')}}</button>
-        <button class="btn btn-primary move_option_up">{{trans('optionPresets_create.up')}}</button>
-        <button class="btn btn-primary move_option_down">{{trans('optionPresets_create.down')}}</button>
-        <div>
-            <span><input type="text" class="new_list_option"></span>
-            <span><button class="btn btn-primary add_option">{{trans('optionPresets_create.add')}}</button></span>
+@section('header')
+    <section class="head">
+        <a class="rotate" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
+        <div class="inner-wrap center">
+            <h1 class="title">
+                <i class="icon icon-preset"></i>
+                <span>Create a New Field Value Preset</span>
+            </h1>
+            <p class="description">Fill out the form below, and then select “Create Field Value Preset.”</p>
         </div>
-    </div>
-
-    <div style="display:none" id="preset_schedule" class="list_option_form form-group sched_events_select">
-        <div>
-            <label for="preset_schedule_events">{{trans('optionPresets_create.events')}}:</label>
-            <select name="preset_schedule_events" id="preset_schedule_events" multiple class="form-control list_options schedule_events" style="overflow:auto">
-            </select>
-            <button class="btn btn-primary remove_option">{{trans('optionPresets_create.delete')}}</button>
-            <button class="btn btn-primary move_option_up">{{trans('optionPresets_create.up')}}</button>
-            <button class="btn btn-primary move_option_down">{{trans('optionPresets_create.down')}}</button>
-        </div>
-        <div class="form-inline" style="position:relative">
-            {!! Form::label('eventname',trans('optionPresets_create.title').': ') !!}
-            <input type="text" class="form-control" id="eventname" maxlength="24"/>
-            {!! Form::label('startdatetime',trans('optionPresets_create.start').': ') !!}
-            <input type='text' class="form-control" id='startdatetime' />
-            {!! Form::label('enddatetime',trans('optionPresets_create.end').': ') !!}
-            <input type='text' class="form-control" id='enddatetime' />
-            {!! Form::label('allday',trans('optionPresets_create.allday').': ') !!}
-            <input type='checkbox' class="form-control" id='allday' />
-            <button class="btn btn-primary add_option">{{trans('optionPresets_create.add')}}</button>
-        </div>
-    </div>
-
-    <div style="display:none" id="preset_geolocator" class="list_option_form">
-        <div>
-            <label for="preset_geolocator_locations">{{trans('optionPresets_create.loc')}}:</label>
-            <select name="preset_geolocator_locations" id="preset_geolocator_locations" multiple class="form-control list_options geolocator_locations" style="overflow:auto">
-            </select>
-            <button class="btn btn-primary remove_option">{{trans('optionPresets_create.delete')}}</button>
-            <button class="btn btn-primary move_option_up">{{trans('optionPresets_create.up')}}</button>
-            <button class="btn btn-primary move_option_down">{{trans('optionPresets_create.down')}}</button>
-        </div>
-        <div>
-            {!! Form::label('loc_type', trans('fields_options_geolocator.type').': ') !!}
-            {!! Form::select('loc_type', ['LatLon' => 'LatLon','UTM' => 'UTM','Address' => trans('fields_options_geolocator.addr')], 'LatLon', ['class' => 'form-control loc_type']) !!}
-        </div>
-        <div>
-            <label>{{trans('optionPresets_create.loc')}}:</label>
-            <span><input type="text" class="loc_desc"></span>
-        </div>
-        <div class="latlon_container">
-            <label>{{trans('optionPresets_create.lat')}}:</label>
-            <span><input type="number" class="latlon_lat" min=-90 max=90 step=".000001"></span>
-            <label>{{trans('optionPresets_create.lon')}}:</label>
-            <span><input type="number" class="latlon_lon" min=-180 max=180 step=".000001"></span>
-            <span><button class="btn btn-primary add_geo">{{trans('optionPresets_create.add')}}</button></span>
-        </div>
-        <div class="utm_container" style="display:none">
-            <label>{{trans('optionPresets_create.zone')}}:</label>
-            <span><input type="text" class="utm_zone"></span>
-            <label>{{trans('optionPresets_create.east')}}:</label>
-            <span><input type="text" class="utm_east"></span>
-            <label>{{trans('optionPresets_create.north')}}:</label>
-            <span><input type="text" class="utm_north"></span>
-            <span><button class="btn btn-primary add_geo">{{trans('optionPresets_create.add')}}</button></span>
-        </div>
-        <div class="text_container" style="display:none">
-            <label>{{trans('optionPresets_create.addr')}}:</label>
-            <span><input type="text" class="text_addr"></span>
-            <span><button class="btn btn-primary add_geo">{{trans('optionPresets_create.add')}}</button></span>
-        </div>
-    </div>
-
-        <div class="form-group">
-            <label for="preset_shared">{{trans('optionPresets_create.share')}}:</label>
-            <input id="preset_shared" type="checkbox" name="preset_shared">
-        </div>
-
-    <div class="form-group">
-        <input onclick="CreatePreset()" type="submit" class="btn btn-primary form-control" id="submit" value="{{trans('optionPresets_create.save')}}">
-    </div>
-
-
-
+    </section>
 @stop
 
-@section('footer')
-    <script>
+@section('body')
+    @include("partials.fields.input-modals")
+
+    <section class="option-preset-selection center">
+        <form method="POST" action="{{ action('OptionPresetController@create', ['pid' => $project->pid]) }}">
+            <input type="hidden" name="_token" value="{{csrf_token()}}">
+
+            <div class="form-group mt-xl">
+                {!! Form::label('name', 'Field Value Preset Name') !!}
+                {!! Form::text('name', null, ['class' => 'text-input', 'placeholder' => "Enter the name for the new field value preset here"]) !!}
+            </div>
+
+            <div class="form-group mt-xl">
+                {!! Form::label('type', 'Field Value Preset Type') !!}
+                {!! Form::select('type',
+                    [''=>'','Text'=>'Text','List'=>'List','Schedule'=>'Schedule','Geolocator'=>'Geolocator'],
+                    null, ['class' => 'single-select preset-type-js','data-placeholder' => "Select the type field value preset here"]) !!}
+            </div>
+
+            <section class="open-text-js hidden">
+                <div class="form-group mt-xl">
+                    <label>Regex: </label>
+
+                    {!! Form::text('preset', null, ['class' => 'text-input', 'disabled', 'placeholder' => 'Enter text value']) !!}
+                </div>
+            </section>
+
+            <section class="open-list-js hidden">
+                <div class="form-group mt-xl">
+                    <label>List Options: </label>
+
+                    {!! Form::select('preset[]', [], null, ['class' => 'multi-select modify-select', 'multiple', 'disabled',
+                        'data-placeholder' => "Enter list value and press enter to submit"]) !!}
+                </div>
+            </section>
+
+            <section class="open-schedule-js hidden">
+                <div class="form-group mt-xl">
+                    <label>Locations: </label>
+
+                    {!! Form::select('preset[]', [], null,['class' => 'multi-select schedule-event-js', 'disabled',
+                        'multiple', 'data-placeholder' => "Add Events Below"]) !!}
+                </div>
+
+                <section class="new-object-button form-group mt-sm">
+                    <input type="button" class="add-new-default-event-js" value="Create New Event">
+                </section>
+            </section>
+
+            <section class="open-geolocator-js hidden">
+                <div class="form-group mt-xl">
+                    <label>Events: </label>
+                    {!! Form::select('preset[]', [], null,['class' => 'multi-select geolocator-location-js', 'disabled',
+                        'multiple', 'data-placeholder' => "Add Locations Below"]) !!}
+                </div>
+
+                <section class="new-object-button form-group mt-xl">
+                    <input type="button" class="add-new-default-location-js" value="Create New Location">
+                </section>
+            </section>
 
 
-        /**************
-         * Moves list options/events/locations up and down and deletes them
-         * There are some problems if multiple types are visible and selected at once
-         ********/
+            <div class="form-group mt-xl">
+                <label for="required">Share With All Projects?</label>
+                <div class="check-box">
+                    <input type="checkbox" value="1" id="preset" class="check-box-input" name="shared" />
+                    <div class="check-box-background"></div>
+                    <span class="check"></span>
+                    <span class="placeholder">Select to share with all projects</span>
+                    <span class="placeholder-alt">Shared with all projects</span>
+                </div>
+            </div>
 
-        $('#default').select2();
+            <div class="form-group mt-xxxl mb-max">
+                {!! Form::submit('Create Field Value Preset',['class' => 'btn disabled submit-button-js']) !!}
+            </div>
+        </form>
+    </section>
+@stop
 
-        $('.list_option_form').on('click', '.remove_option', function(){
-            val = $('option:selected', '.list_options').val();
+@section('javascripts')
+    @include('partials.optionPresets.javascripts')
 
-            $('option:selected', '.list_options').remove();
-            $("#default option[value='"+val+"']").remove();
-            SaveList();
-        });
-        $('.list_option_form').on('click', '.move_option_up', function(){
-            val = $('option:selected', '.list_options').val();
-            defOpt = $("#default option[value='"+val+"']");
-
-            $('.list_options').find('option:selected').each(function() {
-                $(this).insertBefore($(this).prev());
-            });
-            defOpt.insertBefore(defOpt.prev());
-            SaveList();
-        });
-        $('.list_option_form').on('click', '.move_option_down', function(){
-            val = $('option:selected', '.list_options').val();
-            defOpt = $("#default option[value='"+val+"']");
-
-            $('.list_options').find('option:selected').each(function() {
-                $(this).insertAfter($(this).next());
-            });
-            defOpt.insertAfter(defOpt.next());
-            SaveList();
-        });
-        $('.list_option_form').on('click', '.add_option', function(){
-            val = $('.new_list_option').val();
-            val = val.trim();
-
-            if(val != '') {
-                $('.list_options').append($("<option/>", {
-                    value: val,
-                    text: val
-                }));
-                $('#default').append($("<option/>", {
-                    value: val,
-                    text: val
-                }));
-                $('.new_list_option').val('');
-                SaveList();
-            }
-        });
-
-        //Specific to schedule
-
-        $('#startdatetime').datetimepicker();
-        $('#enddatetime').datetimepicker();
-        /**************
-         * Adds new events to the schedule field
-         * This is slightly modified so that it conflicts less when on the same page
-         * as types like list and geolocator.
-         ********/
-        $('.sched_events_select').on('click', '.add_option', function() {
-            name = $('#eventname').val().trim();
-            sTime = $('#startdatetime').val().trim();
-            eTime = $('#enddatetime').val().trim();
-
-            $('#eventname').css({ "border": ''});
-            $('#startdatetime').css({ "border": ''});
-            $('#enddatetime').css({ "border": ''});
-
-            if(name==''|sTime==''|eTime==''){
-                //show error
-                if(name=='')
-                    $('#eventname').css({ "border": '#FF0000 1px solid'});
-                if(sTime=='')
-                    $('#startdatetime').css({ "border": '#FF0000 1px solid'});
-                if(eTime=='')
-                    $('#enddatetime').css({ "border": '#FF0000 1px solid'});
-            }else{
-                if($('#allday').is(":checked")){
-                    sTime = sTime.split(" ")[0];
-                    eTime = eTime.split(" ")[0];
-                }
-
-                if(sTime>eTime){
-                    $('#startdatetime').css({ "border": '#FF0000 1px solid'});
-                    $('#enddatetime').css({ "border": '#FF0000 1px solid'});
-                }else {
-
-                    val = name + ': ' + sTime + ' - ' + eTime;
-
-                    if (val != '') {
-                        $('.list_options').append($("<option/>", {
-                            value: val,
-                            text: val
-                        }));
-                        $('#eventname').val('');
-                        $('#startdatetime').val('');
-                        $('#enddatetime').val('');
-                        SaveList();
-                    }
-                }
-            }
-        });
-
-        //Delete this
-        function SaveList() {
-            console.log("SaveList is not saving to the new preset yet");
-        }
-
-        //Specific to geolocator
-
-        /*********
-         * Adds new locations for geolocator field
-         * This is slightly modified so that it conflicts less when on the same page
-         * as types like lists and schedule
-        **********/
-        $('.list_option_form').on('click', '.add_geo', function() {
-            //clear errors
-            $('.latlon_lat').attr('style','');
-            $('.latlon_lon').attr('style','');
-            $('.utm_zone').attr('style','');
-            $('.utm_east').attr('style','');
-            $('.utm_north').attr('style','');
-            $('.text_addr').attr('style','');
-            $('.loc_desc').attr('style','');
-
-            //check to see if description provided
-            var desc = $('.loc_desc').val();
-            //if blank
-            if(desc=='') {
-                $('.loc_desc').attr('style','border: 1px solid red;');
-                console.log('bad description');
-            }else {
-                //check what type
-                var type = $('.loc_type').val();
-
-                //determine if info is good for that type
-                var valid = true;
-                if (type == 'LatLon') {
-                    var lat = $('.latlon_lat').val();
-                    var lon = $('.latlon_lon').val();
-
-                    if (lat == '' | lon == '') {
-                        $('.latlon_lat').attr('style','border: 1px solid red;');
-                        $('.latlon_lon').attr('style','border: 1px solid red;');
-                        valid = false;
-                    }
-                }else if(type == 'UTM'){
-                    var zone = $('.utm_zone').val();
-                    var east = $('.utm_east').val();
-                    var north = $('.utm_north').val();
-
-                    if (zone == '' | east == '' | north == '') {
-                        $('.utm_zone').attr('style','border: 1px solid red;');
-                        $('.utm_east').attr('style','border: 1px solid red;');
-                        $('.utm_north').attr('style','border: 1px solid red;');
-                        valid = false;
-                    }
-                }else if(type == 'Address'){
-                    var addr = $('.text_addr').val();
-
-                    if(addr == ''){
-                        $('.text_addr').attr('style','border: 1px solid red;');
-                        valid = false;
-                    }
-                }
-
-                //if still valid
-                if (valid) {
-                    //find info for other loc types
-                    if (type == 'LatLon') {
-                        latLonConvert(lat,lon);
-                    }else if(type == 'UTM'){
-                        utmConvert(zone,east,north);
-                    }else if(type == 'Address'){
-                        addrConvert(addr);
-                    }
-                    $('.latlon_lat').val('');
-                    $('.latlon_lon').val('');
-                    $('.utm_zone').val('');
-                    $('.utm_east').val('');
-                    $('.utm_north').val('');
-                    $('.text_addr').val('');
-                } else {
-                    console.log('invalid');
-                }
-            }
-        });
-        $('.list_option_form').on('change', '.loc_type', function(){
-            newType = $('.loc_type').val();
-            if(newType=='LatLon'){
-                $('.latlon_container').show();
-                $('.utm_container').hide();
-                $('.text_container').hide();
-            }else if(newType=='UTM'){
-                $('.latlon_container').hide();
-                $('.utm_container').show();
-                $('.text_container').hide();
-            }else if(newType=='Address'){
-                $('.latlon_container').hide();
-                $('.utm_container').hide();
-                $('.text_container').show();
-            }
-        });
-
-        function latLonConvert(lat,lon){
-            $.ajax({
-                url: '{{ action('FieldAjaxController@geoConvert',['pid' => $project->pid, 'fid' => 0, 'flid' => 0]) }}',
-                type: 'POST',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    lat: lat,
-                    lon: lon,
-                    type: 'latlon'
-                },
-                success:function(result) {
-                    desc = $('.loc_desc').val();
-                    result = '[Desc]'+desc+'[Desc]'+result;
-                    latlon = result.split('[LatLon]');
-                    utm = result.split('[UTM]');
-                    addr = result.split('[Address]');
-                    text = 'Description: '+desc+' | LatLon: '+latlon[1]+' | UTM: '+utm[1]+' | Address: '+addr[1];
-                    $('.list_options').append($("<option/>", {
-                        value: result,
-                        text: text
-                    }));
-                    $('.loc_desc').val('');
-                }
-            });
-        }
-
-        function utmConvert(zone,east,north){
-            $.ajax({
-                url: '{{ action('FieldAjaxController@geoConvert',['pid' => $project->pid, 'fid' => 0, 'flid' => 0]) }}',
-                type: 'POST',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    zone: zone,
-                    east: east,
-                    north: north,
-                    type: 'utm'
-                },
-                success: function (result) {
-                    desc = $('.loc_desc').val();
-                    result = '[Desc]'+desc+'[Desc]'+result;
-                    latlon = result.split('[LatLon]');
-                    utm = result.split('[UTM]');
-                    addr = result.split('[Address]');
-                    text = 'Description: '+desc+' | LatLon: '+latlon[1]+' | UTM: '+utm[1]+' | Address: '+addr[1];
-                    $('.list_options').append($("<option/>", {
-                        value: result,
-                        text: text
-                    }));
-                    $('.loc_desc').val('');
-                }
-            });
-        }
-
-        function addrConvert(addr){
-            $.ajax({
-                url: '{{ action('FieldAjaxController@geoConvert',['pid' => $project->pid, 'fid' => 0, 'flid' => 0]) }}',
-                type: 'POST',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    addr: addr,
-                    type: 'geo'
-                },
-                success: function (result) {
-                    desc = $('.loc_desc').val();
-                    result = '[Desc]'+desc+'[Desc]'+result;
-                    latlon = result.split('[LatLon]');
-                    utm = result.split('[UTM]');
-                    addr = result.split('[Address]');
-                    text = 'Description: '+desc+' | LatLon: '+latlon[1]+' | UTM: '+utm[1]+' | Address: '+addr[1];
-                    $('.list_options').append($("<option/>", {
-                        value: result,
-                        text: text
-                    }));
-                    $('.loc_desc').val('');
-                }
-            });
-        }
-
-        /**************
-         This part handles switching the displayed div based on the value of the selected DIv
-         field_array needs to be updated when
-         ********/
-       // var old_field_array = [['default','default'],['text','text'],['list','list'],['schedule','schedule']]
-        var field_array = ['default','text','list','schedule','geolocator'];
-        var prev = "default";
-        $("#preset_type").on('change',function(){
-            console.log("switching");
-            for(var i = 0; i<field_array.length; i++) {
-                if (this.value == field_array[i]) {
-                    console.log(prev + " to " +field_array[i]);
-                    $("#preset_"+prev).hide('slow');
-                    prev = this.value;
-                    $("#preset_"+field_array[i]).show('slow');
-                }
-            }
-
-            //This clears values that conflict between list fields
-            $(".list_options option").each(function(){
-                $(this).remove();
-            });
-
-            //This prevents the default option from being submitted accidentally
-            if(this.value == "default"){
-                $("#submit").addClass("disabled");
-            }
-            else{
-                $("#submit").removeClass("disabled");
-            }
-        });
-
-        /**************
-         This is in case the user refreshes the page or uses the back button, when the browser fills the fields
-         it could have 1 type selected but another displaying, this forces them back to the default
-         ********/
-        $(document).ready(function(){
-            for(var i = 0; i<field_array.length; i++){
-                $("#preset_"+field_array[i]).hide();
-            }
-            $('#preset_type').val('default');
-            $("#submit").addClass("disabled");
-            $("#preset_default").show();
-        });
-
-        /**************
-            CreatePreset needs to be updated for every new type added
-            OptionPresetController's create method uses the same 4 parameters for every type
-            So this reads all the values from the selected type and submits them via AJAX
-        ********/
-        function CreatePreset() {
-
-            var preset_value = null;
-            var preset_type = null;
-            if($("#preset_type").val() == "text"){
-                preset_type = "Text";
-                preset_value = $("#preset_text_regex").val();
-            }
-            else if($("#preset_type").val() == "list"){
-                preset_type = "List";
-                options = new Array();
-                $(".listtype_options option").each(function(){
-                    options.push($(this).val());
-                });
-                preset_value = options;
-            }
-            else if($("#preset_type").val() == "schedule"){
-                preset_type = "Schedule";
-                options = new Array();
-                $(".schedule_events option").each(function(){
-                    options.push($(this).val());
-                });
-                preset_value = options;
-            }
-            else if($("#preset_type").val() == "geolocator"){
-                preset_type = "Geolocator";
-                options = new Array();
-                $(".geolocator_locations option").each(function(){
-                    options.push($(this).val());
-                });
-                preset_value = options;
-            }
-            $.ajax({
-                url: '{{ action('OptionPresetController@create',['pid' => $pid]) }}',
-                type: 'POST',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    type: preset_type,
-                    name: $("#preset_name").val(),
-                    preset: preset_value,
-                    shared: $("#preset_shared").prop('checked')
-                },
-                success: function (result) {
-                    if(result.status = true){
-                        window.location = result.url;
-                    }
-                },
-                error: function(result){
-                    var encode = $("<div/>").html("{{ trans('optionPresets_create.sorry') }}").text();
-                    alert(encode + ".");
-                }
-            });
-        }
-
-
+    <script type="text/javascript">
+        var CSRFToken = '{{ csrf_token() }}';
+        var geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $project->pid, 'fid' => 0, 'flid' => 0]) }}';
+        Kora.OptionPresets.Create();
     </script>
 @stop

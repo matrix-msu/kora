@@ -77,7 +77,7 @@
                         </div>
 
                         <div class="footer">
-                            @if($key == "Stock" && Auth::user()->admin ==1 )
+                            @if($key == "Stock" && Auth::user()->admin == 1 )
                                 <a class="quick-action trash-container left danger delete-preset-open-js" href="#" preset-id="{{$preset->id}}">
                                     <i class="icon icon-trash"></i>
                                 </a>
@@ -100,7 +100,7 @@
                                 </a>
                             @else
                                 <a class="quick-action preset-stock">
-                                    <span>Shared Preset [{{$preset->pid}}]</span>
+                                    <span>Shared Preset [PID: {{$preset->pid}}]</span>
                                 </a>
                             @endif
                         </div>
