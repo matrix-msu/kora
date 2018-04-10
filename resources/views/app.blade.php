@@ -41,6 +41,8 @@
       @yield('javascripts')
       
       @if(Auth::guest() || !Auth::user()->active)
+        @include('partials.auth.javascripts');
+      
         <script>
           var langURL ="{{action('WelcomeController@setTemporaryLanguage')}}";
           
@@ -59,6 +61,8 @@
               }
             });
           }
+          
+          Kora.Auth.Auth();
         </script>
       @endif
     </body>

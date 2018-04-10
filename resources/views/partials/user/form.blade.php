@@ -57,12 +57,12 @@
 <h2 class="mt-xxxl mb-xl">Update Password</h2>
 
 <div class="form-group mt-xl">
-  <label for="new_password">Enter New Passowrd</label>
+  <label for="new_password">Enter New Password</label>
   <input type="password" class="text-input" id="new_password" name="new_password" placeholder="Enter password here">
 </div>
 
 <div class="form-group mt-xl">
-  <label for="confirm">Confirm New Passowrd</label>
+  <label for="confirm">Confirm New Password</label>
   <input type="password" class="text-input" id="confirm" name="confirm" placeholder="Enter password here" disabled>
 </div>
 

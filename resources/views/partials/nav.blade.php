@@ -53,13 +53,8 @@
       <li class="navigation-item">
         <form id="logout_link" class="form-horizontal" role="form" method="POST" action="{{ url('/logout') }}">
             <input type="hidden" name="_token" value="{{ csrf_token() }}">
-            <a href="javascript: submitLogout()" class="underline-middle-hover">Logout</a>
+            <a class="logout underline-middle-hover">Logout</a>
         </form>
-        <script>
-            function submitLogout() {
-                $( "#logout_link" ).submit();
-            }
-        </script>
       </li>
     @else
       @include("partials.menu.globalSearch")

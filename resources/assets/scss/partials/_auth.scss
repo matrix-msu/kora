@@ -37,6 +37,10 @@
     }
   }
 
+  .logout {
+    cursor: pointer;
+  }
+
   .spacer {
     background: palette('gray', slate, .05);
     height: 2px;

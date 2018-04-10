@@ -44,10 +44,9 @@
       </div>
     @endif
 
-    {!! Form::model($user,  ['method' => 'PATCH', 'action' => ['AdminController@update', $user->id]]) !!}
+    {!! Form::model($user,  ['method' => 'PATCH', 'action' => ['AdminController@update', $user->id], 'class' => 'form-file-input']) !!}
       @include('partials.user.form', ['id' => $user->id, 'type' => 'edit'])
     {!! Form::close() !!}
-    </form>
 
     <div class="modal modal-js modal-mask user-cleanup-modal-js">
       <div class="content small">
@@ -70,7 +69,6 @@
         </div>
       </div>
     </div>
-  </section>
   </section>
 @stop
 

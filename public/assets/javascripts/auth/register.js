@@ -9,5 +9,10 @@ Kora.Auth.Register = function() {
     });
   }
   
+  function initializeForm() {
+    Kora.Inputs.File();
+  }
+  
   initializeChosen();
+  initializeForm();
 }

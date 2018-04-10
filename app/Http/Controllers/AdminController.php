@@ -107,10 +107,11 @@ class AdminController extends Controller {
         $user = User::where('id', '=', $request->id)->first();
         $newFirstName = $request->first_name;
         $newLastName = $request->last_name;
+        $newProfilePic = $request->profile;
         $newOrganization = $request->organization;
         $newLanguage = $request->language;
         $newPass = $request->new_password;
-        $confirm = $request->confirm;
+        $confirm = $request->confirm;        
 
         // Look for changes, update what was changed
         if ($newFirstName != $user->first_name) {
@@ -121,6 +122,11 @@ class AdminController extends Controller {
         if ($newLastName != $user->last_name) {
           $user->last_name = $newLastName;
           array_push($message, "last_name");
+        }
+      
+        if ($newProfilePic) {
+          $user->profile = $newProfilePic;
+          array_push($message, "profile");
         }
 
         if ($newOrganization != $user->organization) {
@@ -139,22 +145,26 @@ class AdminController extends Controller {
         if(!empty($newPass) || !empty($confirm)) {
             // If passwords don't match.
             if($newPass != $confirm)
-                return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'passwords_unmatched');
+                return response()->json(["status" => false, "message" => "passwords_unmatched"], 200);
+                //return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'passwords_unmatched');
 
             // If password is less than 6 chars
             if(strlen($newPass)<6)
-                return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'password_minimum');
+                return response()->json(["status" => false, "message" => "password_minimum"], 200);
+                //return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'password_minimum');
 
             // If password contains spaces
             if(preg_match('/\s/',$newPass))
-                return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'password_whitespaces');
+                return response()->json(["status" => false, "message" => "password_whitespaces"], 200);
+                //return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'password_whitespaces');
 
             $user->password = bcrypt($newPass);
             array_push($message,"password");
         }
 
         $user->save();
-        return redirect('admin/users')->with('k3_global_success', 'user_updated')->with('user_changes', $message);
+        return response()->json(["status" => true, "message" => $message], 200);
+        // return redirect('admin/users')->with('k3_global_success', 'user_updated')->with('user_changes', $message);
     }
 
     /**

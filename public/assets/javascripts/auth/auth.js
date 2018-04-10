@@ -3,7 +3,13 @@ Kora.Auth = Kora.Auth || {};
 
 Kora.Auth.Auth = function() {
   
-  function setTempLang(selected_lang){        
+  function initializeLogout() {
+    $(".logout").click(function() {
+      $( "#logout_link" ).submit();
+    });
+  }
+  
+  function setTempLang(selected_lang) {        
     console.log("Language change started: "+langURL);
     $.ajax({
       url:langURL,
@@ -18,4 +24,6 @@ Kora.Auth.Auth = function() {
       }
     });
   }
+  
+  initializeLogout();
 }
