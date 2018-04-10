@@ -22,6 +22,10 @@ Kora.Revisions.Index = function() {
         $('#record-select').chosen({
             width: '100%'
         }).change(function() {
+            if ($(this).val() === "View All Records") {
+                window.location = window.location.pathname.substr(0, window.location.pathname.lastIndexOf("/")) + '/recent';
+                return;
+            }
             var revision = $(this).val().split('-')[2];
             window.location = window.location.pathname.replace('recent', revision);
         });
