@@ -51,8 +51,9 @@ class RevisionController extends Controller {
         $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
         $revisions = DB::table('revisions')->where('fid', '=', $fid)->orderBy($order_type, $order_direction)->paginate($pagination);
 
+        $all_form_revisions = DB::table('revisions')->where('fid', '=', $fid)->get()->all();
         $rid_array = array();
-        foreach($revisions as $revision) {
+        foreach($all_form_revisions as $revision) {
             $rid_array[] = $revision->rid;
         }
         $rid_array = array_values(array_unique($rid_array));
@@ -82,8 +83,8 @@ class RevisionController extends Controller {
      * @return View
      */
     public function show($pid, $fid, $rid) {
-        if(!RecordController::validProjFormRecord($pid, $fid, $rid))
-            return redirect('projects')->with('k3_global_error', 'record_invalid');
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $firstRevision = DB::table('revisions')->where('rid', '=', $rid)->orderBy('created_at','desc')->first();
         if(is_null($firstRevision))

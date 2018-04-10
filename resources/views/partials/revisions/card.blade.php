@@ -64,7 +64,7 @@
         </div>
 
         <div class="footer">
-            <a class="quick-action underline-middle-hover left" href="$showLink">
+            <a class="quick-action underline-middle-hover left" href="{{$showLink}}">
                 <span>See Revisions for this Record Only</span>
             </a>
 
