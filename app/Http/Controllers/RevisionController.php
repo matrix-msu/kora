@@ -311,6 +311,7 @@ class RevisionController extends Controller {
             case 'Model':
             case 'Playlist':
             case 'Video':
+                $data = explode('[!]', $data);
                 $stringFile = '';
                 foreach($data as $file) {
                     $stringFile .= '<div>'.explode('[Name]',$file)[1].'</div>';
