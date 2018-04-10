@@ -318,9 +318,10 @@ class RevisionController extends Controller {
                 $data = $stringFile;
                 break;
             case 'Multi-Select List':
-            case 'Generated List':
-            case 'Schedule':
             case 'Associator':
+            case 'Generated List':
+                $data = explode('[!]', $data);
+            case 'Schedule':
                 $stringList = '';
                 foreach($data as $listItem) {
                     $stringList .= '<div>'.$listItem.'</div>';
