@@ -82,8 +82,8 @@ class RevisionController extends Controller {
      * @return View
      */
     public function show($pid, $fid, $rid) {
-        if(!RecordController::validProjFormRecord($pid, $fid, $rid))
-            return redirect('projects')->with('k3_global_error', 'record_invalid');
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $firstRevision = DB::table('revisions')->where('rid', '=', $rid)->orderBy('created_at','desc')->first();
         if(is_null($firstRevision))
