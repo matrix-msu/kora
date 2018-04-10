@@ -302,6 +302,7 @@ class RevisionController extends Controller {
             case 'Number':
                 $stringNumber = '';
                 $stringNumber .= (float)$data['number'] . ' ' . $data['unit'];
+                $data = $stringNumber;
                 break;
             case 'Playlist':
             case 'Video':
