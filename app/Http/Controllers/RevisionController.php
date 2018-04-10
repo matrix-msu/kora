@@ -288,6 +288,11 @@ class RevisionController extends Controller {
      */
     public static function formatData($type, $field) {
         $data = $field["data"];
+        if (is_null($data)) {
+            $data = 'No Field Data';
+            $field["data"] = $data;
+            return $field;
+        }
         switch($type) {
             case 'Date':
                 $stringDate = '';
