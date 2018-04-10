@@ -56,7 +56,7 @@ class RecordController extends Controller {
         $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
         $records = Record::where('fid', '=', $fid)->orderBy($order_type, $order_direction)->paginate($pagination);
 
-        $total = Record::count();
+        $total = Record::where('fid', '=', $fid)->count();
 
         return view('records.index', compact('form', 'records', 'total'));
 	}

@@ -22,6 +22,7 @@ class GalleryField extends FileTypeField  {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.gallery";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.gallery";
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.filetype";
     const FIELD_INPUT_VIEW = "partials.records.input.gallery";
     const FIELD_DISPLAY_VIEW = "partials.records.display.gallery";
 

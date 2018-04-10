@@ -25,6 +25,7 @@ class DateField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.date";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.date";
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.date";
     const FIELD_INPUT_VIEW = "partials.records.input.date";
     const FIELD_DISPLAY_VIEW = "partials.records.display.date";
 

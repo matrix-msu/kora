@@ -139,20 +139,4 @@ class Form extends Model {
         else
             return true;
     }
-
-    /**
-     * Creates a lookup table that is useful for quickly typing fields multiple times.
-     *
-     * @return array
-     */
-    public function getFieldStash() {
-        $stash = [];
-
-        foreach($this->fields()->get() as $field) {
-            $stash[$field->flid]["slug"] = $field->slug;
-            $stash[$field->flid]["type"] = $field->type;
-        }
-
-        return $stash;
-    }
 }

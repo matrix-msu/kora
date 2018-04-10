@@ -11,6 +11,22 @@ Kora.Records.Index = function() {
         width: '100%',
     });
 
+    function initializeSelectAddition() {
+        $('.chosen-search-input').on('keyup', function(e) {
+            var container = $(this).parents('.chosen-container').first();
+
+            if (e.which === 13 && container.find('li.no-results').length > 0) {
+                var option = $("<option>").val(this.value).text(this.value);
+
+                var select = container.siblings('.modify-select').first();
+
+                select.append(option);
+                select.find(option).prop('selected', true);
+                select.trigger("chosen:updated");
+            }
+        });
+    }
+
     function initializeOptionDropdowns() {
         $('.option-dropdown-js').chosen({
             disable_search_threshold: 10,
@@ -60,6 +76,30 @@ Kora.Records.Index = function() {
         });
     }
 
+    function initializePaginationShortcut() {
+        $('.page-link.active').click(function(e) {
+            e.preventDefault();
+
+            var $this = $(this);
+            var maxInput = $this.siblings().last().text()
+            $this.html('<input class="page-input" type="number" min="1" max="'+ maxInput +'">');
+            var $input = $('.page-input');
+            $input.focus();
+            $input.on('blur keydown', function(e) {
+                if (e.key !== "Enter" && e.key !== "Tab") return;
+                if ($input[0].checkValidity()) {
+                    var url = window.location.toString();
+                    if (url.includes('page=')) {
+                        window.location = url.replace(/page=\d*/, "page="+$input.val());
+                    } else {
+                        var queryVar = url.includes('?') ? '&' : '?';
+                        window.location = url + queryVar + "page=" + $input.val();
+                    }
+                }
+            });
+        })
+    }
+
     function initializeSearchInteractions() {
         $('.submit-search-js').click(function(e) {
             e.preventDefault();
@@ -71,6 +111,30 @@ Kora.Records.Index = function() {
             if (e.which === 13) {
                 $('.keyword-search-js').submit();
             }
+        });
+
+        $('.open-advanced-js').click(function(e) {
+            e.preventDefault();
+
+            $('.advanced-search-drawer-js').effect('slide', {
+                direction: 'up',
+                mode: 'show',
+                duration: 240
+            });
+            $('.close-advanced-js').show();
+            $('.open-advanced-js').hide();
+        });
+
+        $('.close-advanced-js').click(function(e) {
+            e.preventDefault();
+
+            $('.advanced-search-drawer-js').effect('slide', {
+                direction: 'up',
+                mode: 'hide',
+                duration: 240
+            });
+            $('.open-advanced-js').show();
+            $('.close-advanced-js').hide();
         });
     }
 
@@ -316,7 +380,9 @@ Kora.Records.Index = function() {
         }
     }
 
+    initializeSelectAddition();
     initializeOptionDropdowns();
+    initializePaginationShortcut();
     initializeSearchInteractions();
     initializeToggle();
     initializeDeleteRecord();

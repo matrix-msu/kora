@@ -1,1 +1,0 @@
-@include("advancedSearch.searchBoxes.filetype", $field)

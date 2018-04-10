@@ -6,7 +6,6 @@ use App\Record;
 use App\Search;
 use App\TextField;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
 
 class AssociatorSearchController extends Controller {
 

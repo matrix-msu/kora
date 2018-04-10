@@ -24,6 +24,7 @@ class ListField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.list";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.list";
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.list";
     const FIELD_INPUT_VIEW = "partials.records.input.list";
     const FIELD_DISPLAY_VIEW = "partials.records.display.list";
 

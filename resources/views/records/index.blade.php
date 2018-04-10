@@ -22,8 +22,8 @@
                 <i class="icon icon-form-record-search mr-sm"></i>
                 <span>Search Form Records</span>
             </h1>
-            <p class="description">Enter keywords to search below. A keyword is required in order to search project
-                records. You can also search by a specific form, and filter by “Or”, “And”, or “Exact” keyword results. </p>
+            <p class="description">Enter keywords to search below. A keyword is required in order to search form
+                records. You can also filter by “Or”, “And”, or “Exact” keyword results. </p>
         </div>
     </section>
 @stop
@@ -35,7 +35,7 @@
             <form method="GET" action="{{action('FormSearchController@keywordSearch',['pid' => $form->pid, 'fid' => $form->fid])}}" class="keyword-search-js">
                 <div class="form-group search-input mt-xl">
                     {!! Form::label('keywords','Search Via Keyword(s) or KID : ') !!}
-                    {!! Form::text('keywords', null, ['class' => 'text-input', 'placeholder' => 'Type space separated keywords']) !!}
+                    {!! Form::text('keywords', null, ['class' => 'text-input keywords-get-js', 'placeholder' => 'Type space separated keywords']) !!}
                 </div>
                 <div class="form-group search-input mt-xl">
                     {!! Form::label('method','or / and / exact') !!}
@@ -44,11 +44,16 @@
 
                 <div class="form-group mt-xxxl">
                     <div class="search-button-container">
-                        <a href="#" class="btn half-sub-btn mb-sm" data-unsp-sanitized="clean">View Advanced Search Options</a>
+                        <a href="#" class="btn half-sub-btn mb-sm open-advanced-js" data-unsp-sanitized="clean">View Advanced Search Options</a>
+                        <a href="#" class="btn half-sub-btn mb-sm close-advanced-js hidden" data-unsp-sanitized="clean">Hide Advanced Search Options</a>
                         <a href="#" class="btn half-btn mb-sm submit-search-js" data-unsp-sanitized="clean">Search</a>
                     </div>
                 </div>
             </form>
+
+            <section class="advanced-search-drawer advanced-search-drawer-js mt-xxxl hidden">
+                @include('partials.records.adv-form')
+            </section>
 
             <div class="form-group mt-xxxl">
                 <div class="spacer"></div>

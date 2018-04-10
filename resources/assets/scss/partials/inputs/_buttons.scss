@@ -202,5 +202,9 @@ a.btn {
       max-width: none;
     }
   }
+
+  &.hidden {
+    display: none;
+  }
 }
 

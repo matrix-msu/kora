@@ -53,7 +53,4 @@
         var unProjectUrl = '{{ action('TokenController@getUnassignedProjects') }}';
         Kora.Tokens.Index();
     </script>
-    <script>
-
-    </script>
 @stop

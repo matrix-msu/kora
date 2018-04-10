@@ -1,0 +1,35 @@
+.preset {
+  font-family: $ubuntu;
+
+  .title {
+    color: palette('gray', text);
+  }
+
+  .content {
+    .field-preset-list {
+      display: block;
+      font-family: $ubuntu;
+    }
+
+    .trash-container {
+      padding-right: 15px;
+      padding-top: 35px;
+
+      .icon-trash {
+        color: palette('red', base);
+        font-size: 14px;
+        padding: 0 0 5px;
+        will-change: transform;
+      }
+
+      &:hover .icon-trash {
+        transform: scale($transform-scale-multiplier);
+      }
+    }
+
+    .preset-stock {
+      color: palette('gray', text, .6);
+      font-family: $ubuntu;
+    }
+  }
+}

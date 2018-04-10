@@ -30,6 +30,7 @@ class ScheduleField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.schedule";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.schedule";
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.schedule";
     const FIELD_INPUT_VIEW = "partials.records.input.schedule";
     const FIELD_DISPLAY_VIEW = "partials.records.display.schedule";
 

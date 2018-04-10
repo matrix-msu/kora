@@ -1,0 +1,35 @@
+.option-preset-create-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu-medium;
+  min-height: 100vh;
+}
+
+.option-preset-create {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  .option-preset-selection {
+    background: none;
+    margin: auto;
+    max-width: calc(#{ $max-site-width } - 600px);
+    width: $max-site-width;
+
+    .form-group {
+      .form-cleanup {
+        text-align: center;
+
+        .dot-btn {
+          display: inline-block;
+
+          .icon {
+            margin-left: 1px;
+          }
+        }
+      }
+    }
+
+    .form-group.preset-delete-spacer {
+      margin-top: 90px;
+    }
+  }
+}

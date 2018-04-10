@@ -1,0 +1,19 @@
+.option-presets-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu-medium;
+  min-height: 100vh;
+}
+
+.option-presets {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  .option-presets-selection {
+    background: none;
+    margin: auto;
+    max-width: calc(#{ $max-site-width } - 600px);
+    width: $max-site-width;
+
+    @import 'field-presets/preset-card';
+  }
+}
