@@ -299,6 +299,10 @@ class RevisionController extends Controller {
             case 'Documents':
             case 'Gallery':
             case 'Model':
+            case 'Number':
+                $stringNumber = '';
+                $stringNumber .= (float)$data['number'] . ' ' . $data['unit'];
+                break;
             case 'Playlist':
             case 'Video':
                 $stringFile = '';
