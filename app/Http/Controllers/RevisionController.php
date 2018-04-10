@@ -51,8 +51,9 @@ class RevisionController extends Controller {
         $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
         $revisions = DB::table('revisions')->where('fid', '=', $fid)->orderBy($order_type, $order_direction)->paginate($pagination);
 
+        $all_form_revisions = DB::table('revisions')->where('fid', '=', $fid)->get()->all();
         $rid_array = array();
-        foreach($revisions as $revision) {
+        foreach($all_form_revisions as $revision) {
             $rid_array[] = $revision->rid;
         }
         $rid_array = array_values(array_unique($rid_array));
