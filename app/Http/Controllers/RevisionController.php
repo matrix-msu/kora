@@ -301,14 +301,14 @@ class RevisionController extends Controller {
                 $stringDate .= ' '.$data['era'];
                 $data = $stringDate;
                 break;
-            case 'Documents':
-            case 'Gallery':
-            case 'Model':
             case 'Number':
                 $stringNumber = '';
                 $stringNumber .= (float)$data['number'] . ' ' . $data['unit'];
                 $data = $stringNumber;
                 break;
+            case 'Documents':
+            case 'Gallery':
+            case 'Model':
             case 'Playlist':
             case 'Video':
                 $stringFile = '';
