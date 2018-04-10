@@ -137,11 +137,10 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/projects/{pid}/presets', 'OptionPresetController@index');
     Route::get('/projects/{pid}/presets/create', 'OptionPresetController@newPreset');
     Route::post('/projects/{pid}/presets/create', 'OptionPresetController@create');
+    Route::post('/projects/{pid}/presets/createApi', 'OptionPresetController@createApi');
     Route::delete('/projects/{pid}/presets/delete', 'OptionPresetController@delete');
     Route::get('/projects/{pid}/presets/{id}/edit', 'OptionPresetController@edit');
-    Route::post('/projects/{pid}/presets/{id}/saveList', 'OptionPresetController@saveList');
     Route::post('/projects/{pid}/presets/{id}/edit', 'OptionPresetController@update');
-    Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/applyPreset', 'OptionPresetController@applyPreset');
 
 //record routes
     Route::get('/projects/{pid}/forms/{fid}/records', 'RecordController@index');

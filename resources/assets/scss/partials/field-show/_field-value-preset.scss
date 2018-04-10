@@ -1,0 +1,20 @@
+.field-preset-link {
+  color: palette('green', accent);
+  display: inline;
+  font-family: $ubuntu-medium;
+  font-size: 14px;
+  float: left;
+  line-height: 19px;
+  margin-top: 10px;
+  text-decoration: none;
+
+  &.right {
+    float: right;
+  }
+
+  &.disabled {
+    color: palette('green', accent, 0.3);
+    cursor: default;
+    pointer-events: none;
+  }
+}
