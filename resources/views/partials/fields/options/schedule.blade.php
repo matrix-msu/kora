@@ -4,6 +4,11 @@
     <link rel="stylesheet" href="{{ config('app.url') }}assets/css/vendor/datetimepicker/jquery.datetimepicker.min.css" />
 @stop
 
+@section('presetModal')
+    @include('partials.fields.fieldValuePresetModals.addEventPresetModal', ['presets' => $presets])
+    @include('partials.fields.fieldValuePresetModals.createEventPresetModal')
+@stop
+
 @section('fieldOptions')
     <div class="form-group">
         {!! Form::label('default','Default Value: ') !!}
@@ -12,6 +17,10 @@
                 <option value="{{$opt}}" selected>{{$opt}}</option>
             @endforeach
         </select>
+        <div><a href="#" class="field-preset-link open-event-modal-js">Use a Value Preset for these Events</a></div>
+        <div><a href="#" class="field-preset-link open-create-event-modal-js right
+            @if(empty(\App\ScheduleField::getDateList($field))) disabled @endif">
+                Create a New Value Preset from these Events</a></div>
     </div>
 
     <section class="new-object-button low-margin form-group">

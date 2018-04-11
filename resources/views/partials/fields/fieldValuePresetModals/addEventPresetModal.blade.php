@@ -17,21 +17,21 @@ foreach($presets as $index => $sets) {
 }
 ?>
 
-<div class="modal modal-js modal-mask add-list-preset-modal-js">
+<div class="modal modal-js modal-mask add-event-preset-modal-js">
     <div class="content">
         <div class="header">
-            <span class="title title-js">Use a Field Value Preset for these List Options</span>
+            <span class="title title-js">Use a Field Value Preset for these Events</span>
             <a href="#" class="modal-toggle modal-toggle-js">
                 <i class="icon icon-cancel"></i>
             </a>
         </div>
         <div class="body">
             <div class="form-group">
-                {!! Form::label('list_preset','List Option Field Value Preset') !!}
-                {!! Form::select('list_preset', $presetFormatted, null, ['class' => 'single-select', 'data-placeholder' => 'Select the list option field value preset here']) !!}
+                {!! Form::label('event_preset','Event Field Value Preset') !!}
+                {!! Form::select('event_preset', $presetFormatted, null, ['class' => 'single-select', 'data-placeholder' => 'Select the event field value preset here']) !!}
             </div>
             <div class="form-group mt-xxxl">
-                <a href="#" class="btn add-list-preset-js">Use List Option Preset Value</a>
+                <a href="#" class="btn add-event-preset-js">Use Event Preset Value</a>
             </div>
         </div>
     </div>
