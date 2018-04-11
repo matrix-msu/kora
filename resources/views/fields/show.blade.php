@@ -42,7 +42,7 @@
     @include('partials.fields.javascripts')
 
     <script type="text/javascript">
-        createRegexPresetURL = "{{action("OptionPresetController@createApi", ['pid'=>$field->pid])}}";
+        createFieldValuePresetURL = "{{action("OptionPresetController@createApi", ['pid'=>$field->pid])}}";
         CSRFToken = "{{csrf_token()}}";
 
         Kora.Fields.Show();

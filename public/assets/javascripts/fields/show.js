@@ -22,6 +22,8 @@ Kora.Fields.Show = function() {
 
     function initializeFieldValuePresets() {
         Kora.Modal.initialize();
+
+        //REGEX
         var regexModal = $('.add-regex-preset-modal-js');
         var createRegexModal = $('.create-regex-preset-modal-js');
         var newRegex = '';
@@ -61,7 +63,7 @@ Kora.Fields.Show = function() {
             var shared = $('[name="preset_shared"]').is(':checked');
 
             $.ajax({
-                url: createRegexPresetURL,
+                url: createFieldValuePresetURL,
                 type: 'POST',
                 data: {
                     "_token": CSRFToken,
@@ -72,6 +74,81 @@ Kora.Fields.Show = function() {
                 },
                 success: function (result) {
                     Kora.Modal.close(createRegexModal);
+                }
+            });
+        });
+
+        //LIST OPTIONS
+        var listModal = $('.add-list-preset-modal-js');
+        var createListModal = $('.create-list-preset-modal-js');
+        var newList = [];
+
+        $('.open-list-modal-js').click(function(e) {
+            e.preventDefault();
+
+            Kora.Modal.open(listModal);
+        });
+
+        $('.add-list-preset-js').click(function(e) {
+            e.preventDefault();
+
+            var listVal = $('[name="list_preset"]').val();
+            listValArray = listVal.split('[!]');
+
+            //clear old values
+            var optDiv = $('[name="options\[\]"]');
+            var defDiv = $('[name="default"]');
+            optDiv.html('');
+            defDiv.html('');
+
+            //Loop through results to
+            for(var i = 0; i < listValArray.length; i++) {
+                var option = $("<option>").val(listValArray[i]).text(listValArray[i]);
+
+                defDiv.append(option.clone());
+                optDiv.append(option.clone());
+            }
+
+            //refresh chosen
+            defDiv.prepend("<option value='' selected='selected'></option>");
+            optDiv.find($('option')).prop('selected', true);
+            optDiv.trigger("chosen:updated");
+            defDiv.trigger("chosen:updated");
+
+            Kora.Modal.close(listModal);
+        });
+
+        $('.open-create-list-modal-js').click(function(e) {
+            e.preventDefault();
+
+            newList = $('[name="options[]"]').val();
+
+            if(newList!=[])
+                Kora.Modal.open(createListModal);
+            //else
+            //TODO::error out
+        });
+
+        $('.create-list-preset-js').click(function(e) {
+            e.preventDefault();
+
+            var name = $('[name="preset_title"]').val();
+            var type = 'List';
+            var preset = newList;
+            var shared = $('[name="preset_shared"]').is(':checked');
+
+            $.ajax({
+                url: createFieldValuePresetURL,
+                type: 'POST',
+                data: {
+                    "_token": CSRFToken,
+                    "name": name,
+                    "type": type,
+                    "preset": preset,
+                    "shared": shared
+                },
+                success: function (result) {
+                    Kora.Modal.close(createListModal);
                 }
             });
         });
