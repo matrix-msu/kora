@@ -113,9 +113,6 @@ class FieldController extends Controller {
 
         //Combo has two presets so we make an exception
         if($field->type == Field::_COMBO_LIST) {
-            $presetsOne = $presets->get("one");
-            $presetsTwo = $presets->get("two");
-
             //we are building an array about the association permissions to populate the layout
             $opt_layout_one = array();
             if(ComboListField::getComboFieldType($field,'one') == 'Associator') {
@@ -150,7 +147,7 @@ class FieldController extends Controller {
                 }
             }
 
-            return view(ComboListField::FIELD_OPTIONS_VIEW, compact('field', 'form', 'proj','presetsOne','presetsTwo','opt_layout_one','opt_layout_two'));
+            return view(ComboListField::FIELD_OPTIONS_VIEW, compact('field', 'form', 'proj', 'presets', 'opt_layout_one', 'opt_layout_two'));
         } else if($field->type == Field::_ASSOCIATOR) {
             //we are building an array about the association permissions to populate the layout
             $option = \App\Http\Controllers\FieldController::getFieldOption($field,'SearchForms');
@@ -167,9 +164,10 @@ class FieldController extends Controller {
                     $opt_layout[$opt_fid] = ['search' => $opt_search, 'flids' => $opt_flids];
                 }
             }
-            return view(AssociatorField::FIELD_OPTIONS_VIEW, compact('field', 'form', 'proj','presets','opt_layout'));
+
+            return view(AssociatorField::FIELD_OPTIONS_VIEW, compact('field', 'form', 'proj','presets', 'opt_layout'));
         } else {
-            return view($field->getTypedField()->getFieldOptionsView(), compact('field', 'form', 'proj','presets'));
+            return view($field->getTypedField()->getFieldOptionsView(), compact('field', 'form', 'proj', 'presets'));
         }
 	}
 

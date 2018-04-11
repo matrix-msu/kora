@@ -1,5 +1,10 @@
 @extends('fields.show')
 
+@section('presetModal')
+    @include('partials.fields.fieldValuePresetModals.addLocationPresetModal', ['presets' => $presets])
+    @include('partials.fields.fieldValuePresetModals.createLocationPresetModal')
+@stop
+
 @section('fieldOptions')
     <div class="form-group">
         {!! Form::label('default','Default Value: ') !!}
@@ -8,6 +13,10 @@
                 <option value="{{$opt}}" selected>Description: {{explode('[Desc]',$opt)[1]}} | LatLon: {{explode('[LatLon]',$opt)[1]}} | UTM: {{explode('[UTM]',$opt)[1]}} | Address: {{explode('[Address]',$opt)[1]}}</option>
             @endforeach
         </select>
+        <div><a href="#" class="field-preset-link open-location-modal-js">Use a Value Preset for these Locations</a></div>
+        <div><a href="#" class="field-preset-link open-create-location-modal-js right
+            @if(empty(\App\GeolocatorField::getLocationList($field))) disabled @endif">
+                Create a New Value Preset from these Locations</a></div>
     </div>
 
     <section class="new-object-button low-margin form-group">

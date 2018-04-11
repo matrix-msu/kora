@@ -1,4 +1,4 @@
-<?php 
+<?php
     $exists = \App\Http\Controllers\RecordController::exists($revision->rid);
     $datetime = explode(' ', $revision->updated_at);
     $showLink = action("RevisionController@show", ["pid" => $form->pid, "fid" => $form->fid, "rid" => $revision->rid]);
@@ -40,7 +40,7 @@
                     @foreach ($data["current"] as $id => $field)
                         <div class="field">
                             <div class="field-title">{{$field["name"]}}</div>
-                            <div class="field-data">{{$field["data"]}}</div>
+                            <div class="field-data">{!! $field["data"] !!}</div>
                         </div>
                     @endforeach
                 </div>
@@ -49,9 +49,7 @@
                     @foreach ($data["old"] as $id => $field)
                         <div class="field">
                             <div class="field-title">{{$field["name"]}}</div>
-                            <div class="field-data">
-                                {{$field["data"]}}
-                            </div>
+                            <div class="field-data">{!! $field["data"] !!}</div>
                         </div>
                     @endforeach
                 </div>
@@ -59,14 +57,14 @@
                 @foreach ($data as $id => $field)
                     <div class="field">
                         <div class="field-title">{{$field["name"]}}</div>
-                        <div class="field-data">{{$field["data"]}}</div>
+                        <div class="field-data">{!! $field["data"] !!}</div>
                     </div>
                 @endforeach
             @endif
         </div>
 
         <div class="footer">
-            <a class="quick-action underline-middle-hover left" href="$showLink">
+            <a class="quick-action underline-middle-hover left" href="{{$showLink}}">
                 <span>See Revisions for this Record Only</span>
             </a>
 

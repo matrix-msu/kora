@@ -78,9 +78,9 @@ class OptionPresetController extends Controller {
             $user = Auth::user();
             $pc = new ProjectController;
             if(!$pc->isProjectAdmin($user,$presets_project))
-                return response()->json(["status"=>false,"message"=>"not_project_admin"],500);
+                return redirect()->back()->with('k3_global_error', 'not_project_admin');
         } else {
-            return response()->json(["status"=>false,"message"=>"project_required"],500);
+            return redirect()->back()->with('k3_global_error', 'project_required');
         }
         $type = $request->type;
         $name = $request->name;
@@ -99,6 +99,39 @@ class OptionPresetController extends Controller {
         $preset->save();
 
         return redirect('projects/'.$pid.'/presets')->with('k3_global_success', 'field_preset_created');
+    }
+
+    /**
+     * Creates and stores a new preset from api call.
+     *
+     * @param  int $pid - Project ID
+     * @param  Request $request
+     * @return JsonResponse
+     */
+    public function createApi($pid, Request $request) {
+        if(Project::find($pid) != null) {
+            $presets_project = Project::find($pid);
+            $user = Auth::user();
+            $pc = new ProjectController;
+            if(!$pc->isProjectAdmin($user,$presets_project))
+                return response()->json(["status"=>false,"message"=>"not_project_admin"],500);
+        } else {
+            return response()->json(["status"=>false,"message"=>"project_required"],500);
+        }
+        $type = $request->type;
+        $name = $request->name;
+        $value = $request->preset;
+
+        if($type == "List" || $type == "Schedule" || $type == "Geolocator")
+            $value = implode("[!]", $value);
+
+        $preset = OptionPreset::create(['pid' => $pid, 'type' => $type, 'name' => $name, 'preset' => $value]);
+
+        $preset->shared = $request->shared;
+
+        $preset->save();
+
+        response()->json(["status"=>true,"message"=>"field_preset_created"],200);
     }
 
     /**
@@ -222,8 +255,15 @@ class OptionPresetController extends Controller {
      * @return bool - Result of the comparison
      */
     public static function supportsPresets($type) { //TODO::Evaluate Usage
-        $preset_field_compatibility = collect(['Text'=>'Text','List'=>'List','Multi-Select List'=>'List',
-            'Generated List'=>'List','Geolocator'=>'Geolocator','Schedule'=>'Schedule']);
+        $preset_field_compatibility = collect([
+            'Text'=>'Text',
+            'List'=>'List',
+            'Multi-Select List'=>'List',
+            'Generated List'=>'List',
+            'Geolocator'=>'Geolocator',
+            'Schedule'=>'Schedule'
+        ]);
+
         return $preset_field_compatibility->has($type);
     }
 
@@ -234,12 +274,14 @@ class OptionPresetController extends Controller {
      * @param  Field $field - Field to check
      * @return mixed - List of compatible presets for field
      */
-    public static function getPresetsSupported($pid,$field) { //TODO::Evaluate Usage
+    public static function getPresetsSupported($pid,$field) {
         //You need to update this if a new field with presets gets added!
         //Note that combolist is different
         $comboPresets = new Collection();
+
         $preset_field_compatibility = collect(['Text'=>'Text','List'=>'List','Multi-Select List'=>'List',
             'Generated List'=>'List','Geolocator'=>'Geolocator','Schedule'=>'Schedule']);
+
         if($field->type == "Combo List") {
             $oneType = ComboListField::getComboFieldType($field,'one');
             $twoType = ComboListField::getComboFieldType($field,'two');
@@ -273,161 +315,5 @@ class OptionPresetController extends Controller {
             }
             return $all_presets;
         }
-    }
-
-    /**
-     * Apply preset to the field.
-     *
-     * @param  int $pid - Project ID
-     * @param  int $fid - Form ID
-     * @param  int $flid - Field ID
-     * @param  Request $request
-     * @return JsonResponse
-     */
-    public function applyPreset($pid,$fid,$flid,Request $request) { //TODO::Evaluate Usage
-        $id = $request->input("id");
-        $preset = OptionPreset::findOrFail($id);
-        $project = Project::findOrFail($pid);
-        $field = FieldController::getField($flid);
-        $user = Auth::user();
-        $arr = [$preset,$project,$field];
-
-        //Since alot of the field stuff is preset specific, we will leave the logic here
-        if(!is_null($preset) && !is_null($project) && !is_null($field)) { //check if all of these exist
-            if(($preset->pid == $project->pid) || $preset->shared || is_null($preset->pid)) {
-                //Make sure preset is for this project or is shared
-                if(!$user->canEditFields(FormController::getForm($fid))) {
-                    return response()->json(["status"=>false,"message"=>"cant_edit_field"],500);
-                } else {
-                    //TODO::modular?
-                    if($field->type == "Text" && $preset->type == "Text") {
-                        $typedField = $field->getTypedField();
-                        $req = new Request();
-                        $req->options = $preset->preset;
-                        $req->default = $typedField->default;
-                        $req->required = $typedField->required;
-                        $typedField->updateOptions($field, $req);
-                    } else if(in_array($field->type,["List","Generated List","Multi-Select List"]) && $preset->type=="List") {
-                        $typedField = $field->getTypedField();
-                        $req = new Request();
-                        $req->options = explode('[!]',$preset->preset);
-                        $req->default = $typedField->default;
-                        $req->required = $typedField->required;
-                        $typedField->updateOptions($field, $req);
-                    } else if(in_array($field->type,["Schedule","Geolocator"]) && in_array($preset->type,["Schedule","Geolocator"])) {
-                        $field->default = $preset->preset;
-                        $field->save();
-                    } else if($field->type == "Combo List" &&  $preset->type == "Text") {
-                        if($request->input("combo_subfield") == "one") {
-                            $subfield = "[!Field1!]";
-                            $options = explode($subfield,$field->options);
-                            $subfield_options = $options[1];
-                            $regex_options = explode('[!Regex!]',$subfield_options);
-                            $new_subfield_options = $regex_options[0] . "[!Regex!]".$preset->preset . "[!Regex!]" . $regex_options[2];
-                            $new_options = $subfield.$new_subfield_options.$subfield.$options[2];
-                            $field->options = $new_options;
-                            $field->save();
-                        } else {
-                            $subfield = "[!Field2!]";
-                            $options = explode($subfield,$field->options);
-                            $subfield_options = $options[1];
-                            $regex_options = explode('[!Regex!]',$subfield_options);
-                            $new_subfield_options = $regex_options[0] . "[!Regex!]".$preset->preset . "[!Regex!]" . $regex_options[2];
-                            $new_options = $options[0].$subfield.$new_subfield_options.$subfield;
-                            $field->options = $new_options;
-                            $field->save();
-                        }
-
-                    } else if($field->type == "Combo List" && $preset->type == "List") {
-                        if($request->input('combo_subfield') == "one") {
-
-                            $subfield = "[!Field1!]";
-                            $options = explode($subfield,$field->options);
-                            $subfield_options = $options[1];
-                            $subfield_type = explode("[Type]",$subfield_options)[1];
-                            if($subfield_type == "Generated List") {
-                                $list_options = explode('[Options]',$subfield_options);
-                                $list_options = explode('[!Options!]',$list_options[1]);
-                                $new_subfield_options = explode('[Options]',$subfield_options)[0]."[Options]".$list_options[0] . "[!Options!]".$preset->preset . "[!Options!]"."[Options]";
-                                $new_options = $subfield.$new_subfield_options.$subfield.$options[2];
-                                $field->options = $new_options;
-                                $field->save();
-                            } else {
-                                $list_options = explode('[!Options!]',$subfield_options);
-                                $new_subfield_options = $list_options[0] . "[!Options!]".$preset->preset . "[!Options!]";
-                                $new_options = $subfield.$new_subfield_options.$subfield.$options[2];
-                                $field->options = $new_options;
-                                $field->save();
-                            }
-                        } else {
-                            $subfield = "[!Field2!]";
-                            $options = explode($subfield,$field->options);
-                            $subfield_options = $options[1];
-                            $subfield_type = explode("[Type]",$subfield_options)[1];
-                            if($subfield_type == "Generated List") {
-                                $list_options = explode('[Options]',$subfield_options);
-                                $list_options = explode('[!Options!]',$list_options[1]);
-                                $new_subfield_options = explode('[Options]',$subfield_options)[0]."[Options]".$list_options[0] . "[!Options!]".$preset->preset . "[!Options!]"."[Options]";
-                                $new_options = explode($subfield,$field->options)[0].$subfield.$new_subfield_options.$subfield.$options[2];
-                                $field->options = $new_options;
-                                $field->save();
-                            } else {
-                                $list_options = explode('[!Options!]',$subfield_options);
-                                $new_subfield_options = $list_options[0] . "[!Options!]".$preset->preset . "[!Options!]";
-                                $new_options = explode($subfield,$field->options)[0].$subfield.$new_subfield_options.$subfield.$options[2];
-                                $field->options = $new_options;
-                                $field->save();
-                            }
-                        }
-                    } else {
-                        return response()->json(["status"=>false,"message"=>"preset_invalid_field"],500);
-                    }
-                    return response()->json(["status"=>true,"message"=>"preset_applied"],200);
-                }
-            } else {
-                return response()->json(["status"=>false,"message"=>"invalid_preset_selected"],500);
-            }
-        } else {
-            return response()->json(["status"=>false,"message"=>"apply_preset_failed"],500);
-        }
-    }
-
-    /**
-     * Saves list items to a preset
-     *
-     * @param  int $pid - Project ID
-     * @param  int $id - ID of the preset
-     * @param  Request $request
-     * @return JsonResponse
-     */
-    public function saveList($pid, $id, Request $request) { //TODO::Evaluate Usage
-        $preset = OptionPreset::where('id', '=', $id)->first();
-
-        if(($preset->pid === null))
-            return response()->json(["status"=>false,"message"=>"cant_edit_stock"],500);
-
-        if($preset->pid !== null) {
-            $presets_project = $preset->project->first();
-            $user = Auth::user();
-            $pc = new ProjectController;
-            if(!$pc->isProjectAdmin($user,$presets_project))
-                return response()->json(["status"=>false,"message"=>"not_project_admin"],500);
-        }
-
-        if($request->action == 'SaveList') {
-            if(isset($request->options))
-                $options = $request->options;
-            else
-                $options = array();
-            $dbOpt = '';
-            if(isset($options[0]))
-                $dbOpt = implode("[!]",$options);
-
-            $preset = OptionPreset::find($id);
-            $preset->preset = $dbOpt;
-            $preset->save();
-        }
-
-        return response()->json(["status"=>true,"message"=>"preset_list_saved"],200);
     }
 }

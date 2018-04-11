@@ -25,12 +25,15 @@
 @section('body')
     <section class="record-select-section center">
         <div class="form-group">
-            <label for="record-select">Select Record(s) to Show Revisions For</label>
-            <select class="multi-select" id="record-select" name="record"
+            <label for="record-select">Select Record to Show Revisions For</label>
+            <select class="single-select" id="record-select" name="record"
                 data-placeholder="Currently Showing All Records">
                 <option></option>
+                @if (isset($rid))
+                    <option>View All Records</option>
+                @endif
                 @foreach ($records as $index=>$record)
-                    <option>{{$record}}</option>
+                    <option {{isset($rid) && explode('-', $record)[2] === $rid ? 'selected' : ''}}>{{$record}}</option>
                 @endforeach
             </select>
         </div>

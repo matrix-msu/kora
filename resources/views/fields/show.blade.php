@@ -21,6 +21,7 @@
 
 @section('body')
     @include("partials.fields.input-modals")
+    @yield('presetModal')
 
     <section class="single-field center">
         {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@update', $field->pid, $field->fid, $field->flid]]) !!}
@@ -41,6 +42,9 @@
     @include('partials.fields.javascripts')
 
     <script type="text/javascript">
+        createFieldValuePresetURL = "{{action("OptionPresetController@createApi", ['pid'=>$field->pid])}}";
+        CSRFToken = "{{csrf_token()}}";
+
         Kora.Fields.Show();
 
         @yield('fieldOptionsJS')

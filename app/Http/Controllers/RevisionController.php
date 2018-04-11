@@ -51,8 +51,9 @@ class RevisionController extends Controller {
         $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
         $revisions = DB::table('revisions')->where('fid', '=', $fid)->orderBy($order_type, $order_direction)->paginate($pagination);
 
+        $all_form_revisions = DB::table('revisions')->where('fid', '=', $fid)->get()->all();
         $rid_array = array();
-        foreach($revisions as $revision) {
+        foreach($all_form_revisions as $revision) {
             $rid_array[] = $revision->rid;
         }
         $rid_array = array_values(array_unique($rid_array));
@@ -82,8 +83,8 @@ class RevisionController extends Controller {
      * @return View
      */
     public function show($pid, $fid, $rid) {
-        if(!RecordController::validProjFormRecord($pid, $fid, $rid))
-            return redirect('projects')->with('k3_global_error', 'record_invalid');
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $firstRevision = DB::table('revisions')->where('rid', '=', $rid)->orderBy('created_at','desc')->first();
         if(is_null($firstRevision))
@@ -111,7 +112,7 @@ class RevisionController extends Controller {
         }
         $record = RecordController::getRecord($rid);
 
-        return view('revisions.index', compact('revisions', 'records', 'form', 'message', 'record'))->render();
+        return view('revisions.index', compact('revisions', 'records', 'form', 'message', 'record', 'rid'))->render();
     }
 
     /**
@@ -288,6 +289,11 @@ class RevisionController extends Controller {
      */
     public static function formatData($type, $field) {
         $data = $field["data"];
+        if (is_null($data)) {
+            $data = 'No Field Data';
+            $field["data"] = $data;
+            return $field;
+        }
         switch($type) {
             case 'Date':
                 $stringDate = '';
@@ -296,11 +302,17 @@ class RevisionController extends Controller {
                 $stringDate .= ' '.$data['era'];
                 $data = $stringDate;
                 break;
+            case 'Number':
+                $stringNumber = '';
+                $stringNumber .= (float)$data['number'] . ' ' . $data['unit'];
+                $data = $stringNumber;
+                break;
             case 'Documents':
             case 'Gallery':
             case 'Model':
             case 'Playlist':
             case 'Video':
+                $data = explode('[!]', $data);
                 $stringFile = '';
                 foreach($data as $file) {
                     $stringFile .= '<div>'.explode('[Name]',$file)[1].'</div>';
@@ -308,9 +320,10 @@ class RevisionController extends Controller {
                 $data = $stringFile;
                 break;
             case 'Multi-Select List':
-            case 'Generated List':
-            case 'Schedule':
             case 'Associator':
+            case 'Generated List':
+                $data = explode('[!]', $data);
+            case 'Schedule':
                 $stringList = '';
                 foreach($data as $listItem) {
                     $stringList .= '<div>'.$listItem.'</div>';
