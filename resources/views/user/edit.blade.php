@@ -44,10 +44,14 @@
       </div>
     @endif
 
-    {!! Form::model($user,  ['method' => 'PATCH', 'action' => ['AdminController@update', $user->id], 'class' => 'form-file-input']) !!}
-      @include('partials.user.form', ['id' => $user->id, 'type' => 'edit'])
+    @if (\Auth::user()->admin && \Auth::user()->id != $user->id)
+      {!! Form::model($user,  ['method' => 'PATCH', 'action' => ['AdminController@update', $user->id], 'class' => 'form-file-input']) !!}
+    @else
+      {!! Form::model($user,  ['method' => 'PATCH', 'action' => ['Auth\UserController@update', $user->id], 'class' => 'form-file-input']) !!}
+    @endif
+      @include('partials.user.form', ['uid' => $user->id, 'type' => 'edit'])
     {!! Form::close() !!}
-
+    
     <div class="modal modal-js modal-mask user-cleanup-modal-js">
       <div class="content small">
         <div class="header">

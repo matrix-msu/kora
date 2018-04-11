@@ -1,5 +1,7 @@
 <input type="hidden" id="regtoken" name="regtoken" value="{{\App\Http\Controllers\Auth\RegisterController::makeRegToken()}}">
 
+<input type="hidden" id="uid" name="uid" value="{{$user->id}}">
+
 <div class="form-group mt-xl">
   <label for="username">User Name</label>
   <input disabled type="text" class="text-input" id="username" name="username" placeholder="Enter username here" value="{{ $user->username }}">
@@ -70,7 +72,7 @@
     {!! Form::submit('Update Profile', ['class' => 'btn edit-btn update-user-submit pre-fixed-js']) !!}
 </div>
 
-@if ($type == 'edit')
+@if ($type == 'edit' && \Auth::user()->id != 1)
   <div class="form-group mt-100-xl">
     <div class="delete-user">
       <a class="btn dot-btn trash warning user-trash-js" data-title="Delete User?" href="#">

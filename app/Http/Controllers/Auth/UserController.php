@@ -80,6 +80,82 @@ class UserController extends Controller {
     }
 
     /**
+      * User updating profile information
+      */
+    public function update(Request $request) {
+      if (!\Auth::user()->admin && \Auth::user()->id != $request->uid) {
+        return response()->json(["status" => false, "message" => "cannot_update_user"], 200);
+        // return redirect('user/'.\Auth::user()->id)->with('k3_global_error', 'cannot_update_profile');
+      }
+
+      $message = array();
+      $user = User::where('id', '=', $request->uid)->first();
+      $newFirstName = $request->first_name;
+      $newLastName = $request->last_name;
+      $newProfilePic = $request->profile;
+      $newOrganization = $request->organization;
+      $newLanguage = $request->language;
+      $newPass = $request->new_password;
+      $confirm = $request->confirm;
+
+      // Look for changes, update what was changed
+      if (!empty($newFirstName) && $newFirstName != $user->first_name) {
+        $user->first_name = $newFirstName;
+        array_push($message, "first_name");
+      }
+
+      if (!empty($newLastName) && $newLastName != $user->last_name) {
+        $user->last_name = $newLastName;
+        array_push($message, "last_name");
+      }
+
+      if (!empty($newOrganization) && $newOrganization != $user->organization) {
+        $user->organization = $newOrganization;
+        array_push($message, "organization");
+      }
+
+      // TODO: When multiple languages implemented, update language change
+      // Need to test comparing language code vs language name (en vs English)
+      if (!empty($newLanguage) && $newLanguage != $user->language) {
+        //$user->language = $newLanguage;
+        //array_push($message, "language");
+      }
+
+      // Handle password change cases.
+      if(!empty($newPass) || !empty($confirm)) {
+          // If passwords don't match.
+          if($newPass != $confirm)
+              return response()->json(["status" => false, "message" => "passwords_unmatched"], 200);
+              //return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'passwords_unmatched');
+
+          // If password is less than 6 chars
+          if(strlen($newPass)<6)
+              return response()->json(["status" => false, "message" => "password_minimum"], 200);
+              //return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'password_minimum');
+
+          // If password contains spaces
+          if(preg_match('/\s/',$newPass))
+              return response()->json(["status" => false, "message" => "password_whitespaces"], 200);
+              //return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'password_whitespaces');
+
+          $user->password = bcrypt($newPass);
+          array_push($message,"password");
+      }
+
+      $user->save();
+
+      if (!empty($newProfilePic)) {
+        $changePicResponse = json_decode($this->changepicture($request, $user), true);
+        if ($changePicResponse['status']) {
+          array_push($message, $changePicResponse['message']);
+        }
+      }
+
+      return response()->json(["status" => true, "message" => $message], 200);
+      // return redirect('admin/users')->with('k3_global_success', 'user_updated')->with('user_changes', $message);
+    }
+
+    /**
       * User deleting own account
       */
     public function delete(Request $request) {
@@ -107,25 +183,26 @@ class UserController extends Controller {
      * @param  Request $request
      * @return JsonResponse - URI of pic
      */
-    public function changepicture(Request $request) {
-        $file = $request->file('profile');
-        $pDir = config('app.base_path') . 'storage/app/profiles/'.\Auth::user()->id.'/';
-        $pURL = config('app.storage_url') . 'profiles/'.\Auth::user()->id.'/';
+    public function changepicture(Request $request, $user) {
+        $file = $request->profile;
+        $pDir = config('app.base_path') . 'storage/app/profiles/'.$user->id.'/';
+        $pURL = config('app.storage_url') . 'profiles/'.$user->id.'/';
 
         //remove old pic
-        $oldFile = $pDir.\Auth::user()->profile;
+        $oldFile = $pDir.$user->profile;
         if(file_exists($oldFile))
             unlink($oldFile);
 
         //set new pic to db
         $newFilename = $file->getClientOriginalName();
-        \Auth::user()->profile = $newFilename;
-        \Auth::user()->save();
+
+        $user->profile = $newFilename;
+        $user->save();
 
         //move photo and return new path
-        $file->move($pDir,$newFilename);
+        $file->move($pDir, $newFilename);
 
-        return response()->json(["status"=>true,"message"=>"profile_pic_updated","pic_url"=>$pURL.$newFilename],200);
+        return json_encode(["status"=>true,"message"=>"profile_pic_updated","pic_url"=>$pURL.$newFilename],200);
     }
 
     /**

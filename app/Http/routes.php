@@ -174,6 +174,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/user/{uid}', 'Auth\UserController@index');
     Route::get('/user/{uid}/edit', 'Auth\UserController@editProfile');
     Route::delete('/user/{uid}/delete', 'Auth\UserController@delete');
+    Route::patch('/user/{uid}/update', 'Auth\UserController@update');
     Route::patch('/user/changepw', 'Auth\UserController@changepw');
     Route::get('/auth/activate', 'Auth\UserController@activateshow');
     Route::get('/user/activate/{token}', 'Auth\UserController@activate');

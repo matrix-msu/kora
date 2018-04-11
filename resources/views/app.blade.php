@@ -39,13 +39,13 @@
       </div>
 
       @yield('javascripts')
-      
+
       @if(Auth::guest() || !Auth::user()->active)
-        @include('partials.auth.javascripts');
-      
+        @include('partials.auth.javascripts')
+
         <script>
           var langURL ="{{action('WelcomeController@setTemporaryLanguage')}}";
-          
+
           function setTempLang(selected_lang){
             console.log("Language change started: "+langURL);
             $.ajax({
@@ -61,7 +61,7 @@
               }
             });
           }
-          
+
           Kora.Auth.Auth();
         </script>
       @endif

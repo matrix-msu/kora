@@ -111,32 +111,32 @@ class AdminController extends Controller {
         $newOrganization = $request->organization;
         $newLanguage = $request->language;
         $newPass = $request->new_password;
-        $confirm = $request->confirm;        
+        $confirm = $request->confirm;
 
         // Look for changes, update what was changed
-        if ($newFirstName != $user->first_name) {
+        if (!empty($newFirstName) && $newFirstName != $user->first_name) {
           $user->first_name = $newFirstName;
           array_push($message, "first_name");
         }
 
-        if ($newLastName != $user->last_name) {
+        if (!empty($newLastName) && $newLastName != $user->last_name) {
           $user->last_name = $newLastName;
           array_push($message, "last_name");
         }
-      
-        if ($newProfilePic) {
+
+        if (!empty($newProfilePic)) {
           $user->profile = $newProfilePic;
           array_push($message, "profile");
         }
 
-        if ($newOrganization != $user->organization) {
+        if (!empty($newOrganization) && $newOrganization != $user->organization) {
           $user->organization = $newOrganization;
           array_push($message, "organization");
         }
 
         // TODO: When multiple languages implemented, update language change
         // Need to test comparing language code vs language name (en vs English)
-        if ($newLanguage != $user->language) {
+        if (!empty($newLanguage) && $newLanguage != $user->language) {
           //$user->language = $newLanguage;
           //array_push($message, "language");
         }
