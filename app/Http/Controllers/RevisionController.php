@@ -112,7 +112,7 @@ class RevisionController extends Controller {
         }
         $record = RecordController::getRecord($rid);
 
-        return view('revisions.index', compact('revisions', 'records', 'form', 'message', 'record'))->render();
+        return view('revisions.index', compact('revisions', 'records', 'form', 'message', 'record', 'rid'))->render();
     }
 
     /**

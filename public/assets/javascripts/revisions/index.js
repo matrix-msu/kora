@@ -2,10 +2,6 @@ var Kora = Kora || {};
 Kora.Revisions = Kora.Revisions || {};
 
 Kora.Revisions.Index = function() {
-	$('.multi-select').chosen({
-		width: '100%'
-	});
-
 	function initializeOptionDropdowns() {
 		$('.option-dropdown-js').chosen({
 			disable_search_threshold: 10,
@@ -19,6 +15,19 @@ Kora.Revisions.Index = function() {
                 var pageCount = getURLParameter('page-count');
                 window.location = window.location.pathname + "?order=" + $(this).val() + (pageCount ? "&page-count=" + pageCount : '');
             }
+        });
+    }
+
+    function initializeRecordSelect() {
+        $('#record-select').chosen({
+            width: '100%'
+        }).change(function() {
+            if ($(this).val() === "View All Records") {
+                window.location = window.location.pathname.substr(0, window.location.pathname.lastIndexOf("/")) + '/recent';
+                return;
+            }
+            var revision = $(this).val().split('-')[2];
+            window.location = window.location.pathname.replace('recent', revision);
         });
     }
     
@@ -94,6 +103,7 @@ Kora.Revisions.Index = function() {
 	}
 
     initializeOptionDropdowns();
+    initializeRecordSelect();
     initializePaginationShortcut();
     initializeToggle();
 }
