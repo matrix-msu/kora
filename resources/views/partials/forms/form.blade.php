@@ -11,12 +11,12 @@
 
 <div class="form-group mt-xl">
   {!! Form::label('slug', 'Unique Form Identifier') !!}
-  {!! Form::text('slug', null, ['class' => 'text-input', 'placeholder' => "Enter the forms's unique ID here (no spaces, alpha-numeric values only)"]) !!}
+  {!! Form::text('slug', null, ['class' => 'text-input', 'placeholder' => "Enter the form's unique ID here (no spaces, alpha-numeric values only)"]) !!}
 </div>
 
 <div class="form-group mt-xl">
   {!! Form::label('description', 'Description') !!}
-  {!! Form::textarea('description', null, ['class' => 'text-area', 'placeholder' => "Enter the projects description here (max. 255 characters)"]) !!}
+  {!! Form::textarea('description', null, ['class' => 'text-area', 'placeholder' => "Enter the form's description here (max. 255 characters)"]) !!}
 </div>
 
 @if($submitButtonText == 'Create Form')

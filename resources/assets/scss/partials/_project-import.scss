@@ -1,0 +1,32 @@
+.project-import-setup-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu;
+  min-height: 100vh;
+}
+
+.project-import-setup {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  .projectfile-link,
+  .projectinfo-link {
+    color: palette('gray', text, .6);
+    cursor: default;
+    margin-right: 20px;
+    padding: 20px 0;
+    text-decoration: none;
+
+    &.active {
+      color: palette('green', accent);
+    }
+  }
+
+  .projectfile-section,
+  .projectinfo-section {
+    margin: #{map-get($spacing, xxxl)} auto;
+    max-width: calc(#{ $max-site-width } - 600px);
+    width: $max-site-width;
+
+
+  }
+}

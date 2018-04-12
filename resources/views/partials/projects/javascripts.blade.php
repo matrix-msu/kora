@@ -8,6 +8,7 @@
   '/assets/javascripts/projects/edit.js',
   '/assets/javascripts/projects/index.js',
   '/assets/javascripts/projects/show.js',
+  '/assets/javascripts/projects/import.js',
   '/assets/javascripts/navigation/navigation.js',
   '/assets/javascripts/general/global.js'
 ])->withFullUrl() !!}
