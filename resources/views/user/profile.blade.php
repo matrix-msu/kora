@@ -17,12 +17,17 @@
                 @endif
             </h1>
             <p class="description"></p>
+            <div class="content-sections">
+                <a href="#profile" class="section underline-middle underline-middle-hover toggle-by-name">Profile</a>
+                <a href="#permissions" class="section underline-middle underline-middle-hover toggle-by-name">Permissions</a>
+                <a href="#recordHistory" class="section underline-middle underline-middle-hover toggle-by-name">RecordHistory</a>
+            </div>
         </div>
     </section>
 @stop
 
 @section('body')
-    <section class="center my-profile-attributes">
+    <section class="center my-profile-attributes page-section-js" id="profile">
         <div class="mt-xl">
             <span class="attr-title">First Name: </span>
             <span class="attr-desc">{{$user->first_name}}</span>
@@ -97,8 +102,12 @@
     </div>
 @endsection
 
-@section('footer')
-    @include('partials.profile.javascripts')
+@section('javascripts')
+    @include('partials.user.javascripts')
+
+    <script type="text/javascript">
+        Kora.User.Profile();
+    </script>
 
     {{--<script>--}}
         {{--$( ".panel-heading" ).on( "click", function() {--}}

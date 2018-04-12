@@ -70,7 +70,7 @@
         </a>
       @endif
 
-      <a class="quick-action underline-middle-hover" href="#">
+      <a class="quick-action underline-middle-hover" href="{{ url('user/'.$user->id) }}">
         <i class="icon icon-edit-little"></i>
         <span>View User Profile</span>
       </a>
