@@ -968,8 +968,10 @@ class ImportController extends Controller {
             $file = $request->file('records');
             $records = simplexml_load_file($file);
             $zipDir = config('app.base_path').'storage/app/tmpFiles/f'.$form->fid.'u'.\Auth::user()->id.'/';
+            $filesProvided = false;
 
             if(!is_null($request->file('files'))) {
+                $filesProvided = true;
                 $fileZIP = $request->file('files');
 
                 $zip = new \ZipArchive();
@@ -1096,6 +1098,10 @@ class ImportController extends Controller {
                                 }
                                 break;
                             case 'Documents':
+                                //If the user didn't provide files, bounce
+                                if(!$filesProvided)
+                                    break;
+
                                 $realname='';
                                 if(isset($value->attributes()["originalName"]))
                                     $realname = $value->attributes()["originalName"];
@@ -1132,6 +1138,10 @@ class ImportController extends Controller {
                                 }
                                 break;
                             case 'Gallery':
+                                //If the user didn't provide files, bounce
+                                if(!$filesProvided)
+                                    break;
+
                                 $realname='';
                                 if(isset($value->attributes()["originalName"]))
                                     $realname = $value->attributes()["originalName"];
@@ -1217,7 +1227,7 @@ class ImportController extends Controller {
                 rmdir($zipDir);
         }
 
-        return redirect('projects/'.$form->pid)->with('k3_global_success', 'form_created');
+        return redirect('projects/'.$pid)->with('k3_global_success', 'form_created');
     }
 
     /**

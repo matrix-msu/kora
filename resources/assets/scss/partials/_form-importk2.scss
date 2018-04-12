@@ -1,0 +1,44 @@
+.scheme-import-setup-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu;
+  min-height: 100vh;
+}
+
+.scheme-import-setup {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  .formfile-link,
+  .forminfo-link {
+    color: palette('gray', text, .6);
+    cursor: default;
+    margin-right: 20px;
+    padding: 20px 0;
+    text-decoration: none;
+
+    &.active {
+      color: palette('green', accent);
+    }
+  }
+
+  .formfile-section,
+  .forminfo-section {
+    margin: #{map-get($spacing, xxxl)} auto;
+    max-width: calc(#{ $max-site-width } - 600px);
+    width: $max-site-width;
+  }
+
+  .scheme-record-title {
+    font-size: 14px;
+  }
+
+  .scheme-import-button {
+    height: 65px;
+    margin: 100px auto 85px;
+    padding: 0;
+
+    .scheme-import-submit {
+      margin: 0 auto 15px;
+    }
+  }
+}
