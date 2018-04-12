@@ -106,7 +106,7 @@ class FormGroup extends Model {
         foreach($projectAdmins as $projectAdmin)
             $idArray[] .= $projectAdmin->id;
 
-        if(!is_null($request->admins))
+        if(!is_null($request) && !is_null($request->admins))
             $idArray = array_unique(array_merge($request->admins, $idArray));
         else
             $idArray = array_unique(array_merge(array(\Auth::user()->id), $idArray));

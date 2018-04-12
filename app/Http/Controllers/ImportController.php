@@ -1376,12 +1376,12 @@ class ImportController extends Controller {
                 if(Project::where('slug', '=', $finalSlug.$i)->exists()) {
                     $i++;
                 } else {
-                    $proj->slug = $finalSlug->slug.$i;
+                    $proj->slug = $finalSlug.$i;
                     $unique = true;
                 }
             }
         } else {
-            $proj->slug = $finalSlug->slug;
+            $proj->slug = $finalSlug;
         }
 
         if($pDesc == "")
