@@ -8,10 +8,16 @@
 <div class="revision card all {{ $index == 0 ? 'active' : '' }}" id="{{$revision->id}}">
     <div class="header {{ $index == 0 ? 'active' : '' }}">
         <div class="left pl-m">
-            <a class="title{{ $exists ? '' : ' disabled' }}" href="{{ $exists ? $showLink : '' }}">
-                <span class="name underline-middle-hover">{{$form->pid}}-{{$form->fid}}-{{$revision->rid}}</span>
-            </a>
-            <span class="sub-title">{{$type}}</span>
+            @if (isset($rid))
+                <span class="title gray">
+                    <span class="name">{{$type}}</span>
+                </span>
+            @else
+                <a class="title{{ $exists ? '' : ' disabled' }}" href="{{ $exists ? $showLink : '' }}">
+                    <span class="name underline-middle-hover">{{$form->pid}}-{{$form->fid}}-{{$revision->rid}}</span>
+                </a>
+                <span class="sub-title">{{$type}}</span>
+            @endif
             <span class="sub-title">{{$datetime[1]}}</span>
             <span class="sub-title">{{$datetime[0]}}</span>
             <span class="sub-title">{{$revision->username}}</span>

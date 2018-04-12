@@ -3,6 +3,9 @@
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $form->pid])
     @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+    @if (isset($rid))
+        @include('partials.menu.record', ['pid' => $record->pid, 'fid' => $record->fid, 'rid' => $record->rid])
+    @endif
     @include('partials.menu.static', ['name' => 'Record Revisions'])
 @stop
 
@@ -11,7 +14,7 @@
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-clock"></i>
-                <span>Record Revisions</span>
+                <span>Record Revisions{{isset($rid) ? ': ' . $record['kid'] : ''}}</span>
             </h1>
             <p class="description">
                 Use this page to view and manage record revisions within this form.
