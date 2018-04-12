@@ -27,7 +27,7 @@ Kora.Revisions.Index = function() {
                 return;
             }
             var revision = $(this).val().split('-')[2];
-            window.location = window.location.pathname.replace('recent', revision);
+            window.location = window.location.pathname.replace('recent', revision) + "?revisions=true";
         });
     }
     

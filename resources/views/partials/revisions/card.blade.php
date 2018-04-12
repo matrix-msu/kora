@@ -70,9 +70,11 @@
         </div>
 
         <div class="footer">
-            <a class="quick-action underline-middle-hover left" href="{{$showLink}}">
-                <span>See Revisions for this Record Only</span>
-            </a>
+            @if (!isset($rid))
+                <a class="quick-action underline-middle-hover left" href="{{$showLink}}">
+                    <span>See Revisions for this Record Only</span>
+                </a>
+            @endif
 
             @if ($exists)
                 <a class="quick-action underline-middle-hover" href="{{ action("RecordController@show",

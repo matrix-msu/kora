@@ -4,7 +4,7 @@
     @include('partials.menu.project', ['pid' => $form->pid])
     @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
     @if (isset($rid))
-        @include('partials.menu.record', ['pid' => $record->pid, 'fid' => $record->fid, 'rid' => $record->rid])
+        @include('partials.menu.record', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $rid])
     @endif
     @include('partials.menu.static', ['name' => 'Record Revisions'])
 @stop
@@ -14,7 +14,7 @@
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-clock"></i>
-                <span>Record Revisions{{isset($rid) ? ': ' . $record['kid'] : ''}}</span>
+                <span>Record Revisions{{isset($rid) ? ': ' . $form->pid . '-' . $form->fid . '-' . $rid : ''}}</span>
             </h1>
             <p class="description">
                 Use this page to view and manage record revisions within this form.
@@ -26,21 +26,23 @@
 @stop
 
 @section('body')
-    <section class="record-select-section center">
-        <div class="form-group">
-            <label for="record-select">Select Record to Show Revisions For</label>
-            <select class="single-select" id="record-select" name="record"
-                data-placeholder="Currently Showing All Records">
-                <option></option>
-                @if (isset($rid))
-                    <option>View All Records</option>
-                @endif
-                @foreach ($records as $index=>$record)
-                    <option {{isset($rid) && explode('-', $record)[2] === $rid ? 'selected' : ''}}>{{$record}}</option>
-                @endforeach
-            </select>
-        </div>
-    </section>
+    @if (!isset($rid) || Request::get('revisions'))
+        <section class="record-select-section center">
+            <div class="form-group">
+                <label for="record-select">Select Record to Show Revisions For</label>
+                <select class="single-select" id="record-select" name="record"
+                    data-placeholder="Currently Showing All Records">
+                    <option></option>
+                    @if (isset($rid))
+                        <option>View All Records</option>
+                    @endif
+                    @foreach ($records as $index=>$record)
+                        <option {{isset($rid) && explode('-', $record)[2] === $rid ? 'selected' : ''}}>{{$record}}</option>
+                    @endforeach
+                </select>
+            </div>
+        </section>
+    @endif
     <section class="filters center">
         <div class="pagination-options pagination-options-js">
             <select class="page-count option-dropdown-js" id="page-count-dropdown">
