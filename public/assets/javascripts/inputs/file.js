@@ -103,6 +103,7 @@ Kora.Inputs.File = function() {
 
         if (droppedFile) {
           // This solution does not work with drag and drop, possibly need to change the file type
+        
           ajaxData.append("profile", droppedFile);
         }
 

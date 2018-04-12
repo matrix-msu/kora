@@ -58,7 +58,7 @@ Kora.User.Edit = function() {
       });
     });
   }
-  
+
   function initializeForm() {
     // For profile pic functionality
     var form = $(".form-file-input");
@@ -68,6 +68,7 @@ Kora.User.Edit = function() {
     var filename = $(".filename");
     var instruction = $(".instruction");
     var droppedFile = false;
+    var droppedFilename = false;
 
     // Remove selected profile pic
     function resetFileInput() {
@@ -76,6 +77,7 @@ Kora.User.Edit = function() {
       instruction.removeClass("photo-selected");
       picCont.html("<i class='icon icon-user'></i>");
       droppedFile = false;
+      droppedFilename = false;
     };
 
     // Profile pic is added, populate profile pic label, set up remove event
@@ -85,6 +87,7 @@ Kora.User.Edit = function() {
       instruction.addClass("photo-selected");
 
       droppedFile = pic;
+      droppedFilename = name;
 
       $(".remove").click(function(event) {
         event.preventDefault();
@@ -149,6 +152,7 @@ Kora.User.Edit = function() {
           picCont.html("<img src='"+e.target.result+"' alt='Profile Picture'>");
           newProfilePic(e.target.result, droppedFile.name);
           droppedFile = e.target.result;
+          console.log(e.target.result);
         };
         reader.readAsDataURL(droppedFile);
       });
@@ -161,6 +165,7 @@ Kora.User.Edit = function() {
         if (droppedFile) {
           // This solution does not work with drag and drop, possibly need to change the file type
           ajaxData.append("profile", droppedFile);
+          console.log(droppedFile);
         }
 
         $.ajax({
@@ -172,7 +177,12 @@ Kora.User.Edit = function() {
           contentType: false,
           processData: false,
           success: function(response) {
-            location.reload();
+            if (response.status) {
+              // Updated successfully
+              location.reload();
+            } else {
+              console.log(response.message);
+            }
           },
           error: function(error) {
             // TODO: Handle errors. Currently can get all errors, just need to display them
