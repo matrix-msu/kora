@@ -13,7 +13,7 @@
                     <span class="name">{{$type}}</span>
                 </span>
             @else
-                <a class="title{{ $exists ? '' : ' disabled' }}" href="{{ $exists ? $showLink : '' }}">
+                <a class="title{{ $exists ? '' : ' disabled' }}" href="{{ $exists ? action("RecordController@show", ['pid'=>$form->pid, 'fid'=>$form->fid, 'rid'=>$revision->rid]) : '' }}">
                     <span class="name underline-middle-hover">{{$form->pid}}-{{$form->fid}}-{{$revision->rid}}</span>
                 </a>
                 <span class="sub-title">{{$type}}</span>
