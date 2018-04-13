@@ -3,7 +3,7 @@
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $form->pid])
     @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
-    @include('partials.menu.record', ['record' => $record])
+    @include('partials.menu.record', ['pid' => $record->pid, 'fid' => $record->fid, 'rid' => $record->rid])
     @include('partials.menu.static', ['name' => 'Duplicate Record'])
 @stop
 
