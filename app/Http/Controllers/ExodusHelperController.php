@@ -562,7 +562,7 @@ class ExodusHelperController extends Controller {
                             if(FieldController::getFieldOption($field,'Era')=='Yes')
                                 $era = (string)$dateXML->era;
 
-                            $date = [
+                            $date = [ //TODO::add dateobject
                                 'rid' => $recModel->rid,
                                 'fid' => $recModel->fid,
                                 'flid' => $field->flid,

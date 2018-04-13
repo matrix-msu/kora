@@ -1,0 +1,61 @@
+.record-import-setup-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu;
+  min-height: 100vh;
+}
+
+.record-import-setup {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  .description {
+    a {
+      color: palette('green', accent);
+      font-family: $ubuntu-medium;
+      text-decoration: none;
+    }
+  }
+
+  .recordfile-link,
+  .recordmatch-link {
+    color: palette('gray', text, .6);
+    cursor: default;
+    margin-right: 20px;
+    padding: 20px 0;
+    text-decoration: none;
+
+    &.active {
+      color: palette('green', accent);
+    }
+  }
+
+  .recordfile-section,
+  .recordmatch-section {
+    margin: #{map-get($spacing, xxxl)} auto;
+    max-width: calc(#{ $max-site-width } - 600px);
+    width: $max-site-width;
+
+    .record-file-title {
+      font-size: 14px;
+    }
+
+    .record-import-button {
+      height: 65px;
+      margin: 100px auto 85px;
+      padding: 0;
+
+      .record-import-submit {
+        margin: 0 auto 15px;
+      }
+    }
+
+    .solid-box {
+      background-color: palette('gray', text, .03);
+      border-radius: 5px;
+      font-size: 14px;
+      padding: 18px 0;
+      padding-left: 22px;
+      width: auto;
+    }
+  }
+}

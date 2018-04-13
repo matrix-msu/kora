@@ -1,152 +1,89 @@
-@extends('app')
+@extends('app', ['page_title' => "Import Records", 'page_class' => 'record-import-setup'])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $form->pid])
-    @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+    @include('partials.menu.form', ['fid' => $form->fid])
+    @include('partials.menu.static', ['name' => 'Import Records'])
 @stop
 
-@section('content')
-    <span><h1>{{trans('forms_show.import')}}</h1></span>
-
-    <hr>
-
-    <div id="upload_div">
-        <div>
-            <a href="{{ action('ImportController@exportSample',['pid' => $form->pid, 'fid' => $form->fid, 'type' => 'XML']) }}">[{{trans('forms_show.samplexml')}}]</a>
-            <a href="{{ action('ImportController@exportSample',['pid' => $form->pid, 'fid' => $form->fid, 'type' => 'JSON']) }}">[{{trans('forms_show.samplejson')}}]</a>
-        </div>
-
-        <div class="form-group">
-            {!! Form::label('xml', trans('forms_show.xml').': ') !!}
-            {!! Form::file('xml', ['class' => 'form-control', 'id' => 'upload_xml', 'accept' => '.xml,.json']) !!}
-        </div>
-
-        <div class="form-group">
-            {!! Form::label('zip', trans('forms_show.zip').': ') !!}
-            {!! Form::file('zip', ['class' => 'form-control', 'id' => 'upload_zip', 'accept' => '.zip']) !!}
-        </div>
-
-        <div class="form-group">
-            <button type="button" class="form-control btn btn-primary" id="submit_files">{{trans('forms_show.submitfiles')}}</button>
-        </div>
-    </div>
-
-    <div id="matchup_div">
-    </div>
-
-    <div id="counter_div" hidden>
-        <div id="progress_text">0 of 0 Records Submitted</div>
-        <div class="progress">
-            <div id="progress_bar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
-                <span class="sr-only">0% Complete</span>
+@section('header')
+    <section class="head">
+        <div class="inner-wrap center">
+            <h1 class="title">
+                <i class="icon icon-record-import"></i>
+                <span>Import Records</span>
+            </h1>
+            <p class="description">You can import records via XML or JSON File. You may
+                <a href="{{ action('ImportController@exportSample',['pid' => $form->pid, 'fid' => $form->fid, 'type' => 'XML']) }}">download our sample XML file here</a>,
+                and
+                <a href="{{ action('ImportController@exportSample',['pid' => $form->pid, 'fid' => $form->fid, 'type' => 'JSON']) }}">our sample JSON file here</a>
+                to get an idea on how to organize your record data. </p>
+            <div class="content-sections">
+                <a href="#recordfile" class="recordfile-link underline-middle active">Upload Record Files</a>
+                <a href="#recordmatch" class="recordmatch-link">Field Matching</a>
             </div>
         </div>
-    </div>
-
-    <div id="error_div">
-    </div>
+    </section>
 @stop
 
-@section('footer')
-    <script>
-        $('#upload_div').on('click', '#submit_files', function() {
-            if ($('#upload_xml').val() != '') {
-                fd = new FormData();
-                fd.append("records",$('#upload_xml')[0].files[0]);
-                var name = $('#upload_xml').val();
-                fd.append('type',name.replace(/^.*\./, ''));
-                if ($('#upload_zip').val() != '') {
-                    fd.append("files", $('#upload_zip')[0].files[0]);
-                }
-                fd.append("fid","{{$form->fid}}");
-                fd.append('_token', '{{ csrf_token() }}');
+@section('body')
+    <section class="recordfile-section">
+        <div class="form-group">
+            <label>Drag & Drop or Select the XML / JSON File Below</label>
+            <input type="file" accept=".xml,.json" name="records" id="records" class="record-input profile-input record-input-js" />
+            <label for="records" class="record-label profile-label">
+                <p class="record-filename filename">Drag & Drop the XML / JSON File Here</p>
+                <p class="record-instruction instruction mb-0">
+                    <span class="dd">Or Select the XML / JSON File here</span>
+                    <span class="no-dd">Select a XML / JSON File here</span>
+                    <span class="select-new">Select a Different XML / JSON File?</span>
+                </p>
+            </label>
+        </div>
 
-                $.ajax({
-                    url: '{{ action('ImportController@matchupFields',['pid'=>$form->pid,'fid'=>$form->fid])}}',
-                    type: 'POST',
-                    data: fd,
-                    contentType: false,
-                    processData: false,
-                    success: function (data) {
-                        console.log(data);
-                        $('#upload_div').attr('hidden','hidden');
-                        $('#matchup_div').html(data['matchup']);
+        <div class="form-group mt-xxxl" id="scroll-here">
+            <div class="spacer"></div>
+        </div>
 
-                        //initialize matchup
-                        tags = [];
-                        slugs = [];
-                        table = {};
-                        $('.tags').each(function(){
-                            tags.push($(this).val());
-                        });
-                        $('.slugs').each(function(){
-                            slugs.push($(this).val());
-                        });
-                        for(j=0; j<slugs.length; j++){
-                            table[tags[j]] = slugs[j];
-                        }
+        <section class="record-import-section-2 hidden">
+            <div class="form-group mt-xxxl">
+                <div class="record-file-title">If you have files that correlate to the XML / JSON File above, upload them below in a zipped file.</div>
+            </div>
 
-                        //initialize counter
-                        done = 0;
-                        succ = 0;
-                        failed = [];
-                        total = data['records'].length;
-                        $('#progress_bar').attr('aria-valuemax',"100");
-                        $('#progress_text').text(succ+' of '+total+' Records Submitted');
+            <div class="form-group mt-xxxl">
+                <label>Drag & Drop or Select the Zipped File Below</label>
+                <input type="file" accept=".zip" name="files" id="files" class="file-input profile-input file-input-js" />
+                <label for="files" class="file-label profile-label">
+                    <p class="file-filename filename">Drag & Drop the Zipped File Here</p>
+                    <p class="file-instruction instruction mb-0">
+                        <span class="dd">Or Select the Zipped File here</span>
+                        <span class="no-dd">Select a Zipped File here</span>
+                        <span class="select-new">Select a Different Zipped File?</span>
+                    </p>
+                </label>
+            </div>
 
-                        $('#matchup_div').on('click', '#submit_records', function() {
-                            $('#matchup_div').attr('hidden','hidden');
-                            $('#counter_div').removeAttr('hidden');
+            <div class="form-group record-import-button">
+                <input type="button" class="btn record-import-submit pre-fixed-js upload-record-btn-js" value="Upload Record Import File">
+            </div>
+        </section>
+    </section>
 
-                            //foreach loop
-                            for(i=0; i<total; i++){
-                                //ajax to store record
-                                $.ajax({
-                                    url: '{{ action('ImportController@importRecord',['pid'=>$form->pid,'fid'=>$form->fid]) }}',
-                                    type: 'POST',
-                                    data: {
-                                        "_token": "{{ csrf_token() }}",
-                                        "record": data['records'][i],
-                                        "table": table,
-                                        "type": data['type']
-                                    },
-                                    success: function(data){
-                                        console.log(data);
-                                        //if success
-                                        if(data=='') {
-                                            succ++;
-                                            $('#progress_text').text(succ+' of '+total+' Records Submitted');
-                                        }
-                                        //if error
-                                        else{
-                                            //list error message
-                                            $('#error_div').html(data);
-                                            //add obj to failed
-                                            //failed.push(data['records'][i]);
-                                        }
-                                        done++;
-                                        //update progress bar
-                                        percent = (done/total)*100;
-                                        bar = $('#progress_bar');
-                                        bar.attr('aria-valuenow',percent);
-                                        bar.attr('style','width:'+percent+'%');
-                                        $('.sr-only').text(percent+'% Complete');
-                                        $('#progress_text').text(done+' of '+total+' Records Submitted');
+    <section class="recordmatch-section hidden">
 
-                                        //if done = total
-                                        if(done==total) {
-                                            //Display links for downloading bad xml
-                                            //Display link to Go to Records Page
-                                            $('#counter_div').append('<a href="{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}">[{{trans('records_show.records')}}]</a>');
-                                            //console.log(failed);
-                                        }
-                                    }
-                                });
-                            }
-                        });
-                    }
-                });
-            }
-        });
+    </section>
+@stop
+
+@section('javascripts')
+    @include('partials.records.javascripts')
+
+    <script type="text/javascript">
+        var fidForFormData = '{{$form->fid}}';
+        var matchUpFieldsUrl = '{{ action('ImportController@matchupFields',['pid'=>$form->pid,'fid'=>$form->fid])}}';
+        var importRecordUrl = '{{ action('ImportController@importRecord',['pid'=>$form->pid,'fid'=>$form->fid]) }}';
+        var showRecordUrl = '{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}';
+        var CSRFToken = '{{ csrf_token() }}';
+
+        Kora.Records.Import();
     </script>
 @stop
