@@ -1,177 +1,57 @@
-@extends('app')
+@extends('app', ['page_title' => "K2 Exodus Transfer", 'page_class' => 'kora-exodus-transfer'])
 
-@section('content')
-    <div class="container">
-        <div class="row">
-            <div class="col-md-10 col-md-offset-1">
+@section('leftNavLinks')
+    @include('partials.menu.static', ['name' => 'K2 Exodus Transfer'])
+@stop
 
-                <div style="display:none" id="user_lockout_notice" class="alert alert-danger" role="alert">
-                    <strong>Users are locked out because the restore failed.</strong> <a id="link_unlock_users" href="#" class="alert-link">Unlock users</a>
-                </div>
-
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        Kora Exodus
-                    </div>
-
-                    <div class="panel-body">
-                        <div style="" id="summary">
-                            <p>
-                                This process may take a while depending on the size of your Kora 2 installation.
-                            </p>
-                            <div class="progress">
-                                <div id="progress" class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
-                                    <span class="sr-only">Almost there...</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div style="display:none" id="summary_done">
-                            <p>
-                                Success! Your projects and data have been migrated.
-                            </p>
-                        </div>
-
-                        <div style="display:none" id="error_info">
-                            <p id="error_message">
-                                There was an error during the migration process.
-                            </p>
-                            <ul style="display:none" id="error_list" class="list-group">
-                                <li class="list-group-item">
-                                    <span id="error_count" class="badge">Unknown</span>
-                                    <strong class="list-group-item-heading">Errors</strong>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+@section('header')
+    <section class="head">
+        <div class="inner-wrap center">
+            <h1 class="title">
+                <i class="icon icon-exodus"></i>
+                <span>Transfering ...</span>
+            </h1>
+            <p class="description">The transfer has started, depending on the size of your database, it may take a while
+                to complete. Do not leave this page or close your browser until completion. When the backup is complete,
+                you can see a summary of all the data that was saved.</p>
         </div>
-    </div>
+    </section>
+@stop
+
+@section('body')
+    <section class="exodus-progress">
+        <div class="form-group">
+            <div class="progress-bar-custom">
+                <span class="progress-bar-filler progress-fill-js"></span>
+            </div>
+
+            <p class="progress-bar-text progress-text-js">Transfering the things… Fingers Crossed this Actually Works …  </p>
+        </div>
+    </section>
 @endsection
 
-@section('footer')
-    <script>
-        function migrate(){
-            window.onbeforeunload = function() {
-                return "Do not leave this page, the kora 2 exodus process will be interrupted!";
-            }
-            $.ajax({
-                url:"{{action('ExodusController@startExodus')}}",
-                method:'POST',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "host": '{{ $host }}',
-                    "user": '{{ $user }}',
-                    "name": '{{ $name }}',
-                    "pass": '{{ $pass }}',
-                    "migrateUsers": {{ $migrateUsers }},
-                    "migrateTokens": {{ $migrateTokens }},
-                    "projects": '{{ implode(',',$projects) }}',
-                    "filePath": '{{ $filePath }}'
-                },
-                success: function(data){
-                    $("#progress").css("display","none");
-                    $("#summary").css("display","inline");
-                    window.onbeforeunload = null;
-                    setTimeout(function () {
-                        checkProgress();
-                    }, 5000);
-                },
-                error: function(data){
-                    $("#progress").fadeOut();
-                    $("#summary").fadeOut();
-                    $("#user_lockout_notice").fadeIn(1000);
-                    $("#error_info").fadeIn(1000);
-                    $("#download_btn_for_error").fadeIn(1000);
-                    $("#error_message").text(data.responseJSON.message);
-                    if(data.responseJSON.error_list.length >0){
-                        $("#error_list").fadeIn(1000);
-                    }
+@section('javascripts')
+    @include('partials.exodus.javascripts')
 
-                    for(var i=0; i<data.responseJSON.error_list.length; i++) {
-                        $("#error_list").append("<li class='list-group-item small'> <span class='glyphicon glyphicon-chevron-right'></span>"+data.responseJSON.error_list[i]+"</li>");
-                    }
-                    $("#error_count").text(data.responseJSON.error_list.length);
-                    window.onbeforeunload = null;
-                }
-            });
-        }
-        function checkProgress(){
-            $.ajax({
-                url:"{{action('ExodusController@checkProgress')}}",
-                method:'GET',
-                data:{
-                    "_token":"{{csrf_token()}}"
-                },
-                success: function(data) {
-                    console.log(data);
-                    $("#progress").removeClass('progress-bar-danger');
-                    if(data=='inprogress'){
-                        setTimeout(function () {
-                            checkProgress();
-                        }, 5000);
-                    }
-                    $("#progress").css('width', (((data.overall.progress / data.overall.overall) * 100) + "%"));
-                    if (data.overall.progress == data.overall.overall && data.overall.overall!=0) {
-                        $('#type_message').text('Converting record associations. This may take a while...');
-                        $.ajax({
-                            url: "{{action('ExodusController@finishExodus')}}",
-                            method:'POST',
-                            data: {
-                                "_token": "{{ csrf_token() }}"
-                            },
-                            success: function(data){
-                                $('#summary').slideUp();
-                                $('#summary_done').slideDown();
-                                unlockUsers();
-                            }
-                        });
-                    } else {
-                        setTimeout(function () {
-                            checkProgress();
-                        }, 5000);
-                    }
-                },
-                error: function(data){
-                    console.log("error checking progress!");
-                    $("#progress").addClass('progress-bar-danger');
-                    setTimeout(function () {
-                        checkProgress();
-                    },5000);
-                }
-            });
-        }
+    <script type="text/javascript">
+        var startExodusUrl = '{{action('ExodusController@startExodus')}}';
+        var finishExodusUrl = '{{action('ExodusController@finishExodus')}}';
+        var checkProgressUrl = '{{action('ExodusController@checkProgress')}}';
+        var unlockUsersUrl = '{{action('ExodusController@unlockUsers')}}';
+        var projectsUrl = '{{action('ProjectController@index')}}';
 
-        function unlockUsers(){
-            var unlockURL = "{{action('ExodusController@unlockUsers')}}";
-            $.ajax({
-                url:unlockURL,
-                method:'POST',
-                data: {
-                    "_token": "{{ csrf_token() }}"
-                },
-                success: function(data){
-                    //alert("Users are now able to access Kora 3");
-                    $("#user_lockout_notice").removeClass("alert-danger").addClass("alert-success");
-                    $("#user_lockout_notice").text("Success- users unlocked");
-                    $("#user_lockout_notice").fadeOut(1000);
-                },
-                error: function(data){
-                    var encode = $('<div/>').html("Unable to restore access to all users").text();
-                    alert(encode + ".");
-                }
-            })
-        }
+        var host = '{{ $host }}';
+        var user = '{{ $user }}';
+        var name = '{{ $name }}';
+        var pass = '{{ $pass }}';
+        var migrateUsers = {{ $migrateUsers }};
+        var migrateTokens = {{ $migrateTokens }};
+        var projects = '{{ implode(',',$projects) }}';
+        var filePath = '{{ $filePath }}';
 
-        $("#link_unlock_users").click(function(){
-            unlockUsers();
-        });
+        var CSRFToken = '{{ csrf_token() }}';
 
-        $(migrate);
-        setTimeout(function () {
-            checkProgress();
-        },30000);
+        Kora.Exodus.Transfer();
     </script>
-@endsection
+@stop
 

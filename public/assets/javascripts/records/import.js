@@ -129,7 +129,7 @@ Kora.Records.Import = function() {
 
                                         //if done = total
                                         if(done==total) {
-                                            //Display links for downloading bad xml //TODO
+                                            //Display links for downloading bad xml //TODO:: build link for failed records
                                             //Display link to Go to Records Page
                                             progressText.html('Records successfully imported! Click ' +
                                                 '<a class="success-link" href="'+showRecordUrl+'">here to visit the ' +

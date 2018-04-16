@@ -7,10 +7,15 @@
 
   .progress-bar-filler {
     background: gradient($palette: 'accent', $degree: to right);
+    box-shadow: 0 5px 20px 0 palette('green', accent, .3);
     border-radius: 100px;
     display: block;
     height: 100%;
     width: 7%;
+
+    &.warning {
+      background: gradient($palette: 'warning', $degree: to right);
+    }
   }
 }
 
