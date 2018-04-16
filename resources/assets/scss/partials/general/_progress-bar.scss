@@ -1,0 +1,22 @@
+.progress-bar-custom {
+  background-color: palette('gray', text, .05);
+  border-radius: 100px;
+  box-shadow: inset 0 3px 5px 0 palette('gray', background, .05);
+  height: 50px;
+  width: auto;
+
+  .progress-bar-filler {
+    background: gradient($palette: 'accent', $degree: to right);
+    border-radius: 100px;
+    display: block;
+    height: 100%;
+    width: 7%;
+  }
+}
+
+.progress-bar-text {
+  height: 24px;
+  font-size: 14px;
+  margin-top: 40px;
+  text-align: center;
+}
