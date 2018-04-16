@@ -30,7 +30,8 @@
   }
 
   .recordfile-section,
-  .recordmatch-section {
+  .recordmatch-section,
+  .recordresults-section {
     margin: #{map-get($spacing, xxxl)} auto;
     max-width: calc(#{ $max-site-width } - 600px);
     width: $max-site-width;
@@ -56,6 +57,12 @@
       padding: 18px 0;
       padding-left: 22px;
       width: auto;
+    }
+
+    .success-link {
+      color: palette('green', accent);
+      font-family: $ubuntu-medium;
+      text-decoration: none;
     }
   }
 }

@@ -72,6 +72,16 @@
     <section class="recordmatch-section hidden">
 
     </section>
+
+    <section class="recordresults-section hidden">
+        <div class="form-group">
+            <div class="progress-bar-custom">
+                <span class="progress-bar-filler progress-fill-js"></span>
+            </div>
+
+            <p class="progress-bar-text progress-text-js">0 of 1000 Records Submitted</p>
+        </div>
+    </section>
 @stop
 
 @section('javascripts')

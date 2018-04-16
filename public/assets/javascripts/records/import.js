@@ -18,7 +18,13 @@ Kora.Records.Import = function() {
             var recordInput = $('.record-input-js');
             var zipInput = $('.file-input-js');
 
-            if (recordInput.val() != '') {
+            var recordFileLink = $('.recordfile-link');
+            var recordFileSection = $('.recordfile-section');
+            var recordMatchLink = $('.recordmatch-link');
+            var recordMatchSection = $('.recordmatch-section');
+            var recordResultsSection = $('.recordresults-section');
+
+            if(recordInput.val() != '') {
                 fd = new FormData();
                 fd.append("records",recordInput[0].files[0]);
                 var name = recordInput.val();
@@ -36,32 +42,39 @@ Kora.Records.Import = function() {
                     contentType: false,
                     processData: false,
                     success: function (data) {
-                        console.log(data);
-                        $('.recordfile-link').removeClass('active');
-                        $('.recordmatch-link').addClass('active');
-                        $('.recordmatch-link').addClass('underline-middle');
+                        recordFileLink.removeClass('active');
+                        recordMatchLink.addClass('active');
+                        recordMatchLink.addClass('underline-middle');
 
-                        $('.recordfile-section').addClass('hidden');
-                        $('.recordmatch-section').removeClass('hidden');
+                        recordFileSection.addClass('hidden');
+                        recordMatchSection.removeClass('hidden');
 
-                        $('.recordmatch-section').html(data['matchup']);
+                        recordMatchSection.html(data['matchup']);
 
                         $('.single-select').chosen({
                             width: '100%',
                         });
 
+                        //Get the records
+                        var importRecs = data['records'];
+                        var importType = data['type'];
+
                         //initialize counter
                         done = 0;
                         succ = 0;
                         failed = [];
-                        total = data['records'].length;
-                        // $('#progress_bar').attr('aria-valuemax',"100");
-                        // $('#progress_text').text(succ+' of '+total+' Records Submitted');
+                        total = Object.keys(importRecs).length;
+                        var progressText = $('.progress-text-js');
+                        var progressFill = $('.progress-fill-js');
+                        progressText.text(succ+' of '+total+' Records Submitted');
 
-                        $('.recordmatch-section').on('click', '.final-import-btn-js', function() {
-                            $('.recordmatch-link').removeClass('active');
-                            $('.recordmatch-link').removeClass('underline-middle');
-                            $('.recordmatch-section').addClass('hidden');
+                        //Click to start actually importing records
+                        recordMatchSection.on('click', '.final-import-btn-js', function() {
+                            recordMatchLink.removeClass('active');
+                            recordMatchLink.removeClass('underline-middle');
+                            recordMatchSection.addClass('hidden');
+
+                            recordResultsSection.removeClass('hidden');
 
                             //initialize matchup
                             tags = [];
@@ -77,53 +90,56 @@ Kora.Records.Import = function() {
                                 table[tags[j]] = slugs[j];
                             }
 
-                            //foreach loop
-                            for(i=0; i<total; i++) {
-                                //ajax to store record
-                                // $.ajax({
-                                //     url: importRecordUrl,
-                                //     type: 'POST',
-                                //     data: {
-                                //         "_token": CSRFToken,
-                                //         "record": data['records'][i],
-                                //         "table": table,
-                                //         "type": data['type']
-                                //     },
-                                //     success: function(data){
-                                //         console.log(data);
-                                //         //if success
-                                //         if(data=='') {
-                                //             succ++;
-                                //             $('#progress_text').text(succ+' of '+total+' Records Submitted');
-                                //         }
-                                //         //if error
-                                //         else{
-                                //             //list error message
-                                //             $('#error_div').html(data);
-                                //             //add obj to failed
-                                //             //failed.push(data['records'][i]);
-                                //         }
-                                //         done++;
-                                //         //update progress bar
-                                //         percent = (done/total)*100;
-                                //         bar = $('#progress_bar');
-                                //         bar.attr('aria-valuenow',percent);
-                                //         bar.attr('style','width:'+percent+'%');
-                                //         $('.sr-only').text(percent+'% Complete');
-                                //         $('#progress_text').text(done+' of '+total+' Records Submitted');
-                                //
-                                //         //if done = total
-                                //         if(done==total) {
-                                //             //Display links for downloading bad xml
-                                //             //Display link to Go to Records Page
-                                //             $('#counter_div').append('<a href="'+showRecordUrl+'">[Show Records]</a>');
-                                //             //console.log(failed);
-                                //         }
-                                //     }
-                                // });
-                            }
+                            //foreach record in the dataset
+                            for(var kid in importRecs) {
+                                // skip loop if the property is from prototype
+                                if (!importRecs.hasOwnProperty(kid)) continue;
 
-                            console.log(table);
+                                //ajax to store record
+                                $.ajax({
+                                    url: importRecordUrl,
+                                    type: 'POST',
+                                    data: {
+                                        "_token": CSRFToken,
+                                        "record": importRecs[kid],
+                                        "kid": kid,
+                                        "table": table,
+                                        "type": importType
+                                    },
+                                    success: function(data){
+                                        console.log(data);
+                                        //if success
+                                        if(data=='') {
+                                            succ++;
+                                            progressText.text(succ+' of '+total+' Records Submitted');
+                                        } else {
+                                            //TODO::THIS WHOLE ERROR
+                                            //list error message
+                                            $('#error_div').html(data);
+                                            //add obj to failed
+                                            //failed.push(data['records'][i]);
+                                        }
+                                        done++;
+                                        //update progress bar
+                                        percent = (done/total)*100;
+                                        if(percent<7)
+                                            percent = 7;
+                                        progressFill.attr('style','width:'+percent+'%');
+                                        progressText.text(done+' of '+total+' Records Submitted');
+
+                                        //if done = total
+                                        if(done==total) {
+                                            //Display links for downloading bad xml //TODO
+                                            //Display link to Go to Records Page
+                                            progressText.html('Records successfully imported! Click ' +
+                                                '<a class="success-link" href="'+showRecordUrl+'">here to visit the ' +
+                                                'records page</a>. Or click <a class="success-link" href="#">here to ' +
+                                                'download any records</a> that failed to upload.');
+                                            //console.log(failed);
+                                        }
+                                    }
+                                });
+                            }
                         });
                     }
                 });
