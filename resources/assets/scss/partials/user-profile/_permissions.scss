@@ -1,0 +1,15 @@
+&#permissions {
+  font-size: 14px;
+
+  .card {
+    .header {
+      .group {
+        color: palette('gray', slate, .6);
+
+        &:hover {
+          color: palette('green', accent);
+        }
+      }
+    }
+  }
+}

@@ -27,43 +27,64 @@
 
 @section('body')
     <section class="center page-section page-section-js" id="profile">
-        <div class="mt-xl">
-            <span class="attr-title">First Name: </span>
-            <span class="attr-desc">{{$user->first_name}}</span>
+        <div class="attr mt-xl">
+            <span class="title">First Name: </span>
+            <span class="desc">{{$user->first_name}}</span>
         </div>
 
-        <div class="mt-xl">
-            <span class="attr-title">Last Name: </span>
-            <span class="attr-desc">{{$user->last_name}}</span>
+        <div class="attr mt-xl">
+            <span class="title">Last Name: </span>
+            <span class="desc">{{$user->last_name}}</span>
         </div>
 
-        <div class="mt-xl">
-            <span class="attr-title">User Name: </span>
-            <span class="attr-desc">{{$user->username}}</span>
+        <div class="attr mt-xl">
+            <span class="title">User Name: </span>
+            <span class="desc">{{$user->username}}</span>
         </div>
 
-        <div class="mt-xl">
-            <span class="attr-title">Email: </span>
-            <span class="attr-desc">{{$user->email}}</span>
+        <div class="attr mt-xl">
+            <span class="title">Email: </span>
+            <span class="desc">{{$user->email}}</span>
         </div>
 
-        <div class="mt-xl">
-            <span class="attr-title">Organization: </span>
-            <span class="attr-desc">{{$user->organization}}</span>
+        <div class="attr mt-xl">
+            <span class="title">Organization: </span>
+            <span class="desc">{{$user->organization}}</span>
         </div>
     </section>
+
     <section class="center page-section page-section-js" id="permissions">
         <div class="filters mt-xxxl">
             <a href="#projects" class="filter-link select-content-section-js underline-middle underline-middle-hover">Projects</a>
             <a href="#forms" class="filter-link select-content-section-js underline-middle underline-middle-hover">Forms</a>
         </div>
         <div class="content-section content-section-js" id="projects">
-            <p>{{$user->first_name}} has access to the following projects...</p>
+            @if (!$user->admin)
+                <div class="my-xl">
+                    <p>{{$user->first_name}} has access to the following projects...</p>
+                </div>
+                @foreach ($projects as $index=>$project)
+                    @include('partials.user.profile.project')
+                @endforeach
+            @else
+                <div class="my-xl">
+                    <p>{{$user->first_name}} has access to all projects</p>
+                </div>
+            @endif
         </div>
         <div class="content-section content-section-js" id="forms">
-            <p>{{$user->first_name}} has access to the following forms...</p>
+            @if (!$user->admin)
+                <div class="my-xl">
+                    <p>{{$user->first_name}} has access to the following forms...</p>
+                </div>
+            @else
+                <div class="my-xl">
+                    <p>{{$user->first_name}} has access to all forms</p>
+                </div>
+            @endif
         </div>
     </section>
+
     <section class="center page-section page-section-js" id="recordHistory">
         <h1>Record History</h1>
     </section>

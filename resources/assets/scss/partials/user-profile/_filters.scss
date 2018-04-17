@@ -4,7 +4,7 @@
   padding: 0 0 map-get($spacing, xs);
   
   .filter-link {
-    color: palette('gray', text);
+    color: palette('gray', text, .6);
     font-size: 14px;
     margin: 0 map-get($spacing, sm) 0 0;
     padding: 0 0 map-get($spacing, sm);
