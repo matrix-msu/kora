@@ -175,38 +175,36 @@ class ImportController extends Controller {
         }
 
         $fields = $form->fields()->get();
-
-        $table = '<div id="matchup_table" style="overflow: auto">';
-
-        $table .= '<div>';
-        $table .= '<span style="float:left;width:50%;margin-bottom:10px"><b>'."Field Name (Reference)".'</b></span>';
-        $table .= '<span style="float:left;width:50%;margin-bottom:10px"><b>'."XML Tag".'</b></span>';
-        $table .= '</div>';
+        $table = '';
+        $first = true;
 
         foreach($fields as $field) {
-            $table .= '<div>';
-            $table .= '<span style="float:left;width:50%;margin-bottom:10px">';
+            $table .= '<div class="form-group mt-xl half">';
+            if($first)
+                $table .= '<label>Form Field Names</label>';
+            $table .= '<div class="solid-box get-slug-js" slug="'.$field->slug.'">';
             $table .= $field->name.' ('.$field->slug.')';
-            $table .= '</span>';
-            $table .= '<input type="hidden" class="slugs" value="'.$field->slug.'">';
-            $table .= '<span style="float:left;width:50%;margin-bottom:10px">';
-            $table .= '<select class="tags">';
+            $table .= '</div></div>';
+            $table .= '<div class="form-group mt-xl half">';
+            if($first)
+                $table .= '<label>Select Uploaded Field to Match</label>';
+            $table .= '<select class="single-select get-tag-js" data-placeholder="Select field if applicable">';
             $table .= '<option></option>';
             foreach($tagNames as $name) {
                 if($field->slug==$name)
-                    $table .= '<option selected>' . $name . '</option>';
+                    $table .= '<option val="'.$name.'" selected>' . $name . '</option>';
                 else
-                    $table .= '<option>'.$name.'</option>';
+                    $table .= '<option val="'.$name.'">'.$name.'</option>';
             }
             $table .= '</select>';
-            $table .= '</span>';
             $table .= '</div>';
+            $table .= '<div class="form-group"></div>';
+
+            $first = false;
         }
 
-        $table .= '</div>';
-
-        $table .= '<div class="form-group">';
-        $table .= '<button type="button" class="form-control btn btn-primary" id="submit_records">'."Submit Records".'</button>';
+        $table .= '<div class="form-group mt-xxxl">';
+        $table .= '<input type="button" class="btn final-import-btn-js" value="Upload Records">';
         $table .= '</div>';
 
         $result = array();
@@ -968,8 +966,10 @@ class ImportController extends Controller {
             $file = $request->file('records');
             $records = simplexml_load_file($file);
             $zipDir = config('app.base_path').'storage/app/tmpFiles/f'.$form->fid.'u'.\Auth::user()->id.'/';
+            $filesProvided = false;
 
             if(!is_null($request->file('files'))) {
+                $filesProvided = true;
                 $fileZIP = $request->file('files');
 
                 $zip = new \ZipArchive();
@@ -1096,6 +1096,10 @@ class ImportController extends Controller {
                                 }
                                 break;
                             case 'Documents':
+                                //If the user didn't provide files, bounce
+                                if(!$filesProvided)
+                                    break;
+
                                 $realname='';
                                 if(isset($value->attributes()["originalName"]))
                                     $realname = $value->attributes()["originalName"];
@@ -1132,6 +1136,10 @@ class ImportController extends Controller {
                                 }
                                 break;
                             case 'Gallery':
+                                //If the user didn't provide files, bounce
+                                if(!$filesProvided)
+                                    break;
+
                                 $realname='';
                                 if(isset($value->attributes()["originalName"]))
                                     $realname = $value->attributes()["originalName"];
@@ -1217,7 +1225,7 @@ class ImportController extends Controller {
                 rmdir($zipDir);
         }
 
-        return redirect('projects/'.$form->pid)->with('k3_global_success', 'form_created');
+        return redirect('projects/'.$pid)->with('k3_global_success', 'form_created');
     }
 
     /**

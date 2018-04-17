@@ -6,6 +6,7 @@
 @import 'partials/general/dropdowns';
 @import 'partials/general/global';
 @import 'partials/general/animations';
+@import 'partials/general/progress-bar';
 @import 'partials/inputs';
 @import 'partials/admin-users';
 @import 'partials/auth';
@@ -14,6 +15,8 @@
 @import 'partials/install';
 @import 'partials/config';
 @import 'partials/tokens';
+@import 'partials/exodus';
+@import 'partials/exodus-transfer';
 @import 'partials/modal';
 @import 'partials/card';
 @import 'partials/record-data-card';
@@ -35,12 +38,14 @@
 @import 'partials/record-show';
 @import 'partials/record-preset';
 @import 'partials/record-batch';
+@import 'partials/record-import';
 @import 'partials/form-new';
 @import 'partials/form-edit';
 @import 'partials/form-show';
 @import 'partials/form-permissions';
 @import 'partials/form-associations';
 @import 'partials/form-import';
+@import 'partials/form-importk2';
 @import 'partials/project';
 @import 'partials/project-permissions';
 @import 'partials/publish';

@@ -1,11 +1,9 @@
 .header {
   background: palette('white', base);
   border-radius: 5px;
-  color: palette('green', accent);
   font-size: 16px;
   position: relative;
   z-index: 2;
-
 
   &.active {
     box-shadow: 0 6px 13px -4px palette('white', base);
@@ -58,8 +56,13 @@
   .title {
     @include transition();
 
+    color: palette('green', accent);
     padding-bottom: #{ $underline-padding + 4px };
 
+    &.gray {
+      color: palette('gray', text);
+    }
+    
     span {
       display: inline-block;
       vertical-align: middle;

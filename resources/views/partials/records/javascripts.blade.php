@@ -19,6 +19,7 @@
   '/assets/javascripts/records/create.js',
   '/assets/javascripts/records/index.js',
   '/assets/javascripts/records/show.js',
+  '/assets/javascripts/records/import.js',
   '/assets/javascripts/navigation/navigation.js',
   '/assets/javascripts/general/global.js'
 ])->withFullUrl() !!}

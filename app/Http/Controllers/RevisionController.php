@@ -351,4 +351,14 @@ class RevisionController extends Controller {
         $field["data"] = $data;
         return $field;
     }
+
+    /**
+     * Gets the number of revisions for a specific record
+     * 
+     * @param int $rid - The rid of the record
+     * @return int - The number of revisions for the specified record
+     */
+    public static function getRevisionCount($rid) {
+       return Revision::where('rid', $rid)->count(); 
+    }
 }

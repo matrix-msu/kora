@@ -32,8 +32,11 @@
       <li class="link first">
         <a href="{{ action('TokenController@index') }}">Token Management</a>
       </li>
-      <li class="link pre-spacer">
+      <li class="link">
         <a href="{{ action('AdminController@users') }}">User Management</a>
+      </li>
+      <li class="link pre-spacer">
+          <a href="{{ action('ExodusController@index') }}">Kora 2 Exodus</a>
       </li>
     @endif
     <li class="spacer mt-0"></li>
