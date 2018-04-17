@@ -130,6 +130,17 @@
       }
     }
   }
+
+  .profile-pic {
+    border: solid 2px palette('white', base);
+    border-radius: 50%;
+    box-shadow: 0 3px 5px 0 palette('box-shadow', base, .2);
+    height: 44px;
+    margin-right: #{map-get($spacing, xl)};
+    object-fit: cover;
+    vertical-align: middle;
+    width: 44px;
+  }
 }
 
 @media screen and (max-width: $max-mobile-xs-width){

@@ -1,0 +1,21 @@
+.filters {
+  border-bottom: 2px solid palette('gray', slate, .03);
+  font-family: $ubuntu;
+  padding: 0 0 map-get($spacing, xs);
+  
+  .filter-link {
+    color: palette('gray', text);
+    font-size: 14px;
+    margin: 0 map-get($spacing, sm) 0 0;
+    padding: 0 0 map-get($spacing, sm);
+    text-decoration: none;
+    
+    &:hover {
+      color: palette('green', accent, .8);
+    }
+    
+    &.active {
+      color: palette('green', accent);
+    }
+  }
+}

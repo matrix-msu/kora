@@ -1,13 +1,13 @@
-@extends('app', ['page_title' => 'My Profile', 'page_class' => 'my-profile'])
+@extends('app', ['page_title' => 'My Profile', 'page_class' => 'user-profile'])
 
 @section('header')
     <section class="head">
         <div class="inner-wrap center">
             <h1 class="title">
-                @if(!is_null($profile) && File::exists( config('app.base_path') . '/public/app/' . $profile ))
-                    <img class="profile-picture" src="{{config('app.storage_url') . $profile}}">
+                @if ($user->profile)
+                  <img class="profile-pic" src="{{ $user->getProfilePicUrl() }}" alt="Profile Pic">
                 @else
-                    <i class="icon icon-user"></i>
+                  <i class="icon icon-user"></i>
                 @endif
                 <span class="ml-m">{{$user->first_name}} {{$user->last_name}}</span>
                 @if(\Auth::user()->admin | \Auth::user()->id==$user->id)
@@ -16,18 +16,17 @@
                     </a>
                 @endif
             </h1>
-            <p class="description"></p>
             <div class="content-sections">
-                <a href="#profile" class="section underline-middle underline-middle-hover toggle-by-name">Profile</a>
-                <a href="#permissions" class="section underline-middle underline-middle-hover toggle-by-name">Permissions</a>
-                <a href="#recordHistory" class="section underline-middle underline-middle-hover toggle-by-name">RecordHistory</a>
+                <a href="#profile" class="section select-section-js underline-middle underline-middle-hover toggle-by-name">Profile</a>
+                <a href="#permissions" class="section select-section-js underline-middle underline-middle-hover">Permissions</a>
+                <a href="#recordHistory" class="section select-section-js underline-middle underline-middle-hover">Record History</a>
             </div>
         </div>
     </section>
 @stop
 
 @section('body')
-    <section class="center my-profile-attributes page-section-js" id="profile">
+    <section class="center page-section page-section-js" id="profile">
         <div class="mt-xl">
             <span class="attr-title">First Name: </span>
             <span class="attr-desc">{{$user->first_name}}</span>
@@ -53,54 +52,23 @@
             <span class="attr-desc">{{$user->organization}}</span>
         </div>
     </section>
+    <section class="center page-section page-section-js" id="permissions">
+        <div class="filters mt-xxxl">
+            <a href="#projects" class="filter-link select-content-section-js underline-middle underline-middle-hover">Projects</a>
+            <a href="#forms" class="filter-link select-content-section-js underline-middle underline-middle-hover">Forms</a>
+        </div>
+        <div class="content-section content-section-js" id="projects">
+            <p>{{$user->first_name}} has access to the following projects...</p>
+        </div>
+        <div class="content-section content-section-js" id="forms">
+            <p>{{$user->first_name}} has access to the following forms...</p>
+        </div>
+    </section>
+    <section class="center page-section page-section-js" id="recordHistory">
+        <h1>Record History</h1>
+    </section>
 @stop
 
-@section('content')
-    <div class="container">
-        <div class="row">
-            <div class="col-md-10 col-md-offset-1">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h1>{{trans('user_profile.heading',['name'=>Auth::user()->name])}}</h1>
-                    </div>
-
-                    <div class="panel-body">
-
-                        @if(!is_null($profile))
-                            <img id="current_profile_pic" style="width:auto;height:200px" src="{{config('app.storage_url') . 'profiles/'.\Auth::user()->id.'/'.$profile}}">
-                        @else
-                            <img id="current_profile_pic" style="width:auto;height:200px" src="{{config('app.url') . 'assets/images/blank_profile.jpg'}}">
-                        @endif
-
-                        <div class="form-group">
-                            {!! Form::file('profile', ['class' => 'form-control', 'accept' => '.jpeg,.png,.bmp,.gif,.jpg', 'id' => 'profile_pic']) !!}
-                            <button type="button" id="submit_profile_pic" class="btn btn-default">Update Profile Picture</button>
-                        </div>
-
-                        @if(\Auth::user()->id == 1)
-                        <div class="form-group">
-                            <button type="button" id="order_66" class="btn btn-default btn-danger">Order 66</button>
-                        </div>
-                        @endif
-
-                        <h3>{{trans('user_profile.info')}}:</h3>
-
-                        @include('partials.changeprofile')
-
-                        <hr>
-
-                        @include('partials.changepassword')
-
-                        <hr>
-
-                        @include('partials.showpermissions')
-
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-@endsection
 
 @section('javascripts')
     @include('partials.user.javascripts')

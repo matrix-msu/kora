@@ -5,7 +5,7 @@
     <div class="inner-wrap center">
       <h1 class="title">
         @if ($user->profile)
-          <img class="head-profile-pic" src="{{ $user->getProfilePicUrl() }}" alt="Profile Pic">
+          <img class="profile-pic" src="{{ $user->getProfilePicUrl() }}" alt="Profile Pic">
         @else
           <i class="icon icon-user"></i>
         @endif
