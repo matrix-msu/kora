@@ -51,7 +51,7 @@
               <ul class="navigation-deep-menu navigation-deep-menu-js">
                   @foreach($fieldsInForm as $field)
                       <li class="deep-menu-item">
-                          <a href="{{ url('/projects/'.$pid).'/forms/'.$field->fid .'/fields/'.$field->flid.'/options'}}">{{ $field->name }}</a>
+                          <a class="padding-fix" href="{{ url('/projects/'.$pid).'/forms/'.$field->fid .'/fields/'.$field->flid.'/options'}}">{{ $field->name }}</a>
                       </li>
                   @endforeach
               </ul>

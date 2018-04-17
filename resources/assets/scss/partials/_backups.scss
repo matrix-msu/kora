@@ -1,0 +1,19 @@
+.backup-management-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu;
+  min-height: 100vh;
+}
+
+.backup-management {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  .backups-section,
+  .filerestore-section {
+    margin: #{map-get($spacing, xxxl)} auto;
+    max-width: calc(#{ $max-site-width } - 600px);
+    width: $max-site-width;
+
+    @import 'backups/filters';
+  }
+}

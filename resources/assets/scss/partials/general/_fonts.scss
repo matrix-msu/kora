@@ -579,25 +579,9 @@ i {
   }
 }
 
-.icon-backup .path3 {
-  &::before {
-    content: $icon-backup-path3;
-    margin-left: -1.20703125em;
-  }
-}
-
-.icon-backup .path2 {
-  &::before {
-    color: palette('gray', slate);
-    content: $icon-backup-path2;
-    margin-left: -1.20703125em;
-  }
-}
-
-.icon-backup .path1 {
-  &::before {
-    color: palette('gray', slate);
-    content: $icon-backup-path1;
+.icon-backup {
+  &:before {
+    content: $icon-backup;
   }
 }
 
