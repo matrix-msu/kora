@@ -562,15 +562,23 @@ class ExodusHelperController extends Controller {
                             if(FieldController::getFieldOption($field,'Era')=='Yes')
                                 $era = (string)$dateXML->era;
 
-                            $date = [ //TODO::add dateobject
+                            $monthData = (int)$dateXML->month;
+                            $dayData = (int)$dateXML->day;
+                            $yearData = (int)$dateXML->year;
+
+                            $dateObj = new \DateTime("$monthData/$dayData/$yearData");
+                            $date_object = date_format($dateObj, 'Y-m-d');
+
+                            $date = [
                                 'rid' => $recModel->rid,
                                 'fid' => $recModel->fid,
                                 'flid' => $field->flid,
                                 'circa' => $circa,
-                                'month' => (int)$dateXML->month,
-                                'day' => (int)$dateXML->day,
-                                'year' => (int)$dateXML->year,
-                                'era' => $era
+                                'month' => $monthData,
+                                'day' => $dayData,
+                                'year' => $yearData,
+                                'era' => $era,
+                                'date_object' => $date_object
                             ];
                             array_push($datefields,$date);
 
