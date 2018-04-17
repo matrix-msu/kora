@@ -1,6 +1,6 @@
 .user-profile-body {
   background: gradient($palette: 'background', $degree: 180deg);
-  font-family: $ubuntu-medium;
+  font-family: $ubuntu;
   min-height: 100vh;
 }
 
@@ -14,18 +14,7 @@
       width: 93px;
     }
   }
-  
-  .page-section {
-    font-size: 18px;
-    line-height: 21px;
-    margin: 60px auto 0;
-    max-width: calc(#{ $max-site-width } - 600px);
-    width: $max-site-width;
-  }
 
-  @import 'user-profile/attributes';
   @import 'user-profile/filters';
-  @import 'user-profile/history';
-  @import 'user-profile/permissions';
   @import 'user-profile/page-section';
 }

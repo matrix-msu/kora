@@ -45,8 +45,8 @@
           ($projectGroup->name == $project->name . " Default Group")
       ?>
 
-      <div class="group group-js card {{ $index == 0 ? 'active' : '' }}" id="{{$projectGroup->id}}">
-        <div class="header {{ $index == 0 ? 'active' : '' }}">
+      <div class="group group-js card {{ $index == $active || $projectGroup->id == $active ? 'active' : '' }}" id="{{$projectGroup->id}}">
+        <div class="header {{ $index == $active || $projectGroup->id == $active ? 'active' : '' }}">
           <div class="left pl-m">
             @if ($project->adminGID == $projectGroup->id)
               <i class="icon icon-star pr-xs"></i>
@@ -61,12 +61,12 @@
 
           <div class="card-toggle-wrap">
             <a href="#" class="card-toggle permission-toggle-js">
-              <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
+              <i class="icon icon-chevron {{ $index == $active || $projectGroup->id == $active ? 'active' : '' }}"></i>
             </a>
           </div>
         </div>
 
-        <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
+        <div class="content content-js {{ $index == $active || $projectGroup->id == $active ? 'active' : '' }}">
           <div class="allowed-actions">
             <div class="form-group action">
               <div class="check-box-half check-box-rectangle">

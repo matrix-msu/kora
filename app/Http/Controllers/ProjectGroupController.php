@@ -37,7 +37,7 @@ class ProjectGroupController extends Controller {
      * @param $pid - Project ID
      * @return View
      */
-    public function index($pid) {
+    public function index($pid, $active = 0) {
         $project = ProjectController::getProject($pid);
 
         if(!\Auth::user()->isProjectAdmin($project))
@@ -46,7 +46,7 @@ class ProjectGroupController extends Controller {
         $projectGroups = $project->groups()->get()->sortBy('id');
         $users = User::pluck('username', 'id')->all();
         $all_users = User::all();
-        return view('projectGroups.index', compact('project', 'projectGroups', 'users', 'all_users'));
+        return view('projectGroups.index', compact('project', 'projectGroups', 'users', 'all_users', 'active'));
     }
 
     /**

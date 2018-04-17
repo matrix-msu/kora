@@ -466,19 +466,21 @@ class UserController extends Controller {
                 $permissions = '';
                 $projects[$i]['pid'] = $project->pid;
                 $projects[$i]['name'] = $project->name;
+                $projects[$i]['group'] = $user->getProjectGroup($project);
 
-                if($user->isProjectAdmin($project))
+                if ($user->isProjectAdmin($project)) {
                     $projects[$i]['permissions'] = 'Admin';
-                else {
+                } else {
+                    // Get Permissions
                     if($user->canCreateForms($project))
                         $permissions .= 'Create Forms | ';
                     if($user->canEditForms($project))
                         $permissions .= 'Edit Forms | ';
                     if($user->canDeleteForms($project))
                         $permissions .= 'Delete Forms | ';
-
                     if($permissions == '')
                         $permissions .= 'Read Only';
+
                     $projects[$i]['permissions'] = rtrim($permissions, '| ');
                 }
             }

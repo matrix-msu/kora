@@ -1,7 +1,23 @@
 .page-section {
   display: none;
+  line-height: 21px;
+  margin: 60px auto 0;
+  max-width: calc(#{$max-site-width} - 600px);
+  width: $max-site-width;
   
   &.active {
     display: block;
   }
+
+  .content-section {
+    display: none;
+
+    &.active {
+      display: block;
+    }
+  }
+
+  @import 'attributes';
+  @import 'history';
+  @import 'permissions';
 }

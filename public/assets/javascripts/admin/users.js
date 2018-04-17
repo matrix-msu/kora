@@ -59,7 +59,7 @@ Kora.Admin.Users = function() {
     });
   }
 
-  function initializeCustomSort() {
+  function initializeCards() {
     // Initialize Custom Sort
     $('.user-toggle-js').click(function(e) {
       e.preventDefault();
@@ -95,26 +95,6 @@ Kora.Admin.Users = function() {
         });
       }
 
-    });
-
-    $(".user-custom-js").sortable({
-      helper: 'clone',
-      revert: true,
-      containment: ".projects",
-      update: function(event, ui) {
-        pidsArray = $(".user-custom-js").sortable("toArray");
-
-        $.ajax({
-          url: saveCustomOrderUrl,
-          type: 'POST',
-          data: {
-            "_token": CSRFToken,
-            "pids": pidsArray,
-
-          },
-          success: function(result) {}
-        });
-      }
     });
   }
 
@@ -253,7 +233,7 @@ Kora.Admin.Users = function() {
   
   initializeOptionDropdowns();
   initializeFilters();
-  initializeCustomSort()
+  initializeCards()
   initializeSearch();
   initializeCleanUpModals();
   initializeCardEvents()

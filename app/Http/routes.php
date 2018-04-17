@@ -15,7 +15,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('projects/{pid}/archive', 'ProjectController@setArchiveProject');
 
 //project group routes
-    Route::get('/projects/{pid}/manage/projectgroups', 'ProjectGroupController@index');
+    Route::get('/projects/{pid}/manage/projectgroups/{active?}', 'ProjectGroupController@index');
     Route::post('/projects/{pid}/manage/projectgroups/create', 'ProjectGroupController@create');
     Route::patch('projects/{pid}/manage/projectgroups/removeUser', 'ProjectGroupController@removeUser');
     Route::patch('projects/{pid}/manage/projectgroups/addUsers', 'ProjectGroupController@addUsers');
