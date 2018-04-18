@@ -16,15 +16,15 @@
 
   .deep-menu-item {
     a {
-      padding: 8px 20px 8px 20px;
+      padding: 8px 20px 8px 20px !important;
     }
 
     &:first-child a {
-      padding-top: 20px;
+      padding-top: 20px !important;
     }
 
     &:last-child a {
-      padding-bottom: 20px;
+      padding-bottom: 20px !important;
     }
   }
 

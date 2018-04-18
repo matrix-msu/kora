@@ -5,8 +5,66 @@
   max-width: calc(#{ $max-site-width } - 600px);
   width: $max-site-width;
 
-  .pagination-options {
+  .search {
     float: left;
+    height: 20px;
+    padding-bottom: $underline-padding;
+
+    .icon {
+      @include transition();
+
+      cursor: pointer;
+      opacity: .7;
+      vertical-align: middle;
+    }
+
+    .icon-search {
+      font-size: 12px;
+    }
+
+    .icon-cancel {
+      font-size: 0;
+      opacity: 0;
+
+      &.active {
+        font-size: 10px;
+        opacity: 1;
+      }
+    }
+
+
+    input {
+      background: none;
+      border: 0;
+      caret-color: palette('green', accent);
+      color: palette('gray', text);
+      cursor: pointer;
+      font-size: 14px;
+      margin: 0 5px;
+      outline: none;
+      vertical-align: middle;
+      width: 100px;
+    }
+
+    input::-webkit-input-placeholder {
+      color: palette('gray', text);
+      font-family: $ubuntu-italic;
+      opacity: .8;
+    }
+
+    input:-ms-input-placeholder {
+      color: palette('gray', text);
+      font-family: $ubuntu-italic;
+      opacity: .8;
+    }
+
+    &:active {
+      padding: 0 0 #{ $underline-padding + 10 };
+    }
+  }
+
+  .pagination-options {
+    float: right;
     height: 20px;
     padding-bottom: $underline-padding;
 
@@ -63,36 +121,30 @@
         }
       }
     }
- }
-
-  .show-options {
-    text-align: right;
-
-    a {
-      text-decoration: none;
-      @include transition();
-
-      color: palette('gray', text, .8);
-      cursor: pointer;
-      font-size: 14px;
-      line-height: 16px;
-      margin: 0 7.5px;
-
-      &:hover {
-        color: palette('green', accent);
-      }
-    }
   }
-
 }
 
 @media screen and (max-width: $max-mobile-width) {
   .filters {
     height: 66px;
+    margin-bottom: 37px;
 
     .search {
       display: inline-block;
       float: none;
+      padding-bottom: 20px;
+    }
+
+    .sort-options {
+      height: 38px;
+      text-align: left;
+
+
+      .option {
+        display: inline-block;
+        padding-top: 12px;
+        width: auto;
+      }
     }
   }
 }
@@ -101,10 +153,9 @@
   .filters {
     margin-left: $mobile-xs-margin-total / 2;
     max-width: $max-mobile-xs-width - $mobile-xs-margin-total;
-    overflow-x: hidden;
     width: calc(100% - #{$mobile-xs-margin-total / 2 });
 
-    .search-options {
+    .sort-options {
       @include responsive-scroll();
     }
   }

@@ -1,4 +1,10 @@
 .revision {
+  .description {
+    span {
+      line-height: 14px;
+    }
+  }
+
   .edit-section {
     border: 1px solid palette('gray', slate, 0.1);
     border-radius: 5px;
