@@ -47,8 +47,8 @@ class SavePluginSettingsTable extends Command implements ShouldQueue {
                 $individual_pluginsettings_data->put("plugin_id", $pluginsetting->plugin_id);
                 $individual_pluginsettings_data->put("option", $pluginsetting->option);
                 $individual_pluginsettings_data->put("value", $pluginsetting->value);
-                $individual_pluginsettings_data->put("created_at", $pluginsetting->created_at->toDateTimeString());
-                $individual_pluginsettings_data->put("updated_at", $pluginsetting->updated_at->toDateTimeString());
+                $individual_pluginsettings_data->put("created_at", $pluginsetting->created_at); // Already a string, don't format.
+                $individual_pluginsettings_data->put("updated_at", $pluginsetting->updated_at);
 
                 $all_pluginsettings_data->push($individual_pluginsettings_data);
                 $count++;

@@ -47,8 +47,8 @@ class SaveDashboardSectionsTable extends Command implements ShouldQueue {
                 $individual_dashboardsection_data->put("uid", $dashboardsection->uid);
                 $individual_dashboardsection_data->put("order", $dashboardsection->order);
                 $individual_dashboardsection_data->put("title", $dashboardsection->title);
-                $individual_dashboardsection_data->put("created_at", $dashboardsection->created_at->toDateTimeString());
-                $individual_dashboardsection_data->put("updated_at", $dashboardsection->updated_at->toDateTimeString());
+                $individual_dashboardsection_data->put("created_at", $dashboardsection->created_at); // Already a string, don't format.
+                $individual_dashboardsection_data->put("updated_at", $dashboardsection->updated_at);
 
                 $all_dashboardsection_data->push($individual_dashboardsection_data);
                 $count++;

@@ -2,6 +2,7 @@
 
 use App\Http\Requests\InstallRequest;
 use App\Version;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -33,7 +34,6 @@ class InstallController extends Controller {
      */
     public $DIRECTORIES = [
         "storage/app/backups",
-        "storage/app/backups/files",
 		"storage/app/backups/user_upload",
         "storage/app/exodusAssoc",
         "storage/app/exodusAssoc/conversions",
@@ -200,8 +200,9 @@ class InstallController extends Controller {
                 $pid = null;
                 $type = $info['type'];
                 $preset = $info['preset'];
+                $created_at = $updated_at = Carbon::now();
 
-                \App\OptionPreset::create(compact("name","pid","type","preset"));
+                \App\OptionPreset::create(compact("name","pid","type","preset","created_at","updated_at"));
             }
             Log::info("Ending Preset Creation");
         } catch(\Exception $e) {

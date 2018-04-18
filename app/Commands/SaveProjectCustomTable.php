@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -48,8 +49,8 @@ class SaveProjectCustomTable extends Command implements ShouldQueue
                 $pcustom_data->put("uid", $pcustom->uid);
                 $pcustom_data->put("pid", $pcustom->pid);
                 $pcustom_data->put("sequence", $pcustom->sequence);
-                $pcustom_data->put("created_at", $pcustom->created_at->toDateTimeString());
-                $pcustom_data->put("updated_at", $pcustom->updated_at->toDateTimeString());
+                $pcustom_data->put("created_at", $pcustom->created_at); // Already a string, don't format.
+                $pcustom_data->put("updated_at", $pcustom->updated_at);
 
                 $all_pcustoms_data->push($pcustom_data);
                 $count++;

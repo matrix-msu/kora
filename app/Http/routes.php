@@ -205,17 +205,17 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/update/runScripts', 'UpdateController@runScripts');
 
 //backup routes
-    Route::get('/backup', 'BackupController@index');
-    Route::post('/backup/start', 'BackupController@create');
-    Route::post('/backup/finish', 'BackupController@finishBackup');
-    Route::get('/backup/download/{path}', 'BackupController@download');
+    Route::get('/backup', 'BackupController@index'); //
+    Route::post('/backup/start', 'BackupController@create'); //
+    Route::post('/backup/finish', 'BackupController@finishBackup'); //
+    Route::get('/backup/download/{path}', 'BackupController@download'); //
     Route::post('/backup/restore/start', 'BackupController@restoreData');
-    Route::post('/backup', 'BackupController@startBackup');
+    Route::post('/backup', 'BackupController@startBackup'); //
     Route::post('/backup/restore', 'BackupController@startRestore');
     Route::post('/backup/restore/finish', 'BackupController@finishRestore');
     Route::post('/backup/user/unlock', 'BackupController@unlockUsers');
     Route::post('/backup/delete', 'BackupController@delete');
-    Route::get('/backup/progress/{backup_id}', 'BackupController@checkProgress');
+    Route::get('/backup/progress', 'BackupController@checkProgress');
     Route::get('/backup/restore/progress/{backup_id}', 'BackupController@checkRestoreProgress');
 
 //form search routes

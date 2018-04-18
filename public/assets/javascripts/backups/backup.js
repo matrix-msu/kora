@@ -1,47 +1,42 @@
 var Kora = Kora || {};
-Kora.Exodus = Kora.Exodus || {};
+Kora.Backups = Kora.Backups || {};
 
-Kora.Exodus.Transfer = function() {
+Kora.Backups.Progress = function() {
 
     var stopThePress = false; //Variable to show whether we are still in progress
     var progressText = $(".progress-text-js");
     var progressFill = $(".progress-fill-js");
 
-    function initializeMigrateProjects() {
+    function initializeBackups() {
         window.onbeforeunload = function() {
-            //Encourage user not to leave mid-migration
-            return "Do not leave this page, the kora 2 exodus process will be interrupted!";
+            //Encourage user not to leave mid-backup
+            return "Do not leave this page, the backup process will be interrupted!";
         };
 
         //Begin the process
         $.ajax({
-            url: startExodusUrl,
-            method:'POST',
+            url: startBackupUrl,
+            method: 'POST',
             data: {
                 "_token": CSRFToken,
-                "host": host, "user": user,
-                "name": name, "pass": pass,
-                "migrateUsers": migrateUsers,
-                "migrateTokens": migrateTokens,
-                "projects": projects,
-                "filePath": filePath
+                "backupLabel": buLabel
             },
             success: function() {
                 //Main part of process is over, all that's left is associations
                 stopThePress = true;
                 progressFill.css('width', "99%");
-                progressText.text('Converting record associations. This may take a while ...');
+                progressText.text('Backing up record files. This may take a while ...');
                 $.ajax({
-                    url: finishExodusUrl,
+                    url: finishBackupUrl,
                     method: 'POST',
-                    data: { "_token": CSRFToken },
-                    success: function() {
-                        //Associations are finished!!!!
-                        progressFill.removeClass('warning'); //In case check progress added it
-                        progressFill.css('width', "100%");
-                        //Add link to return to projects page
-                        progressText.html('Exodus transfer complete! Click <a class="success-link" href="'+projectsUrl+
-                            '">here to go to the projects page</a> and see your new projects.');
+                    data: {
+                        "_token": CSRFToken,
+                        "backupLabel": buLabel
+                    },
+                    success: function (data2) {
+                        progressText.html('Backup complete! Click here to <a class="success-link ' +
+                            'download-file-js" href="#">download the backup file</a>. Estimated Pre-Compressed ' +
+                            'Download Size: ' + data2.totalSize);
                         unlockUsers();
 
                         //User is allowed to leave
@@ -49,8 +44,8 @@ Kora.Exodus.Transfer = function() {
                     }
                 });
             },
-            error: function(data) {
-                //Migration failed :(
+            error: function(data){
+                //Backup failed :(
                 stopThePress = true;
                 progressText.html(data.responseJSON.message+'. Click here to <a class="success-link unlock-users-js" href="#">unlock users</a>');
                 progressFill.addClass('warning');
@@ -72,15 +67,12 @@ Kora.Exodus.Transfer = function() {
                 url: checkProgressUrl,
                 method: 'GET',
                 data: {
-                    "_token": CSRFToken
+                    "_token": CSRFToken,
+                    "backupLabel": buLabel
                 },
                 success: function (data) {
                     console.log(data);
-                    if(data == 'inprogress') { //Exodus is running but progress tables are not built yet
-                        setTimeout(function () {
-                            checkProgress();
-                        }, 5000);
-                    } else if(!stopThePress) { //Update progress of exodus
+                    if(!stopThePress) { //Update progress of backup
                         //Update bar
                         var totalProgress = 0;
                         var totalOverall = 0;
@@ -100,7 +92,7 @@ Kora.Exodus.Transfer = function() {
                         }, 5000);
                     }
                 },
-                error: function (data) {
+                error: function() {
                     //If progress check fails and we are still going, don't stop the whole thing but prompt user to wait
                     if(!stopThePress) {
                         progressText.text('Error checking progress. Please wait ...');
@@ -139,7 +131,16 @@ Kora.Exodus.Transfer = function() {
         })
     }
 
-    initializeMigrateProjects();
+    function initializeDownload() {
+        $(".progress-text-js").on('click', '.download-file-js', function (e) {
+            e.preventDefault();
+
+            window.location = downloadFileUrl;
+        });
+    }
+
+    initializeBackups();
     initializeCheckProgress();
     initializeUnlockUsers();
+    initializeDownload();
 }

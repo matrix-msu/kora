@@ -1,4 +1,58 @@
-@extends('app')
+@extends('app', ['page_title' => "Backups", 'page_class' => 'backup-management'])
+
+@section('leftNavLinks')
+    @include('partials.menu.static', ['name' => 'Backups'])
+@stop
+
+@section('header')
+    <section class="head">
+        <div class="inner-wrap center">
+            <h1 class="title">
+                <i class="icon icon-backup path3"></i>
+                <span>Backup Management</span>
+            </h1>
+            @include('partials.backups.support')
+            <p class="description">Brief backup management intro will go here. A backup file will be created and saved
+                as a restore point on the server. You can download this file afterwards and save it somewhere safe. You
+                can include a name or short description, the start date and time will be added for you. Depending on the
+                size of your database, this may take a few minutes to finish.</p>
+            <div class="content-sections">
+                <a href="#backups" class="backups-link section underline-middle underline-middle-hover toggle-by-name active">Your Backups</a>
+                <a href="#filerestore" class="filerestore-link section underline-middle underline-middle-hover toggle-by-name">Restore From Local File</a>
+            </div>
+        </div>
+    </section>
+@stop
+
+@section('body')
+    @include("partials.backups.createBackupModal")
+
+    <section class="backups-section">
+        <section class="filters center">
+            <div class="underline-middle search search-js">
+                <i class="icon icon-search"></i>
+                <input type="text" placeholder="Find a Backup">
+                <i class="icon icon-cancel icon-cancel-js"></i>
+            </div>
+            <div class="pagination-options pagination-options-js">
+                <select class="order option-dropdown-js" id="order-dropdown">
+                    <option value="nod">Newest to Oldest</option>
+                    <option value="otn" {{app('request')->input('order') === 'noa' ? 'selected' : ''}}>Oldest to Newest</option>
+                    <option value="nmd" {{app('request')->input('order') === 'nmd' ? 'selected' : ''}}>Name Ascending</option>
+                    <option value="nma" {{app('request')->input('order') === 'nma' ? 'selected' : ''}}>Name Descending</option>
+                </select>
+            </div>
+        </section>
+
+        <section class="new-object-button center">
+            <input type="button" value="Create New Backup File" class="create-backup-js">
+        </section>
+    </section>
+
+    <section class="filerestore-section hidden">
+        COMING SOON ...
+    </section>
+@stop
 
 @section('content')
     <div class="container">
@@ -22,28 +76,6 @@
                         setTimeout(function(){$("#user_backup_support_message").remove();},3000);
                     </script>
                 @endif
-
-                <form method="post" action={{action("BackupController@startBackup")}}>
-                    <input type="hidden" name="_token" value="{{csrf_token()}}">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            {{trans('backups_index.backup')}}
-                        </div>
-                        <div class="panel-body">
-                            <p>
-                                {{trans('backups_index.backupnotes')}}.
-                            </p>
-
-                            <div class="form-group">
-                                <label for="backup_label">{{trans('backups_index.label')}}:</label>
-                                <input type="text" class="form-control" id="backup_label" name="backup_label">
-                            </div>
-                            <div class="form-group">
-                                <input type="submit" class="btn btn-primary form-control" id="btn_startbackup" value="{{trans('backups_index.startback')}}">
-                            </div>
-                        </div>
-                    </div>
-                </form>
 
                 <form method="post" enctype="multipart/form-data" action={{action("BackupController@startRestore")}}>
                     <input type="hidden" name="_token" value="{{csrf_token()}}">
@@ -93,74 +125,85 @@
     </div>
 @endsection
 
+@section('javascripts')
+    @include('partials.backups.javascripts')
+
+    <script type="text/javascript">
+        var deleteBackupUrl = '{{action('BackupController@delete')}}';
+        var CSRFToken = '{{ csrf_token() }}';
+
+        Kora.Backups.Index();
+    </script>
+@stop
+
 @section('footer')
     <script>
 
-        function disableRestore(){
-            $("#group_restore_submit").hide('slow');
-            $("#group_restore_points").hide('slow');
-            $("#group_upload_files").hide('slow');
-            $("#group_source_select").hide('slow');
-            $("#restore_warning").css('display','block');
+        {{--function disableRestore(){--}}
+            {{--$("#group_restore_submit").hide('slow');--}}
+            {{--$("#group_restore_points").hide('slow');--}}
+            {{--$("#group_upload_files").hide('slow');--}}
+            {{--$("#group_source_select").hide('slow');--}}
+            {{--$("#restore_warning").css('display','block');--}}
 
-        }
+        {{--}--}}
 
-        function deleteRestore(){
+        {{--function deleteRestore(){--}}
 
-            var encode = $("<div/>").html("{{ trans('backups_index.areyousure') }}").text();
-            if(!confirm(encode + "!")){
-                return false;
-            }
+            {{--var encode = $("<div/>").html("{{ trans('backups_index.areyousure') }}").text();--}}
+            {{--if(!confirm(encode + "!")){--}}
+                {{--return false;--}}
+            {{--}--}}
 
-            encode = $("<div/>").html("{{ trans('backups_index.ifyouplan') }}").text();
-            if(!confirm(encode + " storage/app/backup/files/backup_file_name/ ")){
-                return false;
-            }
+            {{--encode = $("<div/>").html("{{ trans('backups_index.ifyouplan') }}").text();--}}
+            {{--if(!confirm(encode + " storage/app/backup/files/backup_file_name/ ")){--}}
+                {{--return false;--}}
+            {{--}--}}
 
-            var deleteURL = "{{action('BackupController@delete')}}";
-            var filename = $("#restore_point").val();
-            $.ajax({
-                url:deleteURL,
-                method:'POST',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "backup_source": "server",
-                    "backup_type": "system",
-                    "filename": filename
-                },
-                success: function(data){
-                 //location.reload();
-                },
-                error: function(data){
-                    if(data.status == 422){
-                        var encode = $('<div/>').html("{{ trans('backups_index.noselect') }}").text();
-                        alert(encode);
-                    }
-                   //location.reload();
-                }
-            });
+            {{--var deleteURL = deleteBackupUrl;--}}
+            {{--var filename = $("#restore_point").val();--}}
+            {{--$.ajax({--}}
+                {{--url:deleteURL,--}}
+                {{--method:'POST',--}}
+                {{--data: {--}}
+                    {{--"_token": CSRFToken,--}}
+                    {{--"backup_source": "server",--}}
+                    {{--"backup_type": "system",--}}
+                    {{--"filename": filename--}}
+                {{--},--}}
+                {{--success: function(data){--}}
+
+                {{--},--}}
+                {{--error: function(data){--}}
+                    {{--if(data.status == 422){--}}
+                        {{--var encode = $('<div/>').html("{{ trans('backups_index.noselect') }}").text();--}}
+                        {{--alert(encode);--}}
+                    {{--}--}}
+                   {{--//location.reload();--}}
+                {{--}--}}
+            {{--});--}}
 
 
 
-        }
-        $("#backup_source").on('change',function() {
-            if(this.value == 'server') {
-                $("#group_upload_files").hide('slow');
-                $("#upload_file").val('');
-                $("#group_restore_points").show('slow');
-                $("#group_restore_delete").show('slow');
-            }
-            else{
-                $("#group_upload_files").show('slow');
-                $("#group_restore_delete").hide('slow');
-                $("#group_restore_points").hide('slow');
-                $("#restore_point").val('');
-            }
-        });
+        {{--}--}}
+        {{--$("#backup_source").on('change',function() {--}}
+            {{--if(this.value == 'server') {--}}
+                {{--$("#group_upload_files").hide('slow');--}}
+                {{--$("#upload_file").val('');--}}
+                {{--$("#group_restore_points").show('slow');--}}
+                {{--$("#group_restore_delete").show('slow');--}}
+            {{--}--}}
+            {{--else{--}}
+                {{--$("#group_upload_files").show('slow');--}}
+                {{--$("#group_restore_delete").hide('slow');--}}
+                {{--$("#group_restore_points").hide('slow');--}}
+                {{--$("#restore_point").val('');--}}
+            {{--}--}}
+        {{--});--}}
 
-        $("#btn_deleterestore").on('click',"",deleteRestore);
+        {{--$("#btn_deleterestore").on('click',"",deleteRestore);--}}
 
-        //$("#btn_startbackup").on('click',"",disableRestore);
+        {{--//$("#btn_startbackup").on('click',"",disableRestore);--}}
     </script>
 @endsection
 

@@ -1,21 +1,22 @@
-.backup-management-body {
+.backup-start-body {
   background: gradient($palette: 'background', $degree: 180deg);
   font-family: $ubuntu;
   min-height: 100vh;
 }
 
-.backup-management {
+.backup-start {
   margin: $navigation-height auto 0;
   width: 100%;
 
-  .backups-section,
-  .filerestore-section {
+  .backup-progress {
     margin: #{map-get($spacing, xxxl)} auto;
     max-width: calc(#{ $max-site-width } - 600px);
     width: $max-site-width;
 
-    @import 'backups/filters';
+    .success-link {
+      color: palette('green', accent);
+      font-family: $ubuntu-medium;
+      text-decoration: none;
+    }
   }
-
-  @import 'backups/modals';
 }

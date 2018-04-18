@@ -48,8 +48,8 @@ class SavePluginMenusTable extends Command implements ShouldQueue {
                 $individual_pluginmenus_data->put("name", $pluginmenu->name);
                 $individual_pluginmenus_data->put("url", $pluginmenu->url);
                 $individual_pluginmenus_data->put("order", $pluginmenu->order);
-                $individual_pluginmenus_data->put("created_at", $pluginmenu->created_at->toDateTimeString());
-                $individual_pluginmenus_data->put("updated_at", $pluginmenu->updated_at->toDateTimeString());
+                $individual_pluginmenus_data->put("created_at", $pluginmenu->created_at); // Already a string, don't format.
+                $individual_pluginmenus_data->put("updated_at", $pluginmenu->updated_at);
 
                 $all_pluginmenus_data->push($individual_pluginmenus_data);
                 $count++;

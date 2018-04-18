@@ -48,8 +48,8 @@ class SavePluginsTable extends Command implements ShouldQueue {
                 $individual_plugins_data->put("name", $plugin->name);
                 $individual_plugins_data->put("active", $plugin->active);
                 $individual_plugins_data->put("url", $plugin->url);
-                $individual_plugins_data->put("created_at", $plugin->created_at->toDateTimeString());
-                $individual_plugins_data->put("updated_at", $plugin->updated_at->toDateTimeString());
+                $individual_plugins_data->put("created_at", $plugin->created_at); // Already a string, don't format.
+                $individual_plugins_data->put("updated_at", $plugin->updated_at);
 
                 $all_plugins_data->push($individual_plugins_data);
                 $count++;

@@ -61,26 +61,6 @@ class BackupController extends Controller {
      * @return View
      */
     public function index(Request $request) {
-        try {
-            $user_support = DB::table('backup_support')->where('user_id', Auth::user()->id)->where('view', 'backups.index')->first();
-            if($user_support === null) {
-                $user_support = DB::table('backup_support')->insert(['user_id' => Auth::user()->id, 'view' => 'backups.index', 'hasRun' => Carbon::now(), 'accessed' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
-            } else {
-                if((Carbon::createFromFormat('Y#m#d G#i#s', ($user_support->updated_at))->diffInMinutes(Carbon::now()) < 2)) {
-                    if($user_support->accessed>0)
-                        DB::table('backup_support')->where('id', $user_support->id)->update(['accessed' => $user_support->accessed - 1, 'updated_at' => Carbon::now()]);
-                } else if ((Carbon::createFromFormat('Y#m#d G#i#s', ($user_support->hasRun))->diffInMinutes(Carbon::now()) > 30) && ($user_support->accessed % 10 == 0 && $user_support->accessed != 0)) {
-                    DB::table('backup_support')->where('id', $user_support->id)->update(['hasRun' => Carbon::now(), 'accessed' => 0, 'updated_at' => Carbon::now()]);
-                    $request->session()->flash('user_backup_support',true);
-                } else {
-                    DB::table('backup_support')->where('id', $user_support->id)->update(['accessed' => $user_support->accessed + 1, 'updated_at' => Carbon::now()]);
-                }
-            }
-        }
-        catch(\Exception $e) {
-            $user_support = null;
-        }
-
         $available_backups = array();
         foreach(new \DirectoryIterator(config('app.base_path')."storage/app/".$this->BACKUP_DIRECTORY."/") as $dir) {
             $name = $dir->getFilename();
@@ -122,9 +102,21 @@ class BackupController extends Controller {
 
             $saved_backups->push($backup_info);
         }
-        $saved_backups = $saved_backups->sortByDesc(function($item) {
-            return $item->get('timestamp');
-        });
+        $this->backupSupport($request);
+
+        $order = app('request')->input('order') === null ? 'nod' : app('request')->input('order');
+        $order_type = substr($order, 0, 2) === "no" ? "timestamp" : "name";
+        $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
+
+        if($order_direction == 'asc') {
+            $saved_backups = $saved_backups->sortBy(function ($item) use ($order_type) {
+                return $item->get($order_type);
+            });
+        } else {
+            $saved_backups = $saved_backups->sortByDesc(function ($item) use ($order_type) {
+                return $item->get($order_type);
+            });
+        }
 
         return view('backups.index',compact('saved_backups'));
     }
@@ -138,11 +130,18 @@ class BackupController extends Controller {
      */
     public function startBackup(Request $request) {
         $this->validate($request,[
-            'backup_label'=>'required|alpha_dash',
+            'backupLabel'=>'required|alpha_dash',
         ]);
-        $backup_label = $request->input("backup_label").'___'.Carbon::now()->toDateTimeString();
-        $type  = "system";
-        return view('backups.backup',compact('backup_label','type'));
+        $backupLabel = $request->backupLabel.'___'.Carbon::now()->toDateTimeString();
+
+        $metadata = isset($request->backupData) ? true : false;
+        $files = isset($request->backupFiles) ? true : false;
+
+        //We store this to know if we auto download backup file after backup
+        $autoDownload = isset($request->backupDownload) ? true : false;
+        $request->session()->put('backup_autodownload', $autoDownload);
+
+        return view('backups.backup',compact('backupLabel','metadata','files'));
     }
 
     /**
@@ -156,55 +155,54 @@ class BackupController extends Controller {
 
         $this->lockUsers($users_exempt_from_lockout);
 
-        $backup_name = $request->backup_name;
+        $backupName = $request->backupLabel;
 
-        $backup_filepath = $this->BACKUP_DIRECTORY."/".$backup_name;
+        $backupFilepath = $this->BACKUP_DIRECTORY."/".$backupName;
         //Get an instance of Flysystem disk, to use Amazon AWS, SFTP, or Dropbox, change this!
         $backup_fs = Storage::disk('local');
         $backup_disk = "local";
         //
-        $backup_fs->makeDirectory($backup_filepath);
-        $this->saveDatabase2($backup_disk, $backup_filepath);
-
+        $backup_fs->makeDirectory($backupFilepath);
+        $this->saveDatabase($backup_disk, $backupFilepath);
     }
 
     /**
      * Loads and executes the background save command for each table.
      *
-     * @param  string $backup_disk - Back up file system type
+     * @param  string $backupDisk - Back up file system type
      * @param  string $path - Path where JSON Outputs will be stored
      */
-    public function saveDatabase2($backup_disk, $path) {
+    public function saveDatabase($backupDisk, $path) {
         ini_set('max_execution_time',0);
         Log::info("Backup fp: ".$path);
         $backup_id = DB::table('backup_overall_progress')->insertGetId(['progress'=>0,'overall'=>0,'start'=>Carbon::now(),'created_at'=>Carbon::now(),'updated_at'=>Carbon::now()]);
 
-        $jobs = [new SaveUsersTable($backup_disk, $path, $backup_id)];
+        $jobs = [new SaveUsersTable($backupDisk, $path, $backup_id)];
 
         $ac = new AdminController();
         foreach($ac->DATA_TABLES as $table) {
             $backup = "App\Commands\\".$table["backup"];
-            array_push($jobs, new $backup($backup_disk, $path, $backup_id));
+            $job = new $backup($backupDisk, $path, $backup_id);
+            $job->handle();
+            //array_push($jobs, new $backup($backupDisk, $path, $backup_id));
         }
 
-        foreach($jobs as $job) {
-            //Queue::push($job);
-            $this->dispatch($job->onQueue('backup'));
-        }
-
-        Artisan::call('queue:listen', [
-            '--queue' => 'backup',
-            '--timeout' => 1800
-        ]);
+//        foreach($jobs as $job) {
+//            dispatch($job->onQueue('backup'));
+//        }
+//
+//        Artisan::call('queue:listen', [
+//            '--queue' => 'backup',
+//            '--timeout' => 1800
+//        ]);
     }
 
     /**
      * Checks the overall progress of the backup.
      *
-     * @param  Request $request
      * @return string - A json array of the overall progress parts
      */
-    public function checkProgress(Request $request) {
+    public function checkProgress() {
         //Total number of tables commands being saved
         $overall = DB::table('backup_overall_progress')->where('created_at',DB::table('backup_overall_progress')->max('created_at'))->first();
         //Number completed so far
@@ -221,7 +219,7 @@ class BackupController extends Controller {
      */
     public function finishBackup(Request $request) {
         ini_set('max_execution_time',0);
-        $label = $request->backup_label;
+        $label = $request->backupLabel;
         $labelParts = explode('___',$label);
         $name = $labelParts[0];
         $time = $labelParts[1];
@@ -303,9 +301,8 @@ class BackupController extends Controller {
      * Download a zipped copy of the backup.
      *
      * @param  string $path - System path to the backup
-     * @param  Request $request
      */
-    public function download($path, Request $request) {
+    public function download($path) {
         $fullpath = config('app.base_path')."storage/app/".$this->BACKUP_DIRECTORY."/".$path."/";
 
         $zipname = $path.'.zip';
@@ -338,8 +335,6 @@ class BackupController extends Controller {
      * @return View - The
      */
     public function startRestore(Request $request) {
-
-
         $this->validate($request,[
             'backup_source'=>'required|in:server,upload',
             'restore_point'=>'required_if:backup_source,server',
@@ -431,7 +426,7 @@ class BackupController extends Controller {
             array_push($jobs, new RestoreTable($table["name"],$dir, $restore_id));
 
         foreach($jobs as $job) {
-            $this->dispatch($job->onQueue('restore'));
+            dispatch($job->onQueue('restore'));
         }
 
         Artisan::call('queue:listen', [
@@ -582,6 +577,32 @@ class BackupController extends Controller {
             return response()->json(["status"=>true,"message"=>"backup_delete_success"],200);
         } else {
             return response()->json(["status"=>false,"message"=>"backup_delete_invalid"],500);
+        }
+    }
+
+    /**
+     * Stores extraneous backup information for statistics purposes
+     *
+     * @param  Request $request
+     */
+    private function backupSupport($request) {
+        try {
+            $user_support = DB::table('backup_support')->where('user_id', Auth::user()->id)->where('view', 'backups.index')->first();
+            if($user_support === null) {
+                DB::table('backup_support')->insert(['user_id' => Auth::user()->id, 'view' => 'backups.index', 'hasRun' => Carbon::now(), 'accessed' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
+            } else {
+                if((Carbon::createFromFormat('Y#m#d G#i#s', ($user_support->updated_at))->diffInMinutes(Carbon::now()) < 2)) {
+                    if($user_support->accessed>0)
+                        DB::table('backup_support')->where('id', $user_support->id)->update(['accessed' => $user_support->accessed - 1, 'updated_at' => Carbon::now()]);
+                } else if ((Carbon::createFromFormat('Y#m#d G#i#s', ($user_support->hasRun))->diffInMinutes(Carbon::now()) > 30) && ($user_support->accessed % 10 == 0 && $user_support->accessed != 0)) {
+                    DB::table('backup_support')->where('id', $user_support->id)->update(['hasRun' => Carbon::now(), 'accessed' => 0, 'updated_at' => Carbon::now()]);
+                    $request->session()->flash('user_backup_support',true);
+                } else {
+                    DB::table('backup_support')->where('id', $user_support->id)->update(['accessed' => $user_support->accessed + 1, 'updated_at' => Carbon::now()]);
+                }
+            }
+        } catch(\Exception $e) {
+            $user_support = null;
         }
     }
 }

@@ -17,7 +17,7 @@ class OptionPreset extends Model {
     /**
      * @var array - Attributes that can be mass assigned to model
      */
-    protected $fillable = ['pid', 'type', 'name', 'preset'];
+    protected $fillable = ['pid', 'type', 'name', 'preset', 'created_at', 'updated_at'];
 
     /**
      * Returns the project this preset is owned by.
