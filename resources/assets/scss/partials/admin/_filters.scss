@@ -58,10 +58,6 @@
       font-family: $ubuntu-italic;
       opacity: .8;
     }
-
-    &:active {
-      padding: 0 0 #{$underline-padding + 10};
-    }
   }
 
   .sort-options {

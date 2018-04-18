@@ -1,10 +1,14 @@
 .card {
   .footer {
-    .delete-user {
+    .user-trash {
       &:hover {
         i {
-          transform: scale(1.25);
+          transform: scale(1.25) translateY(-2px);
         }
+      }
+
+      span {
+        visibility: hidden;
       }
     }
 
@@ -12,6 +16,7 @@
       color: palette('red', base);
       font-size: 16px;
       padding: 0;
+      transform-origin: center;
     }
   }
 
