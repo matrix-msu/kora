@@ -59,6 +59,7 @@
     <a href="#" class="request-permissions request-permissions-js underline-middle-hover">
         Request Permissions to a Project
     </a></p>
+	
     <div class="modal modal-js modal-mask request-permissions-modal-js">
       <div class="content">
         <div class="header">
@@ -86,6 +87,7 @@
   <script type="text/javascript">
     var CSRFToken = '{{ csrf_token() }}';
     var saveCustomOrderUrl = '{{ action('Auth\UserController@saveProjectCustomOrder') }}';
+	var archiveURL = '{{ action('ProjectController@setArchiveProject', ['pid' => ""] ) }}';
     Kora.Projects.Index();
   </script>
 @stop

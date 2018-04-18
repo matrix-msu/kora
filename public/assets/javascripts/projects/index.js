@@ -107,7 +107,7 @@ Kora.Projects.Index = function() {
 
     $('.move-action-js').click(function(e) {
       e.preventDefault();
-
+	  
       var $this = $(this);
       var $headerInnerWrapper = $this.parent().parent();
       var $header = $headerInnerWrapper.parent();
@@ -190,9 +190,10 @@ Kora.Projects.Index = function() {
       }
     });
   }
+  
 
   function initializeFilters() {
-    $('.sort-options-js a').click(function(e) {
+    $('.sort-options-js a').click(function(e) { // clicked Custom, Alphabetical, or Archived
       e.preventDefault();
 
       var $this = $(this);
@@ -220,9 +221,54 @@ Kora.Projects.Index = function() {
       width: '100%',
     });
   }
+  
+  function initializeUnarchive()
+  {
+    $(".unarchive-js").click(function() {
+      // find PID
+      let active_cards = $(".project.card.active"); // unarchive button only shows on active cards
+      let pid = -1;
+      
+      for (i = 0; i < active_cards.length; i++)
+      {
+        if ($.contains(active_cards[i], this)) // find which project card contains the link
+        {
+          pid = parseInt($(active_cards[i]).attr("id"));
+          changeArchiveStatus(pid, false); // unarchive
+          break;
+        }
+      }
+    });
+    
+    function changeArchiveStatus(pid, archive)
+    {
+      let url = archiveURL.substring(0, archiveURL.length - 8) + pid.toString() + "/archive"; // get rid of /archive (last part of URL), add pid, add /archive again
+      
+      let myForm = document.createElement('form');
+      myForm.setAttribute('action', url);
+      myForm.setAttribute('method', 'post');
+      myForm.setAttribute('hidden', 'true');
+      
+      let myInput = document.createElement('input');
+      myInput.setAttribute('type', 'number');
+      myInput.setAttribute('name', 'archive');
+      myInput.setAttribute('value', archive ? 0 : 1); // send 0 to archive, send 1 to restore
+      
+      let myInput2 = document.createElement('input');
+      myInput2.setAttribute('type', 'text');
+      myInput2.setAttribute('name', '_token');
+      myInput2.setAttribute('value', CSRFToken);
+      
+      myForm.appendChild(myInput);
+      myForm.appendChild(myInput2);
+      document.body.appendChild(myForm);
+      myForm.submit();
+    }
+  }
 
   initializeCustomSort();
   initializeFilters();
   initializeSearch();
   initializePermissionsModal();
+  initializeUnarchive();
 }
