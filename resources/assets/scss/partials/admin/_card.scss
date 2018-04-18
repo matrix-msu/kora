@@ -1,6 +1,29 @@
 .card {
+  .footer {
+    .user-trash {
+      &:hover {
+        i {
+          transform: scale(1.25) translateY(-2px);
+        }
+      }
+
+      span {
+        visibility: hidden;
+      }
+    }
+
+    .icon-trash {
+      color: palette('red', base);
+      font-size: 16px;
+      padding: 0;
+      transform-origin: center;
+    }
+  }
+
   .header {
     .title {
+      color: palette('gray', text);
+
       .name {
         font-size: 0;
         margin: 12px 0;
@@ -25,6 +48,18 @@
           }
         }
       }
+    }
+  }
+
+  .organization {
+    margin-bottom: 30px;
+  }
+
+  .status {
+    span {
+      display: inline-block;
+      margin-right: 20px;
+      vertical-align: middle;
     }
   }
 }

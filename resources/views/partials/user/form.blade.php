@@ -72,12 +72,16 @@
     {!! Form::submit('Update Profile', ['class' => 'btn edit-btn update-user-submit pre-fixed-js']) !!}
 </div>
 
-@if ($type == 'edit' && \Auth::user()->id != 1)
-  <div class="form-group mt-100-xl">
+
+<div class="form-group mt-100-xl">
+  @if ($type == 'edit' && \Auth::user()->id != 1)
     <div class="delete-user">
       <a class="btn dot-btn trash warning user-trash-js" data-title="Delete User?" href="#">
         <i class="icon icon-trash"></i>
       </a>
     </div>
-  </div>
-@endif
+  @else
+    <div class="no-actions"></div>
+  @endif
+</div>
+

@@ -47,9 +47,11 @@
   background-color: palette('white', base, .5);
   border: 2px dashed rgba(21,39,48,0.1);
   border-radius: 5px;
+  box-sizing: border-box;
   cursor: pointer;
   padding: 30px;
   text-align: center;
+  width: 100%;
 
   &.no-advanced-upload {
     .instruction {

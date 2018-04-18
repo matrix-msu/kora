@@ -76,8 +76,9 @@
         span::after {
           content: $icon-chevron;
           font-family: 'Kora-Icons';
-          font-size: 45%;
+          font-size: 6px;
           margin-left: 10px;
+          opacity: 0.6;
         }
       }
 

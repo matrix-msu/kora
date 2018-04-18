@@ -1,9 +1,10 @@
 .form-group {
   color: palette('gray', text);
   font-family: $ubuntu;
+  text-align: left;
 
   label {
-    display: block;
+    display: inline-block;
     font-size: 16px;
     padding: 0 0 10px;
     text-align: left;

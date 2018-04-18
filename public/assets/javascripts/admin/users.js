@@ -60,7 +60,12 @@ Kora.Admin.Users = function() {
   }
 
   function initializeCards() {
-    // Initialize Custom Sort
+    // Click on a name would also open the card
+    $('.title').click(function(e) {
+      $(this).parent().next().find('.user-toggle-js').click();
+    });
+
+    // Toggle a card opening and closing
     $('.user-toggle-js').click(function(e) {
       e.preventDefault();
 

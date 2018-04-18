@@ -1,42 +1,8 @@
 .user-selection {
   background: none;
   margin: auto;
-  max-width: calc(#{ $max-site-width } - 600px);
+  max-width: calc(#{ $max-site-width} - 600px);
   width: $max-site-width;
-
-  .card {
-    .header {
-      color: palette('gray', base);
-    }
-
-    .footer {
-      .delete-user {
-        &:hover {
-          i {
-            transform: scale(1.25);
-          }
-        }
-      }
-
-      .icon-trash {
-        color: palette('red', base);
-        font-size: 16px;
-        padding: 0;
-      }
-    }
-  }
-
-  .organization {
-    margin-bottom: 30px;
-  }
-
-  .status {
-    span {
-      display: inline-block;
-      margin-right: 20px;
-      vertical-align: middle;
-    }
-  }
 
   .user-sort {
     display: none;

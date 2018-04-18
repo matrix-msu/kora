@@ -12,6 +12,9 @@
   $base-text: #283c46;
   $base-warning: #ff6f81;
   $base-white: #fff;
+  $base-yellow: #ffbc70;
+  $base-yellow-text: #f39a33;
+
   $test: #549;
 
   // hue-based scales
@@ -44,6 +47,11 @@
       slate:          rgba($base-sidemenu, $alpha),
       text:           rgba($base-text, $alpha),
       page:           rgba(#f8f9fa, $alpha)
+    ),
+
+    'yellow': (
+      base:           rgba($base-yellow, $alpha),
+      text:           rgba($base-yellow-text, $alpha)
     ),
 
     'box-shadow': (

@@ -25,6 +25,10 @@
     box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
     outline: none;
   }
+
+  &.error {
+    border: 2px solid palette('yellow');
+  }
 }
 
 .text-area {
@@ -35,4 +39,10 @@
 
 .color-input {
   padding-left: 2px;
+}
+
+.error-message {
+  color: palette('yellow', text);
+  float: right;
+  font-size: 12px;
 }

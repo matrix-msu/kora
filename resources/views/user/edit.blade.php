@@ -18,8 +18,8 @@
             <p class="description">Edit {{ $user->username }}'s profile information below, and then select "Update Profile"</p>
           @endif
       @else
-      <p class="description">Edit your profile information below, and then
-        select "Update Profile"</p>
+        <p class="description">Edit your profile information below, and then
+          select "Update Profile"</p>
       @endif
     </div>
 
