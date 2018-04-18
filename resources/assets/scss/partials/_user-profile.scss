@@ -7,8 +7,14 @@
 .user-profile {
   margin: $navigation-height auto 0;
   width: 100%;
-  
+
   .head {
+    .content-sections {
+      a {
+        font-size: 16px;
+      }
+    }
+
     .profile-pic {
       height: 93px;
       width: 93px;

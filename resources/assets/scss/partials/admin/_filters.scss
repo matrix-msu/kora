@@ -2,7 +2,7 @@
   font-family: $ubuntu;
   height: 20px;
   margin: 30px auto 0;
-  max-width: calc(#{ $max-site-width } - 600px);
+  max-width: calc(#{$max-site-width} - 600px);
   width: $max-site-width;
 
   .search {
@@ -60,7 +60,7 @@
     }
 
     &:active {
-      padding: 0 0 #{ $underline-padding + 10 };
+      padding: 0 0 #{$underline-padding + 10};
     }
   }
 
@@ -79,8 +79,9 @@
           content: $icon-chevron;
           display: inline-block;
           font-family: 'Kora-Icons';
-          font-size: 45%;
+          font-size: 6px;
           margin-left: 10px;
+          opacity: .6;
           vertical-align: middle;
         }
       }

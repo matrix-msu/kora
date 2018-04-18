@@ -2,8 +2,12 @@
   font-size: 18px;
 
   .attr {
+    .desc {
+      font-family: $ubuntu;
+    }
+
     .title {
-      font-weight: bold;
+      font-family: $ubuntu-medium;
     }
   }
 }
