@@ -40,7 +40,7 @@
                 <p class="deleted-description">
                     This record has been deleted, 
                     but you still have the option to 
-                    <a class="underline-middle-hover" href="#">re-activate the record</a> 
+                    <a class="underline-middle-hover reactivate-js" href="#">re-activate the record</a> 
                     to its previous state that is listed below.
                 </p>
             @endif
