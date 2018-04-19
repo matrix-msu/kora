@@ -115,6 +115,17 @@ Kora.Revisions.Index = function() {
             $modal.find('.date-time').text(dateTime.format('M.D.YYYY [at] h:mma'));
             Kora.Modal.open($modal);
         });
+
+        $('.reactivate-js').on('click', function(e) {
+            e.preventDefault();
+
+            var time = $(this).parents('.card').find('.time-js').text();
+            var date = $(this).parents('.card').find('.date-js').text()
+            var dateTime = moment(date + ' ' + time);
+            var $modal = $('.reactivate-record-modal-js');
+            $modal.find('.date-time').text(dateTime.format('M.D.YYYY [at] h:mma'));
+            Kora.Modal.open($modal);
+        });
     }
 
     initializeOptionDropdowns();
