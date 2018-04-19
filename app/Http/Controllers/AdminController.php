@@ -72,7 +72,6 @@ class AdminController extends Controller {
         ['name' => 'schedule_support', 'backup' => 'SaveScheduleSupportTable'],
         ['name' => 'text_fields', 'backup' => 'SaveTextFieldsTable'],
         ['name' => 'tokens', 'backup' => 'SaveTokensTable'],
-        ['name' => 'users', 'backup' => 'SaveUsersTable'],
         ['name' => 'video_fields', 'backup' => 'SaveVideoFieldsTable'],
     ];
 

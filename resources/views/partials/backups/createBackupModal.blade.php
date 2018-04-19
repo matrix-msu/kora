@@ -33,9 +33,9 @@
                     <div class="form-group action">
                         <div class="check-box-half check-box-rectangle">
                             <input type="checkbox"
-                                   value="1"
+                                   value="0"
                                    class="check-box-input"
-                                   name="backupFiles" checked/>
+                                   name="backupFiles"/>
                             <span class="check"></span>
                             <span class="placeholder">Backup Files</span>
                         </div>
@@ -46,7 +46,7 @@
                     <div class="check-box-half">
                         <input type="checkbox" value="1" name="backupDownload" class="check-box-input" />
                         <span class="check"></span>
-                        <span class="placeholder">Download Backup File after Backup Completion (Estimated Size: COMING SOON)</span>
+                        <span class="placeholder">Download Backup File after Backup Completion</span>
                     </div>
                 </div>
 

@@ -8,11 +8,6 @@ Kora.Exodus.Transfer = function() {
     var progressFill = $(".progress-fill-js");
 
     function initializeMigrateProjects() {
-        window.onbeforeunload = function() {
-            //Encourage user not to leave mid-migration
-            return "Do not leave this page, the kora 2 exodus process will be interrupted!";
-        };
-
         //Begin the process
         $.ajax({
             url: startExodusUrl,
@@ -43,9 +38,6 @@ Kora.Exodus.Transfer = function() {
                         progressText.html('Exodus transfer complete! Click <a class="success-link" href="'+projectsUrl+
                             '">here to go to the projects page</a> and see your new projects.');
                         unlockUsers();
-
-                        //User is allowed to leave
-                        window.onbeforeunload = null;
                     }
                 });
             },
@@ -54,9 +46,6 @@ Kora.Exodus.Transfer = function() {
                 stopThePress = true;
                 progressText.html(data.responseJSON.message+'. Click here to <a class="success-link unlock-users-js" href="#">unlock users</a>');
                 progressFill.addClass('warning');
-
-                //User is allowed to leave
-                window.onbeforeunload = null;
             }
         });
     }

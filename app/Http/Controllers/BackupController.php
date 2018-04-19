@@ -137,11 +137,14 @@ class BackupController extends Controller {
         $metadata = isset($request->backupData) ? true : false;
         $files = isset($request->backupFiles) ? true : false;
 
+        //They need to pick one
+        if(!$metadata && !$files)
+            return redirect()->with('k3_global_error', 'pick_backup_type')->send();
+
         //We store this to know if we auto download backup file after backup
         $autoDownload = isset($request->backupDownload) ? true : false;
-        $request->session()->put('backup_autodownload', $autoDownload);
 
-        return view('backups.backup',compact('backupLabel','metadata','files'));
+        return view('backups.backup',compact('backupLabel','metadata','files','autoDownload'));
     }
 
     /**
@@ -163,7 +166,8 @@ class BackupController extends Controller {
         $backup_disk = "local";
         //
         $backup_fs->makeDirectory($backupFilepath);
-        $this->saveDatabase($backup_disk, $backupFilepath);
+
+        $this->saveDatabase($backup_disk, $backupFilepath, $request->backupData);
     }
 
     /**
@@ -171,30 +175,26 @@ class BackupController extends Controller {
      *
      * @param  string $backupDisk - Back up file system type
      * @param  string $path - Path where JSON Outputs will be stored
+     * @param  bool $backup - Do we actually want to backup data
      */
-    public function saveDatabase($backupDisk, $path) {
+    public function saveDatabase($backupDisk, $path, $backup) {
         ini_set('max_execution_time',0);
         Log::info("Backup fp: ".$path);
         $backup_id = DB::table('backup_overall_progress')->insertGetId(['progress'=>0,'overall'=>0,'start'=>Carbon::now(),'created_at'=>Carbon::now(),'updated_at'=>Carbon::now()]);
 
-        $jobs = [new SaveUsersTable($backupDisk, $path, $backup_id)];
-
-        $ac = new AdminController();
-        foreach($ac->DATA_TABLES as $table) {
-            $backup = "App\Commands\\".$table["backup"];
-            $job = new $backup($backupDisk, $path, $backup_id);
+        //If the user wants files only, then we won't backup DB info
+        if($backup) {
+            //User isn't considered a data table, but we want to back it up
+            $job = new SaveUsersTable($backupDisk, $path, $backup_id);
             $job->handle();
-            //array_push($jobs, new $backup($backupDisk, $path, $backup_id));
-        }
 
-//        foreach($jobs as $job) {
-//            dispatch($job->onQueue('backup'));
-//        }
-//
-//        Artisan::call('queue:listen', [
-//            '--queue' => 'backup',
-//            '--timeout' => 1800
-//        ]);
+            $ac = new AdminController();
+            foreach ($ac->DATA_TABLES as $table) {
+                $backup = "App\Commands\\" . $table["backup"];
+                $job = new $backup($backupDisk, $path, $backup_id);
+                $job->handle();
+            }
+        }
     }
 
     /**
@@ -224,29 +224,31 @@ class BackupController extends Controller {
         $name = $labelParts[0];
         $time = $labelParts[1];
 
-        //time to move the files
-        $filepath = config('app.base_path')."storage/app/files/";
-        $newfilepath = config('app.base_path')."storage/app/".$this->BACKUP_DIRECTORY."/".$label."/files/";
-        mkdir($newfilepath, 0775, true);
-        $directory = new \RecursiveDirectoryIterator($filepath);
-        $iterator = new \RecursiveIteratorIterator($directory);
-        foreach($iterator as $file) {
-            if($file->isFile()) {
-                //get file name and sub directories
-                $fPath = $file->getRealPath();
-                $subPath = explode($filepath,$fPath)[1]; //sub directory + filename
-                $fname = $file->getFilename(); //filename
-                //if that files sub directory doesn't exist, make it
-                $subDirArr = explode($fname,$subPath);
-                $loopSize = sizeof($subDirArr)-1;
-                $subDir = ''; //just the sub directory
-                for($i=0;$i<$loopSize;$i++) {
-                    $subDir .= $subDirArr[$i];
+        if($request->backupFiles) {
+            //time to move the files
+            $filepath = config('app.base_path') . "storage/app/files/";
+            $newfilepath = config('app.base_path') . "storage/app/" . $this->BACKUP_DIRECTORY . "/" . $label . "/files/";
+            mkdir($newfilepath, 0775, true);
+            $directory = new \RecursiveDirectoryIterator($filepath);
+            $iterator = new \RecursiveIteratorIterator($directory);
+            foreach ($iterator as $file) {
+                if ($file->isFile()) {
+                    //get file name and sub directories
+                    $fPath = $file->getRealPath();
+                    $subPath = explode($filepath, $fPath)[1]; //sub directory + filename
+                    $fname = $file->getFilename(); //filename
+                    //if that files sub directory doesn't exist, make it
+                    $subDirArr = explode($fname, $subPath);
+                    $loopSize = sizeof($subDirArr) - 1;
+                    $subDir = ''; //just the sub directory
+                    for ($i = 0; $i < $loopSize; $i++) {
+                        $subDir .= $subDirArr[$i];
+                    }
+                    if (!file_exists($newfilepath . $subDir))
+                        mkdir($newfilepath . $subDir, 0775, true);
+                    //copy file over
+                    copy($filepath . $subPath, $newfilepath . $subPath);
                 }
-                if(!file_exists($newfilepath.$subDir))
-                    mkdir($newfilepath.$subDir, 0775, true);
-                //copy file over
-                copy($filepath.$subPath, $newfilepath.$subPath);
             }
         }
 
@@ -257,7 +259,9 @@ class BackupController extends Controller {
         $k3['date'] = $time;
         $k3['name'] = $name;
         $k3['user'] = Auth::user()->username;
-        $k3['type'] = 'system_backup';
+        //Store these so on restore we don't overwrite things
+        $k3['data'] = $request->backupData;
+        $k3['files'] = $request->backupFiles;
 
         //save json file
         $path = config('app.base_path')."storage/app/".$this->BACKUP_DIRECTORY."/".$label."/";

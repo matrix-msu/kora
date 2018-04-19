@@ -8,6 +8,30 @@
   margin: $navigation-height auto 0;
   width: 100%;
 
+  .backup-toolbar {
+    margin-bottom: 30px;
+
+    .bold {
+      font-family: $ubuntu-medium;
+    }
+
+    .time {
+      margin-left: 30px;
+      opacity: 0.6;
+    }
+  }
+
+  .rotate-icon {
+    top: 50%;
+    left: 50%;
+    -webkit-animation:spin 4s linear infinite;
+    -moz-animation:spin 4s linear infinite;
+    animation:spin 4s linear infinite;
+  }
+  @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+  @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+  @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
   .backup-progress {
     margin: #{map-get($spacing, xxxl)} auto;
     max-width: calc(#{ $max-site-width } - 600px);
@@ -17,6 +41,24 @@
       color: palette('green', accent);
       font-family: $ubuntu-medium;
       text-decoration: none;
+    }
+  }
+
+  .backup-finish {
+    margin: #{map-get($spacing, xxxl)} auto;
+    max-width: calc(#{ $max-site-width } - 600px);
+    width: $max-site-width;
+
+    input {
+      font-family: $ubuntu;
+      font-size: 16px;
+      line-height: 18px;
+    }
+
+    .large-size-warning {
+      font-size: 14px;
+      line-height: 24px;
+      margin-top: 90px;
     }
   }
 }

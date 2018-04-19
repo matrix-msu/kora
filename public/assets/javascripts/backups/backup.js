@@ -2,24 +2,19 @@ var Kora = Kora || {};
 Kora.Backups = Kora.Backups || {};
 
 Kora.Backups.Progress = function() {
-
     var stopThePress = false; //Variable to show whether we are still in progress
     var progressText = $(".progress-text-js");
     var progressFill = $(".progress-fill-js");
 
     function initializeBackups() {
-        window.onbeforeunload = function() {
-            //Encourage user not to leave mid-backup
-            return "Do not leave this page, the backup process will be interrupted!";
-        };
-
         //Begin the process
         $.ajax({
             url: startBackupUrl,
             method: 'POST',
             data: {
                 "_token": CSRFToken,
-                "backupLabel": buLabel
+                "backupLabel": buLabel,
+                "backupData": buData
             },
             success: function() {
                 //Main part of process is over, all that's left is associations
@@ -31,16 +26,23 @@ Kora.Backups.Progress = function() {
                     method: 'POST',
                     data: {
                         "_token": CSRFToken,
-                        "backupLabel": buLabel
+                        "backupLabel": buLabel,
+                        "backupData": buData,
+                        "backupFiles": buFiles
                     },
                     success: function (data2) {
-                        progressText.html('Backup complete! Click here to <a class="success-link ' +
-                            'download-file-js" href="#">download the backup file</a>. Estimated Pre-Compressed ' +
-                            'Download Size: ' + data2.totalSize);
+                        $('.backup-progress').addClass('hidden');
+                        $('.backup-finish').removeClass('hidden');
+
+                        $('.stop-rotation-js').removeClass('rotate-icon');
+                        $('.success-title-js').text('Backup Success!');
+                        $('.success-desc-js').text('The backup has successfully completed! Now you can feel at ease ' +
+                            'knowing a version of your data is safe and sound. ');
+                        $('.download-file-js').val('Download Backup File ('+data2.totalSize+')');
                         unlockUsers();
 
-                        //User is allowed to leave
-                        window.onbeforeunload = null;
+                        if(autoDL=='1')
+                            $(".download-file-js").click();
                     }
                 });
             },
@@ -49,9 +51,6 @@ Kora.Backups.Progress = function() {
                 stopThePress = true;
                 progressText.html(data.responseJSON.message+'. Click here to <a class="success-link unlock-users-js" href="#">unlock users</a>');
                 progressFill.addClass('warning');
-
-                //User is allowed to leave
-                window.onbeforeunload = null;
             }
         });
     }
@@ -132,7 +131,7 @@ Kora.Backups.Progress = function() {
     }
 
     function initializeDownload() {
-        $(".progress-text-js").on('click', '.download-file-js', function (e) {
+        $(".download-file-js").click(function(e) {
             e.preventDefault();
 
             window.location = downloadFileUrl;
