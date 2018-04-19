@@ -12,7 +12,7 @@
                 Don't worry, you can always restore them back to their current state as well.
             </p>
             <div class="form-group mt-xxl">
-                <a href="#" class="btn change-preset-name-js">Restore Fields to Before</a>
+                <a href="#" class="btn change-preset-name-js">Re-Activate Record</a>
             </div>
         </div>
     </div>
