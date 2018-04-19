@@ -24,8 +24,8 @@
                 @if (!isset($rid))
                     <span class="sub-title">{{$type}}</span>
                 @endif
-                <span class="sub-title">{{$datetime[1]}}</span>
-                <span class="sub-title">{{$datetime[0]}}</span>
+                <span class="sub-title time-js">{{$datetime[1]}}</span>
+                <span class="sub-title date-js">{{$datetime[0]}}</span>
                 <span class="sub-title">{{$revision->username}}</span>
             </span>
             <a href="#" class="card-toggle revision-toggle-js">
@@ -81,14 +81,12 @@
             @endif
 
             @if ($exists)
-                <a class="quick-action underline-middle-hover" href="{{ action("RecordController@show",
-                    ["pid" => $form->pid, "fid" => $form->fid, "rid" => $revision->rid]) }}">
+                <a class="quick-action underline-middle-hover restore-js" href="#">
                     <i class="icon icon-unarchive"></i>
                     <span>Restore Field(s) to Before</span>
                 </a>
             @else
-               <a class="quick-action underline-middle-hover" href="{{ action("RecordController@show",
-                    ["pid" => $form->pid, "fid" => $form->fid, "rid" => $revision->rid]) }}">
+               <a class="quick-action underline-middle-hover reactivate-js" href="#">
                     <i class="icon icon-unarchive"></i>
                     <span>Re-Activate Record</span>
                 </a>
