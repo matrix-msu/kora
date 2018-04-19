@@ -26,6 +26,7 @@
 @stop
 
 @section('body')
+    @include('partials.revisions.modals.restoreFieldsModal')
     @if (!isset($rid) || Request::get('revisions'))
         <section class="record-select-section center">
             <div class="form-group">
