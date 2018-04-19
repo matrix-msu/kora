@@ -25,15 +25,27 @@ class WelcomeController extends Controller {
 	public function index() {
 	    if(!isInstalled())
         	return redirect('/helloworld');
-			else if(\Auth::guest())
-	 				return view('/welcome');
-			else if (!\Auth::user()->active)
+        else if(\Auth::guest())
+            return view('/welcome');
+        else if (!\Auth::user()->active)
         	return view('/auth/activate');
-      else if(\Auth::user()->dash)
+        else if(\Auth::user()->dash)
         	return redirect('/dashboard');
-			else
+        else
         	return redirect('/projects');
 	}
+
+    /**
+     * Gets the view for successful installation.
+     *
+     * @return View
+     */
+	public function installSuccess() {
+        if(!isInstalled())
+            return redirect('/helloworld');
+        else
+            return view('install.success');
+    }
 
     /**
      * Allows guest users to switch language.

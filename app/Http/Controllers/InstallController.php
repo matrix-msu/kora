@@ -215,7 +215,7 @@ class InstallController extends Controller {
         $dbc = null;
 
         Log::info("Ending Installation");
-        return redirect('/')->with('k3_global_success', 'kora_success_install');
+        return redirect('/readyplayerone')->with('k3_global_success', 'kora_success_install');
     }
 
     /**

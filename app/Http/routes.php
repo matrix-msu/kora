@@ -197,6 +197,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/install', 'InstallController@index');
     Route::post('/install/begin', "InstallController@install");
     Route::post('/install/finish', "InstallController@installPartTwo");
+    Route::get('/readyplayerone', "WelcomeController@installSuccess");
     Route::get('/install/config', "InstallController@editEnvConfigs");
     Route::post('/install/config', "InstallController@updateEnvConfigs");
 
