@@ -17,17 +17,17 @@
                 <option value="{{$opt}}" selected>{{$opt}}</option>
             @endforeach
         </select>
-        <div><a href="#" class="field-preset-link open-event-modal-js">Use a Value Preset for these Events</a></div>
-        <div><a href="#" class="field-preset-link open-create-event-modal-js right
-            @if(empty(\App\ScheduleField::getDateList($field))) disabled @endif">
-                Create a New Value Preset from these Events</a></div>
     </div>
 
     <section class="new-object-button low-margin form-group">
         <input type="button" class="add-new-default-event-js" value="Create New Default Event">
+        <div><a href="#" class="field-preset-link open-event-modal-js">Use a Value Preset for these Events</a></div>
+        <div><a href="#" class="field-preset-link open-create-event-modal-js right
+            @if(empty(\App\ScheduleField::getDateList($field))) disabled @endif">
+                Create a New Value Preset from these Events</a></div>
     </section>
 
-    <div class="form-group mt-xl">
+    <div class="form-group mt-xxxl">
         {!! Form::label('start','Start Year: ') !!}
         {!! Form::input('number', 'start', \App\Http\Controllers\FieldController::getFieldOption($field,'Start'),
             ['class' => 'text-input', 'min' => 0, 'max' => 9999]) !!}

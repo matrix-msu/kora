@@ -13,17 +13,17 @@
                 <option value="{{$opt}}" selected>Description: {{explode('[Desc]',$opt)[1]}} | LatLon: {{explode('[LatLon]',$opt)[1]}} | UTM: {{explode('[UTM]',$opt)[1]}} | Address: {{explode('[Address]',$opt)[1]}}</option>
             @endforeach
         </select>
-        <div><a href="#" class="field-preset-link open-location-modal-js">Use a Value Preset for these Locations</a></div>
-        <div><a href="#" class="field-preset-link open-create-location-modal-js right
-            @if(empty(\App\GeolocatorField::getLocationList($field))) disabled @endif">
-                Create a New Value Preset from these Locations</a></div>
     </div>
 
     <section class="new-object-button low-margin form-group">
         <input type="button" class="add-new-default-location-js" value="Create New Default Location">
+        <div><a href="#" class="field-preset-link open-location-modal-js">Use a Value Preset for these Locations</a></div>
+        <div><a href="#" class="field-preset-link open-create-location-modal-js right
+            @if(empty(\App\GeolocatorField::getLocationList($field))) disabled @endif">
+                Create a New Value Preset from these Locations</a></div>
     </section>
 
-    <div class="form-group mt-xl">
+    <div class="form-group mt-xxxl">
         {!! Form::label('map','Map Display: ') !!}
         {!! Form::select('map', ['No' => 'No','Yes' => 'Yes'],
             \App\Http\Controllers\FieldController::getFieldOption($field,'Map'), ['class' => 'single-select']) !!}
