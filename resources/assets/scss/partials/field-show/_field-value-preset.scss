@@ -18,3 +18,15 @@
     pointer-events: none;
   }
 }
+
+@media screen and (max-width: $max-mobile-width) {
+  .field-preset-link {
+    display: block;
+    width: 100%;
+
+    &.right {
+      float: left;
+      margin-bottom: 30px;
+    }
+  }
+}
