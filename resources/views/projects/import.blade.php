@@ -17,6 +17,7 @@
             {{--TODO::Fill this link in--}}
             <div class="content-sections">
                 <a href="#projectfile" class="projectfile-link underline-middle active">Upload Project File</a>
+                <span class="progression-tab"></span>
                 <a href="#projectinfo" class="projectinfo-link">Project Information</a>
             </div>
         </div>
@@ -30,7 +31,7 @@
         <div class="form-group">
             <label>Drag & Drop or Select the Project File Below</label>
             <input type="file" accept=".k3Proj" name="project" id="project" class="profile-input file-input-js" />
-            <label for="project" class="profile-label">
+            <label for="project" class="profile-label extend">
                 <p class="filename">Drag & Drop the Project File Here</p>
                 <p class="instruction mb-0">
                     <span class="dd">Or Select the Project File here</span>

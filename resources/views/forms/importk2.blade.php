@@ -10,7 +10,7 @@
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-form-scheme-importer"></i>
-                <span>Kora 3 Scheme Importer</span>
+                <span>Kora 2 Scheme Importer</span>
             </h1>
             <p class="description">Here you can import a scheme and its record set from Kora 2. Obtain the XMLs from
                 kora 2, by exporting the scheme, and exporting the scheme’s record set. Upload the scheme XML here,
@@ -19,6 +19,7 @@
                 can only be maintained by a full K2 System Transfer (Kora Exodus).</p>
             <div class="content-sections">
                 <a href="#formfile" class="formfile-link underline-middle active">Upload Form File</a>
+                <span class="progression-tab"></span>
                 <a href="#forminfo" class="forminfo-link">Form Information</a>
             </div>
         </div>
@@ -32,7 +33,7 @@
         <div class="form-group">
             <label>Drag & Drop or Select the Kora 2 Scheme XML Below</label>
             <input type="file" accept=".xml" name="form" id="form" class="scheme-input profile-input file-input-js" />
-            <label for="form" class="scheme-label profile-label">
+            <label for="form" class="scheme-label profile-label extend">
                 <p class="scheme-filename filename">Drag & Drop the Kora 2 Scheme XML Here</p>
                 <p class="scheme-instruction instruction mb-0">
                     <span class="dd">Or Select the Kora 2 Scheme XML here</span>
@@ -54,7 +55,7 @@
             <div class="form-group mt-xxxl">
                 <label>Drag & Drop or Select the Kora 2 Record XML Below</label>
                 <input type="file" accept=".xml" name="records" id="records" class="record-input profile-input" />
-                <label for="records" class="record-label profile-label">
+                <label for="records" class="record-label profile-label extend">
                     <p class="record-filename filename">Drag & Drop the Kora 2 Record XML Here</p>
                     <p class="record-instruction instruction mb-0">
                         <span class="dd">Or Select the Kora 2 Record XML here</span>
@@ -66,8 +67,8 @@
 
             <div class="form-group mt-xxxl">
                 <label>Drag & Drop or Select the Kora 2 Record Files Zip Below</label>
-                <input type="file" accept=".xml" name="files" id="files" class="file-input profile-input" />
-                <label for="files" class="file-label profile-label">
+                <input type="file" accept=".zip" name="files" id="files" class="file-input profile-input" />
+                <label for="files" class="file-label profile-label extend">
                     <p class="file-filename filename">Drag & Drop the Kora 2 Record Files Zip Here</p>
                     <p class="file-instruction instruction mb-0">
                         <span class="dd">Or Select the Kora 2 Record Files Zip here</span>

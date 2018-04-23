@@ -20,6 +20,7 @@
                 to get an idea on how to organize your record data. </p>
             <div class="content-sections">
                 <a href="#recordfile" class="recordfile-link underline-middle active">Upload Record Files</a>
+                <span class="progression-tab"></span>
                 <a href="#recordmatch" class="recordmatch-link">Field Matching</a>
             </div>
         </div>
@@ -31,7 +32,7 @@
         <div class="form-group">
             <label>Drag & Drop or Select the XML / JSON File Below</label>
             <input type="file" accept=".xml,.json" name="records" id="records" class="record-input profile-input record-input-js" />
-            <label for="records" class="record-label profile-label">
+            <label for="records" class="record-label profile-label extend">
                 <p class="record-filename filename">Drag & Drop the XML / JSON File Here</p>
                 <p class="record-instruction instruction mb-0">
                     <span class="dd">Or Select the XML / JSON File here</span>
@@ -53,7 +54,7 @@
             <div class="form-group mt-xxxl">
                 <label>Drag & Drop or Select the Zipped File Below</label>
                 <input type="file" accept=".zip" name="files" id="files" class="file-input profile-input file-input-js" />
-                <label for="files" class="file-label profile-label">
+                <label for="files" class="file-label profile-label extend">
                     <p class="file-filename filename">Drag & Drop the Zipped File Here</p>
                     <p class="file-instruction instruction mb-0">
                         <span class="dd">Or Select the Zipped File here</span>

@@ -18,6 +18,7 @@
             {{--TODO::Fill this link in--}}
             <div class="content-sections">
                 <a href="#formfile" class="formfile-link underline-middle active">Upload Form File</a>
+                <span class="progression-tab"></span>
                 <a href="#forminfo" class="forminfo-link">Form Information</a>
             </div>
         </div>
@@ -31,7 +32,7 @@
         <div class="form-group">
             <label>Drag & Drop or Select the Form File Below</label>
             <input type="file" accept=".k3Form" name="form" id="form" class="profile-input file-input-js" />
-            <label for="form" class="profile-label">
+            <label for="form" class="profile-label extend">
                 <p class="filename">Drag & Drop the Form File Here</p>
                 <p class="instruction mb-0">
                     <span class="dd">Or Select the Form File here</span>
