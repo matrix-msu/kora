@@ -10,9 +10,13 @@
 
   .option-preset-selection {
     background: none;
-    margin: auto;
+    margin: 60px auto;
     max-width: calc(#{ $max-site-width } - 600px);
     width: $max-site-width;
+
+    .new-object-button {
+        margin-top: 15px;
+    }
 
     .form-group {
       .form-cleanup {

@@ -5,6 +5,67 @@ Kora.OptionPresets.Index = function() {
 
     var currentPreset = -1;
 
+    function clearSearch() {
+        $('.search-js .icon-cancel-js').click();
+    }
+
+    function initializeSearch() {
+        //TODO:: Make search work...
+        var $searchInput = $('.search-js input');
+
+        $('.search-js i, .search-js input').click(function(e) {
+            e.preventDefault();
+
+            $(this).parent().addClass('active');
+            $('.search-js input').focus();
+        });
+
+        $searchInput.focusout(function() {
+            if (this.value.length == 0) {
+                $(this).parent().removeClass('active');
+                $(this).next().removeClass('active');
+            }
+        });
+
+        $searchInput.keyup(function(e) {
+            if (e.keyCode === 27) {
+                $(this).val('');
+            }
+
+            if (this.value.length > 0) {
+                $(this).next().addClass('active');
+            } else {
+                $(this).next().removeClass('active');
+            }
+        });
+
+        $('.search-js .icon-cancel-js').click(function() {
+            $searchInput.val('').blur().parent().removeClass('active');
+        });
+    }
+
+    function clearFilterResults() {
+        // Clear previous filter results
+        $('.sort-options-js a').removeClass('active');
+        $('.preset').addClass('hidden');
+    }
+
+    function initializeFilters() {
+        $('.sort-options-js a').click(function(e) {
+            e.preventDefault();
+
+            var $this = $(this);
+            var $content = $('.preset.'+ $this.attr('href').substring(1));
+
+            clearSearch();
+            clearFilterResults();
+
+            // Toggle self animation and display corresponding content
+            $this.addClass('active');
+            $content.removeClass('hidden');
+        });
+    }
+
     function initializeToggle() {
         // Initialize card toggling
         $('.preset-toggle-js').click(function(e) {
@@ -69,6 +130,8 @@ Kora.OptionPresets.Index = function() {
         });
     }
 
+    initializeSearch();
+    initializeFilters();
     initializeToggle();
     initializeDeletePresetModal();
 }

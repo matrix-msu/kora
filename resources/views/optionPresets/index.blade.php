@@ -28,6 +28,20 @@
 @section('body')
     @include('partials.optionPresets.deletePresetModal')
 
+    <section class="filters center">
+        <div class="underline-middle search search-js">
+            <i class="icon icon-search"></i>
+            <input type="text" placeholder="Find a Preset">
+            <i class="icon icon-cancel icon-cancel-js"></i>
+        </div>
+        <div class="sort-options sort-options-js">
+            <a href="#all" class="option underline-middle underline-middle-hover active">All</a>
+            <a href="#project" class="option underline-middle underline-middle-hover">Project</a>
+            <a href="#shared" class="option underline-middle underline-middle-hover">Shared</a>
+            <a href="#stock" class="option underline-middle underline-middle-hover">Stock</a>
+        </div>
+    </section>
+
     <section class="new-object-button center">
         <form action="{{ action('OptionPresetController@newPreset', ['pid' => $project->pid]) }}">
             @if(\Auth::user()->admin)
@@ -39,7 +53,7 @@
     <section class="option-presets-selection center">
         @foreach($all_presets as $key => $presets)
             @foreach($presets as $index => $preset)
-                <div class="preset card all {{ $index == 0 ? 'active' : '' }}" id="{{$preset->id}}">
+                <div class="preset card all {{ $index == 0 ? 'active' : '' }} {{ $key=='Stock' ? 'stock' : '' }} {{ $key=='Project' ? 'project' : '' }} {{ $key=='Shared' ? 'shared' : '' }}" id="{{$preset->id}}">
                     <div class="header {{ $index == 0 ? 'active' : '' }}">
                         <div class="left pl-m">
                             <a class="title">

@@ -243,7 +243,7 @@ class OptionPresetController extends Controller {
                 $shared_presets->forget($key);
         }
 
-        $all_presets = ["Stock" => $stock_presets, "Project" => $project_presets, "Shared" => $shared_presets];
+        $all_presets = ["Project" => $project_presets, "Shared" => $shared_presets, "Stock" => $stock_presets];
 
         return $all_presets;
     }
