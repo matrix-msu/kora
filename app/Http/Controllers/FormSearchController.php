@@ -45,6 +45,7 @@ class FormSearchController extends Controller {
         if($method==Search::SEARCH_EXACT) {
             //Here we treat the argument as one single value
             $ignored = Search::showIgnoredArguments($argArray,true);
+            $arg = $args;
         } else {
             $ignored = Search::showIgnoredArguments($argArray);
             $args = array_diff($argArray, $ignored);

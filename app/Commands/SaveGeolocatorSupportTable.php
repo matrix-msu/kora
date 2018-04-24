@@ -55,7 +55,7 @@ class SaveGeolocatorSupportTable extends Command implements ShouldQueue {
                 $individual_geolocatorsupport_data->put("easting", $geolocatorsupport->easting);
                 $individual_geolocatorsupport_data->put("northing", $geolocatorsupport->northing);
                 $individual_geolocatorsupport_data->put("address", $geolocatorsupport->address);
-                $individual_geolocatorsupport_data->put("created_at", $geolocatorsupport->created_at); // Don't format, already string.
+                $individual_geolocatorsupport_data->put("created_at", $geolocatorsupport->created_at); // Already a string, don't format.
                 $individual_geolocatorsupport_data->put("updated_at", $geolocatorsupport->updated_at);
 
                 $all_geolocatorsupport_data->push($individual_geolocatorsupport_data);

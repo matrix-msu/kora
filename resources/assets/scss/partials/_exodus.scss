@@ -12,7 +12,7 @@
   .projects-link {
     color: palette('gray', text, .6);
     cursor: default;
-    margin-right: 20px;
+    margin-right: 10px;
     padding: 20px 0;
     text-decoration: none;
 
@@ -21,10 +21,20 @@
     }
   }
 
+  .progression-tab {
+    border: 1px solid palette('gray', text);
+    box-sizing: border-box;
+    height: 1px;
+    margin-top: 27px;
+    margin-right: 10px;
+    opacity: 0.1;
+    width: 14px;
+  }
+
   .exodus-database,
   .exodus-projects {
     margin: #{map-get($spacing, xxxl)} auto;
     max-width: calc(#{ $max-site-width } - 600px);
-    width: $max-site-width;
+    padding: 0 20px;
   }
 }

@@ -79,7 +79,7 @@ Kora.Forms.ImportK2 = function() {
     function newProfilePic(type, pic, name) {
         switch(type) {
             case "scheme":
-                schemeFilename.html(name + "<span class='remove-scheme ml-xs'><i class='icon icon-cancel'></i></span>");
+                schemeFilename.html(name + "<span class='remove-scheme remove ml-xs'><i class='icon icon-cancel'></i></span>");
                 schemeInstruction.addClass("photo-selected");
                 schemeDroppedFile = pic;
                 $(".remove-scheme").click(function(event) {
@@ -88,7 +88,7 @@ Kora.Forms.ImportK2 = function() {
                 });
                 break;
             case "record":
-                recordFilename.html(name + "<span class='remove-record ml-xs'><i class='icon icon-cancel'></i></span>");
+                recordFilename.html(name + "<span class='remove-record remove ml-xs'><i class='icon icon-cancel'></i></span>");
                 recordInstruction.addClass("photo-selected");
                 recordDroppedFile = pic;
                 $(".remove-record").click(function(event) {
@@ -97,7 +97,7 @@ Kora.Forms.ImportK2 = function() {
                 });
                 break;
             case "file":
-                fileFilename.html(name + "<span class='remove-file ml-xs'><i class='icon icon-cancel'></i></span>");
+                fileFilename.html(name + "<span class='remove-file remove ml-xs'><i class='icon icon-cancel'></i></span>");
                 fileInstruction.addClass("photo-selected");
                 fileDroppedFile = pic;
                 $(".remove-file").click(function(event) {

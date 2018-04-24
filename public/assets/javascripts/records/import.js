@@ -187,7 +187,7 @@ Kora.Records.Import = function() {
     function newProfilePic(type, pic, name) {
         switch(type) {
             case "record":
-                recordFilename.html(name + "<span class='remove-record ml-xs'><i class='icon icon-cancel'></i></span>");
+                recordFilename.html(name + "<span class='remove-record remove ml-xs'><i class='icon icon-cancel'></i></span>");
                 recordInstruction.addClass("photo-selected");
                 recordDroppedFile = pic;
                 $(".remove-record").click(function(event) {
@@ -196,7 +196,7 @@ Kora.Records.Import = function() {
                 });
                 break;
             case "file":
-                fileFilename.html(name + "<span class='remove-file ml-xs'><i class='icon icon-cancel'></i></span>");
+                fileFilename.html(name + "<span class='remove-file remove ml-xs'><i class='icon icon-cancel'></i></span>");
                 fileInstruction.addClass("photo-selected");
                 fileDroppedFile = pic;
                 $(".remove-file").click(function(event) {

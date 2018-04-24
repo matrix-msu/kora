@@ -1,0 +1,54 @@
+.backupcards-selection {
+  .backup {
+    font-family: $ubuntu;
+
+    .title {
+      color: palette('gray', text);
+
+      .time {
+        color: palette('gray', text, 0.8);
+        margin-left: 20px;
+      }
+
+      .size {
+        color: palette('gray', text, 0.8);
+        margin-left: 30px;
+      }
+    }
+
+    .content {
+      .field-preset-list {
+        display: block;
+        font-family: $ubuntu;
+      }
+
+      .trash-container {
+        padding-right: 15px;
+        padding-top: 35px;
+
+        .icon-trash {
+          color: palette('red', base);
+          font-size: 14px;
+          padding: 0 0 5px;
+          will-change: transform;
+        }
+
+        &:hover .icon-trash {
+          transform: scale($transform-scale-multiplier);
+        }
+      }
+    }
+  }
+}
+
+@media screen and (max-width: $max-mobile-med-width) {
+  .backupcards-selection {
+    .backup {
+      .title {
+        .size {
+          display: none;
+        }
+      }
+    }
+  }
+}

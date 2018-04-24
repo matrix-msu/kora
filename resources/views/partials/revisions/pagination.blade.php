@@ -2,7 +2,7 @@
     <div class="previous page {{$revisions->onFirstPage() ? 'disabled' : ''}}">
         <a href="{{$revisions->previousPageUrl()}}">
             <i class="icon icon-chevron left"></i>
-            <span class="name underline-middle-hover">Previous</span>
+            <span class="name underline-middle-hover">Previous Page</span>
         </a>
     </div>
     <div class="pages">
@@ -35,7 +35,7 @@
     <div class="next page {{$revisions->hasMorePages() ? '' : 'disabled'}}">
         <a href="{{$revisions->nextPageUrl()}}">
             <i class="icon icon-chevron right"></i>
-            <span class="name underline-middle-hover">Next</span>
+            <span class="name underline-middle-hover">Next Page</span>
         </a>
     </div>
 </section>

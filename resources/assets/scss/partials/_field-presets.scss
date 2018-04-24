@@ -8,6 +8,8 @@
   margin: $navigation-height auto 0;
   width: 100%;
 
+  @import 'field-presets/filters';
+
   .option-presets-selection {
     background: none;
     margin: auto;

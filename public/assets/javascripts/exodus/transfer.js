@@ -4,15 +4,10 @@ Kora.Exodus = Kora.Exodus || {};
 Kora.Exodus.Transfer = function() {
 
     var stopThePress = false; //Variable to show whether we are still in progress
-    var progressTest = $(".progress-text-js");
+    var progressText = $(".progress-text-js");
     var progressFill = $(".progress-fill-js");
 
     function initializeMigrateProjects() {
-        window.onbeforeunload = function() {
-            //Encourage user not to leave mid-migration
-            return "Do not leave this page, the kora 2 exodus process will be interrupted!";
-        };
-
         //Begin the process
         $.ajax({
             url: startExodusUrl,
@@ -28,41 +23,35 @@ Kora.Exodus.Transfer = function() {
             },
             success: function() {
                 //Main part of process is over, all that's left is associations
+                stopThePress = true;
                 progressFill.css('width', "99%");
-                progressTest.text('Converting record associations. This may take a while ...');
+                progressText.text('Converting record associations. This may take a while ...');
                 $.ajax({
                     url: finishExodusUrl,
                     method: 'POST',
                     data: { "_token": CSRFToken },
                     success: function() {
                         //Associations are finished!!!!
-                        stopThePress = true;
                         progressFill.removeClass('warning'); //In case check progress added it
                         progressFill.css('width', "100%");
                         //Add link to return to projects page
-                        progressTest.html('Exodus transfer complete! Click <a class="success-link" href="'+projectsUrl+
+                        progressText.html('Exodus transfer complete! Click <a class="success-link" href="'+projectsUrl+
                             '">here to go to the projects page</a> and see your new projects.');
                         unlockUsers();
-
-                        //User is allowed to leave
-                        window.onbeforeunload = null;
                     }
                 });
             },
             error: function(data) {
                 //Migration failed :(
                 stopThePress = true;
-                progressTest.html(data.responseJSON.message+'. Click here to <a class="success-link unlock-users-js" href="#">unlock users</a>');
+                progressText.html(data.responseJSON.message+'. Click here to <a class="success-link unlock-users-js" href="#">unlock users</a>');
                 progressFill.addClass('warning');
-
-                //User is allowed to leave
-                window.onbeforeunload = null;
             }
         });
     }
 
     function initializeCheckProgress() {
-        //This will start after 30 seconds
+        //This will start after 10 seconds
         setTimeout(function () {
             checkProgress();
         }, 10000);
@@ -103,7 +92,7 @@ Kora.Exodus.Transfer = function() {
                 error: function (data) {
                     //If progress check fails and we are still going, don't stop the whole thing but prompt user to wait
                     if(!stopThePress) {
-                        progressTest.text('Error checking progress. Please wait ...');
+                        progressText.text('Error checking progress. Please wait ...');
                         $(".progress-fill-js").addClass('warning');
                         setTimeout(function () {
                             checkProgress();
@@ -115,7 +104,9 @@ Kora.Exodus.Transfer = function() {
     }
 
     function initializeUnlockUsers() {
-        $(".progress-text-js").on('click', '.unlock-users-js', function () {
+        $(".progress-text-js").on('click', '.unlock-users-js', function (e) {
+            e.preventDefault();
+
             unlockUsers();
         });
     }
@@ -129,10 +120,10 @@ Kora.Exodus.Transfer = function() {
                 "_token": CSRFToken
             },
             success: function (data) {
-                progressTest.text('Users are now able to access Kora 3');
+                progressText.text('Users are now able to access Kora 3');
             },
             error: function (data) {
-                progressTest.text('Unable to restore access to all users. You may have to manually unlock them via the database');
+                progressText.text('Unable to restore access to all users. You may have to manually unlock them via the database');
             }
         })
     }

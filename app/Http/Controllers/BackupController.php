@@ -61,26 +61,6 @@ class BackupController extends Controller {
      * @return View
      */
     public function index(Request $request) {
-        try {
-            $user_support = DB::table('backup_support')->where('user_id', Auth::user()->id)->where('view', 'backups.index')->first();
-            if($user_support === null) {
-                $user_support = DB::table('backup_support')->insert(['user_id' => Auth::user()->id, 'view' => 'backups.index', 'hasRun' => Carbon::now(), 'accessed' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
-            } else {
-                if((Carbon::createFromFormat('Y#m#d G#i#s', ($user_support->updated_at))->diffInMinutes(Carbon::now()) < 2)) {
-                    if($user_support->accessed>0)
-                        DB::table('backup_support')->where('id', $user_support->id)->update(['accessed' => $user_support->accessed - 1, 'updated_at' => Carbon::now()]);
-                } else if ((Carbon::createFromFormat('Y#m#d G#i#s', ($user_support->hasRun))->diffInMinutes(Carbon::now()) > 30) && ($user_support->accessed % 10 == 0 && $user_support->accessed != 0)) {
-                    DB::table('backup_support')->where('id', $user_support->id)->update(['hasRun' => Carbon::now(), 'accessed' => 0, 'updated_at' => Carbon::now()]);
-                    $request->session()->flash('user_backup_support',true);
-                } else {
-                    DB::table('backup_support')->where('id', $user_support->id)->update(['accessed' => $user_support->accessed + 1, 'updated_at' => Carbon::now()]);
-                }
-            }
-        }
-        catch(\Exception $e) {
-            $user_support = null;
-        }
-
         $available_backups = array();
         foreach(new \DirectoryIterator(config('app.base_path')."storage/app/".$this->BACKUP_DIRECTORY."/") as $dir) {
             $name = $dir->getFilename();
@@ -91,7 +71,7 @@ class BackupController extends Controller {
                     array_push($available_backups,$this->BACKUP_DIRECTORY.'/'.$name.'/.kora3_backup');
             }
         }
-        $saved_backups = new Collection();
+        $savedBackups = new Collection();
 
         //Load all previously saved backups, and package them up so they can be displayed by the view
         $available_backups_index = 0;
@@ -120,13 +100,31 @@ class BackupController extends Controller {
                 $backup_info->put("user","Unknown");
             }
 
-            $saved_backups->push($backup_info);
-        }
-        $saved_backups = $saved_backups->sortByDesc(function($item) {
-            return $item->get('timestamp');
-        });
+            $fullPath = str_replace('/.kora3_backup','',config('app.base_path')."storage/app/".$backup);
+            $size = $this->humanFileSize($this->getDirectorySize($fullPath));
+            $backup_info->put("size",$size);
 
-        return view('backups.index',compact('saved_backups'));
+            $savedBackups->push($backup_info);
+        }
+        $this->backupSupport($request);
+
+        $order = app('request')->input('order') === null ? 'nod' : app('request')->input('order');
+        $order_type = substr($order, 0, 2) === "no" ? "timestamp" : "name";
+        $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
+
+        if($order_direction == 'asc') {
+            $savedBackups = $savedBackups->sortBy(function ($item) use ($order_type) {
+                return $item->get($order_type);
+            });
+        } else {
+            $savedBackups = $savedBackups->sortByDesc(function ($item) use ($order_type) {
+                return $item->get($order_type);
+            });
+        }
+
+//        dd($savedBackups);
+
+        return view('backups.index',compact('savedBackups'));
     }
 
 
@@ -138,11 +136,21 @@ class BackupController extends Controller {
      */
     public function startBackup(Request $request) {
         $this->validate($request,[
-            'backup_label'=>'required|alpha_dash',
+            'backupLabel'=>'required|alpha_dash',
         ]);
-        $backup_label = $request->input("backup_label").'___'.Carbon::now()->toDateTimeString();
-        $type  = "system";
-        return view('backups.backup',compact('backup_label','type'));
+        $backupLabel = $request->backupLabel.'___'.Carbon::now()->toDateTimeString();
+
+        $metadata = isset($request->backupData) ? true : false;
+        $files = isset($request->backupFiles) ? true : false;
+
+        //They need to pick one
+        if(!$metadata && !$files)
+            return redirect()->with('k3_global_error', 'pick_backup_type')->send();
+
+        //We store this to know if we auto download backup file after backup
+        $autoDownload = isset($request->backupDownload) ? true : false;
+
+        return view('backups.backup',compact('backupLabel','metadata','files','autoDownload'));
     }
 
     /**
@@ -156,55 +164,51 @@ class BackupController extends Controller {
 
         $this->lockUsers($users_exempt_from_lockout);
 
-        $backup_name = $request->backup_name;
+        $backupName = $request->backupLabel;
 
-        $backup_filepath = $this->BACKUP_DIRECTORY."/".$backup_name;
+        $backupFilepath = $this->BACKUP_DIRECTORY."/".$backupName;
         //Get an instance of Flysystem disk, to use Amazon AWS, SFTP, or Dropbox, change this!
         $backup_fs = Storage::disk('local');
         $backup_disk = "local";
         //
-        $backup_fs->makeDirectory($backup_filepath);
-        $this->saveDatabase2($backup_disk, $backup_filepath);
+        $backup_fs->makeDirectory($backupFilepath);
 
+        $this->saveDatabase($backup_disk, $backupFilepath, $request->backupData);
     }
 
     /**
      * Loads and executes the background save command for each table.
      *
-     * @param  string $backup_disk - Back up file system type
+     * @param  string $backupDisk - Back up file system type
      * @param  string $path - Path where JSON Outputs will be stored
+     * @param  bool $backup - Do we actually want to backup data
      */
-    public function saveDatabase2($backup_disk, $path) {
+    public function saveDatabase($backupDisk, $path, $backup) {
         ini_set('max_execution_time',0);
         Log::info("Backup fp: ".$path);
         $backup_id = DB::table('backup_overall_progress')->insertGetId(['progress'=>0,'overall'=>0,'start'=>Carbon::now(),'created_at'=>Carbon::now(),'updated_at'=>Carbon::now()]);
 
-        $jobs = [new SaveUsersTable($backup_disk, $path, $backup_id)];
+        //If the user wants files only, then we won't backup DB info
+        if($backup) {
+            //User isn't considered a data table, but we want to back it up
+            $job = new SaveUsersTable($backupDisk, $path, $backup_id);
+            $job->handle();
 
-        $ac = new AdminController();
-        foreach($ac->DATA_TABLES as $table) {
-            $backup = "App\Commands\\".$table["backup"];
-            array_push($jobs, new $backup($backup_disk, $path, $backup_id));
+            $ac = new AdminController();
+            foreach ($ac->DATA_TABLES as $table) {
+                $backup = "App\Commands\\" . $table["backup"];
+                $job = new $backup($backupDisk, $path, $backup_id);
+                $job->handle();
+            }
         }
-
-        foreach($jobs as $job) {
-            //Queue::push($job);
-            $this->dispatch($job->onQueue('backup'));
-        }
-
-        Artisan::call('queue:listen', [
-            '--queue' => 'backup',
-            '--timeout' => 1800
-        ]);
     }
 
     /**
      * Checks the overall progress of the backup.
      *
-     * @param  Request $request
      * @return string - A json array of the overall progress parts
      */
-    public function checkProgress(Request $request) {
+    public function checkProgress() {
         //Total number of tables commands being saved
         $overall = DB::table('backup_overall_progress')->where('created_at',DB::table('backup_overall_progress')->max('created_at'))->first();
         //Number completed so far
@@ -221,34 +225,36 @@ class BackupController extends Controller {
      */
     public function finishBackup(Request $request) {
         ini_set('max_execution_time',0);
-        $label = $request->backup_label;
+        $label = $request->backupLabel;
         $labelParts = explode('___',$label);
         $name = $labelParts[0];
         $time = $labelParts[1];
 
-        //time to move the files
-        $filepath = config('app.base_path')."storage/app/files/";
-        $newfilepath = config('app.base_path')."storage/app/".$this->BACKUP_DIRECTORY."/".$label."/files/";
-        mkdir($newfilepath, 0775, true);
-        $directory = new \RecursiveDirectoryIterator($filepath);
-        $iterator = new \RecursiveIteratorIterator($directory);
-        foreach($iterator as $file) {
-            if($file->isFile()) {
-                //get file name and sub directories
-                $fPath = $file->getRealPath();
-                $subPath = explode($filepath,$fPath)[1]; //sub directory + filename
-                $fname = $file->getFilename(); //filename
-                //if that files sub directory doesn't exist, make it
-                $subDirArr = explode($fname,$subPath);
-                $loopSize = sizeof($subDirArr)-1;
-                $subDir = ''; //just the sub directory
-                for($i=0;$i<$loopSize;$i++) {
-                    $subDir .= $subDirArr[$i];
+        if($request->backupFiles) {
+            //time to move the files
+            $filepath = config('app.base_path') . "storage/app/files/";
+            $newfilepath = config('app.base_path') . "storage/app/" . $this->BACKUP_DIRECTORY . "/" . $label . "/files/";
+            mkdir($newfilepath, 0775, true);
+            $directory = new \RecursiveDirectoryIterator($filepath);
+            $iterator = new \RecursiveIteratorIterator($directory);
+            foreach ($iterator as $file) {
+                if ($file->isFile()) {
+                    //get file name and sub directories
+                    $fPath = $file->getRealPath();
+                    $subPath = explode($filepath, $fPath)[1]; //sub directory + filename
+                    $fname = $file->getFilename(); //filename
+                    //if that files sub directory doesn't exist, make it
+                    $subDirArr = explode($fname, $subPath);
+                    $loopSize = sizeof($subDirArr) - 1;
+                    $subDir = ''; //just the sub directory
+                    for ($i = 0; $i < $loopSize; $i++) {
+                        $subDir .= $subDirArr[$i];
+                    }
+                    if (!file_exists($newfilepath . $subDir))
+                        mkdir($newfilepath . $subDir, 0775, true);
+                    //copy file over
+                    copy($filepath . $subPath, $newfilepath . $subPath);
                 }
-                if(!file_exists($newfilepath.$subDir))
-                    mkdir($newfilepath.$subDir, 0775, true);
-                //copy file over
-                copy($filepath.$subPath, $newfilepath.$subPath);
             }
         }
 
@@ -259,7 +265,9 @@ class BackupController extends Controller {
         $k3['date'] = $time;
         $k3['name'] = $name;
         $k3['user'] = Auth::user()->username;
-        $k3['type'] = 'system_backup';
+        //Store these so on restore we don't overwrite things
+        $k3['data'] = $request->backupData;
+        $k3['files'] = $request->backupFiles;
 
         //save json file
         $path = config('app.base_path')."storage/app/".$this->BACKUP_DIRECTORY."/".$label."/";
@@ -291,11 +299,11 @@ class BackupController extends Controller {
 
     private function humanFileSize($size,$unit="") {
         if( (!$unit && $size >= 1<<30) || $unit == "GB")
-            return number_format($size/(1<<30),2)."GB";
+            return number_format($size/(1<<30),2)."gb";
         if( (!$unit && $size >= 1<<20) || $unit == "MB")
-            return number_format($size/(1<<20),2)."MB";
+            return number_format($size/(1<<20),2)."mb";
         if( (!$unit && $size >= 1<<10) || $unit == "KB")
-            return number_format($size/(1<<10),2)."KB";
+            return number_format($size/(1<<10),2)."kb";
         return number_format($size)." bytes";
     }
 
@@ -303,9 +311,8 @@ class BackupController extends Controller {
      * Download a zipped copy of the backup.
      *
      * @param  string $path - System path to the backup
-     * @param  Request $request
      */
-    public function download($path, Request $request) {
+    public function download($path) {
         $fullpath = config('app.base_path')."storage/app/".$this->BACKUP_DIRECTORY."/".$path."/";
 
         $zipname = $path.'.zip';
@@ -338,8 +345,6 @@ class BackupController extends Controller {
      * @return View - The
      */
     public function startRestore(Request $request) {
-
-
         $this->validate($request,[
             'backup_source'=>'required|in:server,upload',
             'restore_point'=>'required_if:backup_source,server',
@@ -431,7 +436,7 @@ class BackupController extends Controller {
             array_push($jobs, new RestoreTable($table["name"],$dir, $restore_id));
 
         foreach($jobs as $job) {
-            $this->dispatch($job->onQueue('restore'));
+            dispatch($job->onQueue('restore'));
         }
 
         Artisan::call('queue:listen', [
@@ -582,6 +587,32 @@ class BackupController extends Controller {
             return response()->json(["status"=>true,"message"=>"backup_delete_success"],200);
         } else {
             return response()->json(["status"=>false,"message"=>"backup_delete_invalid"],500);
+        }
+    }
+
+    /**
+     * Stores extraneous backup information for statistics purposes
+     *
+     * @param  Request $request
+     */
+    private function backupSupport($request) {
+        try {
+            $user_support = DB::table('backup_support')->where('user_id', Auth::user()->id)->where('view', 'backups.index')->first();
+            if($user_support === null) {
+                DB::table('backup_support')->insert(['user_id' => Auth::user()->id, 'view' => 'backups.index', 'hasRun' => Carbon::now(), 'accessed' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
+            } else {
+                if((Carbon::createFromFormat('Y#m#d G#i#s', ($user_support->updated_at))->diffInMinutes(Carbon::now()) < 2)) {
+                    if($user_support->accessed>0)
+                        DB::table('backup_support')->where('id', $user_support->id)->update(['accessed' => $user_support->accessed - 1, 'updated_at' => Carbon::now()]);
+                } else if ((Carbon::createFromFormat('Y#m#d G#i#s', ($user_support->hasRun))->diffInMinutes(Carbon::now()) > 30) && ($user_support->accessed % 10 == 0 && $user_support->accessed != 0)) {
+                    DB::table('backup_support')->where('id', $user_support->id)->update(['hasRun' => Carbon::now(), 'accessed' => 0, 'updated_at' => Carbon::now()]);
+                    $request->session()->flash('user_backup_support',true);
+                } else {
+                    DB::table('backup_support')->where('id', $user_support->id)->update(['accessed' => $user_support->accessed + 1, 'updated_at' => Carbon::now()]);
+                }
+            }
+        } catch(\Exception $e) {
+            $user_support = null;
         }
     }
 }

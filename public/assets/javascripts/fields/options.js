@@ -303,6 +303,10 @@ Kora.Fields.Options = function(fieldType) {
                             resultsBox.append(opt);
                             resultsBox.trigger("chosen:updated");
                         }
+
+                        resultInput = resultsBox.next().find('.chosen-search-input').first();
+                        resultInput.val('');
+                        resultInput.click();
                     }
                 });
             }

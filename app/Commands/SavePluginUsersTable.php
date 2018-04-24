@@ -45,8 +45,8 @@ class SavePluginUsersTable extends Command implements ShouldQueue {
 
                 $individual_pluginusers_data->put("plugin_id", $pluginuser->plugin_id);
                 $individual_pluginusers_data->put("gid", $pluginuser->gid);
-                $individual_pluginusers_data->put("created_at", $pluginuser->created_at->toDateTimeString());
-                $individual_pluginusers_data->put("updated_at", $pluginuser->updated_at->toDateTimeString());
+                $individual_pluginusers_data->put("created_at", $pluginuser->created_at); // Already a string, don't format.
+                $individual_pluginusers_data->put("updated_at", $pluginuser->updated_at);
 
                 $all_pluginusers_data->push($individual_pluginusers_data);
                 $count++;

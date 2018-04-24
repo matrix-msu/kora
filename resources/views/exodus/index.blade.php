@@ -17,6 +17,7 @@
                 directory to the same server as Kora3 and point the system path below to that directory.</p>
             <div class="content-sections">
                 <a href="#database" class="database-link underline-middle active">Database Information</a>
+                <span class="progression-tab"></span>
                 <a href="#projects" class="projects-link">Project Selection</a>
             </div>
         </div>
@@ -52,7 +53,7 @@
             </div>
 
             <div class="form-group mt-xxxl">
-                <input type="button" class="btn get-projects-js" value="Analyze System">
+                <input type="button" class="btn secondary get-projects-js" value="Analyze System">
             </div>
         </section>
 

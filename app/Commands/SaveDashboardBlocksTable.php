@@ -48,8 +48,8 @@ class SaveDashboardBlocksTable extends Command implements ShouldQueue {
                 $individual_dashboardblock_data->put("type", $dashboardblock->type);
                 $individual_dashboardblock_data->put("order", $dashboardblock->order);
                 $individual_dashboardblock_data->put("options", $dashboardblock->options);
-                $individual_dashboardblock_data->put("created_at", $dashboardblock->created_at->toDateTimeString());
-                $individual_dashboardblock_data->put("updated_at", $dashboardblock->updated_at->toDateTimeString());
+                $individual_dashboardblock_data->put("created_at", $dashboardblock->created_at); // Already a string, don't format.
+                $individual_dashboardblock_data->put("updated_at", $dashboardblock->updated_at);
 
                 $all_dashboardblock_data->push($individual_dashboardblock_data);
                 $count++;

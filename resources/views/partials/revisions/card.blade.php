@@ -8,22 +8,26 @@
 <div class="revision card all {{ $index == 0 ? 'active' : '' }}" id="{{$revision->id}}">
     <div class="header {{ $index == 0 ? 'active' : '' }}">
         <div class="left pl-m">
-            @if (isset($rid))
-                <span class="title gray">
-                    <span class="name">{{$type}}</span>
-                </span>
-            @else
+            @if (!isset($rid))
                 <a class="title{{ $exists ? '' : ' disabled' }}" href="{{ $exists ? action("RecordController@show", ['pid'=>$form->pid, 'fid'=>$form->fid, 'rid'=>$revision->rid]) : '' }}">
                     <span class="name underline-middle-hover">{{$form->pid}}-{{$form->fid}}-{{$revision->rid}}</span>
                 </a>
-                <span class="sub-title">{{$type}}</span>
+            @else
+                <span class="title gray">
+                    <span class="name">{{$type}}</span>
+                </span>
             @endif
-            <span class="sub-title">{{$datetime[1]}}</span>
-            <span class="sub-title">{{$datetime[0]}}</span>
-            <span class="sub-title">{{$revision->username}}</span>
         </div>
 
         <div class="card-toggle-wrap">
+            <span class="left pl-m">
+                @if (!isset($rid))
+                    <span class="sub-title">{{$type}}</span>
+                @endif
+                <span class="sub-title time-js">{{$datetime[1]}}</span>
+                <span class="sub-title date-js">{{$datetime[0]}}</span>
+                <span class="sub-title">{{$revision->username}}</span>
+            </span>
             <a href="#" class="card-toggle revision-toggle-js">
                 <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
             </a>
@@ -36,7 +40,7 @@
                 <p class="deleted-description">
                     This record has been deleted, 
                     but you still have the option to 
-                    <a class="underline-middle-hover" href="#">re-activate the record</a> 
+                    <a class="underline-middle-hover reactivate-js" href="#">re-activate the record</a> 
                     to its previous state that is listed below.
                 </p>
             @endif
@@ -77,14 +81,12 @@
             @endif
 
             @if ($exists)
-                <a class="quick-action underline-middle-hover" href="{{ action("RecordController@show",
-                    ["pid" => $form->pid, "fid" => $form->fid, "rid" => $revision->rid]) }}">
+                <a class="quick-action underline-middle-hover restore-js" href="#">
                     <i class="icon icon-unarchive"></i>
-                    <span>Restore Field(s) to this point</span>
+                    <span>Restore Field(s) to Before</span>
                 </a>
             @else
-               <a class="quick-action underline-middle-hover" href="{{ action("RecordController@show",
-                    ["pid" => $form->pid, "fid" => $form->fid, "rid" => $revision->rid]) }}">
+               <a class="quick-action underline-middle-hover reactivate-js" href="#">
                     <i class="icon icon-unarchive"></i>
                     <span>Re-Activate Record</span>
                 </a>

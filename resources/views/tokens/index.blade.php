@@ -23,7 +23,6 @@
             <i class="icon icon-cancel icon-cancel-js"></i>
         </div>
         <div class="sort-options sort-options-js">
-            <!-- <a href="modified" class="option underline-middle">Recently Modified</a> -->
             <a href="#all" class="option underline-middle underline-middle-hover active">All</a>
             <a href="#search" class="option underline-middle underline-middle-hover">Search</a>
             <a href="#create" class="option underline-middle underline-middle-hover">Create</a>

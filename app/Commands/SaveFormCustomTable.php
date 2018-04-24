@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -49,8 +50,8 @@ class SaveFormCustomTable extends Command implements ShouldQueue
                 $fcustom_data->put("pid", $fcustom->pid);
                 $fcustom_data->put("fid", $fcustom->fid);
                 $fcustom_data->put("sequence", $fcustom->sequence);
-                $fcustom_data->put("created_at", $fcustom->created_at->toDateTimeString());
-                $fcustom_data->put("updated_at", $fcustom->updated_at->toDateTimeString());
+                $fcustom_data->put("created_at", $fcustom->created_at); // Already a string, don't format.
+                $fcustom_data->put("updated_at", $fcustom->updated_at);
 
                 $all_fcustoms_data->push($fcustom_data);
                 $count++;

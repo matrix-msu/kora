@@ -63,25 +63,25 @@
 
             <section class="open-schedule-js hidden">
                 <div class="form-group mt-xl">
-                    <label>Locations: </label>
+                    <label>Events: </label>
 
                     {!! Form::select('preset[]', [], null,['class' => 'multi-select schedule-event-js', 'disabled',
                         'multiple', 'data-placeholder' => "Add Events Below"]) !!}
                 </div>
 
-                <section class="new-object-button form-group mt-sm">
+                <section class="new-object-button form-group">
                     <input type="button" class="add-new-default-event-js" value="Create New Event">
                 </section>
             </section>
 
             <section class="open-geolocator-js hidden">
                 <div class="form-group mt-xl">
-                    <label>Events: </label>
+                    <label>Locations: </label>
                     {!! Form::select('preset[]', [], null,['class' => 'multi-select geolocator-location-js', 'disabled',
                         'multiple', 'data-placeholder' => "Add Locations Below"]) !!}
                 </div>
 
-                <section class="new-object-button form-group mt-xl">
+                <section class="new-object-button form-group">
                     <input type="button" class="add-new-default-location-js" value="Create New Location">
                 </section>
             </section>

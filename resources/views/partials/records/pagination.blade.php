@@ -2,7 +2,7 @@
     <div class="previous page {{$records->onFirstPage() ? 'disabled' : ''}}">
         <a href="{{$records->previousPageUrl()}}">
             <i class="icon icon-chevron left"></i>
-            <span class="name underline-middle-hover">Previous</span>
+            <span class="name underline-middle-hover">Previous Page</span>
         </a>
     </div>
     <div class="pages">
@@ -35,7 +35,7 @@
     <div class="next page {{$records->hasMorePages() ? '' : 'disabled'}}">
         <a href="{{$records->nextPageUrl()}}">
             <i class="icon icon-chevron right"></i>
-            <span class="name underline-middle-hover">Next</span>
+            <span class="name underline-middle-hover">Next Page</span>
         </a>
     </div>
 </section>

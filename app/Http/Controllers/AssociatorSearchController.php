@@ -126,8 +126,8 @@ class AssociatorSearchController extends Controller {
 
         // Inform the user about arguments that will be ignored.
         if($arg!="") {
-            $ignored = Search::showIgnoredArguments($arg);
             $args = explode(" ", $arg);
+            $ignored = Search::showIgnoredArguments($args);
             $args = array_diff($args, $ignored);
             $arg = implode(" ", $args);
 

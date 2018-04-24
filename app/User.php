@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\ProjectController;
+use Carbon\Carbon;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -469,7 +470,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
                 $newSeq = 0;
 
             DB::table('project_custom')->insert(
-                ['uid' => $this->id, 'pid' => $pid, 'sequence' => $newSeq]
+                ['uid' => $this->id, 'pid' => $pid, 'sequence' => $newSeq,
+                    "created_at" =>  Carbon::now(),
+                    "updated_at" =>  Carbon::now()]
             );
         }
     }
@@ -497,7 +500,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
                 $newSeq = 0;
 
             DB::table('form_custom')->insert(
-                ['uid' => $this->id, 'pid' => $pid, 'fid' => $fid, 'sequence' => $newSeq]
+                ['uid' => $this->id, 'pid' => $pid, 'fid' => $fid, 'sequence' => $newSeq,
+                    "created_at" =>  Carbon::now(),
+                    "updated_at" =>  Carbon::now()]
             );
         }
     }

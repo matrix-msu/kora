@@ -134,7 +134,7 @@ class Search {
                 break;
             case self::SEARCH_EXACT:
                 //add wildcard symbol
-                $arg = $this->arg.'*';
+                $arg = '"'.$this->arg.'"';
                 //search the fields
                 foreach($fields as $field) {
                     if( (!$external && $field->isSearchable()) | ($external && $field->isExternalSearchable()) ) {

@@ -15,7 +15,7 @@
       i {
         background: palette('green', accent);
         border-radius: 100px;
-        box-shadow: 0 3px 5px 0 palette('box-shadow', base, 0.15);
+        box-shadow: 0 3px 5px 0 palette('green', accent, 0.15);
         color: white;
         font-size: 6px;
         height: 40px;
@@ -25,7 +25,8 @@
       }
 
       span {
-        line-height: 35px;
+        font-size: 12px;
+        line-height: 38px;
         margin: 0 10px;
       }
     }

@@ -53,6 +53,10 @@
   text-align: center;
   width: 100%;
 
+  &.extend {
+    padding: 58px 30px 74px;
+  }
+
   &.no-advanced-upload {
     .instruction {
       .no-dd {

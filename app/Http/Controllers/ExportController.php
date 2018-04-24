@@ -125,22 +125,26 @@ class ExportController extends Controller {
         $time = Carbon::now();
         $zip->open($zipPath.$form->name.'_fileData_'.$time.'.zip', \ZipArchive::CREATE);
 
-        //add files
-        $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($path),
-            \RecursiveIteratorIterator::LEAVES_ONLY
-        );
+        if(file_exists($path)) {
+            //add files
+            $files = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($path),
+                \RecursiveIteratorIterator::LEAVES_ONLY
+            );
 
-        foreach ($files as $name => $file) {
-            // Skip directories (they would be added automatically)
-            if(!$file->isDir()) {
-                // Get real and relative path for current file
-                $filePath = $file->getRealPath();
-                $relativePath = substr($filePath, strlen($path) + 1);
+            foreach ($files as $name => $file) {
+                // Skip directories (they would be added automatically)
+                if (!$file->isDir()) {
+                    // Get real and relative path for current file
+                    $filePath = $file->getRealPath();
+                    $relativePath = substr($filePath, strlen($path) + 1);
 
-                // Add current file to archive
-                $zip->addFile($filePath, $relativePath);
+                    // Add current file to archive
+                    $zip->addFile($filePath, $relativePath);
+                }
             }
+        } else {
+            return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'no_record_files');
         }
 
         // Zip archive will be created only after closing object
