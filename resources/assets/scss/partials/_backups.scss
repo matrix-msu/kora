@@ -15,6 +15,7 @@
     width: $max-site-width;
 
     @import 'backups/filters';
+    @import 'backups/backup-card';
   }
 
   @import 'backups/modals';

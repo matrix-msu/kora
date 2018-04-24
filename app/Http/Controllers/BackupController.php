@@ -71,7 +71,7 @@ class BackupController extends Controller {
                     array_push($available_backups,$this->BACKUP_DIRECTORY.'/'.$name.'/.kora3_backup');
             }
         }
-        $saved_backups = new Collection();
+        $savedBackups = new Collection();
 
         //Load all previously saved backups, and package them up so they can be displayed by the view
         $available_backups_index = 0;
@@ -100,7 +100,11 @@ class BackupController extends Controller {
                 $backup_info->put("user","Unknown");
             }
 
-            $saved_backups->push($backup_info);
+            $fullPath = str_replace('/.kora3_backup','',config('app.base_path')."storage/app/".$backup);
+            $size = $this->humanFileSize($this->getDirectorySize($fullPath));
+            $backup_info->put("size",$size);
+
+            $savedBackups->push($backup_info);
         }
         $this->backupSupport($request);
 
@@ -109,16 +113,18 @@ class BackupController extends Controller {
         $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
 
         if($order_direction == 'asc') {
-            $saved_backups = $saved_backups->sortBy(function ($item) use ($order_type) {
+            $savedBackups = $savedBackups->sortBy(function ($item) use ($order_type) {
                 return $item->get($order_type);
             });
         } else {
-            $saved_backups = $saved_backups->sortByDesc(function ($item) use ($order_type) {
+            $savedBackups = $savedBackups->sortByDesc(function ($item) use ($order_type) {
                 return $item->get($order_type);
             });
         }
 
-        return view('backups.index',compact('saved_backups'));
+//        dd($savedBackups);
+
+        return view('backups.index',compact('savedBackups'));
     }
 
 
@@ -293,11 +299,11 @@ class BackupController extends Controller {
 
     private function humanFileSize($size,$unit="") {
         if( (!$unit && $size >= 1<<30) || $unit == "GB")
-            return number_format($size/(1<<30),2)."GB";
+            return number_format($size/(1<<30),2)."gb";
         if( (!$unit && $size >= 1<<20) || $unit == "MB")
-            return number_format($size/(1<<20),2)."MB";
+            return number_format($size/(1<<20),2)."mb";
         if( (!$unit && $size >= 1<<10) || $unit == "KB")
-            return number_format($size/(1<<10),2)."KB";
+            return number_format($size/(1<<10),2)."kb";
         return number_format($size)." bytes";
     }
 

@@ -37,15 +37,64 @@
             <div class="pagination-options pagination-options-js">
                 <select class="order option-dropdown-js" id="order-dropdown">
                     <option value="nod">Newest to Oldest</option>
-                    <option value="otn" {{app('request')->input('order') === 'noa' ? 'selected' : ''}}>Oldest to Newest</option>
-                    <option value="nmd" {{app('request')->input('order') === 'nmd' ? 'selected' : ''}}>Name Ascending</option>
-                    <option value="nma" {{app('request')->input('order') === 'nma' ? 'selected' : ''}}>Name Descending</option>
+                    <option value="noa" {{app('request')->input('order') === 'noa' ? 'selected' : ''}}>Oldest to Newest</option>
+                    <option value="nma" {{app('request')->input('order') === 'nma' ? 'selected' : ''}}>Name Ascending</option>
+                    <option value="nmd" {{app('request')->input('order') === 'nmd' ? 'selected' : ''}}>Name Descending</option>
                 </select>
             </div>
         </section>
 
         <section class="new-object-button center">
             <input type="button" value="Create New Backup File" class="create-backup-js">
+        </section>
+
+        <section class="backupcards-selection center">
+            <?php $index=0; ?>
+            @foreach($savedBackups as $backup)
+                <div class="backup card all {{ $index == 0 ? 'active' : '' }}">
+                    <div class="header {{ $index == 0 ? 'active' : '' }}">
+                        <div class="left pl-m">
+                            <a class="title">
+                                <span class="name">{{$backup["name"]}}</span>
+                                <?php
+                                $carbon = new \Carbon\Carbon($backup["date"]);
+                                $d = $carbon->subDay()->format('m.d.Y');
+                                $t = $carbon->format('g:i A');
+                                ?>
+                                <span class="time">{{$d}}</span><span class="time">{{$t}}</span>
+                                <span class="size">Size: {{$backup["size"]}}</span>
+                            </a>
+                        </div>
+
+                        <div class="card-toggle-wrap">
+                            <a href="#" class="card-toggle backup-toggle-js">
+                                <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="content {{ $index == 0 ? 'active' : '' }}">
+                        <div class="footer">
+                            <a class="quick-action trash-container left danger" href="#">
+                                <i class="icon icon-trash"></i>
+                            </a>
+
+                            {{--href="{{action('OptionPresetController@edit',['pid'=>$project->pid,'id'=>$preset->id])}}--}}
+
+                            <a class="quick-action underline-middle-hover" href="#">
+                                <i class="icon icon-download"></i>
+                                <span>Download Backup File</span>
+                            </a>
+
+                            <a class="quick-action underline-middle-hover" href="#">
+                                <i class="icon icon-backup"></i>
+                                <span>Restore To This Backup</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <?php $index++; ?>
+            @endforeach
         </section>
     </section>
 
