@@ -40,3 +40,15 @@
     }
   }
 }
+
+@media screen and (max-width: $max-mobile-med-width) {
+  .backupcards-selection {
+    .backup {
+      .title {
+        .size {
+          display: none;
+        }
+      }
+    }
+  }
+}
