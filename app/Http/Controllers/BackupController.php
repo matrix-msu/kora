@@ -79,8 +79,12 @@ class BackupController extends Controller {
             $backup_info = new Collection();
             $backup_file = Storage::get($backup);
             $parsed_data = json_decode($backup_file);
-            $backup_info->put("index",$available_backups_index); //We sort this later,  but it needs to refer to other
-            $backup_info->put("filename",$backup); //We sort this later,  but it needs to refer to other
+            $backup_info->put("index",$available_backups_index);
+
+            $directory = str_replace('/.kora3_backup','', $backup);
+            $label = str_replace($this->BACKUP_DIRECTORY.'/','', $directory);
+            $backup_info->put("label",$label);
+
             $available_backups_index++;
             try {
                 $backup_info->put("date", $parsed_data->kora3->date);
@@ -94,13 +98,8 @@ class BackupController extends Controller {
             } catch(\Exception $e) {
                 $backup_info->put("name","Unknown");
             }
-            try{
-                $backup_info->put("user",$parsed_data->kora3->created_by);
-            } catch(\Exception $e) {
-                $backup_info->put("user","Unknown");
-            }
 
-            $fullPath = str_replace('/.kora3_backup','',config('app.base_path')."storage/app/".$backup);
+            $fullPath = config('app.base_path')."storage/app/".$directory;
             $size = $this->humanFileSize($this->getDirectorySize($fullPath));
             $backup_info->put("size",$size);
 
@@ -121,8 +120,6 @@ class BackupController extends Controller {
                 return $item->get($order_type);
             });
         }
-
-//        dd($savedBackups);
 
         return view('backups.index',compact('savedBackups'));
     }
@@ -237,8 +234,8 @@ class BackupController extends Controller {
             mkdir($newfilepath, 0775, true);
             $directory = new \RecursiveDirectoryIterator($filepath);
             $iterator = new \RecursiveIteratorIterator($directory);
-            foreach ($iterator as $file) {
-                if ($file->isFile()) {
+            foreach($iterator as $file) {
+                if($file->isFile()) {
                     //get file name and sub directories
                     $fPath = $file->getRealPath();
                     $subPath = explode($filepath, $fPath)[1]; //sub directory + filename
@@ -247,7 +244,7 @@ class BackupController extends Controller {
                     $subDirArr = explode($fname, $subPath);
                     $loopSize = sizeof($subDirArr) - 1;
                     $subDir = ''; //just the sub directory
-                    for ($i = 0; $i < $loopSize; $i++) {
+                    for($i = 0; $i < $loopSize; $i++) {
                         $subDir .= $subDirArr[$i];
                     }
                     if (!file_exists($newfilepath . $subDir))
@@ -276,7 +273,7 @@ class BackupController extends Controller {
         $newfile = $path . ".kora3_backup";
 
         $bytes_written = File::put($newfile, $json);
-        if ($bytes_written === false)
+        if($bytes_written === false)
             return response()->json(["status"=>false,"message"=>"backup_file_failed"],500);
 
         $this->unlockUsers();
@@ -286,6 +283,12 @@ class BackupController extends Controller {
         return response()->json(["status"=>true,"message"=>"backup_finished","totalSize"=>$totalSize],200);
     }
 
+    /**
+     * Get byte size of a directory and its contents.
+     *
+     * @param  string $path - Directory to measure
+     * @return int - Byte size
+     */
     private function getDirectorySize($path) {
         $bytestotal = 0;
         $path = realpath($path);
@@ -297,12 +300,18 @@ class BackupController extends Controller {
         return $bytestotal;
     }
 
-    private function humanFileSize($size,$unit="") {
-        if( (!$unit && $size >= 1<<30) || $unit == "GB")
+    /**
+     * Convert byte size to a human readable form.
+     *
+     * @param  int $size - Size to convert
+     * @return string - Formatted size
+     */
+    private function humanFileSize($size) {
+        if($size >= 1<<30)
             return number_format($size/(1<<30),2)."gb";
-        if( (!$unit && $size >= 1<<20) || $unit == "MB")
+        if($size >= 1<<20)
             return number_format($size/(1<<20),2)."mb";
-        if( (!$unit && $size >= 1<<10) || $unit == "KB")
+        if($size >= 1<<10)
             return number_format($size/(1<<10),2)."kb";
         return number_format($size)." bytes";
     }
@@ -338,7 +347,7 @@ class BackupController extends Controller {
         readfile($zipdir.$zipname);
     }
 
-    /**
+    /** TODO::refactor
      * Initiates the restore process and returns the restore view.
      *
      * @param  Request $request
@@ -395,7 +404,7 @@ class BackupController extends Controller {
         return view('backups.restore',compact('type','filename'));
     }
 
-    /**
+    /** TODO::refactor
      * Loads and executes the background restore command for each table.
      *
      * @param  Request $request
@@ -445,7 +454,7 @@ class BackupController extends Controller {
         ]);
 	}
 
-    /**
+    /** TODO::refactor
      * Checks the overall progress of the restore.
      *
      * @param  Request $request
@@ -458,7 +467,7 @@ class BackupController extends Controller {
         return response()->json(["status"=>true,"message"=>"restore_progress","overall"=>$overall,"partial"=>$partial],200);
     }
 
-    /**
+    /** TODO::refactor
      * After progress is complete, run this function to backup files and save the master backup file.
      *
      * @param  Request $request
@@ -494,7 +503,7 @@ class BackupController extends Controller {
         }
     }
 
-    /**
+    /** TODO::refactor
      * A recursive function for deleting a directory and all its contents.
      *
      * @param  string $directory - Name of directory to remove
@@ -552,42 +561,26 @@ class BackupController extends Controller {
      * @return JsonResponse - Json response of the result
      */
     public function delete(Request $request) {
-        $this->validate($request,[
-            'backup_source'=>'required|in:server',
-            'filename'=>'required',
-            'backup_type'=>'required|in:system',
-            'project_id'=>'required_if:backup_type,project'
-        ]);
+        $path = config('app.base_path')."storage/app/".$this->BACKUP_DIRECTORY."/";
+        $dir = $path.$request->label;
 
-        $path = config('app.base_path')."storage/app/";
-
-        if($request->input("backup_source") == "server") {
-            $filename = $path.$request->filename;
-            $dir = str_replace(".kora3_backup","",$filename);
-
-            try {
-                if($request->input("backup_type") == "system") {
-                    if(is_dir($dir)) {
-                        $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
-                        $files = new RecursiveIteratorIterator($it,RecursiveIteratorIterator::CHILD_FIRST);
-                        foreach($files as $file) {
-                            if($file->isDir()) {
-                                rmdir($file->getRealPath());
-                            } else {
-                                unlink($file->getRealPath());
-                            }
-                        }
-                        rmdir($dir);
-                    }
+        try {
+            if(is_dir($dir)) {
+                $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
+                $files = new RecursiveIteratorIterator($it,RecursiveIteratorIterator::CHILD_FIRST);
+                foreach($files as $file) {
+                    if($file->isDir())
+                        rmdir($file->getRealPath());
+                    else
+                        unlink($file->getRealPath());
                 }
-            } catch(\Exception $e) {
-                return response()->json(["status"=>false,"message"=>"backup_delete_failed"],500);
+                rmdir($dir);
             }
-
-            return response()->json(["status"=>true,"message"=>"backup_delete_success"],200);
-        } else {
-            return response()->json(["status"=>false,"message"=>"backup_delete_invalid"],500);
+        } catch(\Exception $e) {
+            return response()->json(["status"=>false,"message"=>"backup_delete_failed"],500);
         }
+
+        return response()->json(["status"=>true,"message"=>"backup_delete_success"],200);
     }
 
     /**

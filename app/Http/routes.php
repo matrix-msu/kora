@@ -215,7 +215,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/backup/restore', 'BackupController@startRestore');
     Route::post('/backup/restore/finish', 'BackupController@finishRestore');
     Route::post('/backup/user/unlock', 'BackupController@unlockUsers');
-    Route::post('/backup/delete', 'BackupController@delete');
+    Route::delete('/backup/delete', 'BackupController@delete');
     Route::get('/backup/progress', 'BackupController@checkProgress');
     Route::get('/backup/restore/progress/{backup_id}', 'BackupController@checkRestoreProgress');
 

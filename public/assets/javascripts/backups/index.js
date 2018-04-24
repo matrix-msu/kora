@@ -3,6 +3,8 @@ Kora.Backups = Kora.Install || {};
 
 Kora.Backups.Index = function() {
 
+    var currentLabel = "";
+
     function initializeBackupToggles() {
         $('.toggle-by-name').click(function (e) {
             e.preventDefault();
@@ -118,9 +120,35 @@ Kora.Backups.Index = function() {
         });
     }
 
+    function initializeDeleteBackupModal() {
+        Kora.Modal.initialize();
+
+        $('.delete-backup-open-js').click(function(e) {
+            e.preventDefault();
+
+            currentLabel = $(this).attr('backup-label');
+            Kora.Modal.open($('.delete-backup-modal-js'));
+        });
+
+        $('.delete-backup-js').click(function(e) {
+            $.ajax({
+                url: deleteBackupUrl,
+                type: 'DELETE',
+                data: {
+                    "_token": CSRFToken,
+                    "label" : currentLabel
+                },
+                success: function (result) {
+                    location.reload();
+                }
+            });
+        });
+    }
+
     initializeSearch();
     initializeBackupToggles();
     initializeOptionDropdowns();
     initializeModals();
     initializeToggle();
+    initializeDeleteBackupModal();
 }
