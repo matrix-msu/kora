@@ -118,7 +118,7 @@ class RevisionController extends Controller {
     /**
      * Execute a rollback to restore a record to a previous revision.
      *
-     * @param  Request $request
+     * @param  Request $request [revision]
      * @return JsonResponse
      */
     public function rollback(Request $request) {
@@ -272,7 +272,7 @@ class RevisionController extends Controller {
                         $formatted["old"][$id] = RevisionController::formatData($type, $oldData[$type][$id]);
                         $formatted["current"][$id] = RevisionController::formatData($type, $field);
                     }
-                } elseif ($revision->type == "create" || $revision->type == "delete") {
+                } elseif ($revision->type == "create" || $revision->type == "delete" || $revision->type == "rollback") {
                     $formatted[$id] = RevisionController::formatData($type, $field);
                 }
             }

@@ -112,7 +112,26 @@ Kora.Revisions.Index = function() {
             var date = $(this).parents('.card').find('.date-js').text()
             var dateTime = moment(date + ' ' + time);
             var $modal = $('.restore-fields-modal-js');
+            var url = $modal.find('.restore-fields-button-js').attr('href');
+            var revision = $(this).data('revision');
             $modal.find('.date-time').text(dateTime.format('M.D.YYYY [at] h:mma'));
+
+            $modal.find('.restore-fields-button-js').on('click', function(e) {
+                e.preventDefault();
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    data: {
+                        revision: revision
+                    },
+                    success: function(d) {
+                        location.reload();
+                    },
+                    error: function(e) {
+                        console.log(e);
+                    }
+                });
+            });
             Kora.Modal.open($modal);
         });
 
@@ -123,7 +142,26 @@ Kora.Revisions.Index = function() {
             var date = $(this).parents('.card').find('.date-js').text()
             var dateTime = moment(date + ' ' + time);
             var $modal = $('.reactivate-record-modal-js');
+            var url = $modal.find('.reactivate-record-button-js').attr('href');
+            var revision = $(this).data('revision');
             $modal.find('.date-time').text(dateTime.format('M.D.YYYY [at] h:mma'));
+
+            $modal.find('.reactivate-record-button-js').on('click', function(e) {
+                e.preventDefault();
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    data: {
+                        revision: revision
+                    },
+                    success: function(d) {
+                        location.reload();
+                    },
+                    error: function(e) {
+                        console.log(e);
+                    }
+                });
+            });
             Kora.Modal.open($modal);
         });
     }

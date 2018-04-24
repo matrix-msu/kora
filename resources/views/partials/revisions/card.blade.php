@@ -2,7 +2,7 @@
     $exists = \App\Http\Controllers\RecordController::exists($revision->rid);
     $datetime = explode(' ', $revision->updated_at);
     $showLink = action("RevisionController@show", ["pid" => $form->pid, "fid" => $form->fid, "rid" => $revision->rid]);
-    $type = ucfirst($revision->type === "edit" ? 'edited' : $revision->type.'d');
+    $type = ucfirst($revision->type === "edit" ? 'edited' : ($revision->type === 'rollback' ? 'rollback' : $revision->type.'d'));
     $data = \App\Http\Controllers\RevisionController::formatRevision($revision->id);
 ?>
 <div class="revision card all {{ $index == 0 ? 'active' : '' }}" id="{{$revision->id}}">
@@ -40,7 +40,7 @@
                 <p class="deleted-description">
                     This record has been deleted, 
                     but you still have the option to 
-                    <a class="underline-middle-hover reactivate-js" href="#">re-activate the record</a> 
+                    <a class="underline-middle-hover reactivate-js" href="#" data-revision="{{$revision->id}}">re-activate the record</a> 
                     to its previous state that is listed below.
                 </p>
             @endif
@@ -81,12 +81,12 @@
             @endif
 
             @if ($exists)
-                <a class="quick-action underline-middle-hover restore-js" href="#">
+                <a class="quick-action underline-middle-hover restore-js" href="#" data-revision="{{$revision->id}}">
                     <i class="icon icon-unarchive"></i>
                     <span>Restore Field(s) to Before</span>
                 </a>
             @else
-               <a class="quick-action underline-middle-hover reactivate-js" href="#">
+               <a class="quick-action underline-middle-hover reactivate-js" href="#" data-revision="{{$revision->id}}">
                     <i class="icon icon-unarchive"></i>
                     <span>Re-Activate Record</span>
                 </a>
