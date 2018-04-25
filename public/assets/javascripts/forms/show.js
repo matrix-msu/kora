@@ -312,7 +312,7 @@ Kora.Forms.Show = function() {
 
     $('.delete-page-js').on('click', function(e) {
       e.preventDefault();
-      var page = $(e.target).parent().data('page');
+      var page = $(this).data('page');
 
       var $deleteModal = $('.page-delete-modal-js');
       $deleteModal.find('.delete-page-confirm-js').data('page', page);
