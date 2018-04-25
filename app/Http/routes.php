@@ -217,7 +217,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/backup/user/unlock', 'BackupController@unlockUsers');
     Route::delete('/backup/delete', 'BackupController@delete');
     Route::get('/backup/progress', 'BackupController@checkProgress');
-    Route::get('/backup/restore/progress/{backup_id}', 'BackupController@checkRestoreProgress');
+    Route::get('/backup/restore/progress', 'BackupController@checkRestoreProgress');
 
 //form search routes
     Route::get('/keywordSearch/project/{pid}/forms/{fid}', 'FormSearchController@keywordSearch');

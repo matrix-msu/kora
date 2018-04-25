@@ -75,22 +75,40 @@
                     </div>
 
                     <div class="content {{ $index == 0 ? 'active' : '' }}">
+                        <div class="id">
+                            <span class="attribute">Data Backup: </span>
+                            @if($backup["data"])
+                                <span>True</span>
+                            @else
+                                <span>False</span>
+                            @endif
+                        </div>
+
+                        <div class="id">
+                            <span class="attribute">File Backup: </span>
+                            @if($backup["files"])
+                                <span>True</span>
+                            @else
+                                <span>False</span>
+                            @endif
+                        </div>
+
                         <div class="footer">
                             <a class="quick-action trash-container left danger delete-backup-open-js" href="#" backup-label="{{$backup["label"]}}">
                                 <i class="icon icon-trash"></i>
                             </a>
-
-                            {{--href="{{action('OptionPresetController@edit',['pid'=>$project->pid,'id'=>$preset->id])}}--}}
-
                             <a class="quick-action underline-middle-hover" href="{{action("BackupController@download",['path'=>$backup["label"]])}}">
                                 <i class="icon icon-download"></i>
                                 <span>Download Backup File</span>
                             </a>
-
-                            <a class="quick-action underline-middle-hover" href="#">
-                                <i class="icon icon-backup"></i>
-                                <span>Restore To This Backup</span>
-                            </a>
+                            {!! Form::open(['url' => action('BackupController@startRestore'), 'class' => 'restore-form restore-form-js']) !!}
+                                <input type="hidden" name="label" value="{{ $backup["label"] }}">
+                                <input type="hidden" name="source" value="server">
+                                <a class="quick-action underline-middle-hover restore-backup-js" href="#">
+                                    <i class="icon icon-backup"></i>
+                                    <span>Restore To This Backup</span>
+                                </a>
+                            {!! Form::close() !!}
                         </div>
                     </div>
                 </div>

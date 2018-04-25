@@ -145,10 +145,20 @@ Kora.Backups.Index = function() {
         });
     }
 
+    function initializeRestoreBackup() {
+        $('.restore-backup-js').click(function(e) {
+            e.preventDefault();
+
+            var restoreForm = $(this).parent('.restore-form-js');
+            restoreForm.submit();
+        });
+    }
+
     initializeSearch();
     initializeBackupToggles();
     initializeOptionDropdowns();
     initializeModals();
     initializeToggle();
     initializeDeleteBackupModal();
+    initializeRestoreBackup();
 }

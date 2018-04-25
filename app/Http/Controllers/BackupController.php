@@ -4,7 +4,6 @@ use App\Commands\RestoreTable;
 use App\Commands\SaveUsersTable;
 use App\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
@@ -97,6 +96,16 @@ class BackupController extends Controller {
                 $backup_info->put("name", $parsed_data->kora3->name);
             } catch(\Exception $e) {
                 $backup_info->put("name","Unknown");
+            }
+            try {
+                $backup_info->put("data", $parsed_data->kora3->data);
+            } catch(\Exception $e) {
+                $backup_info->put("data","Unknown");
+            }
+            try {
+                $backup_info->put("files", $parsed_data->kora3->files);
+            } catch(\Exception $e) {
+                $backup_info->put("files","Unknown");
             }
 
             $fullPath = config('app.base_path')."storage/app/".$directory;
@@ -347,7 +356,7 @@ class BackupController extends Controller {
         readfile($zipdir.$zipname);
     }
 
-    /** TODO::refactor
+    /**
      * Initiates the restore process and returns the restore view.
      *
      * @param  Request $request
@@ -355,24 +364,22 @@ class BackupController extends Controller {
      */
     public function startRestore(Request $request) {
         $this->validate($request,[
-            'backup_source'=>'required|in:server,upload',
-            'restore_point'=>'required_if:backup_source,server',
-            'upload_file'=>'required_if:backup_source,upload'
+            'source'=>'required|in:server,upload',
+            'label'=>'required_if:source,server',
+            'zipUpload'=>'required_if:source,upload'
         ]);
 
         $type = "system";
-        if($request->input("backup_source") == "server") {
-            $filename = $request->restore_point;
-            //we only want the directory now so strip the .kora3_backup tag
-            $filename = explode('/.kora3_backup',$filename)[0];
-        } else if($request->input("backup_source") == "upload") {
-            if($request->hasFile("upload_file") == true) {
-                $file = $request->file("upload_file");
+        if($request->source == "server") {
+            $filename = $request->label;
+        } else if($request->source == "upload") {
+            if($request->hasFile("zipUpload") == true) {
+                $file = $request->file("zipUpload");
                 if($file->isValid()) {
                     //Once we have a file, we need to do two things
                     //First, save the file name path to a variable
-                    $filename = "backups/fileRestore___".time();
-                    $filepath = config('app.base_path')."storage/app/".$filename;
+                    $filename = "fileRestore___".time();
+                    $filepath = config('app.base_path')."storage/app/".$this->BACKUP_DIRECTORY.'/'.$filename;
                     mkdir($filepath, 0775, true);
                     try {
                         //Second, unzip the file into the backups directory
@@ -404,13 +411,12 @@ class BackupController extends Controller {
         return view('backups.restore',compact('type','filename'));
     }
 
-    /** TODO::refactor
+    /**
      * Loads and executes the background restore command for each table.
      *
      * @param  Request $request
      */
 	public function restoreData(Request $request) {
-
         //Lock out users
         $users_exempt_from_lockout = new Collection();
         $users_exempt_from_lockout->put(1,1); //Add another one of these with (userid,userid) to exempt extra users
@@ -418,92 +424,103 @@ class BackupController extends Controller {
         $this->lockUsers($users_exempt_from_lockout);
 
         //We need to gather the directory where the restored files are
-        $dir = config('app.base_path').'storage/app/'.$request->filename;
+        $dir = config('app.base_path').'storage/app/'.$this->BACKUP_DIRECTORY.'/'.$request->filename;
 
-        //Delete all existing data
-        try {
+        //get info from the backup file
+        $backup_file = file_get_contents($dir.'/.kora3_backup');
+        $parsed_data = json_decode($backup_file);
+        $isDataBackup = $parsed_data->kora3->data;
+
+        if($isDataBackup) {
+            //Delete all existing data
+            try {
+                $ac = new AdminController();
+                $ac->deleteData();
+            } catch (\Exception $e) {
+                return response()->json(["status" => false, "message" => "restore_dbwipe_fail"], 500);
+            }
+
+            //NEW PROCESS For restore using jobs
+            ini_set('max_execution_time', 0);
+            Log::info("Restore in progress...");
+            $restore_id = DB::table('restore_overall_progress')->insertGetId(['progress' => 0, 'overall' => 0, 'start' => Carbon::now(), 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
+
+            //User isn't considered a data table, but we want to restore
+            $job = new RestoreTable("users", $dir, $restore_id);
+            $job->handle();
+
             $ac = new AdminController();
-            $ac->deleteData();
-        } catch(\Exception $e) {
-            return response()->json(["status"=>false,"message"=>"restore_dbwipe_fail"],500);
+            foreach ($ac->DATA_TABLES as $table) {
+                $job = new RestoreTable($table["name"], $dir, $restore_id);
+                $job->handle();
+            }
         }
-
-        //Delete the files directory
-        if(file_exists(config('app.base_path')."storage/app/files/")) //this check is to see if it was deleted in a failed restore
-            $this->recursiveRemoveDirectory(config('app.base_path')."storage/app/files/");
-
-        //NEW PROCESS For restore using jobs
-        ini_set('max_execution_time',0);
-        Log::info("Restore in progress...");
-        $restore_id = DB::table('restore_overall_progress')->insertGetId(['progress'=>0,'overall'=>0,'start'=>Carbon::now(),'created_at'=>Carbon::now(),'updated_at'=>Carbon::now()]);
-        //These jobs need restore versions. Will test with TEXT
-
-        $jobs = [new RestoreTable("users",$dir, $restore_id)];
-
-        $ac = new AdminController();
-        foreach($ac->DATA_TABLES as $table)
-            array_push($jobs, new RestoreTable($table["name"],$dir, $restore_id));
-
-        foreach($jobs as $job) {
-            dispatch($job->onQueue('restore'));
-        }
-
-        Artisan::call('queue:listen', [
-            '--queue' => 'restore',
-            '--timeout' => 1800
-        ]);
 	}
 
-    /** TODO::refactor
+    /**
      * Checks the overall progress of the restore.
      *
-     * @param  Request $request
      * @return string - A json array of the overall progress parts
      */
-    public function checkRestoreProgress(Request $request) {
+    public function checkRestoreProgress() {
         $overall = DB::table('restore_overall_progress')->where('created_at',DB::table('restore_overall_progress')->max('created_at'))->first();
         $partial = DB::table('restore_partial_progress')->where('restore_id',$overall->id)->get();
 
         return response()->json(["status"=>true,"message"=>"restore_progress","overall"=>$overall,"partial"=>$partial],200);
     }
 
-    /** TODO::refactor
+    /**
      * After progress is complete, run this function to backup files and save the master backup file.
      *
      * @param  Request $request
      */
     public function finishRestore(Request $request) {
-        $filepath = config('app.base_path').'storage/app/'.$request->filename.'/files/';
-        $newfilepath = config('app.base_path')."storage/app/files/";
+        //We need to gather the directory where the restored files are
+        $dir = config('app.base_path').'storage/app/'.$this->BACKUP_DIRECTORY.'/'.$request->filename;
 
-        //time to move the files
-        if(!file_exists($newfilepath))
-            mkdir($newfilepath, 0775, true);
-        $directory = new \RecursiveDirectoryIterator($filepath);
-        $iterator = new \RecursiveIteratorIterator($directory);
-        foreach($iterator as $file) {
-            if($file->isFile()) {
-                //get file name and sub directories
-                $fPath = $file->getRealPath();
-                $subPath = explode($filepath,$fPath)[1]; //sub directory + filename
-                $fname = $file->getFilename(); //filename
-                //if that files sub directory doesn't exist, make it
-                //$subDir = preg_replace('/'.$fname.'$/', '', $subPath); //just the sub directory
-                $subDirArr = explode($fname,$subPath);
-                $loopSize = sizeof($subDirArr)-1;
-                $subDir = ''; //just the sub directory
-                for($i=0;$i<$loopSize;$i++) {
-                    $subDir .= $subDirArr[$i];
+        //get info from the backup file
+        $backup_file = file_get_contents($dir.'/.kora3_backup');
+        $parsed_data = json_decode($backup_file);
+        $isFileBackup = $parsed_data->kora3->files;
+
+        if($isFileBackup) {
+            $filepath = $dir.'/files/';
+            $newfilepath = config('app.base_path')."storage/app/files/";
+
+            //Delete the files directory
+            if(file_exists($newfilepath)) //this check is to see if it was deleted in a failed restore
+                $this->recursiveRemoveDirectory($newfilepath);
+
+            //time to move the files
+            if(!file_exists($newfilepath))
+                mkdir($newfilepath, 0775, true);
+
+            $directory = new \RecursiveDirectoryIterator($filepath);
+            $iterator = new \RecursiveIteratorIterator($directory);
+            foreach ($iterator as $file) {
+                if ($file->isFile()) {
+                    //get file name and sub directories
+                    $fPath = $file->getRealPath();
+                    $subPath = explode($filepath, $fPath)[1]; //sub directory + filename
+                    $fname = $file->getFilename(); //filename
+                    //if that files sub directory doesn't exist, make it
+                    //$subDir = preg_replace('/'.$fname.'$/', '', $subPath); //just the sub directory
+                    $subDirArr = explode($fname, $subPath);
+                    $loopSize = sizeof($subDirArr) - 1;
+                    $subDir = ''; //just the sub directory
+                    for ($i = 0; $i < $loopSize; $i++) {
+                        $subDir .= $subDirArr[$i];
+                    }
+                    if (!file_exists($newfilepath . $subDir))
+                        mkdir($newfilepath . $subDir, 0775, true);
+                    //copy file over
+                    copy($filepath . $subPath, $newfilepath . $subPath);
                 }
-                if(!file_exists($newfilepath.$subDir))
-                    mkdir($newfilepath.$subDir, 0775, true);
-                //copy file over
-                copy($filepath.$subPath, $newfilepath.$subPath);
             }
         }
     }
 
-    /** TODO::refactor
+    /**
      * A recursive function for deleting a directory and all its contents.
      *
      * @param  string $directory - Name of directory to remove
