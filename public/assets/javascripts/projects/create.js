@@ -37,6 +37,28 @@ Kora.Projects.Create = function() {
         }
       });
     });
+
+    $('.text-input, .text-area').on('blur', function(e) {
+      var field = this.id;
+      var values = {};
+      values[field] = this.value;
+      values['_token'] = CSRFToken;
+
+      $.ajax({
+        url: validationUrl,
+        method: 'POST',
+        data: values,
+        error: function(err) {
+          if (err.responseJSON[field] !== undefined) {
+            $('#'+field).addClass('error');
+            $('#'+field).siblings('.error-message').text(err.responseJSON[field][0]);
+          } else {
+            $('#'+field).removeClass('error');
+            $('#'+field).siblings('.error-message').text('');
+          }
+        }
+      });
+    });
   }
 
   initializeValidation();
