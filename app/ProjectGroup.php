@@ -92,10 +92,10 @@ class ProjectGroup extends Model {
                 $user = User::where("id","=",$uid)->first();
                 $user->addCustomProject($adminGroup->pid);
             }
-        } else {
-            $adminGroup->users()->attach(array(\Auth::user()->id));
-            \Auth::user()->addCustomProject($adminGroup->pid);
         }
+
+        $adminGroup->users()->attach(array(\Auth::user()->id));
+        \Auth::user()->addCustomProject($adminGroup->pid);
 
         //We want to now give this project to the custom list of all system admins
         $admins = User::where("admin","=",1)->get();

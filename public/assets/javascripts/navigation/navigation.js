@@ -136,44 +136,97 @@ var $clearResentSearchResults = $('.clear-search-results-js');
 
 $searchResults.parent().attr('style', 'display: none;'); //INITIALIZE HERE
 //Performs quick search on typing
-$searchInput.keyup(function() {
-  var searchText = $(this).val();
-  typewatch(function() {
-    // executed only 500 ms after the last keyup event.
+$searchInput.keydown(function(e) {
+    var charCode = e.which || e.keyCode;
 
-    //We don't want to search the entire alphabet, need at least 2 characters
-    if (searchText != '' && searchText.length >= 2) {
-      $clearResentSearchResults.parent().slideUp(400, function() {
-        $recentSearch.parent().slideUp(400, function() {
-          //Perform quick search
-          $.ajax({
-            url: globalQuickSearchUrl,
-            type: 'POST',
-            data: {
-              '_token': CSRFToken,
-              'searchText': searchText
-            },
-            success: function(result) {
-              var resultObj = JSON.parse(result);
-              var resultStr = resultObj.join('');
+    if(charCode == 9 ) {
+        e.preventDefault();
+        //Handles initial tabbing through results
 
-              $searchResults.parent().slideUp(200, function() {
-                $searchResults.html(resultStr);
-              });
-
-              $searchResults.parent().slideDown(200);
-            }
-          });
-        });
-      });
+        if($(this).val()=='') {
+            //tab to recent search
+            var tabbed = $('.recent-search-results-js a').first();
+            tabbed.focus();
+        } else {
+            //tab to results
+            var tabbed = $('.search-results-js a').first();
+            tabbed.focus();
+        }
     } else {
-      $clearResentSearchResults.parent().slideDown(400, function() {
-        $recentSearch.parent().slideDown(400, function() {
-          $searchResults.parent().slideUp(200);
-        });
-      });
+        var searchText = $(this).val();
+        typewatch(function () {
+            // executed only 500 ms after the last keyup event.
+
+            //We don't want to search the entire alphabet, need at least 2 characters
+            if (searchText != '' && searchText.length >= 2) {
+                $clearResentSearchResults.parent().slideUp(400, function () {
+                    $recentSearch.parent().slideUp(400, function () {
+                        //Perform quick search
+                        $.ajax({
+                            url: globalQuickSearchUrl,
+                            type: 'POST',
+                            data: {
+                                '_token': CSRFToken,
+                                'searchText': searchText
+                            },
+                            success: function (result) {
+                                var resultObj = JSON.parse(result);
+                                var resultStr = resultObj.join('');
+
+                                $searchResults.parent().slideUp(200, function () {
+                                    $searchResults.html(resultStr);
+                                });
+
+                                $searchResults.parent().slideDown(200);
+                            }
+                        });
+                    });
+                });
+            } else {
+                $clearResentSearchResults.parent().slideDown(400, function () {
+                    $recentSearch.parent().slideDown(400, function () {
+                        $searchResults.parent().slideUp(200);
+                    });
+                });
+            }
+        }, 500);
     }
-  }, 500);
+});
+
+//Handle tabbing otherwise
+$recentSearch.on('keydown', 'a', function(e) {
+    var charCode = e.which || e.keyCode;
+
+    if (charCode == 9) {
+        e.preventDefault();
+        //Handles tabbing through results
+
+        var neighbor = $(this).parent().next();
+        if(neighbor.length) {
+            tabbed = neighbor.find('a').first();
+            tabbed.focus();
+        } else {
+            var tabbed = $('.recent-search-results-js a').first();
+            tabbed.focus();
+        }
+    }
+});
+$searchResults.on('keydown', 'a', function(e) {
+    var charCode = e.which || e.keyCode;
+
+    if (charCode == 9) {
+        e.preventDefault();
+        //Handles tabbing through results
+
+        var neighbor = $(this).parent().next();
+        if(neighbor.length) {
+            tabbed = neighbor.find('a').first();
+            tabbed.focus();
+        } else {
+            var tabbed = $('.search-results-js a').first();
+            tabbed.focus();
+        }
+    }
 });
 
 //Caches a global search before submitting the search itself
