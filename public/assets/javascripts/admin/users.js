@@ -54,9 +54,28 @@ Kora.Admin.Users = function() {
       }
     });
 
-    $('.search-js .icon-cancel-js').click(function() {
-      $searchInput.val('').blur().parent().removeClass('active');
-    });
+      $('.search-js .icon-cancel-js').click(function() {
+          $searchInput.val('').blur().parent().removeClass('active');
+
+          $('.user.card').each(function() {
+              $(this).removeClass('hidden');
+          });
+      });
+
+      $('.search-js i, .search-js input').keyup(function() {
+          var searchVal = $(this).val().toLowerCase();
+
+          $('.user.card').each(function() {
+              var fname = $(this).find('.firstname').first().text().toLowerCase();
+              var lname = $(this).find('.lastname').first().text().toLowerCase();
+              var uname = $(this).find('.username').first().text().toLowerCase();
+
+              if(fname.includes(searchVal) | lname.includes(searchVal) | uname.includes(searchVal))
+                  $(this).removeClass('hidden');
+              else
+                  $(this).addClass('hidden');
+          });
+      });
   }
 
   function initializeCards() {
