@@ -14,6 +14,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('projects/request', 'ProjectController@request');
     Route::post('projects/{pid}/archive', 'ProjectController@setArchiveProject');
     Route::post('projects/validate', 'ProjectController@validateProjectFields');
+    Route::patch('projects/validate/{projects}', 'ProjectController@validateProjectFields');
 
 //project group routes
     Route::get('/projects/{pid}/manage/projectgroups/{active?}', 'ProjectGroupController@index');

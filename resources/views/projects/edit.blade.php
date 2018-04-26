@@ -28,7 +28,7 @@
 
 @section('body')
   <section class="edit-form center">
-    {!! Form::model($project,  ['method' => 'PATCH', 'action' => ['ProjectController@update', $project->pid]]) !!}
+    {!! Form::model($project,  ['method' => 'PATCH', 'action' => ['ProjectController@update', $project->pid], 'class' => 'edit-form']) !!}
     @include('partials.projects.form',['projectMode' => $projectMode, 'pid' => $project->pid, 'type' => 'edit'])
     {!! Form::close() !!}
 
@@ -57,6 +57,9 @@
   @include('partials.projects.javascripts')
 
   <script type="text/javascript">
+    var validationUrl = "{{ action('ProjectController@validateProjectFields', ["projects" => $project->pid]) }}";
+    var csrfToken = "{{ csrf_token() }}";
+
     Kora.Projects.Edit();
   </script>
 @stop
