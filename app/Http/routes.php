@@ -13,6 +13,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::resource('projects', 'ProjectController');
     Route::post('projects/request', 'ProjectController@request');
     Route::post('projects/{pid}/archive', 'ProjectController@setArchiveProject');
+    Route::post('projects/validate', 'ProjectController@validateProjectFields');
 
 //project group routes
     Route::get('/projects/{pid}/manage/projectgroups/{active?}', 'ProjectGroupController@index');
