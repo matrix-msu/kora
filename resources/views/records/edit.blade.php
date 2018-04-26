@@ -70,6 +70,8 @@
         </div>
 
         @include('partials.records.form',['form' => $form, 'editRecord' => true])
+        
+        @include('partials.records.pagination-form', ['layout' => \App\Http\Controllers\PageController::getFormLayout($form->fid)])
 
         <div class="form-group record-update-button mt-xxxl">
             {!! Form::submit('Update Record',['class' => 'btn edit-btn update-record-submit pre-fixed-js']) !!}
