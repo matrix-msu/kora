@@ -105,7 +105,7 @@
                                 <input type="hidden" name="label" value="{{ $backup["label"] }}">
                                 <input type="hidden" name="source" value="server">
                                 <a class="quick-action underline-middle-hover restore-backup-js" href="#">
-                                    <i class="icon icon-backup"></i>
+                                    <i class="icon icon-backup-little"></i>
                                     <span>Restore To This Backup</span>
                                 </a>
                             {!! Form::close() !!}
