@@ -41,6 +41,9 @@
   @include('partials.projects.javascripts')
 
   <script type="text/javascript">
+    var validationUrl = "{{ action('ProjectController@validateProjectFields') }}";
+    var csrfToken = "{{ csrf_token() }}";
+
     Kora.Projects.Create();
   </script>
 @stop

@@ -1,8 +1,6 @@
 <div class="form-group mt-xl">
   {!! Form::label('name', 'Project Name') !!}
-  @if (array_key_exists("name", $errors->messages()))
-    <span class="error-message">{{$errors->messages()["name"][0]}}</span>
-  @endif
+  <span class="error-message">{{array_key_exists("name", $errors->messages()) ? $errors->messages()["name"][0] : ''}}</span>
   @if ($type == 'edit')
     {!! Form::text('name', null, ['class' => 'text-input' . (array_key_exists("name", $errors->messages()) ? ' error' : ''), 'placeholder' => 'Enter the project name here']) !!}
   @else
@@ -12,17 +10,13 @@
 
 <div class="form-group mt-xl">
   {!! Form::label('slug', 'Unique Project Identifier') !!}
-  @if (array_key_exists("slug", $errors->messages()))
-    <span class="error-message">{{$errors->messages()["slug"][0]}}</span>
-  @endif
+  <span class="error-message">{{array_key_exists("slug", $errors->messages()) ? $errors->messages()["slug"][0] : ''}}</span>
   {!! Form::text('slug', null, ['class' => 'text-input' . (array_key_exists("slug", $errors->messages()) ? ' error' : ''), 'placeholder' => "Enter the project's unique ID here (no spaces, alpha-numeric values only)"]) !!}
 </div>
 
 <div class="form-group mt-xl">
     {!! Form::label('description', 'Description') !!}
-    @if (array_key_exists("description", $errors->messages()))
-      <span class="error-message">{{$errors->messages()["description"][0]}}</span>
-    @endif
+    <span class="error-message">{{array_key_exists("description", $errors->messages()) ? $errors->messages()["description"][0] : ''}}</span>
     {!! Form::textarea('description', null, ['class' => 'text-area' . (array_key_exists("description", $errors->messages()) ? ' error' : ''), 'placeholder' => "Enter the projects description here (max. 255 characters)"]) !!}
 </div>
 
