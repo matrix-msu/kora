@@ -108,6 +108,8 @@ Route::group(['middleware' => 'web'], function () {
 
 //field routes
     Route::get('/projects/{pid}/forms/{fid}/fields', 'FormController@show'); //alias for form/{id}
+    Route::post('projects/{pid}/forms/{fid}/fields/validate', 'FieldController@validateFieldFields');
+    Route::patch('projects/{pid}/forms/{fid}/fields/validate/{flid}', 'FieldController@validateFieldFields');
     Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}', 'FieldController@update');
     Route::get('/projects/{pid}/forms/{fid}/fields/create/{rootPage}', 'FieldController@create');
     Route::get('/projects/{pid}/forms/{fid}/fields/{flid}', 'FieldController@show');
@@ -255,7 +257,7 @@ Route::group(['middleware' => 'web'], function () {
 });
 
 Route::group(['middleware' => 'api'], function () {
-//api routes
+//api routes TODO::combine to one api?
     Route::get('/api/version', 'RestfulController@getKoraVersion');
     Route::get('/api/projects/{pid}/forms', 'RestfulController@getProjectForms');
     Route::post('/api/projects/{pid}/forms/create', 'RestfulController@createForm');

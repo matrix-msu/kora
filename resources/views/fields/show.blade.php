@@ -24,11 +24,9 @@
     @yield('presetModal')
 
     <section class="single-field center">
-        {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@update', $field->pid, $field->fid, $field->flid]]) !!}
+        {!! Form::model($field,  ['method' => 'PATCH', 'action' => ['FieldController@update', $field->pid, $field->fid, $field->flid], 'class' => 'edit-form']) !!}
         @include('partials.fields.options', ['field'=>$field])
         {!! Form::close() !!}
-
-        {{--TODO::@include('partials.option_preset')--}}
 
         @include('partials.fields.modals.fieldCleanupModal', ['field'=>$field])
     </section>
@@ -42,6 +40,7 @@
     @include('partials.fields.javascripts')
 
     <script type="text/javascript">
+        var validationUrl = "{{ action('FieldController@validateFieldFields', ["pid" => $field->pid, "fid" =>$field->fid, "flid" =>$field->flid]) }}";
         createFieldValuePresetURL = "{{action("OptionPresetController@createApi", ['pid'=>$field->pid])}}";
         CSRFToken = "{{csrf_token()}}";
 

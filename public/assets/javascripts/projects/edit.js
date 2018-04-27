@@ -42,7 +42,7 @@ Kora.Projects.Edit = function() {
       e.preventDefault();
 
       values = {};
-      $.each($('form').serializeArray(), function(i, field) {
+      $.each($('.edit-form').serializeArray(), function(i, field) {
         values[field.name] = field.value;
       });
 

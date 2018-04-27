@@ -306,9 +306,64 @@ Kora.Fields.Show = function() {
         //TODO::Allow application of presets for individual field types in a combo list
     }
 
+    function initializeValidation() {
+        $('form input.btn').on('click', function(e) {
+            var $this = $(this);
+
+            e.preventDefault();
+
+            values = {};
+            $.each($('.edit-form').serializeArray(), function(i, field) {
+                values[field.name] = field.value;
+            });
+
+            $.ajax({
+                url: validationUrl,
+                method: 'PATCH',
+                data: values,
+                success: function(data) {
+                    $('.edit-form').submit();
+                },
+                error: function(err) {
+                    $('.error-message').text('');
+                    $('.text-input, .text-area').removeClass('error');
+
+                    $.each(err.responseJSON, function(fieldName, errors) {
+                        var $field = $('#'+fieldName);
+                        $field.addClass('error');
+                        $field.siblings('.error-message').text(errors[0]);
+                    });
+                }
+            });
+        });
+
+        $('.text-input, .text-area').on('blur', function(e) {
+            var field = this.id;
+            var values = {};
+            values[field] = this.value;
+            values['_token'] = CSRFToken;
+
+            $.ajax({
+                url: validationUrl,
+                method: 'PATCH',
+                data: values,
+                error: function(err) {
+                    if (err.responseJSON[field] !== undefined) {
+                        $('#'+field).addClass('error');
+                        $('#'+field).siblings('.error-message').text(err.responseJSON[field][0]);
+                    } else {
+                        $('#'+field).removeClass('error');
+                        $('#'+field).siblings('.error-message').text('');
+                    }
+                }
+            });
+        });
+    }
+
     initializeCleanUpModals();
     initializeRegexPresetModals();
     initializeListPresetModals();
     initializeLocationPresetModals();
     initializeEventPresetModals();
+    initializeValidation();
 }

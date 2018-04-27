@@ -4,25 +4,19 @@
 
 <div class="form-group">
     {!! Form::label('name', 'Field Name') !!}
-    @if (array_key_exists("name", $errors->messages()))
-        <span class="error-message">{{$errors->messages()["name"][0]}}</span>
-    @endif
+    <span class="error-message">{{array_key_exists("name", $errors->messages()) ? $errors->messages()["name"][0] : ''}}</span>
     {!! Form::text('name', null, ['class' => 'text-input' . (array_key_exists("name", $errors->messages()) ? ' error' : ''), 'placeholder' => 'Enter the field name here', 'autofocus']) !!}
 </div>
 
 <div class="form-group mt-xl">
     {!! Form::label('slug', 'Unique Form Identifier') !!}
-    @if (array_key_exists("slug", $errors->messages()))
-        <span class="error-message">{{$errors->messages()["slug"][0]}}</span>
-    @endif
+    <span class="error-message">{{array_key_exists("slug", $errors->messages()) ? $errors->messages()["slug"][0] : ''}}</span>
     {!! Form::text('slug', null, ['class' => 'text-input' . (array_key_exists("slug", $errors->messages()) ? ' error' : ''), 'placeholder' => "Enter the field's unique ID here (no spaces, alpha-numeric values only)"]) !!}
 </div>
 
 <div class="form-group mt-xl">
     {!! Form::label('desc', 'Description') !!}
-    @if (array_key_exists("desc", $errors->messages()))
-        <span class="error-message">{{$errors->messages()["desc"][0]}}</span>
-    @endif
+    <span class="error-message">{{array_key_exists("desc", $errors->messages()) ? $errors->messages()["desc"][0] : ''}}</span>
     {!! Form::textarea('desc', null, ['class' => 'text-area' . (array_key_exists("desc", $errors->messages()) ? ' error' : ''), 'placeholder' => "Enter the field's description here (max. 255 characters)"]) !!}
 </div>
 

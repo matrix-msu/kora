@@ -34,7 +34,7 @@ Kora.Forms.Create = function() {
             e.preventDefault();
 
             values = {};
-            $.each($('form').serializeArray(), function(i, field) {
+            $.each($('.create-form').serializeArray(), function(i, field) {
                 values[field.name] = field.value;
             });
 
@@ -43,7 +43,7 @@ Kora.Forms.Create = function() {
                 method: 'POST',
                 data: values,
                 success: function(data) {
-                    $('form').submit();
+                    $('.create-form').submit();
                 },
                 error: function(err) {
                     $('.error-message').text('');
