@@ -189,6 +189,10 @@ class FormController extends Controller {
         return redirect('projects/'.$pid)->with('k3_global_success', 'form_deleted');
 	}
 
+    public function validateFormFields(FormRequest $request) {
+        return response()->json(["status"=>true, "message"=>"Form Valid", 200]);
+    }
+
     /**
      * Set the form to be used as a preset.
      *

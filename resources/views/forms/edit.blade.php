@@ -53,6 +53,9 @@
   @include('partials.forms.javascripts')
 
   <script type="text/javascript">
-    Kora.Forms.Edit();
+      var validationUrl = "{{ action('FormController@validateFormFields', ["pid" => $form->pid, "fid" =>$form->fid]) }}";
+      var csrfToken = "{{ csrf_token() }}";
+
+      Kora.Forms.Edit();
   </script>
 @stop

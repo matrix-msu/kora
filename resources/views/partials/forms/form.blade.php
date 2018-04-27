@@ -2,6 +2,7 @@
 
 <div class="form-group">
   {!! Form::label('name', 'Form Name') !!}
+    <span class="error-message">{{array_key_exists("name", $errors->messages()) ? $errors->messages()["name"][0] : ''}}</span>
   @if (array_key_exists("name", $errors->messages()))
     <span class="error-message">{{$errors->messages()["name"][0]}}</span>
   @endif
@@ -14,6 +15,7 @@
 
 <div class="form-group mt-xl">
   {!! Form::label('slug', 'Unique Form Identifier') !!}
+    <span class="error-message">{{array_key_exists("slug", $errors->messages()) ? $errors->messages()["slug"][0] : ''}}</span>
   @if (array_key_exists("slug", $errors->messages()))
     <span class="error-message">{{$errors->messages()["slug"][0]}}</span>
   @endif
@@ -22,6 +24,7 @@
 
 <div class="form-group mt-xl">
   {!! Form::label('description', 'Description') !!}
+    <span class="error-message">{{array_key_exists("description", $errors->messages()) ? $errors->messages()["description"][0] : ''}}</span>
   @if (array_key_exists("description", $errors->messages()))
     <span class="error-message">{{$errors->messages()["description"][0]}}</span>
   @endif

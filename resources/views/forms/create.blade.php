@@ -38,6 +38,9 @@
   @include('partials.forms.javascripts')
 
   <script type="text/javascript">
-    Kora.Forms.Create();
+      var validationUrl = "{{ url("projects/$project->pid/forms/validate") }}";
+      var csrfToken = "{{ csrf_token() }}";
+
+      Kora.Forms.Create();
   </script>
 @stop

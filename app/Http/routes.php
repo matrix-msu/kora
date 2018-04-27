@@ -83,6 +83,8 @@ Route::group(['middleware' => 'web'], function () {
 
 //form routes
     Route::get('/projects/{pid}/forms', 'ProjectController@show'); //alias for project/{id}
+    Route::post('projects/{pid}/forms/validate', 'FormController@validateFormFields');
+    Route::patch('projects/{pid}/forms/validate/{fid}', 'FormController@validateFormFields');
     Route::patch('/projects/{pid}/forms/{fid}', 'FormController@update');
     Route::get('/projects/{pid}/forms/create', 'FormController@create');
     Route::get('/projects/{pid}/forms/import', 'FormController@importFormView');
