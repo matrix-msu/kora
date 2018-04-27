@@ -505,7 +505,7 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
     $data["format"] = "KORA_OLD";
 
     $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $env["BASE_URL"]."api/1_5/search"); //TODO::should this get the api version from somewhere else?
+    curl_setopt($curl, CURLOPT_URL, $env["BASE_URL"]."api/search");
     if(!empty($userInfo)) {
         curl_setopt($curl, CURLOPT_USERPWD, $userInfo["user"].":".$userInfo["pass"]);
         curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);

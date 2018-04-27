@@ -25,7 +25,7 @@
  * @var string - Kora 3 API URL
  */
 
-$kora3ApiURL = "FILL_THIS"; //"http://www.myKora3Install.com/api/1_5/search"
+$kora3ApiURL = "FILL_THIS"; //"http://www.myKora3Install.com/api/search"
 
 class kora3ApiExternalTool {
 
