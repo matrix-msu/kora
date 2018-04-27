@@ -1,4 +1,7 @@
-<?php namespace App\FieldHelpers;
+<?php
+
+//NOTE: This version is used if you wish to use these functions in a site on a different server than your Kora 3 Installation.
+//      You will need to configure the SITE VARIABLES to use!
 
 //THIS TOOL IS PRIMARILY (see first class for exception) THE CONVERTER FUNCTION FOR USING OLD KORA 2 KORA_Search AND KORA_Clause FUNCTIONS
 //THIS WORKS IF YOU HAVE USED EITHER Exodus OR THE K2 Importer TOOLS TO MIGRATE YOUR KORA 2 DATA
@@ -16,6 +19,14 @@
 
 //This class has a bunch of functions that can help build the json required for a form to search with the API. NOTE: This
 //can be used separately from it's use in the koraSearch conversion.
+
+/**
+ * SITE VARIABLES - Fill these out to use remotely
+ * @var string - Kora 3 API URL
+ */
+
+$kora3ApiURL = "FILL_THIS"; //"http://www.myKora3Install.com/api/1_5/search"
+
 class kora3ApiExternalTool {
 
     /*
@@ -484,28 +495,12 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
 
     array_push($output,$fsArray);
 
-    //We need the url out of the env file
-    $env = array();
-    $handle = fopen(__DIR__.'/../../.env', "r");
-    if($handle) {
-        while(($line = fgets($handle)) !== false) {
-            if(!ctype_space($line)) {
-                $parts = explode("=", $line);
-                $env[trim($parts[0])] = trim($parts[1]);
-            }
-        }
-
-        fclose($handle);
-    } else {
-        return "Error processing environment file.";
-    }
-
     $data = array();
     $data["forms"] = json_encode($output);
     $data["format"] = "KORA_OLD";
 
     $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $env["BASE_URL"]."api/1_5/search"); //TODO::should this get the api version from somewhere else?
+    curl_setopt($curl, CURLOPT_URL, $GLOBALS['kora3ApiURL']);
     if(!empty($userInfo)) {
         curl_setopt($curl, CURLOPT_USERPWD, $userInfo["user"].":".$userInfo["pass"]);
         curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
