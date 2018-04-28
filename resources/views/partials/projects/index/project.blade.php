@@ -45,8 +45,8 @@
           {{
             implode(
               array_map(
-                create_function('$u', 'return $u->getFullNameAttribute();'),
-                $adminGroup->users()->get()->all()
+		
+                function ($u) { return $u->getFullNameAttribute();} , $adminGroup->users()->get()->all()
               ),
               ", "
             )
