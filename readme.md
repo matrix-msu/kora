@@ -4,7 +4,7 @@
 ### Installation
 Clone the repository:
     
-    git clone git@github.com:matrix-msu/Kora3.git
+    git clone https://github.com/matrix-msu/Kora3.git
 
 Temporarily give write access to the directory:
     
