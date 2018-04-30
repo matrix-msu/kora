@@ -2,8 +2,11 @@
 
 use App\Field;
 use App\Form;
+use App\ListField;
+use App\NumberField;
 use App\Record;
 use App\Search;
+use App\TextField;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -180,6 +183,7 @@ class RestfulController extends Controller {
 
         //now we actually do searches per form
         $resultsGlobal = [];
+        $filtersGlobal = [];
         $countArray = array();
         $countGlobal = 0;
         $minorErrors = array(); //Some errors we may not want to error out on
@@ -194,6 +198,8 @@ class RestfulController extends Controller {
             $filters['meta'] = isset($f->meta) ? $f->meta : false; //get meta data about record
             $filters['size'] = isset($f->size) ? $f->size : false; //do we want the number of records in the search result returned instead of data
             $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records
+            $filters['filters'] = isset($f->filters) ? $f->filters : false; //do we want information back about result filters [i.e. Field 'First Name', has value 'Tom', '12' times]
+                //Note: Filters only captures values from certain fields (mainly single value ones), see ExportController->exportWithRids() to see which ones use it
             $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for
             $filters['sort'] = isset($f->sort) ? $f->sort : null; //how should the data be sorted
             $filters['index'] = isset($f->index) ? $f->index : null; //where the array of results should start
@@ -217,6 +223,9 @@ class RestfulController extends Controller {
                     $countGlobal += sizeof($returnRIDS);
                     $countArray[$form->fid] = sizeof($returnRIDS);
                 }
+
+                if($filters['filters'])
+                    $filtersGlobal[$form->slug] = $this->getDataFilters($form->fid, $returnRIDS);
 
                 $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
             } else {
@@ -375,6 +384,9 @@ class RestfulController extends Controller {
                     $countArray[$form->fid] = sizeof($returnRIDS);
                 }
 
+                if($filters['filters'])
+                    $filtersGlobal[$form->slug] = $this->getDataFilters($form->fid, $returnRIDS);
+
                 $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
             }
         }
@@ -382,6 +394,7 @@ class RestfulController extends Controller {
         $countArray["global"] = $countGlobal;
         return [
             'counts' => $countArray,
+            'filters' => $filtersGlobal,
             'records' => $resultsGlobal,
             'warnings' => $minorErrors
         ];
@@ -759,6 +772,38 @@ class RestfulController extends Controller {
             $returnRIDS = $firstRIDS;
         }
         return array_flip(array_flip($returnRIDS));
+    }
+
+    /**
+     * Scan tables to build out filters list
+     *
+     * @param  array $fid - Form ID
+     * @return array - The array of filters
+     */
+    private function getDataFilters($fid, $rids) {
+        $filters = [];
+
+        $textOccurrences = TextField::selectRaw('`text`, flid, COUNT(*) as count')->where('fid','=',$fid)
+            ->whereIn('rid',$rids)->groupBy('text')->orderBy('count','desc')->get()->toArray();
+        $listOccurrences = ListField::selectRaw('`option`, flid, COUNT(*) as count')->where('fid','=',$fid)
+            ->whereIn('rid',$rids)->groupBy('option')->orderBy('count','desc')->get()->toArray();
+        $numberOccurrences = NumberField::selectRaw('`number`, flid, COUNT(*) as count')->where('fid','=',$fid)
+            ->whereIn('rid',$rids)->groupBy('number')->orderBy('count','desc')->get()->toArray();
+
+        foreach($textOccurrences as $occur) {
+            if($occur['count']>1)
+                $filters[] = $occur;
+        }
+        foreach($listOccurrences as $occur) {
+            if($occur['count']>1)
+                $filters[] = $occur;
+        }
+        foreach($numberOccurrences as $occur) {
+            if($occur['count']>1)
+                $filters[] = $occur;
+        }
+
+        return $filters;
     }
 
     /**
