@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Field;
 use App\RecordPreset;
 use App\Revision;
 use App\User;
@@ -74,6 +75,9 @@ class RecordController extends Controller {
 
         if(!self::checkPermissions($fid, 'ingest'))
             return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'cant_create_records');
+
+        if(Field::where('fid','=',$fid)->count() == 0)
+            return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'no_fields_record');
 
         $form = FormController::getForm($fid);
         $presets = array();

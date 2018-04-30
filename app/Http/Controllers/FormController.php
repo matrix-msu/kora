@@ -107,10 +107,11 @@ class FormController extends Controller {
         $form = self::getForm($fid);
         $proj = ProjectController::getProject($pid);
         $projName = $proj->name;
+        $hasFields = (Field::where('fid','=',$fid)->count() > 0);
 
         $pageLayout = PageController::getFormLayout($fid);
 
-        return view('forms.show', compact('form','projName','pageLayout'));
+        return view('forms.show', compact('form','projName','pageLayout','hasFields'));
 	}
 
     /**
