@@ -390,7 +390,7 @@ class UserController extends Controller {
         $default = new Project();
 
         $default->name = "ZZTest ".$user->username;
-        $slugUser = str_replace('.','_dot_',$user->username);
+        $slugUser = preg_replace('/[^A-Za-z0-9_]/', '_', $user->username);
         $default->slug = "ZZTest_".$slugUser;
         $default->description = "Test project for user, ".$user->username;
         $default->save();
