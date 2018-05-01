@@ -33,6 +33,7 @@
             <form method="GET" action="{{action('ProjectSearchController@keywordSearch',['pid' => $project->pid])}}" class="keyword-search-js">
                 <div class="form-group search-input mt-xl">
                     {!! Form::label('keywords','Search Via Keyword(s) or KID : ') !!}
+                    <span class="error-message"></span>
                     {!! Form::text('keywords', app('request')->input('keywords'), ['class' => 'text-input keywords-get-js', 'placeholder' => 'Type space separated keywords']) !!}
                 </div>
                 <div class="form-group search-input mt-xl">
@@ -42,6 +43,7 @@
 
                 <div class="form-group search-spacer mt-xl">
                     {!! Form::label('forms','Search and Select Form(s) to Filter Results') !!}
+                    <span class="error-message"></span>
                     {!! Form::select('forms[]',$forms, ( !is_null(app('request')->input('forms')) ? app('request')->input('forms') : "ALL" ), ['multiple',
                         'class' => 'multi-select forms-get-js', 'data-placeholder' => 'Select Form(s) to search']) !!}
                 </div>

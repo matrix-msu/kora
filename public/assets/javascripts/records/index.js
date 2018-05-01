@@ -104,12 +104,32 @@ Kora.Records.Index = function() {
         $('.submit-search-js').click(function(e) {
             e.preventDefault();
 
-            $('.keyword-search-js').submit();
+            keyVal = $('.keywords-get-js');
+            formVal = $('.forms-get-js');
+
+            if(keyVal.val()=='') {
+                keyVal.addClass('error');
+                keyVal.siblings('.error-message').text('Provide a keyword');
+            } else if(formVal.val()==null) {
+                formVal.siblings('.error-message').text('Select something to search through');
+            } else {
+                $('.keyword-search-js').submit();
+            }
         });
 
         $('.keywords-get-js').on('keyup', function(e) {
             if (e.which === 13) {
-                $('.keyword-search-js').submit();
+                keyVal = $('.keywords-get-js');
+                formVal = $('.forms-get-js');
+
+                if(keyVal.val()=='') {
+                    keyVal.addClass('error');
+                    keyVal.siblings('.error-message').text('Provide a keyword');
+                } else if(formVal.val()==null) {
+                    formVal.siblings('.error-message').text('Select something to search through');
+                } else {
+                    $('.keyword-search-js').submit();
+                }
             }
         });
 
@@ -380,6 +400,30 @@ Kora.Records.Index = function() {
         }
     }
 
+    function initializeSearchValidation() {
+        $('.keywords-get-js').on('blur', function(e) {
+            value = $(this).val();
+
+            if(value=='') {
+                $(this).addClass('error');
+                $(this).siblings('.error-message').text('Provide a keyword');
+            } else {
+                $(this).removeClass('error');
+                $(this).siblings('.error-message').text('');
+            }
+        });
+
+        $('.forms-get-js').on('chosen:hiding_dropdown', function(e) {
+            value = $(this).val();
+
+            if(value==null) {
+                $(this).siblings('.error-message').text('Select something to search through');
+            } else {
+                $(this).siblings('.error-message').text('');
+            }
+        });
+    }
+
     initializeSelectAddition();
     initializeOptionDropdowns();
     initializePaginationShortcut();
@@ -388,4 +432,5 @@ Kora.Records.Index = function() {
     initializeDeleteRecord();
     initializeTypedFieldDisplays();
     initializeScrollTo();
+    initializeSearchValidation();
 }
