@@ -452,7 +452,7 @@ Kora.Records.Create = function() {
 
             var pageNumber = $this.parent().children().index(this);
             var $pageLinks = $('.pagination .pages .page-link');
-            
+
             $pageLinks.removeClass('active');
             $($pageLinks.get(pageNumber)).addClass('active');
 
@@ -799,24 +799,6 @@ Kora.Records.Create = function() {
         });
     }
 
-    function initializeAlreadyRecordPreset() {
-        $('.already-preset-js').click(function (e) {
-            e.preventDefault();
-
-            var $modal = $('.already-record-preset-modal-js');
-
-            Kora.Modal.open($modal);
-        });
-
-        $('.gotchya-js').click(function (e) {
-            e.preventDefault();
-
-            var $modal = $('.already-record-preset-modal-js');
-
-            Kora.Modal.close($modal);
-        });
-    }
-
     initializeSelectAddition();
     initializeSpecialInputs();
     intializeAssociatorOptions();
@@ -828,5 +810,5 @@ Kora.Records.Create = function() {
     initializeRecordPresets();
     initializeDuplicateRecord();
     initializeNewRecordPreset();
-    initializeAlreadyRecordPreset();
+    Kora.Records.Modal();
 }

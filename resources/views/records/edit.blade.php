@@ -7,6 +7,11 @@
     @include('partials.menu.static', ['name' => 'Edit Record'])
 @stop
 
+@section('aside-content')
+  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+  @include('partials.sideMenu.record', ['pid' => $record->pid, 'fid' => $record->fid, 'rid' => $record->rid])
+@stop
+
 @section('stylesheets')
     <link rel="stylesheet" href="{{ config('app.url') }}assets/css/vendor/datetimepicker/jquery.datetimepicker.min.css" />
 @stop
@@ -32,7 +37,6 @@
 
 @section('body')
     @include("partials.fields.input-modals")
-    @include("partials.records.modals.alreadyRecordPresetModal")
 
     <section class="filters center">
         @if(!$record->isPreset())
@@ -70,7 +74,7 @@
         </div>
 
         @include('partials.records.form',['form' => $form, 'editRecord' => true])
-        
+
         @include('partials.records.pagination-form', ['layout' => \App\Http\Controllers\PageController::getFormLayout($form->fid)])
 
         <div class="form-group record-update-button mt-xxxl">

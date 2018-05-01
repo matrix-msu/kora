@@ -3,7 +3,14 @@
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $form->pid])
     @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+    @include('partials.menu.record', ['pid' => $record->pid, 'fid' => $record->fid, 'rid' => $record->rid])
     @include('partials.menu.static', ['name' => $record->kid])
+@stop
+
+
+@section('aside-content')
+  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+  @include('partials.sideMenu.record', ['pid' => $record->pid, 'fid' => $record->fid, 'rid' => $record->rid])
 @stop
 
 @section('stylesheets')
@@ -63,8 +70,6 @@
 @stop
 
 @section('body')
-    @include("partials.records.modals.designateRecordPresetModal")
-    @include("partials.records.modals.alreadyRecordPresetModal")
     @include("partials.records.modals.deleteRecordModal")
 
     <section class="view-record center">
