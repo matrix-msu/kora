@@ -11,6 +11,9 @@
 
 @section('aside-content')
   @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+  @if (isset($rid))
+      @include('partials.sideMenu.record', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $rid])
+  @endif
 @stop
 
 @section('header')
