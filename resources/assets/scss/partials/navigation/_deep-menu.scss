@@ -15,16 +15,22 @@
   width: 175px;
 
   .deep-menu-item {
+    width: 175px;
+
     a {
-      padding: 8px 20px 8px 20px !important;
+      display: block;
+      overflow: hidden;
+      padding: 8px 20px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     &:first-child a {
-      padding-top: 20px !important;
+      padding-top: 20px;
     }
 
     &:last-child a {
-      padding-bottom: 20px !important;
+      padding-bottom: 20px;
     }
   }
 
