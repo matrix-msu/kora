@@ -617,7 +617,7 @@ class ExportController extends Controller {
                 } else {
                     $dt = new \DateTime();
                     $format = $dt->format('Y_m_d_H_i_s');
-                    $path = config('app.base_path') . "storage/app/exports/export_$format.json";
+                    $path = config('app.base_path') . "storage/app/exports/record_export_$format.json";
 
                     file_put_contents($path, $records);
 
@@ -952,7 +952,7 @@ class ExportController extends Controller {
                 } else {
                     $dt = new \DateTime();
                     $format = $dt->format('Y_m_d_H_i_s');
-                    $path = config('app.base_path') . "storage/app/exports/export_$format.xml";
+                    $path = config('app.base_path') . "storage/app/exports/record_export_$format.xml";
 
                     file_put_contents($path, $records);
 
@@ -1095,7 +1095,7 @@ class ExportController extends Controller {
                 } else {
                     $dt = new \DateTime();
                     $format = $dt->format('Y_m_d_H_i_s');
-                    $path = config('app.base_path') . "storage/app/exports/export_$format.rdf";
+                    $path = config('app.base_path') . "storage/app/exports/record_export_$format.rdf";
 
                     file_put_contents($path, $records);
 
