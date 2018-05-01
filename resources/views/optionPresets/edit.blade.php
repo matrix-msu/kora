@@ -30,18 +30,19 @@
     @include('partials.optionPresets.deletePresetModal')
 
     <section class="option-preset-selection center">
-        <form method="POST" action="{{ action('OptionPresetController@edit', ['pid' => $project->pid, 'id' => $preset->id]) }}">
+        <form method="POST" action="{{ action('OptionPresetController@edit', ['pid' => $project->pid, 'id' => $preset->id]) }}" class="preset-form">
             <input type="hidden" name="_token" value="{{csrf_token()}}">
 
             <div class="form-group mt-xl">
                 {!! Form::label('name', 'Field Value Preset Name') !!}
+                <span class="error-message">{{array_key_exists("name", $errors->messages()) ? $errors->messages()["name"][0] : ''}}</span>
                 {!! Form::text('name', $preset->name, ['class' => 'text-input', 'placeholder' => "Enter the name for the new field value preset here"]) !!}
             </div>
 
             @if($preset->type == 'Text')
                 <div class="form-group mt-xl">
                     <label>Regex: </label>
-
+                    <span class="error-message">{{array_key_exists("preset", $errors->messages()) ? $errors->messages()["preset"][0] : ''}}</span>
                     {!! Form::text('preset', $preset->preset, ['class' => 'text-input', 'placeholder' => 'Enter text value']) !!}
                 </div>
             @elseif($preset->type == 'List')
@@ -54,7 +55,7 @@
                 ?>
                 <div class="form-group mt-xl">
                     <label>List Options: </label>
-
+                    <span class="error-message">{{array_key_exists("preset", $errors->messages()) ? $errors->messages()["preset"][0] : ''}}</span>
                     {!! Form::select('preset[]', $valuesArray, $values, ['class' => 'multi-select modify-select',
                         'multiple', 'data-placeholder' => "Enter list value and press enter to submit"]) !!}
                 </div>
@@ -68,7 +69,7 @@
                     ?>
                 <div class="form-group mt-xl">
                     <label>Locations: </label>
-
+                    <span class="error-message">{{array_key_exists("preset", $errors->messages()) ? $errors->messages()["preset"][0] : ''}}</span>
                     {!! Form::select('preset[]', $valuesArray, $values, ['class' => 'multi-select schedule-event-js',
                         'multiple', 'data-placeholder' => "Add Events Below"]) !!}
                 </div>
@@ -86,6 +87,7 @@
                 ?>
                 <div class="form-group mt-xl">
                     <label>Events: </label>
+                    <span class="error-message">{{array_key_exists("preset", $errors->messages()) ? $errors->messages()["preset"][0] : ''}}</span>
                     {!! Form::select('preset[]', $valuesArray, $values, ['class' => 'multi-select geolocator-location-js',
                         'multiple', 'data-placeholder' => "Add Locations Below"]) !!}
                 </div>
@@ -130,6 +132,7 @@
         var geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $project->pid, 'fid' => 0, 'flid' => 0]) }}';
         var deletePresetURL = '{{ action('OptionPresetController@delete', ['pid' => $project->pid])}}';
         var deleteRedirect = '{{ action('OptionPresetController@index', ['pid' => $project->pid])}}';
+        var validationUrl = "{{ action('OptionPresetController@validatePresetFormFields',['pid' => $project->pid]) }}";
         Kora.OptionPresets.Create();
     </script>
 @stop

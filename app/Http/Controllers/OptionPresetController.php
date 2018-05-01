@@ -227,6 +227,14 @@ class OptionPresetController extends Controller {
         }
     }
 
+    public function validatePresetFormFields($pid, Request $request) {
+        $this->validate($request, [
+            'preset' => 'required',
+            'name' => 'required'
+        ]);
+        return response()->json(["status"=>true, "message"=>"Form Valid", 200]);
+    }
+
     /**
      * Gets a list of all presets for a project.
      *

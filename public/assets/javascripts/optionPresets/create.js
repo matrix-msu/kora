@@ -293,10 +293,65 @@ Kora.OptionPresets.Create = function() {
         });
     }
 
+    function initializeValidation() {
+        $('form input.btn').on('click', function(e) {
+            var $this = $(this);
+
+            e.preventDefault();
+
+            values = {};
+            $.each($('.preset-form').serializeArray(), function(i, field) {
+                values[field.name] = field.value;
+            });
+
+            $.ajax({
+                url: validationUrl,
+                method: 'POST',
+                data: values,
+                success: function(data) {
+                    $('.preset-form').submit();
+                },
+                error: function(err) {
+                    $('.error-message').text('');
+                    $('.text-input, .text-area').removeClass('error');
+
+                    $.each(err.responseJSON, function(fieldName, errors) {
+                        var $field = $('input[name="'+fieldName+'"]');
+                        $field.addClass('error');
+                        $field.siblings('.error-message').text(errors[0]);
+                    });
+                }
+            });
+        });
+
+        $('.text-input, .text-area').on('blur', function(e) {
+            var field = this.id;
+            var values = {};
+            values[field] = this.value;
+            values['_token'] = CSRFToken;
+
+            $.ajax({
+                url: validationUrl,
+                method: 'POST',
+                data: values,
+                error: function(err) {
+                    if (err.responseJSON[field] !== undefined) {
+                        $('input[name="'+field+'"]').addClass('error');
+                        $('input[name="'+field+'"]').siblings('.error-message').text(err.responseJSON[field][0]);
+                    } else {
+                        $('input[name="'+field+'"]').removeClass('error');
+                        $('input[name="'+field+'"]').siblings('.error-message').text('');
+                    }
+                }
+            });
+        });
+    }
+
     initializeSelectAddition();
     initializeOptionPresetSwitcher();
     initializeSpecialInputs();
     initializeScheduleOptions();
     intializeGeolocatorOptions();
     initializeDeletePresetModal();
+    initializeValidation();
 }

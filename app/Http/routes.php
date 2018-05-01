@@ -144,6 +144,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/projects/{pid}/presets/create', 'OptionPresetController@newPreset');
     Route::post('/projects/{pid}/presets/create', 'OptionPresetController@create');
     Route::post('/projects/{pid}/presets/createApi', 'OptionPresetController@createApi');
+    Route::post('projects/{pid}/presets/validate', 'OptionPresetController@validatePresetFormFields');
     Route::delete('/projects/{pid}/presets/delete', 'OptionPresetController@delete');
     Route::get('/projects/{pid}/presets/{id}/edit', 'OptionPresetController@edit');
     Route::post('/projects/{pid}/presets/{id}/edit', 'OptionPresetController@update');
