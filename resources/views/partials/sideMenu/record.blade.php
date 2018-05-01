@@ -1,5 +1,5 @@
 <div class="drawer-element drawer-element-js">
-    <a href="#" class="drawer-element drawer-element-js">
+    <a href="#" class="drawer-toggle drawer-toggle-js">
         <i class="icon icon-record"></i>
         <span>{{ $pid . '-' . $fid . '-' . $rid }}</span>
         <i class="icon icon-chevron"></i>
