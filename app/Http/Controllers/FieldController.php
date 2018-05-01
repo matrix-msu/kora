@@ -57,13 +57,12 @@ class FieldController extends Controller {
      * @return Redirect
      */
 	public function store(FieldRequest $request) {
+	    //special error check for combo list field
+        if($request->type=='Combo List' && ($request->cfname1 == '' | $request->cfname2 == ''))
+            return redirect()->back()->withInput()->with('k3_global_error', 'combo_name_missing');
+
         $seq = PageController::getNewPageFieldSequence($request->page_id); //we do this before anything so the new field isnt counted in it's logic
         $field = Field::Create($request->all());
-
-        //special error check for combo list field
-        if($field->type=='Combo List' && ($request->cfname1 == '' | $request->cfname2 == '')) {
-            return redirect()->back()->withInput()->with('k3_global_error', 'combo_name_missing');
-        }
 
         $field->options = $field->getTypedField()->getDefaultOptions($request);
         $field->default = '';
