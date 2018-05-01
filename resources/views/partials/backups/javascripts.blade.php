@@ -5,6 +5,7 @@
   '/assets/javascripts/general/modal.js',
   '/assets/javascripts/backups/index.js',
   '/assets/javascripts/backups/backup.js',
+  '/assets/javascripts/backups/restore.js',
   '/assets/javascripts/navigation/navigation.js',
   '/assets/javascripts/general/global.js'
 ])->withFullUrl() !!}

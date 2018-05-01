@@ -45,8 +45,8 @@
           {{
             implode(
               array_map(
-                create_function('$u', 'return $u->getFullNameAttribute();'),
-                $adminGroup->users()->get()->all()
+		
+                function ($u) { return $u->getFullNameAttribute();} , $adminGroup->users()->get()->all()
               ),
               ", "
             )
@@ -86,7 +86,7 @@
       </div>
     @else
       <div class="footer">
-        <a class="quick-action underline-middle-hover" href="#">
+        <a class="quick-action underline-middle-hover unarchive-js" href="#">
           <i class="icon icon-edit-little"></i>
           <span>Unarchive</span>
         </a>

@@ -26,6 +26,7 @@
 
 @section('body')
     @include("partials.backups.createBackupModal")
+    @include("partials.backups.deleteBackupModal")
 
     <section class="backups-section">
         <section class="filters center">
@@ -74,22 +75,40 @@
                     </div>
 
                     <div class="content {{ $index == 0 ? 'active' : '' }}">
+                        <div class="id">
+                            <span class="attribute">Data Backup: </span>
+                            @if($backup["data"])
+                                <span>True</span>
+                            @else
+                                <span>False</span>
+                            @endif
+                        </div>
+
+                        <div class="id">
+                            <span class="attribute">File Backup: </span>
+                            @if($backup["files"])
+                                <span>True</span>
+                            @else
+                                <span>False</span>
+                            @endif
+                        </div>
+
                         <div class="footer">
-                            <a class="quick-action trash-container left danger" href="#">
+                            <a class="quick-action trash-container left danger delete-backup-open-js" href="#" backup-label="{{$backup["label"]}}">
                                 <i class="icon icon-trash"></i>
                             </a>
-
-                            {{--href="{{action('OptionPresetController@edit',['pid'=>$project->pid,'id'=>$preset->id])}}--}}
-
-                            <a class="quick-action underline-middle-hover" href="#">
+                            <a class="quick-action underline-middle-hover" href="{{action("BackupController@download",['path'=>$backup["label"]])}}">
                                 <i class="icon icon-download"></i>
                                 <span>Download Backup File</span>
                             </a>
-
-                            <a class="quick-action underline-middle-hover" href="#">
-                                <i class="icon icon-backup"></i>
-                                <span>Restore To This Backup</span>
-                            </a>
+                            {!! Form::open(['url' => action('BackupController@startRestore'), 'class' => 'restore-form restore-form-js']) !!}
+                                <input type="hidden" name="label" value="{{ $backup["label"] }}">
+                                <input type="hidden" name="source" value="server">
+                                <a class="quick-action underline-middle-hover restore-backup-js" href="#">
+                                    <i class="icon icon-backup-little"></i>
+                                    <span>Restore To This Backup</span>
+                                </a>
+                            {!! Form::close() !!}
                         </div>
                     </div>
                 </div>
@@ -113,43 +132,4 @@
         Kora.Backups.Index();
     </script>
 @stop
-
-@section('footer')
-    <script>
-        {{--function deleteRestore(){--}}
-
-            {{--var encode = $("<div/>").html("{{ trans('backups_index.areyousure') }}").text();--}}
-            {{--if(!confirm(encode + "!")){--}}
-                {{--return false;--}}
-            {{--}--}}
-
-            {{--encode = $("<div/>").html("{{ trans('backups_index.ifyouplan') }}").text();--}}
-            {{--if(!confirm(encode + " storage/app/backup/files/backup_file_name/ ")){--}}
-                {{--return false;--}}
-            {{--}--}}
-
-            {{--var deleteURL = deleteBackupUrl;--}}
-            {{--var filename = $("#restore_point").val();--}}
-            {{--$.ajax({--}}
-                {{--url:deleteURL,--}}
-                {{--method:'POST',--}}
-                {{--data: {--}}
-                    {{--"_token": CSRFToken,--}}
-                    {{--"backup_source": "server",--}}
-                    {{--"backup_type": "system",--}}
-                    {{--"filename": filename--}}
-                {{--},--}}
-                {{--success: function(data){--}}
-
-                {{--},--}}
-                {{--error: function(data){--}}
-                    {{--if(data.status == 422){--}}
-                        {{--var encode = $('<div/>').html("{{ trans('backups_index.noselect') }}").text();--}}
-                        {{--alert(encode);--}}
-                    {{--}--}}
-                   {{--//location.reload();--}}
-                {{--}--}}
-            {{--});--}}
-    </script>
-@endsection
 

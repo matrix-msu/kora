@@ -64,6 +64,8 @@
             
             @include('partials.records.form',['form' => $form, 'editRecord' => false])
 
+            @include('partials.records.pagination-form', ['layout' => \App\Http\Controllers\PageController::getFormLayout($form->fid)])
+
             <div class="form-group mt-xxxl">
                 <div class="spacer"></div>
             </div>

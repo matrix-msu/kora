@@ -24,7 +24,7 @@
 
 @section('body')
   <section class="create-form center">
-    {!! Form::model($form = new \App\Form, ['url' => 'projects/'.$project->pid]) !!}
+    {!! Form::model($form = new \App\Form, ['url' => 'projects/'.$project->pid, 'class' => 'create-form']) !!}
         @include('partials.forms.form',['submitButtonText' => 'Create Form','pid' => $project->pid, 'type' => 'create'])
     {!! Form::close() !!}
   </section>
@@ -38,6 +38,9 @@
   @include('partials.forms.javascripts')
 
   <script type="text/javascript">
-    Kora.Forms.Create();
+      var validationUrl = "{{ url("projects/$project->pid/forms/validate") }}";
+      var csrfToken = "{{ csrf_token() }}";
+
+      Kora.Forms.Create();
   </script>
 @stop

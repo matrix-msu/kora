@@ -107,10 +107,11 @@ class FormController extends Controller {
         $form = self::getForm($fid);
         $proj = ProjectController::getProject($pid);
         $projName = $proj->name;
+        $hasFields = (Field::where('fid','=',$fid)->count() > 0);
 
         $pageLayout = PageController::getFormLayout($fid);
 
-        return view('forms.show', compact('form','projName','pageLayout'));
+        return view('forms.show', compact('form','projName','pageLayout','hasFields'));
 	}
 
     /**
@@ -188,6 +189,10 @@ class FormController extends Controller {
 
         return redirect('projects/'.$pid)->with('k3_global_success', 'form_deleted');
 	}
+
+    public function validateFormFields(FormRequest $request) {
+        return response()->json(["status"=>true, "message"=>"Form Valid", 200]);
+    }
 
     /**
      * Set the form to be used as a preset.

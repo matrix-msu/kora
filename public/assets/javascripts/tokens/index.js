@@ -7,7 +7,6 @@ Kora.Tokens.Index = function() {
     }
 
     function initializeSearch() {
-        //TODO:: Make search work...
         var $searchInput = $('.search-js input');
 
         $('.search-js i, .search-js input').click(function(e) {
@@ -38,6 +37,28 @@ Kora.Tokens.Index = function() {
 
         $('.search-js .icon-cancel-js').click(function() {
             $searchInput.val('').blur().parent().removeClass('active');
+            var activeSection = $('.option.active').first().attr('href').substring(1);
+
+            $('.token.card').each(function() {
+                if($(this).hasClass(activeSection))
+                    $(this).removeClass('hidden');
+            });
+        });
+
+        $('.search-js i, .search-js input').keyup(function() {
+            var searchVal = $(this).val().toLowerCase();
+            var activeSection = $('.option.active').first().attr('href').substring(1);
+
+            $('.token.card').each(function() {
+                if($(this).hasClass(activeSection)) {
+                    var name = $(this).find('.name').first().text().toLowerCase();
+
+                    if (name.includes(searchVal))
+                        $(this).removeClass('hidden');
+                    else
+                        $(this).addClass('hidden');
+                }
+            });
         });
     }
 

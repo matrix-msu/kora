@@ -58,10 +58,10 @@ class FormRequest extends Request {
      */
     public function messages() {
         return [
-            'slug.required' => "The reference name field is required.",
-            'slug.alpha_dash' => "The reference name may only contain letters, numbers, underscores, and hyphens.",
-            'slug.min' => "The reference name must be at least 3 characters.",
-            'slug.unique' => "The reference name already exists. Please try another one."
+            'slug.required' => "The unique ID field is required.",
+            'slug.alpha_dash' => "The unique ID may only contain letters, numbers, underscores, and hyphens.",
+            'slug.min' => "The unique ID must be at least 3 characters.",
+            'slug.unique' => "The unique ID already exists. Please try another one."
         ];
     }
 

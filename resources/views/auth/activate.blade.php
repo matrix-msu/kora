@@ -49,7 +49,7 @@
 
       <section>
         <h2 class="mt-0 mb-xl">Requesting another email doesn't work?</h2>
-        <p>Contact the installation admin at <a class="text underline-middle-hover" href="mailto:anthonyDonofrio@gmail.com">anthonyDonofrio@gmail.com</a></p>
+        <p>Contact the installation admin at <a class="text underline-middle-hover" href="mailto:FIXME">FIXME</a></p>
       </section>
     </div>
   </div>

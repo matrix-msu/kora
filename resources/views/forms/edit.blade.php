@@ -25,7 +25,7 @@
 
 @section('body')
   <section class="edit-form center">
-    {!! Form::model($form,  ['method' => 'PATCH', 'action' => ['FormController@update',$form->pid, $form->fid]]) !!}
+    {!! Form::model($form,  ['method' => 'PATCH', 'action' => ['FormController@update',$form->pid, $form->fid], 'class' => 'edit-form']) !!}
     @include('partials.forms.form',['submitButtonText' => 'Update Form', 'pid' => $form->pid, 'type' => 'edit'])
     {!! Form::close() !!}
 
@@ -53,6 +53,9 @@
   @include('partials.forms.javascripts')
 
   <script type="text/javascript">
-    Kora.Forms.Edit();
+      var validationUrl = "{{ action('FormController@validateFormFields', ["pid" => $form->pid, "fid" =>$form->fid]) }}";
+      var csrfToken = "{{ csrf_token() }}";
+
+      Kora.Forms.Edit();
   </script>
 @stop

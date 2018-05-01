@@ -6,16 +6,19 @@
 
 <div class="form-group">
     {!! Form::label('name', 'Field Name') !!}
+    <span class="error-message">{{array_key_exists("name", $errors->messages()) ? $errors->messages()["name"][0] : ''}}</span>
     {!! Form::text('name', $field->name, ['class' => 'text-input', 'placeholder' => 'Enter the field name here', 'autofocus']) !!}
 </div>
 
 <div class="form-group mt-xl">
     {!! Form::label('slug', 'Unique Form Identifier') !!}
+    <span class="error-message">{{array_key_exists("slug", $errors->messages()) ? $errors->messages()["slug"][0] : ''}}</span>
     {!! Form::text('slug', $field->slug, ['class' => 'text-input', 'placeholder' => "Enter the field's unique ID here (no spaces, alpha-numeric values only)"]) !!}
 </div>
 
 <div class="form-group mt-xl">
     {!! Form::label('desc', 'Description') !!}
+    <span class="error-message">{{array_key_exists("desc", $errors->messages()) ? $errors->messages()["desc"][0] : ''}}</span>
     {!! Form::textarea('desc', $field->desc, ['class' => 'text-area', 'placeholder' => "Enter the field's description here (max. 255 characters)"]) !!}
 
     <div class="spacer"></div>

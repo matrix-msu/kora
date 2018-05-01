@@ -57,13 +57,12 @@ class FieldController extends Controller {
      * @return Redirect
      */
 	public function store(FieldRequest $request) {
+	    //special error check for combo list field
+        if($request->type=='Combo List' && ($request->cfname1 == '' | $request->cfname2 == ''))
+            return redirect()->back()->withInput()->with('k3_global_error', 'combo_name_missing');
+
         $seq = PageController::getNewPageFieldSequence($request->page_id); //we do this before anything so the new field isnt counted in it's logic
         $field = Field::Create($request->all());
-
-        //special error check for combo list field
-        if($field->type=='Combo List' && ($request->cfname1 == '' | $request->cfname2 == '')) {
-            return redirect()->back()->withInput()->with('k3_global_error', 'combo_name_missing');
-        }
 
         $field->options = $field->getTypedField()->getDefaultOptions($request);
         $field->default = '';
@@ -193,7 +192,7 @@ class FieldController extends Controller {
      * @param  FieldRequest $request
      * @return Redirect
      */
-    public function update($pid, $fid, $flid, FieldRequest $request){
+    public function update($pid, $fid, $flid, FieldRequest $request) {
         if(!self::validProjFormField($pid, $fid, $flid))
             return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'field_invalid');
 
@@ -290,6 +289,10 @@ class FieldController extends Controller {
         else
             return response()->json(["status"=>true, "message"=>"deleted"], 200);
 	}
+
+    public function validateFieldFields(FieldRequest $request) {
+        return response()->json(["status"=>true, "message"=>"Form Valid", 200]);
+    }
 
     /**
      * Get a field from the database with either the flid or the slug.

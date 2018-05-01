@@ -108,8 +108,8 @@ class FormGroup extends Model {
 
         if(!is_null($request) && !is_null($request->admins))
             $idArray = array_unique(array_merge($request->admins, $idArray));
-        else
-            $idArray = array_unique(array_merge(array(\Auth::user()->id), $idArray));
+
+        $idArray = array_unique(array_merge(array(\Auth::user()->id), $idArray));
 
         if(!empty($idArray)) {
             $adminGroup->users()->attach($idArray);

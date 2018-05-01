@@ -103,7 +103,7 @@ class InstallController extends Controller {
             fclose($envfile);
             chmod("../.env",0660);
             Log::info("Generating App Key");
-            $shellRes = shell_exec('cd .. && php artisan key:generate');
+            $shellRes = shell_exec('cd .. && '.PHP_BINDIR.'/php artisan key:generate');
             Log::info($shellRes);
             Log::info("Ending ENV Write ");
         } catch(\Exception $e) { //Most likely if the file is owned by another user or PHP doesn't have permission
@@ -152,7 +152,7 @@ class InstallController extends Controller {
         //Install database tables
         try {
             Log::info("Beginning Artisan Migrate");
-            $shellRes = shell_exec('cd .. && php artisan migrate --force');
+            $shellRes = shell_exec('cd .. && '.PHP_BINDIR.'/php artisan migrate --force');
             Log::info($shellRes);
             Log::info("Ending Artisan Migrate");
         } catch(\Exception $e) {

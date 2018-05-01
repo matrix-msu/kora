@@ -1,179 +1,65 @@
-@extends('app')
+@extends('app', ['page_title' => "Restoring Kora", 'page_class' => 'restore-start'])
 
-@section('content')
-    <div class="container">
-        <div class="row">
-            <div class="col-md-10 col-md-offset-1">
+@section('leftNavLinks')
+    @include('partials.menu.static', ['name' => 'Restoring Kora'])
+@stop
 
-                @if (count($errors) > 0)
-                    <div class="alert alert-danger">
-                        <strong>{{trans('backups_restore.whoops')}}!</strong> {{trans('backups_restore.makesure')}}<br>
-                        <ul>
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-
-                <div style="display:none" id="user_lockout_notice" class="alert alert-danger" role="alert">
-                    <strong>{{trans('backups_restore.userslocked')}}.</strong> <a id="link_unlock_users" href="#" class="alert-link">{{trans('backups_restore.unlockusers')}}</a>
-                </div>
-
-                <form method="get" action={{action("BackupController@restoreData")}}>
-                    <input type="hidden" name="_token" value="{{csrf_token()}}">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            {{trans('backups_restore.restore')}}
-                        </div>
-
-                        <div class="panel-body">
-                            <div style="" id="summary">
-                                <p>
-                                    {{trans('backups_restore.restorenotes')}}.
-                                </p>
-                                <div class="progress">
-                                    <div id="progress" class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
-                                        <span class="sr-only">{{trans('backups_restore.almostdone')}}</span>
-                                    </div>
-                                </div>
-                                <div id="type_message">
-                                    Restoring the database...
-                                </div>
-                            </div>
-                            <div style="display:none" id="summary_done">
-                                <p>
-                                    {{trans('backups_restore.success')}}.
-                                </p>
-                            </div>
-                            <div style="display:none" id="error_info">
-                                <p id="error_message">
-                                    {{trans('backups_restore.restoreerror')}}.
-                                </p>
-                                  <ul style="display:none" id="error_list" class="list-group">
-                                      <li class="list-group-item">
-                                          <span id="error_count" class="badge">{{trans('backups_restore.unknown')}}</span>
-                                          <strong class="list-group-item-heading">{{trans('backups_restore.errors')}}</strong>
-                                      </li>
-                                  </ul>
-                            </div>
-                        </div>
-                    </div>
-                </form>
+@section('header')
+    <section class="head">
+        <div class="inner-wrap center">
+            <h1 class="title">
+                <i class="icon icon-backup rotate-icon stop-rotation-js"></i>
+                <span class="success-title-js">Restore in Progress</span>
+            </h1>
+            <div class="restore-toolbar">
+                <span class="bold">Restore Name:</span>
+                <?php
+                    $parts = explode('___',$filename);
+                    $carbon = new \Carbon\Carbon($parts[1]);
+                    $n = $parts[0];
+                    $d = $carbon->subDay()->format('m.d.Y');
+                    $t = $carbon->format('g:i A');
+                ?>
+                <span>{{$n}}</span><span class="time">{{$d}}</span><span class="time">{{$t}}</span>
             </div>
+            <p class="description success-desc-js">The restore has started, depending on the size of your database, it may take several
+                minutes to complete. Do not leave this page or close your browser until completion. When the restore is
+                complete, you can see a summary of all the data that was saved. </p>
         </div>
-    </div>
-@endsection
+    </section>
+@stop
+
+@section('body')
+    <section class="restore-progress">
+        <div class="form-group">
+            <div class="progress-bar-custom">
+                <span class="progress-bar-filler progress-fill-js"></span>
+            </div>
+
+            <p class="progress-bar-text progress-text-js">Restoring the things… shuffle shuffle shuffle </p>
+        </div>
+    </section>
+
+    <section class="restore-finish hidden">
+        <div class="large-size-warning">
+            Your Kora 3 Installation has been restored!
+        </div>
+    </section>
+@stop
 
 @section('footer')
-    <script>
-        function restore(){
-            window.onbeforeunload = function() {
-                return "{{trans('backups_restore.dontleave')}}!";
-            }
-            @if($type == 'system')
-                var restoreURL ="{{action('BackupController@restoreData')}}";
-            @endif
-            $.ajax({
-                url:restoreURL,
-                method:'POST',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    filename: "{{$filename}}"
-                },
-                success: function(data){
-                    console.log(data);
-                    $("#progress").css("display","none");
-                    $("#summary").css("display","inline");
-                    console.log("done");
-                    window.onbeforeunload = null;
-                },
-                error: function(data){
-                    $("#progress").fadeOut();
-                    $("#summary").fadeOut();
-                    $("#user_lockout_notice").fadeIn(1000);
-                    $("#error_info").fadeIn(1000);
-                    $("#error_message").text(data.responseJSON.message);
-                    if(data.responseJSON.error_list.length >0){
-                        $("#error_list").fadeIn(1000);
-                    }
+    @include('partials.backups.javascripts')
 
-                    for(var i=0; i<data.responseJSON.error_list.length; i++) {
-                        $("#error_list").append("<li class='list-group-item small'> <span class='glyphicon glyphicon-chevron-right'></span>"+data.responseJSON.error_list[i]+"</li>");
-                    }
-                    $("#error_count").text(data.responseJSON.error_list.length);
-                    window.onbeforeunload = null;
-                }
-            });
-        }
+    <script type="text/javascript">
+        var startRestoreUrl = '{{action('BackupController@restoreData')}}';
+        var checkProgressUrl = '{{action('BackupController@checkRestoreProgress')}}';
+        var finishRestoreUrl = '{{action('BackupController@finishRestore')}}';
+        var unlockUsersUrl = '{{action('BackupController@unlockUsers')}}';
 
-        function checkProgress(){
-            $.ajax({
-                url:"{{action('BackupController@checkRestoreProgress',compact('backup_id'))}}",
-                method:'GET',
-                data:{
-                    "_token":"{{csrf_token()}}",
-                    filename: "{{$filename}}"
-                },
-                success: function(data) {
-                    console.log(data);
-                    $("#progress").removeClass('progress-bar-danger');
-                    $("#progress").css('width', (((data.overall.progress / (data.overall.overall+ +1)) * 100) + "%"));
-                    if (data.overall.progress == data.overall.overall) {
-                        $('#type_message').text('Restoring your files. This may take a while...');
-                        $.ajax({
-                            url: "{{action('BackupController@finishRestore')}}",
-                            method:'POST',
-                            data: {
-                                "_token": "{{ csrf_token() }}",
-                                filename: "{{$filename}}"
-                            },
-                            success: function(data){
-                                $('#summary').slideUp();
-                                $('#summary_done').slideDown();
-                            }
-                        });
-                    } else {
-                        setTimeout(function () {
-                            checkProgress();
-                        }, 5000);
-                    }
-                },
-                error: function(data){
-                    console.log("error checking progress!");
-                    $("#progress").addClass('progress-bar-danger');
-                    setTimeout(function () {
-                        checkProgress();
-                    },5000);
-                }
-            });
-        }
+        var restoreLabel = '{{ $filename }}';
+        var CSRFToken = '{{ csrf_token() }}';
 
-        $("#link_unlock_users").click(function(){
-            var unlockURL = "{{action('BackupController@unlockUsers')}}";
-            $.ajax({
-                url:unlockURL,
-                method:'POST',
-                data: {
-                    "_token": "{{ csrf_token() }}"
-                },
-                success: function(data){
-                    //alert("Users are now able to access Kora 3");
-                    $("#user_lockout_notice").removeClass("alert-danger").addClass("alert-success");
-                    $("#user_lockout_notice").text("Success- users unlocked");
-                    $("#user_lockout_notice").fadeOut(1000);
-                },
-                error: function(data){
-                    var encode = $('<div/>').html("{{ trans('backups_restore.unablerestore') }}").text();
-                    alert(encode + ".");
-                }
-            })
-        });
-
-        $(restore);
-        setTimeout(function(){
-            checkProgress();
-        },15000);
+        Kora.Backups.Restore();
     </script>
-@endsection
+@stop
 

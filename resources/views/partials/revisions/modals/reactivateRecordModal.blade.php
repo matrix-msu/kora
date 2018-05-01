@@ -1,3 +1,4 @@
+<?php $url = action('RevisionController@rollback'); ?>
 <div class="modal modal-js modal-mask reactivate-record-modal-js">
     <div class="content">
         <div class="header">
@@ -12,7 +13,7 @@
                 Don't worry, you can always restore them back to their current state as well.
             </p>
             <div class="form-group mt-xxl">
-                <a href="#" class="btn change-preset-name-js">Re-Activate Record</a>
+                <a href="{{$url}}" class="btn reactivate-record-button-js">Re-Activate Record</a>
             </div>
         </div>
     </div>

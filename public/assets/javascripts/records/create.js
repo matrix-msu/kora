@@ -450,6 +450,24 @@ Kora.Records.Create = function() {
             $this.addClass('active');
             $this.siblings().removeClass('active');
 
+            var pageNumber = $this.parent().children().index(this);
+            var $pageLinks = $('.pagination .pages .page-link');
+            
+            $pageLinks.removeClass('active');
+            $($pageLinks.get(pageNumber)).addClass('active');
+
+            if (pageNumber === 0) {
+                $('.previous.page').addClass('disabled');
+            } else {
+                $('.previous.page').removeClass('disabled');
+            }
+
+            if (pageNumber === $pageLinks.length - 1) {
+                $('.next.page').addClass('disabled');
+            } else {
+                $('.next.page').removeClass('disabled');
+            }
+
             $active = $this.attr("href");
             $('.page-section-js').each(function() {
                 if($(this).attr('id') == $active)
@@ -458,6 +476,25 @@ Kora.Records.Create = function() {
                     $(this).addClass('hidden');
             });
         });
+
+        $('.page-link').click(function(e) {
+            e.preventDefault();
+
+            var pageNumber = $(this).text() - 1;
+            $('.toggle-by-name').get(pageNumber).click();
+        });
+
+        $('.pagination .page').click(function(e) {
+            e.preventDefault();
+
+            var pageNumber = $('.pagination .pages .page-link.active').index();
+
+            if ($(this).hasClass('next')) {
+                $('.toggle-by-name').get(pageNumber + 1).click();
+            } else if ($(this).hasClass('previous')) {
+                $('.toggle-by-name').get(pageNumber - 1).click();
+            }
+        })
     }
 
     function initializeRecordPresets() {

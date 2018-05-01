@@ -602,3 +602,9 @@ i {
     content: $icon-more;
   }
 }
+
+.icon-backup-little {
+  &:before {
+    content: $icon-backup-little;
+  }
+}

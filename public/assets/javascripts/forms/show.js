@@ -35,9 +35,26 @@ Kora.Forms.Show = function() {
       }
     });
 
-    $('.search-js .icon-cancel-js').click(function() {
-      $searchInput.val('').blur().parent().removeClass('active');
-    });
+      $('.search-js .icon-cancel-js').click(function() {
+          $searchInput.val('').blur().parent().removeClass('active');
+
+          $('.field.card').each(function() {
+              $(this).removeClass('hidden');
+          });
+      });
+
+      $('.search-js i, .search-js input').keyup(function() {
+          var searchVal = $(this).val().toLowerCase();
+
+          $('.field.card').each(function() {
+              var name = $(this).find('.name').first().text().toLowerCase();
+
+              if(name.includes(searchVal))
+                  $(this).removeClass('hidden');
+              else
+                  $(this).addClass('hidden');
+          });
+      });
   }
 
   function initializeFieldSort() {
@@ -312,7 +329,7 @@ Kora.Forms.Show = function() {
 
     $('.delete-page-js').on('click', function(e) {
       e.preventDefault();
-      var page = $(e.target).parent().data('page');
+      var page = $(this).data('page');
 
       var $deleteModal = $('.page-delete-modal-js');
       $deleteModal.find('.delete-page-confirm-js').data('page', page);

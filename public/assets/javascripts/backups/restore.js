@@ -1,51 +1,44 @@
 var Kora = Kora || {};
 Kora.Backups = Kora.Backups || {};
 
-Kora.Backups.Progress = function() {
+Kora.Backups.Restore = function() {
     var stopThePress = false; //Variable to show whether we are still in progress
     var progressText = $(".progress-text-js");
     var progressFill = $(".progress-fill-js");
 
-    function initializeBackups() {
+    function initializeRestore() {
         //Begin the process
         $.ajax({
-            url: startBackupUrl,
+            url: startRestoreUrl,
             method: 'POST',
             data: {
                 "_token": CSRFToken,
-                "backupLabel": buLabel,
-                "backupData": buData
+                "filename": restoreLabel
             },
             success: function() {
                 //Main part of process is over, all that's left is associations
                 stopThePress = true;
                 progressFill.css('width', "99%");
-                progressText.text('Backing up record files. This may take a while ...');
+                progressText.text('Restoring record files. This may take a while ...');
                 $.ajax({
-                    url: finishBackupUrl,
+                    url: finishRestoreUrl,
                     method: 'POST',
                     data: {
                         "_token": CSRFToken,
-                        "backupLabel": buLabel,
-                        "backupData": buData,
-                        "backupFiles": buFiles
+                        "filename": restoreLabel
                     },
                     success: function (data2) {
-                        $('.backup-progress').addClass('hidden');
-                        $('.backup-finish').removeClass('hidden');
+                        $('.restore-progress').addClass('hidden');
+                        $('.restore-finish').removeClass('hidden');
 
                         $('.stop-rotation-js').removeClass('rotate-icon');
-                        $('.success-title-js').text('Backup Success!');
-                        $('.success-desc-js').text('The backup has successfully completed! Now you can feel at ease ' +
-                            'knowing a version of your data is safe and sound.');
-                        $('.download-file-js').val('Download Backup File ('+data2.totalSize+')');
+                        $('.success-title-js').text('Restore Success!');
+                        $('.success-desc-js').text('The restore has successfully completed! Now you can feel at ease ' +
+                            'knowing a version of your data has safely returned.');
                         unlockUsers();
-
-                        if(autoDL=='1')
-                            $(".download-file-js").click();
                     },
                     error: function(data) {
-                        //Backup failed :(
+                        //Restore failed :(
                         stopThePress = true;
                         progressText.html('Restore failed. Click here to <a class="success-link unlock-users-js" href="#">unlock users</a>');
                         progressFill.addClass('warning');
@@ -53,10 +46,10 @@ Kora.Backups.Progress = function() {
                     }
                 });
             },
-            error: function(data){
-                //Backup failed :(
+            error: function(data) {
+                //Restore failed :(
                 stopThePress = true;
-                progressText.html('Backup failed. Click here to <a class="success-link unlock-users-js" href="#">unlock users</a>');
+                progressText.html('Restore failed. Click here to <a class="success-link unlock-users-js" href="#">unlock users</a>');
                 progressFill.addClass('warning');
                 $('.stop-rotation-js').removeClass('rotate-icon');
             }
@@ -78,7 +71,7 @@ Kora.Backups.Progress = function() {
                 },
                 success: function (data) {
                     console.log(data);
-                    if(!stopThePress) { //Update progress of backup
+                    if(!stopThePress) { //Update progress of restore
                         //Update bar
                         var totalProgress = 0;
                         var totalOverall = 0;
@@ -137,16 +130,7 @@ Kora.Backups.Progress = function() {
         })
     }
 
-    function initializeDownload() {
-        $(".download-file-js").click(function(e) {
-            e.preventDefault();
-
-            window.location = downloadFileUrl;
-        });
-    }
-
-    initializeBackups();
+    initializeRestore();
     initializeCheckProgress();
     initializeUnlockUsers();
-    initializeDownload();
 }

@@ -13,6 +13,8 @@ Route::group(['middleware' => 'web'], function () {
     Route::resource('projects', 'ProjectController');
     Route::post('projects/request', 'ProjectController@request');
     Route::post('projects/{pid}/archive', 'ProjectController@setArchiveProject');
+    Route::post('projects/validate', 'ProjectController@validateProjectFields');
+    Route::patch('projects/validate/{projects}', 'ProjectController@validateProjectFields');
 
 //project group routes
     Route::get('/projects/{pid}/manage/projectgroups/{active?}', 'ProjectGroupController@index');
@@ -81,6 +83,8 @@ Route::group(['middleware' => 'web'], function () {
 
 //form routes
     Route::get('/projects/{pid}/forms', 'ProjectController@show'); //alias for project/{id}
+    Route::post('projects/{pid}/forms/validate', 'FormController@validateFormFields');
+    Route::patch('projects/{pid}/forms/validate/{fid}', 'FormController@validateFormFields');
     Route::patch('/projects/{pid}/forms/{fid}', 'FormController@update');
     Route::get('/projects/{pid}/forms/create', 'FormController@create');
     Route::get('/projects/{pid}/forms/import', 'FormController@importFormView');
@@ -104,6 +108,8 @@ Route::group(['middleware' => 'web'], function () {
 
 //field routes
     Route::get('/projects/{pid}/forms/{fid}/fields', 'FormController@show'); //alias for form/{id}
+    Route::post('projects/{pid}/forms/{fid}/fields/validate', 'FieldController@validateFieldFields');
+    Route::patch('projects/{pid}/forms/{fid}/fields/validate/{flid}', 'FieldController@validateFieldFields');
     Route::patch('/projects/{pid}/forms/{fid}/fields/{flid}', 'FieldController@update');
     Route::get('/projects/{pid}/forms/{fid}/fields/create/{rootPage}', 'FieldController@create');
     Route::get('/projects/{pid}/forms/{fid}/fields/{flid}', 'FieldController@show');
@@ -215,9 +221,9 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/backup/restore', 'BackupController@startRestore');
     Route::post('/backup/restore/finish', 'BackupController@finishRestore');
     Route::post('/backup/user/unlock', 'BackupController@unlockUsers');
-    Route::post('/backup/delete', 'BackupController@delete');
+    Route::delete('/backup/delete', 'BackupController@delete');
     Route::get('/backup/progress', 'BackupController@checkProgress');
-    Route::get('/backup/restore/progress/{backup_id}', 'BackupController@checkRestoreProgress');
+    Route::get('/backup/restore/progress', 'BackupController@checkRestoreProgress');
 
 //form search routes
     Route::get('/keywordSearch/project/{pid}/forms/{fid}', 'FormSearchController@keywordSearch');
@@ -261,17 +267,4 @@ Route::group(['middleware' => 'api'], function () {
     Route::delete('/api/delete', 'RestfulController@delete');
     Route::post('/api/create', 'RestfulController@create');
     Route::put('/api/edit', 'RestfulController@edit');
-
-//api 1.5 routes
-    //New functions
-    Route::post('/api/1_5/search', 'Restful_1_5_Controller@search');
-    //Old routes we are bouncing to old functions
-    Route::get('/api/1_5/version', 'RestfulController@getKoraVersion');
-    Route::get('/api/1_5/projects/{pid}/forms', 'RestfulController@getProjectForms');
-    Route::post('/api/1_5/projects/{pid}/forms/create', 'RestfulController@createForm');
-    Route::get('/api/1_5/projects/{pid}/forms/{fid}/fields', 'RestfulController@getFormFields');
-    Route::get('/api/1_5/projects/{pid}/forms/{fid}/recordCount', 'RestfulController@getFormRecordCount');
-    Route::delete('/api/1_5/delete', 'RestfulController@delete');
-    Route::post('/api/1_5/create', 'RestfulController@create');
-    Route::put('/api/1_5/edit', 'RestfulController@edit');
 });

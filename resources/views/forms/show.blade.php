@@ -30,7 +30,8 @@
         <div class="form-quick-options">
           <div class="button-container">
             <a href="{{ url('/projects/'.$form->pid).'/forms/'.$form->fid.'/records'}}" class="btn half-sub-btn">View & Search Form Records</a>
-            <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}" class="btn half-sub-btn">Create New Record</a>
+            <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}" class="btn half-sub-btn
+                @if(!$hasFields) disabled @endif">Create New Record</a>
           </div>
         </div>
       </div>

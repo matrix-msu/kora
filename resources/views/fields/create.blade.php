@@ -28,7 +28,7 @@
     @include("partials.fields.modals.changeAdvancedFieldModal")
 
     <section class="create-field center">
-        {!! Form::model($field = new \App\Field, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid,'onsubmit' => 'selectAll()']) !!}
+        {!! Form::model($field = new \App\Field, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid, 'class' => 'create-form']) !!}
         @include('partials.fields.form', ['submitButtonText' => 'Create Field', 'pid' => $form->pid, 'fid' => $form->fid])
         {!! Form::close() !!}
     </section>
@@ -42,6 +42,7 @@
     @include('partials.fields.javascripts')
 
     <script type="text/javascript">
+        var validationUrl = "{{ url("projects/$form->pid/forms/$form->fid/fields/validate") }}";
         advanceCreateURL = "{{ action('FieldAjaxController@getAdvancedOptionsPage',['pid' => $form->pid,'fid'=>$form->fid]) }}";
         csrfToken = "{{ csrf_token() }}";
 

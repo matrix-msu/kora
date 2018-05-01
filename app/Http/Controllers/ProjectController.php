@@ -4,6 +4,7 @@ use App\User;
 use App\Project;
 use App\ProjectGroup;
 use App\Http\Requests\ProjectRequest;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
@@ -328,6 +329,10 @@ class ProjectController extends Controller {
             $message = 'project_restored';
 
         return redirect()->action('ProjectController@index')->with('k3_global_success', $message);
+    }
+
+    public function validateProjectFields(ProjectRequest $request) {
+        return response()->json(["status"=>true, "message"=>"Project Valid", 200]);
     }
 
     /**
