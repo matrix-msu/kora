@@ -80,7 +80,9 @@ Kora.Admin.Users = function() {
         $header.addClass('active');
         $user.animate({
           height: $user.height() + $content.outerHeight(true) + 'px'
-        }, 230);
+        }, 230, function() {
+          $user.css('height', '');
+        });
         $content.effect('slide', {
           direction: 'up',
           mode: 'show',
@@ -92,6 +94,7 @@ Kora.Admin.Users = function() {
         }, 230, function() {
           $header.hasClass('active') ? $header.removeClass('active') : null;
           $content.hasClass('active') ? $content.removeClass('active') : null;
+          $user.css('height', '');
         });
         $content.effect('slide', {
           direction: 'up',

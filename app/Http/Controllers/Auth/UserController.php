@@ -505,6 +505,7 @@ class UserController extends Controller {
                 $forms[$i]['fid'] = $form->fid;
                 $forms[$i]['pid'] = $form->pid;
                 $forms[$i]['name'] = $form->name;
+                $forms[$i]['group'] = $user->getFormGroup($form);
 
                 if($user->isFormAdmin($form))
                     $forms[$i]['permissions'] = 'Admin';
