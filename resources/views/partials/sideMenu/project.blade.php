@@ -1,3 +1,4 @@
+<?php $project = \App\Http\Controllers\ProjectController::getProject($pid) ?>
 @include('partials.sideMenu.dashboard')
 <div class="drawer-element drawer-element-js">
   <a href="#" class="drawer-toggle drawer-toggle-js">

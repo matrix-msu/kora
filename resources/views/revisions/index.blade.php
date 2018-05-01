@@ -9,6 +9,10 @@
     @include('partials.menu.static', ['name' => 'Record Revisions'])
 @stop
 
+@section('aside-content')
+  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+@stop
+
 @section('header')
     <section class="head">
         <div class="inner-wrap center">

@@ -5,7 +5,7 @@
 @stop
 
 @section('aside-content')
-    @include('partials.sideMenu.dashboard')
+  @include('partials.sideMenu.project', ['pid' => $project->pid])
 @stop
 
 @section('leftNavLinks')

@@ -5,6 +5,10 @@
     @include('partials.menu.static', ['name' => 'K2 Scheme Importer'])
 @stop
 
+@section('aside-content')
+  @include('partials.sideMenu.project', ['pid' => $proj->pid])
+@stop
+
 @section('header')
     <section class="head">
         <div class="inner-wrap center">

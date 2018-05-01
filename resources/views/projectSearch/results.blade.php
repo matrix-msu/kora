@@ -5,6 +5,11 @@
     @include('partials.menu.static', ['name' => 'Project Records'])
 @stop
 
+@section('aside-content')
+  @include('partials.sideMenu.project', ['pid' => $project->pid])
+@stop
+
+
 @section('stylesheets')
     <link rel="stylesheet" type="text/css" href="{{ config('app.url') }}assets/css/vendor/fullcalendar/fullcalendar.css"/>
     <link rel="stylesheet" type="text/css" href="{{ config('app.url') }}assets/css/vendor/leaflet/leaflet.css"/>

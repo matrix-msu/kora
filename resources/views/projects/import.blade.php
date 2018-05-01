@@ -4,6 +4,11 @@
     @include('partials.menu.static', ['name' => 'Import Project Setup'])
 @stop
 
+@section('aside-content')
+  @include('partials.sideMenu.dashboard')
+@stop
+
+
 @section('header')
     <section class="head">
         <div class="inner-wrap center">

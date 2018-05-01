@@ -5,6 +5,10 @@
     @include('partials.menu.static', ['name' => 'Project Permissions'])
 @stop
 
+@section('aside-content')
+  @include('partials.sideMenu.project', ['pid' => $project->pid])
+@stop
+
 @section('stylesheets')
   <!-- No Additional Stylesheets Necessary -->
 @stop
