@@ -10,6 +10,7 @@
       {!! Form::open(['method' => 'POST', 'action' => ['AssociationController@create', $project->pid, $form->fid]]) !!}
         <div class="form-group">
           {!! Form::label("request-form", "Select a Form to Request Association") !!}
+            <span class="error-message request-assoc-error-js"></span>
           <select class="single-select" id="request-form" name="assocfid"
             data-placeholder="Select a form here">
             <option></option>

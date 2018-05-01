@@ -179,9 +179,10 @@ Kora.FormAssociations.Index = function() {
           e.preventDefault();
           var assocFormID = $(this).siblings('.form-group').children('select').val();
           if (assocFormID !== "") {
+            $('.new-assoc-error-js').text('');
             self.createPermissions(assocFormID);
           } else {
-            // inform user that the field is required
+            $('.new-assoc-error-js').text('Please select a form');
           }
         }
       }
@@ -207,9 +208,10 @@ Kora.FormAssociations.Index = function() {
           e.preventDefault();
           var rfid = $(this).siblings('.form-group').children('select').val();
           if (rfid !== "") {
+            $('.new-assoc-error-js').text('Please select a form');
             self.requestPermissions(rfid);
           } else {
-            // inform user that the field is required
+            $('.request-assoc-error-js').text('Please select a form');
           }
         }
       }
