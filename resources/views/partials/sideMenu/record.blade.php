@@ -1,4 +1,4 @@
-<div class="navigation-item">
+<div class="drawer-element drawer-element-js">
     <a href="#" class="drawer-element drawer-element-js">
         <i class="icon icon-record"></i>
         <span>{{ $pid . '-' . $fid . '-' . $rid }}</span>
