@@ -73,7 +73,7 @@
 </div>
 
 <div class="form-group mt-100-xl">
-    @if ($type == 'edit' && \Auth::user()->id != 1)
+    @if ($type == 'edit' && $user->id != 1)
         <div class="delete-user">
             <a class="btn dot-btn trash warning user-trash-js" data-title="Delete User?" href="#">
                 <i class="icon icon-trash"></i>

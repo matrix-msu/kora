@@ -146,6 +146,28 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
+     * Get the form group a user belongs to
+     *
+     * @param Form $form - Project to get group
+     * @return array - Group info user belongs to
+     */
+    public function getFormGroup(Form $form) {
+        $adminGroup = $form->adminGroup()->first();
+        if ($adminGroup->hasUser($this)) {
+            return ['id' => $adminGroup->id, 'name' => 'Admin Group'];
+        } else {
+            $formGroups = $form->groups()->get();
+            foreach ($formGroups as $formGroup) {
+                if ($formGroup->hasUser($this)) {
+                    return ['id' => $formGroup->id, 'name' => $formGroup->name];
+                }
+            }
+        }
+
+        return ['id' => '', 'name' => ''];
+    }
+
+    /**
      * Returns true is a user is in any of a project's form groups, false if not.
      *
      * @param  Project $project - Project to check permissions

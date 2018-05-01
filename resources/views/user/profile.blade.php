@@ -77,6 +77,9 @@
                 <div class="my-xl">
                     <p>{{$user->first_name}} has access to the following forms...</p>
                 </div>
+                @foreach ($forms as $index=>$form)
+                    @include('partials.user.profile.form')
+                @endforeach
             @else
                 <div class="my-xl">
                     <p>{{$user->first_name}} has access to all forms</p>
@@ -86,7 +89,21 @@
     </section>
 
     <section class="center page-section page-section-js" id="recordHistory">
-        <h1>Record History</h1>
+        <div class="filters mt-xxxl">
+            <a href="#recentlyModified" class="filter-link select-content-section-js underline-middle underline-middle-hover">Recently Modified</a>
+            <a href="#myCreatedRecords" class="filter-link select-content-section-js underline-middle underline-middle-hover">My Created Records</a>
+        </div>
+        <div class="content-section content-section-js" id="recentlyModified">
+            <div class="my-xl">
+                <p>You have recently modified the following {{count($records)}} records...</p>
+            </div>
+            @foreach ($records as $index=>$record)
+                @include('partials.user.profile.record')
+            @endforeach
+        </div>
+        <div class="content-section content-section-js" id="myCreatedRecords">
+            <h1>My Created Recrods</h1>
+        </div>
     </section>
 @stop
 
