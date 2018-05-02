@@ -96,9 +96,13 @@ class ScheduleField extends BaseField {
      */
     public function updateOptions($field, Request $request) {
         $reqDefs = $request->default;
-        $default = $reqDefs[0];
-        for($i=1;$i<sizeof($reqDefs);$i++) {
-            $default .= '[!]'.$reqDefs[$i];
+        if(!is_null($reqDefs)) {
+            $default = $reqDefs[0];
+            for ($i = 1; $i < sizeof($reqDefs); $i++) {
+                $default .= '[!]' . $reqDefs[$i];
+            }
+        } else {
+            $default = null;
         }
 
         if($request->start=='' | $request->start == 0)

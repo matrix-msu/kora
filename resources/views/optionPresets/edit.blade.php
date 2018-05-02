@@ -110,7 +110,7 @@
             </div>
 
             <div class="form-group mt-xxxl">
-                {!! Form::submit('Update Field Value Preset',['class' => 'btn']) !!}
+                {!! Form::submit('Update Field Value Preset',['class' => 'btn validate-preset-js']) !!}
             </div>
         </form>
 

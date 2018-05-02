@@ -108,7 +108,7 @@ Kora.Fields.Create = function() {
     }
 
     function initializeValidation() {
-        $('form input.btn').on('click', function(e) {
+        $('.validate-field-js').on('click', function(e) {
             var $this = $(this);
 
             e.preventDefault();

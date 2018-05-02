@@ -294,7 +294,7 @@ Kora.OptionPresets.Create = function() {
     }
 
     function initializeValidation() {
-        $('form input.btn').on('click', function(e) {
+        $('.validate-preset-js').on('click', function(e) {
             var $this = $(this);
 
             e.preventDefault();

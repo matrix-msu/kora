@@ -136,7 +136,7 @@
 </div>
 
 <div class="form-group field-update-button">
-    {!! Form::submit('Update Field',['class' => 'btn edit-btn update-field-submit pre-fixed-js']) !!}
+    {!! Form::submit('Update Field',['class' => 'btn edit-btn update-field-submit pre-fixed-js validate-field-js']) !!}
 </div>
 
 <div class="form-group">

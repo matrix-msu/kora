@@ -169,5 +169,5 @@
 </div>
 
 <div class="form-group mt-xxxl mb-max">
-    {!! Form::submit($submitButtonText,['class' => 'btn']) !!}
+    {!! Form::submit($submitButtonText,['class' => 'btn validate-field-js']) !!}
 </div>
