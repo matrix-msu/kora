@@ -622,3 +622,9 @@ i {
     content: $icon-plugins;
   }
 }
+
+.icon-feedback {
+  &::before {
+    content: $icon-feedback;
+  }
+}
