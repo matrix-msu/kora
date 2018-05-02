@@ -36,7 +36,7 @@ Kora.Projects.Edit = function() {
   }
 
   function initializeValidation() {
-    $('form input.btn').on('click', function(e) {
+    $('.update-project-submit').on('click', function(e) {
       var $this = $(this);
 
       e.preventDefault();
