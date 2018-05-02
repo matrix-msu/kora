@@ -433,4 +433,5 @@ Kora.Records.Index = function() {
     initializeTypedFieldDisplays();
     initializeScrollTo();
     initializeSearchValidation();
+    Kora.Records.Modal();
 }

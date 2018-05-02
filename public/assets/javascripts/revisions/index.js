@@ -30,7 +30,7 @@ Kora.Revisions.Index = function() {
             window.location = window.location.pathname.replace('recent', revision) + "?revisions=true";
         });
     }
-    
+
     function initializePaginationShortcut() {
         $('.page-link.active').click(function(e) {
             e.preventDefault();
@@ -58,7 +58,7 @@ Kora.Revisions.Index = function() {
 	function initializeToggle() {
 		$('.revision-toggle-js').click(function(e) {
 			e.preventDefault();
-			
+
 			var $this = $(this);
 			var $header = $this.parent().parent();
 			var $token = $header.parent();
@@ -101,7 +101,7 @@ Kora.Revisions.Index = function() {
             $('.card.active .revision-toggle-js').click();
         });
     }
-    
+
     function initializeModals() {
         Kora.Modal.initialize();
 
@@ -171,6 +171,7 @@ Kora.Revisions.Index = function() {
     initializePaginationShortcut();
     initializeToggle();
     initializeModals();
+    Kora.Records.Modal();
 }
 
 Kora.Revisions.Index();

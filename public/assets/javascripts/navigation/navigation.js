@@ -324,7 +324,9 @@ function closeSidemenuDrawers() {
   });
 }
 
-$sideMenu.on('click', '.drawer-toggle-js', function() {
+$sideMenu.on('click', '.drawer-toggle-js', function(e) {
+  e.preventDefault();
+
   var $drawerElement = $(this).parent();
   var $drawerContent = $(this).next();
   var $icon = $(this).children().last();
@@ -340,7 +342,9 @@ $sideMenu.on('click', '.drawer-toggle-js', function() {
   $drawerContent.slideToggle('fast');
 });
 
-$sideMenu.on('click', '.drawer-sub-menu-toggle-js', function() {
+$sideMenu.on('click', '.drawer-sub-menu-toggle-js', function(e) {
+  e.preventDefault();
+  
   $menu = $(this).next('.drawer-deep-menu-js');
 
   if ($menu.hasClass('active')) {

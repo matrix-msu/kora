@@ -6,6 +6,10 @@
     @include('partials.menu.static', ['name' => $field->name])
 @stop
 
+@section('aside-content')
+  @include('partials.sideMenu.form', ['pid' => $field->pid, 'fid' => $field->fid])
+@stop
+
 @section('header')
     <section class="head">
         <a class="rotate" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>

@@ -6,6 +6,10 @@
     @include('partials.menu.static', ['name' => 'New Record'])
 @stop
 
+@section('aside-content')
+  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+@stop
+
 @section('stylesheets')
     <link rel="stylesheet" href="{{ config('app.url') }}assets/css/vendor/datetimepicker/jquery.datetimepicker.min.css" />
 @stop
@@ -61,7 +65,7 @@
 
         {!! Form::model($record = new \App\Record, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid.'/records',
             'enctype' => 'multipart/form-data', 'id' => 'new_record_form']) !!}
-            
+
             @include('partials.records.form',['form' => $form, 'editRecord' => false])
 
             @include('partials.records.pagination-form', ['layout' => \App\Http\Controllers\PageController::getFormLayout($form->fid)])

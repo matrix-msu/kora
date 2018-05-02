@@ -28,7 +28,23 @@
         </li>
 
         <li class="link">
-            <a href="#">Designate as Preset</a>
+          @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
+            <?php $alreadyPreset = (\App\RecordPreset::where('rid',$rid)->count() > 0); ?>
+            @if($alreadyPreset)
+              <a class="already-preset-js" href="#">Designated as Preset</a>
+            @else
+              <a class="designate-preset-js" href="#">Designate as Preset</a>
+            @endif
+          @endif
         </li>
     </ul>
 </li>
+
+@include("partials.records.modals.designateRecordPresetModal")
+@include("partials.records.modals.alreadyRecordPresetModal")
+
+<script type="text/javascript">
+    makeRecordPresetURL = '{{action('RecordPresetController@presetRecord')}}';
+    ridForPreset = {{$record->rid}};
+    csrfToken = '{{csrf_token()}}';
+</script>

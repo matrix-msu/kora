@@ -14,12 +14,13 @@
   '/assets/javascripts/vendor/jsc3d/jsc3d.webgl.js',
   '/assets/javascripts/vendor/jsc3d/jsc3d.touch.js',
   '/assets/javascripts/vendor/slick/slick.js',
+  '/assets/javascripts/general/global.js',
+  '/assets/javascripts/navigation/navigation.js',
   '/assets/javascripts/general/modal.js',
+  '/assets/javascripts/records/modal.js',
   '/assets/javascripts/records/batch.js',
   '/assets/javascripts/records/create.js',
   '/assets/javascripts/records/index.js',
   '/assets/javascripts/records/show.js',
-  '/assets/javascripts/records/import.js',
-  '/assets/javascripts/navigation/navigation.js',
-  '/assets/javascripts/general/global.js'
+  '/assets/javascripts/records/import.js'
 ])->withFullUrl() !!}
