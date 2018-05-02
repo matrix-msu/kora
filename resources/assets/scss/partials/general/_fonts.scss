@@ -112,17 +112,6 @@ i {
   }
 }
 
-.icon-recordNew-Little {
-  &:before {
-    content: $icon-recordNew-Little; 
-  }
-}
-.icon-formRecords-Little {
-  &:before {
-    content: $icon-formRecords-Little; 
-  }
-}
-
 .icon-arrow-up {
   transform: rotate(-90deg);
 }
@@ -519,6 +508,13 @@ i {
   }
 }
 
+
+.icon-record-little {
+  &::before {
+    content: $icon-record-little;
+  }
+}
+
 .icon-record-new-little {
   &::before {
     content: $icon-record-new-little;
@@ -580,7 +576,7 @@ i {
 }
 
 .icon-backup {
-  &:before {
+  &::before {
     content: $icon-backup;
   }
 }
@@ -604,7 +600,25 @@ i {
 }
 
 .icon-backup-little {
-  &:before {
+  &::before {
     content: $icon-backup-little;
+  }
+}
+
+.icon-gear {
+  &::before {
+    content: $icon-gear;
+  }
+}
+
+.icon-help {
+  &::before {
+    content: $icon-help;
+  }
+}
+
+.icon-plugins {
+  &::before {
+    content: $icon-plugins;
   }
 }

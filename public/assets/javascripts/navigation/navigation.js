@@ -313,8 +313,6 @@ function closeSidemenuDrawers() {
     $drawerContent = $drawerToggle.next();
 
     if ($this.hasClass('active')) {
-      console.log("hi")
-
       $drawerToggle.removeClass('active');
       $drawerToggle.children().last().removeClass('active');
       $drawerContent.find('.drawer-deep-menu-js').removeClass('active');
@@ -344,7 +342,7 @@ $sideMenu.on('click', '.drawer-toggle-js', function(e) {
 
 $sideMenu.on('click', '.drawer-sub-menu-toggle-js', function(e) {
   e.preventDefault();
-  
+
   $menu = $(this).next('.drawer-deep-menu-js');
 
   if ($menu.hasClass('active')) {

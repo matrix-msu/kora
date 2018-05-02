@@ -2,7 +2,6 @@
   background-color: palette('gray', 'drawer-slate');
   box-shadow: inset 0 3px 5px 0 palette('box-shadow', 'drawer-black', .05);
   color: palette('white', 'base');
-  font-weight: bold;
 }
 
 .drawer-element {
@@ -14,7 +13,6 @@
 
   &:hover {
     @include active-drawer-element();
-    font-weight: normal;
 
     .icon-chevron {
       transform: scale($transform-scale-multiplier);
@@ -23,6 +21,13 @@
         transform: rotate(-180deg) scale($transform-scale-multiplier);
       }
     }
+
+    .icon-external-link,
+    .icon-external-link.active {
+      opacity: 1;
+      transform: scale($transform-scale-multiplier);
+    }
+
   }
 
   &.active {
@@ -80,6 +85,12 @@
     &.active {
       transform: rotate(-180deg);
     }
+  }
+
+  .icon-external-link {
+    float: right;
+    font-size: 12px;
+    opacity: .6;
   }
 
   @import 'drawer-element/drawer-content';

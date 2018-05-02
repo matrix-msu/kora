@@ -1,9 +1,3 @@
-<?php
-  $sidebarCookie = false;
-  if (isset($_COOKIE['sidebar']) && $_COOKIE['sidebar'] == "1") { $sidebarCookie = true; }
-  // var_dump($sidebarCookie);
-?>
-
 <!doctype html>
 
 <html lang="en">
@@ -19,14 +13,7 @@
     </head>
     <body class="{{ str_hyphenated($page_class) }}-body @if((Auth::guest() || !Auth::user()->active) && isInstalled()) auth-body @endif">
       @include('partials.nav')
-
-      <div class="side-menu side-menu-js <?php if ($sidebarCookie) { echo 'active'; } ?>">
-        <div class="blanket blanket-js"></div>
-        <aside class="aside-content">
-          @yield('aside-content')
-        </aside>
-      </div>
-
+      @include('partials.sideMenu')
 
       <div class="{{ str_hyphenated($page_class) }} @if((Auth::guest() || !Auth::user()->active) && isInstalled()) auth @endif">
         @yield('header')
