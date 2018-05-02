@@ -62,7 +62,7 @@
   @endif
 
   <div class="form-group mt-xxxl mb-max">
-    {!! Form::submit($submitButtonText, ['class' => 'btn']) !!}
+    {!! Form::submit($submitButtonText, ['class' => 'btn validate-form-js']) !!}
   </div>
 @else
   <div class="form-group mt-xl">
@@ -124,7 +124,7 @@
 @endif
 
   <div class="form-group form-update-button">
-    {!! Form::submit('Update Form',['class' => 'btn edit-btn update-form-submit pre-fixed-js']) !!}
+    {!! Form::submit('Update Form',['class' => 'btn edit-btn update-form-submit pre-fixed-js validate-form-js']) !!}
   </div>
 
   <div class="form-group">

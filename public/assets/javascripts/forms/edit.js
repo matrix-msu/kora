@@ -21,7 +21,7 @@ Kora.Forms.Edit = function() {
   }
 
     function initializeValidation() {
-        $('.update-form-submit').on('click', function(e) {
+        $('.validate-form-js').on('click', function(e) {
             var $this = $(this);
 
             e.preventDefault();

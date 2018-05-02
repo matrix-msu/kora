@@ -102,7 +102,7 @@
             </div>
 
             <div class="form-group mt-xxxl mb-max">
-                {!! Form::submit('Create Field Value Preset',['class' => 'btn disabled submit-button-js']) !!}
+                {!! Form::submit('Create Field Value Preset',['class' => 'btn disabled submit-button-js validate-preset-js']) !!}
             </div>
         </form>
     </section>
