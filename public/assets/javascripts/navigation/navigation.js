@@ -13,7 +13,9 @@ $menuTitle.each(function(index) {
   }
 });
 
-$navBar.on('click', '.navigation-toggle-js', function() {
+$navBar.on('click', '.navigation-toggle-js', function(e) {
+  e.preventDefault();
+
   var $clicked = $(this).next();
   var $icon = $(this).children();
   var $parent = $(this).parent();
@@ -42,7 +44,9 @@ $navBar.on('click', '.navigation-toggle-js', function() {
   }
 });
 
-$navBar.on('click', '.navigation-sub-menu-toggle-js', function() {
+$navBar.on('click', '.navigation-sub-menu-toggle-js', function(e) {
+  e.preventDefault();
+
   $menu = $(this).next('.navigation-deep-menu-js');
 
   if ($menu.hasClass('active')) {
@@ -323,7 +327,6 @@ function closeSidemenuDrawers() {
 }
 
 $sideMenu.on('click', '.drawer-toggle-js', function(e) {
-  console.log("d")
   e.preventDefault();
 
   var $drawerElement = $(this).parent();
