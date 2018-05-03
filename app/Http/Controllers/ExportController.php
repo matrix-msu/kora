@@ -358,7 +358,7 @@ class ExportController extends Controller {
                                 $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_NUMBER:
-                                $records[$kid][$fieldIndex]['value'] = $data->value;
+                                $records[$kid][$fieldIndex]['value'] = (float)$data->value;
                                 $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_LIST:
@@ -743,7 +743,7 @@ class ExportController extends Controller {
                                 $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
                                 break;
                             case Field::_NUMBER:
-                                $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
+                                $fieldxml .= htmlspecialchars((float)$data->value, ENT_XML1, 'UTF-8');
                                 break;
                             case Field::_LIST:
                                 $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
@@ -997,7 +997,7 @@ class ExportController extends Controller {
                                 $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
                                 break;
                             case Field::_NUMBER:
-                                $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
+                                $fieldxml .= htmlspecialchars((float)$data->value, ENT_XML1, 'UTF-8');
                                 break;
                             case Field::_LIST:
                                 $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');

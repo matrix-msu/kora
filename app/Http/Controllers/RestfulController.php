@@ -802,8 +802,10 @@ class RestfulController extends Controller {
                 $filters[] = $occur;
         }
         foreach($numberOccurrences as $occur) {
-            if($occur['count']>1)
+            if($occur['count']>1) {
+                $occur['number'] = (float)$occur['number'];
                 $filters[] = $occur;
+            }
         }
 
         return $filters;
