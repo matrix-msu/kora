@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\DateField;
 use App\Field;
 use App\Form;
 use App\ListField;
@@ -277,7 +278,6 @@ class RestfulController extends Controller {
                                     return response()->json(["status"=>false,"error"=>"Invalid method, ".$method.", provided for keyword search for form: ". $form->name],500);
                                     break;
                             }
-
                             /// HERES WHERE THE NEW SEARCH WILL HAPPEN
                             $rids = $this->apiKeywordSearch($searchFields, $keys, $method);
 
@@ -401,56 +401,59 @@ class RestfulController extends Controller {
     }
 
     private function apiKeywordSearch($searchFields, $keys, $method) {
+	    //Laravel freaks out with the select statements, so we go right for the belly of the beast
+	    $con = mysqli_connect(env('DB_HOST'), env('DB_USERNAME'), env('DB_PASSWORD'), env('DB_DATABASE'));
+	    
         $results = array();
-        foreach($keys as $key) {
+        foreach($keys as $k) {
             $selectFinal = [];
 
             foreach($searchFields as $field) {
                 //TODO::modular?
                 switch($field->type) {
                     case Field::_TEXT:
-                        $key = $key.'*';
+                        $key = $k.'*';
                         $where = "MATCH (`text`) AGAINST (\"$key\" IN BOOLEAN MODE)";
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."text_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_RICH_TEXT:
-                        $key = $key.'*';
+                        $key = $k.'*';
                         $where = "MATCH (`searchable_rawtext`) AGAINST (\"$key\" IN BOOLEAN MODE)";
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."rich_text_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_NUMBER:
-                        $bottom = $key - NumberField::EPSILON;
-                        $top = $key + NumberField::EPSILON;
+                        $bottom = $k - NumberField::EPSILON;
+                        $top = $k + NumberField::EPSILON;
                         $where = "`number` BETWEEN $bottom AND $top";
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."number_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_LIST:
-                        $key = $key.'*';
+                        $key = $k.'*';
                         $where = "MATCH (`option`) AGAINST (\"$key\" IN BOOLEAN MODE)";
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."list_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_MULTI_SELECT_LIST:
-                        $key = $key.'*';
+                        $key = $k.'*';
                         $where = "MATCH (`options`) AGAINST (\"$key\" IN BOOLEAN MODE)";
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."multi_select_list_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_GENERATED_LIST:
-                        $key = $key.'*';
+                        $key = $k.'*';
                         $where = "MATCH (`options`) AGAINST (\"$key\" IN BOOLEAN MODE)";
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."generated_list_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_COMBO_LIST:
-                        $bottom = $key - NumberField::EPSILON;
-                        $top = $key + NumberField::EPSILON;
-                        $key = $key.'*';
+                        $bottom = $k - NumberField::EPSILON;
+                        $top = $k + NumberField::EPSILON;
+                        $key = $k.'*';
                         $where = "(MATCH (`data`) AGAINST (\"$key\" IN BOOLEAN MODE) OR `number` BETWEEN $bottom AND $top)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."combo_list_fields where `flid`=".$field->flid." AND $where";
+                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."combo_support where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_DATE:
@@ -459,70 +462,70 @@ class RestfulController extends Controller {
                         // Boolean to decide if we should consider era.
                         $era = explode("[!Era!]", $field->options)[1] == "On";
                         //Checks to prevent false positives with default mysql values
-                        $intVal = intval($key);
+                        $intVal = intval($k);
                         if($intVal == 0)
                             $intVal = 999999;
-                        $intMonth = intval(DateField::monthToNumber($key));
+                        $intMonth = intval(DateField::monthToNumber($k));
                         if($intMonth == 0)
                             $intMonth = 999999;
                         $where = "`day`=$intVal OR `year`=$intVal";
-                        if(DateField::isMonth($key))
+                        if(DateField::isMonth($k))
                             $where .= " OR `month`=$intMonth";
-                        if($era && self::isValidEra($key))
-                            $where .= " OR `era`=".strtoupper($key);
-                        if($circa && self::isCirca($key))
+                        if($era && self::isValidEra($k))
+                            $where .= " OR `era`=".strtoupper($k);
+                        if($circa && self::isCirca($k))
                             $where .= " OR `circa`=1";
 
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."date_fields where `flid`=".$field->flid." AND ($where)";
                         $selectFinal[] = $select;
                         break;
                     case Field::_SCHEDULE:
-                        $key = $key.'*';
+                        $key = $k.'*';
                         $where = "MATCH (`desc`) AGAINST (\"$key\" IN BOOLEAN MODE)";
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."schedule_support where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_DOCUMENTS:
-                        $key = $key.'*';
+                        $key = $k.'*';
                         $where = "MATCH (`documents`) AGAINST (\"$key\" IN BOOLEAN MODE)";
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."documents_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_GALLERY:
-                        $key = $key.'*';
+                        $key = $k.'*';
                         $where = "MATCH (`images`) AGAINST (\"$key\" IN BOOLEAN MODE)";
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."gallery_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_PLAYLIST:
-                        $key = $key.'*';
+                        $key = $k.'*';
                         $where = "MATCH (`audio`) AGAINST (\"$key\" IN BOOLEAN MODE)";
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."playlist_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_VIDEO:
-                        $key = $key.'*';
+                        $key = $k.'*';
                         $where = "MATCH (`video`) AGAINST (\"$key\" IN BOOLEAN MODE)";
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."video_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_3D_MODEL:
-                        $key = $key.'*';
+                        $key = $k.'*';
                         $where = "MATCH (`model`) AGAINST (\"$key\" IN BOOLEAN MODE)";
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."model_fields where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     case Field::_GEOLOCATOR:
-                        $key = $key.'*';
+                        $key = $k.'*';
                         $where = "MATCH (`desc`) AGAINST (\"$key\" IN BOOLEAN MODE) OR MATCH (`address`) AGAINST ($key IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."geolocator_fields where `flid`=".$field->flid." AND ($where)";
+                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."geolocator_support where `flid`=".$field->flid." AND ($where)";
                         $selectFinal[] = $select;
                         break;
                     case Field::_ASSOCIATOR:
-                        $key = explode('-',$key);
+                        $key = explode('-',$k);
                         $rid = end($key);
                         $where = "MATCH (`record`) AGAINST (\"$rid\" IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."associator_fields where `flid`=".$field->flid." AND $where";
+                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."associator_support where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
                     default:
@@ -531,16 +534,16 @@ class RestfulController extends Controller {
             }
 
             //Union statements together and run SQL statement
-            $selectFinal = implode(' UNION ', $selectFinal);
-            $ridsUnclean = DB::select($selectFinal);
+            $selectString = implode(' UNION ', $selectFinal);
+            $ridsUnclean = $con->query($selectString);
             $rids = [];
-
+            
             //Transform objects to array
-            foreach($ridsUnclean as $rid) {
-                if(!is_null($rid->rid))
-                    $rids[]=$rid->rid;
+            while($rid = $ridsUnclean->fetch_assoc()) {
+                if(!is_null($rid['rid']))
+                    $rids[]=$rid['rid'];
             }
-
+            
             //Apply method
             if(empty($results)) {
                 $results = array_flip(array_flip($rids));
