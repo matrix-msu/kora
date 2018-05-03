@@ -47,7 +47,7 @@
       @if(sizeof($allowed_projects) > 1)
         <li class="content-link" id="project-submenu">
           <a href='#' class="drawer-sub-menu-toggle drawer-sub-menu-toggle-js" data-toggle="dropdown">
-            <span>Jump to Form</span>
+            <span>Jump to Project</span>
             <i class="icon icon-plus"></i>
           </a>
 
