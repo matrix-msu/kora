@@ -5,7 +5,7 @@
 @stop
 
 @section('aside-content')
-  @include('partials.sideMenu.dashboard')
+  @include('partials.sideMenu.dashboard', ['openDashboardDrawer' => false, 'openProjectDrawer' => true])
 @stop
 
 @section('header')
@@ -59,7 +59,7 @@
     <a href="#" class="request-permissions request-permissions-js underline-middle-hover">
         Request Permissions to a Project
     </a></p>
-	
+
     <div class="modal modal-js modal-mask request-permissions-modal-js">
       <div class="content">
         <div class="header">

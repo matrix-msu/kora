@@ -1,5 +1,5 @@
 <div class="drawer-element drawer-element-js">
-    <a href="#" class="drawer-toggle drawer-toggle-js">
+    <a href="#" class="drawer-toggle drawer-toggle-js" data-drawer="{{ $openDrawer or '0' }}">
         <i class="icon icon-record"></i>
         <span>{{ $pid . '-' . $fid . '-' . $rid }}</span>
         <i class="icon icon-chevron"></i>

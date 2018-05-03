@@ -10,7 +10,7 @@
 @stop
 
 @section('aside-content')
-  @include('partials.sideMenu.project', ['pid' => $project->pid])
+  @include('partials.sideMenu.project', ['pid' => $project->pid, 'openDrawer' => true])
 @stop
 
 @section('header')

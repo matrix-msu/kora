@@ -45,12 +45,12 @@
       @endif
 
       <a class="quick-action underline-middle-hover" href="{{ url('/projects/'.$form->pid).'/forms/'.$form->fid.'/records'}}">
-        <i class="icon icon-formRecords-Little"></i>
+        <i class="icon icon-record-little"></i>
         <span>Form Records</span>
       </a>
 
       <a class="quick-action underline-middle-hover" href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}">
-        <i class="icon icon-recordNew-Little"></i>
+        <i class="icon icon-record-new-little"></i>
         <span>Create New Records</span>
       </a>
 

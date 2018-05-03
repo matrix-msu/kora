@@ -1,7 +1,7 @@
 <?php $form = \App\Http\Controllers\FormController::getForm($form->fid) ?>
-@include('partials.sideMenu.project', ['pid' => $form->pid])
+@include('partials.sideMenu.project', ['pid' => $form->pid, 'openDrawer' => false])
 <div class="drawer-element drawer-element-js">
-  <a href="#" class="drawer-toggle drawer-toggle-js">
+  <a href="#" class="drawer-toggle drawer-toggle-js" data-drawer="{{ $openDrawer or '0' }}">
     <i class="icon icon-form"></i>
     <span>{{ $form->name }}</span>
     <i class="icon icon-chevron"></i>

@@ -4,6 +4,10 @@
     @include('partials.menu.static', ['name' => 'K2 Exodus Transfer'])
 @stop
 
+@section('aside-content')
+  @include('partials.sideMenu.dashboard', ['openDashboardDrawer' => false, 'openProjectDrawer' => true])
+@stop
+
 @section('header')
     <section class="head">
         <div class="inner-wrap center">
@@ -54,4 +58,3 @@
         Kora.Exodus.Transfer();
     </script>
 @stop
-

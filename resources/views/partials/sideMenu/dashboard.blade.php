@@ -1,5 +1,5 @@
 <div class="drawer-element drawer-element-js">
-  <a href="#" class="drawer-toggle drawer-toggle-js">
+  <a href="#" class="drawer-toggle drawer-toggle-js" data-drawer="{{ $openDashboardDrawer or '0' }}">
     <i class="icon icon-dashboard"></i>
     <span>Dashboard</span>
     <i class="icon icon-chevron"></i>
@@ -22,7 +22,7 @@
 </div>
 
 <div class="drawer-element drawer-element-js">
-  <a href="#" class="drawer-toggle drawer-toggle-js">
+  <a href="#" class="drawer-toggle drawer-toggle-js" data-drawer="{{ $openProjectDrawer or '0' }}">
     <i class="icon icon-projects"></i>
     <span> Projects</span>
     <i class="icon icon-chevron"></i>
@@ -47,7 +47,7 @@
       @if(sizeof($allowed_projects) > 1)
         <li class="content-link" id="project-submenu">
           <a href='#' class="drawer-sub-menu-toggle drawer-sub-menu-toggle-js" data-toggle="dropdown">
-            <span>Jump to Form</span>
+            <span>Jump to Project</span>
             <i class="icon icon-plus"></i>
           </a>
 

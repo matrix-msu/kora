@@ -12,7 +12,7 @@
     font-family: $ubuntu;
     font-size: 12px;
     line-height: 25px;
-    margin-bottom: 5px;
+    padding-bottom: 5px;
     text-decoration: none;
 
     .icon {
@@ -30,6 +30,11 @@
       &:hover {
         color: palette('white', 'base');
       }
+    }
+
+    &.pre-spacer {
+      margin-bottom: 5px;
+      padding-bottom: 0;
     }
 
     &.head {

@@ -9,7 +9,7 @@
 @stop
 
 @section('aside-content')
-  @include('partials.sideMenu.dashboard')
+  @include('partials.sideMenu.dashboard', ['openDashboardDrawer' => false, 'openProjectDrawer' => true])
 @stop
 
 @section('header')

@@ -5,7 +5,7 @@
 @stop
 
 @section('aside-content')
-    @include('partials.sideMenu.dashboard')
+    @include('partials.sideMenu.project', ['pid' => $project->pid, 'openDrawer' => true])
 @stop
 
 @section('leftNavLinks')
@@ -46,7 +46,7 @@
                     {!! Form::text('preset', $preset->preset, ['class' => 'text-input', 'placeholder' => 'Enter text value']) !!}
                 </div>
             @elseif($preset->type == 'List')
-                <?php 
+                <?php
                     $values = explode("[!]", $preset->preset);
                     $valuesArray = array();
                     foreach($values as $value) {

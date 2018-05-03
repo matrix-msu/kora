@@ -9,7 +9,7 @@
 
 @section('aside-content')
   @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid])
-  @include('partials.sideMenu.record', ['pid' => $record->pid, 'fid' => $record->fid, 'rid' => $record->rid])
+  @include('partials.sideMenu.record', ['pid' => $record->pid, 'fid' => $record->fid, 'rid' => $record->rid, 'openDrawer' => true])
 @stop
 
 @section('stylesheets')
