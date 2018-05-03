@@ -26,7 +26,7 @@
         </a>
       </div>
 
-      @if (\Auth::user()->admin)
+      @if (isset(\Auth::user()) && \Auth::user()->admin)
         @include('partials.sideMenu.management')
         @include('partials.sideMenu.plugins')
       @endif
