@@ -15,25 +15,9 @@
     width: $max-site-width;
 
     .new-object-button {
-        margin-top: 15px;
+      margin-top: 15px;
     }
 
-    .form-group {
-      .form-cleanup {
-        text-align: center;
-
-        .dot-btn {
-          display: inline-block;
-
-          .icon {
-            margin-left: 1px;
-          }
-        }
-      }
-    }
-
-    .form-group.preset-delete-spacer {
-      margin-top: 90px;
-    }
+    @import 'field-presets/create';
   }
 }

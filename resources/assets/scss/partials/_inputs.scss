@@ -39,8 +39,8 @@
   &.half {
     box-sizing: border-box;
     display: inline-block;
-    text-align: left;
     padding-right: 15px;
+    text-align: left;
     width: 50%;
 
     + .half {
@@ -60,8 +60,8 @@
       width: 100%;
 
       + .half {
-        padding-left: 0;
         float: none;
+        padding-left: 0;
       }
     }
   }

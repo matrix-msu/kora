@@ -13,34 +13,7 @@
     max-width: calc(#{ $max-site-width } - 600px);
     padding: 0 20px;
 
-    .last-desc {
-      text-align: center;
-
-      .title {
-        font-size: 36px;
-        line-height: 42px;
-        text-shadow: 0 2px 4px 0 palette('gray', text,0.1);
-      }
-
-      .sub-title {
-        font-size: 24px;
-        line-height: 28px;
-      }
-
-      .description {
-        font-size: 16px;
-        line-height: 28px;
-      }
-    }
-
-    .last-cmd {
-      .solid-box {
-        background-color: palette('gray', text, .03);
-        border-radius: 5px;
-        font-size: 14px;
-        padding: 18px 0;
-        padding-left: 22px;
-      }
-    }
+    @import 'install-success/last-description';
+    @import 'install-success/last-command';
   }
 }

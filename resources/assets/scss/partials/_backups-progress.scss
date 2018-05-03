@@ -17,20 +17,17 @@
 
     .time {
       margin-left: 30px;
-      opacity: 0.6;
+      opacity: .6;
     }
   }
 
   .rotate-icon {
-    top: 50%;
+    animation: spin 4s linear infinite;
     left: 50%;
-    -webkit-animation:spin 4s linear infinite;
-    -moz-animation:spin 4s linear infinite;
-    animation:spin 4s linear infinite;
+    top: 50%;
   }
-  @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
-  @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
-  @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+  @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
 
   .backup-progress {
     margin: #{map-get($spacing, xxxl)} auto;
