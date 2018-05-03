@@ -11,7 +11,7 @@
 @stop
 
 @section('aside-content')
-  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid, 'openDrawer' => true])
 @stop
 
 @section('header')

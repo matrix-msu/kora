@@ -7,7 +7,7 @@
 @stop
 
 @section('aside-content')
-  @include('partials.sideMenu.form', ['pid' => $field->pid, 'fid' => $field->fid])
+  @include('partials.sideMenu.form', ['pid' => $field->pid, 'fid' => $field->fid, 'openDrawer' => true])
 @stop
 
 @section('header')

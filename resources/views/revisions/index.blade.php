@@ -10,9 +10,11 @@
 @stop
 
 @section('aside-content')
-  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid])
   @if (isset($rid))
-      @include('partials.sideMenu.record', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $rid])
+      @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+      @include('partials.sideMenu.record', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $rid, 'openDrawer' => true])
+  @else
+    @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid, 'openDrawer' => true])
   @endif
 @stop
 

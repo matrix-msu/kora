@@ -1,5 +1,5 @@
 <div class="drawer-element drawer-element-js">
-  <a href="#" class="drawer-toggle drawer-toggle-js">
+  <a href="#" class="drawer-toggle drawer-toggle-js" data-drawer="{{ $openDashboardDrawer or '0' }}">
     <i class="icon icon-dashboard"></i>
     <span>Dashboard</span>
     <i class="icon icon-chevron"></i>
@@ -22,7 +22,7 @@
 </div>
 
 <div class="drawer-element drawer-element-js">
-  <a href="#" class="drawer-toggle drawer-toggle-js">
+  <a href="#" class="drawer-toggle drawer-toggle-js" data-drawer="{{ $openProjectDrawer or '0' }}">
     <i class="icon icon-projects"></i>
     <span> Projects</span>
     <i class="icon icon-chevron"></i>

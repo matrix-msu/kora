@@ -160,6 +160,25 @@ $(document).ready(function() {
       //e.preventDefault();
     }
   });
+
+  //check for active sidebar tablet
+  $activeDrawer = $('.drawer-toggle-js[data-drawer="1"]')
+  if (typeof $activeDrawer !== 'undefined') {
+    var $this = $activeDrawer
+    var $drawerElement = $this.parent();
+    var $drawerContent = $this.next();
+    var $icon = $this.children().last();
+    console.log($drawerElement)
+    if ($drawerElement.hasClass('active')) {
+      closeSidemenuDrawers();
+      return;
+    }
+
+    closeSidemenuDrawers();
+    $drawerElement.toggleClass('active');
+    $icon.toggleClass('active');
+    $drawerContent.slideToggle('fast');
+  }
 });
 
 //Quick opens global search menu

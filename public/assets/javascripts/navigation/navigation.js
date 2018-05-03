@@ -323,6 +323,7 @@ function closeSidemenuDrawers() {
 }
 
 $sideMenu.on('click', '.drawer-toggle-js', function(e) {
+  console.log("d")
   e.preventDefault();
 
   var $drawerElement = $(this).parent();

@@ -6,6 +6,10 @@
     @include('partials.menu.static', ['name' => 'Form Associations'])
 @stop
 
+@section('aside-content')
+  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid, 'openDrawer' => true])
+@stop
+
 @section('header')
     <section class="head">
         <div class="inner-wrap center">
@@ -68,7 +72,7 @@
                 </div>
             @endforeach
         </section>
-        
+
     </section>
     <section class="request-section hidden">
         <p class="description center">You may also request association permissions for this form to associate with other forms. Select "Request Form Association" to begin. Once requested, a notification will be sent to the admins of the selected form to allow association from your form.</p>
@@ -126,7 +130,7 @@
                         <div id="form_select">{{trans('association_index.forms')}}:
                             <select id="selected_assoc">
                                 @foreach(\App\Form::all() as $f)
-                                
+
                                 @endforeach
                             </select>
                             <button id="add_assoc" class="btn btn-primary">{{trans('association_index.addallowed')}}</button>

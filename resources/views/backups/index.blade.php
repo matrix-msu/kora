@@ -4,6 +4,10 @@
     @include('partials.menu.static', ['name' => 'Backups'])
 @stop
 
+@section('aside-content')
+  @include('partials.sideMenu.dashboard', ['openDashboardDrawer' => false, 'openProjectDrawer' => true])
+@stop
+
 @section('header')
     <section class="head">
         <div class="inner-wrap center">
@@ -132,4 +136,3 @@
         Kora.Backups.Index();
     </script>
 @stop
-

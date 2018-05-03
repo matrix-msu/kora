@@ -25,9 +25,11 @@
           <i class="icon icon-external-link"></i>
         </a>
       </div>
-      
-      @include('partials.sideMenu.management')
-      @include('partials.sideMenu.plugins')
+
+      @if (\Auth::user()->admin)
+        @include('partials.sideMenu.management')
+        @include('partials.sideMenu.plugins')
+      @endif
     <div>
   </aside>
 </div>
