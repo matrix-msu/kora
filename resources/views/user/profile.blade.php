@@ -26,7 +26,7 @@
 @stop
 
 @section('body')
-    <section class="center page-section page-section-js" id="profile">
+    <section class="center page-section profile page-section-js" id="profile">
         <div class="attr mt-xl">
             <span class="title">First Name: </span>
             <span class="desc">{{$user->first_name}}</span>
@@ -53,7 +53,7 @@
         </div>
     </section>
 
-    <section class="center page-section page-section-js" id="permissions">
+    <section class="center page-section permissions page-section-js" id="permissions">
         <div class="filters mt-xxxl">
             <a href="#projects" class="filter-link select-content-section-js underline-middle underline-middle-hover">Projects</a>
             <a href="#forms" class="filter-link select-content-section-js underline-middle underline-middle-hover">Forms</a>
@@ -88,7 +88,7 @@
         </div>
     </section>
 
-    <section class="center page-section page-section-js" id="recordHistory">
+    <section class="center page-section record-history page-section-js" id="recordHistory">
         <div class="filters mt-xxxl">
             <a href="#recentlyModified" class="filter-link select-content-section-js underline-middle underline-middle-hover">Recently Modified</a>
             <a href="#myCreatedRecords" class="filter-link select-content-section-js underline-middle underline-middle-hover">My Created Records</a>
