@@ -72,5 +72,5 @@
 </section>
 
 <section class="new-object-button form-group mt-xxxl">
-    <input class="add-combo-value-js" type="button" value="Add Default Value" flid="{{$field->flid}}">
+    <input class="add-combo-value-js" type="button" value="Create new Combo List value" flid="{{$field->flid}}">
 </section>

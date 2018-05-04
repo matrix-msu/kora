@@ -128,8 +128,8 @@ Kora.Records.Create = function() {
                 console.log('Both fields must be filled out');
             } else {
                 //Remove empty div if applicable
-                if(defaultDiv.children('.combo-list-empty').first())
-                    defaultDiv.children('.combo-list-empty').first().remove();
+                if(defaultDiv.find('.combo-list-empty').first())
+                    defaultDiv.find('.combo-list-empty').first().remove();
 
                 div = '<div class="combo-value-item-js">';
 
