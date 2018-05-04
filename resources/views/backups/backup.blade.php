@@ -44,12 +44,15 @@
         </div>
     </section>
 
-    <section class="backup-finish hidden">
+    <section class="backup-finish center hidden">
         <div class="form-group half">
             <input type="button" class="btn download-file-js" value="Download Backup File (16TBGB)">
         </div>
-        <div class="large-size-warning">
+        <div class="finish-text mt-xxxl">
             If file is too large to download, you can download it from this folder: {Kora3}/storage/app/backups/{{$backupLabel}}
+        </div>
+        <div class="finish-text mt-xl">
+            <a href="{{action("BackupController@index")}}">Go back to the Backups Management Main Page</a>
         </div>
     </section>
 @stop

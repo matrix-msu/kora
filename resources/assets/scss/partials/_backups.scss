@@ -12,7 +12,6 @@
   .filerestore-section {
     margin: #{map-get($spacing, xxxl)} auto;
     max-width: calc(#{ $max-site-width } - 600px);
-    padding: 0 20px;
 
     @import 'backups/filters';
     @import 'backups/backup-card';
