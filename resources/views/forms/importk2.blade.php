@@ -47,7 +47,7 @@
             </label>
         </div>
 
-        <div class="form-group mt-xxxl" id="scroll-here">
+        <div class="form-group hidden spacer-fade-js mt-xxxl" id="scroll-here">
             <div class="spacer"></div>
         </div>
 
