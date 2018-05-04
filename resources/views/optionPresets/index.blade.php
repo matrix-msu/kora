@@ -9,7 +9,7 @@
 @stop
 
 @section('leftNavLinks')
-    @include('partials.menu.project', ['pid' => $project->pid
+    @include('partials.menu.project', ['pid' => $project->pid])
 @stop
 
 @section('header')
