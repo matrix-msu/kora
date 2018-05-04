@@ -110,7 +110,7 @@ Kora.Records.Index = function() {
             if(keyVal.val()=='') {
                 keyVal.addClass('error');
                 keyVal.siblings('.error-message').text('Provide a keyword');
-            } else if(formVal.val()==null) {
+            } else if(formVal.length && formVal.val()==null) {
                 formVal.siblings('.error-message').text('Select something to search through');
             } else {
                 $('.keyword-search-js').submit();
@@ -125,7 +125,7 @@ Kora.Records.Index = function() {
                 if(keyVal.val()=='') {
                     keyVal.addClass('error');
                     keyVal.siblings('.error-message').text('Provide a keyword');
-                } else if(formVal.val()==null) {
+                } else if(formVal.length && formVal.val()==null) {
                     formVal.siblings('.error-message').text('Select something to search through');
                 } else {
                     $('.keyword-search-js').submit();
