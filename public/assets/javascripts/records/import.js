@@ -5,6 +5,7 @@ Kora.Records.Import = function() {
 
     function initializeFormProgression() {
         $('.record-input-js').change(function () {
+            $('.spacer-fade-js').fadeIn(1000);
             $('.record-import-section-2').removeClass('hidden');
         });
     }
