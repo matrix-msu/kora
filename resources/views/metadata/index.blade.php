@@ -1,4 +1,4 @@
-@extends('app')
+@extends('app', ['page_title' => 'Link Open Data', 'page_class' => 'metadata'])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $pid])

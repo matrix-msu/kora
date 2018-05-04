@@ -1,4 +1,4 @@
-@extends('app', ['page_title' => 'Duplicate Record', 'page_class' => 'record-create'])
+@extends('app', ['page_title' => 'Duplicate Record', 'page_class' => 'record-clone'])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $form->pid])

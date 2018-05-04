@@ -161,7 +161,7 @@ $(document).ready(function() {
     }
   });
 
-  //check for active sidebar tablet
+  //check for active sidebar drawer
   $activeDrawer = $('.drawer-toggle-js[data-drawer="1"]')
   if (typeof $activeDrawer !== 'undefined') {
     var $this = $activeDrawer
@@ -179,6 +179,15 @@ $(document).ready(function() {
     $icon.toggleClass('active');
     $drawerContent.slideToggle('fast');
   }
+
+  // set the active page in the sidebar drawer
+  var pageName = $('body').attr('class').replace("-body", "").replace(/ /g,'');
+  var $activePageLink = $('.content-link-js[data-page="' + pageName + '"]')
+  if (typeof $activePageLink !== 'undefined') {
+    $('.content-link-js').removeClass('head');
+    $activePageLink.addClass('head');
+  }
+
 });
 
 //Quick opens global search menu

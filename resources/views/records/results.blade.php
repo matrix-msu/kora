@@ -1,4 +1,4 @@
-@extends('app', ['page_title' => 'Form Records', 'page_class' => 'record-index'])
+@extends('app', ['page_title' => 'Form Records', 'page_class' => 'record-results'])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $form->pid])

@@ -6,25 +6,25 @@
     </a>
 
     <ul class="drawer-content drawer-content-js">
-        <li class="content-link head">
+        <li class="content-link content-link-js" data-page="record-show">
             <a href="{{action("RecordController@show", ['pid'=>$pid,'fid'=>$fid,'rid'=>$rid])}}">
                 <span>{{ $pid . '-' . $fid . '-' . $rid }}</span>
             </a>
         </li>
 
-        <li class="content-link">
+        <li class="content-link content-link-js" data-page="record-edit">
             <a href="{{action("RecordController@edit", ['pid'=>$pid, 'fid'=>$fid, 'rid'=>$rid])}}">Edit Record</a>
         </li>
 
-        <li class="content-link">
+        <li class="content-link content-link-js" data-page="record-clone">
             <a href="{{action('RecordController@cloneRecord', ['pid'=>$pid, 'fid'=>$fid, 'rid'=>$rid])}}">Duplicate Record</a>
         </li>
 
-        <li class="content-link">
+        <li class="content-link content-link-js" data-page="record-revisions">
             <a href="{{action("RevisionController@show", ['pid'=>$pid, 'fid'=>$fid, 'rid'=>$rid])}}">View Revisions ({{\App\Http\Controllers\RevisionController::getRevisionCount($rid)}})</a>
         </li>
 
-        <li class="content-link">
+        <li class="content-link content-link-js">
           @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
             <?php $alreadyPreset = (\App\RecordPreset::where('rid',$rid)->count() > 0); ?>
             @if($alreadyPreset)
