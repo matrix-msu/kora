@@ -3,7 +3,6 @@
   justify-content: space-between;
   margin: 60px auto;
   max-width: calc(#{$max-site-width} - 600px);
-  width: $max-site-width;
 
   .page {
     cursor: pointer;
@@ -45,6 +44,15 @@
           color: palette('gray', slate);
           opacity: 0.5;
         }
+      }
+    }
+  }
+
+  @media screen and (max-width: $max-mobile-med-width) {
+    .previous.page,
+    .next.page {
+      span {
+        display: none;
       }
     }
   }

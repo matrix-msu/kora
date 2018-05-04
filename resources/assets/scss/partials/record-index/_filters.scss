@@ -3,7 +3,6 @@
   height: 20px;
   margin: 40px auto 0;
   max-width: calc(#{ $max-site-width } - 600px);
-  width: $max-site-width;
 
   .pagination-options {
     float: left;
@@ -36,8 +35,6 @@
 
 @media screen and (max-width: $max-mobile-width) {
   .filters {
-    height: 66px;
-
     .search {
       display: inline-block;
       float: none;
@@ -45,15 +42,15 @@
   }
 }
 
-@media screen and (max-width: $max-mobile-xs-width) {
+@media screen and (max-width: 457px) {
   .filters {
-    margin-left: $mobile-xs-margin-total / 2;
-    max-width: $max-mobile-xs-width - $mobile-xs-margin-total;
-    overflow-x: hidden;
-    width: calc(100% - #{$mobile-xs-margin-total / 2 });
+    margin-bottom: 80px;
 
-    .search-options {
-      @include responsive-scroll();
+    .pagination-options {
+      margin-bottom: 20px;
+    }
+    .show-options {
+      display: inline-block;
     }
   }
 }

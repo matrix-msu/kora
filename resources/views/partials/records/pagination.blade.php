@@ -1,4 +1,4 @@
-<section class="pagination center">
+<section class="pagination">
     <div class="previous page {{$records->onFirstPage() ? 'disabled' : ''}}">
         <a href="{{$records->previousPageUrl()}}">
             <i class="icon icon-chevron left"></i>

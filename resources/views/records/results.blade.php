@@ -46,12 +46,10 @@
                     {!! Form::select('method',[0 => 'or',1 => 'and',2 => 'exact'], app('request')->input('method'), ['class' => 'single-select method-get-js']) !!}
                 </div>
 
-                <div class="form-group mt-xxxl">
-                    <div class="search-button-container">
-                        <a href="#" class="btn half-sub-btn mb-sm open-advanced-js" data-unsp-sanitized="clean">View Advanced Search Options</a>
-                        <a href="#" class="btn half-sub-btn mb-sm close-advanced-js hidden" data-unsp-sanitized="clean">Hide Advanced Search Options</a>
-                        <a href="#" class="btn half-btn mb-sm submit-search-js" data-unsp-sanitized="clean">Search</a>
-                    </div>
+                <div class="form-group mt-xxxl search-button-container">
+                    <a href="#" class="btn half-sub-btn open-advanced-js" data-unsp-sanitized="clean">View Advanced Search Options</a>
+                    <a href="#" class="btn half-sub-btn close-advanced-js" data-unsp-sanitized="clean">Hide Advanced Search Options</a>
+                    <a href="#" class="btn half-btn submit-search-js" data-unsp-sanitized="clean">Search</a>
                 </div>
             </form>
 
@@ -72,7 +70,7 @@
             @if(sizeof($records)>0)
             @include('partials.records.pagination')
 
-            <section class="filters center">
+            <section class="filters">
                 <div class="pagination-options pagination-options-js">
                     <select class="page-count results-option-dropdown-js" id="page-count-dropdown">
                         <option value="10">10 per page</option>

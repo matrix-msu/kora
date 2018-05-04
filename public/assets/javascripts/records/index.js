@@ -101,6 +101,8 @@ Kora.Records.Index = function() {
     }
 
     function initializeSearchInteractions() {
+        $('.close-advanced-js').hide();
+
         $('.submit-search-js').click(function(e) {
             e.preventDefault();
 

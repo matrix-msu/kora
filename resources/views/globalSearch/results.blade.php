@@ -50,14 +50,12 @@
                         'class' => 'multi-select projects-get-js', 'data-placeholder' => 'Select Projects(s) to search']) !!}
                 </div>
 
-                <div class="form-group search-spacer mt-xxxl">
-                    <div class="search-button-container">
-                        <a href="#" class="btn mb-sm submit-search-js" data-unsp-sanitized="clean">Search</a>
-                    </div>
+                <div class="form-group mt-xxxl search-button-container">
+                    <a href="#" class="btn mb-sm submit-search-js" data-unsp-sanitized="clean">Search</a>
                 </div>
             </form>
 
-            <div class="form-group search-spacer mt-xxxl scroll-to-here-js">
+            <div class="form-group mt-xxxl scroll-to-here-js">
                 <div class="spacer"></div>
             </div>
         </section>
@@ -70,7 +68,7 @@
             @if(sizeof($records)>0)
                 @include('partials.records.pagination')
 
-                <section class="filters center">
+                <section class="filters">
                     <div class="pagination-options pagination-options-js">
                         <select class="page-count results-option-dropdown-js" id="page-count-dropdown">
                             <option value="10">10 per page</option>
