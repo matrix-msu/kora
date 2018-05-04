@@ -16,8 +16,8 @@
     .search-input {
       box-sizing: border-box;
       display: inline-block;
-      text-align: left;
       padding-right: 15px;
+      text-align: left;
       width: 80%;
 
       + .search-input {
@@ -33,7 +33,9 @@
       justify-content: space-between;
       margin-top: 30px;
 
-      .half-sub-btn, .half-btn {
+      // scss-lint:disable SelectorDepth
+      .half-sub-btn,
+      .half-btn {
         width: calc(50% - 10px);
       }
     }
@@ -42,12 +44,12 @@
       .search-input {
         display: block;
         margin-top: 20px;
-        padding-right: 0px;
+        padding-right: 0;
         width: 100%;
 
         + .search-input {
           float: left;
-          padding-left: 0px;
+          padding-left: 0;
           width: 100%;
         }
       }
@@ -57,32 +59,17 @@
         float: left;
         width: 100%;
 
+        // scss-lint:disable SelectorDepth
         .spacer {
           margin-bottom: 60px;
         }
       }
-
-      .search-button-container {
-        display: initial;
-
-        .half-sub-btn {
-          margin-bottom: 0;
-        }
-
-        .half-sub-btn, .half-btn {
-          margin-top: 40px;
-          max-width: 100%;
-          width: 100%;
-        }
-      }
     }
 
-    .advanced-search-drawer {
-      .advanced-search-title {
-        font-size: 30px;
-        height: 34px;
-        line-height: 35px;
-      }
+    .advanced-search-title {
+      font-size: 30px;
+      height: 34px;
+      line-height: 35px;
     }
 
     .records-title {

@@ -1,0 +1,43 @@
+.page {
+  cursor: pointer;
+
+  a {
+    color: palette('green', accent);
+    text-decoration: none;
+
+    i {
+      background: palette('green', accent);
+      border-radius: 100px;
+      box-shadow: 0 3px 5px 0 palette('green', accent, .15);
+      color: palette('white', base);
+      font-size: 6px;
+      height: 40px;
+      line-height: 40px;
+      text-align: center;
+      width: 40px;
+    }
+
+    span {
+      font-size: 12px;
+      line-height: 38px;
+      margin: 0 10px;
+    }
+  }
+
+  &.disabled {
+    cursor: default;
+    opacity: .5;
+
+    a {
+      color: palette('gray', text);
+      cursor: default;
+      pointer-events: none;
+
+      i {
+        background: palette('white', base);
+        color: palette('gray', slate);
+        opacity: .5;
+      }
+    }
+  }
+}

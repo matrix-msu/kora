@@ -1,0 +1,41 @@
+.empty-token-projects-link {
+  color: palette('green', accent);
+  font-family: $ubuntu-medium;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 19px;
+  padding: 0 0 5px;
+}
+
+.trash-container {
+  padding-right: 15px;
+  padding-top: 35px;
+
+  .icon-trash {
+    color: palette('red', base);
+    font-size: 14px;
+    padding: 0 0 5px;
+    will-change: transform;
+  }
+
+  &:hover .icon-trash {
+    transform: scale($transform-scale-multiplier);
+  }
+}
+
+a {
+  .icon-cancel-circle {
+    @include transition();
+
+    display: inline-block;
+    font-size: 14px;
+    margin: 0 5px 0 0;
+    padding: 3px 0 #{ $underline-padding };
+    vertical-align: middle;
+    will-change: transform;
+  }
+
+  &:hover .icon-cancel-circle {
+    transform: scale($transform-scale-multiplier);
+  }
+}

@@ -168,7 +168,7 @@ $(document).ready(function() {
     var $drawerElement = $this.parent();
     var $drawerContent = $this.next();
     var $icon = $this.children().last();
-    console.log($drawerElement)
+
     if ($drawerElement.hasClass('active')) {
       closeSidemenuDrawers();
       return;

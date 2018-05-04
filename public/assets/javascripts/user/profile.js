@@ -12,8 +12,8 @@ Kora.User.Profile = function() {
       $this = $(this);
       $this.siblings().removeClass('active');
       $this.addClass('active');
-      
-      $('.page-section-js').removeClass('active');      
+
+      $('.page-section-js').removeClass('active');
       $active = $this.attr("href").replace('#', '');
       $('.page-section-js').each(function() {
           if ($(this).attr('id') == $active) {
@@ -22,10 +22,10 @@ Kora.User.Profile = function() {
       });
     });
   }
-  
+
   function initializeFilter(page) {
-    var $selector = $('#'+page+' .select-content-section-js');
-    var $content = $('#'+page+' .content-section-js');
+    var $selector = $(page + ' .select-content-section-js');
+    var $content = $(page + ' .content-section-js');
 
     $content.first().addClass('active');
     $selector.first().addClass('active');
@@ -48,8 +48,8 @@ Kora.User.Profile = function() {
   }
 
   function initializeFilters() {
-    initializeFilter('permissions');
-    initializeFilter('recordHistory');
+    initializeFilter('.permissions');
+    initializeFilter('.record-history');
   }
 
   function initializeProjectCards() {
@@ -90,7 +90,7 @@ Kora.User.Profile = function() {
 
     });
   }
-  
+
   initializePageNavigation();
   initializeFilters();
   initializeProjectCards();
