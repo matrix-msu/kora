@@ -75,12 +75,14 @@
       font-size: 30px;
       height: 34px;
       line-height: 35px;
+      color: palette('gray', text);
     }
 
     .records-title {
       font-size: 30px;
       height: 34px;
       line-height: 35px;
+      color: palette('gray', text);
     }
 
     @import 'record-show/card';
