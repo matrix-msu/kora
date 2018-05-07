@@ -1,5 +1,10 @@
 @extends('app', ['page_title' => "Edit Config", 'page_class' => 'edit-config'])
 
+@section('aside-content')
+  <?php $openManagement = true ?>
+  @include('partials.sideMenu.dashboard', ['openDashboardDrawer' => false, 'openProjectDrawer' => false])
+@stop
+
 @section('header')
     <section class="head">
         <div class="inner-wrap center">

@@ -1,5 +1,9 @@
 @extends('app', ['page_title' => 'My Profile', 'page_class' => 'user-profile'])
 
+@section('aside-content')
+  @include('partials.sideMenu.dashboard', ['openDashboardDrawer' => false, 'openProjectDrawer' => false])
+@stop
+
 @section('header')
     <section class="head">
         <div class="inner-wrap center">
