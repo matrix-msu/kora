@@ -1,5 +1,9 @@
 @extends('app', ['page_title' => 'Edit User', 'page_class' => 'user-edit'])
 
+@section('aside-content')
+  @include('partials.sideMenu.dashboard', ['openDashboardDrawer' => false, 'openProjectDrawer' => false])
+@stop
+
 @section('header')
   <section class="head">
     <div class="inner-wrap center">
@@ -51,7 +55,7 @@
     @endif
       @include('partials.user.form', ['uid' => $user->id, 'type' => 'edit'])
     {!! Form::close() !!}
-    
+
     <div class="modal modal-js modal-mask user-cleanup-modal-js">
       <div class="content small">
         <div class="header">

@@ -5,7 +5,8 @@
 @stop
 
 @section('aside-content')
-  @include('partials.sideMenu.dashboard', ['openDashboardDrawer' => false, 'openProjectDrawer' => true])
+  <?php $openManagement = true ?>
+  @include('partials.sideMenu.dashboard', ['openDashboardDrawer' => false, 'openProjectDrawer' => false])
 @stop
 
 @section('header')
