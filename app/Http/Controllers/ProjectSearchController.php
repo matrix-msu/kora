@@ -38,6 +38,8 @@ class ProjectSearchController extends Controller {
      * @return View
      */
     public function keywordSearch($pid, Request $request) {
+        $initial = false;
+
         if(isset($request->keywords)) {
             //DO THE SEARCH
             $arg = trim($request->keywords);
@@ -84,6 +86,7 @@ class ProjectSearchController extends Controller {
             $records = [];
             $total = 0;
             $ignored = [];
+            $initial = true;
         }
 
         $project = ProjectController::getProject($pid);
@@ -93,7 +96,7 @@ class ProjectSearchController extends Controller {
             $forms[$f->fid] = $f->name;
         }
 
-        return view('projectSearch.results', compact("project", "forms", "records", "total", "ignored"));
+        return view('projectSearch.results', compact("project", "forms", "records", "total", "ignored", "initial"));
     }
 
     /**

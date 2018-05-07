@@ -85,6 +85,13 @@
       color: palette('gray', text);
     }
 
+    .results-here-text {
+      font-size: 14px;
+      height: 16px;
+      line-height: 16px;
+      text-align: center;
+    }
+
     @import 'record-show/card';
     @import 'record-index/filters';
     @import 'record-index/pagination';
