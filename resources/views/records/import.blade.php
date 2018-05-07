@@ -15,14 +15,14 @@
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-record-import"></i>
-                <span>Import Records</span>
+                <span class="header-text-js">Import Records</span>
             </h1>
-            <p class="description">You can import records via XML or JSON File. You may
+            <p class="description desc-text-js">You can import records via XML or JSON File. You may
                 <a href="{{ action('ImportController@exportSample',['pid' => $form->pid, 'fid' => $form->fid, 'type' => 'XML']) }}">download our sample XML file here</a>,
                 and
                 <a href="{{ action('ImportController@exportSample',['pid' => $form->pid, 'fid' => $form->fid, 'type' => 'JSON']) }}">our sample JSON file here</a>
                 to get an idea on how to organize your record data. </p>
-            <div class="content-sections">
+            <div class="content-sections sections-remove-js">
                 <a href="#recordfile" class="recordfile-link underline-middle active">Upload Record Files</a>
                 <span class="progression-tab"></span>
                 <a href="#recordmatch" class="recordmatch-link">Field Matching</a>
