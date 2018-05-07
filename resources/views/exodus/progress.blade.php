@@ -1,9 +1,5 @@
 @extends('app', ['page_title' => "K2 Exodus Transfer", 'page_class' => 'kora-exodus-transfer'])
 
-@section('leftNavLinks')
-    @include('partials.menu.static', ['name' => 'K2 Exodus Transfer'])
-@stop
-
 @section('aside-content')
   @include('partials.sideMenu.dashboard', ['openDashboardDrawer' => false, 'openProjectDrawer' => true])
 @stop

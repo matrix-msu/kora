@@ -1,9 +1,5 @@
 @extends('app', ['page_title' => "Backing Up", 'page_class' => 'backup-start'])
 
-@section('leftNavLinks')
-    @include('partials.menu.static', ['name' => 'Backing Up'])
-@stop
-
 @section('aside-content')
   @include('partials.sideMenu.dashboard', ['openDashboardDrawer' => false, 'openProjectDrawer' => true])
 @stop
@@ -52,7 +48,7 @@
             If file is too large to download, you can download it from this folder: {Kora3}/storage/app/backups/{{$backupLabel}}
         </div>
         <div class="finish-text mt-xl">
-            <a href="{{action("BackupController@index")}}">Go back to the Backups Management Main Page</a>
+            <a href="{{action("BackupController@index")}}" class="underline-middle-hover pb-xxs">Go back to the Backups Management Main Page</a>
         </div>
     </section>
 @stop

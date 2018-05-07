@@ -1,9 +1,5 @@
 @extends('app', ['page_title' => "K2 Exodus", 'page_class' => 'kora-exodus'])
 
-@section('leftNavLinks')
-    @include('partials.menu.static', ['name' => 'K2 Exodus'])
-@stop
-
 @section('aside-content')
   <?php $openManagement = true ?>
   @include('partials.sideMenu.dashboard', ['openDashboardDrawer' => false, 'openProjectDrawer' => false])

@@ -1,9 +1,5 @@
 @extends('app', ['page_title' => "Backups", 'page_class' => 'backup-management'])
 
-@section('leftNavLinks')
-    @include('partials.menu.static', ['name' => 'Backups'])
-@stop
-
 @section('aside-content')
   <?php $openManagement = true ?>
   @include('partials.sideMenu.dashboard', ['openDashboardDrawer' => false, 'openProjectDrawer' => false])

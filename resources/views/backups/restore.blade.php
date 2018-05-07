@@ -1,9 +1,5 @@
 @extends('app', ['page_title' => "Restoring Kora", 'page_class' => 'restore-start'])
 
-@section('leftNavLinks')
-    @include('partials.menu.static', ['name' => 'Restoring Kora'])
-@stop
-
 @section('aside-content')
   @include('partials.sideMenu.dashboard', ['openDashboardDrawer' => false, 'openProjectDrawer' => true])
 @stop
