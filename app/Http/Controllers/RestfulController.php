@@ -792,18 +792,43 @@ class RestfulController extends Controller {
             ->whereIn('rid',$rids)->groupBy('option')->orderBy('count','desc')->get()->toArray();
         $numberOccurrences = NumberField::selectRaw('`number`, flid, COUNT(*) as count')->where('fid','=',$fid)
             ->whereIn('rid',$rids)->groupBy('number')->orderBy('count','desc')->get()->toArray();
+        $assocOccurrences = DB::table('associator_support')->selectRaw('`record`, flid, COUNT(*) as count')->where('fid','=',$fid)
+            ->whereIn('rid',$rids)->groupBy('record')->orderBy('count','desc')->get()->toArray();
+        $rAssocOccurrences = DB::table('associator_support')->selectRaw('`rid`, COUNT(*) as count')
+            ->whereIn('record',$rids)->groupBy('rid')->orderBy('count','desc')->get()->toArray();
 
         foreach($textOccurrences as $occur) {
-            if($occur['count']>1)
+            if($occur['count']>1) {
+                $occur['type'] = 'Text';
                 $filters[] = $occur;
+            }
         }
         foreach($listOccurrences as $occur) {
-            if($occur['count']>1)
+            if($occur['count']>1) {
+                $occur['type'] = 'List';
                 $filters[] = $occur;
+            }
         }
         foreach($numberOccurrences as $occur) {
             if($occur['count']>1) {
                 $occur['number'] = (float)$occur['number'];
+                $occur['type'] = 'Number';
+                $filters[] = $occur;
+            }
+        }
+        foreach($assocOccurrences as $occur) {
+            if($occur->count > 1) {
+                $kid = Record::where('rid','=',$occur->record)->first()->kid;
+                $occur->record = $kid;
+                $occur->type = "Associator";
+                $filters[] = $occur;
+            }
+        }
+        foreach($rAssocOccurrences as $occur) {
+            if($occur->count > 1) {
+                $kid = Record::where('rid', '=', $occur->rid)->first()->kid;
+                $occur->rid = $kid;
+                $occur->type = "Reverse Associator";
                 $filters[] = $occur;
             }
         }
