@@ -112,8 +112,8 @@ class AdminController extends Controller {
         $newProfilePic = $request->profile;
         $newOrganization = $request->organization;
         $newLanguage = $request->language;
-        $newPass = $request->new_password;
-        $confirm = $request->confirm;
+        $newPass = $request->password;
+        $confirm = $request->password_confirmation;
 
         // Look for changes, update what was changed
         if (!empty($newFirstName) && $newFirstName != $user->first_name) {
@@ -165,8 +165,8 @@ class AdminController extends Controller {
         }
 
         $user->save();
-        return response()->json(["status" => true, "message" => $message], 200);
-        // return redirect('admin/users')->with('k3_global_success', 'user_updated')->with('user_changes', $message);
+        //return response()->json(["status" => true, "message" => $message], 200);
+        return redirect('admin/users')->with('k3_global_success', 'user_updated')->with('user_changes', $message);
     }
 
     /**

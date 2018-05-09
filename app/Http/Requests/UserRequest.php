@@ -22,14 +22,27 @@ class UserRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'username' => 'required|max:255|unique:users', //Check to not contain 'a'
-            'email' => 'required|email|max:255|unique:users',
-            'password' => 'required|confirmed|min:6',
-            'language'=> 'required|alpha|max:2',
-            'first_name'=> 'required',
-            'last_name'=> 'required',
-            'organization'=> 'required',
-        ];
+        switch($this->method())  {
+            case 'POST':
+                return [
+                    'username' => 'required|max:255|unique:users',
+                    'email' => 'required|email|max:255|unique:users',
+                    'password' => 'required|confirmed|min:6',
+                    'language'=> 'required|alpha|max:2',
+                    'first_name'=> 'required',
+                    'last_name'=> 'required',
+                    'organization'=> 'required',
+                ];
+            case 'PATCH':
+                return [
+                    'password' => 'confirmed|min:6',
+                    'language'=> 'required|alpha|max:2',
+                    'first_name'=> 'required',
+                    'last_name'=> 'required',
+                    'organization'=> 'required',
+                ];
+            default:
+                break;
+        }
     }
 }
