@@ -18,38 +18,50 @@
       </div>
     @endif
 
-    <form id="register-form" class="form-horizontal form-file-input" role="form" method="POST" enctype="multipart/form-data" action="{{ url('/register') }}">
+    <form id="register-form" class="form-horizontal form-file-input user-form" role="form" method="POST" enctype="multipart/form-data" action="{{ url('/register') }}">
       <input type="hidden" id="_token" name="_token" value="{{ csrf_token() }}">
       <input type="hidden" id="regtoken" name="regtoken" value="{{\App\Http\Controllers\Auth\RegisterController::makeRegToken()}}">
 
       <div class="form-group half mt-xl">
         <label for="first-name">Your First Name</label>
-  			<input type="text" class="text-input" id="first_name" name="first_name" placeholder="Enter your first name here" value="{{ old('first_name') }}">
+          <span class="error-message">{{array_key_exists("first_name", $errors->messages()) ? $errors->messages()["first_name"][0] : ''}}</span>
+  			<input type="text" class="text-input {{(array_key_exists("first_name", $errors->messages()) ? ' error' : '')}}"
+                   id="first_name" name="first_name" placeholder="Enter your first name here" value="{{ old('first_name') }}">
       </div>
 
       <div class="form-group half mt-xl">
         <label for="first-name">Your Last Name</label>
-  			<input type="text" class="text-input" id="last_name" name="last_name" placeholder="Enter your last name here" value="{{ old('last_name') }}">
+          <span class="error-message">{{array_key_exists("last_name", $errors->messages()) ? $errors->messages()["last_name"][0] : ''}}</span>
+  			<input type="text" class="text-input {{(array_key_exists("last_name", $errors->messages()) ? ' error' : '')}}"
+                   id="last_name" name="last_name" placeholder="Enter your last name here" value="{{ old('last_name') }}">
       </div>
 
       <div class="form-group mt-xl">
         <label for="username">Your Username</label>
-        <input type="text" class="text-input" id="username" name="username" placeholder="Enter your username here" value="{{ old('username') }}">
+          <span class="error-message">{{array_key_exists("username", $errors->messages()) ? $errors->messages()["username"][0] : ''}}</span>
+        <input type="text" class="text-input {{(array_key_exists("username", $errors->messages()) ? ' error' : '')}}"
+               id="username" name="username" placeholder="Enter your username here" value="{{ old('username') }}">
       </div>
 
       <div class="form-group mt-xl">
         <label for="email">Your Email</label>
-        <input type="email" class="text-input" id="email" name="email" placeholder="Enter your email here" value="{{ old('email') }}">
+          <span class="error-message">{{array_key_exists("email", $errors->messages()) ? $errors->messages()["email"][0] : ''}}</span>
+        <input type="email" class="text-input {{(array_key_exists("email", $errors->messages()) ? ' error' : '')}}"
+               id="email" name="email" placeholder="Enter your email here" value="{{ old('email') }}">
       </div>
 
       <div class="form-group half mt-xl">
         <label for="password">Your Password</label>
-  			<input type="password" class="text-input" id="password" name="password" placeholder="Enter your password here">
+          <span class="error-message">{{array_key_exists("password", $errors->messages()) ? $errors->messages()["password"][0] : ''}}</span>
+  			<input type="password" class="text-input {{(array_key_exists("password", $errors->messages()) ? ' error' : '')}}"
+                   id="password" name="password" placeholder="Enter your password here">
       </div>
 
       <div class="form-group half mt-xl">
         <label for="password_confirmation">Confirm Your Password</label>
-  			<input type="password" class="text-input" id="password_confirmation" name="password_confirmation" placeholder="Confirm your password here">
+          <span class="error-message">{{array_key_exists("password_confirmation", $errors->messages()) ? $errors->messages()["password_confirmation"][0] : ''}}</span>
+  			<input type="password" class="text-input {{(array_key_exists("password_confirmation", $errors->messages()) ? ' error' : '')}}"
+                   id="password_confirmation" name="password_confirmation" placeholder="Confirm your password here">
       </div>
 
       <div class="form-group mt-xl">
@@ -68,7 +80,9 @@
 
       <div class="form-group mt-xl">
         <label for="organization">Your Organization</label>
-  			<input type="text" class="text-input" id="organization" name="organization" placeholder="Enter your organization here" value="{{ old('organization') }}">
+          <span class="error-message">{{array_key_exists("organization", $errors->messages()) ? $errors->messages()["organization"][0] : ''}}</span>
+  			<input type="text" class="text-input {{(array_key_exists("organization", $errors->messages()) ? ' error' : '')}}"
+                   id="organization" name="organization" placeholder="Enter your organization here" value="{{ old('organization') }}">
       </div>
 
       {{--
@@ -92,7 +106,7 @@
       </div>
 
       <div class="form-group mt-xxxl" >
-          <button type="submit" class="btn btn-primary">Sign Up</button>
+          <button type="submit" class="btn btn-primary validate-user-js">Sign Up</button>
       </div>
     </form>
   </div>
@@ -103,6 +117,9 @@
   @include('partials.auth.javascripts')
 
   <script>
+    validationUrl = '{{action('Auth\RegisterController@validateUserFields')}}';
+    CSRFToken = '{{ csrf_token() }}';
+
     Kora.Auth.Register();
   </script>
 

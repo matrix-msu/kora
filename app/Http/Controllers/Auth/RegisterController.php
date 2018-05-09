@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Requests\UserRequest;
 use App\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -52,6 +53,9 @@ class RegisterController extends Controller
             'email' => 'required|email|max:255|unique:users',
             'password' => 'required|confirmed|min:6',
             'language'=> 'required|alpha|max:2',
+            'first_name'=> 'required',
+            'last_name'=> 'required',
+            'organization'=> 'required',
         ]);
     }
 
@@ -73,6 +77,10 @@ class RegisterController extends Controller
             'regtoken' => $data['regtoken'],
             'language' => $data['language'],
         ]);
+    }
+
+    public function validateUserFields(UserRequest $request) {
+        return response()->json(["status"=>true, "message"=>"User Valid", 200]);
     }
 
     /**
