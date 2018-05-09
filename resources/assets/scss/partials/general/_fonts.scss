@@ -628,3 +628,15 @@ i {
     content: $icon-feedback;
   }
 }
+
+.icon-form-import-little {
+  &::before {
+    content: $icon-form-import-little;
+  }
+}
+
+.icon-form-new-little {
+  &::before {
+    content: $icon-form-new-little;
+  }
+}

@@ -45,25 +45,33 @@ class DashboardController extends Controller {
             $s['id'] = $sec->id;
 
             $blocks = array();
-            $blkResults = DB::table('dashboard_blocks')->where('bid','=',$sec->id)->orderBy('order')->get();
+            $blkResults = DB::table('dashboard_blocks')->where('sec_id','=',$sec->id)->orderBy('order')->get();
             foreach($blkResults as $blk) {
                 $b = array();
                 $b['id'] = $blk->id;
                 $b['type'] = $blk->type;
 
-                $options = explode('[!]',$blk->options);
+                $options = json_decode($blk->options, true);
                 switch($blk->type) {
                     case 'Project':
-                        $pid = $options[0];
-                        $disOpts = explode(',',$options[1]);
-                        $hidOpts = explode(',',$options[2]);
+                        $pid = $options['pid'];
+                        $disOpts = $options['displayed'];
+                        $hidOpts = $options['hidden'];
 
                         $project = ProjectController::getProject($pid);
 
                         $b['pid'] = $pid;
                         $b['name'] = $project->name;
-                        $b['description'] = $project->description;
-                        $b['displayedOpts'] = $disOpts;
+                        if (strlen($project->description) > 206) {
+                          $b['description'] = substr($project->description, 0, 206) . "..." ;
+                        } else {
+                          $b['description'] = $project->description;
+                        }
+
+                        $b['displayedOpts'] = [];
+                        foreach ($disOpts as $opt) {
+                          array_push($b['displayedOpts'], getDashboardBlockLink($blk, $opt));
+                        }
                         $b['hiddenOpts'] = $hidOpts;
                         break;
                     case 'Form':

@@ -43,6 +43,12 @@ h2 {
   float: left;
 }
 
+.floating-buttons {
+  bottom: 0;
+  position: fixed;
+  right: 0;
+}
+
 .no-actions {
   border-bottom: 1px solid transparent;
 }

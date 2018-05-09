@@ -1,0 +1,28 @@
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.tooltip {
+  display: inline-block;
+  position: relative;
+
+  &::after {
+    opacity: 0;
+  }
+
+  &:hover::after {
+    background: palette('gray', dropdown);
+    border-radius: 5px;
+    color: palette('white');
+    content: attr(tooltip);
+    font-size: 12px;
+    left: 0;
+    margin: 0 auto;
+    animation: fadein .2s forwards;
+    padding: 5px 10px;
+    position: absolute;
+    top: -30px;
+    white-space: nowrap;
+  }
+}
