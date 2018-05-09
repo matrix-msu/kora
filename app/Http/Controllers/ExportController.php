@@ -627,6 +627,10 @@ class ExportController extends Controller {
             case self::KORA:
                 $records = array();
 
+                //So we need to keep track of what fields are used. We have to make sure records that have empty values
+                // for these fields, still have that field represented as blank.
+                $usedFieldNames = array();
+
                 //Check to see if we should bother with options
                 $useOpts = !is_null($options);
 
@@ -650,6 +654,10 @@ class ExportController extends Controller {
                         $slug = str_replace('_'.$data->pid.'_'.$data->fid.'_', '', $data->slug);
                         if(!$useOpts || !$options['under'])
                             $slug = str_replace('_', ' ', $slug); //Now that the tag is gone, remove space fillers
+
+                        //Capture the field index
+                        if(!in_array($slug,$usedFieldNames))
+                            array_push($usedFieldNames,$slug);
 
                         switch($data->type) {
                             case Field::_TEXT:
@@ -719,6 +727,14 @@ class ExportController extends Controller {
                             default:
                                 break;
                         }
+                    }
+                }
+
+                //Add those blank values
+                foreach($records as $kid => $data) {
+                    foreach($usedFieldNames as $slug) {
+                        if(!isset($data[$slug]))
+                            $records[$kid][$slug] = '';
                     }
                 }
 

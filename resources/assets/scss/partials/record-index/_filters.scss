@@ -42,15 +42,17 @@
   }
 }
 
-@media screen and (max-width: 457px) {
+@media screen and (max-width: 590px) {
   .filters {
     margin-bottom: 80px;
 
     .pagination-options {
       margin-bottom: 20px;
+      width: 100%;
     }
     .show-options {
       display: inline-block;
+      text-align: left;
     }
   }
 }
