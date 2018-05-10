@@ -47,7 +47,7 @@ class DashboardController extends Controller {
           );
 
           $proj_id = Auth::User()->allowedProjects()[0]->pid;
-          $options_string = '{"pid": ' . $proj_id . 
+          $options_string = '{"pid": ' . $proj_id .
             ', "displayed": ["edit", "search", "form-new", "form-import", "permissions", "presets"]' .
             ', "hidden": ["importForm"]}';
 
@@ -58,6 +58,8 @@ class DashboardController extends Controller {
               'order' => 0,
               'options' => $options_string]
           );
+
+          $results = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order')->get();
         }
 
         foreach($results as $sec) {
