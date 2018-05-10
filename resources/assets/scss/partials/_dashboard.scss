@@ -1,0 +1,74 @@
+.dashboard-body {
+  background: gradient($palette: 'background', $degree: 180deg);
+  font-family: $ubuntu-medium;
+  min-height: 100vh;
+}
+
+.dashboard {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  .title {
+    text-align: center;
+
+    .icon {
+      font-size: 28px;
+    }
+  }
+
+  .inner-wrap .content-sections {
+    display: flex;
+    justify-content: center;
+    line-height: 25px;
+    padding: 30px 0 60px;
+
+    .content {
+      color: palette('green', accent);
+      text-decoration: none;
+
+      &:last-child {
+        padding-left: 45px;
+      }
+
+      .icon {
+        @include transition();
+
+        color: palette('green', accent);
+        display: inline-block;
+        font-size: 25px;
+        vertical-align: middle;
+      }
+
+      span {
+        padding-left: 15px;
+      }
+
+      &:hover {
+        .icon {
+          transform: scale($transform-scale-multiplier);
+        }
+      }
+    }
+  }
+
+  .floating-buttons {
+    .form-group {
+      display: inline-block;
+      margin: 25px 7px;
+
+      &:last-child {
+        margin-right: 20px;
+      }
+    }
+
+    .btn.dot-btn {
+      background: gradient('accent');
+      line-height: 54px;
+
+      // scss-lint:disable SelectorDepth
+      .icon {
+        font-size: 18px;
+      }
+    }
+  }
+}

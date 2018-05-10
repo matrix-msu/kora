@@ -3,6 +3,7 @@
 @import 'partials/general/colors';
 @import 'partials/general/fonts';
 @import 'partials/general/mixins';
+@import 'partials/general/tooltip';
 @import 'partials/general/dropdowns';
 @import 'partials/general/global';
 @import 'partials/general/animations';
@@ -23,10 +24,12 @@
 @import 'partials/exodus-transfer';
 @import 'partials/modal';
 @import 'partials/card';
+@import 'partials/grid';
 @import 'partials/record-data-card';
 @import 'partials/navigation';
 @import 'partials/head';
 @import 'partials/side-menu';
+@import 'partials/dashboard';
 @import 'partials/projects';
 @import 'partials/project-new';
 @import 'partials/project-edit';
