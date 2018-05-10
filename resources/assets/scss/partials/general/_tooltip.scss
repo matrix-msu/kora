@@ -12,6 +12,7 @@
   }
 
   &:hover::after {
+    animation: fadein .2s forwards;
     background: palette('gray', dropdown);
     border-radius: 5px;
     color: palette('white');
@@ -19,7 +20,6 @@
     font-size: 12px;
     left: 0;
     margin: 0 auto;
-    animation: fadein .2s forwards;
     padding: 5px 10px;
     position: absolute;
     top: -30px;

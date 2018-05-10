@@ -44,9 +44,15 @@ h2 {
 }
 
 .floating-buttons {
+  @include transition();
+
   bottom: 0;
   position: fixed;
   right: 0;
+
+  &.with-aside {
+    right: 250px;
+  }
 }
 
 .no-actions {

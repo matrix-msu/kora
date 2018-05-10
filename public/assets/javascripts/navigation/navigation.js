@@ -66,11 +66,11 @@ $navBar.on('click', '.side-menu-toggle-js', function() {
     $icon.addClass('active');
 
     setCookie('sidebar', 1);
-    $('.center').addClass('with-aside');
+    $('.center, .floating-buttons').addClass('with-aside');
     if (getBrowserWidth() > 870)
       $('.pre-fixed-js').addClass('pre-fixed-with-aside');
   } else {
-    $('.center').removeClass('with-aside');
+    $('.center, .floating-buttons').removeClass('with-aside');
     if (getBrowserWidth() > 870)
       $('.pre-fixed-js').removeClass('pre-fixed-with-aside');
 

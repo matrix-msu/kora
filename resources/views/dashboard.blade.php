@@ -12,11 +12,11 @@
                 <span>My Dashboard</span>
             </h1>
             <div class="content-sections">
-                <a href="#" class="">
+                <a href="#" class="content">
                   <i class="icon icon-block-add"></i>
                   <span>Add a New Block</span>
                 </a>
-                <a href="#" class="">
+                <a href="#" class="content">
                   <i class="icon icon-edit"></i>
                   <span>Edit your Dashboard</span>
                 </a>
