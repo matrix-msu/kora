@@ -5,7 +5,7 @@
   <div class="form-container py-100-xl ma-auto">
     <section class="head">
 			<h1 class="title text-center">Enter your new password</h1>
-		</section>A
+		</section>
 
 		<form class="form-horizontal" role="form" method="POST" action="{{ url('/password/reset') }}">
 			<input type="hidden" name="_token" value="{{ csrf_token() }}">
