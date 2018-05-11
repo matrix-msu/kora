@@ -1,3 +1,6 @@
+Encoding.default_external = "utf-8" 
+# ^ this ^ is here because it prevents the following error:
+# Encoding::InvalidByteSequenceError on line ["22"] of /usr/lib/ruby/vendor_ruby/execjs/encoding.rb: "\xE6" on US-ASCII
 require 'compass/import-once/activate'
 require 'autoprefixer-rails'
 # Require any additional compass plugins here.

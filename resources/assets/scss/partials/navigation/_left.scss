@@ -68,6 +68,33 @@
       color: palette('green', accent);
     }
   }
+  // start new
+  // .collapsed will be applied when breadcrumbs.js detects collision between the two designated elements
+  &.collapsed {
+    li {
+      overflow: hidden;
+      &:after {
+        background: rgb(227,227,227);
+        background: linear-gradient(90deg, rgba(227,227,227,0.4) 0%, rgba(227,227,227,1) 35%);
+        padding-left: 1em;
+      }
+    }
+    & a {
+      @include transition();
+      
+      max-width: 2em;
+    }
+    & a:hover,
+    & a:focus,
+    & li:hover a {
+      max-width: 1000px;
+    }
+    & li:hover:after {
+      background: transparent;
+      padding-left: 0;
+    }
+  }
+  // end new
 }
 
 @media screen and (max-width: $max-mobile-xs-width) {
