@@ -29,12 +29,16 @@
     vertical-align: middle;
 
     a, .no-link {
-      @include transition();
-
       line-height: 50px;
+      
+      span {
+        @include transition();
+      }
     }
 
     .no-link {
+      @include transition();
+      
       color: palette('white', base);
     }
 
@@ -47,10 +51,17 @@
     }
 
     .icon-chevron {
+      @include transition();
+      
+      display: inline-block;
       font-size: 6px;
       line-height: 7px;
       margin-left: 5px;
       vertical-align: middle;
+        
+      &.active {
+        transform: rotate(-180deg);
+      }
     }
 
     .icon-minus {
