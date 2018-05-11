@@ -12,6 +12,7 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Html\FormBuilder;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class User extends Model implements AuthenticatableContract, CanResetPasswordContract {
 
@@ -50,6 +51,27 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     public function gsCaches() {
         return DB::table("global_cache")->where("user_id", "=", $this->id);
+    }
+
+    /**
+     * Overrides the laravel password reset email function so we can customize it.
+     *
+     * @param  string $token - The reset token
+     */
+    public function sendPasswordResetNotification($token) {
+        $email = 'emails.password';
+        $userMail = $this->email;
+
+        //Send email
+        try {
+            Mail::send($email, compact('token'), function ($message) use ($userMail) {
+                $message->from(config('mail.from.address'));
+                $message->to($userMail);
+                $message->subject('Kora Password Reset');
+            });
+        } catch(\Swift_TransportException $e) {
+            //TODO::email error response
+        }
     }
 
     /**
