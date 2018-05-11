@@ -73,13 +73,7 @@ trait AuthenticatesUsers
     protected function attemptLogin(Request $request)
     {
         //CUSTOM CODE TO ALLOW LOGIN WITH USER OR EMAIL
-        $credentials = $this->credentials($request);
-
-        if (strpos($credentials['email'], '@') == false) {
-            //logging in with username not email, so change the column-name
-            $credentials['username'] = $credentials['email'];
-            unset($credentials['email']);
-        }
+        $credentials = \App\User::refineLoginCredentials($this->credentials($request));
         //END CUSTOM
 
         return $this->guard()->attempt(
