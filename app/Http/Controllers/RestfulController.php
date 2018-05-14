@@ -200,6 +200,8 @@ class RestfulController extends Controller {
             $filters['size'] = isset($f->size) ? $f->size : false; //do we want the number of records in the search result returned instead of data
             $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records
             $filters['filters'] = isset($f->filters) ? $f->filters : false; //do we want information back about result filters [i.e. Field 'First Name', has value 'Tom', '12' times]
+            $filters['filterCount'] = isset($f->filterCount) ? $f->filterCount : 5; //What is the minimum threshold for a filter to return?
+            $filters['filterFlids'] = isset($f->filterFlids) ? $f->filterFlids : 'ALL'; //What fields should filters return for? Should be array
                 //Note: Filters only captures values from certain fields (mainly single value ones), see ExportController->exportWithRids() to see which ones use it
             $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for
             $filters['sort'] = isset($f->sort) ? $f->sort : null; //how should the data be sorted
@@ -226,7 +228,7 @@ class RestfulController extends Controller {
                 }
 
                 if($filters['filters'])
-                    $filtersGlobal[$form->slug] = $this->getDataFilters($form->fid, $returnRIDS);
+                    $filtersGlobal[$form->slug] = $this->getDataFilters($form->fid, $returnRIDS, $filters['filterCount'], $filters['filterFlids']);
 
                 $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
             } else {
@@ -385,7 +387,7 @@ class RestfulController extends Controller {
                 }
 
                 if($filters['filters'])
-                    $filtersGlobal[$form->slug] = $this->getDataFilters($form->fid, $returnRIDS);
+                    $filtersGlobal[$form->slug] = $this->getDataFilters($form->fid, $returnRIDS, $filters['filterCount'], $filters['filterFlids']);
 
                 $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
             }
@@ -780,59 +782,92 @@ class RestfulController extends Controller {
     /**
      * Scan tables to build out filters list
      *
-     * @param  array $fid - Form ID
+     * @param  int $fid - Form ID
+     * @param  array $rids - Record IDs to search for
+     * @param  int $count - Minimum occurances required for a filter to return
+     * @param  array $flids - Specifies the fields we need filters from
      * @return array - The array of filters
      */
-    private function getDataFilters($fid, $rids) {
+    private function getDataFilters($fid, $rids, $count, $flids) {
         $filters = [];
+        $cnt = 0;
+        $ridString = implode(',',$rids);
+        $flidSQL = '';
+        
+        if($flids != 'ALL') {
+	        //In case slugs are provided, we need flids
+	        $convertedFlids = array();
+	        foreach($flids as $fl) {
+		        array_push($convertedFlids, FieldController::getField($fl)->flid);
+	        }
+	        
+	        $flidString = implode(',',$convertedFlids);
+	        $flidSQL = " and `flid` in ($flidString)";
+        }
+        
+        //Doing this for pretty much the same reason as keyword search above
+	    $con = mysqli_connect(env('DB_HOST'), env('DB_USERNAME'), env('DB_PASSWORD'), env('DB_DATABASE'));
+	    
+	    //We want to make sure we are doing things in utf8 for special characters
+		if(!mysqli_set_charset($con, "utf8")) {
+		    printf("Error loading character set utf8: %s\n", mysqli_error($con));
+		    exit();
+		}
 
-        $textOccurrences = TextField::selectRaw('`text`, flid, COUNT(*) as count')->where('fid','=',$fid)
-            ->whereIn('rid',$rids)->groupBy('text')->orderBy('count','desc')->get()->toArray();
-        $listOccurrences = ListField::selectRaw('`option`, flid, COUNT(*) as count')->where('fid','=',$fid)
-            ->whereIn('rid',$rids)->groupBy('option')->orderBy('count','desc')->get()->toArray();
-        $numberOccurrences = NumberField::selectRaw('`number`, flid, COUNT(*) as count')->where('fid','=',$fid)
-            ->whereIn('rid',$rids)->groupBy('number')->orderBy('count','desc')->get()->toArray();
-        $assocOccurrences = DB::table('associator_support')->selectRaw('`record`, flid, COUNT(*) as count')->where('fid','=',$fid)
-            ->whereIn('rid',$rids)->groupBy('record')->orderBy('count','desc')->get()->toArray();
-        $rAssocOccurrences = DB::table('associator_support')->selectRaw('`rid`, COUNT(*) as count')
-            ->whereIn('record',$rids)->groupBy('rid')->orderBy('count','desc')->get()->toArray();
+        $textOccurrences = DB::raw("select `text`, flid, COUNT(*) as count from ".env('DB_PREFIX')."text_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `text` order by count ASC");
+        $listOccurrences = DB::raw("select `option`, flid, COUNT(*) as count from ".env('DB_PREFIX')."list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `option` order by count ASC");
+        $numberOccurrences = DB::raw("select `number`, flid, COUNT(*) as count from ".env('DB_PREFIX')."number_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `number` order by count ASC");
+        $assocOccurrences = DB::raw("select `record`, flid, COUNT(*) as count from ".env('DB_PREFIX')."associator_support where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `record` order by count ASC");
+        $rAssocOccurrences = DB::raw("select `rid`, flid, COUNT(*) as count from ".env('DB_PREFIX')."associator_support where `fid`=$fid and `record` in ($ridString)$flidSQL group by `rid` order by count ASC");
 
-        foreach($textOccurrences as $occur) {
-            if($occur['count']>1) {
-                $occur['type'] = 'Text';
-                $filters[] = $occur;
+        $textUnclean = $con->query($textOccurrences);
+        while($occur = $textUnclean->fetch_assoc()) {
+            if($occur['count'] >= $count) {
+                $filters[$occur['flid']][] = ['value'=>$occur['text'],'type'=>'Text','count'=>$occur['count']];
+                $cnt++;
             }
         }
-        foreach($listOccurrences as $occur) {
-            if($occur['count']>1) {
-                $occur['type'] = 'List';
-                $filters[] = $occur;
+        $listUnclean = $con->query($listOccurrences);
+        while($occur = $listUnclean->fetch_assoc()) {
+            if($occur['count'] >= $count) {
+                $filters[$occur['flid']][] = ['value'=>$occur['option'],'type'=>'List','count'=>$occur['count']];
+                $cnt++;
             }
         }
-        foreach($numberOccurrences as $occur) {
-            if($occur['count']>1) {
-                $occur['number'] = (float)$occur['number'];
-                $occur['type'] = 'Number';
-                $filters[] = $occur;
+        $numberUnclean = $con->query($numberOccurrences);
+        while($occur = $numberUnclean->fetch_assoc()) {
+            if($occur['count'] >= $count) {
+                $value = (float)$occur['number'];
+                $filters[$occur['flid']][] = ['value'=>$value,'type'=>'Number','count'=>$occur['count']];
+                $cnt++;
             }
         }
-        foreach($assocOccurrences as $occur) {
-            if($occur->count > 1) {
-                $kid = Record::where('rid','=',$occur->record)->first()->kid;
-                $occur->record = $kid;
-                $occur->type = "Associator";
-                $filters[] = $occur;
+        $assocUnclean = $con->query($assocOccurrences);
+        while($occur = $assocUnclean->fetch_assoc()) {
+            if($occur['count'] >= $count) {
+                $value = Record::where('rid','=',$occur['record'])->first()->kid;
+                $filters[$occur['flid']][] = ['value'=>$value,'type'=>'Associator','count'=>$occur['count']];
+                $cnt++;
             }
         }
-        foreach($rAssocOccurrences as $occur) {
-            if($occur->count > 1) {
-                $kid = Record::where('rid', '=', $occur->rid)->first()->kid;
-                $occur->rid = $kid;
-                $occur->type = "Reverse Associator";
-                $filters[] = $occur;
+        $rAssocUnclean = $con->query($rAssocOccurrences);
+        while($occur = $rAssocUnclean->fetch_assoc()) {
+            if($occur['count'] >= $count) {
+                $value = Record::where('rid', '=', $occur['rid'])->first()->kid;
+                $filters[$occur['flid']][] = ['value'=>$value,'type'=>'Reverse Associator','count'=>$occur['count']];
+                $cnt++;
             }
         }
-
+        
+        //We want to swap out the flids to slugs so it's more predictable/ readable
+        foreach($filters as $flid => $results) {
+	        $slug = FieldController::getField($flid)->slug;
+	        $filters[$slug] = $results;
+	        unset($filters[$flid]);
+        }
+        
+        $filters['total'] = $cnt;
+        
         return $filters;
     }
 
