@@ -94,14 +94,19 @@ $icon-gear: '\e941';
 $icon-help: '\e94d';
 $icon-plugins: '\e94f';
 $icon-feedback: '\e950';
+$icon-form-import-little: '\e951';
+$icon-form-new-little: '\e952';
 
 // Site Responsiveness
 $max-site-width: 1440px;
+$max-grid-quad-width: 1180px;
 $max-with-aside-width: 1155px;
 $max-tablet-width: 980px;
+$max-grid-tri-width: 910px;
 $max-mobile-width: 768px;
 $max-mobile-l-width: 720px;
 $max-mobile-med-width: 640px;
+$max-grid-duo-width: 640px;
 $max-mobile-xs-width: 480px;
 $tablet-margin-total: 120px;
 $mobile-margin-total: 60px;

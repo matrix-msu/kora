@@ -180,14 +180,16 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/user/{uid}', 'Auth\UserController@index');
     Route::get('/user/{uid}/edit', 'Auth\UserController@editProfile');
     Route::delete('/user/{uid}/delete', 'Auth\UserController@delete');
-    Route::patch('/user/{uid}/update', 'Auth\UserController@update');
+    Route::patch('/user/validate/{uid}', 'Auth\UserController@validateUserFields');
     Route::patch('/user/changepw', 'Auth\UserController@changepw');
+    Route::patch('/user/{uid}/update', 'Auth\UserController@update');
     Route::get('/auth/activate', 'Auth\UserController@activateshow');
     Route::get('/user/activate/{token}', 'Auth\UserController@activate');
     Route::post('/auth/resendActivate', 'Auth\UserController@resendActivation');
     Route::post('/auth/activator', 'Auth\UserController@activator');
     Route::post('/user/profile', 'Auth\UserController@changeprofile');
     Route::post('/user/picture', 'Auth\UserController@changepicture');
+    Route::post('/user/validate', 'Auth\RegisterController@validateUserFields');
 
 //metadata routes
     Route::get('/projects/{pid}/forms/{fid}/metadata/setup', 'MetadataController@index');

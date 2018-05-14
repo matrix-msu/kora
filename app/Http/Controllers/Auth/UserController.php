@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers\Auth;
 
 use App\Form;
+use App\Http\Requests\UserRequest;
 use App\Project;
 use App\ProjectGroup;
 use App\Record;
@@ -95,8 +96,8 @@ class UserController extends Controller {
       $newProfilePic = $request->profile;
       $newOrganization = $request->organization;
       $newLanguage = $request->language;
-      $newPass = $request->new_password;
-      $confirm = $request->confirm;
+      $newPass = $request->password;
+      $confirm = $request->password_confirmation;
 
       // Look for changes, update what was changed
       if (!empty($newFirstName) && $newFirstName != $user->first_name) {
@@ -151,8 +152,8 @@ class UserController extends Controller {
         }
       }
 
-      return response()->json(["status" => true, "message" => $message], 200);
-      // return redirect('admin/users')->with('k3_global_success', 'user_updated')->with('user_changes', $message);
+      //return response()->json(["status" => true, "message" => $message], 200);
+      return redirect('user/'.Auth::user()->id)->with('k3_global_success', 'user_updated')->with('user_changes', $message);
     }
 
     /**
@@ -175,6 +176,10 @@ class UserController extends Controller {
         } else {
           redirect('/')->with('k3_global_success', 'account_deleted');
         }
+    }
+
+    public function validateUserFields(UserRequest $request) {
+        return response()->json(["status"=>true, "message"=>"User Valid", 200]);
     }
 
     /**
