@@ -816,10 +816,84 @@ class RestfulController extends Controller {
 
         $textOccurrences = DB::raw("select `text`, flid, COUNT(*) as count from ".env('DB_PREFIX')."text_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `text` order by count ASC");
         $listOccurrences = DB::raw("select `option`, flid, COUNT(*) as count from ".env('DB_PREFIX')."list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `option` order by count ASC");
+        $msListOccurrences = DB::raw("select `options`, flid, COUNT(*) as count from ".env('DB_PREFIX')."multi_select_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `options` order by count ASC");
+        $genListOccurrences = DB::raw("select `options`, flid, COUNT(*) as count from ".env('DB_PREFIX')."generated_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `options` order by count ASC");
         $numberOccurrences = DB::raw("select `number`, flid, COUNT(*) as count from ".env('DB_PREFIX')."number_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `number` order by count ASC");
         $assocOccurrences = DB::raw("select `record`, flid, COUNT(*) as count from ".env('DB_PREFIX')."associator_support where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `record` order by count ASC");
         $rAssocOccurrences = DB::raw("select `rid`, flid, COUNT(*) as count from ".env('DB_PREFIX')."associator_support where `fid`=$fid and `record` in ($ridString)$flidSQL group by `rid` order by count ASC");
 
+		//Because of the complex data in MS List, we break stuff up and then format
+		$msListUnclean = $con->query($msListOccurrences);
+		$msArray = [];
+        while($occur = $msListUnclean->fetch_assoc()) {
+	        $msFlid = $occur['flid'];
+	        $msOpt = $occur['options'];
+	        $msCnt = $occur['count'];
+	        
+            if(!isset($msArray[$msFlid]))
+	            $msArray[$msFlid] = [];
+            
+	        if(strpos($msOpt, '[!]') !== false) {
+		        $opts = explode('[!]', $msOpt);
+		        
+		        foreach($opts as $opt) {
+			        if(isset($msArray[$msFlid][$opt]))
+			        	$msArray[$msFlid][$opt] += $msCnt;
+			        else
+			        	$msArray[$msFlid][$opt] = $msCnt;
+		        }
+	        } else {
+		        if(isset($msArray[$msFlid][$msOpt]))
+		        	$msArray[$msFlid][$msOpt] += $msCnt;
+		        else
+		        	$msArray[$msFlid][$msOpt] = $msCnt;
+	        }
+        }
+        foreach($msArray as $flid => $msCounts) {
+	        foreach($msCounts as $msFilter => $msCount) {
+		        if($msCount >= $count) {
+	        		$filters[$flid][] = ['value'=>$msFilter,'type'=>'Multi-Select List','count'=>$msCount];
+	        		$cnt++;
+	        	}
+	    	}
+    	}
+		//repeat
+		$genListUnclean = $con->query($genListOccurrences);
+		$genArray = [];
+        while($occur = $genListUnclean->fetch_assoc()) {
+	        $genFlid = $occur['flid'];
+	        $genOpt = $occur['options'];
+	        $genCnt = $occur['count'];
+	        
+            if(!isset($genArray[$genFlid]))
+	            $genArray[$genFlid] = [];
+            
+	        if(strpos($genOpt, '[!]') !== false) {
+		        $opts = explode('[!]', $genOpt);
+		        
+		        foreach($opts as $opt) {
+			        if(isset($genArray[$genFlid][$opt]))
+			        	$genArray[$genFlid][$opt] += $genCnt;
+			        else
+			        	$genArray[$genFlid][$opt] = $genCnt;
+		        }
+	        } else {
+		        if(isset($genArray[$genFlid][$genOpt]))
+		        	$genArray[$genFlid][$genOpt] += $genCnt;
+		        else
+		        	$genArray[$genFlid][$genOpt] = $genCnt;
+	        }
+        }
+        foreach($genArray as $flid => $genCounts) {
+	        foreach($genCounts as $genFilter => $genCount) {
+		        if($genCount >= $count) {
+	        		$filters[$flid][] = ['value'=>$genFilter,'type'=>'Generated List','count'=>$genCount];
+	        		$cnt++;
+	        	}
+	    	}
+    	}
+        //End GenList/MS-List Madness
+        
         $textUnclean = $con->query($textOccurrences);
         while($occur = $textUnclean->fetch_assoc()) {
             if($occur['count'] >= $count) {
