@@ -409,6 +409,7 @@ class RestfulController extends Controller {
         $results = array();
         foreach($keys as $k) {
             $selectFinal = [];
+            $k = mysqli_real_escape_string($con,k);
 
             foreach($searchFields as $field) {
                 //TODO::modular?
