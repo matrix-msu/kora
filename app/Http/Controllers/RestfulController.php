@@ -789,6 +789,9 @@ class RestfulController extends Controller {
      * @return array - The array of filters
      */
     private function getDataFilters($fid, $rids, $count, $flids) {
+	    if(empty($rids))
+	    	return ['total' => 0];
+	    
         $filters = [];
         $cnt = 0;
         $ridString = implode(',',$rids);
