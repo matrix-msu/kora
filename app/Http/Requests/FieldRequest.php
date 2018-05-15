@@ -39,7 +39,9 @@ class FieldRequest extends Request {
                     'type' => 'required',
                     'name' => 'required|min:3',
                     'slug' => 'required|alpha_dash|min:3|unique:fields',
-                    'desc' => 'required|max:255'
+                    'desc' => 'required|max:255',
+                    'cfname1' =>'required_if:type,Combo List',
+                    'cfname2' =>'required_if:type,Combo List'
                 ];
             case 'PATCH':
                 return [
@@ -48,7 +50,9 @@ class FieldRequest extends Request {
                     'type' => 'required',
                     'name' => 'required|min:3',
                     'slug' => 'required|alpha_dash|min:3|unique:fields,slug,'.$field->flid.',flid',
-                    'desc' => 'required|max:255'
+                    'desc' => 'required|max:255',
+                    'cfname1' =>'required_if:type,Combo List',
+                    'cfname2' =>'required_if:type,Combo List'
                 ];
             default:
                 break;
@@ -65,7 +69,9 @@ class FieldRequest extends Request {
             'slug.required' => "The reference name field is required.",
             'slug.alpha_dash' => "The reference name may only contain letters, numbers, underscores, and hyphens.",
             'slug.min' => "The reference name must be at least 3 characters.",
-            'slug.unique' => "The reference name already exists. Please try another one."
+            'slug.unique' => "The reference name already exists. Please try another one.",
+            'cfname1.required_if' => "The combo list field name is required",
+            'cfname2.required_if' => "The combo list field name is required"
         ];
     }
 

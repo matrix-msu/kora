@@ -9,7 +9,7 @@
 </div>
 
 <div class="form-group mt-xl">
-    {!! Form::label('slug', 'Unique Form Identifier') !!}
+    {!! Form::label('slug', 'Unique Field Identifier') !!}
     <span class="error-message">{{array_key_exists("slug", $errors->messages()) ? $errors->messages()["slug"][0] : ''}}</span>
     {!! Form::text('slug', null, ['class' => 'text-input' . (array_key_exists("slug", $errors->messages()) ? ' error' : ''), 'placeholder' => "Enter the field's unique ID here (no spaces, alpha-numeric values only)"]) !!}
 </div>
@@ -33,7 +33,8 @@
 
     <div class="form-group half pl-m">
         {!! Form::label('cfname1','Combo List Field Name 1: ') !!}
-        {!! Form::text('cfname1', null, ['class' => 'text-input', 'placeholder' => 'Enter the combo list field name 1 here']) !!}
+        <span class="error-message">{{array_key_exists("cfname1", $errors->messages()) ? $errors->messages()["cfname1"][0] : ''}}</span>
+        {!! Form::text('cfname1', null, ['class' => 'text-input'. (array_key_exists("cfname1", $errors->messages()) ? ' error' : ''), 'placeholder' => 'Enter the combo list field name 1 here']) !!}
     </div>
 
     <section class="mt-xl">
@@ -43,7 +44,8 @@
         </div>
         <div class="form-group half pl-m">
             {!! Form::label('cfname2','Combo List Field Name 2: ') !!}
-            {!! Form::text('cfname2', null, ['class' => 'text-input', 'placeholder' => 'Enter the combo list field name 2 here']) !!}
+            <span class="error-message">{{array_key_exists("cfname2", $errors->messages()) ? $errors->messages()["cfname2"][0] : ''}}</span>
+            {!! Form::text('cfname2', null, ['class' => 'text-input'. (array_key_exists("cfname2", $errors->messages()) ? ' error' : ''), 'placeholder' => 'Enter the combo list field name 2 here']) !!}
         </div>
     </section>
 </section>
