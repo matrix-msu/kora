@@ -174,7 +174,7 @@
         <label for="baseurl_url">URL</label>
         <input class="text-input" placeholder="Enter the base URL here" type="text" id="baseurl_url" name="baseurl_url" value="{{old('baseurl_url')}}">
         <p class="sub-text  mt-xxs">
-            URL that points to the installation. Laravel requires you to point to {projectRoot}/public/
+            URL that points to the installation. Laravel requires you to point to https://{projectRoot}/public/
         </p>
     </div>
 
@@ -182,7 +182,7 @@
         <label for="baseurl_storage">Storage URL</label>
         <input class="text-input" placeholder="Enter the base storage url here" type="text" id="baseurl_storage" name="baseurl_storage" value="{{old('baseurl_storage')}}">
         <p class="sub-text  mt-xxs">
-            Enter the {UrlAbove}/{SymlinkName}/, where the SymlinkName is the one you created earlier via command line
+            Enter the https://{UrlAbove}/{SymlinkName}/, where the SymlinkName is the one you created earlier via command line
         </p>
     </div>
 
