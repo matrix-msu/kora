@@ -90,13 +90,16 @@
     li {
       overflow: hidden;
       a i {
-        margin-right: 5px;
+        margin-right: 10px;
       }
+    }
+    .navigation-item {
+      margin-left: 10px;
     }
     & a {
       @include transition();
       
-      max-width: 2.75em;
+      max-width: 3em;
     }
     & a:hover,
     & a:focus,
