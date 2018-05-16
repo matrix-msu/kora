@@ -599,8 +599,30 @@ class RestfulController extends Controller {
      * @return Collection - The RIDs not in the given set
      */
     private function negative_results($form, $rids) {
-        $negatives = Record::where('fid','=',$form->fid)->whereNotIn('rid',$rids)->pluck('rid')->all();
-        return $negatives;
+	    $returnRIDS = array();
+	    $ridString = implode(',',$rids);
+	    
+	    //Doing this for pretty much the same reason as keyword search above
+	    $con = mysqli_connect(env('DB_HOST'), env('DB_USERNAME'), env('DB_PASSWORD'), env('DB_DATABASE'));
+	    
+	    //We want to make sure we are doing things in utf8 for special characters
+		if(!mysqli_set_charset($con, "utf8")) {
+		    printf("Error loading character set utf8: %s\n", mysqli_error($con));
+		    exit();
+		}
+		
+		if($ridString!="")
+			$select = "SELECT `rid` from ".env('DB_PREFIX')."records WHERE `fid`=".$form->fid." AND `rid` NOT IN ($ridString)";
+		else
+			$select = "SELECT `rid` from ".env('DB_PREFIX')."records WHERE `fid`=".$form->fid;
+			
+		$negUnclean = $con->query($select);
+		
+		while($row = $negUnclean->fetch_assoc()) {
+			array_push($returnRIDS, $row['rid']);
+		}
+		
+        return $returnRIDS;
     }
 
     /**
