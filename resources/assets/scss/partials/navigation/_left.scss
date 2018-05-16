@@ -1,7 +1,8 @@
 .navigation-left {
   display: inline-block;
   height: 50px;
-  float: left;
+  float: left; // not needed if we use pos: abs; instead
+  /*position: absolute;*/ // removes element from content flow - does not interact with nav-right // this then causes issues with dropdowns
 
   .logo {
     display: inline-block;
@@ -27,14 +28,29 @@
     font-family: $ubuntu-medium;
     font-size: 12px;
     vertical-align: middle;
+    
+    &:after {
+      content: '';
+      position: absolute;
+      display: inline-block;
+      right: 0;
+      width: 2em;
+      text-align: center;
+    }
 
     a, .no-link {
       line-height: 50px;
-      
-      span {
+    
+      span { 
         @include transition();
-      }
-    }
+        
+        display: inline-block;
+        max-width: 9em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: middle;
+      }                             
+    }                               
 
     .no-link {
       @include transition();
@@ -73,16 +89,14 @@
   &.collapsed {
     li {
       overflow: hidden;
-      &:after {
-        background: rgb(227,227,227);
-        background: linear-gradient(90deg, rgba(227,227,227,0.4) 0%, rgba(227,227,227,1) 35%);
-        padding-left: 1em;
+      a i {
+        margin-right: 5px;
       }
     }
     & a {
       @include transition();
       
-      max-width: 2em;
+      max-width: 2.75em;
     }
     & a:hover,
     & a:focus,
@@ -97,9 +111,18 @@
   // end new
 }
 
-@media screen and (max-width: $max-mobile-xs-width) {
+/*@media screen and (max-width: $max-mobile-width) {  // 768
+  
+}*/
+
+@media screen and (max-width: $max-mobile-xs-width) { // 480
   // Replace .icon-placeholder with the image class when replaced
-  .navigation-left .logo .icon-placeholder {
-    margin: #{ ($navigation-height - 27px) / 2 } 0;
+  .navigation-left {
+    .logo .icon-placeholder {
+      margin: #{ ($navigation-height - 27px) / 2 } 0;
+    }
+    .navigation-item {
+      display: none;
+    }
   }
 }

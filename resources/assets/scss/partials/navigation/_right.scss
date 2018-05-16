@@ -3,45 +3,51 @@
   height: $navigation-height;
   margin-top: 0;
   text-align: right;
-
-  .navigation-sub-menu {
-    border-radius: 0 0 0 5px;
+  .navigation-right-wrap {
+    background: palette('green', base);
+    position: absolute;
     right: 0;
-    width: 250px;
-  }
-
-  .navigation-item {
-    box-sizing: border-box;
-    display: inline-block;
-    font-family: $ubuntu;
-    font-size: 12px;
-    vertical-align: middle;
-
-    a {
-      @include transition();
-
-      line-height: 50px;
+    
+    .navigation-sub-menu {
+      border-radius: 0 0 0 5px;
+      margin-top: -30px;
+      right: 0;
+      width: 250px;
     }
 
-    &:not(:first-child) {
-      margin-left: 15px;
-    }
-
-    .menu-toggle:hover {
-      color: palette('green', accent);
-    }
-
-    .icon-chevron {
-      @include transition();
-
+    .navigation-item {
+      box-sizing: border-box;
       display: inline-block;
-      font-size: 6px;
-      margin: 0 0 3px 5px;
+      font-family: $ubuntu;
+      font-size: 12px;
       vertical-align: middle;
-    }
 
-    .icon-minus {
-      color: palette('green', accent);
-    }
+      a {
+        @include transition();
+
+        line-height: 50px;
+      }
+
+      &:not(:first-child) {
+        margin-left: 15px;
+      }
+
+      .menu-toggle:hover {
+        color: palette('green', accent);
+      }
+
+      .icon-chevron {
+        @include transition();
+
+        display: inline-block;
+        font-size: 6px;
+        margin: 0 0 3px 5px;
+        vertical-align: middle;
+      }
+
+      .icon-minus {
+        color: palette('green', accent);
+      }
+    }  
   }
 }
