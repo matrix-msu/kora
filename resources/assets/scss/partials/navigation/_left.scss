@@ -92,14 +92,11 @@
   // start new
   // .collapsed will be applied when breadcrumbs.js detects certain brower width
   &.collapsed {
-    li {
-      overflow: hidden;
-    }
     .navigation-item {
       margin-left: 10px;
+      overflow: hidden;
       
-      .menu-toggle span,
-      .no-link span {
+      .menu-toggle span {
         max-width: 2.5em;
       }
       
@@ -110,11 +107,11 @@
       .no-link .icon-minus {
         margin-right: 10px;
       }
-    }
-    & .menu-toggle {
-      @include transition();
-      
-      max-width: 4em;
+      & .menu-toggle:not(:last-child) {
+        @include transition();
+
+        max-width: 4em;
+      }
     }
     & a:hover,
     & a:focus,
@@ -124,9 +121,6 @@
         span {
           max-width: 1000px!important;
         }
-      }
-      .no-link span {
-        max-width: 1000px;
       }
     }
     & li:hover:after {
