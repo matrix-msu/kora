@@ -802,7 +802,7 @@ class RestfulController extends Controller {
 	        //In case slugs are provided, we need flids
 	        $convertedFlids = array();
 	        foreach($flids as $fl) {
-		        array_push($convertedFlids, FieldController::getField($fl)->flid);
+		        array_push($convertedFlids, FieldController::getField($fl)->flid); //TODO::error bad fields, not 100% sure how we'll get it up a level
 	        }
 	        
 	        $flidString = implode(',',$convertedFlids);

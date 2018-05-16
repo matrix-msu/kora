@@ -16,25 +16,24 @@
             <div class="title mt-xxxl">Kora 3</div>
             <div class="sub-title mt-xl">Initialization Complete</div>
             <div class="description mt-m">
-                Kora 3 has finished initialization. Before you begin using Kora, we reccomend you activate the
+                Kora 3 has finished initialization. Before you begin using Kora, we recommend you activate the
                 following permissions commands.
             </div>
         </div>
 
         <div class="last-cmd mt-xxxl">
             <div class="form-group">
-                <label for="preset">Change directory permissions to read access</label>
-                <div class="solid-box">chmod -R 0755 -R Kora3/</div>
+                <label for="preset">Give READ access to the web user for Kora3 and ALL sub-folders</label>
             </div>
             <div class="form-group mt-xl">
-                <label for="preset">Give write access to the following directories</label>
-                <div class="solid-box">chmod -R 0775 -R Kora3/bootstrap/cache/</div>
+                <label for="preset">Give WRITE access to the web user for the following directories and ALL their sub-folders</label>
+                <div class="solid-box">Kora3/bootstrap/cache/</div>
             </div>
             <div class="form-group mt-xs">
-                <div class="solid-box">chmod -R 0775 -R Kora3/storage/</div>
+                <div class="solid-box">Kora3/storage/</div>
             </div>
             <div class="form-group mt-xs">
-                <div class="solid-box">chmod -R 0775 -R Kora3/public/assets/javascripts/production/</div>
+                <div class="solid-box">Kora3/public/assets/javascripts/production/</div>
             </div>
             <div class="form-group mt-xxxl">
                 <a href="{{config('app.url')}}" class="btn">Start Using Kora</a>
