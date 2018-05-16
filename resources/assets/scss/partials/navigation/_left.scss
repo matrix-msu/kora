@@ -118,8 +118,16 @@
     }
     & a:hover,
     & a:focus,
-    & li:hover a {
-      max-width: 1000px;
+    & li:hover {
+      a {
+        max-width: 1000px;
+        span {
+          max-width: 1000px!important;
+        }
+      }
+      .no-link span {
+        max-width: 1000px;
+      }
     }
     & li:hover:after {
       background: transparent;
