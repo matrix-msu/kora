@@ -8,12 +8,14 @@
 @section('fieldOptions')
     <div class="form-group">
         {!! Form::label('default','Default: ') !!}
-        {!! Form::text('default', $field->default, ['class' => 'text-input', 'placeholder' => 'Enter default value here']) !!}
+        <span class="error-message"></span>
+        {!! Form::text('default', $field->default, ['class' => 'text-input text-default-js', 'placeholder' => 'Enter default value here']) !!}
     </div>
 
     <div class="form-group mt-xl">
         {!! Form::label('regex','Regex: ') !!}
-        {!! Form::text('regex', \App\Http\Controllers\FieldController::getFieldOption($field,'Regex'), ['class' => 'text-input', 'placeholder' => 'Enter regular expression pattern here']) !!}
+        <span class="error-message"></span>
+        {!! Form::text('regex', \App\Http\Controllers\FieldController::getFieldOption($field,'Regex'), ['class' => 'text-input text-regex-js', 'placeholder' => 'Enter regular expression pattern here']) !!}
         <div><a href="#" class="field-preset-link open-regex-modal-js">Use a Value Preset for this Regex</a></div>
         <div><a href="#" class="field-preset-link open-create-regex-modal-js right
             @if(\App\Http\Controllers\FieldController::getFieldOption($field,'Regex')=='') disabled @endif">
