@@ -1,8 +1,8 @@
 .navigation-left {
   display: inline-block;
   height: 50px;
-  float: left; // not needed if we use pos: abs; instead
-  /*position: absolute;*/ // removes element from content flow - does not interact with nav-right // this then causes issues with dropdowns
+  float: left;
+  position: absolute;
 
   .logo {
     display: inline-block;
@@ -45,12 +45,17 @@
         @include transition();
         
         display: inline-block;
-        max-width: 9em;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        vertical-align: middle;
       }                             
-    }                               
+    }
+    
+    .menu-toggle span,
+    .no-link span {
+      display: inline-block;
+      max-width: 9em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: middle;
+    }
 
     .no-link {
       @include transition();
@@ -85,21 +90,26 @@
     }
   }
   // start new
-  // .collapsed will be applied when breadcrumbs.js detects collision between the two designated elements
+  // .collapsed will be applied when breadcrumbs.js detects certain brower width
   &.collapsed {
     li {
       overflow: hidden;
-      a i {
-        margin-right: 10px;
-      }
     }
     .navigation-item {
       margin-left: 10px;
+      
+      .menu-toggle .icon-minus {
+        margin-right: 10px;
+      }
+      
+      .no-link .icon-minus {
+        margin-right: 10px;
+      }
     }
-    & a {
+    & .menu-toggle {
       @include transition();
       
-      max-width: 3em;
+      max-width: 3.5em;
     }
     & a:hover,
     & a:focus,

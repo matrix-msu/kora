@@ -37,32 +37,30 @@
   </ul>
 
   <ul class="navigation-right navigation-right-js">
-    <div class="navigation-right-wrap">
-      @if(Auth::guest())
-          <li class="navigation-item pl-0">
-              <a href="#" class="text menu-toggle navigation-toggle-js underline-middle-hover">
-                  <span>English</span>
-                  <i class="icon icon-chevron"></i>
-              </a>
-              <ul class="navigation-sub-menu navigation-sub-menu-js language-select">
-                  @foreach(getLangs()->keys() as $lang)
-                      <li><a onclick='setTempLang({{$lang}})' href='#'>{{\Illuminate\Support\Facades\Config::get('app.locales_supported')->get($lang)[1]}}</a> </li>
-                  @endforeach
-              </ul>
-          </li>
-      @elseif (!Auth::user()->active)
-        <li class="navigation-item">
-          <form id="logout_link" class="form-horizontal" role="form" method="POST" action="{{ url('/logout') }}">
-              <input type="hidden" name="_token" value="{{ csrf_token() }}">
-              <a class="logout underline-middle-hover">Logout</a>
-          </form>
-        </li>
-      @else
-        @include("partials.menu.globalSearch")
-        @include("partials.menu.userProfile")
-        @include("partials.menu.sideMenu")
-      @endif
-    </div>
+    @if(Auth::guest())
+      <li class="navigation-item pl-0">
+        <a href="#" class="text menu-toggle navigation-toggle-js underline-middle-hover">
+          <span>English</span>
+          <i class="icon icon-chevron"></i>
+        </a>
+        <ul class="navigation-sub-menu navigation-sub-menu-js language-select">
+          @foreach(getLangs()->keys() as $lang)
+              <li><a onclick='setTempLang({{$lang}})' href='#'>{{\Illuminate\Support\Facades\Config::get('app.locales_supported')->get($lang)[1]}}</a> </li>
+          @endforeach
+        </ul>
+      </li>
+    @elseif (!Auth::user()->active)
+      <li class="navigation-item">
+        <form id="logout_link" class="form-horizontal" role="form" method="POST" action="{{ url('/logout') }}">
+          <input type="hidden" name="_token" value="{{ csrf_token() }}">
+          <a class="logout underline-middle-hover">Logout</a>
+        </form>
+      </li>
+    @else
+      @include("partials.menu.globalSearch")
+      @include("partials.menu.userProfile")
+      @include("partials.menu.sideMenu")
+    @endif
   </ul>
   
   <script src="{{ config('app.url') }}/assets/javascripts/navigation/breadcrumbs.js"></script>
