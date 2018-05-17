@@ -25,9 +25,11 @@
             <p class="description">Fill out the form below, and then select “Create New Record.” If the form goes to
                 multiple pages, use the pagination found at the bottom of each page to navigate to the next.</p>
             <div class="content-sections">
-                @foreach(\App\Http\Controllers\PageController::getFormLayout($form->fid) as $page)
-                    <a href="#{{$page["title"]}}" class="section underline-middle underline-middle-hover toggle-by-name">{{$page["title"]}}</a>
-                @endforeach
+                <div class="content-sections-scroll">
+                    @foreach(\App\Http\Controllers\PageController::getFormLayout($form->fid) as $page)
+                        <a href="#{{$page["title"]}}" class="section underline-middle underline-middle-hover toggle-by-name">{{$page["title"]}}</a>
+                    @endforeach
+                </div>
             </div>
         </div>
     </section>
@@ -123,6 +125,7 @@
     @include('partials.records.javascripts')
 
     <script src="{{ config('app.url') }}assets/javascripts/vendor/ckeditor/ckeditor.js"></script>
+    <script src="{{ config('app.url') }}assets/javascripts/records/tabs.js"></script>
 
     <script type="text/javascript">
         getPresetDataUrl = "{{action('RecordPresetController@getData')}}";
