@@ -9,10 +9,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Html\FormBuilder;
+use Illuminate\Http\Request;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use ReCaptcha\ReCaptcha;
 
 class User extends Model implements AuthenticatableContract, CanResetPasswordContract {
 
@@ -53,7 +56,60 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return DB::table("global_cache")->where("user_id", "=", $this->id);
     }
 
-    /**
+    ////THESE FUNCTIONS WILL HANDLE MODIFICATIONS TO AUTHENTICATION IN LARAVEL//////////////////////////////////////////
+
+    ////NOTE: You may to fix some of these when updating to newer versions of laravel, so test them!!
+
+    /** RECAPTCHA
+     * Verifies recaptcha token on register.
+     *
+     * @param  Request $request - The registration request data
+     * @param  RegistersUsers $regUsers - The model that runs registration, need reference for error throwing
+     */
+    public static function verifyRegisterRecaptcha($request, $regUsers) {
+        $recaptcha = new ReCaptcha(config('auth.recap_private'));
+        $resp = $recaptcha->verify($request['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
+
+        if($resp->isSuccess());
+        else{
+            //TODO:: test error and make better
+            flash()->overlay('ReCAPTCHA incomplete!', 'Whoops.');
+
+            $validator = $regUsers->validator($request->all());
+            $regUsers->throwValidationException($request, $validator);
+        }
+    }
+
+    /** REGISTRATION
+     * Finishes the registration process by submitting user photo and sending activation email.
+     *
+     * @param  Request $request - The registration request data
+     */
+    public static function finishRegistration($request) {
+        $token = \Auth::user()->token;
+
+        if( !is_null($request->file('profile')) ) {
+            //get the file object
+            $file = $request->file('profile');
+            $filename = $file->getClientOriginalName();
+            //path where file will be stored
+            $destinationPath = env('BASE_PATH') . 'storage/app/profiles/'.\Auth::user()->id.'/';
+            //store filename in user model
+            \Auth::user()->profile = $filename;
+            \Auth::user()->save();
+            //move the file
+            $file->move($destinationPath,$filename);
+        }
+
+        Mail::send('emails.activation', compact('token'), function($message)
+        {
+            $message->from(env('MAIL_FROM_ADDRESS'));
+            $message->to(\Auth::user()->email);
+            $message->subject('Kora Account Activation');
+        });
+    }
+
+    /** PASSWORD RESET
      * Overrides the laravel password reset email function so we can customize it.
      *
      * @param  string $token - The reset token
@@ -73,6 +129,24 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             //TODO::email error response
         }
     }
+
+    /** LOGIN
+     * Filters login results to allow login with either username or email.
+     *
+     * @param  array $credentials - The login credentials
+     * @return array - The filtered credentials
+     */
+    public static function refineLoginCredentials($credentials) {
+        if(strpos($credentials['email'], '@') == false) {
+            //logging in with username not email, so change the column-name
+            $credentials['username'] = $credentials['email'];
+            unset($credentials['email']);
+        }
+
+        return $credentials;
+    }
+
+    ////END AUTH FUNCTIONS//////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Returns true if a user is allowed to create forms in a project, false if not.

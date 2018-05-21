@@ -226,25 +226,16 @@ class InstallController extends Controller {
      */
     private function envBuilder(InstallRequest $request){
         $baseurl = $request->baseurl_url;
-        //Check if http:// is included in the base URL, and addi it if missing
-        if(!preg_match("/(http)(.*)/",$baseurl))
-            $baseurl = "http://".$baseurl;
+        //Check if http:// is included in the base URL, and add it if missing
+        if(!preg_match("/(https)(.*)/",$baseurl))
+            $baseurl = "https://".$baseurl;
 
         //Check for trailing slashes
         if(substr($baseurl,-1) != "/")
             $baseurl = $baseurl."/";
 
-        $storageurl = $request->baseurl_storage;
-        //Check if http:// is included in the base URL, and addi it if missing
-        if(!preg_match("/(http)(.*)/",$storageurl))
-            $storageurl = "http://".$storageurl;
-
-        //Check for trailing slashes
-        if(substr($storageurl,-1) != "/")
-            $storageurl = $storageurl."/";
-
         $layout =
-            "APP_ENV=local\n".
+            "APP_ENV=production\n".
             "APP_DEBUG=false\n".
             "APP_KEY=\n\n".
 
@@ -265,7 +256,6 @@ class InstallController extends Controller {
             "SESSION_DRIVER=file\n\n".
 
             "BASE_URL=" . $baseurl . "\n" .
-            "STORAGE_URL=" . $storageurl . "\n" .
             "BASE_PATH=" . $request->basepath . "\n\n" .
 
             "RECAPTCHA_PUBLIC_KEY=" . $request->recaptcha_public_key . "\n" .
@@ -411,7 +401,6 @@ class InstallController extends Controller {
             "SESSION_DRIVER=" . config('session.driver') . "\n\n".
 
             "BASE_URL=" . config('app.url') . "\n" .
-            "STORAGE_URL=" . config('app.storage_url') . "\n" .
             "BASE_PATH=" . config('app.base_path') . "\n\n" .
 
             "RECAPTCHA_PUBLIC_KEY=" . $request->recaptcha_public . "\n" .

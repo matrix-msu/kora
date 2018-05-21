@@ -6,6 +6,7 @@ Kora.Fields.Options = function(fieldType) {
     function initializeSelects() {
         //Most field option pages need these
         $('.single-select').chosen({
+            allow_single_deselect: true,
             width: '100%',
         });
 

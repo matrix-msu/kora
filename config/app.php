@@ -40,7 +40,7 @@ return [
 	*/
 
 	'url' => env('BASE_URL'),
-    'storage_url' => env('STORAGE_URL'),
+    'storage_url' => env('BASE_URL').'app/',
     'base_path' => env('BASE_PATH'),
 
 	/*

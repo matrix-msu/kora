@@ -3,7 +3,7 @@
     <input class="text-input" type="number" name="{{$field->flid}}_left" placeholder="Enter left bound (leave blank for -infinity)">
 </div>
 <div class="form-group mt-sm">
-    <input class="text-input" type="number" name="{{$field->flid}}_right" placeholder="Enter left bound (leave blank for infinity)">
+    <input class="text-input" type="number" name="{{$field->flid}}_right" placeholder="Enter right bound (leave blank for infinity)">
 </div>
 <div class="form-group mt-sm">
     <div class="check-box-half">

@@ -172,23 +172,15 @@
 
     <div class="form-group mt-xl">
         <label for="baseurl_url">URL</label>
-        <input class="text-input" placeholder="Enter the base URL here" type="text" id="baseurl_url" name="baseurl_url" value="{{old('baseurl_url')}}">
+        <input class="text-input" placeholder="Enter the base URL here (i.e. https://www.MyKora3.com/)" type="text" id="baseurl_url" name="baseurl_url" value="{{old('baseurl_url')}}">
         <p class="sub-text  mt-xxs">
-            URL that points to the installation. Laravel requires you to point to {projectRoot}/public/
-        </p>
-    </div>
-
-    <div class="form-group mt-xl">
-        <label for="baseurl_storage">Storage URL</label>
-        <input class="text-input" placeholder="Enter the base storage url here" type="text" id="baseurl_storage" name="baseurl_storage" value="{{old('baseurl_storage')}}">
-        <p class="sub-text  mt-xxs">
-            Enter the {UrlAbove}/{SymlinkName}/, where the SymlinkName is the one you created earlier via command line
+            URL that points to the installation. Kora 3 requires your URL to point to /{path to project root folder}/public/
         </p>
     </div>
 
     <div class="form-group mt-xl">
         <label for="basepath">Path</label>
-        <input class="text-input" placeholder="Enter the base path here" type="text" id="basepath" name="basepath" value="{{old('basepath')}}">
+        <input class="text-input" placeholder="Enter the base path here (i.e. /system/path/to/Kora3/)" type="text" id="basepath" name="basepath" value="{{old('basepath')}}">
         <p class="sub-text  mt-xxs">
             Actual system path from / to {ProjectRoot}/
         </p>

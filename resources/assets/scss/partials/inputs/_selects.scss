@@ -107,6 +107,19 @@
       vertical-align: middle;
       will-change: transform;
     }
+
+    .search-choice-close {
+      right: 60px;
+      top: 18px;
+
+      &::before {
+        color: palette('gray', slate);
+        content: $icon-cancel;
+        font-family: 'Kora-Icons';
+        font-size: 10px;
+        speak: none;
+      }
+    }
   }
 
   .chosen-default {
