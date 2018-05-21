@@ -1,3 +1,4 @@
+<div class="navigation-right-wrap">
 <li class="navigation-search">
   <a href="#" class="global-search-toggle navigation-toggle-js">
     <i class="icon icon-search"></i>

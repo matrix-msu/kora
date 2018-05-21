@@ -6,7 +6,8 @@
   box-shadow: 0 10px 30px 0 palette('black', base, .2);
   opacity: 1;
   position: absolute;
-  top: $navigation-height + $status-height;
+  /*top: $navigation-height + $status-height;*/
+  top: $navigation-height;
   transform: translateY(-200%);
   visibility: hidden;
   width: 175px;

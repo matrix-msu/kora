@@ -2,6 +2,7 @@
   display: inline-block;
   height: 50px;
   float: left;
+  position: absolute;
 
   .logo {
     display: inline-block;
@@ -27,13 +28,33 @@
     font-family: $ubuntu-medium;
     font-size: 12px;
     vertical-align: middle;
+    
+    &:after {
+      content: '';
+      position: absolute;
+      display: inline-block;
+      right: 0;
+      width: 2em;
+      text-align: center;
+    }
 
     a, .no-link {
       line-height: 50px;
-      
-      span {
+    
+      span { 
         @include transition();
-      }
+        
+        display: inline-block;
+      }                             
+    }
+    
+    .menu-toggle span,
+    .no-link span {
+      display: inline-block;
+      max-width: 9em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: middle;
     }
 
     .no-link {
@@ -68,11 +89,60 @@
       color: palette('green', accent);
     }
   }
+  // start new
+  // .collapsed will be applied when breadcrumbs.js detects certain brower width
+  &.collapsed {
+    .navigation-item {
+      margin-left: 10px;
+      overflow: hidden;
+      
+      .menu-toggle span {
+        max-width: 2.5em;
+      }
+      
+      .menu-toggle .icon-minus {
+        margin-right: 10px;
+      }
+      
+      .no-link .icon-minus {
+        margin-right: 10px;
+      }
+      & .menu-toggle:not(:last-child) {
+        @include transition();
+
+        max-width: 4em;
+      }
+    }
+    & a:hover,
+    & a:focus,
+    & li:hover {
+      a {
+        max-width: 1000px;
+        span {
+          max-width: 1000px!important;
+        }
+      }
+    }
+    & li:hover:after {
+      background: transparent;
+      padding-left: 0;
+    }
+  }
+  // end new
 }
 
-@media screen and (max-width: $max-mobile-xs-width) {
+/*@media screen and (max-width: $max-mobile-width) {  // 768
+  
+}*/
+
+@media screen and (max-width: $max-mobile-xs-width) { // 480
   // Replace .icon-placeholder with the image class when replaced
-  .navigation-left .logo .icon-placeholder {
-    margin: #{ ($navigation-height - 27px) / 2 } 0;
+  .navigation-left {
+    .logo .icon-placeholder {
+      margin: #{ ($navigation-height - 27px) / 2 } 0;
+    }
+    .navigation-item {
+      display: none;
+    }
   }
 }

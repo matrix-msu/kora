@@ -7,19 +7,34 @@
   width: 100%;
 
   .rotate {
+    @include transition();
+      
     border: 1px solid palette('gray', slate, .05);
+    border-radius: 0 5px 0 0;
     display: inline-block;
-    padding: 20px;
+    padding: 15px 18px;
     position: absolute;
     text-decoration: none;
     transform: rotate(90deg);
+    &:hover {
+      box-shadow: 0 6px 12px 0 rgba(21,39,48,0.06);
+      -webkit-transform: rotate(90deg) scale(1.25);
+      transform: rotate(90deg) scale(1.25);
+      i {
+        opacity: 1;
+      }
+    }
 
     i {
+      @include transition();
+      
       border-radius: 5px;
       box-shadow: 0 3px 5px 0 palette('box-shadow', base, .03);
       color: palette('green');
       font-size: 8px;
       height: 50px;
+      opacity: 0.6;
+      transform: scale(1.25);
       width: 50px;
     }
   }
@@ -110,24 +125,62 @@
   }
 
   .content-sections {
-    display: flex;
-    flex-wrap: wrap;
+    position: relative;
+    
+    .content-sections-scroll {
+      display: flex;
+      /*flex-wrap: wrap;*/
 
-    .section {
-      @include transition();
+      flex-wrap: nowrap; // for tabs
+      overflow-x: auto;
+      overflow-y: hidden;
+      &::-webkit-scrollbar {
+        display: none;
+      }
 
-      color: palette('gray', text, .6);
-      margin-right: 20px;
-      padding: 20px 0;
-      text-decoration: none;
+      .section {
+        @include transition();
 
+        color: palette('gray', text, .6);
+        margin-right: 20px;
+        padding: 20px 0;
+        text-decoration: none;
+        white-space: nowrap; // this
+
+        &:hover {
+          color: palette('green', accent);
+        }
+
+        &.active {
+          color: palette('green', accent);
+        }
+      } 
+    }
+    
+    .tabs-left,
+    .tabs-right {
+      background: linear-gradient(0deg, #fff 0%, rgba(255, 255, 255, 0) 100%);
+      bottom: -5px;
+      padding: 60px 21px 0 21px;
+      position: absolute;
+      font-size: 0.5em;
       &:hover {
-        color: palette('green', accent);
+        cursor: pointer;
       }
-
-      &.active {
-        color: palette('green', accent);
+      
+      .hidden {
+        display: none;
       }
+    }
+    
+    .tabs-left {
+      left: -5px;
+      transform: rotate(90deg);
+    }
+    
+    .tabs-right {
+      right: -5px;
+      transform: rotate(-90deg);
     }
   }
 
