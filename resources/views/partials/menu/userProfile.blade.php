@@ -10,7 +10,7 @@
 
   <ul class="navigation-sub-menu navigation-sub-menu-js">
     <li class="header">
-      Hello, {{ Auth::user()->username }}!
+      Hello, {{ Auth::user()->first_name }}!
     </li>
     <li class="link">
       <a href="{{ action('Auth\UserController@index',['uid'=>Auth::user()->id]) }}">View My Profile</a>
