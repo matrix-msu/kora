@@ -489,6 +489,7 @@ Kora.Forms.Show = function() {
           'newPageName': title
         },
         success: function(result) {
+          window.localStorage.setItem('newPageCheck', 'true');
           location.reload();
         }
       });
@@ -566,3 +567,26 @@ Kora.Forms.Show = function() {
   initializeFieldToggles();
   initializeCheckboxes();
 }
+
+// scroll to new page if new page was created
+$(document).ready(function () {
+  try {
+    var check = window.localStorage.getItem('newPageCheck')
+    if (check) {
+      window.localStorage.removeItem('newPageCheck')
+      var pageIDs = []
+      var pages = $('.page');
+      for (var i = 0; i < pages.length; i++) {
+        pageIDs.push('' + pages[i].getAttribute('page-id'))
+      }
+      var max = Math.max.apply(null, pageIDs)
+      var scrollTo = $('.page[page-id=' + max + ']').offset().top
+      $('html, body').animate({
+        scrollTop: scrollTo
+      }, 2500);
+    } 
+  }
+  catch (err) {
+    console.log('' + err.message)
+  }
+});
