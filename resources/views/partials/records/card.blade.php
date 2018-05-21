@@ -24,7 +24,7 @@
                     @if($page["fields"]->count() > 0)
                         @foreach($page["fields"] as $field)
                             @if($field->viewresults)
-                                <div class="field-title mt-xl">{{$field->name}}: </div>
+                                <div class="field-title mt-xl">{{$field->name}}</div>
 
                                 <section class="field-data">
                                     <?php $typedField = $field->getTypedFieldFromRID($record->rid); ?>

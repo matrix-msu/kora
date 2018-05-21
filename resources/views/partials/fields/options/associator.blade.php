@@ -2,17 +2,17 @@
 
 @section('fieldOptions')
     <div class="form-group">
-        {!! Form::label('default','Default Associations: ') !!}
+        {!! Form::label('default','Default Associations') !!}
         {!! Form::select('default[]', \App\AssociatorField::getAssociatorList($field), \App\AssociatorField::getAssociatorList($field),
             ['class' => 'multi-select assoc-default-records-js', 'multiple', "data-placeholder" => "Search below to add associated records"]) !!}
     </div>
 
     <div class="form-group mt-xs">
-        {!! Form::label('search','Search Associations: ') !!}
+        {!! Form::label('search','Search Associations') !!}
         <input type="text" class="text-input assoc-search-records-js" placeholder="Enter search term or KID to find associated records (populated below)">
     </div>
     <div class="form-group mt-xs">
-        {!! Form::label('search','Association Results: ') !!}
+        {!! Form::label('search','Association Results') !!}
         {!! Form::select('search[]', [], null, ['class' => 'multi-select assoc-select-records-js', 'multiple',
             "data-placeholder" => "Select a record association to add to defaults"]) !!}
 
@@ -21,7 +21,7 @@
         </p>
     </div>
 
-    <div class="form-group mt-xxxl">{!! Form::label('','Search Configuration: ') !!}</div>
+    <div class="form-group mt-xxxl">{!! Form::label('','Search Configuration') !!}</div>
     @foreach(\App\Http\Controllers\AssociationController::getAvailableAssociations($field->fid) as $a)
         <?php
             $f = \App\Http\Controllers\FormController::getForm($a->dataForm);
@@ -61,7 +61,7 @@
          hidden
         @endif
         ">
-            {!! Form::label('preview_'.$f->fid, 'Preview Value: ') !!}
+            {!! Form::label('preview_'.$f->fid, 'Preview Value') !!}
             {!! Form::select('preview_'.$f->fid, $formFields, $f_flids, $selectArray) !!}
         </div>
     @endforeach

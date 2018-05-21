@@ -21,7 +21,7 @@
 </div>
 
 <div class="form-group mt-xl">
-    {!! Form::label('type','Field Type: ') !!}
+    {!! Form::label('type','Field Type') !!}
     {!! Form::select('type', $validFieldTypes, null,['class' => 'single-select field-types-js']) !!}
 </div>
 

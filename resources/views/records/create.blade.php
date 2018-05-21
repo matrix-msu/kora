@@ -56,7 +56,7 @@
 
     <section class="create-record center">
         <div class="form-group mt-xl preset-record-div-js hidden">
-            {!! Form::label('presetlabel', 'Select a Preset: ') !!}
+            {!! Form::label('presetlabel', 'Select a Preset') !!}
             <select class="single-select preset-record-js">
                 <option disabled selected>Select a Record Preset</option>
                 @for($i=0; $i < sizeof($presets); $i++)
@@ -89,7 +89,7 @@
             </div>
 
             <div class="form-group mt-xl duplicate-record-js hidden">
-                {!! Form::label('mass_creation_num', 'Select duplication amount (max 1000): ') !!}
+                {!! Form::label('mass_creation_num', 'Select duplication amount (max 1000)') !!}
                 <input type="number" name="mass_creation_num" class="text-input" value="2" step="1" max="1000" min="2" disabled>
             </div>
 
@@ -106,7 +106,7 @@
             </div>
 
             <div class="form-group mt-xl newRecPre-record-js hidden">
-                {!! Form::label('record_preset_name', 'Record Preset Name: ') !!}
+                {!! Form::label('record_preset_name', 'Record Preset Name') !!}
                 <input type="text" name="record_preset_name" class="text-input" placeholder="Add Record Preset Name" disabled>
             </div>
 
