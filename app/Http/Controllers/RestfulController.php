@@ -879,13 +879,13 @@ class RestfulController extends Controller {
 		    exit();
 		}
 
-        $textOccurrences = DB::raw("select `text`, flid, COUNT(*) as count from ".env('DB_PREFIX')."text_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `text` order by count ASC");
-        $listOccurrences = DB::raw("select `option`, flid, COUNT(*) as count from ".env('DB_PREFIX')."list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `option` order by count ASC");
-        $msListOccurrences = DB::raw("select `options`, flid, COUNT(*) as count from ".env('DB_PREFIX')."multi_select_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `options` order by count ASC");
-        $genListOccurrences = DB::raw("select `options`, flid, COUNT(*) as count from ".env('DB_PREFIX')."generated_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `options` order by count ASC");
-        $numberOccurrences = DB::raw("select `number`, flid, COUNT(*) as count from ".env('DB_PREFIX')."number_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `number` order by count ASC");
-        $assocOccurrences = DB::raw("select `record`, flid, COUNT(*) as count from ".env('DB_PREFIX')."associator_support where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `record` order by count ASC");
-        $rAssocOccurrences = DB::raw("select `rid`, flid, COUNT(*) as count from ".env('DB_PREFIX')."associator_support where `fid`=$fid and `record` in ($ridString)$flidSQL group by `rid` order by count ASC");
+        $textOccurrences = DB::raw("select `text`, flid, COUNT(*) as count from ".env('DB_PREFIX')."text_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `flid`,`text` order by count ASC");
+        $listOccurrences = DB::raw("select `option`, flid, COUNT(*) as count from ".env('DB_PREFIX')."list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `flid`,`option` order by count ASC");
+        $msListOccurrences = DB::raw("select `options`, flid, COUNT(*) as count from ".env('DB_PREFIX')."multi_select_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `flid`,`options` order by count ASC");
+        $genListOccurrences = DB::raw("select `options`, flid, COUNT(*) as count from ".env('DB_PREFIX')."generated_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `flid`,`options` order by count ASC");
+        $numberOccurrences = DB::raw("select `number`, flid, COUNT(*) as count from ".env('DB_PREFIX')."number_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `flid`,`number` order by count ASC");
+        $assocOccurrences = DB::raw("select `record`, flid, COUNT(*) as count from ".env('DB_PREFIX')."associator_support where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `flid`,`record` order by count ASC");
+        $rAssocOccurrences = DB::raw("select `rid`, flid, COUNT(*) as count from ".env('DB_PREFIX')."associator_support where `fid`=$fid and `record` in ($ridString)$flidSQL group by `flid`,`rid` order by count ASC");
 
 		//Because of the complex data in MS List, we break stuff up and then format
 		$msListUnclean = $con->query($msListOccurrences);
