@@ -75,7 +75,7 @@
   <label for="confirm">Confirm New Password</label>
     <span class="error-message">{{array_key_exists("password_confirmation", $errors->messages()) ? $errors->messages()["password_confirmation"][0] : ''}}</span>
   <input type="password" class="text-input {{(array_key_exists("password_confirmation", $errors->messages()) ? ' error' : '')}}"
-         id="password_confirmation" name="password_confirmation" placeholder="Enter password here" disabled>
+         id="password_confirmation" name="password_confirmation" placeholder="Enter password here">
 </div>
 
 <div class="form-group mt-100-xl" >
