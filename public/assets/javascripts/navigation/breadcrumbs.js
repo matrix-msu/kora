@@ -26,7 +26,6 @@ function collision($div1, $div2) {
 
 window.setInterval(function() {
     var result = collision($('.navigation-right-wrap'), $('.navigation-left'));
-    console.log('' + result)
     if (result === true) {
       $('.navigation-left').addClass('collapsed');
     } else {
@@ -35,7 +34,9 @@ window.setInterval(function() {
 }, 200);
 
 function unsetBreadCrumbs () {
-  if (window.innerWidth > 768) {
+  if (window.innerWidth > 900) {
+    // this value needs to be one so large that nav-left will never be wide enough to touch the right-nav above this browser width
+    // currently, the largest width for .nav-left I could get was 846.31px
     $('.navigation-left').removeClass('collapsed');
   }
 }
