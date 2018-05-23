@@ -150,8 +150,8 @@ class ExportController extends Controller {
         // Zip archive will be created only after closing object
         $zip->close();
 
-        header("Content-Disposition: attachment; filename=".$form->name.'_fileData_'.$time.'.zip');
-        header("Content-Type: application/zip; ");
+        header('Content-Disposition: attachment; filename="'.$form->name.'_fileData_'.$time.'.zip"');
+        header('Content-Type: application/zip; ');
 
         readfile($zipPath.$form->name.'_fileData_'.$time.'.zip');
     }
@@ -238,8 +238,8 @@ class ExportController extends Controller {
         }
 
         if($download) {
-            header("Content-Disposition: attachment; filename=" . $form->name . '_Layout_' . Carbon::now() . '.k3Form');
-            header("Content-Type: application/octet-stream; ");
+            header('Content-Disposition: attachment; filename="' . $form->name . '_Layout_' . Carbon::now() . '.k3Form"');
+            header('Content-Type: application/octet-stream; ');
 
             echo json_encode($formArray);
         } else {
@@ -287,8 +287,8 @@ class ExportController extends Controller {
             array_push($projArray['forms'],$this->exportForm($pid,$form->fid,false));
         }
 
-        header("Content-Disposition: attachment; filename=" . $proj->name . '_Layout_' . Carbon::now() . '.k3Proj');
-        header("Content-Type: application/octet-stream; ");
+        header('Content-Disposition: attachment; filename="' . $proj->name . '_Layout_' . Carbon::now() . '.k3Proj"');
+        header('Content-Type: application/octet-stream; ');
 
         echo json_encode($projArray);
     }
