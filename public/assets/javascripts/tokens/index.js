@@ -225,9 +225,50 @@ Kora.Tokens.Index = function() {
             width: '100%',
         });
     }
+	
+	function initializeTokenCardEllipsifying()
+	{
+		function adjustTokenCardTitle()
+		{
+			let cards = $($(".token-selection-js").find(".token.card"));
+			
+			for (i = 0; i < cards.length; i++)
+			{	
+				let card = $(cards[i]);
+				let name_span = $(card.find($(".name")));
+				let chevron_text = $(card.find($(".chevron-text")));
+				let chevron_icon = $(card.find($(".icon-chevron")));
+				
+				let card_width = card.width();
+				let chevron_text_width = chevron_text.outerWidth();
+				let chevron_icon_width = chevron_icon.outerWidth();
+				let left_padding = 20; // padding within card
+				
+				let title_width = (card_width - left_padding) - (chevron_text_width + chevron_icon_width + 5);
+				if (title_width < 0) {title_width = 0;}
+				
+				name_span.css("text-overflow", "ellipsis");
+				name_span.css("white-space", "nowrap");
+				name_span.css("overflow", "hidden");
+				name_span.css("max-width", title_width + "px");
+			}
+		}
+		
+		$(window).resize(function()
+		{
+			adjustTokenCardTitle();
+		});
+		
+		$(document).ready(function()
+		{
+			adjustTokenCardTitle();
+			setTimeout(function(){ adjustTokenCardTitle(); adjustTokenCardTitle(); }, 1); // necessary for some reason
+		});
+	}
 
     initializeFilters();
     initializeSearch();
     initializeToggle();
     initializeTokenModals();
+	initializeTokenCardEllipsifying();
 }

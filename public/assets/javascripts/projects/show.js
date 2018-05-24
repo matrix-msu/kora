@@ -223,8 +223,47 @@ Kora.Projects.Show = function() {
       $content.addClass('active');
     });
   }
+  
+  function initializeFormCardEllipsifying()
+  {
+    function adjustFormCardTitle()
+    {
+    	let cards = $($(".active-forms").find(".form.card"));
+    	
+    	for (i = 0; i < cards.length; i++)
+    	{	
+    	  let card = $(cards[i]);
+    	  let name_span = $(card.find($(".name")));
+    	  let arrow = $(card.find($(".icon-arrow-right")));
+    	  let chevron = $(card.find($(".icon-chevron")));
+    	  
+    	  let card_width = card.width();
+    	  let arrow_width = arrow.outerWidth();
+    	  let chevron_width = chevron.outerWidth();
+    	  let left_padding = 20; // padding within card
+    	  
+    	  let title_width = (card_width - left_padding) - (arrow_width + chevron_width + 5);
+    	  if (title_width < 0) {title_width = 0;}
+    	  
+    	  name_span.css("text-overflow", "ellipsis");
+    	  name_span.css("white-space", "nowrap");
+    	  name_span.css("overflow", "hidden");
+    	  name_span.css("max-width", title_width + "px");
+    	}
+    }
+  	
+    $(window).resize(function()
+    {
+      adjustFormCardTitle();
+    });
+    $(document).ready(function()
+    {
+      adjustFormCardTitle();
+    });
+  }
 
   initializeCustomSort();
   initializeFilters();
   initializeSearch();
+  initializeFormCardEllipsifying();
 }

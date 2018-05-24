@@ -562,12 +562,58 @@ Kora.Forms.Show = function() {
       });
     });
   }
+  
+  function initializeFieldCardEllipsifying()
+  {
+    function adjustFieldCardTitle()
+	{
+		let cards = $($(".field-sort-js").find(".field.card"));
+		
+		for (i = 0; i < cards.length; i++)
+		{	
+			let card = $(cards[i]);
+			let name_span = $(card.find($(".name")));
+			let arrow = $(card.find($(".icon-arrow-right")));
+			let chevron_text = $(card.find($(".chevron-text")));
+			let chevron_icon = $(card.find($(".icon-chevron")));
+			let move_up_icon = $(card.find($(".up-js")));
+			let move_down_icon = $(card.find($(".down-js")));
+			
+			let card_width = card.width();
+			let arrow_width = arrow.outerWidth();
+			let chevron_text_width = chevron_text.outerWidth();
+			let chevron_icon_width = chevron_icon.outerWidth();
+			let move_up_icon_width = move_up_icon.outerWidth();
+			let move_down_icon_width = move_down_icon.outerWidth();
+			
+			
+			let title_width = (card_width) - (arrow_width + chevron_text_width + chevron_icon_width + move_up_icon_width + move_down_icon_width + 10);
+			if (title_width < 0) {title_width = 0;}
+			
+			name_span.css("text-overflow", "ellipsis");
+			name_span.css("white-space", "nowrap");
+			name_span.css("overflow", "hidden");
+			name_span.css("max-width", title_width + "px");
+		}
+	}
+  	
+    $(window).resize(function()
+    {
+    	adjustFieldCardTitle();
+    });
+    $(document).ready(function()
+    {
+    	adjustFieldCardTitle();
+		setTimeout(function(){ adjustFieldCardTitle(); adjustFieldCardTitle(); }, 1); // necessary for some reason
+    });
+  }
 
   initializeSearch();
   initializePages();
   initializeFieldSort();
   initializeFieldToggles();
   initializeCheckboxes();
+  initializeFieldCardEllipsifying();
 }
 
 // scroll to new page if new page was created
