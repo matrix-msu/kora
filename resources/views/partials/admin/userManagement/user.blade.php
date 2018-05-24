@@ -10,7 +10,7 @@
             <i class="icon icon-user-little"></i>
           @endif
           </span>
-          @if ($user->first_name) <span class="mr-m firstname">{{$user->first_name}}</span> @endif
+          @if ($user->first_name) <span class="mr-xxs firstname">{{$user->first_name}}</span> @endif
           @if ($user->last_name) <span class="mr-m lastname">{{$user->last_name}}</span> @endif
           @if ($user->username) <span class="mr-m username">{{$user->username}}</span> @endif
         </span>

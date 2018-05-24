@@ -17,7 +17,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::patch('projects/validate/{projects}', 'ProjectController@validateProjectFields');
 
 //project group routes
-    Route::get('/projects/{pid}/manage/projectgroups/{active?}', 'ProjectGroupController@index');
+    Route::get('/projects/{pid}/manage/projectgroups/', 'ProjectGroupController@index');
     Route::post('/projects/{pid}/manage/projectgroups/create', 'ProjectGroupController@create');
     Route::patch('projects/{pid}/manage/projectgroups/removeUser', 'ProjectGroupController@removeUser');
     Route::patch('projects/{pid}/manage/projectgroups/addUsers', 'ProjectGroupController@addUsers');
@@ -176,7 +176,7 @@ Route::group(['middleware' => 'web'], function () {
 
 //user routes
     Route::get('/user', 'Auth\UserController@redirect');
-    Route::get('/user/{uid}', 'Auth\UserController@index');
+    Route::get('/user/{uid}/{section?}', 'Auth\UserController@index');
     Route::get('/user/{uid}/edit', 'Auth\UserController@editProfile');
     Route::delete('/user/{uid}/delete', 'Auth\UserController@delete');
     Route::patch('/user/{uid}/update', 'Auth\UserController@update');

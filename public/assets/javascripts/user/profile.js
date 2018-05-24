@@ -2,24 +2,36 @@ var Kora = Kora || {};
 Kora.User = Kora.User || {};
 
 Kora.User.Profile = function() {
-  function initializePageNavigation() {
-    $('.page-section-js').first().addClass('active');
-    $('.select-section-js').first().addClass('active');
+  function initializeOptionDropdowns() {
+    $('.option-dropdown-js').chosen({
+      disable_search_threshold: 10,
+      width: 'auto'
+    }).change(function() {
+      var type = $(this).attr('id');
+      if (type === 'page-count-dropdown') {
+        var order = getURLParameter('order');
+        window.location = window.location.pathname + "?page-count=" + $(this).val() + (order ? "&order=" + order : '');
+      } else if (type === 'order-dropdown') {
+        var pageCount = getURLParameter('page-count');
+        window.location = window.location.pathname + "?order=" + $(this).val() + (pageCount ? "&page-count=" + pageCount : '');
+      }
+    });
+  }
 
-    $('.select-section-js').click(function(e) {
+  function initializePageNavigation() {
+    $selectSection = $('.select-section-js');
+    $pageSection = $('.page-section-js');
+
+    $selectSection.click(function(e) {
       e.preventDefault();
 
-      $this = $(this);
-      $this.siblings().removeClass('active');
-      $this.addClass('active');
-      
-      $('.page-section-js').removeClass('active');      
-      $active = $this.attr("href").replace('#', '');
-      $('.page-section-js').each(function() {
-          if ($(this).attr('id') == $active) {
-            $(this).addClass('active');
-          }
-      });
+      $selected = $(this).attr("href").replace('#', '');
+
+      // Get all existing URL parameters
+      var order = getURLParameter('order');
+      var pageCount = getURLParameter('page-count');
+
+      window.location = window.location.pathname + "?section=" + $selected + (pageCount ? "&page-count=" + pageCount : '') + (order ? "&order=" + order : '');
     });
   }
   
@@ -90,7 +102,8 @@ Kora.User.Profile = function() {
 
     });
   }
-  
+
+  initializeOptionDropdowns();
   initializePageNavigation();
   initializeFilters();
   initializeProjectCards();

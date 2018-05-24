@@ -2,9 +2,19 @@
   font-size: 14px;
 
   .card {
+    .content {
+      p {
+        margin: 0;
+      }
+    }
+
     .header {
       .group {
         color: palette('gray', slate, .6);
+
+        span {
+          @include transition();
+        }
 
         &:hover {
           color: palette('green', accent);

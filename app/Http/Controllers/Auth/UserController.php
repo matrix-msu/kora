@@ -4,6 +4,7 @@ use App\Form;
 use App\Project;
 use App\ProjectGroup;
 use App\Record;
+use App\Revision;
 use App\Http\Controllers\Controller;
 use App\User;
 use Illuminate\Http\JsonResponse;
@@ -47,23 +48,64 @@ class UserController extends Controller {
      *
      * @return View
      */
-    public function index($uid) {
+    public function index(Request $request, $uid, $section = '') {
+        $section = (($section && in_array($section, ['permissions', 'history'])) ? $section : 'profile');
+
         $user = User::where('id',$uid)->get()->first();
 
         $profile = $user->profile;
 
-        if($user->admin) {
-            $admin = 1;
-            $records = Record::where('owner', '=', $user->id)->orderBy('updated_at', 'desc')->take(30)->get();
-            return view('user/profile',compact('user', 'admin', 'records', 'profile'));
-        } else {
-            $admin = 0;
-            $projects = self::buildProjectsArray($user);
-            $forms = self::buildFormsArray($user);
-            $records = Record::where('owner', '=', $user->id)->orderBy('updated_at', 'desc')->get();
+        if ($section == 'permissions') {
+            if($user->admin) {
+                $admin = 1;
+                return view('user/profile-permissions',compact('user', 'admin',  'section'));
+            } else {
+                $admin = 0;
+                $projects = self::buildProjectsArray($user);
+                $forms = self::buildFormsArray($user);
+                return view('user/profile-permissions',compact('user', 'admin', 'projects', 'forms', 'section'));
+            }
+        } elseif ($section == 'history') {
+            // Record History revisions
+            $pagination = $request->input('page-count') === null ? 10 : app('request')->input('page-count');
+            $order = $request->input('order') === null ? 'lmd' : app('request')->input('order');
+            $order_type = substr($order, 0, 2) === "lm" ? "revisions.created_at" : "revisions.id";
+            $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
+            $userRevisions = Revision::leftJoin('records', 'revisions.rid', '=', 'records.rid')
+                ->leftJoin('users', 'revisions.owner', '=', 'users.id')
+                ->select('revisions.*', 'records.kid', 'users.username as ownerUsername')
+                ->where('revisions.username', '=', $user->username)
+                ->whereNotNull('kid')
+                ->orderBy($order_type, $order_direction)
+                ->paginate($pagination);
+            $userOwnedRevisions = Revision::leftJoin('records', 'revisions.rid', '=', 'records.rid')
+                ->select('revisions.*', 'records.kid')
+                ->where('revisions.owner', '=', $user->id)
+                ->whereNotNull('kid')
+                ->orderBy($order_type, $order_direction)
+                ->paginate($pagination);
 
-            return view('user/profile',compact('user', 'admin', 'projects', 'forms', 'records', 'profile'));
+            if($user->admin) {
+                $admin = 1;
+                return view('user/profile-record-history',compact('user', 'admin', 'userRevisions', 'userOwnedRevisions', 'section'));
+            } else {
+                $admin = 0;
+                return view('user/profile-record-history',compact('user', 'admin', 'userRevisions', 'userOwnedRevisions', 'section'));
+            }
+        } else {
+            if($user->admin) {
+                $admin = 1;
+                return view('user/profile',compact('user', 'admin', 'section'));
+            } else {
+                $admin = 0;
+                return view('user/profile',compact('user', 'admin', 'section'));
+            }
         }
+
+
+
+
+
     }
 
     public function editProfile(Request $request) {
@@ -482,7 +524,7 @@ class UserController extends Controller {
                     if($permissions == '')
                         $permissions .= 'Read Only';
 
-                    $projects[$i]['permissions'] = rtrim($permissions, '| ');
+                    $projects[$i]['permissions'] = self::buildPermissionsString(rtrim($permissions, '| '));
                 }
             }
             $i++;
@@ -525,11 +567,24 @@ class UserController extends Controller {
                         $permissions .= 'Delete Records | ';
                     if($permissions == '')
                         $permissions .= 'Read Only ';
-                    $forms[$i]['permissions'] = rtrim($permissions, '| ');
+                    $forms[$i]['permissions'] = self::buildPermissionsString(rtrim($permissions, '| '));
                 }
             }
             $i++;
         }
         return $forms;
+    }
+
+    public static function buildPermissionsString($permissions) {
+        $permissionsArray = explode(" | ", $permissions);
+        if (count($permissionsArray) == 1) {
+            return strtolower($permissionsArray[0]);
+        } elseif (count($permissionsArray) == 2) {
+            return strtolower(implode(' and ', $permissionsArray));
+        } elseif (count($permissionsArray) > 2) {
+            $lastIndex = count($permissionsArray) - 1;
+            $permissionsArray[$lastIndex] = 'and ' . $permissionsArray[$lastIndex];
+            return strtolower(implode(', ', $permissionsArray));
+        }
     }
 }
