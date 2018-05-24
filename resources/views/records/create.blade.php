@@ -6,6 +6,10 @@
     @include('partials.menu.static', ['name' => 'New Record'])
 @stop
 
+@section('aside-content')
+  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid, 'openDrawer' => true])
+@stop
+
 @section('stylesheets')
     <link rel="stylesheet" href="{{ config('app.url') }}assets/css/vendor/datetimepicker/jquery.datetimepicker.min.css" />
 @stop
@@ -21,9 +25,11 @@
             <p class="description">Fill out the form below, and then select “Create New Record.” If the form goes to
                 multiple pages, use the pagination found at the bottom of each page to navigate to the next.</p>
             <div class="content-sections">
-                @foreach(\App\Http\Controllers\PageController::getFormLayout($form->fid) as $page)
-                    <a href="#{{$page["title"]}}" class="section underline-middle underline-middle-hover toggle-by-name">{{$page["title"]}}</a>
-                @endforeach
+                <div class="content-sections-scroll">
+                    @foreach(\App\Http\Controllers\PageController::getFormLayout($form->fid) as $page)
+                        <a href="#{{$page["title"]}}" class="section underline-middle underline-middle-hover toggle-by-name">{{$page["title"]}}</a>
+                    @endforeach
+                </div>
             </div>
         </div>
     </section>
@@ -61,7 +67,7 @@
 
         {!! Form::model($record = new \App\Record, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid.'/records',
             'enctype' => 'multipart/form-data', 'id' => 'new_record_form']) !!}
-            
+
             @include('partials.records.form',['form' => $form, 'editRecord' => false])
 
             @include('partials.records.pagination-form', ['layout' => \App\Http\Controllers\PageController::getFormLayout($form->fid)])
@@ -119,6 +125,7 @@
     @include('partials.records.javascripts')
 
     <script src="{{ config('app.url') }}assets/javascripts/vendor/ckeditor/ckeditor.js"></script>
+    <script src="{{ config('app.url') }}assets/javascripts/records/tabs.js"></script>
 
     <script type="text/javascript">
         getPresetDataUrl = "{{action('RecordPresetController@getData')}}";

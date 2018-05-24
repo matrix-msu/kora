@@ -39,44 +39,83 @@ class DashboardController extends Controller {
         $sections = array();
 
         $results = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order')->get();
+
+        // Create a section and block if there isn't already one
+        if (count($results) == 0) {
+          $sec_id = DB::table('dashboard_sections')->insertGetId(
+            ['uid' => Auth::User()->id, 'title' => 'Projects', 'order' => 0]
+          );
+
+          $proj_id = Auth::User()->allowedProjects()[0]->pid;
+          $options_string = '{"pid": ' . $proj_id .
+            ', "displayed": ["edit", "search", "form-new", "form-import", "permissions", "presets"]' .
+            ', "hidden": ["importForm"]}';
+
+          DB::table('dashboard_blocks')->insert(
+            [
+              'sec_id' => $sec_id,
+              'type' => 'Project',
+              'order' => 0,
+              'options' => $options_string]
+          );
+
+          $results = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order')->get();
+        }
+
         foreach($results as $sec) {
             $s = array();
             $s['title'] = $sec->title;
             $s['id'] = $sec->id;
 
             $blocks = array();
-            $blkResults = DB::table('dashboard_blocks')->where('bid','=',$sec->id)->orderBy('order')->get();
+            $blkResults = DB::table('dashboard_blocks')->where('sec_id','=',$sec->id)->orderBy('order')->get();
             foreach($blkResults as $blk) {
                 $b = array();
                 $b['id'] = $blk->id;
                 $b['type'] = $blk->type;
 
-                $options = explode('[!]',$blk->options);
+                $options = json_decode($blk->options, true);
                 switch($blk->type) {
                     case 'Project':
-                        $pid = $options[0];
-                        $disOpts = explode(',',$options[1]);
-                        $hidOpts = explode(',',$options[2]);
+                        $pid = $options['pid'];
+                        $disOpts = $options['displayed'];
+                        $hidOpts = $options['hidden'];
 
                         $project = ProjectController::getProject($pid);
 
                         $b['pid'] = $pid;
                         $b['name'] = $project->name;
-                        $b['description'] = $project->description;
-                        $b['displayedOpts'] = $disOpts;
+                        if (strlen($project->description) > 206) {
+                          $b['description'] = substr($project->description, 0, 206) . "..." ;
+                        } else {
+                          $b['description'] = $project->description;
+                        }
+
+                        $b['displayedOpts'] = [];
+                        foreach ($disOpts as $opt) {
+                          array_push($b['displayedOpts'], getDashboardBlockLink($blk, $opt));
+                        }
                         $b['hiddenOpts'] = $hidOpts;
                         break;
                     case 'Form':
-                        $fid = $options[0];
-                        $disOpts = explode(',',$options[1]);
-                        $hidOpts = explode(',',$options[2]);
+                        $fid = $options['fid'];
+                        $disOpts = $options['displayed'];
+                        $hidOpts = $options['hidden'];
 
                         $form = FormController::getForm($fid);
 
                         $b['fid'] = $fid;
                         $b['name'] = $form->name;
-                        $b['description'] = $form->description;
-                        $b['displayedOpts'] = $disOpts;
+                        if (strlen($form->description) > 206) {
+                          $b['description'] = substr($form->description, 0, 206) . "..." ;
+                        } else {
+                          $b['description'] = $form->description;
+                        }
+
+                        $b['displayedOpts'] = [];
+                        foreach ($disOpts as $opt) {
+                          array_push($b['displayedOpts'], getDashboardBlockLink($blk, $opt));
+                        }
                         $b['hiddenOpts'] = $hidOpts;
                         break;
                     case 'Record':

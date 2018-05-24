@@ -1,10 +1,15 @@
-@extends('app', ['page_title' => 'Duplicate Record', 'page_class' => 'record-create'])
+@extends('app', ['page_title' => 'Duplicate Record', 'page_class' => 'record-clone'])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $form->pid])
     @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
     @include('partials.menu.record', ['pid' => $record->pid, 'fid' => $record->fid, 'rid' => $record->rid])
     @include('partials.menu.static', ['name' => 'Duplicate Record'])
+@stop
+
+@section('aside-content')
+  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+  @include('partials.sideMenu.record', ['pid' => $record->pid, 'fid' => $record->fid, 'rid' => $record->rid, 'openDrawer' => true])
 @stop
 
 @section('stylesheets')

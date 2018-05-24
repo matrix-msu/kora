@@ -64,7 +64,6 @@
     text-align: right;
 
     a {
-      text-decoration: none;
       @include transition();
 
       color: palette('gray', text, .8);
@@ -72,6 +71,7 @@
       font-size: 14px;
       line-height: 16px;
       margin: 0 7.5px;
+      text-decoration: none;
 
       &:hover {
         color: palette('green', accent);

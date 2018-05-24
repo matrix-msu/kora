@@ -1,0 +1,64 @@
+.grid {
+  margin: 60px auto 55px;
+  max-width: calc(#{ $max-site-width } - 100px);
+
+  .header {
+    color: palette('gray');
+    font-family: $ubuntu;
+    font-size: 16px;
+    font-weight: 300;
+    margin: 0 auto 32px;
+    position: relative;
+    text-align: left;
+    width: calc(100% - 10px);
+
+    .title {
+      background: none;
+      padding-right: 20px;
+    }
+
+    .line-container {
+      overflow: hidden;
+      height: 20px;
+    }
+
+    .line {
+      background-color: palette('gray', slate, .05);
+      content: '';
+      display: block;
+      height: 2px;
+      margin: 10px 0 0;
+      z-index: -1;
+    }
+  }
+
+  .container {
+    display: flex;
+    flex-direction: row;
+    flex-flow: row wrap;
+  }
+
+  .container:hover .element:hover {
+    box-shadow: 0 6px 12px 0 palette('box-shadow', base, .06);
+  }
+
+  @import 'grid/element';
+}
+
+@media screen and (min-width: $max-grid-tri-width) and (max-width: $max-grid-quad-width - 1px) {
+  .grid .container .element {
+    width: calc(33% - 8px);
+  }
+}
+
+@media screen and (min-width: $max-grid-duo-width) and (max-width: $max-grid-tri-width - 1px) {
+  .grid .container .element {
+    width: calc(50% - 10px);
+  }
+}
+
+@media screen and (max-width: $max-grid-duo-width - 1px) {
+  .grid .container .element {
+    width: calc(100% - 10px);
+  }
+}

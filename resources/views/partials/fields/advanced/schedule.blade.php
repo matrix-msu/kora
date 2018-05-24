@@ -11,12 +11,14 @@
 
 <div class="form-group mt-xl">
     {!! Form::label('start','Start Year: ') !!}
-    {!! Form::input('number', 'start', 1900, ['class' => 'text-input', 'min' => 0, 'max' => 9999]) !!}
+    <span class="error-message"></span>
+    {!! Form::input('number', 'start', 1900, ['class' => 'text-input start-year-js', 'min' => 0, 'max' => 9999]) !!}
 </div>
 
 <div class="form-group mt-xl">
     {!! Form::label('end','End Year: ') !!}
-    {!! Form::input('number', 'end', 2020, ['class' => 'text-input', 'min' => 0, 'max' => 9999]) !!}
+    <span class="error-message"></span>
+    {!! Form::input('number', 'end', 2020, ['class' => 'text-input end-year-js', 'min' => 0, 'max' => 9999]) !!}
 </div>
 
 <div class="form-group mt-xl">

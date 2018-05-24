@@ -5,6 +5,10 @@
     @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
 @stop
 
+@section('aside-content')
+  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid, 'openDrawer' => true])
+@stop
+
 @section('stylesheets')
   <!-- No Additional Stylesheets Necessary -->
 @stop

@@ -5,6 +5,7 @@ Kora.Forms.ImportK2 = function() {
 
     function initializeFormProgression() {
         $('.file-input-js').change(function() {
+            $('.spacer-fade-js').fadeIn(1000);
             $('.formfile-section-2').removeClass('hidden');
 
             $('html, body').animate({

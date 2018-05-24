@@ -5,7 +5,7 @@
 @stop
 
 @section('aside-content')
-    @include('partials.sideMenu.dashboard')
+    @include('partials.sideMenu.project', ['pid' => $project->pid, 'openDrawer' => true])
 @stop
 
 @section('leftNavLinks')
@@ -29,15 +29,17 @@
     @include("partials.fields.input-modals")
 
     <section class="option-preset-selection center">
-        <form method="POST" action="{{ action('OptionPresetController@create', ['pid' => $project->pid]) }}">
+        <form method="POST" action="{{ action('OptionPresetController@create', ['pid' => $project->pid]) }}" class="preset-form">
             <input type="hidden" name="_token" value="{{csrf_token()}}">
 
             <div class="form-group mt-xl">
+                <span class="error-message">{{array_key_exists("name", $errors->messages()) ? $errors->messages()["name"][0] : ''}}</span>
                 {!! Form::label('name', 'Field Value Preset Name') !!}
                 {!! Form::text('name', null, ['class' => 'text-input', 'placeholder' => "Enter the name for the new field value preset here"]) !!}
             </div>
 
             <div class="form-group mt-xl">
+                <span class="error-message">{{array_key_exists("type", $errors->messages()) ? $errors->messages()["type"][0] : ''}}</span>
                 {!! Form::label('type', 'Field Value Preset Type') !!}
                 {!! Form::select('type',
                     [''=>'','Text'=>'Text','List'=>'List','Schedule'=>'Schedule','Geolocator'=>'Geolocator'],
@@ -47,7 +49,7 @@
             <section class="open-text-js hidden">
                 <div class="form-group mt-xl">
                     <label>Regex: </label>
-
+                    <span class="error-message">{{array_key_exists("preset", $errors->messages()) ? $errors->messages()["preset"][0] : ''}}</span>
                     {!! Form::text('preset', null, ['class' => 'text-input', 'disabled', 'placeholder' => 'Enter text value']) !!}
                 </div>
             </section>
@@ -55,7 +57,7 @@
             <section class="open-list-js hidden">
                 <div class="form-group mt-xl">
                     <label>List Options: </label>
-
+                    <span class="error-message">{{array_key_exists("preset", $errors->messages()) ? $errors->messages()["preset"][0] : ''}}</span>
                     {!! Form::select('preset[]', [], null, ['class' => 'multi-select modify-select', 'multiple', 'disabled',
                         'data-placeholder' => "Enter list value and press enter to submit"]) !!}
                 </div>
@@ -64,7 +66,7 @@
             <section class="open-schedule-js hidden">
                 <div class="form-group mt-xl">
                     <label>Events: </label>
-
+                    <span class="error-message">{{array_key_exists("preset", $errors->messages()) ? $errors->messages()["preset"][0] : ''}}</span>
                     {!! Form::select('preset[]', [], null,['class' => 'multi-select schedule-event-js', 'disabled',
                         'multiple', 'data-placeholder' => "Add Events Below"]) !!}
                 </div>
@@ -77,6 +79,7 @@
             <section class="open-geolocator-js hidden">
                 <div class="form-group mt-xl">
                     <label>Locations: </label>
+                    <span class="error-message">{{array_key_exists("preset", $errors->messages()) ? $errors->messages()["preset"][0] : ''}}</span>
                     {!! Form::select('preset[]', [], null,['class' => 'multi-select geolocator-location-js', 'disabled',
                         'multiple', 'data-placeholder' => "Add Locations Below"]) !!}
                 </div>
@@ -99,7 +102,7 @@
             </div>
 
             <div class="form-group mt-xxxl mb-max">
-                {!! Form::submit('Create Field Value Preset',['class' => 'btn disabled submit-button-js']) !!}
+                {!! Form::submit('Create Field Value Preset',['class' => 'btn disabled submit-button-js validate-preset-js']) !!}
             </div>
         </form>
     </section>
@@ -111,6 +114,8 @@
     <script type="text/javascript">
         var CSRFToken = '{{ csrf_token() }}';
         var geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $project->pid, 'fid' => 0, 'flid' => 0]) }}';
+        var validationUrl = "{{ action('OptionPresetController@validatePresetFormFields',['pid' => $project->pid]) }}";
+
         Kora.OptionPresets.Create();
     </script>
 @stop

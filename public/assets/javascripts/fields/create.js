@@ -108,7 +108,7 @@ Kora.Fields.Create = function() {
     }
 
     function initializeValidation() {
-        $('form input.btn').on('click', function(e) {
+        $('.validate-field-js').on('click', function(e) {
             var $this = $(this);
 
             e.preventDefault();
@@ -123,7 +123,11 @@ Kora.Fields.Create = function() {
                 method: 'POST',
                 data: values,
                 success: function(data) {
-                    $('.create-form').submit();
+                    var advValid = true;
+                    if(advCreation)
+                        advValid = validateAdvancedOptions($('.field-types-js').val());
+                    if(advValid)
+                        $('.create-form').submit();
                 },
                 error: function(err) {
                     $('.error-message').text('');
@@ -144,6 +148,10 @@ Kora.Fields.Create = function() {
             values[field] = this.value;
             values['_token'] = csrfToken;
 
+            //For combo list
+            if(field=='cfname1' || field=='cfname2')
+                values['type'] = $('#type').val();
+
             $.ajax({
                 url: validationUrl,
                 method: 'POST',
@@ -159,6 +167,140 @@ Kora.Fields.Create = function() {
                 }
             });
         });
+
+        function validateAdvancedOptions(currType) {
+            var valid = true;
+
+            switch(currType) {
+                case 'Text':
+                    var regexDiv = $('.text-regex-js');
+                    var defDiv = $('.text-default-js');
+
+                    var regex = regexDiv.val();
+                    var def = defDiv.val();
+
+                    if(regex!='' && def!='') {
+                        regex = new RegExp(regex);
+                        var match = regex.test(def);
+
+                        if(!match) {
+                            defDiv.addClass('error');
+                            defDiv.siblings('.error-message').text("Default value must match the regular expression pattern.");
+                            valid = false;
+                        } else {
+                            defDiv.removeClass('error');
+                            defDiv.siblings('.error-message').text('');
+                        }
+                    } else {
+                        defDiv.removeClass('error');
+                        defDiv.siblings('.error-message').text('');
+                    }
+                    break;
+                case 'Number':
+                    var defDiv = $('.number-default-js');
+                    var minDiv = $('.number-min-js');
+                    var maxDiv = $('.number-max-js');
+                    var stepDiv = $('.number-step-js');
+                    
+                    var def = defDiv.val();
+                    var min = minDiv.val();
+                    var max = maxDiv.val();
+                    var step = stepDiv.val();
+
+                    if(min!='' && max!='') {
+                        if(min >= max) {
+                            minDiv.addClass('error');
+                            minDiv.siblings('.error-message').text('The minimum must be less than the max.');
+                            valid = false;
+                        } else {
+                            minDiv.removeClass('error');
+                            minDiv.siblings('.error-message').text('');
+                        }
+
+                        if(step > (max-min)) {
+                            stepDiv.addClass('error');
+                            stepDiv.siblings('.error-message').text('The increment cannot be bigger than the gap between min and max.');
+                            valid = false;
+                        } else {
+                            stepDiv.removeClass('error');
+                            stepDiv.siblings('.error-message').text('');
+                        }
+                    } else {
+                        minDiv.removeClass('error');
+                        minDiv.siblings('.error-message').text('');
+                        stepDiv.removeClass('error');
+                        stepDiv.siblings('.error-message').text('');
+                    }
+
+                    if(def!='') {
+                        if(min!='' && def<min) {
+                            defDiv.addClass('error');
+                            defDiv.siblings('.error-message').text('Default value must be greater than the minimum.');
+                            valid = false;
+                        } else if(max!='' && def>max) {
+                            defDiv.addClass('error');
+                            defDiv.siblings('.error-message').text('Default value must be smaller than the maximum.');
+                            valid = false;
+                        } else {
+                            defDiv.removeClass('error');
+                            defDiv.siblings('.error-message').text('');
+                        }
+                    } else {
+                        defDiv.removeClass('error');
+                        defDiv.siblings('.error-message').text('');
+                    }
+                    break;
+                case 'Date':
+                case 'Schedule':
+                    var startDiv = $('.start-year-js');
+                    var endDiv = $('.end-year-js');
+
+                    var start = startDiv.val();
+                    var end = endDiv.val();
+
+                    if(start=='') {
+                        startDiv.addClass('error');
+                        startDiv.siblings('.error-message').text('A start year is required.');
+                        valid = false;
+                    } else if(start<0 || start>9999) {
+                        startDiv.addClass('error');
+                        startDiv.siblings('.error-message').text('A year must be between 0 and 9999.');
+                        valid = false;
+                    } else {
+                        startDiv.removeClass('error');
+                        startDiv.siblings('.error-message').text('');
+                    }
+
+                    if(end=='') {
+                        endDiv.addClass('error');
+                        endDiv.siblings('.error-message').text('An end year is required.');
+                        valid = false;
+                    } else if(end<0 || end>9999) {
+                        endDiv.addClass('error');
+                        endDiv.siblings('.error-message').text('A year must be between 0 and 9999.');
+                        valid = false;
+                    } else {
+                        endDiv.removeClass('error');
+                        endDiv.siblings('.error-message').text('');
+                    }
+
+                    if(valid) {
+                        if(start > end) {
+                            startDiv.addClass('error');
+                            startDiv.siblings('.error-message').text('The start year must be less than the end year.');
+                            valid = false;
+                        } else {
+                            startDiv.removeClass('error');
+                            startDiv.siblings('.error-message').text('');
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            return valid;
+        }
     }
 
     initializeAdvancedOptions();

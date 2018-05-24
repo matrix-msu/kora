@@ -1,10 +1,14 @@
-.record-index-body {
+.record-index-body,
+.record-results-body,
+.project-records-body {
   background: gradient($palette: 'background', $degree: 180deg);
   font-family: $ubuntu;
   min-height: 100vh;
 }
 
-.record-index {
+.record-index,
+.record-results,
+.project-records {
   margin: $navigation-height auto 0;
   width: 100%;
 
@@ -16,25 +20,15 @@
     .search-input {
       box-sizing: border-box;
       display: inline-block;
-      text-align: left;
       padding-right: 15px;
-      width: 80%;
+      text-align: left;
+      width: 75%;
 
       + .search-input {
         float: right;
         padding-left: 15px;
         padding-right: 0;
-        width: 20%;
-      }
-    }
-
-    .search-button-container {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 30px;
-
-      .half-sub-btn, .half-btn {
-        width: calc(50% - 10px);
+        width: 25%;
       }
     }
 
@@ -42,53 +36,60 @@
       .search-input {
         display: block;
         margin-top: 20px;
-        padding-right: 0px;
+        padding-right: 0;
         width: 100%;
 
         + .search-input {
           float: left;
-          padding-left: 0px;
+          padding-left: 0;
           width: 100%;
-        }
-      }
-
-      .search-spacer {
-        display: block;
-        float: left;
-        width: 100%;
-
-        .spacer {
-          margin-bottom: 60px;
         }
       }
 
       .search-button-container {
-        display: initial;
-
-        .half-sub-btn {
-          margin-bottom: 0;
-        }
-
-        .half-sub-btn, .half-btn {
+        // scss-lint:disable SelectorDepth
+        .half-sub-btn,
+        .half-btn {
           margin-top: 40px;
-          max-width: 100%;
+          max-width: $max-mobile-l-width;
           width: 100%;
+
+          + .hidden {
+            display: none;
+          }
+        }
+      }
+
+      .search-spacer {
+        display: inline-block;
+        width: 100%;
+
+        // scss-lint:disable SelectorDepth
+        .spacer {
+          margin-bottom: 60px;
         }
       }
     }
 
-    .advanced-search-drawer {
-      .advanced-search-title {
-        font-size: 30px;
-        height: 34px;
-        line-height: 35px;
-      }
+    .advanced-search-title {
+      font-size: 30px;
+      height: 34px;
+      line-height: 35px;
+      color: palette('gray', text);
     }
 
     .records-title {
       font-size: 30px;
       height: 34px;
       line-height: 35px;
+      color: palette('gray', text);
+    }
+
+    .results-here-text {
+      font-size: 14px;
+      height: 16px;
+      line-height: 16px;
+      text-align: center;
     }
 
     @import 'record-show/card';

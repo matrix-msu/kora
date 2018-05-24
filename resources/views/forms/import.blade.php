@@ -5,6 +5,10 @@
     @include('partials.menu.static', ['name' => 'Import Form Setup'])
 @stop
 
+@section('aside-content')
+  @include('partials.sideMenu.project', ['pid' => $proj->pid, 'openDrawer' => true])
+@stop
+
 @section('header')
     <section class="head">
         <div class="inner-wrap center">

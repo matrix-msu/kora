@@ -10,6 +10,10 @@
   <!-- No Additional Stylesheets Necessary -->
 @stop
 
+@section('aside-content')
+  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid, 'openDrawer' => true])
+@stop
+
 @section('header')
   <section class="head">
       <a class="rotate" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>

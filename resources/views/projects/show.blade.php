@@ -5,7 +5,7 @@
 @stop
 
 @section('aside-content')
-  @include('partials.sideMenu.project', ['pid' => $project->pid])
+  @include('partials.sideMenu.project', ['pid' => $project->pid, 'openDrawer' => true])
 @stop
 
 @section('stylesheets')
@@ -27,7 +27,7 @@
           <span>Unique Project ID:</span>
           <span>{{ $project->slug }}</span>
         </p>
-        <p class="description">{{ $project->slug }}: {{ $project->description }}</p>
+        <p class="description">{{ $project->description }}</p>
       </div>
   </section>
 @stop

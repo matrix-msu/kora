@@ -5,6 +5,7 @@ Kora.Records.Import = function() {
 
     function initializeFormProgression() {
         $('.record-input-js').change(function () {
+            $('.spacer-fade-js').fadeIn(1000);
             $('.record-import-section-2').removeClass('hidden');
         });
     }
@@ -70,10 +71,16 @@ Kora.Records.Import = function() {
 
                         //Click to start actually importing records
                         recordMatchSection.on('click', '.final-import-btn-js', function() {
-                            recordMatchLink.removeClass('active');
-                            recordMatchLink.removeClass('underline-middle');
-                            recordMatchSection.addClass('hidden');
+                            //Remove the links and change header info
+                            $('.sections-remove-js').remove();
+                            $('.header-text-js').text('Importing Records');
+                            $('.desc-text-js').text(
+                                'The import has started, depending on the number of records, it may take several ' +
+                                'minutes to complete. Do not leave this page or close your browser until completion. ' +
+                                'When the import is complete, you can see a summary of all the data that was saved. '
+                            );
 
+                            recordMatchSection.addClass('hidden');
                             recordResultsSection.removeClass('hidden');
 
                             //initialize matchup

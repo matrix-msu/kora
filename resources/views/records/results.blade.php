@@ -1,9 +1,13 @@
-@extends('app', ['page_title' => 'Form Records', 'page_class' => 'record-index'])
+@extends('app', ['page_title' => 'Form Records', 'page_class' => 'record-results'])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $form->pid])
     @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
     @include('partials.menu.static', ['name' => 'Form Records'])
+@stop
+
+@section('aside-content')
+  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid, 'openDrawer' => true])
 @stop
 
 @section('stylesheets')
@@ -42,12 +46,10 @@
                     {!! Form::select('method',[0 => 'or',1 => 'and',2 => 'exact'], app('request')->input('method'), ['class' => 'single-select method-get-js']) !!}
                 </div>
 
-                <div class="form-group mt-xxxl">
-                    <div class="search-button-container">
-                        <a href="#" class="btn half-sub-btn mb-sm open-advanced-js" data-unsp-sanitized="clean">View Advanced Search Options</a>
-                        <a href="#" class="btn half-sub-btn mb-sm close-advanced-js hidden" data-unsp-sanitized="clean">Hide Advanced Search Options</a>
-                        <a href="#" class="btn half-btn mb-sm submit-search-js" data-unsp-sanitized="clean">Search</a>
-                    </div>
+                <div class="form-group mt-xxxl search-button-container">
+                    <a href="#" class="btn half-sub-btn open-advanced-js" data-unsp-sanitized="clean">View Advanced Search Options</a>
+                    <a href="#" class="btn half-sub-btn close-advanced-js" data-unsp-sanitized="clean">Hide Advanced Search Options</a>
+                    <a href="#" class="btn half-btn submit-search-js" data-unsp-sanitized="clean">Search</a>
                 </div>
             </form>
 
@@ -68,7 +70,7 @@
             @if(sizeof($records)>0)
             @include('partials.records.pagination')
 
-            <section class="filters center">
+            <section class="filters">
                 <div class="pagination-options pagination-options-js">
                     <select class="page-count results-option-dropdown-js" id="page-count-dropdown">
                         <option value="10">10 per page</option>
@@ -83,8 +85,8 @@
                     </select>
                 </div>
                 <div class="show-options show-options-js">
-                    <a href="#" class="expand-fields-js" title="Expand all fields"><i class="icon icon-expand icon-expand-js"></i></a>
-                    <a href="#" class="collapse-fields-js" title="Collapse all fields"><i class="icon icon-condense icon-condense-js"></i></a>
+                    <span><a href="#" class="expand-fields-js" title="Expand all fields"><i class="icon icon-expand icon-expand-js"></i></a></span>
+                    <span><a href="#" class="collapse-fields-js" title="Collapse all fields"><i class="icon icon-condense icon-condense-js"></i></a></span>
                 </div>
             </section>
 

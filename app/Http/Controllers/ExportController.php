@@ -150,8 +150,8 @@ class ExportController extends Controller {
         // Zip archive will be created only after closing object
         $zip->close();
 
-        header("Content-Disposition: attachment; filename=".$form->name.'_fileData_'.$time.'.zip');
-        header("Content-Type: application/zip; ");
+        header('Content-Disposition: attachment; filename="'.$form->name.'_fileData_'.$time.'.zip"');
+        header('Content-Type: application/zip; ');
 
         readfile($zipPath.$form->name.'_fileData_'.$time.'.zip');
     }
@@ -238,8 +238,8 @@ class ExportController extends Controller {
         }
 
         if($download) {
-            header("Content-Disposition: attachment; filename=" . $form->name . '_Layout_' . Carbon::now() . '.k3Form');
-            header("Content-Type: application/octet-stream; ");
+            header('Content-Disposition: attachment; filename="' . $form->name . '_Layout_' . Carbon::now() . '.k3Form"');
+            header('Content-Type: application/octet-stream; ');
 
             echo json_encode($formArray);
         } else {
@@ -287,8 +287,8 @@ class ExportController extends Controller {
             array_push($projArray['forms'],$this->exportForm($pid,$form->fid,false));
         }
 
-        header("Content-Disposition: attachment; filename=" . $proj->name . '_Layout_' . Carbon::now() . '.k3Proj');
-        header("Content-Type: application/octet-stream; ");
+        header('Content-Disposition: attachment; filename="' . $proj->name . '_Layout_' . Carbon::now() . '.k3Proj"');
+        header('Content-Type: application/octet-stream; ');
 
         echo json_encode($projArray);
     }
@@ -358,7 +358,7 @@ class ExportController extends Controller {
                                 $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_NUMBER:
-                                $records[$kid][$fieldIndex]['value'] = $data->value;
+                                $records[$kid][$fieldIndex]['value'] = (float)$data->value;
                                 $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_LIST:
@@ -617,7 +617,7 @@ class ExportController extends Controller {
                 } else {
                     $dt = new \DateTime();
                     $format = $dt->format('Y_m_d_H_i_s');
-                    $path = config('app.base_path') . "storage/app/exports/export_$format.json";
+                    $path = config('app.base_path') . "storage/app/exports/record_export_$format.json";
 
                     file_put_contents($path, $records);
 
@@ -626,6 +626,10 @@ class ExportController extends Controller {
                 break;
             case self::KORA:
                 $records = array();
+
+                //So we need to keep track of what fields are used. We have to make sure records that have empty values
+                // for these fields, still have that field represented as blank.
+                $usedFieldNames = array();
 
                 //Check to see if we should bother with options
                 $useOpts = !is_null($options);
@@ -650,6 +654,10 @@ class ExportController extends Controller {
                         $slug = str_replace('_'.$data->pid.'_'.$data->fid.'_', '', $data->slug);
                         if(!$useOpts || !$options['under'])
                             $slug = str_replace('_', ' ', $slug); //Now that the tag is gone, remove space fillers
+
+                        //Capture the field index
+                        if(!in_array($slug,$usedFieldNames))
+                            array_push($usedFieldNames,$slug);
 
                         switch($data->type) {
                             case Field::_TEXT:
@@ -722,6 +730,14 @@ class ExportController extends Controller {
                     }
                 }
 
+                //Add those blank values
+                foreach($records as $kid => $data) {
+                    foreach($usedFieldNames as $slug) {
+                        if(!isset($data[$slug]))
+                            $records[$kid][$slug] = '';
+                    }
+                }
+
                 return json_encode($records);
                 break;
             case self::XML:
@@ -743,7 +759,7 @@ class ExportController extends Controller {
                                 $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
                                 break;
                             case Field::_NUMBER:
-                                $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
+                                $fieldxml .= htmlspecialchars((float)$data->value, ENT_XML1, 'UTF-8');
                                 break;
                             case Field::_LIST:
                                 $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
@@ -952,7 +968,7 @@ class ExportController extends Controller {
                 } else {
                     $dt = new \DateTime();
                     $format = $dt->format('Y_m_d_H_i_s');
-                    $path = config('app.base_path') . "storage/app/exports/export_$format.xml";
+                    $path = config('app.base_path') . "storage/app/exports/record_export_$format.xml";
 
                     file_put_contents($path, $records);
 
@@ -997,7 +1013,7 @@ class ExportController extends Controller {
                                 $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
                                 break;
                             case Field::_NUMBER:
-                                $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
+                                $fieldxml .= htmlspecialchars((float)$data->value, ENT_XML1, 'UTF-8');
                                 break;
                             case Field::_LIST:
                                 $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
@@ -1095,7 +1111,7 @@ class ExportController extends Controller {
                 } else {
                     $dt = new \DateTime();
                     $format = $dt->format('Y_m_d_H_i_s');
-                    $path = config('app.base_path') . "storage/app/exports/export_$format.rdf";
+                    $path = config('app.base_path') . "storage/app/exports/record_export_$format.rdf";
 
                     file_put_contents($path, $records);
 

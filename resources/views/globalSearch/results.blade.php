@@ -4,6 +4,10 @@
 
 @stop
 
+@section('aside-content')
+  @include('partials.sideMenu.dashboard', ['openDashboardDrawer' => false, 'openProjectDrawer' => true])
+@stop
+
 @section('stylesheets')
     <link rel="stylesheet" type="text/css" href="{{ config('app.url') }}assets/css/vendor/fullcalendar/fullcalendar.css"/>
     <link rel="stylesheet" type="text/css" href="{{ config('app.url') }}assets/css/vendor/leaflet/leaflet.css"/>
@@ -46,14 +50,12 @@
                         'class' => 'multi-select projects-get-js', 'data-placeholder' => 'Select Projects(s) to search']) !!}
                 </div>
 
-                <div class="form-group search-spacer mt-xxxl">
-                    <div class="search-button-container">
-                        <a href="#" class="btn mb-sm submit-search-js" data-unsp-sanitized="clean">Search</a>
-                    </div>
+                <div class="form-group mt-xxxl search-button-container">
+                    <a href="#" class="btn mb-sm submit-search-js" data-unsp-sanitized="clean">Search</a>
                 </div>
             </form>
 
-            <div class="form-group search-spacer mt-xxxl scroll-to-here-js">
+            <div class="form-group mt-xxxl scroll-to-here-js">
                 <div class="spacer"></div>
             </div>
         </section>
@@ -66,7 +68,7 @@
             @if(sizeof($records)>0)
                 @include('partials.records.pagination')
 
-                <section class="filters center">
+                <section class="filters">
                     <div class="pagination-options pagination-options-js">
                         <select class="page-count results-option-dropdown-js" id="page-count-dropdown">
                             <option value="10">10 per page</option>
@@ -81,8 +83,8 @@
                         </select>
                     </div>
                     <div class="show-options show-options-js">
-                        <a href="#" class="expand-fields-js" title="Expand all fields"><i class="icon icon-expand icon-expand-js"></i></a>
-                        <a href="#" class="collapse-fields-js" title="Collapse all fields"><i class="icon icon-condense icon-condense-js"></i></a>
+                        <span><a href="#" class="expand-fields-js" title="Expand all fields"><i class="icon icon-expand icon-expand-js"></i></a></span>
+                        <span><a href="#" class="collapse-fields-js" title="Collapse all fields"><i class="icon icon-condense icon-condense-js"></i></a></span>
                     </div>
                 </section>
 

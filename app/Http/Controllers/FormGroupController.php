@@ -160,7 +160,7 @@ class FormGroupController extends Controller {
             //foreach of the user's form groups, see if one belongs to the current project
             foreach($currGroups as $prev) {
                 $group = FormGroup::where('id', '=', $prev->form_group_id)->first();
-                if($group->fid==$instance->fid) {
+                if(!is_null($group) && $group->fid==$instance->fid) {
                     $newUser = false;
                     $idOld = $group->id;
                     break;

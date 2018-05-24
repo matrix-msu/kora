@@ -44,5 +44,6 @@
 .error-message {
   color: palette('yellow', text);
   float: right;
-  font-size: 12px;
+  font-family: $ubuntu-medium;
+  font-size: 13px;
 }

@@ -2,40 +2,30 @@
 ***
 
 ### Installation
-Clone the repository:
+1) Clone the repository:
     
-    git clone https://github.com/matrix-msu/Kora3.git
+       git clone https://github.com/matrix-msu/Kora3.git
 
-Temporarily give write access to the directory:
+2) Temporarily give **WRITE** access to the web user for Kora3 and **ALL** sub-folders.
+
+3) Create `.htaccess` from the example in `Kora3/public`:
+
+       cp Kora3/public/.htaccess.example Kora3/public/.htaccess
+
+4) Configure the `RewriteBase` rule in the newly created `.htaccess` if the installation is **NOT** located at the root of your url:
+
+       i.e. if the URL is: http://www.example.com/digitalRepo/Kora3/public
+       then the .htaccess rule is: RewriteBase /digitalRepo/Kora3/public
+
+5) Navigate to your Kora3 url and click install. **REMEMBER** to return here once you complete the installation.
+
+6) Give **READ** access to the web user for Kora3 and **ALL** sub-folders.
     
-    chmod -R 0775 Kora3/
+7) Give **WRITE** access to the web user for the following directories and **ALL** their sub-folders:
 
-Create `.htaccess` from the example in `Kora3/public`:
-
-    cp Kora3/public/.htaccess.example Kora3/public/.htaccess
-
-Configure the `RewriteBase` rule in the newly created `.htaccess` if the installation is **not** located at the root of your url similar to the example below:
-
-    Ex: http://www.example.com/digitalRepo/Kora3/public
-    RewriteBase /digitalRepo/Kora3/public
-    
-Change directory into Kora3/public. Create a symlink using the following command (keep track of the name you choose):
-
-	ln -s ../storage/app {link_name}
-
-Navigate to your Kora3 url and click install. Remember to return here once you complete the installation:
-
-    URL: http://www.example.com/digitalRepo/Kora3/public
-
-Change directory permissions to read access:
-    
-    chmod -R 0755 Kora3/
-    
-Give write access to the following directories:
-
-    chmod -R 0775 Kora3/bootstrap/cache/
-    chmod -R 0775 Kora3/storage/
-    chmod -R 0775 Kora3/public/assets/javascripts/production/
+       Kora3/bootstrap/cache/
+       Kora3/storage/
+       Kora3/public/assets/javascripts/production/
 
 ## Contributing
 

@@ -1,7 +1,8 @@
 @if (count($requestableProjects) > 0)
-  {!! Form::open(['action' => 'ProjectController@request']) !!}
+  {!! Form::open(['action' => 'ProjectController@request', 'class' => 'request-project-form-js']) !!}
     <div class="form-group">
       {!! Form::label('request_project', 'Select the Project(s) to Request Permissions') !!}
+        <span class="error-message request-error-js"></span>
       {!! Form::select('pids[]', $requestableProjects, null, [
         'class' => 'multi-select',
         'multiple',
@@ -11,7 +12,7 @@
     </div>
 
     <div class="form-group request-permissions-submit mt-xxl">
-      {!! Form::submit('Request Project Permissions',['class' => 'btn']) !!}
+      {!! Form::submit('Request Project Permissions',['class' => 'btn submit-project-request-js']) !!}
     </div>
   {!! Form::close() !!}
 @else

@@ -13,7 +13,9 @@ $menuTitle.each(function(index) {
   }
 });
 
-$navBar.on('click', '.navigation-toggle-js', function() {
+$navBar.on('click', '.navigation-toggle-js', function(e) {
+  e.preventDefault();
+
   var $clicked = $(this).next();
   var $icon = $(this).children();
   var $parent = $(this).parent();
@@ -42,7 +44,9 @@ $navBar.on('click', '.navigation-toggle-js', function() {
   }
 });
 
-$navBar.on('click', '.navigation-sub-menu-toggle-js', function() {
+$navBar.on('click', '.navigation-sub-menu-toggle-js', function(e) {
+  e.preventDefault();
+
   $menu = $(this).next('.navigation-deep-menu-js');
 
   if ($menu.hasClass('active')) {
@@ -62,11 +66,11 @@ $navBar.on('click', '.side-menu-toggle-js', function() {
     $icon.addClass('active');
 
     setCookie('sidebar', 1);
-    $('.center').addClass('with-aside');
+    $('.center, .floating-buttons').addClass('with-aside');
     if (getBrowserWidth() > 870)
       $('.pre-fixed-js').addClass('pre-fixed-with-aside');
   } else {
-    $('.center').removeClass('with-aside');
+    $('.center, .floating-buttons').removeClass('with-aside');
     if (getBrowserWidth() > 870)
       $('.pre-fixed-js').removeClass('pre-fixed-with-aside');
 
@@ -313,8 +317,6 @@ function closeSidemenuDrawers() {
     $drawerContent = $drawerToggle.next();
 
     if ($this.hasClass('active')) {
-      console.log("hi")
-
       $drawerToggle.removeClass('active');
       $drawerToggle.children().last().removeClass('active');
       $drawerContent.find('.drawer-deep-menu-js').removeClass('active');
@@ -324,7 +326,9 @@ function closeSidemenuDrawers() {
   });
 }
 
-$sideMenu.on('click', '.drawer-toggle-js', function() {
+$sideMenu.on('click', '.drawer-toggle-js', function(e) {
+  e.preventDefault();
+
   var $drawerElement = $(this).parent();
   var $drawerContent = $(this).next();
   var $icon = $(this).children().last();
@@ -340,7 +344,9 @@ $sideMenu.on('click', '.drawer-toggle-js', function() {
   $drawerContent.slideToggle('fast');
 });
 
-$sideMenu.on('click', '.drawer-sub-menu-toggle-js', function() {
+$sideMenu.on('click', '.drawer-sub-menu-toggle-js', function(e) {
+  e.preventDefault();
+
   $menu = $(this).next('.drawer-deep-menu-js');
 
   if ($menu.hasClass('active')) {

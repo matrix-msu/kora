@@ -9,6 +9,15 @@
     @include('partials.menu.static', ['name' => 'Record Revisions'])
 @stop
 
+@section('aside-content')
+  @if (isset($rid))
+      @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+      @include('partials.sideMenu.record', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $rid, 'openDrawer' => true])
+  @else
+    @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid, 'openDrawer' => true])
+  @endif
+@stop
+
 @section('header')
     <section class="head">
         <div class="inner-wrap center">

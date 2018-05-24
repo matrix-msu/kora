@@ -14,12 +14,16 @@
 
 <div class="form-group half mt-xl">
   <label for="first-name">First Name</label>
-  <input type="text" class="text-input" id="first_name" name="first_name" placeholder="Enter first name here" value="{{ $user->first_name }}">
+    <span class="error-message">{{array_key_exists("first_name", $errors->messages()) ? $errors->messages()["first_name"][0] : ''}}</span>
+  <input type="text" class="text-input {{(array_key_exists("first_name", $errors->messages()) ? ' error' : '')}}"
+         id="first_name" name="first_name" placeholder="Enter first name here" value="{{ $user->first_name }}">
 </div>
 
 <div class="form-group half mt-xl">
   <label for="first-name">Last Name</label>
-  <input type="text" class="text-input" id="last_name" name="last_name" placeholder="Enter last name here" value="{{ $user->last_name }}">
+    <span class="error-message">{{array_key_exists("last_name", $errors->messages()) ? $errors->messages()["last_name"][0] : ''}}</span>
+  <input type="text" class="text-input {{(array_key_exists("last_name", $errors->messages()) ? ' error' : '')}}"
+         id="last_name" name="last_name" placeholder="Enter last name here" value="{{ $user->last_name }}">
 </div>
 
 <div class="form-group mt-xl">
@@ -43,7 +47,9 @@
 
 <div class="form-group mt-xl">
   <label for="organization">Organization</label>
-  <input type="text" class="text-input" id="organization" name="organization" placeholder="Enter organization here" value="{{ $user->organization }}">
+    <span class="error-message">{{array_key_exists("organization", $errors->messages()) ? $errors->messages()["organization"][0] : ''}}</span>
+  <input type="text" class="text-input {{(array_key_exists("organization", $errors->messages()) ? ' error' : '')}}"
+         id="organization" name="organization" placeholder="Enter organization here" value="{{ $user->organization }}">
 </div>
 
 <div class="form-group mt-xl">
@@ -60,16 +66,20 @@
 
 <div class="form-group mt-xl">
   <label for="new_password">Enter New Password</label>
-  <input type="password" class="text-input" id="new_password" name="new_password" placeholder="Enter password here">
+    <span class="error-message">{{array_key_exists("password", $errors->messages()) ? $errors->messages()["password"][0] : ''}}</span>
+  <input type="password" class="text-input {{(array_key_exists("password", $errors->messages()) ? ' error' : '')}}"
+         id="password" name="password" placeholder="Enter password here">
 </div>
 
 <div class="form-group mt-xl">
   <label for="confirm">Confirm New Password</label>
-  <input type="password" class="text-input" id="confirm" name="confirm" placeholder="Enter password here" disabled>
+    <span class="error-message">{{array_key_exists("password_confirmation", $errors->messages()) ? $errors->messages()["password_confirmation"][0] : ''}}</span>
+  <input type="password" class="text-input {{(array_key_exists("password_confirmation", $errors->messages()) ? ' error' : '')}}"
+         id="password_confirmation" name="password_confirmation" placeholder="Enter password here">
 </div>
 
 <div class="form-group mt-100-xl" >
-    {!! Form::submit('Update Profile', ['class' => 'btn edit-btn update-user-submit pre-fixed-js']) !!}
+    {!! Form::submit('Update Profile', ['class' => 'btn edit-btn update-user-submit pre-fixed-js validate-user-js']) !!}
 </div>
 
 <div class="form-group mt-100-xl">

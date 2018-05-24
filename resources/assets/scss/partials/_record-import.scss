@@ -33,9 +33,9 @@
     border: 1px solid palette('gray', text);
     box-sizing: border-box;
     height: 1px;
-    margin-top: 27px;
     margin-right: 10px;
-    opacity: 0.1;
+    margin-top: 27px;
+    opacity: .1;
     width: 14px;
   }
 
@@ -55,6 +55,7 @@
       margin: 100px auto 85px;
       padding: 0;
 
+      // scss-lint:disable SelectorDepth
       .record-import-submit {
         margin: 0 auto 15px;
       }

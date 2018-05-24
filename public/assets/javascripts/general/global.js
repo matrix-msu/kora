@@ -104,7 +104,7 @@ $(document).ready(function() {
 
   var $sidebarCookie = getCookie('sidebar');
   if ($sidebarCookie && getBrowserWidth() > 870) {
-    $(".center").addClass('with-aside');
+    $(".center, .floating-buttons").addClass('with-aside');
     $('.pre-fixed-js').addClass('pre-fixed-with-aside');
   } else {
     // the case where we want the aside lock to still work on refresh for larger screens
@@ -160,6 +160,34 @@ $(document).ready(function() {
       //e.preventDefault();
     }
   });
+
+  //check for active sidebar drawer
+  $activeDrawer = $('.drawer-toggle-js[data-drawer="1"]')
+  if (typeof $activeDrawer !== 'undefined') {
+    var $this = $activeDrawer
+    var $drawerElement = $this.parent();
+    var $drawerContent = $this.next();
+    var $icon = $this.children().last();
+
+    if ($drawerElement.hasClass('active')) {
+      closeSidemenuDrawers();
+      return;
+    }
+
+    closeSidemenuDrawers();
+    $drawerElement.toggleClass('active');
+    $icon.toggleClass('active');
+    $drawerContent.slideToggle('fast');
+  }
+
+  // set the active page in the sidebar drawer
+  var pageName = $('body').attr('class').replace("-body", "").replace(/ /g,'');
+  var $activePageLink = $('.content-link-js[data-page="' + pageName + '"]')
+  if (typeof $activePageLink !== 'undefined') {
+    $('.content-link-js').removeClass('head');
+    $activePageLink.addClass('head');
+  }
+
 });
 
 //Quick opens global search menu

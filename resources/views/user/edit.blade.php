@@ -1,5 +1,9 @@
 @extends('app', ['page_title' => 'Edit User', 'page_class' => 'user-edit'])
 
+@section('aside-content')
+  @include('partials.sideMenu.dashboard', ['openDashboardDrawer' => false, 'openProjectDrawer' => false])
+@stop
+
 @section('header')
   <section class="head">
     <div class="inner-wrap center">
@@ -11,12 +15,8 @@
         @endif
         <span>Editing {{ $user->first_name }} {{  $user->last_name }}</span>
       </h1>
-      @if (\Auth::user()->admin)
-          @if ($user->first_name && $user->last_name)
-            <p class="description">Edit {{ $user->first_name }} {{ $user->last_name }}'s profile information below, and then select "Update Profile"</p>
-          @else
-            <p class="description">Edit {{ $user->username }}'s profile information below, and then select "Update Profile"</p>
-          @endif
+      @if (\Auth::user()->admin && \Auth::user()->id != $user->id)
+        <p class="description">Edit {{ $user->first_name }} {{ $user->last_name }}'s profile information below, and then select "Update Profile"</p>
       @else
         <p class="description">Edit your profile information below, and then
           select "Update Profile"</p>
@@ -33,25 +33,15 @@
 
 @section('body')
   <section class="form-container edit-form center">
-    @if (count($errors) > 0)
-      <div class="alert alert-danger">
-        <strong>Whoops!</strong> There were some problems with your input.<br><br>
-        <ul>
-          @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-          @endforeach
-        </ul>
-      </div>
-    @endif
 
     @if (\Auth::user()->admin && \Auth::user()->id != $user->id)
-      {!! Form::model($user,  ['method' => 'PATCH', 'action' => ['AdminController@update', $user->id], 'class' => 'form-file-input']) !!}
+      {!! Form::model($user,  ['method' => 'PATCH', 'action' => ['AdminController@update', $user->id], 'class' => 'user-form form-file-input']) !!}
     @else
-      {!! Form::model($user,  ['method' => 'PATCH', 'action' => ['Auth\UserController@update', $user->id], 'class' => 'form-file-input']) !!}
+      {!! Form::model($user,  ['method' => 'PATCH', 'action' => ['Auth\UserController@update', $user->id], 'class' => 'user-form form-file-input']) !!}
     @endif
       @include('partials.user.form', ['uid' => $user->id, 'type' => 'edit'])
     {!! Form::close() !!}
-    
+
     <div class="modal modal-js modal-mask user-cleanup-modal-js">
       <div class="content small">
         <div class="header">
@@ -81,7 +71,8 @@
   @include('partials.user.javascripts')
 
   <script type="text/javascript">
-    var CSRFToken = '{{ csrf_token() }}';
+      validationUrl = '{{action('Auth\UserController@validateUserFields',['uid'=>$user->id])}}';
+      var CSRFToken = '{{ csrf_token() }}';
     Kora.User.Edit();
   </script>
 @stop

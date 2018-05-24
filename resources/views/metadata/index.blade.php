@@ -1,8 +1,12 @@
-@extends('app')
+@extends('app', ['page_title' => 'Link Open Data', 'page_class' => 'metadata'])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $pid])
     @include('partials.menu.form', ['pid' => $pid, 'fid' => $fid])
+@stop
+
+@section('aside-content')
+  @include('partials.sideMenu.form', ['pid' => $pid, 'fid' => $fid, 'openDrawer' => true])
 @stop
 
 @section('content')

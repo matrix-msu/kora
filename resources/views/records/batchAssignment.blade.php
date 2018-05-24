@@ -6,6 +6,10 @@
     @include('partials.menu.static', ['name' => 'Batch Assign Field Values'])
 @stop
 
+@section('aside-content')
+  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid, 'openDrawer' => true])
+@stop
+
 @section('stylesheets')
     <link rel="stylesheet" href="{{ config('app.url') }}assets/css/vendor/datetimepicker/jquery.datetimepicker.min.css" />
 @stop

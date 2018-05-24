@@ -4,6 +4,7 @@ Kora.Records = Kora.Records || {};
 Kora.Records.Create = function() {
 
     $('.single-select').chosen({
+        allow_single_deselect: true,
         width: '100%',
     });
 
@@ -128,8 +129,8 @@ Kora.Records.Create = function() {
                 console.log('Both fields must be filled out');
             } else {
                 //Remove empty div if applicable
-                if(defaultDiv.children('.combo-list-empty').first())
-                    defaultDiv.children('.combo-list-empty').first().remove();
+                if(defaultDiv.find('.combo-list-empty').first())
+                    defaultDiv.find('.combo-list-empty').first().remove();
 
                 div = '<div class="combo-value-item-js">';
 
@@ -452,7 +453,7 @@ Kora.Records.Create = function() {
 
             var pageNumber = $this.parent().children().index(this);
             var $pageLinks = $('.pagination .pages .page-link');
-            
+
             $pageLinks.removeClass('active');
             $($pageLinks.get(pageNumber)).addClass('active');
 
@@ -799,24 +800,6 @@ Kora.Records.Create = function() {
         });
     }
 
-    function initializeAlreadyRecordPreset() {
-        $('.already-preset-js').click(function (e) {
-            e.preventDefault();
-
-            var $modal = $('.already-record-preset-modal-js');
-
-            Kora.Modal.open($modal);
-        });
-
-        $('.gotchya-js').click(function (e) {
-            e.preventDefault();
-
-            var $modal = $('.already-record-preset-modal-js');
-
-            Kora.Modal.close($modal);
-        });
-    }
-
     initializeSelectAddition();
     initializeSpecialInputs();
     intializeAssociatorOptions();
@@ -828,5 +811,5 @@ Kora.Records.Create = function() {
     initializeRecordPresets();
     initializeDuplicateRecord();
     initializeNewRecordPreset();
-    initializeAlreadyRecordPreset();
+    Kora.Records.Modal();
 }

@@ -6,6 +6,10 @@
     @include('partials.menu.static', ['name' => $field->name])
 @stop
 
+@section('aside-content')
+  @include('partials.sideMenu.form', ['pid' => $field->pid, 'fid' => $field->fid, 'openDrawer' => true])
+@stop
+
 @section('header')
     <section class="head">
         <a class="rotate" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
@@ -41,7 +45,8 @@
 
     <script type="text/javascript">
         var validationUrl = "{{ action('FieldController@validateFieldFields', ["pid" => $field->pid, "fid" =>$field->fid, "flid" =>$field->flid]) }}";
-        createFieldValuePresetURL = "{{action("OptionPresetController@createApi", ['pid'=>$field->pid])}}";
+        var createFieldValuePresetURL = "{{action("OptionPresetController@createApi", ['pid'=>$field->pid])}}";
+        var currFieldType = '{{$field->type}}';
         CSRFToken = "{{csrf_token()}}";
 
         Kora.Fields.Show();

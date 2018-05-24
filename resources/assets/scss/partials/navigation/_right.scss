@@ -44,4 +44,9 @@
       color: palette('green', accent);
     }
   }
+  .navigation-right-wrap {
+    background: palette('green', base);
+    position: absolute;
+    right: 0;
+  }
 }

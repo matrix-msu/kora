@@ -71,11 +71,13 @@
 
     <div class="form-group mt-xl half pr-m">
         {!! Form::label('start','Start Year: ') !!}
+        <span class="error-message"></span>
         {!! Form::input('number', 'start', \App\Http\Controllers\FieldController::getFieldOption($field,'Start'), ['class' => 'text-input start-year-js']) !!}
     </div>
 
     <div class="form-group mt-xl half pl-m">
         {!! Form::label('end','End Year: ') !!}
+        <span class="error-message"></span>
         {!! Form::input('number', 'end', \App\Http\Controllers\FieldController::getFieldOption($field,'End'), ['class' => 'text-input end-year-js']) !!}
     </div>
 

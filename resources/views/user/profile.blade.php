@@ -1,5 +1,9 @@
 @extends('app', ['page_title' => 'My Profile', 'page_class' => 'user-profile'])
 
+@section('aside-content')
+  @include('partials.sideMenu.dashboard', ['openDashboardDrawer' => false, 'openProjectDrawer' => false])
+@stop
+
 @section('header')
     <section class="head">
         <div class="inner-wrap center">
@@ -26,7 +30,7 @@
 @stop
 
 @section('body')
-    <section class="center page-section page-section-js {{($section == 'profile' ? 'active' : '')}}" id="profile">
+    <section class="center profile page-section page-section-js {{($section == 'profile' ? 'active' : '')}}" id="profile">
         <div class="attr mt-xl">
             <span class="title">First Name: </span>
             <span class="desc">{{$user->first_name}}</span>
@@ -62,3 +66,4 @@
         Kora.User.Profile();
     </script>
 @stop
+

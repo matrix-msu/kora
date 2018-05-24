@@ -1,10 +1,15 @@
-@extends('app', ['page_title' => 'Edit Record', 'page_class' => 'record-create'])
+@extends('app', ['page_title' => 'Edit Record', 'page_class' => 'record-edit'])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $form->pid])
     @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
     @include('partials.menu.record', ['pid' => $record->pid, 'fid' => $record->fid, 'rid' => $record->rid])
     @include('partials.menu.static', ['name' => 'Edit Record'])
+@stop
+
+@section('aside-content')
+  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+  @include('partials.sideMenu.record', ['pid' => $record->pid, 'fid' => $record->fid, 'rid' => $record->rid, 'openDrawer' => true])
 @stop
 
 @section('stylesheets')
@@ -32,7 +37,6 @@
 
 @section('body')
     @include("partials.fields.input-modals")
-    @include("partials.records.modals.alreadyRecordPresetModal")
 
     <section class="filters center">
         @if(!$record->isPreset())
@@ -70,7 +74,7 @@
         </div>
 
         @include('partials.records.form',['form' => $form, 'editRecord' => true])
-        
+
         @include('partials.records.pagination-form', ['layout' => \App\Http\Controllers\PageController::getFormLayout($form->fid)])
 
         <div class="form-group record-update-button mt-xxxl">

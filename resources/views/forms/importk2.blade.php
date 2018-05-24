@@ -5,6 +5,10 @@
     @include('partials.menu.static', ['name' => 'K2 Scheme Importer'])
 @stop
 
+@section('aside-content')
+  @include('partials.sideMenu.project', ['pid' => $proj->pid, 'openDrawer' => true])
+@stop
+
 @section('header')
     <section class="head">
         <div class="inner-wrap center">
@@ -43,7 +47,7 @@
             </label>
         </div>
 
-        <div class="form-group mt-xxxl" id="scroll-here">
+        <div class="form-group hidden spacer-fade-js mt-xxxl" id="scroll-here">
             <div class="spacer"></div>
         </div>
 

@@ -6,6 +6,10 @@
     @include('partials.menu.static', ['name' => 'Record Presets'])
 @stop
 
+@section('aside-content')
+  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid, 'openDrawer' => true])
+@stop
+
 @section('stylesheets')
 
 @stop

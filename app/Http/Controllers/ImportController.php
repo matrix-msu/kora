@@ -175,19 +175,23 @@ class ImportController extends Controller {
         }
 
         $fields = $form->fields()->get();
+        //Build the Labels first
         $table = '';
-        $first = true;
+        $table .= '<div class="form-group mt-xl half">';
+        $table .= '<label>Form Field Names</label>';
+        $table .= '</div>';
+        $table .= '<div class="form-group mt-xl half">';
+        $table .= '<label>Select Uploaded Field to Match</label>';
+        $table .= '</div>';
+        $table .= '<div class="form-group"></div>';
 
+        //Then build the field matchups
         foreach($fields as $field) {
             $table .= '<div class="form-group mt-xl half">';
-            if($first)
-                $table .= '<label>Form Field Names</label>';
             $table .= '<div class="solid-box get-slug-js" slug="'.$field->slug.'">';
             $table .= $field->name.' ('.$field->slug.')';
             $table .= '</div></div>';
             $table .= '<div class="form-group mt-xl half">';
-            if($first)
-                $table .= '<label>Select Uploaded Field to Match</label>';
             $table .= '<select class="single-select get-tag-js" data-placeholder="Select field if applicable">';
             $table .= '<option></option>';
             foreach($tagNames as $name) {
@@ -199,8 +203,6 @@ class ImportController extends Controller {
             $table .= '</select>';
             $table .= '</div>';
             $table .= '<div class="form-group"></div>';
-
-            $first = false;
         }
 
         $table .= '<div class="form-group mt-xxxl">';

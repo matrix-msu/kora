@@ -1,6 +1,6 @@
 <?php
 
-//NOTE: This version is used if you wish to use these functions in a site on a different server than your Kora 3 Installation.
+//NOTE: This version is used if you wish to copy this file onto a different server than your Kora 3 Installation.
 //      You will need to configure the SITE VARIABLES to use!
 
 //THIS TOOL IS PRIMARILY (see first class for exception) THE CONVERTER FUNCTION FOR USING OLD KORA 2 KORA_Search AND KORA_Clause FUNCTIONS
@@ -344,10 +344,45 @@ class KORA_Clause {
 
                 //Strip away %
                 $arg2 = str_replace("%","",$arg2);
+                $arg2 = $this->dateCleaner($arg2);
                 $query = $tool::keywordQueryBuilder($arg2, $method, $not, array($arg1));
                 array_push($this->queries,$query);
             }
         }
+    }
+
+    /**
+     * Cleans up the way dates used to be searched.
+     *
+     * @param  string $keyword - The keyword to filter
+     * @return string - The filtered date keyword
+     */
+    private function dateCleaner($keyword) {
+        $hasDate = false;
+        $dateArray = ['month'=>01,'day'=>01,'year'=>0001];
+
+        if(strpos($keyword,'<month>')) {
+            $hasDate = true;
+            $p1 = explode('<month>',$keyword)[1];
+            $dateArray['month'] = explode('</month>',$p1)[0];
+        }
+
+        if(strpos($keyword,'<day>')) {
+            $hasDate = true;
+            $p1 = explode('<day>',$keyword)[1];
+            $dateArray['day'] = explode('</day>',$p1)[0];
+        }
+
+        if(strpos($keyword,'<year>')) {
+            $hasDate = true;
+            $p1 = explode('<year>',$keyword)[1];
+            $dateArray['year'] = explode('</year>',$p1)[0];
+        }
+
+        if($hasDate)
+            return $dateArray['year'].'-'.$dateArray['month'].'-'.$dateArray['day'];
+        else
+            return $keyword;
     }
 
     /**

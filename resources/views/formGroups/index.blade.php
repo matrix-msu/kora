@@ -6,6 +6,10 @@
   @include('partials.menu.static', ['name' => 'Form Permissions'])
 @stop
 
+@section('aside-content')
+  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid, 'openDrawer' => true])
+@stop
+
 @section('header')
   <section class="head">
     <div class="inner-wrap center">

@@ -5,13 +5,13 @@ footer {
 
 
   a {
-      text-decoration: none;
-      width: 30px;
-      height: 30px;
+    height: 30px;
+    text-decoration: none;
+    width: 30px;
 
-      img{
-        color: white;
-      }
+    img {
+      color: palette('white', base);
+    }
   }
 
 
@@ -24,8 +24,5 @@ footer {
       height: inherit;
       width: auto;
     }
-
   }
-
-
 }

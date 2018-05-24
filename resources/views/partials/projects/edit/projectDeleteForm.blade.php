@@ -1,6 +1,6 @@
 {!! Form::open([
   'method' => 'DELETE',
-  'action' => ['ProjectController@destroy', 'pid' => $project->pid],
+  'action' => ['ProjectController@destroy', $project->pid],
   'style' => 'display:none',
   'class' => "delete-content-js"
 ]) !!}
