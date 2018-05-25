@@ -190,7 +190,7 @@ class FormBuilder
     {
         $this->model = $model;
     }
-    
+
     /**
      * Get the current model instance on the form builder.
      *
@@ -330,6 +330,20 @@ class FormBuilder
     }
 
     /**
+     * Create a range input field.
+     *
+     * @param  string $name
+     * @param  string $value
+     * @param  array  $options
+     *
+     * @return \Illuminate\Support\HtmlString
+     */
+    public function range($name, $value = null, $options = [])
+    {
+        return $this->input('range', $name, $value, $options);
+    }
+
+    /**
      * Create a hidden input field.
      *
      * @param  string $name
@@ -464,6 +478,10 @@ class FormBuilder
      */
     public function time($name, $value = null, $options = [])
     {
+        if ($value instanceof DateTime) {
+            $value = $value->format('H:i');
+        }
+
         return $this->input('time', $name, $value, $options);
     }
 
@@ -479,6 +497,24 @@ class FormBuilder
     public function url($name, $value = null, $options = [])
     {
         return $this->input('url', $name, $value, $options);
+    }
+
+    /**
+     * Create a week input field.
+     *
+     * @param  string $name
+     * @param  string $value
+     * @param  array  $options
+     *
+     * @return \Illuminate\Support\HtmlString
+     */
+    public function week($name, $value = null, $options = [])
+    {
+        if ($value instanceof DateTime) {
+            $value = $value->format('Y-\WW');
+        }
+
+        return $this->input('week', $name, $value, $options);
     }
 
     /**
@@ -527,7 +563,7 @@ class FormBuilder
         // the element. Then we'll create the final textarea elements HTML for us.
         $options = $this->html->attributes($options);
 
-        return $this->toHtmlString('<textarea' . $options . '>' . e($value). '</textarea>');
+        return $this->toHtmlString('<textarea' . $options . '>' . e($value, false). '</textarea>');
     }
 
     /**
@@ -709,20 +745,23 @@ class FormBuilder
      * @param  string $selected
      * @param  array  $attributes
      * @param  array  $optionsAttributes
+     * @param  integer  $level
      *
      * @return \Illuminate\Support\HtmlString
      */
-    protected function optionGroup($list, $label, $selected, array $attributes = [], array $optionsAttributes = [])
+    protected function optionGroup($list, $label, $selected, array $attributes = [], array $optionsAttributes = [], $level = 0)
     {
         $html = [];
-
+        $space = str_repeat("&nbsp;", $level);
         foreach ($list as $value => $display) {
             $optionAttributes = $optionsAttributes[$value] ?? [];
-
-            $html[] = $this->option($display, $value, $selected, $optionAttributes);
+            if (is_array($display)) {
+                $html[] = $this->optionGroup($display, $value, $selected, $attributes, $optionAttributes, $level+5);
+            } else {
+                $html[] = $this->option($space.$display, $value, $selected, $optionAttributes);
+            }
         }
-        
-        return $this->toHtmlString('<optgroup label="' . e($label) . '"' . $this->html->attributes($attributes) . '>' . implode('', $html) . '</optgroup>');
+        return $this->toHtmlString('<optgroup label="' . e($space.$label, false) . '"' . $this->html->attributes($attributes) . '>' . implode('', $html) . '</optgroup>');
     }
 
     /**
@@ -743,7 +782,7 @@ class FormBuilder
 
         $string = '<option' . $this->html->attributes($options) . '>';
         if ($display !== null) {
-            $string .= e($display) . '</option>';
+            $string .= e($display, false) . '</option>';
         }
 
         return $this->toHtmlString($string);
@@ -766,7 +805,7 @@ class FormBuilder
             'value' => '',
         ];
 
-        return $this->toHtmlString('<option' . $this->html->attributes($options) . '>' . e($display) . '</option>');
+        return $this->toHtmlString('<option' . $this->html->attributes($options) . '>' . e($display, false) . '</option>');
     }
 
     /**
@@ -868,7 +907,7 @@ class FormBuilder
                 return $this->getRadioCheckedState($name, $value, $checked);
 
             default:
-                return $this->getValueAttribute($name) === $value;
+                return $this->compareValues($name, $value);
         }
     }
 
@@ -921,7 +960,21 @@ class FormBuilder
             return $checked;
         }
 
-        return $this->getValueAttribute($name) === $value;
+        return $this->compareValues($name, $value);
+    }
+
+    /**
+     * Determine if the provide value loosely compares to the value assigned to the field.
+     * Use loose comparison because Laravel model casting may be in affect and therefore
+     * 1 == true and 0 == false.
+     *
+     * @param  string $name
+     * @param  string $value
+     * @return bool
+     */
+    protected function compareValues($name, $value)
+    {
+        return $this->getValueAttribute($name) == $value;
     }
 
     /**
@@ -963,6 +1016,24 @@ class FormBuilder
         $attributes['src'] = $this->url->asset($url);
 
         return $this->input('image', $name, null, $attributes);
+    }
+
+    /**
+     * Create a month input field.
+     *
+     * @param  string $name
+     * @param  string $value
+     * @param  array  $options
+     *
+     * @return \Illuminate\Support\HtmlString
+     */
+    public function month($name, $value = null, $options = [])
+    {
+        if ($value instanceof DateTime) {
+            $value = $value->format('Y-m');
+        }
+
+        return $this->input('month', $name, $value, $options);
     }
 
     /**
@@ -1183,7 +1254,7 @@ class FormBuilder
         }
 
         $request = $this->request($name);
-        if (! is_null($request) && $name !== '_method') {
+        if (! is_null($request) && $name != '_method') {
             return $request;
         }
 
@@ -1267,7 +1338,7 @@ class FormBuilder
      */
     public function oldInputIsEmpty()
     {
-        return (isset($this->session) && count($this->session->getOldInput()) === 0);
+        return (isset($this->session) && count((array) $this->session->getOldInput()) === 0);
     }
 
     /**

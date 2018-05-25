@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestFailure;
 
 class IsReadableTest extends ConstraintTestCase
 {
-    public function testConstraintIsReadable()
+    public function testConstraintIsReadable(): void
     {
         $constraint = new IsReadable();
 

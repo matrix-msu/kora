@@ -74,12 +74,17 @@ class MockBuilder
     /**
      * @var object
      */
-    private $proxyTarget = null;
+    private $proxyTarget;
 
     /**
      * @var bool
      */
     private $allowMockingUnknownTypes = true;
+
+    /**
+     * @var bool
+     */
+    private $returnValueGeneration = true;
 
     /**
      * @var Generator
@@ -115,7 +120,8 @@ class MockBuilder
             $this->cloneArguments,
             $this->callOriginalMethods,
             $this->proxyTarget,
-            $this->allowMockingUnknownTypes
+            $this->allowMockingUnknownTypes,
+            $this->returnValueGeneration
         );
 
         $this->testCase->registerMockObject($object);
@@ -172,7 +178,7 @@ class MockBuilder
     /**
      * Specifies the subset of methods to mock. Default is to mock none of them.
      *
-     * @param array|null $methods
+     * @param null|array $methods
      *
      * @return MockBuilder
      */
@@ -383,6 +389,26 @@ class MockBuilder
     public function disallowMockingUnknownTypes()
     {
         $this->allowMockingUnknownTypes = false;
+
+        return $this;
+    }
+
+    /**
+     * @return MockBuilder
+     */
+    public function enableAutoReturnValueGeneration()
+    {
+        $this->returnValueGeneration = true;
+
+        return $this;
+    }
+
+    /**
+     * @return MockBuilder
+     */
+    public function disableAutoReturnValueGeneration()
+    {
+        $this->returnValueGeneration = false;
 
         return $this;
     }

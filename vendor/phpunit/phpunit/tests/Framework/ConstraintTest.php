@@ -17,7 +17,7 @@ use PHPUnit\Util\Filter;
 
 class ConstraintTest extends TestCase
 {
-    public function testConstraintArrayNotHasKey()
+    public function testConstraintArrayNotHasKey(): void
     {
         $constraint = Assert::logicalNot(
             Assert::arrayHasKey(0)
@@ -45,7 +45,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintArrayNotHasKey2()
+    public function testConstraintArrayNotHasKey2(): void
     {
         $constraint = Assert::logicalNot(
             Assert::arrayHasKey(0)
@@ -70,7 +70,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintFileNotExists()
+    public function testConstraintFileNotExists(): void
     {
         $file = \dirname(__DIR__) . DIRECTORY_SEPARATOR . '_files' . DIRECTORY_SEPARATOR . 'ClassWithNonPublicAttributes.php';
 
@@ -100,7 +100,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintFileNotExists2()
+    public function testConstraintFileNotExists2(): void
     {
         $file = \dirname(__DIR__) . DIRECTORY_SEPARATOR . '_files' . DIRECTORY_SEPARATOR . 'ClassWithNonPublicAttributes.php';
 
@@ -127,7 +127,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintNotGreaterThan()
+    public function testConstraintNotGreaterThan(): void
     {
         $constraint = Assert::logicalNot(
             Assert::greaterThan(1)
@@ -155,7 +155,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintNotGreaterThan2()
+    public function testConstraintNotGreaterThan2(): void
     {
         $constraint = Assert::logicalNot(
             Assert::greaterThan(1)
@@ -180,7 +180,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintGreaterThanOrEqual()
+    public function testConstraintGreaterThanOrEqual(): void
     {
         $constraint = Assert::greaterThanOrEqual(1);
 
@@ -207,7 +207,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintGreaterThanOrEqual2()
+    public function testConstraintGreaterThanOrEqual2(): void
     {
         $constraint = Assert::greaterThanOrEqual(1);
 
@@ -230,7 +230,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintNotGreaterThanOrEqual()
+    public function testConstraintNotGreaterThanOrEqual(): void
     {
         $constraint = Assert::logicalNot(
             Assert::greaterThanOrEqual(1)
@@ -258,7 +258,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintNotGreaterThanOrEqual2()
+    public function testConstraintNotGreaterThanOrEqual2(): void
     {
         $constraint = Assert::logicalNot(
             Assert::greaterThanOrEqual(1)
@@ -283,7 +283,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintIsAnything()
+    public function testConstraintIsAnything(): void
     {
         $constraint = Assert::anything();
 
@@ -293,7 +293,7 @@ EOF
         $this->assertCount(0, $constraint);
     }
 
-    public function testConstraintNotIsAnything()
+    public function testConstraintNotIsAnything(): void
     {
         $constraint = Assert::logicalNot(
             Assert::anything()
@@ -321,7 +321,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintIsNotEqual()
+    public function testConstraintIsNotEqual(): void
     {
         $constraint = Assert::logicalNot(
             Assert::equalTo(1)
@@ -350,7 +350,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintIsNotEqual2()
+    public function testConstraintIsNotEqual2(): void
     {
         $constraint = Assert::logicalNot(
             Assert::equalTo(1)
@@ -375,7 +375,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintIsNotIdentical()
+    public function testConstraintIsNotIdentical(): void
     {
         $a = new \stdClass;
         $b = new \stdClass;
@@ -407,7 +407,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintIsNotIdentical2()
+    public function testConstraintIsNotIdentical2(): void
     {
         $a = new \stdClass;
 
@@ -434,7 +434,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintIsNotIdentical3()
+    public function testConstraintIsNotIdentical3(): void
     {
         $constraint = Assert::logicalNot(
             Assert::identicalTo('a')
@@ -459,7 +459,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintIsInstanceOf()
+    public function testConstraintIsInstanceOf(): void
     {
         $constraint = Assert::isInstanceOf(\Exception::class);
 
@@ -491,7 +491,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintIsInstanceOf2()
+    public function testConstraintIsInstanceOf2(): void
     {
         $constraint = Assert::isInstanceOf(\Exception::class);
 
@@ -514,7 +514,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintIsNotInstanceOf()
+    public function testConstraintIsNotInstanceOf(): void
     {
         $constraint = Assert::logicalNot(
             Assert::isInstanceOf(\stdClass::class)
@@ -543,7 +543,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintIsNotInstanceOf2()
+    public function testConstraintIsNotInstanceOf2(): void
     {
         $constraint = Assert::logicalNot(
             Assert::isInstanceOf(\stdClass::class)
@@ -568,7 +568,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintIsNotType()
+    public function testConstraintIsNotType(): void
     {
         $constraint = Assert::logicalNot(
             Assert::isType('string')
@@ -597,7 +597,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintIsNotType2()
+    public function testConstraintIsNotType2(): void
     {
         $constraint = Assert::logicalNot(
             Assert::isType('string')
@@ -622,7 +622,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintIsNotNull()
+    public function testConstraintIsNotNull(): void
     {
         $constraint = Assert::logicalNot(
             Assert::isNull()
@@ -651,7 +651,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintIsNotNull2()
+    public function testConstraintIsNotNull2(): void
     {
         $constraint = Assert::logicalNot(
             Assert::isNull()
@@ -676,7 +676,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintNotLessThan()
+    public function testConstraintNotLessThan(): void
     {
         $constraint = Assert::logicalNot(
             Assert::lessThan(1)
@@ -705,7 +705,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintNotLessThan2()
+    public function testConstraintNotLessThan2(): void
     {
         $constraint = Assert::logicalNot(
             Assert::lessThan(1)
@@ -730,7 +730,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintLessThanOrEqual()
+    public function testConstraintLessThanOrEqual(): void
     {
         $constraint = Assert::lessThanOrEqual(1);
 
@@ -757,7 +757,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintLessThanOrEqual2()
+    public function testConstraintLessThanOrEqual2(): void
     {
         $constraint = Assert::lessThanOrEqual(1);
 
@@ -780,7 +780,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintNotLessThanOrEqual()
+    public function testConstraintNotLessThanOrEqual(): void
     {
         $constraint = Assert::logicalNot(
             Assert::lessThanOrEqual(1)
@@ -809,7 +809,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintNotLessThanOrEqual2()
+    public function testConstraintNotLessThanOrEqual2(): void
     {
         $constraint = Assert::logicalNot(
             Assert::lessThanOrEqual(1)
@@ -834,7 +834,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintClassNotHasAttribute()
+    public function testConstraintClassNotHasAttribute(): void
     {
         $constraint = Assert::logicalNot(
             Assert::classHasAttribute('privateAttribute')
@@ -863,7 +863,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintClassNotHasAttribute2()
+    public function testConstraintClassNotHasAttribute2(): void
     {
         $constraint = Assert::logicalNot(
             Assert::classHasAttribute('privateAttribute')
@@ -888,7 +888,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintClassNotHasStaticAttribute()
+    public function testConstraintClassNotHasStaticAttribute(): void
     {
         $constraint = Assert::logicalNot(
             Assert::classHasStaticAttribute('privateStaticAttribute')
@@ -917,7 +917,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintClassNotHasStaticAttribute2()
+    public function testConstraintClassNotHasStaticAttribute2(): void
     {
         $constraint = Assert::logicalNot(
             Assert::classHasStaticAttribute('privateStaticAttribute')
@@ -942,7 +942,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintObjectNotHasAttribute()
+    public function testConstraintObjectNotHasAttribute(): void
     {
         $constraint = Assert::logicalNot(
             Assert::objectHasAttribute('privateAttribute')
@@ -971,7 +971,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintObjectNotHasAttribute2()
+    public function testConstraintObjectNotHasAttribute2(): void
     {
         $constraint = Assert::logicalNot(
             Assert::objectHasAttribute('privateAttribute')
@@ -996,7 +996,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintPCRENotMatch()
+    public function testConstraintPCRENotMatch(): void
     {
         $constraint = Assert::logicalNot(
             Assert::matchesRegularExpression('/foo/')
@@ -1025,7 +1025,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintPCRENotMatch2()
+    public function testConstraintPCRENotMatch2(): void
     {
         $constraint = Assert::logicalNot(
             Assert::matchesRegularExpression('/foo/')
@@ -1050,7 +1050,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintStringStartsNotWith()
+    public function testConstraintStringStartsNotWith(): void
     {
         $constraint = Assert::logicalNot(
             Assert::stringStartsWith('prefix')
@@ -1079,7 +1079,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintStringStartsNotWith2()
+    public function testConstraintStringStartsNotWith2(): void
     {
         $constraint = Assert::logicalNot(
             Assert::stringStartsWith('prefix')
@@ -1104,7 +1104,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintStringNotContains()
+    public function testConstraintStringNotContains(): void
     {
         $constraint = Assert::logicalNot(
             Assert::stringContains('foo')
@@ -1133,7 +1133,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintStringNotContainsWhenIgnoreCase()
+    public function testConstraintStringNotContainsWhenIgnoreCase(): void
     {
         $constraint = Assert::logicalNot(
             Assert::stringContains('oryginał')
@@ -1150,7 +1150,7 @@ EOF
         $constraint->evaluate('ORYGINAŁ');
     }
 
-    public function testConstraintStringNotContainsForUtf8StringWhenNotIgnoreCase()
+    public function testConstraintStringNotContainsForUtf8StringWhenNotIgnoreCase(): void
     {
         $constraint = Assert::logicalNot(
             Assert::stringContains('oryginał', false)
@@ -1167,7 +1167,7 @@ EOF
         $constraint->evaluate('oryginał');
     }
 
-    public function testConstraintStringNotContains2()
+    public function testConstraintStringNotContains2(): void
     {
         $constraint = Assert::logicalNot(
             Assert::stringContains('foo')
@@ -1192,7 +1192,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintStringEndsNotWith()
+    public function testConstraintStringEndsNotWith(): void
     {
         $constraint = Assert::logicalNot(
             Assert::stringEndsWith('suffix')
@@ -1221,7 +1221,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintStringEndsNotWith2()
+    public function testConstraintStringEndsNotWith2(): void
     {
         $constraint = Assert::logicalNot(
             Assert::stringEndsWith('suffix')
@@ -1246,7 +1246,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintArrayNotContains()
+    public function testConstraintArrayNotContains(): void
     {
         $constraint = Assert::logicalNot(
             new TraversableContains('foo')
@@ -1275,7 +1275,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintArrayNotContains2()
+    public function testConstraintArrayNotContains2(): void
     {
         $constraint = Assert::logicalNot(
             new TraversableContains('foo')
@@ -1300,7 +1300,7 @@ EOF
         $this->fail();
     }
 
-    public function testAttributeNotEqualTo()
+    public function testAttributeNotEqualTo(): void
     {
         $object     = new \ClassWithNonPublicAttributes;
         $constraint = Assert::logicalNot(
@@ -1335,7 +1335,7 @@ EOF
         $this->fail();
     }
 
-    public function testAttributeNotEqualTo2()
+    public function testAttributeNotEqualTo2(): void
     {
         $object     = new \ClassWithNonPublicAttributes;
         $constraint = Assert::logicalNot(
@@ -1360,7 +1360,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintCountWithAnArray()
+    public function testConstraintCountWithAnArray(): void
     {
         $constraint = new Count(5);
 
@@ -1368,7 +1368,7 @@ EOF
         $this->assertFalse($constraint->evaluate([1, 2, 3, 4], '', true));
     }
 
-    public function testConstraintCountWithAnIteratorWhichDoesNotImplementCountable()
+    public function testConstraintCountWithAnIteratorWhichDoesNotImplementCountable(): void
     {
         $constraint = new Count(5);
 
@@ -1376,7 +1376,7 @@ EOF
         $this->assertFalse($constraint->evaluate(new \TestIterator([1, 2, 3, 4]), '', true));
     }
 
-    public function testConstraintCountWithAnObjectImplementingCountable()
+    public function testConstraintCountWithAnObjectImplementingCountable(): void
     {
         $constraint = new Count(5);
 
@@ -1384,7 +1384,7 @@ EOF
         $this->assertFalse($constraint->evaluate(new \ArrayObject([1, 2, 3, 4]), '', true));
     }
 
-    public function testConstraintCountFailing()
+    public function testConstraintCountFailing(): void
     {
         $constraint = new Count(5);
 
@@ -1406,7 +1406,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintNotCountFailing()
+    public function testConstraintNotCountFailing(): void
     {
         $constraint = Assert::logicalNot(
             new Count(2)
@@ -1430,7 +1430,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintNotSameSizeFailing()
+    public function testConstraintNotSameSizeFailing(): void
     {
         $constraint = Assert::logicalNot(
             new SameSize([1, 2])
@@ -1454,7 +1454,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintException()
+    public function testConstraintException(): void
     {
         $constraint = new Constraint\Exception('FoobarException');
         $exception  = new \DummyException('Test');

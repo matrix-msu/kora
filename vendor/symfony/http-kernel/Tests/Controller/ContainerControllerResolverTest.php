@@ -13,7 +13,6 @@ namespace Symfony\Component\HttpKernel\Tests\Controller;
 
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Debug\ErrorHandler;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ContainerControllerResolver;
@@ -141,17 +140,7 @@ class ContainerControllerResolverTest extends ControllerResolverTest
         $request = Request::create('/');
         $request->attributes->set('_controller', array(ImpossibleConstructController::class, 'action'));
 
-        if (\PHP_VERSION_ID < 70100) {
-            ErrorHandler::register();
-            try {
-                $resolver->getController($request);
-            } finally {
-                restore_error_handler();
-                restore_exception_handler();
-            }
-        } else {
-            $resolver->getController($request);
-        }
+        $resolver->getController($request);
     }
 
     public function testNonInstantiableControllerWithCorrespondingService()

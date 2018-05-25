@@ -15,35 +15,35 @@ use PHPUnit\Framework\TestFailure;
 
 class StringStartsWithTest extends ConstraintTestCase
 {
-    public function testConstraintStringStartsWithCorrectValueAndReturnResult()
+    public function testConstraintStringStartsWithCorrectValueAndReturnResult(): void
     {
         $constraint = new StringStartsWith('prefix');
 
         $this->assertTrue($constraint->evaluate('prefixfoo', '', true));
     }
 
-    public function testConstraintStringStartsWithNotCorrectValueAndReturnResult()
+    public function testConstraintStringStartsWithNotCorrectValueAndReturnResult(): void
     {
         $constraint = new StringStartsWith('prefix');
 
         $this->assertFalse($constraint->evaluate('error', '', true));
     }
 
-    public function testConstraintStringStartsWithToStringMethod()
+    public function testConstraintStringStartsWithToStringMethod(): void
     {
         $constraint = new StringStartsWith('prefix');
 
         $this->assertEquals('starts with "prefix"', $constraint->toString());
     }
 
-    public function testConstraintStringStartsWitCountMethod()
+    public function testConstraintStringStartsWitCountMethod(): void
     {
         $constraint = new StringStartsWith('prefix');
 
         $this->assertCount(1, $constraint);
     }
 
-    public function testConstraintStringStartsWithNotCorrectValueAndExpectation()
+    public function testConstraintStringStartsWithNotCorrectValueAndExpectation(): void
     {
         $constraint = new StringStartsWith('prefix');
 
@@ -65,7 +65,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintStringStartsWithNotCorrectValueExceptionAndCustomMessage()
+    public function testConstraintStringStartsWithNotCorrectValueExceptionAndCustomMessage(): void
     {
         $constraint = new StringStartsWith('prefix');
 

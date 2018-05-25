@@ -1,5 +1,5 @@
 --TEST--
-\PHPUnit\Framework\MockObject\Generator::generate('NS\Foo', array(), 'MockFoo', true, true)
+\PHPUnit\Framework\MockObject\Generator::generate('NS\Foo', [], 'MockFoo', true, true)
 --FILE--
 <?php
 namespace NS;
@@ -15,7 +15,7 @@ $generator = new \PHPUnit\Framework\MockObject\Generator;
 
 $mock = $generator->generate(
     'NS\Foo',
-    array(),
+    [],
     'MockFoo',
     true,
     true
@@ -23,12 +23,13 @@ $mock = $generator->generate(
 
 print $mock['code'];
 ?>
---EXPECTF--
+--EXPECT--
 class MockFoo implements PHPUnit\Framework\MockObject\MockObject, NS\Foo
 {
     private $__phpunit_invocationMocker;
     private $__phpunit_originalObject;
     private $__phpunit_configurable = ['bar'];
+    private $__phpunit_returnValueGeneration = true;
 
     public function __clone()
     {
@@ -37,7 +38,7 @@ class MockFoo implements PHPUnit\Framework\MockObject\MockObject, NS\Foo
 
     public function bar(NS\Foo $foo)
     {
-        $arguments = array($foo);
+        $arguments = [$foo];
         $count     = func_num_args();
 
         if ($count > 1) {
@@ -64,9 +65,10 @@ class MockFoo implements PHPUnit\Framework\MockObject\MockObject, NS\Foo
 
     public function method()
     {
-        $any = new \PHPUnit\Framework\MockObject\Matcher\AnyInvokedCount;
+        $any     = new \PHPUnit\Framework\MockObject\Matcher\AnyInvokedCount;
         $expects = $this->expects($any);
-        return call_user_func_array(array($expects, 'method'), func_get_args());
+
+        return call_user_func_array([$expects, 'method'], func_get_args());
     }
 
     public function __phpunit_setOriginalObject($originalObject)
@@ -74,10 +76,15 @@ class MockFoo implements PHPUnit\Framework\MockObject\MockObject, NS\Foo
         $this->__phpunit_originalObject = $originalObject;
     }
 
+    public function __phpunit_setReturnValueGeneration(bool $returnValueGeneration)
+    {
+        $this->__phpunit_returnValueGeneration = $returnValueGeneration;
+    }
+
     public function __phpunit_getInvocationMocker()
     {
         if ($this->__phpunit_invocationMocker === null) {
-            $this->__phpunit_invocationMocker = new \PHPUnit\Framework\MockObject\InvocationMocker($this->__phpunit_configurable);
+            $this->__phpunit_invocationMocker = new \PHPUnit\Framework\MockObject\InvocationMocker($this->__phpunit_configurable, $this->__phpunit_returnValueGeneration);
         }
 
         return $this->__phpunit_invocationMocker;

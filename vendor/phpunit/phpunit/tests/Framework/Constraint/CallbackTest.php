@@ -14,17 +14,17 @@ use PHPUnit\Framework\ExpectationFailedException;
 
 class CallbackTest extends ConstraintTestCase
 {
-    public function callbackReturningTrue()
-    {
-        return true;
-    }
-
     public static function staticCallbackReturningTrue()
     {
         return true;
     }
 
-    public function testConstraintCallback()
+    public function callbackReturningTrue()
+    {
+        return true;
+    }
+
+    public function testConstraintCallback(): void
     {
         $closureReflect = function ($parameter) {
             return $parameter;
@@ -52,7 +52,7 @@ class CallbackTest extends ConstraintTestCase
         $this->assertEquals('is accepted by specified callback', $constraint->toString());
     }
 
-    public function testConstraintCallbackFailure()
+    public function testConstraintCallbackFailure(): void
     {
         $constraint = new Callback(function () {
             return false;

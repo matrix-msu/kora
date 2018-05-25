@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestFailure;
 
 class RegularExpressionTest extends ConstraintTestCase
 {
-    public function testConstraintRegularExpression()
+    public function testConstraintRegularExpression(): void
     {
         $constraint = new RegularExpression('/foo/');
 
@@ -42,7 +42,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintRegularExpression2()
+    public function testConstraintRegularExpression2(): void
     {
         $constraint = new RegularExpression('/foo/');
 

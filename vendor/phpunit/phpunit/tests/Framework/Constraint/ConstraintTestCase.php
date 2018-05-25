@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 
 abstract class ConstraintTestCase extends TestCase
 {
-    final public function testIsCountable()
+    final public function testIsCountable(): void
     {
         $className = $this->className();
 
@@ -28,7 +28,7 @@ abstract class ConstraintTestCase extends TestCase
         ));
     }
 
-    final public function testIsSelfDescribing()
+    final public function testIsSelfDescribing(): void
     {
         $className = $this->className();
 

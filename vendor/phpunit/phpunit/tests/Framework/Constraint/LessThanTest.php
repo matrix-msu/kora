@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestFailure;
 
 class LessThanTest extends ConstraintTestCase
 {
-    public function testConstraintLessThan()
+    public function testConstraintLessThan(): void
     {
         $constraint = new LessThan(1);
 
@@ -42,7 +42,7 @@ EOF
         $this->fail();
     }
 
-    public function testConstraintLessThan2()
+    public function testConstraintLessThan2(): void
     {
         $constraint = new LessThan(1);
 

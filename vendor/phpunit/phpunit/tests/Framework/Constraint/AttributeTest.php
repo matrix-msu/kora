@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestFailure;
 
 class AttributeTest extends ConstraintTestCase
 {
-    public function testAttributeEqualTo()
+    public function testAttributeEqualTo(): void
     {
         $object     = new \ClassWithNonPublicAttributes;
 
@@ -53,7 +53,7 @@ EOF
         $this->fail();
     }
 
-    public function testAttributeEqualTo2()
+    public function testAttributeEqualTo2(): void
     {
         $object     = new \ClassWithNonPublicAttributes;
         $constraint = new Attribute(

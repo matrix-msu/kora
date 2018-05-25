@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestFailure;
 
 final class LogicalAndTest extends ConstraintTestCase
 {
-    public function testSetConstraintsRejectsInvalidConstraint()
+    public function testSetConstraintsRejectsInvalidConstraint(): void
     {
         $constraints = [
             new \TruthyConstraint(),
@@ -35,7 +35,7 @@ final class LogicalAndTest extends ConstraintTestCase
         $constraint->setConstraints($constraints);
     }
 
-    public function testCountReturnsCountOfComposedConstraints()
+    public function testCountReturnsCountOfComposedConstraints(): void
     {
         $counts = [
             3,
@@ -56,7 +56,7 @@ final class LogicalAndTest extends ConstraintTestCase
         $this->assertSame($expected, $constraint->count());
     }
 
-    public function testToStringReturnsImplodedStringRepresentationOfComposedConstraintsGluedWithAnd()
+    public function testToStringReturnsImplodedStringRepresentationOfComposedConstraintsGluedWithAnd(): void
     {
         $names = [
             'is healthy',
@@ -82,7 +82,7 @@ final class LogicalAndTest extends ConstraintTestCase
      *
      * @param Constraint[] $constraints
      */
-    public function testEvaluateReturnsFalseIfAnyOfTheComposedConstraintsEvaluateToFalse(array $constraints)
+    public function testEvaluateReturnsFalseIfAnyOfTheComposedConstraintsEvaluateToFalse(array $constraints): void
     {
         $constraint = new LogicalAnd();
 
@@ -96,7 +96,7 @@ final class LogicalAndTest extends ConstraintTestCase
      *
      * @param Constraint[] $constraints
      */
-    public function testEvaluateReturnsTrueIfAllOfTheComposedConstraintsEvaluateToTrue(array $constraints)
+    public function testEvaluateReturnsTrueIfAllOfTheComposedConstraintsEvaluateToTrue(array $constraints): void
     {
         $constraint = new LogicalAnd();
 
@@ -110,7 +110,7 @@ final class LogicalAndTest extends ConstraintTestCase
      *
      * @param Constraint[] $constraints
      */
-    public function testEvaluateThrowsExceptionIfAnyOfTheComposedConstraintsEvaluateToFalse(array $constraints)
+    public function testEvaluateThrowsExceptionIfAnyOfTheComposedConstraintsEvaluateToFalse(array $constraints): void
     {
         $other = 'whatever';
 
@@ -141,7 +141,7 @@ EOF;
      *
      * @param Constraint[] $constraints
      */
-    public function testEvaluateThrowsExceptionWithCustomMessageIfAnyOfTheComposedConstraintsEvaluateToFalse(array $constraints)
+    public function testEvaluateThrowsExceptionWithCustomMessageIfAnyOfTheComposedConstraintsEvaluateToFalse(array $constraints): void
     {
         $other             = 'whatever';
         $customDescription = 'Not very happy about the results at this point in time, I have to admit!';
@@ -177,7 +177,7 @@ EOF;
      *
      * @param Constraint[] $constraints
      */
-    public function testEvaluateReturnsNothingIfAllOfTheComposedConstraintsEvaluateToTrue(array $constraints)
+    public function testEvaluateReturnsNothingIfAllOfTheComposedConstraintsEvaluateToTrue(array $constraints): void
     {
         $constraint = new LogicalAnd();
 
@@ -226,7 +226,7 @@ EOF;
         }
     }
 
-    private function stringify(array $constraints) : string
+    private function stringify(array $constraints): string
     {
         return \implode(
             ' and ',

@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestFailure;
 
 class IsWritableTest extends ConstraintTestCase
 {
-    public function testConstraintIsWritable()
+    public function testConstraintIsWritable(): void
     {
         $constraint = new IsWritable();
 

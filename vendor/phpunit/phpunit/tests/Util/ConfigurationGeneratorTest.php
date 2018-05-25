@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 
 class ConfigurationGeneratorTest extends TestCase
 {
-    public function testGeneratesConfigurationCorrectly()
+    public function testGeneratesConfigurationCorrectly(): void
     {
         $generator = new ConfigurationGenerator;
 
@@ -28,9 +28,11 @@ class ConfigurationGeneratorTest extends TestCase
          beStrictAboutOutputDuringTests="true"
          beStrictAboutTodoAnnotatedTests="true"
          verbose="true">
-    <testsuite name="default">
-        <directory suffix="Test.php">tests</directory>
-    </testsuite>
+    <testsuites>
+        <testsuite name="default">
+            <directory suffix="Test.php">tests</directory>
+        </testsuite>
+    </testsuites>
 
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">

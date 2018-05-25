@@ -21,7 +21,7 @@ class TestTest extends TestCase
     /**
      * @todo Split up in separate tests
      */
-    public function testGetExpectedException()
+    public function testGetExpectedException(): void
     {
         $this->assertArraySubset(
             ['class' => 'FooBarBaz', 'code' => null, 'message' => ''],
@@ -34,7 +34,7 @@ class TestTest extends TestCase
         );
 
         $this->assertArraySubset(
-            ['class' => \Foo\Bar\Baz::class, 'code' => null, 'message' => ''],
+            ['class' => 'Foo\Bar\Baz', 'code' => null, 'message' => ''],
             Test::getExpectedException(\ExceptionTest::class, 'testThree')
         );
 
@@ -90,7 +90,7 @@ class TestTest extends TestCase
         );
     }
 
-    public function testGetExpectedRegExp()
+    public function testGetExpectedRegExp(): void
     {
         $this->assertArraySubset(
             ['message_regex' => '#regex#'],
@@ -110,8 +110,15 @@ class TestTest extends TestCase
 
     /**
      * @dataProvider requirementsProvider
+     *
+     * @param mixed $test
+     * @param mixed $result
+     *
+     * @throws Warning
+     * @throws \PHPUnit\Framework\ExpectationFailedException
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      */
-    public function testGetRequirements($test, $result)
+    public function testGetRequirements($test, $result): void
     {
         $this->assertEquals(
             $result,
@@ -155,6 +162,9 @@ class TestTest extends TestCase
                     'functions' => [
                         'testFuncOne',
                         'testFuncTwo',
+                    ],
+                    'setting'   => [
+                        'not_a_setting' => 'Off'
                     ],
                     'extensions' => [
                         'testExtOne',
@@ -315,10 +325,19 @@ class TestTest extends TestCase
 
     /**
      * @dataProvider requirementsWithVersionConstraintsProvider
+     *
+     * @param mixed $test
+     * @param array $result
+     *
+     * @throws Exception
+     * @throws Warning
+     * @throws \PHPUnit\Framework\ExpectationFailedException
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      */
-    public function testGetRequirementsWithVersionConstraints($test, array $result)
+    public function testGetRequirementsWithVersionConstraints($test, array $result): void
     {
         $requirements = Test::getRequirements(\RequirementsTest::class, $test);
+
         foreach ($result as $type => $expected_requirement) {
             $this->assertArrayHasKey(
                 "{$type}_constraint",
@@ -446,8 +465,12 @@ class TestTest extends TestCase
 
     /**
      * @dataProvider requirementsWithInvalidVersionConstraintsThrowsExceptionProvider
+     *
+     * @param mixed $test
+     *
+     * @throws Warning
      */
-    public function testGetRequirementsWithInvalidVersionConstraintsThrowsException($test)
+    public function testGetRequirementsWithInvalidVersionConstraintsThrowsException($test): void
     {
         $this->expectException(Warning::class);
         Test::getRequirements(\RequirementsTest::class, $test);
@@ -461,7 +484,7 @@ class TestTest extends TestCase
         ];
     }
 
-    public function testGetRequirementsMergesClassAndMethodDocBlocks()
+    public function testGetRequirementsMergesClassAndMethodDocBlocks(): void
     {
         $expectedAnnotations = [
             'PHP'       => ['version' => '5.4', 'operator' => ''],
@@ -485,8 +508,15 @@ class TestTest extends TestCase
 
     /**
      * @dataProvider missingRequirementsProvider
+     *
+     * @param mixed $test
+     * @param mixed $result
+     *
+     * @throws Warning
+     * @throws \PHPUnit\Framework\ExpectationFailedException
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      */
-    public function testGetMissingRequirements($test, $result)
+    public function testGetMissingRequirements($test, $result): void
     {
         $this->assertEquals(
             $result,
@@ -509,6 +539,7 @@ class TestTest extends TestCase
               'Operating system matching /DOESNOTEXIST/i is required.',
               'Function testFuncOne is required.',
               'Function testFuncTwo is required.',
+              'Setting "not_a_setting" must be "Off".',
               'Extension testExtOne is required.',
               'Extension testExtTwo is required.',
               'Extension testExtThree >= 2.0 is required.',
@@ -546,9 +577,9 @@ class TestTest extends TestCase
     }
 
     /**
-     * @todo   This test does not really test functionality of \PHPUnit\Util\Test
+     * @todo This test does not really test functionality of \PHPUnit\Util\Test
      */
-    public function testGetProvidedDataRegEx()
+    public function testGetProvidedDataRegEx(): void
     {
         $result = \preg_match(Test::REGEX_DATA_PROVIDER, '@dataProvider method', $matches);
         $this->assertEquals(1, $result);
@@ -574,7 +605,7 @@ class TestTest extends TestCase
     /**
      * Check if all data providers are being merged.
      */
-    public function testMultipleDataProviders()
+    public function testMultipleDataProviders(): void
     {
         $dataSets = Test::getProvidedData(\MultipleDataProviderTest::class, 'testOne');
 
@@ -595,11 +626,11 @@ class TestTest extends TestCase
         $this->assertEquals(3, $cCount);
     }
 
-    public function testMultipleYieldIteratorDataProviders()
+    public function testMultipleYieldIteratorDataProviders(): void
     {
         $dataSets = Test::getProvidedData(\MultipleDataProviderTest::class, 'testTwo');
 
-        $this->assertEquals(9, \count($dataSets));
+        $this->assertCount(9, $dataSets);
 
         $aCount = 0;
         $bCount = 0;
@@ -616,7 +647,7 @@ class TestTest extends TestCase
         $this->assertEquals(3, $cCount);
     }
 
-    public function testWithVariousIterableDataProviders()
+    public function testWithVariousIterableDataProviders(): void
     {
         $dataSets = Test::getProvidedData(\VariousIterableDataProviderTest::class, 'test');
 
@@ -633,13 +664,13 @@ class TestTest extends TestCase
         ], $dataSets);
     }
 
-    public function testTestWithEmptyAnnotation()
+    public function testTestWithEmptyAnnotation(): void
     {
         $result = Test::getDataFromTestWithAnnotation("/**\n * @anotherAnnotation\n */");
         $this->assertNull($result);
     }
 
-    public function testTestWithSimpleCase()
+    public function testTestWithSimpleCase(): void
     {
         $result = Test::getDataFromTestWithAnnotation('/**
                                                                      * @testWith [1]
@@ -647,7 +678,7 @@ class TestTest extends TestCase
         $this->assertEquals([[1]], $result);
     }
 
-    public function testTestWithMultiLineMultiParameterCase()
+    public function testTestWithMultiLineMultiParameterCase(): void
     {
         $result = Test::getDataFromTestWithAnnotation('/**
                                                                      * @testWith [1, 2]
@@ -656,7 +687,7 @@ class TestTest extends TestCase
         $this->assertEquals([[1, 2], [3, 4]], $result);
     }
 
-    public function testTestWithVariousTypes()
+    public function testTestWithVariousTypes(): void
     {
         $result = Test::getDataFromTestWithAnnotation('/**
             * @testWith ["ab"]
@@ -666,7 +697,7 @@ class TestTest extends TestCase
         $this->assertEquals([['ab'], [true], [null]], $result);
     }
 
-    public function testTestWithAnnotationAfter()
+    public function testTestWithAnnotationAfter(): void
     {
         $result = Test::getDataFromTestWithAnnotation('/**
                                                                      * @testWith [1]
@@ -676,7 +707,7 @@ class TestTest extends TestCase
         $this->assertEquals([[1], [2]], $result);
     }
 
-    public function testTestWithSimpleTextAfter()
+    public function testTestWithSimpleTextAfter(): void
     {
         $result = Test::getDataFromTestWithAnnotation('/**
                                                                      * @testWith [1]
@@ -686,7 +717,7 @@ class TestTest extends TestCase
         $this->assertEquals([[1], [2]], $result);
     }
 
-    public function testTestWithCharacterEscape()
+    public function testTestWithCharacterEscape(): void
     {
         $result = Test::getDataFromTestWithAnnotation('/**
                                                                      * @testWith ["\"", "\""]
@@ -694,20 +725,20 @@ class TestTest extends TestCase
         $this->assertEquals([['"', '"']], $result);
     }
 
-    public function testTestWithThrowsProperExceptionIfDatasetCannotBeParsed()
+    public function testTestWithThrowsProperExceptionIfDatasetCannotBeParsed(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageRegExp('/^The dataset for the @testWith annotation cannot be parsed:/');
+        $this->expectExceptionMessageRegExp('/^The data set for the @testWith annotation cannot be parsed:/');
 
         Test::getDataFromTestWithAnnotation('/**
                                                            * @testWith [s]
                                                            */');
     }
 
-    public function testTestWithThrowsProperExceptionIfMultiLineDatasetCannotBeParsed()
+    public function testTestWithThrowsProperExceptionIfMultiLineDatasetCannotBeParsed(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageRegExp('/^The dataset for the @testWith annotation cannot be parsed:/');
+        $this->expectExceptionMessageRegExp('/^The data set for the @testWith annotation cannot be parsed:/');
 
         Test::getDataFromTestWithAnnotation('/**
                                                            * @testWith ["valid"]
@@ -718,7 +749,7 @@ class TestTest extends TestCase
     /**
      * @todo Not sure what this test tests (name is misleading at least)
      */
-    public function testParseAnnotation()
+    public function testParseAnnotation(): void
     {
         $this->assertEquals(
             ['Foo', 'ほげ'],
@@ -732,11 +763,11 @@ class TestTest extends TestCase
      *
      * @todo Remove fixture from test class
      */
-    public function methodForTestParseAnnotation()
+    public function methodForTestParseAnnotation(): void
     {
     }
 
-    public function testParseAnnotationThatIsOnlyOneLine()
+    public function testParseAnnotationThatIsOnlyOneLine(): void
     {
         $this->assertEquals(
             ['Bar'],
@@ -745,15 +776,22 @@ class TestTest extends TestCase
     }
 
     /** @depends Bar */
-    public function methodForTestParseAnnotationThatIsOnlyOneLine()
+    public function methodForTestParseAnnotationThatIsOnlyOneLine(): void
     {
         // TODO Remove fixture from test class
     }
 
     /**
      * @dataProvider getLinesToBeCoveredProvider
+     *
+     * @param mixed $test
+     * @param mixed $lines
+     *
+     * @throws CodeCoverageException
+     * @throws \PHPUnit\Framework\ExpectationFailedException
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      */
-    public function testGetLinesToBeCovered($test, $lines)
+    public function testGetLinesToBeCovered($test, $lines): void
     {
         if (\strpos($test, 'Namespace') === 0) {
             $expected = [
@@ -780,7 +818,7 @@ class TestTest extends TestCase
         );
     }
 
-    public function testGetLinesToBeCovered2()
+    public function testGetLinesToBeCovered2(): void
     {
         $this->expectException(CodeCoverageException::class);
 
@@ -790,7 +828,7 @@ class TestTest extends TestCase
         );
     }
 
-    public function testGetLinesToBeCovered3()
+    public function testGetLinesToBeCovered3(): void
     {
         $this->expectException(CodeCoverageException::class);
 
@@ -800,7 +838,7 @@ class TestTest extends TestCase
         );
     }
 
-    public function testGetLinesToBeCovered4()
+    public function testGetLinesToBeCovered4(): void
     {
         $this->expectException(CodeCoverageException::class);
 
@@ -810,7 +848,7 @@ class TestTest extends TestCase
         );
     }
 
-    public function testGetLinesToBeCoveredSkipsNonExistentMethods()
+    public function testGetLinesToBeCoveredSkipsNonExistentMethods(): void
     {
         $this->assertSame(
             [],
@@ -821,7 +859,7 @@ class TestTest extends TestCase
         );
     }
 
-    public function testTwoCoversDefaultClassAnnotationsAreNotAllowed()
+    public function testTwoCoversDefaultClassAnnotationsAreNotAllowed(): void
     {
         $this->expectException(CodeCoverageException::class);
 
@@ -831,10 +869,10 @@ class TestTest extends TestCase
         );
     }
 
-    public function testFunctionParenthesesAreAllowed()
+    public function testFunctionParenthesesAreAllowed(): void
     {
         $this->assertSame(
-            [TEST_FILES_PATH . 'CoveredFunction.php' => \range(2, 4)],
+            [TEST_FILES_PATH . 'CoveredFunction.php' => \range(10, 12)],
             Test::getLinesToBeCovered(
                 'CoverageFunctionParenthesesTest',
                 'testSomething'
@@ -842,10 +880,10 @@ class TestTest extends TestCase
         );
     }
 
-    public function testFunctionParenthesesAreAllowedWithWhitespace()
+    public function testFunctionParenthesesAreAllowedWithWhitespace(): void
     {
         $this->assertSame(
-            [TEST_FILES_PATH . 'CoveredFunction.php' => \range(2, 4)],
+            [TEST_FILES_PATH . 'CoveredFunction.php' => \range(10, 12)],
             Test::getLinesToBeCovered(
                 'CoverageFunctionParenthesesWhitespaceTest',
                 'testSomething'
@@ -853,10 +891,10 @@ class TestTest extends TestCase
         );
     }
 
-    public function testMethodParenthesesAreAllowed()
+    public function testMethodParenthesesAreAllowed(): void
     {
         $this->assertSame(
-            [TEST_FILES_PATH . 'CoveredClass.php' => \range(31, 35)],
+            [TEST_FILES_PATH . 'CoveredClass.php' => \range(29, 33)],
             Test::getLinesToBeCovered(
                 'CoverageMethodParenthesesTest',
                 'testSomething'
@@ -864,10 +902,10 @@ class TestTest extends TestCase
         );
     }
 
-    public function testMethodParenthesesAreAllowedWithWhitespace()
+    public function testMethodParenthesesAreAllowedWithWhitespace(): void
     {
         $this->assertSame(
-            [TEST_FILES_PATH . 'CoveredClass.php' => \range(31, 35)],
+            [TEST_FILES_PATH . 'CoveredClass.php' => \range(29, 33)],
             Test::getLinesToBeCovered(
                 'CoverageMethodParenthesesWhitespaceTest',
                 'testSomething'
@@ -875,11 +913,11 @@ class TestTest extends TestCase
         );
     }
 
-    public function testNamespacedFunctionCanBeCoveredOrUsed()
+    public function testNamespacedFunctionCanBeCoveredOrUsed(): void
     {
         $this->assertEquals(
             [
-                TEST_FILES_PATH . 'NamespaceCoveredFunction.php' => \range(4, 7)
+                TEST_FILES_PATH . 'NamespaceCoveredFunction.php' => \range(12, 15)
             ],
             Test::getLinesToBeCovered(
                 \CoverageNamespacedFunctionTest::class,
@@ -897,91 +935,91 @@ class TestTest extends TestCase
           ],
           [
             'CoverageClassExtendedTest',
-            \array_merge(\range(19, 36), \range(2, 17))
+            \array_merge(\range(27, 44), \range(10, 25))
           ],
           [
             'CoverageClassTest',
-            \range(19, 36)
+            \range(27, 44)
           ],
           [
             'CoverageMethodTest',
-            \range(31, 35)
+            \range(29, 33)
           ],
           [
             'CoverageMethodOneLineAnnotationTest',
-            \range(31, 35)
+            \range(29, 33)
           ],
           [
             'CoverageNotPrivateTest',
-            \array_merge(\range(25, 29), \range(31, 35))
+            \array_merge(\range(29, 33), \range(35, 39))
           ],
           [
             'CoverageNotProtectedTest',
-            \array_merge(\range(21, 23), \range(31, 35))
+            \array_merge(\range(29, 33), \range(41, 43))
           ],
           [
             'CoverageNotPublicTest',
-            \array_merge(\range(21, 23), \range(25, 29))
+            \array_merge(\range(35, 39), \range(41, 43))
           ],
           [
             'CoveragePrivateTest',
-            \range(21, 23)
+            \range(41, 43)
           ],
           [
             'CoverageProtectedTest',
-            \range(25, 29)
+            \range(35, 39)
           ],
           [
             'CoveragePublicTest',
-            \range(31, 35)
+            \range(29, 33)
           ],
           [
             'CoverageFunctionTest',
-            \range(2, 4)
+            \range(10, 12)
           ],
           [
             'NamespaceCoverageClassExtendedTest',
-            \array_merge(\range(21, 38), \range(4, 19))
+            \array_merge(\range(29, 46), \range(12, 27))
           ],
           [
             'NamespaceCoverageClassTest',
-            \range(21, 38)
+            \range(29, 46)
           ],
           [
             'NamespaceCoverageMethodTest',
-            \range(33, 37)
+            \range(31, 35)
           ],
           [
             'NamespaceCoverageNotPrivateTest',
-            \array_merge(\range(27, 31), \range(33, 37))
+            \array_merge(\range(31, 35), \range(37, 41))
           ],
           [
             'NamespaceCoverageNotProtectedTest',
-            \array_merge(\range(23, 25), \range(33, 37))
+            \array_merge(\range(31, 35), \range(43, 45))
           ],
           [
             'NamespaceCoverageNotPublicTest',
-            \array_merge(\range(23, 25), \range(27, 31))
+            \array_merge(\range(37, 41), \range(43, 45))
           ],
           [
             'NamespaceCoveragePrivateTest',
-            \range(23, 25)
+            \range(43, 45)
           ],
           [
             'NamespaceCoverageProtectedTest',
-            \range(27, 31)
+            \range(37, 41)
           ],
           [
             'NamespaceCoveragePublicTest',
-            \range(33, 37)
+            \range(31, 35)
           ],
           [
             'NamespaceCoverageCoversClassTest',
-            \array_merge(\range(23, 25), \range(27, 31), \range(33, 37), \range(6, 8), \range(10, 13), \range(15, 18))
+            \array_merge(\range(43, 45), \range(37, 41), \range(31, 35), \range(24, 26), \range(19, 22), \range(14, 17))
           ],
           [
             'NamespaceCoverageCoversClassPublicTest',
-            \range(33, 37)
+            \range(31, 35)
           ],
           [
             'CoverageNothingTest',
@@ -990,7 +1028,7 @@ class TestTest extends TestCase
         ];
     }
 
-    public function testParseTestMethodAnnotationsIncorporatesTraits()
+    public function testParseTestMethodAnnotationsIncorporatesTraits(): void
     {
         $result = Test::parseTestMethodAnnotations(\ParseTestMethodAnnotationsMock::class);
 
