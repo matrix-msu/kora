@@ -65,9 +65,7 @@ class AuthManager implements FactoryContract
     {
         $name = $name ?: $this->getDefaultDriver();
 
-        return isset($this->guards[$name])
-                    ? $this->guards[$name]
-                    : $this->guards[$name] = $this->resolve($name);
+        return $this->guards[$name] ?? $this->guards[$name] = $this->resolve($name);
     }
 
     /**
@@ -120,7 +118,7 @@ class AuthManager implements FactoryContract
      */
     public function createSessionDriver($name, $config)
     {
-        $provider = $this->createUserProvider($config['provider']);
+        $provider = $this->createUserProvider($config['provider'] ?? null);
 
         $guard = new SessionGuard($name, $provider, $this->app['session.store']);
 
@@ -155,7 +153,7 @@ class AuthManager implements FactoryContract
         // that takes an API token field from the request and matches it to the
         // user in the database or another persistence layer where users are.
         $guard = new TokenGuard(
-            $this->createUserProvider($config['provider']),
+            $this->createUserProvider($config['provider'] ?? null),
             $this->app['request']
         );
 
@@ -223,7 +221,7 @@ class AuthManager implements FactoryContract
     public function viaRequest($driver, callable $callback)
     {
         return $this->extend($driver, function () use ($callback) {
-            $guard = new RequestGuard($callback, $this->app['request']);
+            $guard = new RequestGuard($callback, $this->app['request'], $this->createUserProvider());
 
             $this->app->refresh('request', $guard, 'setRequest');
 

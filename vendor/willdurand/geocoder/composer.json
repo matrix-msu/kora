@@ -1,7 +1,7 @@
 {
     "name": "willdurand/geocoder",
     "type": "library",
-    "description": "The almost missing Geocoder PHP 5.4 library.",
+    "description": "Common files for PHP Geocoder",
     "keywords": ["geocoder", "geocoding", "abstraction", "geoip"],
     "homepage": "http://geocoder-php.org",
     "license": "MIT",
@@ -12,26 +12,29 @@
         }
     ],
     "require": {
-        "php": ">=5.4.0",
-        "egeloen/http-adapter": "~0.8",
-        "igorw/get-in": "~1.0"
+        "php": "^7.0"
     },
     "require-dev": {
-        "geoip2/geoip2": "~2.0",
-        "symfony/stopwatch": "~2.5"
+        "phpunit/phpunit": "6.3.*",
+        "symfony/stopwatch": "~2.5",
+        "nyholm/nsa": "^1.1"
     },
     "suggest": {
-        "ext-geoip": "Enabling the geoip extension allows you to use the MaxMindProvider.",
-        "geoip/geoip": "If you are going to use the MaxMindBinaryProvider (conflict with geoip extension).",
-        "geoip2/geoip2": "If you are going to use the GeoIP2DatabaseProvider.",
         "symfony/stopwatch": "If you want to use the TimedGeocoder"
     },
     "autoload": {
-        "psr-0": { "Geocoder": "src/" }
+        "psr-4": { "Geocoder\\": "" },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-ci": "vendor/bin/phpunit --coverage-text --coverage-clover=build/coverage.xml"
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "3.3-dev"
+            "dev-master": "4.1-dev"
         }
     }
 }

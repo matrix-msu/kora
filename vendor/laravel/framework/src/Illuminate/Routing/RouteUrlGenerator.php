@@ -11,7 +11,7 @@ class RouteUrlGenerator
     /**
      * The URL generator instance.
      *
-     * @param  \Illuminate\Routing\UrlGenerator
+     * @var \Illuminate\Routing\UrlGenerator
      */
     protected $url;
 
@@ -111,7 +111,7 @@ class RouteUrlGenerator
      */
     protected function getRouteDomain($route, &$parameters)
     {
-        return $route->domain() ? $this->formatDomain($route, $parameters) : null;
+        return $route->getDomain() ? $this->formatDomain($route, $parameters) : null;
     }
 
     /**
@@ -124,7 +124,7 @@ class RouteUrlGenerator
     protected function formatDomain($route, &$parameters)
     {
         return $this->addPortToDomain(
-            $this->getRouteScheme($route).$route->domain()
+            $this->getRouteScheme($route).$route->getDomain()
         );
     }
 
@@ -140,9 +140,9 @@ class RouteUrlGenerator
             return 'http://';
         } elseif ($route->httpsOnly()) {
             return 'https://';
-        } else {
-            return $this->url->formatScheme(null);
         }
+
+        return $this->url->formatScheme(null);
     }
 
     /**
@@ -212,9 +212,9 @@ class RouteUrlGenerator
                 return Arr::pull($parameters, $m[1]);
             } elseif (isset($this->defaultParameters[$m[1]])) {
                 return $this->defaultParameters[$m[1]];
-            } else {
-                return $m[0];
             }
+
+            return $m[0];
         }, $path);
     }
 

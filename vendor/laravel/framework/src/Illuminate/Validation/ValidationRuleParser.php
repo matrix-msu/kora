@@ -2,10 +2,12 @@
 
 namespace Illuminate\Validation;
 
+use Closure;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Exists;
 use Illuminate\Validation\Rules\Unique;
+use Illuminate\Contracts\Validation\Rule as RuleContract;
 
 class ValidationRuleParser
 {
@@ -85,9 +87,9 @@ class ValidationRuleParser
             return explode('|', $rule);
         } elseif (is_object($rule)) {
             return [$this->prepareRule($rule)];
-        } else {
-            return array_map([$this, 'prepareRule'], $rule);
         }
+
+        return array_map([$this, 'prepareRule'], $rule);
     }
 
     /**
@@ -98,13 +100,18 @@ class ValidationRuleParser
      */
     protected function prepareRule($rule)
     {
+        if ($rule instanceof Closure) {
+            $rule = new ClosureValidationRule($rule);
+        }
+
         if (! is_object($rule) ||
+            $rule instanceof RuleContract ||
             ($rule instanceof Exists && $rule->queryCallbacks()) ||
             ($rule instanceof Unique && $rule->queryCallbacks())) {
             return $rule;
         }
 
-        return strval($rule);
+        return (string) $rule;
     }
 
     /**
@@ -184,6 +191,10 @@ class ValidationRuleParser
      */
     public static function parse($rules)
     {
+        if ($rules instanceof RuleContract) {
+            return [$rules, []];
+        }
+
         if (is_array($rules)) {
             $rules = static::parseArrayRule($rules);
         } else {

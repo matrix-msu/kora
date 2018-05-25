@@ -38,10 +38,12 @@ class LoadEnvironmentVariables
      */
     protected function checkForSpecificEnvironmentFile($app)
     {
-        if (php_sapi_name() == 'cli' && with($input = new ArgvInput)->hasParameterOption('--env')) {
-            $this->setEnvironmentFilePath(
+        if ($app->runningInConsole() && ($input = new ArgvInput)->hasParameterOption('--env')) {
+            if ($this->setEnvironmentFilePath(
                 $app, $app->environmentFile().'.'.$input->getParameterOption('--env')
-            );
+            )) {
+                return;
+            }
         }
 
         if (! env('APP_ENV')) {
@@ -58,12 +60,16 @@ class LoadEnvironmentVariables
      *
      * @param  \Illuminate\Contracts\Foundation\Application  $app
      * @param  string  $file
-     * @return void
+     * @return bool
      */
     protected function setEnvironmentFilePath($app, $file)
     {
         if (file_exists($app->environmentPath().'/'.$file)) {
             $app->loadEnvironmentFrom($file);
+
+            return true;
         }
+
+        return false;
     }
 }

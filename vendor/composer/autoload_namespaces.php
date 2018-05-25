@@ -11,7 +11,6 @@ return array(
     'Parsedown' => array($vendorDir . '/erusev/parsedown'),
     'Laracasts\\Flash' => array($vendorDir . '/laracasts/flash/src'),
     'JShrink' => array($vendorDir . '/tedivm/jshrink/src'),
-    'Geocoder' => array($vendorDir . '/willdurand/geocoder/src'),
-    'Doctrine\\Common\\Inflector\\' => array($vendorDir . '/doctrine/inflector/lib'),
+    'Doctrine\\Common\\Lexer\\' => array($vendorDir . '/doctrine/lexer/lib'),
     'Diff' => array($vendorDir . '/phpspec/php-diff/lib'),
 );

@@ -3,6 +3,7 @@
 namespace Illuminate\Routing;
 
 use Closure;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
@@ -87,7 +88,7 @@ class UrlGenerator implements UrlGeneratorContract
     /**
      * The route URL generator instance.
      *
-     * @var \Illuminate\Routing\RouteUrlGenerator
+     * @var \Illuminate\Routing\RouteUrlGenerator|null
      */
     protected $routeGenerator;
 
@@ -141,9 +142,9 @@ class UrlGenerator implements UrlGeneratorContract
             return $url;
         } elseif ($fallback) {
             return $this->to($fallback);
-        } else {
-            return $this->to('/');
         }
+
+        return $this->to('/');
     }
 
     /**
@@ -363,7 +364,7 @@ class UrlGenerator implements UrlGeneratorContract
      */
     public function formatParameters($parameters)
     {
-        $parameters = array_wrap($parameters);
+        $parameters = Arr::wrap($parameters);
 
         foreach ($parameters as $key => $parameter) {
             if ($parameter instanceof UrlRoutable) {
@@ -474,6 +475,16 @@ class UrlGenerator implements UrlGeneratorContract
     public function defaults(array $defaults)
     {
         $this->routeUrl()->defaults($defaults);
+    }
+
+    /**
+     * Get the default named parameters used by the URL generator.
+     *
+     * @return array
+     */
+    public function getDefaultParameters()
+    {
+        return $this->routeUrl()->defaultParameters;
     }
 
     /**
