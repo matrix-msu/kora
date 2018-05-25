@@ -52,7 +52,6 @@ class InstallRequest extends Request {
             'recaptcha_public_key'=>'required',
             'recaptcha_private_key'=>'required',
             'baseurl_url'=>'required',
-            'baseurl_storage'=>'required',
             'basepath'=>'required'
         ];
     }
