@@ -25,6 +25,7 @@ function collision($div1, $div2) {
 }
 
 window.setInterval(function() {
+	if($('.navigation-right-wrap').length && $('.navigation-left').length)
     var result = collision($('.navigation-right-wrap'), $('.navigation-left'));
     if (result === true) {
       $('.navigation-left').addClass('collapsed');
