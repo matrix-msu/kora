@@ -149,12 +149,57 @@ Kora.Tokens.Index = function() {
             indexVal.val(tokenDiv.attr('id'));
 
             //TODO:: close, but not yet
+<<<<<<< HEAD
             
 			// add checkmark if needed, also remove if needed
 			$('.search-checkbox-js').prop('checked', tokenDiv.hasClass('search'));
 			$('.create-checkbox-js').prop('checked', tokenDiv.hasClass('create'));
 			$('.edit-checkbox-js').prop('checked', tokenDiv.hasClass('edit'));
 			$('.delete-checkbox-js').prop('checked', tokenDiv.hasClass('delete'));
+=======
+            if(tokenDiv.hasClass('search'))
+                $('.search-checkbox-js').trigger("click");
+            if(tokenDiv.hasClass('create'))
+                $('.create-checkbox-js').trigger("click");
+            if(tokenDiv.hasClass('edit'))
+                $('.edit-checkbox-js').trigger("click");
+            if(tokenDiv.hasClass('delete'))
+                $('.delete-checkbox-js').trigger("click");
+			
+			
+			$(".search-checkbox-js").click(function(e)
+			{
+				// do not allow user to select zero token options
+				if (getTotalSelected() == 0 && !$(".search-checkbox-js").prop("checked"))
+					e.preventDefault();
+			});
+			
+			$(".create-checkbox-js").click(function(e)
+			{
+				if (getTotalSelected() == 0 && !$(".create-checkbox-js").prop("checked"))
+					e.preventDefault();
+			});
+			
+			$(".edit-checkbox-js").click(function(e)
+			{
+				if (getTotalSelected() == 0 && !$(".edit-checkbox-js").prop("checked"))
+					e.preventDefault();
+			});
+			
+			$(".delete-checkbox-js").click(function(e)
+			{
+				if (getTotalSelected() == 0 && !$(".delete-checkbox-js").prop("checked"))
+					e.preventDefault();
+			});
+			
+			function getTotalSelected()
+			{
+				return Number($( ".search-checkbox-js" ).prop("checked")) +
+				Number($( ".create-checkbox-js" ).prop("checked")) + 
+				Number($( ".edit-checkbox-js" ).prop("checked")) + 
+				Number($( ".delete-checkbox-js" ).prop("checked"));
+			}
+>>>>>>> enforced at least 1 token selection
 
             titleVal.val(titleSpan.text());
 
