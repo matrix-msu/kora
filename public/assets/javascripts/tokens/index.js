@@ -149,14 +149,12 @@ Kora.Tokens.Index = function() {
             indexVal.val(tokenDiv.attr('id'));
 
             //TODO:: close, but not yet
-            if(tokenDiv.hasClass('search'))
-                $('.search-checkbox-js').trigger("click");
-            if(tokenDiv.hasClass('create'))
-                $('.create-checkbox-js').trigger("click");
-            if(tokenDiv.hasClass('edit'))
-                $('.edit-checkbox-js').trigger("click");
-            if(tokenDiv.hasClass('delete'))
-                $('.delete-checkbox-js').trigger("click");
+            
+			// add checkmark if needed, also remove if needed
+			$('.search-checkbox-js').prop('checked', tokenDiv.hasClass('search'));
+			$('.create-checkbox-js').prop('checked', tokenDiv.hasClass('create'));
+			$('.edit-checkbox-js').prop('checked', tokenDiv.hasClass('edit'));
+			$('.delete-checkbox-js').prop('checked', tokenDiv.hasClass('delete'));
 
             titleVal.val(titleSpan.text());
 
