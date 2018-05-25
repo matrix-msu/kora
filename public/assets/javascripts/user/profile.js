@@ -18,24 +18,6 @@ Kora.User.Profile = function() {
     });
   }
 
-  function initializePageNavigation() {
-    $selectSection = $('.select-section-js');
-    $pageSection = $('.page-section-js');
-
-    $selectSection.click(function(e) {
-      e.preventDefault();
-
-      $selected = $(this).attr("href").replace('#', '');
-
-      // Get all existing URL parameters
-      var order = getURLParameter('order');
-      var pageCount = getURLParameter('page-count');
-
-      window.location = window.location.pathname + "?section=" + $selected + (pageCount ? "&page-count=" + pageCount : '') + (order ? "&order=" + order : '');
-
-    });
-  }
-
   function initializeFilter(page) {
     var $selector = $(page + ' .select-content-section-js');
     var $content = $(page + ' .content-section-js');
@@ -67,20 +49,20 @@ Kora.User.Profile = function() {
 
   function initializeProjectCards() {
     // Initialize Custom Sort
-    $('.project-toggle-js').click(function(e) {
+    $('.card-toggle-js').click(function(e) {
       e.preventDefault();
 
       var $this = $(this);
       var $header = $this.parent().parent();
-      var $project = $header.parent();
+      var $card = $header.parent();
       var $content = $header.next();
 
       $this.children().toggleClass('active');
-      $project.toggleClass('active');
-      if ($project.hasClass('active')) {
+      $card.toggleClass('active');
+      if ($card.hasClass('active')) {
         $header.addClass('active');
-        $project.animate({
-          height: $project.height() + $content.outerHeight(true) + 'px'
+        $card.animate({
+          height: $card.height() + $content.outerHeight(true) + 'px'
         }, 230);
         $content.effect('slide', {
           direction: 'up',
@@ -88,7 +70,7 @@ Kora.User.Profile = function() {
           duration: 240
         });
       } else {
-        $project.animate({
+        $card.animate({
           height: '58px'
         }, 230, function() {
           $header.hasClass('active') ? $header.removeClass('active') : null;
@@ -100,12 +82,87 @@ Kora.User.Profile = function() {
           duration: 240
         });
       }
+    });
 
+    // Expand all cards
+    $('.expand-fields-js').click(function(e) {
+      e.preventDefault();
+      $('.card:not(.active) .card-toggle-js').click();
+    });
+
+    // Collapse all cards
+    $('.collapse-fields-js').click(function(e) {
+      e.preventDefault();
+      $('.card.active .card-toggle-js').click();
+    });
+  }
+
+  function initializeModals() {
+    Kora.Modal.initialize();
+
+    $('.restore-js').on('click', function(e) {
+      e.preventDefault();
+
+      var time = $(this).parents('.card').find('.time-js').text();
+      var date = $(this).parents('.card').find('.date-js').text()
+      var dateTime = moment(date + ' ' + time);
+      var $modal = $('.restore-fields-modal-js');
+      var url = $modal.find('.restore-fields-button-js').attr('href');
+      var revision = $(this).data('revision');
+      $modal.find('.date-time').text(dateTime.format('M.D.YYYY [at] h:mma'));
+
+      $modal.find('.restore-fields-button-js').on('click', function(e) {
+        e.preventDefault();
+        $.ajax({
+          url: url,
+          type: 'GET',
+          data: {
+            revision: revision
+          },
+          success: function(d) {
+            location.reload();
+          },
+          error: function(e) {
+            console.log(e);
+          }
+        });
+      });
+      Kora.Modal.open($modal);
+    });
+
+    $('.reactivate-js').on('click', function(e) {
+      e.preventDefault();
+
+      var time = $(this).parents('.card').find('.time-js').text();
+      var date = $(this).parents('.card').find('.date-js').text()
+      var dateTime = moment(date + ' ' + time);
+      var $modal = $('.reactivate-record-modal-js');
+      var url = $modal.find('.reactivate-record-button-js').attr('href');
+      var revision = $(this).data('revision');
+      $modal.find('.date-time').text(dateTime.format('M.D.YYYY [at] h:mma'));
+
+      $modal.find('.reactivate-record-button-js').on('click', function(e) {
+        e.preventDefault();
+        $.ajax({
+          url: url,
+          type: 'GET',
+          data: {
+            revision: revision
+          },
+          success: function(d) {
+            location.reload();
+          },
+          error: function(e) {
+            console.log(e);
+          }
+        });
+      });
+      Kora.Modal.open($modal);
     });
   }
 
   initializeOptionDropdowns();
-  initializePageNavigation();
   initializeFilters();
   initializeProjectCards();
+  initializeModals();
 }

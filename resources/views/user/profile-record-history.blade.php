@@ -5,7 +5,9 @@
 @stop
 
 @section('body')
-        <section class="center page-section page-section-js active" id="recordHistory">
+    @include('partials.revisions.modals.restoreFieldsModal')
+    @include('partials.revisions.modals.reactivateRecordModal')
+    <section class="center page-section page-section-js active" id="recordHistory">
         <div class="section-filters mt-xxxl">
             <a href="#recentlyModified" class="filter-link select-content-section-js underline-middle underline-middle-hover">Recently Modified</a>
             <a href="#myCreatedRecords" class="filter-link select-content-section-js underline-middle underline-middle-hover">@if (Auth::user()->id == $user->id) My @else {{$user->username}}'s @endif Created Records</a>

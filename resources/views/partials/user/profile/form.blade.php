@@ -10,7 +10,7 @@
         </div>
 
         <div class="card-toggle-wrap">
-            <a href="#" class="card-toggle project-toggle-js">
+            <a href="#" class="card-toggle card-toggle-js">
                 <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
             </a>
         </div>
