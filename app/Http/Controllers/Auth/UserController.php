@@ -74,13 +74,13 @@ class UserController extends Controller {
             $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
             $userRevisions = Revision::leftJoin('records', 'revisions.rid', '=', 'records.rid')
                 ->leftJoin('users', 'revisions.owner', '=', 'users.id')
-                ->select('revisions.*', 'records.kid', 'users.username as ownerUsername')
+                ->select('revisions.*', 'records.kid', 'records.pid', 'users.username as ownerUsername')
                 ->where('revisions.username', '=', $user->username)
                 ->whereNotNull('kid')
                 ->orderBy($order_type, $order_direction)
                 ->paginate($pagination);
             $userOwnedRevisions = Revision::leftJoin('records', 'revisions.rid', '=', 'records.rid')
-                ->select('revisions.*', 'records.kid')
+                ->select('revisions.*', 'records.kid', 'records.pid')
                 ->where('revisions.owner', '=', $user->id)
                 ->whereNotNull('kid')
                 ->orderBy($order_type, $order_direction)

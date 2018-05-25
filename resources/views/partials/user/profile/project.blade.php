@@ -17,7 +17,7 @@
     </div>
 
     <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
-        <div class="permissions pb-m">
+        <div class="pb-m">
             @if ($project['permissions'] == 'Admin')
                 <p>You are an admin for this project.</p>
             @else

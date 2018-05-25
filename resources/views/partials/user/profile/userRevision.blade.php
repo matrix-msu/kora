@@ -1,7 +1,7 @@
 <div class="record card {{ $index == 0 ? 'active' : '' }}" id="{{$revision->rid}}">
     <div class="header {{ $index == 0 ? 'active' : '' }}">
         <div class="left pl-m">
-            <a class="title underline-middle-hover" href="{{ action("ProjectController@show",["pid" => $revision['pid']]) }}">
+            <a class="title underline-middle-hover" href="{{ action("RevisionController@show",["pid" => $revision['pid'], "fid" => $revision['fid'], "rid" => $revision['rid']]) }}">
                 <span class="name">{{$revision->kid}}</span>
             </a>
 

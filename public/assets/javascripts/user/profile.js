@@ -25,7 +25,6 @@ Kora.User.Profile = function() {
     $selectSection.click(function(e) {
       e.preventDefault();
 
-<<<<<<< HEAD
       $selected = $(this).attr("href").replace('#', '');
 
       // Get all existing URL parameters
@@ -33,19 +32,7 @@ Kora.User.Profile = function() {
       var pageCount = getURLParameter('page-count');
 
       window.location = window.location.pathname + "?section=" + $selected + (pageCount ? "&page-count=" + pageCount : '') + (order ? "&order=" + order : '');
-=======
-      $this = $(this);
-      $this.siblings().removeClass('active');
-      $this.addClass('active');
 
-      $('.page-section-js').removeClass('active');
-      $active = $this.attr("href").replace('#', '');
-      $('.page-section-js').each(function() {
-          if ($(this).attr('id') == $active) {
-            $(this).addClass('active');
-          }
-      });
->>>>>>> abdbf5e80a65ca664bddbc903fefd912bc94bfde
     });
   }
 
@@ -74,8 +61,8 @@ Kora.User.Profile = function() {
   }
 
   function initializeFilters() {
-    initializeFilter('.permissions');
-    initializeFilter('.record-history');
+    initializeFilter('#permissions');
+    initializeFilter('#recordHistory');
   }
 
   function initializeProjectCards() {
@@ -117,10 +104,7 @@ Kora.User.Profile = function() {
     });
   }
 
-<<<<<<< HEAD
   initializeOptionDropdowns();
-=======
->>>>>>> abdbf5e80a65ca664bddbc903fefd912bc94bfde
   initializePageNavigation();
   initializeFilters();
   initializeProjectCards();
