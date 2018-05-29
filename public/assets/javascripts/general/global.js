@@ -197,9 +197,6 @@ $(document).keydown(function(e) {
     e.preventDefault();
 
     $(".global-search-toggle").click();
-    setTimeout(function() {
-      $('.global-search-input-js').focus()
-    }, 500);
   }
 
   // Escape key
