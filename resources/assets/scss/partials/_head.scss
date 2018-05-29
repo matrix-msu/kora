@@ -6,36 +6,35 @@
   position: relative;
   width: 100%;
 
-  .rotate {
+  .back {
     @include transition();
       
-    border: 1px solid palette('gray', slate, .05);
-    border-radius: 0 5px 0 0;
+    border: 1px solid palette('gray', slate, .10);
+    border-radius: 0 0 5px 0;
     display: inline-block;
-    padding: 15px 18px;
+    padding: 20px 17.34px;
     position: absolute;
     text-decoration: none;
-    transform: rotate(90deg);
-    &:hover {
-      box-shadow: 0 6px 12px 0 rgba(21,39,48,0.06);
-      -webkit-transform: rotate(90deg) scale(1.25);
-      transform: rotate(90deg) scale(1.25);
-      i {
-        opacity: 1;
-      }
-    }
 
     i {
       @include transition();
       
       border-radius: 5px;
       box-shadow: 0 3px 5px 0 palette('box-shadow', base, .03);
-      color: palette('green');
-      font-size: 8px;
-      height: 50px;
+      color: palette('gray', slate);
+      display: block;
+      font-size: 6px;
       opacity: 0.6;
-      transform: scale(1.25);
-      width: 50px;
+      transform: rotate(90deg) scale(1);
+    }
+    
+    &:hover {
+      box-shadow: 0 6px 12px 0 rgba(21,39,48,0.06);
+      i {
+        opacity: 0.8;
+        transform: rotate(90deg) scale(1.25);
+        -webkit-transform: rotate(90deg) scale(1.25);
+      }
     }
   }
 
@@ -89,12 +88,14 @@
   }
 
   .head-button {
+    float: right;
     text-decoration: none;
 
     i {
       @include transition();
       color: palette('gray', text);
       font-size: 22px;
+      position: relative;
 
       &:hover {
         color: palette('green', accent);
@@ -159,14 +160,13 @@
     
     .tabs-left,
     .tabs-right {
+      @include transition();
+
       background: linear-gradient(0deg, #fff 0%, rgba(255, 255, 255, 0) 100%);
-      bottom: -5px;
+      bottom: -6px;
+      font-size: 0.5em;
       padding: 60px 21px 0 21px;
       position: absolute;
-      font-size: 0.5em;
-      &:hover {
-        cursor: pointer;
-      }
       
       .hidden {
         display: none;
@@ -175,12 +175,22 @@
     
     .tabs-left {
       left: -5px;
-      transform: rotate(90deg);
+      transform: rotate(90deg) scale(0.9);
+      &:hover {
+        bottom: -5px;
+        cursor: pointer;
+        font-size: 0.625em;
+      }
     }
     
     .tabs-right {
       right: -5px;
-      transform: rotate(-90deg);
+      transform: rotate(-90deg) scale(0.9);
+      &:hover {
+        bottom: -5px;
+        cursor: pointer;
+        font-size: 0.625em;
+      }
     }
   }
 

@@ -15,15 +15,17 @@
                 @endif
                 <span class="ml-m">{{$user->first_name}} {{$user->last_name}}</span>
                 @if(\Auth::user()->admin | \Auth::user()->id==$user->id)
-                    <a href="{{ action('Auth\UserController@editProfile',['uid' => $user->id]) }}" class="head-button">
+                    <a href="{{ action('Auth\UserController@editProfile',['uid' => $user->id]) }}" class="head-button tooltip" tooltip="Edit Profile">
                         <i class="icon icon-edit right"></i>
                     </a>
                 @endif
             </h1>
             <div class="content-sections">
-                <a href="#profile" class="section select-section-js underline-middle underline-middle-hover toggle-by-name">Profile</a>
-                <a href="#permissions" class="section select-section-js underline-middle underline-middle-hover">Permissions</a>
-                <a href="#recordHistory" class="section select-section-js underline-middle underline-middle-hover">Record History</a>
+                <div class="content-sections-scroll">
+                    <a href="#profile" class="section select-section-js underline-middle underline-middle-hover toggle-by-name">Profile</a>
+                    <a href="#permissions" class="section select-section-js underline-middle underline-middle-hover">Permissions</a>
+                    <a href="#recordHistory" class="section select-section-js underline-middle underline-middle-hover">Record History</a>
+                </div>
             </div>
         </div>
     </section>
