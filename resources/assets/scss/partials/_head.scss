@@ -46,7 +46,7 @@
   .inner-wrap {
     margin-left: auto;
     margin-right: auto;
-    max-width: calc(#{ $max-site-width } - 600px);
+    max-width: calc(#{$max-site-width} - 600px);
     width: $max-site-width;
   }
 
@@ -197,7 +197,7 @@
   .profile-pic {
     border: solid 2px palette('white', base);
     border-radius: 50%;
-    box-shadow: 0 3px 5px 0 palette('box-shadow', base, .2);
+    box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
     height: 44px;
     margin-right: #{map-get($spacing, xl)};
     object-fit: cover;

@@ -45,7 +45,8 @@
 
     <script type="text/javascript">
         var validationUrl = "{{ action('FieldController@validateFieldFields', ["pid" => $field->pid, "fid" =>$field->fid, "flid" =>$field->flid]) }}";
-        createFieldValuePresetURL = "{{action("OptionPresetController@createApi", ['pid'=>$field->pid])}}";
+        var createFieldValuePresetURL = "{{action("OptionPresetController@createApi", ['pid'=>$field->pid])}}";
+        var currFieldType = '{{$field->type}}';
         CSRFToken = "{{csrf_token()}}";
 
         Kora.Fields.Show();

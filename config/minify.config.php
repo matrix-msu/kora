@@ -80,5 +80,5 @@ return array(
     | value. By default if empty HTTP_HOST would be used.
     |
     */
-	'base_url' => rtrim(env('BASE_URL'), '/')
+	'base_url' => rtrim(env('BASE_URL', url()->secure('/')), '/')
 );

@@ -127,7 +127,7 @@ Kora.Fields.Create = function() {
                     if(advCreation)
                         advValid = validateAdvancedOptions($('.field-types-js').val());
                     if(advValid)
-                        console.log('form submitted'); //$('.create-form').submit();
+                        $('.create-form').submit();
                 },
                 error: function(err) {
                     $('.error-message').text('');

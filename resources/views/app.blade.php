@@ -29,7 +29,6 @@
 
       @if(Auth::guest() || !Auth::user()->active)
         @include('partials.auth.javascripts')
-
         <script>
           var langURL ="{{action('WelcomeController@setTemporaryLanguage')}}";
 
@@ -52,5 +51,6 @@
           Kora.Auth.Auth();
         </script>
       @endif
+       <script src="{{ config('app.url') }}/assets/javascripts/navigation/breadcrumbs.js"></script>
     </body>
 </html>

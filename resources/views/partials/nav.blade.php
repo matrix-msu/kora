@@ -62,8 +62,6 @@
       @include("partials.menu.sideMenu")
     @endif
   </ul>
-  
-  <script src="{{ config('app.url') }}/assets/javascripts/navigation/breadcrumbs.js"></script>
     
   <script type="text/javascript">
     var globalQuickSearchUrl = '{{ action('ProjectSearchController@globalQuickSearch') }}';
