@@ -11,7 +11,7 @@
         @if($field->required==1)
             <span class="oval-icon"></span>
         @endif
-        {{$field->name.' ('.\App\Http\Controllers\FieldController::getFieldOption($field, "Unit")}}: </label>
+        {{$field->name}} </label>
 
     <input type="number" name="{{ $field->flid }}" class="text-input preset-clear-text-js" value="{{ $numVal }}" placeholder="Enter number here"
             step="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Increment") }}"
