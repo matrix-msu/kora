@@ -228,21 +228,37 @@ Kora.Projects.Show = function() {
   {
     function adjustFormCardTitle()
     {
-    	let cards = $($(".active-forms").find(".form.card"));
+		let alphabetical = false;
+		let custom = false;
+		
+		if ($(".active-forms").hasClass("active"))
+		{
+			alphabetical = true;
+			var cards = $($(".active-forms").find(".form.card"));
+		}
+		else if ($(".custom-forms").hasClass("active"))
+		{
+			custom = true;
+			var cards = $($(".custom-forms").find(".form.card"));
+		}
     	
     	for (i = 0; i < cards.length; i++)
     	{	
     	  let card = $(cards[i]);
     	  let name_span = $(card.find($(".name")));
-    	  let arrow = $(card.find($(".icon-arrow-right")));
-    	  let chevron = $(card.find($(".icon-chevron")));
+    	  let arrow = $(card.find($(".icon-arrow-right"))); // all form card types have arrow
+    	  let chevron = $(card.find($(".icon-chevron"))); // all form card types have chevron
+		  let up_arrow = $(card.find($(".move-action-js.up-js")));
+		  let down_arrow = $(card.find($(".move-action-js.down-js")));
     	  
     	  let card_width = card.width();
     	  let arrow_width = arrow.outerWidth();
     	  let chevron_width = chevron.outerWidth();
-    	  let left_padding = 20; // padding within card
+		  let up_arrow_width = up_arrow.length ? up_arrow.outerWidth() : 0;
+		  let down_arrow_width = down_arrow.length ? down_arrow.outerWidth() : 0;
+    	  let left_padding = custom ? 0 : 20; // padding within card
     	  
-    	  let title_width = (card_width - left_padding) - (arrow_width + chevron_width + 5);
+    	  let title_width = (card_width - left_padding) - (arrow_width + chevron_width + up_arrow_width + down_arrow_width + 5);
     	  if (title_width < 0) {title_width = 0;}
     	  
     	  name_span.css("text-overflow", "ellipsis");
@@ -256,10 +272,13 @@ Kora.Projects.Show = function() {
     {
       adjustFormCardTitle();
     });
+	
     $(document).ready(function()
     {
       adjustFormCardTitle();
     });
+	
+	$("[href='#custom'], [href='#active']").click(function() { adjustFormCardTitle(); });
   }
 
   initializeCustomSort();

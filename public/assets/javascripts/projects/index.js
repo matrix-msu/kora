@@ -298,7 +298,25 @@ Kora.Projects.Index = function() {
   {
     function adjustProjectCardTitle()
     {
-      let cards = $($(".active-projects").find(".project.card"));
+	  let alphabetical = false;
+	  let custom = false;
+	  let archived = false;
+	  
+	  if ($(".active-projects").hasClass("active"))
+	  {
+		alphabetical = true;
+		var cards = $($(".active-projects").find(".project.card"));
+	  }
+	  else if ($(".custom-projects").hasClass("active"))
+	  {
+		custom = true;
+		var cards = $($(".custom-projects").find(".project.card"));
+	  }
+	  else if ($(".inactive-projects").hasClass("active"))
+	  {
+		archived = true;
+		var cards = $($(".inactive-projects").find(".project.card"));
+	  }
       
       for (i = 0; i < cards.length; i++)
       {	
@@ -306,13 +324,17 @@ Kora.Projects.Index = function() {
         let name_span = $(card.find($(".name")));
         let arrow = $(card.find($(".icon-arrow-right")));
         let chevron = $(card.find($(".icon-chevron")));
+		let up_arrow = $(card.find($(".move-action-js.up-js")));
+		let down_arrow = $(card.find($(".move-action-js.down-js")));
         
         let card_width = card.width();
-        let arrow_width = arrow.outerWidth();
-        let chevron_width = chevron.outerWidth();
-        let left_padding = 20; // padding within card
+        let arrow_width = arrow.length ? arrow.outerWidth() : 0; // if arrow is valid jquery object
+		let up_arrow_width = up_arrow.length ? up_arrow.outerWidth() : 0;
+		let down_arrow_width = down_arrow.length ? down_arrow.outerWidth() : 0;
+        let chevron_width = chevron.outerWidth(); // all types of project cards have chevrons
+        let left_padding = custom ? 0 : 20; // custom projects provide padding from element other than name_span
         
-        let title_width = (card_width - left_padding) - (arrow_width + chevron_width + 5);
+        let title_width = (card_width - left_padding) - (arrow_width + up_arrow_width + down_arrow_width + chevron_width + 5);
         if (title_width < 0) {title_width = 0;}
         
         name_span.css("text-overflow", "ellipsis");
@@ -326,10 +348,14 @@ Kora.Projects.Index = function() {
     {
       adjustProjectCardTitle();
     });
+	
     $(document).ready(function()
     {
       adjustProjectCardTitle();
     });
+	
+	// Recalculate ellipses when switching project types
+	$("[href='#custom'], [href='#active'], [href='#inactive']").click(function() { adjustProjectCardTitle(); });
   }
 
   initializeCustomSort();
