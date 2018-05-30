@@ -41,8 +41,8 @@ $navBar.on('click', '.navigation-toggle-js', function(e) {
   //SPECIAL CASE FOR SEARCH
   if ($parent.hasClass('navigation-search')) {
     setTimeout(function() {
-+      $('.global-search-input-js').focus();
-+    }, 500);
+      $('.global-search-input-js').focus();
+    }, 500);
   }
 });
 
