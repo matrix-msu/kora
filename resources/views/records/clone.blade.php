@@ -18,7 +18,7 @@
 
 @section('header')
     <section class="head">
-        <a class="rotate" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
+        <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-duplicate"></i>
@@ -27,9 +27,11 @@
             <p class="description">Adjust the number of duplicates you wish to make for record: {{$record->kid}}. Then adjust
                 the record below as needed. Adjustments you make here will only be applied to the new duplicate record(s).</p>
             <div class="content-sections">
-                @foreach(\App\Http\Controllers\PageController::getFormLayout($form->fid) as $page)
-                    <a href="#{{$page["title"]}}" class="section underline-middle underline-middle-hover toggle-by-name">{{$page["title"]}}</a>
-                @endforeach
+                <div class="content-sections-scroll">
+                  @foreach(\App\Http\Controllers\PageController::getFormLayout($form->fid) as $page)
+                      <a href="#{{$page["title"]}}" class="section underline-middle underline-middle-hover toggle-by-name">{{$page["title"]}}</a>
+                  @endforeach
+                </div>
             </div>
         </div>
     </section>

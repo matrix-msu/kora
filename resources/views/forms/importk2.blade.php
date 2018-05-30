@@ -22,9 +22,11 @@
                 record files. Associated controls and record values are not compatible with the scheme importer. They
                 can only be maintained by a full K2 System Transfer (Kora Exodus).</p>
             <div class="content-sections">
+              <div class="content-sections-scroll">
                 <a href="#formfile" class="formfile-link underline-middle active">Upload Form File</a>
                 <span class="progression-tab"></span>
                 <a href="#forminfo" class="forminfo-link">Form Information</a>
+              </div>
             </div>
         </div>
     </section>
