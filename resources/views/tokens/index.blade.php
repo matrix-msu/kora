@@ -42,9 +42,13 @@
 
     <section class="token-selection center token-js token-selection-js">
         <div class="token-sort token-sort-js active">
+          @if ($tokens->count() > 0)
             @foreach($tokens as $index => $token)
                 @include("partials.tokens.index")
             @endforeach
+          @else
+            @include("partials.tokens.no-tokens")
+          @endif
         </div>
     </section>
 @stop

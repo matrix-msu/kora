@@ -139,6 +139,9 @@
               <input type="submit" value="Create New Field Here">
             </div>
           </form>
+          @if (!count($page["fields"]) > 0)
+            @include('forms.layout.no-fields')
+          @endif
         @endif
       </div>
 

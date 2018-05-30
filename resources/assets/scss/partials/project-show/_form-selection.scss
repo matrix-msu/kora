@@ -10,6 +10,56 @@
     &.active {
       display: block;
     }
+    .no-forms {
+  
+      .top {
+      font-size: 80px;
+      height: 80px;
+      position: relative;
+      text-align: center; 
+
+        .line {
+          background: palette('gray', base);
+          /*background: black;*/
+          height: 2px;
+          margin-top: 40px;
+          opacity: 0.05;
+          position: absolute;
+          top: 0;
+          width: 37%;
+
+          &:last-child {
+            right: 0;
+          }
+        }
+
+        .icon {
+          opacity: 0.2;
+        }
+      }
+
+      .bottom {
+        text-align: center;
+
+        p {
+          font-family: $ubuntu;
+          font-size: 14px;
+
+          &:first-child {
+            font-size: 18px;
+            margin-top: 0;
+          }
+
+          a {
+            color: palette('green', accent);
+
+            &:hover {
+              cursor: pointer;
+            }
+          }
+        }
+      }
+    }
   }
 
   .content .id {
