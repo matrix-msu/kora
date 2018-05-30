@@ -1,12 +1,22 @@
 &.permissions {
   font-size: 14px;
 
-  .card .header {
-    .group {
-      color: palette('gray', slate, .6);
+  .card {
+    p {
+      margin: 0;
+    }
 
-      &:hover {
-        color: palette('green', accent);
+    .header {
+      .group {
+        color: palette('gray', slate, .6);
+
+        span {
+          @include transition();
+        }
+
+        &:hover {
+          color: palette('green', accent);
+        }
       }
     }
   }

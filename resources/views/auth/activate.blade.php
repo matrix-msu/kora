@@ -6,7 +6,7 @@
       <section class="head">
         <h1 class="title">Thanks for Signing Up!</h1>
         <h2 class="sub-title">We've sent an email to {{ Auth::user()->email }}</h2>
-        <p class="description">Once you receive the email, hit the "Active Account" button and you'll be all set!</p>
+        <p class="description">Once you receive the email, hit the "Activate Account" button and you'll be all set!</p>
       </section>
 
       <div class="spacer"></div>

@@ -10,14 +10,14 @@
         </div>
 
         <div class="card-toggle-wrap">
-            <a href="#" class="card-toggle project-toggle-js">
+            <a href="#" class="card-toggle card-toggle-js">
                 <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
             </a>
         </div>
     </div>
 
     <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
-        <div class="permissions pb-m">
+        <div class="pb-m">
             @if ($form['permissions'] == 'Admin')
                 <p>You are an admin for this form.</p>
             @else
