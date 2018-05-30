@@ -21,9 +21,11 @@
                 For more information and help with this process, refer to the [Importing a Project Setup - Kora Documentation].</p>
             {{--TODO::Fill this link in--}}
             <div class="content-sections">
+              <div class="content-sections-scroll">
                 <a href="#projectfile" class="projectfile-link underline-middle active">Upload Project File</a>
                 <span class="progression-tab"></span>
                 <a href="#projectinfo" class="projectinfo-link">Project Information</a>
+              </div>
             </div>
         </div>
     </section>

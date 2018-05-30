@@ -17,9 +17,11 @@
                 to be on the same server. If your Kora 2 file set is on a separate server, please copy the "Kora2/files"
                 directory to the same server as Kora3 and point the system path below to that directory.</p>
             <div class="content-sections">
+              <div class="content-sections-scroll">
                 <a href="#database" class="database-link underline-middle active">Database Information</a>
                 <span class="progression-tab"></span>
                 <a href="#projects" class="projects-link">Project Selection</a>
+              </div>
             </div>
         </div>
     </section>
