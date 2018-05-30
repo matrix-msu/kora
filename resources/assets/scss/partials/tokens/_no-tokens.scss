@@ -1,0 +1,23 @@
+.no-tokens {
+  
+  .top {
+  font-size: 80px;
+  height: 80px;
+  opacity: 0.3;
+  position: relative;
+  text-align: center; 
+
+    .line {
+      background: black;
+      height: 2px;
+      margin-top: 40px;
+      position: absolute;
+      top: 0;
+      width: 37%;
+      
+      &:last-child {
+        right: 0;
+      }
+    } 
+  }
+}
