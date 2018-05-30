@@ -51,7 +51,7 @@
             </div>
 
             <div class="form-group mt-xl">
-                {!! Form::label('filePath', trans('exodus_index.files').': ') !!}
+                {!! Form::label('filePath', trans('exodus_index.files').'') !!}
                 {!! Form::text('filePath','', ['class' => 'text-input file-path-js', 'placeholder' => '/{system_path}/{Kora2}/files']) !!}
             </div>
 

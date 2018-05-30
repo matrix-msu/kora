@@ -1,7 +1,7 @@
 {!! Form::open(['method' => 'PATCH', 'action' => 'AdminController@update']) !!}
 
     <div class="form-group">
-        {!! Form::label('select', trans('admin_form.selectuser').': ') !!}
+        {!! Form::label('select', trans('admin_form.selectuser').'') !!}
         <select name="users" class="form-control" id="dropdown" onchange="checker()">
             @foreach ($users as $user)
                 @if($user->id == 1)
@@ -16,17 +16,17 @@
     </div>
 
     <div class="form-group">
-        {!! Form::label('admin', trans('admin_form.admin').': ') !!}
+        {!! Form::label('admin', trans('admin_form.admin').'') !!}
         {!! Form::checkbox('admin') !!}
     </div>
 
     <div class="form-group">
-        {!! Form::label('active', trans('admin_form.active').': ') !!}
+        {!! Form::label('active', trans('admin_form.active').'') !!}
         {!! Form::checkbox('active') !!}
     </div>
 
     <div class="form-group">
-        {!! Form::label('new_password', trans('admin_form.newpass').':') !!}
+        {!! Form::label('new_password', trans('admin_form.newpass').'') !!}
         {!! Form::password('new_password', ['class' => 'form-control']) !!}
 
         {!! Form::label('confirm', trans('admin_form.confirmpass').'') !!}
