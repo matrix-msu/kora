@@ -261,6 +261,8 @@ class RestfulController extends Controller {
                             } else {
                                 $searchFields = $form->fields()->get();
                             }
+							if(empty($searchFields))
+								return response()->json(["status"=>false,"error"=>"Invalid fields provided for keyword search for form: ". $form->name],500);
                             //Determine type of keyword search
                             $method = isset($query->method) ? $query->method : 'OR';
                             switch($method) {
