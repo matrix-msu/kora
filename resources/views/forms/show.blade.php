@@ -45,6 +45,20 @@
 
 
 @section('body')
+  <?php
+  $page_has_fields = false;
+  
+  foreach($pageLayout as $page)
+  {
+    if (count($page["fields"]) > 0)
+  	{
+	  $page_has_fields = true;
+	  break;	
+  	}
+  }
+  ?>
+  
+  @if ($page_has_fields)
   <section class="filters center">
     <div class="underline-middle search search-js">
       <i class="icon icon-search"></i>
@@ -56,6 +70,7 @@
       <a href="#" class="collapse-fields-js" title="Collapse all fields"><i class="icon icon-condense icon-condense-js"></i></a>
     </div>
   </section>
+  @endif
 
   <div class="modal modal-js modal-mask page-delete-modal-js">
     <div class="content small">

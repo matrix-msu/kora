@@ -33,6 +33,7 @@
 @stop
 
 @section('body')
+  @if (count($forms) > 0)
   <section class="filters center">
       <div class="underline-middle search search-js">
         <i class="icon icon-search"></i>
@@ -45,6 +46,7 @@
           <a href="#active" class="option underline-middle underline-middle-hover active">Alphabetical</a>
       </div>
   </section>
+  @endif
 
   <section class="new-object-button center">
     @if(\Auth::user()->canCreateForms($project))
