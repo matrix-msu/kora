@@ -19,8 +19,10 @@
             </h1>
             <p class="description">This page allows you to grant association access for other forms. Associating other forms will allow them to search within this form. Select "Create a New Form Association" below, to begin creating a new form association. The newly associated form will then appear in the list below. You may also request association permission for this form to associate with other forms.</p>
             <div class="content-sections">
+              <div class="content-sections-scroll">
                 <a href="#create" class="section underline-middle underline-middle-hover toggle-by-name active">Create Form Association</a>
                 <a href="#request" class="section underline-middle underline-middle-hover toggle-by-name">Request Form Association</a>
+              </div>
             </div>
         </div>
     </section>

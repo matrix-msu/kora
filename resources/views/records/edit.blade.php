@@ -18,7 +18,7 @@
 
 @section('header')
     <section class="head">
-        <a class="rotate" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
+        <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-record-edit"></i>
@@ -27,9 +27,11 @@
             <p class="description">Edit out the form below, and then select “Update Record.” If the form goes to
                 multiple pages, use the pagination found at the bottom of each page to navigate to the next.</p>
             <div class="content-sections">
+              <div class="content-sections-scroll">
                 @foreach(\App\Http\Controllers\PageController::getFormLayout($form->fid) as $page)
                     <a href="#{{$page["title"]}}" class="section underline-middle underline-middle-hover toggle-by-name">{{$page["title"]}}</a>
                 @endforeach
+              </div>
             </div>
         </div>
     </section>
