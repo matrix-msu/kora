@@ -280,7 +280,7 @@ class DateField extends BaseField {
         if($req==1 && $month=='' && $day=='' && $year=='')
             return $field->name."_required";
 
-        if(($year<$start | $year>$end) && ($month!='' | $day!=''))
+        if(($year<$start | $year>$end) && $year!='')
             return $field->name."_year_range";
 
         if(!DateField::validateDate($month,$day,$year))

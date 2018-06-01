@@ -4,7 +4,7 @@
 @if($typedField->month==0 && $typedField->day==0)
     {{$typedField->year}}
 @elseif($typedField->day==0)
-    {{ $typedField->month.' '.$typedField->year }}
+    {{ DateTime::createFromFormat('m', $typedField->month)->format('F').', '.$typedField->year }}
 @elseif(\App\Http\Controllers\FieldController::getFieldOption($field,'Format')=='MMDDYYYY')
     {{$typedField->month.'-'.$typedField->day.'-'.$typedField->year}}
 @elseif(\App\Http\Controllers\FieldController::getFieldOption($field,'Format')=='DDMMYYYY')
