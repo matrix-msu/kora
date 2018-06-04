@@ -13,17 +13,15 @@
 
     {!! Form::hidden('typeone',$oneType) !!}
     {!! Form::hidden('typetwo',$twoType) !!}
-    {!! Form::hidden('nameone',$oneName) !!}
-    {!! Form::hidden('nametwo',$twoName) !!}
 
     <div class="form-group half pr-m">
-        {!! Form::label('nameone','Combo List Field Name 1: ') !!}
-        {!! Form::text('nameone',$oneName, ['class' => 'text-input']) !!}
+        {!! Form::label('cfname1','Combo List Field Name 1: ') !!}
+        {!! Form::text('cfname1',$oneName, ['class' => 'text-input']) !!}
     </div>
 
     <div class="form-group half pl-m">
-        {!! Form::label('nametwo','Combo List Field Name 2: ') !!}
-        {!! Form::text('nametwo',$twoName, ['class' => 'text-input']) !!}
+        {!! Form::label('cfname2','Combo List Field Name 2: ') !!}
+        {!! Form::text('cfname2',$twoName, ['class' => 'text-input']) !!}
     </div>
 
     <div class="form-group mt-xxxl">

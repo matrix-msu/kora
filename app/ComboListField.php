@@ -133,10 +133,10 @@ class ComboListField extends BaseField {
      * @return Redirect
      */
     public function updateOptions($field, Request $request) {
-        $flopt_one ='[Type]'.$request->typeone.'[Type][Name]'.$request->nameone.'[Name]';
+        $flopt_one ='[Type]'.$request->typeone.'[Type][Name]'.$request->cfname1.'[Name]';
         $flopt_one .= $this->formatUpdatedSubOptions($request,"one",$field->fid);
 
-        $flopt_two ='[Type]'.$request->typetwo.'[Type][Name]'.$request->nametwo.'[Name]';
+        $flopt_two ='[Type]'.$request->typetwo.'[Type][Name]'.$request->cfname2.'[Name]';
         $flopt_two .= $this->formatUpdatedSubOptions($request,"two",$field->fid);
 
         $default='';
