@@ -230,21 +230,21 @@ Kora.Tokens.Index = function() {
 	{
 		function adjustTokenCardTitle()
 		{
-			let cards = $($(".token-selection-js").find(".token.card"));
+			var cards = $($(".token-selection-js").find(".token.card"));
 			
 			for (i = 0; i < cards.length; i++)
 			{	
-				let card = $(cards[i]);
-				let name_span = $(card.find($(".name")));
-				let chevron_text = $(card.find($(".chevron-text")));
-				let chevron_icon = $(card.find($(".icon-chevron")));
+				var card = $(cards[i]);
+				var name_span = $(card.find($(".name")));
+				var chevron_text = $(card.find($(".chevron-text")));
+				var chevron_icon = $(card.find($(".icon-chevron")));
 				
-				let card_width = card.width();
-				let chevron_text_width = chevron_text.outerWidth();
-				let chevron_icon_width = chevron_icon.outerWidth();
-				let left_padding = 20; // padding within card
+				var card_width = card.width();
+				var chevron_text_width = chevron_text.outerWidth();
+				var chevron_icon_width = chevron_icon.outerWidth();
+				var left_padding = 20; // padding within card
 				
-				let title_width = (card_width - left_padding) - (chevron_text_width + chevron_icon_width + 5);
+				var title_width = (card_width - left_padding) - (chevron_text_width + chevron_icon_width + 5);
 				if (title_width < 0) {title_width = 0;}
 				
 				name_span.css("text-overflow", "ellipsis");
