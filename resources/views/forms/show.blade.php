@@ -20,7 +20,7 @@
       <h1 class="title">
         <i class="icon icon-form"></i>
         <span>{{ $form->name }}</span>
-        <a href="{{ action('FormController@edit',['pid' => $form->pid, 'fid' => $form->fid]) }}" class="head-button">
+        <a href="{{ action('FormController@edit',['pid' => $form->pid, 'fid' => $form->fid]) }}" class="head-button tooltip" tooltip="Edit Form">
           <i class="icon icon-edit right"></i>
         </a>
       </h1>
