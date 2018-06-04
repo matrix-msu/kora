@@ -79,10 +79,18 @@ Kora.Records.Index = function() {
     function initializePaginationShortcut() {
         $('.page-link.active').click(function(e) {
             e.preventDefault();
+            
+            var placeholder = parseInt($('.page-link.active').next('.page-link').html()) - 1
+            if (isNaN(placeholder)) {
+              placeholder = parseInt($('.page-link.active').prev('.page-link').html()) + 1
+              if (isNaN(placeholder)) {
+                placeholder = 1
+              }
+            }
 
             var $this = $(this);
             var maxInput = $this.siblings().last().text()
-            $this.html('<input class="page-input" type="number" min="1" max="'+ maxInput +'">');
+            $this.html('<input class="page-input" type="number" min="1" max="'+ maxInput +'" placeholder="' + placeholder + '">');
             var $input = $('.page-input');
             $input.focus();
             $input.on('blur keydown', function(e) {
