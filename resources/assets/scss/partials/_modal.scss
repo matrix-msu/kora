@@ -16,6 +16,8 @@
 
   &.active {
     opacity: 1;
+    overflow-y: scroll;
+    overflow-x: hidden;
     pointer-events: all;
 
     .content {
