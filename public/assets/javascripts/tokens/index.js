@@ -264,6 +264,9 @@ Kora.Tokens.Index = function() {
 			adjustTokenCardTitle();
 			setTimeout(function(){ adjustTokenCardTitle(); adjustTokenCardTitle(); }, 1); // necessary for some reason
 		});
+		
+		// Recalculate ellipses when switching tabs
+		$("[href='#all'], [href='#search'], [href='#create'], [href='#edit'], [href='#delete']").click(function() { adjustTokenCardTitle(); });
 	}
 
     initializeFilters();
