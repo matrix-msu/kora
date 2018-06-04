@@ -8,13 +8,13 @@
 <div class="form-group mt-xl">
     {!! Form::label('min','Minimum Value') !!}
     <span class="error-message"></span>
-    <input type="number" name="min" class="text-input number-min-js" step="any" id="min" value="" placeholder="Enter min file size (kb) here">
+    <input type="number" name="min" class="text-input number-min-js" step="any" id="min" value="" placeholder="Enter minimum file size (kb) here">
 </div>
 
 <div class="form-group mt-xl">
     {!! Form::label('max','Max Value') !!}
     <span class="error-message"></span>
-    <input type="number" name="max" class="text-input number-max-js" step="any" id="max" value="" placeholder="Enter max file size (kb) here">
+    <input type="number" name="max" class="text-input number-max-js" step="any" id="max" value="" placeholder="Enter maximum file size (kb) here">
 </div>
 
 <div class="form-group mt-xl">
