@@ -19,8 +19,9 @@
             </h1>
             <p class="description">This page allows you to grant association access for other forms. Associating other forms will allow them to search within this form. Select "Create a New Form Association" below, to begin creating a new form association. The newly associated form will then appear in the list below. You may also request association permission for this form to associate with other forms.</p>
             <div class="content-sections">
+              <div class="content-sections-scroll">
                 <a href="#create" class="section underline-middle underline-middle-hover toggle-by-name active">Create Form Association</a>
-                <a href="#request" class="section underline-middle underline-middle-hover toggle-by-name">Request Form Association</a>
+                <a href="#request" class="section underline-middle underline-middle-hover toggle-by-name">Request Form Association</a></div>
             </div>
         </div>
     </section>
@@ -40,6 +41,7 @@
             @endif
         </section>
 
+      @if (count($assocs) > 0)
         <section class="permission-association-selection center permission-association-js create">
             <p class="description create-description-js {{count($assocs) === 0 ? 'hidden' : ''}}">The following forms are allowed to associate with and can search within this form:</p>
             @foreach ($assocs as $index=>$a)
@@ -72,8 +74,11 @@
                 </div>
             @endforeach
         </section>
-
+      @else
+        @include('partials.formAssociations.no-assocs')
+      @endif
     </section>
+
     <section class="request-section hidden">
         <p class="description center">You may also request association permissions for this form to associate with other forms. Select "Request Form Association" to begin. Once requested, a notification will be sent to the admins of the selected form to allow association from your form.</p>
         <section class="new-object-button center">

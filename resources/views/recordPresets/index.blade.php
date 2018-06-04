@@ -34,9 +34,13 @@
     @include('partials.recordPresets.modals.deleteRecordPresetModal')
 
     <section class="manage-presets center">
-        @foreach($presets as $index => $preset)
-            @include('partials.recordPresets.card')
-        @endforeach
+        @if (count($presets) > 0)
+          @foreach($presets as $index => $preset)
+              @include('partials.recordPresets.card')
+          @endforeach
+        @else
+            @include('partials.recordPresets.no-presets')
+        @endif
     </section>
 @stop
 

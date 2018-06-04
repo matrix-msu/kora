@@ -45,9 +45,15 @@
   </section>
 
   <section class="project-selection center project-js project-selection-js">
-    @include("partials.projects.index.active", ['isCustom' => false, 'active' => true, 'archived' => false])
-    @include("partials.projects.index.inactive", ['isCustom' => false, 'active' => false, 'archived' => true])
-    @include("partials.projects.index.custom", ['isCustom' => true, 'active' => false, 'archived' => false])
+    @if ( count($projects) > 0 )
+    
+      @include("partials.projects.index.active", ['isCustom' => false, 'active' => true, 'archived' => false])
+      @include("partials.projects.index.inactive", ['isCustom' => false, 'active' => false, 'archived' => true])
+      @include("partials.projects.index.custom", ['isCustom' => true, 'active' => false, 'archived' => false])
+    
+    @else
+      @include('partials.projects.index.no-projects')
+    @endif
   </section>
 
   @if(!Auth::user()->admin && sizeof($requestableProjects)>0)
