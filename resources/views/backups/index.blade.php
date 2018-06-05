@@ -18,8 +18,10 @@
                 can include a name or short description, the start date and time will be added for you. Depending on the
                 size of your database, this may take a few minutes to finish.</p>
             <div class="content-sections">
+              <div class="content-sections-scroll">
                 <a href="#backups" class="backups-link section underline-middle underline-middle-hover toggle-by-name active">Your Backups</a>
                 <a href="#filerestore" class="filerestore-link section underline-middle underline-middle-hover toggle-by-name">Restore From Local File</a>
+              </div>
             </div>
         </div>
     </section>
@@ -50,8 +52,11 @@
             <input type="button" value="Create New Backup File" class="create-backup-js">
         </section>
 
+        @if (count($savedBackups) > 0)
         <section class="backupcards-selection center">
             <?php $index=0; ?>
+          <?php var_dump($index) ?>
+          <?php var_dump($savedBackups) ?>
             @foreach($savedBackups as $backup)
                 <div class="backup card all {{ $index == 0 ? 'active' : '' }}">
                     <div class="header {{ $index == 0 ? 'active' : '' }}">
@@ -116,6 +121,9 @@
                 <?php $index++; ?>
             @endforeach
         </section>
+        @else
+          @include('partials.backups.no-backups')
+        @endif
     </section>
 
     <section class="filerestore-section hidden">
