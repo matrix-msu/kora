@@ -37,10 +37,6 @@
 
     &:first-child {
       margin-left: 0;
-      
-      &.tooltip:hover::after {
-        top: 5px;
-      }
     }
 
     &:last-child span {

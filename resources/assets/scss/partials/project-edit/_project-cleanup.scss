@@ -7,9 +7,5 @@
     &:first-child {
       margin-right: 60px;
     }
-    
-    &.tooltip:hover::after {
-      top: -65px;
-    }
   }
 }
