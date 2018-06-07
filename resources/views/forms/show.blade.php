@@ -20,7 +20,7 @@
       <h1 class="title">
         <i class="icon icon-form"></i>
         <span>{{ $form->name }}</span>
-        <a href="{{ action('FormController@edit',['pid' => $form->pid, 'fid' => $form->fid]) }}" class="head-button">
+        <a href="{{ action('FormController@edit',['pid' => $form->pid, 'fid' => $form->fid]) }}" class="head-button tooltip" tooltip="Edit Form">
           <i class="icon icon-edit right"></i>
         </a>
       </h1>
@@ -52,8 +52,8 @@
       <i class="icon icon-cancel icon-cancel-js"></i>
     </div>
     <div class="show-options show-options-js">
-      <a href="#" class="expand-fields-js" title="Expand all fields"><i class="icon icon-expand icon-expand-js"></i></a>
-      <a href="#" class="collapse-fields-js" title="Collapse all fields"><i class="icon icon-condense icon-condense-js"></i></a>
+      <a href="#" class="expand-fields-js tooltip" title="Expand all fields" tooltip="Expand All Fields"><i class="icon icon-expand icon-expand-js"></i></a>
+      <a href="#" class="collapse-fields-js tooltip" title="Collapse all fields" tooltip="Condense All Fields"><i class="icon icon-condense icon-condense-js"></i></a>
     </div>
   </section>
 
@@ -119,7 +119,7 @@
           </div>
 
           <div>
-            <a href="#" data-page="{{$page["id"]}}" class="cancel-container delete-page-js">
+            <a href="#" data-page="{{$page["id"]}}" class="cancel-container delete-page-js tooltip" tooltip="Delete Page">
               <i class="icon icon-cancel"></i>
             </a>
           </div>

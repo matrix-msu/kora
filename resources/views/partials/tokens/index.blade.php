@@ -81,7 +81,7 @@
         @endif
 
         <div class="footer">
-            <a class="quick-action trash-container left danger delete-token-js" href="#">
+            <a class="quick-action trash-container left danger delete-token-js tooltip" href="#" tooltip="Delete Token">
                 <i class="icon icon-trash"></i>
             </a>
 
