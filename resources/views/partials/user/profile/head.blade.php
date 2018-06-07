@@ -8,7 +8,7 @@
             @endif
             <span class="ml-m">{{$user->first_name}} {{$user->last_name}}</span>
             @if(\Auth::user()->admin | \Auth::user()->id==$user->id)
-                <a href="{{ action('Auth\UserController@editProfile',['uid' => $user->id]) }}" class="head-button">
+                <a href="{{ action('Auth\UserController@editProfile',['uid' => $user->id]) }}" class="head-button tooltip" tooltip="Edit Profile">
                     <i class="icon icon-edit right"></i>
                 </a>
             @endif

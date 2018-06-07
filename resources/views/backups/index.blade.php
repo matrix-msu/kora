@@ -18,8 +18,10 @@
                 can include a name or short description, the start date and time will be added for you. Depending on the
                 size of your database, this may take a few minutes to finish.</p>
             <div class="content-sections">
+              <div class="content-sections-scroll">
                 <a href="#backups" class="backups-link section underline-middle underline-middle-hover toggle-by-name active">Your Backups</a>
                 <a href="#filerestore" class="filerestore-link section underline-middle underline-middle-hover toggle-by-name">Restore From Local File</a>
+              </div>
             </div>
         </div>
     </section>

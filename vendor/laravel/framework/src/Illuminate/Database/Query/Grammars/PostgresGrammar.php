@@ -15,9 +15,10 @@ class PostgresGrammar extends Grammar
      */
     protected $operators = [
         '=', '<', '>', '<=', '>=', '<>', '!=',
-        'like', 'not like', 'between', 'ilike',
-        '&', '|', '#', '<<', '>>',
-        '@>', '<@', '?', '?|', '?&', '||', '-', '-', '#-',
+        'like', 'not like', 'between', 'ilike', 'not ilike',
+        '~', '&', '|', '#', '<<', '>>', '<<=', '>>=',
+        '&&', '@>', '<@', '?', '?|', '?&', '||', '-', '-', '#-',
+        'is distinct from', 'is not distinct from',
     ];
 
     /**
@@ -35,6 +36,20 @@ class PostgresGrammar extends Grammar
     }
 
     /**
+     * Compile a "where time" clause.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  array  $where
+     * @return string
+     */
+    protected function whereTime(Builder $query, $where)
+    {
+        $value = $this->parameter($where['value']);
+
+        return $this->wrap($where['column']).'::time '.$where['operator'].' '.$value;
+    }
+
+    /**
      * Compile a date based where clause.
      *
      * @param  string  $type
@@ -47,6 +62,20 @@ class PostgresGrammar extends Grammar
         $value = $this->parameter($where['value']);
 
         return 'extract('.$type.' from '.$this->wrap($where['column']).') '.$where['operator'].' '.$value;
+    }
+
+    /**
+     * Compile a "JSON contains" statement into SQL.
+     *
+     * @param  string  $column
+     * @param  string  $value
+     * @return string
+     */
+    protected function compileJsonContains($column, $value)
+    {
+        $column = str_replace('->>', '->', $column);
+
+        return '('.$column.')::jsonb @> '.$value;
     }
 
     /**
@@ -246,7 +275,6 @@ class PostgresGrammar extends Grammar
      *
      * @param  \Illuminate\Database\Query\Builder  $query
      * @param  string  $table
-     * @param  array  $where
      * @return string
      */
     protected function compileDeleteWithJoins($query, $table)

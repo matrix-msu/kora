@@ -20,7 +20,7 @@
 
 @section('header')
     <section class="head">
-        <a class="rotate" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
+        <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-record-search mr-sm"></i>
@@ -91,8 +91,8 @@
                             </select>
                         </div>
                         <div class="show-options show-options-js">
-                            <span><a href="#" class="expand-fields-js" title="Expand all fields"><i class="icon icon-expand icon-expand-js"></i></a></span>
-                            <span><a href="#" class="collapse-fields-js" title="Collapse all fields"><i class="icon icon-condense icon-condense-js"></i></a></span>
+                            <span><a href="#" class="expand-fields-js tooltip" title="Expand all fields" tooltip="Expand All Fields"><i class="icon icon-expand icon-expand-js"></i></a></span>
+                            <span><a href="#" class="collapse-fields-js tooltip" title="Collapse all fields" tooltip="Collapse All Fields"><i class="icon icon-condense icon-condense-js"></i></a></span>
                         </div>
                     </section>
 

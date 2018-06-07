@@ -8,14 +8,19 @@ use ArrayAccess;
 use BadMethodCallException;
 use Illuminate\Support\Str;
 use Illuminate\Support\MessageBag;
+use Illuminate\Contracts\View\Engine;
+use Illuminate\Support\Traits\Macroable;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Renderable;
-use Illuminate\View\Engines\EngineInterface;
 use Illuminate\Contracts\Support\MessageProvider;
 use Illuminate\Contracts\View\View as ViewContract;
 
 class View implements ArrayAccess, ViewContract
 {
+    use Macroable {
+        __call as macroCall;
+    }
+
     /**
      * The view factory instance.
      *
@@ -26,7 +31,7 @@ class View implements ArrayAccess, ViewContract
     /**
      * The engine implementation.
      *
-     * @var \Illuminate\View\Engines\EngineInterface
+     * @var \Illuminate\Contracts\View\Engine
      */
     protected $engine;
 
@@ -55,13 +60,13 @@ class View implements ArrayAccess, ViewContract
      * Create a new view instance.
      *
      * @param  \Illuminate\View\Factory  $factory
-     * @param  \Illuminate\View\Engines\EngineInterface  $engine
+     * @param  \Illuminate\Contracts\View\Engine  $engine
      * @param  string  $view
      * @param  string  $path
      * @param  mixed  $data
      * @return void
      */
-    public function __construct(Factory $factory, EngineInterface $engine, $view, $path, $data = [])
+    public function __construct(Factory $factory, Engine $engine, $view, $path, $data = [])
     {
         $this->view = $view;
         $this->path = $path;
@@ -158,7 +163,7 @@ class View implements ArrayAccess, ViewContract
     /**
      * Get the sections of the rendered view.
      *
-     * @return array
+     * @return string
      */
     public function renderSections()
     {
@@ -287,7 +292,7 @@ class View implements ArrayAccess, ViewContract
     /**
      * Get the view's rendering engine.
      *
-     * @return \Illuminate\View\Engines\EngineInterface
+     * @return \Illuminate\Contracts\View\Engine
      */
     public function getEngine()
     {
@@ -395,11 +400,17 @@ class View implements ArrayAccess, ViewContract
      */
     public function __call($method, $parameters)
     {
-        if (! Str::startsWith($method, 'with')) {
-            throw new BadMethodCallException("Method [$method] does not exist on view.");
+        if (static::hasMacro($method)) {
+            return $this->macroCall($method, $parameters);
         }
 
-        return $this->with(Str::snake(substr($method, 4)), $parameters[0]);
+        if (! Str::startsWith($method, 'with')) {
+            throw new BadMethodCallException(sprintf(
+                'Method %s::%s does not exist.', static::class, $method
+            ));
+        }
+
+        return $this->with(Str::camel(substr($method, 4)), $parameters[0]);
     }
 
     /**

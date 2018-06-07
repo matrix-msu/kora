@@ -40,7 +40,9 @@ $navBar.on('click', '.navigation-toggle-js', function(e) {
 
   //SPECIAL CASE FOR SEARCH
   if ($parent.hasClass('navigation-search')) {
-    $searchInput.focus();
+    setTimeout(function() {
+      $('.global-search-input-js').focus();
+    }, 500);
   }
 });
 
@@ -67,10 +69,12 @@ $navBar.on('click', '.side-menu-toggle-js', function() {
 
     setCookie('sidebar', 1);
     $('.center, .floating-buttons').addClass('with-aside');
+	$('.allowed-actions').addClass('with-aside');
     if (getBrowserWidth() > 870)
       $('.pre-fixed-js').addClass('pre-fixed-with-aside');
   } else {
     $('.center, .floating-buttons').removeClass('with-aside');
+	$('.allowed-actions').removeClass('with-aside');
     if (getBrowserWidth() > 870)
       $('.pre-fixed-js').removeClass('pre-fixed-with-aside');
 
@@ -163,8 +167,8 @@ $searchInput.keydown(function(e) {
 
             //We don't want to search the entire alphabet, need at least 2 characters
             if (searchText != '' && searchText.length >= 2) {
-                $clearResentSearchResults.parent().slideUp(400, function () {
-                    $recentSearch.parent().slideUp(400, function () {
+                $clearResentSearchResults.parent().slideUp(100, function () {
+                    $recentSearch.parent().slideUp(100, function () {
                         //Perform quick search
                         $.ajax({
                             url: globalQuickSearchUrl,
@@ -181,11 +185,13 @@ $searchInput.keydown(function(e) {
                                     $searchResults.html(resultStr);
                                 });
 
-                                $searchResults.parent().slideDown(200);
+                                $searchResults.parent().slideDown(100);
                             }
                         });
                     });
                 });
+			} else if (searchText == '') {
++                $searchResults.parent().slideUp(100);
             } else {
                 $clearResentSearchResults.parent().slideDown(400, function () {
                     $recentSearch.parent().slideDown(400, function () {

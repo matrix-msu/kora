@@ -13,6 +13,24 @@
     } else {
         mkdir($dirTmp,0775,true); //Make it!
     }
+    if(file_exists($dirTmp.'/medium')) {
+        //clear tmp folder
+        foreach(new \DirectoryIterator($dirTmp) as $file) {
+            if($file->isFile())
+                unlink($dirTmp.'/medium/'.$file->getFilename());
+        }
+    } else {
+        mkdir($dirTmp.'/medium',0775,true); //Make it!
+    }
+    if(file_exists($dirTmp.'/thumbnail')) {
+        //clear tmp folder
+        foreach(new \DirectoryIterator($dirTmp) as $file) {
+            if($file->isFile())
+                unlink($dirTmp.'/thumbnail/'.$file->getFilename());
+        }
+    } else {
+        mkdir($dirTmp.'/thumbnail',0775,true); //Make it!
+    }
 
     //If this is an edit, we need to move things around
     if($editRecord && $hasData){
