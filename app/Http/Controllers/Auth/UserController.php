@@ -54,14 +54,12 @@ class UserController extends Controller {
 
         $user = User::where('id',$uid)->get()->first();
 
-        $profile = $user->profile;
+        $admin = $user->admin;
 
         if ($section == 'permissions') {
-            if($user->admin) {
-                $admin = 1;
+            if($admin) {
                 return view('user/profile-permissions',compact('user', 'admin',  'section'));
             } else {
-                $admin = 0;
                 $projects = self::buildProjectsArray($user);
                 $forms = self::buildFormsArray($user);
                 return view('user/profile-permissions',compact('user', 'admin', 'projects', 'forms', 'section'));
@@ -85,28 +83,12 @@ class UserController extends Controller {
                 ->whereNotNull('kid')
                 ->orderBy($order_type, $order_direction)
                 ->paginate($pagination);
+            $sec = $request->input('sec');
 
-            if($user->admin) {
-                $admin = 1;
-                return view('user/profile-record-history',compact('user', 'admin', 'userRevisions', 'userOwnedRevisions', 'section'));
-            } else {
-                $admin = 0;
-                return view('user/profile-record-history',compact('user', 'admin', 'userRevisions', 'userOwnedRevisions', 'section'));
-            }
+            return view('user/profile-record-history',compact('user', 'admin', 'userRevisions', 'userOwnedRevisions', 'section', 'sec'));
         } else {
-            if($user->admin) {
-                $admin = 1;
-                return view('user/profile',compact('user', 'admin', 'section'));
-            } else {
-                $admin = 0;
-                return view('user/profile',compact('user', 'admin', 'section'));
-            }
+            return view('user/profile',compact('user', 'admin', 'section'));
         }
-
-
-
-
-
     }
 
     public function editProfile(Request $request) {
