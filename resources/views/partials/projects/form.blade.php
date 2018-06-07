@@ -74,11 +74,11 @@
 @if($projectMode == 'project_edit')
 <div class="form-group">
   <div class="project-cleanup">
-    <a class="btn dot-btn archive warning project-archive-js" data-title="Archive Project?" href="#">
+    <a class="btn dot-btn archive warning project-archive-js tooltip" data-title="Archive Project?" href="#" tooltip="Archive Project">
       <i class="icon icon-archive"></i>
     </a>
 
-    <a class="btn dot-btn trash warning project-trash-js" data-title="Delete Project?" href="#">
+    <a class="btn dot-btn trash warning project-trash-js tooltip" data-title="Delete Project?" href="#" tooltip="Delete Project">
       <i class="icon icon-trash"></i>
     </a>
   </div>

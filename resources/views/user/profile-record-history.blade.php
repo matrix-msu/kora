@@ -13,6 +13,7 @@
             <a href="#myCreatedRecords" class="filter-link select-content-section-js underline-middle underline-middle-hover">@if (Auth::user()->id == $user->id) My @else {{$user->username}}'s @endif Created Records</a>
         </div>
         <div class="content-section content-section-js" id="recentlyModified">
+          <div class="content-sections-scroll">
             @if (count($userRevisions) > 0)
                 <div class="my-xl">
                     <p>@if (Auth::user()->id == $user->id) You have @else {{$user->first_name}} has @endif recently modified the following {{$userRevisions->total()}} records...</p>
@@ -48,8 +49,10 @@
                     <p>@if (Auth::user()->id == $user->id) You have @else {{$user->first_name}} has @endif recently modified {{count($userRevisions)}} records...</p>
                 </div>
             @endif
+          </div>
         </div>
         <div class="content-section content-section-js" id="myCreatedRecords">
+          <div class="content-sections-scroll">
             @if (count($userOwnedRevisions) > 0)
                 <div class="my-xl">
                     <p>@if (Auth::user()->id == $user->id) You have @else {{$user->first_name}} has @endif recently modified the following {{$userRevisions->total()}} records...</p>
@@ -85,6 +88,7 @@
                     <p>@if (Auth::user()->id == $user->id) You have @else {{$user->first_name}} has @endif recently modified {{count($userRevisions)}} records...</p>
                 </div>
             @endif
+          </div>
         </div>
     </section>
 @stop

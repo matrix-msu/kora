@@ -19,7 +19,7 @@
         <h1 class="title">
           <i class="icon icon-project"></i>
           <span>{{ $project->name }}</span>
-          <a href="{{ action('ProjectController@edit',['pid' => $project->pid]) }}" class="head-button">
+          <a href="{{ action('ProjectController@edit',['pid' => $project->pid]) }}" class="head-button tooltip" tooltip="Edit Project">
             <i class="icon icon-edit right"></i>
           </a>
         </h1>

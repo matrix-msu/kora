@@ -141,7 +141,7 @@
 
 <div class="form-group">
     <div class="field-cleanup">
-        <a class="btn dot-btn trash warning field-trash-js" data-title="Delete Field?" href="#">
+        <a class="btn dot-btn trash warning field-trash-js tooltip" data-title="Delete Field?" href="#" tooltip="Delete Field">
             <i class="icon icon-trash"></i>
         </a>
     </div>

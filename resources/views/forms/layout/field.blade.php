@@ -154,7 +154,7 @@
 
     <div class="footer">
       @if(\Auth::user()->canDeleteFields($form))
-        <a class="quick-action delete-field delete-field-js left" href="#">
+        <a class="quick-action delete-field delete-field-js left tooltip" href="#" tooltip="Delete Field">
           <i class="icon icon-trash"></i>
         </a>
       @endif
