@@ -106,7 +106,7 @@
     </div>
 
     <p class="sub-text mt-sm">
-        Data in this field will be analysed in advanced searches inside of Kora
+        Data in this field will be analyzed in advanced searches inside of Kora
     </p>
 </div>
 
@@ -121,7 +121,7 @@
     </div>
 
     <p class="sub-text mt-sm">
-        Data in this field will be analysed in searches from outside of Kora
+        Data in this field will be analyzed in searches from outside of Kora
     </p>
 </div>
 

@@ -2,6 +2,20 @@ var Kora = Kora || {};
 Kora.User = Kora.User || {};
 
 Kora.User.Profile = function() {
+  function windowLocation(key, value) {
+    var parameters = [];
+    var order = (key == 'order' ? value : getURLParameter('order'));
+    var pageCount = (key == 'page-count' ? value : getURLParameter('page-count'));
+    var sec = (key == 'sec' ? value : getURLParameter('sec'));
+
+    (order ? parameters.push("order=" + order) : '');
+    (pageCount ? parameters.push("page-count=" + pageCount) : '');
+    (sec ? parameters.push("sec=" + sec) : '');
+
+
+    return (parameters ? window.location.pathname + "?" + parameters.join("&") : window.location.pathname);
+  }
+
   function initializeOptionDropdowns() {
     $('.option-dropdown-js').chosen({
       disable_search_threshold: 10,
@@ -9,11 +23,11 @@ Kora.User.Profile = function() {
     }).change(function() {
       var type = $(this).attr('id');
       if (type === 'page-count-dropdown') {
-        var order = getURLParameter('order');
-        window.location = window.location.pathname + "?page-count=" + $(this).val() + (order ? "&order=" + order : '');
+        //var order = getURLParameter('order');
+        window.location = windowLocation('page-count', $(this).val()); // window.location.pathname + "?page-count=" + $(this).val() + (order ? "&order=" + order : '');
       } else if (type === 'order-dropdown') {
-        var pageCount = getURLParameter('page-count');
-        window.location = window.location.pathname + "?order=" + $(this).val() + (pageCount ? "&page-count=" + pageCount : '');
+        //var pageCount = getURLParameter('page-count');
+        window.location = windowLocation('order', $(this).val()); //window.location.pathname + "?order=" + $(this).val() + (pageCount ? "&page-count=" + pageCount : '');
       }
     });
   }
@@ -29,6 +43,18 @@ Kora.User.Profile = function() {
       e.preventDefault();
 
       $this = $(this);
+      $newSec = $this.attr('id');
+
+      var order = getURLParameter('order');
+      var pageCount = getURLParameter('page-count');
+      var sec = $newSec;
+
+      window.location = window.location.pathname +
+          (order ? "&order=" + order : '') +
+          (pageCount ? "&page-count=" + pageCount : '') +
+          (sec ? "&sec=" + sec : '');
+
+      /*
       $this.siblings().removeClass('active');
       $this.addClass('active');
       $content.removeClass('active');
@@ -38,7 +64,7 @@ Kora.User.Profile = function() {
         if ($(this).attr('id') == $active) {
           $(this).addClass('active');
         }
-      });
+      });*/
     });
   }
 
@@ -87,13 +113,13 @@ Kora.User.Profile = function() {
     // Expand all cards
     $('.expand-fields-js').click(function(e) {
       e.preventDefault();
-      $('.card:not(.active) .card-toggle-js').click();
+      $('.content-section-js.active .card:not(.active) .card-toggle-js').click();
     });
 
     // Collapse all cards
     $('.collapse-fields-js').click(function(e) {
       e.preventDefault();
-      $('.card.active .card-toggle-js').click();
+      $('.content-section-js.active .card.active .card-toggle-js').click();
     });
   }
 
