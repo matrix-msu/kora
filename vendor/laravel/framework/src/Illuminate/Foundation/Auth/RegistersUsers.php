@@ -28,11 +28,16 @@ trait RegistersUsers
      */
     public function register(Request $request)
     {
+        if(!\App\User::verifyRegisterRecaptcha($request,$this))
+            return redirect("/register")->withInput()->with('k3_global_error', 'recaptcha_failed')->send();
+
         $this->validator($request->all())->validate();
 
         event(new Registered($user = $this->create($request->all())));
 
         $this->guard()->login($user);
+
+        \App\User::finishRegistration($request);
 
         return $this->registered($request, $user)
                         ?: redirect($this->redirectPath());

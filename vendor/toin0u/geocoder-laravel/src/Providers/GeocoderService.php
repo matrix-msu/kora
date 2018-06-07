@@ -11,9 +11,7 @@
 
 use Geocoder\Laravel\Facades\Geocoder;
 use Geocoder\Laravel\ProviderAndDumperAggregator;
-use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
-use ReflectionClass;
 
 class GeocoderService extends ServiceProvider
 {
@@ -27,10 +25,14 @@ class GeocoderService extends ServiceProvider
             "config"
         );
         $this->mergeConfigFrom($configPath, "geocoder");
-        $this->app->singleton("geocoder", function () {
-            return (new ProviderAndDumperAggregator)
-                ->registerProvidersFromConfig(collect(config("geocoder.providers")));
-        });
+        $geocoder = (new ProviderAndDumperAggregator)
+            ->registerProvidersFromConfig(collect(config("geocoder.providers")));
+        $this->app
+            ->singleton("geocoder", function () use ($geocoder) {
+                return $geocoder;
+            });
+        $this->app
+            ->instance(ProviderAndDumperAggregator::class, $geocoder);
     }
 
     public function register()
@@ -40,7 +42,7 @@ class GeocoderService extends ServiceProvider
 
     public function provides() : array
     {
-        return ["geocoder"];
+        return ["geocoder", ProviderAndDumperAggregator::class];
     }
 
     protected function configPath(string $path = "") : string

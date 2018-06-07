@@ -330,6 +330,17 @@ class TestCaseTest extends TestCase
         $this->assertCount(1, $result);
     }
 
+    public function testDoesNotPerformAssertions(): void
+    {
+        $test = new \DoNoAssertionTestCase('testNothing');
+        $test->expectNotToPerformAssertions();
+
+        $result = $test->run();
+
+        $this->assertEquals(0, $result->riskyCount());
+        $this->assertCount(1, $result);
+    }
+
     /**
      * @backupGlobals enabled
      */
@@ -375,6 +386,9 @@ class TestCaseTest extends TestCase
         $this->assertEquals('ii', $GLOBALS['i']);
     }
 
+    /**
+     * @depends testGlobalsBackupPre
+     */
     public function testGlobalsBackupPost(): void
     {
         global $a;
@@ -651,17 +665,17 @@ class TestCaseTest extends TestCase
         /** @var \Mockable $mock */
         $mock = $this->createMock(\Mockable::class);
 
-        $this->assertNull($mock->foo());
-        $this->assertNull($mock->bar());
+        $this->assertNull($mock->mockableMethod());
+        $this->assertNull($mock->anotherMockableMethod());
     }
 
     public function testCreatePartialMockDoesNotMockAllMethods(): void
     {
         /** @var \Mockable $mock */
-        $mock = $this->createPartialMock(\Mockable::class, ['foo']);
+        $mock = $this->createPartialMock(\Mockable::class, ['mockableMethod']);
 
-        $this->assertNull($mock->foo());
-        $this->assertTrue($mock->bar());
+        $this->assertNull($mock->mockableMethod());
+        $this->assertTrue($mock->anotherMockableMethod());
     }
 
     public function testCreatePartialMockCanMockNoMethods(): void
@@ -669,8 +683,8 @@ class TestCaseTest extends TestCase
         /** @var \Mockable $mock */
         $mock = $this->createPartialMock(\Mockable::class, []);
 
-        $this->assertTrue($mock->foo());
-        $this->assertTrue($mock->bar());
+        $this->assertTrue($mock->mockableMethod());
+        $this->assertTrue($mock->anotherMockableMethod());
     }
 
     public function testCreateMockSkipsConstructor(): void
@@ -678,7 +692,7 @@ class TestCaseTest extends TestCase
         /** @var \Mockable $mock */
         $mock = $this->createMock(\Mockable::class);
 
-        $this->assertFalse($mock->constructorCalled);
+        $this->assertNull($mock->constructorArgs);
     }
 
     public function testCreateMockDisablesOriginalClone(): void
@@ -687,7 +701,7 @@ class TestCaseTest extends TestCase
         $mock = $this->createMock(\Mockable::class);
 
         $cloned = clone $mock;
-        $this->assertFalse($cloned->cloned);
+        $this->assertNull($cloned->cloned);
     }
 
     public function testConfiguredMockCanBeCreated(): void
@@ -696,12 +710,12 @@ class TestCaseTest extends TestCase
         $mock = $this->createConfiguredMock(
             \Mockable::class,
             [
-                'foo' => false
+                'mockableMethod' => false
             ]
         );
 
-        $this->assertFalse($mock->foo());
-        $this->assertNull($mock->bar());
+        $this->assertFalse($mock->mockableMethod());
+        $this->assertNull($mock->anotherMockableMethod());
     }
 
     public function testProvidingOfAutoreferencedArray(): void

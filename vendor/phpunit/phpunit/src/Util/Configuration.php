@@ -11,10 +11,11 @@ namespace PHPUnit\Util;
 
 use DOMElement;
 use DOMXPath;
-use File_Iterator_Facade;
 use PHPUnit\Framework\Exception;
 use PHPUnit\Framework\TestSuite;
+use PHPUnit\Runner\TestSuiteSorter;
 use PHPUnit\TextUI\ResultPrinter;
+use SebastianBergmann\FileIterator\Facade as FileIteratorFacade;
 
 /**
  * Wrapper for the PHPUnit XML configuration file.
@@ -34,6 +35,7 @@ use PHPUnit\TextUI\ResultPrinter;
  *          convertErrorsToExceptions="true"
  *          convertNoticesToExceptions="true"
  *          convertWarningsToExceptions="true"
+ *          disableCodeCoverageIgnore="false"
  *          forceCoversAnnotation="false"
  *          processIsolation="false"
  *          stopOnError="false"
@@ -61,7 +63,9 @@ use PHPUnit\TextUI\ResultPrinter;
  *          timeoutForLargeTests="60"
  *          verbose="false"
  *          reverseDefectList="false"
- *          registerMockObjectsFromTestArgumentsRecursively="false">
+ *          registerMockObjectsFromTestArgumentsRecursively="false"
+ *          executionOrder="default"
+ *          resolveDependencies="false">
  *   <testsuites>
  *     <testsuite name="My Test Suite">
  *       <directory suffix="Test.php" phpVersion="5.3.0" phpVersionOperator=">=">/path/to/files</directory>
@@ -170,6 +174,11 @@ final class Configuration
     private $filename;
 
     /**
+     * @var \LibXMLError[]
+     */
+    private $errors = [];
+
+    /**
      * Returns a PHPUnit configuration object.
      *
      * @throws Exception
@@ -205,6 +214,8 @@ final class Configuration
         $this->filename = $filename;
         $this->document = Xml::loadFile($filename, false, true, true);
         $this->xpath    = new DOMXPath($this->document);
+
+        $this->validateConfigurationAgainstSchema();
     }
 
     /**
@@ -212,6 +223,25 @@ final class Configuration
      */
     private function __clone()
     {
+    }
+
+    public function hasValidationErrors(): bool
+    {
+        return \count($this->errors) > 0;
+    }
+
+    public function getValidationErrors(): array
+    {
+        $result = [];
+
+        foreach ($this->errors as $error) {
+            if (!isset($result[$error->line])) {
+                $result[$error->line] = [];
+            }
+            $result[$error->line][] = \trim($error->message);
+        }
+
+        return $result;
     }
 
     /**
@@ -228,8 +258,9 @@ final class Configuration
 
         foreach ($this->xpath->query('extensions/extension') as $extension) {
             /** @var DOMElement $extension */
-            $class = (string) $extension->getAttribute('class');
-            $file  = '';
+            $class     = (string) $extension->getAttribute('class');
+            $file      = '';
+            $arguments = $this->getConfigurationArguments($extension->childNodes);
 
             if ($extension->getAttribute('file')) {
                 $file = $this->toAbsolutePath(
@@ -237,10 +268,10 @@ final class Configuration
                     true
                 );
             }
-
             $result[] = [
-                'class' => $class,
-                'file'  => $file
+                'class'     => $class,
+                'file'      => $file,
+                'arguments' => $arguments
             ];
         }
 
@@ -340,35 +371,13 @@ final class Configuration
             /** @var DOMElement $listener */
             $class     = (string) $listener->getAttribute('class');
             $file      = '';
-            $arguments = [];
+            $arguments = $this->getConfigurationArguments($listener->childNodes);
 
             if ($listener->getAttribute('file')) {
                 $file = $this->toAbsolutePath(
                     (string) $listener->getAttribute('file'),
                     true
                 );
-            }
-
-            foreach ($listener->childNodes as $node) {
-                if (!$node instanceof DOMElement) {
-                    continue;
-                }
-
-                if ($node->tagName !== 'arguments') {
-                    continue;
-                }
-
-                foreach ($node->childNodes as $argument) {
-                    if (!$argument instanceof DOMElement) {
-                        continue;
-                    }
-
-                    if ($argument->tagName === 'file' || $argument->tagName === 'directory') {
-                        $arguments[] = $this->toAbsolutePath((string) $argument->textContent);
-                    } else {
-                        $arguments[] = Xml::xmlToVariable($argument);
-                    }
-                }
             }
 
             $result[] = [
@@ -897,6 +906,31 @@ final class Configuration
             );
         }
 
+        if ($root->hasAttribute('executionOrder')) {
+            switch ((string) $root->getAttribute('executionOrder')) {
+                case 'random':
+                    $result['executionOrder'] = TestSuiteSorter::ORDER_RANDOMIZED;
+
+                    break;
+
+                case 'reverse':
+                    $result['executionOrder'] = TestSuiteSorter::ORDER_REVERSED;
+
+                    break;
+
+                default:
+                    $result['executionOrder'] = TestSuiteSorter::ORDER_DEFAULT;
+
+            }
+        }
+
+        if ($root->hasAttribute('resolveDependencies')) {
+            $result['resolveDependencies'] = $this->getBoolean(
+                (string) $root->getAttribute('resolveDependencies'),
+                false
+            );
+        }
+
         return $result;
     }
 
@@ -943,6 +977,57 @@ final class Configuration
         return $names;
     }
 
+    private function validateConfigurationAgainstSchema(): void
+    {
+        $original    = \libxml_use_internal_errors(true);
+        $xsdFilename = __DIR__ . '/../../phpunit.xsd';
+
+        if (\defined('__PHPUNIT_PHAR_ROOT__')) {
+            $xsdFilename =  __PHPUNIT_PHAR_ROOT__ . '/phpunit.xsd';
+        }
+
+        $this->document->schemaValidate($xsdFilename);
+        $this->errors = \libxml_get_errors();
+        \libxml_use_internal_errors($original);
+    }
+
+    /**
+     * Collects and returns the configuration arguments from the PHPUnit
+     * XML configuration
+     */
+    private function getConfigurationArguments(\DOMNodeList $nodes): array
+    {
+        $arguments = [];
+
+        if ($nodes->length === 0) {
+            return $arguments;
+        }
+
+        foreach ($nodes as $node) {
+            if (!$node instanceof DOMElement) {
+                continue;
+            }
+
+            if ($node->tagName !== 'arguments') {
+                continue;
+            }
+
+            foreach ($node->childNodes as $argument) {
+                if (!$argument instanceof DOMElement) {
+                    continue;
+                }
+
+                if ($argument->tagName === 'file' || $argument->tagName === 'directory') {
+                    $arguments[] = $this->toAbsolutePath((string) $argument->textContent);
+                } else {
+                    $arguments[] = Xml::xmlToVariable($argument);
+                }
+            }
+        }
+
+        return $arguments;
+    }
+
     /**
      * @throws \PHPUnit\Framework\Exception
      */
@@ -966,7 +1051,7 @@ final class Configuration
             }
         }
 
-        $fileIteratorFacade = new File_Iterator_Facade;
+        $fileIteratorFacade = new FileIteratorFacade;
         $testSuiteFilter    = $testSuiteFilter ? \explode(',', $testSuiteFilter) : [];
 
         foreach ($testSuiteNode->getElementsByTagName('directory') as $directoryNode) {

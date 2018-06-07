@@ -38,11 +38,11 @@ use PHPUnit\Util\PHP\AbstractPhpProcess;
 use Prophecy;
 use Prophecy\Exception\Prediction\PredictionException;
 use Prophecy\Prophecy\MethodProphecy;
+use Prophecy\Prophecy\ObjectProphecy;
 use Prophecy\Prophet;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionObject;
-use SebastianBergmann;
 use SebastianBergmann\Comparator\Comparator;
 use SebastianBergmann\Comparator\Factory as ComparatorFactory;
 use SebastianBergmann\Diff\Differ;
@@ -56,6 +56,8 @@ use Throwable;
 
 abstract class TestCase extends Assert implements Test, SelfDescribing
 {
+    private const LOCALE_CATEGORIES = [LC_ALL, LC_COLLATE, LC_CTYPE, LC_MONETARY, LC_NUMERIC, LC_TIME];
+
     /**
      * @var bool
      */
@@ -169,7 +171,7 @@ abstract class TestCase extends Assert implements Test, SelfDescribing
     /**
      * @var int
      */
-    private $status;
+    private $status = BaseTestRunner::STATUS_UNKNOWN;
 
     /**
      * @var string
@@ -222,7 +224,7 @@ abstract class TestCase extends Assert implements Test, SelfDescribing
     private $outputBufferingLevel;
 
     /**
-     * @var SebastianBergmann\GlobalState\Snapshot
+     * @var Snapshot
      */
     private $snapshot;
 
@@ -619,6 +621,11 @@ abstract class TestCase extends Assert implements Test, SelfDescribing
         $this->expectExceptionCode($exception->getCode());
     }
 
+    public function expectNotToPerformAssertions()
+    {
+        $this->doesNotPerformAssertions = true;
+    }
+
     public function setRegisterMockObjectsFromTestArgumentsRecursively(bool $flag): void
     {
         $this->registerMockObjectsFromTestArgumentsRecursively = $flag;
@@ -631,7 +638,7 @@ abstract class TestCase extends Assert implements Test, SelfDescribing
 
     public function getStatus(): int
     {
-        return (int) $this->status;
+        return $this->status;
     }
 
     public function markAsRisky(): void
@@ -818,8 +825,9 @@ abstract class TestCase extends Assert implements Test, SelfDescribing
 
         $hookMethods = \PHPUnit\Util\Test::getHookMethods(\get_class($this));
 
+        $hasMetRequirements = false;
+
         try {
-            $hasMetRequirements = false;
             $this->checkRequirements();
             $hasMetRequirements = true;
 
@@ -953,6 +961,11 @@ abstract class TestCase extends Assert implements Test, SelfDescribing
     public function setDependencies(array $dependencies): void
     {
         $this->dependencies = $dependencies;
+    }
+
+    public function getDependencies(): array
+    {
+        return $this->dependencies;
     }
 
     public function hasDependencies(): bool
@@ -1270,15 +1283,11 @@ abstract class TestCase extends Assert implements Test, SelfDescribing
 
         [$category, $locale] = $args;
 
-        $categories = [
-            LC_ALL, LC_COLLATE, LC_CTYPE, LC_MONETARY, LC_NUMERIC, LC_TIME
-        ];
-
         if (\defined('LC_MESSAGES')) {
             $categories[] = LC_MESSAGES;
         }
 
-        if (!\in_array($category, $categories)) {
+        if (!\in_array($category, self::LOCALE_CATEGORIES, true)) {
             throw new Exception;
         }
 
@@ -1305,7 +1314,6 @@ abstract class TestCase extends Assert implements Test, SelfDescribing
      * @param string|string[] $originalClassName
      *
      * @throws Exception
-     * @throws ReflectionException
      * @throws \InvalidArgumentException
      */
     protected function createMock($originalClassName): MockObject
@@ -1325,7 +1333,6 @@ abstract class TestCase extends Assert implements Test, SelfDescribing
      * @param array           $configuration
      *
      * @throws Exception
-     * @throws ReflectionException
      * @throws \InvalidArgumentException
      */
     protected function createConfiguredMock($originalClassName, array $configuration): MockObject
@@ -1346,7 +1353,6 @@ abstract class TestCase extends Assert implements Test, SelfDescribing
      * @param string[]        $methods
      *
      * @throws Exception
-     * @throws ReflectionException
      * @throws \InvalidArgumentException
      */
     protected function createPartialMock($originalClassName, array $methods): MockObject
@@ -1364,7 +1370,6 @@ abstract class TestCase extends Assert implements Test, SelfDescribing
      * Returns a test proxy for the specified class.
      *
      * @throws Exception
-     * @throws ReflectionException
      * @throws \InvalidArgumentException
      */
     protected function createTestProxy(string $originalClassName, array $constructorArguments = []): MockObject
@@ -1560,7 +1565,7 @@ abstract class TestCase extends Assert implements Test, SelfDescribing
      * @throws Prophecy\Exception\Doubler\DoubleException
      * @throws Prophecy\Exception\Doubler\InterfaceNotFoundException
      */
-    protected function prophesize($classOrInterface = null): \Prophecy\Prophecy\ObjectProphecy
+    protected function prophesize($classOrInterface = null): ObjectProphecy
     {
         return $this->getProphet()->prophesize($classOrInterface);
     }
@@ -1898,8 +1903,8 @@ abstract class TestCase extends Assert implements Test, SelfDescribing
 
         if (!\defined('PHPUNIT_TESTSUITE')) {
             $blacklist->addClassNamePrefix('PHPUnit');
-            $blacklist->addClassNamePrefix('File_Iterator');
             $blacklist->addClassNamePrefix('SebastianBergmann\CodeCoverage');
+            $blacklist->addClassNamePrefix('SebastianBergmann\FileIterator');
             $blacklist->addClassNamePrefix('SebastianBergmann\Invoker');
             $blacklist->addClassNamePrefix('SebastianBergmann\Timer');
             $blacklist->addClassNamePrefix('PHP_Token');

@@ -75,8 +75,9 @@ trait AuthenticatesUsers
      */
     protected function attemptLogin(Request $request)
     {
+        $creds = \App\User::refineLoginCredentials($this->credentials($request));
         return $this->guard()->attempt(
-            $this->credentials($request), $request->filled('remember')
+            $creds, $request->filled('remember')
         );
     }
 
