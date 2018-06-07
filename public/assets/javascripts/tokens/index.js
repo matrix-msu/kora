@@ -243,8 +243,9 @@ Kora.Tokens.Index = function() {
 				var chevron_text_width = chevron_text.outerWidth();
 				var chevron_icon_width = chevron_icon.outerWidth();
 				var left_padding = 20; // padding within card
+				var extra_padding = 10;
 				
-				var title_width = (card_width - left_padding) - (chevron_text_width + chevron_icon_width + 5);
+				var title_width = (card_width - left_padding) - (chevron_text_width + chevron_icon_width + extra_padding);
 				if (title_width < 0) {title_width = 0;}
 				
 				name_span.css("text-overflow", "ellipsis");
@@ -266,7 +267,13 @@ Kora.Tokens.Index = function() {
 		});
 		
 		// Recalculate ellipses when switching tabs
-		$("[href='#all'], [href='#search'], [href='#create'], [href='#edit'], [href='#delete']").click(function() { adjustTokenCardTitle(); });
+		$("[href='#all'], [href='#search'], [href='#create'], [href='#edit'], [href='#delete']").click(function() {
+			adjustTokenCardTitle();
+			setTimeout(function(){ 
+				adjustTokenCardTitle();
+				setTimeout(function(){ adjustTokenCardTitle(); }, 10);
+			}, 10);
+		});
 	}
 
     initializeFilters();

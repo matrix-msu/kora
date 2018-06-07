@@ -567,27 +567,28 @@ Kora.Forms.Show = function() {
   {
     function adjustFieldCardTitle()
 	{
-		let cards = $($(".field-sort-js").find(".field.card"));
+		var cards = $($(".field-sort-js").find(".field.card"));
 		
 		for (i = 0; i < cards.length; i++)
 		{	
-			let card = $(cards[i]);
-			let name_span = $(card.find($(".name")));
-			let arrow = $(card.find($(".icon-arrow-right")));
-			let chevron_text = $(card.find($(".chevron-text")));
-			let chevron_icon = $(card.find($(".icon-chevron")));
-			let move_up_icon = $(card.find($(".up-js")));
-			let move_down_icon = $(card.find($(".down-js")));
+			var card = $(cards[i]);
+			var name_span = $(card.find($(".name")));
+			var arrow = $(card.find($(".icon-arrow-right")));
+			var chevron_text = $(card.find($(".chevron-text")));
+			var chevron_icon = $(card.find($(".icon-chevron")));
+			var move_up_icon = $(card.find($(".up-js")));
+			var move_down_icon = $(card.find($(".down-js")));
 			
-			let card_width = card.width();
-			let arrow_width = arrow.outerWidth();
-			let chevron_text_width = chevron_text.outerWidth();
-			let chevron_icon_width = chevron_icon.outerWidth();
-			let move_up_icon_width = move_up_icon.outerWidth();
-			let move_down_icon_width = move_down_icon.outerWidth();
+			var card_width = card.width();
+			var arrow_width = arrow.outerWidth();
+			var chevron_text_width = chevron_text.outerWidth();
+			var chevron_icon_width = chevron_icon.outerWidth();
+			var move_up_icon_width = move_up_icon.outerWidth();
+			var move_down_icon_width = move_down_icon.outerWidth();
+			var extra_padding = 15;
 			
 			
-			let title_width = (card_width) - (arrow_width + chevron_text_width + chevron_icon_width + move_up_icon_width + move_down_icon_width + 10);
+			var title_width = (card_width) - (arrow_width + chevron_text_width + chevron_icon_width + move_up_icon_width + move_down_icon_width + extra_padding);
 			if (title_width < 0) {title_width = 0;}
 			
 			name_span.css("text-overflow", "ellipsis");

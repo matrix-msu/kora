@@ -334,8 +334,9 @@ Kora.Projects.Index = function() {
 		var down_arrow_width = down_arrow.length ? down_arrow.outerWidth() : 0;
         var chevron_width = chevron.outerWidth(); // all types of project cards have chevrons
         var left_padding = custom ? 0 : 20; // custom projects provide padding from element other than name_span
+		var extra_padding = 10;
         
-        var title_width = (card_width - left_padding) - (arrow_width + up_arrow_width + down_arrow_width + chevron_width + 5);
+        var title_width = (card_width - left_padding) - (arrow_width + up_arrow_width + down_arrow_width + chevron_width + extra_padding);
         if (title_width < 0) {title_width = 0;}
         
         name_span.css("text-overflow", "ellipsis");
