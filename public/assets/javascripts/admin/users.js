@@ -178,7 +178,7 @@ Kora.Admin.Users = function() {
         
         $.ajax({
           url: actionURL + "/" + id,
-          type: 'DELETE',
+          type: 'POST',
           data: deleteForm.serialize(),
           success: function(data) {
             // TODO: Handle messages sent back from controller
@@ -220,9 +220,10 @@ Kora.Admin.Users = function() {
 
         $.ajax({
           url: form.prop("action"),
-          type: 'PATCH',
+          type: 'POST',
           data: {
             "_token": CSRFToken,
+            "_method": 'patch',
             "status": "active"
           },
           success: function(data) {
@@ -241,9 +242,10 @@ Kora.Admin.Users = function() {
 
         $.ajax({
           url: form.prop("action"),
-          type: 'PATCH',
+          type: 'POST',
           data: {
             "_token": CSRFToken,
+            "_method": 'patch',
             "status": "admin"
           },
           success: function(data) {

@@ -522,9 +522,10 @@ Kora.Forms.Show = function() {
       
       $.ajax({
         url: url,
-        type: 'DELETE',
+        type: 'POST',
         data: {
           '_token': CSRFToken,
+          '_method': 'delete'
         },
         success: function(result) {
           location.reload();
@@ -551,9 +552,10 @@ Kora.Forms.Show = function() {
 
       $.ajax({
         url: url,
-        type: 'PATCH',
+        type: 'POST',
         data: {
           '_token': CSRFToken,
+          "_method": 'patch',
           'flag': this.name,
           'value': this.checked ? 1 : 0
         }

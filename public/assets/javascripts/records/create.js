@@ -404,10 +404,11 @@ Kora.Records.Create = function() {
             var div = $(this).parent('.uploaded-file');
             $.ajax({
                 url: $(this).attr('data-url'),
-                type: 'DELETE',
+                type: 'POST',
                 dataType: 'json',
                 data: {
-                    "_token": csrfToken
+                    "_token": csrfToken,
+                    "_method": 'delete'
                 },
                 success: function (data) {
                     div.remove();
