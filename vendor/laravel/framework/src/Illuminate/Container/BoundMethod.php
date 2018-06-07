@@ -103,7 +103,7 @@ class BoundMethod
     /**
      * Get all dependencies for a given method.
      *
-     * @param  \Illuminate\Container\Container
+     * @param  \Illuminate\Container\Container  $container
      * @param  callable|string  $callback
      * @param  array  $parameters
      * @return array
@@ -152,6 +152,10 @@ class BoundMethod
             $dependencies[] = $parameters[$parameter->name];
 
             unset($parameters[$parameter->name]);
+        } elseif ($parameter->getClass() && array_key_exists($parameter->getClass()->name, $parameters)) {
+            $dependencies[] = $parameters[$parameter->getClass()->name];
+
+            unset($parameters[$parameter->getClass()->name]);
         } elseif ($parameter->getClass()) {
             $dependencies[] = $container->make($parameter->getClass()->name);
         } elseif ($parameter->isDefaultValueAvailable()) {

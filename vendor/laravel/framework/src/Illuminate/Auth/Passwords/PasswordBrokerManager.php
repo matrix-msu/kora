@@ -39,7 +39,7 @@ class PasswordBrokerManager implements FactoryContract
     /**
      * Attempt to get the broker from the local cache.
      *
-     * @param  string  $name
+     * @param  string|null  $name
      * @return \Illuminate\Contracts\Auth\PasswordBroker
      */
     public function broker($name = null)
@@ -72,7 +72,7 @@ class PasswordBrokerManager implements FactoryContract
         // aggregate service of sorts providing a convenient interface for resets.
         return new PasswordBroker(
             $this->createTokenRepository($config),
-            $this->app['auth']->createUserProvider($config['provider'])
+            $this->app['auth']->createUserProvider($config['provider'] ?? null)
         );
     }
 
@@ -90,7 +90,7 @@ class PasswordBrokerManager implements FactoryContract
             $key = base64_decode(substr($key, 7));
         }
 
-        $connection = isset($config['connection']) ? $config['connection'] : null;
+        $connection = $config['connection'] ?? null;
 
         return new DatabaseTokenRepository(
             $this->app['db']->connection($connection),
