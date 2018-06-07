@@ -338,6 +338,11 @@ $sideMenu.on('click', '.drawer-toggle-js', function(e) {
   var $drawerElement = $(this).parent();
   var $drawerContent = $(this).next();
   var $icon = $(this).children().last();
+  
+  if ($drawerElement.parent().hasClass('footer-elements')) {
+    console.log('footer-element')
+    $drawerElement.parent().toggleClass('active');
+  }
 
   if ($drawerElement.hasClass('active')) {
     closeSidemenuDrawers();

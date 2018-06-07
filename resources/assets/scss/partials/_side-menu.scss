@@ -25,14 +25,21 @@
     background: palette('gray', slate);
     height: calc(100vh - #{$navigation-height});
     margin-top: $navigation-height;
+    overflow-y: scroll;
     position: fixed;
     width: 250px;
 
     @import 'side-menu/drawer-element';
 
     .footer-elements {
+      background: palette('gray', slate);
       bottom: 0;
       position: absolute;
+      z-index: -1;
+
+      &.active {
+        z-index: 1;
+      }
     }
   }
 }
