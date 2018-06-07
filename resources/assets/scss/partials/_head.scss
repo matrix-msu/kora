@@ -27,7 +27,7 @@
       opacity: 0.6;
       transform: rotate(90deg) scale(1);
     }
-    
+
     &:hover {
       box-shadow: 0 6px 12px 0 rgba(21,39,48,0.06);
       i {
@@ -54,6 +54,7 @@
     margin: 0;
     min-height: 45px;
     padding: 56px 0 30px;
+    position: relative;
     text-align: left;
 
     i {
@@ -88,8 +89,10 @@
   }
 
   .head-button {
-    float: right;
+    position: absolute;
+    right: 0;
     text-decoration: none;
+    top: 56px;
 
     i {
       @include transition();
