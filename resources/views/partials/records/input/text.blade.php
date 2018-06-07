@@ -11,7 +11,7 @@
     <span class="error-message"></span>
 	
     @if(\App\Http\Controllers\FieldController::getFieldOption($field,'MultiLine')==0)
-        {!! Form::text($field->flid, $textValue, ['class' => 'text-input preset-clear-text-js', 'id' => $field->flid]) !!}
+        {!! Form::text($field->flid, $textValue, ['class' => 'text-input preset-clear-text-js', 'id' => $field->flid, 'placeholder' => 'Enter text here']) !!}
     @endif
     @if(\App\Http\Controllers\FieldController::getFieldOption($field,'MultiLine')==1)
         <?php
