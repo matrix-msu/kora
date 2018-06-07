@@ -16,8 +16,6 @@
 
   &.active {
     opacity: 1;
-    overflow-y: scroll;
-    overflow-x: hidden;
     pointer-events: all;
 
     .content {
@@ -38,6 +36,8 @@
     margin: auto;
     max-width: 840px;
     opacity: 0;
+    overflow-y: scroll;
+    overflow-x: hidden;
     position: absolute;
     right: 0;
     width: 90%;
@@ -50,5 +50,11 @@
 
     @import 'modal/header';
     @import 'modal/body';
+  }
+}
+
+@media screen and (max-width: $max-mobile-xs-width) {
+  .modal .content {
+    height: 90%;
   }
 }
