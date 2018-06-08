@@ -35,6 +35,7 @@ Kora.OptionPresets.Create = function() {
             var submitButton = $('.submit-button-js');
 
             submitButton.removeClass('disabled');
+            submitButton.parent().removeClass('tooltip');
 
             switch(fieldType) {
                 case 'Text':
