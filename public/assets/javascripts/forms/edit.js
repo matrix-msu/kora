@@ -30,10 +30,11 @@ Kora.Forms.Edit = function() {
             $.each($('.edit-form').serializeArray(), function(i, field) {
                 values[field.name] = field.value;
             });
+            values['_method'] = 'PATCH';
 
             $.ajax({
                 url: validationUrl,
-                method: 'PATCH',
+                method: 'POST',
                 data: values,
                 success: function(data) {
                     $('.edit-form').submit();
@@ -56,10 +57,11 @@ Kora.Forms.Edit = function() {
             var values = {};
             values[field] = this.value;
             values['_token'] = CSRFToken;
+            values['_method'] = 'patch';
 
             $.ajax({
                 url: validationUrl,
-                method: 'PATCH',
+                method: 'POST',
                 data: values,
                 error: function(err) {
                     if (err.responseJSON[field] !== undefined) {
