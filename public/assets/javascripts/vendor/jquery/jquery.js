@@ -1993,10 +1993,10 @@
     },
     style: function(a, b, c, d) {
       
-      if (a == '[object HTMLInputElement]') {
+      /*if (a == '[object HTMLInputElement]') {
         console.log('a: ' + a + ' b: '+b+' c: ' + c + ' type of c: ' + typeof c + ' d: '+d+' e: '+e+' f: '+f+' g: '+g+' h: '+h+' i: '+i+' j: '+j+' k: '+k+' l: '+l+' m: '+m+' n: ' + n)
         console.log('a.nodetype= ' + a.nodeType)
-      }
+      }*/
 
       if (a && 3 !== a.nodeType && 8 !== a.nodeType && a.style) {
         var e, f, g, h = n.camelCase(b),
@@ -2010,7 +2010,7 @@
       return b = n.cssProps[h] || (n.cssProps[h] = Fb(a.style, h)), g = n.cssHooks[b] || n.cssHooks[h], g && "get" in g && (e = g.get(a, !0, c)), void 0 === e && (e = xb(a, b, d)), "normal" === e && b in Db && (e = Db[b]), "" === c || c ? (f = parseFloat(e), c === !0 || n.isNumeric(f) ? f || 0 : e) : e
     }
   }), n.each(["height", "width"], function(a, b) {
-      console.log('b: '+b)
+      /*console.log('b: '+b)*/
     n.cssHooks[b] = {
       get: function(a, c, d) {
         return c ? zb.test(n.css(a, "display")) && 0 === a.offsetWidth ? n.swap(a, Cb, function() {
