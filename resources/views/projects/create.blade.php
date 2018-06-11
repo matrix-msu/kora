@@ -27,7 +27,7 @@
 
 @section('body')
   <section class="create-form center">
-    {!! Form::model($project = new \App\Project, ['url' => 'projects', 'class' => 'create-form']) !!}
+    {!! Form::model($project = new \App\Project, ['url' => 'projects', 'class' => 'create-form center']) !!}
     @include('partials.projects.form',['projectMode' => $projectMode, 'type' => 'create'])
     {!! Form::close() !!}
   </section>
