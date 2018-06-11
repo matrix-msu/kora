@@ -29,7 +29,7 @@
         @if(sizeof($defArray) > 0)
             @for($i=0;$i<sizeof($defArray);$i++)
                 <div class="combo-value-item-js">
-                    @if($oneType=='Text' | $oneType=='List' | $oneType=='Number')
+                    @if($oneType=='Text' | $oneType=='List' | $oneType=='Number' | $oneType=='Date')
                         <?php $value = explode('[!f1!]',$defArray[$i])[1]; ?>
                         {!! Form::hidden($field->flid."_combo_one[]",$value) !!}
                         <span class="combo-column">{{$value}}</span>
@@ -42,7 +42,7 @@
                         <span class="combo-column">{{implode(' | ',$value)}}</span>
                     @endif
 
-                    @if($twoType=='Text' | $twoType=='List' | $twoType=='Number')
+                    @if($twoType=='Text' | $twoType=='List' | $twoType=='Number' | $twoType=='Date')
                         <?php $value = explode('[!f2!]',$defArray[$i])[1]; ?>
                         {!! Form::hidden($field->flid."_combo_two[]",$value) !!}
                         <span class="combo-column">{{$value}}</span>
@@ -72,5 +72,5 @@
 </section>
 
 <section class="new-object-button form-group mt-xxxl">
-    <input class="add-combo-value-js" type="button" value="Create new Combo List value" flid="{{$field->flid}}">
+    <input class="add-combo-value-js" type="button" value="Create new Combo List value" flid="{{$field->flid}}" typeOne="{{$oneType}}" typeTwo="{{$twoType}}">
 </section>
