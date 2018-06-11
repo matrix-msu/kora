@@ -131,6 +131,41 @@ Kora.Tokens.Index = function() {
 
             Kora.Modal.open($('.create-token-modal-js'));
         });
+		
+		// for editing token
+		function getTotalEditTokenCheckboxesSelected()
+		{
+			return Number($( ".search-checkbox-js" ).prop("checked")) +
+			Number($( ".create-checkbox-js" ).prop("checked")) + 
+			Number($( ".edit-checkbox-js" ).prop("checked")) + 
+			Number($( ".delete-checkbox-js" ).prop("checked"));
+		}
+		
+		
+		$(".search-checkbox-js, .create-checkbox-js, .edit-checkbox-js, .delete-checkbox-js").click(function(e)
+		{
+			// do not allow user to select zero token options
+			if (getTotalEditTokenCheckboxesSelected() == 0 && !$(this).prop("checked"))
+				e.preventDefault();
+		});
+		
+		// Create Token stuff
+		function getTotalCreateTokenCheckboxesSelected()
+		{
+			return Number($( ".search-token-create-js" ).prop("checked")) +
+			Number($( ".create-token-create-js" ).prop("checked")) + 
+			Number($( ".edit-token-create-js" ).prop("checked")) + 
+			Number($( ".delete-token-create-js" ).prop("checked"));
+		}
+		
+		$(".search-token-create-js, .create-token-create-js, .edit-token-create-js, .delete-token-create-js").click(function(e)
+		{
+			if (getTotalCreateTokenCheckboxesSelected() == 0 && !$(this).prop("checked"))
+			{
+				e.preventDefault();
+			}
+		});
+		
 
         $('.edit-token-js').click(function(e) {
             e.preventDefault();
@@ -149,22 +184,12 @@ Kora.Tokens.Index = function() {
             indexVal.val(tokenDiv.attr('id'));
 
             //TODO:: close, but not yet
-<<<<<<< HEAD
             
 			// add checkmark if needed, also remove if needed
 			$('.search-checkbox-js').prop('checked', tokenDiv.hasClass('search'));
 			$('.create-checkbox-js').prop('checked', tokenDiv.hasClass('create'));
 			$('.edit-checkbox-js').prop('checked', tokenDiv.hasClass('edit'));
 			$('.delete-checkbox-js').prop('checked', tokenDiv.hasClass('delete'));
-=======
-            if(tokenDiv.hasClass('search'))
-                $('.search-checkbox-js').trigger("click");
-            if(tokenDiv.hasClass('create'))
-                $('.create-checkbox-js').trigger("click");
-            if(tokenDiv.hasClass('edit'))
-                $('.edit-checkbox-js').trigger("click");
-            if(tokenDiv.hasClass('delete'))
-                $('.delete-checkbox-js').trigger("click");
 			
 			
 			$(".search-checkbox-js").click(function(e)
@@ -199,7 +224,6 @@ Kora.Tokens.Index = function() {
 				Number($( ".edit-checkbox-js" ).prop("checked")) + 
 				Number($( ".delete-checkbox-js" ).prop("checked"));
 			}
->>>>>>> enforced at least 1 token selection
 
             titleVal.val(titleSpan.text());
 
