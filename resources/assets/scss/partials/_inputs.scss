@@ -53,6 +53,14 @@
   &.no-padding {
     padding: 0;
   }
+  
+  .desc-modal {
+    float: right;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
 
   @media screen and (max-width: $max-mobile-med-width) {
     &.half {

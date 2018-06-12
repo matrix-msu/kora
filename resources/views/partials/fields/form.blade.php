@@ -22,6 +22,9 @@
 
 <div class="form-group mt-xl">
     {!! Form::label('type','Field Type: ') !!}
+    <a class="underline-middle-hover pb-xxs desc-modal">
+      <span class="name">View Field Type Descriptions</span>
+    </a>
     {!! Form::select('type', $validFieldTypes, null,['class' => 'single-select field-types-js']) !!}
 </div>
 
