@@ -90,7 +90,7 @@ class OptionPresetController extends Controller {
             $value = implode("[!]", $value);
 
         $preset = OptionPreset::create(['pid' => $pid, 'type' => $type, 'name' => $name, 'preset' => $value]);
-        $preset->save();
+
         if(isset($request->shared))
             $preset->shared = 1;
         else
