@@ -21,6 +21,25 @@
   }
 }
 
+.btn-disabled {
+  opacity: .3;
+}
+
+.btn-disabled:hover {
+  opacity: .3;
+}
+
+.token-warning {
+  display: inline;
+  position: relative;
+  float: right;
+  
+  color: #F39A33;
+  font-family: $ubuntu;
+  font-size: 12px;
+  margin: 0px;
+}
+
 @media screen and (max-width: $max-mobile-med-width) {
   .create-token-modal {
     .action:last-of-type {

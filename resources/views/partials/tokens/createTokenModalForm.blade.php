@@ -2,11 +2,14 @@
 
 <div class="form-group mt-xxs">
     <label for="token_name">Token Name</label>
-    <input class="text-input" placeholder="Enter the name of the new here" type="text" id="token_name" name="token_name" value="">
+    <input class="text-input" placeholder="Enter the name of the new token here" type="text" id="token_name" name="token_name" value="">
 </div>
 
 <div class="form-group mt-xl">
     <label for="token_search">Select Token Type(s)</label>
+	<p class="token-warning">
+		At least one Token Type must be selected
+	</p>
 </div>
 <div class="actions">
     <div class="form-group action mt-xs">
@@ -66,5 +69,5 @@
 </div>
 
 <div class="form-group mt-xxl">
-    {!! Form::submit('Create Token',['class' => 'btn']) !!}
+    {!! Form::submit('Create Token',['class' => 'btn btn-disabled']) !!}
 </div>

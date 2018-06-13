@@ -160,10 +160,19 @@ Kora.Tokens.Index = function() {
 		
 		$(".search-token-create-js, .create-token-create-js, .edit-token-create-js, .delete-token-create-js").click(function(e)
 		{
-			if (getTotalCreateTokenCheckboxesSelected() == 0 && !$(this).prop("checked"))
+			let total_selected = getTotalCreateTokenCheckboxesSelected();
+			
+			if (total_selected == 0 && !$(this).prop("checked"))
 			{
 				e.preventDefault();
 			}
+			
+			if (total_selected > 0)
+			{
+				$(".token-warning").css("display", "none");
+				$(".btn-disabled").removeClass("btn-disabled");
+			}
+			
 		});
 		
 
