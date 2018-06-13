@@ -50,20 +50,7 @@
     </div>
 
     <div class="form-group preset-select-container preset-select-container-js">
-      <div class="preset-select-js mt-xl">
-  
-        <pre><?php var_dump($presets) ?></pre><br><!--$presets seems to have a PID attached to it, but it does not match the PID from the project that it was created from.  EX: Austin's Project has PID: 199, but This is the Form Name has a PID of 248 (was created from Austin's Project).  'form name' has a pid of 232, but belongs to 'kevin test project' which has a pid of 193-->
-        
-        <?php var_dump($pid) ?><br><br> <!--current project's PID, not relevant to presets-->
-        
-        <?php echo $project->name ?>
-        
-        <!--<?php $new_var = $project -> name ?>
-        <?php var_dump($new_var) ?> this only returns the name of the projects that we are editing, not the name of the project the preset belongs to-->
-        <br><br><br>
-
-        
-        
+      <div class="preset-select-js mt-xl">      
         {!! Form::label('preset', 'Select a Preset') !!}
         {!! Form::select('preset[]', [null=>null] + $presets, null, [
           'class' => 'single-select',
