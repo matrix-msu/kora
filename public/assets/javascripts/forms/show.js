@@ -562,12 +562,59 @@ Kora.Forms.Show = function() {
       });
     });
   }
+  
+  function initializeFieldCardEllipsifying()
+  {
+    function adjustFieldCardTitle()
+	{
+		var cards = $($(".field-sort-js").find(".field.card"));
+		
+		for (i = 0; i < cards.length; i++)
+		{	
+			var card = $(cards[i]);
+			var name_span = $(card.find($(".name")));
+			var arrow = $(card.find($(".icon-arrow-right")));
+			var chevron_text = $(card.find($(".chevron-text")));
+			var chevron_icon = $(card.find($(".icon-chevron")));
+			var move_up_icon = $(card.find($(".up-js")));
+			var move_down_icon = $(card.find($(".down-js")));
+			
+			var card_width = card.width();
+			var arrow_width = arrow.outerWidth();
+			var chevron_text_width = chevron_text.outerWidth();
+			var chevron_icon_width = chevron_icon.outerWidth();
+			var move_up_icon_width = move_up_icon.outerWidth();
+			var move_down_icon_width = move_down_icon.outerWidth();
+			var extra_padding = 15;
+			
+			
+			var title_width = (card_width) - (arrow_width + chevron_text_width + chevron_icon_width + move_up_icon_width + move_down_icon_width + extra_padding);
+			if (title_width < 0) {title_width = 0;}
+			
+			name_span.css("text-overflow", "ellipsis");
+			name_span.css("white-space", "nowrap");
+			name_span.css("overflow", "hidden");
+			name_span.css("max-width", title_width + "px");
+		}
+	}
+  	
+    $(window).resize(function()
+    {
+    	adjustFieldCardTitle();
+    });
+    $(document).ready(function()
+    {
+    	adjustFieldCardTitle();
+		setTimeout(function(){ adjustFieldCardTitle(); adjustFieldCardTitle(); }, 1); // necessary for some reason
+    });
+  }
 
   initializeSearch();
   initializePages();
   initializeFieldSort();
   initializeFieldToggles();
   initializeCheckboxes();
+  initializeFieldCardEllipsifying();
 }
 
 // scroll to new page if new page was created
