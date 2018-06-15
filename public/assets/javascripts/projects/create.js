@@ -49,9 +49,9 @@ Kora.Projects.Create = function() {
         method: 'POST',
         data: values,
         error: function(err) {
-          if (err.responseJSON[field] !== undefined) {
+          if (err.responseJSON.errors[field] !== undefined) {
             $('#'+field).addClass('error');
-            $('#'+field).siblings('.error-message').text(err.responseJSON[field][0]);
+            $('#'+field).siblings('.error-message').text(err.responseJSON.errors[field][0]);
           } else {
             $('#'+field).removeClass('error');
             $('#'+field).siblings('.error-message').text('');
