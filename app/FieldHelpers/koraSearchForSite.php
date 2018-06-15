@@ -361,19 +361,19 @@ class KORA_Clause {
         $hasDate = false;
         $dateArray = ['month'=>01,'day'=>01,'year'=>0001];
 
-        if(strpos($keyword,'<month>')) {
+        if(strpos($keyword,'<month>') !== false) {
             $hasDate = true;
             $p1 = explode('<month>',$keyword)[1];
             $dateArray['month'] = explode('</month>',$p1)[0];
         }
 
-        if(strpos($keyword,'<day>')) {
+        if(strpos($keyword,'<day>') !== false) {
             $hasDate = true;
             $p1 = explode('<day>',$keyword)[1];
             $dateArray['day'] = explode('</day>',$p1)[0];
         }
 
-        if(strpos($keyword,'<year>')) {
+        if(strpos($keyword,'<year>') !== false) {
             $hasDate = true;
             $p1 = explode('<year>',$keyword)[1];
             $dateArray['year'] = explode('</year>',$p1)[0];
