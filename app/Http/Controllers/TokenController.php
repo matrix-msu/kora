@@ -47,6 +47,12 @@ class TokenController extends Controller {
      * @return Redirect
      */
     public function create(Request $request) {
+		//$request->validate([
+		//	'title' => 'required|unique:posts|max:255',
+		//	'body' => 'required',
+		//	'publish_at' => 'nullable|date',
+		//]);
+		
         $token = new Token();
         $token->token = self::tokenGen();
         $token->title = $request->token_name;

@@ -5,6 +5,78 @@ Kora.Tokens.Index = function() {
     function clearSearch() {
         $('.search-js .icon-cancel-js').click();
     }
+	
+	function initializeValidation() {
+      $('.validate-token-js').on('click', function(e) { // whole form validation on submit
+        var $this = $(this);
+        
+        e.preventDefault();
+		
+		var values = {
+			_token: CSRFToken,
+			token_name: document.getElementById("token_name").value,
+		};
+		
+		var token_search = $(".search-token-create-js").prop("checked");
+		if (token_search) {values["token_search"] = 1;}
+		
+		var token_create = $(".create-token-create-js").prop("checked");
+		if (token_create) {values["token_create"] = 1;}
+		
+		var token_edit = $(".edit-token-create-js").prop("checked");
+		if (token_edit) {values["token_edit"] = 1;}
+		
+		var token_delete = $(".delete-token-create-js").prop("checked");
+		if (token_delete) {values["token_delete"] = 1;}
+		
+		var choice_ids = {};
+		$("#token_projects").find("option").each(function() {
+			choice_ids[$(this).text()] = this.value;
+		});
+		
+		$($("#token_projects_chosen").find(".chosen-choices")).find(".search-choice").each(function() {
+			if (values.token_projects == null) {values.token_projects = [];}
+			
+			values.token_projects.push(choice_ids[$(this).eq(0).text()]);
+		});
+		
+      
+        $.ajax({
+          url: create_url,
+          method: 'POST',
+          data: values,
+          success: function(data) {
+            alert("validation and creation successful");
+          },
+          error: function(err) {
+            alert("validation failure or creation failure");
+          }
+        });
+      });
+	  
+	  $('.text-input, .text-area').on('blur', function(e) { // real-time validation
+        if (this === $("#token_name")[0])
+		{
+			alert("blurred token name");
+		}
+        
+        //$.ajax({
+        //  url: validationUrl,
+        //  method: 'POST',
+        //  data: values,
+        //  error: function(err) {
+        //    if (err.responseJSON[field] !== undefined) {
+        //      $('#'+field).addClass('error');
+        //      $('#'+field).siblings('.error-message').text(err.responseJSON[field][0]);
+        //    } else {
+        //      $('#'+field).removeClass('error');
+        //      $('#'+field).siblings('.error-message').text('');
+        //    }
+        //  }
+        //});
+      });
+	  
+	}
 
     function initializeSearch() {
         var $searchInput = $('.search-js input');
@@ -169,8 +241,8 @@ Kora.Tokens.Index = function() {
 			
 			if (total_selected > 0)
 			{
-				$(".token-warning").css("display", "none");
-				$(".btn-disabled").removeClass("btn-disabled");
+				//$(".token-warning").css("display", "none");
+				//$(".btn-disabled").removeClass("btn-disabled");
 			}
 			
 		});
@@ -354,6 +426,7 @@ Kora.Tokens.Index = function() {
 		});
 	}
 
+	initializeValidation();
     initializeFilters();
     initializeSearch();
     initializeToggle();
