@@ -50,15 +50,16 @@
     <section class="create-record center">
         {!! Form::model($cloneRecord = new \App\Record, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid.'/records',
             'enctype' => 'multipart/form-data', 'id' => 'new_record_form']) !!}
-        @include('partials.records.form',['form' => $form, 'editRecord' => true])
-
-        <div class="form-group mt-xxxl">
-            <div class="spacer"></div>
-        </div>
 
         <div class="form-group mt-xxxl duplicate-record-js">
             {!! Form::label('mass_creation_num', 'Select duplication amount (max 1000): ') !!}
             <input type="number" name="mass_creation_num" class="text-input" value="2" step="1" max="1000" min="1">
+        </div>            
+            
+        @include('partials.records.form',['form' => $form, 'editRecord' => true])
+
+        <div class="form-group mt-xxxl">
+            <div class="spacer"></div>
         </div>
 
         <div class="form-group mt-xxxl">
