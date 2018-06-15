@@ -281,9 +281,10 @@ Kora.OptionPresets.Create = function() {
         $('.delete-preset-js').click(function(e) {
             $.ajax({
                 url: deletePresetURL,
-                type: 'DELETE',
+                type: 'POST',
                 data: {
                     "_token": CSRFToken,
+                    "_method": 'delete',
                     "presetId": currentPreset
                 },
                 success: function (result) {

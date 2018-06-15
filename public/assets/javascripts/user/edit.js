@@ -48,7 +48,7 @@ Kora.User.Edit = function() {
 
         $.ajax({
           url: actionURL + "/" + id,
-          type: 'DELETE',
+          type: 'POST',
           data: deleteForm.serialize(),
           success: function(data) {
             // TODO: Handle messages sent back from controller

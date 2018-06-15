@@ -37,7 +37,7 @@ class SlackWebhookChannel
      */
     public function send($notifiable, Notification $notification)
     {
-        if (! $url = $notifiable->routeNotificationFor('slack')) {
+        if (! $url = $notifiable->routeNotificationFor('slack', $notification)) {
             return;
         }
 
@@ -59,6 +59,8 @@ class SlackWebhookChannel
             'icon_emoji' => data_get($message, 'icon'),
             'icon_url' => data_get($message, 'image'),
             'link_names' => data_get($message, 'linkNames'),
+            'unfurl_links' => data_get($message, 'unfurlLinks'),
+            'unfurl_media' => data_get($message, 'unfurlMedia'),
             'username' => data_get($message, 'username'),
         ]);
 
@@ -80,6 +82,9 @@ class SlackWebhookChannel
     {
         return collect($message->attachments)->map(function ($attachment) use ($message) {
             return array_filter([
+                'author_icon' => $attachment->authorIcon,
+                'author_link' => $attachment->authorLink,
+                'author_name' => $attachment->authorName,
                 'color' => $attachment->color ?: $message->color(),
                 'fallback' => $attachment->fallback,
                 'fields' => $this->fields($attachment),
@@ -87,7 +92,9 @@ class SlackWebhookChannel
                 'footer_icon' => $attachment->footerIcon,
                 'image_url' => $attachment->imageUrl,
                 'mrkdwn_in' => $attachment->markdown,
+                'pretext' => $attachment->pretext,
                 'text' => $attachment->content,
+                'thumb_url' => $attachment->thumbUrl,
                 'title' => $attachment->title,
                 'title_link' => $attachment->url,
                 'ts' => $attachment->timestamp,

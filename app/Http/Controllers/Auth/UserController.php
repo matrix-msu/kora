@@ -54,59 +54,46 @@ class UserController extends Controller {
 
         $user = User::where('id',$uid)->get()->first();
 
-        $profile = $user->profile;
+        $admin = $user->admin;
 
         if ($section == 'permissions') {
-            if($user->admin) {
-                $admin = 1;
+            if($admin) {
                 return view('user/profile-permissions',compact('user', 'admin',  'section'));
             } else {
-                $admin = 0;
                 $projects = self::buildProjectsArray($user);
                 $forms = self::buildFormsArray($user);
                 return view('user/profile-permissions',compact('user', 'admin', 'projects', 'forms', 'section'));
             }
         } elseif ($section == 'history') {
             // Record History revisions
+            $sec = $request->input('sec') === null ? 'rm' : $request->input('sec');
             $pagination = $request->input('page-count') === null ? 10 : app('request')->input('page-count');
-            $order = $request->input('order') === null ? 'lmd' : app('request')->input('order');
-            $order_type = substr($order, 0, 2) === "lm" ? "revisions.created_at" : "revisions.id";
-            $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
+            // Recently Modified Order
+            $rm_order = $request->input('rm-order') === null ? 'lmd' : app('request')->input('rm-order');
+            $rm_order_type = substr($rm_order, 0, 2) === "lm" ? "revisions.created_at" : "revisions.id";
+            $rm_order_direction = substr($rm_order, 2, 3) === "a" ? "asc" : "desc";
+            // My Created Records Order
+            $mcr_order = $request->input('mcr-order') === null ? 'lmd' : app('request')->input('mcr-order');
+            $mcr_order_type = substr($mcr_order, 0, 2) === "lm" ? "revisions.created_at" : "revisions.id";
+            $mcr_order_direction = substr($mcr_order, 2, 3) === "a" ? "asc" : "desc";
             $userRevisions = Revision::leftJoin('records', 'revisions.rid', '=', 'records.rid')
                 ->leftJoin('users', 'revisions.owner', '=', 'users.id')
                 ->select('revisions.*', 'records.kid', 'records.pid', 'users.username as ownerUsername')
                 ->where('revisions.username', '=', $user->username)
                 ->whereNotNull('kid')
-                ->orderBy($order_type, $order_direction)
+                ->orderBy($rm_order_type, $rm_order_direction)
                 ->paginate($pagination);
             $userOwnedRevisions = Revision::leftJoin('records', 'revisions.rid', '=', 'records.rid')
                 ->select('revisions.*', 'records.kid', 'records.pid')
                 ->where('revisions.owner', '=', $user->id)
                 ->whereNotNull('kid')
-                ->orderBy($order_type, $order_direction)
+                ->orderBy($mcr_order_type, $mcr_order_direction)
                 ->paginate($pagination);
 
-            if($user->admin) {
-                $admin = 1;
-                return view('user/profile-record-history',compact('user', 'admin', 'userRevisions', 'userOwnedRevisions', 'section'));
-            } else {
-                $admin = 0;
-                return view('user/profile-record-history',compact('user', 'admin', 'userRevisions', 'userOwnedRevisions', 'section'));
-            }
+            return view('user/profile-record-history',compact('user', 'admin', 'userRevisions', 'userOwnedRevisions', 'section', 'sec'));
         } else {
-            if($user->admin) {
-                $admin = 1;
-                return view('user/profile',compact('user', 'admin', 'section'));
-            } else {
-                $admin = 0;
-                return view('user/profile',compact('user', 'admin', 'section'));
-            }
+            return view('user/profile',compact('user', 'admin', 'section'));
         }
-
-
-
-
-
     }
 
     public function editProfile(Request $request) {

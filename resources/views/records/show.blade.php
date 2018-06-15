@@ -23,13 +23,13 @@
 
 @section('header')
     <section class="head">
-        <a class="rotate" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
+        <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-record mr-sm"></i>
                 <span>Record: {{$record->kid}}</span>
                 @if(\Auth::user()->canDestroyRecords($form) || \Auth::user()->isOwner($record))
-                    <a href="#" class="head-button delete-record delete-record-js">
+                    <a href="#" class="head-button delete-record delete-record-js tooltip" tooltip="Delete Record">
                         <i class="icon icon-trash right"></i>
                     </a>
                 @endif

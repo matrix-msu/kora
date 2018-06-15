@@ -10,7 +10,7 @@
 
 @section('header')
   <section class="head">
-      <a class="rotate" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
+      <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
       <div class="inner-wrap center">
         <h1 class="title">
           <i class="icon icon-projects"></i>
@@ -22,6 +22,7 @@
 @stop
 
 @section('body')
+  @if (count($projects) > 0 or count($inactive) > 0)
   <section class="filters center">
       <div class="underline-middle search search-js">
         <i class="icon icon-search"></i>
@@ -35,6 +36,7 @@
           <a href="#inactive" class="option underline-middle underline-middle-hover">Archived</a>
       </div>
   </section>
+  @endif
 
   <section class="new-object-button center">
     <form action="{{ action('ProjectController@create') }}">

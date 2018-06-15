@@ -24,6 +24,10 @@
         {!! Form::select('filetype'.'[]',\App\FileTypeField::getMimeTypesClean(),
             explode('[!]',\App\Http\Controllers\FieldController::getFieldOption($field, "FileTypes")),
             ['class' => 'multi-select', 'Multiple', 'data-placeholder' => 'Search and Select the file types allowed here']) !!}
+
+		<p class="sub-text mt-sm">
+			If you leave this field blank, all file types will be allowed.
+		</p>
     </div>
 @stop
 

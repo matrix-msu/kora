@@ -16,7 +16,7 @@
                 <span class="sub-title">{{$revision->type}}</span>
                 <span class="sub-title">{{date_format($revision->created_at, "g:i")}}</span>
                 <span class="sub-title">{{date_format($revision->created_at, "n.j.Y")}}</span>
-                <span class="sub-title">{{$revision->username}}</span>
+                @if ($revision->username)<span class="sub-title">{{$revision->username}}</span>@endif
             </div>
             <a href="#" class="card-toggle card-toggle-js">
                 <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
