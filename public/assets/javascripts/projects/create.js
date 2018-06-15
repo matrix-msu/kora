@@ -29,7 +29,7 @@ Kora.Projects.Create = function() {
           $('.error-message').text('');
           $('.text-input, .text-area').removeClass('error');
 
-          $.each(err.responseJSON, function(fieldName, errors) {
+          $.each(err.responseJSON.errors, function(fieldName, errors) {
             var $field = $('#'+fieldName);
             $field.addClass('error');
             $field.siblings('.error-message').text(errors[0]);

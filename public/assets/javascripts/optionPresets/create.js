@@ -316,7 +316,7 @@ Kora.OptionPresets.Create = function() {
                     $('.error-message').text('');
                     $('.text-input, .text-area').removeClass('error');
 
-                    $.each(err.responseJSON, function(fieldName, errors) {
+                    $.each(err.responseJSON.errors, function(fieldName, errors) {
                         var $field = $('input[name="'+fieldName+'"]');
                         $field.addClass('error');
                         $field.siblings('.error-message').text(errors[0]);
@@ -336,9 +336,9 @@ Kora.OptionPresets.Create = function() {
                 method: 'POST',
                 data: values,
                 error: function(err) {
-                    if (err.responseJSON[field] !== undefined) {
+                    if (err.responseJSON.errors[field] !== undefined) {
                         $('input[name="'+field+'"]').addClass('error');
-                        $('input[name="'+field+'"]').siblings('.error-message').text(err.responseJSON[field][0]);
+                        $('input[name="'+field+'"]').siblings('.error-message').text(err.responseJSON.errors[field][0]);
                     } else {
                         $('input[name="'+field+'"]').removeClass('error');
                         $('input[name="'+field+'"]').siblings('.error-message').text('');
