@@ -2,15 +2,13 @@
 
 <div class="form-group mt-xxs">
     <label for="token_name">Token Name</label>
-	<p class="token-warning">
-		At least one Token Type must be selected
-	</p>
+	<p id="token-name-warning" class="token-warning"></p>
     <input class="text-input" placeholder="Enter the name of the new token here" type="text" id="token_name" name="token_name" value="">
 </div>
 
 <div class="form-group mt-xl">
     <label for="token_search">Select Token Type(s)</label>
-	<p class="token-warning">
+	<p id="token-checkbox-warning" class="token-warning">
 		At least one Token Type must be selected
 	</p>
 </div>
@@ -72,5 +70,5 @@
 </div>
 
 <div class="form-group mt-xxl">
-    {!! Form::submit('Create Token',['class' => 'btn btn-disabled validate-token-js']) !!}
+    {!! Form::submit('Create Token',['class' => 'btn validate-token-js']) !!}
 </div>
