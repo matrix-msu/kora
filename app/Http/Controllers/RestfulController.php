@@ -494,9 +494,9 @@ class RestfulController extends Controller {
                         $where = "`day`=$intVal OR `year`=$intVal";
                         if(DateField::isMonth($k))
                             $where .= " OR `month`=$intMonth";
-                        if($era && self::isValidEra($k))
+                        if($era && DateField::isValidEra($k))
                             $where .= " OR `era`=".strtoupper($k);
-                        if($circa && self::isCirca($k))
+                        if($circa && DateField::isCirca($k))
                             $where .= " OR `circa`=1";
 
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."date_fields where `flid`=".$field->flid." AND ($where)";
