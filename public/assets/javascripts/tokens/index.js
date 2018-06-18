@@ -7,6 +7,8 @@ Kora.Tokens.Index = function() {
     }
 	
 	function initializeValidation() {
+	  last_submit = $.now();
+		
       $('.validate-token-js').on('click', function(e) { // whole form validation on submit
         var $this = $(this);
         
@@ -72,8 +74,9 @@ Kora.Tokens.Index = function() {
 			values.token_projects.push(choice_ids[$(this).eq(0).text()]);
 		});
 		
-		console.log("passed clientside validation");
-      
+		if ($.now() < last_submit + 1000) return; // 1 second delay between sending create token requests
+		last_submit = $.now();
+		
 	    // server-side whole-form validation
         $.ajax({
           url: create_url,
