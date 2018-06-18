@@ -44,7 +44,7 @@ Kora.Exodus.Transfer = function() {
             error: function(data) {
                 //Migration failed :(
                 stopThePress = true;
-                progressText.html(data.responseJSON.message+'. Click here to <a class="success-link unlock-users-js" href="#">unlock users</a>');
+                progressText.html(data.responseJSON.errors.message+'. Click here to <a class="success-link unlock-users-js" href="#">unlock users</a>');
                 progressFill.addClass('warning');
             }
         });
