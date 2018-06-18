@@ -47,11 +47,15 @@ class TokenController extends Controller {
      * @return Redirect
      */
     public function create(Request $request) {
-		//$request->validate([
-		//	'title' => 'required|unique:posts|max:255',
-		//	'body' => 'required',
-		//	'publish_at' => 'nullable|date',
-		//]);
+		// validate the request
+		$request->validate([
+			'token_name' => 'required|min:3',
+			'token_projects.*' => 'integer',
+			'token_search' => 'required_without_all:token_delete,token_create,token_edit',
+			'token_edit' => 'required_without_all:token_delete,token_create,token_search',
+			'token_delete' => 'required_without_all:token_create,token_search,token_edit',
+			'token_create' => 'required_without_all:token_delete,token_search,token_edit',
+		]);
 		
         $token = new Token();
         $token->token = self::tokenGen();
@@ -64,8 +68,6 @@ class TokenController extends Controller {
 
         if (!is_null($request->token_projects))
             $token->projects()->attach($request->token_projects);
-
-        return redirect('tokens')->with('k3_global_success', 'token_created');
     }
 
     /**
