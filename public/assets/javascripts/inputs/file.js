@@ -126,7 +126,7 @@ Kora.Inputs.File = function() {
               location.reload();
             } else {
               console.log(error);
-              var responseJson = error.responseJSON.errors;
+              var responseJson = error.responseJSON;
               $.each(responseJson, function() {
                 console.log(this[0]);
               });
