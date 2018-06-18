@@ -248,6 +248,23 @@ class RecordController extends Controller {
         return view('records.clone', compact('record', 'form'));
     }
 
+    public function validateRecord($pid, $fid, Request $request) {
+        $errors = [];
+        $form = FormController::getForm($fid);
+
+        $testTypes = ['Combo List', 'Associator']; //TODO::THIS SHOULD ULTIMATELY BE REMOVED WHEN IMPLEMENTED
+        foreach($form->fields()->get() as $field) {
+            if(in_array($field->type,$testTypes))
+                continue;
+
+            $message = $field->getTypedField()->validateField($field, $request);
+            if(!empty($message))
+                $errors += $message; //We add these arrays because it maintains the keys, where array_merge re-indexes
+        }
+
+        return response()->json(["status"=>true,"errors"=>$errors],200);
+    }
+
     /**
      * Removes record files from the system for records that no longer exist. This will prevent the possiblity of
      *  rolling back these records.

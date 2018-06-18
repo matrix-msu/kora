@@ -4,13 +4,10 @@ use App\FieldHelpers\gPoint;
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
-use Geocoder\Laravel\Facades\Geocoder;
-use Geocoder\Provider\Nominatim;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
-use Ivory\HttpAdapter\CurlHttpAdapter;
 
 class GeolocatorField extends BaseField {
 
@@ -190,18 +187,18 @@ class GeolocatorField extends BaseField {
     /**
      * Validates the record data for a field against the field's options.
      *
-     * @param  Field $field - The
-     * @param  mixed $value - Record data
+     * @param  Field $field - The field to validate
      * @param  Request $request
-     * @return string - Potential error message
+     * @return array - Array of errors
      */
-    public function validateField($field, $value, $request) {
+    public function validateField($field, $request) {
         $req = $field->required;
+        $value = $request->{$field->flid};
 
         if($req==1 && ($value==null | $value==""))
-            return $field->name."_required";
+            return ['list'.$field->flid.'_chosen' => $field->name.' is required'];
 
-        return "field_validated";
+        return array();
     }
 
     /**
@@ -495,7 +492,7 @@ SQL;
     /**
      * Returns the locations for a record's generated list value.
      *
-     * @return Builder - Query of values
+     * @return \Illuminate\Database\Query\Builder - Query of values
      */
     public function locations() {
         return DB::table(self::SUPPORT_NAME)->select("*")
@@ -603,7 +600,7 @@ SQL;
     public static function validateAddress(Request $request) {
         $address = $request->address;
 
-        $con = new Nominatim(new CurlHttpAdapter(),'http://nominatim.openstreetmap.org/','en');
+        $con = app('geocoder');
 
         try {
             $con->geocode($address);
@@ -633,9 +630,9 @@ SQL;
             $utm = $con->utmZone.':'.$con->utmEasting.','.$con->utmNorthing;
 
             //to address
-            $con = new Nominatim(new CurlHttpAdapter(),'http://nominatim.openstreetmap.org/','en');
+            $con = app('geocoder');
             try {
-                $res = $con->reverse($lat, $lon)->first();
+                $res = $con->reverse($lat, $lon)->get();
                 $addrArray = array($res->getStreetNumber(),$res->getStreetName(),$res->getLocality());
                 $addr = implode(' ',$addrArray);
             } catch(\Exception $e) {
@@ -659,9 +656,9 @@ SQL;
             $lon = $con->long;
 
             //to address
-            $con = new Nominatim(new CurlHttpAdapter(),'http://nominatim.openstreetmap.org/','en');
+            $con = app('geocoder');
             try {
-                $res = $con->reverse($lat, $lon)->first();
+                $res = $con->reverse($lat, $lon)->get();
                 $addrArray = array($res->getStreetNumber(),$res->getStreetName(),$res->getLocality());
                 $addr = implode(' ',$addrArray);
             } catch(\Exception $e) {
@@ -675,9 +672,9 @@ SQL;
             $addr = $request->addr;
 
             //to latlon
-            $con = new Nominatim(new CurlHttpAdapter(),'http://nominatim.openstreetmap.org/','en');
+            $con = app('geocoder');
             try {
-                $res = $con->geocode($addr)->first();
+                $res = $con->geocode($addr)->get();
                 $lat = $res->getLatitude();
                 $lon = $res->getLongitude();
             } catch(\Exception $e) {

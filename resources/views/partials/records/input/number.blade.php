@@ -15,7 +15,8 @@
 			$unit = \App\Http\Controllers\FieldController::getFieldOption($field, "Unit");
 			echo (strlen($unit) > 0 ? $field->name . ' (' . $unit . ')' : $field->name);
 		?> </label>
-    <input type="number" name="{{ $field->flid }}" class="text-input preset-clear-text-js" value="{{ $numVal }}" placeholder="Enter number here"
+    <span class="error-message"></span>
+    <input type="number" id="{{ $field->flid }}" name="{{ $field->flid }}" class="text-input preset-clear-text-js" value="{{ $numVal }}" placeholder="Enter number here"
             step="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Increment") }}"
             max="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Max") }}"
             min="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "Min") }}">
