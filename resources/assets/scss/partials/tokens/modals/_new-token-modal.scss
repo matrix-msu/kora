@@ -21,12 +21,12 @@
   }
 }
 
-.btn-disabled {
-  opacity: .3;
+.btn-faded {
+  opacity: .3 !important;
 }
 
-.btn-disabled:hover {
-  opacity: .3;
+.btn-faded:hover {
+  opacity: .3 !important;
 }
 
 .token-warning {
@@ -38,6 +38,10 @@
   font-family: $ubuntu;
   font-size: 12px;
   margin: 0px;
+}
+
+.hide-warning {
+  display: none;
 }
 
 @media screen and (max-width: $max-mobile-med-width) {
