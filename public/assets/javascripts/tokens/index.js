@@ -12,6 +12,38 @@ Kora.Tokens.Index = function() {
         
         e.preventDefault();
 		
+		// start client-side js validation
+		var js_validated = true;
+		
+		if (getTotalCreateTokenCheckboxesSelected() == 0)
+		{
+			$("#token-checkbox-warning").text("At least one Token Type must be selected");
+			js_validated = false;
+		}
+		else
+		{
+			$("#token-checkbox-warning").text("");
+		}
+		
+		let name_text = $("#token_name")[0].value;
+		if (name_text.length < 3)
+		{
+			$("#token-name-warning").text(name_text.length == 0 ? "The name field is required" : "The name must be at least 3 characters");
+			js_validated = false;
+		}
+		else
+		{
+			$("#token-name-warning").text("");
+		}
+		
+		if (!js_validated)
+		{
+			$(".validate-token-js").addClass("btn-faded");
+			return;
+		}
+		
+		// passed client-side js validation
+		
 		var values = {
 			_token: CSRFToken,
 			token_name: document.getElementById("token_name").value,
@@ -40,13 +72,16 @@ Kora.Tokens.Index = function() {
 			values.token_projects.push(choice_ids[$(this).eq(0).text()]);
 		});
 		
+		console.log("passed clientside validation");
       
+	    // server-side whole-form validation
         $.ajax({
           url: create_url,
           method: 'POST',
           data: values,
           success: function(data) {
             alert("validation and creation successful");
+			location.reload();
           },
           error: function(err) {
             alert("validation failure or creation failure");
@@ -57,23 +92,26 @@ Kora.Tokens.Index = function() {
 	  $('.text-input, .text-area').on('blur', function(e) { // real-time validation
         if (this === $("#token_name")[0])
 		{
-			alert("blurred token name");
+			var text = document.getElementById("token_name").value;
+			if (text.length < 3)
+			{
+				if (text.length == 0) $("#token-name-warning").text("The name field is required");
+				else $("#token-name-warning").text("The name must be at least 3 characters");
+			}
+			else
+			{
+				$("#token-name-warning").text("");
+			}
 		}
-        
-        //$.ajax({
-        //  url: validationUrl,
-        //  method: 'POST',
-        //  data: values,
-        //  error: function(err) {
-        //    if (err.responseJSON[field] !== undefined) {
-        //      $('#'+field).addClass('error');
-        //      $('#'+field).siblings('.error-message').text(err.responseJSON[field][0]);
-        //    } else {
-        //      $('#'+field).removeClass('error');
-        //      $('#'+field).siblings('.error-message').text('');
-        //    }
-        //  }
-        //});
+		
+		if (create_is_validated())
+		{
+			$(".validate-token-js").removeClass("btn-faded");
+		}
+		else
+		{
+			$(".validate-token-js").addClass("btn-faded");
+		}
       });
 	  
 	}
@@ -200,7 +238,23 @@ Kora.Tokens.Index = function() {
 
         $('.create-token-js').click(function(e) {
             e.preventDefault();
-
+			
+			// reset all the checkboxes
+			$(".search-token-create-js").prop("checked", false);
+			$( ".create-token-create-js").prop("checked", false); 
+			$( ".edit-token-create-js").prop("checked", false);
+			$( ".delete-token-create-js").prop("checked", false);
+			
+			// reset token name input
+			$("#token_name").val("");
+			
+			// reset all validation warnings
+			$("#token-checkbox-warning").text("");
+			$("#token-name-warning").text("");
+			
+			// reset create button faded
+			$(".validate-token-js").removeClass("btn-faded");
+			
             Kora.Modal.open($('.create-token-modal-js'));
         });
 		
@@ -222,14 +276,6 @@ Kora.Tokens.Index = function() {
 		});
 		
 		// Create Token stuff
-		function getTotalCreateTokenCheckboxesSelected()
-		{
-			return Number($( ".search-token-create-js" ).prop("checked")) +
-			Number($( ".create-token-create-js" ).prop("checked")) + 
-			Number($( ".edit-token-create-js" ).prop("checked")) + 
-			Number($( ".delete-token-create-js" ).prop("checked"));
-		}
-		
 		$(".search-token-create-js, .create-token-create-js, .edit-token-create-js, .delete-token-create-js").click(function(e)
 		{
 			let total_selected = getTotalCreateTokenCheckboxesSelected();
@@ -241,13 +287,16 @@ Kora.Tokens.Index = function() {
 			
 			if (total_selected > 0)
 			{
-				//$(".token-warning").css("display", "none");
-				//$(".btn-disabled").removeClass("btn-disabled");
+				$("#token-checkbox-warning").text("");
 			}
 			
+			if (create_is_validated())
+			{
+				$(".validate-token-js").removeClass("btn-faded");
+			}
 		});
 		
-
+		
         $('.edit-token-js').click(function(e) {
             e.preventDefault();
 
@@ -263,48 +312,13 @@ Kora.Tokens.Index = function() {
             titleSpan = tokenDiv.find('.name').first();
 
             indexVal.val(tokenDiv.attr('id'));
-
             //TODO:: close, but not yet
             
-			// add checkmark if needed, also remove if needed
+			// apply correct checkmark state
 			$('.search-checkbox-js').prop('checked', tokenDiv.hasClass('search'));
 			$('.create-checkbox-js').prop('checked', tokenDiv.hasClass('create'));
 			$('.edit-checkbox-js').prop('checked', tokenDiv.hasClass('edit'));
 			$('.delete-checkbox-js').prop('checked', tokenDiv.hasClass('delete'));
-			
-			
-			$(".search-checkbox-js").click(function(e)
-			{
-				// do not allow user to select zero token options
-				if (getTotalSelected() == 0 && !$(".search-checkbox-js").prop("checked"))
-					e.preventDefault();
-			});
-			
-			$(".create-checkbox-js").click(function(e)
-			{
-				if (getTotalSelected() == 0 && !$(".create-checkbox-js").prop("checked"))
-					e.preventDefault();
-			});
-			
-			$(".edit-checkbox-js").click(function(e)
-			{
-				if (getTotalSelected() == 0 && !$(".edit-checkbox-js").prop("checked"))
-					e.preventDefault();
-			});
-			
-			$(".delete-checkbox-js").click(function(e)
-			{
-				if (getTotalSelected() == 0 && !$(".delete-checkbox-js").prop("checked"))
-					e.preventDefault();
-			});
-			
-			function getTotalSelected()
-			{
-				return Number($( ".search-checkbox-js" ).prop("checked")) +
-				Number($( ".create-checkbox-js" ).prop("checked")) + 
-				Number($( ".edit-checkbox-js" ).prop("checked")) + 
-				Number($( ".delete-checkbox-js" ).prop("checked"));
-			}
 
             titleVal.val(titleSpan.text());
 
@@ -375,6 +389,21 @@ Kora.Tokens.Index = function() {
             width: '100%',
         });
     }
+	
+	function getTotalCreateTokenCheckboxesSelected()
+	{
+		return Number($( ".search-token-create-js" ).prop("checked")) +
+		Number($( ".create-token-create-js" ).prop("checked")) + 
+		Number($( ".edit-token-create-js" ).prop("checked")) + 
+		Number($( ".delete-token-create-js" ).prop("checked"));
+	}
+	
+	function create_is_validated()
+	{
+		//console.log("checked: " + getTotalCreateTokenCheckboxesSelected());
+		//console.log("text : " + $("#token_name")[0].value);
+		return ($("#token_name")[0].value.length >= 3 && getTotalCreateTokenCheckboxesSelected() > 0);
+	}
 	
 	function initializeTokenCardEllipsifying()
 	{
