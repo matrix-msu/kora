@@ -89,14 +89,18 @@ class MultiSelectListField extends BaseField {
     public function updateOptions($field, Request $request) {
         $reqDefs = $request->default;
         $default = $reqDefs[0];
-        for($i=1;$i<sizeof($reqDefs);$i++) {
-            $default .= '[!]'.$reqDefs[$i];
+        if(!is_null($default)) {
+            for ($i = 1; $i < sizeof($reqDefs); $i++) {
+                $default .= '[!]' . $reqDefs[$i];
+            }
         }
 
         $reqOpts = $request->options;
         $options = $reqOpts[0];
-        for($i=1;$i<sizeof($reqOpts);$i++) {
-            $options .= '[!]'.$reqOpts[$i];
+        if(!is_null($options)) {
+            for ($i = 1; $i < sizeof($reqOpts); $i++) {
+                $options .= '[!]' . $reqOpts[$i];
+            }
         }
 
         $field->updateRequired($request->required);
@@ -186,22 +190,22 @@ class MultiSelectListField extends BaseField {
     /**
      * Validates the record data for a field against the field's options.
      *
-     * @param  Field $field - The
-     * @param  mixed $value - Record data
+     * @param  Field $field - The field to validate
      * @param  Request $request
-     * @return string - Potential error message
+     * @return array - Array of errors
      */
-    public function validateField($field, $value, $request) {
+    public function validateField($field, $request) {
         $req = $field->required;
+        $value = $request->{$field->flid};
         $list = MultiSelectListField::getList($field);
 
         if($req==1 && ($value==null | $value==""))
-            return $field->name."_validated";
+            return ['list'.$field->flid.'_chosen' => $field->name.' is required'];
 
-        if(sizeof(array_diff($value,$list))>0 && $value[0] !== ' ')
-            return $field->name."_invalid_option";
+        if(sizeof(array_diff($value,$list))>0)
+            return ['list'.$field->flid.'_chosen' => $field->name.' has an invalid value not in the list'];
 
-        return 'field_validated';
+        return array();
     }
 
     /**

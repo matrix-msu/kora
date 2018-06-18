@@ -264,12 +264,11 @@ class DateField extends BaseField {
     /**
      * Validates the record data for a field against the field's options.
      *
-     * @param  Field $field - The
-     * @param  mixed $value - Record data
+     * @param  Field $field - The field to validate
      * @param  Request $request
-     * @return string - Potential error message
+     * @return array - Array of errors
      */
-    public function validateField($field, $value, $request) {
+    public function validateField($field, $request) {
         $req = $field->required;
         $start = FieldController::getFieldOption($field,'Start');
         $end = FieldController::getFieldOption($field,'End');
@@ -278,15 +277,25 @@ class DateField extends BaseField {
         $year = $request->input('year_'.$field->flid,'');
 
         if($req==1 && $month=='' && $day=='' && $year=='')
-            return $field->name."_required";
+            return [
+                'month_'.$field->flid.'_chosen' => $field->name.' is required',
+                'day_'.$field->flid.'_chosen' => ' ',
+                'year_'.$field->flid.'_chosen' => ' '
+            ];
 
         if(($year<$start | $year>$end) && $year!='')
-            return $field->name."_year_range";
+            return [
+                'year_'.$field->flid.'_chosen' => $field->name.'\'s year is outside of the expected range'
+            ];
 
         if(!DateField::validateDate($month,$day,$year))
-            return $field->name."_day_month_error";
+            return [
+                'month_'.$field->flid.'_chosen' => $field->name.' is an invalid date',
+                'day_'.$field->flid.'_chosen' => ' ',
+                'year_'.$field->flid.'_chosen' => ' '
+            ];
 
-        return 'field_validated';
+        return array();
     }
 
     /**
@@ -298,17 +307,19 @@ class DateField extends BaseField {
      * @return bool - Is valid
      */
     private static function validateDate($m,$d,$y) {
+        //First off we cant have a date without a month.
         if($d!='' && !is_null($d) && $d!=0) {
-            if ($m == '' | is_null($m) | $m==0) {
+            if($m == '' | is_null($m) | $m==0)
                 return false;
-            } else {
-                if($y=='' | $y==0)
-                    $y=1;
-                return checkdate($m, $d, $y);
-            }
         }
 
-        return true;
+        //Next we need to make sure the date provided is legal (i.e. no Feb 30th, etc)
+        //For the check we need to default any blank values to 1, cause checkdate doesn't like partial dates
+        if($m == '' | is_null($m) | $m==0) {$m=1;}
+        if($d == '' | is_null($d) | $d==0) {$d=1;}
+        if($y == '' | is_null($y) | $y==0) {$y=1;}
+
+        return checkdate($m, $d, $y);
     }
 
     /**
