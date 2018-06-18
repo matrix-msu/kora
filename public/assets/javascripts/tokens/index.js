@@ -7,7 +7,7 @@ Kora.Tokens.Index = function() {
     }
 	
 	function initializeValidation() {
-	  last_submit = $.now();
+	  submitted = false;
 		
       $('.validate-token-js').on('click', function(e) { // whole form validation on submit
         var $this = $(this);
@@ -74,8 +74,8 @@ Kora.Tokens.Index = function() {
 			values.token_projects.push(choice_ids[$(this).eq(0).text()]);
 		});
 		
-		if ($.now() < last_submit + 1000) return; // 1 second delay between sending create token requests
-		last_submit = $.now();
+		if (submitted) return; // dont allow multiple submits
+		submitted = true;
 		
 	    // server-side whole-form validation
         $.ajax({
@@ -83,11 +83,10 @@ Kora.Tokens.Index = function() {
           method: 'POST',
           data: values,
           success: function(data) {
-            alert("validation and creation successful");
-			location.reload();
+			location.reload(); // reload tokens page
           },
           error: function(err) {
-            alert("validation failure or creation failure");
+            location.reload(); // client-server validation mismatch or user forged request
           }
         });
       });
