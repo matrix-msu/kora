@@ -177,8 +177,8 @@ Route::group(['middleware' => 'web'], function () {
 
 //user routes
     Route::get('/user', 'Auth\UserController@redirect');
-    Route::get('/user/{uid}/{section?}', 'Auth\UserController@index');
     Route::get('/user/{uid}/edit', 'Auth\UserController@editProfile');
+    Route::get('/user/{uid}/{section?}', 'Auth\UserController@index');
     Route::delete('/user/{uid}/delete', 'Auth\UserController@delete');
     Route::patch('/user/validate/{uid}', 'Auth\UserController@validateUserFields');
     Route::patch('/user/changepw', 'Auth\UserController@changepw');
