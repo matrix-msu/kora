@@ -1,4 +1,4 @@
-@extends('app', ['page_title' => 'My Profile', 'page_class' => 'user-profile'])
+@extends('app', ['page_title' => (Auth::user()->id == $user->id ? 'My Profile' : $user->username), 'page_class' => 'user-profile'])
 
 @section('header')
     @include('partials.user.profile.head')
