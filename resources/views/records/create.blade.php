@@ -66,7 +66,7 @@
         </div>
 
         {!! Form::model($record = new \App\Record, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid.'/records',
-            'enctype' => 'multipart/form-data', 'id' => 'new_record_form']) !!}
+            'enctype' => 'multipart/form-data', 'id' => 'new_record_form', 'class' => 'record-form']) !!}
 
             @include('partials.records.form',['form' => $form, 'editRecord' => false])
 
@@ -111,7 +111,7 @@
             </div>
 
             <div class="form-group mt-xxxl">
-                {!! Form::submit('Create New Record',['class' => 'btn']) !!}
+                {!! Form::submit('Create New Record',['class' => 'btn record-validate-js']) !!}
             </div>
         {!! Form::close() !!}
     </section>
@@ -128,13 +128,15 @@
     <script src="{{ config('app.url') }}assets/javascripts/records/tabs.js"></script>
 
     <script type="text/javascript">
-        getPresetDataUrl = "{{action('RecordPresetController@getData')}}";
-        moveFilesUrl = '{{action('RecordPresetController@moveFilesToTemp')}}';
-        geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => 0]) }}';
-        csrfToken = "{{ csrf_token() }}";
-        userID = "{{\Auth::user()->id}}";
-        baseFileUrl = "{{config('app.url'). 'deleteTmpFile/'}}";
+        var getPresetDataUrl = "{{action('RecordPresetController@getData')}}";
+        var moveFilesUrl = '{{action('RecordPresetController@moveFilesToTemp')}}';
+        var geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => 0]) }}';
+        var csrfToken = "{{ csrf_token() }}";
+        var userID = "{{\Auth::user()->id}}";
+        var baseFileUrl = "{{config('app.url'). 'deleteTmpFile/'}}";
+        var validationUrl = "{{ url("projects/$form->pid/forms/$form->fid/records/validate") }}";
 
         Kora.Records.Create();
+        Kora.Records.Validate();
     </script>
 @stop

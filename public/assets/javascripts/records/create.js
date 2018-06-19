@@ -112,13 +112,28 @@ Kora.Records.Create = function() {
 
         $('.add-combo-value-js').click(function() {
             flid = $(this).attr('flid');
-            inputOne = $('#default_one_'+flid);
-            inputTwo = $('#default_two_'+flid);
+            type1 = $(this).attr('typeOne');
+            type2 = $(this).attr('typeTwo');
 
-            val1 = inputOne.val();
-            val2 = inputTwo.val();
-            type1 = inputOne.closest('.combo-list-input-one').attr('cfType');
-            type2 = inputTwo.closest('.combo-list-input-two').attr('cfType');
+            if(type1=='Date') {
+                monthOne = $('#month_one_'+flid);
+                dayOne = $('#day_one_'+flid);
+                yearOne = $('#year_one_'+flid);
+                val1 = monthOne.val()+'/'+dayOne.val()+'/'+yearOne.val();
+            } else {
+                inputOne = $('#default_one_'+flid);
+                val1 = inputOne.val();
+            }
+
+            if(type2=='Date') {
+                monthTwo = $('#month_two_'+flid);
+                dayTwo = $('#day_two_'+flid);
+                yearTwo = $('#year_two_'+flid);
+                val2 = monthTwo.val()+'/'+dayTwo.val()+'/'+yearTwo.val();
+            } else {
+                inputTwo = $('#default_two_'+flid);
+                val2 = inputTwo.val();
+            }
 
             defaultDiv = $('.combo-value-div-js-'+flid);
 
@@ -134,7 +149,7 @@ Kora.Records.Create = function() {
 
                 div = '<div class="combo-value-item-js">';
 
-                if(type1=='Text' | type1=='List' | type1=='Number') {
+                if(type1=='Text' | type1=='List' | type1=='Number' | type1=='Date') {
                     div += '<input type="hidden" name="'+flid+'_combo_one[]" value="'+val1+'">';
                     div += '<span class="combo-column">'+val1+'</span>';
                 } else if(type1=='Multi-Select List' | type1=='Generated List' | type1=='Associator') {
@@ -142,7 +157,7 @@ Kora.Records.Create = function() {
                     div += '<span class="combo-column">'+val1.join(' | ')+'</span>';
                 }
 
-                if(type2=='Text' | type2=='List' | type2=='Number') {
+                if(type2=='Text' | type2=='List' | type2=='Number' | type2=='Date') {
                     div += '<input type="hidden" name="'+flid+'_combo_two[]" value="'+val2+'">';
                     div += '<span class="combo-column">'+val2+'</span>';
                 } else if(type2=='Multi-Select List' | type2=='Generated List' | type2=='Associator') {
@@ -156,13 +171,25 @@ Kora.Records.Create = function() {
 
                 defaultDiv.children('.combo-list-display').first().append(div);
 
-                inputOne.val('');
-                if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List' | type1=='Associator')
+                if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List' | type1=='Associator') {
+                    inputOne.val('');
                     inputOne.trigger("chosen:updated");
+                } else if(type1=='Date') {
+                    monthOne.val(''); dayOne.val(''); yearOne.val('');
+                    monthOne.trigger("chosen:updated"); dayOne.trigger("chosen:updated"); yearOne.trigger("chosen:updated");
+                } else {
+                    inputOne.val('');
+                }
 
-                inputTwo.val('');
-                if(type2=='Multi-Select List' | type2=='Generated List' | type2=='List' | type2=='Associator')
+                if(type2=='Multi-Select List' | type2=='Generated List' | type2=='List' | type2=='Associator') {
+                    inputTwo.val('');
                     inputTwo.trigger("chosen:updated");
+                } else if(type2=='Date') {
+                    monthTwo.val(''); dayTwo.val(''); yearTwo.val('');
+                    monthTwo.trigger("chosen:updated"); dayTwo.trigger("chosen:updated"); yearTwo.trigger("chosen:updated");
+                } else {
+                    inputTwo.val('');
+                }
             }
         });
     }

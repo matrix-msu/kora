@@ -37,6 +37,7 @@
 ?>
 <div class="form-group mt-sm">
     {!! Form::label('month_'.$field->flid,'Month: ') !!}
+    <span class="error-message"></span>
     {!! Form::select('month_'.$field->flid,['' => '',
         '1' => '01 - '.date("F", mktime(0, 0, 0, 1, 10)), '2' => '02 - '.date("F", mktime(0, 0, 0, 2, 10)),
         '3' => '03 - '.date("F", mktime(0, 0, 0, 3, 10)), '4' => '04 - '.date("F", mktime(0, 0, 0, 4, 10)),
@@ -49,7 +50,8 @@
 
 <div class="form-group mt-sm">
     {!! Form::label('day_'.$field->flid,'Day: ') !!}
-    <select name="day_{{$field->flid}}" class="single-select preset-clear-chosen-js" data-placeholder="Select a Day">
+    <span class="error-message"></span>
+    <select id="day_{{$field->flid}}" name="day_{{$field->flid}}" class="single-select preset-clear-chosen-js" data-placeholder="Select a Day">
         <option value=""></option>
         <?php
             $currDay=0;
@@ -80,7 +82,8 @@
 
 <div class="form-group mt-sm">
     {!! Form::label('year_'.$field->flid,'Year: ') !!}
-    <select name="year_{{$field->flid}}" class="single-select preset-clear-chosen-js" data-placeholder="Select a Year">
+    <span class="error-message"></span>
+    <select id="year_{{$field->flid}}" name="year_{{$field->flid}}" class="single-select preset-clear-chosen-js" data-placeholder="Select a Year">
         <option value=""></option>
         <?php
             $currYear=0;

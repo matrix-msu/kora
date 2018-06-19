@@ -159,6 +159,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/projects/{pid}/forms/{fid}/records/create', 'RecordController@create');
     Route::get('/projects/{pid}/forms/{fid}/records/import', 'RecordController@importRecordsView');
     Route::post('/projects/{pid}/forms/{fid}/records/matchup', 'ImportController@matchupFields');
+    Route::post('/projects/{pid}/forms/{fid}/records/validate', 'RecordController@validateRecord');
     Route::post('/projects/{pid}/forms/{fid}/records/importRecord', 'ImportController@importRecord');
     Route::get('/projects/{pid}/forms/{fid}/importExample/{type}', 'ImportController@exportSample');
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}', 'RecordController@show');
@@ -177,8 +178,8 @@ Route::group(['middleware' => 'web'], function () {
 
 //user routes
     Route::get('/user', 'Auth\UserController@redirect');
-    Route::get('/user/{uid}/{section?}', 'Auth\UserController@index');
     Route::get('/user/{uid}/edit', 'Auth\UserController@editProfile');
+    Route::get('/user/{uid}/{section?}', 'Auth\UserController@index');
     Route::delete('/user/{uid}/delete', 'Auth\UserController@delete');
     Route::patch('/user/validate/{uid}', 'Auth\UserController@validateUserFields');
     Route::patch('/user/changepw', 'Auth\UserController@changepw');
