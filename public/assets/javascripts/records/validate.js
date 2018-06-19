@@ -33,6 +33,7 @@ Kora.Records.Validate = function() {
 
                     if(err.errors.length==0) {
                         console.log('Good Record');
+                        $('.record-form').submit();
                     } else {
                         $.each(err.errors, function(fieldName, error) {
                             var $field = $('#'+fieldName);

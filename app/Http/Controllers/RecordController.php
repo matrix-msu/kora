@@ -102,6 +102,7 @@ class RecordController extends Controller {
      */
 	public function store($pid, $fid, Request $request) {
 	    //Validates records
+/*
         foreach($request->all() as $key => $value) {
             if(!is_numeric($key))
                 continue;
@@ -122,6 +123,7 @@ class RecordController extends Controller {
                         ->with('k3_global_error', 'record_validation_error')->with('record_validation_error', $message);
             }
         }
+*/
 
         //Handle Mass Creation
         $numRecs = 1;
