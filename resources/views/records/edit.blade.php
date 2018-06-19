@@ -68,7 +68,7 @@
 
     <section class="create-record center">
         {!! Form::model($record, ['method' => 'PATCH', 'action' => ['RecordController@update',$form->pid, $form->fid, $record->rid],
-            'enctype' => 'multipart/form-data', 'id' => 'new_record_form']) !!}
+            'enctype' => 'multipart/form-data', 'id' => 'new_record_form', 'class' => 'record-form']) !!}
 
         <div class="form-group mt-xl newRecPre-record-js hidden">
             {!! Form::label('record_preset_name', 'Record Preset Name: ') !!}
@@ -80,7 +80,7 @@
         @include('partials.records.pagination-form', ['layout' => \App\Http\Controllers\PageController::getFormLayout($form->fid)])
 
         <div class="form-group record-update-button mt-xxxl">
-            {!! Form::submit('Update Record',['class' => 'btn edit-btn update-record-submit pre-fixed-js']) !!}
+            {!! Form::submit('Update Record',['class' => 'btn edit-btn update-record-submit pre-fixed-js record-validate-js']) !!}
         </div>
 
         {!! Form::close() !!}
@@ -97,13 +97,15 @@
     <script src="{{ config('app.url') }}assets/javascripts/vendor/ckeditor/ckeditor.js"></script>
 
     <script type="text/javascript">
-        getPresetDataUrl = "{{action('RecordPresetController@getData')}}";
-        moveFilesUrl = '{{action('RecordPresetController@moveFilesToTemp')}}';
-        geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => 0]) }}';
-        csrfToken = "{{ csrf_token() }}";
-        userID = "{{\Auth::user()->id}}";
-        baseFileUrl = "{{config('app.url'). 'deleteTmpFile/'}}";
+        var getPresetDataUrl = "{{action('RecordPresetController@getData')}}";
+        var moveFilesUrl = '{{action('RecordPresetController@moveFilesToTemp')}}';
+        var geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => 0]) }}';
+        var csrfToken = "{{ csrf_token() }}";
+        var userID = "{{\Auth::user()->id}}";
+        var baseFileUrl = "{{config('app.url'). 'deleteTmpFile/'}}";
+        var validationUrl = "{{action('RecordController@validateRecord',['pid' => $form->pid, 'fid' => $form->fid])}}";
 
         Kora.Records.Create();
+        Kora.Records.Validate();
     </script>
 @stop

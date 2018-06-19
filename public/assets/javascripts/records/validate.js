@@ -19,20 +19,17 @@ Kora.Records.Validate = function() {
                 else
                     values[field.name] = field.value;
             });
-            console.log($('.record-form').serializeArray());
-            console.log(values);
+            values['_method'] = 'POST';
 
             $.ajax({
                 url: validationUrl,
                 method: 'POST',
                 data: values,
                 success: function(err) {
-                    console.log(err);
                     $('.error-message').text('');
                     $('.text-input, .text-area, .cke, .chosen-container').removeClass('error');
 
                     if(err.errors.length==0) {
-                        console.log('Good Record');
                         $('.record-form').submit();
                     } else {
                         $.each(err.errors, function(fieldName, error) {
