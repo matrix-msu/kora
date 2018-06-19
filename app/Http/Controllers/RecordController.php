@@ -102,13 +102,12 @@ class RecordController extends Controller {
      */
 	public function store($pid, $fid, Request $request) {
 	    //Validates records
-/*
         foreach($request->all() as $key => $value) {
             if(!is_numeric($key))
                 continue;
             $field = FieldController::getField($key);
-            $message = $field->getTypedField()->validateField($field, $value, $request);
-            if($message != 'field_validated') {
+            $message = $field->getTypedField()->validateField($field, $request);
+            if(!empty($message)) {
                 $arrayed_keys = array();
 
                 foreach($request->all() as $akey => $avalue) {
@@ -123,7 +122,6 @@ class RecordController extends Controller {
                         ->with('k3_global_error', 'record_validation_error')->with('record_validation_error', $message);
             }
         }
-*/
 
         //Handle Mass Creation
         $numRecs = 1;
@@ -342,8 +340,8 @@ class RecordController extends Controller {
             if(!is_numeric($key))
                 continue;
             $field = FieldController::getField($key);
-            $message = $field->getTypedField()->validateField($field, $value, $request);
-            if($message != 'field_validated')
+            $message = $field->getTypedField()->validateField($field, $request);
+            if(!empty($message))
                 return redirect()->back()->withInput()->with('k3_global_error', 'record_validation_error')->with('record_validation_error', $message);
         }
 
