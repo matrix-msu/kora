@@ -252,11 +252,7 @@ class RecordController extends Controller {
         $errors = [];
         $form = FormController::getForm($fid);
 
-        $testTypes = ['Combo List', 'Associator']; //TODO::THIS SHOULD ULTIMATELY BE REMOVED WHEN IMPLEMENTED
         foreach($form->fields()->get() as $field) {
-            if(in_array($field->type,$testTypes))
-                continue;
-
             $message = $field->getTypedField()->validateField($field, $request);
             if(!empty($message))
                 $errors += $message; //We add these arrays because it maintains the keys, where array_merge re-indexes

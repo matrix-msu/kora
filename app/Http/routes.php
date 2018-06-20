@@ -178,14 +178,14 @@ Route::group(['middleware' => 'web'], function () {
 
 //user routes
     Route::get('/user', 'Auth\UserController@redirect');
-    Route::get('/user/{uid}/edit', 'Auth\UserController@editProfile');
-    Route::get('/user/{uid}/{section?}', 'Auth\UserController@index');
     Route::delete('/user/{uid}/delete', 'Auth\UserController@delete');
     Route::patch('/user/validate/{uid}', 'Auth\UserController@validateUserFields');
     Route::patch('/user/changepw', 'Auth\UserController@changepw');
     Route::patch('/user/{uid}/update', 'Auth\UserController@update');
     Route::get('/auth/activate', 'Auth\UserController@activateshow');
     Route::get('/user/activate/{token}', 'Auth\UserController@activate');
+    Route::get('/user/{uid}/edit', 'Auth\UserController@editProfile');
+    Route::get('/user/{uid}/{section?}', 'Auth\UserController@index');
     Route::post('/auth/resendActivate', 'Auth\UserController@resendActivation');
     Route::post('/auth/activator', 'Auth\UserController@activator');
     Route::post('/user/profile', 'Auth\UserController@changeprofile');

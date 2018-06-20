@@ -9,6 +9,7 @@
         <div class="body">
             <div class="form-group">
                 {!! Form::label('locDesc', 'Location Name: ') !!}
+                <span class="error-message"></span>
                 <input type="text" class="text-input location-desc-js" placeholder="Enter the Location name here">
             </div>
             <div class="form-group mt-xl">
@@ -19,10 +20,12 @@
 
             <section class="lat-lon-switch-js">
                 <div class="form-group mt-xl half pr-m">
+                    <span class="error-message"></span>
                     {!! Form::label('latVal', 'Latitude: ') !!}
                     <input type="number" class="text-input location-lat-js" min=-90 max=90 step=".000001">
                 </div>
                 <div class="form-group mt-xl half pr-l">
+                    <span class="error-message"></span>
                     {!! Form::label('lonVal', 'Longitude: ') !!}
                     <input type="number" class="text-input location-lon-js" min=-180 max=180 step=".000001">
                 </div>
@@ -30,14 +33,17 @@
 
             <section class="utm-switch-js hidden">
                 <div class="form-group mt-xl">
+                    <span class="error-message"></span>
                     {!! Form::label('zoneVal', 'Zone: ') !!}
                     <input type="text" class="text-input location-zone-js">
                 </div>
                 <div class="form-group mt-xl half pr-m">
+                    <span class="error-message"></span>
                     {!! Form::label('eastVal', 'Easting: ') !!}
                     <input type="text" class="text-input location-east-js">
                 </div>
                 <div class="form-group mt-xl half pr-l">
+                    <span class="error-message"></span>
                     {!! Form::label('northVal', 'Northing: ') !!}
                     <input type="text" class="text-input location-north-js">
                 </div>
@@ -45,6 +51,7 @@
 
             <section class="address-switch-js hidden">
                 <div class="form-group mt-xl">
+                    <span class="error-message"></span>
                     {!! Form::label('addrVal', 'Address: ') !!}
                     <input type="text" class="text-input location-addr-js">
                 </div>

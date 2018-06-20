@@ -119,6 +119,9 @@ Kora.Fields.Options = function(fieldType) {
         $('.add-new-event-js').on('click', function(e) {
             e.preventDefault();
 
+            $('.error-message').text('');
+            $('.text-input, .text-area, .cke, .chosen-container').removeClass('error');
+
             var nameInput = $('.event-name-js');
             var sTimeInput = $('.event-start-time-js');
             var eTimeInput = $('.event-end-time-js');
@@ -128,7 +131,23 @@ Kora.Fields.Options = function(fieldType) {
             var eTime = eTimeInput.val().trim();
 
             if(name==''|sTime==''|eTime=='') {
-                //TODO::show error
+                if(name=='') {
+                    schError = $('.event-name-js');
+                    schError.addClass('error');
+                    schError.siblings('.error-message').text('Event name is required');
+                }
+
+                if(sTime=='') {
+                    schError = $('.event-start-time-js');
+                    schError.addClass('error');
+                    schError.siblings('.error-message').text('Start time is required');
+                }
+
+                if(eTime=='') {
+                    schError = $('.event-end-time-js');
+                    schError.addClass('error');
+                    schError.siblings('.error-message').text('End time is required');
+                }
             } else {
                 if($('.event-allday-js').is(":checked")) {
                     sTime = sTime.split(" ")[0];
@@ -136,14 +155,16 @@ Kora.Fields.Options = function(fieldType) {
                 }
 
                 if(sTime>eTime) {
-                    //TODO::show error
-                }else {
+                    schError = $('.event-start-time-js');
+                    schError.addClass('error');
+                    schError.siblings('.error-message').text('Start time can not occur before the end time');
+                } else {
                     val = name + ': ' + sTime + ' - ' + eTime;
 
                     if(val != '') {
                         //Value is good so let's add it
                         var option = $("<option>").val(val).text(val);
-                        var select = $('.default-event-js');
+                        var select = $('.'+flid+'-event-js');
 
                         select.append(option);
                         select.find(option).prop('selected', true);
@@ -186,10 +207,15 @@ Kora.Fields.Options = function(fieldType) {
         $('.add-new-location-js').click(function(e) {
             e.preventDefault();
 
+            $('.error-message').text('');
+            $('.text-input, .text-area, .cke, .chosen-container').removeClass('error');
+
             //check to see if description provided
             var desc = $('.location-desc-js').val();
             if(desc=='') {
-                //TODO::show error
+                geoError = $('.location-desc-js');
+                geoError.addClass('error');
+                geoError.siblings('.error-message').text('Location description required');
             } else {
                 var type = $('.location-type-js').val();
 
@@ -199,8 +225,17 @@ Kora.Fields.Options = function(fieldType) {
                     var lat = $('.location-lat-js').val();
                     var lon = $('.location-lon-js').val();
 
-                    if(lat == '' | lon == '') {
-                        //TODO::show error
+                    if(lat == '') {
+                        geoError = $('.location-lat-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('Latitude value required');
+                        valid = false;
+                    }
+
+                    if(lon == '') {
+                        geoError = $('.location-lon-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('Longitude value required');
                         valid = false;
                     }
                 } else if(type == 'UTM') {
@@ -208,15 +243,33 @@ Kora.Fields.Options = function(fieldType) {
                     var east = $('.location-east-js').val();
                     var north = $('.location-north-js').val();
 
-                    if(zone == '' | east == '' | north == '') {
-                        //TODO::show error
+                    if(zone == '') {
+                        geoError = $('.location-zone-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('UTM Zone is required');
+                        valid = false;
+                    }
+
+                    if(east == '') {
+                        geoError = $('.location-east-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('UTM Easting required');
+                        valid = false;
+                    }
+
+                    if(north == '') {
+                        geoError = $('.location-north-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('UTM Northing required');
                         valid = false;
                     }
                 } else if(type == 'Address') {
                     var addr = $('.location-addr-js').val();
 
                     if(addr == '') {
-                        //TODO::show error
+                        geoError = $('.location-addr-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('Location address required');
                         valid = false;
                     }
                 }

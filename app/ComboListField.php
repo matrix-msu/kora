@@ -390,10 +390,10 @@ class ComboListField extends BaseField {
         $req = $field->required;
         $flid = $field->flid;
 
-        if($req==1 && !isset($request[$flid.'_val']))
-            return $field->name."_required";
+        if($req==1 && !isset($request[$flid.'_combo_one']))
+            return [$field->flid => $field->name.' is required'];
 
-        return 'field_validated';
+        return array();
     }
 
     /**

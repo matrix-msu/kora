@@ -47,12 +47,11 @@ Kora.User.Edit = function() {
         var actionURL = deleteForm.attr("action");
 
         $.ajax({
-          url: actionURL + "/" + id,
+          url: actionURL + "/" + userid,
           type: 'POST',
           data: deleteForm.serialize(),
           success: function(data) {
-            // TODO: Handle messages sent back from controller
-            location.reload();
+            //TODO:: handle returns to user or user management
           }
         });
       });

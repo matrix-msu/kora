@@ -134,7 +134,7 @@
         var csrfToken = "{{ csrf_token() }}";
         var userID = "{{\Auth::user()->id}}";
         var baseFileUrl = "{{config('app.url'). 'deleteTmpFile/'}}";
-        var validationUrl = "{{ url("projects/$form->pid/forms/$form->fid/records/validate") }}";
+        var validationUrl = "{{action('RecordController@validateRecord',['pid' => $form->pid, 'fid' => $form->fid])}}";
 
         Kora.Records.Create();
         Kora.Records.Validate();
