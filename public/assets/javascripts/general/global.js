@@ -267,3 +267,23 @@ function resizeend() {
     }
   }
 }
+
+// makes sure multi-select inputs have placeholders after clicking and before typing
+function multiselect_placeholder_injection()
+{
+	var inputs = $(".chosen-search-input");
+	//console.log(inputs.length);
+	
+	for (i = 0; i < inputs.length; i++)
+	{
+		var jq_input = $(inputs[i]);
+		
+		if (!jq_input.attr("placeholder-injected"))
+		{
+			jq_input.attr("placeholder-injected", 1);
+			jq_input.attr("placeholder", jq_input.attr("value"));
+		}
+	}
+}
+multiselect_placeholder_injection();
+setInterval(function(){ multiselect_placeholder_injection(); }, 451);
