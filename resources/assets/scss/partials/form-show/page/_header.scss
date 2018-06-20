@@ -78,6 +78,7 @@
   }
   
   .delete-disabled {
-    opacity: 0;
+    opacity: .65;
+	cursor: not-allowed !important;
   }
 }
