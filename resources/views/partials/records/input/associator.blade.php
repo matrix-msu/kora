@@ -20,6 +20,7 @@
 <div class="form-group mt-xxxl">
     <div class="form-group">
         <label>@if($field->required==1)<span class="oval-icon"></span> @endif{{$field->name}}: </label>
+        <span class="error-message"></span>
         {!! Form::select($field->flid.'[]', $listOpts, $selected, ['class' => 'multi-select assoc-default-records-js preset-clear-chosen-js',
             'multiple', "data-placeholder" => "Search below to add associated records", 'id' => $field->flid]) !!}
     </div>
