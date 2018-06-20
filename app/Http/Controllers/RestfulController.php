@@ -601,6 +601,8 @@ class RestfulController extends Controller {
             }
         }
 
+        mysqli_close($con);
+
         return $results;
     }
 
@@ -637,7 +639,7 @@ class RestfulController extends Controller {
      *
      * @param  Form $form - Form being searched
      * @param  array $rids - Record IDs we don't want
-     * @return Collection - The RIDs not in the given set
+     * @return array - The RIDs not in the given set
      */
     private function negative_results($form, $rids) {
 	    $returnRIDS = array();
@@ -662,6 +664,8 @@ class RestfulController extends Controller {
 		while($row = $negUnclean->fetch_assoc()) {
 			array_push($returnRIDS, $row['rid']);
 		}
+
+        mysqli_close($con);
 		
         return $returnRIDS;
     }
@@ -1008,6 +1012,8 @@ class RestfulController extends Controller {
         }
         
         $filters['total'] = $cnt;
+
+        mysqli_close($con);
         
         return $filters;
     }

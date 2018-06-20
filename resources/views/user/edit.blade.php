@@ -71,8 +71,10 @@
   @include('partials.user.javascripts')
 
   <script type="text/javascript">
-      validationUrl = '{{action('Auth\UserController@validateUserFields',['uid'=>$user->id])}}';
+      var validationUrl = '{{action('Auth\UserController@validateUserFields',['uid'=>$user->id])}}';
       var CSRFToken = '{{ csrf_token() }}';
-    Kora.User.Edit();
+      var userid = {{$user->id}};
+
+      Kora.User.Edit();
   </script>
 @stop
