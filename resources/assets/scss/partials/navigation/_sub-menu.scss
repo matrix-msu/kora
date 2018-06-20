@@ -10,7 +10,7 @@
   top: $navigation-height;
   transform: translateY(-200%);
   visibility: hidden;
-  width: 175px;
+  min-width: 175px;
   will-change: transform;
   z-index: -1;
 
