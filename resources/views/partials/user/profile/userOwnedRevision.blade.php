@@ -34,7 +34,7 @@
                     to its previous state that is listed below.
                 </p>
             @endif
-            @if ($revision->type === 'edit')
+            @if ($revision->type === 'edit' && isset($data["current"]))
                 <span>Edits Made</span>
                 <div class="edit-section">
                     @foreach ($data["current"] as $id => $field)
@@ -71,7 +71,7 @@
             @endif
 
             @if ($exists)
-                <a class="quick-action underline-middle-hover restore-js" href="#" data-revision="{{$revision->id}}">
+                <a class="quick-action underline-middle-hover restore-js" href="#" tooltip="" data-revision="{{$revision->id}}">
                     <i class="icon icon-unarchive"></i>
                     <span>Restore Field(s) to Before</span>
                 </a>
