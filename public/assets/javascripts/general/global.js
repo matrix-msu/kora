@@ -275,7 +275,7 @@ function multiselect_placeholder_injection()
 	var inputs = $(".chosen-search-input");
 	//console.log(inputs.length);
 	
-	for (i = 0; i < $(".chosen-search-input").length; i++)
+	for (i = 0; i < inputs.length; i++)
 	{
 		var jq_input = $(inputs[i]);
 		
