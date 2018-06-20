@@ -1,6 +1,6 @@
 <section class="pagination center">
     <div class="previous page disabled">
-        <a href="#">
+        <a>
             <i class="icon icon-chevron left"></i>
             <span class="name underline-middle-hover">Previous Page</span>
         </a>
@@ -11,7 +11,7 @@
         @endforeach
     </div>
     <div class="next page {{count($layout) > 1 ? '' : 'disabled'}}">
-        <a href="#">
+        <a>
             <i class="icon icon-chevron right"></i>
             <span class="name underline-middle-hover">Next Page</span>
         </a>
