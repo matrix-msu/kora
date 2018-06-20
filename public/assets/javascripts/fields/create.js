@@ -133,7 +133,7 @@ Kora.Fields.Create = function() {
                     $('.error-message').text('');
                     $('.text-input, .text-area').removeClass('error');
 
-                    $.each(err.responseJSON, function(fieldName, errors) {
+                    $.each(err.responseJSON.errors, function(fieldName, errors) {
                         var $field = $('#'+fieldName);
                         $field.addClass('error');
                         $field.siblings('.error-message').text(errors[0]);
@@ -157,9 +157,9 @@ Kora.Fields.Create = function() {
                 method: 'POST',
                 data: values,
                 error: function(err) {
-                    if (err.responseJSON[field] !== undefined) {
+                    if (err.responseJSON.errors[field] !== undefined) {
                         $('#'+field).addClass('error');
-                        $('#'+field).siblings('.error-message').text(err.responseJSON[field][0]);
+                        $('#'+field).siblings('.error-message').text(err.responseJSON.errors[field][0]);
                     } else {
                         $('#'+field).removeClass('error');
                         $('#'+field).siblings('.error-message').text('');

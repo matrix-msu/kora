@@ -431,6 +431,11 @@ class ExodusHelperController extends Controller {
                 //get cid
                 $cid = (int)$node->id->__toString();
                 //convert to new flid
+                if(!isset($oldControlInfo[$cid])) {
+	                Log::info('Dublin mapping missing or out of date for: '.$name);
+	                continue;   
+                }
+                	
                 $dcflid = $oldControlInfo[$cid];
 
                 //create metadata tag
@@ -451,7 +456,7 @@ class ExodusHelperController extends Controller {
         //Record stuff//////////////////////////////////////////
         error_reporting(E_ALL);
         ini_set('display_errors', '1');
-        ini_set('memory_limit','1G'); //We might be pulling a lot of rows so this is a safety precaution
+        ini_set('memory_limit','2G'); //We might be pulling a lot of rows so this is a safety precaution
         $records = $con->query('select D.*, C.name from p'.$oldPid.'Data D left join p'.$oldPid.'Control C on D.cid=C.cid where D.schemeid='.$ogSid);
         $recrows = $records->fetch_all(MYSQLI_ASSOC);
         $oldKidToNewRid = array();

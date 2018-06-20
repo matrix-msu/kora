@@ -3,6 +3,7 @@
 use App\Http\Controllers\FieldController;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
@@ -272,20 +273,20 @@ class DocumentsField extends FileTypeField {
     /**
      * Validates the record data for a field against the field's options.
      *
-     * @param  Field $field - The
-     * @param  mixed $value - Record data
+     * @param  Field $field - The field to validate
      * @param  Request $request
-     * @return string - Potential error message
+     * @return array - Array of errors
      */
-    public function validateField($field, $value, $request) {
+    public function validateField($field, $request) {
         $req = $field->required;
+        $value = 'f'.$field->flid.'u'.Auth::user()->id;
 
         if($req==1) {
             if(glob(config('app.base_path').'storage/app/tmpFiles/'.$value.'/*.*') == false)
-                return $field->name."_required";
+                return [$field->flid => $field->name.' is required'];
         }
 
-        return "field_validated";
+        return array();
     }
 
     /**
