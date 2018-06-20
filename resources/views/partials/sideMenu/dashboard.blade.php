@@ -72,5 +72,11 @@
           </ul>
         </li>
       @endif
+	  
+	  @if(\Auth::user()->admin==0)
+	  <li class="content-link request-permissions-js">
+        <a href="#">Request Project Permissions</a>
+      </li>
+	  @endif
   </ul>
 </div>
