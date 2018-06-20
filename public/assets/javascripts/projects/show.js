@@ -223,31 +223,67 @@ Kora.Projects.Show = function() {
       $content.addClass('active');
     });
   }
+  
+  function initializeFormCardEllipsifying()
+  {
+    function adjustFormCardTitle()
+    {
+		var alphabetical = false;
+		var custom = false;
+		
+		if ($(".active-forms").hasClass("active"))
+		{
+			alphabetical = true;
+			var cards = $($(".active-forms").find(".form.card"));
+		}
+		else if ($(".custom-forms").hasClass("active"))
+		{
+			custom = true;
+			var cards = $($(".custom-forms").find(".form.card"));
+		}
+    	
+    	for (i = 0; i < cards.length; i++)
+    	{	
+    	  var card = $(cards[i]);
+    	  var name_span = $(card.find($(".name")));
+    	  var arrow = $(card.find($(".icon-arrow-right"))); // all form card types have arrow
+    	  var chevron = $(card.find($(".icon-chevron"))); // all form card types have chevron
+		  var up_arrow = $(card.find($(".move-action-js.up-js")));
+		  var down_arrow = $(card.find($(".move-action-js.down-js")));
+    	  
+    	  var card_width = card.width();
+    	  var arrow_width = arrow.outerWidth();
+    	  var chevron_width = chevron.outerWidth();
+		  var up_arrow_width = up_arrow.length ? up_arrow.outerWidth() : 0;
+		  var down_arrow_width = down_arrow.length ? down_arrow.outerWidth() : 0;
+    	  var left_padding = custom ? 0 : 20; // padding within card
+		  var extra_padding = 10;
+    	  
+    	  var title_width = (card_width - left_padding) - (arrow_width + chevron_width + up_arrow_width + down_arrow_width + extra_padding);
+    	  if (title_width < 0) {title_width = 0;}
+    	  
+    	  name_span.css("text-overflow", "ellipsis");
+    	  name_span.css("white-space", "nowrap");
+    	  name_span.css("overflow", "hidden");
+    	  name_span.css("max-width", title_width + "px");
+    	}
+    }
+  	
+    $(window).resize(function()
+    {
+      adjustFormCardTitle();
+    });
+	
+    $(document).ready(function()
+    {
+      adjustFormCardTitle();
+    });
+	
+	$("[href='#custom'], [href='#active']").click(function() { adjustFormCardTitle(); });
+  }
 
   initializeCustomSort();
   initializeFilters();
   initializeSearch();
-
-
-
-
-
-  // function deleteForm(formName, fid) {
-  //   var encode = $('<div/>').html(areYouSure).text();
-  //   var response = confirm(encode + formName + "?");
-  //   if (response) {
-  //     $.ajax({
-  //       //We manually create the link in a cheap way because the JS isn't aware of the fid until runtime
-  //       //We pass in a blank project to the action array and then manually add the id
-  //       url: formDestroyUrl + '/' + fid,
-  //       type: 'DELETE',
-  //       data: {
-  //         "_token": CSRFToken
-  //       },
-  //       success: function(result) {
-  //         location.reload();
-  //       }
-  //     });
-  //   }
-  // }
+  initializeFormCardEllipsifying();
 }

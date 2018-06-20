@@ -7,6 +7,7 @@ use App\Record;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
@@ -219,6 +220,8 @@ class AssociationController extends Controller {
                 });
             } catch(\Swift_TransportException $e) {
                 //TODO::email error response
+                //Log for now
+                Log::info('Request access email failed');
             }
         }
 

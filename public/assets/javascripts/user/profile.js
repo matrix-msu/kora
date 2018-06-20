@@ -2,49 +2,85 @@ var Kora = Kora || {};
 Kora.User = Kora.User || {};
 
 Kora.User.Profile = function() {
+  function windowLocation(key, value) {
+    var sec = (key == 'sec' ? value : getURLParameter('sec'));
+    var rmOrder = (key == 'rm-order' ? value : getURLParameter('rm-order'));
+    var mcrOrder = (key == 'mcr-order' ? value : getURLParameter('mcr-order'));
+    var pageCount = (key == 'page-count' ? value : getURLParameter('page-count'));
+    var page = '';
+    if (key != 'sec') {
+      // When switching sections, don't keep track of the page
+      page = (key == 'page' ? value : getURLParameter('page'));
+    }
+
+    var parameters = [];
+    if (sec) { parameters.push("sec=" + sec); }
+    if (pageCount) { parameters.push("page-count=" + pageCount); }
+    if (rmOrder) { parameters.push("rm-order=" + rmOrder); }
+    if (mcrOrder) { parameters.push("mcr-order=" + mcrOrder); }
+    if (page) { parameters.push("page=" + page); }
+
+    return (parameters ? window.location.pathname + "?" + parameters.join("&") : window.location.pathname);
+  }
+
   function initializeOptionDropdowns() {
     $('.option-dropdown-js').chosen({
       disable_search_threshold: 10,
       width: 'auto'
     }).change(function() {
       var type = $(this).attr('id');
+      var val = $(this).val();
       if (type === 'page-count-dropdown') {
-        var order = getURLParameter('order');
-        window.location = window.location.pathname + "?page-count=" + $(this).val() + (order ? "&order=" + order : '');
+        window.location = windowLocation('page-count', val);
       } else if (type === 'order-dropdown') {
-        var pageCount = getURLParameter('page-count');
-        window.location = window.location.pathname + "?order=" + $(this).val() + (pageCount ? "&page-count=" + pageCount : '');
+        if (getURLParameter('sec') == 'mcr') {
+          window.location = windowLocation('mcr-order', val);
+        } else {
+          window.location = windowLocation('rm-order', val);
+        }
       }
     });
   }
 
-  function initializeFilter(page) {
-    var $selector = $(page + ' .select-content-section-js');
-    var $content = $(page + ' .content-section-js');
-
-    $content.first().addClass('active');
-    $selector.first().addClass('active');
+  function initializeHistoryFilter(page) {
+    var $selector = $('#recordHistory .select-content-section-js');
 
     $selector.click(function(e) {
       e.preventDefault();
 
       $this = $(this);
-      $this.siblings().removeClass('active');
-      $this.addClass('active');
-      $content.removeClass('active');
+      var newSec = $this.attr('href').replace("#", "");
 
-      $active = $this.attr("href").replace('#', '');
-      $content.each(function() {
-        if ($(this).attr('id') == $active) {
-          $(this).addClass('active');
-        }
-      });
+      window.location = windowLocation('sec', newSec);
+    });
+  }
+
+  function initializePermissionsFilter(page) {
+    var $selector = $('#permissions .select-content-section-js');
+    var $content = $('#permissions .content-section-js');
+
+    $selector.first().addClass('active');
+    $content.first().addClass('active');
+
+    $selector.click(function(e) {
+      e.preventDefault();
+
+      var $this = $(this);
+
+      // Active class for filters
+      $selector.removeClass('active');
+      $this.addClass('active');
+
+      // Active class for content
+      $content.removeClass('active');
+      var newSec = $this.attr('href');
+      $('#permissions ' + newSec).addClass('active');
     });
   }
 
   function initializeFilters() {
-    initializeFilter('#permissions');
-    initializeFilter('#recordHistory');
+    initializePermissionsFilter();
+    initializeHistoryFilter();
   }
 
   function initializeProjectCards() {
@@ -87,13 +123,13 @@ Kora.User.Profile = function() {
     // Expand all cards
     $('.expand-fields-js').click(function(e) {
       e.preventDefault();
-      $('.card:not(.active) .card-toggle-js').click();
+      $('.content-section-js.active .card:not(.active) .card-toggle-js').click();
     });
 
     // Collapse all cards
     $('.collapse-fields-js').click(function(e) {
       e.preventDefault();
-      $('.card.active .card-toggle-js').click();
+      $('.content-section-js.active .card.active .card-toggle-js').click();
     });
   }
 
@@ -161,8 +197,24 @@ Kora.User.Profile = function() {
     });
   }
 
+  function initializePaginationRouting() {
+    var $pagination = $('.pagination-js');
+    var $pageLink = $pagination.find('.page-link-js');
+
+    $pageLink.click(function(e) {
+      e.preventDefault();
+
+      var $this = $(this);
+      var sec = getURLParameter('sec');
+      var toPage = $this.attr('href').replace('#', '');
+
+      window.location = windowLocation('page', toPage);
+    });
+  }
+
   initializeOptionDropdowns();
   initializeFilters();
   initializeProjectCards();
   initializeModals();
+  initializePaginationRouting();
 }

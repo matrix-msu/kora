@@ -34,7 +34,6 @@ class DebugClassLoader
     private static $deprecated = array();
     private static $internal = array();
     private static $internalMethods = array();
-    private static $php7Reserved = array('int' => 1, 'float' => 1, 'bool' => 1, 'string' => 1, 'true' => 1, 'false' => 1, 'null' => 1);
     private static $darwinCache = array('/' => array('/', array()));
 
     public function __construct(callable $classLoader)
@@ -141,7 +140,7 @@ class DebugClassLoader
             if ($this->isFinder && !isset($this->loaded[$class])) {
                 $this->loaded[$class] = true;
                 if ($file = $this->classLoader[0]->findFile($class) ?: false) {
-                    $wasCached = \function_exists('opcache_is_script_cached') && opcache_is_script_cached($file);
+                    $wasCached = \function_exists('opcache_is_script_cached') && @opcache_is_script_cached($file);
 
                     require $file;
 
@@ -277,10 +276,6 @@ class DebugClassLoader
                         self::${$annotation.'Methods'}[$name][$method->name] = array($name, $message);
                     }
                 }
-            }
-
-            if (isset(self::$php7Reserved[\strtolower($refl->getShortName())])) {
-                @trigger_error(sprintf('The "%s" class uses the reserved name "%s", it will break on PHP 7 and higher', $name, $refl->getShortName()), E_USER_DEPRECATED);
             }
         }
 

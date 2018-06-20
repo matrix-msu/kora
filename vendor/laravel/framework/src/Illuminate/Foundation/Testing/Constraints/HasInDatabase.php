@@ -2,10 +2,10 @@
 
 namespace Illuminate\Foundation\Testing\Constraints;
 
-use PHPUnit_Framework_Constraint;
 use Illuminate\Database\Connection;
+use PHPUnit\Framework\Constraint\Constraint;
 
-class HasInDatabase extends PHPUnit_Framework_Constraint
+class HasInDatabase extends Constraint
 {
     /**
      * Number of records that will be shown in the console in case of failure.
@@ -48,7 +48,7 @@ class HasInDatabase extends PHPUnit_Framework_Constraint
      * @param  string  $table
      * @return bool
      */
-    public function matches($table)
+    public function matches($table): bool
     {
         return $this->database->table($table)->where($this->data)->count() > 0;
     }
@@ -59,7 +59,7 @@ class HasInDatabase extends PHPUnit_Framework_Constraint
      * @param  string  $table
      * @return string
      */
-    public function failureDescription($table)
+    public function failureDescription($table): string
     {
         return sprintf(
             "a row in the table [%s] matches the attributes %s.\n\n%s",
@@ -96,7 +96,7 @@ class HasInDatabase extends PHPUnit_Framework_Constraint
      * @param  int  $options
      * @return string
      */
-    public function toString($options = 0)
+    public function toString($options = 0): string
     {
         return json_encode($this->data, $options);
     }

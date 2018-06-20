@@ -105,50 +105,47 @@ class kora3ApiExternalTool {
         //Foreach field type, I will list out the index and the expected value of that index
         //SEARCH_DATA_ARRAY[PARAMETER_NAME] = PARAMETER_VALUE
 
-        //Text
+        //Text | Rich Text
         //SDA[input] = string of text to search
-        //Rich Text
-        //SDA[input] = string of text to search
+
         //Number
         //SDA[left] = number of left bound to search (blank for -infinite)
         //SDA[right] = number of right bound to search (blank for infinite)
         //SDA[invert] = bitwise where 1 will search outside of bound
+
         //List
         //SDA[input] = string option to search
-        //Multi-Select List
+
+        //Multi-Select List | Generated List
         //SDA[input] = array of string options to search
-        //Generated List
-        //SDA[input] = array of string options to search
-        //Date
+
+        //Date | Schedule
         //SDA[begin_month] = number representation of month to search
         //SDA[begin_day] = number representation of day to search
         //SDA[begin_year] = number representation of year to search
         //SDA[end_month] = number representation of month to search
         //SDA[end_day] = number representation of day to search
         //SDA[end_year] = number representation of year to search
-        //Schedule
-        //SDA[begin_month] = number representation of month to search
-        //SDA[begin_day] = number representation of day to search
-        //SDA[begin_year] = number representation of year to search
-        //SDA[end_month] = number representation of month to search
-        //SDA[end_day] = number representation of day to search
-        //SDA[end_year] = number representation of year to search
+
+        //Documents | Gallery | Playlist | Video | 3-D Model
+        //SDA[input] = string of filename to search
+
         //Geolocator
         //SDA[type] = string of location type to search (LatLon, UTM, or Address)
         //Only if LatLon
-        //SDA[lat] = number of latitude to search
-        //SDA[lon] = number of longitude to search
+        ////SDA[lat] = number of latitude to search
+        ////SDA[lon] = number of longitude to search
         //Only if UTM
-        //SDA[zone] = string of UTM zone to search
-        //SDA[east] = number of easting to search
-        //SDA[north] = number of northing to search
+        ////SDA[zone] = string of UTM zone to search
+        ////SDA[east] = number of easting to search
+        ////SDA[north] = number of northing to search
         //Only if Address
-        //SDA[address] = string of text to search
-        //SDA[range] = number of radius from location center to search
+        ////SDA[address] = string of text to search
+        ////SDA[range] = number of radius from location center to search
+
         //Associator
         //SDA[input] = array of RIDs to search
-        //Literally Any File Field Ever
-        //SDA[input] = string of filename to search
+
         if($not)
             $qadv["not"] = $not;
 
@@ -175,13 +172,15 @@ class kora3ApiExternalTool {
      * @param  array $flags - Array of flags that customize the search further
      * @param  array $fields - For each record, the fields that should actually be returned
      * @param  array $sort - Defines what fields we are sorting by
-     * @param  array $queries - The collection of queries in the search
+     * @param  array $queries - The collection of query arrays in the search
      * @param  array $qLogic - Logic array for the search
      * @param  int $index - In final result set, what record should we start at
      * @param  int $count - Determines, starting from $index, how many records to return
+     * @param  int $filterCount - Determines what the minimum threshold us for a filter to appear
+     * @param  array $fitlerFlids - Determines what the minimum threshold us for a filter to appear
      * @return array - Array representation of the form search for the API
      */
-    static function formSearchBuilder($fid,$token,$flags,$fields,$sort,$queries,$qLogic,$index=null,$count=null) {
+    static function formSearchBuilder($fid,$token,$flags,$fields,$sort,$queries,$qLogic,$index=null,$count=null,$filterCount=null,$fitlerFlids=null) {
         $form = array();
         $form["form"] = $fid;
         $form["token"] = $token;
@@ -189,12 +188,23 @@ class kora3ApiExternalTool {
         $form["data"] = in_array("data",$flags) ? in_array("data",$flags) : false;
         $form["meta"] = in_array("meta",$flags) ? in_array("meta",$flags) : false;
         $form["size"] = in_array("size",$flags) ? in_array("size",$flags) : false;
+        $form["assoc"] = in_array("assoc",$flags) ? in_array("assoc",$flags) : false;
+        $form["filters"] = in_array("filters",$flags) ? in_array("filters",$flags) : false;
+        $form["realnames"] = in_array("realnames",$flags) ? in_array("realnames",$flags) : false;
         $form["under"] = in_array("under",$flags) ? in_array("under",$flags) : false;
 
         if(!is_null($index))
             $form["index"] = $index;
         if(!is_null($count))
             $form["count"] = $count;
+
+        if(!is_null($filterCount))
+            $form["filterCount"] = $filterCount;
+
+        if(is_array($fitlerFlids) && empty($fitlerFlids))
+            $form["filterFlids"] = "ALL";
+        else
+            $form["filterFlids"] = $fitlerFlids;
 
         if(is_array($fields) && empty($fields))
             $form["fields"] = "ALL";
@@ -361,19 +371,19 @@ class KORA_Clause {
         $hasDate = false;
         $dateArray = ['month'=>01,'day'=>01,'year'=>0001];
 
-        if(strpos($keyword,'<month>')) {
+        if(strpos($keyword,'<month>') !== false) {
             $hasDate = true;
             $p1 = explode('<month>',$keyword)[1];
             $dateArray['month'] = explode('</month>',$p1)[0];
         }
 
-        if(strpos($keyword,'<day>')) {
+        if(strpos($keyword,'<day>') !== false) {
             $hasDate = true;
             $p1 = explode('<day>',$keyword)[1];
             $dateArray['day'] = explode('</day>',$p1)[0];
         }
 
-        if(strpos($keyword,'<year>')) {
+        if(strpos($keyword,'<year>') !== false) {
             $hasDate = true;
             $p1 = explode('<year>',$keyword)[1];
             $dateArray['year'] = explode('</year>',$p1)[0];

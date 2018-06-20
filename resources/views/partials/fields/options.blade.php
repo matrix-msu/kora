@@ -7,7 +7,7 @@
 <div class="form-group">
     {!! Form::label('name', 'Field Name') !!}
     <span class="error-message">{{array_key_exists("name", $errors->messages()) ? $errors->messages()["name"][0] : ''}}</span>
-    {!! Form::text('name', $field->name, ['class' => 'text-input', 'placeholder' => 'Enter the field name here', 'autofocus']) !!}
+    {!! Form::text('name', $field->name, ['class' => 'text-input', 'placeholder' => 'Enter the field name here']) !!}
 </div>
 
 <div class="form-group mt-xl">
@@ -141,7 +141,7 @@
 
 <div class="form-group">
     <div class="field-cleanup">
-        <a class="btn dot-btn trash warning field-trash-js" data-title="Delete Field?" href="#">
+        <a class="btn dot-btn trash warning field-trash-js tooltip" data-title="Delete Field?" href="#" tooltip="Delete Field">
             <i class="icon icon-trash"></i>
         </a>
     </div>

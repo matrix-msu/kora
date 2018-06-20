@@ -49,7 +49,7 @@
 
     <section class="create-record center">
         {!! Form::model($cloneRecord = new \App\Record, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid.'/records',
-            'enctype' => 'multipart/form-data', 'id' => 'new_record_form']) !!}
+            'enctype' => 'multipart/form-data', 'id' => 'new_record_form', 'class' => 'record-form']) !!}
         @include('partials.records.form',['form' => $form, 'editRecord' => true])
 
         <div class="form-group mt-xxxl">
@@ -79,7 +79,7 @@
         </div>
 
         <div class="form-group mt-100-xl">
-            {!! Form::submit('Duplicate Record',['class' => 'btn']) !!}
+            {!! Form::submit('Duplicate Record',['class' => 'btn record-validate-js']) !!}
         </div>
         {!! Form::close() !!}
     </section>
@@ -101,7 +101,9 @@
         csrfToken = "{{ csrf_token() }}";
         userID = "{{\Auth::user()->id}}";
         baseFileUrl = "{{config('app.url'). 'deleteTmpFile/'}}";
+        var validationUrl = "{{action('RecordController@validateRecord',['pid' => $form->pid, 'fid' => $form->fid])}}";
 
         Kora.Records.Create();
+        Kora.Records.Validate();
     </script>
 @stop

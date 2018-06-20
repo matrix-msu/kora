@@ -22,10 +22,10 @@
       <a href="#">My Preferences</a>
     </li>
     <li class="link">
-      <a href="#">My User Permissions</a>
+      <a href="{{ action('Auth\UserController@index',['uid'=>Auth::user()->id, 'section' => 'permissions']) }}">My User Permissions</a>
     </li>
     <li class="link pre-spacer">
-      <a href="#">My Record History</a>
+      <a href="{{ action('Auth\UserController@index',['uid'=>Auth::user()->id, 'section' => 'history']) }}">My Record History</a>
     </li>
     @if(\Auth::user()->admin==1)
       <li class="spacer mt-0"></li>

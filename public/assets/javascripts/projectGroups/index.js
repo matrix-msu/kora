@@ -15,9 +15,10 @@ Kora.ProjectGroups.Index = function() {
   self.removeUser = function(projectGroup, userID, pid) {
     $.ajax({
       url: removeUserPath,
-      type: 'PATCH',
+      type: 'POST',
       data: {
         "_token": CSRFToken,
+        "_method": 'patch',
         "userId": userID,
         "projectGroup": projectGroup,
         "pid": pid
@@ -113,9 +114,10 @@ Kora.ProjectGroups.Index = function() {
 
     $.ajax({
       url: addUsersPath,
-      type: 'PATCH',
+      type: 'POST',
       data: {
         "_token": CSRFToken,
+        "_method": 'patch',
         "userIDs": userIDs,
         "projectGroup": projectGroup
       },
@@ -225,9 +227,10 @@ Kora.ProjectGroups.Index = function() {
     } else {
       $.ajax({
         url: editNamePath,
-        type: 'PATCH',
+        type: 'POST',
         data: {
           "_token": CSRFToken,
+          "_method": 'patch',
           "gid": gid,
           "name": newName
         },
@@ -247,9 +250,10 @@ Kora.ProjectGroups.Index = function() {
   self.deletePermissionsGroup = function(gid) {
     $.ajax({
       url: deletePermissionsPath,
-      type: 'DELETE',
+      type: 'POST',
       data: {
         "_token": CSRFToken,
+        "_method": 'delete',
         "projectGroup": gid
       },
       success: function() {
@@ -276,9 +280,10 @@ Kora.ProjectGroups.Index = function() {
 
     $.ajax({
       url: updatePermissionsPath,
-      type: 'PATCH',
+      type: 'POST',
       data: {
         "_token": CSRFToken,
+        "_method": 'patch',
         "projectGroup": projectGroup,
         "permCreate": permCreate,
         "permEdit": permEdit,

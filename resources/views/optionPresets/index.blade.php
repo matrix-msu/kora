@@ -92,7 +92,7 @@
 
                         <div class="footer">
                             @if($key == "Stock" && Auth::user()->admin == 1 )
-                                <a class="quick-action trash-container left danger delete-preset-open-js" href="#" preset-id="{{$preset->id}}">
+                                <a class="quick-action trash-container left danger delete-preset-open-js tooltip" href="#" preset-id="{{$preset->id}}" tooltip="Delete Preset">
                                     <i class="icon icon-trash"></i>
                                 </a>
 
@@ -104,7 +104,7 @@
                                     <span>Stock Preset</span>
                                 </a>
                             @elseif($key=="Project")
-                                <a class="quick-action trash-container left danger delete-preset-open-js" href="#" preset-id="{{$preset->id}}">
+                                <a class="quick-action trash-container left danger delete-preset-open-js tooltip" href="#" preset-id="{{$preset->id}}" tooltip="Delete Preset">
                                     <i class="icon icon-trash"></i>
                                 </a>
 

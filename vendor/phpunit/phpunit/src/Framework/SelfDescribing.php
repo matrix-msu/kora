@@ -8,15 +8,15 @@
  * file that was distributed with this source code.
  */
 
+namespace PHPUnit\Framework;
+
 /**
  * Interface for classes that can return a description of itself.
  */
-interface PHPUnit_Framework_SelfDescribing
+interface SelfDescribing
 {
     /**
      * Returns a string representation of the object.
-     *
-     * @return string
      */
-    public function toString();
+    public function toString(): string;
 }

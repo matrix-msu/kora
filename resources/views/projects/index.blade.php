@@ -22,6 +22,7 @@
 @stop
 
 @section('body')
+  @if (count($projects) > 0 or count($inactive) > 0)
   <section class="filters center">
       <div class="underline-middle search search-js">
         <i class="icon icon-search"></i>
@@ -35,6 +36,7 @@
           <a href="#inactive" class="option underline-middle underline-middle-hover">Archived</a>
       </div>
   </section>
+  @endif
 
   <section class="new-object-button center">
     <form action="{{ action('ProjectController@create') }}">

@@ -1,4 +1,4 @@
-@extends('app', ['page_title' => 'My Profile', 'page_class' => 'user-profile'])
+@extends('app', ['page_title' => (Auth::user()->id == $user->id ? 'My Profile' : $user->username), 'page_class' => 'user-profile'])
 
 @section('header')
     @include('partials.user.profile.head')
@@ -11,6 +11,7 @@
             <a href="#forms" class="filter-link select-content-section-js underline-middle underline-middle-hover">Forms</a>
         </div>
         <div class="content-section content-section-js" id="projects">
+          <div class="content-sections-scroll">
             @if (!$user->admin)
                 <div class="my-xl">
                     <p>@if (Auth::user()->id == $user->id) You have @else {{$user->first_name}} has @endif  access to the following projects...</p>
@@ -23,8 +24,10 @@
                     <p>@if (Auth::user()->id == $user->id) You have @else {{$user->first_name}} has @endif access to all projects</p>
                 </div>
             @endif
+          </div>
         </div>
         <div class="content-section content-section-js" id="forms">
+          <div class="content-sections-scroll">
             @if (!$user->admin)
                 <div class="my-xl">
                     <p>@if (Auth::user()->id == $user->id) You have @else {{$user->first_name}} has @endif access to the following forms...</p>
@@ -37,6 +40,7 @@
                     <p>@if (Auth::user()->id == $user->id) You have @else {{$user->first_name}} has @endif access to all forms</p>
                 </div>
             @endif
+          </div>
         </div>
     </section>
 @stop
