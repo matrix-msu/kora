@@ -35,7 +35,7 @@
   <section class="form-container edit-form center">
 
     @if (\Auth::user()->admin && \Auth::user()->id != $user->id)
-      {!! Form::model($user,  ['method' => 'PATCH', 'action' => ['AdminController@update', $user->id], 'class' => 'user-form form-file-input']) !!}
+      {!! Form::model($user,  ['enctype' => 'multipart/form-data', 'method' => 'PATCH', 'action' => ['AdminController@update', $user->id], 'class' => 'user-form form-file-input']) !!}
     @else
       {!! Form::model($user,  ['method' => 'PATCH', 'action' => ['Auth\UserController@update', $user->id], 'class' => 'user-form form-file-input']) !!}
     @endif
