@@ -14,6 +14,13 @@
     width: $max-site-width;
   }
 
+  @media screen and (max-width: $max-tablet-width) {
+    .create-form {
+      max-width: unset;
+      width: unset;
+    }
+  }
+
   .preset-select-container {
     height: 0;
 

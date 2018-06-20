@@ -27,7 +27,7 @@
 @stop
 
 @section('body')
-  <section class="edit-form center">
+  <section class="edit-form">
     {!! Form::model($project,  ['method' => 'PATCH', 'action' => ['ProjectController@update', $project->pid], 'class' => 'edit-form center']) !!}
     @include('partials.projects.form',['projectMode' => $projectMode, 'pid' => $project->pid, 'type' => 'edit'])
     {!! Form::close() !!}
