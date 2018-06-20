@@ -269,12 +269,13 @@ function resizeend() {
 }
 
 // makes sure multi-select inputs have placeholders after clicking and before typing
+// placeholders are stored in value attribute but otherwise disappear when clicking on the input
 function multiselect_placeholder_injection()
 {
 	var inputs = $(".chosen-search-input");
 	//console.log(inputs.length);
 	
-	for (i = 0; i < inputs.length; i++)
+	for (i = 0; i < $(".chosen-search-input").length; i++)
 	{
 		var jq_input = $(inputs[i]);
 		
