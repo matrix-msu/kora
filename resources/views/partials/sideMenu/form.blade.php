@@ -98,8 +98,8 @@
         </li>
       @endif
 
-      <li class="content-link content-link-js" data-page="metadata">
-        <a href="{{ action('MetadataController@index', ['fid'=>$form->fid, 'pid'=>$form->pid]) }}">Link Open Data</a>
-      </li>
+      {{--<li class="content-link content-link-js" data-page="metadata">--}}
+        {{--<a href="{{ action('MetadataController@index', ['fid'=>$form->fid, 'pid'=>$form->pid]) }}">Link Open Data</a>--}}
+      {{--</li>--}}
   </ul>
 </div>
