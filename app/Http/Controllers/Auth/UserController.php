@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
@@ -333,13 +334,12 @@ class UserController extends Controller {
      * @return View
      */
     public function activateshow() {
-        if (is_null(\Auth::user())) {
-          return redirect('register');
-        } elseif (!\Auth::user()->active) {
-          return view('auth.activate');
-        } else {
-          return redirect('projects');
-        }
+        if(is_null(\Auth::user()))
+            return redirect('register');
+        elseif (!\Auth::user()->active)
+            return view('auth.activate');
+        else
+            return redirect('projects');
     }
 
     /**
@@ -350,12 +350,19 @@ class UserController extends Controller {
     public function resendActivation() {
         $token = \Auth::user()->token;
 
-        Mail::send('emails.activation', compact('token'), function($message)
-        {
-            $message->from(env('MAIL_FROM_ADDRESS'));
-            $message->to(\Auth::user()->email);
-            $message->subject('Kora Account Activation');
-        });
+        //Send email
+        try {
+            Mail::send('emails.activation', compact('token'), function($message)
+            {
+                $message->from(env('MAIL_FROM_ADDRESS'));
+                $message->to(\Auth::user()->email);
+                $message->subject('Kora Account Activation');
+            });
+        } catch(\Swift_TransportException $e) {
+            //TODO::email error response
+            //Log for now
+            Log::info('Resend activation email failed');
+        }
 
         return redirect('auth/activate')->with('k3_global_success', 'user_activate_resent');
     }

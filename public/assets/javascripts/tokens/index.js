@@ -149,14 +149,12 @@ Kora.Tokens.Index = function() {
             indexVal.val(tokenDiv.attr('id'));
 
             //TODO:: close, but not yet
-            if(tokenDiv.hasClass('search'))
-                $('.search-checkbox-js').trigger("click");
-            if(tokenDiv.hasClass('create'))
-                $('.create-checkbox-js').trigger("click");
-            if(tokenDiv.hasClass('edit'))
-                $('.edit-checkbox-js').trigger("click");
-            if(tokenDiv.hasClass('delete'))
-                $('.delete-checkbox-js').trigger("click");
+            
+			// add checkmark if needed, also remove if needed
+			$('.search-checkbox-js').prop('checked', tokenDiv.hasClass('search'));
+			$('.create-checkbox-js').prop('checked', tokenDiv.hasClass('create'));
+			$('.edit-checkbox-js').prop('checked', tokenDiv.hasClass('edit'));
+			$('.delete-checkbox-js').prop('checked', tokenDiv.hasClass('delete'));
 
             titleVal.val(titleSpan.text());
 
@@ -227,9 +225,60 @@ Kora.Tokens.Index = function() {
             width: '100%',
         });
     }
+	
+	function initializeTokenCardEllipsifying()
+	{
+		function adjustTokenCardTitle()
+		{
+			var cards = $($(".token-selection-js").find(".token.card"));
+			
+			for (i = 0; i < cards.length; i++)
+			{	
+				var card = $(cards[i]);
+				var name_span = $(card.find($(".name")));
+				var chevron_text = $(card.find($(".chevron-text")));
+				var chevron_icon = $(card.find($(".icon-chevron")));
+				
+				var card_width = card.width();
+				var chevron_text_width = chevron_text.outerWidth();
+				var chevron_icon_width = chevron_icon.outerWidth();
+				var left_padding = 20; // padding within card
+				var extra_padding = 10;
+				
+				var title_width = (card_width - left_padding) - (chevron_text_width + chevron_icon_width + extra_padding);
+				if (title_width < 0) {title_width = 0;}
+				
+				name_span.css("text-overflow", "ellipsis");
+				name_span.css("white-space", "nowrap");
+				name_span.css("overflow", "hidden");
+				name_span.css("max-width", title_width + "px");
+			}
+		}
+		
+		$(window).resize(function()
+		{
+			adjustTokenCardTitle();
+		});
+		
+		$(document).ready(function()
+		{
+			adjustTokenCardTitle();
+			setTimeout(function(){ adjustTokenCardTitle(); adjustTokenCardTitle(); }, 1); // necessary for some reason
+		});
+		
+		// Recalculate ellipses when switching tabs
+		$("[href='#all'], [href='#search'], [href='#create'], [href='#edit'], [href='#delete']").click(function() {
+			adjustTokenCardTitle();
+			setTimeout(function(){ 
+				adjustTokenCardTitle();
+				setTimeout(function(){ adjustTokenCardTitle(); }, 10);
+			}, 10);
+		});
+	}
 
     initializeFilters();
     initializeSearch();
     initializeToggle();
     initializeTokenModals();
+	initializeTokenCardEllipsifying();
 }

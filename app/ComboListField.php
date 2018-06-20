@@ -49,6 +49,7 @@ class ComboListField extends BaseField {
      */
     static public $validComboListFieldTypes = [
         'Text Fields' => array('Text' => 'Text', 'Number' => 'Number'),
+        'Date Fields' => array('Date' => 'Date'),
         'List Fields' => array('List' => 'List', 'Multi-Select List' => 'Multi-Select List', 'Generated List' => 'Generated List'),
         'Other' => array('Associator' => 'Associator')
     ];
@@ -182,6 +183,10 @@ class ComboListField extends BaseField {
                 $options .= '[!Min!]'.$request->{"min_".$seq}.'[!Min!]';
                 $options .= '[!Increment!]'.$request->{"inc_".$seq}.'[!Increment!]';
                 $options .= '[!Unit!]'.$request->{"unit_".$seq}.'[!Unit!]';
+                break;
+            case Field::_DATE:
+                $options .= '[!Start!]'.$request->{"start_".$seq}.'[!Start!]';
+                $options .= '[!End!]'.$request->{"end_".$seq}.'[!End!]';
                 break;
             case Field::_LIST:
             case Field::_MULTI_SELECT_LIST:
@@ -331,6 +336,9 @@ class ComboListField extends BaseField {
             case Field::_TEXT:
                 $val1 = 'K3TR: This is a test record';
                 break;
+            case Field::_DATE:
+                $val1 = '01/01/0001';
+                break;
             case Field::_LIST:
                 $val1 = 'K3TR';
                 break;
@@ -348,6 +356,9 @@ class ComboListField extends BaseField {
         switch($type2) {
             case Field::_TEXT:
                 $val2 = 'K3TR: This is a test record';
+                break;
+            case Field::_DATE:
+                $val2 = '01/01/0001';
                 break;
             case Field::_LIST:
                 $val2 = 'K3TR';
@@ -371,19 +382,18 @@ class ComboListField extends BaseField {
     /**
      * Validates the record data for a field against the field's options.
      *
-     * @param  Field $field - The
-     * @param  mixed $value - Record data
+     * @param  Field $field - The field to validate
      * @param  Request $request
-     * @return string - Potential error message
+     * @return array - Array of errors
      */
-    public function validateField($field, $value, $request) {
+    public function validateField($field, $request) {
         $req = $field->required;
         $flid = $field->flid;
 
-        if($req==1 && !isset($request[$flid.'_val']))
-            return $field->name."_required";
+        if($req==1 && !isset($request[$flid.'_combo_one']))
+            return [$field->flid => $field->name.' is required'];
 
-        return 'field_validated';
+        return array();
     }
 
     /**
@@ -473,6 +483,8 @@ class ComboListField extends BaseField {
                 $xml .= '<' . Field::xmlTagClear($nameone) . '>';
                 if($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List') {
                     $xml .= utf8_encode('VALUE');
+                } else if($typeone == 'Date') {
+                    $xml .= utf8_encode('MM/DD/YYYY');
                 } else if($typeone == 'Multi-Select List' | $typeone == 'Generated List' | $typeone == 'Associator') {
                     $xml .= '<value>'.utf8_encode('VALUE 1').'</value>';
                     $xml .= '<value>'.utf8_encode('VALUE 2').'</value>';
@@ -482,6 +494,8 @@ class ComboListField extends BaseField {
                 $xml .= '<' . Field::xmlTagClear($nametwo) . '>';
                 if($typetwo == 'Text' | $typetwo == 'Number' | $typetwo == 'List') {
                     $xml .= utf8_encode('VALUE');
+                } else if($typetwo == 'Date') {
+                    $xml .= utf8_encode('MM/DD/YYYY');
                 } else if($typetwo == 'Multi-Select List' | $typetwo == 'Generated List' | $typetwo == 'Associator') {
                     $xml .= '<value>'.utf8_encode('VALUE 1').'</value>';
                     $xml .= '<value>'.utf8_encode('VALUE 2').'</value>';
@@ -499,12 +513,16 @@ class ComboListField extends BaseField {
                 $valArray = array();
                 if($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List') {
                     $valArray[$nameone] = 'VALUE';
+                } else if($typeone == 'Date') {
+                    $valArray[$nameone] = 'MM/DD/YYYY';
                 } else if($typeone == 'Multi-Select List' | $typeone == 'Generated List' | $typeone == 'Associator') {
                     $valArray[$nameone] = array('VALUE 1','VALUE 2','so on...');
                 }
 
                 if($typetwo == 'Text' | $typetwo == 'Number' | $typetwo == 'List') {
                     $valArray[$nametwo] = 'VALUE';
+                } else if($typetwo == 'Date') {
+                    $valArray[$nametwo] = 'MM/DD/YYYY';
                 } else if($typetwo == 'Multi-Select List' | $typetwo == 'Generated List' | $typetwo == 'Associator') {
                     $valArray[$nametwo] = array('VALUE 1','VALUE 2','so on...');
                 }
@@ -727,6 +745,7 @@ class ComboListField extends BaseField {
                 isset($query[$flid . "_" . $field_num . "_invert"]),
                 $prefix);
         } else {
+            //TODO::how does date fit into this?
             if($type == Field::_LIST || $type == Field::_TEXT)
                 $inputs = [$query[$flid . "_" . $field_num . "_input"]];
             else // Generated, Associator, or Multi-Select List

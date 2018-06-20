@@ -198,12 +198,11 @@ abstract class BaseField extends Model {
     /**
      * Validates the record data for a field against the field's options.
      *
-     * @param  Field $field - The
-     * @param  mixed $value - Record data
+     * @param  Field $field - The field to validate
      * @param  Request $request
-     * @return string - Potential error message
+     * @return array - Array of errors
      */
-    abstract public function validateField($field, $value, $request);
+    abstract public function validateField($field, $request);
 
     /**
      * Performs a rollback function on an individual field's record data.

@@ -112,13 +112,28 @@ Kora.Records.Create = function() {
 
         $('.add-combo-value-js').click(function() {
             flid = $(this).attr('flid');
-            inputOne = $('#default_one_'+flid);
-            inputTwo = $('#default_two_'+flid);
+            type1 = $(this).attr('typeOne');
+            type2 = $(this).attr('typeTwo');
 
-            val1 = inputOne.val();
-            val2 = inputTwo.val();
-            type1 = inputOne.closest('.combo-list-input-one').attr('cfType');
-            type2 = inputTwo.closest('.combo-list-input-two').attr('cfType');
+            if(type1=='Date') {
+                monthOne = $('#month_one_'+flid);
+                dayOne = $('#day_one_'+flid);
+                yearOne = $('#year_one_'+flid);
+                val1 = monthOne.val()+'/'+dayOne.val()+'/'+yearOne.val();
+            } else {
+                inputOne = $('#default_one_'+flid);
+                val1 = inputOne.val();
+            }
+
+            if(type2=='Date') {
+                monthTwo = $('#month_two_'+flid);
+                dayTwo = $('#day_two_'+flid);
+                yearTwo = $('#year_two_'+flid);
+                val2 = monthTwo.val()+'/'+dayTwo.val()+'/'+yearTwo.val();
+            } else {
+                inputTwo = $('#default_two_'+flid);
+                val2 = inputTwo.val();
+            }
 
             defaultDiv = $('.combo-value-div-js-'+flid);
 
@@ -134,7 +149,7 @@ Kora.Records.Create = function() {
 
                 div = '<div class="combo-value-item-js">';
 
-                if(type1=='Text' | type1=='List' | type1=='Number') {
+                if(type1=='Text' | type1=='List' | type1=='Number' | type1=='Date') {
                     div += '<input type="hidden" name="'+flid+'_combo_one[]" value="'+val1+'">';
                     div += '<span class="combo-column">'+val1+'</span>';
                 } else if(type1=='Multi-Select List' | type1=='Generated List' | type1=='Associator') {
@@ -142,7 +157,7 @@ Kora.Records.Create = function() {
                     div += '<span class="combo-column">'+val1.join(' | ')+'</span>';
                 }
 
-                if(type2=='Text' | type2=='List' | type2=='Number') {
+                if(type2=='Text' | type2=='List' | type2=='Number' | type2=='Date') {
                     div += '<input type="hidden" name="'+flid+'_combo_two[]" value="'+val2+'">';
                     div += '<span class="combo-column">'+val2+'</span>';
                 } else if(type2=='Multi-Select List' | type2=='Generated List' | type2=='Associator') {
@@ -156,13 +171,25 @@ Kora.Records.Create = function() {
 
                 defaultDiv.children('.combo-list-display').first().append(div);
 
-                inputOne.val('');
-                if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List' | type1=='Associator')
+                if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List' | type1=='Associator') {
+                    inputOne.val('');
                     inputOne.trigger("chosen:updated");
+                } else if(type1=='Date') {
+                    monthOne.val(''); dayOne.val(''); yearOne.val('');
+                    monthOne.trigger("chosen:updated"); dayOne.trigger("chosen:updated"); yearOne.trigger("chosen:updated");
+                } else {
+                    inputOne.val('');
+                }
 
-                inputTwo.val('');
-                if(type2=='Multi-Select List' | type2=='Generated List' | type2=='List' | type2=='Associator')
+                if(type2=='Multi-Select List' | type2=='Generated List' | type2=='List' | type2=='Associator') {
+                    inputTwo.val('');
                     inputTwo.trigger("chosen:updated");
+                } else if(type2=='Date') {
+                    monthTwo.val(''); dayTwo.val(''); yearTwo.val('');
+                    monthTwo.trigger("chosen:updated"); dayTwo.trigger("chosen:updated"); yearTwo.trigger("chosen:updated");
+                } else {
+                    inputTwo.val('');
+                }
             }
         });
     }
@@ -187,6 +214,9 @@ Kora.Records.Create = function() {
         $('.add-new-event-js').on('click', function(e) {
             e.preventDefault();
 
+            $('.error-message').text('');
+            $('.text-input, .text-area, .cke, .chosen-container').removeClass('error');
+
             var nameInput = $('.event-name-js');
             var sTimeInput = $('.event-start-time-js');
             var eTimeInput = $('.event-end-time-js');
@@ -196,7 +226,23 @@ Kora.Records.Create = function() {
             var eTime = eTimeInput.val().trim();
 
             if(name==''|sTime==''|eTime=='') {
-                //TODO::show error
+                if(name=='') {
+                    schError = $('.event-name-js');
+                    schError.addClass('error');
+                    schError.siblings('.error-message').text('Event name is required');
+                }
+
+                if(sTime=='') {
+                    schError = $('.event-start-time-js');
+                    schError.addClass('error');
+                    schError.siblings('.error-message').text('Start time is required');
+                }
+
+                if(eTime=='') {
+                    schError = $('.event-end-time-js');
+                    schError.addClass('error');
+                    schError.siblings('.error-message').text('End time is required');
+                }
             } else {
                 if($('.event-allday-js').is(":checked")) {
                     sTime = sTime.split(" ")[0];
@@ -204,8 +250,10 @@ Kora.Records.Create = function() {
                 }
 
                 if(sTime>eTime) {
-                    //TODO::show error
-                }else {
+                    schError = $('.event-start-time-js');
+                    schError.addClass('error');
+                    schError.siblings('.error-message').text('Start time can not occur before the end time');
+                } else {
                     val = name + ': ' + sTime + ' - ' + eTime;
 
                     if(val != '') {
@@ -258,10 +306,15 @@ Kora.Records.Create = function() {
         $('.add-new-location-js').click(function(e) {
             e.preventDefault();
 
+            $('.error-message').text('');
+            $('.text-input, .text-area, .cke, .chosen-container').removeClass('error');
+
             //check to see if description provided
             var desc = $('.location-desc-js').val();
             if(desc=='') {
-                //TODO::show error
+                geoError = $('.location-desc-js');
+                geoError.addClass('error');
+                geoError.siblings('.error-message').text('Location description required');
             } else {
                 var type = $('.location-type-js').val();
 
@@ -271,8 +324,17 @@ Kora.Records.Create = function() {
                     var lat = $('.location-lat-js').val();
                     var lon = $('.location-lon-js').val();
 
-                    if(lat == '' | lon == '') {
-                        //TODO::show error
+                    if(lat == '') {
+                        geoError = $('.location-lat-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('Latitude value required');
+                        valid = false;
+                    }
+
+                    if(lon == '') {
+                        geoError = $('.location-lon-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('Longitude value required');
                         valid = false;
                     }
                 } else if(type == 'UTM') {
@@ -280,15 +342,33 @@ Kora.Records.Create = function() {
                     var east = $('.location-east-js').val();
                     var north = $('.location-north-js').val();
 
-                    if(zone == '' | east == '' | north == '') {
-                        //TODO::show error
+                    if(zone == '') {
+                        geoError = $('.location-zone-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('UTM Zone is required');
+                        valid = false;
+                    }
+
+                    if(east == '') {
+                        geoError = $('.location-east-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('UTM Easting required');
+                        valid = false;
+                    }
+
+                    if(north == '') {
+                        geoError = $('.location-north-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('UTM Northing required');
                         valid = false;
                     }
                 } else if(type == 'Address') {
                     var addr = $('.location-addr-js').val();
 
                     if(addr == '') {
-                        //TODO::show error
+                        geoError = $('.location-addr-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('Location address required');
                         valid = false;
                     }
                 }
@@ -352,21 +432,29 @@ Kora.Records.Create = function() {
             dataType: 'json',
             singleFileUploads: false,
             done: function (e, data) {
-                //$('#file_error'+lastClickedFlid).text(''); //TODO:: MAKE THESE ERRORS USEFUL
                 inputName = 'file'+lastClickedFlid;
                 fileDiv = ".filenames-"+lastClickedFlid+"-js";
 
+                var $field = $('#'+lastClickedFlid);
+                $field.removeClass('error');
+                $field.siblings('.error-message').text('');
                 $.each(data.result[inputName], function (index, file) {
-                    var del = '<div class="form-group mt-xxs uploaded-file">';
-                    del += '<input type="hidden" name="'+inputName+'[]" value ="'+file.name+'">';
-                    del += '<a href="#" class="upload-fileup-js">';
-                    del += '<i class="icon icon-arrow-up"></i></a>';
-                    del += '<a href="#" class="upload-filedown-js">';
-                    del += '<i class="icon icon-arrow-down"></i></a>';
-                    del += '<span class="ml-sm">' + file.name + '</span>';
-                    del += '<a href="#" class="upload-filedelete-js ml-sm" data-url="' + file.deleteUrl + '">';
-                    del += '<i class="icon icon-trash danger"></i></a></div>';
-                    $(fileDiv).append(del);
+                    if(file.error == "") {
+                        var del = '<div class="form-group mt-xxs uploaded-file">';
+                        del += '<input type="hidden" name="' + inputName + '[]" value ="' + file.name + '">';
+                        del += '<a href="#" class="upload-fileup-js">';
+                        del += '<i class="icon icon-arrow-up"></i></a>';
+                        del += '<a href="#" class="upload-filedown-js">';
+                        del += '<i class="icon icon-arrow-down"></i></a>';
+                        del += '<span class="ml-sm">' + file.name + '</span>';
+                        del += '<a href="#" class="upload-filedelete-js ml-sm" data-url="' + file.deleteUrl + '">';
+                        del += '<i class="icon icon-trash danger"></i></a></div>';
+                        $(fileDiv).append(del);
+                    } else {
+                        $field.addClass('error');
+                        $field.siblings('.error-message').text(file.error);
+                        return false;
+                    }
                 });
 
                 //Reset progress bar
@@ -377,15 +465,19 @@ Kora.Records.Create = function() {
             },
             fail: function (e,data){
                 var error = data.jqXHR['responseText'];
-                console.log(error);
 
-                //TODO:: MAKE THESE ERRORS USEFUL
+                var $field = $('#'+lastClickedFlid);
+                $field.removeClass('error');
+                $field.siblings('.error-message').text('');
                 if(error=='InvalidType'){
-                    //$('#file_error{{$field->flid}}').text('');
+                    $field.addClass('error');
+                    $field.siblings('.error-message').text('Invalid file type provided');
                 } else if(error=='TooManyFiles'){
-                    //$('#file_error{{$field->flid}}').text('');
+                    $field.addClass('error');
+                    $field.siblings('.error-message').text('Max file limit was reached');
                 } else if(error=='MaxSizeReached'){
-                    //$('#file_error{{$field->flid}}').text('');
+                    $field.addClass('error');
+                    $field.siblings('.error-message').text('One or more uploaded files is bigger than limit');
                 }
             },
             progressall: function (e, data) {
