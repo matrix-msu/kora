@@ -29,7 +29,7 @@
                 <i class="icon icon-record mr-sm"></i>
                 <span>Record: {{$record->kid}}</span>
                 @if(\Auth::user()->canDestroyRecords($form) || \Auth::user()->isOwner($record))
-                    <a href="#" class="head-button delete-record delete-record-js">
+                    <a href="#" class="head-button delete-record delete-record-js tooltip" tooltip="Delete Record">
                         <i class="icon icon-trash right"></i>
                     </a>
                 @endif

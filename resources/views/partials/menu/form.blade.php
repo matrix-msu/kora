@@ -99,9 +99,10 @@
         </li>
       @endif
 
-      <li class="link">
-        <a href="{{url('/projects/'.$pid).'/forms/'.$fid.'/metadata/setup'}}">Link Open Data</a>
-      </li>
+      {{--TODO::Need to implement this page--}}
+      {{--<li class="link">--}}
+        {{--<a href="{{url('/projects/'.$pid).'/forms/'.$fid.'/metadata/setup'}}">Link Open Data</a>--}}
+      {{--</li>--}}
   </ul>
 </li>
 

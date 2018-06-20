@@ -187,22 +187,22 @@ class TextField extends BaseField {
     /**
      * Validates the record data for a field against the field's options.
      *
-     * @param  Field $field - The
-     * @param  mixed $value - Record data
+     * @param  Field $field - The field to validate
      * @param  Request $request
-     * @return string - Potential error message
+     * @return array - Array of errors
      */
-    public function validateField($field, $value, $request) {
+    public function validateField($field, $request) {
         $req = $field->required;
+        $value = $request->{$field->flid};
         $regex = FieldController::getFieldOption($field, 'Regex');
 
         if($req==1 && ($value==null | $value==""))
-            return $field->slug."_required";
+            return [$field->flid => $field->name.' is required'];
 
         if(($regex!=null | $regex!="") && !preg_match($regex,$value))
-            return $field->slug."_regex_mismatch";
+            return [$field->flid => $field->name.' must match the regex pattern: '.$regex];
 
-        return "field_validated";
+        return array();
     }
 
     /**

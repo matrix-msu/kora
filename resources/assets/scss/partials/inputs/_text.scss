@@ -47,3 +47,11 @@
   font-family: $ubuntu-medium;
   font-size: 13px;
 }
+
+//For ckeditor
+.cke {
+  &.error {
+    border: 2px solid palette('yellow');
+    border-radius: 5px;
+  }
+}

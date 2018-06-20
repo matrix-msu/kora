@@ -106,8 +106,8 @@ class RecordController extends Controller {
             if(!is_numeric($key))
                 continue;
             $field = FieldController::getField($key);
-            $message = $field->getTypedField()->validateField($field, $value, $request);
-            if($message != 'field_validated') {
+            $message = $field->getTypedField()->validateField($field, $request);
+            if(!empty($message)) {
                 $arrayed_keys = array();
 
                 foreach($request->all() as $akey => $avalue) {
@@ -248,6 +248,19 @@ class RecordController extends Controller {
         return view('records.clone', compact('record', 'form'));
     }
 
+    public function validateRecord($pid, $fid, Request $request) {
+        $errors = [];
+        $form = FormController::getForm($fid);
+
+        foreach($form->fields()->get() as $field) {
+            $message = $field->getTypedField()->validateField($field, $request);
+            if(!empty($message))
+                $errors += $message; //We add these arrays because it maintains the keys, where array_merge re-indexes
+        }
+
+        return response()->json(["status"=>true,"errors"=>$errors],200);
+    }
+
     /**
      * Removes record files from the system for records that no longer exist. This will prevent the possiblity of
      *  rolling back these records.
@@ -323,8 +336,8 @@ class RecordController extends Controller {
             if(!is_numeric($key))
                 continue;
             $field = FieldController::getField($key);
-            $message = $field->getTypedField()->validateField($field, $value, $request);
-            if($message != 'field_validated')
+            $message = $field->getTypedField()->validateField($field, $request);
+            if(!empty($message))
                 return redirect()->back()->withInput()->with('k3_global_error', 'record_validation_error')->with('record_validation_error', $message);
         }
 

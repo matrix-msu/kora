@@ -663,6 +663,9 @@ class ExportController extends Controller {
                             case Field::_TEXT:
                                 $records[$kid][$slug] = $data->value;
                                 break;
+                            case Field::_NUMBER:
+                                $records[$kid][$slug] = $data->value;
+                                break;
                             case Field::_RICH_TEXT:
                                 $records[$kid][$slug] = $data->value;
                                 break;
