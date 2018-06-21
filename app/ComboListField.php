@@ -384,13 +384,14 @@ class ComboListField extends BaseField {
      *
      * @param  Field $field - The field to validate
      * @param  Request $request
+     * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
      * @return array - Array of errors
      */
-    public function validateField($field, $request) {
+    public function validateField($field, $request, $forceReq = false) {
         $req = $field->required;
         $flid = $field->flid;
 
-        if($req==1 && !isset($request[$flid.'_combo_one']))
+        if(($req==1 | $forceReq) && !isset($request[$flid.'_combo_one']))
             return [$field->flid => $field->name.' is required'];
 
         return array();

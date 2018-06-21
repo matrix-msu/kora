@@ -160,6 +160,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/projects/{pid}/forms/{fid}/records/import', 'RecordController@importRecordsView');
     Route::post('/projects/{pid}/forms/{fid}/records/matchup', 'ImportController@matchupFields');
     Route::post('/projects/{pid}/forms/{fid}/records/validate', 'RecordController@validateRecord');
+    Route::post('/projects/{pid}/forms/{fid}/records/validateMass', 'RecordController@validateMassRecord');
     Route::post('/projects/{pid}/forms/{fid}/records/importRecord', 'ImportController@importRecord');
     Route::get('/projects/{pid}/forms/{fid}/importExample/{type}', 'ImportController@exportSample');
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}', 'RecordController@show');
