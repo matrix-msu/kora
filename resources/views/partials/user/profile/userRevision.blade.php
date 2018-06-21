@@ -34,11 +34,12 @@
                     to its previous state that is listed below.
                 </p>
             @endif
-            @if ($revision->type === 'edit')
+            @if ($revision->type === 'edit' && isset($data['current']))
                 <span>Edits Made</span>
                 <div class="edit-section">
                     @foreach ($data["current"] as $id => $field)
                         <div class="field">
+                            <p>testing</p>
                             <div class="field-title">{{$field["name"]}}</div>
                             <div class="field-data">{!! $field["data"] !!}</div>
                         </div>

@@ -1,5 +1,9 @@
 .card {
   .footer {
+    .tooltip:hover::after {
+      left: -42px;
+    }
+
     .user-trash {
       &:hover {
         i {
