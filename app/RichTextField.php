@@ -141,7 +141,7 @@ class RichTextField extends BaseField {
         if ($matching_record_fields->count() > 0) {
             $richtextfield = $matching_record_fields->first();
             if ($overwrite == true || $richtextfield->rawtext == "" || is_null($richtextfield->rawtext)) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $richtextfield->rawtext = $formFieldValue;
                 $richtextfield->save();
                 $revision->oldData = RevisionController::buildDataArray($record);
@@ -149,7 +149,7 @@ class RichTextField extends BaseField {
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
             $revision->oldData = RevisionController::buildDataArray($record);
             $revision->save();
         }

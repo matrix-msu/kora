@@ -156,7 +156,7 @@ class TextField extends BaseField {
         if($matching_record_fields->count() > 0) {
             $textfield = $matching_record_fields->first();
             if($overwrite == true || $textfield->text == "" || is_null($textfield->text)) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $textfield->text = $formFieldValue;
                 $textfield->save();
                 $revision->oldData = RevisionController::buildDataArray($record);
@@ -164,7 +164,7 @@ class TextField extends BaseField {
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
             $revision->oldData = RevisionController::buildDataArray($record);
             $revision->save();
         }

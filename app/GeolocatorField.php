@@ -156,14 +156,14 @@ class GeolocatorField extends BaseField {
         if($matching_record_fields->count() > 0) {
             $geolocatorfield = $matching_record_fields->first();
             if($overwrite == true || ! $geolocatorfield->hasLocations()) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $geolocatorfield->updateLocations($formFieldValue);
                 $revision->oldData = RevisionController::buildDataArray($record);
                 $revision->save();
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
             $revision->oldData = RevisionController::buildDataArray($record);
             $revision->save();
         }

@@ -180,7 +180,7 @@ class AssociatorField extends BaseField {
         if($matching_record_fields->count() > 0) {
             $associatorfield = $matching_record_fields->first();
             if($overwrite == true || $associatorfield->hasRecords()) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $associatorfield->updateRecords($formFieldValue);
                 $associatorfield->save();
                 $revision->oldData = RevisionController::buildDataArray($record);
@@ -188,7 +188,7 @@ class AssociatorField extends BaseField {
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
             $revision->oldData = RevisionController::buildDataArray($record);
             $revision->save();
         }

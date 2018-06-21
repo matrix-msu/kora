@@ -163,8 +163,8 @@ class RecordController extends Controller {
             // This prevents clutter from an operation that the user
             // will likely not want to undo using revisions.
             //
-            if($numRecs > 1)
-                RevisionController::storeRevision($record->rid, 'create');
+            if($numRecs == 1)
+                RevisionController::storeRevision($record->rid, Revision::CREATE);
 
             //If we are making a preset, let's make sure it's done, and done once
             if($makePreset) {
@@ -355,7 +355,7 @@ class RecordController extends Controller {
         $record->updated_at = Carbon::now();
         $record->save();
 
-        $revision = RevisionController::storeRevision($record->rid, 'edit');
+        $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
 
         $form_fields_expected = Form::find($fid)->fields()->get();
 
@@ -416,7 +416,7 @@ class RecordController extends Controller {
         $record = self::getRecord($rid);
 
         if(!$mass)
-            RevisionController::storeRevision($record->rid, 'delete');
+            RevisionController::storeRevision($record->rid, Revision::DELETE);
 
         $record->delete();
 

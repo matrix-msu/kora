@@ -151,7 +151,7 @@ class ListField extends BaseField {
         if($matching_record_fields->count() > 0) {
             $listfield = $matching_record_fields->first();
             if($overwrite == true || $listfield->option == "" || is_null($listfield->option)) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $listfield->option = $formFieldValue;
                 $listfield->save();
                 $revision->oldData = RevisionController::buildDataArray($record);
@@ -159,7 +159,7 @@ class ListField extends BaseField {
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
             $revision->oldData = RevisionController::buildDataArray($record);
             $revision->save();
         }

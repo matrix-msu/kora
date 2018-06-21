@@ -159,7 +159,7 @@ class MultiSelectListField extends BaseField {
         if($matching_record_fields->count() > 0) {
             $multiselectlistfield = $matching_record_fields->first();
             if($overwrite == true || $multiselectlistfield->options == "" || is_null($multiselectlistfield->options)) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $multiselectlistfield->options = implode("[!]", $formFieldValue);
                 $multiselectlistfield->save();
                 $revision->oldData = RevisionController::buildDataArray($record);
@@ -167,7 +167,7 @@ class MultiSelectListField extends BaseField {
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
             $revision->oldData = RevisionController::buildDataArray($record);
             $revision->save();
         }
