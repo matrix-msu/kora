@@ -170,7 +170,7 @@ class ScheduleField extends BaseField {
         if($matching_record_fields->count() > 0) {
             $schedulefield = $matching_record_fields->first();
             if($overwrite == true || $schedulefield->hasEvents()) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $schedulefield->updateEvents($formFieldValue);
                 $schedulefield->save();
                 $revision->oldData = RevisionController::buildDataArray($record);
@@ -178,7 +178,7 @@ class ScheduleField extends BaseField {
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
             $revision->oldData = RevisionController::buildDataArray($record);
             $revision->save();
         }

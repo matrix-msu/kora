@@ -179,7 +179,7 @@ class NumberField extends BaseField {
         if($matching_record_fields->count() > 0) {
             $numberfield = $matching_record_fields->first();
             if($overwrite == true || $numberfield->number == "" || is_null($numberfield->number)) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $numberfield->number = $formFieldValue;
                 $numberfield->save();
                 $revision->oldData = RevisionController::buildDataArray($record);
@@ -187,7 +187,7 @@ class NumberField extends BaseField {
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
             $revision->oldData = RevisionController::buildDataArray($record);
             $revision->save();
         }

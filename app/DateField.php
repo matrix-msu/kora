@@ -225,7 +225,7 @@ class DateField extends BaseField {
         if($matching_record_fields->count() > 0) {
             $datefield = $matching_record_fields->first();
             if($overwrite == true || $datefield->month == "" || is_null($datefield->month)) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $datefield->circa = $request->input('circa_' . $flid, '');
                 $datefield->month = $request->input('month_' . $flid);
                 $datefield->day = $request->input('day_' . $flid);
@@ -237,7 +237,7 @@ class DateField extends BaseField {
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
             $revision->oldData = RevisionController::buildDataArray($record);
             $revision->save();
         }
