@@ -73,9 +73,13 @@ class UserController extends Controller {
             $rm_order = $request->input('rm-order') === null ? 'lmd' : app('request')->input('rm-order');
             $rm_order_type = substr($rm_order, 0, 2) === "lm" ? "revisions.created_at" : "revisions.id";
             $rm_order_direction = substr($rm_order, 2, 3) === "a" ? "asc" : "desc";
+            // My Created Revisions Order
+            $mcrev_order = $request->input('mcr-order') === null ? 'lmd' : app('request')->input('mcr-order');
+            $mcrev_order_type = substr($mcrev_order, 0, 2) === "lm" ? "revisions.created_at" : "revisions.id";
+            $mcrev_order_direction = substr($mcrev_order, 2, 3) === "a" ? "asc" : "desc";
             // My Created Records Order
             $mcr_order = $request->input('mcr-order') === null ? 'lmd' : app('request')->input('mcr-order');
-            $mcr_order_type = substr($mcr_order, 0, 2) === "lm" ? "revisions.created_at" : "revisions.id";
+            $mcr_order_type = substr($mcr_order, 0, 2) === "lm" ? "records.created_at" : "records.rid";
             $mcr_order_direction = substr($mcr_order, 2, 3) === "a" ? "asc" : "desc";
             $userRevisions = Revision::leftJoin('records', 'revisions.rid', '=', 'records.rid')
                 ->leftJoin('users', 'revisions.owner', '=', 'users.id')
@@ -88,10 +92,14 @@ class UserController extends Controller {
                 ->select('revisions.*', 'records.kid', 'records.pid')
                 ->where('revisions.owner', '=', $user->id)
                 ->whereNotNull('kid')
+                ->orderBy($mcrev_order_type, $mcrev_order_direction)
+                ->paginate($pagination);
+            $userCreatedRecords = Record::where('owner', '=', $user->id)
+                ->whereNotNull('kid')
                 ->orderBy($mcr_order_type, $mcr_order_direction)
                 ->paginate($pagination);
 
-            return view('user/profile-record-history',compact('user', 'admin', 'userRevisions', 'userOwnedRevisions', 'section', 'sec'));
+            return view('user/profile-record-history',compact('user', 'admin', 'userRevisions', 'userOwnedRevisions', 'userCreatedRecords', 'section', 'sec'));
         } else {
             return view('user/profile',compact('user', 'admin', 'section'));
         }

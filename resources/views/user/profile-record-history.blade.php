@@ -54,9 +54,9 @@
 
         <div class="content-section content-section-js {{$sec == 'mcr' ? 'active' : ''}}" id="mcr">
           <div class="content-sections-scroll">
-            @if (count($userOwnedRevisions) > 0)
+            @if (count($userCreatedRecords) > 0)
                 <div class="my-xl">
-                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->first_name}} has @endif recently modified the following {{$userOwnedRevisions->total()}} records...</p>
+                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->first_name}} has @endif created the following {{$userCreatedRecords->total()}} records...</p>
                 </div>
 
                 <section class="filters center">
@@ -79,14 +79,14 @@
                     </div>
                 </section>
 
-                @foreach ($userOwnedRevisions as $index=>$revision)
-                    @include('partials.user.profile.userOwnedRevision')
+                @foreach ($userCreatedRecords as $index=>$record)
+                    @include('partials.user.profile.userCreatedRecords')
                 @endforeach
 
                 @include('partials.user.profile.pagination', ['revisions' => $userOwnedRevisions])
             @else
                 <div class="my-xl">
-                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->first_name}} has @endif recently modified {{$userOwnedRevisions->total()}} records...</p>
+                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->first_name}} has @endif created {{$userCreatedRecords->total()}} records...</p>
                 </div>
             @endif
           </div>
