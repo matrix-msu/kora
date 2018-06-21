@@ -42,7 +42,7 @@ Kora.User.Profile = function() {
     });
   }
 
-  function initializeHistoryFilter(page) {
+  function initializeHistoryFilter() {
     var $selector = $('#recordHistory .select-content-section-js');
 
     $selector.click(function(e) {
@@ -55,7 +55,7 @@ Kora.User.Profile = function() {
     });
   }
 
-  function initializePermissionsFilter(page) {
+  function initializePermissionsFilter() {
     var $selector = $('#permissions .select-content-section-js');
     var $content = $('#permissions .content-section-js');
 
