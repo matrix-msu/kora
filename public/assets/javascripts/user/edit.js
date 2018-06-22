@@ -108,7 +108,7 @@ Kora.User.Edit = function() {
       }
     });
 
-    // Clicking input opens menu
+    // Clicking input opens menu // this is being handled somewhere else
     button.click(function(event) {
       fileInput.focus();
     });
@@ -121,7 +121,6 @@ Kora.User.Edit = function() {
         var name = this.value.substring(this.value.lastIndexOf('\\') + 1);
         var reader = new FileReader();
         reader.onload = function (e) {
-          picCont.html("<img src='"+e.target.result+"' alt='Profile Picture'>");
           newProfilePic(e.target.result, name);
         };
         reader.readAsDataURL(this.files[0]);
@@ -147,141 +146,196 @@ Kora.User.Edit = function() {
         e.preventDefault();
 
         droppedFile = e.originalEvent.dataTransfer.files[0];
+
         var reader = new FileReader();
         reader.onload = function (e) {
-          picCont.html("<img src='"+e.target.result+"' alt='Profile Picture'>");
           newProfilePic(e.target.result, droppedFile.name);
           droppedFile = e.target.result;
-          console.log(e.target.result);
         };
         reader.readAsDataURL(droppedFile);
-      });
-
-      form.submit(function(e) {
-        e.preventDefault();
 
         var ajaxData = new FormData(form.get(0));
+        ajaxData.delete('profile'); // .append doesn't append the data to an existing field, but rather creates a new identical 'profile' field which contains the file -- this line keeps this data clean
+        ajaxData.append("profile", droppedFile);
 
-        if (droppedFile) {
-          // This solution does not work with drag and drop, possibly need to change the file type
-          ajaxData.append("profile", droppedFile);
-          console.log(droppedFile);
-        }
+        // for ( var pair of ajaxData.entries() ) {
+          // console.log(pair[0] + ', ' + pair[1]);
+          // //console.log(typeof pair[1]);
+          // if (typeof pair[1] === 'object') {
+            // console.log(pair[1]);
+          // }
+        // }
 
         $.ajax({
           url: form.attr('action'),
-          type: form.attr('method'),
+          method: 'POST',
           data: ajaxData,
-          dataType: 'json',
-          cache: false,
-          contentType: false,
           processData: false,
+          contentType: false,
           success: function(response) {
             if (response.status) {
               // Updated successfully
-              location.reload();
+              //location.reload();
+              //console.log(response.status);
+              $('.user-form').submit();
             } else {
-              console.log(response.message);
+              //console.log('success: ' + response.message);
+              $('.user-form').submit();
             }
           },
           error: function(error) {
             // TODO: Handle errors. Currently can get all errors, just need to display them
 
             if (error.status == 200) {
-              location.reload();
+              //location.reload();
+              console.log(error);
+              console.log(error.status);
             } else {
               console.log(error);
               var responseJson = error.responseJSON;
               $.each(responseJson, function() {
-                console.log(this[0]);
+                console.log('error: ' + this[0]);
               });
             }
           }
         });
       });
+
+      // form.submit(function(e) { // this has the same run condition as the initializeValidation() function below, which is probably why uncommenting this function prevents us from even uploading a picture normally - though the console.log loop of 'values' below does not log anything about an uploaded photo
+        // e.preventDefault();
+
+        // var ajaxData = new FormData(form.get(0));
+
+        // if (droppedFile) {
+          // // This solution does not work with drag and drop, possibly need to change the file type
+          // ajaxData.append("profile", droppedFile);
+          // //console.log('droppedFile: ' + droppedFile);
+        // }
+
+        // $.ajax({
+          // url: form.attr('action'),
+          // type: form.attr('method'),
+          // data: ajaxData,
+          // dataType: 'json',
+          // cache: false,
+          // contentType: false,
+          // processData: false,
+          // success: function(response) {
+            // if (response.status) {
+              // // Updated successfully
+              // location.reload();
+            // } else {
+              // console.log('success: ' + response.message);
+            // }
+          // },
+          // error: function(error) {
+            // // TODO: Handle errors. Currently can get all errors, just need to display them
+
+            // if (error.status == 200) {
+              // //location.reload();
+              // console.log(error);
+              // console.log(error.status);
+            // } else {
+              // console.log(error);
+              // var responseJson = error.responseJSON;
+              // $.each(responseJson, function() {
+                // console.log('error: ' + this[0]);
+              // });
+            // }
+          // }
+        // });
+      // });
     }
   }
 
   function initializeValidation() {
-        $('.validate-user-js').on('click', function(e) {
-            var $this = $(this);
+      $('.validate-user-js').on('click', function(e) {
+          var $this = $(this);
 
-            e.preventDefault();
+          e.preventDefault();
 
-            values = {};
-            $.each($('.user-form').serializeArray(), function(i, field) {
-                values[field.name] = field.value;
-            });
-            values['_method'] = 'PATCH';
+          values = {};
+          $.each($('.user-form').serializeArray(), function(i, field) {
+              values[field.name] = field.value;
+          });
+          values['_method'] = 'PATCH';
 
-            $.ajax({
-                url: validationUrl,
-                method: 'POST',
-                data: values,
-                success: function(data) {
-                    $('.user-form').submit();
-                },
-                error: function(err) {
-                    $('.error-message').text('');
-                    $('.text-input').removeClass('error');
+          // console.log(typeof values);
+          // console.log($('form').serialize());
+          // console.log('values: ' + values);
+          // for (var value in values) {
+            // console.log('value: ' + value);
+          // }
 
-                    $.each(err.responseJSON.errors, function(fieldName, errors) {
-                        var $field = $('#'+fieldName);
-                        $field.addClass('error');
-                        $field.siblings('.error-message').text(errors[0]);
-                    });
-                }
-            });
-        });
+          $.ajax({
+              url: validationUrl,
+              method: 'POST',
+              data: values,
+              success: function(data) {
+                  $('.user-form').submit();
+                  //console.log('success: ' + data.status);
+              },
+              error: function(err) {
+                  $('.error-message').text('');
+                  $('.text-input').removeClass('error');
 
-        $('.text-input').on('blur', function(e) {
-            var field = this.id;
-            var second = false;
-            var field2 = '';
-            if(field == 'password') {
-                second = true;
-                field2 = 'password_confirmation';
-            } else if(field == 'password_confirmation') {
-                second = true;
-                field2 = 'password';
-            }
-            var values = {};
-            values[field] = this.value;
-            if(second)
-                values[field2] = $('#'+field2).val();
-            values['_token'] = CSRFToken;
-            values['_method'] = 'PATCH';
+                  $.each(err.responseJSON.errors, function(fieldName, errors) {
+                      var $field = $('#'+fieldName);
+                      $field.addClass('error');
+                      $field.siblings('.error-message').text(errors[0]);
+                  });
+              }
+          });
+      });
 
-            $.ajax({
-                url: validationUrl,
-                method: 'POST',
-                data: values,
-                error: function(err) {
-                    if (err.responseJSON.errors[field] !== undefined) {
-                        $('#'+field).addClass('error');
-                        $('#'+field).siblings('.error-message').text(err.responseJSON.errors[field][0]);
-                    } else {
-                        $('#'+field).removeClass('error');
-                        $('#'+field).siblings('.error-message').text('');
-                    }
+      $('.text-input').on('blur', function(e) {
+          var field = this.id;
+          var second = false;
+          var field2 = '';
+          if(field == 'password') {
+              second = true;
+              field2 = 'password_confirmation';
+          } else if(field == 'password_confirmation') {
+              second = true;
+              field2 = 'password';
+          }
+          var values = {};
+          values[field] = this.value;
+          if(second)
+              values[field2] = $('#'+field2).val();
+          values['_token'] = CSRFToken;
+          values['_method'] = 'PATCH';
 
-                    if(second) {
-                        if (err.responseJSON.errors[field2] !== undefined) {
-                            $('#'+field2).addClass('error');
-                            $('#'+field2).siblings('.error-message').text(err.responseJSON.errors[field2][0]);
-                        } else {
-                            $('#'+field2).removeClass('error');
-                            $('#'+field2).siblings('.error-message').text('');
-                        }
-                    }
-                }
-            });
-        });
-    }
+          $.ajax({
+              url: validationUrl,
+              method: 'POST',
+              data: values,
+              error: function(err) {
+                  if (err.responseJSON.errors[field] !== undefined) {
+                      $('#'+field).addClass('error');
+                      $('#'+field).siblings('.error-message').text(err.responseJSON.errors[field][0]);
+                  } else {
+                      $('#'+field).removeClass('error');
+                      $('#'+field).siblings('.error-message').text('');
+                  }
+
+                  if(second) {
+                      if (err.responseJSON.errors[field2] !== undefined) {
+                          $('#'+field2).addClass('error');
+                          $('#'+field2).siblings('.error-message').text(err.responseJSON.errors[field2][0]);
+                      } else {
+                          $('#'+field2).removeClass('error');
+                          $('#'+field2).siblings('.error-message').text('');
+                      }
+                  }
+              }
+          });
+      });
+  }
 
   initializeChosen();
   initializePasswordChange();
   initializeCleanUpModals();
-  // initializeForm();
+  initializeForm();
   initializeValidation();
 }
