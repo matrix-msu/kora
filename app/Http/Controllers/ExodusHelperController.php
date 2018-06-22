@@ -867,8 +867,10 @@ class ExodusHelperController extends Controller {
             //Get the typed field so we can store it in proper record preset form
             $typedField = $field->getTypedFieldFromRID($record->rid);
             $exists = true;
-            if(is_null($typedField))
+            if(is_null($typedField)) {
+	            $typedField = $field->getTypedField();
                 $exists = false;
+            }
 
             $data = $typedField->getRecordPresetArray($data,$exists);
             $flid_array[] = $field->flid;
