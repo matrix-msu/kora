@@ -19,6 +19,8 @@
     width: 40px;
 
     &.active {
+      @include transition();
+
       background: palette('white', base);
       border: 1px solid palette('gray', slate, .1);
       border-radius: 5px;
@@ -31,6 +33,20 @@
         border: 0;
         text-align: center;
         width: 20px;
+
+        &::-webkit-input-placeholder,
+        &::-moz-placeholder,
+        &:-ms-input-placeholder,
+        &:-moz-placeholder {
+          font-family: $ubuntu-medium;
+          opacity: 1;
+        }
+      }
+
+      &:hover {
+        border: 1px solid palette('green', accent, .3);
+        box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
+        color: palette('green', accent);
       }
     }
   }

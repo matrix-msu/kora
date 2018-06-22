@@ -61,6 +61,8 @@
       width: 40px;
 
       &.active {
+        @include transition();
+
         background: white;
         border: 1px solid palette('gray', slate, 0.1);
         border-radius: 5px;
@@ -77,6 +79,20 @@
             margin: 0;
             -webkit-appearance: none;
           }
+
+          &::-webkit-input-placeholder,
+          &::-moz-placeholder,
+          &:-ms-input-placeholder,
+          &:-moz-placeholder {
+            font-family: $ubuntu-medium;
+            opacity: 1;
+          }
+        }
+
+        &:hover {
+          border: 1px solid palette('green', accent, .3);
+          box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
+          color: palette('green', accent);
         }
       }
     }
