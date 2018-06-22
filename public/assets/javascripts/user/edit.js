@@ -108,7 +108,7 @@ Kora.User.Edit = function() {
       }
     });
 
-    // Clicking input opens menu // this is being handled somewhere else
+    // Clicking input opens menu
     button.click(function(event) {
       fileInput.focus();
     });
@@ -128,7 +128,8 @@ Kora.User.Edit = function() {
     });
 
     // Drag and Drop
-    if (isAdvancedUpload) {
+    // check if Drag n Drop is supported, also check that we are not on Safari
+    if (isAdvancedUpload && window.safari == undefined && navigator.vendor != 'Apple Computer, Inc.') {
       button.addClass('has-advanced-upload');
 
       button.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
@@ -154,8 +155,8 @@ Kora.User.Edit = function() {
         };
         reader.readAsDataURL(droppedFile);
 
-        var ajaxData = new FormData(form.get(0));
-        ajaxData.delete('profile'); // .append doesn't append the data to an existing field, but rather creates a new identical 'profile' field which contains the file -- this line keeps this data clean
+        var ajaxData = new FormData(form.get(0)); // safari does not support form.get()
+        ajaxData.delete('profile'); // safari does not support this
         ajaxData.append("profile", droppedFile);
 
         // for ( var pair of ajaxData.entries() ) {

@@ -69,7 +69,8 @@ Kora.Inputs.File = function() {
     });
     
     // Drag and Drop
-    if (isAdvancedUpload) {
+    // detect and disable if we are on Safari
+    if (isAdvancedUpload && window.safari == undefined && navigator.vendor != 'Apple Computer, Inc.') {
       button.addClass('has-advanced-upload');
 
       button.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
@@ -99,11 +100,11 @@ Kora.Inputs.File = function() {
       form.submit(function(e) {
         e.preventDefault();
 
-        var ajaxData = new FormData(form.get(0));
+        var ajaxData = new FormData(form.get(0)); // not supported by safari
 
         if (droppedFile) {
           // This solution does not work with drag and drop, possibly need to change the file type
-          ajaxData.delete('profile');
+          ajaxData.delete('profile'); // not supported by safari
           ajaxData.append("profile", droppedFile);
         }
 
