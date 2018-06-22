@@ -340,14 +340,25 @@ $sideMenu.on('click', '.drawer-toggle-js', function(e) {
   var $icon = $(this).children().last();
   
   if ($drawerElement.parent().hasClass('footer-elements')) {
-    console.log('footer-element')
     $drawerElement.parent().toggleClass('active');
   }
 
   if ($drawerElement.hasClass('active')) {
+    $('.aside-content .footer-elements').css('position', 'absolute');
     closeSidemenuDrawers();
     return;
   }
+
+  setTimeout(function() {
+    var $headerHeight = $('.aside-content .header-elements').height();
+    var $footerHeight = $('.aside-content .footer-elements').height();
+    var combinedHeight = $headerHeight + $footerHeight
+    if (combinedHeight > window.innerHeight) {
+      $('.aside-content .footer-elements').css('position', 'static');
+    } else {
+      $('.aside-content .footer-elements').css('position', 'absolute');
+    }
+  }, 200);
 
   closeSidemenuDrawers();
   $drawerElement.toggleClass('active');

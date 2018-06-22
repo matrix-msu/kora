@@ -25,7 +25,8 @@
     background: palette('gray', slate);
     height: calc(100vh - #{$navigation-height});
     margin-top: $navigation-height;
-    overflow-y: scroll;
+    overflow-x: hidden;
+    overflow-y: auto;
     position: fixed;
     width: 250px;
 
