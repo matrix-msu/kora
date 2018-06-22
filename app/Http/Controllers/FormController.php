@@ -60,7 +60,7 @@ class FormController extends Controller {
 
         $presets = array();
         foreach(Form::where('preset', '=', 1, 'and', 'pid', '=', $pid)->get() as $form)
-            $presets[$form->fid] = $form->name.' - '.$form->project->name;
+            $presets[$form->fid] = $form->project->name.' - '.$form->name;
       
       //array('fname' => $form->name, 'pname' => $form->project->name);
 
