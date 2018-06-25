@@ -108,8 +108,18 @@
 
 @media screen and (max-width: $max-mobile-width) {
   .filters {
+    .search {
+      display: inline-block;
+      float: none;
+    }
+  }
+}
+
+@media screen and (max-width: $max-mobile-med-width) {
+  .filters {
     height: auto;
-    
+    overflow-x: hidden;
+
     .pagination-options {
       display: block;
       float: none;
@@ -117,11 +127,10 @@
       margin-bottom: 20px;
     }
 
-    .search {
-      display: inline-block;
-      float: none;
+    .search-options {
+      @include responsive-scroll();
     }
-    
+
     .show-options {
       display: block;
       float: none;
@@ -130,16 +139,6 @@
       a {
         margin: 0 15px 0 0;
       }
-    }
-  }
-}
-
-@media screen and (max-width: $max-mobile-xs-width) {
-  .filters {
-    overflow-x: hidden;
-
-    .search-options {
-      @include responsive-scroll();
     }
   }
 }
