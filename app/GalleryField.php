@@ -417,6 +417,10 @@ class GalleryField extends FileTypeField  {
                 $xml .= '</File>';
                 $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
+                $xml .= '<' . Field::xmlTagClear($slug) . ' type="Gallery" simple="simple">';
+                $xml .= utf8_encode('FILENAME');
+                $xml .= '</' . Field::xmlTagClear($slug) . '>';
+
                 return $xml;
                 break;
             case "JSON":
