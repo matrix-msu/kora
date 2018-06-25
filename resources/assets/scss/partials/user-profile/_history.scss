@@ -1,6 +1,10 @@
 &#recordHistory {
   font-size: 14px;
 
+  .collapse-fields::after {
+    left: -49px;
+  }
+
   .edit-section {
     border: 1px solid palette('gray', slate, .1);
     border-radius: 5px;
@@ -11,6 +15,10 @@
     &:first-of-type {
       margin-bottom: 30px;
     }
+  }
+
+  .expand-fields::after {
+    left: -47px;
   }
 
   .field {
@@ -27,26 +35,27 @@
     &:last-child:first-child {
       margin: 0;
     }
+  }
 
-    .field-title {
-      font-family: $ubuntu-medium;
-      font-size: 14px;
-    }
+  .field-title {
+    font-family: $ubuntu-medium;
+    font-size: 14px;
+    font-weight: bold;
+  }
 
-    .no-field {
+  .no-field {
+    color: palette('gray', text, .4);
+    font-family: $ubuntu-medium-italic;
+  }
+
+  .field-data {
+    // scss-lint:disable SelectorDepth
+    .record-no-data {
       color: palette('gray', text, .4);
-      font-family: $ubuntu-medium-italic;
+      font-family: $ubuntu-italic;
     }
 
-    .field-data {
-      // scss-lint:disable SelectorDepth
-      .record-no-data {
-        color: palette('gray', text, .4);
-        font-family: $ubuntu-italic;
-      }
-
-      @import 'typed-fields';
-    }
+    @import 'typed-fields';
   }
 }
 
