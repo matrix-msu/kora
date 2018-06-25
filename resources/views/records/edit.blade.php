@@ -71,7 +71,7 @@
             'enctype' => 'multipart/form-data', 'id' => 'new_record_form', 'class' => 'record-form']) !!}
 
         <div class="form-group mt-xl newRecPre-record-js hidden">
-            {!! Form::label('record_preset_name', 'Record Preset Name: ') !!}
+            {!! Form::label('record_preset_name', 'Record Preset Name') !!}
             <input type="text" name="record_preset_name" class="text-input" placeholder="Add Record Preset Name" disabled>
         </div>
 

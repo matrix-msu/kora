@@ -15,12 +15,12 @@
     {!! Form::hidden('typetwo',$twoType) !!}
 
     <div class="form-group half pr-m">
-        {!! Form::label('cfname1','Combo List Field Name 1: ') !!}
+        {!! Form::label('cfname1','Combo List Field Name 1') !!}
         {!! Form::text('cfname1',$oneName, ['class' => 'text-input']) !!}
     </div>
 
     <div class="form-group half pl-m">
-        {!! Form::label('cfname2','Combo List Field Name 2: ') !!}
+        {!! Form::label('cfname2','Combo List Field Name 2') !!}
         {!! Form::text('cfname2',$twoName, ['class' => 'text-input']) !!}
     </div>
 
@@ -30,7 +30,7 @@
 
     <section class="combo-list-defaults">
         <div class="form-group combo-list-display combo-value-div-js">
-            {!! Form::label('default', 'Default: ') !!}
+            {!! Form::label('default', 'Default') !!}
             <div>
                 <span class="combo-column combo-title">{{$oneName}}</span>
                 <span class="combo-column combo-title">{{$twoName}}</span>
