@@ -7,7 +7,7 @@ Kora.Tokens.Index = function() {
     }
 	
 	function initializeValidation() {
-	  submitted = false;
+	  var submitted = false;
 		
       $('.validate-token-js').on('click', function(e) { // whole form validation on submit
         var $this = $(this);
@@ -44,7 +44,7 @@ Kora.Tokens.Index = function() {
 			return;
 		}
 		
-		// passed client-side js validation
+		// passed client-side js validation.. start creating request
 		
 		var values = {
 			_token: CSRFToken,
@@ -86,13 +86,13 @@ Kora.Tokens.Index = function() {
 			location.reload(); // reload tokens page
           },
           error: function(err) {
-            location.reload(); // client-server validation mismatch or user forged request
+            location.reload(); // client-server validation rules mismatch or user forged request
           }
         });
       });
 	  
 	  $('.text-input, .text-area').on('blur', function(e) { // real-time validation
-        if (this === $("#token_name")[0])
+        if (this === $("#token_name")[0]) // validate the name input & display validation errors
 		{
 			var text = document.getElementById("token_name").value;
 			if (text.length < 3)
@@ -106,6 +106,7 @@ Kora.Tokens.Index = function() {
 			}
 		}
 		
+		// apply the appropriate opacity on Create button
 		if (create_is_validated())
 		{
 			$(".validate-token-js").removeClass("btn-faded");
@@ -260,7 +261,7 @@ Kora.Tokens.Index = function() {
             Kora.Modal.open($('.create-token-modal-js'));
         });
 		
-		// for editing token
+		/////////// enforce rules for Edit Token checkboxes
 		function getTotalEditTokenCheckboxesSelected()
 		{
 			return Number($( ".search-checkbox-js" ).prop("checked")) +
@@ -276,8 +277,9 @@ Kora.Tokens.Index = function() {
 			if (getTotalEditTokenCheckboxesSelected() == 0 && !$(this).prop("checked"))
 				e.preventDefault();
 		});
+		///////////
 		
-		// Create Token stuff
+		/////////// enforce rules for Create Token checkboxes
 		$(".search-token-create-js, .create-token-create-js, .edit-token-create-js, .delete-token-create-js").click(function(e)
 		{
 			let total_selected = getTotalCreateTokenCheckboxesSelected();
@@ -297,7 +299,7 @@ Kora.Tokens.Index = function() {
 				$(".validate-token-js").removeClass("btn-faded");
 			}
 		});
-		
+		///////////
 		
         $('.edit-token-js').click(function(e) {
             e.preventDefault();
