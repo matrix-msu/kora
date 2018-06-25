@@ -316,7 +316,6 @@ Kora.Tokens.Index = function() {
             titleSpan = tokenDiv.find('.name').first();
 
             indexVal.val(tokenDiv.attr('id'));
-            //TODO:: close, but not yet
             
 			// apply correct checkmark state
 			$('.search-checkbox-js').prop('checked', tokenDiv.hasClass('search'));
@@ -404,8 +403,6 @@ Kora.Tokens.Index = function() {
 	
 	function create_is_validated()
 	{
-		//console.log("checked: " + getTotalCreateTokenCheckboxesSelected());
-		//console.log("text : " + $("#token_name")[0].value);
 		return ($("#token_name")[0].value.length >= 3 && getTotalCreateTokenCheckboxesSelected() > 0);
 	}
 	
