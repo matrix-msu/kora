@@ -266,9 +266,10 @@ class DateField extends BaseField {
      *
      * @param  Field $field - The field to validate
      * @param  Request $request
+     * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
      * @return array - Array of errors
      */
-    public function validateField($field, $request) {
+    public function validateField($field, $request, $forceReq = false) {
         $req = $field->required;
         $start = FieldController::getFieldOption($field,'Start');
         $end = FieldController::getFieldOption($field,'End');
@@ -276,7 +277,7 @@ class DateField extends BaseField {
         $day = $request->input('day_'.$field->flid,'');
         $year = $request->input('year_'.$field->flid,'');
 
-        if($req==1 && $month=='' && $day=='' && $year=='')
+        if(($req==1 | $forceReq) && $month=='' && $day=='' && $year=='')
             return [
                 'month_'.$field->flid.'_chosen' => $field->name.' is required',
                 'day_'.$field->flid.'_chosen' => ' ',

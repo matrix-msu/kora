@@ -57,7 +57,7 @@
         </div>
 
         <div class="form-group mt-xxxl duplicate-record-js">
-            {!! Form::label('mass_creation_num', 'Select duplication amount (max 1000): ') !!}
+            {!! Form::label('mass_creation_num', 'Select duplication amount (max 1000)') !!}
             <input type="number" name="mass_creation_num" class="text-input" value="2" step="1" max="1000" min="1">
         </div>
 
@@ -74,7 +74,7 @@
         </div>
 
         <div class="form-group mt-xl newRecPre-record-js hidden">
-            {!! Form::label('record_preset_name', 'Record Preset Name: ') !!}
+            {!! Form::label('record_preset_name', 'Record Preset Name') !!}
             <input type="text" name="record_preset_name" class="text-input" placeholder="Add Record Preset Name" disabled>
         </div>
 

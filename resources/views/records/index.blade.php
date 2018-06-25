@@ -38,7 +38,7 @@
         <section class="search-records">
             <form method="GET" action="{{action('FormSearchController@keywordSearch',['pid' => $form->pid, 'fid' => $form->fid])}}" class="keyword-search-js">
                 <div class="form-group search-input mt-xl">
-                    {!! Form::label('keywords','Search Via Keyword(s) or KID : ') !!}
+                    {!! Form::label('keywords','Search Via Keyword(s) or KID') !!}
                     {!! Form::text('keywords', null, ['class' => 'text-input keywords-get-js', 'placeholder' => 'Type space separated keywords']) !!}
                 </div>
                 <div class="form-group search-input mt-xl">

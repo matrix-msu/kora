@@ -200,9 +200,10 @@ abstract class BaseField extends Model {
      *
      * @param  Field $field - The field to validate
      * @param  Request $request
+     * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
      * @return array - Array of errors
      */
-    abstract public function validateField($field, $request);
+    abstract public function validateField($field, $request, $forceReq = false);
 
     /**
      * Performs a rollback function on an individual field's record data.

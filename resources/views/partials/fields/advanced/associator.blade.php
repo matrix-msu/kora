@@ -1,6 +1,6 @@
 {!! Form::hidden('advanced',true) !!}
 <div class="form-group mt-xxxl">
-    {!! Form::label('','Search Configuration: ') !!}
+    {!! Form::label('','Search Configuration') !!}
     <p class="sub-text">
         If no forms are available, have a Form Admin request permission to forms by using the Association Permissions page
     </p>
@@ -25,7 +25,7 @@
     </div>
 
     <div class="form-group mt-m hidden">
-        {!! Form::label('preview_'.$f->fid, 'Preview Value: ') !!}
+        {!! Form::label('preview_'.$f->fid, 'Preview Value') !!}
         {!! Form::select('preview_'.$f->fid, $formFields, null, $selectArray) !!}
     </div>
 @endforeach

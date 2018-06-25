@@ -31,7 +31,7 @@
 @section('body')
     @include("partials.fields.input-modals")
 
-    <form method="post" action="{{action('RecordController@massAssignRecords',compact('pid','fid'))}}">
+    <form method="post" action="{{action('RecordController@massAssignRecords',compact('pid','fid'))}}" class="batch-form">
         <input type="hidden" name="_token" value="{{csrf_token()}}">
         <section class="record-batch center">
             <div class="form-group">
@@ -86,6 +86,7 @@
     <script>
         geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => 0]) }}';
         csrfToken = "{{ csrf_token() }}";
+        var validationUrl = "{{action('RecordController@validateMassRecord',['pid' => $form->pid, 'fid' => $form->fid])}}";
 
         Kora.Records.Batch();
     </script>

@@ -674,11 +674,6 @@ class RecordController extends Controller {
         if(!is_numeric($flid))
             return redirect()->back()->with('k3_global_error', 'field_invalid');
 
-        if($request->has($flid))
-            $formFieldValue = $request->input($flid); //Note this only works when there is one form element being submitted, so if you have more, check Date
-        else
-            return redirect()->back()->with('k3_global_error', 'no_mass_value');
-
         if($request->has("overwrite"))
             $overwrite = $request->input("overwrite"); //Overwrite field in all records, even if it has data
         else
@@ -686,12 +681,32 @@ class RecordController extends Controller {
 
         $field = FieldController::getField($flid);
         $typedField = $field->getTypedField();
-        
-        foreach(Form::find($fid)->records()->get() as $record) {
-            $typedField->massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite);
-        }
+        $formFieldValue = $request->input($flid);
 
-        return redirect()->action('RecordController@index',compact('pid','fid'))->with('k3_global_success', 'mass_records_updated');
+        //A field may not be required for a record but we want to force validation here so we use forceReq
+        $message = $typedField->validateField($field, $request, true);
+        if(empty($message)) {
+            foreach (Form::find($fid)->records()->get() as $record) {
+                $typedField->massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite);
+            }
+
+            return redirect()->action('RecordController@index', compact('pid', 'fid'))->with('k3_global_success', 'mass_records_updated');
+        } else {
+            return redirect()->back()->with('k3_global_error', 'mass_value_invalid');
+        }
+    }
+
+    public function validateMassRecord($pid, $fid, Request $request) {
+        $errors = [];
+
+        $flid = $request->input("field_selection");
+        $field = FieldController::getField($flid);
+
+        $message = $field->getTypedField()->validateField($field, $request);
+        if(!empty($message))
+            $errors += $message; //We add these arrays because it maintains the keys, where array_merge re-indexes
+
+        return response()->json(["status"=>true,"errors"=>$errors],200);
     }
 
     /**

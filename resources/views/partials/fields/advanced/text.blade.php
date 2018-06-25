@@ -1,12 +1,12 @@
 {!! Form::hidden('advanced',true) !!}
 <div class="form-group mt-xxxl">
-    {!! Form::label('default','Default: ') !!}
+    {!! Form::label('default','Default') !!}
     <span class="error-message"></span>
     {!! Form::text('default', null, ['class' => 'text-input text-default-js', 'placeholder' => 'Enter default value here']) !!}
 </div>
 
 <div class="form-group mt-xl">
-    {!! Form::label('regex','Regex: ') !!}
+    {!! Form::label('regex','Regex') !!}
     <span class="error-message"></span>
     {!! Form::text('regex', null, ['class' => 'text-input text-regex-js', 'placeholder' => 'Enter regular expression pattern here']) !!}
 </div>

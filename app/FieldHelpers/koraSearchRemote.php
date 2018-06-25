@@ -7,7 +7,7 @@
 //THIS WORKS IF YOU HAVE USED EITHER Exodus OR THE K2 Importer TOOLS TO MIGRATE YOUR KORA 2 DATA
 //Step 1
 ////Change your php includes of koraSearch.php from K2 to point at this file
-////In your file, use the namespace tag "namespace App\FieldHelpers"
+////(Because this remote file is independent, we can ignore this step) In your file, use the namespace tag "namespace App\FieldHelpers"
 //Step 2
 ////Replace your token, pid, and sid with a new search token, a k3 pid, and fid
 //Step 3
