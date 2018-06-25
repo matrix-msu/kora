@@ -2,8 +2,7 @@
   font-family: $ubuntu;
   height: 20px;
   margin: 40px auto 0;
-  max-width: calc(#{$max-site-width} - 600px);
-  width: $max-site-width;
+  width: 100%;
 
   .pagination-options {
     float: left;
@@ -109,8 +108,6 @@
 
 @media screen and (max-width: $max-mobile-width) {
   .filters {
-    height: 66px;
-
     .search {
       display: inline-block;
       float: none;
@@ -118,15 +115,30 @@
   }
 }
 
-@media screen and (max-width: $max-mobile-xs-width) {
+@media screen and (max-width: $max-mobile-med-width) {
   .filters {
-    margin-left: $mobile-xs-margin-total / 2;
-    max-width: $max-mobile-xs-width - $mobile-xs-margin-total;
+    height: auto;
     overflow-x: hidden;
-    width: calc(100% - #{$mobile-xs-margin-total / 2 });
+
+    .pagination-options {
+      display: block;
+      float: none;
+      height: auto;
+      margin-bottom: 20px;
+    }
 
     .search-options {
       @include responsive-scroll();
+    }
+
+    .show-options {
+      display: block;
+      float: none;
+      text-align: left;
+
+      a {
+        margin: 0 15px 0 0;
+      }
     }
   }
 }

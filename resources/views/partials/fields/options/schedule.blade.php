@@ -11,7 +11,7 @@
 
 @section('fieldOptions')
     <div class="form-group">
-        {!! Form::label('default','Default Value: ') !!}
+        {!! Form::label('default','Default Value') !!}
         <select multiple class="multi-select default-event-js" name="default[]" data-placeholder="Add Events Below">
             @foreach(\App\ScheduleField::getDateList($field) as $opt)
                 <option value="{{$opt}}" selected>{{$opt}}</option>
@@ -28,21 +28,21 @@
     </section>
 
     <div class="form-group mt-xxxl">
-        {!! Form::label('start','Start Year: ') !!}
+        {!! Form::label('start','Start Year') !!}
         <span class="error-message"></span>
         {!! Form::input('number', 'start', \App\Http\Controllers\FieldController::getFieldOption($field,'Start'),
             ['class' => 'text-input start-year-js', 'min' => 0, 'max' => 9999]) !!}
     </div>
 
     <div class="form-group mt-xl">
-        {!! Form::label('end','End Year: ') !!}
+        {!! Form::label('end','End Year') !!}
         <span class="error-message"></span>
         {!! Form::input('number', 'end', \App\Http\Controllers\FieldController::getFieldOption($field,'End'),
             ['class' => 'text-input end-year-js', 'min' => 0, 'max' => 9999]) !!}
     </div>
 
     <div class="form-group mt-xl">
-        {!! Form::label('cal','Calendar Display: ') !!}
+        {!! Form::label('cal','Calendar Display') !!}
         {!! Form::select('cal', ['No' => 'No','Yes' => 'Yes'],
             \App\Http\Controllers\FieldController::getFieldOption($field,'Calendar'), ['class' => 'single-select']) !!}
     </div>

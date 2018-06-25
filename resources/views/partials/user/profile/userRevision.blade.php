@@ -39,7 +39,6 @@
                 <div class="edit-section">
                     @foreach ($data["current"] as $id => $field)
                         <div class="field">
-                            <p>testing</p>
                             <div class="field-title">{{$field["name"]}}</div>
                             <div class="field-data">{!! $field["data"] !!}</div>
                         </div>
