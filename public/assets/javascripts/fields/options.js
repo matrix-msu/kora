@@ -41,17 +41,8 @@ Kora.Fields.Options = function(fieldType) {
         function printYears(){
             start = $('.start-year-js').val(); end = $('.end-year-js').val();
 
-            if(start=='' || start < 0)
-			{
-				start = 0;
-				$('.start-year-js').val(0); // set the value in the input to this
-			}
-				
-            if(end == '' || end > 9999)
-			{
-				end = 9999;
-				$(".end-year-js").val(9999); // set the value in the input to this
-			}
+            if(start=='' || start < 0) {start = 0;}
+            if(end == '' || end > 9999) {end = 9999;}
 
             val = '<option></option>';
             for(var i=start;i<+end+1;i++) {
