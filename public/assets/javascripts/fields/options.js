@@ -34,9 +34,9 @@ Kora.Fields.Options = function(fieldType) {
     //Fields that have specific functionality will have their own initialization process
 
     function initializeDateOptions() {
-        $('.start-year-js').change(function() { printYears(); });
+        $('.start-year-js').change(printYears);
 
-        $('.end-year-js').change(function() { printYears(); });
+        $('.end-year-js').change(printYears);
 
         function printYears(){
             start = $('.start-year-js').val(); end = $('.end-year-js').val();
