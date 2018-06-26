@@ -94,7 +94,12 @@ Kora.Records.Index = function() {
             var $input = $('.page-input');
             $input.focus();
             $input.on('blur keydown', function(e) {
-                if (e.key !== "Enter" && e.key !== "Tab") return;
+                if (e.key !== "Enter" && e.key !== "Tab") {
+                  var get = $('.page-input').attr('placeholder');
+                  $('.page-input').remove();
+                  $('.page-link.active').text(''+get+'');
+                  return;
+                }
                 if ($input[0].checkValidity()) {
                     var url = window.location.toString();
                     if (url.includes('page=')) {
