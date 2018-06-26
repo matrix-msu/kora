@@ -250,6 +250,7 @@ class ImportController extends Controller {
                 $fieldSlug = $matchup[$key];
                 $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
                 $type = $field->attributes()->type;
+                $simple = !is_null($field->attributes()->simple);
 
                 //Type wasnt provided so we have to hunt for it
                 if(is_null($type))
@@ -289,12 +290,22 @@ class ImportController extends Controller {
                     $recRequest[$flid] = '';
                     $recRequest[$flid . '_val'] = $values;
                 } else if($type == 'Date') {
-                    $recRequest['circa_' . $flid] = (string)$field->Circa;
-                    $recRequest['month_' . $flid] = (string)$field->Month;
-                    $recRequest['day_' . $flid] = (string)$field->Day;
-                    $recRequest['year_' . $flid] = (string)$field->Year;
-                    $recRequest['era_' . $flid] = (string)$field->Era;
-                    $recRequest[$flid] = '';
+                    if($simple) {
+                        $dateParts = explode('/',(string)$field);
+                        $recRequest['circa_' . $flid] = 0;
+                        $recRequest['month_' . $flid] = $dateParts[0];
+                        $recRequest['day_' . $flid] = $dateParts[1];
+                        $recRequest['year_' . $flid] = $dateParts[2];
+                        $recRequest['era_' . $flid] = 'CE';
+                        $recRequest[$flid] = '';
+                    } else {
+                        $recRequest['circa_' . $flid] = (string)$field->Circa;
+                        $recRequest['month_' . $flid] = (string)$field->Month;
+                        $recRequest['day_' . $flid] = (string)$field->Day;
+                        $recRequest['year_' . $flid] = (string)$field->Year;
+                        $recRequest['era_' . $flid] = (string)$field->Era;
+                        $recRequest[$flid] = '';
+                    }
                 } else if($type == 'Schedule') {
                     $events = array();
                     foreach($field->Event as $event) {
@@ -328,12 +339,20 @@ class ImportController extends Controller {
                     } else {
                         mkdir($newDir, 0775, true);
                     }
-                    foreach($field->File as $file) {
-                        $name = (string)$file->Name;
+                    if($simple) {
+                        $name = (string)$field;
                         //move file from imp temp to tmp files
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
                         //add input for this file
                         array_push($files, $name);
+                    } else {
+                        foreach ($field->File as $file) {
+                            $name = (string)$file->Name;
+                            //move file from imp temp to tmp files
+                            copy($currDir . '/' . $name, $newDir . '/' . $name);
+                            //add input for this file
+                            array_push($files, $name);
+                        }
                     }
                     $recRequest['file' . $flid] = $files;
                     $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;
@@ -369,30 +388,56 @@ class ImportController extends Controller {
                         mkdir($newDir . '/thumbnail', 0775, true);
                         mkdir($newDir . '/medium', 0775, true);
                     }
-                    foreach($field->File as $file) {
-                        $name = (string)$file->Name;
+                    if($simple) {
+                        $name = (string)$field;
                         //move file from imp temp to tmp files
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
                         copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                         copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
-                        if(file_exists($currDir . '/thumbnail'))
+                        if (file_exists($currDir . '/thumbnail'))
                             copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                         else {
-                            $smallParts = explode('x',FieldController::getFieldOption($field,'ThumbSmall'));
+                            $smallParts = explode('x', FieldController::getFieldOption($field, 'ThumbSmall'));
                             $tImage = new \Imagick($newDir . '/' . $name);
-                            $tImage->thumbnailImage($smallParts[0],$smallParts[1],true);
+                            $tImage->thumbnailImage($smallParts[0], $smallParts[1], true);
                             $tImage->writeImage($newDir . '/thumbnail/' . $name);
                         }
-                        if(file_exists($currDir . '/medium'))
+                        if (file_exists($currDir . '/medium'))
                             copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
                         else {
-                            $largeParts = explode('x',FieldController::getFieldOption($field,'ThumbLarge'));
+                            $largeParts = explode('x', FieldController::getFieldOption($field, 'ThumbLarge'));
                             $mImage = new \Imagick($newDir . '/' . $name);
-                            $mImage->thumbnailImage($largeParts[0],$largeParts[1],true);
+                            $mImage->thumbnailImage($largeParts[0], $largeParts[1], true);
                             $mImage->writeImage($newDir . '/medium/' . $name);
                         }
                         //add input for this file
                         array_push($files, $name);
+                    } else {
+                        foreach ($field->File as $file) {
+                            $name = (string)$file->Name;
+                            //move file from imp temp to tmp files
+                            copy($currDir . '/' . $name, $newDir . '/' . $name);
+                            copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
+                            copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
+                            if (file_exists($currDir . '/thumbnail'))
+                                copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
+                            else {
+                                $smallParts = explode('x', FieldController::getFieldOption($field, 'ThumbSmall'));
+                                $tImage = new \Imagick($newDir . '/' . $name);
+                                $tImage->thumbnailImage($smallParts[0], $smallParts[1], true);
+                                $tImage->writeImage($newDir . '/thumbnail/' . $name);
+                            }
+                            if (file_exists($currDir . '/medium'))
+                                copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
+                            else {
+                                $largeParts = explode('x', FieldController::getFieldOption($field, 'ThumbLarge'));
+                                $mImage = new \Imagick($newDir . '/' . $name);
+                                $mImage->thumbnailImage($largeParts[0], $largeParts[1], true);
+                                $mImage->writeImage($newDir . '/medium/' . $name);
+                            }
+                            //add input for this file
+                            array_push($files, $name);
+                        }
                     }
                     $recRequest['file' . $flid] = $files;
                     $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;

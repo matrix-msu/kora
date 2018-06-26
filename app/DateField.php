@@ -417,6 +417,10 @@ class DateField extends BaseField {
                 $xml .= $value;
                 $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
+                $xml .= '<' . Field::xmlTagClear($slug) . ' type="Date" simple="simple">';
+                $xml .= utf8_encode('MM/DD/YYYY');
+                $xml .= '</' . Field::xmlTagClear($slug) . '>';
+
                 return $xml;
                 break;
             case "JSON":

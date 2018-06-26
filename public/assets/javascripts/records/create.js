@@ -439,7 +439,7 @@ Kora.Records.Create = function() {
                 $field.removeClass('error');
                 $field.siblings('.error-message').text('');
                 $.each(data.result[inputName], function (index, file) {
-                    if(file.error == "") {
+                    if(file.error == "" || !file.hasOwnProperty('error')) {
                         var del = '<div class="form-group mt-xxs uploaded-file">';
                         del += '<input type="hidden" name="' + inputName + '[]" value ="' + file.name + '">';
                         del += '<a href="#" class="upload-fileup-js">';
