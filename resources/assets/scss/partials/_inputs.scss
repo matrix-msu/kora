@@ -66,6 +66,14 @@
     }
   }
 
+  &.fixed {
+    max-width: calc(1440px - 600px);
+    position: fixed;
+    top: 50px;
+    width: 1440px;
+    z-index: 3;
+  }
+
   @import 'inputs/buttons';
   @import 'inputs/check-boxes';
   @import 'inputs/file';
