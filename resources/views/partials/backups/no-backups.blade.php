@@ -5,7 +5,7 @@
     <div class="line"></div>
   </div>
   <div class="bottom">
-    <p>No backups exist.</p>
-    <p><a class="create-token-js underline-middle-hover pb-xxs">Create new backups</a> to get started</p>
+    <p>No backups exist!</p>
+    <input type="button" value="Create a new backup file" class="create-backup-js"><p> to get started.</p>
   </div>
 </div>

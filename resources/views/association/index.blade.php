@@ -88,6 +88,7 @@
                 </form>
             @endif
         </section>
+        @if (count($available_associations) > 0)
         <section class="permission-association-selection center permission-association-js request">
             <p class="description request-description-js {{count($available_associations) === 0 ? 'hidden' : ''}}">{{$form->name}} is allowed to associate with and can search within the following forms:</p>
             @foreach ($available_associations as $index=>$a)
@@ -120,6 +121,9 @@
                 </div>
             @endforeach
         </section>
+        @else
+          @include('partials.formAssociations.no-reqAssocs')
+        @endif
     </section>
 @stop
 

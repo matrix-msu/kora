@@ -1,11 +1,16 @@
 <div class="no-presets pt-xxxl">
   <div class="top pb-xxxl">
     <div class="line"></div>
-    <i class="icon icon-preset"></i>
+    <i class="icon icon-recordPreset-EmptyState"></i>
     <div class="line"></div>
   </div>
   <div class="bottom">
-    <p>No Presets set!</p>
-    <p><a class="underline-middle-hover pb-xxs">Create new preset</a> to get started</p>
+    <p>No field value presets exist for this project.</p>
+    @if(\Auth::user()->admin)
+      <form action="{{ action('OptionPresetController@newPreset', ['pid' => $project->pid]) }}">
+        <input type="submit" value="Create a new field value preset">
+      </form>
+    @endif
+    <p> to get started.</p>
   </div>
 </div>

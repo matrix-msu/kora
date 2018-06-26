@@ -12,14 +12,13 @@
   .no-presets {
 
     .top {
-    font-size: 60px;
-    height: 60px;
-    position: relative;
-    text-align: center; 
+      font-size: 60px;
+      height: 60px;
+      position: relative;
+      text-align: center; 
 
       .line {
         background: palette('gray', base);
-        /*background: black;*/
         height: 2px;
         margin-top: 35px;
         opacity: 0.05;
@@ -43,18 +42,27 @@
       p {
         font-family: $ubuntu;
         font-size: 14px;
+        opacity: 0.8;
 
         &:first-child {
           font-size: 18px;
           margin-top: 0;
         }
 
-        a {
-          color: palette('green', accent);
+        &:last-child {
+          display: inline;
+        }
+      }
 
-          &:hover {
-            cursor: pointer;
-          }
+      input {
+        border: none;
+        background: transparent;
+        color: palette('green', accent);
+        font-size: 14px;
+        padding: 0;
+
+        &:hover {
+          cursor: pointer;
         }
       }
     }

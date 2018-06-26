@@ -35,18 +35,27 @@
     p {
       font-family: $ubuntu;
       font-size: 14px;
+      opacity: 0.8;
 
       &:first-child {
         font-size: 18px;
         margin-top: 0;
       }
 
-      a {
-        color: palette('green', accent);
+      &:last-child {
+        display: inline;
+      }
+    }
 
-        &:hover {
-          cursor: pointer;
-        }
+    input {
+      border: none;
+      background: transparent;
+      color: palette('green', accent);
+      font-size: 14px;
+      padding: 0;
+
+      &:hover {
+        cursor: pointer;
       }
     }
   }

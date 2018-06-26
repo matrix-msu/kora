@@ -43,11 +43,11 @@
     </section>
 
     <section class="new-object-button center">
-        <form action="{{ action('OptionPresetController@newPreset', ['pid' => $project->pid]) }}">
-            @if(\Auth::user()->admin)
-                <input type="submit" value="Create a New Preset">
-            @endif
-        </form>
+        @if(\Auth::user()->admin)
+          <form action="{{ action('OptionPresetController@newPreset', ['pid' => $project->pid]) }}">
+            <input type="submit" value="Create a New Preset">
+          </form>
+        @endif
     </section>
 
     <section class="option-presets-selection center">

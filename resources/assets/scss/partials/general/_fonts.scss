@@ -508,7 +508,6 @@ i {
   }
 }
 
-
 .icon-record-little {
   &::before {
     content: $icon-record-little;
@@ -638,5 +637,47 @@ i {
 .icon-form-new-little {
   &::before {
     content: $icon-form-new-little;
+  }
+}
+
+.icon-form-EmptyState {
+  &::before {
+    content: $icon-form-EmptyState; 
+  }
+}
+
+.icon-recordRevisions-EmptyState {
+  &:before {
+    content: $icon-recordRevisions-EmptyState; 
+  }
+}
+
+.icon-formAssociations-EmptyState {
+  &:before {
+    content: $icon-formAssociations-EmptyState; 
+  }
+}
+
+.icon-backup-dark {
+  &:before {
+    content: $icon-backup-dark; 
+  }
+}
+
+.icon-token-dark {
+  &:before {
+    content: $icon-token-dark; 
+  }
+}
+
+.icon-field-EmptyState {
+  &:before {
+    content: $icon-field-EmptyState; 
+  }
+}
+
+.icon-recordPreset-EmptyState {
+  &:before {
+    content: $icon-recordPreset-EmptyState; 
   }
 }
