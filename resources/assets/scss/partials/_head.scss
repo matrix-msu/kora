@@ -89,10 +89,9 @@
   }
 
   .head-button {
-    position: absolute;
-    right: 0;
+    float: right;
     text-decoration: none;
-    top: 56px;
+    vertical-align: top;
 
     i {
       @include transition();
