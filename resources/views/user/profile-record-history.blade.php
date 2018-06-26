@@ -47,7 +47,7 @@
                     @include('partials.user.profile.userCreatedRecords')
                 @endforeach
 
-                @include('partials.user.profile.pagination', ['revisions' => $userOwnedRevisions])
+                @include('partials.user.profile.pagination', ['revisions' => $userCreatedRecords])
             @else
                 <div class="my-xl">
                     <p>@if (Auth::user()->id == $user->id) You have @else {{$user->first_name}} has @endif created {{$userCreatedRecords->total()}} records...</p>

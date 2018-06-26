@@ -1,6 +1,7 @@
 <?php
     $exists = \App\Http\Controllers\RecordController::exists($revision->rid);
     $data = \App\Http\Controllers\RevisionController::formatRevision($revision->id);
+    $type = ucfirst($revision->type === "edit" ? 'edited' : ($revision->type === 'rollback' ? 'rollback' : $revision->type.'d'));
 ?>
 <div class="record card {{ $index == 0 ? 'active' : '' }}" id="{{$revision->rid}}">
     <div class="header {{ $index == 0 ? 'active' : '' }}">
@@ -13,7 +14,7 @@
 
         <div class="card-toggle-wrap">
             <div class="left">
-                <span class="sub-title">{{$revision->type}}</span>
+                <span class="sub-title">{{$type}}</span>
                 <span class="sub-title">{{date_format($revision->created_at, "g:i")}}</span>
                 <span class="sub-title">{{date_format($revision->created_at, "n.j.Y")}}</span>
                 <span class="sub-title">{{$revision->ownerUsername}}</span>
