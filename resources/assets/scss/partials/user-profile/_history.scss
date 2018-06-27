@@ -40,7 +40,6 @@
   .field-title {
     font-family: $ubuntu-medium;
     font-size: 14px;
-    font-weight: bold;
   }
 
   .no-field {
@@ -57,5 +56,7 @@
 
     @import 'typed-fields';
   }
+
+  @import 'card';
 }
 

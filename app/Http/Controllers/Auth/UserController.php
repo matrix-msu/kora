@@ -73,10 +73,6 @@ class UserController extends Controller {
             $rm_order = $request->input('rm-order') === null ? 'lmd' : app('request')->input('rm-order');
             $rm_order_type = substr($rm_order, 0, 2) === "lm" ? "revisions.created_at" : "revisions.id";
             $rm_order_direction = substr($rm_order, 2, 3) === "a" ? "asc" : "desc";
-            // My Created Revisions Order
-            $mcrev_order = $request->input('mcr-order') === null ? 'lmd' : app('request')->input('mcr-order');
-            $mcrev_order_type = substr($mcrev_order, 0, 2) === "lm" ? "revisions.created_at" : "revisions.id";
-            $mcrev_order_direction = substr($mcrev_order, 2, 3) === "a" ? "asc" : "desc";
             // My Created Records Order
             $mcr_order = $request->input('mcr-order') === null ? 'lmd' : app('request')->input('mcr-order');
             $mcr_order_type = substr($mcr_order, 0, 2) === "lm" ? "records.created_at" : "records.rid";
@@ -87,12 +83,6 @@ class UserController extends Controller {
                 ->where('revisions.username', '=', $user->username)
                 ->whereNotNull('kid')
                 ->orderBy($rm_order_type, $rm_order_direction)
-                ->paginate($pagination);
-            $userOwnedRevisions = Revision::leftJoin('records', 'revisions.rid', '=', 'records.rid')
-                ->select('revisions.*', 'records.kid', 'records.pid')
-                ->where('revisions.owner', '=', $user->id)
-                ->whereNotNull('kid')
-                ->orderBy($mcrev_order_type, $mcrev_order_direction)
                 ->paginate($pagination);
             $userCreatedRecords = Record::where('owner', '=', $user->id)
                 ->whereNotNull('kid')
@@ -585,13 +575,13 @@ class UserController extends Controller {
     public static function buildPermissionsString($permissions) {
         $permissionsArray = explode(" | ", $permissions);
         if (count($permissionsArray) == 1) {
-            return strtolower($permissionsArray[0]);
+            return $permissionsArray[0];
         } elseif (count($permissionsArray) == 2) {
-            return strtolower(implode(' and ', $permissionsArray));
+            return implode(' and ', $permissionsArray);
         } elseif (count($permissionsArray) > 2) {
             $lastIndex = count($permissionsArray) - 1;
             $permissionsArray[$lastIndex] = 'and ' . $permissionsArray[$lastIndex];
-            return strtolower(implode(', ', $permissionsArray));
+            return implode(', ', $permissionsArray);
         }
     }
 }
