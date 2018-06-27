@@ -28,8 +28,8 @@
 @stop
 
 @section('body')
-  <section class="edit-form center">
-    {!! Form::model($form,  ['method' => 'PATCH', 'action' => ['FormController@update',$form->pid, $form->fid], 'class' => 'edit-form']) !!}
+  <section class="edit-form">
+    {!! Form::model($form,  ['method' => 'PATCH', 'action' => ['FormController@update',$form->pid, $form->fid], 'class' => 'edit-form center']) !!}
     @include('partials.forms.form',['submitButtonText' => 'Update Form', 'pid' => $form->pid, 'type' => 'edit'])
     {!! Form::close() !!}
 

@@ -41,6 +41,11 @@
     clip: auto;
   }
 
+  &.error {
+    border: 2px solid palette('yellow');
+    border-radius: 5px;
+  }
+
   a {
     cursor: pointer;
   }
@@ -314,6 +319,7 @@
       overflow: hidden;
       padding: 0;
       white-space: nowrap;
+      width: 90%;
 
       input[type="text"] {
         background: transparent !important;
@@ -328,6 +334,7 @@
         margin: 1px 0;
         outline: 0;
         padding: 5px 10px;
+        width: 100% !important;
       }
     }
 

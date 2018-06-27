@@ -3,6 +3,7 @@
 use App\Http\Controllers\FieldController;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
@@ -271,20 +272,21 @@ class ModelField extends FileTypeField  {
     /**
      * Validates the record data for a field against the field's options.
      *
-     * @param  Field $field - The
-     * @param  mixed $value - Record data
+     * @param  Field $field - The field to validate
      * @param  Request $request
-     * @return string - Potential error message
+     * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
+     * @return array - Array of errors
      */
-    public function validateField($field, $value, $request) {
+    public function validateField($field, $request, $forceReq = false) {
         $req = $field->required;
+        $value = 'f'.$field->flid.'u'.Auth::user()->id;
 
-        if($req==1) {
+        if($req==1 | $forceReq) {
             if(glob(config('app.base_path').'storage/app/tmpFiles/'.$value.'/*.*') == false)
-                return $field->name."_required";
+                return [$field->flid => $field->name.' is required'];
         }
 
-        return "field_validated";
+        return array();
     }
 
     /**
@@ -352,6 +354,10 @@ class ModelField extends FileTypeField  {
                 $xml .= '<File>';
                 $xml .= '<Name>' . utf8_encode('FILENAME') . '</Name>';
                 $xml .= '</File>';
+                $xml .= '</' . Field::xmlTagClear($slug) . '>';
+
+                $xml .= '<' . Field::xmlTagClear($slug) . ' type="3D-Model" simple="simple">';
+                $xml .= utf8_encode('FILENAME');
                 $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
                 return $xml;

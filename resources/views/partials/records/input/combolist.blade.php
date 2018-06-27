@@ -1,6 +1,7 @@
 <div class="form-group combo-value-div-js-{{$field->flid}} mt-xxxl">
-    <label>@if($field->required==1)<span class="oval-icon"></span> @endif{{$field->name}}: </label>
-    {!! Form::hidden($field->flid,true) !!}
+    <label>@if($field->required==1)<span class="oval-icon"></span> @endif{{$field->name}}</label>
+    <span class="error-message"></span>
+    {!! Form::hidden($field->flid,true, ['id' => $field->flid]) !!}
 
     <?php
     $oneType = \App\ComboListField::getComboFieldType($field,'one');

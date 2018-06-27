@@ -151,7 +151,7 @@ class BackupController extends Controller {
 
         //They need to pick one
         if(!$metadata && !$files)
-            return redirect()->with('k3_global_error', 'pick_backup_type')->send();
+            return redirect('backup')->with('k3_global_error', 'pick_backup_type');
 
         //We store this to know if we auto download backup file after backup
         $autoDownload = isset($request->backupDownload) ? true : false;

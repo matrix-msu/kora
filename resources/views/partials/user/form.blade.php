@@ -85,7 +85,7 @@
 <div class="form-group mt-100-xl">
     @if ($type == 'edit' && $user->id != 1)
         <div class="delete-user">
-            <a class="btn dot-btn trash warning user-trash-js" data-title="Delete User?" href="#">
+            <a class="btn dot-btn trash warning user-trash-js tooltip" data-title="Delete User?" href="#" tooltip="Delete User">
                 <i class="icon icon-trash"></i>
             </a>
         </div>
