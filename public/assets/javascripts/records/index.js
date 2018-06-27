@@ -109,10 +109,7 @@ Kora.Records.Index = function() {
             keyVal = $('.keywords-get-js');
             formVal = $('.forms-get-js');
 
-            if(keyVal.val()=='') {
-                keyVal.addClass('error');
-                keyVal.siblings('.error-message').text('Provide a keyword');
-            } else if(formVal.length && formVal.val()==null) {
+            if(formVal.length && formVal.val()==null) {
                 formVal.siblings('.error-message').text('Select something to search through');
             } else {
                 $('.keyword-search-js').submit();
@@ -124,10 +121,7 @@ Kora.Records.Index = function() {
                 keyVal = $('.keywords-get-js');
                 formVal = $('.forms-get-js');
 
-                if(keyVal.val()=='') {
-                    keyVal.addClass('error');
-                    keyVal.siblings('.error-message').text('Provide a keyword');
-                } else if(formVal.length && formVal.val()==null) {
+                if(formVal.length && formVal.val()==null) {
                     formVal.siblings('.error-message').text('Select something to search through');
                 } else {
                     $('.keyword-search-js').submit();
@@ -403,18 +397,6 @@ Kora.Records.Index = function() {
     }
 
     function initializeSearchValidation() {
-        $('.keywords-get-js').on('blur', function(e) {
-            value = $(this).val();
-
-            if(value=='') {
-                $(this).addClass('error');
-                $(this).siblings('.error-message').text('Provide a keyword');
-            } else {
-                $(this).removeClass('error');
-                $(this).siblings('.error-message').text('');
-            }
-        });
-
         $('.forms-get-js').on('chosen:hiding_dropdown', function(e) {
             value = $(this).val();
 
