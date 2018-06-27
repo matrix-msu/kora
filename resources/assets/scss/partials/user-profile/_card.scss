@@ -1,4 +1,27 @@
 .card {
+  .footer {
+    .quick-action {
+      .icon-trash {
+        color: palette('red', base);
+        font-size: 14px;
+        line-height: 19px;
+        transform-origin: center;
+      }
+    }
+
+    .tooltip:hover::after {
+      left: -42px;
+    }
+
+    .trash-container {
+      &:hover {
+        .icon-trash {
+          transform: scale(1.25) translateY(-2px);
+        }
+      }
+    }
+  }
+
   .header {
     .card-toggle {
       opacity: 1;

@@ -67,7 +67,6 @@
       @if ($user->id != 1)
         <a class="quick-action left user-trash user-trash-js tooltip" href="#" tooltip="Delete User">
           <i class="icon icon-trash"></i>
-          <span>Delete</span>
         </a>
       @endif
 

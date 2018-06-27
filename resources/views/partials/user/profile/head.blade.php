@@ -1,4 +1,5 @@
 <section class="head">
+    <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
     <div class="inner-wrap center">
         <h1 class="title">
             @if ($user->profile)
@@ -6,7 +7,7 @@
             @else
                 <i class="icon icon-user"></i>
             @endif
-            <span class="ml-m">{{$user->first_name}} {{$user->last_name}}</span>
+            <span class="name">{{$user->first_name}} {{$user->last_name}}</span>
             @if(\Auth::user()->admin | \Auth::user()->id==$user->id)
                 <a href="{{ action('Auth\UserController@editProfile',['uid' => $user->id]) }}" class="head-button tooltip" tooltip="Edit Profile">
                     <i class="icon icon-edit right"></i>

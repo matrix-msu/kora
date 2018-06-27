@@ -15,9 +15,30 @@
       }
     }
 
+    .name {
+
+    }
+
     .profile-pic {
       height: 93px;
       width: 93px;
+    }
+
+    @media screen and (max-width: 650px) {
+      .head-button {
+        position: absolute;
+        right: 0;
+        top: 56px;
+      }
+
+      .name {
+        display: block;
+        margin-top: 15px;
+      }
+
+      .title {
+        position: relative;
+      }
     }
   }
 
