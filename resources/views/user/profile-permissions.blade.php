@@ -14,14 +14,14 @@
           <div class="content-sections-scroll">
             @if (!$user->admin)
                 <div class="my-xl">
-                    <p>{{ (Auth::user()->id == $user->id ? 'You have' : $user->first_name . 'has') }} access to the following projects...</p>
+                    <p>{{ (Auth::user()->id == $user->id ? 'You have' : $user->first_name . ' has') }} access to the following projects...</p>
                 </div>
                 @foreach ($projects as $index=>$project)
                     @include('partials.user.profile.project')
                 @endforeach
             @else
                 <div class="my-xl">
-                    <p>{{ (Auth::user()->id == $user->id ? 'You have' : $user->first_name . 'has') }} access to all projects</p>
+                    <p>{{ (Auth::user()->id == $user->id ? 'You have' : $user->first_name . ' has') }} access to all projects</p>
                 </div>
             @endif
           </div>
@@ -30,14 +30,14 @@
           <div class="content-sections-scroll">
             @if (!$user->admin)
                 <div class="my-xl">
-                    <p>{{ (Auth::user()->id == $user->id ? 'You have' : $user->first_name . 'has') }} access to the following forms...</p>
+                    <p>{{ (Auth::user()->id == $user->id ? 'You have' : $user->first_name . ' has') }} access to the following forms...</p>
                 </div>
                 @foreach ($forms as $index=>$form)
                     @include('partials.user.profile.form')
                 @endforeach
             @else
                 <div class="my-xl">
-                    <p>{{ (Auth::user()->id == $user->id ? 'You have' : $user->first_name . 'has') }} access to all forms</p>
+                    <p>{{ (Auth::user()->id == $user->id ? 'You have' : $user->first_name . ' has') }} access to all forms</p>
                 </div>
             @endif
           </div>
