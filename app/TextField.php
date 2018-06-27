@@ -200,7 +200,7 @@ class TextField extends BaseField {
         if(($req==1 | $forceReq) && ($value==null | $value==""))
             return [$field->flid => $field->name.' is required'];
 
-        if(($regex!=null | $regex!="") && !preg_match($regex,$value))
+        if($value!="" && ($regex!=null | $regex!="") && !preg_match($regex,$value))
             return [$field->flid => $field->name.' must match the regex pattern: '.$regex];
 
         return array();
