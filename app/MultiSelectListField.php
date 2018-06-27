@@ -89,14 +89,18 @@ class MultiSelectListField extends BaseField {
     public function updateOptions($field, Request $request) {
         $reqDefs = $request->default;
         $default = $reqDefs[0];
-        for($i=1;$i<sizeof($reqDefs);$i++) {
-            $default .= '[!]'.$reqDefs[$i];
+        if(!is_null($default)) {
+            for ($i = 1; $i < sizeof($reqDefs); $i++) {
+                $default .= '[!]' . $reqDefs[$i];
+            }
         }
 
         $reqOpts = $request->options;
         $options = $reqOpts[0];
-        for($i=1;$i<sizeof($reqOpts);$i++) {
-            $options .= '[!]'.$reqOpts[$i];
+        if(!is_null($options)) {
+            for ($i = 1; $i < sizeof($reqOpts); $i++) {
+                $options .= '[!]' . $reqOpts[$i];
+            }
         }
 
         $field->updateRequired($request->required);
@@ -155,7 +159,7 @@ class MultiSelectListField extends BaseField {
         if($matching_record_fields->count() > 0) {
             $multiselectlistfield = $matching_record_fields->first();
             if($overwrite == true || $multiselectlistfield->options == "" || is_null($multiselectlistfield->options)) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $multiselectlistfield->options = implode("[!]", $formFieldValue);
                 $multiselectlistfield->save();
                 $revision->oldData = RevisionController::buildDataArray($record);
@@ -163,7 +167,7 @@ class MultiSelectListField extends BaseField {
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
             $revision->oldData = RevisionController::buildDataArray($record);
             $revision->save();
         }
@@ -186,22 +190,23 @@ class MultiSelectListField extends BaseField {
     /**
      * Validates the record data for a field against the field's options.
      *
-     * @param  Field $field - The
-     * @param  mixed $value - Record data
+     * @param  Field $field - The field to validate
      * @param  Request $request
-     * @return string - Potential error message
+     * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
+     * @return array - Array of errors
      */
-    public function validateField($field, $value, $request) {
+    public function validateField($field, $request, $forceReq = false) {
         $req = $field->required;
+        $value = $request->{$field->flid};
         $list = MultiSelectListField::getList($field);
 
-        if($req==1 && ($value==null | $value==""))
-            return $field->name."_validated";
+        if(($req==1 | $forceReq) && ($value==null | $value==""))
+            return ['list'.$field->flid.'_chosen' => $field->name.' is required'];
 
-        if(sizeof(array_diff($value,$list))>0 && $value[0] !== ' ')
-            return $field->name."_invalid_option";
+        if(sizeof(array_diff($value,$list))>0)
+            return ['list'.$field->flid.'_chosen' => $field->name.' has an invalid value not in the list'];
 
-        return 'field_validated';
+        return array();
     }
 
     /**

@@ -106,8 +106,8 @@ class RecordController extends Controller {
             if(!is_numeric($key))
                 continue;
             $field = FieldController::getField($key);
-            $message = $field->getTypedField()->validateField($field, $value, $request);
-            if($message != 'field_validated') {
+            $message = $field->getTypedField()->validateField($field, $request);
+            if(!empty($message)) {
                 $arrayed_keys = array();
 
                 foreach($request->all() as $akey => $avalue) {
@@ -163,8 +163,8 @@ class RecordController extends Controller {
             // This prevents clutter from an operation that the user
             // will likely not want to undo using revisions.
             //
-            if($numRecs > 1)
-                RevisionController::storeRevision($record->rid, 'create');
+            if($numRecs == 1)
+                RevisionController::storeRevision($record->rid, Revision::CREATE);
 
             //If we are making a preset, let's make sure it's done, and done once
             if($makePreset) {
@@ -248,6 +248,19 @@ class RecordController extends Controller {
         return view('records.clone', compact('record', 'form'));
     }
 
+    public function validateRecord($pid, $fid, Request $request) {
+        $errors = [];
+        $form = FormController::getForm($fid);
+
+        foreach($form->fields()->get() as $field) {
+            $message = $field->getTypedField()->validateField($field, $request);
+            if(!empty($message))
+                $errors += $message; //We add these arrays because it maintains the keys, where array_merge re-indexes
+        }
+
+        return response()->json(["status"=>true,"errors"=>$errors],200);
+    }
+
     /**
      * Removes record files from the system for records that no longer exist. This will prevent the possiblity of
      *  rolling back these records.
@@ -323,8 +336,8 @@ class RecordController extends Controller {
             if(!is_numeric($key))
                 continue;
             $field = FieldController::getField($key);
-            $message = $field->getTypedField()->validateField($field, $value, $request);
-            if($message != 'field_validated')
+            $message = $field->getTypedField()->validateField($field, $request);
+            if(!empty($message))
                 return redirect()->back()->withInput()->with('k3_global_error', 'record_validation_error')->with('record_validation_error', $message);
         }
 
@@ -342,7 +355,7 @@ class RecordController extends Controller {
         $record->updated_at = Carbon::now();
         $record->save();
 
-        $revision = RevisionController::storeRevision($record->rid, 'edit');
+        $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
 
         $form_fields_expected = Form::find($fid)->fields()->get();
 
@@ -403,7 +416,7 @@ class RecordController extends Controller {
         $record = self::getRecord($rid);
 
         if(!$mass)
-            RevisionController::storeRevision($record->rid, 'delete');
+            RevisionController::storeRevision($record->rid, Revision::DELETE);
 
         $record->delete();
 
@@ -661,11 +674,6 @@ class RecordController extends Controller {
         if(!is_numeric($flid))
             return redirect()->back()->with('k3_global_error', 'field_invalid');
 
-        if($request->has($flid))
-            $formFieldValue = $request->input($flid); //Note this only works when there is one form element being submitted, so if you have more, check Date
-        else
-            return redirect()->back()->with('k3_global_error', 'no_mass_value');
-
         if($request->has("overwrite"))
             $overwrite = $request->input("overwrite"); //Overwrite field in all records, even if it has data
         else
@@ -673,12 +681,32 @@ class RecordController extends Controller {
 
         $field = FieldController::getField($flid);
         $typedField = $field->getTypedField();
-        
-        foreach(Form::find($fid)->records()->get() as $record) {
-            $typedField->massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite);
-        }
+        $formFieldValue = $request->input($flid);
 
-        return redirect()->action('RecordController@index',compact('pid','fid'))->with('k3_global_success', 'mass_records_updated');
+        //A field may not be required for a record but we want to force validation here so we use forceReq
+        $message = $typedField->validateField($field, $request, true);
+        if(empty($message)) {
+            foreach (Form::find($fid)->records()->get() as $record) {
+                $typedField->massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite);
+            }
+
+            return redirect()->action('RecordController@index', compact('pid', 'fid'))->with('k3_global_success', 'mass_records_updated');
+        } else {
+            return redirect()->back()->with('k3_global_error', 'mass_value_invalid');
+        }
+    }
+
+    public function validateMassRecord($pid, $fid, Request $request) {
+        $errors = [];
+
+        $flid = $request->input("field_selection");
+        $field = FieldController::getField($flid);
+
+        $message = $field->getTypedField()->validateField($field, $request);
+        if(!empty($message))
+            $errors += $message; //We add these arrays because it maintains the keys, where array_merge re-indexes
+
+        return response()->json(["status"=>true,"errors"=>$errors],200);
     }
 
     /**

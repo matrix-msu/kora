@@ -9,11 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Auth\RegistersUsers;
-use Illuminate\Html\FormBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use ReCaptcha\ReCaptcha;
 
@@ -50,7 +51,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     /**
      * Returns the global cache results associated with a user.
      *
-     * @return FormBuilder
+     * @return Builder
      */
     public function gsCaches() {
         return DB::table("global_cache")->where("user_id", "=", $this->id);
@@ -70,13 +71,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         $recaptcha = new ReCaptcha(config('auth.recap_private'));
         $resp = $recaptcha->verify($request['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
 
-        if($resp->isSuccess());
-        else{
+        if($resp->isSuccess()) {
+            return true;
+        } else {
             //TODO:: test error and make better
-            flash()->overlay('ReCAPTCHA incomplete!', 'Whoops.');
-
-            $validator = $regUsers->validator($request->all());
-            $regUsers->throwValidationException($request, $validator);
+            return false;
         }
     }
 
@@ -101,16 +100,23 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             $file->move($destinationPath,$filename);
         }
 
-        Mail::send('emails.activation', compact('token'), function($message)
-        {
-            $message->from(env('MAIL_FROM_ADDRESS'));
-            $message->to(\Auth::user()->email);
-            $message->subject('Kora Account Activation');
-        });
+        //Send email
+        try {
+            Mail::send('emails.activation', compact('token'), function($message) {
+                $message->from(env('MAIL_FROM_ADDRESS'));
+                $message->to(\Auth::user()->email);
+                $message->subject('Kora Account Activation');
+            });
+        } catch(\Swift_TransportException $e) {
+            //TODO::email error response
+            //Log for now
+            Log::info('Activation email failed');
+        }
     }
 
     /** PASSWORD RESET
-     * Overrides the laravel password reset email function so we can customize it.
+     * Overrides the laravel password reset email function so we can customize it. Unless the overridden function
+     * changes, we shouldn't need to modify anything when upgrading.
      *
      * @param  string $token - The reset token
      */
@@ -127,6 +133,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             });
         } catch(\Swift_TransportException $e) {
             //TODO::email error response
+            //Log for now
+            Log::info('Password reset email failed');
         }
     }
 

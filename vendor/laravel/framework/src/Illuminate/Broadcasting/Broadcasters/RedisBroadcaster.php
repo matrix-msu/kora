@@ -5,7 +5,7 @@ namespace Illuminate\Broadcasting\Broadcasters;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Contracts\Redis\Factory as Redis;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class RedisBroadcaster extends Broadcaster
 {
@@ -27,7 +27,7 @@ class RedisBroadcaster extends Broadcaster
      * Create a new broadcaster instance.
      *
      * @param  \Illuminate\Contracts\Redis\Factory  $redis
-     * @param  string  $connection
+     * @param  string|null  $connection
      * @return void
      */
     public function __construct(Redis $redis, $connection = null)
@@ -41,12 +41,13 @@ class RedisBroadcaster extends Broadcaster
      *
      * @param  \Illuminate\Http\Request  $request
      * @return mixed
+     * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
      */
     public function auth($request)
     {
         if (Str::startsWith($request->channel_name, ['private-', 'presence-']) &&
             ! $request->user()) {
-            throw new HttpException(403);
+            throw new AccessDeniedHttpException;
         }
 
         $channelName = Str::startsWith($request->channel_name, 'private-')

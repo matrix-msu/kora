@@ -200,7 +200,7 @@ class ConnectionFactory
      */
     protected function parseHosts(array $config)
     {
-        $hosts = array_wrap($config['host']);
+        $hosts = Arr::wrap($config['host']);
 
         if (empty($hosts)) {
             throw new InvalidArgumentException('Database hosts array is empty.');
@@ -283,6 +283,6 @@ class ConnectionFactory
                 return new SqlServerConnection($connection, $database, $prefix, $config);
         }
 
-        throw new InvalidArgumentException("Unsupported driver [$driver]");
+        throw new InvalidArgumentException("Unsupported driver [{$driver}]");
     }
 }

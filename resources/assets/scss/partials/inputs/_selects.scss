@@ -41,6 +41,11 @@
     clip: auto;
   }
 
+  &.error {
+    border: 2px solid palette('yellow');
+    border-radius: 5px;
+  }
+
   a {
     cursor: pointer;
   }

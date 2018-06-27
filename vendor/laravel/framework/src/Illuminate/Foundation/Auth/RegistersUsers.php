@@ -5,8 +5,6 @@ namespace Illuminate\Foundation\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Support\Facades\Mail;
-use ReCaptcha\ReCaptcha;
 
 trait RegistersUsers
 {
@@ -30,9 +28,8 @@ trait RegistersUsers
      */
     public function register(Request $request)
     {
-        //CUSTOM CODE FOR RECAPTCHA
-        \App\User::verifyRegisterRecaptcha($request, $this);
-        //END CUSTOM
+        if(!\App\User::verifyRegisterRecaptcha($request,$this))
+            return redirect("/register")->withInput()->with('k3_global_error', 'recaptcha_failed')->send();
 
         $this->validator($request->all())->validate();
 
@@ -40,9 +37,7 @@ trait RegistersUsers
 
         $this->guard()->login($user);
 
-        //CUSTOM CODE FOR EMAIL ACTIVATION AND SAVING OF PROFILE PIC
         \App\User::finishRegistration($request);
-        //END CUSTOM
 
         return $this->registered($request, $user)
                         ?: redirect($this->redirectPath());

@@ -23,6 +23,10 @@
 
     &:hover .icon-trash {
       transform: scale($transform-scale-multiplier);
+      
+      &::after {
+        top: 5px;
+      }
     }
   }
 
@@ -44,7 +48,7 @@
       &:last-of-type {
         padding-right: 0;
 
-        @media screen and (max-width: $max-tablet-width) {
+        @media screen and (max-width: $max-tablet-width) { // 980
           display: block;
           padding: 15px 0 0;
         }
@@ -58,7 +62,7 @@
       }
     }
 
-    @media screen and (max-width: $max-mobile-width) {
+    @media screen and (max-width: $max-mobile-width) { //768
       padding-bottom: 25px;
 
       .action {
@@ -67,6 +71,15 @@
 
         &:first-of-type {
           padding-top: 0;
+        }
+      }
+    }
+    
+    @media screen and (min-width: 888px) and (max-width: $max-with-aside-width) { // 886 1155
+      &.with-aside {
+        .action {
+          display: block;
+          padding: 5px 0;
         }
       }
     }

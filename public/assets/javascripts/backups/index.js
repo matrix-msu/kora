@@ -133,9 +133,10 @@ Kora.Backups.Index = function() {
         $('.delete-backup-js').click(function(e) {
             $.ajax({
                 url: deleteBackupUrl,
-                type: 'DELETE',
+                type: 'POST',
                 data: {
                     "_token": CSRFToken,
+                    "_method": 'delete',
                     "label" : currentLabel
                 },
                 success: function (result) {

@@ -15,12 +15,12 @@
     {!! Form::hidden('typetwo',$twoType) !!}
 
     <div class="form-group half pr-m">
-        {!! Form::label('cfname1','Combo List Field Name 1: ') !!}
+        {!! Form::label('cfname1','Combo List Field Name 1') !!}
         {!! Form::text('cfname1',$oneName, ['class' => 'text-input']) !!}
     </div>
 
     <div class="form-group half pl-m">
-        {!! Form::label('cfname2','Combo List Field Name 2: ') !!}
+        {!! Form::label('cfname2','Combo List Field Name 2') !!}
         {!! Form::text('cfname2',$twoName, ['class' => 'text-input']) !!}
     </div>
 
@@ -30,7 +30,7 @@
 
     <section class="combo-list-defaults">
         <div class="form-group combo-list-display combo-value-div-js">
-            {!! Form::label('default', 'Default: ') !!}
+            {!! Form::label('default', 'Default') !!}
             <div>
                 <span class="combo-column combo-title">{{$oneName}}</span>
                 <span class="combo-column combo-title">{{$twoName}}</span>
@@ -38,7 +38,7 @@
             @if($defs!=null && $defs!='')
                 @for($i=0;$i<sizeof($defArray);$i++)
                     <div class="combo-value-item-js">
-                        @if($oneType=='Text' | $oneType=='List' | $oneType=='Number')
+                        @if($oneType=='Text' | $oneType=='List' | $oneType=='Number' | $oneType=='Date')
                             <?php $value = explode('[!f1!]',$defArray[$i])[1]; ?>
                             {!! Form::hidden("default_combo_one[]",$value) !!}
                             <span class="combo-column">{{$value}}</span>
@@ -51,7 +51,7 @@
                             <span class="combo-column">{{implode(' | ',$value)}}</span>
                         @endif
 
-                        @if($twoType=='Text' | $twoType=='List' | $twoType=='Number')
+                        @if($twoType=='Text' | $twoType=='List' | $twoType=='Number' | $twoType=='Date')
                             <?php $value = explode('[!f2!]',$defArray[$i])[1]; ?>
                             {!! Form::hidden("default_combo_two[]",$value) !!}
                             <span class="combo-column">{{$value}}</span>
@@ -95,6 +95,8 @@
             @include('partials.fields.combo.options.text',['field'=>$field,'fnum'=>'one'])
         @elseif($oneType=='Number')
             @include('partials.fields.combo.options.number',['field'=>$field,'fnum'=>'one'])
+        @elseif($oneType=='Date')
+            @include('partials.fields.combo.options.date',['field'=>$field,'fnum'=>'one'])
         @elseif($oneType=='List')
             @include('partials.fields.combo.options.list',['field'=>$field,'fnum'=>'one'])
         @elseif($oneType=='Multi-Select List')
@@ -116,6 +118,8 @@
             @include('partials.fields.combo.options.text',['field'=>$field,'fnum'=>'two'])
         @elseif($twoType=='Number')
             @include('partials.fields.combo.options.number',['field'=>$field,'fnum'=>'two'])
+        @elseif($twoType=='Date')
+            @include('partials.fields.combo.options.date',['field'=>$field,'fnum'=>'two'])
         @elseif($twoType=='List')
             @include('partials.fields.combo.options.list',['field'=>$field,'fnum'=>'two'])
         @elseif($twoType=='Multi-Select List')

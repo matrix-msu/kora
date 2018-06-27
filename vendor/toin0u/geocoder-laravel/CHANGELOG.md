@@ -2,6 +2,90 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.0.9] - 28 May 2018
+### Added
+- class-name resolution from Service container, allowing for dependency
+  injection.
+
+## [4.0.8] - 25 Mar 2018
+### Added
+- work-around for missing `config_path()` function in Lumen.
+
+## [4.0.7] - 25 Mar 2018
+### Added
+- optional dedicated cache store.
+- hashed cache keys and hash collision prevention.
+- custom cache store configuration instructions.
+
+## [4.0.6] - 9 Feb 2018
+### Added
+- Laravel 5.6 compatibility.
+
+## [4.0.5] - 14 Jan 2018
+### Fixed
+- loading of GeoIP2 provider from within Chain provider.
+
+### Changed
+- unit testing to use Orchstral Testbench.
+
+## [4.0.4] - 27 Dec 2017
+### Added
+- environment variable configuration option in default config to set Google Maps Locale.
+- documentation comments in configuration file.
+
+### Changed
+- composer dependency version constraints for Laravel to be within a specific range, instead of open-ended.
+
+## [4.0.3] - 27 Oct 2017
+### Fixed
+- cache duration to work on 32-bit systems.
+- geocoder to not cache if no results are provided.
+
+## [4.0.2] - 2 Sep 2017
+### Fixed
+- erroneous method `getProvider()` and marked it as deprecated.
+
+## [4.0.1] - 7 Aug 2017
+### Fixed
+- missing PSR-7 dependency.
+
+## [4.0.0] - 3 Aug 2017
+### Added
+- Laravel 5.5 package auto-discovery.
+
+### Fixed
+- typo which caused cache to be in-effective.
+
+### Changed
+- implemented geocoder-php 4.0.0.
+- version to 4.0.0 instead of 2.0.0 to maintain major version parity with
+ parent package.
+- composer dependencies to release versions.
+- unit tests to pass.
+- updated readme with some clarifying notes. May have to completely rewrite it
+ if it ends up being unclear.
+
+## [2.0.0-dev] - 23 Jun 2017
+### Fixed
+- failing Travis builds due TLS resolution issues by changing to a different
+ geocoding provider that was failing said resolution during CURL requests.
+
+### Changed
+- build and coverage badges back to Travis and Coveralls
+
+## [2.0.0-dev] - 18 Jun 2017
+### Added
+- compatibility with Geocoder 4.0-dev.
+- caching to `geocodeQuery()` and `reverseQuery()` methods.
+
+### Updated
+- the geocoder `all()` method to be deprecated. Use `get()`.
+
+## [1.1.0] - 17 Jun 2017
+### Added
+- caching functionality for `geocode()` and `reverse()` methods.
+- `cache-duration` variable to geocoder config.
+
 ## [1.0.2] - 20 Mar 2017
 ### Added
 - unit test for reverse-geocoding.

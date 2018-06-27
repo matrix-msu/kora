@@ -71,7 +71,7 @@ class RevisionController extends Controller {
 
         return view('revisions.index', compact('revisions', 'records', 'form', [
             'revisions' => $revisions->appends(Input::except('page'))
-            ]));
+        ]));
     }
 
     /**
@@ -287,7 +287,7 @@ class RevisionController extends Controller {
      * @param array $field - The field data
      * @return array - The formatted field data
      */
-    public static function formatData($type, $field) {
+    private static function formatData($type, $field) {
         $data = $field["data"];
         if (is_null($data)) {
             $data = 'No Field Data';

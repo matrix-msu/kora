@@ -36,7 +36,7 @@
         <section class="search-records">
             <form method="GET" action="{{action('ProjectSearchController@globalSearch')}}" class="keyword-search-js">
                 <div class="form-group search-input mt-xl">
-                    {!! Form::label('keywords','Search Via Keyword(s) or KID : ') !!}
+                    {!! Form::label('keywords','Search Via Keyword(s) or KID') !!}
                     {!! Form::text('keywords', app('request')->input('keywords'), ['class' => 'text-input keywords-get-js', 'placeholder' => 'Type space separated keywords']) !!}
                 </div>
                 <div class="form-group search-input mt-xl">
@@ -83,8 +83,8 @@
                         </select>
                     </div>
                     <div class="show-options show-options-js">
-                        <span><a href="#" class="expand-fields-js" title="Expand all fields"><i class="icon icon-expand icon-expand-js"></i></a></span>
-                        <span><a href="#" class="collapse-fields-js" title="Collapse all fields"><i class="icon icon-condense icon-condense-js"></i></a></span>
+                        <span><a href="#" class="expand-fields-js tooltip" title="Expand all fields" tooltip="Expand all Fields"><i class="icon icon-expand icon-expand-js"></i></a></span>
+                        <span><a href="#" class="collapse-fields-js tooltip" title="Collapse all fields" tooltip="Collapse all Fields"><i class="icon icon-condense icon-condense-js"></i></a></span>
                     </div>
                 </section>
 

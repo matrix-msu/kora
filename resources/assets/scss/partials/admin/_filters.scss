@@ -69,17 +69,21 @@
       cursor: pointer;
       display: inline-block;
 
-      .chosen-single {        
-        span::after {
-          @include transition();
-          
-          content: $icon-chevron;
-          display: inline-block;
-          font-family: 'Kora-Icons';
-          font-size: 6px;
-          margin-left: 10px;
-          opacity: .6;
-          vertical-align: middle;
+      .chosen-single {
+        span {
+          font-size: 14px;
+
+          &::after {
+            @include transition();
+
+            content: $icon-chevron;
+            display: inline-block;
+            font-family: 'Kora-Icons';
+            font-size: 6px;
+            margin-left: 10px;
+            opacity: .6;
+            vertical-align: middle;
+          }
         }
       }
 
