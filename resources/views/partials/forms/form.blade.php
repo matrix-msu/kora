@@ -50,7 +50,7 @@
     </div>
 
     <div class="form-group preset-select-container preset-select-container-js">
-      <div class="preset-select-js mt-xl">
+      <div class="preset-select-js mt-xl">      
         {!! Form::label('preset', 'Select a Preset') !!}
         {!! Form::select('preset[]', [null=>null] + $presets, null, [
           'class' => 'single-select',

@@ -1,0 +1,45 @@
+.card {
+  .header {
+    .card-toggle {
+      opacity: 1;
+    }
+
+    .card-toggle-wrap {
+      position: relative;
+
+      .left {
+        left: 0;
+        overflow-x: hidden;
+        position: absolute;
+        top: 0;
+      }
+    }
+
+    .icon-chevron {
+      background: palette('white', base);
+      border-radius: 5px;
+      opacity: 1;
+
+      &::before {
+        opacity: .6;
+      }
+    }
+
+    .title {
+      .name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+
+    .sub-title {
+      box-sizing: border-box;
+      display: inline-block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+  }
+}

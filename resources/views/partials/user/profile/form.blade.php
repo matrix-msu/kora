@@ -19,7 +19,7 @@
     <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
         <div class="pb-m">
             @if ($form['permissions'] == 'Admin')
-                <p>{{ (Auth::user()->id == $user->id ? 'You are' : $user->first_name . ' is') }} an admin for this form.</p>
+                <p>{{ (Auth::user()->id == $user->id ? 'You are' : $user->first_name . ' is') }} an Admin for this form.</p>
             @else
                 <p>{{ (Auth::user()->id == $user->id ? 'You can' : $user->first_name . ' can') }} {{$form['permissions']}} within this form</p>
             @endif

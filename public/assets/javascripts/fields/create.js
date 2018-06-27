@@ -106,6 +106,16 @@ Kora.Fields.Create = function() {
             }
         });
     }
+  
+    function initializeDescriptionModal() {
+      Kora.Modal.initialize();
+    
+      $('.desc-modal').click(function(e) {
+        e.preventDefault();
+
+        Kora.Modal.open($('.field-type-description-modal-js'));
+      }); 
+    }
 
     function initializeValidation() {
         $('.validate-field-js').on('click', function(e) {
@@ -167,6 +177,8 @@ Kora.Fields.Create = function() {
                 }
             });
         });
+      
+      
 
         function validateAdvancedOptions(currType) {
             var valid = true;
@@ -302,7 +314,8 @@ Kora.Fields.Create = function() {
             return valid;
         }
     }
-
+    
+    initializeDescriptionModal();
     initializeAdvancedOptions();
     initializeComboListFields();
     initializeValidation();
