@@ -16,11 +16,13 @@
       }
     }
 
-    .icon-trash {
-      color: palette('red', base);
-      font-size: 16px;
-      padding: 0;
-      transform-origin: center;
+    .quick-action {
+      .icon-trash {
+        color: palette('red', base);
+        font-size: 14px;
+        line-height: 19px;
+        transform-origin: center;
+      }
     }
   }
 

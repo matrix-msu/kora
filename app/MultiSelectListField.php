@@ -203,7 +203,7 @@ class MultiSelectListField extends BaseField {
         if(($req==1 | $forceReq) && ($value==null | $value==""))
             return ['list'.$field->flid.'_chosen' => $field->name.' is required'];
 
-        if(sizeof(array_diff($value,$list))>0)
+        if($value!=null && sizeof(array_diff($value,$list))>0)
             return ['list'.$field->flid.'_chosen' => $field->name.' has an invalid value not in the list'];
 
         return array();

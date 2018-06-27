@@ -215,9 +215,11 @@ class GeneratedListField extends BaseField {
         if(($req==1 | $forceReq) && ($value==null | $value==""))
             return ['list'.$field->flid.'_chosen' => $field->name.' is required'];
 
-        foreach($value as $opt) {
-            if(($regex!=null | $regex!="") && !preg_match($regex,$opt))
-                return ['list'.$field->flid.'_chosen' => $field->name.' value, '.$opt.', must match the regex pattern: '.$regex];
+		if($value!=null) {
+	        foreach($value as $opt) {
+	            if(($regex!=null | $regex!="") && !preg_match($regex,$opt))
+	                return ['list'.$field->flid.'_chosen' => $field->name.' value, '.$opt.', must match the regex pattern: '.$regex];
+        	}
         }
 
         return array();
