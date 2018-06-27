@@ -20,7 +20,7 @@
     </div>
 
     <div class="form-group mt-xxxl">
-        {!! Form::label('default','Default : ') !!}
+        {!! Form::label('default','Default: ') !!}
         {!! Form::select('default[]',\App\MultiSelectListField::getList($field,false), explode('[!]',$field->default),
         ['class' => 'multi-select mslist-default-js', 'multiple']) !!}
     </div>
