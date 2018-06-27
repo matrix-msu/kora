@@ -26,9 +26,9 @@
 }
 
 .combo-list-display {
-  border: 1px solid palette('gray', slate, 0.1);
+  border: 1px solid rgba(21,39,48,0.1);
   border-radius: 5px;
-  box-shadow: 0 3px 5px 0 palette('gray', slate, 0.05);
+  box-shadow: 0 3px 5px 0 rgba(21,39,48,0.05);
   margin-top: 10px;
   overflow: auto;
   padding-bottom: 6px;
@@ -49,7 +49,7 @@
   }
 
   .combo-border-large {
-    border: 1px solid palette('gray', slate, 0.05);
+    border: 1px solid rgba(21,39,48,0.05);
     float: left;
     margin-top: 6px;
     margin-left:-20px;
@@ -58,7 +58,7 @@
   }
 
   .combo-border-small {
-    border: 1px solid palette('gray', slate, 0.05);
+    border: 1px solid rgba(21,39,48,0.05);
     float: left;
     margin-top: 6px;
     width: 100%;
