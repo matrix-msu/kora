@@ -30,6 +30,7 @@
 @section('body')
     @include("partials.fields.input-modals")
     @include("partials.fields.modals.changeAdvancedFieldModal")
+    @include("partials.fields.modals.fieldTypeDescriptionsModal")
 
     <section class="create-field center">
         {!! Form::model($field = new \App\Field, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid, 'class' => 'create-form']) !!}
