@@ -23,12 +23,6 @@
           select "Update Profile"</p>
       @endif
     </div>
-
-    @if (\Auth::user()->admin)
-      <div class="back">
-        <a href="{{ url('admin/users') }}"><p><i class="icon icon-chevron"></i></p></a>
-      </div>
-    @endif
   </section>
 @stop
 
