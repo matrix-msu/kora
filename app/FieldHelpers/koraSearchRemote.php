@@ -25,7 +25,7 @@
  * @var string - Kora 3 API URL
  */
 
-$kora3ApiURL = "FILL_THIS"; //"http://www.myKora3Install.com/api/search"
+define("kora3ApiURL","FILL_THIS"); //"http://www.myKora3Install.com/api/search"
 
 class kora3ApiExternalTool {
 
@@ -545,7 +545,7 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
     $data["format"] = "KORA_OLD";
 
     $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $GLOBALS['kora3ApiURL']);
+    curl_setopt($curl, CURLOPT_URL, kora3ApiURL);
     if(!empty($userInfo)) {
         curl_setopt($curl, CURLOPT_USERPWD, $userInfo["user"].":".$userInfo["pass"]);
         curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
