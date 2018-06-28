@@ -93,11 +93,12 @@ Kora.Records.Index = function() {
             $this.html('<input class="page-input" type="number" min="1" max="'+ maxInput +'" placeholder="' + placeholder + '">');
             var $input = $('.page-input');
             $input.focus();
-            $input.on('blur keydown', function(e) {
+            //$input.on('blur keydown', function(e) {
+            $input.on('keydown', function(e) {
                 if (e.key !== "Enter" && e.key !== "Tab") {
-                  var get = $('.page-input').attr('placeholder');
-                  $('.page-input').remove();
-                  $('.page-link.active').text(''+get+'');
+                  // var get = $('.page-input').attr('placeholder');
+                  // $('.page-input').remove();
+                  // $('.page-link.active').text(''+get+'');
                   return;
                 }
                 if ($input[0].checkValidity()) {
@@ -109,6 +110,11 @@ Kora.Records.Index = function() {
                         window.location = url + queryVar + "page=" + $input.val();
                     }
                 }
+            });
+            $input.blur(function () {
+              var get = $('.page-input').attr('placeholder');
+              $('.page-input').remove();
+              $('.page-link.active').text(''+get+'');
             });
         })
     }

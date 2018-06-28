@@ -41,6 +41,10 @@
           font-family: $ubuntu-medium;
           opacity: 1;
         }
+
+        &:focus {
+          outline: none;
+        }
       }
 
       &:hover {
