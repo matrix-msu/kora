@@ -67,7 +67,7 @@ Kora.Inputs.File = function() {
         reader.readAsDataURL(this.files[0]);
       }
     });
-    
+
     // Drag and Drop
     // detect and disable if we are on Safari
     if (isAdvancedUpload && window.safari == undefined && navigator.vendor != 'Apple Computer, Inc.') {

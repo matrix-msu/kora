@@ -2,6 +2,9 @@ var Kora = Kora || {};
 Kora.User = Kora.User || {};
 
 Kora.User.Edit = function() {
+  var drop = false;
+  var ajaxData
+
   function initializeChosen() {
     $(".chosen-select").chosen({
       disable_search_threshold: 10,
@@ -146,6 +149,7 @@ Kora.User.Edit = function() {
         e.stopPropagation();
         e.preventDefault();
 
+        drop = true;
         droppedFile = e.originalEvent.dataTransfer.files[0];
 
         var reader = new FileReader();
@@ -155,52 +159,20 @@ Kora.User.Edit = function() {
         };
         reader.readAsDataURL(droppedFile);
 
-        var ajaxData = new FormData(form.get(0)); // safari does not support form.get()
+        ajaxData = new FormData(form.get(0)); // safari does not support form.get()
         ajaxData.delete('profile'); // safari does not support this
         ajaxData.append("profile", droppedFile);
 
-        // for ( var pair of ajaxData.entries() ) {
-          // console.log(pair[0] + ', ' + pair[1]);
-          // //console.log(typeof pair[1]);
-          // if (typeof pair[1] === 'object') {
-            // console.log(pair[1]);
-          // }
-        // }
-
-        $.ajax({
-          url: form.attr('action'),
-          method: 'POST',
-          data: ajaxData,
-          processData: false,
-          contentType: false,
-          success: function(response) {
-            if (response.status) {
-              // Updated successfully
-              //location.reload();
-              //console.log(response.status);
-              $('.user-form').submit();
-            } else {
-              //console.log('success: ' + response.message);
-              $('.user-form').submit();
-            }
-          },
-          error: function(error) {
-            // TODO: Handle errors. Currently can get all errors, just need to display them
-
-            if (error.status == 200) {
-              //location.reload();
-              console.log(error);
-              console.log(error.status);
-            } else {
-              console.log(error);
-              var responseJson = error.responseJSON;
-              $.each(responseJson, function() {
-                console.log('error: ' + this[0]);
-              });
-            }
-          }
-        });
+        drop = true;
       });
+
+      // for ( var pair of ajaxData.entries() ) {
+        // console.log(pair[0] + ', ' + pair[1]);
+        // //console.log(typeof pair[1]);
+        // if (typeof pair[1] === 'object') {
+          // console.log(pair[1]);
+        // }
+      // }
 
       // form.submit(function(e) { // this has the same run condition as the initializeValidation() function below, which is probably why uncommenting this function prevents us from even uploading a picture normally - though the console.log loop of 'values' below does not log anything about an uploaded photo
         // e.preventDefault();
@@ -255,38 +227,68 @@ Kora.User.Edit = function() {
 
           e.preventDefault();
 
-          values = {};
-          $.each($('.user-form').serializeArray(), function(i, field) {
-              values[field.name] = field.value;
-          });
-          values['_method'] = 'PATCH';
+          if (drop = 0) {
+            values = {};
+            $.each($('.user-form').serializeArray(), function(i, field) {
+                values[field.name] = field.value;
+            });
+            values['_method'] = 'PATCH';
 
-          // console.log(typeof values);
-          // console.log($('form').serialize());
-          // console.log('values: ' + values);
-          // for (var value in values) {
-            // console.log('value: ' + value);
-          // }
+            $.ajax({
+                url: validationUrl,
+                method: 'POST',
+                data: values,
+                success: function(data) {
+                    $('.user-form').submit();
+                },
+                error: function(err) {
+                    $('.error-message').text('');
+                    $('.text-input').removeClass('error');
 
-          $.ajax({
-              url: validationUrl,
+                    $.each(err.responseJSON.errors, function(fieldName, errors) {
+                        var $field = $('#'+fieldName);
+                        $field.addClass('error');
+                        $field.siblings('.error-message').text(errors[0]);
+                    });
+                }
+            });
+          } else {
+            var form = $(".form-file-input");
+
+            $.ajax({
+              url: form.attr('action'),
               method: 'POST',
-              data: values,
-              success: function(data) {
+              data: ajaxData,
+              processData: false,
+              contentType: false,
+              success: function(response) {
+                if (response.status) {
+                  // Updated successfully
+                  //location.reload();
+                  //console.log(response.status);
                   $('.user-form').submit();
-                  //console.log('success: ' + data.status);
+                } else {
+                  //console.log('success: ' + response.message);
+                  $('.user-form').submit();
+                }
               },
-              error: function(err) {
-                  $('.error-message').text('');
-                  $('.text-input').removeClass('error');
+              error: function(error) {
+                // TODO: Handle errors. Currently can get all errors, just need to display them
 
-                  $.each(err.responseJSON.errors, function(fieldName, errors) {
-                      var $field = $('#'+fieldName);
-                      $field.addClass('error');
-                      $field.siblings('.error-message').text(errors[0]);
+                if (error.status == 200) {
+                  //location.reload();
+                  console.log(error);
+                  console.log(error.status);
+                } else {
+                  console.log(error);
+                  var responseJson = error.responseJSON;
+                  $.each(responseJson, function() {
+                    console.log('error: ' + this[0]);
                   });
+                }
               }
-          });
+            });
+          }
       });
 
       $('.text-input').on('blur', function(e) {
