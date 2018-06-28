@@ -27,9 +27,15 @@
             <span class="combo-column combo-title">{{$oneName}}</span>
             <span class="combo-column combo-title">{{$twoName}}</span>
         </div>
+        <div>
+            <span class="combo-border-large"> </span>
+        </div>
         @if(sizeof($defArray) > 0)
             @for($i=0;$i<sizeof($defArray);$i++)
                 <div class="combo-value-item-js">
+                    @if($i!=0)
+                        <span class="combo-border-small"> </span>
+                    @endif
                     @if($oneType=='Text' | $oneType=='List' | $oneType=='Number' | $oneType=='Date')
                         <?php $value = explode('[!f1!]',$defArray[$i])[1]; ?>
                         {!! Form::hidden($field->flid."_combo_one[]",$value) !!}
