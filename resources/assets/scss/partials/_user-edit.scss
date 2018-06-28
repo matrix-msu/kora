@@ -16,33 +16,6 @@
 
   .head {
     position: relative;
-
-    .back {
-      box-shadow: 0 3px 5px 0 palette('box-shadow', base, .08);
-      height: 50px;
-      left: 0;
-      position: absolute;
-      text-align: center;
-      top: 0;
-      width: 50px;
-
-      a {
-        color: palette('gray', text, .6);
-        text-decoration: none;
-      }
-
-      p {
-        @include transform(rotate(90deg));
-
-        line-height: 50px;
-        margin: 0;
-        padding: 0 5px 5px 0;
-      }
-
-      .icon {
-        font-size: 6px;
-      }
-    }
   }
 
   @import 'user/form';
