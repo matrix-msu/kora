@@ -9,6 +9,7 @@ use App\Form;
 use App\FormGroup;
 use App\GalleryField;
 use App\GeneratedListField;
+use App\GeolocatorField;
 use App\ListField;
 use App\Metadata;
 use App\MultiSelectListField;
@@ -316,10 +317,24 @@ class ImportController extends Controller {
                 } else if($type == 'Geolocator') {
                     $geo = array();
                     foreach($field->Location as $loc) {
+                        $geoReq = new Request();
+
+                        if(!is_null($loc->Lat)) {
+                            $geoReq->type = 'latlon';
+                            $geoReq->lat = (float)$loc->Lat;
+                            $geoReq->lon = (float)$loc->Lon;
+                        } else if(!is_null($loc->Zone)) {
+                            $geoReq->type = 'utm';
+                            $geoReq->zone = (string)$loc->Zone;
+                            $geoReq->east = (float)$loc->East;
+                            $geoReq->north = (float)$loc->North;
+                        } else if(!is_null($loc->Address)) {
+                            $geoReq->type = 'geo';
+                            $geoReq->addr = (string)$loc->Address;
+                        }
+
                         $string = '[Desc]' . $loc->Desc . '[Desc]';
-                        $string .= '[LatLon]' . $loc->Lat . ',' . $loc->Lon . '[LatLon]';
-                        $string .= '[UTM]' . $loc->Zone . ':' . $loc->East . ',' . $loc->North . '[UTM]';
-                        $string .= '[Address]' . $loc->Address . '[Address]';
+                        $string .= GeolocatorField::geoConvert($geoReq);
                         array_push($geo, $string);
                     }
                     $recRequest[$flid] = $geo;
@@ -510,10 +525,24 @@ class ImportController extends Controller {
                 } else if($type == 'Geolocator') {
                     $geo = array();
                     foreach($field['value'] as $loc) {
+                        $geoReq = new Request();
+
+                        if(isset($loc['lat'])) {
+                            $geoReq->type = 'latlon';
+                            $geoReq->lat = $loc['lat'];
+                            $geoReq->lon = $loc['lon'];
+                        } else if(isset($loc['zone'])) {
+                            $geoReq->type = 'utm';
+                            $geoReq->zone = $loc['zone'];
+                            $geoReq->east = $loc['east'];
+                            $geoReq->north = $loc['north'];
+                        } else if(isset($loc['address'])) {
+                            $geoReq->type = 'geo';
+                            $geoReq->addr = $loc['address'];
+                        }
+
                         $string = '[Desc]' . $loc['desc'] . '[Desc]';
-                        $string .= '[LatLon]' . $loc['lat'] . ',' . $loc['lon'] . '[LatLon]';
-                        $string .= '[UTM]' . $loc['zone'] . ':' . $loc['east'] . ',' . $loc['north'] . '[UTM]';
-                        $string .= '[Address]' . $loc['address'] . '[Address]';
+                        $string .= GeolocatorField::geoConvert($geoReq);
                         array_push($geo, $string);
                     }
                     $recRequest[$flid] = $geo;
