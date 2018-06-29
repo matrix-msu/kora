@@ -6,10 +6,16 @@
 @stop
 
 @section('fieldOptions')
-    <div class="form-group">
+    <div class="form-group single-line-js">
         {!! Form::label('default','Default') !!}
-        <span class="error-message"></span>
+        <span class="error-message single-line"></span>
         {!! Form::text('default', $field->default, ['class' => 'text-input text-default-js', 'placeholder' => 'Enter default value here']) !!}
+    </div>
+
+    <div class="form-group multi-line-js hidden">
+        {!! Form::label('default','Default') !!}
+        <span class="error-message multi-line"></span>
+        {!! Form::textarea('default', null, ['class' => 'text-area text-area-default text-area-default-js', 'placeholder' => "Enter default value here"]) !!}
     </div>
 
     <div class="form-group mt-xl">

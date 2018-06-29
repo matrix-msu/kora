@@ -557,6 +557,24 @@ Kora.Fields.Options = function(fieldType) {
       var $multiLineCheck = $('.check-box-input[name="multi"]');
       var $singleLine = $('.advance-options-section-js .single-line-js');
       var $multiLine = $('.advance-options-section-js .multi-line-js');
+      var $singleLineShow = $('.edit-form .single-line-js');
+      var $multiLineShow = $('.edit-form .multi-line-js');
+
+      if ($multiLineCheck.is(':checked')) {
+        $singleLineShow.addClass('hidden');
+        $multiLineShow.removeClass('hidden');
+        var input = $singleLineShow.children('input').val();
+        $multiLineShow.children('textarea').val(''+input+'');
+      } else {
+        $singleLineShow.removeClass('hidden');
+        $multiLineShow.addClass('hidden');          
+      }
+
+      if ($('.error-message.single-line').text().length > 0) {
+        var erMsg = $('.error-message.single-line').text();
+        $('.error-message.multi-line').text(''+erMsg+'');
+        $multiLine.children('textarea').addClass('error');      
+      }
 
       $multiLineCheck.click(function () {
         //if ($multiLineCheck.is(':checked') === true || $multiLineCheck.prop('checked') === true) {
@@ -575,7 +593,7 @@ Kora.Fields.Options = function(fieldType) {
       });
 
       $('.error-message.single-line').bind('DOMSubtreeModified', function () {
-        var erMsg = $('.error-message.single-line').text();
+        erMsg = $('.error-message.single-line').text();
         $('.error-message.multi-line').text(''+erMsg+'');
         $multiLine.children('textarea').addClass('error');
       });
