@@ -130,18 +130,14 @@ Kora.Records.Import = function() {
 
                                         //if done = total
                                         if(done==total) {
-                                            //Display links for downloading bad xml
-                                            //Display link to Go to Records Page
                                             progressText.html(succ+' of '+total+' records successfully imported! Click <a class="success-link" href="'+showRecordUrl+'">here to visit the records page</a>.'
                                                 + ' Or click <a class="success-link failed-records-js" href="#">here to download any records</a>'
                                                 + '<form action="'+downloadFailedUrl+'" method="post" class="records-form-js" style="display:none;">'
-                                                //+ '<input type="hidden" name="failures" value="'+JSON.stringify(failedRecords)+'"/>'
                                                 + '<input type="hidden" name="type" value="'+importType+'"/>'
                                                 + '<input type="hidden" name="_token" value="'+CSRFToken+'"/>'
                                                 + '</form>'
                                                 + ' that failed to upload, and click <a class="success-link failed-reasons-js" href="#">here to download a report</a>'
                                                 + '<form action="'+downloadReasonsUrl+'" method="post" class="reasons-form-js" style="display:none;">'
-                                                //+ '<input type="hidden" name="failures" value="'+JSON.stringify(failedRecords)+'"/>'
                                                 + '<input type="hidden" name="_token" value="'+CSRFToken+'"/>'
                                                 + '</form>'
                                                 + ' of why they failed.');
@@ -160,18 +156,14 @@ Kora.Records.Import = function() {
 
                                         //if done = total
                                         if(done==total) {
-                                            //Display links for downloading bad xml
-                                            //Display link to Go to Records Page
                                             progressText.html(succ+' of '+total+' records successfully imported! Click <a class="success-link" href="'+showRecordUrl+'">here to visit the records page</a>.'
                                                 + ' Or click <a class="success-link failed-records-js" href="#">here to download any records</a>'
                                                 + '<form action="'+downloadFailedUrl+'" method="post" class="records-form-js" style="display:none;">'
-                                                //+ '<input type="hidden" name="failures" value="'+JSON.stringify(failedRecords)+'"/>'
                                                 + '<input type="hidden" name="type" value="'+importType+'"/>'
                                                 + '<input type="hidden" name="_token" value="'+CSRFToken+'"/>'
                                                 + '</form>'
                                                 + ' that failed to upload, and click <a class="success-link failed-reasons-js" href="#">here to download a report</a>'
                                                 + '<form action="'+downloadReasonsUrl+'" method="post" class="reasons-form-js" style="display:none;">'
-                                                //+ '<input type="hidden" name="failures" value="'+JSON.stringify(failedRecords)+'"/>'
                                                 + '<input type="hidden" name="_token" value="'+CSRFToken+'"/>'
                                                 + '</form>'
                                                 + ' of why they failed.');
