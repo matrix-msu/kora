@@ -553,6 +553,34 @@ Kora.Fields.Options = function(fieldType) {
         listOpt.trigger("chosen:updated");
     }
 
+    function initializeTextFields() {
+      var $multiLineCheck = $('.check-box-input[name="multi"]');
+      var $singleLine = $('.advance-options-section-js .single-line-js');
+      var $multiLine = $('.advance-options-section-js .multi-line-js');
+
+      $multiLineCheck.click(function () {
+        //if ($multiLineCheck.is(':checked') === true || $multiLineCheck.prop('checked') === true) {
+        if ($multiLineCheck.is(':checked')) {
+          $singleLine.addClass('hidden');
+          $multiLine.removeClass('hidden');
+        } else {
+          $singleLine.removeClass('hidden');
+          $multiLine.addClass('hidden');          
+        }
+      });
+
+      $multiLine.children('textarea').blur(function () {
+        var input = $multiLine.children('textarea').val();
+        $singleLine.children('input').val(''+input+'');
+      });
+
+      $('.error-message.single-line').bind('DOMSubtreeModified', function () {
+        var erMsg = $('.error-message.single-line').text();
+        $('.error-message.multi-line').text(''+erMsg+'');
+        $multiLine.children('textarea').addClass('error');
+      });
+    }
+
     initializeSelects();
 
     switch(fieldType) {
@@ -584,6 +612,8 @@ Kora.Fields.Options = function(fieldType) {
             initializeSelectAddition();
             initializeComboListOptions();
             break;
+        case 'Text':
+            initializeTextFields();
         default:
             break;
     }
