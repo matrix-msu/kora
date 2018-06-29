@@ -3,6 +3,9 @@ Kora.Records = Kora.Records || {};
 
 Kora.Records.Import = function() {
 
+    var importType = '';
+    var failedRecords = [];
+
     function initializeFormProgression() {
         $('.record-input-js').change(function () {
             $('.spacer-fade-js').fadeIn(1000);
@@ -58,12 +61,11 @@ Kora.Records.Import = function() {
 
                         //Get the records
                         var importRecs = data['records'];
-                        var importType = data['type'];
+                        importType = data['type'];
 
                         //initialize counter
                         done = 0;
                         succ = 0;
-                        failed = [];
                         total = Object.keys(importRecs).length;
                         var progressText = $('.progress-text-js');
                         var progressFill = $('.progress-fill-js');
@@ -100,7 +102,7 @@ Kora.Records.Import = function() {
                             //foreach record in the dataset
                             for(var kid in importRecs) {
                                 // skip loop if the property is from prototype
-                                if (!importRecs.hasOwnProperty(kid)) continue;
+                                if(!importRecs.hasOwnProperty(kid)) continue;
 
                                 //ajax to store record
                                 $.ajax({
@@ -113,36 +115,66 @@ Kora.Records.Import = function() {
                                         "table": table,
                                         "type": importType
                                     },
-                                    success: function(data){
-                                        console.log(data);
-                                        //if success
-                                        if(data=='') {
-                                            succ++;
-                                            progressText.text(succ+' of '+total+' Records Submitted');
-                                        } else {
-                                            //TODO::THIS WHOLE ERROR
-                                            //list error message
-                                            $('#error_div').html(data);
-                                            //add obj to failed
-                                            //failed.push(data['records'][i]);
-                                        }
+                                    local_kid: kid,
+                                    success: function(data) {
+                                        succ++;
+                                        progressText.text(succ+' of '+total+' Records Submitted');
+
                                         done++;
                                         //update progress bar
                                         percent = (done/total)*100;
                                         if(percent<7)
                                             percent = 7;
                                         progressFill.attr('style','width:'+percent+'%');
-                                        progressText.text(done+' of '+total+' Records Submitted');
+                                        progressText.text(succ+' of '+total+' Records Submitted');
 
                                         //if done = total
                                         if(done==total) {
-                                            //Display links for downloading bad xml //TODO:: build link for failed records
+                                            //Display links for downloading bad xml
                                             //Display link to Go to Records Page
-                                            progressText.html('Records successfully imported! Click ' +
-                                                '<a class="success-link" href="'+showRecordUrl+'">here to visit the ' +
-                                                'records page</a>. Or click <a class="success-link" href="#">here to ' +
-                                                'download any records</a> that failed to upload.');
-                                            //console.log(failed);
+                                            progressText.html(succ+' of '+total+' records successfully imported! Click <a class="success-link" href="'+showRecordUrl+'">here to visit the records page</a>.'
+                                                + ' Or click <a class="success-link failed-records-js" href="#">here to download any records</a>'
+                                                + '<form action="'+downloadFailedUrl+'" method="post" class="records-form-js" style="display:none;">'
+                                                //+ '<input type="hidden" name="failures" value="'+JSON.stringify(failedRecords)+'"/>'
+                                                + '<input type="hidden" name="type" value="'+importType+'"/>'
+                                                + '<input type="hidden" name="_token" value="'+CSRFToken+'"/>'
+                                                + '</form>'
+                                                + ' that failed to upload, and click <a class="success-link failed-reasons-js" href="#">here to download a report</a>'
+                                                + '<form action="'+downloadReasonsUrl+'" method="post" class="reasons-form-js" style="display:none;">'
+                                                //+ '<input type="hidden" name="failures" value="'+JSON.stringify(failedRecords)+'"/>'
+                                                + '<input type="hidden" name="_token" value="'+CSRFToken+'"/>'
+                                                + '</form>'
+                                                + ' of why they failed.');
+                                        }
+                                    },
+                                    error: function(data) {
+                                        failedRecords.push([this.local_kid,importRecs[this.local_kid],data]);
+
+                                        done++;
+                                        //update progress bar
+                                        percent = (done/total)*100;
+                                        if(percent<7)
+                                            percent = 7;
+                                        progressFill.attr('style','width:'+percent+'%');
+                                        progressText.text(succ+' of '+total+' Records Submitted');
+
+                                        //if done = total
+                                        if(done==total) {
+                                            //Display links for downloading bad xml
+                                            //Display link to Go to Records Page
+                                            progressText.html(succ+' of '+total+' records successfully imported! Click <a class="success-link" href="'+showRecordUrl+'">here to visit the records page</a>.'
+                                                + ' Or click <a class="success-link failed-records-js" href="#">here to download any records</a>'
+                                                + '<form action="'+downloadFailedUrl+'" method="post" class="records-form-js" style="display:none;">'
+                                                //+ '<input type="hidden" name="failures" value="'+JSON.stringify(failedRecords)+'"/>'
+                                                + '<input type="hidden" name="type" value="'+importType+'"/>'
+                                                + '<input type="hidden" name="_token" value="'+CSRFToken+'"/>'
+                                                + '</form>'
+                                                + ' that failed to upload, and click <a class="success-link failed-reasons-js" href="#">here to download a report</a>'
+                                                + '<form action="'+downloadReasonsUrl+'" method="post" class="reasons-form-js" style="display:none;">'
+                                                //+ '<input type="hidden" name="failures" value="'+JSON.stringify(failedRecords)+'"/>'
+                                                + '<input type="hidden" name="_token" value="'+CSRFToken+'"/>'
+                                                + '</form>'
+                                                + ' of why they failed.');
                                         }
                                     }
                                 });
@@ -151,6 +183,28 @@ Kora.Records.Import = function() {
                     }
                 });
             }
+        });
+
+        $('.progress-text-js').on('click', '.failed-records-js', function(e) {
+            var $recForm = $('.records-form-js');
+
+            var input = $("<input>")
+                .attr("type", "hidden")
+                .attr("name", "failures").val(JSON.stringify(failedRecords));
+            $recForm.append($(input));
+
+            $recForm.submit();
+        });
+
+        $('.progress-text-js').on('click', '.failed-reasons-js', function(e) {
+            var $recForm = $('.reasons-form-js');
+
+            var input = $("<input>")
+                .attr("type", "hidden")
+                .attr("name", "failures").val(JSON.stringify(failedRecords));
+            $recForm.append($(input));
+
+            $recForm.submit();
         });
     }
 

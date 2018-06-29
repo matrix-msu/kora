@@ -176,17 +176,15 @@ class DateField extends BaseField {
      * @param  Request $request
      */
     public function createNewRecordField($field, $record, $value, $request) {
-        if($request->input('year_' . $field->flid) != '') {
-            $this->flid = $field->flid;
-            $this->rid = $record->rid;
-            $this->fid = $field->fid;
-            $this->circa = $request->input('circa_' . $field->flid, '');
-            $this->month = $request->input('month_' . $field->flid);
-            $this->day = $request->input('day_' . $field->flid);
-            $this->year = $request->input('year_' . $field->flid);
-            $this->era = $request->input('era_' . $field->flid, 'CE');
-            $this->save();
-        }
+        $this->flid = $field->flid;
+        $this->rid = $record->rid;
+        $this->fid = $field->fid;
+        $this->circa = $request->input('circa_' . $field->flid, '');
+        $this->month = $request->input('month_' . $field->flid);
+        $this->day = $request->input('day_' . $field->flid);
+        $this->year = $request->input('year_' . $field->flid);
+        $this->era = $request->input('era_' . $field->flid, 'CE');
+        $this->save();
     }
 
     /**

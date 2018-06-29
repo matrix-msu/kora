@@ -237,6 +237,7 @@ class ImportController extends Controller {
 
         $recRequest = new Request();
         $recRequest['userId'] = \Auth::user()->id;
+        $recRequest['api'] = true;
 
         if($request->type==self::XML) {
             $record = simplexml_load_string($record);
@@ -637,7 +638,74 @@ class ImportController extends Controller {
         }
 
         $recCon = new RecordController();
-        $recCon->store($pid,$fid,$recRequest);
+        return $recCon->store($pid,$fid,$recRequest);
+    }
+
+    /**
+     * Downloads the file with all the failed records.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     */
+    public function downloadFailedRecords($pid, $fid, Request $request) {
+        $failedRecords = json_decode($request->failures);
+        $form = FormController::getForm($fid);
+
+        if($request->type=='JSON')
+            $records = [];
+        else if($request->type=='XML')
+            $records = '<?xml version="1.0" encoding="utf-8"?><Records>';
+
+        foreach($failedRecords as $element) {
+            if($request->type=='JSON')
+                $records[$element[0]] = $element[1];
+            else if($request->type=='XML')
+                $records .= $element[1];
+        }
+
+        if($request->type=='JSON') {
+            header("Content-Disposition: attachment; filename=" . $form->name . '_failedImports.json');
+            header("Content-Type: application/octet-stream; ");
+
+            echo json_encode($records);
+        }
+        else if($request->type=='XML') {
+            $records .= '</Records>';
+
+            header("Content-Disposition: attachment; filename=" . $form->name . '_failedImports.xml');
+            header("Content-Type: application/octet-stream; ");
+
+            echo $records;
+        }
+    }
+
+    /**
+     * Downloads the file with the reasons why records failed.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     */
+    public function downloadFailedReasons($pid, $fid, Request $request) {
+        $failedRecords = json_decode($request->failures);
+        $form = FormController::getForm($fid);
+
+        $messages = [];
+
+        foreach($failedRecords as $element) {
+            $id = $element[0];
+            $messageArray = $element[2]->responseJSON->record_validation_error;
+            foreach($messageArray as $message) {
+                if($message != '' && $message != ' ')
+                    $messages[$id] = $message;
+            }
+        }
+
+        header("Content-Disposition: attachment; filename=" . $form->name . '_importExplain.json');
+        header("Content-Type: application/octet-stream; ");
+
+        echo json_encode($messages);
     }
 
     /**
