@@ -1,5 +1,5 @@
 .no-tokens {
-  
+
   .top {
   font-size: 80px;
   height: 80px;
@@ -20,12 +20,12 @@
         right: 0;
       }
     }
-    
+
     .icon {
       opacity: 0.2;
     }
   }
-  
+
   .bottom {
     text-align: center;
     
@@ -48,11 +48,17 @@
       border: none;
       background: transparent;
       color: palette('green', accent);
+      font-family: $ubuntu;
+      font-size: 14px;
       font-size: 14px;
       padding: 0;
 
       &:hover {
         cursor: pointer;
+      }
+
+      &:focus {
+        outline: none;
       }
     }
   }
