@@ -84,7 +84,7 @@
         </div>
 
         <div class="form-group mt-100-xl">
-            {!! Form::submit('Duplicate Record',['class' => 'btn']) !!}
+            {!! Form::submit('Duplicate Record',['class' => 'btn fixed-bottom-slide pre-fixed-js clone-btn']) !!}
         </div>
         {!! Form::close() !!}
     </section>
