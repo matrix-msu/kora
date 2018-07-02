@@ -9,6 +9,7 @@ use App\Form;
 use App\FormGroup;
 use App\GalleryField;
 use App\GeneratedListField;
+use App\GeolocatorField;
 use App\ListField;
 use App\Metadata;
 use App\MultiSelectListField;
@@ -236,6 +237,7 @@ class ImportController extends Controller {
 
         $recRequest = new Request();
         $recRequest['userId'] = \Auth::user()->id;
+        $recRequest['api'] = true;
 
         if($request->type==self::XML) {
             $record = simplexml_load_string($record);
@@ -316,10 +318,24 @@ class ImportController extends Controller {
                 } else if($type == 'Geolocator') {
                     $geo = array();
                     foreach($field->Location as $loc) {
+                        $geoReq = new Request();
+
+                        if(!is_null($loc->Lat)) {
+                            $geoReq->type = 'latlon';
+                            $geoReq->lat = (float)$loc->Lat;
+                            $geoReq->lon = (float)$loc->Lon;
+                        } else if(!is_null($loc->Zone)) {
+                            $geoReq->type = 'utm';
+                            $geoReq->zone = (string)$loc->Zone;
+                            $geoReq->east = (float)$loc->East;
+                            $geoReq->north = (float)$loc->North;
+                        } else if(!is_null($loc->Address)) {
+                            $geoReq->type = 'geo';
+                            $geoReq->addr = (string)$loc->Address;
+                        }
+
                         $string = '[Desc]' . $loc->Desc . '[Desc]';
-                        $string .= '[LatLon]' . $loc->Lat . ',' . $loc->Lon . '[LatLon]';
-                        $string .= '[UTM]' . $loc->Zone . ':' . $loc->East . ',' . $loc->North . '[UTM]';
-                        $string .= '[Address]' . $loc->Address . '[Address]';
+                        $string .= GeolocatorField::geoConvert($geoReq);
                         array_push($geo, $string);
                     }
                     $recRequest[$flid] = $geo;
@@ -510,10 +526,24 @@ class ImportController extends Controller {
                 } else if($type == 'Geolocator') {
                     $geo = array();
                     foreach($field['value'] as $loc) {
+                        $geoReq = new Request();
+
+                        if(isset($loc['lat'])) {
+                            $geoReq->type = 'latlon';
+                            $geoReq->lat = $loc['lat'];
+                            $geoReq->lon = $loc['lon'];
+                        } else if(isset($loc['zone'])) {
+                            $geoReq->type = 'utm';
+                            $geoReq->zone = $loc['zone'];
+                            $geoReq->east = $loc['east'];
+                            $geoReq->north = $loc['north'];
+                        } else if(isset($loc['address'])) {
+                            $geoReq->type = 'geo';
+                            $geoReq->addr = $loc['address'];
+                        }
+
                         $string = '[Desc]' . $loc['desc'] . '[Desc]';
-                        $string .= '[LatLon]' . $loc['lat'] . ',' . $loc['lon'] . '[LatLon]';
-                        $string .= '[UTM]' . $loc['zone'] . ':' . $loc['east'] . ',' . $loc['north'] . '[UTM]';
-                        $string .= '[Address]' . $loc['address'] . '[Address]';
+                        $string .= GeolocatorField::geoConvert($geoReq);
                         array_push($geo, $string);
                     }
                     $recRequest[$flid] = $geo;
@@ -608,7 +638,74 @@ class ImportController extends Controller {
         }
 
         $recCon = new RecordController();
-        $recCon->store($pid,$fid,$recRequest);
+        return $recCon->store($pid,$fid,$recRequest);
+    }
+
+    /**
+     * Downloads the file with all the failed records.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     */
+    public function downloadFailedRecords($pid, $fid, Request $request) {
+        $failedRecords = json_decode($request->failures);
+        $form = FormController::getForm($fid);
+
+        if($request->type=='JSON')
+            $records = [];
+        else if($request->type=='XML')
+            $records = '<?xml version="1.0" encoding="utf-8"?><Records>';
+
+        foreach($failedRecords as $element) {
+            if($request->type=='JSON')
+                $records[$element[0]] = $element[1];
+            else if($request->type=='XML')
+                $records .= $element[1];
+        }
+
+        if($request->type=='JSON') {
+            header("Content-Disposition: attachment; filename=" . $form->name . '_failedImports.json');
+            header("Content-Type: application/octet-stream; ");
+
+            echo json_encode($records);
+        }
+        else if($request->type=='XML') {
+            $records .= '</Records>';
+
+            header("Content-Disposition: attachment; filename=" . $form->name . '_failedImports.xml');
+            header("Content-Type: application/octet-stream; ");
+
+            echo $records;
+        }
+    }
+
+    /**
+     * Downloads the file with the reasons why records failed.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     */
+    public function downloadFailedReasons($pid, $fid, Request $request) {
+        $failedRecords = json_decode($request->failures);
+        $form = FormController::getForm($fid);
+
+        $messages = [];
+
+        foreach($failedRecords as $element) {
+            $id = $element[0];
+            $messageArray = $element[2]->responseJSON->record_validation_error;
+            foreach($messageArray as $message) {
+                if($message != '' && $message != ' ')
+                    $messages[$id] = $message;
+            }
+        }
+
+        header("Content-Disposition: attachment; filename=" . $form->name . '_importExplain.json');
+        header("Content-Type: application/octet-stream; ");
+
+        echo json_encode($messages);
     }
 
     /**

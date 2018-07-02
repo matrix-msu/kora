@@ -414,17 +414,23 @@ Kora.Fields.Options = function(fieldType) {
 
             defaultDiv = $('.combo-value-div-js');
 
-            if(val1=='' | val2=='' | val1==null | val2==null){
+            if(val1=='' | val2=='' | val1==null | val2==null | val1=='//'| val2=='//') {
                 //TODO::Error out
                 console.log(val1);
                 console.log(val2);
                 console.log('Both fields must be filled out');
             } else {
                 //Remove empty div if applicable
-                if(defaultDiv.children('.combo-list-empty').first())
+                var border = true;
+                if(defaultDiv.children('.combo-list-empty').length) {
                     defaultDiv.children('.combo-list-empty').first().remove();
+                    border = false;
+                }
 
                 div = '<div class="combo-value-item-js">';
+
+                if(border)
+                    div += '<span class="combo-border-small"> </span>';
 
                 if(type1=='Text' | type1=='List' | type1=='Number' | type1=='Date') {
                     div += '<input type="hidden" name="default_combo_one[]" value="'+val1+'">';

@@ -29,15 +29,21 @@
     </div>
 
     <section class="combo-list-defaults">
+        {!! Form::label('default', 'Default') !!}
         <div class="form-group combo-list-display combo-value-div-js">
-            {!! Form::label('default', 'Default') !!}
             <div>
                 <span class="combo-column combo-title">{{$oneName}}</span>
                 <span class="combo-column combo-title">{{$twoName}}</span>
             </div>
+            <div>
+                <span class="combo-border-large"> </span>
+            </div>
             @if($defs!=null && $defs!='')
                 @for($i=0;$i<sizeof($defArray);$i++)
                     <div class="combo-value-item-js">
+                        @if($i!=0)
+                            <span class="combo-border-small"> </span>
+                        @endif
                         @if($oneType=='Text' | $oneType=='List' | $oneType=='Number' | $oneType=='Date')
                             <?php $value = explode('[!f1!]',$defArray[$i])[1]; ?>
                             {!! Form::hidden("default_combo_one[]",$value) !!}
