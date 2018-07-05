@@ -26,6 +26,7 @@ Kora.Projects.Create = function() {
           $('.create-form').submit();
         },
         error: function(err) {
+//console.log('error - submitted'); apply verification fix here
           $('.error-message').text('');
           $('.text-input, .text-area').removeClass('error');
 

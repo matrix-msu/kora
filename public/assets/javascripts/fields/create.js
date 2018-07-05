@@ -27,6 +27,17 @@ Kora.Fields.Create = function() {
         });
     }
 
+    function scrollTop (allScrolls) {
+      var scrollTo = Math.min(...allScrolls);
+      var scrollTo = scrollTo - 100;
+      setTimeout( function () {
+        window.scroll({
+          top: scrollTo,
+          behavior: 'smooth'
+        });
+      });
+    }
+
     function initializeAdvancedOptions() {
         Kora.Modal.initialize();
 
@@ -142,12 +153,16 @@ Kora.Fields.Create = function() {
                 error: function(err) {
                     $('.error-message').text('');
                     $('.text-input, .text-area').removeClass('error');
+                    var allScrolls = [];
 
                     $.each(err.responseJSON.errors, function(fieldName, errors) {
                         var $field = $('#'+fieldName);
                         $field.addClass('error');
                         $field.siblings('.error-message').text(errors[0]);
+                        allScrolls.push($field.offset().top);
                     });
+
+                    scrollTop(allScrolls);
                 }
             });
         });
