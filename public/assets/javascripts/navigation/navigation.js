@@ -65,11 +65,6 @@ $navBar.on('click', '.side-menu-toggle-js', function() {
     var $footerHeight = $('.aside-content .footer-elements').height();
     var combinedHeight = $headerHeight + $footerHeight
 
-console.log('+++++++++++');
-console.log($headerHeight);
-console.log($footerHeight);
-console.log(combinedHeight);
-
     if (combinedHeight > (window.innerHeight - 50)) {
       $('.aside-content .footer-elements').css('position', 'static');
     } else {
@@ -208,8 +203,8 @@ $searchInput.keydown(function(e) {
                         });
                     });
                 });
-			} else if (searchText == '') {
-+                $searchResults.parent().slideUp(100);
+            } else if (searchText == '') {
+                $searchResults.parent().slideUp(100);
             } else {
                 $clearResentSearchResults.parent().slideDown(400, function () {
                     $recentSearch.parent().slideDown(400, function () {
@@ -361,11 +356,6 @@ $sideMenu.on('click', '.drawer-toggle-js', function(e) {
     var $headerHeight = $('.aside-content .header-elements').height();
     var $footerHeight = $('.aside-content .footer-elements').height();
     var combinedHeight = $headerHeight + $footerHeight
-
-console.log('-----------');
-console.log($headerHeight);
-console.log($footerHeight);
-console.log(combinedHeight);
 
     if (combinedHeight > (window.innerHeight - 50)) {
       $('.aside-content .footer-elements').css('position', 'static');
