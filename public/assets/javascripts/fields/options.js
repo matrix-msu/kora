@@ -561,13 +561,17 @@ Kora.Fields.Options = function(fieldType) {
       var $multiLineShow = $('.edit-form .multi-line-js');
 
       if ($multiLineCheck.is(':checked')) {
+        $singleLine.addClass('hidden');
+        $multiLine.removeClass('hidden');
         $singleLineShow.addClass('hidden');
         $multiLineShow.removeClass('hidden');
         var input = $singleLineShow.children('input').val();
         $multiLineShow.children('textarea').val(''+input+'');
       } else {
         $singleLineShow.removeClass('hidden');
-        $multiLineShow.addClass('hidden');          
+        $multiLineShow.addClass('hidden');
+        $singleLine.removeClass('hidden');
+        $multiLine.addClass('hidden');
       }
 
       if ($('.error-message.single-line').text().length > 0) {
@@ -581,9 +585,13 @@ Kora.Fields.Options = function(fieldType) {
         if ($multiLineCheck.is(':checked')) {
           $singleLine.addClass('hidden');
           $multiLine.removeClass('hidden');
+          $singleLineShow.addClass('hidden');
+          $multiLineShow.removeClass('hidden');
         } else {
           $singleLine.removeClass('hidden');
-          $multiLine.addClass('hidden');          
+          $multiLine.addClass('hidden');      
+          $singleLineShow.removeClass('hidden');
+          $multiLineShow.addClass('hidden');    
         }
       });
 
