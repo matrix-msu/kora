@@ -75,7 +75,6 @@
         </div>
     </section>
       <section class="revisions revisions-js center">
-        <?php var_dump(count($revisions)) ?>
           @foreach ($revisions as $index=>$revision)
               @include('partials.revisions.card')
           @endforeach

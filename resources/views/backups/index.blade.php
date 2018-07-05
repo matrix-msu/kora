@@ -55,8 +55,6 @@
         @if (count($savedBackups) > 0)
         <section class="backupcards-selection center">
             <?php $index=0; ?>
-          <?php var_dump($index) ?>
-          <?php var_dump($savedBackups) ?>
             @foreach($savedBackups as $backup)
                 <div class="backup card all {{ $index == 0 ? 'active' : '' }}">
                     <div class="header {{ $index == 0 ? 'active' : '' }}">

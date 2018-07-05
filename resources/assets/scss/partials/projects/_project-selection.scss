@@ -59,12 +59,26 @@
           margin-top: 0;
         }
 
-        a {
-          color: palette('green', accent);
+        &:nth-child(2),
+        &:last-child {
+          display: inline;
+        }
+      }
 
-          &:hover {
-            cursor: pointer;
-          }
+      input {
+        border: none;
+        background: transparent;
+        color: palette('green', accent);
+        font-family: $ubuntu;
+        font-size: 14px;
+        padding: 0;
+
+        &:hover {
+          cursor: pointer;
+        }
+
+        &:focus {
+          outline: none;
         }
       }
     }

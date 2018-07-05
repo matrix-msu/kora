@@ -60,11 +60,16 @@
           border: none;
           background: transparent;
           color: palette('green', accent);
+          font-family: $ubuntu;
           font-size: 14px;
           padding: 0;
 
           &:hover {
             cursor: pointer;
+          }
+
+          &:focus {
+            outline: none;
           }
         }
       }
