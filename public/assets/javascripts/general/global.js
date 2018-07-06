@@ -156,9 +156,12 @@ $(document).ready(function() {
     }
 
     if (link.charAt(0) !== "#" && link.length > 0) {
-      window.location = link;
-      //} else {
-      //e.preventDefault();
+      e.preventDefault();
+      if (e.metaKey || e.ctrlKey) {
+        window.open(link);
+      } else {
+        window.location = link;
+      }
     }
   });
 
