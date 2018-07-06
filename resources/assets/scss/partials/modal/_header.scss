@@ -29,6 +29,25 @@
   }
 }
 
+&.view-user .header {
+  position: relative;
+
+  .profile-picture {
+    background: white; /* change this */
+    border-radius: 50%;
+    box-shadow: 0 1px 10px 0;
+    left: 5px;
+    padding: 20px;
+    position: absolute;
+    top: -45px;
+  }
+
+  .modal-toggle {
+    padding: 0;
+    top: 0;
+  }
+}
+
 &.small .header {
   .title {
     padding: 25px 0 25px 25px;

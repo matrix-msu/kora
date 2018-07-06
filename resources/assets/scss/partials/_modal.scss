@@ -45,11 +45,19 @@
 
     &.small {
       max-width: 340px;
-
     }
 
     @import 'modal/header';
     @import 'modal/body';
+  }
+
+  .view-user {
+    box-sizing: border-box;
+    overflow: visible;
+    padding: 20px;
+    width: 320px;
+
+    @import 'modal/footer';
   }
 }
 
