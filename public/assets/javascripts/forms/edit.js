@@ -4,20 +4,33 @@ Kora.Forms = Kora.Forms || {};
 Kora.Forms.Edit = function() {
 
   function initializeCleanUpModals() {
-    Kora.Modal.initialize();
+        Kora.Modal.initialize();
 
-    $('.form-trash-js').click(function(e) {
-      e.preventDefault();
+        $('.form-trash-js').click(function(e) {
+            e.preventDefault();
 
-      var $cleanupModal = $('.form-cleanup-modal-js');
+            var $cleanupModal = $('.form-cleanup-modal-js');
 
-      $cleanupModal.find('.title-js').html(
-        $(this).data('title')
-      );
+            $cleanupModal.find('.title-js').html( $(this).data('title') );
 
-      $cleanupModal.find('.delete-content-js').show();
-      Kora.Modal.open($cleanupModal);
-    });
+            Kora.Modal.open($cleanupModal);
+        });
+
+        $('.delete-records-js').click(function(e) {
+              e.preventDefault();
+
+              var $cleanupModal = $('.delete-records-modal-js');
+
+              Kora.Modal.open($cleanupModal);
+        });
+
+      $('.delete-files-js').click(function(e) {
+          e.preventDefault();
+
+          var $cleanupModal = $('.delete-files-modal-js');
+
+          Kora.Modal.open($cleanupModal);
+      });
   }
 
     function initializeValidation() {
@@ -43,7 +56,7 @@ Kora.Forms.Edit = function() {
                     $('.error-message').text('');
                     $('.text-input, .text-area').removeClass('error');
 
-                    $.each(err.responseJSON, function(fieldName, errors) {
+                    $.each(err.responseJSON.errors, function(fieldName, errors) {
                         var $field = $('#'+fieldName);
                         $field.addClass('error');
                         $field.siblings('.error-message').text(errors[0]);
@@ -64,9 +77,9 @@ Kora.Forms.Edit = function() {
                 method: 'POST',
                 data: values,
                 error: function(err) {
-                    if (err.responseJSON[field] !== undefined) {
+                    if (err.responseJSON.errors[field] !== undefined) {
                         $('#'+field).addClass('error');
-                        $('#'+field).siblings('.error-message').text(err.responseJSON[field][0]);
+                        $('#'+field).siblings('.error-message').text(err.responseJSON.errors[field][0]);
                     } else {
                         $('#'+field).removeClass('error');
                         $('#'+field).siblings('.error-message').text('');

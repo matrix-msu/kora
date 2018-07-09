@@ -1,5 +1,5 @@
 <div class="form-group mt-xl">
-    {!! Form::label($field->flid.'_input',$field->name.': ') !!}
+    {!! Form::label($field->flid.'_input',$field->name) !!}
     {!! Form::select($field->flid."_begin_month",['' => '',
         '1' => '01 - '.date("F", mktime(0, 0, 0, 1, 10)), '2' => '02 - '.date("F", mktime(0, 0, 0, 2, 10)),
         '3' => '03 - '.date("F", mktime(0, 0, 0, 3, 10)), '4' => '04 - '.date("F", mktime(0, 0, 0, 4, 10)),

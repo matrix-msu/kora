@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
@@ -66,26 +67,29 @@ class UserController extends Controller {
             }
         } elseif ($section == 'history') {
             // Record History revisions
+            $sec = $request->input('sec') === null ? 'rm' : $request->input('sec');
             $pagination = $request->input('page-count') === null ? 10 : app('request')->input('page-count');
-            $order = $request->input('order') === null ? 'lmd' : app('request')->input('order');
-            $order_type = substr($order, 0, 2) === "lm" ? "revisions.created_at" : "revisions.id";
-            $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
+            // Recently Modified Order
+            $rm_order = $request->input('rm-order') === null ? 'lmd' : app('request')->input('rm-order');
+            $rm_order_type = substr($rm_order, 0, 2) === "lm" ? "revisions.created_at" : "revisions.id";
+            $rm_order_direction = substr($rm_order, 2, 3) === "a" ? "asc" : "desc";
+            // My Created Records Order
+            $mcr_order = $request->input('mcr-order') === null ? 'lmd' : app('request')->input('mcr-order');
+            $mcr_order_type = substr($mcr_order, 0, 2) === "lm" ? "records.created_at" : "records.rid";
+            $mcr_order_direction = substr($mcr_order, 2, 3) === "a" ? "asc" : "desc";
             $userRevisions = Revision::leftJoin('records', 'revisions.rid', '=', 'records.rid')
                 ->leftJoin('users', 'revisions.owner', '=', 'users.id')
                 ->select('revisions.*', 'records.kid', 'records.pid', 'users.username as ownerUsername')
                 ->where('revisions.username', '=', $user->username)
                 ->whereNotNull('kid')
-                ->orderBy($order_type, $order_direction)
+                ->orderBy($rm_order_type, $rm_order_direction)
                 ->paginate($pagination);
-            $userOwnedRevisions = Revision::leftJoin('records', 'revisions.rid', '=', 'records.rid')
-                ->select('revisions.*', 'records.kid', 'records.pid')
-                ->where('revisions.owner', '=', $user->id)
+            $userCreatedRecords = Record::where('owner', '=', $user->id)
                 ->whereNotNull('kid')
-                ->orderBy($order_type, $order_direction)
+                ->orderBy($mcr_order_type, $mcr_order_direction)
                 ->paginate($pagination);
-            $sec = $request->input('sec');
 
-            return view('user/profile-record-history',compact('user', 'admin', 'userRevisions', 'userOwnedRevisions', 'section', 'sec'));
+            return view('user/profile-record-history',compact('user', 'admin', 'userRevisions', 'userOwnedRevisions', 'userCreatedRecords', 'section', 'sec'));
         } else {
             return view('user/profile',compact('user', 'admin', 'section'));
         }
@@ -328,13 +332,12 @@ class UserController extends Controller {
      * @return View
      */
     public function activateshow() {
-        if (is_null(\Auth::user())) {
-          return redirect('register');
-        } elseif (!\Auth::user()->active) {
-          return view('auth.activate');
-        } else {
-          return redirect('projects');
-        }
+        if(is_null(\Auth::user()))
+            return redirect('register');
+        elseif (!\Auth::user()->active)
+            return view('auth.activate');
+        else
+            return redirect('projects');
     }
 
     /**
@@ -345,12 +348,19 @@ class UserController extends Controller {
     public function resendActivation() {
         $token = \Auth::user()->token;
 
-        Mail::send('emails.activation', compact('token'), function($message)
-        {
-            $message->from(env('MAIL_FROM_ADDRESS'));
-            $message->to(\Auth::user()->email);
-            $message->subject('Kora Account Activation');
-        });
+        //Send email
+        try {
+            Mail::send('emails.activation', compact('token'), function($message)
+            {
+                $message->from(env('MAIL_FROM_ADDRESS'));
+                $message->to(\Auth::user()->email);
+                $message->subject('Kora Account Activation');
+            });
+        } catch(\Swift_TransportException $e) {
+            //TODO::email error response
+            //Log for now
+            Log::info('Resend activation email failed');
+        }
 
         return redirect('auth/activate')->with('k3_global_success', 'user_activate_resent');
     }
@@ -565,13 +575,13 @@ class UserController extends Controller {
     public static function buildPermissionsString($permissions) {
         $permissionsArray = explode(" | ", $permissions);
         if (count($permissionsArray) == 1) {
-            return strtolower($permissionsArray[0]);
+            return $permissionsArray[0];
         } elseif (count($permissionsArray) == 2) {
-            return strtolower(implode(' and ', $permissionsArray));
+            return implode(' and ', $permissionsArray);
         } elseif (count($permissionsArray) > 2) {
             $lastIndex = count($permissionsArray) - 1;
             $permissionsArray[$lastIndex] = 'and ' . $permissionsArray[$lastIndex];
-            return strtolower(implode(', ', $permissionsArray));
+            return implode(', ', $permissionsArray);
         }
     }
 }

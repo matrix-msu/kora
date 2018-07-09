@@ -1,5 +1,5 @@
 <div class="form-group mt-xl">
-    {!! Form::label('regex_'.$fnum,'Regex: ') !!}
+    {!! Form::label('regex_'.$fnum,'Regex') !!}
     {!! Form::text('regex_'.$fnum, \App\ComboListField::getComboFieldOption($field,'Regex',$fnum), ['class' => 'text-input', 'placeholder' => 'Enter regular expression pattern here']) !!}
 </div>
 

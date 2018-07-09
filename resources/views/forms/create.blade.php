@@ -27,8 +27,8 @@
 @stop
 
 @section('body')
-  <section class="create-form center">
-    {!! Form::model($form = new \App\Form, ['url' => 'projects/'.$project->pid, 'class' => 'create-form']) !!}
+  <section class="create-form">
+    {!! Form::model($form = new \App\Form, ['url' => 'projects/'.$project->pid, 'class' => 'create-form center']) !!}
         @include('partials.forms.form',['submitButtonText' => 'Create Form','pid' => $project->pid, 'type' => 'create'])
     {!! Form::close() !!}
   </section>

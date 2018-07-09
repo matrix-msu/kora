@@ -1,4 +1,4 @@
-<div class="form-group mt-xxxl">{!! Form::label('','Search Configuration: ') !!}</div>
+<div class="form-group mt-xxxl">{!! Form::label('','Search Configuration') !!}</div>
 @foreach(\App\Http\Controllers\AssociationController::getAvailableAssociations($field->fid) as $a)
     <?php
     $f = \App\Http\Controllers\FormController::getForm($a->dataForm);
@@ -38,7 +38,7 @@
             hidden
 @endif
             ">
-        {!! Form::label('preview_'.$f->fid.'_'.$fnum, 'Preview Value: ') !!}
+        {!! Form::label('preview_'.$f->fid.'_'.$fnum, 'Preview Value') !!}
         {!! Form::select('preview_'.$f->fid.'_'.$fnum, $formFields, $f_flids, $selectArray) !!}
     </div>
 @endforeach

@@ -179,7 +179,7 @@ class NumberField extends BaseField {
         if($matching_record_fields->count() > 0) {
             $numberfield = $matching_record_fields->first();
             if($overwrite == true || $numberfield->number == "" || is_null($numberfield->number)) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $numberfield->number = $formFieldValue;
                 $numberfield->save();
                 $revision->oldData = RevisionController::buildDataArray($record);
@@ -187,7 +187,7 @@ class NumberField extends BaseField {
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
             $revision->oldData = RevisionController::buildDataArray($record);
             $revision->save();
         }
@@ -210,18 +210,27 @@ class NumberField extends BaseField {
     /**
      * Validates the record data for a field against the field's options.
      *
-     * @param  Field $field - The
-     * @param  mixed $value - Record data
+     * @param  Field $field - The field to validate
      * @param  Request $request
-     * @return string - Potential error message
+     * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
+     * @return array - Array of errors
      */
-    public function validateField($field, $value, $request) {
+    public function validateField($field, $request, $forceReq = false) {
         $req = $field->required;
+        $value = $request->{$field->flid};
+        $min = FieldController::getFieldOption($field, 'Min');
+        $max = FieldController::getFieldOption($field, 'Max');
 
-        if($req==1 && ($value==null | $value==""))
-            return $field->name."_required";
+        if(($req==1 | $forceReq) && ($value==null | $value==""))
+            return [$field->flid => $field->name.' is required'];
 
-        return 'field_validated';
+        if($min!='' && $value<$min)
+            return [$field->flid => $field->name.' can not be less than '.$min];
+
+        if($max!='' && $value>$max)
+            return [$field->flid => $field->name.' can not be more than '.$max];
+
+        return array();
     }
 
     /**

@@ -126,7 +126,7 @@ class Local extends AbstractAdapter
         $location = $this->applyPathPrefix($path);
         $this->ensureDirectory(dirname($location));
 
-        if (($size = file_put_contents($location, $contents, $this->writeFlags)) === false) {
+        if (($size = file_put_contents($location, $contents)) === false) {
             return false;
         }
 

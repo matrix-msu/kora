@@ -1,5 +1,5 @@
 <div class="form-group mt-xxxl">
-    <label>@if($field->required==1)<span class="oval-icon"></span> @endif{{$field->name}}: </label>
+    <label>@if($field->required==1)<span class="oval-icon"></span> @endif{{$field->name}}</label>
 </div>
 <input type="hidden" name={{$field->flid}} value="{{$field->flid}}">
 
@@ -36,7 +36,8 @@
     }
 ?>
 <div class="form-group mt-sm">
-    {!! Form::label('month_'.$field->flid,'Month: ') !!}
+    {!! Form::label('month_'.$field->flid,'Month') !!}
+    <span class="error-message"></span>
     {!! Form::select('month_'.$field->flid,['' => '',
         '1' => '01 - '.date("F", mktime(0, 0, 0, 1, 10)), '2' => '02 - '.date("F", mktime(0, 0, 0, 2, 10)),
         '3' => '03 - '.date("F", mktime(0, 0, 0, 3, 10)), '4' => '04 - '.date("F", mktime(0, 0, 0, 4, 10)),
@@ -48,8 +49,9 @@
 </div>
 
 <div class="form-group mt-sm">
-    {!! Form::label('day_'.$field->flid,'Day: ') !!}
-    <select name="day_{{$field->flid}}" class="single-select preset-clear-chosen-js" data-placeholder="Select a Day">
+    {!! Form::label('day_'.$field->flid,'Day') !!}
+    <span class="error-message"></span>
+    <select id="day_{{$field->flid}}" name="day_{{$field->flid}}" class="single-select preset-clear-chosen-js" data-placeholder="Select a Day">
         <option value=""></option>
         <?php
             $currDay=0;
@@ -79,8 +81,9 @@
 </div>
 
 <div class="form-group mt-sm">
-    {!! Form::label('year_'.$field->flid,'Year: ') !!}
-    <select name="year_{{$field->flid}}" class="single-select preset-clear-chosen-js" data-placeholder="Select a Year">
+    {!! Form::label('year_'.$field->flid,'Year') !!}
+    <span class="error-message"></span>
+    <select id="year_{{$field->flid}}" name="year_{{$field->flid}}" class="single-select preset-clear-chosen-js" data-placeholder="Select a Year">
         <option value=""></option>
         <?php
             $currYear=0;
@@ -118,7 +121,7 @@
             $eraVal = 'CE';
     ?>
     <div class="form-group mt-sm">
-        {!! Form::label('era'.$field->flid,'Era: ') !!}
+        {!! Form::label('era'.$field->flid,'Era') !!}
         {!! Form::select('era_'.$field->flid,['CE'=>'CE','BCE'=>'BCE'],$eraVal, ['class' => 'single-select']) !!}
     </div>
 @endif
