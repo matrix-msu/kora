@@ -10,7 +10,7 @@ Kora.Inputs.File = function() {
   var filename = $(".filename");
   var instruction = $(".instruction");
   var droppedFile = false;
-  
+
   // Remove selected profile pic
   function resetFileInput() {
     fileInput.replaceWith(fileInput.val('').clone(true));
@@ -19,7 +19,7 @@ Kora.Inputs.File = function() {
     picCont.html("<i class='icon icon-user'></i>");
     droppedFile = false;
   };
-  
+
   // Profile pic is added, populate profile pic label, set up remove event
   function newProfilePic(pic, name) {
     picCont.html("<img src='"+pic+"' alt='Profile Picture'>");
@@ -103,7 +103,6 @@ Kora.Inputs.File = function() {
         var ajaxData = new FormData(form.get(0)); // not supported by safari
 
         if (droppedFile) {
-          // This solution does not work with drag and drop, possibly need to change the file type
           ajaxData.delete('profile'); // not supported by safari
           ajaxData.append("profile", droppedFile);
         }
@@ -137,6 +136,6 @@ Kora.Inputs.File = function() {
       });
     }
   }
-  
+
   initializeFileUpload();
 }
