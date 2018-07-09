@@ -20,6 +20,6 @@
         @endif
     @endforeach
     <div class="form-group mt-xxxl">
-        {!! Form::submit('Advanced Search', ['class' => 'btn']) !!}
+        {!! Form::submit('Submit Advanced Search', ['class' => 'btn']) !!}
     </div>
 </form>

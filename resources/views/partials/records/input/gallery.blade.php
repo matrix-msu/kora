@@ -56,7 +56,7 @@
 ?>
 
 <div class="form-group mt-xxxl">
-    <label>@if($field->required==1)<span class="oval-icon"></span> @endif{{$field->name}}: </label>
+    <label>@if($field->required==1)<span class="oval-icon"></span> @endif{{$field->name}}</label>
     <span class="error-message"></span>
     {!! Form::hidden($field->flid,'f'.$field->flid.'u'.\Auth::user()->id, ['id'=>$field->flid]) !!}
 </div>

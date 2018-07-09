@@ -156,7 +156,7 @@ class TextField extends BaseField {
         if($matching_record_fields->count() > 0) {
             $textfield = $matching_record_fields->first();
             if($overwrite == true || $textfield->text == "" || is_null($textfield->text)) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $textfield->text = $formFieldValue;
                 $textfield->save();
                 $revision->oldData = RevisionController::buildDataArray($record);
@@ -164,7 +164,7 @@ class TextField extends BaseField {
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
             $revision->oldData = RevisionController::buildDataArray($record);
             $revision->save();
         }
@@ -189,17 +189,18 @@ class TextField extends BaseField {
      *
      * @param  Field $field - The field to validate
      * @param  Request $request
+     * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
      * @return array - Array of errors
      */
-    public function validateField($field, $request) {
+    public function validateField($field, $request, $forceReq = false) {
         $req = $field->required;
         $value = $request->{$field->flid};
         $regex = FieldController::getFieldOption($field, 'Regex');
 
-        if($req==1 && ($value==null | $value==""))
+        if(($req==1 | $forceReq) && ($value==null | $value==""))
             return [$field->flid => $field->name.' is required'];
 
-        if(($regex!=null | $regex!="") && !preg_match($regex,$value))
+        if($value!="" && ($regex!=null | $regex!="") && !preg_match($regex,$value))
             return [$field->flid => $field->name.' must match the regex pattern: '.$regex];
 
         return array();

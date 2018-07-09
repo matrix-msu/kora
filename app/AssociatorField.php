@@ -180,7 +180,7 @@ class AssociatorField extends BaseField {
         if($matching_record_fields->count() > 0) {
             $associatorfield = $matching_record_fields->first();
             if($overwrite == true || $associatorfield->hasRecords()) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $associatorfield->updateRecords($formFieldValue);
                 $associatorfield->save();
                 $revision->oldData = RevisionController::buildDataArray($record);
@@ -188,7 +188,7 @@ class AssociatorField extends BaseField {
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
             $revision->oldData = RevisionController::buildDataArray($record);
             $revision->save();
         }
@@ -214,15 +214,17 @@ class AssociatorField extends BaseField {
      *
      * @param  Field $field - The field to validate
      * @param  Request $request
+     * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
      * @return array - Array of errors
      */
-    public function validateField($field, $request) {
+    public function validateField($field, $request, $forceReq = false) {
         $req = $field->required;
+        $value = $request->{$field->flid};
 
-        if($req==1 && ($value==null | $value==""))
-            return $field->name."_required";
+        if(($req==1 | $forceReq) && ($value==null | $value==""))
+            return [$field->flid.'_chosen' => $field->name.' is required'];
 
-        return "field_validated";
+        return array();
     }
 
     /**

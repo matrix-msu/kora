@@ -14,6 +14,13 @@
     width: $max-site-width;
   }
 
+  @media screen and (max-width: $max-tablet-width) {
+    .edit-form {
+      max-width: unset;
+      width: unset;
+    }
+  }
+
   .edit-btn {
     margin-top: 30px;
   }

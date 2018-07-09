@@ -6,6 +6,7 @@
 
 @section('header')
   <section class="head">
+    <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
     <div class="inner-wrap center">
       <h1 class="title">
         @if ($user->profile)
@@ -22,12 +23,6 @@
           select "Update Profile"</p>
       @endif
     </div>
-
-    @if (\Auth::user()->admin)
-      <div class="back">
-        <a href="{{ url('admin/users') }}"><p><i class="icon icon-chevron"></i></p></a>
-      </div>
-    @endif
   </section>
 @stop
 
@@ -35,7 +30,7 @@
   <section class="form-container edit-form center">
 
     @if (\Auth::user()->admin && \Auth::user()->id != $user->id)
-      {!! Form::model($user,  ['method' => 'PATCH', 'action' => ['AdminController@update', $user->id], 'class' => 'user-form form-file-input']) !!}
+      {!! Form::model($user,  ['enctype' => 'multipart/form-data', 'method' => 'PATCH', 'action' => ['AdminController@update', $user->id], 'class' => 'user-form form-file-input']) !!}
     @else
       {!! Form::model($user,  ['enctype' => 'multipart/form-data', 'method' => 'PATCH', 'action' => ['Auth\UserController@update', $user->id], 'class' => 'user-form form-file-input']) !!}
     @endif
@@ -71,8 +66,10 @@
   @include('partials.user.javascripts')
 
   <script type="text/javascript">
-      validationUrl = '{{action('Auth\UserController@validateUserFields',['uid'=>$user->id])}}';
+      var validationUrl = '{{action('Auth\UserController@validateUserFields',['uid'=>$user->id])}}';
       var CSRFToken = '{{ csrf_token() }}';
-    Kora.User.Edit();
+      var userid = {{$user->id}};
+
+      Kora.User.Edit();
   </script>
 @stop

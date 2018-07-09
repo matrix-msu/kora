@@ -7,7 +7,7 @@
 //THIS WORKS IF YOU HAVE USED EITHER Exodus OR THE K2 Importer TOOLS TO MIGRATE YOUR KORA 2 DATA
 //Step 1
 ////Change your php includes of koraSearch.php from K2 to point at this file
-////In your file, use the namespace tag "namespace App\FieldHelpers"
+////(Because this remote file is independent, we can ignore this step) In your file, use the namespace tag "namespace App\FieldHelpers"
 //Step 2
 ////Replace your token, pid, and sid with a new search token, a k3 pid, and fid
 //Step 3
@@ -25,7 +25,7 @@
  * @var string - Kora 3 API URL
  */
 
-$kora3ApiURL = "FILL_THIS"; //"http://www.myKora3Install.com/api/search"
+define("kora3ApiURL","FILL_THIS"); //"http://www.myKora3Install.com/api/search"
 
 class kora3ApiExternalTool {
 
@@ -545,7 +545,7 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
     $data["format"] = "KORA_OLD";
 
     $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $GLOBALS['kora3ApiURL']);
+    curl_setopt($curl, CURLOPT_URL, kora3ApiURL);
     if(!empty($userInfo)) {
         curl_setopt($curl, CURLOPT_USERPWD, $userInfo["user"].":".$userInfo["pass"]);
         curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);

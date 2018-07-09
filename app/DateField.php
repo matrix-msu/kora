@@ -176,17 +176,15 @@ class DateField extends BaseField {
      * @param  Request $request
      */
     public function createNewRecordField($field, $record, $value, $request) {
-        if($request->input('year_' . $field->flid) != '') {
-            $this->flid = $field->flid;
-            $this->rid = $record->rid;
-            $this->fid = $field->fid;
-            $this->circa = $request->input('circa_' . $field->flid, '');
-            $this->month = $request->input('month_' . $field->flid);
-            $this->day = $request->input('day_' . $field->flid);
-            $this->year = $request->input('year_' . $field->flid);
-            $this->era = $request->input('era_' . $field->flid, 'CE');
-            $this->save();
-        }
+        $this->flid = $field->flid;
+        $this->rid = $record->rid;
+        $this->fid = $field->fid;
+        $this->circa = $request->input('circa_' . $field->flid, '');
+        $this->month = $request->input('month_' . $field->flid);
+        $this->day = $request->input('day_' . $field->flid);
+        $this->year = $request->input('year_' . $field->flid);
+        $this->era = $request->input('era_' . $field->flid, 'CE');
+        $this->save();
     }
 
     /**
@@ -225,7 +223,7 @@ class DateField extends BaseField {
         if($matching_record_fields->count() > 0) {
             $datefield = $matching_record_fields->first();
             if($overwrite == true || $datefield->month == "" || is_null($datefield->month)) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $datefield->circa = $request->input('circa_' . $flid, '');
                 $datefield->month = $request->input('month_' . $flid);
                 $datefield->day = $request->input('day_' . $flid);
@@ -237,7 +235,7 @@ class DateField extends BaseField {
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
             $revision->oldData = RevisionController::buildDataArray($record);
             $revision->save();
         }
@@ -266,9 +264,10 @@ class DateField extends BaseField {
      *
      * @param  Field $field - The field to validate
      * @param  Request $request
+     * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
      * @return array - Array of errors
      */
-    public function validateField($field, $request) {
+    public function validateField($field, $request, $forceReq = false) {
         $req = $field->required;
         $start = FieldController::getFieldOption($field,'Start');
         $end = FieldController::getFieldOption($field,'End');
@@ -276,7 +275,7 @@ class DateField extends BaseField {
         $day = $request->input('day_'.$field->flid,'');
         $year = $request->input('year_'.$field->flid,'');
 
-        if($req==1 && $month=='' && $day=='' && $year=='')
+        if(($req==1 | $forceReq) && $month=='' && $day=='' && $year=='')
             return [
                 'month_'.$field->flid.'_chosen' => $field->name.' is required',
                 'day_'.$field->flid.'_chosen' => ' ',
@@ -414,6 +413,10 @@ class DateField extends BaseField {
                 $value .= '<Year>' . utf8_encode('1990') . '</Year>';
                 $value .= '<Era>' . utf8_encode('CE OR BCE') . '</Era>';
                 $xml .= $value;
+                $xml .= '</' . Field::xmlTagClear($slug) . '>';
+
+                $xml .= '<' . Field::xmlTagClear($slug) . ' type="Date" simple="simple">';
+                $xml .= utf8_encode('MM/DD/YYYY');
                 $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
                 return $xml;

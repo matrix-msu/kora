@@ -159,7 +159,7 @@ class MultiSelectListField extends BaseField {
         if($matching_record_fields->count() > 0) {
             $multiselectlistfield = $matching_record_fields->first();
             if($overwrite == true || $multiselectlistfield->options == "" || is_null($multiselectlistfield->options)) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $multiselectlistfield->options = implode("[!]", $formFieldValue);
                 $multiselectlistfield->save();
                 $revision->oldData = RevisionController::buildDataArray($record);
@@ -167,7 +167,7 @@ class MultiSelectListField extends BaseField {
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
             $revision->oldData = RevisionController::buildDataArray($record);
             $revision->save();
         }
@@ -192,17 +192,18 @@ class MultiSelectListField extends BaseField {
      *
      * @param  Field $field - The field to validate
      * @param  Request $request
+     * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
      * @return array - Array of errors
      */
-    public function validateField($field, $request) {
+    public function validateField($field, $request, $forceReq = false) {
         $req = $field->required;
         $value = $request->{$field->flid};
         $list = MultiSelectListField::getList($field);
 
-        if($req==1 && ($value==null | $value==""))
+        if(($req==1 | $forceReq) && ($value==null | $value==""))
             return ['list'.$field->flid.'_chosen' => $field->name.' is required'];
 
-        if(sizeof(array_diff($value,$list))>0)
+        if($value!=null && sizeof(array_diff($value,$list))>0)
             return ['list'.$field->flid.'_chosen' => $field->name.' has an invalid value not in the list'];
 
         return array();

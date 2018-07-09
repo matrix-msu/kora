@@ -329,13 +329,14 @@ class GalleryField extends FileTypeField  {
      *
      * @param  Field $field - The field to validate
      * @param  Request $request
+     * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
      * @return array - Array of errors
      */
-    public function validateField($field, $request) {
+    public function validateField($field, $request, $forceReq = false) {
         $req = $field->required;
         $value = 'f'.$field->flid.'u'.Auth::user()->id;
 
-        if($req==1) {
+        if($req==1 | $forceReq) {
             if(glob(config('app.base_path').'storage/app/tmpFiles/'.$value.'/*.*') == false)
                 return [$field->flid => $field->name.' is required'];
         }
@@ -414,6 +415,10 @@ class GalleryField extends FileTypeField  {
                 $xml .= '<File>';
                 $xml .= '<Name>' . utf8_encode('so on...') . '</Name>';
                 $xml .= '</File>';
+                $xml .= '</' . Field::xmlTagClear($slug) . '>';
+
+                $xml .= '<' . Field::xmlTagClear($slug) . ' type="Gallery" simple="simple">';
+                $xml .= utf8_encode('FILENAME');
                 $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
                 return $xml;

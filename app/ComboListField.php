@@ -303,7 +303,7 @@ class ComboListField extends BaseField {
         if($matching_record_fields->count() > 0) {
             $combolistfield = $matching_record_fields->first();
             if($overwrite == true || $combolistfield->options == "" || is_null($combolistfield->options)) {
-                $revision = RevisionController::storeRevision($record->rid,'edit');
+                $revision = RevisionController::storeRevision($record->rid,Revision::EDIT);
 
                 $combolistfield->updateData($request->input($field->flid.'_val'));
 
@@ -312,7 +312,7 @@ class ComboListField extends BaseField {
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid,'edit');
+            $revision = RevisionController::storeRevision($record->rid,Revision::EDIT);
             $revision->oldData = RevisionController::buildDataArray($record);
             $revision->save();
         }
@@ -384,16 +384,17 @@ class ComboListField extends BaseField {
      *
      * @param  Field $field - The field to validate
      * @param  Request $request
+     * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
      * @return array - Array of errors
      */
-    public function validateField($field, $request) {
+    public function validateField($field, $request, $forceReq = false) {
         $req = $field->required;
         $flid = $field->flid;
 
-        if($req==1 && !isset($request[$flid.'_val']))
-            return $field->name."_required";
+        if(($req==1 | $forceReq) && !isset($request[$flid.'_combo_one']))
+            return [$field->flid => $field->name.' is required'];
 
-        return 'field_validated';
+        return array();
     }
 
     /**

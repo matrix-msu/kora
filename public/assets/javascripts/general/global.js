@@ -1,5 +1,6 @@
-function getBrowserWidth() {
+function getBrowserWidth() { // this does not account for the width of the scrollbar, therefore we need to add window.innerWidth here I believe - not accounting for this was causing issues with the sidebar blanket at certain widths
   return Math.max(
+    window.innerWidth,
     document.body.scrollWidth,
     document.documentElement.scrollWidth,
     document.body.offsetWidth,
@@ -81,7 +82,7 @@ function isScrolledIntoView($elem) {
 function setFixedElement(load = false) {
   if ($('.pre-fixed-js').length > 0) {
     var $elementToFix = $('.pre-fixed-js');
-    var $elementFixWrapper = $('.pre-fixed-js').parent();
+    var $elementFixWrapper = $elementToFix.parent();
 
     if (!isScrolledIntoView($elementFixWrapper)) {
       if (load) {

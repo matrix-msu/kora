@@ -160,7 +160,10 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/projects/{pid}/forms/{fid}/records/import', 'RecordController@importRecordsView');
     Route::post('/projects/{pid}/forms/{fid}/records/matchup', 'ImportController@matchupFields');
     Route::post('/projects/{pid}/forms/{fid}/records/validate', 'RecordController@validateRecord');
+    Route::post('/projects/{pid}/forms/{fid}/records/validateMass', 'RecordController@validateMassRecord');
     Route::post('/projects/{pid}/forms/{fid}/records/importRecord', 'ImportController@importRecord');
+    Route::post('/projects/{pid}/forms/{fid}/records/importRecordFailed', 'ImportController@downloadFailedRecords');
+    Route::post('/projects/{pid}/forms/{fid}/records/importReasonsFailed', 'ImportController@downloadFailedReasons');
     Route::get('/projects/{pid}/forms/{fid}/importExample/{type}', 'ImportController@exportSample');
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}', 'RecordController@show');
     Route::delete('/projects/{pid}/forms/{fid}/records/{rid}', 'RecordController@destroy');
@@ -178,14 +181,16 @@ Route::group(['middleware' => 'web'], function () {
 
 //user routes
     Route::get('/user', 'Auth\UserController@redirect');
+    Route::get('/auth/activate', 'Auth\UserController@activateshow');
+    Route::get('/user/activate/{token}', 'Auth\UserController@activate');
     Route::get('/user/{uid}/edit', 'Auth\UserController@editProfile');
+    Route::get('/user/{uid}/preferences', 'Auth\UserController@preferences');
     Route::get('/user/{uid}/{section?}', 'Auth\UserController@index');
     Route::delete('/user/{uid}/delete', 'Auth\UserController@delete');
     Route::patch('/user/validate/{uid}', 'Auth\UserController@validateUserFields');
     Route::patch('/user/changepw', 'Auth\UserController@changepw');
     Route::patch('/user/{uid}/update', 'Auth\UserController@update');
-    Route::get('/auth/activate', 'Auth\UserController@activateshow');
-    Route::get('/user/activate/{token}', 'Auth\UserController@activate');
+    Route::patch('/user/{uid}/preferences', 'Auth\UserController@updatePreferences');
     Route::post('/auth/resendActivate', 'Auth\UserController@resendActivation');
     Route::post('/auth/activator', 'Auth\UserController@activator');
     Route::post('/user/profile', 'Auth\UserController@changeprofile');
