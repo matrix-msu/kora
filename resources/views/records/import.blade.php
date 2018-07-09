@@ -98,6 +98,8 @@
         var fidForFormData = '{{$form->fid}}';
         var matchUpFieldsUrl = '{{ action('ImportController@matchupFields',['pid'=>$form->pid,'fid'=>$form->fid])}}';
         var importRecordUrl = '{{ action('ImportController@importRecord',['pid'=>$form->pid,'fid'=>$form->fid]) }}';
+        var downloadFailedUrl = '{{ action('ImportController@downloadFailedRecords',['pid'=>$form->pid,'fid'=>$form->fid]) }}';
+        var downloadReasonsUrl = '{{ action('ImportController@downloadFailedReasons',['pid'=>$form->pid,'fid'=>$form->fid]) }}';
         var showRecordUrl = '{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}';
         var CSRFToken = '{{ csrf_token() }}';
 

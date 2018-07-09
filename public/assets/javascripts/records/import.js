@@ -2,6 +2,11 @@ var Kora = Kora || {};
 Kora.Records = Kora.Records || {};
 
 Kora.Records.Import = function() {
+    var droppedRecord
+    var droppedFile
+
+    var importType = '';
+    var failedRecords = [];
 
     function initializeFormProgression() {
         $('.record-input-js').change(function () {
@@ -25,7 +30,8 @@ Kora.Records.Import = function() {
             var recordMatchSection = $('.recordmatch-section');
             var recordResultsSection = $('.recordresults-section');
 
-            if(recordInput.val() != '') {
+            if (recordInput.val() != '' || droppedRecord || droppedFile) { // this does not work if we drag n drop because this value is always empty - perhaps I can append the dropped file to this input in order to make this existing code work
+              if (recordInput.val() != '') {
                 fd = new FormData();
                 fd.append("records",recordInput[0].files[0]);
                 var name = recordInput.val();
@@ -35,6 +41,14 @@ Kora.Records.Import = function() {
                 }
                 fd.append("fid",fidForFormData);
                 fd.append('_token', CSRFToken);
+
+for ( var pair of fd.entries() ) {
+  console.log(pair[0] + ', ' + pair[1]);
+  //console.log(typeof pair[1]);
+  if (typeof pair[1] === 'object') {
+    console.log(pair[1]);
+  }
+}
 
                 $.ajax({
                     url: matchUpFieldsUrl,
@@ -83,7 +97,7 @@ Kora.Records.Import = function() {
                             recordMatchSection.addClass('hidden');
                             recordResultsSection.removeClass('hidden');
 
-                            //initialize matchup
+                            // //initialize matchup
                             tags = [];
                             slugs = [];
                             table = {};
@@ -150,7 +164,181 @@ Kora.Records.Import = function() {
                         });
                     }
                 });
+              } else {
+                fd = new FormData();
+                
+                if (droppedRecord) {
+                  fd.append("records", droppedRecord);
+                  var name = droppedRecord.type; // this works
+                  fd.append('type', name);
+                }
+
+                if (droppedFile) {
+                  fd.append("files", droppedFile);
+                }
+
+                fd.append("fid",fidForFormData);
+                fd.append('_token', CSRFToken);
+
+                $.ajax({
+                    url: matchUpFieldsUrl,
+                    type: 'POST',
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        recordFileLink.removeClass('active');
+                        recordMatchLink.addClass('active');
+                        recordMatchLink.addClass('underline-middle');
+
+                        recordFileSection.addClass('hidden');
+                        recordMatchSection.removeClass('hidden');
+
+                        recordMatchSection.html(data['matchup']);
+
+                        $('.single-select').chosen({
+                            width: '100%',
+                        });
+
+                        //Get the records
+                        var importRecs = data['records'];
+                        importType = data['type'];
+
+                        //initialize counter
+                        done = 0;
+                        succ = 0;
+                        total = Object.keys(importRecs).length;
+                        var progressText = $('.progress-text-js');
+                        var progressFill = $('.progress-fill-js');
+                        progressText.text(succ+' of '+total+' Records Submitted');
+
+                        //Click to start actually importing records
+                        recordMatchSection.on('click', '.final-import-btn-js', function() {
+                            //Remove the links and change header info
+                            $('.sections-remove-js').remove();
+                            $('.header-text-js').text('Importing Records');
+                            $('.desc-text-js').text(
+                                'The import has started, depending on the number of records, it may take several ' +
+                                'minutes to complete. Do not leave this page or close your browser until completion. ' +
+                                'When the import is complete, you can see a summary of all the data that was saved. '
+                            );
+
+                            recordMatchSection.addClass('hidden');
+                            recordResultsSection.removeClass('hidden');
+
+                            //initialize matchup
+                            tags = [];
+                            slugs = [];
+                            table = {};
+                            $('.get-tag-js').each(function(){
+                                tags.push($(this).val());
+                            });
+                            $('.get-slug-js').each(function(){
+                                slugs.push($(this).attr('slug'));
+                            });
+                            for(j=0; j<slugs.length; j++){
+                                table[tags[j]] = slugs[j];
+                            }
+
+                            //foreach record in the dataset
+                            for(var kid in importRecs) {
+                                // skip loop if the property is from prototype
+                                if(!importRecs.hasOwnProperty(kid)) continue;
+
+                                //ajax to store record
+                                $.ajax({
+                                    url: importRecordUrl,
+                                    type: 'POST',
+                                    data: {
+                                        "_token": CSRFToken,
+                                        "record": importRecs[kid],
+                                        "kid": kid,
+                                        "table": table,
+                                        "type": importType
+                                    },
+                                    local_kid: kid,
+                                    success: function(data) {
+                                        succ++;
+                                        progressText.text(succ+' of '+total+' Records Submitted');
+
+                                        done++;
+                                        //update progress bar
+                                        percent = (done/total)*100;
+                                        if(percent<7)
+                                            percent = 7;
+                                        progressFill.attr('style','width:'+percent+'%');
+                                        progressText.text(succ+' of '+total+' Records Submitted');
+
+                                        //if done = total
+                                        if(done==total) {
+                                            progressText.html(succ+' of '+total+' records successfully imported! Click <a class="success-link" href="'+showRecordUrl+'">here to visit the records page</a>.'
+                                                + ' Or click <a class="success-link failed-records-js" href="#">here to download any records</a>'
+                                                + '<form action="'+downloadFailedUrl+'" method="post" class="records-form-js" style="display:none;">'
+                                                + '<input type="hidden" name="type" value="'+importType+'"/>'
+                                                + '<input type="hidden" name="_token" value="'+CSRFToken+'"/>'
+                                                + '</form>'
+                                                + ' that failed to upload, and click <a class="success-link failed-reasons-js" href="#">here to download a report</a>'
+                                                + '<form action="'+downloadReasonsUrl+'" method="post" class="reasons-form-js" style="display:none;">'
+                                                + '<input type="hidden" name="_token" value="'+CSRFToken+'"/>'
+                                                + '</form>'
+                                                + ' of why they failed.');
+                                        }
+                                    },
+                                    error: function(data) {
+                                        failedRecords.push([this.local_kid,importRecs[this.local_kid],data]);
+
+                                        done++;
+                                        //update progress bar
+                                        percent = (done/total)*100;
+                                        if(percent<7)
+                                            percent = 7;
+                                        progressFill.attr('style','width:'+percent+'%');
+                                        progressText.text(succ+' of '+total+' Records Submitted');
+
+                                        //if done = total
+                                        if(done==total) {
+                                            progressText.html(succ+' of '+total+' records successfully imported! Click <a class="success-link" href="'+showRecordUrl+'">here to visit the records page</a>.'
+                                                + ' Or click <a class="success-link failed-records-js" href="#">here to download any records</a>'
+                                                + '<form action="'+downloadFailedUrl+'" method="post" class="records-form-js" style="display:none;">'
+                                                + '<input type="hidden" name="type" value="'+importType+'"/>'
+                                                + '<input type="hidden" name="_token" value="'+CSRFToken+'"/>'
+                                                + '</form>'
+                                                + ' that failed to upload, and click <a class="success-link failed-reasons-js" href="#">here to download a report</a>'
+                                                + '<form action="'+downloadReasonsUrl+'" method="post" class="reasons-form-js" style="display:none;">'
+                                                + '<input type="hidden" name="_token" value="'+CSRFToken+'"/>'
+                                                + '</form>'
+                                                + ' of why they failed.');
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+              }
             }
+        });
+
+        $('.progress-text-js').on('click', '.failed-records-js', function(e) {
+            var $recForm = $('.records-form-js');
+
+            var input = $("<input>")
+                .attr("type", "hidden")
+                .attr("name", "failures").val(JSON.stringify(failedRecords));
+            $recForm.append($(input));
+
+            $recForm.submit();
+        });
+
+        $('.progress-text-js').on('click', '.failed-reasons-js', function(e) {
+            var $recForm = $('.reasons-form-js');
+
+            var input = $("<input>")
+                .attr("type", "hidden")
+                .attr("name", "failures").val(JSON.stringify(failedRecords));
+            $recForm.append($(input));
+
+            $recForm.submit();
         });
     }
 
@@ -217,10 +405,10 @@ Kora.Records.Import = function() {
     }
 
     // Check for Drag and Drop Support on the browser //TODO::fix drag and drop....
-    // var isAdvancedUpload = function() {
-    //     var div = document.createElement('div');
-    //     return (('draggable' in div) || ('ondragstart' in div && 'ondrop' in div)) && 'FormData' in window && 'FileReader' in window;
-    // }();
+    var isAdvancedUpload = function() {
+        var div = document.createElement('div');
+        return (('draggable' in div) || ('ondragstart' in div && 'ondrop' in div)) && 'FormData' in window && 'FileReader' in window;
+    }();
 
     //We're basically replicating what profile pic does, just for 3 file inputs on a single page
     function initializeFileUpload() {
@@ -261,41 +449,50 @@ Kora.Records.Import = function() {
         });
 
         // Drag and Drop
-        // if (isAdvancedUpload) {
-        //     recordButton.addClass('has-advanced-upload');
-        //     fileButton.addClass('has-advanced-upload');
-        //
-        //     recordButton.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) { e.preventDefault(); e.stopPropagation(); })
-        //         .on('dragover dragenter', function() { recordButton.addClass('is-dragover'); })
-        //         .on('dragleave dragend drop', function() { recordButton.removeClass('is-dragover'); })
-        //         .on('drop', function(e) {
-        //             e.stopPropagation();
-        //             e.preventDefault();
-        //
-        //             recordDroppedFile = e.originalEvent.dataTransfer.files[0];
-        //             var reader = new FileReader();
-        //             reader.onload = function (e) {
-        //                 newProfilePic('record', e.target.result, recordDroppedFile.name);
-        //                 recordDroppedFile = e.target.result;
-        //             };
-        //             reader.readAsDataURL(recordDroppedFile);
-        //         });
-        //     fileButton.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) { e.preventDefault(); e.stopPropagation(); })
-        //         .on('dragover dragenter', function() { fileButton.addClass('is-dragover'); })
-        //         .on('dragleave dragend drop', function() { fileButton.removeClass('is-dragover'); })
-        //         .on('drop', function(e) {
-        //             e.stopPropagation();
-        //             e.preventDefault();
-        //
-        //             fileDroppedFile = e.originalEvent.dataTransfer.files[0];
-        //             var reader = new FileReader();
-        //             reader.onload = function (e) {
-        //                 newProfilePic('file', e.target.result, fileDroppedFile.name);
-        //                 fileDroppedFile = e.target.result;
-        //             };
-        //             reader.readAsDataURL(fileDroppedFile);
-        //         });
-        // }
+        // detect and disable if we are on Safari
+        if (isAdvancedUpload && window.safari == undefined && navigator.vendor != 'Apple Computer, Inc.') {
+            recordButton.addClass('has-advanced-upload');
+            fileButton.addClass('has-advanced-upload');
+
+            recordButton.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) { e.preventDefault(); e.stopPropagation(); })
+                .on('dragover dragenter', function() { recordButton.addClass('is-dragover'); })
+                .on('dragleave dragend drop', function() { recordButton.removeClass('is-dragover'); })
+                .on('drop', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+
+                    recordDroppedFile = e.originalEvent.dataTransfer.files[0];
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        newProfilePic('record', e.target.result, recordDroppedFile.name);
+                        recordDroppedFile = e.target.result;
+                    };
+                    reader.readAsDataURL(recordDroppedFile);
+                    droppedRecord = recordDroppedFile;
+                    // console.log(recordDroppedFile);
+
+                    $('.record-input-js').trigger('change');
+                });
+            fileButton.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) { e.preventDefault(); e.stopPropagation(); })
+                .on('dragover dragenter', function() { fileButton.addClass('is-dragover'); })
+                .on('dragleave dragend drop', function() { fileButton.removeClass('is-dragover'); })
+                .on('drop', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+
+                    fileDroppedFile = e.originalEvent.dataTransfer.files[0];
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        newProfilePic('file', e.target.result, fileDroppedFile.name);
+                        fileDroppedFile = e.target.result;
+                    };
+                    reader.readAsDataURL(fileDroppedFile);
+                    droppedFile = fileDroppedFile;
+                    // console.log(fileDroppedFile);
+
+                    $('.record-input-js').trigger('change');
+                });
+        }
     }
 
     initializeFormProgression();

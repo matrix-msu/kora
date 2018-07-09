@@ -1,0 +1,26 @@
+.user-preferences-body {
+  background: palette('gray', background);
+  font-family: $ubuntu;
+  min-height: 100vh;
+}
+
+.user-preferences {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  .edit-preferences {
+    margin: #{map-get($spacing, xxxl)} auto;
+    max-width: calc(#{ $max-site-width } - 600px);
+    width: $max-site-width;
+  }
+
+  .head {
+    .icon-check-circle {
+      height: 30px;
+      margin-right: 30px;
+      width: 30px;
+    }
+  }
+
+  @import 'user-preferences/form';
+}

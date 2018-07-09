@@ -90,18 +90,28 @@ class GeneratedListField extends BaseField {
     public function updateOptions($field, Request $request) {
         $reqDefs = $request->default;
         $default = $reqDefs[0];
-        for($i=1;$i<sizeof($reqDefs);$i++) {
-            $default .= '[!]'.$reqDefs[$i];
+        if(!is_null($default)) {
+            for($i = 1; $i < sizeof($reqDefs); $i++) {
+                $default .= '[!]' . $reqDefs[$i];
+            }
+        }
+
+        if($request->regex!='') {
+            $regArray = str_split($request->regex);
+            if($regArray[0]!=end($regArray))
+                $request->regex = '/'.$request->regex.'/';
         }
 
         $reqOpts = $request->options;
         $options = $reqOpts[0];
-        for($i=1;$i<sizeof($reqOpts);$i++) {
-            if($request->regex!='' && !preg_match($request->regex, $reqOpts[$i])) {
-                return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
-                    ->withInput()->with('k3_global_error', 'default_regex_mismatch')->with('default_regex_mismatch', $reqOpts[$i]);
+        if(!is_null($options)) {
+            for($i = 1; $i < sizeof($reqOpts); $i++) {
+                if($request->regex != '' && !preg_match($request->regex, $reqOpts[$i])) {
+                    return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
+                        ->withInput()->with('k3_global_error', 'default_regex_mismatch')->with('default_regex_mismatch', $reqOpts[$i]);
+                }
+                $options .= '[!]' . $reqOpts[$i];
             }
-            $options .= '[!]'.$reqOpts[$i];
         }
 
         $field->updateRequired($request->required);
@@ -161,7 +171,7 @@ class GeneratedListField extends BaseField {
         if($matching_record_fields->count() > 0) {
             $generatedlistfield = $matching_record_fields->first();
             if($overwrite == true || $generatedlistfield->options == "" || is_null($generatedlistfield->options)) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $generatedlistfield->options = implode("[!]", $formFieldValue);
                 $generatedlistfield->save();
                 $revision->oldData = RevisionController::buildDataArray($record);
@@ -169,7 +179,7 @@ class GeneratedListField extends BaseField {
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
             $revision->oldData = RevisionController::buildDataArray($record);
             $revision->save();
         }
@@ -192,24 +202,27 @@ class GeneratedListField extends BaseField {
     /**
      * Validates the record data for a field against the field's options.
      *
-     * @param  Field $field - The
-     * @param  mixed $value - Record data
+     * @param  Field $field - The field to validate
      * @param  Request $request
-     * @return string - Potential error message
+     * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
+     * @return array - Array of errors
      */
-    public function validateField($field, $value, $request) {
+    public function validateField($field, $request, $forceReq = false) {
         $req = $field->required;
+        $value = $request->{$field->flid};
         $regex = FieldController::getFieldOption($field, 'Regex');
 
-        if($req==1 && ($value==null | $value==""))
-            return $field->name."_required";
+        if(($req==1 | $forceReq) && ($value==null | $value==""))
+            return ['list'.$field->flid.'_chosen' => $field->name.' is required'];
 
-        foreach($value as $opt) {
-            if(($regex!=null | $regex!="") && !preg_match($regex,$opt))
-                return $field->name."_".$opt."regex";
+		if($value!=null) {
+	        foreach($value as $opt) {
+	            if(($regex!=null | $regex!="") && !preg_match($regex,$opt))
+	                return ['list'.$field->flid.'_chosen' => $field->name.' value, '.$opt.', must match the regex pattern: '.$regex];
+        	}
         }
 
-        return "field_validated";
+        return array();
     }
 
     /**

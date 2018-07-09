@@ -61,9 +61,10 @@ Kora.FormAssociations.Index = function() {
   self.deleteAssociated = function(assocfid) {
     $.ajax({
       url: destroyAssociationPath,
-      type: 'DELETE',
+      type: 'POST',
       data: {
         "_token": CSRFToken,
+        "_method": 'delete',
         "assocfid": assocfid
       },
       success: function(response) {
@@ -82,9 +83,10 @@ Kora.FormAssociations.Index = function() {
   self.deleteAssociatedReverse = function(assocfid) {
     $.ajax({
       url: destroyReverseAssociationPath,
-      type: 'DELETE',
+      type: 'POST',
       data: {
         "_token": CSRFToken,
+        "_method": 'delete',
         "assocfid": assocfid
       },
       success: function(response) {

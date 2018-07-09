@@ -3,6 +3,7 @@
 use App\DownloadTracker;
 use App\Field;
 use App\Form;
+use App\Record;
 use App\TextField;
 use Illuminate\Support\Facades\DB;
 use App\Metadata;
@@ -572,9 +573,11 @@ class ExportController extends Controller {
                                     $akids = array();
                                     $vals = explode(',',$data->value);
                                     foreach($vals as $akid) {
-                                        $arid = explode('-',$akid)[2];
-                                        array_push($assocRIDColl,$arid);
-                                        array_push($akids, $akid);
+                                        if(Record::isKIDPattern($akid)) {
+                                            $arid = explode('-',$akid)[2];
+                                            array_push($assocRIDColl,$arid);
+                                            array_push($akids, $akid);
+                                        }
                                     }
 
                                     $ainfo = [
@@ -661,6 +664,9 @@ class ExportController extends Controller {
 
                         switch($data->type) {
                             case Field::_TEXT:
+                                $records[$kid][$slug] = $data->value;
+                                break;
+                            case Field::_NUMBER:
                                 $records[$kid][$slug] = $data->value;
                                 break;
                             case Field::_RICH_TEXT:

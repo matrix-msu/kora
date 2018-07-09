@@ -9,6 +9,7 @@ use App\Form;
 use App\FormGroup;
 use App\GalleryField;
 use App\GeneratedListField;
+use App\GeolocatorField;
 use App\ListField;
 use App\Metadata;
 use App\MultiSelectListField;
@@ -236,6 +237,7 @@ class ImportController extends Controller {
 
         $recRequest = new Request();
         $recRequest['userId'] = \Auth::user()->id;
+        $recRequest['api'] = true;
 
         if($request->type==self::XML) {
             $record = simplexml_load_string($record);
@@ -250,6 +252,7 @@ class ImportController extends Controller {
                 $fieldSlug = $matchup[$key];
                 $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
                 $type = $field->attributes()->type;
+                $simple = !is_null($field->attributes()->simple);
 
                 //Type wasnt provided so we have to hunt for it
                 if(is_null($type))
@@ -289,12 +292,22 @@ class ImportController extends Controller {
                     $recRequest[$flid] = '';
                     $recRequest[$flid . '_val'] = $values;
                 } else if($type == 'Date') {
-                    $recRequest['circa_' . $flid] = (string)$field->Circa;
-                    $recRequest['month_' . $flid] = (string)$field->Month;
-                    $recRequest['day_' . $flid] = (string)$field->Day;
-                    $recRequest['year_' . $flid] = (string)$field->Year;
-                    $recRequest['era_' . $flid] = (string)$field->Era;
-                    $recRequest[$flid] = '';
+                    if($simple) {
+                        $dateParts = explode('/',(string)$field);
+                        $recRequest['circa_' . $flid] = 0;
+                        $recRequest['month_' . $flid] = $dateParts[0];
+                        $recRequest['day_' . $flid] = $dateParts[1];
+                        $recRequest['year_' . $flid] = $dateParts[2];
+                        $recRequest['era_' . $flid] = 'CE';
+                        $recRequest[$flid] = '';
+                    } else {
+                        $recRequest['circa_' . $flid] = (string)$field->Circa;
+                        $recRequest['month_' . $flid] = (string)$field->Month;
+                        $recRequest['day_' . $flid] = (string)$field->Day;
+                        $recRequest['year_' . $flid] = (string)$field->Year;
+                        $recRequest['era_' . $flid] = (string)$field->Era;
+                        $recRequest[$flid] = '';
+                    }
                 } else if($type == 'Schedule') {
                     $events = array();
                     foreach($field->Event as $event) {
@@ -305,10 +318,24 @@ class ImportController extends Controller {
                 } else if($type == 'Geolocator') {
                     $geo = array();
                     foreach($field->Location as $loc) {
+                        $geoReq = new Request();
+
+                        if(!is_null($loc->Lat)) {
+                            $geoReq->type = 'latlon';
+                            $geoReq->lat = (float)$loc->Lat;
+                            $geoReq->lon = (float)$loc->Lon;
+                        } else if(!is_null($loc->Zone)) {
+                            $geoReq->type = 'utm';
+                            $geoReq->zone = (string)$loc->Zone;
+                            $geoReq->east = (float)$loc->East;
+                            $geoReq->north = (float)$loc->North;
+                        } else if(!is_null($loc->Address)) {
+                            $geoReq->type = 'geo';
+                            $geoReq->addr = (string)$loc->Address;
+                        }
+
                         $string = '[Desc]' . $loc->Desc . '[Desc]';
-                        $string .= '[LatLon]' . $loc->Lat . ',' . $loc->Lon . '[LatLon]';
-                        $string .= '[UTM]' . $loc->Zone . ':' . $loc->East . ',' . $loc->North . '[UTM]';
-                        $string .= '[Address]' . $loc->Address . '[Address]';
+                        $string .= GeolocatorField::geoConvert($geoReq);
                         array_push($geo, $string);
                     }
                     $recRequest[$flid] = $geo;
@@ -328,12 +355,20 @@ class ImportController extends Controller {
                     } else {
                         mkdir($newDir, 0775, true);
                     }
-                    foreach($field->File as $file) {
-                        $name = (string)$file->Name;
+                    if($simple) {
+                        $name = (string)$field;
                         //move file from imp temp to tmp files
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
                         //add input for this file
                         array_push($files, $name);
+                    } else {
+                        foreach ($field->File as $file) {
+                            $name = (string)$file->Name;
+                            //move file from imp temp to tmp files
+                            copy($currDir . '/' . $name, $newDir . '/' . $name);
+                            //add input for this file
+                            array_push($files, $name);
+                        }
                     }
                     $recRequest['file' . $flid] = $files;
                     $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;
@@ -369,30 +404,56 @@ class ImportController extends Controller {
                         mkdir($newDir . '/thumbnail', 0775, true);
                         mkdir($newDir . '/medium', 0775, true);
                     }
-                    foreach($field->File as $file) {
-                        $name = (string)$file->Name;
+                    if($simple) {
+                        $name = (string)$field;
                         //move file from imp temp to tmp files
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
                         copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                         copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
-                        if(file_exists($currDir . '/thumbnail'))
+                        if (file_exists($currDir . '/thumbnail'))
                             copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                         else {
-                            $smallParts = explode('x',FieldController::getFieldOption($field,'ThumbSmall'));
+                            $smallParts = explode('x', FieldController::getFieldOption($field, 'ThumbSmall'));
                             $tImage = new \Imagick($newDir . '/' . $name);
-                            $tImage->thumbnailImage($smallParts[0],$smallParts[1],true);
+                            $tImage->thumbnailImage($smallParts[0], $smallParts[1], true);
                             $tImage->writeImage($newDir . '/thumbnail/' . $name);
                         }
-                        if(file_exists($currDir . '/medium'))
+                        if (file_exists($currDir . '/medium'))
                             copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
                         else {
-                            $largeParts = explode('x',FieldController::getFieldOption($field,'ThumbLarge'));
+                            $largeParts = explode('x', FieldController::getFieldOption($field, 'ThumbLarge'));
                             $mImage = new \Imagick($newDir . '/' . $name);
-                            $mImage->thumbnailImage($largeParts[0],$largeParts[1],true);
+                            $mImage->thumbnailImage($largeParts[0], $largeParts[1], true);
                             $mImage->writeImage($newDir . '/medium/' . $name);
                         }
                         //add input for this file
                         array_push($files, $name);
+                    } else {
+                        foreach ($field->File as $file) {
+                            $name = (string)$file->Name;
+                            //move file from imp temp to tmp files
+                            copy($currDir . '/' . $name, $newDir . '/' . $name);
+                            copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
+                            copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
+                            if (file_exists($currDir . '/thumbnail'))
+                                copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
+                            else {
+                                $smallParts = explode('x', FieldController::getFieldOption($field, 'ThumbSmall'));
+                                $tImage = new \Imagick($newDir . '/' . $name);
+                                $tImage->thumbnailImage($smallParts[0], $smallParts[1], true);
+                                $tImage->writeImage($newDir . '/thumbnail/' . $name);
+                            }
+                            if (file_exists($currDir . '/medium'))
+                                copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
+                            else {
+                                $largeParts = explode('x', FieldController::getFieldOption($field, 'ThumbLarge'));
+                                $mImage = new \Imagick($newDir . '/' . $name);
+                                $mImage->thumbnailImage($largeParts[0], $largeParts[1], true);
+                                $mImage->writeImage($newDir . '/medium/' . $name);
+                            }
+                            //add input for this file
+                            array_push($files, $name);
+                        }
                     }
                     $recRequest['file' . $flid] = $files;
                     $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;
@@ -465,10 +526,24 @@ class ImportController extends Controller {
                 } else if($type == 'Geolocator') {
                     $geo = array();
                     foreach($field['value'] as $loc) {
+                        $geoReq = new Request();
+
+                        if(isset($loc['lat'])) {
+                            $geoReq->type = 'latlon';
+                            $geoReq->lat = $loc['lat'];
+                            $geoReq->lon = $loc['lon'];
+                        } else if(isset($loc['zone'])) {
+                            $geoReq->type = 'utm';
+                            $geoReq->zone = $loc['zone'];
+                            $geoReq->east = $loc['east'];
+                            $geoReq->north = $loc['north'];
+                        } else if(isset($loc['address'])) {
+                            $geoReq->type = 'geo';
+                            $geoReq->addr = $loc['address'];
+                        }
+
                         $string = '[Desc]' . $loc['desc'] . '[Desc]';
-                        $string .= '[LatLon]' . $loc['lat'] . ',' . $loc['lon'] . '[LatLon]';
-                        $string .= '[UTM]' . $loc['zone'] . ':' . $loc['east'] . ',' . $loc['north'] . '[UTM]';
-                        $string .= '[Address]' . $loc['address'] . '[Address]';
+                        $string .= GeolocatorField::geoConvert($geoReq);
                         array_push($geo, $string);
                     }
                     $recRequest[$flid] = $geo;
@@ -563,7 +638,74 @@ class ImportController extends Controller {
         }
 
         $recCon = new RecordController();
-        $recCon->store($pid,$fid,$recRequest);
+        return $recCon->store($pid,$fid,$recRequest);
+    }
+
+    /**
+     * Downloads the file with all the failed records.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     */
+    public function downloadFailedRecords($pid, $fid, Request $request) {
+        $failedRecords = json_decode($request->failures);
+        $form = FormController::getForm($fid);
+
+        if($request->type=='JSON')
+            $records = [];
+        else if($request->type=='XML')
+            $records = '<?xml version="1.0" encoding="utf-8"?><Records>';
+
+        foreach($failedRecords as $element) {
+            if($request->type=='JSON')
+                $records[$element[0]] = $element[1];
+            else if($request->type=='XML')
+                $records .= $element[1];
+        }
+
+        if($request->type=='JSON') {
+            header("Content-Disposition: attachment; filename=" . $form->name . '_failedImports.json');
+            header("Content-Type: application/octet-stream; ");
+
+            echo json_encode($records);
+        }
+        else if($request->type=='XML') {
+            $records .= '</Records>';
+
+            header("Content-Disposition: attachment; filename=" . $form->name . '_failedImports.xml');
+            header("Content-Type: application/octet-stream; ");
+
+            echo $records;
+        }
+    }
+
+    /**
+     * Downloads the file with the reasons why records failed.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     */
+    public function downloadFailedReasons($pid, $fid, Request $request) {
+        $failedRecords = json_decode($request->failures);
+        $form = FormController::getForm($fid);
+
+        $messages = [];
+
+        foreach($failedRecords as $element) {
+            $id = $element[0];
+            $messageArray = $element[2]->responseJSON->record_validation_error;
+            foreach($messageArray as $message) {
+                if($message != '' && $message != ' ')
+                    $messages[$id] = $message;
+            }
+        }
+
+        header("Content-Disposition: attachment; filename=" . $form->name . '_importExplain.json');
+        header("Content-Type: application/octet-stream; ");
+
+        echo json_encode($messages);
     }
 
     /**

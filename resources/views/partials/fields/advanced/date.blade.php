@@ -1,6 +1,6 @@
 {!! Form::hidden('advanced',true) !!}
 <div class="form-group mt-xxxl">
-    {!! Form::label('default_month','Default Month: ') !!}
+    {!! Form::label('default_month','Default Month') !!}
     {!! Form::select('default_month',['' => '', '0' => 'Current Month',
         '1' => '01 - '.date("F", mktime(0, 0, 0, 1, 10)), '2' => '02 - '.date("F", mktime(0, 0, 0, 2, 10)),
         '3' => '03 - '.date("F", mktime(0, 0, 0, 3, 10)), '4' => '04 - '.date("F", mktime(0, 0, 0, 4, 10)),
@@ -12,7 +12,7 @@
 </div>
 
 <div class="form-group mt-xl">
-    {!! Form::label('default_day','Default Day: ') !!}
+    {!! Form::label('default_day','Default Day') !!}
     <select name="default_day" class="single-select" data-placeholder="Select a Day">
         <option value=""></option>
         <?php
@@ -27,7 +27,7 @@
 </div>
 
 <div class="form-group mt-xl">
-    {!! Form::label('default_year','Default '.trans('fields_options_date.year').': ') !!}
+    {!! Form::label('default_year','Default '.trans('fields_options_date.year')) !!}
     <select name="default_year" class="single-select default-year-js" data-placeholder="Select a Year">
         <option value=""></option>
         <?php
@@ -43,31 +43,31 @@
 </div>
 
 <div class="form-group mt-xl">
-    {!! Form::label('format','Date Format: ') !!}
+    {!! Form::label('format','Date Format') !!}
     {!! Form::select('format',
         ['MMDDYYYY' => 'MM DD, YYYY','DDMMYYYY' => 'DD MM YYYY','YYYYMMDD' => 'YYYY MM DD'],
         'MMDDYYYY', ['class' => 'single-select']) !!}
 </div>
 
 <div class="form-group mt-xl half pr-m">
-    {!! Form::label('start','Start Year: ') !!}
+    {!! Form::label('start','Start Year') !!}
     <span class="error-message"></span>
     {!! Form::input('number', 'start', 1900, ['class' => 'text-input start-year-js']) !!}
 </div>
 
 <div class="form-group mt-xl half pl-m">
-    {!! Form::label('end','End Year: ') !!}
+    {!! Form::label('end','End Year') !!}
     <span class="error-message"></span>
     {!! Form::input('number', 'end', 2020, ['class' => 'text-input end-year-js']) !!}
 </div>
 
 <div class="form-group mt-xl">
-    {!! Form::label('circa','Show Circa Approximations?: ') !!}
+    {!! Form::label('circa','Show Circa Approximations?') !!}
     {!! Form::select('circa', ['No' => 'No','Yes' => 'Yes'], 'No', ['class' => 'single-select']) !!}
 </div>
 
 <div class="form-group mt-xl">
-    {!! Form::label('era','Show Era?: ') !!}
+    {!! Form::label('era','Show Era?') !!}
     {!! Form::select('era', ['No' => 'No','Yes' => 'Yes'], 'No', ['class' => 'single-select']) !!}
 </div>
 

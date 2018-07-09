@@ -12,6 +12,13 @@
     margin: #{map-get($spacing, xxxl)} auto;
     max-width: calc(#{ $max-site-width } - 600px);
     width: $max-site-width;
+  }  
+
+  @media screen and (max-width: $max-tablet-width) {
+    .edit-form {
+      max-width: unset;
+      width: unset;
+    }
   }
 
   .edit-btn {

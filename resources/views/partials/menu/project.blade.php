@@ -32,9 +32,22 @@
           </a>
 
           <ul class="navigation-deep-menu navigation-deep-menu-js">
-            @foreach($allowed_forms as $form)
+			
+			<?php
+			// Sort forms by name
+			$name_fid_forms = [];
+			
+			foreach ($allowed_forms as $form)
+			{
+			  $name_fid_forms[$form->fid] = $form->name;
+			}
+			
+			asort($name_fid_forms, SORT_NATURAL | SORT_FLAG_CASE);
+			?>
+		    
+            @foreach($name_fid_forms as $form_fid => $form_name)
               <li class="deep-menu-item">
-                <a href="{{ action('FormController@show', ['pid'=>$pid, 'fid' => $form->fid]) }}">{{ $form->name }}</a>
+                <a href="{{ action('FormController@show', ['pid'=>$pid, 'fid' => $form_fid]) }}">{{ $form_name }}</a>
               </li>
             @endforeach
           </ul>
