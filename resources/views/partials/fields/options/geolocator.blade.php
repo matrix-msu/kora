@@ -18,8 +18,8 @@
     <section class="new-object-button low-margin form-group">
         <input type="button" class="add-new-default-location-js" value="Create New Default Location">
         <div><a href="#" class="field-preset-link open-location-modal-js">Use a Value Preset for these Locations</a></div>
-        <div><a href="#" class="field-preset-link open-create-location-modal-js right
-            @if(empty(\App\GeolocatorField::getLocationList($field))) disabled @endif">
+        <div class="open-create-regex"><a href="#" class="field-preset-link open-create-location-modal-js right
+            @if(empty(\App\GeolocatorField::getLocationList($field))) disabled tooltip @endif" tooltip="You must submit or update the field before creating a New Value Preset">
                 Create a New Value Preset from these Locations</a></div>
     </section>
 
