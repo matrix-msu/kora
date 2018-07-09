@@ -10,7 +10,7 @@ Kora.Inputs.File = function() {
   var filename = $(".filename");
   var instruction = $(".instruction");
   var droppedFile = false;
-  
+
   // Remove selected profile pic
   function resetFileInput() {
     fileInput.replaceWith(fileInput.val('').clone(true));
@@ -19,7 +19,7 @@ Kora.Inputs.File = function() {
     picCont.html("<i class='icon icon-user'></i>");
     droppedFile = false;
   };
-  
+
   // Profile pic is added, populate profile pic label, set up remove event
   function newProfilePic(pic, name) {
     picCont.html("<img src='"+pic+"' alt='Profile Picture'>");
@@ -67,9 +67,10 @@ Kora.Inputs.File = function() {
         reader.readAsDataURL(this.files[0]);
       }
     });
-    
+
     // Drag and Drop
-    if (isAdvancedUpload) {
+    // detect and disable if we are on Safari
+    if (isAdvancedUpload && window.safari == undefined && navigator.vendor != 'Apple Computer, Inc.') {
       button.addClass('has-advanced-upload');
 
       button.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
@@ -99,17 +100,16 @@ Kora.Inputs.File = function() {
       form.submit(function(e) {
         e.preventDefault();
 
-        var ajaxData = new FormData(form.get(0));
+        var ajaxData = new FormData(form.get(0)); // not supported by safari
 
         if (droppedFile) {
-          // This solution does not work with drag and drop, possibly need to change the file type
-        
+          ajaxData.delete('profile'); // not supported by safari
           ajaxData.append("profile", droppedFile);
         }
 
         $.ajax({
           url: form.attr('action'),
-          type: form.attr('method'),
+          method: 'POST',
           data: ajaxData,
           dataType: 'json',
           cache: false,
@@ -136,6 +136,6 @@ Kora.Inputs.File = function() {
       });
     }
   }
-  
+
   initializeFileUpload();
 }
