@@ -31,10 +31,9 @@ Kora.Fields.Create = function() {
       var scrollTo = Math.min(...allScrolls);
       var scrollTo = scrollTo - 100;
       setTimeout( function () {
-        window.scroll({
-          top: scrollTo,
-          behavior: 'smooth'
-        });
+        $('html, body').animate({
+          scrollTop: scrollTo
+        }, 2500);
       });
     }
 

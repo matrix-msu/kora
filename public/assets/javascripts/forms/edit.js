@@ -20,6 +20,16 @@ Kora.Forms.Edit = function() {
     });
   }
 
+  function scrollTop (allScrolls) {
+    var scrollTo = Math.min(...allScrolls);
+    var scrollTo = scrollTo - 100;
+    setTimeout( function () {
+      $('html, body').animate({
+        scrollTop: scrollTo
+      }, 2500);
+    });
+  }
+
     function initializeValidation() {
         $('.validate-form-js').on('click', function(e) {
             var $this = $(this);
@@ -42,12 +52,16 @@ Kora.Forms.Edit = function() {
                 error: function(err) {
                     $('.error-message').text('');
                     $('.text-input, .text-area').removeClass('error');
+                    var allScrolls = [];
 
                     $.each(err.responseJSON.errors, function(fieldName, errors) {
                         var $field = $('#'+fieldName);
                         $field.addClass('error');
                         $field.siblings('.error-message').text(errors[0]);
+                        allScrolls.push($field.offset().top);
                     });
+
+                    scrollTop(allScrolls);
                 }
             });
         });
