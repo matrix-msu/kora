@@ -8,7 +8,7 @@
     <p>No forms exist for this project.</p>
     @if(\Auth::user()->canCreateForms($project))
       <form action="{{ action('FormController@create', ['pid' => $project->pid]) }}">
-          <input type="submit" value="Create a new form"><p> to get started</p>
+          <span class="underline-middle-hover"><input type="submit" value="Create a new form"></span><p> to get started</p>
       </form>
     @endif
   </div>

@@ -8,7 +8,7 @@
     <p>No field value presets exist for this project.</p>
     @if(\Auth::user()->admin)
       <form action="{{ action('OptionPresetController@newPreset', ['pid' => $project->pid]) }}">
-        <input type="submit" value="Create a new field value preset">
+        <span class="underline-middle-hover"><input type="submit" value="Create a new field value preset"></span>
       </form>
     @endif
     <p> to get started.</p>

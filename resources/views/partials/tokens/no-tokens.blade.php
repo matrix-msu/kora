@@ -6,6 +6,6 @@
   </div>
   <div class="bottom">
     <p>No tokens exist.</p>
-    <input type="button" value="Create a new token" class="create-token-js"><p> to get started</p>
+    <span class="underline-middle-hover"><input type="button" value="Create a new token" class="create-token-js"></span><p> to get started</p>
   </div>
 </div>

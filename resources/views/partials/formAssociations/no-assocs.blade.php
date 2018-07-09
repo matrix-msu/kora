@@ -6,6 +6,6 @@
   </div>
   <div class="bottom">
     <p>There are currently no forms that can search within *Form Name*</p>
-    <input class="new-permission-js" type="submit" value="Create a form association"><p> to get started.</p>
+    <span class="underline-middle-hover"><input class="new-permission-js" type="submit" value="Create a form association"></span><p> to get started.</p>
   </div>
 </div>

@@ -8,7 +8,6 @@
 
     .line {
       background: palette('gray', base);
-      /*background: black;*/
       height: 2px;
       margin-top: 35px;
       opacity: 0.05;
@@ -48,11 +47,15 @@
       display: inline;
     }
 
+    span {
+      padding: 0 0 5px;
+    }
+
     input {
       border: none;
       background: transparent;
       color: palette('green', accent);
-      font-family: $ubuntu;
+      font-family: $ubuntu-medium;
       font-size: 14px;
       font-size: 14px;
       padding: 0;

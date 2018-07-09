@@ -55,11 +55,15 @@
         }
       }
 
+      span {
+        padding: 0 0 5px;
+      }
+
       input {
         border: none;
         background: transparent;
         color: palette('green', accent);
-        font-family: $ubuntu;
+        font-family: $ubuntu-medium;
         font-size: 14px;
         font-size: 14px;
         padding: 0;

@@ -8,9 +8,9 @@
     <p>Either you don't have permissions, or no projects exist.</p>
     <form action="{{ action('ProjectController@create') }}">
       @if(\Auth::user()->admin)
-        <input type="submit" value="Request permissions to a project">
+        <span class="underline-middle-hover"><input type="submit" value="Request permissions to a project"></span>
         <p> or </p>
-        <input type="submit" value="Create a new project">
+        <span class="underline-middle-hover"><input type="submit" value="Create a new project"></span>
       @endif
     </form>
     <p> to get started</p>

@@ -6,6 +6,6 @@
   </div>
   <div class="bottom">
     <p>*Form Name* currently has no forms it can associate with.</p>
-    <input class="request-permission-js" type="submit" value="Create a form association"><p> to get started.</p>
+    <span class="underline-middle-hover"><input class="request-permission-js" type="submit" value="Create a form association"></span><p> to get started.</p>
   </div>
 </div>
