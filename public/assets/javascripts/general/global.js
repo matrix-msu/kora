@@ -169,8 +169,6 @@ $(document).ready(function() {
     var $drawerContent = $this.next();
     var $icon = $this.children().last();
 
-console.log($activeDrawer);
-
     setTimeout(function() {
       var $headerHeight = $('.aside-content .header-elements').height();
       var $footerHeight = $('.aside-content .footer-elements').height();
