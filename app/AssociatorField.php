@@ -495,6 +495,9 @@ class AssociatorField extends BaseField {
     public function getPreviewValues($rid) {
         //individual kid elements
         $recModel = RecordController::getRecord($rid);
+        if(is_null($recModel))
+            return '';
+
         $pid = $recModel->pid;
         $fid = $recModel->fid;
         $rid = $recModel->rid;
