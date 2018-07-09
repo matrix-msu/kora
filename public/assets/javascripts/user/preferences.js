@@ -2,6 +2,19 @@ var Kora = Kora || {};
 Kora.User = Kora.User || {};
 
 Kora.User.Preferences = function() {
+    function initializeCheckboxes() {
+        var $checkboxes = $(".check-box-input-js");
+
+        $checkboxes.click(function() {
+            var $this = $(this);
+            var $formGroup = $this.parent().parent();
+            var $formGroupCheckboxes = $formGroup.find(".check-box-input-js");
+
+            $formGroupCheckboxes.prop("checked", false);
+            $this.prop("checked", true);
+        });
+    }
+
     function initializeFixedElementScroll() {
         var $fixedElem = $(".pre-fixed-js");
         var $form = $fixedElem.parent().parent();
@@ -15,5 +28,6 @@ Kora.User.Preferences = function() {
         });
     }
 
+    initializeCheckboxes();
     initializeFixedElementScroll();
 };

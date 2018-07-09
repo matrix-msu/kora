@@ -209,9 +209,34 @@ class UserController extends Controller {
         }
     }
 
+    /**
+     * Editing a user's preferences
+     *
+     * @param $uid User's Id
+     * @return View User prefernce view
+     */
     public function preferences($uid) {
         if (\Auth::user()->id != $uid)
             return redirect('user')->with('k3_global_error', 'cannot_edit_preferences');
+
+        $user = \Auth::user();
+
+        return view('user.preferences', compact('user'));
+    }
+
+    /**
+     * @param $uid User's Id
+     * @param Request $request Form inputs
+     * @return Redirect to user's preferences
+     */
+    public function updatePreferences($uid, Request $request) {
+        if (\Auth::user()->id != $uid)
+            return redirect('user/'.\Auth::user()->id.'/preferences')->with('k3_global_error', 'cannot_edit_preferences');
+
+        $useDashboard = ($request->useDashboard == "true" ? true : false);
+        $logoTarget = $request->logoTarget;
+        $projPageTabSel = $request->projPageTabSel;
+        $sideMenuOpen = ($request->sideMenuOpen == "true" ? true : false);
 
         $user = \Auth::user();
 
