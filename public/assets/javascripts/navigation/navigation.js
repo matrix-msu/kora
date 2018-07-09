@@ -354,21 +354,19 @@ $sideMenu.on('click', '.drawer-toggle-js', function(e) {
 
   if ($(this).children('span').text() == 'Management') {
     $('.aside-content .footer-elements').css('position', 'absolute');
-  } else {
-
-    setTimeout(function() {
-      var $headerHeight = $('.aside-content .header-elements').height();
-      var $footerHeight = $('.aside-content .footer-elements').height();
-      var combinedHeight = $headerHeight + $footerHeight
-
-      if (combinedHeight > (window.innerHeight - 50)) {
-        $('.aside-content .footer-elements').css('position', 'static');
-      } else {
-        $('.aside-content .footer-elements').css('position', 'absolute');
-      }
-    }, 400);
-
   }
+
+  setTimeout(function() {
+    var $headerHeight = $('.aside-content .header-elements').height();
+    var $footerHeight = $('.aside-content .footer-elements').height();
+    var combinedHeight = $headerHeight + $footerHeight
+
+    if (combinedHeight > (window.innerHeight - 50)) {
+      $('.aside-content .footer-elements').css('position', 'static');
+    } else {
+      $('.aside-content .footer-elements').css('position', 'absolute');
+    }
+  }, 400);
   
   if ($drawerElement.parent().hasClass('footer-elements')) {
     $drawerElement.parent().toggleClass('active');
