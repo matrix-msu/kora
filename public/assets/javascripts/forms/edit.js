@@ -4,20 +4,33 @@ Kora.Forms = Kora.Forms || {};
 Kora.Forms.Edit = function() {
 
   function initializeCleanUpModals() {
-    Kora.Modal.initialize();
+        Kora.Modal.initialize();
 
-    $('.form-trash-js').click(function(e) {
-      e.preventDefault();
+        $('.form-trash-js').click(function(e) {
+            e.preventDefault();
 
-      var $cleanupModal = $('.form-cleanup-modal-js');
+            var $cleanupModal = $('.form-cleanup-modal-js');
 
-      $cleanupModal.find('.title-js').html(
-        $(this).data('title')
-      );
+            $cleanupModal.find('.title-js').html( $(this).data('title') );
 
-      $cleanupModal.find('.delete-content-js').show();
-      Kora.Modal.open($cleanupModal);
-    });
+            Kora.Modal.open($cleanupModal);
+        });
+
+        $('.delete-records-js').click(function(e) {
+              e.preventDefault();
+
+              var $cleanupModal = $('.delete-records-modal-js');
+
+              Kora.Modal.open($cleanupModal);
+        });
+
+      $('.delete-files-js').click(function(e) {
+          e.preventDefault();
+
+          var $cleanupModal = $('.delete-files-modal-js');
+
+          Kora.Modal.open($cleanupModal);
+      });
   }
 
     function initializeValidation() {
