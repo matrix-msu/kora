@@ -51,6 +51,9 @@ class UserController extends Controller {
      * @return View
      */
     public function index(Request $request, $uid, $section = '') {
+        if (!\Auth::user()->admin && \Auth::user()->id != $request->uid)
+            return redirect('user')->with('k3_global_error', 'cannot_edit_profile');
+
         $section = (($section && in_array($section, ['permissions', 'history'])) ? $section : 'profile');
 
         $user = User::where('id',$uid)->get()->first();
@@ -204,6 +207,15 @@ class UserController extends Controller {
         } else {
           redirect('/')->with('k3_global_success', 'account_deleted');
         }
+    }
+
+    public function preferences($uid) {
+        if (\Auth::user()->id != $uid)
+            return redirect('user')->with('k3_global_error', 'cannot_edit_preferences');
+
+        $user = \Auth::user();
+
+        return view('user.preferences', compact('user'));
     }
 
     public function validateUserFields(UserRequest $request) {

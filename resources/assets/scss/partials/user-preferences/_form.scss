@@ -1,0 +1,31 @@
+.edit-preferences {
+  a.text {
+    color: palette('green', accent);
+  }
+
+  .check-box-half {
+    display: inline-block;
+    margin-right: #{map-get($spacing, xl)};
+  }
+
+  .description {
+    font-size: 14px;
+    line-height: 24px;
+    margin: #{map-get($spacing, sm)} 0 #{map-get($spacing, xl)};
+  }
+
+  .edit-preferences-form {
+    margin-bottom: 75px;
+  }
+
+  .preferences-update-button {
+    .update-preferences-submit {
+      margin: 0 auto 15px;
+    }
+  }
+
+  .sub-title {
+    font-family: $ubuntu;
+    font-size: 20px;
+  }
+}
