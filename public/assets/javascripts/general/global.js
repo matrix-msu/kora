@@ -82,7 +82,7 @@ function isScrolledIntoView($elem) {
 function setFixedElement(load = false) {
   if ($('.pre-fixed-js').length > 0) {
     var $elementToFix = $('.pre-fixed-js');
-    var $elementFixWrapper = $('.pre-fixed-js').parent();
+    var $elementFixWrapper = $elementToFix.parent();
 
     if (!isScrolledIntoView($elementFixWrapper)) {
       if (load) {
