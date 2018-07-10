@@ -287,7 +287,7 @@ class ListField extends BaseField {
      * @return Request - The update request
      */
     public function setRestfulAdvSearch($data, $flid, $request) {
-        $request->request->add([$flid.'_input' => $data->input]);
+        $request->request->add([$flid.'_input' => $data->value]);
 
         return $request;
     }

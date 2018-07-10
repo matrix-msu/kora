@@ -26,6 +26,10 @@
             </h1>
             <p class="description">Adjust the number of duplicates you wish to make for record: {{$record->kid}}. Then adjust
                 the record below as needed. Adjustments you make here will only be applied to the new duplicate record(s).</p>
+            <div class="form-group mt-xl mb-xxl duplicate-record-special-js">
+                {!! Form::label('mass_creation_num', 'Select duplication amount (max 1000): ') !!}
+                <input type="number" name="mass_creation_num" class="text-input" value="2" step="1" max="1000" min="1">
+            </div>
             <div class="content-sections">
                 <div class="content-sections-scroll">
                   @foreach(\App\Http\Controllers\PageController::getFormLayout($form->fid) as $page)
@@ -49,16 +53,17 @@
 
     <section class="create-record center">
         {!! Form::model($cloneRecord = new \App\Record, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid.'/records',
-            'enctype' => 'multipart/form-data', 'id' => 'new_record_form', 'class' => 'record-form']) !!}
+            'enctype' => 'multipart/form-data', 'id' => 'new_record_form']) !!}            
+        
+        <div class="form-group mt-xxxl duplicate-record-js hidden">
+            {!! Form::label('mass_creation_num', 'Select duplication amount (max 1000): ') !!}
+            <input type="number" name="mass_creation_num" class="text-input" value="2" step="1" max="1000" min="1">
+        </div>    
+        
         @include('partials.records.form',['form' => $form, 'editRecord' => true])
 
         <div class="form-group mt-xxxl">
             <div class="spacer"></div>
-        </div>
-
-        <div class="form-group mt-xxxl duplicate-record-js">
-            {!! Form::label('mass_creation_num', 'Select duplication amount (max 1000)') !!}
-            <input type="number" name="mass_creation_num" class="text-input" value="2" step="1" max="1000" min="1">
         </div>
 
         <div class="form-group mt-xxxl">
@@ -79,7 +84,7 @@
         </div>
 
         <div class="form-group mt-100-xl">
-            {!! Form::submit('Duplicate Record',['class' => 'btn record-validate-js']) !!}
+            {!! Form::submit('Duplicate Record',['class' => 'btn fixed-bottom-slide pre-fixed-js clone-btn']) !!}
         </div>
         {!! Form::close() !!}
     </section>
