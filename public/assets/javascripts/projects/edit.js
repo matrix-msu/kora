@@ -41,7 +41,7 @@ Kora.Projects.Edit = function() {
     setTimeout( function () {
       $('html, body').animate({
         scrollTop: 0
-      }, 2500);
+      }, 1000);
     });
   }
 

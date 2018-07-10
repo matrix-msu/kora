@@ -312,7 +312,7 @@ Kora.Fields.Show = function() {
       setTimeout( function () {
         $('html, body').animate({
           scrollTop: scrollTo
-        }, 2500);
+        }, 1000);
       });
     }
 
