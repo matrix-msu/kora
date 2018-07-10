@@ -13,7 +13,7 @@ Kora.Projects.Create = function() {
     setTimeout( function () {
       $('html, body').animate({
         scrollTop: 0
-      }, 1000);
+      }, 200);
     });
   }
 

@@ -26,7 +26,7 @@ Kora.Forms.Edit = function() {
     setTimeout( function () {
       $('html, body').animate({
         scrollTop: scrollTo
-      }, 1000);
+      }, 200);
     });
   }
 
