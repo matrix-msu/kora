@@ -435,6 +435,8 @@ class RestfulController extends Controller {
                         $selectFinal[] = $select;
                         break;
                     case Field::_NUMBER:
+                        if(!is_numeric($k))
+                            break;
                         $bottom = $k - NumberField::EPSILON;
                         $top = $k + NumberField::EPSILON;
                         $where = "`number` BETWEEN $bottom AND $top";
