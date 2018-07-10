@@ -50,10 +50,10 @@
           </a>
         </div>
         <div class="body">
-          @if (\Auth::user()->admin && \Auth::user()->id != $user->id)
-            @include("partials.admin.userManagement.userDeleteForm", ['user' => $user])
-          @else
+          @if (\Auth::user()->id == $user->id)
             @include("partials.user.userDeleteForm", ['user' => $user])
+          @else
+            @include("partials.admin.userManagement.userDeleteForm", ['user' => $user])
           @endif
         </div>
       </div>
