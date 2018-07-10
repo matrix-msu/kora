@@ -106,10 +106,10 @@ Kora.Fields.Create = function() {
             }
         });
     }
-  
+
     function initializeDescriptionModal() {
       Kora.Modal.initialize();
-    
+
       $('.desc-modal').click(function(e) {
         e.preventDefault();
 
