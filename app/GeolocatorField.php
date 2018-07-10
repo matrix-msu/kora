@@ -353,7 +353,7 @@ class GeolocatorField extends BaseField {
      */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
         $geo = array();
-        foreach($jsonField->locations as $loc) {
+        foreach($jsonField->value as $loc) {
             $string = '[Desc]' . $loc['desc'] . '[Desc]';
             $string .= '[LatLon]' . $loc['lat'] . ',' . $loc['lon'] . '[LatLon]';
             $string .= '[UTM]' . $loc['zone'] . ':' . $loc['east'] . ',' . $loc['north'] . '[UTM]';

@@ -1,8 +1,14 @@
 {!! Form::hidden('advanced',true) !!}
-<div class="form-group mt-xxxl">
+<div class="form-group mt-xxxl single-line-js">
     {!! Form::label('default','Default') !!}
-    <span class="error-message"></span>
+    <span class="error-message single-line"></span>
     {!! Form::text('default', null, ['class' => 'text-input text-default-js', 'placeholder' => 'Enter default value here']) !!}
+</div>
+
+<div class="form-group mt-xxxl multi-line-js hidden">
+    {!! Form::label('default','Default') !!}
+    <span class="error-message multi-line"></span>
+    {!! Form::textarea('default', null, ['class' => 'text-area text-area-default text-area-default-js', 'placeholder' => "Enter default value here"]) !!}
 </div>
 
 <div class="form-group mt-xl">
