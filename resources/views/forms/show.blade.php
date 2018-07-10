@@ -48,7 +48,7 @@
 @section('body')
   <?php
   $page_has_fields = false;
-  
+
   foreach($pageLayout as $page)
   {
     if (count($page["fields"]) > 0)
