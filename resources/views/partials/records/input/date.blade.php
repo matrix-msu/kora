@@ -5,7 +5,7 @@
 
 @if(\App\Http\Controllers\FieldController::getFieldOption($field, 'Circa')=='Yes')
     <?php
-        if($hasData)
+        if($editRecord && $hasData)
             $isCirca = $typedField->circa;
         else
             $isCirca = 0;
@@ -27,8 +27,10 @@
 @endif
 
 <?php
-    if($hasData) {
+    if($editRecord && $hasData) {
         $defMonth = $typedField->month;
+    } else if($editRecord) {
+        $defMonth = null;
     } else {
         $defMonth = $field->default=='' ? null : explode('[M]',$field->default)[1];
         if($defMonth=='0')
@@ -115,7 +117,7 @@
 
 @if(\App\Http\Controllers\FieldController::getFieldOption($field, 'Era')=='Yes')
     <?php
-        if($hasData)
+        if($editRecord && $hasData)
             $eraVal = $typedField->era;
         else
             $eraVal = 'CE';
