@@ -33,7 +33,7 @@ Kora.Fields.Create = function() {
       setTimeout( function () {
         $('html, body').animate({
           scrollTop: scrollTo
-        }, 200);
+        }, 500);
       });
     }
 
