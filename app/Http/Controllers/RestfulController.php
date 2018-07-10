@@ -435,6 +435,8 @@ class RestfulController extends Controller {
                         $selectFinal[] = $select;
                         break;
                     case Field::_NUMBER:
+                        if(!is_numeric($k))
+                            break;
                         $bottom = $k - NumberField::EPSILON;
                         $top = $k + NumberField::EPSILON;
                         $where = "`number` BETWEEN $bottom AND $top";
@@ -494,9 +496,9 @@ class RestfulController extends Controller {
                         $where = "`day`=$intVal OR `year`=$intVal";
                         if(DateField::isMonth($k))
                             $where .= " OR `month`=$intMonth";
-                        if($era && self::isValidEra($k))
+                        if($era && DateField::isValidEra($k))
                             $where .= " OR `era`=".strtoupper($k);
-                        if($circa && self::isCirca($k))
+                        if($circa && DateField::isCirca($k))
                             $where .= " OR `circa`=1";
 
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."date_fields where `flid`=".$field->flid." AND ($where)";
@@ -601,6 +603,8 @@ class RestfulController extends Controller {
             }
         }
 
+        mysqli_close($con);
+
         return $results;
     }
 
@@ -637,7 +641,7 @@ class RestfulController extends Controller {
      *
      * @param  Form $form - Form being searched
      * @param  array $rids - Record IDs we don't want
-     * @return Collection - The RIDs not in the given set
+     * @return array - The RIDs not in the given set
      */
     private function negative_results($form, $rids) {
 	    $returnRIDS = array();
@@ -662,6 +666,8 @@ class RestfulController extends Controller {
 		while($row = $negUnclean->fetch_assoc()) {
 			array_push($returnRIDS, $row['rid']);
 		}
+
+        mysqli_close($con);
 		
         return $returnRIDS;
     }
@@ -1008,6 +1014,8 @@ class RestfulController extends Controller {
         }
         
         $filters['total'] = $cnt;
+
+        mysqli_close($con);
         
         return $filters;
     }
@@ -1051,9 +1059,11 @@ class RestfulController extends Controller {
                 return response()->json(["status"=>false,"error"=>"There was an error extracting the provided zip"],500);
             }
         }
-        foreach($fields as $jsonField) {
-            $fieldSlug = $jsonField->name;
+        foreach($fields as $fieldName => $jsonField) {
+            $fieldSlug = $fieldName;
             $field = Field::where('slug', '=', $fieldSlug)->get()->first();
+            if(is_null($field))
+                return response()->json(["status"=>false,"error"=>"The field, $fieldSlug, does not exist"],500);
 
             $recRequest = $field->getTypedField()->setRestfulRecordData($jsonField, $field->flid, $recRequest, $uToken);
         }
@@ -1132,9 +1142,11 @@ class RestfulController extends Controller {
                 return response()->json(["status"=>false,"error"=>"There was an issue extracting the provided file zip"],500);
             }
         }
-        foreach($fields as $jsonField) {
-            $fieldSlug = $jsonField->name;
+        foreach($fields as $fieldName => $jsonField) {
+            $fieldSlug = $fieldName;
             $field = Field::where('slug', '=', $fieldSlug)->get()->first();
+            if(is_null($field))
+                return response()->json(["status"=>false,"error"=>"The field, $fieldSlug, does not exist"],500);
             //if keepfields scenario, keep track of this field that will be edited
             if($keepFields=="true")
                 array_push($fieldsToEditArray,$field->flid);

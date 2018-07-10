@@ -39,7 +39,7 @@
           <button type="submit" class="btn btn-primary">Login</button>
         </div>
 
-        <p class="mt-xxxl mb-0"><a class="text  underline-middle-hover" href="{{ url('/register') }}">Need to Sign Up?</a></p>
+        <p class="mt-xxxl mb-0"><a class="text underline-middle-hover" href="{{ url('/register') }}">Need to Sign Up?</a></p>
       </form>
     </div>
   </div>

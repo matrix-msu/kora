@@ -7,6 +7,10 @@
     margin: 0 auto 15px;
   }
 
+  .tooltip:hover::after {
+    left: -19px;
+  }
+
   .trash {
     margin: auto;
   }

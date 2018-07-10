@@ -46,11 +46,25 @@
                   <span>Jump to Field</span>
                   <i class="icon icon-plus"></i>
               </a>
+			  
+			  <?php
+			  // Sort forms by name
+			  $name_flid_fields = [];
+			  $fids = [];
+			  
+			  foreach ($fieldsInForm as $field)
+			  {
+				$name_flid_fields[$field->flid] = $field->name;
+				$fids[$field->flid] = $field->fid;
+			  }
+			  
+			  asort($name_flid_fields, SORT_NATURAL | SORT_FLAG_CASE);
+			  ?>
 
               <ul class="drawer-deep-menu drawer-deep-menu-js">
-                  @foreach($fieldsInForm as $field)
+                  @foreach($name_flid_fields as $field_flid => $field_name)
                       <li class="drawer-deep-menu-link">
-                          <a class="padding-fix" href="{{ url('/projects/'.$form->pid).'/forms/'.$field->fid .'/fields/'.$field->flid.'/options'}}">{{ $field->name }}</a>
+                          <a class="padding-fix" href="{{ url('/projects/'.$form->pid).'/forms/'.$fids[$field_flid] .'/fields/'.$field_flid.'/options'}}">{{ $field_name }}</a>
                       </li>
                   @endforeach
               </ul>
@@ -98,8 +112,8 @@
         </li>
       @endif
 
-      <li class="content-link content-link-js" data-page="metadata">
-        <a href="{{ action('MetadataController@index', ['fid'=>$form->fid, 'pid'=>$form->pid]) }}">Link Open Data</a>
-      </li>
+      {{--<li class="content-link content-link-js" data-page="metadata">--}}
+        {{--<a href="{{ action('MetadataController@index', ['fid'=>$form->fid, 'pid'=>$form->pid]) }}">Link Open Data</a>--}}
+      {{--</li>--}}
   </ul>
 </div>

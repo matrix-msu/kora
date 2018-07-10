@@ -1,4 +1,4 @@
-@extends('app', ['page_title' => 'My Profile', 'page_class' => 'user-profile'])
+@extends('app', ['page_title' => (Auth::user()->id == $user->id ? 'My Profile' : $user->username), 'page_class' => 'user-profile'])
 
 @section('header')
     @include('partials.user.profile.head')
@@ -14,14 +14,14 @@
           <div class="content-sections-scroll">
             @if (!$user->admin)
                 <div class="my-xl">
-                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->first_name}} has @endif  access to the following projects...</p>
+                    <p>{{ (Auth::user()->id == $user->id ? 'You have' : $user->first_name . ' has') }} access to the following projects...</p>
                 </div>
                 @foreach ($projects as $index=>$project)
                     @include('partials.user.profile.project')
                 @endforeach
             @else
                 <div class="my-xl">
-                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->first_name}} has @endif access to all projects</p>
+                    <p>{{ (Auth::user()->id == $user->id ? 'You have' : $user->first_name . ' has') }} access to all projects</p>
                 </div>
             @endif
           </div>
@@ -30,14 +30,14 @@
           <div class="content-sections-scroll">
             @if (!$user->admin)
                 <div class="my-xl">
-                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->first_name}} has @endif access to the following forms...</p>
+                    <p>{{ (Auth::user()->id == $user->id ? 'You have' : $user->first_name . ' has') }} access to the following forms...</p>
                 </div>
                 @foreach ($forms as $index=>$form)
                     @include('partials.user.profile.form')
                 @endforeach
             @else
                 <div class="my-xl">
-                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->first_name}} has @endif access to all forms</p>
+                    <p>{{ (Auth::user()->id == $user->id ? 'You have' : $user->first_name . ' has') }} access to all forms</p>
                 </div>
             @endif
           </div>

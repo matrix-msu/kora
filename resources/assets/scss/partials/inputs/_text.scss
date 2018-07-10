@@ -19,6 +19,10 @@
     border: 1px solid palette('gray', slate, 0.1);
   }
 
+  &:disabled {
+    cursor: not-allowed;
+  }
+
   &:hover {
     border: 2px solid palette('green', accent, .3);
     box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
@@ -50,4 +54,12 @@
   float: right;
   font-family: $ubuntu-medium;
   font-size: 13px;
+}
+
+//For ckeditor
+.cke {
+  &.error {
+    border: 2px solid palette('yellow');
+    border-radius: 5px;
+  }
 }

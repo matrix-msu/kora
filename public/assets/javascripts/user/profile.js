@@ -42,7 +42,7 @@ Kora.User.Profile = function() {
     });
   }
 
-  function initializeHistoryFilter(page) {
+  function initializeHistoryFilter() {
     var $selector = $('#recordHistory .select-content-section-js');
 
     $selector.click(function(e) {
@@ -55,7 +55,7 @@ Kora.User.Profile = function() {
     });
   }
 
-  function initializePermissionsFilter(page) {
+  function initializePermissionsFilter() {
     var $selector = $('#permissions .select-content-section-js');
     var $content = $('#permissions .content-section-js');
 
@@ -212,9 +212,54 @@ Kora.User.Profile = function() {
     });
   }
 
+  function initializeCardEllipsifying() {
+    function adjustCardTitle() {
+      var $cards = $('.card');
+
+      for (var i = 0; i < $cards.length; i++) {
+        var $card = $($cards[i]);
+        var $name = $($card.find(".name"));
+        var $chevron = $($card.find(".icon-chevron"));
+        var $subtitles = $($card.find(".card-toggle-wrap .sub-title"));
+
+        // Ellipsis on title on very small widths
+        var cardWidth = $card.width();
+        var chevronWidth = $chevron.outerWidth();
+        var extra = 20;
+
+        var nameWidth = cardWidth - chevronWidth - extra;
+        if (nameWidth < 0) {nameWidth = 0;}
+
+        $name.css("max-width", nameWidth + "px");
+
+        // Hide sub-titles as chevron slides over element
+        var chevronLeft = $chevron.offset().left;
+
+        for (var j = 0; j < $subtitles.length; j++) {
+          var $subtitle = $($subtitles[j]);
+          var subtitleRight = $subtitle.offset().left + $subtitle.outerWidth();
+          if (subtitleRight > chevronLeft) {
+            $subtitle.css('visibility', 'hidden');
+          } else {
+            $subtitle.css('visibility', 'visible');
+          }
+        }
+      }
+    }
+
+    $(window).resize(function() {
+      adjustCardTitle();
+    });
+
+    $(document).ready(function() {
+      adjustCardTitle();
+    });
+  }
+
   initializeOptionDropdowns();
   initializeFilters();
   initializeProjectCards();
   initializeModals();
   initializePaginationRouting();
+  initializeCardEllipsifying();
 }

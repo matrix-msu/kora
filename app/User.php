@@ -14,6 +14,7 @@ use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use ReCaptcha\ReCaptcha;
 
@@ -108,6 +109,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             });
         } catch(\Swift_TransportException $e) {
             //TODO::email error response
+            //Log for now
+            Log::info('Activation email failed');
         }
     }
 
@@ -130,6 +133,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             });
         } catch(\Swift_TransportException $e) {
             //TODO::email error response
+            //Log for now
+            Log::info('Password reset email failed');
         }
     }
 

@@ -19,9 +19,9 @@
     <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
         <div class="pb-m">
             @if ($project['permissions'] == 'Admin')
-                <p>You are an admin for this project.</p>
+                <p>{{ (Auth::user()->id == $user->id ? 'You are' : $user->first_name . ' is') }} an Admin for this project.</p>
             @else
-                <p>You can {{$project['permissions']}} within this project</p>
+                <p>{{ (Auth::user()->id == $user->id ? 'You can' : $user->first_name . ' can') }} {{$project['permissions']}} within this project</p>
             @endif
         </div>
     </div>

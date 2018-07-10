@@ -26,15 +26,41 @@
 }
 
 .combo-list-display {
+  border: 1px solid palette('gray', slate, 0.1);
+  border-radius: 5px;
+  box-shadow: 0 3px 5px 0 palette('gray', slate, 0.05);
+  margin-top: 10px;
   overflow: auto;
+  padding-bottom: 6px;
+  padding-left: 20px;
+  padding-right: 20px;
 
   .combo-column {
     float: left;
     margin-bottom: 10px;
+    margin-top: 13px;
     width: 50%;
   }
 
   .combo-title {
-    font-family: $ubuntu-medium-italic;
+    font-family: $ubuntu-medium;
+    font-size: 14px;
+    line-height: 19px;
+  }
+
+  .combo-border-large {
+    border: 1px solid palette('gray', slate, 0.05);
+    float: left;
+    margin-top: 6px;
+    margin-left:-20px;
+    padding-right: 40px;
+    width: 100%;
+  }
+
+  .combo-border-small {
+    border: 1px solid palette('gray', slate, 0.05);
+    float: left;
+    margin-top: 6px;
+    width: 100%;
   }
 }

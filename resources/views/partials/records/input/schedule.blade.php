@@ -14,9 +14,10 @@
     }
 ?>
 <div class="form-group mt-xxxl">
-    <label>@if($field->required==1)<span class="oval-icon"></span> @endif{{$field->name}}: </label>
+    <label>@if($field->required==1)<span class="oval-icon"></span> @endif{{$field->name}}</label>
+    <span class="error-message"></span>
     {!! Form::select($field->flid.'[]', $listOpts, $selected,['class' => 'multi-select  '.$field->flid.'-event-js preset-clear-chosen-js',
-        'Multiple', 'data-placeholder' => "Add Events Below"]) !!}
+        'Multiple', 'data-placeholder' => "Add Events Below", 'id' => 'list'.$field->flid]) !!}
 </div>
 
 <section class="new-object-button form-group mt-xl">

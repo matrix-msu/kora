@@ -6,6 +6,7 @@
   '/assets/javascripts/general/modal.js',
   '/assets/javascripts/inputs/file.js',
   '/assets/javascripts/user/edit.js',
+  '/assets/javascripts/user/preferences.js',
   '/assets/javascripts/user/profile.js',
   '/assets/javascripts/navigation/navigation.js',
   '/assets/javascripts/general/global.js',

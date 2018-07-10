@@ -33,7 +33,7 @@
             <div class="content-sections">
                 <div class="content-sections-scroll">
                   @foreach(\App\Http\Controllers\PageController::getFormLayout($form->fid) as $page)
-                      <a href="#{{$page["title"]}}" class="section underline-middle underline-middle-hover toggle-by-name">{{$page["title"]}}</a>
+                    <a href="#{{$page["title"]}}" class="section underline-middle underline-middle-hover toggle-by-name">{{$page["title"]}}</a>
                   @endforeach
                 </div>
             </div>
@@ -79,7 +79,7 @@
         </div>
 
         <div class="form-group mt-xl newRecPre-record-js hidden">
-            {!! Form::label('record_preset_name', 'Record Preset Name: ') !!}
+            {!! Form::label('record_preset_name', 'Record Preset Name') !!}
             <input type="text" name="record_preset_name" class="text-input" placeholder="Add Record Preset Name" disabled>
         </div>
 
@@ -106,7 +106,9 @@
         csrfToken = "{{ csrf_token() }}";
         userID = "{{\Auth::user()->id}}";
         baseFileUrl = "{{config('app.url'). 'deleteTmpFile/'}}";
+        var validationUrl = "{{action('RecordController@validateRecord',['pid' => $form->pid, 'fid' => $form->fid])}}";
 
         Kora.Records.Create();
+        Kora.Records.Validate();
     </script>
 @stop

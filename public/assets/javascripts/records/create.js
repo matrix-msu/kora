@@ -16,7 +16,7 @@ Kora.Records.Create = function() {
         $('.chosen-search-input').on('keyup', function(e) {
             var container = $(this).parents('.chosen-container').first();
 
-            if (e.which === 13 && container.find('li.no-results').length > 0) {
+            if (e.which === 13 && (container.find('li.no-results').length > 0 || container.find('li.active-result').length == 0)) {
                 var option = $("<option>").val(this.value).text(this.value);
 
                 var select = container.siblings('.modify-select').first();
@@ -137,17 +137,23 @@ Kora.Records.Create = function() {
 
             defaultDiv = $('.combo-value-div-js-'+flid);
 
-            if(val1=='' | val2=='' | val1==null | val2==null){
+            if(val1=='' | val2=='' | val1==null | val2==null | val1=='//'| val2=='//') {
                 //TODO::Error out
                 console.log(val1);
                 console.log(val2);
                 console.log('Both fields must be filled out');
             } else {
                 //Remove empty div if applicable
-                if(defaultDiv.find('.combo-list-empty').first())
+                var border = true;
+                if(defaultDiv.find('.combo-list-empty').length) {
                     defaultDiv.find('.combo-list-empty').first().remove();
+                    border = false;
+                }
 
                 div = '<div class="combo-value-item-js">';
+
+                if(border)
+                    div += '<span class="combo-border-small"> </span>';
 
                 if(type1=='Text' | type1=='List' | type1=='Number' | type1=='Date') {
                     div += '<input type="hidden" name="'+flid+'_combo_one[]" value="'+val1+'">';
@@ -214,6 +220,9 @@ Kora.Records.Create = function() {
         $('.add-new-event-js').on('click', function(e) {
             e.preventDefault();
 
+            $('.error-message').text('');
+            $('.text-input, .text-area, .cke, .chosen-container').removeClass('error');
+
             var nameInput = $('.event-name-js');
             var sTimeInput = $('.event-start-time-js');
             var eTimeInput = $('.event-end-time-js');
@@ -223,7 +232,23 @@ Kora.Records.Create = function() {
             var eTime = eTimeInput.val().trim();
 
             if(name==''|sTime==''|eTime=='') {
-                //TODO::show error
+                if(name=='') {
+                    schError = $('.event-name-js');
+                    schError.addClass('error');
+                    schError.siblings('.error-message').text('Event name is required');
+                }
+
+                if(sTime=='') {
+                    schError = $('.event-start-time-js');
+                    schError.addClass('error');
+                    schError.siblings('.error-message').text('Start time is required');
+                }
+
+                if(eTime=='') {
+                    schError = $('.event-end-time-js');
+                    schError.addClass('error');
+                    schError.siblings('.error-message').text('End time is required');
+                }
             } else {
                 if($('.event-allday-js').is(":checked")) {
                     sTime = sTime.split(" ")[0];
@@ -231,8 +256,10 @@ Kora.Records.Create = function() {
                 }
 
                 if(sTime>eTime) {
-                    //TODO::show error
-                }else {
+                    schError = $('.event-start-time-js');
+                    schError.addClass('error');
+                    schError.siblings('.error-message').text('Start time can not occur before the end time');
+                } else {
                     val = name + ': ' + sTime + ' - ' + eTime;
 
                     if(val != '') {
@@ -285,10 +312,15 @@ Kora.Records.Create = function() {
         $('.add-new-location-js').click(function(e) {
             e.preventDefault();
 
+            $('.error-message').text('');
+            $('.text-input, .text-area, .cke, .chosen-container').removeClass('error');
+
             //check to see if description provided
             var desc = $('.location-desc-js').val();
             if(desc=='') {
-                //TODO::show error
+                geoError = $('.location-desc-js');
+                geoError.addClass('error');
+                geoError.siblings('.error-message').text('Location description required');
             } else {
                 var type = $('.location-type-js').val();
 
@@ -298,8 +330,17 @@ Kora.Records.Create = function() {
                     var lat = $('.location-lat-js').val();
                     var lon = $('.location-lon-js').val();
 
-                    if(lat == '' | lon == '') {
-                        //TODO::show error
+                    if(lat == '') {
+                        geoError = $('.location-lat-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('Latitude value required');
+                        valid = false;
+                    }
+
+                    if(lon == '') {
+                        geoError = $('.location-lon-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('Longitude value required');
                         valid = false;
                     }
                 } else if(type == 'UTM') {
@@ -307,15 +348,33 @@ Kora.Records.Create = function() {
                     var east = $('.location-east-js').val();
                     var north = $('.location-north-js').val();
 
-                    if(zone == '' | east == '' | north == '') {
-                        //TODO::show error
+                    if(zone == '') {
+                        geoError = $('.location-zone-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('UTM Zone is required');
+                        valid = false;
+                    }
+
+                    if(east == '') {
+                        geoError = $('.location-east-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('UTM Easting required');
+                        valid = false;
+                    }
+
+                    if(north == '') {
+                        geoError = $('.location-north-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('UTM Northing required');
                         valid = false;
                     }
                 } else if(type == 'Address') {
                     var addr = $('.location-addr-js').val();
 
                     if(addr == '') {
-                        //TODO::show error
+                        geoError = $('.location-addr-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('Location address required');
                         valid = false;
                     }
                 }
@@ -379,21 +438,29 @@ Kora.Records.Create = function() {
             dataType: 'json',
             singleFileUploads: false,
             done: function (e, data) {
-                //$('#file_error'+lastClickedFlid).text(''); //TODO:: MAKE THESE ERRORS USEFUL
                 inputName = 'file'+lastClickedFlid;
                 fileDiv = ".filenames-"+lastClickedFlid+"-js";
 
+                var $field = $('#'+lastClickedFlid);
+                $field.removeClass('error');
+                $field.siblings('.error-message').text('');
                 $.each(data.result[inputName], function (index, file) {
-                    var del = '<div class="form-group mt-xxs uploaded-file">';
-                    del += '<input type="hidden" name="'+inputName+'[]" value ="'+file.name+'">';
-                    del += '<a href="#" class="upload-fileup-js">';
-                    del += '<i class="icon icon-arrow-up"></i></a>';
-                    del += '<a href="#" class="upload-filedown-js">';
-                    del += '<i class="icon icon-arrow-down"></i></a>';
-                    del += '<span class="ml-sm">' + file.name + '</span>';
-                    del += '<a href="#" class="upload-filedelete-js ml-sm" data-url="' + file.deleteUrl + '">';
-                    del += '<i class="icon icon-trash danger"></i></a></div>';
-                    $(fileDiv).append(del);
+                    if(file.error == "" || !file.hasOwnProperty('error')) {
+                        var del = '<div class="form-group mt-xxs uploaded-file">';
+                        del += '<input type="hidden" name="' + inputName + '[]" value ="' + file.name + '">';
+                        del += '<a href="#" class="upload-fileup-js">';
+                        del += '<i class="icon icon-arrow-up"></i></a>';
+                        del += '<a href="#" class="upload-filedown-js">';
+                        del += '<i class="icon icon-arrow-down"></i></a>';
+                        del += '<span class="ml-sm">' + file.name + '</span>';
+                        del += '<a href="#" class="upload-filedelete-js ml-sm" data-url="' + file.deleteUrl + '">';
+                        del += '<i class="icon icon-trash danger"></i></a></div>';
+                        $(fileDiv).append(del);
+                    } else {
+                        $field.addClass('error');
+                        $field.siblings('.error-message').text(file.error);
+                        return false;
+                    }
                 });
 
                 //Reset progress bar
@@ -404,15 +471,19 @@ Kora.Records.Create = function() {
             },
             fail: function (e,data){
                 var error = data.jqXHR['responseText'];
-                console.log(error);
 
-                //TODO:: MAKE THESE ERRORS USEFUL
+                var $field = $('#'+lastClickedFlid);
+                $field.removeClass('error');
+                $field.siblings('.error-message').text('');
                 if(error=='InvalidType'){
-                    //$('#file_error{{$field->flid}}').text('');
+                    $field.addClass('error');
+                    $field.siblings('.error-message').text('Invalid file type provided');
                 } else if(error=='TooManyFiles'){
-                    //$('#file_error{{$field->flid}}').text('');
+                    $field.addClass('error');
+                    $field.siblings('.error-message').text('Max file limit was reached');
                 } else if(error=='MaxSizeReached'){
-                    //$('#file_error{{$field->flid}}').text('');
+                    $field.addClass('error');
+                    $field.siblings('.error-message').text('One or more uploaded files is bigger than limit');
                 }
             },
             progressall: function (e, data) {

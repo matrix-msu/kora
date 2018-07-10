@@ -10,7 +10,7 @@
 
                         {!! Form::open(['method' => 'PATCH', 'action' => 'Auth\UserController@activate']) !!}
 
-                        {!! Form::label('token', trans('user_activate.enter').': ') !!}
+                        {!! Form::label('token', trans('user_activate.enter').'') !!}
                         {!! Form::text('token', null, ['class' => 'form-control']) !!}
 
                         <br/>

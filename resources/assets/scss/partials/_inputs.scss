@@ -53,6 +53,20 @@
   &.no-padding {
     padding: 0;
   }
+  
+  .desc-modal {
+    @include transition();
+  
+    color: palette('box-shadow', accent);
+    float: right;
+    font-family: $ubuntu-medium;
+    font-size: 13px;
+
+    &:hover {
+      cursor: pointer;
+      opacity: 0.6;
+    }
+  }
 
   @media screen and (max-width: $max-mobile-med-width) {
     &.half {
