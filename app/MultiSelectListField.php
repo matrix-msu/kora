@@ -312,7 +312,7 @@ class MultiSelectListField extends BaseField {
      * @return Request - The update request
      */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
-        $recRequest[$flid] = $jsonField->options;
+        $recRequest[$flid] = $jsonField->value;
 
         return $recRequest;
     }

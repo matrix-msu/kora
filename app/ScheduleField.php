@@ -373,7 +373,7 @@ class ScheduleField extends BaseField {
      */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
         $events = array();
-        foreach($jsonField->events as $event) {
+        foreach($jsonField->value as $event) {
             $string = $event['title'] . ': ' . $event['start'] . ' - ' . $event['end'];
             array_push($events, $string);
         }

@@ -610,7 +610,7 @@ class ComboListField extends BaseField {
         $field = FieldController::getField($flid);
         $nameone = self::getComboFieldName($field, 'one');
         $nametwo = self::getComboFieldName($field, 'two');
-        foreach($jsonField->values as $val) {
+        foreach($jsonField->value as $val) {
             if(!is_array($val[$nameone]))
                 $fone = '[!f1!]' . $val[$nameone] . '[!f1!]';
             else

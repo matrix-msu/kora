@@ -424,7 +424,7 @@ class DocumentsField extends FileTypeField {
         } else {
             mkdir($newDir, 0775, true);
         }
-        foreach($jsonField->files as $file) {
+        foreach($jsonField->value as $file) {
             $name = $file->name;
             //move file from imp temp to tmp files
             copy($currDir . '/' . $name, $newDir . '/' . $name);
