@@ -154,17 +154,27 @@ Kora.Admin.Users = function() {
   function initializeCleanUpModals() {
     Kora.Modal.initialize();
 
+    // Deleting user via cards
     $('.user-trash-js').click(function(e) {
       e.preventDefault();
 
-      var cleanupModal = $(".users-cleanup-modal-js");
-      cleanupModal.find('.delete-content-js').show();
-      cleanupModal.find('.invite-content-js').hide();
-      cleanupModal.find('.content').addClass('small');
-      cleanupModal.find('.title-js').html('Delete User?');
-
       var card = $(this).parent().parent().parent();
       var id = card.attr('id').substring(5);
+      var selfDelete = (adminId == id);
+
+      var cleanupModal = $(".users-cleanup-modal-js");
+      if (selfDelete) {
+        // Admin deleting themselves
+        cleanupModal.find('.delete-self-content-js').show();
+        cleanupModal.find('.delete-content-js').hide();
+      } else {
+        // Admin deleting someone else
+        cleanupModal.find('.delete-content-js').show();
+        cleanupModal.find('.delete-self-content-js').hide();
+      }
+      cleanupModal.find('.invite-content-js').hide();
+      cleanupModal.find('.content').addClass('small');
+      cleanupModal.find('.title-js').html((selfDelete ? 'Delete Your Account?' : 'Delete User?'));
 
       // Unbind any click events to prevent other users from being deleted
       $('.user-cleanup-submit').unbind("click");
@@ -173,16 +183,22 @@ Kora.Admin.Users = function() {
       $('.user-cleanup-submit').click(function(e) {
         e.preventDefault();
 
-        var deleteForm = $(".modal form");
+        var deleteForm = $(this).parent();
         var actionURL = deleteForm.attr("action");
-        
+        var method = deleteForm.attr("method");
+
         $.ajax({
           url: actionURL + "/" + id,
-          type: 'POST',
+          type: method,
           data: deleteForm.serialize(),
+          datatype: 'json',
           success: function(data) {
             // TODO: Handle messages sent back from controller
-            location.reload();
+            if (selfDelete) {
+              window.location = loginUrl;
+            } else {
+              location.reload();
+            }
           }
         });
       });
@@ -190,7 +206,7 @@ Kora.Admin.Users = function() {
       Kora.Modal.open();
     });
 
-
+    // Inviting new users
     $('.new-object-button-js').click(function(e) {
       e.preventDefault();
 
@@ -262,8 +278,8 @@ Kora.Admin.Users = function() {
   
   initializeOptionDropdowns();
   initializeFilters();
-  initializeCards()
+  initializeCards();
   initializeSearch();
   initializeCleanUpModals();
-  initializeCardEvents()
-}
+  initializeCardEvents();
+};

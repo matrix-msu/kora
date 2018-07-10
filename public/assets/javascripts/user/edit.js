@@ -43,21 +43,30 @@ Kora.User.Edit = function() {
 
       Kora.Modal.open();
 
-      $('.user-cleanup-submit').click(function(e) {
-        e.preventDefault();
-
-        var deleteForm = $(".modal form");
-        var actionURL = deleteForm.attr("action");
-
-        $.ajax({
-          url: actionURL + "/" + userid,
-          type: 'POST',
-          data: deleteForm.serialize(),
-          success: function(data) {
-            //TODO:: handle returns to user or user management
-          }
-        });
-      });
+      //$('.user-cleanup-submit').click(function(e) {
+      //  e.preventDefault();
+      //
+      //  var deleteForm = $(this).parent();
+      //  var actionURL = deleteForm.attr("action");
+      //  var method = deleteForm.attr("method");
+      //
+      //    // Insert user id into delete URL
+      //  var pos = actionURL.indexOf('/delete')
+      //  actionURL = [actionURL.slice(0, pos), userid, actionURL.slice(pos)].join('');
+      //
+      //  $.ajax({
+      //    url: actionURL,
+      //    type: method,
+      //    data: deleteForm.serialize(),
+      //    datatype: 'json',
+      //    success: function(data) {
+      //      window.location = redirectUrl;
+      //    },
+      //    error: function(data) {
+      //      //location.reload();
+      //    }
+      //  });
+      //});
     });
   }
 
