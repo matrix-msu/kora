@@ -24,7 +24,7 @@
     padding: 60px 0;
     width: calc(100% - 80px);
   
-    @media screen and (max-width: $max-mobile-xs-width) {
+    @media screen and (max-width: $max-mobile-l-width) {
       width: calc(100% - 20px);
     }
   }

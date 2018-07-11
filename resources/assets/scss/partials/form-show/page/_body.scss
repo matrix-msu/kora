@@ -32,7 +32,7 @@
     }
   }
   
-  @media screen and (max-width: $max-mobile-xs-width) {
+  @media screen and (max-width: $max-mobile-l-width) {
 	  width: calc(100% - 20px);
   }
 
@@ -99,7 +99,7 @@
   padding: 10px 0 40px;
   width: calc(100% - 80px);
   
-  @media screen and (max-width: $max-mobile-xs-width) {
+  @media screen and (max-width: $max-mobile-l-width) {
 	  width: calc(100% - 20px);
   }
 }
