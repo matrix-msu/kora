@@ -5,6 +5,8 @@
 }
 
 .field {
+  @include transition();
+
   margin: 0 auto;
   width: calc(100% - 80px);
 
@@ -28,6 +30,10 @@
         top: 5px;
       }
     }
+  }
+  
+  @media screen and (max-width: $max-mobile-xs-width) {
+	  width: calc(100% - 20px);
   }
 
   .id {
@@ -87,9 +93,13 @@
 }
 
 .new-field-button {
+  @include transition();
+
   margin: 0 auto;
   padding: 10px 0 40px;
   width: calc(100% - 80px);
-
   
+  @media screen and (max-width: $max-mobile-xs-width) {
+	  width: calc(100% - 20px);
+  }
 }

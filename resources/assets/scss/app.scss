@@ -85,5 +85,9 @@
     margin-right: $mobile-xs-margin-total / 2 !important;
     max-width: $max-mobile-xs-width - $mobile-xs-margin-total !important;
     width: calc(100% - #{$mobile-xs-margin-total}) !important;
+
+    &.pages {
+      width: calc(100% - 15px) !important;
+    }
   }
 }
