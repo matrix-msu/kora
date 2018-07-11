@@ -92,7 +92,7 @@
                     }
                 ?>
                 <div class="preset-value-div">
-                    <div class="preset-value-title">{{$field->name}}: </div>
+                    <div class="preset-value-title">{{$field->name}}</div>
                     <div>{!! $data !!}</div>
                 </div>
             @endforeach

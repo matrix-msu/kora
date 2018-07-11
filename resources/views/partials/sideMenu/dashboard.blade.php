@@ -50,11 +50,23 @@
             <span>Jump to Project</span>
             <i class="icon icon-plus"></i>
           </a>
+		  
+		  <?php
+		  // Sort projects by name
+		  $name_pid_projects = [];
+		  
+		  foreach ($allowed_projects as $project)
+		  {
+		    $name_pid_projects[$project->pid] = $project->name;
+		  }
+		  
+		  asort($name_pid_projects, SORT_NATURAL | SORT_FLAG_CASE);
+		  ?>
 
           <ul class="drawer-deep-menu drawer-deep-menu-js">
-            @foreach($allowed_projects as $project)
+            @foreach($name_pid_projects as $project_pid => $project_name)
               <li class="drawer-deep-menu-link">
-                <a href="{{ url('/projects/'.$project->pid) }}">{{ $project->name }}</a>
+                <a href="{{ url('/projects/'.$project_pid) }}">{{ $project_name }}</a>
               </li>
             @endforeach
           </ul>

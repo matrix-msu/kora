@@ -4,19 +4,58 @@ Kora.Forms = Kora.Forms || {};
 Kora.Forms.Edit = function() {
 
   function initializeCleanUpModals() {
-    Kora.Modal.initialize();
+        Kora.Modal.initialize();
 
-    $('.form-trash-js').click(function(e) {
-      e.preventDefault();
+        $('.form-trash-js').click(function(e) {
+            e.preventDefault();
 
-      var $cleanupModal = $('.form-cleanup-modal-js');
+            var $cleanupModal = $('.form-cleanup-modal-js');
 
-      $cleanupModal.find('.title-js').html(
-        $(this).data('title')
-      );
+            $cleanupModal.find('.title-js').html( $(this).data('title') );
 
-      $cleanupModal.find('.delete-content-js').show();
-      Kora.Modal.open($cleanupModal);
+            Kora.Modal.open($cleanupModal);
+        });
+
+        $('.delete-records-js').click(function(e) {
+              e.preventDefault();
+
+              var $cleanupModal = $('.delete-records-modal-js');
+
+              Kora.Modal.open($cleanupModal);
+        });
+
+      $('.delete-files-js').click(function(e) {
+          e.preventDefault();
+
+          var $cleanupModal = $('.delete-files-modal-js');
+
+          Kora.Modal.open($cleanupModal);
+      });
+
+      $('.create-test-js').click(function(e) {
+          e.preventDefault();
+
+          var $cleanupModal = $('.create-test-records-js');
+
+          Kora.Modal.open($cleanupModal);
+      });
+
+      $('.delete-test-js').click(function(e) {
+          e.preventDefault();
+
+          var $cleanupModal = $('.delete-test-records-js');
+
+          Kora.Modal.open($cleanupModal);
+      });
+  }
+
+  function scrollTop (allScrolls) {
+    var scrollTo = Math.min(...allScrolls);
+    var scrollTo = scrollTo - 100;
+    setTimeout( function () {
+      $('html, body').animate({
+        scrollTop: scrollTo
+      }, 500);
     });
   }
 
@@ -30,10 +69,11 @@ Kora.Forms.Edit = function() {
             $.each($('.edit-form').serializeArray(), function(i, field) {
                 values[field.name] = field.value;
             });
+            values['_method'] = 'PATCH';
 
             $.ajax({
                 url: validationUrl,
-                method: 'PATCH',
+                method: 'POST',
                 data: values,
                 success: function(data) {
                     $('.edit-form').submit();
@@ -41,12 +81,16 @@ Kora.Forms.Edit = function() {
                 error: function(err) {
                     $('.error-message').text('');
                     $('.text-input, .text-area').removeClass('error');
+                    var allScrolls = [];
 
-                    $.each(err.responseJSON, function(fieldName, errors) {
+                    $.each(err.responseJSON.errors, function(fieldName, errors) {
                         var $field = $('#'+fieldName);
                         $field.addClass('error');
                         $field.siblings('.error-message').text(errors[0]);
+                        allScrolls.push($field.offset().top);
                     });
+
+                    scrollTop(allScrolls);
                 }
             });
         });
@@ -56,15 +100,16 @@ Kora.Forms.Edit = function() {
             var values = {};
             values[field] = this.value;
             values['_token'] = CSRFToken;
+            values['_method'] = 'patch';
 
             $.ajax({
                 url: validationUrl,
-                method: 'PATCH',
+                method: 'POST',
                 data: values,
                 error: function(err) {
-                    if (err.responseJSON[field] !== undefined) {
+                    if (err.responseJSON.errors[field] !== undefined) {
                         $('#'+field).addClass('error');
-                        $('#'+field).siblings('.error-message').text(err.responseJSON[field][0]);
+                        $('#'+field).siblings('.error-message').text(err.responseJSON.errors[field][0]);
                     } else {
                         $('#'+field).removeClass('error');
                         $('#'+field).siblings('.error-message').text('');

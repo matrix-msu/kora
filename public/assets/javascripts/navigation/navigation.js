@@ -277,9 +277,10 @@ $searchResults.on('click', 'a', function() {
 $clearResentSearchResults.on('click', function() {
   $.ajax({
     url: clearGlobalCacheUrl,
-    type: 'DELETE',
+    type: 'POST',
     data: {
-      '_token': CSRFToken
+      '_token': CSRFToken,
+      "_method": 'delete'
     },
     success: function(result) {
       //remove from page

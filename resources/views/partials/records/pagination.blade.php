@@ -1,6 +1,6 @@
 <section class="pagination">
     <div class="previous page {{$records->onFirstPage() ? 'disabled' : ''}}">
-        <a href="{{$records->previousPageUrl()}}">
+        <a href="{{$records->appends(\Illuminate\Support\Facades\Input::except('page'))->previousPageUrl()}}">
             <i class="icon icon-chevron left"></i>
             <span class="name underline-middle-hover">Previous Page</span>
         </a>
@@ -33,7 +33,7 @@
         @endif
     </div>
     <div class="next page {{$records->hasMorePages() ? '' : 'disabled'}}">
-        <a href="{{$records->nextPageUrl()}}">
+        <a href="{{$records->appends(\Illuminate\Support\Facades\Input::except('page'))->nextPageUrl()}}">
             <i class="icon icon-chevron right"></i>
             <span class="name underline-middle-hover">Next Page</span>
         </a>

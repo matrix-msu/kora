@@ -1,7 +1,7 @@
 {!! Form::open(['method' => 'POST', 'action' => 'TokenController@create']) !!}
 
     <div class="form-group">
-        {!! Form::label('title', 'Title: ') !!}
+        {!! Form::label('title', 'Title') !!}
         {!! Form::text('title', '', ['id' => 'title', 'class' => 'form-control']) !!}
     </div>
 
@@ -16,7 +16,7 @@
     </div>
 
     <div class="form-group">
-        {!! Form::label('project_list', trans('partials_newToken.projects').': ') !!}
+        {!! Form::label('project_list', trans('partials_newToken.projects').'') !!}
         {!! Form::select('projects[]', $projects, null, ['id' => 'projects', 'class' => 'form-control', 'multiple']) !!}
     </div>
 

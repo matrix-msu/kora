@@ -15,9 +15,10 @@ Kora.FormGroups.Index = function() {
   self.removeUser = function(formGroup, userID, fid) {
     $.ajax({
       url: removeUserPath,
-      type: 'PATCH',
+      type: 'POST',
       data: {
         "_token": CSRFToken,
+        "_method": 'patch',
         "userId": userID,
         "formGroup": formGroup,
         "fid": fid
@@ -113,9 +114,10 @@ Kora.FormGroups.Index = function() {
 
     $.ajax({
       url: addUsersPath,
-      type: 'PATCH',
+      type: 'POST',
       data: {
         "_token": CSRFToken,
+        "_method": 'patch',
         "userIDs": userIDs,
         "formGroup": formGroup
       },
@@ -225,9 +227,10 @@ Kora.FormGroups.Index = function() {
     } else {
       $.ajax({
         url: editNamePath,
-        type: 'PATCH',
+        type: 'POST',
         data: {
           "_token": CSRFToken,
+          "_method": 'patch',
           "gid": gid,
           "name": newName
         },
@@ -247,9 +250,10 @@ Kora.FormGroups.Index = function() {
   self.deletePermissionsGroup = function(gid) {
     $.ajax({
       url: deletePermissionsPath,
-      type: 'DELETE',
+      type: 'POST',
       data: {
         "_token": CSRFToken,
+        "_method": 'delete',
         "formGroup": gid
       },
       success: function() {
@@ -279,9 +283,10 @@ Kora.FormGroups.Index = function() {
 
     $.ajax({
       url: updatePermissionsPath,
-      type: 'PATCH',
+      type: 'POST',
       data: {
         "_token": CSRFToken,
+        "_method": 'patch',
         "formGroup": formGroup,
         "permCreate": permCreate,
         "permEdit": permEdit,

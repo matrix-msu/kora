@@ -103,6 +103,8 @@ class AdvancedSearchController extends Controller {
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $rids = Session::get('advanced_search_recents');
+        if(is_null($rids))
+            $rids = [];
 
         sort($rids);
 
@@ -202,7 +204,7 @@ class AdvancedSearchController extends Controller {
                         }
                         break;
                     default:
-                        if($request[$flid.'_input'] != '')
+                        if(isset($request[$flid.'_input']) && $request[$flid.'_input'] != '')
                             $processed[$flid][$flid.'_input'] = $request[$flid.'_input'];
                         break;
                 }

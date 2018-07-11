@@ -104,6 +104,8 @@ class ExodusController extends Controller {
             $projectArray[$p['pid']] = $p['name'];
         }
 
+        mysqli_close($con);
+
         return $projectArray;
     }
 

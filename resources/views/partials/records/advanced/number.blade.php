@@ -1,5 +1,5 @@
 <div class="form-group mt-xl">
-    {!! Form::label($field->flid.'_left',$field->name.': ') !!}
+    {!! Form::label($field->flid.'_left',$field->name) !!}
     <input class="text-input" type="number" name="{{$field->flid}}_left" placeholder="Enter left bound (leave blank for -infinity)">
 </div>
 <div class="form-group mt-sm">
