@@ -61,28 +61,6 @@
     <div class="spacer"></div>
 </div>
 
-<div class="form-group mt-xxxl">
-    <h2 class="sub-title">Keep Side Menu Open on Wider Screens?</h2>
-    <p class="description">On wider screens, you can set to have the slide in side menu to remain open,
-        even after clicking off the side menu, and when navigating to different pages.
-        You can also use the Lock symbol found at the bottom of the side menu to keep it open
-        or let is close automatically.</p>
-    <div class="check-box-half">
-        <input type="checkbox" checked value="true" name="sideMenuOpen" class="check-box-input check-box-input-js" />
-        <span class="check"></span>
-        <span class="placeholder">Keep Side Menu Open</span>
-    </div>
-    <div class="check-box-half">
-        <input type="checkbox" value="false" name="sideMenuOpen" class="check-box-input check-box-input-js" />
-        <span class="check"></span>
-        <span class="placeholder">Let Side Menu Close Automatically</span>
-    </div>
-</div>
-
-<div class="form-group mt-xxxl">
-    <div class="spacer"></div>
-</div>
-
 <div class="form-group my-xxxl">
     <h2 class="sub-title">Replay Kora Introduction?</h2>
     <p class="description">On wider screens, you can set to have the slide in side menu to remain open,
