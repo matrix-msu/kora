@@ -13,7 +13,7 @@
     border-radius: 0 0 5px 0;
     display: inline-block;
     padding: 20px 17.34px;
-    position: absolute;
+    position: fixed;
     text-decoration: none;
 
     i {
@@ -35,6 +35,10 @@
         transform: rotate(90deg) scale(1.25);
         -webkit-transform: rotate(90deg) scale(1.25);
       }
+    }
+    
+    @media screen and (max-width: $max-mobile-l-width) {
+      display: none;
     }
   }
 
