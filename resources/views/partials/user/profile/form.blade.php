@@ -1,4 +1,4 @@
-<div class="form card {{ $index == 0 ? 'active' : '' }}" id="{{$form['pid']}}">
+<div class="form card {{ $index == 0 ? 'active' : '' }}" id="{{$form['fid']}}">
     <div class="header {{ $index == 0 ? 'active' : '' }}">
         <div class="left pl-m">
             <a class="title underline-middle-hover mr-xl" href="{{ action("FormController@show",["pid" => $form['pid'], 'fid' => $form['fid']]) }}">

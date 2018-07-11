@@ -196,16 +196,19 @@ class UserController extends Controller {
         }
 
         if ($request->uid == 1) {
-          return redirect('/user'.\Auth::user()->id)->with('k3_global_error', 'cannot_delete_root_admin');
+          return redirect('user/'.\Auth::user()->id)->with('k3_global_error', 'cannot_delete_root_admin');
         }
 
-        $user = User::where('id', '=', $request->id)->first();
+        $user = User::where('id', '=', $request->uid)->first();
+        $selfDelete = (\Auth::user()->id == $request->uid);
         $user->delete();
 
-        if (\Auth::user()->admin) {
-          redirect('admin/users')->with('k3_global_success', 'user_deleted');
+        if ($selfDelete) {
+            return redirect('/')->with('k3_global_success', 'account_deleted');
+        } elseif (\Auth::user()->admin) {
+            return redirect('admin/users')->with('k3_global_success', 'user_deleted');
         } else {
-          redirect('/')->with('k3_global_success', 'account_deleted');
+            return redirect('/')->with('k3_global_success', 'account_deleted');
         }
     }
 

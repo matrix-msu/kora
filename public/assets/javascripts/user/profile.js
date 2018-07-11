@@ -228,6 +228,7 @@ Kora.User.Profile = function() {
         var extra = 20;
 
         var nameWidth = cardWidth - chevronWidth - extra;
+        console.log($card.attr('id'), cardWidth, chevronWidth);
         if (nameWidth < 0) {nameWidth = 0;}
 
         $name.css("max-width", nameWidth + "px");
@@ -253,6 +254,10 @@ Kora.User.Profile = function() {
 
     $(document).ready(function() {
       adjustCardTitle();
+
+      $('.select-content-section-js').click(function() {
+        adjustCardTitle();
+      });
     });
   }
 
