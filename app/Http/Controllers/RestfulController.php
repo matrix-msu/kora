@@ -570,7 +570,10 @@ class RestfulController extends Controller {
                     case Field::_ASSOCIATOR:
                         $key = explode('-',$k);
                         $rid = end($key);
-                        $where = "MATCH (`record`) AGAINST (\"$rid\" IN BOOLEAN MODE)";
+                        if(strlen($rid)<4)
+                            $where = "`record`=$rid";
+                        else
+                            $where = "MATCH (`record`) AGAINST (\"$rid\" IN BOOLEAN MODE)";
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."associator_support where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
