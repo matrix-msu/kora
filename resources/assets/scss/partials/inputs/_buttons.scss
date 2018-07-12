@@ -213,6 +213,10 @@ a.btn {
 }
 
 .pre-fixed-js {
-  /* z-index: 3; */
+  z-index: 3;
+  
+  &.with-aside {
+    z-index: 0;
+  }
 }
 
