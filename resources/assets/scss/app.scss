@@ -78,6 +78,12 @@
   }
 }
 
+@media screen and (max-width: $max-mobile-l-width) {
+  .center.pages {
+    width: calc(100% - 15px) !important;
+  }
+}
+
 @media screen and (max-width: $max-mobile-xs-width) {
   // scss-lint:disable ImportantRule
   .center {
