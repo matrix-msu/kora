@@ -102,7 +102,7 @@
     .search {
       display: inline-block;
       float: none;
-      padding-bottom: 20px;
+      padding-bottom: 10px;
     }
 
     .sort-options {
@@ -122,7 +122,6 @@
   .filters {
     margin-left: $mobile-xs-margin-total / 2;
     max-width: $max-mobile-xs-width - $mobile-xs-margin-total;
-    overflow-x: hidden;
     width: calc(100% - #{$mobile-xs-margin-total / 2 });
 
     .sort-options {

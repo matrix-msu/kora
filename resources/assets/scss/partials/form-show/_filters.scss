@@ -61,7 +61,7 @@
  }
 
   .show-options {
-    text-align: right;
+    float: right;
 
     a {
       @include transition();
