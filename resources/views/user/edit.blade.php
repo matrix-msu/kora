@@ -50,11 +50,13 @@
           </a>
         </div>
         <div class="body">
-          @if (\Auth::user()->id == $user->id)
-            @include("partials.user.userDeleteForm", ['user' => $user])
-          @else
-            @include("partials.admin.userManagement.userDeleteForm", ['user' => $user])
-          @endif
+          {!! Form::open(['method' => 'DELETE', 'action' => ['Auth\UserController@delete', 'uid' => $user->id], 'class' => "delete-content-js"]) !!}
+            @if (\Auth::user()->id == $user->id)
+                @include("partials.user.userSelfDeleteForm")
+            @else
+                @include("partials.user.userDeleteForm")
+            @endif
+          {!! Form::close() !!}
         </div>
       </div>
     </div>
@@ -68,7 +70,8 @@
   <script type="text/javascript">
       var validationUrl = '{{action('Auth\UserController@validateUserFields',['uid'=>$user->id])}}';
       var CSRFToken = '{{ csrf_token() }}';
-      var userid = {{$user->id}};
+      var userid = '{{$user->id}}';
+      var redirectUrl = '{{ (\Auth::user()->id == $user->id ? url('/') : url('admin/users')) }}';
 
       Kora.User.Edit();
   </script>

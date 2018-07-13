@@ -563,14 +563,17 @@ class RestfulController extends Controller {
                     		$key = '"'.$k.'"*';
                     	else
                         	$key = $k.'*';
-                        $where = "MATCH (`desc`) AGAINST ('$key' IN BOOLEAN MODE) OR MATCH (`address`) AGAINST ($key IN BOOLEAN MODE)";
+                        $where = "MATCH (`desc`) AGAINST ('$key' IN BOOLEAN MODE) OR MATCH (`address`) AGAINST ('$key' IN BOOLEAN MODE)";
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."geolocator_support where `flid`=".$field->flid." AND ($where)";
                         $selectFinal[] = $select;
                         break;
                     case Field::_ASSOCIATOR:
                         $key = explode('-',$k);
                         $rid = end($key);
-                        $where = "MATCH (`record`) AGAINST (\"$rid\" IN BOOLEAN MODE)";
+                        if(strlen($rid)<4)
+                            $where = "`record`=$rid";
+                        else
+                            $where = "MATCH (`record`) AGAINST (\"$rid\" IN BOOLEAN MODE)";
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."associator_support where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;

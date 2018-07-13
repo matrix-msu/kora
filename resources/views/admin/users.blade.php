@@ -57,8 +57,17 @@
           </a>
         </div>
         <div class="body">
-          @include("partials.admin.userManagement.userDeleteForm")
-          @include("partials.admin.userManagement.inviteForm")
+          {!! Form::open(['method' => 'DELETE', 'action' => ['AdminController@deleteUser', 'id' => ''], 'class' => "delete-self-content-js"]) !!}
+            @include("partials.user.userSelfDeleteForm")
+          {!! Form::close() !!}
+
+          {!! Form::open(['method' => 'DELETE', 'action' => ['AdminController@deleteUser', 'id' => ''], 'class' => "delete-content-js"]) !!}
+            @include("partials.user.userDeleteForm")
+          {!! Form::close() !!}
+
+          {!! Form::open(['method' => 'PATCH', 'action' => 'AdminController@batch', 'class' => 'invite-content-js']) !!}
+            @include("partials.admin.userManagement.inviteForm")
+          {!! Form::close() !!}
         </div>
       </div>
     </div>
@@ -71,6 +80,9 @@
 
   <script type="text/javascript">
     var CSRFToken = '{{ csrf_token() }}';
+    var adminId = '{{ \Auth::user()->id }}';
+    var loginUrl = '{{ url('/') }}';
+
     Kora.Admin.Users();
 
     /**

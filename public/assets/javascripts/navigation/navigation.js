@@ -59,6 +59,19 @@ $navBar.on('click', '.navigation-sub-menu-toggle-js', function(e) {
 });
 
 $navBar.on('click', '.side-menu-toggle-js', function() {
+
+  setTimeout(function() {
+    var $headerHeight = $('.aside-content .header-elements').height();
+    var $footerHeight = $('.aside-content .footer-elements').height();
+    var combinedHeight = $headerHeight + $footerHeight
+
+    if (combinedHeight > (window.innerHeight - 50)) {
+      $('.aside-content .footer-elements').css('position', 'static');
+    } else {
+      $('.aside-content .footer-elements').css('position', 'absolute');
+    }
+  }, 400);
+
   var $icon = $(this).children();
 
   $sideMenu.toggleClass('active');
@@ -74,7 +87,7 @@ $navBar.on('click', '.side-menu-toggle-js', function() {
       $('.pre-fixed-js').addClass('pre-fixed-with-aside');
   } else {
     $('.center, .floating-buttons').removeClass('with-aside');
-	$('.allowed-actions').removeClass('with-aside');
+    $('.allowed-actions').removeClass('with-aside');
     if (getBrowserWidth() > 870)
       $('.pre-fixed-js').removeClass('pre-fixed-with-aside');
 
@@ -192,8 +205,8 @@ $searchInput.keydown(function(e) {
                         });
                     });
                 });
-			} else if (searchText == '') {
-+                $searchResults.parent().slideUp(100);
+            } else if (searchText == '') {
+                $searchResults.parent().slideUp(100);
             } else {
                 $clearResentSearchResults.parent().slideDown(400, function () {
                     $recentSearch.parent().slideDown(400, function () {
@@ -342,7 +355,28 @@ $sideMenu.on('click', '.drawer-toggle-js', function(e) {
   var $drawerContent = $(this).next();
   var $icon = $(this).children().last();
 
+  if ($(this).children('span').text() == 'Management') {
+    $('.aside-content .footer-elements').css('position', 'absolute');
+  }
+
+  setTimeout(function() {
+    var $headerHeight = $('.aside-content .header-elements').height();
+    var $footerHeight = $('.aside-content .footer-elements').height();
+    var combinedHeight = $headerHeight + $footerHeight
+
+    if (combinedHeight > (window.innerHeight - 50)) {
+      $('.aside-content .footer-elements').css('position', 'static');
+    } else {
+      $('.aside-content .footer-elements').css('position', 'absolute');
+    }
+  }, 400);
+  
+  if ($drawerElement.parent().hasClass('footer-elements')) {
+    $drawerElement.parent().toggleClass('active');
+  }
+
   if ($drawerElement.hasClass('active')) {
+    //$('.aside-content .footer-elements').css('position', 'absolute');
     closeSidemenuDrawers();
     return;
   }
