@@ -386,6 +386,9 @@ class ImportController extends Controller {
                     if($simple) {
                         $name = (string)$field;
                         //move file from imp temp to tmp files
+                        if(!file_exists($currDir . '/' . $name))
+                            return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                                "record_validation_error"=>[$request->kid => "$fieldSlug: trouble finding file $name"]],500);
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
                         //add input for this file
                         array_push($files, $name);
@@ -396,6 +399,9 @@ class ImportController extends Controller {
                         foreach ($field->File as $file) {
                             $name = (string)$file->Name;
                             //move file from imp temp to tmp files
+                            if(!file_exists($currDir . '/' . $name))
+                                return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                                    "record_validation_error"=>[$request->kid => "$fieldSlug: trouble finding file $name"]],500);
                             copy($currDir . '/' . $name, $newDir . '/' . $name);
                             //add input for this file
                             array_push($files, $name);
@@ -438,9 +444,10 @@ class ImportController extends Controller {
                     if($simple) {
                         $name = (string)$field;
                         //move file from imp temp to tmp files
+                        if(!file_exists($currDir . '/' . $name))
+                            return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                                "record_validation_error"=>[$request->kid => "$fieldSlug: trouble finding file $name"]],500);
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
-                        copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
-                        copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
                         if (file_exists($currDir . '/thumbnail'))
                             copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                         else {
@@ -466,9 +473,10 @@ class ImportController extends Controller {
                         foreach ($field->File as $file) {
                             $name = (string)$file->Name;
                             //move file from imp temp to tmp files
+                            if(!file_exists($currDir . '/' . $name))
+                                return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                                    "record_validation_error"=>[$request->kid => "$fieldSlug: trouble finding file $name"]],500);
                             copy($currDir . '/' . $name, $newDir . '/' . $name);
-                            copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
-                            copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
                             if (file_exists($currDir . '/thumbnail'))
                                 copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                             else {
