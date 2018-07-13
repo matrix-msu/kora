@@ -204,10 +204,23 @@
     }
   }
 
+  .profile-pic-cont {
+    display: inline-block;
+
+    .icon-user {
+      border: solid 2px palette('white', base);
+      border-radius: 50%;
+      box-shadow: 0 3px 5px 0 palette('box-shadow', base, .15);
+      font-size: 48px;
+      margin-right: 30px;
+      padding: 25px;
+    }
+  }
+
   .profile-pic {
     border: solid 2px palette('white', base);
     border-radius: 50%;
-    box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
+    box-shadow: 0 3px 5px 0 palette('box-shadow', base, .15);
     height: 44px;
     margin-right: #{map-get($spacing, xl)};
     object-fit: cover;

@@ -344,9 +344,28 @@ Kora.User.Edit = function() {
       });
   }
 
+    // Ensure provided pic url matches an existing picture
+    function initializeProfilePicValidation() {
+        var $imgCont = $('.profile-pic-cont-js');
+        var $img = $imgCont.find($('.profile-pic-js'));
+        if ($img.length > 0) {
+            // Profile pic url provided, check it exists in app
+            $.get($img.attr('src'))
+                .done(function() {
+                    // Image exists
+                    console.log("img exists");
+                })
+                .fail(function() {
+                    console.log("img does not exist");
+                    $imgCont.html('<i class="icon icon-user">');
+                });
+        }
+    }
+
   initializeChosen();
   initializePasswordChange();
   initializeCleanUpModals();
   initializeForm();
   initializeValidation();
+  initializeProfilePicValidation();
 }

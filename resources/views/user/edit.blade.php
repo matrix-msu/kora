@@ -9,11 +9,13 @@
     <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
     <div class="inner-wrap center">
       <h1 class="title">
-        @if ($user->profile)
-          <img class="profile-pic" src="{{ $user->getProfilePicUrl() }}" alt="Profile Pic">
-        @else
-          <i class="icon icon-user"></i>
-        @endif
+        <div class="profile-pic-cont profile-pic-cont-js">
+          @if ($user->profile)
+            <img class="profile-pic profile-pic-js" src="{{ $user->getProfilePicUrl() }}" alt="Profile Pic">
+          @else
+            <i class="icon icon-user"></i>
+          @endif
+        </div>
         <span>Editing {{ $user->first_name }} {{  $user->last_name }}</span>
       </h1>
       @if (\Auth::user()->admin && \Auth::user()->id != $user->id)
