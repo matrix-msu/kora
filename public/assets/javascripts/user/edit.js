@@ -353,10 +353,8 @@ Kora.User.Edit = function() {
             $.get($img.attr('src'))
                 .done(function() {
                     // Image exists
-                    console.log("img exists");
                 })
                 .fail(function() {
-                    console.log("img does not exist");
                     $imgCont.html('<i class="icon icon-user">');
                 });
         }
