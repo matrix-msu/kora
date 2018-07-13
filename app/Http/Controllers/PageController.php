@@ -370,7 +370,7 @@ class PageController extends Controller {
         if(!FieldController::checkPermissions($fid, 'edit'))
             return response()->json(["status"=>false,"message"=>"cant_edit_field"],500);
 
-        $formLayout = $request->layout;
+        $formLayout = json_decode($request->layout);
         $pSeq = 0;
 
         foreach($formLayout as $pageID => $fields) {
