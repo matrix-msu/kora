@@ -7,10 +7,10 @@
     </div>
     <div class="pages">
         @if (!$records->onFirstPage())
-            <a href="{{$records->url(1)}}" class="page-link">1</a>
+            <a href="{{$records->url(1)}}" class="page-link first-page">1</a>
             @if ($records->currentPage() > 2)
                 @if ($records->currentPage() > 4)
-                    <a href="{{$records->url($records->currentPage()-3)}}" class="page-link">...</a>
+                    <a href="{{$records->url($records->currentPage()-3)}}" class="page-link dots-backwards">...</a>
                 @endif
                 @if ($records->currentPage() > 3)
                     <a href="{{$records->url($records->currentPage()-2)}}" class="page-link">{{$records->currentPage() - 2}}</a>
@@ -26,11 +26,11 @@
                     <a href="{{$records->url($records->currentPage()+2)}}" class="page-link">{{$records->currentPage() + 2}}</a>
                 @endif
                 @if ($records->lastPage() - 3 > $records->currentPage())
-                    <a href="{{$records->url($records->currentPage()+3)}}" class="page-link">...</a>
+                    <a href="{{$records->url($records->currentPage()+3)}}" class="page-link dots-forwards">...</a>
                 @endif
             @endif
             @if ($records->lastPage() != 0)
-              <a href="{{$records->url($records->lastPage())}}" class="page-link">{{$records->lastPage()}}</a>
+              <a href="{{$records->url($records->lastPage())}}" class="page-link last-page">{{$records->lastPage()}}</a>
             @endif
         @endif
     </div>

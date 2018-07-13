@@ -6,6 +6,8 @@
   width: $max-site-width;
 
   .page {
+    @include transition();
+
     cursor: pointer;
 
     a {
@@ -34,8 +36,12 @@
       }
     }
 
-    &:hover a i {
-      box-shadow: -5px 0 10px 0 rgba(4, 182, 175, 0.2);
+    &:hover {
+      opacity: 0.9;
+
+      a i {
+        box-shadow: -5px 0 10px 0 rgba(4, 182, 175, 0.2);
+      }
     }
 
     &.previous:hover a i {
@@ -128,7 +134,11 @@
     .pages .page-link {
       display: none;
 
-      &.active {
+      &.active,
+      &.dots-forwards,
+      &.dots-backwards,
+      &.first-page,
+      &.last-page {
         display: inline-block;
       }
     }
