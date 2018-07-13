@@ -249,6 +249,10 @@ class ImportController extends Controller {
                 $originRid = null;
 
             foreach($record->children() as $key => $field) {
+                //Just in case there are extra/unused tags in the XML
+                if(!array_key_exists($key,$matchup))
+                    continue;
+
                 $fieldSlug = $matchup[$key];
                 $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
                 $type = $field->attributes()->type;
@@ -534,6 +538,10 @@ class ImportController extends Controller {
                 $originRid = null;
 
             foreach($record as $slug => $field) {
+                //Just in case there are extra/unused fields in the JSON
+                if(!array_key_exists($slug,$matchup))
+                    continue;
+
                 $fieldSlug = $matchup[$slug];
                 $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
                 $type = $field['type'];
@@ -673,8 +681,6 @@ class ImportController extends Controller {
                         $name = $file['name'];
                         //move file from imp temp to tmp files
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
-                        copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
-                        copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
                         if(file_exists($currDir . '/thumbnail'))
                             copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                         else {
