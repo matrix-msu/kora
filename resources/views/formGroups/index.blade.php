@@ -28,7 +28,7 @@
   @include("partials.formGroups.deletePermissionModal")
   @include("partials.formGroups.addUsersModal")
   @include("partials.formGroups.removeUserModal")
-  @include("partials.formGroups.viewUserModal")
+  @include("partials.user.profileModal")
 
   <section class="new-object-button center">
     @if(\Auth::user()->isProjectAdmin($project))
@@ -194,7 +194,15 @@
 
             @foreach($users as $user)
               <div class="user user-js" id="list-element{{$formGroup->id}}{{$user->id}}">
-                <a href="#" class="name view-user-js">{{ $user->first_name }} {{ $user->last_name }}</a>
+                <a href="#" class="name view-user-js"
+                   data-name="{{$user->getFullNameAttribute()}}"
+                   data-username="{{$user->username}}"
+                   data-email="{{$user->email}}"
+                   data-organization="{{$user->organization}}"
+                   data-profile="{{$user->getProfilePicUrl()}}"
+                   data-profile-url="{{action('Auth\UserController@index', ['uid' => $user->id])}}">
+                  {{$user->getFullNameAttribute()}}
+                </a>
 
                 @if (\Auth::user()->id != $user->id)
                   <a href="#" class="cancel remove-user-js" data-value="[{{$formGroup->id}}, {{$user->id}}, {{$project->pid}}, {{$form->fid}}]">
