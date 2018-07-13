@@ -113,7 +113,7 @@ Kora.Forms.Show = function() {
           type: 'POST',
           data: {
             "_token": CSRFToken,
-            "layout": layout,
+            "layout": JSON.stringify(layout),
           }
         });
       }
