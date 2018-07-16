@@ -3,6 +3,6 @@
     Once deleted, you will be logged out, and unable to sign in again with this account.
 </span>
 
-<div class="form-group user-cleanup-submit">
+<div class="form-group user-self-delete-1-submit user-self-delete-1-submit-js">
     {!! Form::submit('Delete My Account',['class' => 'btn warning']) !!}
 </div>

@@ -32,14 +32,14 @@
   <section class="form-container edit-form center">
 
     @if (\Auth::user()->admin && \Auth::user()->id != $user->id)
-      {!! Form::model($user,  ['enctype' => 'multipart/form-data', 'method' => 'PATCH', 'action' => ['AdminController@update', $user->id], 'class' => 'user-form form-file-input']) !!}
+      {!! Form::model($user,  ['enctype' => 'multipart/form-data', 'method' => 'PATCH', 'action' => ['AdminController@update', $user->id], 'class' => 'user-form user-form-js form-file-input']) !!}
     @else
-      {!! Form::model($user,  ['enctype' => 'multipart/form-data', 'method' => 'PATCH', 'action' => ['Auth\UserController@update', $user->id], 'class' => 'user-form form-file-input']) !!}
+      {!! Form::model($user,  ['enctype' => 'multipart/form-data', 'method' => 'PATCH', 'action' => ['Auth\UserController@update', $user->id], 'class' => 'user-form user-form-js form-file-input']) !!}
     @endif
       @include('partials.user.form', ['uid' => $user->id, 'type' => 'edit'])
     {!! Form::close() !!}
 
-    <div class="modal modal-js modal-mask user-cleanup-modal-js">
+    <div class="modal modal-js modal-mask user-delete-modal-js">
       <div class="content small">
         <div class="header">
           @if (\Auth::user()->admin && \Auth::user()->id != $user->id)
@@ -52,12 +52,28 @@
           </a>
         </div>
         <div class="body">
-          {!! Form::open(['method' => 'DELETE', 'action' => ['Auth\UserController@delete', 'uid' => $user->id], 'class' => "delete-content-js"]) !!}
-            @if (\Auth::user()->id == $user->id)
-                @include("partials.user.userSelfDeleteForm")
-            @else
-                @include("partials.user.userDeleteForm")
-            @endif
+          @if (\Auth::user()->id == $user->id)
+            @include("partials.user.userSelfDeleteForm")
+          @else
+            {!! Form::open(['method' => 'DELETE', 'action' => ['Auth\UserController@delete', 'uid' => $user->id], 'class' => "delete-content-js"]) !!}
+              @include("partials.user.userDeleteForm")
+            {!! Form::close() !!}
+          @endif
+        </div>
+      </div>
+    </div>
+
+    <div class="modal modal-js modal-mask user-self-delete-modal-js">
+      <div class="content small">
+        <div class="header">
+          <span class="title title-js">Are you Really, Really Sure?</span>
+          <a href="#" class="modal-toggle modal-toggle-js">
+            <i class="icon icon-cancel"></i>
+          </a>
+        </div>
+        <div class="body">
+          {!! Form::open(['method' => 'DELETE', 'action' => ['Auth\UserController@delete', 'uid' => $user->id], 'class' => "self-delete-js"]) !!}
+            @include("partials.user.userSelfDeleteActualForm")
           {!! Form::close() !!}
         </div>
       </div>
