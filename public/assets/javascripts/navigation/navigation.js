@@ -69,11 +69,13 @@ $navBar.on('click', '.side-menu-toggle-js', function() {
 
     setCookie('sidebar', 1);
     $('.center, .floating-buttons').addClass('with-aside');
-	$('.allowed-actions').addClass('with-aside');
+    $('.field.card').addClass('with-aside');
+    $('.allowed-actions').addClass('with-aside');
     if (getBrowserWidth() > 870)
       $('.pre-fixed-js').addClass('pre-fixed-with-aside');
   } else {
     $('.center, .floating-buttons').removeClass('with-aside');
+    $('.field.card').removeClass('with-aside');
 	$('.allowed-actions').removeClass('with-aside');
     if (getBrowserWidth() > 870)
       $('.pre-fixed-js').removeClass('pre-fixed-with-aside');

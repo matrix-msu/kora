@@ -38,6 +38,12 @@
   @media screen and (max-width: $max-mobile-l-width) {
 	  width: calc(100% - 20px);
   }
+  
+  &.with-aside {
+    @media screen and (min-width: $max-mobile-xs-width) and (max-width: $max-tablet-width) {
+      width: calc(100% - 20px);
+    }
+  }
 
   .id {
     margin-bottom: 5px;

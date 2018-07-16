@@ -75,6 +75,10 @@
     margin-right: $tablet-margin-total / 2 !important;
     max-width: $max-tablet-width - $tablet-margin-total !important;
     width: calc(100% - #{$tablet-margin-total}) !important;
+
+    &.pages.with-aside {
+      width: calc(100% - 20px) !important;
+    }
   }
 }
 
