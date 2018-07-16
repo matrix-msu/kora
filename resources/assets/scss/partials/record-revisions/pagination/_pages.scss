@@ -81,17 +81,23 @@
     }
   }
 
-  @media screen and (max-width: 360px) {
-    .pages .page-link {
-      display: none;
-
-      &.active,
-      &.dots-forwards,
-      &.dots-backwards,
-      &.first-page,
-      &.last-page {
-        display: inline-block;
-      }
+  @media screen and (max-width: $max-mobile-med-width) {
+    display: block;
+    height: 100px;
+    position: relative;
+    
+    .pages {
+      text-align: center;
+      width: 100%;
+    }
+    
+    .page {
+      bottom: 0;
+      position: absolute;
+    }
+    
+    .page.next {
+      right: 0;
     }
   }
 }
