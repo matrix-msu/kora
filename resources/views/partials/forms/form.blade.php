@@ -101,8 +101,12 @@
     <div class="form-record-management">
       <p class="title">Test Record Management</p>
       <div class="button-container">
-        <a href="#" class="btn half-sub-btn">Create Test Record</a>
-        <a href="#" class="btn half-sub-btn warning disabled">Delete All Test Records?</a>
+        <a href="#" class="btn half-sub-btn create-test-js">Create Test Record</a>
+          @if($form->records()->where('isTest','=',1)->count()==0)
+            <a href="#" class="btn half-sub-btn warning delete-test-js disabled">Delete All Test Records?</a>
+          @else
+            <a href="#" class="btn half-sub-btn warning delete-test-js">Delete All Test Records?</a>
+          @endif
       </div>
     </div>
 
@@ -114,8 +118,16 @@
     <div class="form-file-size">
       <p class="title">Current Form Filesize - {{$filesize}}</p>
       <div class="button-container">
-        <a href="#" class="btn half-sub-btn warning">Delete Old Record Files</a>
-        <a href="#" class="btn half-sub-btn warning">Delete All Form Records?</a>
+        @if($filesize=="0 B")
+          <a href="#" class="btn half-sub-btn warning delete-files-js disabled">Delete Old Record Files</a>
+        @else
+          <a href="#" class="btn half-sub-btn warning delete-files-js">Delete Old Record Files</a>
+        @endif
+        @if($form->records()->count()==0)
+            <a href="#" class="btn half-sub-btn warning delete-records-js disabled">Delete All Form Records?</a>
+        @else
+            <a href="#" class="btn half-sub-btn warning delete-records-js">Delete All Form Records?</a>
+        @endif
       </div>
     </div>
 
@@ -129,7 +141,7 @@
 
   <div class="form-group">
     <div class="form-cleanup">
-      <a class="btn dot-btn trash warning form-trash-js tooltip" data-title="Delete Form?" href="#" tooltip="Delete Form">
+      <a class="btn dot-btn trash warning form-trash-js tooltip" href="#" tooltip="Delete Form">
         <i class="icon icon-trash"></i>
       </a>
     </div>

@@ -6,10 +6,16 @@
 @stop
 
 @section('fieldOptions')
-    <div class="form-group">
+    <div class="form-group single-line-js">
         {!! Form::label('default','Default') !!}
-        <span class="error-message"></span>
+        <span class="error-message single-line"></span>
         {!! Form::text('default', $field->default, ['class' => 'text-input text-default-js', 'placeholder' => 'Enter default value here']) !!}
+    </div>
+
+    <div class="form-group multi-line-js hidden">
+        {!! Form::label('default','Default') !!}
+        <span class="error-message multi-line"></span>
+        {!! Form::textarea('default', $field->default, ['class' => 'text-area text-area-default text-area-default-js', 'placeholder' => "Enter default value here"]) !!}
     </div>
 
     <div class="form-group mt-xl">
@@ -17,8 +23,8 @@
         <span class="error-message"></span>
         {!! Form::text('regex', \App\Http\Controllers\FieldController::getFieldOption($field,'Regex'), ['class' => 'text-input text-regex-js', 'placeholder' => 'Enter regular expression pattern here']) !!}
         <div><a href="#" class="field-preset-link open-regex-modal-js">Use a Value Preset for this Regex</a></div>
-        <div><a href="#" class="field-preset-link open-create-regex-modal-js right
-            @if(\App\Http\Controllers\FieldController::getFieldOption($field,'Regex')=='') disabled @endif">
+        <div class="open-create-regex"><a href="#" class="field-preset-link open-create-regex-modal-js right
+            @if(\App\Http\Controllers\FieldController::getFieldOption($field,'Regex')=='') disabled tooltip @endif" tooltip="You must submit or update the field before creating a New Value Preset">
                 Create a New Value Preset from this Regex</a></div>
     </div>
 

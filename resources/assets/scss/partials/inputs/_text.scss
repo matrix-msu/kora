@@ -15,6 +15,10 @@
   text-align: left;
   width: 100%;
 
+  .inner-wrap & {
+    border: 1px solid palette('gray', slate, 0.1);
+  }
+
   &:disabled {
     cursor: not-allowed;
   }

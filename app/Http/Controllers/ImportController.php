@@ -249,6 +249,10 @@ class ImportController extends Controller {
                 $originRid = null;
 
             foreach($record->children() as $key => $field) {
+                //Just in case there are extra/unused tags in the XML
+                if(!array_key_exists($key,$matchup))
+                    continue;
+
                 $fieldSlug = $matchup[$key];
                 $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
                 $type = $field->attributes()->type;
@@ -259,19 +263,30 @@ class ImportController extends Controller {
                     $type = Field::where('slug', '=', $fieldSlug)->get()->first()->type;
 
                 //TODO::modular?
-                //TODO::add assoc
 
                 if($type == 'Text' | $type == 'Rich Text' | $type == 'Number' | $type == 'List')
                     $recRequest[$flid] = (string)$field;
                 else if($type == 'Multi-Select List') {
+                    if(empty($field->value))
+                        return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                            "record_validation_error"=>[$request->kid => "$fieldSlug format is incorrect for a Multi-Select List Field"]],500);
                     $recRequest[$flid] = (array)$field->value;
                 } else if($type == 'Generated List') {
+                    if(empty($field->value))
+                        return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                            "record_validation_error"=>[$request->kid => "$fieldSlug format is incorrect for a Generated List Field"]],500);
                     $recRequest[$flid] = (array)$field->value;
                 } else if($type == 'Combo List') {
+                    if(empty($field->Value))
+                        return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                            "record_validation_error"=>[$request->kid => "$fieldSlug format is incorrect for a Combo List Field"]],500);
                     $values = array();
                     $nameone = str_replace(" ","_",ComboListField::getComboFieldName(FieldController::getField($flid), 'one'));
                     $nametwo = str_replace(" ","_",ComboListField::getComboFieldName(FieldController::getField($flid), 'two'));
                     foreach($field->Value as $val) {
+                        if(empty($val->{$nameone}))
+                            return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                                "record_validation_error"=>[$request->kid => "$fieldSlug field one format is incorrect for a Combo List Field"]],500);
                         if((string)$val->{$nameone} != '')
                             $fone = '[!f1!]' . (string)$val->{$nameone} . '[!f1!]';
                         else if(sizeof($val->{$nameone}->value) == 1)
@@ -279,7 +294,9 @@ class ImportController extends Controller {
                         else
                             $fone = '[!f1!]' . implode("[!]",(array)$val->{$nameone}->value) . '[!f1!]';
 
-
+                        if(empty($val->{$nametwo}))
+                            return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                                "record_validation_error"=>[$request->kid => "$fieldSlug field two format is incorrect for a Combo List Field"]],500);
                         if((string)$val->{$nametwo} != '')
                             $ftwo = '[!f2!]' . (string)$val->{$nametwo} . '[!f2!]';
                         else if(sizeof($val->{$nametwo}->value) == 1)
@@ -301,6 +318,9 @@ class ImportController extends Controller {
                         $recRequest['era_' . $flid] = 'CE';
                         $recRequest[$flid] = '';
                     } else {
+                        if(empty($field->Month) && empty($field->Day) && empty($field->Year))
+                            return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                                "record_validation_error"=>[$request->kid => "$fieldSlug format is incorrect for a Date Field"]],500);
                         $recRequest['circa_' . $flid] = (string)$field->Circa;
                         $recRequest['month_' . $flid] = (string)$field->Month;
                         $recRequest['day_' . $flid] = (string)$field->Day;
@@ -310,13 +330,22 @@ class ImportController extends Controller {
                     }
                 } else if($type == 'Schedule') {
                     $events = array();
+                    if(empty($field->Event))
+                        return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                            "record_validation_error"=>[$request->kid => "$fieldSlug format is incorrect for a Schedule Field"]],500);
                     foreach($field->Event as $event) {
+                        if(empty($event->Title) | empty($event->Begin) | empty($event->End))
+                            return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                                "record_validation_error"=>[$request->kid => "$fieldSlug event format is incorrect for a Schedule Field"]],500);
                         $string = $event->Title . ': ' . $event->Begin . ' - ' . $event->End;
                         array_push($events, $string);
                     }
                     $recRequest[$flid] = $events;
                 } else if($type == 'Geolocator') {
                     $geo = array();
+                    if(empty($field->Location))
+                        return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                            "record_validation_error"=>[$request->kid => "$fieldSlug format is incorrect for a Geolocator Field"]],500);
                     foreach($field->Location as $loc) {
                         $geoReq = new Request();
 
@@ -334,6 +363,9 @@ class ImportController extends Controller {
                             $geoReq->addr = (string)$loc->Address;
                         }
 
+                        if(empty($loc->Desc))
+                            return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                                "record_validation_error"=>[$request->kid => "$fieldSlug description format is incorrect for a Geolocator Field"]],500);
                         $string = '[Desc]' . $loc->Desc . '[Desc]';
                         $string .= GeolocatorField::geoConvert($geoReq);
                         array_push($geo, $string);
@@ -358,13 +390,32 @@ class ImportController extends Controller {
                     if($simple) {
                         $name = (string)$field;
                         //move file from imp temp to tmp files
+                        if(!file_exists($currDir . '/' . $name)) {
+                            //Before we fail, let's see first if it's just failing because the originRid was specified
+                            // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
+                            $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                            if(!file_exists($currDir . '/' . $name))
+                                return response()->json(["status" => false, "message" => "xml_validation_error",
+                                    "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
+                        }
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
                         //add input for this file
                         array_push($files, $name);
                     } else {
+                        if(empty($field->File))
+                            return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                                "record_validation_error"=>[$request->kid => "$fieldSlug format is incorrect for a File Type Field"]],500);
                         foreach ($field->File as $file) {
                             $name = (string)$file->Name;
                             //move file from imp temp to tmp files
+                            if(!file_exists($currDir . '/' . $name)) {
+                                //Before we fail, let's see first if it's just failing because the originRid was specified
+                                // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
+                                $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                                if(!file_exists($currDir . '/' . $name))
+                                    return response()->json(["status" => false, "message" => "xml_validation_error",
+                                        "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
+                            }
                             copy($currDir . '/' . $name, $newDir . '/' . $name);
                             //add input for this file
                             array_push($files, $name);
@@ -407,9 +458,15 @@ class ImportController extends Controller {
                     if($simple) {
                         $name = (string)$field;
                         //move file from imp temp to tmp files
+                        if(!file_exists($currDir . '/' . $name)) {
+                            //Before we fail, let's see first if it's just failing because the originRid was specified
+                            // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
+                            $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                            if(!file_exists($currDir . '/' . $name))
+                                return response()->json(["status" => false, "message" => "xml_validation_error",
+                                    "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
+                        }
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
-                        copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
-                        copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
                         if (file_exists($currDir . '/thumbnail'))
                             copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                         else {
@@ -429,12 +486,21 @@ class ImportController extends Controller {
                         //add input for this file
                         array_push($files, $name);
                     } else {
+                        if(empty($field->File))
+                            return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                                "record_validation_error"=>[$request->kid => "$fieldSlug format is incorrect for a File Type Field"]],500);
                         foreach ($field->File as $file) {
                             $name = (string)$file->Name;
                             //move file from imp temp to tmp files
+                            if(!file_exists($currDir . '/' . $name)) {
+                                //Before we fail, let's see first if it's just failing because the originRid was specified
+                                // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
+                                $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                                if(!file_exists($currDir . '/' . $name))
+                                    return response()->json(["status" => false, "message" => "xml_validation_error",
+                                        "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
+                            }
                             copy($currDir . '/' . $name, $newDir . '/' . $name);
-                            copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
-                            copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
                             if (file_exists($currDir . '/thumbnail'))
                                 copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                             else {
@@ -458,6 +524,9 @@ class ImportController extends Controller {
                     $recRequest['file' . $flid] = $files;
                     $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;
                 } else if($type == 'Associator') {
+                    if(empty($field->Record))
+                        return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                            "record_validation_error"=>[$request->kid => "$fieldSlug format is incorrect for an Associator Field"]],500);
                     $recRequest[$flid] = (array)$field->Record;
                 }
             }
@@ -469,6 +538,10 @@ class ImportController extends Controller {
                 $originRid = null;
 
             foreach($record as $slug => $field) {
+                //Just in case there are extra/unused fields in the JSON
+                if(!array_key_exists($slug,$matchup))
+                    continue;
+
                 $fieldSlug = $matchup[$slug];
                 $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
                 $type = $field['type'];
@@ -608,8 +681,6 @@ class ImportController extends Controller {
                         $name = $file['name'];
                         //move file from imp temp to tmp files
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
-                        copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
-                        copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
                         if(file_exists($currDir . '/thumbnail'))
                             copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                         else {

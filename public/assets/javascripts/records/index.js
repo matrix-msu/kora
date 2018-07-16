@@ -15,8 +15,8 @@ Kora.Records.Index = function() {
         $('.chosen-search-input').on('keyup', function(e) {
             var container = $(this).parents('.chosen-container').first();
 
-            if (e.which === 13 && container.find('li.no-results').length > 0) {
-                var option = $("<option>").val(this.value).text(this.value);
+            if (e.which === 13 && (container.find('li.no-results').length > 0 || container.find('li.active-result').length == 0)) {
+                var option = $("<option>").val(this.value.trim()).text(this.value.trim());
 
                 var select = container.siblings('.modify-select').first();
 

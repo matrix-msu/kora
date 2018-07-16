@@ -82,7 +82,7 @@ function isScrolledIntoView($elem) {
 function setFixedElement(load = false) {
   if ($('.pre-fixed-js').length > 0) {
     var $elementToFix = $('.pre-fixed-js');
-    var $elementFixWrapper = $('.pre-fixed-js').parent();
+    var $elementFixWrapper = $elementToFix.parent();
 
     if (!isScrolledIntoView($elementFixWrapper)) {
       if (load) {
@@ -156,9 +156,12 @@ $(document).ready(function() {
     }
 
     if (link.charAt(0) !== "#" && link.length > 0) {
-      window.location = link;
-      //} else {
-      //e.preventDefault();
+      e.preventDefault();
+      if (e.metaKey || e.ctrlKey) {
+        window.open(link);
+      } else {
+        window.location = link;
+      }
     }
   });
 
@@ -169,6 +172,18 @@ $(document).ready(function() {
     var $drawerElement = $this.parent();
     var $drawerContent = $this.next();
     var $icon = $this.children().last();
+
+    setTimeout(function() {
+      var $headerHeight = $('.aside-content .header-elements').height();
+      var $footerHeight = $('.aside-content .footer-elements').height();
+      var combinedHeight = $headerHeight + $footerHeight
+
+      if (combinedHeight > (window.innerHeight - 50)) {
+        $('.aside-content .footer-elements').css('position', 'static');
+      } else {
+        $('.aside-content .footer-elements').css('position', 'absolute');
+      }
+    }, 400);
 
     if ($drawerElement.hasClass('active')) {
       closeSidemenuDrawers();

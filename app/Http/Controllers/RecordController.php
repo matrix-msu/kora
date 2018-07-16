@@ -318,7 +318,7 @@ class RecordController extends Controller {
             }
         }
 
-        return $revisions;
+        return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_success', 'old_records_deleted');
     }
 
     /**
@@ -434,11 +434,11 @@ class RecordController extends Controller {
         $form = FormController::getForm($fid);
 
         if(!\Auth::user()->isFormAdmin($form)) {
-            return response()->json(["status"=>false,"message"=>"not_form_admin"],500);
+            return redirect('projects')->with('k3_global_error', 'not_form_admin');
         } else {
             Record::where("fid", "=", $fid)->delete();
 
-            return response()->json(["status"=>true,"message"=>"all_record_deleted"],200);
+            return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_success', 'all_record_deleted');
         }
     }
 
@@ -794,11 +794,11 @@ class RecordController extends Controller {
         $form = FormController::getForm($fid);
 
         if(!\Auth::user()->isFormAdmin($form)) {
-            return response()->json(["status"=>false,"message"=>"not_form_admin"],500);
+            return redirect('projects')->with('k3_global_error', 'not_form_admin');
         } else {
             Record::where("fid", "=", $fid)->where("isTest", "=", 1)->delete();
 
-            return response()->json(["status"=>true,"message"=>"test_records_deleted"],200);
+            return redirect()->action('RecordController@index',compact('pid','fid'))->with('k3_global_success', 'test_records_deleted');
         }
     }
 }

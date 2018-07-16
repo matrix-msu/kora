@@ -51,6 +51,9 @@ class UserController extends Controller {
      * @return View
      */
     public function index(Request $request, $uid, $section = '') {
+        if (!\Auth::user()->admin && \Auth::user()->id != $request->uid)
+            return redirect('user')->with('k3_global_error', 'cannot_edit_profile');
+
         $section = (($section && in_array($section, ['permissions', 'history'])) ? $section : 'profile');
 
         $user = User::where('id',$uid)->get()->first();
@@ -193,17 +196,54 @@ class UserController extends Controller {
         }
 
         if ($request->uid == 1) {
-          return redirect('/user'.\Auth::user()->id)->with('k3_global_error', 'cannot_delete_root_admin');
+          return redirect('user/'.\Auth::user()->id)->with('k3_global_error', 'cannot_delete_root_admin');
         }
 
-        $user = User::where('id', '=', $request->id)->first();
+        $user = User::where('id', '=', $request->uid)->first();
+        $selfDelete = (\Auth::user()->id == $request->uid);
         $user->delete();
 
-        if (\Auth::user()->admin) {
-          redirect('admin/users')->with('k3_global_success', 'user_deleted');
+        if ($selfDelete) {
+            return redirect('/')->with('k3_global_success', 'account_deleted');
+        } elseif (\Auth::user()->admin) {
+            return redirect('admin/users')->with('k3_global_success', 'user_deleted');
         } else {
-          redirect('/')->with('k3_global_success', 'account_deleted');
+            return redirect('/')->with('k3_global_success', 'account_deleted');
         }
+    }
+
+    /**
+     * Editing a user's preferences
+     *
+     * @param $uid User's Id
+     * @return View User prefernce view
+     */
+    public function preferences($uid) {
+        if (\Auth::user()->id != $uid)
+            return redirect('user')->with('k3_global_error', 'cannot_edit_preferences');
+
+        $user = \Auth::user();
+
+        return view('user.preferences', compact('user'));
+    }
+
+    /**
+     * @param $uid User's Id
+     * @param Request $request Form inputs
+     * @return Redirect to user's preferences
+     */
+    public function updatePreferences($uid, Request $request) {
+        if (\Auth::user()->id != $uid)
+            return redirect('user/'.\Auth::user()->id.'/preferences')->with('k3_global_error', 'cannot_edit_preferences');
+
+        $useDashboard = ($request->useDashboard == "true" ? true : false);
+        $logoTarget = $request->logoTarget;
+        $projPageTabSel = $request->projPageTabSel;
+        $sideMenuOpen = ($request->sideMenuOpen == "true" ? true : false);
+
+        $user = \Auth::user();
+
+        return view('user.preferences', compact('user'));
     }
 
     public function validateUserFields(UserRequest $request) {

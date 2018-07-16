@@ -342,7 +342,7 @@ class AssociatorField extends BaseField {
      * @return Request - The update request
      */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
-        $recRequest[$flid] = $jsonField->records;
+        $recRequest[$flid] = $jsonField->value;
 
         return $recRequest;
     }
@@ -495,6 +495,9 @@ class AssociatorField extends BaseField {
     public function getPreviewValues($rid) {
         //individual kid elements
         $recModel = RecordController::getRecord($rid);
+        if(is_null($recModel))
+            return '';
+
         $pid = $recModel->pid;
         $fid = $recModel->fid;
         $rid = $recModel->rid;

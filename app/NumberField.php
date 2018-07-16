@@ -351,7 +351,7 @@ class NumberField extends BaseField {
      * @return Request - The update request
      */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
-        $recRequest[$flid] = $jsonField->number;
+        $recRequest[$flid] = $jsonField->value;
 
         return $recRequest;
     }

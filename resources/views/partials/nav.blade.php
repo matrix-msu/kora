@@ -1,9 +1,5 @@
 
-@if(Auth::guest() || !Auth::user()->active)
-<nav class="navigation navigation-js auth">
-@else
-<nav class="navigation navigation-js">
-@endif
+<nav class="navigation navigation-js {{ (Auth::guest() || !Auth::user()->active ? 'auth' : '') }}">
   <div class="status status-js">
     <span class="information">This is a successful status example.</span>
     <a href="#" class="dismiss status-dismiss-js">Dismiss</a>

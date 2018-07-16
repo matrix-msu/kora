@@ -435,6 +435,8 @@ class RestfulController extends Controller {
                         $selectFinal[] = $select;
                         break;
                     case Field::_NUMBER:
+                        if(!is_numeric($k))
+                            break;
                         $bottom = $k - NumberField::EPSILON;
                         $top = $k + NumberField::EPSILON;
                         $where = "`number` BETWEEN $bottom AND $top";
@@ -561,14 +563,17 @@ class RestfulController extends Controller {
                     		$key = '"'.$k.'"*';
                     	else
                         	$key = $k.'*';
-                        $where = "MATCH (`desc`) AGAINST ('$key' IN BOOLEAN MODE) OR MATCH (`address`) AGAINST ($key IN BOOLEAN MODE)";
+                        $where = "MATCH (`desc`) AGAINST ('$key' IN BOOLEAN MODE) OR MATCH (`address`) AGAINST ('$key' IN BOOLEAN MODE)";
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."geolocator_support where `flid`=".$field->flid." AND ($where)";
                         $selectFinal[] = $select;
                         break;
                     case Field::_ASSOCIATOR:
                         $key = explode('-',$k);
                         $rid = end($key);
-                        $where = "MATCH (`record`) AGAINST (\"$rid\" IN BOOLEAN MODE)";
+                        if(strlen($rid)<4)
+                            $where = "`record`=$rid";
+                        else
+                            $where = "MATCH (`record`) AGAINST (\"$rid\" IN BOOLEAN MODE)";
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."associator_support where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
@@ -1057,9 +1062,11 @@ class RestfulController extends Controller {
                 return response()->json(["status"=>false,"error"=>"There was an error extracting the provided zip"],500);
             }
         }
-        foreach($fields as $jsonField) {
-            $fieldSlug = $jsonField->name;
+        foreach($fields as $fieldName => $jsonField) {
+            $fieldSlug = $fieldName;
             $field = Field::where('slug', '=', $fieldSlug)->get()->first();
+            if(is_null($field))
+                return response()->json(["status"=>false,"error"=>"The field, $fieldSlug, does not exist"],500);
 
             $recRequest = $field->getTypedField()->setRestfulRecordData($jsonField, $field->flid, $recRequest, $uToken);
         }
@@ -1138,9 +1145,11 @@ class RestfulController extends Controller {
                 return response()->json(["status"=>false,"error"=>"There was an issue extracting the provided file zip"],500);
             }
         }
-        foreach($fields as $jsonField) {
-            $fieldSlug = $jsonField->name;
+        foreach($fields as $fieldName => $jsonField) {
+            $fieldSlug = $fieldName;
             $field = Field::where('slug', '=', $fieldSlug)->get()->first();
+            if(is_null($field))
+                return response()->json(["status"=>false,"error"=>"The field, $fieldSlug, does not exist"],500);
             //if keepfields scenario, keep track of this field that will be edited
             if($keepFields=="true")
                 array_push($fieldsToEditArray,$field->flid);

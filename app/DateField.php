@@ -495,11 +495,11 @@ class DateField extends BaseField {
      * @return Request - The update request
      */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
-        $recRequest['circa_' . $flid] = $jsonField->circa;
-        $recRequest['month_' . $flid] = $jsonField->month;
-        $recRequest['day_' . $flid] = $jsonField->day;
-        $recRequest['year_' . $flid] = $jsonField->year;
-        $recRequest['era_' . $flid] = $jsonField->era;
+        $recRequest['circa_' . $flid] = $jsonField->value->circa;
+        $recRequest['month_' . $flid] = $jsonField->value->month;
+        $recRequest['day_' . $flid] = $jsonField->value->day;
+        $recRequest['year_' . $flid] = $jsonField->value->year;
+        $recRequest['era_' . $flid] = $jsonField->value->era;
         $recRequest[$flid] = '';
 
         return $recRequest;

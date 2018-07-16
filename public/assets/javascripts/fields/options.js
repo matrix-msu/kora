@@ -19,8 +19,8 @@ Kora.Fields.Options = function(fieldType) {
         $('.chosen-search-input').on('keyup', function(e) {
             var container = $(this).parents('.chosen-container').first();
 
-            if (e.which === 13 && container.find('li.no-results').length > 0) {
-                var option = $("<option>").val(this.value).text(this.value);
+            if (e.which === 13 && (container.find('li.no-results').length > 0 || container.find('li.active-result').length == 0)) {
+                var option = $("<option>").val(this.value.trim()).text(this.value.trim());
 
                 var select = container.siblings('.modify-select').first();
 
@@ -553,6 +553,60 @@ Kora.Fields.Options = function(fieldType) {
         listOpt.trigger("chosen:updated");
     }
 
+    function initializeTextFields() {
+      var $multiLineCheck = $('.check-box-input[name="multi"]');
+      var $singleLine = $('.advance-options-section-js .single-line-js');
+      var $multiLine = $('.advance-options-section-js .multi-line-js');
+      var $singleLineShow = $('.edit-form .single-line-js');
+      var $multiLineShow = $('.edit-form .multi-line-js');
+
+      if ($multiLineCheck.is(':checked')) {
+        $singleLine.addClass('hidden');
+        $multiLine.removeClass('hidden');
+        $singleLineShow.addClass('hidden');
+        $multiLineShow.removeClass('hidden');
+        var input = $singleLineShow.children('input').val();
+        $multiLineShow.children('textarea').val(''+input+'');
+      } else {
+        $singleLineShow.removeClass('hidden');
+        $multiLineShow.addClass('hidden');
+        $singleLine.removeClass('hidden');
+        $multiLine.addClass('hidden');
+      }
+
+      if ($('.error-message.single-line').text().length > 0) {
+        var erMsg = $('.error-message.single-line').text();
+        $('.error-message.multi-line').text(''+erMsg+'');
+        $multiLine.children('textarea').addClass('error');      
+      }
+
+      $multiLineCheck.click(function () {
+        //if ($multiLineCheck.is(':checked') === true || $multiLineCheck.prop('checked') === true) {
+        if ($multiLineCheck.is(':checked')) {
+          $singleLine.addClass('hidden');
+          $multiLine.removeClass('hidden');
+          $singleLineShow.addClass('hidden');
+          $multiLineShow.removeClass('hidden');
+        } else {
+          $singleLine.removeClass('hidden');
+          $multiLine.addClass('hidden');      
+          $singleLineShow.removeClass('hidden');
+          $multiLineShow.addClass('hidden');    
+        }
+      });
+
+      $multiLine.children('textarea').blur(function () {
+        var input = $multiLine.children('textarea').val();
+        $singleLine.children('input').val(''+input+'');
+      });
+
+      $('.error-message.single-line').bind('DOMSubtreeModified', function () {
+        erMsg = $('.error-message.single-line').text();
+        $('.error-message.multi-line').text(''+erMsg+'');
+        $multiLine.children('textarea').addClass('error');
+      });
+    }
+
     initializeSelects();
 
     switch(fieldType) {
@@ -584,6 +638,8 @@ Kora.Fields.Options = function(fieldType) {
             initializeSelectAddition();
             initializeComboListOptions();
             break;
+        case 'Text':
+            initializeTextFields();
         default:
             break;
     }

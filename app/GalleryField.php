@@ -493,7 +493,7 @@ class GalleryField extends FileTypeField  {
             mkdir($newDir . '/medium', 0775, true);
         }
         $field = FieldController::getField($flid);
-        foreach($jsonField->files as $file) {
+        foreach($jsonField->value as $file) {
             $name = $file->name;
             //move file from imp temp to tmp files
             copy($currDir . '/' . $name, $newDir . '/' . $name);
