@@ -1,7 +1,7 @@
 <div class="no-tokens pt-xxxl">
   <div class="top pb-xxxl">
     <div class="line"></div>
-    <i class="icon icon-token"></i>
+    <i class="icon icon-token-EmptyState"></i>
     <div class="line"></div>
   </div>
   <div class="bottom">

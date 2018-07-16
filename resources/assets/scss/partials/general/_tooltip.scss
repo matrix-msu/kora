@@ -25,4 +25,17 @@
     top: -30px;
     white-space: nowrap;
   }
+  
+  &.half-sub-btn.disabled {
+    pointer-events: unset !important;
+    
+    &:hover {
+      opacity: 1 !important;
+      
+      &::after {
+        left: 45px;
+        top: -50px;
+      }
+    }
+  }
 }
