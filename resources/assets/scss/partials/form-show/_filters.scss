@@ -84,6 +84,7 @@
 @media screen and (max-width: $max-mobile-width) {
   .filters {
     height: 66px;
+    margin-bottom: 0;
 
     .search {
       display: inline-block;
