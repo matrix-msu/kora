@@ -11,7 +11,23 @@
   }
 }
 
-@media screen and (max-width: $max-mobile-l-width) {
+@media screen and (min-width: 870px) and (max-width: 900px) {
+  &.with-aside .form-quick-options .button-container {
+    display: initial;
+
+    .half-sub-btn {
+      display: block;
+      max-width: 100%;
+      width: 100%;
+    }
+  }
+
+  .btn:not(:first-child) {
+    margin-top: 20px;
+  }
+}
+
+@media screen and (max-width: $max-mobile-l-width) { /* 720 */
   .form-quick-options {
 
     .button-container {
