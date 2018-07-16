@@ -8,6 +8,7 @@
     @include transition();
 
     cursor: pointer;
+    opacity: 0.9;
 
     a {
       color: palette('green', accent);
@@ -36,7 +37,7 @@
     }
 
     &:hover {
-      opacity: 0.9;
+      opacity: 1;
 
       a i {
         box-shadow: -5px 0 10px 0 rgba(4, 182, 175, 0.2);

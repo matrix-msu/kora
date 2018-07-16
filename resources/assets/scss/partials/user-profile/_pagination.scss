@@ -9,6 +9,7 @@
     @include transition();
 
     cursor: pointer;
+    opacity: 0.9;
 
     a {
       color: palette('green', accent);
@@ -45,7 +46,7 @@
     }
 
     &:hover {
-      opacity: 0.9;
+      opacity: 1;
     }
 
     &.disabled {

@@ -9,6 +9,8 @@
 .page {
   @include transition();
 
+  opacity: 0.9;
+
   a span {
     font-family: $ubuntu-medium;
     font-size: 12px;
@@ -17,7 +19,7 @@
   }
 
   &:hover {
-    opacity: 0.9;
+    opacity: 1;
 
     a i {
       box-shadow: -5px 0 10px 0 rgba(4, 182, 175, 0.2);
