@@ -35,13 +35,42 @@ Kora.User.Edit = function() {
   /**
     * Modal for deleting a user
     */
-  function initializeCleanUpModals() {
+  function initializeDeleteModals() {
     Kora.Modal.initialize();
+
+    var $deleteModal = $(".user-delete-modal-js");
+    var $selfDeleteModal = $(".user-self-delete-modal-js");
+
 
     $('.user-trash-js').click(function(e) {
       e.preventDefault();
 
-      Kora.Modal.open();
+      Kora.Modal.open($deleteModal);
+
+      $('.user-self-delete-1-submit-js').click(function(e) {
+        e.preventDefault();
+
+        Kora.Modal.close();
+        Kora.Modal.open($selfDeleteModal);
+
+        var $deleteValInput = $modal.find('.delete-validation-js');
+        var $deleteValErrorMsg = $deleteValInput.parent().find('.error-message');
+
+        // Validate when unfocusing from delete text input
+        $deleteValInput.on('blur', function() {
+          SelfDeleteModalValidation($deleteValInput, $deleteValErrorMsg);
+        });
+
+        // Validate when attempting to delete self
+        $selfDeleteModal.find('.user-self-delete-2-submit-js').click(function(e) {
+          e.preventDefault();
+
+          if (SelfDeleteModalValidation($deleteValInput, $deleteValErrorMsg)) {
+            $selfDeleteModal.find('form').submit();
+          }
+        });
+      });
+
 
       //$('.user-cleanup-submit').click(function(e) {
       //  e.preventDefault();
@@ -68,6 +97,21 @@ Kora.User.Edit = function() {
       //  });
       //});
     });
+  }
+
+  /**
+   * Self delete validation
+   */
+  function SelfDeleteModalValidation($input, $errorMsg) {
+    if ($input.val() != "DELETE") {
+      $input.addClass('error');
+      $errorMsg.html('Close, try again');
+      return false;
+    } else {
+      $input.removeClass('error');
+      $errorMsg.html('');
+      return true;
+    }
   }
 
   function initializeForm() { //TODO::drag and drop (check validation function)
@@ -299,7 +343,7 @@ Kora.User.Edit = function() {
           }
       });
 
-      $('.text-input').on('blur', function(e) {
+      $('.user-form-js .text-input').on('blur', function(e) {
           var field = this.id;
           var second = false;
           var field2 = '';
@@ -344,9 +388,26 @@ Kora.User.Edit = function() {
       });
   }
 
+    // Ensure provided pic url matches an existing picture
+    function initializeProfilePicValidation() {
+        var $imgCont = $('.profile-pic-cont-js');
+        var $img = $imgCont.find($('.profile-pic-js'));
+        if ($img.length > 0) {
+            // Profile pic url provided, check it exists in app
+            $.get($img.attr('src'))
+                .done(function() {
+                    // Image exists
+                })
+                .fail(function() {
+                    $imgCont.html('<i class="icon icon-user">');
+                });
+        }
+    }
+
   initializeChosen();
   initializePasswordChange();
-  initializeCleanUpModals();
+  initializeDeleteModals();
   initializeForm();
   initializeValidation();
+  initializeProfilePicValidation();
 }

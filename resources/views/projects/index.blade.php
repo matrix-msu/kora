@@ -52,30 +52,32 @@
     @include("partials.projects.index.custom", ['isCustom' => true, 'active' => false, 'archived' => false])
   </section>
 
-  @if(!Auth::user()->admin && sizeof($requestableProjects)>0)
-  <section class="foot center">
-    <p class="permission-information">
-        Don't see the project you are looking for? You might not have the permissions...
-    </p>
-    <p>
-    <a href="#" class="request-permissions request-permissions-js underline-middle-hover">
-        Request Permissions to a Project
-    </a></p>
+  @include('partials.user.profileModal')
 
-    <div class="modal modal-js modal-mask request-permissions-modal-js">
-      <div class="content">
-        <div class="header">
-          <span class="title">Request Project Permissions</span>
-          <a href="#" class="modal-toggle modal-toggle-js">
-            <i class="icon icon-cancel"></i>
-          </a>
-        </div>
-        <div class="body">
-          @include("partials.projects.projectRequestModalForm")
+  @if(!Auth::user()->admin && sizeof($requestableProjects)>0)
+    <section class="foot center">
+      <p class="permission-information">
+          Don't see the project you are looking for? You might not have the permissions...
+      </p>
+      <p>
+      <a href="#" class="request-permissions request-permissions-js underline-middle-hover">
+          Request Permissions to a Project
+      </a></p>
+
+      <div class="modal modal-js modal-mask request-permissions-modal-js">
+        <div class="content">
+          <div class="header">
+            <span class="title">Request Project Permissions</span>
+            <a href="#" class="modal-toggle modal-toggle-js">
+              <i class="icon icon-cancel"></i>
+            </a>
+          </div>
+          <div class="body">
+            @include("partials.projects.projectRequestModalForm")
+          </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
   @endif
 @stop
 
