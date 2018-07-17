@@ -33,7 +33,6 @@
 
 @section('body')
     <section class="view-records center">
-    <section class="view-records center">
         <section class="search-records">
             <form method="GET" action="{{action('ProjectSearchController@globalSearch')}}" class="keyword-search-js">
                 <div class="form-group search-input mt-xl">
