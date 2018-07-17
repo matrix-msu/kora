@@ -3,8 +3,12 @@
 @endif
 @if($typedField->month==0 && $typedField->day==0)
     {{$typedField->year}}
+@elseif($typedField->day==0 && $typedField->year==0)
+    {{ DateTime::createFromFormat('m', $typedField->month)->format('F')}}
 @elseif($typedField->day==0)
     {{ DateTime::createFromFormat('m', $typedField->month)->format('F').', '.$typedField->year }}
+@elseif($typedField->year==0)
+    {{ DateTime::createFromFormat('m', $typedField->month)->format('F').' '.$typedField->day }}
 @elseif(\App\Http\Controllers\FieldController::getFieldOption($field,'Format')=='MMDDYYYY')
     {{$typedField->month.'-'.$typedField->day.'-'.$typedField->year}}
 @elseif(\App\Http\Controllers\FieldController::getFieldOption($field,'Format')=='DDMMYYYY')
