@@ -5,7 +5,7 @@
   max-width: calc(#{$max-site-width} - 600px);
   width: $max-site-width;
 
-  &.disabled {
+  &.hidden {
     display: none;
   }
 

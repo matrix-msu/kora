@@ -1,4 +1,4 @@
-<section class="pagination center {{count($layout) > 1 ? '' : 'disabled'}}">
+<section class="pagination center {{count($layout) > 1 ? '' : 'hidden'}}">
     <div class="previous page disabled">
         <a>
             <i class="icon icon-chevron left"></i>
