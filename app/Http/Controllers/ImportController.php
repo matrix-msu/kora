@@ -812,7 +812,7 @@ class ImportController extends Controller {
             $form->name = $fName;
 
         if($fSlug == "")
-            $finalSlug = $fileArray->slug;
+            $finalSlug = $fileArray->slug.'_'.$project->pid.'_';
         else
             $finalSlug = $fSlug;
 
@@ -888,19 +888,20 @@ class ImportController extends Controller {
             $field->sequence = $fieldArray->sequence;
             $field->type = $fieldArray->type;
             $field->name = $fieldArray->name;
-            if(Field::where('slug', '=', $fieldArray->slug)->exists()) {
+            $fieldSlug = $fieldArray->slug.'_'.$project->pid.'_'.$form->fid.'_';
+            if(Field::where('slug', '=', $fieldSlug)->exists()) {
                 $unique = false;
                 $i=1;
                 while(!$unique) {
-                    if(Field::where('slug', '=', $fieldArray->slug.$i)->exists()) {
+                    if(Field::where('slug', '=', $fieldSlug.$i)->exists()) {
                         $i++;
                     } else {
-                        $field->slug = $fieldArray->slug.$i;
+                        $field->slug = $fieldSlug.$i;
                         $unique = true;
                     }
                 }
             } else {
-                $field->slug = $fieldArray->slug;
+                $field->slug = $fieldSlug;
             }
             $field->desc = $fieldArray->desc;
             $field->required = $fieldArray->required;
@@ -1461,19 +1462,20 @@ class ImportController extends Controller {
 
         $form->pid = $project->pid;
         $form->name = $fileArray->name;
-        if(Form::where('slug', '=', $fileArray->slug)->exists()) {
+        $finalSlug = $fileArray->slug.'_'.$project->pid.'_';
+        if(Form::where('slug', '=', $finalSlug)->exists()) {
             $unique = false;
             $i=1;
             while(!$unique) {
-                if(Form::where('slug', '=', $fileArray->slug.$i)->exists()) {
+                if(Form::where('slug', '=',$finalSlug.$i)->exists()) {
                     $i++;
                 } else {
-                    $form->slug = $fileArray->slug.$i;
+                    $form->slug = $finalSlug.$i;
                     $unique = true;
                 }
             }
         } else {
-            $form->slug = $fileArray->slug;
+            $form->slug = $finalSlug;
         }
         $form->description = $fileArray->desc;
         $form->preset = $fileArray->preset;
@@ -1527,19 +1529,20 @@ class ImportController extends Controller {
             $field->sequence = $fieldArray->sequence;
             $field->type = $fieldArray->type;
             $field->name = $fieldArray->name;
-            if(Field::where('slug', '=', $fieldArray->slug)->exists()) {
+            $fieldSlug = $fieldArray->slug.'_'.$project->pid.'_'.$form->fid.'_';
+            if(Field::where('slug', '=', $fieldSlug)->exists()) {
                 $unique = false;
                 $i=1;
                 while(!$unique) {
-                    if(Field::where('slug', '=', $fieldArray->slug.$i)->exists()) {
+                    if(Field::where('slug', '=', $fieldSlug.$i)->exists()) {
                         $i++;
                     } else {
-                        $field->slug = $fieldArray->slug.$i;
+                        $field->slug = $fieldSlug.$i;
                         $unique = true;
                     }
                 }
             } else {
-                $field->slug = $fieldArray->slug;
+                $field->slug = $fieldSlug;
             }
             $field->desc = $fieldArray->desc;
             $field->required = $fieldArray->required;
