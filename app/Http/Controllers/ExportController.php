@@ -83,6 +83,7 @@ class ExportController extends Controller {
             readfile($output);
 
             $tracker->delete();
+            exit;
         } else { // File does not exist, so some kind of error occurred, and we redirect.
             $tracker->delete();
 
@@ -155,6 +156,7 @@ class ExportController extends Controller {
         header('Content-Type: application/zip; ');
 
         readfile($zipPath.$form->name.'_fileData_'.$time.'.zip');
+        exit;
     }
 
     /**
@@ -243,6 +245,7 @@ class ExportController extends Controller {
             header('Content-Type: application/octet-stream; ');
 
             echo json_encode($formArray);
+            exit;
         } else {
             return $formArray;
         }
@@ -292,6 +295,7 @@ class ExportController extends Controller {
         header('Content-Type: application/octet-stream; ');
 
         echo json_encode($projArray);
+        exit;
     }
 
     /**

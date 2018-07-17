@@ -84,6 +84,7 @@ class ImportController extends Controller {
                 header("Content-Type: application/octet-stream; ");
 
                 echo $xml;
+                exit;
                 break;
             case 'JSON':
                 $tmpArray = array();
@@ -101,6 +102,7 @@ class ImportController extends Controller {
                 header("Content-Type: application/octet-stream; ");
 
                 echo $json;
+                exit;
                 break;
         }
     }
@@ -740,6 +742,7 @@ class ImportController extends Controller {
             header("Content-Type: application/octet-stream; ");
 
             echo json_encode($records);
+            exit;
         }
         else if($request->type=='XML') {
             $records .= '</Records>';
@@ -748,6 +751,7 @@ class ImportController extends Controller {
             header("Content-Type: application/octet-stream; ");
 
             echo $records;
+            exit;
         }
     }
 
@@ -777,6 +781,7 @@ class ImportController extends Controller {
         header("Content-Type: application/octet-stream; ");
 
         echo json_encode($messages);
+        exit;
     }
 
     /**
