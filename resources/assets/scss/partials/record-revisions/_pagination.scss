@@ -5,6 +5,10 @@
   max-width: calc(#{$max-site-width} - 600px);
   width: $max-site-width;
 
+  &.disabled {
+    display: none;
+  }
+
   @import 'pagination/page';
   @import 'pagination/pages';
 }
