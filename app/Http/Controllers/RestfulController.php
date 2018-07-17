@@ -1071,6 +1071,7 @@ class RestfulController extends Controller {
             $recRequest = $field->getTypedField()->setRestfulRecordData($jsonField, $field->flid, $recRequest, $uToken);
         }
         $recRequest['api'] = true;
+        $recRequest['assignRoot'] = true;
         $recCon = new RecordController();
         //TODO::do something with this
         $response = $recCon->store($form->pid,$form->fid,$recRequest);
