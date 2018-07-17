@@ -6,6 +6,10 @@
   .description {
     font-size: 13px;
   }
+
+  .preset-name > label {
+    display: block;
+  }
 }
 
 &.small {

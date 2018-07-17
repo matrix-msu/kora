@@ -48,6 +48,10 @@
 
     }
 
+    &.preset {
+      overflow-y: auto;
+    }
+
     @import 'modal/header';
     @import 'modal/body';
   }
