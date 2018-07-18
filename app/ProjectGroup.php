@@ -1,10 +1,13 @@
 <?php namespace App;
 
+use App\Http\Controllers\ProjectController;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class ProjectGroup extends Model {
 
@@ -91,6 +94,7 @@ class ProjectGroup extends Model {
             foreach($request->admins as $uid) {
                 $user = User::where("id","=",$uid)->first();
                 $user->addCustomProject($adminGroup->pid);
+                self::emailProjectAdmin($uid, $adminGroup->id);
             }
         }
 
@@ -110,6 +114,32 @@ class ProjectGroup extends Model {
         $adminGroup->save();
 
         return $adminGroup;
+    }
+
+    /**
+     * Emails a user when they are added as admin to a newly created project.
+     *
+     * @param  int $uid - User ID
+     * @param  int $pgid - Project Group ID
+     */
+    private static function emailProjectAdmin($uid, $pgid) {
+        $userMail = DB::table('users')->where('id', $uid)->value('email');
+        $name = DB::table('users')->where('id', $uid)->value('first_name');
+        $group = ProjectGroup::where('id', '=', $pgid)->first();
+        $project = ProjectController::getProject($group->pid);
+        $email = 'emails.project.added';
+
+        try {
+            Mail::send($email, compact('project', 'name', 'group'), function ($message) use ($userMail) {
+                $message->from(config('mail.from.address'));
+                $message->to($userMail);
+                $message->subject('Kora Project Permissions');
+            });
+        } catch(\Swift_TransportException $e) {
+            //TODO::email error response
+            //Log for now
+            Log::info('Project admin email failed');
+        }
     }
 
     /**
