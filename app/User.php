@@ -49,6 +49,15 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
+     * A User's Permissions
+     *
+     * @return HasOne
+     */
+    public function permissions() {
+        return $this->hasOne('App\Preferences', 'preferences_id');
+    }
+
+    /**
      * Returns the global cache results associated with a user.
      *
      * @return Builder
