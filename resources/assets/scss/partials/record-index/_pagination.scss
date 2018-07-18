@@ -70,14 +70,14 @@
     }
   }
 
-  @media screen and (max-width: $max-mobile-med-width) {
-    .previous.page,
-    .next.page {
-      span {
-        display: none;
-      }
-    }
-  }
+  /* @media screen and (max-width: $max-mobile-med-width) { */
+    /* .previous.page, */
+    /* .next.page { */
+      /* span { */
+        /* display: none; */
+      /* } */
+    /* } */
+  /* } */
 
   .pages {
     white-space: nowrap;
@@ -145,6 +145,8 @@
     position: relative;
     
     .pages {
+      display: flex;
+      justify-content: center;
       text-align: center;
       width: 100%;
     }
