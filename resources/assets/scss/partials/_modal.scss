@@ -48,7 +48,8 @@
 
     }
 
-    &.preset {
+    &.preset,
+    &.already-preset {
       overflow-y: auto;
     }
 

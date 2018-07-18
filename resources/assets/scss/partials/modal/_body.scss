@@ -10,6 +10,15 @@
   .preset-name > label {
     display: block;
   }
+
+  .designated {
+    white-space: normal;
+
+    .record-preset-link {
+      color: palette('green', accent);
+      display: inline;
+    }
+  }
 }
 
 &.small {
