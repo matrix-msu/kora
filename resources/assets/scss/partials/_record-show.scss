@@ -35,6 +35,8 @@
       }
 
       .already-preset {
+        @include transition();
+
         color: palette('gray', base);
         
         &:hover {
