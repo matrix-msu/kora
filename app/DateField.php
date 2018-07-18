@@ -637,6 +637,20 @@ class DateField extends BaseField {
     }
 
     /**
+     * Gets list of RIDs and values for sort.
+     *
+     * @param $rids - Record IDs
+     * @param $flids - Field IDs to sort by
+     * @return string - The value array
+     */
+    public function getRidValuesForGlobalSort($rids,$flids) {
+        $prefix = env('DB_PREFIX');
+        $ridArray = implode(',',$rids);
+        $flidArray = implode(',',$flids);
+        return DB::select("SELECT `rid`, `date_object` AS `value` FROM ".$prefix."date_fields WHERE `flid` IN ($flidArray) AND `rid` IN ($ridArray)");
+    }
+
+    /**
      * Overwrites model save to save the record data as a date object that search will use.
      *
      * @param  array $options - Record data to save
