@@ -611,7 +611,7 @@ class RestfulController extends Controller {
                         $key = explode('-',$k);
                         $rid = end($key);
                         if(strlen($rid)<4)
-                            $where = "`record`=$rid";
+                            $where = "`record`='$rid'";
                         else
                             $where = "MATCH (`record`) AGAINST (\"$rid\" IN BOOLEAN MODE)";
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."associator_support where `flid`=".$field->flid." AND $where";
