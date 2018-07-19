@@ -56,11 +56,8 @@ Kora.Fields.Options = function(fieldType) {
     function initializeGeneratedListOptions() {
         var listOpt = $('.genlist-options-js');
         var listDef = $('.genlist-default-js');
-
-        if (listDef.children().length === 0) {
-          listDef.siblings('.chosen-container').find('.chosen-search-input.default').val('Use the field above to populate this list');
-          listDef.siblings('.chosen-container').find('.chosen-search-input.default').attr('value','Use the field above to populate this list');
-        }
+        
+        var inputDef = listDef.siblings('.chosen-container');
 
         listOpt.find('option').prop('selected', true);
         listOpt.trigger("chosen:updated");
@@ -74,18 +71,10 @@ Kora.Fields.Options = function(fieldType) {
             listDef.html(options);
             listDef.trigger("chosen:updated");
         });
-
-        listDef.siblings('.chosen-container').find('.chosen-search-input.default').on('blur', function () {
-          listDef.trigger('DOMSubtreeModified');
-        });
-
-        listDef.bind("DOMSubtreeModified", 'blur', function() {
-          if (listDef.children().length === 0) {
-            listDef.siblings('.chosen-container').find('.chosen-search-input.default').val('Use the field above to populate this list');
-            listDef.siblings('.chosen-container').find('.chosen-search-input.default').attr('value','Use the field above to populate this list');
-          } else {
-            listDef.siblings('.chosen-container').find('.chosen-search-input.default').attr('value', 'Select Some Option');
-            listDef.siblings('.chosen-container').find('.chosen-search-input.default').val('Select Some Option');
+        
+        inputDef.on('click', function () {
+          if (inputDef.children('.chosen-drop').children('.chosen-results').children().length === 0) {
+            inputDef.children('.chosen-drop').children('.chosen-results').append('<li class="no-results">No options to select!</li>');
           }
         });
     }
@@ -93,10 +82,8 @@ Kora.Fields.Options = function(fieldType) {
     function initializeListOptions() {
         var listOpt = $('.list-options-js');
         var listDef = $('.list-default-js');
-
-        if (listDef.children().text().length === 0) {
-          listDef.siblings('.chosen-container').children('.chosen-single').children('span').text('Use the field above to populate this list');
-        }
+        
+        var inputDef = listDef.siblings('.chosen-container');
 
         listOpt.find('option').prop('selected', true);
         listOpt.trigger("chosen:updated");
@@ -110,16 +97,10 @@ Kora.Fields.Options = function(fieldType) {
             listDef.html(options);
             listDef.trigger("chosen:updated");
         });
-
-        listDef.siblings('.chosen-container').find('.chosen-search-input.default').on('blur', function () {
-          listDef.trigger('DOMSubtreeModified');
-        });
-
-        listDef.bind("DOMSubtreeModified", 'blur', function() {
-          if (listDef.children().length === 0) {
-            listDef.siblings('.chosen-container').children('.chosen-single').children('span').text('Use the field above to populate this list');
-          } else {
-            listDef.siblings('.chosen-container').children('.chosen-single').children('span').text('Select an Option');
+        
+        inputDef.on('click', function () {
+          if (inputDef.children('.chosen-drop').children('.chosen-results').children().length === 0) {
+            inputDef.children('.chosen-drop').children('.chosen-results').append('<li class="no-results">No options to select!</li>');
           }
         });
     }
@@ -127,11 +108,8 @@ Kora.Fields.Options = function(fieldType) {
     function initializeMultiSelectListOptions() {
         var listOpt = $('.mslist-options-js');
         var listDef = $('.mslist-default-js');
-
-        if (listDef.children().length === 0) {
-          listDef.siblings('.chosen-container').find('.chosen-search-input.default').val('Use the field above to populate this list');
-          listDef.siblings('.chosen-container').find('.chosen-search-input.default').attr('value','Use the field above to populate this list');
-        }
+        
+        var inputDef = listDef.siblings('.chosen-container').children('.chosen-choices');
 
         listOpt.find('option').prop('selected', true);
         listOpt.trigger("chosen:updated");
@@ -146,17 +124,9 @@ Kora.Fields.Options = function(fieldType) {
             listDef.trigger("chosen:updated");
         });
 
-        listDef.siblings('.chosen-container').find('.chosen-search-input.default').on('blur', function () {
-          listDef.trigger('DOMSubtreeModified');
-        });
-
-        listDef.bind("DOMSubtreeModified", 'blur', function() {
-          if (listDef.children().length === 0) {
-            listDef.siblings('.chosen-container').find('.chosen-search-input.default').val('Use the field above to populate this list');
-            listDef.siblings('.chosen-container').find('.chosen-search-input.default').attr('value','Use the field above to populate this list');
-          } else {
-            listDef.siblings('.chosen-container').find('.chosen-search-input.default').attr('value', 'Select Some Option');
-            listDef.siblings('.chosen-container').find('.chosen-search-input.default').val('Select Some Option');
+        inputDef.on('click', function() {
+          if (inputDef.siblings('.chosen-drop').children('.chosen-results').children().length === 0) {
+            inputDef.siblings('.chosen-drop').children('.chosen-results').append('<li class="no-results">No options to select!</li>');
           }
         });
     }
