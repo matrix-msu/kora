@@ -2,6 +2,7 @@
 
 use App\Form;
 use App\Http\Requests\UserRequest;
+use App\Preference;
 use App\Project;
 use App\ProjectGroup;
 use App\Record;
@@ -196,16 +197,19 @@ class UserController extends Controller {
         }
 
         if ($request->uid == 1) {
-          return redirect('/user'.\Auth::user()->id)->with('k3_global_error', 'cannot_delete_root_admin');
+          return redirect('user/'.\Auth::user()->id)->with('k3_global_error', 'cannot_delete_root_admin');
         }
 
-        $user = User::where('id', '=', $request->id)->first();
+        $user = User::where('id', '=', $request->uid)->first();
+        $selfDelete = (\Auth::user()->id == $request->uid);
         $user->delete();
 
-        if (\Auth::user()->admin) {
-          redirect('admin/users')->with('k3_global_success', 'user_deleted');
+        if ($selfDelete) {
+            return redirect('/')->with('k3_global_success', 'account_deleted');
+        } elseif (\Auth::user()->admin) {
+            return redirect('admin/users')->with('k3_global_success', 'user_deleted');
         } else {
-          redirect('/')->with('k3_global_success', 'account_deleted');
+            return redirect('/')->with('k3_global_success', 'account_deleted');
         }
     }
 
@@ -220,8 +224,9 @@ class UserController extends Controller {
             return redirect('user')->with('k3_global_error', 'cannot_edit_preferences');
 
         $user = \Auth::user();
+        $preferences = array();//$user->preferences();
 
-        return view('user.preferences', compact('user'));
+        return view('user.preferences', compact('user', 'preferences'));
     }
 
     /**
@@ -237,6 +242,8 @@ class UserController extends Controller {
         $logoTarget = $request->logoTarget;
         $projPageTabSel = $request->projPageTabSel;
         $sideMenuOpen = ($request->sideMenuOpen == "true" ? true : false);
+
+        // TODO: Save preferences
 
         $user = \Auth::user();
 
@@ -620,5 +627,14 @@ class UserController extends Controller {
             $permissionsArray[$lastIndex] = 'and ' . $permissionsArray[$lastIndex];
             return implode(', ', $permissionsArray);
         }
+    }
+
+    public static function savePreferences(Request $request, $uid) {
+        if (!\Auth::user()->id != $uid)
+            return redirect('user')->with('k3_global_error', 'cannot_edit_preferences');
+
+        $preference = Preference::firstOrNew(array('uid' => $uid));
+
+        dd($preference);
     }
 }

@@ -50,6 +50,9 @@ Kora.Forms.ImportK2 = function() {
     var recordDroppedFile = false;
     var fileDroppedFile = false;
 
+    var drop = false;
+    var ajaxData
+
     //Resets file input
     function resetFileInput(type) {
         switch(type) {
@@ -190,7 +193,14 @@ Kora.Forms.ImportK2 = function() {
                         newProfilePic('scheme', e.target.result, schemeDroppedFile.name);
                         schemeDroppedFile = e.target.result;
                     };
-                    reader.readAsDataURL(schemeDroppedFile);
+
+                    drop = true
+                    ajaxData = new FormData(form.get(0));
+
+                    ajaxData.delete('form'); // safari does not support this
+                    ajaxData.append("form", schemeDroppedFile);
+
+                    $('.file-input-js').trigger('change');
                 });
 
             recordButton.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) { e.preventDefault(); e.stopPropagation(); })
@@ -206,7 +216,11 @@ Kora.Forms.ImportK2 = function() {
                         newProfilePic('record', e.target.result, recordDroppedFile.name);
                         recordDroppedFile = e.target.result;
                     };
+                    drop = true
                     reader.readAsDataURL(recordDroppedFile);
+
+                    ajaxData.delete('records'); // safari does not support this
+                    ajaxData.append("records", recordDroppedFile);
                 });
 
             fileButton.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) { e.preventDefault(); e.stopPropagation(); })
@@ -222,48 +236,116 @@ Kora.Forms.ImportK2 = function() {
                         newProfilePic('file', e.target.result, fileDroppedFile.name);
                         fileDroppedFile = e.target.result;
                     };
+                    drop = true
                     reader.readAsDataURL(fileDroppedFile);
-                });
 
-            form.submit(function(e) {
-                e.preventDefault();
-
-                var ajaxData = new FormData(form.get(0));
-
-                if(schemeDroppedFile)
-                    ajaxData.delete('form'); // safari does not support this
-                    ajaxData.append("form", schemeDroppedFile);
-                if(recordDroppedFile)
-                    ajaxData.delete('records'); // safari does not support this
-                    ajaxData.append("records", recordDroppedFile);
-                if(fileDroppedFile)
                     ajaxData.delete('files'); // safari does not support this
                     ajaxData.append("files", fileDroppedFile);
-
-                $.ajax({
-                    url: form.attr('action'),
-                    type: form.attr('method'),
-                    data: ajaxData,
-                    dataType: 'json',
-                    cache: false,
-                    contentType: false,
-                    processData: false,
-                    success: function(response) {
-                        // Will never reach this point because laravel redirecting is actually an error
-                    },
-                    error: function(error) {
-                        // TODO: Handle errors. Currently can get all errors, just need to display them
-                                if (error.status == 200) {
-                            console.log(error);
-                        } else {
-                            console.log(error);
-                            var responseJson = error.responseJSON.errors;
-                            $.each(responseJson, function() {
-                                console.log(this[0]);
-                            });
-                        }
-                    }
                 });
+
+            $('.btn.submit').click(function(e) {
+                e.preventDefault();
+                
+                if (drop) {
+
+                  ajaxData.delete('name');
+                  ajaxData.append('name', $('.text-input.name').val());
+                  ajaxData.delete('slug');
+                  ajaxData.append('slug', $('.text-input.slug').val());
+                  ajaxData.delete('description');
+                  ajaxData.append('description', $('.text-area.desc').val());
+
+                  if(!schemeDroppedFile) {
+                      ajaxData.delete('form'); // safari does not support this
+                  }
+                  if(!recordDroppedFile) {
+                      ajaxData.delete('records'); // safari does not support this
+                  }
+                  if(!fileDroppedFile) {
+                      ajaxData.delete('files'); // safari does not support this
+                  }
+
+                  for ( var pair of ajaxData.entries() ) {
+                    console.log(pair[0] + ', ' + pair[1]); 
+                    // console.log(typeof pair[1]);
+                    if (typeof pair[1] === 'object') {
+                      console.log(pair[1]);
+                    }
+                  }
+
+                  $.ajax({
+                      url: form.attr('action'),
+                      method: 'POST',
+                      data: ajaxData,                     
+                      processData: false,
+                      contentType: false,
+                      success: function(response) {
+                          // Will never reach this point because laravel redirecting is actually an error
+                          window.location = successUrl;
+                      },
+                      error: function(error) {
+                          // TODO: Handle errors. Currently can get all errors, just need to display them
+                          if (error.status == 200) {
+                              console.log(error);
+                          } else {
+                              console.log(error);
+                              console.log(error.responseJSON.message);
+                              var responseJson = error.responseJSON.errors;
+                              if (responseJson) {
+                                  $.each(responseJson, function() {
+                                      console.log(this[0]);
+                                  });
+                              }
+                          }
+                      }
+                  });
+                } else {
+                    ajaxData = new FormData(form.get(0));
+
+                    if(!schemeDroppedFile) {
+                      ajaxData.delete('form'); // safari does not support this
+                    }
+                    if(!recordDroppedFile) {
+                        ajaxData.delete('records'); // safari does not support this
+                    }
+                    if(!fileDroppedFile) {
+                        ajaxData.delete('files'); // safari does not support this
+                    }
+
+                    for ( var pair of ajaxData.entries() ) {
+                      console.log(pair[0] + ', ' + pair[1]);
+                      if (typeof pair[1] === 'object') {
+                        console.log(pair[1]);
+                      }
+                    }
+
+                    $.ajax({
+                      url: form.attr('action'),
+                      method: 'POST',
+                      data: ajaxData,
+                      processData: false,
+                      contentType: false,
+                      success: function(response) {
+                          // Will never reach this point because laravel redirecting is actually an error
+                          window.location = successUrl;
+                      },
+                      error: function(error) {
+                          // TODO: Handle errors. Currently can get all errors, just need to display them
+                          if (error.status == 200) {
+                              console.log(error);
+                          } else {
+                              console.log(error);
+                              console.log(error.responseJSON.message);
+                              var responseJson = error.responseJSON.errors;
+                              if (responseJson) {
+                                  $.each(responseJson, function() {
+                                      console.log(this[0]);
+                                  });
+                              }
+                          }
+                      }
+                    });
+                }
             });
         }
     }

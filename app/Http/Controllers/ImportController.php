@@ -84,6 +84,7 @@ class ImportController extends Controller {
                 header("Content-Type: application/octet-stream; ");
 
                 echo $xml;
+                exit;
                 break;
             case 'JSON':
                 $tmpArray = array();
@@ -101,6 +102,7 @@ class ImportController extends Controller {
                 header("Content-Type: application/octet-stream; ");
 
                 echo $json;
+                exit;
                 break;
         }
     }
@@ -249,6 +251,10 @@ class ImportController extends Controller {
                 $originRid = null;
 
             foreach($record->children() as $key => $field) {
+                //Just in case there are extra/unused tags in the XML
+                if(!array_key_exists($key,$matchup))
+                    continue;
+
                 $fieldSlug = $matchup[$key];
                 $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
                 $type = $field->attributes()->type;
@@ -386,6 +392,14 @@ class ImportController extends Controller {
                     if($simple) {
                         $name = (string)$field;
                         //move file from imp temp to tmp files
+                        if(!file_exists($currDir . '/' . $name)) {
+                            //Before we fail, let's see first if it's just failing because the originRid was specified
+                            // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
+                            $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                            if(!file_exists($currDir . '/' . $name))
+                                return response()->json(["status" => false, "message" => "xml_validation_error",
+                                    "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
+                        }
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
                         //add input for this file
                         array_push($files, $name);
@@ -396,6 +410,14 @@ class ImportController extends Controller {
                         foreach ($field->File as $file) {
                             $name = (string)$file->Name;
                             //move file from imp temp to tmp files
+                            if(!file_exists($currDir . '/' . $name)) {
+                                //Before we fail, let's see first if it's just failing because the originRid was specified
+                                // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
+                                $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                                if(!file_exists($currDir . '/' . $name))
+                                    return response()->json(["status" => false, "message" => "xml_validation_error",
+                                        "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
+                            }
                             copy($currDir . '/' . $name, $newDir . '/' . $name);
                             //add input for this file
                             array_push($files, $name);
@@ -438,9 +460,15 @@ class ImportController extends Controller {
                     if($simple) {
                         $name = (string)$field;
                         //move file from imp temp to tmp files
+                        if(!file_exists($currDir . '/' . $name)) {
+                            //Before we fail, let's see first if it's just failing because the originRid was specified
+                            // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
+                            $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                            if(!file_exists($currDir . '/' . $name))
+                                return response()->json(["status" => false, "message" => "xml_validation_error",
+                                    "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
+                        }
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
-                        copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
-                        copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
                         if (file_exists($currDir . '/thumbnail'))
                             copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                         else {
@@ -466,9 +494,15 @@ class ImportController extends Controller {
                         foreach ($field->File as $file) {
                             $name = (string)$file->Name;
                             //move file from imp temp to tmp files
+                            if(!file_exists($currDir . '/' . $name)) {
+                                //Before we fail, let's see first if it's just failing because the originRid was specified
+                                // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
+                                $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                                if(!file_exists($currDir . '/' . $name))
+                                    return response()->json(["status" => false, "message" => "xml_validation_error",
+                                        "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
+                            }
                             copy($currDir . '/' . $name, $newDir . '/' . $name);
-                            copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
-                            copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
                             if (file_exists($currDir . '/thumbnail'))
                                 copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                             else {
@@ -506,6 +540,10 @@ class ImportController extends Controller {
                 $originRid = null;
 
             foreach($record as $slug => $field) {
+                //Just in case there are extra/unused fields in the JSON
+                if(!array_key_exists($slug,$matchup))
+                    continue;
+
                 $fieldSlug = $matchup[$slug];
                 $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
                 $type = $field['type'];
@@ -645,8 +683,6 @@ class ImportController extends Controller {
                         $name = $file['name'];
                         //move file from imp temp to tmp files
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
-                        copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
-                        copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
                         if(file_exists($currDir . '/thumbnail'))
                             copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                         else {
@@ -706,6 +742,7 @@ class ImportController extends Controller {
             header("Content-Type: application/octet-stream; ");
 
             echo json_encode($records);
+            exit;
         }
         else if($request->type=='XML') {
             $records .= '</Records>';
@@ -714,6 +751,7 @@ class ImportController extends Controller {
             header("Content-Type: application/octet-stream; ");
 
             echo $records;
+            exit;
         }
     }
 
@@ -743,6 +781,7 @@ class ImportController extends Controller {
         header("Content-Type: application/octet-stream; ");
 
         echo json_encode($messages);
+        exit;
     }
 
     /**
@@ -773,7 +812,7 @@ class ImportController extends Controller {
             $form->name = $fName;
 
         if($fSlug == "")
-            $finalSlug = $fileArray->slug;
+            $finalSlug = $fileArray->slug.'_'.$project->pid.'_';
         else
             $finalSlug = $fSlug;
 
@@ -849,19 +888,20 @@ class ImportController extends Controller {
             $field->sequence = $fieldArray->sequence;
             $field->type = $fieldArray->type;
             $field->name = $fieldArray->name;
-            if(Field::where('slug', '=', $fieldArray->slug)->exists()) {
+            $fieldSlug = $fieldArray->slug.'_'.$project->pid.'_'.$form->fid.'_';
+            if(Field::where('slug', '=', $fieldSlug)->exists()) {
                 $unique = false;
                 $i=1;
                 while(!$unique) {
-                    if(Field::where('slug', '=', $fieldArray->slug.$i)->exists()) {
+                    if(Field::where('slug', '=', $fieldSlug.$i)->exists()) {
                         $i++;
                     } else {
-                        $field->slug = $fieldArray->slug.$i;
+                        $field->slug = $fieldSlug.$i;
                         $unique = true;
                     }
                 }
             } else {
-                $field->slug = $fieldArray->slug;
+                $field->slug = $fieldSlug;
             }
             $field->desc = $fieldArray->desc;
             $field->required = $fieldArray->required;
@@ -1422,19 +1462,20 @@ class ImportController extends Controller {
 
         $form->pid = $project->pid;
         $form->name = $fileArray->name;
-        if(Form::where('slug', '=', $fileArray->slug)->exists()) {
+        $finalSlug = $fileArray->slug.'_'.$project->pid.'_';
+        if(Form::where('slug', '=', $finalSlug)->exists()) {
             $unique = false;
             $i=1;
             while(!$unique) {
-                if(Form::where('slug', '=', $fileArray->slug.$i)->exists()) {
+                if(Form::where('slug', '=',$finalSlug.$i)->exists()) {
                     $i++;
                 } else {
-                    $form->slug = $fileArray->slug.$i;
+                    $form->slug = $finalSlug.$i;
                     $unique = true;
                 }
             }
         } else {
-            $form->slug = $fileArray->slug;
+            $form->slug = $finalSlug;
         }
         $form->description = $fileArray->desc;
         $form->preset = $fileArray->preset;
@@ -1488,19 +1529,20 @@ class ImportController extends Controller {
             $field->sequence = $fieldArray->sequence;
             $field->type = $fieldArray->type;
             $field->name = $fieldArray->name;
-            if(Field::where('slug', '=', $fieldArray->slug)->exists()) {
+            $fieldSlug = $fieldArray->slug.'_'.$project->pid.'_'.$form->fid.'_';
+            if(Field::where('slug', '=', $fieldSlug)->exists()) {
                 $unique = false;
                 $i=1;
                 while(!$unique) {
-                    if(Field::where('slug', '=', $fieldArray->slug.$i)->exists()) {
+                    if(Field::where('slug', '=', $fieldSlug.$i)->exists()) {
                         $i++;
                     } else {
-                        $field->slug = $fieldArray->slug.$i;
+                        $field->slug = $fieldSlug.$i;
                         $unique = true;
                     }
                 }
             } else {
-                $field->slug = $fieldArray->slug;
+                $field->slug = $fieldSlug;
             }
             $field->desc = $fieldArray->desc;
             $field->required = $fieldArray->required;

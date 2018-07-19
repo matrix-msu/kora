@@ -88,8 +88,8 @@
                     </select>
                 </div>
                 <div class="show-options show-options-js">
-                    <span><a href="#" class="expand-fields-js tooltip" title="Expand all fields" tooltip="Expand all Fields"><i class="icon icon-expand icon-expand-js"></i></a></span>
-                    <span><a href="#" class="collapse-fields-js tooltip" title="Collapse all fields" tooltip="Collapse all Fields"><i class="icon icon-condense icon-condense-js"></i></a></span>
+                    <span><a href="#" class="expand-fields-js tooltip" title="Expand all Records" tooltip="Expand all Records"><i class="icon icon-expand icon-expand-js"></i></a></span>
+                    <span><a href="#" class="collapse-fields-js tooltip" title="Collapse all Records" tooltip="Collapse all Records"><i class="icon icon-condense icon-condense-js"></i></a></span>
                 </div>
             </section>
 

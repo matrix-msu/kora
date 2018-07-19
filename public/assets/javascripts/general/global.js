@@ -174,6 +174,18 @@ $(document).ready(function() {
     var $drawerContent = $this.next();
     var $icon = $this.children().last();
 
+    setTimeout(function() {
+      var $headerHeight = $('.aside-content .header-elements').height();
+      var $footerHeight = $('.aside-content .footer-elements').height();
+      var combinedHeight = $headerHeight + $footerHeight
+
+      if (combinedHeight > (window.innerHeight - 50)) {
+        $('.aside-content .footer-elements').css('position', 'static');
+      } else {
+        $('.aside-content .footer-elements').css('position', 'absolute');
+      }
+    }, 400);
+
     if ($drawerElement.hasClass('active')) {
       closeSidemenuDrawers();
       return;
