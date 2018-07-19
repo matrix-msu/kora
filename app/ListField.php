@@ -287,7 +287,7 @@ class ListField extends BaseField {
      * @return Request - The update request
      */
     public function setRestfulAdvSearch($data, $flid, $request) {
-        $request->request->add([$flid.'_input' => $data->value]);
+        $request->request->add([$flid.'_input' => $data->option]);
 
         return $request;
     }
@@ -302,7 +302,7 @@ class ListField extends BaseField {
      * @return Request - The update request
      */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
-        $recRequest[$flid] = $jsonField->option;
+        $recRequest[$flid] = $jsonField->value;
 
         return $recRequest;
     }
