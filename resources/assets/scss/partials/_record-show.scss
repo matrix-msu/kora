@@ -48,6 +48,27 @@
     width: $max-site-width;
 
     @import 'record-show/page-card';
+
+    .meta-title {
+      font-family: $ubuntu-medium;
+      font-size: 18px;
+      height: 20px;
+      line-height: 21px;
+    }
+
+    .meta-data {
+      color: palette('gray', text);
+      font-size: 14px;
+      line-height: 19px;
+      font-family: $ubuntu;
+
+      .meta-link {
+        color: palette('green', accent);
+        font-family: $ubuntu-medium;
+        padding-bottom: #{ $underline-padding };
+        text-decoration: none;
+      }
+    }
   }
 
 

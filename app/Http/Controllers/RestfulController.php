@@ -167,7 +167,16 @@ class RestfulController extends Controller {
             $apiFormat = self::JSON;
         $apiFormat = strtoupper($apiFormat);
         if(!self::isValidFormat($apiFormat))
-            return response()->json(["status"=>false,"error"=>"Invalid format provided: $apiFormat"],500);;
+            return response()->json(["status"=>false,"error"=>"Invalid format provided: $apiFormat"],500);
+
+        //check for global
+        $globalRecords = array();
+        if(isset($request->globalSort)) {
+            $globalSortArray = json_decode($request->globalSort);
+            $globalSort = true;
+        } else {
+            $globalSort = false;
+        }
 
         //next, we authenticate each form
         foreach($forms as $f) {
@@ -194,28 +203,30 @@ class RestfulController extends Controller {
             $form = FormController::getForm($f->form);
 
             //things we will be returning
+            //NOTE: Items marked ***, will be overwritten when using globalSort
             $filters = array();
-            $filters['data'] = isset($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves
-            $filters['meta'] = isset($f->meta) ? $f->meta : false; //get meta data about record
+            $filters['data'] = isset($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves***
+            $filters['meta'] = isset($f->meta) ? $f->meta : false; //get meta data about record***
             $filters['size'] = isset($f->size) ? $f->size : false; //do we want the number of records in the search result returned instead of data
-            $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records
+            $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records***
             $filters['filters'] = isset($f->filters) ? $f->filters : false; //do we want information back about result filters [i.e. Field 'First Name', has value 'Tom', '12' times]
             $filters['filterCount'] = isset($f->filterCount) ? $f->filterCount : 5; //What is the minimum threshold for a filter to return?
             $filters['filterFlids'] = isset($f->filterFlids) ? $f->filterFlids : 'ALL'; //What fields should filters return for? Should be array
                 //Note: Filters only captures values from certain fields (mainly single value ones), see ExportController->exportWithRids() to see which ones use it
-            $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for
+            $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for***
             $filters['sort'] = isset($f->sort) ? $f->sort : null; //how should the data be sorted
-            $filters['index'] = isset($f->index) ? $f->index : null; //where the array of results should start
-            $filters['count'] = isset($f->count) ? $f->count : null; //how many records we should grab from that index
+            $filters['index'] = isset($f->index) ? $f->index : null; //where the array of results should start***
+            $filters['count'] = isset($f->count) ? $f->count : null; //how many records we should grab from that index***
             //WARNING::IF FIELD NAMES SHARE A TITLE WITHIN THE SAME FIELD, THIS WOULD IN THEORY BREAK
-            $filters['realnames'] = isset($f->realnames) ? $f->realnames : false; //do we want records indexed by titles rather than slugs
+            $filters['realnames'] = isset($f->realnames) ? $f->realnames : false; //do we want records indexed by titles rather than slugs***
             //THIS SOLELY SERVES LEGACY. YOU PROBABLY WILL NEVER USE THIS. DON'T THINK ABOUT IT
-            $filters['under'] = isset($f->under) ? $f->under : false; //Replace field spaces with underscores
+            $filters['under'] = isset($f->under) ? $f->under : false; //Replace field spaces with underscores***
 
             //parse the query
             if(!isset($f->query)) {
                 //return all records
                 $returnRIDS = Record::where("fid","=",$form->fid)->pluck('rid')->all();
+
                 if(!is_null($filters['sort'])) {
                     $returnRIDS = $this->sort_rids($returnRIDS,$filters['sort']);
                     if(!$returnRIDS)
@@ -230,7 +241,10 @@ class RestfulController extends Controller {
                 if($filters['filters'])
                     $filtersGlobal[$form->slug] = $this->getDataFilters($form->fid, $returnRIDS, $filters['filterCount'], $filters['filterFlids']);
 
-                $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
+                if($globalSort)
+                    $this->imitateMerge($globalRecords,$returnRIDS);
+                else
+                    $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
             } else {
                 $queries = $f->query;
                 $resultSets = array();
@@ -391,8 +405,34 @@ class RestfulController extends Controller {
                 if($filters['filters'])
                     $filtersGlobal[$form->slug] = $this->getDataFilters($form->fid, $returnRIDS, $filters['filterCount'], $filters['filterFlids']);
 
-                $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
+                if($globalSort)
+                    $this->imitateMerge($globalRecords,$returnRIDS);
+                else
+                    $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
             }
+        }
+
+        if($globalSort) {
+            $filters = array();
+
+            if(isset($request->globalFilters))
+                $f = json_decode($request->globalFilters);
+            else
+                $f = array();
+
+            $filters['data'] = isset($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves***
+            $filters['meta'] = isset($f->meta) ? $f->meta : false; //get meta data about record***
+            $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records***
+            $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for***
+            $filters['index'] = isset($f->index) ? $f->index : null; //where the array of results should start***
+            $filters['count'] = isset($f->count) ? $f->count : null; //how many records we should grab from that index***
+            //WARNING::IF FIELD NAMES SHARE A TITLE WITHIN THE SAME FIELD, THIS WOULD IN THEORY BREAK
+            $filters['realnames'] = isset($f->realnames) ? $f->realnames : false; //do we want records indexed by titles rather than slugs***
+            //THIS SOLELY SERVES LEGACY. YOU PROBABLY WILL NEVER USE THIS. DON'T THINK ABOUT IT
+            $filters['under'] = isset($f->under) ? $f->under : false; //Replace field spaces with underscores***
+
+            $globalSorted = $this->sortGlobalRids($globalRecords, $globalSortArray);
+            $resultsGlobal = json_decode($this->populateRecords($globalSorted, $filters, $apiFormat));
         }
 
         $countArray["global"] = $countGlobal;
@@ -571,7 +611,7 @@ class RestfulController extends Controller {
                         $key = explode('-',$k);
                         $rid = end($key);
                         if(strlen($rid)<4)
-                            $where = "`record`=$rid";
+                            $where = "`record`='$rid'";
                         else
                             $where = "MATCH (`record`) AGAINST (\"$rid\" IN BOOLEAN MODE)";
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."associator_support where `flid`=".$field->flid." AND $where";
@@ -739,6 +779,146 @@ class RestfulController extends Controller {
             //Get the values
             foreach($chunks as $chunk) {
                 $dataResults = $typedField->getRidValuesForSort($chunk, $field->flid);
+                //Filter results
+                foreach($dataResults as $rec) {
+                    $newOrderArray[$rec->rid] = $rec->value;
+                }
+            }
+
+            //Sort that stuff
+            if($direction=="ASC")
+                uasort($newOrderArray, 'self::compareASCII');
+            else if($direction=="DESC")
+                uasort($newOrderArray, 'self::rCompareASCII');
+        }
+
+        //Deal with ties
+        //Is there a tiebreaker rule?
+        array_shift($sortFields); //remove field slug
+        array_shift($sortFields); //remove direction
+        if(!empty($sortFields)) {
+            //Since we have a tiebreaker, foreach set of ties, call this function recursively
+            $keysOnly = array_keys($newOrderArray);
+            $finalResult = array();
+
+            //Cycle through result keys (rids)
+            for($i=0;$i<sizeof($keysOnly);$i++) {
+                //This handles the case where we are on the last key, so nothing to compare
+                //Add to results and bounce
+                if(!isset($keysOnly[$i+1])) {
+                    array_push($finalResult,$keysOnly[$i]);
+                    continue;
+                }
+
+                //If the next key's value is the same, do stuff
+                $thisKey = $keysOnly[$i];
+                $nextKey = $keysOnly[$i+1];
+                if($newOrderArray[$thisKey] == $newOrderArray[$nextKey]) {
+                    //First step is to get all keys that match it
+                    $tieKeys = array_keys($newOrderArray,$newOrderArray[$thisKey]);
+                    //Run the tie breaker
+                    $tieResult = $this->sort_rids($tieKeys,$sortFields);
+                    //Add results to the final
+                    $this->imitateMerge($finalResult,$tieResult);
+
+                    //We need to take the size of the tied values, and then increment $i by that size - 1
+                    //The minus one makes up for the fact that the for loop will also add to the index ($i++)
+                    //This will land us on the next proper index to continue
+                    $inc = sizeof($tieKeys)-1;
+                    $i += $inc;
+                } else {
+                    //No tie to settle, so add this key to the finalResult
+                    array_push($finalResult,$thisKey);
+                }
+            }
+        } else {
+            //convert to plain array of rids
+            $finalResult = array_keys($newOrderArray);
+        }
+
+        //Add missing records
+        $missing = array_diff($rids, $finalResult);
+        $this->imitateMerge($finalResult,$missing);
+
+        return $finalResult;
+    }
+
+    /**
+     * Sorts RIDs by fields.
+     *
+     * @param  array $rids - The RIDs to sort
+     * @param  array $sortFields - The field arrays to sort by
+     * @return array - The new array with sorted RIDs
+     */
+    private function sortGlobalRids($rids, $sortFields) {
+        //get field
+        $fieldSlug = $sortFields[0];
+        $direction = $sortFields[1];
+        $newOrderArray = array();
+
+        if(!is_array($fieldSlug) && $fieldSlug=='kora_meta_owner') {
+            $userRecords = DB::table('records')->join('users','users.id','=','records.owner')
+                ->select('records.rid','users.username')
+                ->whereIn('records.rid',$rids)
+                ->orderBy('users.username', $direction)
+                ->get()->toArray();
+
+            foreach($userRecords as $rec) {
+                $newOrderArray[$rec->rid] = $rec->username;
+            }
+        } else if(!is_array($fieldSlug) && $fieldSlug=='kora_meta_created') {
+            $createdRecords = DB::table('records')
+                ->select('rid','created_at')
+                ->whereIn('rid',$rids)
+                ->orderBy('created_at', $direction)
+                ->get()->toArray();
+
+            foreach($createdRecords as $rec) {
+                $newOrderArray[$rec->rid] = $rec->created_at;
+            }
+        } else if(!is_array($fieldSlug) && $fieldSlug=='kora_meta_updated') {
+            $updatedRecords = DB::table('records')
+                ->select('rid','updated_at')
+                ->whereIn('rid',$rids)
+                ->orderBy('updated_at', $direction)
+                ->get()->toArray();
+
+            foreach($updatedRecords as $rec) {
+                $newOrderArray[$rec->rid] = $rec->updated_at;
+            }
+        } else if(!is_array($fieldSlug) && $fieldSlug=='kora_meta_kid') {
+            $kidRecords = DB::table('records')
+                ->select('rid')
+                ->whereIn('rid',$rids)
+                ->orderBy('rid', $direction)
+                ->get()->toArray();
+
+            foreach($kidRecords as $rec) {
+                $newOrderArray[$rec->rid] = $rec->rid;
+            }
+        } else {
+            $flids = array();
+            $type = '';
+            if(!is_array($fieldSlug))
+                return false;
+
+            foreach($fieldSlug as $slug) {
+                $field = FieldController::getField($slug);
+                if (!$field->isSortable())
+                    return false;
+                array_push($flids,$field->flid);
+                if($type=='')
+                    $type = $field->type;
+                else if($type != $field->type)
+                    return false;
+            }
+
+            $typedField = Field::getTypedFieldStatic($type);
+            $chunks = array_chunk($rids, 500);
+
+            //Get the values
+            foreach($chunks as $chunk) {
+                $dataResults = $typedField->getRidValuesForGlobalSort($chunk, $flids);
                 //Filter results
                 foreach($dataResults as $rec) {
                     $newOrderArray[$rec->rid] = $rec->value;
@@ -1071,6 +1251,7 @@ class RestfulController extends Controller {
             $recRequest = $field->getTypedField()->setRestfulRecordData($jsonField, $field->flid, $recRequest, $uToken);
         }
         $recRequest['api'] = true;
+        $recRequest['assignRoot'] = true;
         $recCon = new RecordController();
         //TODO::do something with this
         $response = $recCon->store($form->pid,$form->fid,$recRequest);

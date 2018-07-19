@@ -228,7 +228,6 @@ Kora.User.Profile = function() {
         var extra = 20;
 
         var nameWidth = cardWidth - chevronWidth - extra;
-        console.log($card.attr('id'), cardWidth, chevronWidth);
         if (nameWidth < 0) {nameWidth = 0;}
 
         $name.css("max-width", nameWidth + "px");
@@ -261,10 +260,30 @@ Kora.User.Profile = function() {
     });
   }
 
+  // Ensure provided pic url matches an existing picture
+  function initializeProfilePicValidation() {
+    var $imgCont = $('.profile-pic-cont-js');
+    var $img = $imgCont.find($('.profile-pic-js'));
+    console.log($img);
+    if ($img.length > 0) {
+      // Profile pic url provided, check it exists in app
+      $.get($img.attr('src'))
+          .done(function() {
+            // Image exists
+            console.log("img exists");
+          })
+          .fail(function() {
+            console.log("img does not exist");
+            $imgCont.html('<i class="icon icon-user">');
+          });
+    }
+  }
+
   initializeOptionDropdowns();
   initializeFilters();
   initializeProjectCards();
   initializeModals();
   initializePaginationRouting();
   initializeCardEllipsifying();
+  initializeProfilePicValidation();
 }

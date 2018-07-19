@@ -106,6 +106,7 @@ $(document).ready(function() {
   var $sidebarCookie = getCookie('sidebar');
   if ($sidebarCookie && getBrowserWidth() > 870) {
     $(".center, .floating-buttons").addClass('with-aside');
+    $('.field.card').addClass('with-aside');
     $('.pre-fixed-js').addClass('pre-fixed-with-aside');
   } else {
     // the case where we want the aside lock to still work on refresh for larger screens

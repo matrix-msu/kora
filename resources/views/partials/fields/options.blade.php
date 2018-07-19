@@ -11,7 +11,7 @@
 </div>
 
 <div class="form-group mt-xl">
-    {!! Form::label('slug', 'Unique Form Identifier') !!}
+    {!! Form::label('slug', 'Unique Field Identifier') !!}
     <span class="error-message">{{array_key_exists("slug", $errors->messages()) ? $errors->messages()["slug"][0] : ''}}</span>
     {!! Form::text('slug', $field->slug, ['class' => 'text-input', 'placeholder' => "Enter the field's unique ID here (no spaces, alpha-numeric values only)"]) !!}
 </div>

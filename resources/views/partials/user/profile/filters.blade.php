@@ -13,7 +13,7 @@
         </select>
     </div>
     <div class="show-options show-options-js">
-        <a href="#" class="expand-fields expand-fields-js tooltip" title="Expand all fields" tooltip="Expand All Fields"><i class="icon icon-expand icon-expand-js"></i></a>
-        <a href="#" class="collapse-fields collapse-fields-js tooltip" title="Collapse all fields" tooltip="Collapse All Fields"><i class="icon icon-condense icon-condense-js"></i></a>
+        <a href="#" class="expand-fields expand-fields-js tooltip" title="Expand all fields" tooltip="Expand All Records"><i class="icon icon-expand icon-expand-js"></i></a>
+        <a href="#" class="collapse-fields collapse-fields-js tooltip" title="Collapse all fields" tooltip="Collapse All Records"><i class="icon icon-condense icon-condense-js"></i></a>
     </div>
 </section>

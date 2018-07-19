@@ -354,6 +354,7 @@ class BackupController extends Controller {
         header('Content-disposition: attachment; filename='.$zipname);
         header('Content-Length: ' . filesize($zipdir.$zipname));
         readfile($zipdir.$zipname);
+        exit;
     }
 
     /**

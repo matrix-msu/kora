@@ -32,7 +32,7 @@
   @include("partials.projectGroups.deletePermissionModal")
   @include("partials.projectGroups.addUsersModal")
   @include("partials.projectGroups.removeUserModal")
-  @include("partials.projectGroups.viewUserModal")
+  @include("partials.user.profileModal")
 
   <section class="new-object-button center">
     <form action="#">
@@ -146,7 +146,15 @@
 
             @foreach($users as $user)
               <div class="user user-js" id="list-element{{$projectGroup->id}}{{$user->id}}">
-                <a href="#" class="name view-user-js">{{ $user->first_name }} {{ $user->last_name }}</a>
+                <a href="#" class="name view-user-js"
+                   data-name="{{$user->getFullNameAttribute()}}"
+                   data-username="{{$user->username}}"
+                   data-email="{{$user->email}}"
+                   data-organization="{{$user->organization}}"
+                   data-profile="{{$user->getProfilePicUrl()}}"
+                   data-profile-url="{{action('Auth\UserController@index', ['uid' => $user->id])}}">
+                    {{$user->getFullNameAttribute()}}
+                </a>
 
                 @if (\Auth::user()->id != $user->id)
                   <a href="#" class="cancel remove-user-js" data-value="[{{$projectGroup->id}}, {{$user->id}}, {{$project->pid}}]">
