@@ -2,6 +2,7 @@
 
 use App\Form;
 use App\Http\Requests\UserRequest;
+use App\Preference;
 use App\Project;
 use App\ProjectGroup;
 use App\Record;
@@ -223,8 +224,9 @@ class UserController extends Controller {
             return redirect('user')->with('k3_global_error', 'cannot_edit_preferences');
 
         $user = \Auth::user();
+        $preferences = array();//$user->preferences();
 
-        return view('user.preferences', compact('user'));
+        return view('user.preferences', compact('user', 'preferences'));
     }
 
     /**
@@ -240,6 +242,8 @@ class UserController extends Controller {
         $logoTarget = $request->logoTarget;
         $projPageTabSel = $request->projPageTabSel;
         $sideMenuOpen = ($request->sideMenuOpen == "true" ? true : false);
+
+        // TODO: Save preferences
 
         $user = \Auth::user();
 
@@ -623,5 +627,14 @@ class UserController extends Controller {
             $permissionsArray[$lastIndex] = 'and ' . $permissionsArray[$lastIndex];
             return implode(', ', $permissionsArray);
         }
+    }
+
+    public static function savePreferences(Request $request, $uid) {
+        if (!\Auth::user()->id != $uid)
+            return redirect('user')->with('k3_global_error', 'cannot_edit_preferences');
+
+        $preference = Preference::firstOrNew(array('uid' => $uid));
+
+        dd($preference);
     }
 }
