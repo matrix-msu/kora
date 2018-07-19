@@ -538,16 +538,20 @@ class AssociatorField extends BaseField {
             foreach($details['flids'] as $flid => $type) {
                 if($type == Field::_TEXT) {
                     $text = TextField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
-                    if($text->text != '')
+                    if(!is_null($text) && $text->text != '')
                         array_push($preview, $text->text);
+                    else
+                        array_push($preview, "Preview Field Empty");
                 } else if($type == Field::_LIST) {
                     $list = ListField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
-                    if($list->option != '')
+                    if(!is_null($list) && $list->option != '')
                         array_push($preview, $list->option);
+                    else
+                        array_push($preview, "Preview Field Empty");
                 }
             }
         } else {
-            array_push($preview, "no_preview_available");
+            array_push($preview, "No Preview Field Available");
         }
 
         $html = "<a class='mt-xxxs documents-link underline-middle-hover' href='".config('app.url')."projects/".$pid."/forms/".$fid."/records/".$rid."'>".$kid."</a>";
