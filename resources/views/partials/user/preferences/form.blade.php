@@ -1,13 +1,14 @@
 <div class="form-group">
     <h2 class="sub-title">Use Dashboard?</h2>
     <p class="description">You can select to turn the dashboard off entirely.</p>
+
     <div class="check-box-half">
-        <input type="checkbox" checked value="true" name="useDashboard" class="check-box-input check-box-input-js" />
+        <input type="checkbox" {{ ($preference->use_dashboard ? 'checked' : '') }} value="true" name="useDashboard" class="check-box-input check-box-input-js" />
         <span class="check"></span>
         <span class="placeholder">Use Dashboard</span>
     </div>
     <div class="check-box-half">
-        <input type="checkbox" value="false" name="useDashboard" class="check-box-input check-box-input-js" />
+        <input type="checkbox" {{ (!$preference->use_dashboard ? 'checked' : '') }} value="false" name="useDashboard" class="check-box-input check-box-input-js" />
         <span class="check"></span>
         <span class="placeholder">Do Not Use Dashboard</span>
     </div>
@@ -21,16 +22,14 @@
     <h2 class="sub-title">Kora Logo Target</h2>
     <p class="description">When selecting the Kora logo in the top left corner of the dashboard,
         where would you like to be taken?</p>
-    <div class="check-box-half">
-        <input type="checkbox" checked value="1" name="logoTarget" class="check-box-input check-box-input-js" />
-        <span class="check"></span>
-        <span class="placeholder">Dashboard</span>
-    </div>
-    <div class="check-box-half">
-        <input type="checkbox" value="2" name="logoTarget" class="check-box-input check-box-input-js" />
-        <span class="check"></span>
-        <span class="placeholder">Projects</span>
-    </div>
+    @foreach ($logoTargetOptions as $key => $name)
+        <div class="check-box-half">
+            <input type="checkbox" {{ ($preference->logo_target == $key ? 'checked' : '') }} value="{{ $key }}" name="logoTarget" class="check-box-input check-box-input-js" />
+            <span class="check"></span>
+            <span class="placeholder">{{ $name }}</span>
+        </div>
+    @endforeach
+
 </div>
 
 <div class="form-group mt-xxxl">
@@ -40,21 +39,13 @@
 <div class="form-group mt-xxxl">
     <h2 class="sub-title">Projects Page Tab Selection</h2>
     <p class="description">Select which tab you wish to be displayed when coming to the  Projects page.</p>
-    <div class="check-box-half">
-        <input type="checkbox" checked value="1" name="projPageTabSel" class="check-box-input check-box-input-js" />
-        <span class="check"></span>
-        <span class="placeholder">Recently Modified</span>
-    </div>
-    <div class="check-box-half">
-        <input type="checkbox" value="2" name="projPageTabSel" class="check-box-input check-box-input-js" />
-        <span class="check"></span>
-        <span class="placeholder">Custom</span>
-    </div>
-    <div class="check-box-half">
-        <input type="checkbox" value="3" name="projPageTabSel" class="check-box-input check-box-input-js" />
-        <span class="check"></span>
-        <span class="placeholder">Alphabetical</span>
-    </div>
+    @foreach ($projPageTabSelOptions as $key => $name)
+        <div class="check-box-half">
+            <input type="checkbox" {{ ($preference->proj_page_tab_selection == $key ? 'checked' : '') }} value="{{ $key }}" name="projPageTabSel" class="check-box-input check-box-input-js" />
+            <span class="check"></span>
+            <span class="placeholder">{{ $name }}</span>
+        </div>
+    @endforeach
 </div>
 
 <div class="form-group mt-xxxl">
