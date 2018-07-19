@@ -14,6 +14,11 @@ class Preference extends Model {
     |
     */
 
+    protected $dates = [
+        'created_at',
+        'updated_at'
+    ];
+
     // Logo Target Options
     const DASHBOARD = 1;
     const PROJECTS = 2;
@@ -26,12 +31,13 @@ class Preference extends Model {
     protected static $logoTargetOptions = array(
         self::DASHBOARD => 'Dashboard',
         self::PROJECTS  => 'Projects',
-        self::ALPHABETICAL => 'Alphabetical'
+
     );
 
     protected static $projPageTabSelOptions = array(
-        self::RECENTLY_MODIFIED => 'Dashboard',
-        self::CUSTOM  => 'Projects',
+        self::RECENTLY_MODIFIED => 'Recently Modified',
+        self::CUSTOM  => 'Custom',
+        self::ALPHABETICAL => 'Alphabetical'
     );
 
     /**
