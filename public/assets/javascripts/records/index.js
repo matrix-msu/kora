@@ -408,6 +408,28 @@ Kora.Records.Index = function() {
         });
     }
 
+    function displayKeywords () {
+      var keywords = $('.keywords-get-js').val();
+      if (keywords != '') {
+        $('section.display-records').append('<div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>');
+        keywords = keywords.split(/\s+/);
+        keywords.forEach(function(keyword){
+          $('ul.keywords').append('<li class="keyword"><span>' + keyword + '</span><a class="keyword-close"></a></li>');
+        });
+        $('ul.keywords').append('<li class="back-to-search"><span>Back to Search</span><i class="icon icon-arrow-up"></i></li>');
+
+        $('.back-to-search').click(function () {
+          $('html, body').animate({
+            scrollTop: 0
+          });
+        });
+
+        $('.keyword-close').click(function(){
+          $(this).parent().remove();
+        });
+      }
+    }
+
     initializeSelectAddition();
     initializeOptionDropdowns();
     initializePaginationShortcut();
@@ -417,5 +439,6 @@ Kora.Records.Index = function() {
     initializeTypedFieldDisplays();
     initializeScrollTo();
     initializeSearchValidation();
+    displayKeywords();
     Kora.Records.Modal();
 }
