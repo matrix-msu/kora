@@ -73,8 +73,10 @@ Kora.Fields.Options = function(fieldType) {
         });
         
         inputDef.on('click', function () {
-          if (inputDef.children('.chosen-drop').children('.chosen-results').children('.active-result').length === 0) {
+          if (inputDef.children('.chosen-drop').children('.chosen-results').children().length === 0) {
             inputDef.children('.chosen-drop').children('.chosen-results').append('<li class="no-results">No options to select!</li>');
+          } else if (inputDef.children('.chosen-drop').children('.chosen-results').children('.active-result').length === 0) {
+            inputDef.children('.chosen-drop').children('.chosen-results').append('<li class="no-results">No more options to select!</li>');
           }
         });
     }
@@ -125,8 +127,10 @@ Kora.Fields.Options = function(fieldType) {
         });
 
         inputDef.on('click', function() {
-          if (inputDef.siblings('.chosen-drop').children('.chosen-results').children('.active-result').length === 0) {
+          if (inputDef.siblings('.chosen-drop').children('.chosen-results').children().length === 0) {
             inputDef.siblings('.chosen-drop').children('.chosen-results').append('<li class="no-results">No options to select!</li>');
+          } else if (inputDef.siblings('.chosen-drop').children('.chosen-results').children('.active-result').length === 0) {
+            inputDef.siblings('.chosen-drop').children('.chosen-results').append('<li class="no-results">No more options to select!</li>');
           }
         });
     }
