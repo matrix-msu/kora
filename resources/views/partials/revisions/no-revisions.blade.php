@@ -1,7 +1,7 @@
 <div class="no-revisions pt-xxxl">
   <div class="top pb-xxxl">
     <div class="line"></div>
-    <i class="icon icon-recordRevisions-EmptyState"></i>
+    <i class="icon icon-recordRevisions-clock-EmptyState"></i>
     <div class="line"></div>
   </div>
   <div class="bottom">

@@ -1,8 +1,7 @@
 <div class="no-records pt-xxxl">
-  <span>No Results</span>
-  <div class="top pb-xxxl pt-xxl">
+  <div class="top pb-xxxl">
     <div class="line"></div>
-    <i class="icon icon-searchProjRecords-EmptyState"></i>
+    <i class="icon icon-record-EmptyState"></i>
     <div class="line"></div>
   </div>
   <div class="bottom">

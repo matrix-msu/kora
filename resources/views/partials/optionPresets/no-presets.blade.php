@@ -1,7 +1,7 @@
 <div class="no-presets pt-xxxl">
   <div class="top pb-xxxl">
     <div class="line"></div>
-    <i class="icon icon-recordPreset-EmptyState"></i>
+    <i class="icon icon-recordPreset---Empty-State"></i>
     <div class="line"></div>
   </div>
   <div class="bottom">
