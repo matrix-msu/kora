@@ -51,6 +51,11 @@
       max-width: 340px;
     }
 
+    &.preset,
+    &.already-preset {
+      overflow-y: auto;
+    }
+
     @import 'modal/header';
     @import 'modal/body';
   }
