@@ -2,15 +2,15 @@
     <div class="previous page {{$records->onFirstPage() ? 'disabled' : ''}}">
         <a href="{{$records->appends(\Illuminate\Support\Facades\Input::except('page'))->previousPageUrl()}}">
             <i class="icon icon-chevron left"></i>
-            <span class="name underline-middle-hover">Previous Page</span>
+            <span class="name">Previous</span>
         </a>
     </div>
     <div class="pages">
         @if (!$records->onFirstPage())
-            <a href="{{$records->url(1)}}" class="page-link">1</a>
+            <a href="{{$records->url(1)}}" class="page-link first-page">1</a>
             @if ($records->currentPage() > 2)
                 @if ($records->currentPage() > 4)
-                    <span class="page-link">...</span>
+                    <a href="{{$records->url($records->currentPage()-3)}}" class="page-link dots-backwards">...</a>
                 @endif
                 @if ($records->currentPage() > 3)
                     <a href="{{$records->url($records->currentPage()-2)}}" class="page-link">{{$records->currentPage() - 2}}</a>
@@ -26,16 +26,18 @@
                     <a href="{{$records->url($records->currentPage()+2)}}" class="page-link">{{$records->currentPage() + 2}}</a>
                 @endif
                 @if ($records->lastPage() - 3 > $records->currentPage())
-                    <span class="page-link">...</span>
+                    <a href="{{$records->url($records->currentPage()+3)}}" class="page-link dots-forwards">...</a>
                 @endif
             @endif
-            <a href="{{$records->url($records->lastPage())}}" class="page-link">{{$records->lastPage()}}</a>
+            @if ($records->lastPage() != 0)
+              <a href="{{$records->url($records->lastPage())}}" class="page-link last-page">{{$records->lastPage()}}</a>
+            @endif
         @endif
     </div>
     <div class="next page {{$records->hasMorePages() ? '' : 'disabled'}}">
         <a href="{{$records->appends(\Illuminate\Support\Facades\Input::except('page'))->nextPageUrl()}}">
             <i class="icon icon-chevron right"></i>
-            <span class="name underline-middle-hover">Next Page</span>
+            <span class="name">Next</span>
         </a>
     </div>
 </section>
