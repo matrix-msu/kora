@@ -24,6 +24,10 @@
       opacity: 1;
     }
   }
+  
+  &.add-users-modal .content {
+    overflow: visible;
+  }
 
   .content {
     @include transition();
@@ -45,7 +49,6 @@
 
     &.small {
       max-width: 340px;
-
     }
 
     @import 'modal/header';
