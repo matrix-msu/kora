@@ -357,4 +357,18 @@ class TextField extends BaseField {
         $ridArray = implode(',',$rids);
         return DB::select("SELECT `rid`, `text` AS `value` FROM ".$prefix."text_fields WHERE `flid`=$flid AND `rid` IN ($ridArray)");
     }
+
+    /**
+     * Gets list of RIDs and values for sort.
+     *
+     * @param $rids - Record IDs
+     * @param $flids - Field IDs to sort by
+     * @return string - The value array
+     */
+    public function getRidValuesForGlobalSort($rids,$flids) {
+        $prefix = env('DB_PREFIX');
+        $ridArray = implode(',',$rids);
+        $flidArray = implode(',',$flids);
+        return DB::select("SELECT `rid`, `text` AS `value` FROM ".$prefix."text_fields WHERE `flid` IN ($flidArray) AND `rid` IN ($ridArray)");
+    }
 }

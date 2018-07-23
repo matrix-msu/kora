@@ -83,6 +83,7 @@ class ExportController extends Controller {
             readfile($output);
 
             $tracker->delete();
+            exit;
         } else { // File does not exist, so some kind of error occurred, and we redirect.
             $tracker->delete();
 
@@ -155,6 +156,7 @@ class ExportController extends Controller {
         header('Content-Type: application/zip; ');
 
         readfile($zipPath.$form->name.'_fileData_'.$time.'.zip');
+        exit;
     }
 
     /**
@@ -243,6 +245,7 @@ class ExportController extends Controller {
             header('Content-Type: application/octet-stream; ');
 
             echo json_encode($formArray);
+            exit;
         } else {
             return $formArray;
         }
@@ -292,6 +295,7 @@ class ExportController extends Controller {
         header('Content-Type: application/octet-stream; ');
 
         echo json_encode($projArray);
+        exit;
     }
 
     /**
@@ -1145,6 +1149,8 @@ class ExportController extends Controller {
             }
             $slugQL = ' and fl.slug in ('.substr($slugQL, 0, -1).')';
         }
+
+        DB::statement("SET SESSION group_concat_max_len = 12345;");
 
         return DB::select("SELECT tf.rid as `rid`, tf.text as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
 FROM ".$prefix."text_fields as tf left join ".$prefix."fields as fl on tf.flid=fl.flid where tf.rid in ($ridArray)$slugQL 

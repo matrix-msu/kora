@@ -146,7 +146,10 @@ class RecordController extends Controller {
             $record = new Record();
             $record->pid = $pid;
             $record->fid = $fid;
-            $record->owner = $request->userId;
+            if($request->assignRoot)
+                $record->owner = 1;
+            else
+                $record->owner = $request->userId;
             $record->save(); //need to save to create rid needed to make kid
             $record->kid = $pid . '-' . $fid . '-' . $record->rid;
             $record->save();

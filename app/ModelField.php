@@ -279,7 +279,10 @@ class ModelField extends FileTypeField  {
      */
     public function validateField($field, $request, $forceReq = false) {
         $req = $field->required;
-        $value = 'f'.$field->flid.'u'.Auth::user()->id;
+        if(Auth::guest())
+            $value = 'f'.$field->flid.'u'.$request['userId'];
+        else
+            $value = 'f'.$field->flid.'u'.Auth::user()->id;
 
         if($req==1 | $forceReq) {
             if(glob(config('app.base_path').'storage/app/tmpFiles/'.$value.'/*.*') == false)

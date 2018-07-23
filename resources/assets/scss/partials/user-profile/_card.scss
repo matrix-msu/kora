@@ -24,10 +24,12 @@
 
   .header {
     .card-toggle {
+      border-radius: 5px;
       opacity: 1;
     }
 
     .card-toggle-wrap {
+      border-radius: 5px;
       position: relative;
 
       .left {
@@ -39,7 +41,6 @@
     }
 
     .icon-chevron {
-      background: palette('white', base);
       border-radius: 5px;
       opacity: 1;
 

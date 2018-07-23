@@ -287,7 +287,7 @@ class ListField extends BaseField {
      * @return Request - The update request
      */
     public function setRestfulAdvSearch($data, $flid, $request) {
-        $request->request->add([$flid.'_input' => $data->value]);
+        $request->request->add([$flid.'_input' => $data->option]);
 
         return $request;
     }
@@ -302,7 +302,7 @@ class ListField extends BaseField {
      * @return Request - The update request
      */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
-        $recRequest[$flid] = $jsonField->option;
+        $recRequest[$flid] = $jsonField->value;
 
         return $recRequest;
     }
@@ -378,5 +378,19 @@ class ListField extends BaseField {
         $prefix = env('DB_PREFIX');
         $ridArray = implode(',',$rids);
         return DB::select("SELECT `rid`, `option` AS `value` FROM ".$prefix."list_fields WHERE `flid`=$flid AND `rid` IN ($ridArray)");
+    }
+
+    /**
+     * Gets list of RIDs and values for sort.
+     *
+     * @param $rids - Record IDs
+     * @param $flids - Field IDs to sort by
+     * @return string - The value array
+     */
+    public function getRidValuesForGlobalSort($rids,$flids) {
+        $prefix = env('DB_PREFIX');
+        $ridArray = implode(',',$rids);
+        $flidArray = implode(',',$flids);
+        return DB::select("SELECT `rid`, `option` AS `value` FROM ".$prefix."list_fields WHERE `flid` IN ($flidArray) AND `rid` IN ($ridArray)");
     }
 }

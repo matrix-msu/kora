@@ -57,7 +57,7 @@
     overflow: initial;
 
     .body {
-      padding: map-get($spacing, 100-xl) 25px 25px;
+      padding: 95px 25px 25px;
 
       .profile-link-cont {
         margin: map-get($spacing, xxl) 0 0;
@@ -77,8 +77,8 @@
     border: 2px solid #fff;
     border-radius: 63px;
     box-shadow: 0 3px 5px 0 rgba(21,39,48,0.15);
-    font-size: 40px;
-    padding: 30px;
+    font-size: 48px;
+    padding: 39px;
   }
 
   .profile {
@@ -99,12 +99,27 @@
 
   .profile-link {
     color: palette('green', accent);
-    padding-bottom: $underline-padding;
+    padding: 0 25px $underline-padding 0;
     text-decoration: none;
 
     .icon-arrow-right {
       font-size: 12px;
-      padding-left: 5px;
+      position: absolute;
+      right: 5px;
+      top: 6px;
+      transition: .3s all ease;
+    }
+
+    &:hover {
+      .icon-arrow-right {
+        right: 0;
+      }
+    }
+  }
+
+  @media screen and (max-width: $max-mobile-xs-width) {
+    .content {
+      height: auto;
     }
   }
 }

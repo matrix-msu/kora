@@ -1,7 +1,7 @@
 .filters {
   font-family: $ubuntu;
   height: 20px;
-  margin: 40px auto 0;
+  margin: 40px auto 35px;
   max-width: calc(#{ $max-site-width } - 600px);
   width: $max-site-width;
 
@@ -61,7 +61,7 @@
  }
 
   .show-options {
-    text-align: right;
+    float: right;
 
     a {
       @include transition();
@@ -84,6 +84,7 @@
 @media screen and (max-width: $max-mobile-width) {
   .filters {
     height: 66px;
+    margin-bottom: 0;
 
     .search {
       display: inline-block;

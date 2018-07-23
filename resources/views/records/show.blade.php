@@ -77,7 +77,7 @@
             @include('partials.records.page-card')
         @endforeach
 
-        <div class="meta-title mt-m">Record Owner</div>
+        <div class="meta-title mt-xxxl">Record Owner</div>
         <section class="meta-data">
             {{$owner->first_name}} {{$owner->last_name}}
         </section>

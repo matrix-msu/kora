@@ -60,6 +60,7 @@ class MetadataController extends Controller {
             header("Content-Length: " . filesize($output_file));
 
             readfile($output_file);
+            exit;
         }
     }
 
@@ -95,6 +96,7 @@ class MetadataController extends Controller {
             header("Content-Length: " . filesize($output_file));
 
             readfile($output_file);
+            exit;
         }
     }
 
