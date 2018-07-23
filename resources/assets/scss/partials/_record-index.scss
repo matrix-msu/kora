@@ -92,9 +92,9 @@
 
       .keyword {
         background-color: palette('white', base);
-        border: 1px solid palette('box-shadow', base, .1);
-        border-radius: 3px;
-        box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
+		border: 1px solid rgba(57,67,89,0.1);
+        border-radius: 5px;
+		box-shadow: 0 3px 5px 0 rgba(57,67,89,0.05);
         color: palette('gray', text);
         cursor: default;
         display: inline-block;
@@ -139,9 +139,9 @@
       }
 
       .back-to-search {
-        border: 1px solid palette('green', accent);
-        border-radius: 3px;
-        box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
+        border: 1px solid palette('green', base-accent);
+        border-radius: 5px;
+		box-shadow: 0 3px 5px 0 rgba(57,67,89,0.05);
         color: palette('green', accent);
         display: inline-block;
         font-family: $ubuntu;
@@ -159,7 +159,7 @@
           display: inline-block;
           font-size: 9px;
           -moz-osx-font-smoothing: grayscale;
-          margin: 0 0 1px 7px;
+          margin: 0 0 3px 7px;
           vertical-align: middle;
           will-change: transform;
 
