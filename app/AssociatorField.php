@@ -395,8 +395,11 @@ class AssociatorField extends BaseField {
         $dbQuery->where(function($dbQuery) use ($inputs) {
             foreach($inputs as $input) {
                 $rid = explode('-',$input)[2];
-                $dbQuery->orWhereRaw("MATCH (`record`) AGAINST (? IN BOOLEAN MODE)",
-                    ["\"" . $rid . "\""]);
+                if(strlen($rid)<4)
+                    $dbQuery->orWhereRaw("`record`='?'", [$rid]);
+                else
+                    $dbQuery->orWhereRaw("MATCH (`record`) AGAINST (? IN BOOLEAN MODE)",
+                        ["\"" . $rid . "\""]);
             }
         });
     }

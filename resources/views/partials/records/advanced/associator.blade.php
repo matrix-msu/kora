@@ -12,5 +12,5 @@
             $rids[$kid] = "$kid: $preview";
         }
     ?>
-    {!! Form::select($field->flid . "_input", $rids, '', ["class" => "single-select"]) !!}
+    {!! Form::select($field->flid . "_input[]", $rids, '', ["class" => "multi-select", "Multiple"]) !!}
 </div>
