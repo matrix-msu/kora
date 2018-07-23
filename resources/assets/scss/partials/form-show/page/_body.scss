@@ -5,11 +5,12 @@
 }
 
 .field {
+  @include transition();
+
   margin: 0 auto;
   width: calc(100% - 80px);
 
   .quick-action.delete-field {
-    padding-right: 15px;
     padding-top: 35px;
 
     .icon {
@@ -23,6 +24,24 @@
 
     &:hover .icon-trash {
       transform: scale($transform-scale-multiplier);
+      
+      &::after {
+        top: 5px;
+      }
+    }
+    
+    @media screen and (max-width: $max-mobile-l-width) {
+      padding: 0;
+    }
+  }
+  
+  @media screen and (max-width: $max-mobile-l-width) {
+	  width: calc(100% - 20px);
+  }
+  
+  &.with-aside {
+    @media screen and (min-width: $max-mobile-xs-width) and (max-width: $max-tablet-width) {
+      width: calc(100% - 20px);
     }
   }
 
@@ -44,7 +63,7 @@
       &:last-of-type {
         padding-right: 0;
 
-        @media screen and (max-width: $max-tablet-width) {
+        @media screen and (max-width: $max-tablet-width) { // 980
           display: block;
           padding: 15px 0 0;
         }
@@ -58,8 +77,8 @@
       }
     }
 
-    @media screen and (max-width: $max-mobile-width) {
-      padding-bottom: 25px;
+    @media screen and (max-width: $max-mobile-width) { //768
+      padding-bottom: 10px;
 
       .action {
         display: block;
@@ -70,13 +89,26 @@
         }
       }
     }
+    
+    @media screen and (min-width: 888px) and (max-width: $max-with-aside-width) { // 886 1155
+      &.with-aside {
+        .action {
+          display: block;
+          padding: 5px 0;
+        }
+      }
+    }
   }
 }
 
 .new-field-button {
+  @include transition();
+
   margin: 0 auto;
   padding: 10px 0 40px;
   width: calc(100% - 80px);
-
   
+  @media screen and (max-width: $max-mobile-l-width) {
+	  width: calc(100% - 20px);
+  }
 }

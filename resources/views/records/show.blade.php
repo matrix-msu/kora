@@ -29,7 +29,7 @@
                 <i class="icon icon-record mr-sm"></i>
                 <span>Record: {{$record->kid}}</span>
                 @if(\Auth::user()->canDestroyRecords($form) || \Auth::user()->isOwner($record))
-                    <a href="#" class="head-button delete-record delete-record-js">
+                    <a href="#" class="head-button delete-record delete-record-js tooltip" tooltip="Delete Record">
                         <i class="icon icon-trash right"></i>
                     </a>
                 @endif
@@ -76,6 +76,27 @@
         @foreach(\App\Http\Controllers\PageController::getFormLayout($record->fid) as $page)
             @include('partials.records.page-card')
         @endforeach
+
+        <div class="meta-title mt-xxxl">Record Owner</div>
+        <section class="meta-data">
+            {{$owner->first_name}} {{$owner->last_name}}
+        </section>
+        <div class="meta-title mt-m">Created</div>
+        <section class="meta-data">
+            {{$record->created_at}}
+        </section>
+        <div class="meta-title mt-m">Last Updated</div>
+        <section class="meta-data">
+            {{$record->updated_at}}
+        </section>
+        @if(sizeof(\App\Http\Controllers\AssociationController::getAssociatedRecords($record))>0)
+            <div class="meta-title mt-m">Associated Records</div>
+            <section class="meta-data">
+                @foreach(\App\Http\Controllers\AssociationController::getAssociatedRecords($record) as $aRecord)
+                    <div><a class="meta-link underline-middle-hover" href='{{env('BASE_URL')}}projects/{{$aRecord->pid}}/forms/{{$aRecord->fid}}/records/{{$aRecord->rid}}'>{{$aRecord->kid}}</a></div>
+                @endforeach
+            </section>
+        @endif
     </section>
 @stop
 

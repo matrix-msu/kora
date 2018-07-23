@@ -2,7 +2,7 @@
 
 namespace Illuminate\Mail\Transport;
 
-use Swift_Mime_Message;
+use Swift_Mime_SimpleMessage;
 use GuzzleHttp\ClientInterface;
 
 class SparkPostTransport extends Transport
@@ -46,7 +46,7 @@ class SparkPostTransport extends Transport
     /**
      * {@inheritdoc}
      */
-    public function send(Swift_Mime_Message $message, &$failedRecipients = null)
+    public function send(Swift_Mime_SimpleMessage $message, &$failedRecipients = null)
     {
         $this->beforeSendPerformed($message);
 
@@ -54,7 +54,7 @@ class SparkPostTransport extends Transport
 
         $message->setBcc([]);
 
-        $response = $this->client->post('https://api.sparkpost.com/api/v1/transmissions', [
+        $response = $this->client->post($this->getEndpoint(), [
             'headers' => [
                 'Authorization' => $this->key,
             ],
@@ -80,10 +80,10 @@ class SparkPostTransport extends Transport
      *
      * Note that SparkPost still respects CC, BCC headers in raw message itself.
      *
-     * @param  \Swift_Mime_Message $message
+     * @param  \Swift_Mime_SimpleMessage $message
      * @return array
      */
-    protected function getRecipients(Swift_Mime_Message $message)
+    protected function getRecipients(Swift_Mime_SimpleMessage $message)
     {
         $recipients = [];
 
@@ -105,7 +105,7 @@ class SparkPostTransport extends Transport
     /**
      * Get the transmission ID from the response.
      *
-     * @param \GuzzleHttp\Psr7\Response $response
+     * @param  \GuzzleHttp\Psr7\Response  $response
      * @return string
      */
     protected function getTransmissionId($response)
@@ -137,9 +137,19 @@ class SparkPostTransport extends Transport
     }
 
     /**
-     * Get the transmission options being used by the transport.
+     * Get the SparkPost API endpoint.
      *
      * @return string
+     */
+    public function getEndpoint()
+    {
+        return $this->getOptions()['endpoint'] ?? 'https://api.sparkpost.com/api/v1/transmissions';
+    }
+
+    /**
+     * Get the transmission options being used by the transport.
+     *
+     * @return array
      */
     public function getOptions()
     {

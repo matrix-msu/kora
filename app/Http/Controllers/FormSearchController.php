@@ -41,30 +41,35 @@ class FormSearchController extends Controller {
         $argArray = explode(' ',$args);
         $method = intval($request->method);
 
-        // Inform the user about arguments that will be ignored.
-        if($method==Search::SEARCH_EXACT) {
-            //Here we treat the argument as one single value
-            $ignored = Search::showIgnoredArguments($argArray,true);
-            $arg = $args;
+        //if no keyword is entered then we want to get all the records back
+        if($args!='') {
+            // Inform the user about arguments that will be ignored.
+            if($method == Search::SEARCH_EXACT) {
+                //Here we treat the argument as one single value
+                $ignored = Search::showIgnoredArguments($argArray, true);
+                $arg = $args;
+            } else {
+                $ignored = Search::showIgnoredArguments($argArray);
+                $args = array_diff($argArray, $ignored);
+                $arg = implode(" ", $args);
+            }
+
+            $ignored = implode(" ", $ignored);
+
+            //TODO:: flash("The following arguments were ignored by the search: " . $ignored . '. ');
+
+            $search = new Search($pid, $fid, $arg, $method);
+
+            $rids = $search->formKeywordSearch();
+
+            if(empty($rids))
+                $rids = [];
+
+            //store these for later, primarily subset operations like delete, mass assign, etc
+            Session::put('form_rid_search_subset', $rids);
         } else {
-            $ignored = Search::showIgnoredArguments($argArray);
-            $args = array_diff($argArray, $ignored);
-            $arg = implode(" ", $args);
+            $rids = Record::where('fid','=',$fid)->pluck('rid')->toArray();
         }
-
-        $ignored = implode(" ", $ignored);
-
-        //TODO:: flash("The following arguments were ignored by the search: " . $ignored . '. ');
-
-        $search = new Search($pid, $fid, $arg, $method);
-
-        $rids = $search->formKeywordSearch();
-
-        if(empty($rids))
-            $rids = [];
-
-        //store these for later, primarily subset operations like delete, mass assign, etc
-        Session::put('form_rid_search_subset', $rids);
 
         sort($rids);
 

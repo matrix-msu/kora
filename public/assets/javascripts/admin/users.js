@@ -154,17 +154,40 @@ Kora.Admin.Users = function() {
   function initializeCleanUpModals() {
     Kora.Modal.initialize();
 
+    // Deleting user via cards
     $('.user-trash-js').click(function(e) {
       e.preventDefault();
 
-      var cleanupModal = $(".users-cleanup-modal-js");
-      cleanupModal.find('.delete-content-js').show();
-      cleanupModal.find('.invite-content-js').hide();
-      cleanupModal.find('.content').addClass('small');
-      cleanupModal.find('.title-js').html('Delete User?');
-
+      var $cleanupModal = $(".users-cleanup-modal-js");
       var card = $(this).parent().parent().parent();
       var id = card.attr('id').substring(5);
+      var selfDelete = (adminId == id);
+      var validated = false;
+      var $deleteValInput = $cleanupModal.find('.delete-validation-js');
+      var $deleteValErrorMsg = $deleteValInput.parent().find('.error-message');
+
+      $cleanupModal.find('.modal-content-js').hide();
+      if (selfDelete) {
+        // Admin deleting themselves
+        $cleanupModal.find('.delete-self-1-content-js').show();
+
+        $cleanupModal.find('.user-self-delete-1-submit-js').click(function(e) {
+          e.preventDefault();
+
+          $cleanupModal.find('.modal-content-js').hide();
+          $cleanupModal.find('.delete-self-2-content-js').show();
+
+          // Validate when unfocusing from delete text input
+          $deleteValInput.on('blur', function() {
+            validated = SelfDeleteModalValidation($deleteValInput, $deleteValErrorMsg);
+          });
+        });
+      } else {
+        // Admin deleting someone else
+        $cleanupModal.find('.delete-content-js').show();
+      }
+      $cleanupModal.find('.content').addClass('small');
+      $cleanupModal.find('.title-js').html((selfDelete ? 'Delete Your Account?' : 'Delete User?'));
 
       // Unbind any click events to prevent other users from being deleted
       $('.user-cleanup-submit').unbind("click");
@@ -173,35 +196,72 @@ Kora.Admin.Users = function() {
       $('.user-cleanup-submit').click(function(e) {
         e.preventDefault();
 
-        var deleteForm = $(".modal form");
+        var deleteForm = $(this).parent();
         var actionURL = deleteForm.attr("action");
-        
-        $.ajax({
-          url: actionURL + "/" + id,
-          type: 'DELETE',
-          data: deleteForm.serialize(),
-          success: function(data) {
-            // TODO: Handle messages sent back from controller
-            location.reload();
-          }
-        });
+        var method = deleteForm.attr("method");
+
+        if (selfDelete) {
+          // Deleting self, need to check "DELETE" text input
+
+          // Validate when attempting to delete self
+          $cleanupModal.find('.user-self-delete-2-submit-js').click(function(e) {
+            e.preventDefault();
+
+            validated = SelfDeleteModalValidation($deleteValInput, $deleteValErrorMsg);
+          });
+        } else {
+          // Deleting someone else
+          validated = true;
+        }
+
+        if (validated) {
+          $.ajax({
+            url: actionURL + "/" + id,
+            type: method,
+            data: deleteForm.serialize(),
+            datatype: 'json',
+            success: function(data) {
+              // TODO: Handle messages sent back from controller
+              if (selfDelete) {
+                window.location = loginUrl;
+              } else {
+                location.reload();
+              }
+            }
+          });
+        }
       });
       
       Kora.Modal.open();
     });
 
-
+    // Inviting new users
     $('.new-object-button-js').click(function(e) {
       e.preventDefault();
 
       var cleanupModal = $(".users-cleanup-modal-js");
-      cleanupModal.find('.delete-content-js').hide();
+      cleanupModal.find('.modal-contet-js').hide();
       cleanupModal.find('.invite-content-js').show();
       cleanupModal.find('.content').removeClass('small');
       cleanupModal.find('.title-js').html('Invite User(s)');
 
       Kora.Modal.open();
     });
+  }
+
+  /**
+   * Self delete validation
+   */
+  function SelfDeleteModalValidation($input, $errorMsg) {
+    if ($input.val() != "DELETE") {
+      $input.addClass('error');
+      $errorMsg.html('Close, try again');
+      return false;
+    } else {
+      $input.removeClass('error');
+      $errorMsg.html('');
+      return true;
+    }
   }
   
   /**
@@ -220,9 +280,10 @@ Kora.Admin.Users = function() {
 
         $.ajax({
           url: form.prop("action"),
-          type: 'PATCH',
+          type: 'POST',
           data: {
             "_token": CSRFToken,
+            "_method": 'patch',
             "status": "active"
           },
           success: function(data) {
@@ -241,9 +302,10 @@ Kora.Admin.Users = function() {
 
         $.ajax({
           url: form.prop("action"),
-          type: 'PATCH',
+          type: 'POST',
           data: {
             "_token": CSRFToken,
+            "_method": 'patch',
             "status": "admin"
           },
           success: function(data) {
@@ -260,8 +322,8 @@ Kora.Admin.Users = function() {
   
   initializeOptionDropdowns();
   initializeFilters();
-  initializeCards()
+  initializeCards();
   initializeSearch();
   initializeCleanUpModals();
-  initializeCardEvents()
-}
+  initializeCardEvents();
+};

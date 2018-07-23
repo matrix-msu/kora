@@ -1,4 +1,4 @@
-<div class="form card {{ $index == 0 ? 'active' : '' }}" id="{{$form['pid']}}">
+<div class="form card {{ $index == 0 ? 'active' : '' }}" id="{{$form['fid']}}">
     <div class="header {{ $index == 0 ? 'active' : '' }}">
         <div class="left pl-m">
             <a class="title underline-middle-hover mr-xl" href="{{ action("FormController@show",["pid" => $form['pid'], 'fid' => $form['fid']]) }}">
@@ -19,9 +19,9 @@
     <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
         <div class="pb-m">
             @if ($form['permissions'] == 'Admin')
-                <p>You are an admin for this form.</p>
+                <p>{{ (Auth::user()->id == $user->id ? 'You are' : $user->first_name . ' is') }} an Admin for this form.</p>
             @else
-                <p>You can {{$form['permissions']}} within this form</p>
+                <p>{{ (Auth::user()->id == $user->id ? 'You can' : $user->first_name . ' can') }} {{$form['permissions']}} within this form</p>
             @endif
         </div>
     </div>

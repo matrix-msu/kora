@@ -42,15 +42,20 @@
       <span class="attribute">Project Admins: </span>
       @foreach($project->adminGroup()->get() as $adminGroup)
         <span>
-          {{
-            implode(
-              array_map(
-		
-                function ($u) { return $u->getFullNameAttribute();} , $adminGroup->users()->get()->all()
-              ),
-              ", "
-            )
-          }}
+          @foreach($adminGroup->users()->get()->all() as $index => $user)
+            @if ($index > 0)
+                ,
+            @endif
+            <a href='#' class='admin-name admin-name-js'
+               data-name="{{$user->getFullNameAttribute()}}"
+               data-username="{{$user->username}}"
+               data-email="{{$user->email}}"
+               data-organization="{{$user->organization}}"
+               data-profile="{{$user->getProfilePicUrl()}}"
+               data-profile-url="{{action('Auth\UserController@index', ['uid' => $user->id])}}">
+                {{ $user->getFullNameAttribute() }}
+            </a>
+          @endforeach
         </span>
       @endforeach
     </div>

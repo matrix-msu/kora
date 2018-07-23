@@ -20,7 +20,7 @@
       <h1 class="title">
         <i class="icon icon-form"></i>
         <span>{{ $form->name }}</span>
-        <a href="{{ action('FormController@edit',['pid' => $form->pid, 'fid' => $form->fid]) }}" class="head-button">
+        <a href="{{ action('FormController@edit',['pid' => $form->pid, 'fid' => $form->fid]) }}" class="head-button tooltip" tooltip="Edit Form">
           <i class="icon icon-edit right"></i>
         </a>
       </h1>
@@ -33,7 +33,8 @@
       <div class="form-group">
         <div class="form-quick-options">
           <div class="button-container">
-            <a href="{{ url('/projects/'.$form->pid).'/forms/'.$form->fid.'/records'}}" class="btn half-sub-btn">View & Search Form Records</a>
+            <?php $count = count($form->records) ?>
+            <a href="{{ url('/projects/'.$form->pid).'/forms/'.$form->fid.'/records'}}" class="btn half-sub-btn">View & Search Form Records ({{ $count }})</a>
             <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}" class="btn half-sub-btn
                 @if(!$hasFields) disabled @endif">Create New Record</a>
           </div>
@@ -45,6 +46,20 @@
 
 
 @section('body')
+  <?php
+  $page_has_fields = false;
+
+  foreach($pageLayout as $page)
+  {
+    if (count($page["fields"]) > 0)
+  	{
+	  $page_has_fields = true;
+	  break;	
+  	}
+  }
+  ?>
+  
+  @if ($page_has_fields)
   <section class="filters center">
     <div class="underline-middle search search-js">
       <i class="icon icon-search"></i>
@@ -52,10 +67,11 @@
       <i class="icon icon-cancel icon-cancel-js"></i>
     </div>
     <div class="show-options show-options-js">
-      <a href="#" class="expand-fields-js" title="Expand all fields"><i class="icon icon-expand icon-expand-js"></i></a>
-      <a href="#" class="collapse-fields-js" title="Collapse all fields"><i class="icon icon-condense icon-condense-js"></i></a>
+      <a href="#" class="expand-fields-js tooltip" title="Expand all fields" tooltip="Expand All Fields"><i class="icon icon-expand icon-expand-js"></i></a>
+      <a href="#" class="collapse-fields-js tooltip" title="Collapse all fields" tooltip="Condense All Fields"><i class="icon icon-condense icon-condense-js"></i></a>
     </div>
   </section>
+  @endif
 
   <div class="modal modal-js modal-mask page-delete-modal-js">
     <div class="content small">
@@ -119,7 +135,7 @@
           </div>
 
           <div>
-            <a href="#" data-page="{{$page["id"]}}" class="cancel-container delete-page-js">
+            <a href="#" data-page="{{$page["id"]}}" class="cancel-container delete-page-js tooltip" tooltip="Delete Page">
               <i class="icon icon-cancel"></i>
             </a>
           </div>

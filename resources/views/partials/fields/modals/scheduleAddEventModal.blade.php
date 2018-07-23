@@ -8,16 +8,19 @@
         </div>
         <div class="body">
             <div class="form-group">
-                {!! Form::label('eventname','Event Name: ') !!}
+                {!! Form::label('eventname','Event Name') !!}
+                <span class="error-message"></span>
                 <input type="text" class="text-input event-name-js" maxlength="24"
                        placeholder="Enter the Event name here"/>
             </div>
             <div class="form-group mt-xl half">
-                {!! Form::label('startdatetime','Start Time: ') !!}
+                {!! Form::label('startdatetime','Start Time') !!}
+                <span class="error-message"></span>
                 <input type='text' class="text-input event-start-time-js"/>
             </div>
             <div class="form-group mt-xl half cal-padding-fix">
-                {!! Form::label('enddatetime','End Time: ') !!}
+                {!! Form::label('enddatetime','End Time') !!}
+                <span class="error-message"></span>
                 <input type='text' class="text-input event-end-time-js"/>
             </div>
             <div class="form-group mt-xl">

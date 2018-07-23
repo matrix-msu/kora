@@ -11,11 +11,11 @@
 
         <link rel="stylesheet" href="{{config('app.url')}}assets/css/app.css">
     </head>
-    <body class="{{ str_hyphenated($page_class) }}-body @if((Auth::guest() || !Auth::user()->active) && isInstalled()) auth-body @endif">
+    <body class="{{ str_hyphenated($page_class) }}-body {{ ((Auth::guest() || !Auth::user()->active) && isInstalled()) ? 'auth-body' : '' }}">
       @include('partials.nav')
       @include('partials.sideMenu')
 
-      <div class="{{ str_hyphenated($page_class) }} @if((Auth::guest() || !Auth::user()->active) && isInstalled()) auth @endif">
+      <div class="{{ str_hyphenated($page_class) }} {{ ((Auth::guest() || !Auth::user()->active) && isInstalled()) ? 'auth' : '' }}">
         @yield('header')
         @yield('body')
         @yield('footer')

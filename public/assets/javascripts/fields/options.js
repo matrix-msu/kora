@@ -19,8 +19,8 @@ Kora.Fields.Options = function(fieldType) {
         $('.chosen-search-input').on('keyup', function(e) {
             var container = $(this).parents('.chosen-container').first();
 
-            if (e.which === 13 && container.find('li.no-results').length > 0) {
-                var option = $("<option>").val(this.value).text(this.value);
+            if (e.which === 13 && (container.find('li.no-results').length > 0 || container.find('li.active-result').length == 0)) {
+                var option = $("<option>").val(this.value.trim()).text(this.value.trim());
 
                 var select = container.siblings('.modify-select').first();
 
@@ -34,15 +34,15 @@ Kora.Fields.Options = function(fieldType) {
     //Fields that have specific functionality will have their own initialization process
 
     function initializeDateOptions() {
-        $('.start-year-js').change(function() { printYears(); });
+        $('.start-year-js').change(printYears);
 
-        $('.end-year-js').change(function() { printYears(); });
+        $('.end-year-js').change(printYears);
 
         function printYears(){
             start = $('.start-year-js').val(); end = $('.end-year-js').val();
 
-            if(start=='')  { start = 0; }
-            if(end =='') { end = 9999; }
+            if(start=='' || start < 0) {start = 0;}
+            if(end == '' || end > 9999) {end = 9999;}
 
             val = '<option></option>';
             for(var i=start;i<+end+1;i++) {
@@ -119,6 +119,9 @@ Kora.Fields.Options = function(fieldType) {
         $('.add-new-event-js').on('click', function(e) {
             e.preventDefault();
 
+            $('.error-message').text('');
+            $('.text-input, .text-area, .cke, .chosen-container').removeClass('error');
+
             var nameInput = $('.event-name-js');
             var sTimeInput = $('.event-start-time-js');
             var eTimeInput = $('.event-end-time-js');
@@ -128,7 +131,23 @@ Kora.Fields.Options = function(fieldType) {
             var eTime = eTimeInput.val().trim();
 
             if(name==''|sTime==''|eTime=='') {
-                //TODO::show error
+                if(name=='') {
+                    schError = $('.event-name-js');
+                    schError.addClass('error');
+                    schError.siblings('.error-message').text('Event name is required');
+                }
+
+                if(sTime=='') {
+                    schError = $('.event-start-time-js');
+                    schError.addClass('error');
+                    schError.siblings('.error-message').text('Start time is required');
+                }
+
+                if(eTime=='') {
+                    schError = $('.event-end-time-js');
+                    schError.addClass('error');
+                    schError.siblings('.error-message').text('End time is required');
+                }
             } else {
                 if($('.event-allday-js').is(":checked")) {
                     sTime = sTime.split(" ")[0];
@@ -136,14 +155,16 @@ Kora.Fields.Options = function(fieldType) {
                 }
 
                 if(sTime>eTime) {
-                    //TODO::show error
-                }else {
+                    schError = $('.event-start-time-js');
+                    schError.addClass('error');
+                    schError.siblings('.error-message').text('Start time can not occur before the end time');
+                } else {
                     val = name + ': ' + sTime + ' - ' + eTime;
 
                     if(val != '') {
                         //Value is good so let's add it
                         var option = $("<option>").val(val).text(val);
-                        var select = $('.default-event-js');
+                        var select = $('.'+flid+'-event-js');
 
                         select.append(option);
                         select.find(option).prop('selected', true);
@@ -186,10 +207,15 @@ Kora.Fields.Options = function(fieldType) {
         $('.add-new-location-js').click(function(e) {
             e.preventDefault();
 
+            $('.error-message').text('');
+            $('.text-input, .text-area, .cke, .chosen-container').removeClass('error');
+
             //check to see if description provided
             var desc = $('.location-desc-js').val();
             if(desc=='') {
-                //TODO::show error
+                geoError = $('.location-desc-js');
+                geoError.addClass('error');
+                geoError.siblings('.error-message').text('Location description required');
             } else {
                 var type = $('.location-type-js').val();
 
@@ -199,8 +225,17 @@ Kora.Fields.Options = function(fieldType) {
                     var lat = $('.location-lat-js').val();
                     var lon = $('.location-lon-js').val();
 
-                    if(lat == '' | lon == '') {
-                        //TODO::show error
+                    if(lat == '') {
+                        geoError = $('.location-lat-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('Latitude value required');
+                        valid = false;
+                    }
+
+                    if(lon == '') {
+                        geoError = $('.location-lon-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('Longitude value required');
                         valid = false;
                     }
                 } else if(type == 'UTM') {
@@ -208,15 +243,33 @@ Kora.Fields.Options = function(fieldType) {
                     var east = $('.location-east-js').val();
                     var north = $('.location-north-js').val();
 
-                    if(zone == '' | east == '' | north == '') {
-                        //TODO::show error
+                    if(zone == '') {
+                        geoError = $('.location-zone-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('UTM Zone is required');
+                        valid = false;
+                    }
+
+                    if(east == '') {
+                        geoError = $('.location-east-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('UTM Easting required');
+                        valid = false;
+                    }
+
+                    if(north == '') {
+                        geoError = $('.location-north-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('UTM Northing required');
                         valid = false;
                     }
                 } else if(type == 'Address') {
                     var addr = $('.location-addr-js').val();
 
                     if(addr == '') {
-                        //TODO::show error
+                        geoError = $('.location-addr-js');
+                        geoError.addClass('error');
+                        geoError.siblings('.error-message').text('Location address required');
                         valid = false;
                     }
                 }
@@ -339,27 +392,47 @@ Kora.Fields.Options = function(fieldType) {
         });
 
         $('.add-combo-value-js').click(function() {
-            inputOne = $('#default_one');
-            inputTwo = $('#default_two');
+            if(type1=='Date') {
+                monthOne = $('#month_one');
+                dayOne = $('#day_one');
+                yearOne = $('#year_one');
+                val1 = monthOne.val()+'/'+dayOne.val()+'/'+yearOne.val();
+            } else {
+                inputOne = $('#default_one');
+                val1 = inputOne.val();
+            }
 
-            val1 = inputOne.val();
-            val2 = inputTwo.val();
+            if(type2=='Date') {
+                monthTwo = $('#month_two');
+                dayTwo = $('#day_two');
+                yearTwo = $('#year_two');
+                val2 = monthTwo.val()+'/'+dayTwo.val()+'/'+yearTwo.val();
+            } else {
+                inputTwo = $('#default_two');
+                val2 = inputTwo.val();
+            }
 
             defaultDiv = $('.combo-value-div-js');
 
-            if(val1=='' | val2=='' | val1==null | val2==null){
+            if(val1=='' | val2=='' | val1==null | val2==null | val1=='//'| val2=='//') {
                 //TODO::Error out
                 console.log(val1);
                 console.log(val2);
                 console.log('Both fields must be filled out');
             } else {
                 //Remove empty div if applicable
-                if(defaultDiv.children('.combo-list-empty').first())
+                var border = true;
+                if(defaultDiv.children('.combo-list-empty').length) {
                     defaultDiv.children('.combo-list-empty').first().remove();
+                    border = false;
+                }
 
                 div = '<div class="combo-value-item-js">';
 
-                if(type1=='Text' | type1=='List' | type1=='Number') {
+                if(border)
+                    div += '<span class="combo-border-small"> </span>';
+
+                if(type1=='Text' | type1=='List' | type1=='Number' | type1=='Date') {
                     div += '<input type="hidden" name="default_combo_one[]" value="'+val1+'">';
                     div += '<span class="combo-column">'+val1+'</span>';
                 } else if(type1=='Multi-Select List' | type1=='Generated List' | type1=='Associator') {
@@ -367,7 +440,7 @@ Kora.Fields.Options = function(fieldType) {
                     div += '<span class="combo-column">'+val1.join(' | ')+'</span>';
                 }
 
-                if(type2=='Text' | type2=='List' | type2=='Number') {
+                if(type2=='Text' | type2=='List' | type2=='Number' | type2=='Date') {
                     div += '<input type="hidden" name="default_combo_two[]" value="'+val2+'">';
                     div += '<span class="combo-column">'+val2+'</span>';
                 } else if(type2=='Multi-Select List' | type2=='Generated List' | type2=='Associator') {
@@ -381,13 +454,25 @@ Kora.Fields.Options = function(fieldType) {
 
                 defaultDiv.html(defaultDiv.html()+div);
 
-                inputOne.val('');
-                if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List' | type1=='Associator')
+                if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List' | type1=='Associator') {
+                    inputOne.val('');
                     inputOne.trigger("chosen:updated");
+                } else if(type1=='Date') {
+                    monthOne.val(''); dayOne.val(''); yearOne.val('');
+                    monthOne.trigger("chosen:updated"); dayOne.trigger("chosen:updated"); yearOne.trigger("chosen:updated");
+                } else {
+                    inputOne.val('');
+                }
 
-                inputTwo.val('');
-                if(type2=='Multi-Select List' | type2=='Generated List' | type2=='List' | type2=='Associator')
+                if(type2=='Multi-Select List' | type2=='Generated List' | type2=='List' | type2=='Associator') {
+                    inputTwo.val('');
                     inputTwo.trigger("chosen:updated");
+                } else if(type2=='Date') {
+                    monthTwo.val(''); dayTwo.val(''); yearTwo.val('');
+                    monthTwo.trigger("chosen:updated"); dayTwo.trigger("chosen:updated"); yearTwo.trigger("chosen:updated");
+                } else {
+                    inputTwo.val('');
+                }
             }
         });
 
@@ -468,6 +553,60 @@ Kora.Fields.Options = function(fieldType) {
         listOpt.trigger("chosen:updated");
     }
 
+    function initializeTextFields() {
+      var $multiLineCheck = $('.check-box-input[name="multi"]');
+      var $singleLine = $('.advance-options-section-js .single-line-js');
+      var $multiLine = $('.advance-options-section-js .multi-line-js');
+      var $singleLineShow = $('.edit-form .single-line-js');
+      var $multiLineShow = $('.edit-form .multi-line-js');
+
+      if ($multiLineCheck.is(':checked')) {
+        $singleLine.addClass('hidden');
+        $multiLine.removeClass('hidden');
+        $singleLineShow.addClass('hidden');
+        $multiLineShow.removeClass('hidden');
+        var input = $singleLineShow.children('input').val();
+        $multiLineShow.children('textarea').val(''+input+'');
+      } else {
+        $singleLineShow.removeClass('hidden');
+        $multiLineShow.addClass('hidden');
+        $singleLine.removeClass('hidden');
+        $multiLine.addClass('hidden');
+      }
+
+      if ($('.error-message.single-line').text().length > 0) {
+        var erMsg = $('.error-message.single-line').text();
+        $('.error-message.multi-line').text(''+erMsg+'');
+        $multiLine.children('textarea').addClass('error');      
+      }
+
+      $multiLineCheck.click(function () {
+        //if ($multiLineCheck.is(':checked') === true || $multiLineCheck.prop('checked') === true) {
+        if ($multiLineCheck.is(':checked')) {
+          $singleLine.addClass('hidden');
+          $multiLine.removeClass('hidden');
+          $singleLineShow.addClass('hidden');
+          $multiLineShow.removeClass('hidden');
+        } else {
+          $singleLine.removeClass('hidden');
+          $multiLine.addClass('hidden');      
+          $singleLineShow.removeClass('hidden');
+          $multiLineShow.addClass('hidden');    
+        }
+      });
+
+      $multiLine.children('textarea').blur(function () {
+        var input = $multiLine.children('textarea').val();
+        $singleLine.children('input').val(''+input+'');
+      });
+
+      $('.error-message.single-line').bind('DOMSubtreeModified', function () {
+        erMsg = $('.error-message.single-line').text();
+        $('.error-message.multi-line').text(''+erMsg+'');
+        $multiLine.children('textarea').addClass('error');
+      });
+    }
+
     initializeSelects();
 
     switch(fieldType) {
@@ -499,6 +638,8 @@ Kora.Fields.Options = function(fieldType) {
             initializeSelectAddition();
             initializeComboListOptions();
             break;
+        case 'Text':
+            initializeTextFields();
         default:
             break;
     }

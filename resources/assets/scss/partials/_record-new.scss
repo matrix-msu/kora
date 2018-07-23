@@ -1,7 +1,7 @@
 .record-create-body,
 .record-edit-body,
 .record-clone-body {
-  background: gradient($palette: 'background', $degree: 180deg);
+  background: palette('gray', background);
   font-family: $ubuntu;
   min-height: 100vh;
 }

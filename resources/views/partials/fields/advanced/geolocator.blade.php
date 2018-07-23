@@ -1,6 +1,6 @@
 {!! Form::hidden('advanced',true) !!}
 <div class="form-group mt-xxxl">
-    {!! Form::label('default','Default Value: ') !!}
+    {!! Form::label('default','Default Value') !!}
     <select multiple class="multi-select default-location-js" name="default[]"
         data-placeholder="Add Locations Below"></select>
 </div>
@@ -10,12 +10,12 @@
 </form>
 
 <div class="form-group mt-xl">
-    {!! Form::label('map','Map Display: ') !!}
+    {!! Form::label('map','Map Display') !!}
     {!! Form::select('map', ['No' => 'No','Yes' => 'Yes'], 'No', ['class' => 'single-select']) !!}
 </div>
 
 <div class="form-group mt-xl">
-    {!! Form::label('view','Displayed Data: ') !!}
+    {!! Form::label('view','Displayed Data') !!}
     {!! Form::select('view', ['LatLon' => 'Lat Long','UTM' => 'UTM Coordinates','Textual' => 'Address'],
         'LatLon', ['class' => 'single-select']) !!}
 </div>

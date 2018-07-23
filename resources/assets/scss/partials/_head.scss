@@ -13,7 +13,7 @@
     border-radius: 0 0 5px 0;
     display: inline-block;
     padding: 20px 17.34px;
-    position: absolute;
+    position: fixed;
     text-decoration: none;
 
     i {
@@ -27,7 +27,7 @@
       opacity: 0.6;
       transform: rotate(90deg) scale(1);
     }
-    
+
     &:hover {
       box-shadow: 0 6px 12px 0 rgba(21,39,48,0.06);
       i {
@@ -35,6 +35,10 @@
         transform: rotate(90deg) scale(1.25);
         -webkit-transform: rotate(90deg) scale(1.25);
       }
+    }
+    
+    @media screen and (max-width: $max-mobile-xs-width) {
+      display: none;
     }
   }
 
@@ -54,6 +58,7 @@
     margin: 0;
     min-height: 45px;
     padding: 56px 0 30px;
+    position: relative;
     text-align: left;
 
     i {
@@ -77,7 +82,7 @@
     > span {
       font-size: 36px;
       font-weight: 400;
-      padding: 0;
+      padding: 0 37px 0 0;
       vertical-align: middle;
     }
   }
@@ -90,6 +95,7 @@
   .head-button {
     float: right;
     text-decoration: none;
+    vertical-align: top;
 
     i {
       @include transition();
@@ -123,6 +129,10 @@
     line-height: 1.5;
     margin: 0;
     padding: 0 0 #{map-get($spacing, xxl)};
+    
+    .record-clone & {
+      padding-bottom: 20px !important;
+    }
   }
 
   .content-sections {
@@ -194,10 +204,23 @@
     }
   }
 
+  .profile-pic-cont {
+    display: inline-block;
+
+    .icon-user {
+      border: solid 2px palette('white', base);
+      border-radius: 50%;
+      box-shadow: 0 3px 5px 0 palette('box-shadow', base, .15);
+      font-size: 48px;
+      margin-right: 30px;
+      padding: 25px;
+    }
+  }
+
   .profile-pic {
     border: solid 2px palette('white', base);
     border-radius: 50%;
-    box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
+    box-shadow: 0 3px 5px 0 palette('box-shadow', base, .15);
     height: 44px;
     margin-right: #{map-get($spacing, xl)};
     object-fit: cover;

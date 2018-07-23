@@ -156,7 +156,7 @@ class TextField extends BaseField {
         if($matching_record_fields->count() > 0) {
             $textfield = $matching_record_fields->first();
             if($overwrite == true || $textfield->text == "" || is_null($textfield->text)) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $textfield->text = $formFieldValue;
                 $textfield->save();
                 $revision->oldData = RevisionController::buildDataArray($record);
@@ -164,7 +164,7 @@ class TextField extends BaseField {
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
             $revision->oldData = RevisionController::buildDataArray($record);
             $revision->save();
         }
@@ -187,22 +187,23 @@ class TextField extends BaseField {
     /**
      * Validates the record data for a field against the field's options.
      *
-     * @param  Field $field - The
-     * @param  mixed $value - Record data
+     * @param  Field $field - The field to validate
      * @param  Request $request
-     * @return string - Potential error message
+     * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
+     * @return array - Array of errors
      */
-    public function validateField($field, $value, $request) {
+    public function validateField($field, $request, $forceReq = false) {
         $req = $field->required;
+        $value = $request->{$field->flid};
         $regex = FieldController::getFieldOption($field, 'Regex');
 
-        if($req==1 && ($value==null | $value==""))
-            return $field->slug."_required";
+        if(($req==1 | $forceReq) && ($value==null | $value==""))
+            return [$field->flid => $field->name.' is required'];
 
-        if(($regex!=null | $regex!="") && !preg_match($regex,$value))
-            return $field->slug."_regex_mismatch";
+        if($value!="" && ($regex!=null | $regex!="") && !preg_match($regex,$value))
+            return [$field->flid => $field->name.' must match the regex pattern: '.$regex];
 
-        return "field_validated";
+        return array();
     }
 
     /**
@@ -304,7 +305,7 @@ class TextField extends BaseField {
      * @return Request - The update request
      */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
-        $recRequest[$flid] = $jsonField->text;
+        $recRequest[$flid] = $jsonField->value;
 
         return $recRequest;
     }
@@ -355,5 +356,19 @@ class TextField extends BaseField {
         $prefix = env('DB_PREFIX');
         $ridArray = implode(',',$rids);
         return DB::select("SELECT `rid`, `text` AS `value` FROM ".$prefix."text_fields WHERE `flid`=$flid AND `rid` IN ($ridArray)");
+    }
+
+    /**
+     * Gets list of RIDs and values for sort.
+     *
+     * @param $rids - Record IDs
+     * @param $flids - Field IDs to sort by
+     * @return string - The value array
+     */
+    public function getRidValuesForGlobalSort($rids,$flids) {
+        $prefix = env('DB_PREFIX');
+        $ridArray = implode(',',$rids);
+        $flidArray = implode(',',$flids);
+        return DB::select("SELECT `rid`, `text` AS `value` FROM ".$prefix."text_fields WHERE `flid` IN ($flidArray) AND `rid` IN ($ridArray)");
     }
 }
