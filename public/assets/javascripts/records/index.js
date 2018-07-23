@@ -426,6 +426,15 @@ Kora.Records.Index = function() {
 
         $('.keyword-close').click(function(){
           $(this).parent().remove();
+		  var find = $(this).siblings('span').text();
+		  if (keywords.indexOf(find) >= 0) {
+			var index = keywords.indexOf(find);
+			keywords.splice(index, 1);
+			newKeys = keywords.toString();
+			newKeys = newKeys.replace(',',' ');
+			$('.keywords-get-js').val(newKeys);
+			$('.submit-search-js').trigger('click');
+		  }
         });
       }
     }
