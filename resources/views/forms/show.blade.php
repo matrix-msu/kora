@@ -116,7 +116,7 @@
     </div>
   </div>
 
-  <section class="pages pages-js center">
+  <section class="pages pages-js center {{ $page_has_fields ? '' : 'mt-xxxl' }}">
     @foreach($pageLayout as $idx=>$page)
       <div class="page" page-id="{{$page["id"]}}">
         <div class="page-header">
