@@ -79,14 +79,28 @@ Kora.Records.Index = function() {
     function initializePaginationShortcut() {
         $('.page-link.active').click(function(e) {
             e.preventDefault();
+            
+            var placeholder = parseInt($('.page-link.active').next('.page-link').html()) - 1
+            if (isNaN(placeholder)) {
+              placeholder = parseInt($('.page-link.active').prev('.page-link').html()) + 1
+              if (isNaN(placeholder)) {
+                placeholder = 1
+              }
+            }
 
             var $this = $(this);
             var maxInput = $this.siblings().last().text()
-            $this.html('<input class="page-input" type="number" min="1" max="'+ maxInput +'">');
+            $this.html('<input class="page-input" type="number" min="1" max="'+ maxInput +'" placeholder="' + placeholder + '">');
             var $input = $('.page-input');
             $input.focus();
-            $input.on('blur keydown', function(e) {
-                if (e.key !== "Enter" && e.key !== "Tab") return;
+            //$input.on('blur keydown', function(e) {
+            $input.on('keydown', function(e) {
+                if (e.key !== "Enter" && e.key !== "Tab") {
+                  // var get = $('.page-input').attr('placeholder');
+                  // $('.page-input').remove();
+                  // $('.page-link.active').text(''+get+'');
+                  return;
+                }
                 if ($input[0].checkValidity()) {
                     var url = window.location.toString();
                     if (url.includes('page=')) {
@@ -96,6 +110,11 @@ Kora.Records.Index = function() {
                         window.location = url + queryVar + "page=" + $input.val();
                     }
                 }
+            });
+            $input.blur(function () {
+              var get = $('.page-input').attr('placeholder');
+              $('.page-input').remove();
+              $('.page-link.active').text(''+get+'');
             });
         })
     }

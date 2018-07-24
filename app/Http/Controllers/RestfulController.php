@@ -1253,9 +1253,9 @@ class RestfulController extends Controller {
         $recRequest['api'] = true;
         $recRequest['assignRoot'] = true;
         $recCon = new RecordController();
-        //TODO::do something with this
+
         $response = $recCon->store($form->pid,$form->fid,$recRequest);
-        return "Created Record: ";
+        return $response;
     }
 
     /**

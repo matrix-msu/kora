@@ -33,6 +33,16 @@
         padding-bottom: #{ $underline-padding };
         text-decoration: none;
       }
+
+      .already-preset {
+        @include transition();
+
+        color: palette('gray', base);
+        
+        &:hover {
+          color: palette('green', accent);
+        }
+      }
     }
   }
 

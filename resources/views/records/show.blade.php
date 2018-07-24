@@ -59,7 +59,7 @@
                 @endif
                 @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
                     @if($alreadyPreset)
-                        <a class="underline-middle-hover already-preset-js" href="#">Designated as Preset</a>
+                        <a class="already-preset already-preset-js" href="#">Designated as Preset</a>
                     @else
                         <a class="underline-middle-hover designate-preset-js" href="#">Designate as Preset</a>
                     @endif

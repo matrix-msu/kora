@@ -7,10 +7,10 @@
     </div>
     <div class="pages">
         @if (!$revisions->onFirstPage())
-            <a href="#1" class="page-link page-link-js">1</a>
+            <a href="{{$revisions->url(1)}}" class="page-link first-page">1</a>
             @if ($revisions->currentPage() > 2)
                 @if ($revisions->currentPage() > 4)
-                    <span class="page-link">...</span>
+                    <span class="page-link dots-backwards">...</span>
                 @endif
                 @if ($revisions->currentPage() > 3)
                     <a href="#{{$revisions->currentPage()-2}}" class="page-link page-link-js">{{$revisions->currentPage() - 2}}</a>
@@ -26,10 +26,10 @@
                     <a href="#{{$revisions->currentPage()+2}}" class="page-link page-link-js">{{$revisions->currentPage() + 2}}</a>
                 @endif
                 @if ($revisions->lastPage() - 3 > $revisions->currentPage())
-                    <span class="page-link">...</span>
+                    <span class="page-link dots-forwards">...</span>
                 @endif
             @endif
-            <a href="#{{$revisions->lastPage()}}" class="page-link page-link-js">{{$revisions->lastPage()}}</a>
+            <a href="{{$revisions->url($revisions->lastPage())}}" class="page-link last-page">{{$revisions->lastPage()}}</a>
         @endif
     </div>
     <div class="next page {{$revisions->hasMorePages() ? '' : 'disabled'}}">

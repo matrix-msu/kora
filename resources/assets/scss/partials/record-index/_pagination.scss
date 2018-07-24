@@ -5,13 +5,18 @@
   max-width: calc(#{$max-site-width} - 600px);
 
   .page {
+    @include transition();
+
     cursor: pointer;
+    opacity: 0.9;
 
     a {
       color: palette('green', accent);
       text-decoration: none;
 
       i {
+        @include transition();
+
         background: palette('green', accent);
         border-radius: 100px;
         box-shadow: 0 3px 5px 0 palette('green', accent, 0.15);
@@ -24,10 +29,23 @@
       }
 
       span {
+        font-family: $ubuntu-medium;
         font-size: 12px;
         line-height: 38px;
         margin: 0 10px;
       }
+    }
+
+    &:hover {
+      opacity: 1;
+
+      a i {
+        box-shadow: -5px 0 10px 0 rgba(4, 182, 175, 0.2);
+      }
+    }
+
+    &.previous:hover a i {
+      box-shadow: 5px 0 10px 0 rgba(4, 182, 175, 0.2);
     }
 
     &.disabled {
@@ -45,20 +63,28 @@
           opacity: 0.5;
         }
       }
-    }
-  }
 
-  @media screen and (max-width: $max-mobile-med-width) {
-    .previous.page,
-    .next.page {
-      span {
-        display: none;
+      &:hover {
+        cursor: not-allowed;
       }
     }
   }
 
+  /* @media screen and (max-width: $max-mobile-med-width) { */
+    /* .previous.page, */
+    /* .next.page { */
+      /* span { */
+        /* display: none; */
+      /* } */
+    /* } */
+  /* } */
+
   .pages {
+    white-space: nowrap;
+
     .page-link {
+      @include transition();
+      
       color: palette('gray', text);
       display: inline-block;
       height: 30px;
@@ -68,7 +94,13 @@
       text-decoration: none;
       width: 40px;
 
+      &:hover {
+        color: palette('green', accent);
+      }
+
       &.active {
+        @include transition();
+      
         background: white;
         border: 1px solid palette('gray', slate, 0.1);
         border-radius: 5px;
@@ -85,8 +117,47 @@
             margin: 0;
             -webkit-appearance: none;
           }
+
+          &::-webkit-input-placeholder,
+          &::-moz-placeholder,
+          &:-ms-input-placeholder,
+          &:-moz-placeholder {
+            font-family: $ubuntu-medium;
+            opacity: 1;
+          }
+
+          &:focus {
+            outline: none;
+          }
+        }
+
+        &:hover {
+          border: 1px solid palette('green', accent, .3);
+          box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
         }
       }
+    }
+  }
+
+  @media screen and (max-width: $max-mobile-med-width) {
+    display: block;
+    height: 100px;
+    position: relative;
+    
+    .pages {
+      display: flex;
+      justify-content: center;
+      text-align: center;
+      width: 100%;
+    }
+    
+    .page {
+      bottom: 0;
+      position: absolute;
+    }
+    
+    .page.next {
+      right: 0;
     }
   }
 }
