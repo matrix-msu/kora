@@ -830,10 +830,8 @@ Kora.Records.Create = function() {
 
   function multiSelectPlaceholders () {
 	  var inputDef = $('.chosen-container').children('.chosen-choices');
-	  console.log('do u no da wae');
 
 	  inputDef.on('click', function() {
-	  console.log('do u no da wae1');
 		  if (inputDef.siblings('.chosen-drop').children('.chosen-results').children().length === 0) {
 			  inputDef.siblings('.chosen-drop').children('.chosen-results').append('<li class="no-results">No options to select!</li>');
 		  } else if (inputDef.siblings('.chosen-drop').children('.chosen-results').children('.active-result').length === 0) {
