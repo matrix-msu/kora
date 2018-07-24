@@ -276,9 +276,22 @@ Kora.Tokens.Index = function() {
 		});
 	}
 
+  function multiSelectPlaceholders () {
+	  var inputDef = $('.chosen-container').children('.chosen-choices');
+
+	  inputDef.on('click', function() {
+		  if (inputDef.siblings('.chosen-drop').children('.chosen-results').children().length === 0) {
+			  inputDef.siblings('.chosen-drop').children('.chosen-results').append('<li class="no-results">No options to select!</li>');
+		  } else if (inputDef.siblings('.chosen-drop').children('.chosen-results').children('.active-result').length === 0) {
+			  inputDef.siblings('.chosen-drop').children('.chosen-results').append('<li class="no-results">No more options to select!</li>');
+		  }
+	  });
+  }
+
     initializeFilters();
     initializeSearch();
     initializeToggle();
     initializeTokenModals();
 	initializeTokenCardEllipsifying();
+	multiSelectPlaceholders ();
 }
