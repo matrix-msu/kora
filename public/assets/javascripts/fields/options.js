@@ -56,7 +56,7 @@ Kora.Fields.Options = function(fieldType) {
     function initializeGeneratedListOptions() {
         var listOpt = $('.genlist-options-js');
         var listDef = $('.genlist-default-js');
-        
+
         var inputDef = listDef.siblings('.chosen-container');
 
         listOpt.find('option').prop('selected', true);
@@ -71,7 +71,7 @@ Kora.Fields.Options = function(fieldType) {
             listDef.html(options);
             listDef.trigger("chosen:updated");
         });
-        
+
         inputDef.on('click', function () {
           if (inputDef.children('.chosen-drop').children('.chosen-results').children().length === 0) {
             inputDef.children('.chosen-drop').children('.chosen-results').append('<li class="no-results">No options to select!</li>');
@@ -84,7 +84,7 @@ Kora.Fields.Options = function(fieldType) {
     function initializeListOptions() {
         var listOpt = $('.list-options-js');
         var listDef = $('.list-default-js');
-        
+
         var inputDef = listDef.siblings('.chosen-container');
 
         listOpt.find('option').prop('selected', true);
@@ -99,7 +99,7 @@ Kora.Fields.Options = function(fieldType) {
             listDef.html(options);
             listDef.trigger("chosen:updated");
         });
-        
+
         inputDef.on('click', function () {
           if (inputDef.children('.chosen-drop').children('.chosen-results').children().length === 0) {
             inputDef.children('.chosen-drop').children('.chosen-results').append('<li class="no-results">No options to select!</li>');
@@ -110,7 +110,7 @@ Kora.Fields.Options = function(fieldType) {
     function initializeMultiSelectListOptions() {
         var listOpt = $('.mslist-options-js');
         var listDef = $('.mslist-default-js');
-        
+
         var inputDef = listDef.siblings('.chosen-container').children('.chosen-choices');
 
         listOpt.find('option').prop('selected', true);
