@@ -34,7 +34,7 @@
         <div class="form-quick-options">
           <div class="button-container">
             <a href="{{ url('/projects/'.$form->pid).'/forms/'.$form->fid.'/records'}}" class="btn half-sub-btn">View & Search Form Records</a>
-            <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}" class="btn half-sub-btn
+            <a href="@if ($hasFields) {{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }} @endif" class="btn half-sub-btn
                 @if(!$hasFields) disabled tooltip @endif" tooltip="Whoops, you can’t create a new record when the form has no fields.">Create New Record</a>
           </div>
         </div>
