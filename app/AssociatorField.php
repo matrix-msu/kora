@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
 class AssociatorField extends BaseField {
@@ -285,7 +286,10 @@ class AssociatorField extends BaseField {
         foreach($records as $record) {
             $rid = $record->record;
             $model = RecordController::getRecord($rid);
-            array_push($pieces,$model->kid);
+            if(!is_null($model))
+                array_push($pieces,$model->kid);
+            else
+                Log::info("Associator value does not exist");
         }
 
         $formatted = implode("[!]", $pieces);
