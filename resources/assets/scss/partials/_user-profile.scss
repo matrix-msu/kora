@@ -19,9 +19,107 @@
       height: 93px;
       width: 93px;
     }
+
+    @media screen and (max-width: 650px) {
+      .head-button {
+        position: absolute;
+        right: 0;
+        top: 56px;
+      }
+
+      .name {
+        display: block;
+        margin-top: 15px;
+      }
+
+      .title {
+        position: relative;
+      }
+    }
   }
 
   @import 'user-profile/filters';
   @import 'user-profile/page-section';
   @import 'user-profile/pagination';
+}
+
+.user-profile-modal {
+  .attr-val {
+    font-family: $ubuntu;
+  }
+
+  .attribute {
+    font-family: $ubuntu;
+    font-weight: bold;
+  }
+
+  .content.small {
+    overflow: initial;
+
+    .body {
+      padding: 95px 25px 25px;
+
+      .profile-link-cont {
+        margin: map-get($spacing, xxl) 0 0;
+        text-align: right;
+      }
+
+      p {
+        font-size: 18px;
+        margin: 0 0 map-get($spacing, m);
+      }
+    }
+  }
+
+  .icon-user {
+    background: palette('white', base);
+    box-sizing: border-box;
+    border: 2px solid #fff;
+    border-radius: 63px;
+    box-shadow: 0 3px 5px 0 rgba(21,39,48,0.15);
+    font-size: 48px;
+    padding: 39px;
+  }
+
+  .profile {
+    left: map-get($spacing, xl);
+    position: absolute;
+    top: -63px;
+
+    img {
+      box-sizing: border-box;
+      border: 2px solid palette('white', base);
+      border-radius: 63px;
+      box-shadow: 0 3px 5px 0 palette('box-shadow', base, .15);
+      height: 125px;
+      object-fit: cover;
+      width: 125px;
+    }
+  }
+
+  .profile-link {
+    color: palette('green', accent);
+    padding: 0 25px $underline-padding 0;
+    text-decoration: none;
+
+    .icon-arrow-right {
+      font-size: 12px;
+      position: absolute;
+      right: 5px;
+      top: 6px;
+      transition: .3s all ease;
+    }
+
+    &:hover {
+      .icon-arrow-right {
+        right: 0;
+      }
+    }
+  }
+
+  @media screen and (max-width: $max-mobile-xs-width) {
+    .content {
+      height: auto;
+    }
+  }
 }

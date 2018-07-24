@@ -50,6 +50,9 @@ Kora.Forms.ImportK2 = function() {
     var recordDroppedFile = false;
     var fileDroppedFile = false;
 
+    var drop = false;
+    var ajaxData
+
     //Resets file input
     function resetFileInput(type) {
         switch(type) {
@@ -112,10 +115,10 @@ Kora.Forms.ImportK2 = function() {
     }
 
     // Check for Drag and Drop Support on the browser //TODO::fix drag and drop....
-    // var isAdvancedUpload = function() {
-    //     var div = document.createElement('div');
-    //     return (('draggable' in div) || ('ondragstart' in div && 'ondrop' in div)) && 'FormData' in window && 'FileReader' in window;
-    // }();
+    var isAdvancedUpload = function() {
+        var div = document.createElement('div');
+        return (('draggable' in div) || ('ondragstart' in div && 'ondrop' in div)) && 'FormData' in window && 'FileReader' in window;
+    }();
 
     //We're basically replicating what profile pic does, just for 3 file inputs on a single page
     function initializeFileUpload() {
@@ -171,96 +174,180 @@ Kora.Forms.ImportK2 = function() {
         });
 
         // Drag and Drop
-        // if (isAdvancedUpload) {
-        //     schemeButton.addClass('has-advanced-upload');
-        //     recordButton.addClass('has-advanced-upload');
-        //     fileButton.addClass('has-advanced-upload');
-        //
-        //     schemeButton.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) { e.preventDefault(); e.stopPropagation(); })
-        //         .on('dragover dragenter', function() { schemeButton.addClass('is-dragover'); })
-        //         .on('dragleave dragend drop', function() { schemeButton.removeClass('is-dragover'); })
-        //         .on('drop', function(e) {
-        //             e.stopPropagation();
-        //             e.preventDefault();
-        //
-        //             schemeDroppedFile = e.originalEvent.dataTransfer.files[0];
-        //             var reader = new FileReader();
-        //             reader.onload = function (e) {
-        //                 newProfilePic('scheme', e.target.result, schemeDroppedFile.name);
-        //                 schemeDroppedFile = e.target.result;
-        //             };
-        //             reader.readAsDataURL(schemeDroppedFile);
-        //         });
-        //     recordButton.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) { e.preventDefault(); e.stopPropagation(); })
-        //         .on('dragover dragenter', function() { recordButton.addClass('is-dragover'); })
-        //         .on('dragleave dragend drop', function() { recordButton.removeClass('is-dragover'); })
-        //         .on('drop', function(e) {
-        //             e.stopPropagation();
-        //             e.preventDefault();
-        //
-        //             recordDroppedFile = e.originalEvent.dataTransfer.files[0];
-        //             var reader = new FileReader();
-        //             reader.onload = function (e) {
-        //                 newProfilePic('record', e.target.result, recordDroppedFile.name);
-        //                 recordDroppedFile = e.target.result;
-        //             };
-        //             reader.readAsDataURL(recordDroppedFile);
-        //         });
-        //     fileButton.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) { e.preventDefault(); e.stopPropagation(); })
-        //         .on('dragover dragenter', function() { fileButton.addClass('is-dragover'); })
-        //         .on('dragleave dragend drop', function() { fileButton.removeClass('is-dragover'); })
-        //         .on('drop', function(e) {
-        //             e.stopPropagation();
-        //             e.preventDefault();
-        //
-        //             fileDroppedFile = e.originalEvent.dataTransfer.files[0];
-        //             var reader = new FileReader();
-        //             reader.onload = function (e) {
-        //                 newProfilePic('file', e.target.result, fileDroppedFile.name);
-        //                 fileDroppedFile = e.target.result;
-        //             };
-        //             reader.readAsDataURL(fileDroppedFile);
-        //         });
-        //
-        //     form.submit(function(e) {
-        //         e.preventDefault();
-        //
-        //         var ajaxData = new FormData(form.get(0));
-        //
-        //         if(schemeDroppedFile) // This solution does not work with drag and drop, possibly need to change the file type
-        //             ajaxData.append("form", schemeDroppedFile);
-        //         if(recordDroppedFile) // This solution does not work with drag and drop, possibly need to change the file type
-        //             ajaxData.append("records", recordDroppedFile);
-        //         if(fileDroppedFile) // This solution does not work with drag and drop, possibly need to change the file type
-        //             ajaxData.append("files", fileDroppedFile);
-        //
-        //         $.ajax({
-        //             url: form.attr('action'),
-        //             type: form.attr('method'),
-        //             data: ajaxData,
-        //             dataType: 'json',
-        //             cache: false,
-        //             contentType: false,
-        //             processData: false,
-        //             success: function(response) {
-        //                 // Will never reach this point because laravel redirecting is actually an error
-        //             },
-        //             error: function(error) {
-        //                 // TODO: Handle errors. Currently can get all errors, just need to display them
-        //
-        //                 if (error.status == 200) {
-        //                     console.log(error);
-        //                 } else {
-        //                     console.log(error);
-        //                     var responseJson = error.responseJSON;
-        //                     $.each(responseJson, function() {
-        //                         console.log(this[0]);
-        //                     });
-        //                 }
-        //             }
-        //         });
-        //     });
-        // }
+        // detect and disable if we are on Safari
+        if (isAdvancedUpload && window.safari == undefined && navigator.vendor != 'Apple Computer, Inc.') {
+            schemeButton.addClass('has-advanced-upload');
+            recordButton.addClass('has-advanced-upload');
+            fileButton.addClass('has-advanced-upload');
+
+            schemeButton.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) { e.preventDefault(); e.stopPropagation(); })
+                .on('dragover dragenter', function() { schemeButton.addClass('is-dragover'); })
+                .on('dragleave dragend drop', function() { schemeButton.removeClass('is-dragover'); })
+                .on('drop', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+
+                    schemeDroppedFile = e.originalEvent.dataTransfer.files[0];
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        newProfilePic('scheme', e.target.result, schemeDroppedFile.name);
+                        schemeDroppedFile = e.target.result;
+                    };
+
+                    drop = true
+                    ajaxData = new FormData(form.get(0));
+
+                    ajaxData.delete('form'); // safari does not support this
+                    ajaxData.append("form", schemeDroppedFile);
+
+                    $('.file-input-js').trigger('change');
+                });
+
+            recordButton.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) { e.preventDefault(); e.stopPropagation(); })
+                .on('dragover dragenter', function() { recordButton.addClass('is-dragover'); })
+                .on('dragleave dragend drop', function() { recordButton.removeClass('is-dragover'); })
+                .on('drop', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+
+                    recordDroppedFile = e.originalEvent.dataTransfer.files[0];
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        newProfilePic('record', e.target.result, recordDroppedFile.name);
+                        recordDroppedFile = e.target.result;
+                    };
+                    drop = true
+                    reader.readAsDataURL(recordDroppedFile);
+
+                    ajaxData.delete('records'); // safari does not support this
+                    ajaxData.append("records", recordDroppedFile);
+                });
+
+            fileButton.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) { e.preventDefault(); e.stopPropagation(); })
+                .on('dragover dragenter', function() { fileButton.addClass('is-dragover'); })
+                .on('dragleave dragend drop', function() { fileButton.removeClass('is-dragover'); })
+                .on('drop', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+
+                    fileDroppedFile = e.originalEvent.dataTransfer.files[0];
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        newProfilePic('file', e.target.result, fileDroppedFile.name);
+                        fileDroppedFile = e.target.result;
+                    };
+                    drop = true
+                    reader.readAsDataURL(fileDroppedFile);
+
+                    ajaxData.delete('files'); // safari does not support this
+                    ajaxData.append("files", fileDroppedFile);
+                });
+
+            $('.btn.submit').click(function(e) {
+                e.preventDefault();
+                
+                if (drop) {
+
+                  ajaxData.delete('name');
+                  ajaxData.append('name', $('.text-input.name').val());
+                  ajaxData.delete('slug');
+                  ajaxData.append('slug', $('.text-input.slug').val());
+                  ajaxData.delete('description');
+                  ajaxData.append('description', $('.text-area.desc').val());
+
+                  if(!schemeDroppedFile) {
+                      ajaxData.delete('form'); // safari does not support this
+                  }
+                  if(!recordDroppedFile) {
+                      ajaxData.delete('records'); // safari does not support this
+                  }
+                  if(!fileDroppedFile) {
+                      ajaxData.delete('files'); // safari does not support this
+                  }
+
+                  for ( var pair of ajaxData.entries() ) {
+                    console.log(pair[0] + ', ' + pair[1]); 
+                    // console.log(typeof pair[1]);
+                    if (typeof pair[1] === 'object') {
+                      console.log(pair[1]);
+                    }
+                  }
+
+                  $.ajax({
+                      url: form.attr('action'),
+                      method: 'POST',
+                      data: ajaxData,                     
+                      processData: false,
+                      contentType: false,
+                      success: function(response) {
+                          // Will never reach this point because laravel redirecting is actually an error
+                          window.location = successUrl;
+                      },
+                      error: function(error) {
+                          // TODO: Handle errors. Currently can get all errors, just need to display them
+                          if (error.status == 200) {
+                              console.log(error);
+                          } else {
+                              console.log(error);
+                              console.log(error.responseJSON.message);
+                              var responseJson = error.responseJSON.errors;
+                              if (responseJson) {
+                                  $.each(responseJson, function() {
+                                      console.log(this[0]);
+                                  });
+                              }
+                          }
+                      }
+                  });
+                } else {
+                    ajaxData = new FormData(form.get(0));
+
+                    if(!schemeDroppedFile) {
+                      ajaxData.delete('form'); // safari does not support this
+                    }
+                    if(!recordDroppedFile) {
+                        ajaxData.delete('records'); // safari does not support this
+                    }
+                    if(!fileDroppedFile) {
+                        ajaxData.delete('files'); // safari does not support this
+                    }
+
+                    for ( var pair of ajaxData.entries() ) {
+                      console.log(pair[0] + ', ' + pair[1]);
+                      if (typeof pair[1] === 'object') {
+                        console.log(pair[1]);
+                      }
+                    }
+
+                    $.ajax({
+                      url: form.attr('action'),
+                      method: 'POST',
+                      data: ajaxData,
+                      processData: false,
+                      contentType: false,
+                      success: function(response) {
+                          // Will never reach this point because laravel redirecting is actually an error
+                          window.location = successUrl;
+                      },
+                      error: function(error) {
+                          // TODO: Handle errors. Currently can get all errors, just need to display them
+                          if (error.status == 200) {
+                              console.log(error);
+                          } else {
+                              console.log(error);
+                              console.log(error.responseJSON.message);
+                              var responseJson = error.responseJSON.errors;
+                              if (responseJson) {
+                                  $.each(responseJson, function() {
+                                      console.log(this[0]);
+                                  });
+                              }
+                          }
+                      }
+                    });
+                }
+            });
+        }
     }
 
     initializeFileUpload();

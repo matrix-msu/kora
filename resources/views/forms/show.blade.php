@@ -33,7 +33,8 @@
       <div class="form-group">
         <div class="form-quick-options">
           <div class="button-container">
-            <a href="{{ url('/projects/'.$form->pid).'/forms/'.$form->fid.'/records'}}" class="btn half-sub-btn">View & Search Form Records</a>
+            <?php $count = count($form->records) ?>
+            <a href="{{ url('/projects/'.$form->pid).'/forms/'.$form->fid.'/records'}}" class="btn half-sub-btn">View & Search Form Records ({{ $count }})</a>
             <a href="{{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }}" class="btn half-sub-btn
                 @if(!$hasFields) disabled @endif">Create New Record</a>
           </div>
@@ -47,7 +48,7 @@
 @section('body')
   <?php
   $page_has_fields = false;
-  
+
   foreach($pageLayout as $page)
   {
     if (count($page["fields"]) > 0)
@@ -115,7 +116,7 @@
     </div>
   </div>
 
-  <section class="pages pages-js center">
+  <section class="pages pages-js center {{ $page_has_fields ? '' : 'mt-xxxl' }}">
     @foreach($pageLayout as $idx=>$page)
       <div class="page" page-id="{{$page["id"]}}">
         <div class="page-header">

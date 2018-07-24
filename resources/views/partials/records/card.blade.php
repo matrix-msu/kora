@@ -24,7 +24,7 @@
                     @if($page["fields"]->count() > 0)
                         @foreach($page["fields"] as $field)
                             @if($field->viewresults)
-                                <div class="field-title mt-xl">{{$field->name}}: </div>
+                                <div class="field-title mt-xl">{{$field->name}}</div>
 
                                 <section class="field-data">
                                     <?php $typedField = $field->getTypedFieldFromRID($record->rid); ?>
@@ -44,7 +44,7 @@
         </div>
 
         <div class="footer">
-            <a class="quick-action trash-container left danger delete-record-js tooltip" rid="{{$record->rid}}" href="#" tooltip="Delete Field">
+            <a class="quick-action trash-container left danger delete-record-js tooltip" rid="{{$record->rid}}" href="#" tooltip="Delete Record">
                 <i class="icon icon-trash"></i>
             </a>
 

@@ -11,8 +11,6 @@
 @import 'partials/inputs';
 @import 'partials/admin-users';
 @import 'partials/auth';
-@import 'partials/user-profile';
-@import 'partials/user-edit';
 @import 'partials/install';
 @import 'partials/install-success';
 @import 'partials/config';
@@ -57,6 +55,9 @@
 @import 'partials/project-permissions';
 @import 'partials/publish';
 @import 'partials/footer';
+@import 'partials/user-edit';
+@import 'partials/user-preferences';
+@import 'partials/user-profile';
 
 @media screen and (min-width: $max-tablet-width) and (max-width: $max-with-aside-width) {
   // scss-lint:disable ImportantRule
@@ -74,6 +75,16 @@
     margin-right: $tablet-margin-total / 2 !important;
     max-width: $max-tablet-width - $tablet-margin-total !important;
     width: calc(100% - #{$tablet-margin-total}) !important;
+
+    &.pages.with-aside {
+      width: calc(100% - 20px) !important;
+    }
+  }
+}
+
+@media screen and (max-width: $max-mobile-l-width) {
+  .center.pages {
+    width: calc(100% - 15px) !important;
   }
 }
 
@@ -84,5 +95,9 @@
     margin-right: $mobile-xs-margin-total / 2 !important;
     max-width: $max-mobile-xs-width - $mobile-xs-margin-total !important;
     width: calc(100% - #{$mobile-xs-margin-total}) !important;
+
+    &.pages {
+      width: calc(100% - 15px) !important;
+    }
   }
 }

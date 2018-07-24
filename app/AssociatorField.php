@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
 class AssociatorField extends BaseField {
@@ -180,7 +181,7 @@ class AssociatorField extends BaseField {
         if($matching_record_fields->count() > 0) {
             $associatorfield = $matching_record_fields->first();
             if($overwrite == true || $associatorfield->hasRecords()) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $associatorfield->updateRecords($formFieldValue);
                 $associatorfield->save();
                 $revision->oldData = RevisionController::buildDataArray($record);
@@ -188,7 +189,7 @@ class AssociatorField extends BaseField {
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
             $revision->oldData = RevisionController::buildDataArray($record);
             $revision->save();
         }
@@ -212,18 +213,19 @@ class AssociatorField extends BaseField {
     /**
      * Validates the record data for a field against the field's options.
      *
-     * @param  Field $field - The
-     * @param  mixed $value - Record data
+     * @param  Field $field - The field to validate
      * @param  Request $request
-     * @return string - Potential error message
+     * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
+     * @return array - Array of errors
      */
-    public function validateField($field, $value, $request) {
+    public function validateField($field, $request, $forceReq = false) {
         $req = $field->required;
+        $value = $request->{$field->flid};
 
-        if($req==1 && ($value==null | $value==""))
-            return $field->name."_required";
+        if(($req==1 | $forceReq) && ($value==null | $value==""))
+            return [$field->flid.'_chosen' => $field->name.' is required'];
 
-        return "field_validated";
+        return array();
     }
 
     /**
@@ -284,7 +286,10 @@ class AssociatorField extends BaseField {
         foreach($records as $record) {
             $rid = $record->record;
             $model = RecordController::getRecord($rid);
-            array_push($pieces,$model->kid);
+            if(!is_null($model))
+                array_push($pieces,$model->kid);
+            else
+                Log::info("Associator value does not exist");
         }
 
         $formatted = implode("[!]", $pieces);
@@ -341,7 +346,7 @@ class AssociatorField extends BaseField {
      * @return Request - The update request
      */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
-        $recRequest[$flid] = $jsonField->records;
+        $recRequest[$flid] = $jsonField->value;
 
         return $recRequest;
     }
@@ -394,8 +399,11 @@ class AssociatorField extends BaseField {
         $dbQuery->where(function($dbQuery) use ($inputs) {
             foreach($inputs as $input) {
                 $rid = explode('-',$input)[2];
-                $dbQuery->orWhereRaw("MATCH (`record`) AGAINST (? IN BOOLEAN MODE)",
-                    ["\"" . $rid . "\""]);
+                if(strlen($rid)<4)
+                    $dbQuery->orWhereRaw("`record`='?'", [$rid]);
+                else
+                    $dbQuery->orWhereRaw("MATCH (`record`) AGAINST (? IN BOOLEAN MODE)",
+                        ["\"" . $rid . "\""]);
             }
         });
     }
@@ -494,6 +502,9 @@ class AssociatorField extends BaseField {
     public function getPreviewValues($rid) {
         //individual kid elements
         $recModel = RecordController::getRecord($rid);
+        if(is_null($recModel))
+            return '';
+
         $pid = $recModel->pid;
         $fid = $recModel->fid;
         $rid = $recModel->rid;
@@ -534,16 +545,20 @@ class AssociatorField extends BaseField {
             foreach($details['flids'] as $flid => $type) {
                 if($type == Field::_TEXT) {
                     $text = TextField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
-                    if($text->text != '')
+                    if(!is_null($text) && $text->text != '')
                         array_push($preview, $text->text);
+                    else
+                        array_push($preview, "Preview Field Empty");
                 } else if($type == Field::_LIST) {
                     $list = ListField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
-                    if($list->option != '')
+                    if(!is_null($list) && $list->option != '')
                         array_push($preview, $list->option);
+                    else
+                        array_push($preview, "Preview Field Empty");
                 }
             }
         } else {
-            array_push($preview, "no_preview_available");
+            array_push($preview, "No Preview Field Available");
         }
 
         $html = "<a class='mt-xxxs documents-link underline-middle-hover' href='".config('app.url')."projects/".$pid."/forms/".$fid."/records/".$rid."'>".$kid."</a>";

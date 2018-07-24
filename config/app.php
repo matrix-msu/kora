@@ -161,7 +161,6 @@ return [
 		'App\Providers\ViewComposerServiceProvider',
 
 		'Laracasts\Flash\FlashServiceProvider',
-		Geocoder\Laravel\Providers\GeocoderService::class,
         'Devfactory\Minify\MinifyServiceProvider',
 	],
 

@@ -22,16 +22,16 @@ class Revision extends Model {
     /**
      * @var string - The individual types of a revision
      */
-    const EDIT = "edit";
     const CREATE = "create";
+    const EDIT = "edit";
     const DELETE = "delete";
     const ROLLBACK = "rollback";
     /**
      * @var array - Array representation of revision types
      */
     static public $REVISION_TYPES = [
-        self::EDIT,
         self::CREATE,
+        self::EDIT,
         self::DELETE,
         self::ROLLBACK
     ];

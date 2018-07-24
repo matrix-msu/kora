@@ -6,6 +6,7 @@
 .tooltip {
   display: inline-block;
   position: relative;
+  pointer-events: auto !important;
 
   &::after {
     opacity: 0;
@@ -36,7 +37,7 @@
     }
     
     .footer & {
-      top: 3px;
+      top: -30px;
       left: -30px;
     }
 
@@ -56,5 +57,13 @@
     .show-options & {
       left: -50px;
     }
+
+    .open-create-regex & {
+      left: -140px;
+    }
+  }
+  
+  &.form-group {
+    display: block;
   }
 }

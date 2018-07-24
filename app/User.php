@@ -14,6 +14,7 @@ use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use ReCaptcha\ReCaptcha;
 
@@ -45,6 +46,15 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     public function getFullNameAttribute() {
         return $this->first_name . " " . $this->last_name;
+    }
+
+    /**
+     * A User's Permissions
+     *
+     * @return HasOne
+     */
+    public function permissions() {
+        return $this->hasOne('App\Preferences', 'preferences_id');
     }
 
     /**
@@ -108,6 +118,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             });
         } catch(\Swift_TransportException $e) {
             //TODO::email error response
+            //Log for now
+            Log::info('Activation email failed');
         }
     }
 
@@ -130,6 +142,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             });
         } catch(\Swift_TransportException $e) {
             //TODO::email error response
+            //Log for now
+            Log::info('Password reset email failed');
         }
     }
 

@@ -1,6 +1,6 @@
 {!! Form::hidden('advanced',true) !!}
 <div class="form-group mt-xxxl">
-    {!! Form::label('default','Default Value: ') !!}
+    {!! Form::label('default','Default Value') !!}
     <select multiple class="multi-select default-event-js" name="default[]"
         data-placeholder="Add Events Below"></select>
 </div>
@@ -10,19 +10,19 @@
 </form>
 
 <div class="form-group mt-xl">
-    {!! Form::label('start','Start Year: ') !!}
+    {!! Form::label('start','Start Year') !!}
     <span class="error-message"></span>
     {!! Form::input('number', 'start', 1900, ['class' => 'text-input start-year-js', 'min' => 0, 'max' => 9999]) !!}
 </div>
 
 <div class="form-group mt-xl">
-    {!! Form::label('end','End Year: ') !!}
+    {!! Form::label('end','End Year') !!}
     <span class="error-message"></span>
     {!! Form::input('number', 'end', 2020, ['class' => 'text-input end-year-js', 'min' => 0, 'max' => 9999]) !!}
 </div>
 
 <div class="form-group mt-xl">
-    {!! Form::label('cal','Calendar Display: ') !!}
+    {!! Form::label('cal','Calendar Display') !!}
     {!! Form::select('cal', ['No' => 'No','Yes' => 'Yes'], 'No', ['class' => 'single-select']) !!}
 </div>
 

@@ -24,10 +24,6 @@ Kora.Backups.Index = function() {
         });
     }
 
-    function clearSearch() {
-        $('.search-js .icon-cancel-js').click();
-    }
-
     function initializeSearch() {
         var $searchInput = $('.search-js input');
 
@@ -59,6 +55,23 @@ Kora.Backups.Index = function() {
 
         $('.search-js .icon-cancel-js').click(function() {
             $searchInput.val('').blur().parent().removeClass('active');
+
+            $('.backup.card').each(function() {
+                $(this).removeClass('hidden');
+            });
+        });
+
+        $('.search-js i, .search-js input').keyup(function() {
+            var searchVal = $(this).val().toLowerCase();
+
+            $('.backup.card').each(function() {
+                var name = $(this).find('.name').first().text().toLowerCase();
+
+                if(name.includes(searchVal))
+                    $(this).removeClass('hidden');
+                else
+                    $(this).addClass('hidden');
+            });
         });
     }
 

@@ -28,24 +28,12 @@
 @stop
 
 @section('body')
-  <section class="edit-form center">
-    {!! Form::model($form,  ['method' => 'PATCH', 'action' => ['FormController@update',$form->pid, $form->fid], 'class' => 'edit-form']) !!}
+    @include("partials.forms.edit.formModals")
+
+  <section class="edit-form">
+    {!! Form::model($form,  ['method' => 'PATCH', 'action' => ['FormController@update',$form->pid, $form->fid], 'class' => 'edit-form center']) !!}
     @include('partials.forms.form',['submitButtonText' => 'Update Form', 'pid' => $form->pid, 'type' => 'edit'])
     {!! Form::close() !!}
-
-    <div class="modal modal-js modal-mask form-cleanup-modal-js">
-      <div class="content small">
-        <div class="header">
-          <span class="title title-js"></span>
-          <a href="#" class="modal-toggle modal-toggle-js">
-            <i class="icon icon-cancel"></i>
-          </a>
-        </div>
-        <div class="body">
-          @include("partials.forms.edit.formDeleteForm")
-        </div>
-      </div>
-    </div>
   </section>
 @stop
 

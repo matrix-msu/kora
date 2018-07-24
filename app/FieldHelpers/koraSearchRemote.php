@@ -7,7 +7,7 @@
 //THIS WORKS IF YOU HAVE USED EITHER Exodus OR THE K2 Importer TOOLS TO MIGRATE YOUR KORA 2 DATA
 //Step 1
 ////Change your php includes of koraSearch.php from K2 to point at this file
-////In your file, use the namespace tag "namespace App\FieldHelpers"
+////(Because this remote file is independent, we can ignore this step) In your file, use the namespace tag "namespace App\FieldHelpers"
 //Step 2
 ////Replace your token, pid, and sid with a new search token, a k3 pid, and fid
 //Step 3
@@ -25,7 +25,7 @@
  * @var string - Kora 3 API URL
  */
 
-$kora3ApiURL = "FILL_THIS"; //"http://www.myKora3Install.com/api/search"
+define("kora3ApiURL","FILL_THIS"); //"http://www.myKora3Install.com/api/search"
 
 class kora3ApiExternalTool {
 
@@ -290,7 +290,7 @@ class KORA_Clause {
             } else {
                 //second argument has complex query logic. We need to loop through and build new array where every index
                 //is increased by the size of query 1
-                $tmp = $this->recursizeLogicIndex($argQue2,$size);
+                $tmp = $this->recursizeLogicIndex($argLogic2,$size);
                 array_push($newLogic,$tmp);
             }
 
@@ -371,19 +371,19 @@ class KORA_Clause {
         $hasDate = false;
         $dateArray = ['month'=>01,'day'=>01,'year'=>0001];
 
-        if(strpos($keyword,'<month>')) {
+        if(strpos($keyword,'<month>') !== false) {
             $hasDate = true;
             $p1 = explode('<month>',$keyword)[1];
             $dateArray['month'] = explode('</month>',$p1)[0];
         }
 
-        if(strpos($keyword,'<day>')) {
+        if(strpos($keyword,'<day>') !== false) {
             $hasDate = true;
             $p1 = explode('<day>',$keyword)[1];
             $dateArray['day'] = explode('</day>',$p1)[0];
         }
 
-        if(strpos($keyword,'<year>')) {
+        if(strpos($keyword,'<year>') !== false) {
             $hasDate = true;
             $p1 = explode('<year>',$keyword)[1];
             $dateArray['year'] = explode('</year>',$p1)[0];
@@ -398,30 +398,30 @@ class KORA_Clause {
     /**
      * Recursively reindexes the logic query to match any new queries added to the array.
      *
-     * @param  array $queryArray - The queries to reindex by
+     * @param  array $logicArray - The logic to reindex
      * @param  int $size - Size of array at top level of recursion
      * @return array - The newly indexed logic array
      */
-    private function recursizeLogicIndex($queryArray,$size) {
+    private function recursizeLogicIndex($logicArray,$size) {
         $returnArray = array();
 
         //part1
-        if(is_array($queryArray[0])) {
-            $tmp = $this->recursizeLogicIndex($queryArray[0],$size);
+        if(is_array($logicArray[0])) {
+            $tmp = $this->recursizeLogicIndex($logicArray[0],$size);
             $returnArray[0] = $tmp;
         } else {
-            $returnArray[0] = $queryArray[0]+$size;
+            $returnArray[0] = $logicArray[0]+$size;
         }
 
         //operation
-        $returnArray[1] = $queryArray[1];
+        $returnArray[1] = $logicArray[1];
 
         //part2
-        if(is_array($queryArray[2])) {
-            $tmp = $this->recursizeLogicIndex($queryArray[2],$size);
+        if(is_array($logicArray[2])) {
+            $tmp = $this->recursizeLogicIndex($logicArray[2],$size);
             $returnArray[2] = $tmp;
         } else {
-            $returnArray[2] = $queryArray[2]+$size;
+            $returnArray[2] = $logicArray[2]+$size;
         }
 
         return $returnArray;
@@ -545,7 +545,7 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
     $data["format"] = "KORA_OLD";
 
     $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $GLOBALS['kora3ApiURL']);
+    curl_setopt($curl, CURLOPT_URL, kora3ApiURL);
     if(!empty($userInfo)) {
         curl_setopt($curl, CURLOPT_USERPWD, $userInfo["user"].":".$userInfo["pass"]);
         curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);

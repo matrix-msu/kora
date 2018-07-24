@@ -227,9 +227,13 @@ Kora.Projects.Index = function() {
 
   function initializePermissionsModal() {
     Kora.Modal.initialize();
+    var $modal = $('.request-permissions-modal-js');
 
     $('.request-permissions-js').click(function(e) {
       e.preventDefault();
+
+      $('.modal-js').hide();
+      $modal.show();
 
       Kora.Modal.open();
     });
@@ -247,6 +251,36 @@ Kora.Projects.Index = function() {
             $('.request-project-form-js').submit();
         else
             $('.request-error-js').text('Please select a project');
+    });
+  }
+
+  function initializeUserProfileModal() {
+    Kora.Modal.initialize();
+    var $modal = $('.user-profile-modal-js');
+
+    $('.admin-name-js').click(function(e) {
+      e.preventDefault();
+
+      $('.modal-js').hide();
+      $modal.show();
+
+      $this = $(this);
+      // Check if profile picture exists
+      $modal.find('.profile-js').html("").css("top", "-63px");
+      $.get($this.data('profile'))
+          .done(function() {
+            $modal.find('.profile-js').html('<img src="' + $this.data('profile') + '" alt="Profile Pic">');
+          })
+          .fail(function() {
+            $modal.find('.profile-js').html('<i class="icon icon-user">').css("top", "-23px");;
+          });
+      $modal.find('.name-attr-js').html($this.data('name'));
+      $modal.find('.username-attr-js').html($this.data('username'));
+      $modal.find('.email-attr-js').html($this.data('email'));
+      $modal.find('.organization-attr-js').html($this.data('organization'));
+      $modal.find('.profile-link-js').attr('href', $this.data('profile-url'));
+
+      Kora.Modal.open();
     });
   }
   
@@ -364,6 +398,7 @@ Kora.Projects.Index = function() {
   initializeFilters();
   initializeSearch();
   initializePermissionsModal();
+  initializeUserProfileModal();
   initializeUnarchive();
   initializeProjectCardEllipsifying();
 }

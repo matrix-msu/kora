@@ -21,29 +21,32 @@
 </div>
 
 <div class="form-group mt-xl">
-    {!! Form::label('type','Field Type: ') !!}
+    {!! Form::label('type','Field Type') !!}
+	<a class="underline-middle-hover pb-xxs desc-modal">
+    	<span class="name">View Field Type Descriptions</span>
+    </a>
     {!! Form::select('type', $validFieldTypes, null,['class' => 'single-select field-types-js']) !!}
 </div>
 
 <section class="hidden mt-xl combo-list-form-js">
     <div class="form-group half pr-m">
-        {!! Form::label('cftype1','Combo List Field Type 1: ') !!}
+        {!! Form::label('cftype1','Combo List Field Type 1') !!}
         {!! Form::select('cftype1', $validComboListFieldTypes, null,['class' => 'single-select']) !!}
     </div>
 
     <div class="form-group half pl-m">
-        {!! Form::label('cfname1','Combo List Field Name 1: ') !!}
+        {!! Form::label('cfname1','Combo List Field Name 1') !!}
         <span class="error-message">{{array_key_exists("cfname1", $errors->messages()) ? $errors->messages()["cfname1"][0] : ''}}</span>
         {!! Form::text('cfname1', null, ['class' => 'text-input'. (array_key_exists("cfname1", $errors->messages()) ? ' error' : ''), 'placeholder' => 'Enter the combo list field name 1 here']) !!}
     </div>
 
     <section class="mt-xl">
         <div class="form-group half pr-m">
-            {!! Form::label('cftype2','Combo List Field Type 2: ') !!}
+            {!! Form::label('cftype2','Combo List Field Type 2') !!}
             {!! Form::select('cftype2', $validComboListFieldTypes, null,['class' => 'single-select']) !!}
         </div>
         <div class="form-group half pl-m">
-            {!! Form::label('cfname2','Combo List Field Name 2: ') !!}
+            {!! Form::label('cfname2','Combo List Field Name 2') !!}
             <span class="error-message">{{array_key_exists("cfname2", $errors->messages()) ? $errors->messages()["cfname2"][0] : ''}}</span>
             {!! Form::text('cfname2', null, ['class' => 'text-input'. (array_key_exists("cfname2", $errors->messages()) ? ' error' : ''), 'placeholder' => 'Enter the combo list field name 2 here']) !!}
         </div>

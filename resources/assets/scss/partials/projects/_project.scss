@@ -4,6 +4,14 @@
 
 .admins {
   margin: 20px 0;
+
+  .admin-name {
+    @include transition();
+
+    &:hover {
+      color: palette('green', accent);
+    }
+  }
 }
 
 .forms {
