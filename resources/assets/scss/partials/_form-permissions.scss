@@ -1,5 +1,5 @@
 .form-permissions-body {
-  background: gradient($palette: 'background', $degree: 180deg);
+  background: palette('gray', background);
   font-family: $ubuntu;
   min-height: 100vh;
 }

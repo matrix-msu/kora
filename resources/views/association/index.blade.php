@@ -21,7 +21,8 @@
             <div class="content-sections">
               <div class="content-sections-scroll">
                 <a href="#create" class="section underline-middle underline-middle-hover toggle-by-name active">Create Form Association</a>
-                <a href="#request" class="section underline-middle underline-middle-hover toggle-by-name">Request Form Association</a></div>
+                <a href="#request" class="section underline-middle underline-middle-hover toggle-by-name">Request Form Association</a>
+              </div>
             </div>
         </div>
     </section>

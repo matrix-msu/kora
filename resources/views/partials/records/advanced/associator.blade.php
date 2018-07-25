@@ -1,5 +1,5 @@
 <div class="form-group mt-xl">
-    {!! Form::label($field->flid.'_input',$field->name.': ') !!}
+    {!! Form::label($field->flid.'_input',$field->name) !!}
     <?php
         $asc = new \App\Http\Controllers\AssociatorSearchController();
         $request = new \Illuminate\Http\Request();
@@ -12,5 +12,5 @@
             $rids[$kid] = "$kid: $preview";
         }
     ?>
-    {!! Form::select($field->flid . "_input", $rids, '', ["class" => "single-select"]) !!}
+    {!! Form::select($field->flid . "_input[]", $rids, '', ["class" => "multi-select", "Multiple"]) !!}
 </div>

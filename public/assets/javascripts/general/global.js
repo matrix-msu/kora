@@ -1,5 +1,6 @@
-function getBrowserWidth() {
+function getBrowserWidth() { // this does not account for the width of the scrollbar, therefore we need to add window.innerWidth here I believe - not accounting for this was causing issues with the sidebar blanket at certain widths
   return Math.max(
+    window.innerWidth,
     document.body.scrollWidth,
     document.documentElement.scrollWidth,
     document.body.offsetWidth,
@@ -81,7 +82,7 @@ function isScrolledIntoView($elem) {
 function setFixedElement(load = false) {
   if ($('.pre-fixed-js').length > 0) {
     var $elementToFix = $('.pre-fixed-js');
-    var $elementFixWrapper = $('.pre-fixed-js').parent();
+    var $elementFixWrapper = $elementToFix.parent();
 
     if (!isScrolledIntoView($elementFixWrapper)) {
       if (load) {
@@ -105,6 +106,7 @@ $(document).ready(function() {
   var $sidebarCookie = getCookie('sidebar');
   if ($sidebarCookie && getBrowserWidth() > 870) {
     $(".center, .floating-buttons").addClass('with-aside');
+    $('.field.card').addClass('with-aside');
     $('.pre-fixed-js').addClass('pre-fixed-with-aside');
   } else {
     // the case where we want the aside lock to still work on refresh for larger screens
@@ -155,9 +157,12 @@ $(document).ready(function() {
     }
 
     if (link.charAt(0) !== "#" && link.length > 0) {
-      window.location = link;
-      //} else {
-      //e.preventDefault();
+      e.preventDefault();
+      if (e.metaKey || e.ctrlKey) {
+        window.open(link);
+      } else {
+        window.location = link;
+      }
     }
   });
 
@@ -168,6 +173,18 @@ $(document).ready(function() {
     var $drawerElement = $this.parent();
     var $drawerContent = $this.next();
     var $icon = $this.children().last();
+
+    setTimeout(function() {
+      var $headerHeight = $('.aside-content .header-elements').height();
+      var $footerHeight = $('.aside-content .footer-elements').height();
+      var combinedHeight = $headerHeight + $footerHeight
+
+      if (combinedHeight > (window.innerHeight - 50)) {
+        $('.aside-content .footer-elements').css('position', 'static');
+      } else {
+        $('.aside-content .footer-elements').css('position', 'absolute');
+      }
+    }, 400);
 
     if ($drawerElement.hasClass('active')) {
       closeSidemenuDrawers();
@@ -197,9 +214,6 @@ $(document).keydown(function(e) {
     e.preventDefault();
 
     $(".global-search-toggle").click();
-    setTimeout(function() {
-      $('.global-search-input-js').focus()
-    }, 500);
   }
 
   // Escape key

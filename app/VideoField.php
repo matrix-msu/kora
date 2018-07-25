@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\FieldController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
@@ -134,7 +135,7 @@ class VideoField extends FileTypeField {
                             $type = $types[$file->getExtension()];
                         $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
                         $infoArray[$file->getFilename()] = $info;
-                        copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                        rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                             $newPath . '/' . $file->getFilename());
                     }
                 }
@@ -191,7 +192,7 @@ class VideoField extends FileTypeField {
                             $type =  $types[$file->getExtension()];
                         $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
                         $infoArray[$file->getFilename()] = $info;
-                        copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                        rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                             config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid . '/' . $file->getFilename());
                         $vid_files_exist = true;
                     }
@@ -270,20 +271,24 @@ class VideoField extends FileTypeField {
     /**
      * Validates the record data for a field against the field's options.
      *
-     * @param  Field $field - The
-     * @param  mixed $value - Record data
+     * @param  Field $field - The field to validate
      * @param  Request $request
-     * @return string - Potential error message
+     * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
+     * @return array - Array of errors
      */
-    public function validateField($field, $value, $request) {
+    public function validateField($field, $request, $forceReq = false) {
         $req = $field->required;
+        if(Auth::guest())
+            $value = 'f'.$field->flid.'u'.$request['userId'];
+        else
+            $value = 'f'.$field->flid.'u'.Auth::user()->id;
 
-        if($req==1) {
+        if($req==1 | $forceReq) {
             if(glob(config('app.base_path').'storage/app/tmpFiles/'.$value.'/*.*') == false)
-                return $field->name."_required";
+                return [$field->flid => $field->name.' is required'];
         }
 
-        return "field_validated";
+        return array();
     }
 
     /**
@@ -359,6 +364,10 @@ class VideoField extends FileTypeField {
                 $xml .= '</File>';
                 $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
+                $xml .= '<' . Field::xmlTagClear($slug) . ' type="Video" simple="simple">';
+                $xml .= utf8_encode('FILENAME');
+                $xml .= '</' . Field::xmlTagClear($slug) . '>';
+
                 return $xml;
                 break;
             case "JSON":
@@ -417,7 +426,7 @@ class VideoField extends FileTypeField {
         } else {
             mkdir($newDir, 0775, true);
         }
-        foreach($jsonField->files as $file) {
+        foreach($jsonField->value as $file) {
             $name = $file->name;
             //move file from imp temp to tmp files
             copy($currDir . '/' . $name, $newDir . '/' . $name);

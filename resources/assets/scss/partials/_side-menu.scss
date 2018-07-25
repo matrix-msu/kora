@@ -13,26 +13,36 @@
 
   .blanket {
     background: palette('black', base);
-    height: 100vh;
+    height: 10000vh;
     left: -100vw;
     opacity: 0;
     position: absolute;
     top: 0;
     width: 0;
+    z-index: 999;
   }
 
   .aside-content {
     background: palette('gray', slate);
     height: calc(100vh - #{$navigation-height});
     margin-top: $navigation-height;
+    overflow-x: hidden;
+    overflow-y: auto;
     position: fixed;
     width: 250px;
 
     @import 'side-menu/drawer-element';
 
     .footer-elements {
+      background: palette('gray', slate);
       bottom: 0;
+      overflow: hidden;
       position: absolute;
+      z-index: -1;
+
+      &.active {
+        z-index: 1;
+      }
     }
   }
 }

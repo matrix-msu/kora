@@ -2,7 +2,7 @@
 
 namespace Illuminate\Notifications;
 
-use Ramsey\Uuid\Uuid;
+use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -79,11 +79,11 @@ class NotificationSender
         $original = clone $notification;
 
         foreach ($notifiables as $notifiable) {
-            $notificationId = Uuid::uuid4()->toString();
-
             if (empty($viaChannels = $channels ?: $notification->via($notifiable))) {
                 continue;
             }
+
+            $notificationId = Str::uuid()->toString();
 
             foreach ((array) $viaChannels as $channel) {
                 $this->sendToNotifiable($notifiable, $notificationId, clone $original, $channel);
@@ -146,7 +146,7 @@ class NotificationSender
         $original = clone $notification;
 
         foreach ($notifiables as $notifiable) {
-            $notificationId = Uuid::uuid4()->toString();
+            $notificationId = Str::uuid()->toString();
 
             foreach ($original->via($notifiable) as $channel) {
                 $notification = clone $original;
@@ -154,7 +154,7 @@ class NotificationSender
                 $notification->id = $notificationId;
 
                 $this->bus->dispatch(
-                    (new SendQueuedNotifications($this->formatNotifiables($notifiable), $notification, [$channel]))
+                    (new SendQueuedNotifications($notifiable, $notification, [$channel]))
                             ->onConnection($notification->connection)
                             ->onQueue($notification->queue)
                             ->delay($notification->delay)
@@ -167,7 +167,7 @@ class NotificationSender
      * Format the notifiables into a Collection / array if necessary.
      *
      * @param  mixed  $notifiables
-     * @return ModelCollection|array
+     * @return \Illuminate\Database\Eloquent\Collection|array
      */
     protected function formatNotifiables($notifiables)
     {

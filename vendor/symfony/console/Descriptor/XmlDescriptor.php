@@ -188,10 +188,7 @@ class XmlDescriptor extends Descriptor
         $this->write($dom->saveXML());
     }
 
-    /**
-     * @return \DOMDocument
-     */
-    private function getInputArgumentDocument(InputArgument $argument)
+    private function getInputArgumentDocument(InputArgument $argument): \DOMDocument
     {
         $dom = new \DOMDocument('1.0', 'UTF-8');
 
@@ -212,10 +209,7 @@ class XmlDescriptor extends Descriptor
         return $dom;
     }
 
-    /**
-     * @return \DOMDocument
-     */
-    private function getInputOptionDocument(InputOption $option)
+    private function getInputOptionDocument(InputOption $option): \DOMDocument
     {
         $dom = new \DOMDocument('1.0', 'UTF-8');
 
@@ -224,7 +218,7 @@ class XmlDescriptor extends Descriptor
         $pos = strpos($option->getShortcut(), '|');
         if (false !== $pos) {
             $objectXML->setAttribute('shortcut', '-'.substr($option->getShortcut(), 0, $pos));
-            $objectXML->setAttribute('shortcuts', '-'.implode('|-', explode('|', $option->getShortcut())));
+            $objectXML->setAttribute('shortcuts', '-'.str_replace('|', '|-', $option->getShortcut()));
         } else {
             $objectXML->setAttribute('shortcut', $option->getShortcut() ? '-'.$option->getShortcut() : '');
         }

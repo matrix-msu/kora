@@ -15,8 +15,8 @@ Kora.Records.Index = function() {
         $('.chosen-search-input').on('keyup', function(e) {
             var container = $(this).parents('.chosen-container').first();
 
-            if (e.which === 13 && container.find('li.no-results').length > 0) {
-                var option = $("<option>").val(this.value).text(this.value);
+            if (e.which === 13 && (container.find('li.no-results').length > 0 || container.find('li.active-result').length == 0)) {
+                var option = $("<option>").val(this.value.trim()).text(this.value.trim());
 
                 var select = container.siblings('.modify-select').first();
 
@@ -79,14 +79,28 @@ Kora.Records.Index = function() {
     function initializePaginationShortcut() {
         $('.page-link.active').click(function(e) {
             e.preventDefault();
+            
+            var placeholder = parseInt($('.page-link.active').next('.page-link').html()) - 1
+            if (isNaN(placeholder)) {
+              placeholder = parseInt($('.page-link.active').prev('.page-link').html()) + 1
+              if (isNaN(placeholder)) {
+                placeholder = 1
+              }
+            }
 
             var $this = $(this);
             var maxInput = $this.siblings().last().text()
-            $this.html('<input class="page-input" type="number" min="1" max="'+ maxInput +'">');
+            $this.html('<input class="page-input" type="number" min="1" max="'+ maxInput +'" placeholder="' + placeholder + '">');
             var $input = $('.page-input');
             $input.focus();
-            $input.on('blur keydown', function(e) {
-                if (e.key !== "Enter" && e.key !== "Tab") return;
+            //$input.on('blur keydown', function(e) {
+            $input.on('keydown', function(e) {
+                if (e.key !== "Enter" && e.key !== "Tab") {
+                  // var get = $('.page-input').attr('placeholder');
+                  // $('.page-input').remove();
+                  // $('.page-link.active').text(''+get+'');
+                  return;
+                }
                 if ($input[0].checkValidity()) {
                     var url = window.location.toString();
                     if (url.includes('page=')) {
@@ -96,6 +110,11 @@ Kora.Records.Index = function() {
                         window.location = url + queryVar + "page=" + $input.val();
                     }
                 }
+            });
+            $input.blur(function () {
+              var get = $('.page-input').attr('placeholder');
+              $('.page-input').remove();
+              $('.page-link.active').text(''+get+'');
             });
         })
     }
@@ -109,10 +128,7 @@ Kora.Records.Index = function() {
             keyVal = $('.keywords-get-js');
             formVal = $('.forms-get-js');
 
-            if(keyVal.val()=='') {
-                keyVal.addClass('error');
-                keyVal.siblings('.error-message').text('Provide a keyword');
-            } else if(formVal.length && formVal.val()==null) {
+            if(formVal.length && formVal.val()==null) {
                 formVal.siblings('.error-message').text('Select something to search through');
             } else {
                 $('.keyword-search-js').submit();
@@ -124,10 +140,7 @@ Kora.Records.Index = function() {
                 keyVal = $('.keywords-get-js');
                 formVal = $('.forms-get-js');
 
-                if(keyVal.val()=='') {
-                    keyVal.addClass('error');
-                    keyVal.siblings('.error-message').text('Provide a keyword');
-                } else if(formVal.length && formVal.val()==null) {
+                if(formVal.length && formVal.val()==null) {
                     formVal.siblings('.error-message').text('Select something to search through');
                 } else {
                     $('.keyword-search-js').submit();
@@ -403,18 +416,6 @@ Kora.Records.Index = function() {
     }
 
     function initializeSearchValidation() {
-        $('.keywords-get-js').on('blur', function(e) {
-            value = $(this).val();
-
-            if(value=='') {
-                $(this).addClass('error');
-                $(this).siblings('.error-message').text('Provide a keyword');
-            } else {
-                $(this).removeClass('error');
-                $(this).siblings('.error-message').text('');
-            }
-        });
-
         $('.forms-get-js').on('chosen:hiding_dropdown', function(e) {
             value = $(this).val();
 

@@ -8,7 +8,7 @@
         </div>
         <div class="body">
             <div class="form-group">
-                {!! Form::label('preset_name', 'Preset Name: ') !!}
+                {!! Form::label('preset_name', 'Preset Name') !!}
                 <input type="text" class="text-input preset-name-js" placeholder="Enter the new name for the preset here">
             </div>
 

@@ -27,6 +27,16 @@ Kora.Fields.Create = function() {
         });
     }
 
+    function scrollTop (allScrolls) {
+      var scrollTo = Math.min(...allScrolls);
+      var scrollTo = scrollTo - 100;
+      setTimeout( function () {
+        $('html, body').animate({
+          scrollTop: scrollTo
+        }, 500);
+      });
+    }
+
     function initializeAdvancedOptions() {
         Kora.Modal.initialize();
 
@@ -107,6 +117,16 @@ Kora.Fields.Create = function() {
         });
     }
 
+    function initializeDescriptionModal() {
+      Kora.Modal.initialize();
+
+      $('.desc-modal').click(function(e) {
+        e.preventDefault();
+
+        Kora.Modal.open($('.field-type-description-modal-js'));
+      }); 
+    }
+
     function initializeValidation() {
         $('.validate-field-js').on('click', function(e) {
             var $this = $(this);
@@ -132,12 +152,16 @@ Kora.Fields.Create = function() {
                 error: function(err) {
                     $('.error-message').text('');
                     $('.text-input, .text-area').removeClass('error');
+                    var allScrolls = [];
 
-                    $.each(err.responseJSON, function(fieldName, errors) {
+                    $.each(err.responseJSON.errors, function(fieldName, errors) {
                         var $field = $('#'+fieldName);
                         $field.addClass('error');
                         $field.siblings('.error-message').text(errors[0]);
+                        allScrolls.push($field.offset().top);
                     });
+
+                    scrollTop(allScrolls);
                 }
             });
         });
@@ -157,9 +181,9 @@ Kora.Fields.Create = function() {
                 method: 'POST',
                 data: values,
                 error: function(err) {
-                    if (err.responseJSON[field] !== undefined) {
+                    if (err.responseJSON.errors[field] !== undefined) {
                         $('#'+field).addClass('error');
-                        $('#'+field).siblings('.error-message').text(err.responseJSON[field][0]);
+                        $('#'+field).siblings('.error-message').text(err.responseJSON.errors[field][0]);
                     } else {
                         $('#'+field).removeClass('error');
                         $('#'+field).siblings('.error-message').text('');
@@ -167,6 +191,8 @@ Kora.Fields.Create = function() {
                 }
             });
         });
+      
+      
 
         function validateAdvancedOptions(currType) {
             var valid = true;
@@ -302,7 +328,8 @@ Kora.Fields.Create = function() {
             return valid;
         }
     }
-
+    
+    initializeDescriptionModal();
     initializeAdvancedOptions();
     initializeComboListFields();
     initializeValidation();

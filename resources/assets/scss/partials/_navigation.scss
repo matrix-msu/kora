@@ -10,7 +10,7 @@
   position: fixed;
   top: -$status-height;
   white-space: nowrap;
-  width: 100vw;
+  width: 100%;
   z-index: 9999;
 
   &.show-status {

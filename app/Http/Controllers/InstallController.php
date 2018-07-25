@@ -6,7 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use \Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -96,15 +96,12 @@ class InstallController extends Controller {
         $envData = $this->envBuilder($request);
         try {
             Log::info("Beginning ENV Write");
-            $envfile = fopen("../.env", "w");
-
+            
+            $envfile = fopen($request->basepath.".env", "w");
             fwrite($envfile, $envData);
-
             fclose($envfile);
-            chmod("../.env",0660);
-            Log::info("Generating App Key");
-            $shellRes = shell_exec('cd .. && '.PHP_BINDIR.'/php artisan key:generate');
-            Log::info($shellRes);
+            chmod($request->basepath.".env",0660);
+			
             Log::info("Ending ENV Write ");
         } catch(\Exception $e) { //Most likely if the file is owned by another user or PHP doesn't have permission
             Log::info($e);
@@ -152,7 +149,7 @@ class InstallController extends Controller {
         //Install database tables
         try {
             Log::info("Beginning Artisan Migrate");
-            $shellRes = shell_exec('cd .. && '.PHP_BINDIR.'/php artisan migrate --force');
+            $shellRes = Artisan::call('migrate', array('--force' => true));
             Log::info($shellRes);
             Log::info("Ending Artisan Migrate");
         } catch(\Exception $e) {
@@ -233,11 +230,17 @@ class InstallController extends Controller {
         //Check for trailing slashes
         if(substr($baseurl,-1) != "/")
             $baseurl = $baseurl."/";
+            
+        Log::info("Generating App Key");
+        //We are basically replicating what the artisan command does to generate the cipher in php
+        $key = 'base64:'.base64_encode(
+            random_bytes(32)
+        );
 
         $layout =
             "APP_ENV=production\n".
             "APP_DEBUG=false\n".
-            "APP_KEY=\n\n".
+            "APP_KEY=$key\n\n".
 
             "DB_HOST=" . $request->db_host . "\n" .
             "DB_DATABASE=" . $request->db_database . "\n" .
@@ -253,7 +256,7 @@ class InstallController extends Controller {
             "MAIL_PASSWORD=" . $request->mail_password . "\n\n" .
 
             "CACHE_DRIVER=file\n".
-            "SESSION_DRIVER=file\n\n".
+            "SESSION_DRIVER=cookie\n\n".
 
             "BASE_URL=" . $baseurl . "\n" .
             "BASE_PATH=" . $request->basepath . "\n\n" .

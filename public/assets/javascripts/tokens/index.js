@@ -5,6 +5,119 @@ Kora.Tokens.Index = function() {
     function clearSearch() {
         $('.search-js .icon-cancel-js').click();
     }
+	
+	function initializeValidation() {
+	  var submitted = false;
+		
+      $('.validate-token-js').on('click', function(e) { // whole form validation on submit
+        var $this = $(this);
+        
+        e.preventDefault();
+		
+		// start client-side js validation
+		var js_validated = true;
+		
+		if (getTotalCreateTokenCheckboxesSelected() == 0)
+		{
+			$("#token-checkbox-warning").text("At least one Token Type must be selected");
+			js_validated = false;
+		}
+		else
+		{
+			$("#token-checkbox-warning").text("");
+		}
+		
+		let name_text = $("#token_name")[0].value;
+		if (name_text.length < 3)
+		{
+			$("#token-name-warning").text(name_text.length == 0 ? "The name field is required" : "The name must be at least 3 characters");
+			js_validated = false;
+		}
+		else
+		{
+			$("#token-name-warning").text("");
+		}
+		
+		if (!js_validated)
+		{
+			$(".validate-token-js").addClass("btn-faded");
+			return;
+		}
+		
+		// passed client-side js validation.. start creating request
+		
+		var values = {
+			_token: CSRFToken,
+			token_name: document.getElementById("token_name").value,
+		};
+		
+		var token_search = $(".search-token-create-js").prop("checked");
+		if (token_search) {values["token_search"] = 1;}
+		
+		var token_create = $(".create-token-create-js").prop("checked");
+		if (token_create) {values["token_create"] = 1;}
+		
+		var token_edit = $(".edit-token-create-js").prop("checked");
+		if (token_edit) {values["token_edit"] = 1;}
+		
+		var token_delete = $(".delete-token-create-js").prop("checked");
+		if (token_delete) {values["token_delete"] = 1;}
+		
+		var choice_ids = {};
+		$("#token_projects").find("option").each(function() {
+			choice_ids[$(this).text()] = this.value;
+		});
+		
+		$($("#token_projects_chosen").find(".chosen-choices")).find(".search-choice").each(function() {
+			if (values.token_projects == null) {values.token_projects = [];}
+			
+			values.token_projects.push(choice_ids[$(this).eq(0).text()]);
+		});
+		
+		if (submitted) return; // dont allow multiple submits
+		submitted = true;
+		
+	    // server-side whole-form validation
+        $.ajax({
+          url: create_url,
+          method: 'POST',
+          data: values,
+          success: function(data) {
+			location.reload(); // reload tokens page
+          },
+          error: function(err) {
+            location.reload(); // client-server validation rules mismatch or user forged request
+          }
+        });
+      });
+	  
+	  $('.text-input, .text-area').on('blur', function(e) { // real-time validation
+        if (this === $("#token_name")[0]) // validate the name input & display validation errors
+		{
+			var text = document.getElementById("token_name").value;
+			if (text.length < 3)
+			{
+				if (text.length == 0) $("#token-name-warning").text("The name field is required");
+				else $("#token-name-warning").text("The name must be at least 3 characters");
+			}
+			else
+			{
+				$("#token-name-warning").text("");
+			}
+		}
+		
+		// apply the appropriate opacity on Create button
+		if (create_is_validated())
+		{
+			$(".validate-token-js").removeClass("btn-faded");
+		}
+		else
+		{
+			$(".validate-token-js").addClass("btn-faded");
+		}
+      });
+	  
+	}
 
     function initializeSearch() {
         var $searchInput = $('.search-js input');
@@ -128,10 +241,66 @@ Kora.Tokens.Index = function() {
 
         $('.create-token-js').click(function(e) {
             e.preventDefault();
-
+			
+			// reset all the checkboxes
+			$(".search-token-create-js").prop("checked", false);
+			$( ".create-token-create-js").prop("checked", false); 
+			$( ".edit-token-create-js").prop("checked", false);
+			$( ".delete-token-create-js").prop("checked", false);
+			
+			// reset token name input
+			$("#token_name").val("");
+			
+			// reset all validation warnings
+			$("#token-checkbox-warning").text("");
+			$("#token-name-warning").text("");
+			
+			// reset create button faded
+			$(".validate-token-js").removeClass("btn-faded");
+			
             Kora.Modal.open($('.create-token-modal-js'));
         });
-
+		
+		/////////// enforce rules for Edit Token checkboxes
+		function getTotalEditTokenCheckboxesSelected()
+		{
+			return Number($( ".search-checkbox-js" ).prop("checked")) +
+			Number($( ".create-checkbox-js" ).prop("checked")) + 
+			Number($( ".edit-checkbox-js" ).prop("checked")) + 
+			Number($( ".delete-checkbox-js" ).prop("checked"));
+		}
+		
+		
+		$(".search-checkbox-js, .create-checkbox-js, .edit-checkbox-js, .delete-checkbox-js").click(function(e)
+		{
+			// do not allow user to select zero token options
+			if (getTotalEditTokenCheckboxesSelected() == 0 && !$(this).prop("checked"))
+				e.preventDefault();
+		});
+		///////////
+		
+		/////////// enforce rules for Create Token checkboxes
+		$(".search-token-create-js, .create-token-create-js, .edit-token-create-js, .delete-token-create-js").click(function(e)
+		{
+			let total_selected = getTotalCreateTokenCheckboxesSelected();
+			
+			if (total_selected == 0 && !$(this).prop("checked"))
+			{
+				e.preventDefault();
+			}
+			
+			if (total_selected > 0)
+			{
+				$("#token-checkbox-warning").text("");
+			}
+			
+			if (create_is_validated())
+			{
+				$(".validate-token-js").removeClass("btn-faded");
+			}
+		});
+		///////////
+		
         $('.edit-token-js').click(function(e) {
             e.preventDefault();
 
@@ -147,16 +316,12 @@ Kora.Tokens.Index = function() {
             titleSpan = tokenDiv.find('.name').first();
 
             indexVal.val(tokenDiv.attr('id'));
-
-            //TODO:: close, but not yet
-            if(tokenDiv.hasClass('search'))
-                $('.search-checkbox-js').trigger("click");
-            if(tokenDiv.hasClass('create'))
-                $('.create-checkbox-js').trigger("click");
-            if(tokenDiv.hasClass('edit'))
-                $('.edit-checkbox-js').trigger("click");
-            if(tokenDiv.hasClass('delete'))
-                $('.delete-checkbox-js').trigger("click");
+            
+			// apply correct checkmark state
+			$('.search-checkbox-js').prop('checked', tokenDiv.hasClass('search'));
+			$('.create-checkbox-js').prop('checked', tokenDiv.hasClass('create'));
+			$('.edit-checkbox-js').prop('checked', tokenDiv.hasClass('edit'));
+			$('.delete-checkbox-js').prop('checked', tokenDiv.hasClass('delete'));
 
             titleVal.val(titleSpan.text());
 
@@ -227,9 +392,87 @@ Kora.Tokens.Index = function() {
             width: '100%',
         });
     }
+	
+	function getTotalCreateTokenCheckboxesSelected()
+	{
+		return Number($( ".search-token-create-js" ).prop("checked")) +
+		Number($( ".create-token-create-js" ).prop("checked")) + 
+		Number($( ".edit-token-create-js" ).prop("checked")) + 
+		Number($( ".delete-token-create-js" ).prop("checked"));
+	}
+	
+	function create_is_validated()
+	{
+		return ($("#token_name")[0].value.length >= 3 && getTotalCreateTokenCheckboxesSelected() > 0);
+	}
+	
+	function initializeTokenCardEllipsifying()
+	{
+		function adjustTokenCardTitle()
+		{
+			var cards = $($(".token-selection-js").find(".token.card"));
+			
+			for (i = 0; i < cards.length; i++)
+			{	
+				var card = $(cards[i]);
+				var name_span = $(card.find($(".name")));
+				var chevron_text = $(card.find($(".chevron-text")));
+				var chevron_icon = $(card.find($(".icon-chevron")));
+				
+				var card_width = card.width();
+				var chevron_text_width = chevron_text.outerWidth();
+				var chevron_icon_width = chevron_icon.outerWidth();
+				var left_padding = 20; // padding within card
+				var extra_padding = 10;
+				
+				var title_width = (card_width - left_padding) - (chevron_text_width + chevron_icon_width + extra_padding);
+				if (title_width < 0) {title_width = 0;}
+				
+				name_span.css("text-overflow", "ellipsis");
+				name_span.css("white-space", "nowrap");
+				name_span.css("overflow", "hidden");
+				name_span.css("max-width", title_width + "px");
+			}
+		}
+		
+		$(window).resize(function()
+		{
+			adjustTokenCardTitle();
+		});
+		
+		$(document).ready(function()
+		{
+			adjustTokenCardTitle();
+			setTimeout(function(){ adjustTokenCardTitle(); adjustTokenCardTitle(); }, 1); // necessary for some reason
+		});
+		
+		// Recalculate ellipses when switching tabs
+		$("[href='#all'], [href='#search'], [href='#create'], [href='#edit'], [href='#delete']").click(function() {
+			adjustTokenCardTitle();
+			setTimeout(function(){ 
+				adjustTokenCardTitle();
+				setTimeout(function(){ adjustTokenCardTitle(); }, 10);
+			}, 10);
+		});
+	}
 
-    initializeFilters();
-    initializeSearch();
-    initializeToggle();
-    initializeTokenModals();
+  function multiSelectPlaceholders () {
+	  var inputDef = $('.chosen-container').children('.chosen-choices');
+
+	  inputDef.on('click', function() {
+		  if (inputDef.siblings('.chosen-drop').children('.chosen-results').children().length === 0) {
+			  inputDef.siblings('.chosen-drop').children('.chosen-results').append('<li class="no-results">No options to select!</li>');
+		  } else if (inputDef.siblings('.chosen-drop').children('.chosen-results').children('.active-result').length === 0) {
+			  inputDef.siblings('.chosen-drop').children('.chosen-results').append('<li class="no-results">No more options to select!</li>');
+		  }
+	  });
+  }
+  
+  initializeValidation();
+  initializeFilters();
+  initializeSearch();
+  initializeToggle();
+  initializeTokenModals();
+	initializeTokenCardEllipsifying();
+	multiSelectPlaceholders ();
 }

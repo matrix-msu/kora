@@ -14,14 +14,14 @@
 
 @section('header')
   <section class="head">
-      <a class="rotate" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
+      <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
       <div class="inner-wrap center">
         <h1 class="title">
           <i class="icon icon-project"></i>
-          <span>{{ $project->name }}</span>
-          <a href="{{ action('ProjectController@edit',['pid' => $project->pid]) }}" class="head-button">
+          <a href="{{ action('ProjectController@edit',['pid' => $project->pid]) }}" class="head-button tooltip" tooltip="Edit Project">
             <i class="icon icon-edit right"></i>
           </a>
+          <span>{{ $project->name }}</span>
         </h1>
         <p class="identifier">
           <span>Unique Project ID:</span>
@@ -33,6 +33,7 @@
 @stop
 
 @section('body')
+  @if (count($forms) > 0)
   <section class="filters center">
       <div class="underline-middle search search-js">
         <i class="icon icon-search"></i>
@@ -45,6 +46,7 @@
           <a href="#active" class="option underline-middle underline-middle-hover active">Alphabetical</a>
       </div>
   </section>
+  @endif
 
   <section class="new-object-button center">
     @if(\Auth::user()->canCreateForms($project))

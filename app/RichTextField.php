@@ -141,7 +141,7 @@ class RichTextField extends BaseField {
         if ($matching_record_fields->count() > 0) {
             $richtextfield = $matching_record_fields->first();
             if ($overwrite == true || $richtextfield->rawtext == "" || is_null($richtextfield->rawtext)) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $richtextfield->rawtext = $formFieldValue;
                 $richtextfield->save();
                 $revision->oldData = RevisionController::buildDataArray($record);
@@ -149,7 +149,7 @@ class RichTextField extends BaseField {
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
+            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
             $revision->oldData = RevisionController::buildDataArray($record);
             $revision->save();
         }
@@ -172,19 +172,19 @@ class RichTextField extends BaseField {
     /**
      * Validates the record data for a field against the field's options.
      *
-     * @param  Field $field - The
-     * @param  mixed $value - Record data
+     * @param  Field $field - The field to validate
      * @param  Request $request
-     * @return string - Potential error message
+     * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
+     * @return array - Array of errors
      */
-    public function validateField($field, $value, $request) {
+    public function validateField($field, $request, $forceReq = false) {
         $req = $field->required;
+        $value = $request->{$field->flid};
 
-        if($req==1 && ($value==null | $value=="")){
-            return $field->name."_required";
-        }
+        if(($req==1 | $forceReq) && ($value==null | $value==""))
+            return ['cke_'.$field->flid => $field->name.' is required'];
 
-        return "field_validated";
+        return array();
     }
 
     /**
@@ -292,7 +292,7 @@ class RichTextField extends BaseField {
      * @return Request - The update request
      */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
-        $recRequest[$flid] = $jsonField->richtext;
+        $recRequest[$flid] = $jsonField->value;
 
         return $recRequest;
     }

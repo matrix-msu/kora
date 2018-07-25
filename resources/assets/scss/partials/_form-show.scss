@@ -1,5 +1,5 @@
 .form-show-body {
-  background: gradient($palette: 'background', $degree: 180deg);
+  background: palette('gray', background);
   font-family: $ubuntu;
   min-height: 100vh;
 }
@@ -16,7 +16,10 @@
     @import 'form-edit/form-cleanup';
   }
 
-  @import 'form-show/form-quick-options';
+  .inner-wrap {
+    @import 'form-show/form-quick-options';
+  }
+
   @import 'form-show/filters';
   @import 'form-show/pages';
 }

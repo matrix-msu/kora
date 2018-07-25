@@ -27,6 +27,16 @@ Kora.Forms.Create = function() {
     }
   });
 
+  function scrollTop (allScrolls) {
+    var scrollTo = Math.min(...allScrolls);
+    var scrollTo = scrollTo - 100;
+    setTimeout( function () {
+      $('html, body').animate({
+        scrollTop: scrollTo
+      }, 500);
+    });
+  }
+
     function initializeValidation() {
         $('.validate-form-js').on('click', function(e) {
             var $this = $(this);
@@ -48,12 +58,16 @@ Kora.Forms.Create = function() {
                 error: function(err) {
                     $('.error-message').text('');
                     $('.text-input, .text-area').removeClass('error');
+                    var allScrolls = [];
 
-                    $.each(err.responseJSON, function(fieldName, errors) {
+                    $.each(err.responseJSON.errors, function(fieldName, errors) {
                         var $field = $('#'+fieldName);
                         $field.addClass('error');
                         $field.siblings('.error-message').text(errors[0]);
+                        allScrolls.push($field.offset().top);
                     });
+
+                    scrollTop(allScrolls);
                 }
             });
         });
@@ -69,9 +83,9 @@ Kora.Forms.Create = function() {
                 method: 'POST',
                 data: values,
                 error: function(err) {
-                    if (err.responseJSON[field] !== undefined) {
+                    if (err.responseJSON.errors[field] !== undefined) {
                         $('#'+field).addClass('error');
-                        $('#'+field).siblings('.error-message').text(err.responseJSON[field][0]);
+                        $('#'+field).siblings('.error-message').text(err.responseJSON.errors[field][0]);
                     } else {
                         $('#'+field).removeClass('error');
                         $('#'+field).siblings('.error-message').text('');
@@ -81,5 +95,18 @@ Kora.Forms.Create = function() {
         });
     }
 
+  function multiSelectPlaceholders () {
+	  var inputDef = $('.chosen-container').children('.chosen-choices');
+
+	  inputDef.on('click', function() {
+		  if (inputDef.siblings('.chosen-drop').children('.chosen-results').children().length === 0) {
+			  inputDef.siblings('.chosen-drop').children('.chosen-results').append('<li class="no-results">No options to select!</li>');
+		  } else if (inputDef.siblings('.chosen-drop').children('.chosen-results').children('.active-result').length === 0) {
+			  inputDef.siblings('.chosen-drop').children('.chosen-results').append('<li class="no-results">No more options to select!</li>');
+		  }
+	  });
+  }
+
     initializeValidation();
+	multiSelectPlaceholders();
 }

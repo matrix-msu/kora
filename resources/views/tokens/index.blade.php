@@ -59,6 +59,7 @@
     <script type="text/javascript">
         var CSRFToken = '{{ csrf_token() }}';
         var unProjectUrl = '{{ action('TokenController@getUnassignedProjects') }}';
+		var create_url = '{{action('TokenController@create')}}';
         Kora.Tokens.Index();
     </script>
 @stop

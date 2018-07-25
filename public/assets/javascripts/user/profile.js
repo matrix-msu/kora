@@ -2,49 +2,85 @@ var Kora = Kora || {};
 Kora.User = Kora.User || {};
 
 Kora.User.Profile = function() {
+  function windowLocation(key, value) {
+    var sec = (key == 'sec' ? value : getURLParameter('sec'));
+    var rmOrder = (key == 'rm-order' ? value : getURLParameter('rm-order'));
+    var mcrOrder = (key == 'mcr-order' ? value : getURLParameter('mcr-order'));
+    var pageCount = (key == 'page-count' ? value : getURLParameter('page-count'));
+    var page = '';
+    if (key != 'sec') {
+      // When switching sections, don't keep track of the page
+      page = (key == 'page' ? value : getURLParameter('page'));
+    }
+
+    var parameters = [];
+    if (sec) { parameters.push("sec=" + sec); }
+    if (pageCount) { parameters.push("page-count=" + pageCount); }
+    if (rmOrder) { parameters.push("rm-order=" + rmOrder); }
+    if (mcrOrder) { parameters.push("mcr-order=" + mcrOrder); }
+    if (page) { parameters.push("page=" + page); }
+
+    return (parameters ? window.location.pathname + "?" + parameters.join("&") : window.location.pathname);
+  }
+
   function initializeOptionDropdowns() {
     $('.option-dropdown-js').chosen({
       disable_search_threshold: 10,
       width: 'auto'
     }).change(function() {
       var type = $(this).attr('id');
+      var val = $(this).val();
       if (type === 'page-count-dropdown') {
-        var order = getURLParameter('order');
-        window.location = window.location.pathname + "?page-count=" + $(this).val() + (order ? "&order=" + order : '');
+        window.location = windowLocation('page-count', val);
       } else if (type === 'order-dropdown') {
-        var pageCount = getURLParameter('page-count');
-        window.location = window.location.pathname + "?order=" + $(this).val() + (pageCount ? "&page-count=" + pageCount : '');
+        if (getURLParameter('sec') == 'mcr') {
+          window.location = windowLocation('mcr-order', val);
+        } else {
+          window.location = windowLocation('rm-order', val);
+        }
       }
     });
   }
 
-  function initializeFilter(page) {
-    var $selector = $(page + ' .select-content-section-js');
-    var $content = $(page + ' .content-section-js');
-
-    $content.first().addClass('active');
-    $selector.first().addClass('active');
+  function initializeHistoryFilter() {
+    var $selector = $('#recordHistory .select-content-section-js');
 
     $selector.click(function(e) {
       e.preventDefault();
 
       $this = $(this);
-      $this.siblings().removeClass('active');
-      $this.addClass('active');
-      $content.removeClass('active');
+      var newSec = $this.attr('href').replace("#", "");
 
-      $active = $this.attr("href").replace('#', '');
-      $content.each(function() {
-        if ($(this).attr('id') == $active) {
-          $(this).addClass('active');
-        }
-      });
+      window.location = windowLocation('sec', newSec);
+    });
+  }
+
+  function initializePermissionsFilter() {
+    var $selector = $('#permissions .select-content-section-js');
+    var $content = $('#permissions .content-section-js');
+
+    $selector.first().addClass('active');
+    $content.first().addClass('active');
+
+    $selector.click(function(e) {
+      e.preventDefault();
+
+      var $this = $(this);
+
+      // Active class for filters
+      $selector.removeClass('active');
+      $this.addClass('active');
+
+      // Active class for content
+      $content.removeClass('active');
+      var newSec = $this.attr('href');
+      $('#permissions ' + newSec).addClass('active');
     });
   }
 
   function initializeFilters() {
-    initializeFilter('#permissions');
-    initializeFilter('#recordHistory');
+    initializePermissionsFilter();
+    initializeHistoryFilter();
   }
 
   function initializeProjectCards() {
@@ -87,13 +123,13 @@ Kora.User.Profile = function() {
     // Expand all cards
     $('.expand-fields-js').click(function(e) {
       e.preventDefault();
-      $('.card:not(.active) .card-toggle-js').click();
+      $('.content-section-js.active .card:not(.active) .card-toggle-js').click();
     });
 
     // Collapse all cards
     $('.collapse-fields-js').click(function(e) {
       e.preventDefault();
-      $('.card.active .card-toggle-js').click();
+      $('.content-section-js.active .card.active .card-toggle-js').click();
     });
   }
 
@@ -161,8 +197,93 @@ Kora.User.Profile = function() {
     });
   }
 
+  function initializePaginationRouting() {
+    var $pagination = $('.pagination-js');
+    var $pageLink = $pagination.find('.page-link-js');
+
+    $pageLink.click(function(e) {
+      e.preventDefault();
+
+      var $this = $(this);
+      var sec = getURLParameter('sec');
+      var toPage = $this.attr('href').replace('#', '');
+
+      window.location = windowLocation('page', toPage);
+    });
+  }
+
+  function initializeCardEllipsifying() {
+    function adjustCardTitle() {
+      var $cards = $('.card');
+
+      for (var i = 0; i < $cards.length; i++) {
+        var $card = $($cards[i]);
+        var $name = $($card.find(".name"));
+        var $chevron = $($card.find(".icon-chevron"));
+        var $subtitles = $($card.find(".card-toggle-wrap .sub-title"));
+
+        // Ellipsis on title on very small widths
+        var cardWidth = $card.width();
+        var chevronWidth = $chevron.outerWidth();
+        var extra = 20;
+
+        var nameWidth = cardWidth - chevronWidth - extra;
+        if (nameWidth < 0) {nameWidth = 0;}
+
+        $name.css("max-width", nameWidth + "px");
+
+        // Hide sub-titles as chevron slides over element
+        var chevronLeft = $chevron.offset().left;
+
+        for (var j = 0; j < $subtitles.length; j++) {
+          var $subtitle = $($subtitles[j]);
+          var subtitleRight = $subtitle.offset().left + $subtitle.outerWidth();
+          if (subtitleRight > chevronLeft) {
+            $subtitle.css('visibility', 'hidden');
+          } else {
+            $subtitle.css('visibility', 'visible');
+          }
+        }
+      }
+    }
+
+    $(window).resize(function() {
+      adjustCardTitle();
+    });
+
+    $(document).ready(function() {
+      adjustCardTitle();
+
+      $('.select-content-section-js').click(function() {
+        adjustCardTitle();
+      });
+    });
+  }
+
+  // Ensure provided pic url matches an existing picture
+  function initializeProfilePicValidation() {
+    var $imgCont = $('.profile-pic-cont-js');
+    var $img = $imgCont.find($('.profile-pic-js'));
+    console.log($img);
+    if ($img.length > 0) {
+      // Profile pic url provided, check it exists in app
+      $.get($img.attr('src'))
+          .done(function() {
+            // Image exists
+            console.log("img exists");
+          })
+          .fail(function() {
+            console.log("img does not exist");
+            $imgCont.html('<i class="icon icon-user">');
+          });
+    }
+  }
+
   initializeOptionDropdowns();
   initializeFilters();
   initializeProjectCards();
   initializeModals();
+  initializePaginationRouting();
+  initializeCardEllipsifying();
+  initializeProfilePicValidation();
 }

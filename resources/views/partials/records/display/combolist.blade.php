@@ -12,9 +12,16 @@ $valArray = \App\ComboListField::dataToOldFormat($typedField->data()->get()->toA
         <span class="combo-column combo-title">{{$cmbName1}}</span>
         <span class="combo-column combo-title">{{$cmbName2}}</span>
     </div>
+    <div>
+        <span class="combo-border-large"> </span>
+    </div>
     @for($i=0;$i<sizeof($valArray);$i++)
         <div>
-            @if($oneType=='Text' | $oneType=='List')
+            @if($i!=0)
+                <span class="combo-border-small"> </span>
+            @endif
+
+            @if($oneType=='Text' | $oneType=='Date' | $oneType=='List')
                 <?php $value1 = explode('[!f1!]',$valArray[$i])[1]; ?>
                 <span class="combo-column">{{$value1}}</span>
             @elseif($oneType=='Number')
@@ -37,7 +44,7 @@ $valArray = \App\ComboListField::dataToOldFormat($typedField->data()->get()->toA
                 </span>
             @endif
 
-            @if($twoType=='Text' | $twoType=='List')
+            @if($twoType=='Text' | $twoType=='Date' | $twoType=='List')
                 <?php $value2 = explode('[!f2!]',$valArray[$i])[1]; ?>
                 <span class="combo-column">{{$value2}}</span>
             @elseif($twoType=='Number')
