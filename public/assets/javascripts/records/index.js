@@ -4,6 +4,7 @@ Kora.Records = Kora.Records || {};
 Kora.Records.Index = function() {
 
     $('.single-select').chosen({
+        allow_single_deselect: true,
         width: '100%',
     });
 
