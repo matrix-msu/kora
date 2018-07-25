@@ -19,6 +19,18 @@
       display: inline;
     }
   }
+  
+  &.exp-rec {
+    .form-group {
+      &:first-child {
+        white-space: normal;
+      }
+
+      &:last-child {
+        padding: 0;
+      }
+    } 
+  }
 }
 
 &.small {
