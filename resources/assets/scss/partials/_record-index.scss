@@ -141,15 +141,18 @@
       .back-to-search {
         @include transition();
 
+		background: palette('white', base);
         border: 1px solid rgba(4,182,175,0.6);
         border-radius: 5px;
 		box-shadow: 0 3px 5px 0 rgba(57,67,89,0.05);
         color: palette('green', accent);
         display: inline-block;
+		float: right;
         font-family: $ubuntu;
         line-height: 14px;
-        margin-left: 30px;
         padding: 6px 10px;
+		white-space: nowrap;
+		width: min-content;
 
         span {
           padding-right: 5px;
@@ -174,6 +177,12 @@
 		  i {
             transform: scale($transform-scale-multiplier) rotate(-90deg);
           }
+		}
+
+		@media screen and (max-width: $max-mobile-width) {
+		  display: block;
+		  float: none;
+		  margin: 20px 0 0;
 		}
       }
     }
