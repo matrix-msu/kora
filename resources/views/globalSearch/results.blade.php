@@ -61,11 +61,13 @@
         </section>
 
         <section class="display-records">
+
+            @if(sizeof($records)>0)
+              
             <div class="form-group records-title mt-xxxl">
                 Showing {{sizeof($records)}} of {{$total}} Records
             </div>
-
-            @if(sizeof($records)>0)
+            
                 @include('partials.records.pagination')
 
                 <section class="filters">
@@ -93,6 +95,8 @@
                 @endforeach
 
                 @include('partials.records.pagination')
+            @else
+              @include('partials.records.no-records')
             @endif
         </section>
     </section>

@@ -68,12 +68,21 @@
 
         <section class="display-records">
             <div class="form-group records-title mt-xxxl">
-                Showing {{sizeof($records)}} of {{$total}} Records
+                @if(count($records) > 0)
+                    Showing {{sizeof($records)}} of {{$total}} Records
+                @else
+                    No Results
+                @endif
             </div>
 
-            @if(sizeof($records)>0)
-            @include('partials.records.pagination')
+            @if(count($records) > 0)
+              @include('partials.records.pagination')
+            @else
+              @include('partials.records.search-terms')
+              @include('partials.records.no-records')
+            @endif
 
+          @if (count($records) > 0)
             <section class="filters">
                 <div class="pagination-options pagination-options-js">
                     <select class="page-count results-option-dropdown-js" id="page-count-dropdown">
