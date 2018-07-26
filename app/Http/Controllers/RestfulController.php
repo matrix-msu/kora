@@ -1071,11 +1071,11 @@ class RestfulController extends Controller {
 
         $textOccurrences = DB::raw("select `text`, `flid` from ".env('DB_PREFIX')."text_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
         $listOccurrences = DB::raw("select `option`, `flid` from ".env('DB_PREFIX')."list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
-        $msListOccurrences = DB::raw("select `options`, `flid` from ".env('DB_PREFIX')."multi_select_list_fields where `fid`=7 and `rid` in ($ridString)$flidSQL");
+        $msListOccurrences = DB::raw("select `options`, `flid` from ".env('DB_PREFIX')."multi_select_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
         $genListOccurrences = DB::raw("select `options`, `flid` from ".env('DB_PREFIX')."generated_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
         $numberOccurrences = DB::raw("select `number`, `flid` from ".env('DB_PREFIX')."number_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
-        $assocOccurrences = DB::raw("select s.`flid`, r.`kid` from ".env('DB_PREFIX')."associator_support as s left join kora3_records as r on s.`record`=r.`rid` where s.`fid`=7 and s.`rid` in ($ridString) and s.`flid` in ($flidString)");
-        $rAssocOccurrences = DB::raw("select s.`flid`, r.`kid` from ".env('DB_PREFIX')."associator_support as s left join kora3_records as r on s.`rid`=r.`rid` where s.`fid`=7 and s.`rid` in ($ridString) and s.`flid` in ($flidString)");
+        $assocOccurrences = DB::raw("select s.`flid`, r.`kid` from ".env('DB_PREFIX')."associator_support as s left join kora3_records as r on s.`record`=r.`rid` where s.`fid`=$fid and s.`rid` in ($ridString) and s.`flid` in ($flidString)");
+        $rAssocOccurrences = DB::raw("select s.`flid`, r.`kid` from ".env('DB_PREFIX')."associator_support as s left join kora3_records as r on s.`rid`=r.`rid` where s.`fid`=$fid and s.`rid` in ($ridString) and s.`flid` in ($flidString)");
 
         //Because of the complex data in MS List, we break stuff up and then format
         $msListUnclean = $con->query($msListOccurrences);
