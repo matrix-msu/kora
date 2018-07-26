@@ -10,6 +10,47 @@
 
 .geolocator-map {
   height: 270px;
+
+  .geo-btn {
+    background: palette('white', base);
+    border: 1px solid palette('gray', slate, .1);
+    border-radius: 5px;
+    box-shadow: 0 3px 5px 0 palette('gray', slate, .05);
+    cursor: pointer;
+    display: flex;
+    height: 32px;
+    margin: map-get($spacing, xs);
+    position: relative;
+    width: 32px;
+    z-index: 1;
+
+    .icon {
+      margin: auto;
+    }
+  }
+
+  .full-screen-button {
+
+  }
+
+  .lower-right-corner {
+    bottom: 0;
+    position: absolute;
+    right: 0;
+  }
+
+  .modal {
+    .content {
+      display: block;
+      overflow-x: unset;
+    }
+  }
+
+  .upper-right-corner {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
 }
 
 .model-player-div {

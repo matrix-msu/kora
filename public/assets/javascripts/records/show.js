@@ -72,6 +72,8 @@ Kora.Records.Show = function() {
 
         //GEOLOCATOR
         $('.geolocator-map-js').each(function() {
+            Kora.Modal.initialize();
+
             var mapID = $(this).attr('map-id');
 
             var firstLoc = $(this).children('.geolocator-location-js').first();
@@ -83,6 +85,15 @@ Kora.Records.Show = function() {
                 var marker = L.marker([$(this).attr('loc-x'), $(this).attr('loc-y')]).addTo(mapRecord);
                 marker.bindPopup($(this).attr('loc-desc'));
             });
+        });
+
+        $('.geolocator-map-js .full-screen-button-js').click(function(e) {
+            e.preventDefault();
+
+            var $geoModal = $(this).parent().parent().find('.geolocator-map-modal-js');
+            console.log($geoModal);
+            Kora.Modal.close();
+            Kora.Modal.open($geoModal);
         });
 
         //PLAYLIST
