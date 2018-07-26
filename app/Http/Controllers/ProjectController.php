@@ -135,7 +135,7 @@ class ProjectController extends Controller {
             return redirect('projects')->with('k3_global_error', 'not_admin');
 
         //$users = User::pluck('username', 'id')->all();
-        $users = User::where('id', '!=', 1)->pluck('username', 'id')->all();
+        $users = User::where('id', '!=', !\Auth::id())->pluck('username', 'id')->all();
         $projectMode = "project_create";
 
         return view('projects.create', compact('users','projectMode'));
