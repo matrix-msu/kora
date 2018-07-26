@@ -6,6 +6,31 @@
   .description {
     font-size: 13px;
   }
+
+  .preset-name > label {
+    display: block;
+  }
+
+  .designated {
+    white-space: normal;
+
+    .record-preset-link {
+      color: palette('green', accent);
+      display: inline;
+    }
+  }
+  
+  &.exp-rec {
+    .form-group {
+      &:first-child {
+        white-space: normal;
+      }
+
+      &:last-child {
+        padding: 0;
+      }
+    } 
+  }
 }
 
 &.small {

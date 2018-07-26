@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\AssociatorField;
 use App\Field;
 use App\RecordPreset;
 use App\Revision;
@@ -159,6 +160,36 @@ class RecordController extends Controller {
                     continue;
                 $field = FieldController::getField($key);
                 $field->getTypedField()->createNewRecordField($field, $record, $value, $request);
+            }
+
+            //Now let's handle reverseAssociations assuming we are coming from the importer or the API
+            if(isset($request->newRecRevAssoc)) {
+                foreach($request->newRecRevAssoc as $flid => $akids) {
+                    foreach($akids as $akid) {
+                        //NOTE: We do these next two checks so that if we take exported records to a new installation, we don't
+                        // accidentally connect to a record that has nothing to do with us
+                        //Let's make sure the request record exists
+                        if(Record::isKIDPattern($akid) && Record::where('kid','=',$akid)->count()==1) {
+                            $recParts = explode('-', $akid);
+
+                            //Make sure this associator exists first
+                            if(Field::where('flid','=',$flid)->where('fid','=',$recParts[1])->where('type','=','Associator')->count()==0)
+                                continue;
+
+                            //See if the associator field for the reverse record already exists or if we need a new one
+                            $assocField = AssociatorField::where('flid','=',$flid)->where('rid','=',$recParts[2])->first();
+                            if(is_null($assocField)) {
+                                $assocField = new AssociatorField();
+                                $assocField->fid = $recParts[1];
+                                $assocField->flid = $flid;
+                                $assocField->rid = $recParts[2];
+                                $assocField->save();
+                            }
+
+                            $assocField->addRecords(array($record->kid));
+                        }
+                    }
+                }
             }
 
             //
@@ -439,7 +470,10 @@ class RecordController extends Controller {
         if(!\Auth::user()->isFormAdmin($form)) {
             return redirect('projects')->with('k3_global_error', 'not_form_admin');
         } else {
-            Record::where("fid", "=", $fid)->delete();
+            $records = Record::where("fid", "=", $fid)->get();
+            foreach($records as $rec) {
+                $rec->delete();
+            }
 
             return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_success', 'all_record_deleted');
         }

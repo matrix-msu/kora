@@ -1042,164 +1042,137 @@ class RestfulController extends Controller {
      * @return array - The array of filters
      */
     private function getDataFilters($fid, $rids, $count, $flids) {
-	    if(empty($rids))
-	    	return ['total' => 0];
-	    
+        if(empty($rids))
+            return ['total' => 0];
+
         $filters = [];
-        $cnt = 0;
         $ridString = implode(',',$rids);
         $flidSQL = '';
-        
+
         if($flids != 'ALL') {
-	        //In case slugs are provided, we need flids
-	        $convertedFlids = array();
-	        foreach($flids as $fl) {
-		        array_push($convertedFlids, FieldController::getField($fl)->flid); //TODO::error bad fields, not 100% sure how we'll get it up a level
-	        }
-	        
-	        $flidString = implode(',',$convertedFlids);
-	        $flidSQL = " and `flid` in ($flidString)";
+            //In case slugs are provided, we need flids
+            $convertedFlids = array();
+            foreach($flids as $fl) {
+                array_push($convertedFlids, FieldController::getField($fl)->flid); //TODO::error bad fields, not 100% sure how we'll get it up a level
+            }
+
+            $flidString = implode(',',$convertedFlids);
+            $flidSQL = " and `flid` in ($flidString)";
         }
-        
+
         //Doing this for pretty much the same reason as keyword search above
-	    $con = mysqli_connect(env('DB_HOST'), env('DB_USERNAME'), env('DB_PASSWORD'), env('DB_DATABASE'));
-	    
-	    //We want to make sure we are doing things in utf8 for special characters
-		if(!mysqli_set_charset($con, "utf8")) {
-		    printf("Error loading character set utf8: %s\n", mysqli_error($con));
-		    exit();
-		}
+        $con = mysqli_connect(env('DB_HOST'), env('DB_USERNAME'), env('DB_PASSWORD'), env('DB_DATABASE'));
 
-        $textOccurrences = DB::raw("select `text`, flid, COUNT(*) as count from ".env('DB_PREFIX')."text_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `flid`,`text` order by count ASC");
-        $listOccurrences = DB::raw("select `option`, flid, COUNT(*) as count from ".env('DB_PREFIX')."list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `flid`,`option` order by count ASC");
-        $msListOccurrences = DB::raw("select `options`, flid, COUNT(*) as count from ".env('DB_PREFIX')."multi_select_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `flid`,`options` order by count ASC");
-        $genListOccurrences = DB::raw("select `options`, flid, COUNT(*) as count from ".env('DB_PREFIX')."generated_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `flid`,`options` order by count ASC");
-        $numberOccurrences = DB::raw("select `number`, flid, COUNT(*) as count from ".env('DB_PREFIX')."number_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `flid`,`number` order by count ASC");
-        $assocOccurrences = DB::raw("select `record`, flid, COUNT(*) as count from ".env('DB_PREFIX')."associator_support where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `flid`,`record` order by count ASC");
-        $rAssocOccurrences = DB::raw("select `rid`, flid, COUNT(*) as count from ".env('DB_PREFIX')."associator_support where `fid`=$fid and `record` in ($ridString)$flidSQL group by `flid`,`rid` order by count ASC");
+        //We want to make sure we are doing things in utf8 for special characters
+        if(!mysqli_set_charset($con, "utf8")) {
+            printf("Error loading character set utf8: %s\n", mysqli_error($con));
+            exit();
+        }
 
-		//Because of the complex data in MS List, we break stuff up and then format
-		$msListUnclean = $con->query($msListOccurrences);
-		$msArray = [];
+        $textOccurrences = DB::raw("select `text`, `flid` from ".env('DB_PREFIX')."text_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
+        $listOccurrences = DB::raw("select `option`, `flid` from ".env('DB_PREFIX')."list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
+        $msListOccurrences = DB::raw("select `options`, `flid` from ".env('DB_PREFIX')."multi_select_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
+        $genListOccurrences = DB::raw("select `options`, `flid` from ".env('DB_PREFIX')."generated_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
+        $numberOccurrences = DB::raw("select `number`, `flid` from ".env('DB_PREFIX')."number_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
+        $assocOccurrences = DB::raw("select s.`flid`, r.`kid` from ".env('DB_PREFIX')."associator_support as s left join kora3_records as r on s.`record`=r.`rid` where s.`fid`=$fid and s.`rid` in ($ridString) and s.`flid` in ($flidString)");
+        $rAssocOccurrences = DB::raw("select s.`flid`, r.`kid` from ".env('DB_PREFIX')."associator_support as s left join kora3_records as r on s.`rid`=r.`rid` where s.`fid`=$fid and s.`rid` in ($ridString) and s.`flid` in ($flidString)");
+
+        //Because of the complex data in MS List, we break stuff up and then format
+        $msListUnclean = $con->query($msListOccurrences);
         while($occur = $msListUnclean->fetch_assoc()) {
-	        $msFlid = $occur['flid'];
-	        $msOpt = $occur['options'];
-	        $msCnt = $occur['count'];
-	        
-            if(!isset($msArray[$msFlid]))
-	            $msArray[$msFlid] = [];
-            
-	        if(strpos($msOpt, '[!]') !== false) {
-		        $opts = explode('[!]', $msOpt);
-		        
-		        foreach($opts as $opt) {
-			        if(isset($msArray[$msFlid][$opt]))
-			        	$msArray[$msFlid][$opt] += $msCnt;
-			        else
-			        	$msArray[$msFlid][$opt] = $msCnt;
-		        }
-	        } else {
-		        if(isset($msArray[$msFlid][$msOpt]))
-		        	$msArray[$msFlid][$msOpt] += $msCnt;
-		        else
-		        	$msArray[$msFlid][$msOpt] = $msCnt;
-	        }
+            $msFlid = $occur['flid'];
+            $msOpt = $occur['options'];
+
+            $opts = explode('[!]', $msOpt);
+
+            foreach($opts as $opt) {
+                if(!isset($filters[$msFlid][$opt]))
+                    $filters[$msFlid][$opt] = 1;
+                else
+                    $filters[$msFlid][$opt] += 1;
+            }
         }
-        foreach($msArray as $flid => $msCounts) {
-	        foreach($msCounts as $msFilter => $msCount) {
-		        if($msCount >= $count) {
-	        		$filters[$flid][] = ['value'=>$msFilter,'type'=>'Multi-Select List','count'=>$msCount];
-	        		$cnt++;
-	        	}
-	    	}
-    	}
-		//repeat
-		$genListUnclean = $con->query($genListOccurrences);
-		$genArray = [];
+
+        //repeat for gen list
+        $genListUnclean = $con->query($genListOccurrences);
         while($occur = $genListUnclean->fetch_assoc()) {
-	        $genFlid = $occur['flid'];
-	        $genOpt = $occur['options'];
-	        $genCnt = $occur['count'];
-	        
-            if(!isset($genArray[$genFlid]))
-	            $genArray[$genFlid] = [];
-            
-	        if(strpos($genOpt, '[!]') !== false) {
-		        $opts = explode('[!]', $genOpt);
-		        
-		        foreach($opts as $opt) {
-			        if(isset($genArray[$genFlid][$opt]))
-			        	$genArray[$genFlid][$opt] += $genCnt;
-			        else
-			        	$genArray[$genFlid][$opt] = $genCnt;
-		        }
-	        } else {
-		        if(isset($genArray[$genFlid][$genOpt]))
-		        	$genArray[$genFlid][$genOpt] += $genCnt;
-		        else
-		        	$genArray[$genFlid][$genOpt] = $genCnt;
-	        }
+            $gsFlid = $occur['flid'];
+            $gsOpt = $occur['options'];
+
+            $opts = explode('[!]', $gsOpt);
+
+            foreach($opts as $opt) {
+                if(!isset($filters[$gsFlid][$opt]))
+                    $filters[$gsFlid][$opt] = 1;
+                else
+                    $filters[$gsFlid][$opt] += 1;
+            }
         }
-        foreach($genArray as $flid => $genCounts) {
-	        foreach($genCounts as $genFilter => $genCount) {
-		        if($genCount >= $count) {
-	        		$filters[$flid][] = ['value'=>$genFilter,'type'=>'Generated List','count'=>$genCount];
-	        		$cnt++;
-	        	}
-	    	}
-    	}
-        //End GenList/MS-List Madness
-        
+
         $textUnclean = $con->query($textOccurrences);
         while($occur = $textUnclean->fetch_assoc()) {
-            if($occur['count'] >= $count) {
-                $filters[$occur['flid']][] = ['value'=>$occur['text'],'type'=>'Text','count'=>$occur['count']];
-                $cnt++;
-            }
+            $flid = $occur['flid'];
+            $value = $occur['text'];
+
+            if(!isset($filters[$flid][$value]))
+                $filters[$flid][$value] = 1;
+            else
+                $filters[$flid][$value] += 1;
         }
+
         $listUnclean = $con->query($listOccurrences);
         while($occur = $listUnclean->fetch_assoc()) {
-            if($occur['count'] >= $count) {
-                $filters[$occur['flid']][] = ['value'=>$occur['option'],'type'=>'List','count'=>$occur['count']];
-                $cnt++;
-            }
+            $flid = $occur['flid'];
+            $value = $occur['option'];
+
+            if(!isset($filters[$flid][$value]))
+                $filters[$flid][$value] = 1;
+            else
+                $filters[$flid][$value] += 1;
         }
+
         $numberUnclean = $con->query($numberOccurrences);
         while($occur = $numberUnclean->fetch_assoc()) {
-            if($occur['count'] >= $count) {
-                $value = (float)$occur['number'];
-                $filters[$occur['flid']][] = ['value'=>$value,'type'=>'Number','count'=>$occur['count']];
-                $cnt++;
-            }
+            $flid = $occur['flid'];
+            $value = (float)$occur['number'];
+
+            if(!isset($filters[$flid][$value]))
+                $filters[$flid][$value] = 1;
+            else
+                $filters[$flid][$value] += 1;
         }
+
         $assocUnclean = $con->query($assocOccurrences);
         while($occur = $assocUnclean->fetch_assoc()) {
-            if($occur['count'] >= $count) {
-                $value = Record::where('rid','=',$occur['record'])->first()->kid;
-                $filters[$occur['flid']][] = ['value'=>$value,'type'=>'Associator','count'=>$occur['count']];
-                $cnt++;
-            }
+            $flid = $occur['flid'];
+            $value = $occur['kid'];
+
+            if(!isset($filters[$flid][$value]))
+                $filters[$flid][$value] = 1;
+            else
+                $filters[$flid][$value] += 1;
         }
+
         $rAssocUnclean = $con->query($rAssocOccurrences);
         while($occur = $rAssocUnclean->fetch_assoc()) {
-            if($occur['count'] >= $count) {
-                $value = Record::where('rid', '=', $occur['rid'])->first()->kid;
-                $filters[$occur['flid']][] = ['value'=>$value,'type'=>'Reverse Associator','count'=>$occur['count']];
-                $cnt++;
-            }
+            $flid = $occur['flid'];
+            $value = $occur['kid'];
+
+            if(!isset($filters[$flid][$value]))
+                $filters[$flid][$value] = 1;
+            else
+                $filters[$flid][$value] += 1;
         }
-        
+
         //We want to swap out the flids to slugs so it's more predictable/ readable
         foreach($filters as $flid => $results) {
-	        $slug = FieldController::getField($flid)->slug;
-	        $filters[$slug] = $results;
-	        unset($filters[$flid]);
+            $slug = FieldController::getField($flid)->slug;
+            $filters[$slug] = $results;
+            unset($filters[$flid]);
         }
-        
-        $filters['total'] = $cnt;
 
         mysqli_close($con);
-        
+
         return $filters;
     }
 
@@ -1253,9 +1226,9 @@ class RestfulController extends Controller {
         $recRequest['api'] = true;
         $recRequest['assignRoot'] = true;
         $recCon = new RecordController();
-        //TODO::do something with this
+
         $response = $recCon->store($form->pid,$form->fid,$recRequest);
-        return "Created Record: ";
+        return $response;
     }
 
     /**

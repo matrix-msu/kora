@@ -6,22 +6,10 @@ class Kernel extends HttpKernel {
 
 	/**
 	 * The application's global HTTP middleware stack.
-     * NOTE: This seems to be deprecated in favor of middlewareGroups below. Leaving here just in case.
 	 *
 	 * @var array
 	 */
-//	protected $middleware = [
-//		'Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode',
-//		'Illuminate\Cookie\Middleware\EncryptCookies',
-//		'Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse',
-//        \Illuminate\Routing\Middleware\SubstituteBindings::class,
-//		'Illuminate\Session\Middleware\StartSession',
-//		'Illuminate\View\Middleware\ShareErrorsFromSession',
-//		'App\Http\Middleware\VerifyCsrfToken',
-//        'language' => 'App\Http\Middleware\SetLanguage'
-//	];
-
-    protected $middlewareGroups = [
+	protected $middlewareGroups = [
         'web' => [
             \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
             \Illuminate\Cookie\Middleware\EncryptCookies::class,
@@ -33,7 +21,7 @@ class Kernel extends HttpKernel {
             'language' => \App\Http\Middleware\SetLanguage::class,
         ],
         'api' => [
-            //'throttle:60,1', //TODO::Might want to install this after php7 upgrade
+            //'throttle:60,1', //TODO::Will need to install if we want to use this
             'bindings',
         ],
     ];

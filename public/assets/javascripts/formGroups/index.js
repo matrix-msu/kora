@@ -356,6 +356,16 @@ Kora.FormGroups.Index = function() {
         width: '100%',
       });
 
+	  var inputDef = $('.chosen-container').children('.chosen-choices');
+
+	  inputDef.on('click', function() {
+		  if (inputDef.siblings('.chosen-drop').children('.chosen-results').children().length === 0) {
+			  inputDef.siblings('.chosen-drop').children('.chosen-results').append('<li class="no-results">No options to select!</li>');
+		  } else if (inputDef.siblings('.chosen-drop').children('.chosen-results').children('.active-result').length === 0) {
+			  inputDef.siblings('.chosen-drop').children('.chosen-results').append('<li class="no-results">No more options to select!</li>');
+		  }
+	  });
+
       Kora.Modal.open($newPermissionsModal);
     });
   }
@@ -402,6 +412,16 @@ Kora.FormGroups.Index = function() {
       $addUserModalBody.find('.multi-select').chosen({
         width: '100%',
       });
+
+	  var inputDef = $('.chosen-container').children('.chosen-choices');
+
+	  inputDef.on('click', function() {
+		  if (inputDef.siblings('.chosen-drop').children('.chosen-results').children().length === 0) {
+			  inputDef.siblings('.chosen-drop').children('.chosen-results').append('<li class="no-results">No options to select!</li>');
+		  } else if (inputDef.siblings('.chosen-drop').children('.chosen-results').children('.active-result').length === 0) {
+			  inputDef.siblings('.chosen-drop').children('.chosen-results').append('<li class="no-results">No more options to select!</li>');
+		  }
+	  });
 
       // Submission of Adding a User
       var submitUsers = function(groupID, $addUserModal, $select) {

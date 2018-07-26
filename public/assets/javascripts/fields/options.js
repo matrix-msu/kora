@@ -57,6 +57,8 @@ Kora.Fields.Options = function(fieldType) {
         var listOpt = $('.genlist-options-js');
         var listDef = $('.genlist-default-js');
 
+        var inputDef = listDef.siblings('.chosen-container');
+
         listOpt.find('option').prop('selected', true);
         listOpt.trigger("chosen:updated");
 
@@ -68,6 +70,14 @@ Kora.Fields.Options = function(fieldType) {
             var options = listOpt.html();
             listDef.html(options);
             listDef.trigger("chosen:updated");
+        });
+
+        inputDef.on('click', function () {
+          if (inputDef.children('.chosen-drop').children('.chosen-results').children().length === 0) {
+            inputDef.children('.chosen-drop').children('.chosen-results').append('<li class="no-results">No options to select!</li>');
+          } else if (inputDef.children('.chosen-drop').children('.chosen-results').children('.active-result').length === 0) {
+            inputDef.children('.chosen-drop').children('.chosen-results').append('<li class="no-results">No more options to select!</li>');
+          }
         });
     }
 
@@ -75,6 +85,8 @@ Kora.Fields.Options = function(fieldType) {
         var listOpt = $('.list-options-js');
         var listDef = $('.list-default-js');
 
+        var inputDef = listDef.siblings('.chosen-container');
+
         listOpt.find('option').prop('selected', true);
         listOpt.trigger("chosen:updated");
 
@@ -87,11 +99,19 @@ Kora.Fields.Options = function(fieldType) {
             listDef.html(options);
             listDef.trigger("chosen:updated");
         });
+
+        inputDef.on('click', function () {
+          if (inputDef.children('.chosen-drop').children('.chosen-results').children().length === 0) {
+            inputDef.children('.chosen-drop').children('.chosen-results').append('<li class="no-results">No options to select!</li>');
+          }
+        });
     }
 
     function initializeMultiSelectListOptions() {
         var listOpt = $('.mslist-options-js');
         var listDef = $('.mslist-default-js');
+
+        var inputDef = listDef.siblings('.chosen-container').children('.chosen-choices');
 
         listOpt.find('option').prop('selected', true);
         listOpt.trigger("chosen:updated");
@@ -104,6 +124,14 @@ Kora.Fields.Options = function(fieldType) {
             var options = listOpt.html();
             listDef.html(options);
             listDef.trigger("chosen:updated");
+        });
+
+        inputDef.on('click', function() {
+          if (inputDef.siblings('.chosen-drop').children('.chosen-results').children().length === 0) {
+            inputDef.siblings('.chosen-drop').children('.chosen-results').append('<li class="no-results">No options to select!</li>');
+          } else if (inputDef.siblings('.chosen-drop').children('.chosen-results').children('.active-result').length === 0) {
+            inputDef.siblings('.chosen-drop').children('.chosen-results').append('<li class="no-results">No more options to select!</li>');
+          }
         });
     }
 

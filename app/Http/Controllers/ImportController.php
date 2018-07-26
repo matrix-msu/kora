@@ -78,6 +78,7 @@ class ImportController extends Controller {
                     $xml .= $field->getTypedField()->getExportSample($field->slug, "XML");
                 }
 
+                $xml .= '<reverseAssociations><Record flid="1337">1-3-37</Record><Record flid="1337">1-3-37</Record></reverseAssociations>';
                 $xml .= '</Record></Records>';
 
                 header("Content-Disposition: attachment; filename=" . $form->name . '_exampleData.xml');
@@ -94,6 +95,7 @@ class ImportController extends Controller {
                     $tmpArray = array_merge($fieldArray, $tmpArray);
                 }
 
+                $tmpArray["reverseAssociations"] = ["1337" => array("1-3-37","1-3-37")];
                 $json = [$tmpArray];
 
                 $json = json_encode($json);
@@ -208,6 +210,23 @@ class ImportController extends Controller {
             $table .= '<div class="form-group"></div>';
         }
 
+        //For reverse associations
+        $table .= '<div class="form-group mt-xl half">';
+        $table .= '<div class="solid-box get-slug-js" slug="reverseAssociations">reverseAssociations</div></div>';
+        $table .= '<div class="form-group mt-xl half">';
+        $table .= '<select class="single-select get-tag-js" data-placeholder="Select field if applicable">';
+        $table .= '<option></option>';
+        foreach($tagNames as $name) {
+            if($name == "reverseAssociations")
+                $table .= '<option val="'.$name.'" selected>' . $name . '</option>';
+            else
+                $table .= '<option val="'.$name.'">'.$name.'</option>';
+        }
+        $table .= '</select>';
+        $table .= '</div>';
+        $table .= '<div class="form-group"></div>';
+
+        //Finish off the table
         $table .= '<div class="form-group mt-xxxl">';
         $table .= '<input type="button" class="btn final-import-btn-js" value="Upload Records">';
         $table .= '</div>';
@@ -254,6 +273,20 @@ class ImportController extends Controller {
                 //Just in case there are extra/unused tags in the XML
                 if(!array_key_exists($key,$matchup))
                     continue;
+
+                //Deal with reverse associations and move on
+                if($matchup[$key] == 'reverseAssociations') {
+                    if(empty($field->Record))
+                        return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                            "record_validation_error"=>[$request->kid => "$matchup[$key] format is incorrect for applying reverse associations"]],500);
+                    $rAssoc = (array)$field->Record;
+                    $rFinal = [];
+                    foreach($field->Record as $rAssoc) {
+                        $rFinal[(string)$rAssoc['flid']][] = (string)$rAssoc;
+                    }
+                    $recRequest['newRecRevAssoc'] = $rFinal;
+                    continue;
+                }
 
                 $fieldSlug = $matchup[$key];
                 $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
@@ -379,7 +412,7 @@ class ImportController extends Controller {
                         $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
                     else
                         $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
-                    $newDir = config('app.base_path') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id;
+                    $newDir = config('app.base_path') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
                     if(file_exists($newDir)) {
                         foreach(new \DirectoryIterator($newDir) as $file) {
                             if($file->isFile()) {
@@ -424,32 +457,29 @@ class ImportController extends Controller {
                         }
                     }
                     $recRequest['file' . $flid] = $files;
-                    $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;
+                    $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
                 } else if($type == 'Gallery') {
                     $files = array();
                     if(is_null($originRid))
                         $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
                     else
                         $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
-                    $newDir = config('app.base_path') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id;
+                    $newDir = config('app.base_path') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
                     if(file_exists($newDir)) {
                         foreach(new \DirectoryIterator($newDir) as $file) {
-                            if($file->isFile()) {
+                            if($file->isFile())
                                 unlink($newDir . '/' . $file->getFilename());
-                            }
                         }
                         if(file_exists($newDir . '/thumbnail')) {
                             foreach(new \DirectoryIterator($newDir . '/thumbnail') as $file) {
-                                if($file->isFile()) {
+                                if($file->isFile())
                                     unlink($newDir . '/thumbnail/' . $file->getFilename());
-                                }
                             }
                         }
                         if(file_exists($newDir . '/medium')) {
                             foreach(new \DirectoryIterator($newDir . '/medium') as $file) {
-                                if($file->isFile()) {
+                                if($file->isFile())
                                     unlink($newDir . '/medium/' . $file->getFilename());
-                                }
                             }
                         }
                     } else {
@@ -524,7 +554,7 @@ class ImportController extends Controller {
                         }
                     }
                     $recRequest['file' . $flid] = $files;
-                    $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;
+                    $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
                 } else if($type == 'Associator') {
                     if(empty($field->Record))
                         return response()->json(["status"=>false,"message"=>"xml_validation_error",
@@ -543,6 +573,12 @@ class ImportController extends Controller {
                 //Just in case there are extra/unused fields in the JSON
                 if(!array_key_exists($slug,$matchup))
                     continue;
+
+                //Deal with reverse associations and move on
+                if($matchup[$slug] == 'reverseAssociations') {
+                    $recRequest['newRecRevAssoc'] = $field;
+                    continue;
+                }
 
                 $fieldSlug = $matchup[$slug];
                 $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
@@ -628,7 +664,7 @@ class ImportController extends Controller {
                         $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
                     else
                         $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
-                    $newDir = config('app.base_path') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id;
+                    $newDir = config('app.base_path') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
                     if(file_exists($newDir)) {
                         foreach(new \DirectoryIterator($newDir) as $file) {
                             if($file->isFile()) {
@@ -646,32 +682,29 @@ class ImportController extends Controller {
                         array_push($files, $name);
                     }
                     $recRequest['file' . $flid] = $files;
-                    $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;
+                    $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
                 } else if($type == 'Gallery') {
                     $files = array();
                     if(is_null($originRid))
                         $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
                     else
                         $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
-                    $newDir = config('app.base_path') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id;
+                    $newDir = config('app.base_path') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
                     if(file_exists($newDir)) {
                         foreach(new \DirectoryIterator($newDir) as $file) {
-                            if($file->isFile()) {
+                            if($file->isFile())
                                 unlink($newDir . '/' . $file->getFilename());
-                            }
                         }
                         if(file_exists($newDir . '/thumbnail')) {
                             foreach(new \DirectoryIterator($newDir . '/thumbnail') as $file) {
-                                if($file->isFile()) {
+                                if($file->isFile())
                                     unlink($newDir . '/thumbnail/' . $file->getFilename());
-                                }
                             }
                         }
                         if(file_exists($newDir . '/medium')) {
                             foreach(new \DirectoryIterator($newDir . '/medium') as $file) {
-                                if($file->isFile()) {
+                                if($file->isFile())
                                     unlink($newDir . '/medium/' . $file->getFilename());
-                                }
                             }
                         }
                     } else {
@@ -703,7 +736,7 @@ class ImportController extends Controller {
                         array_push($files, $name);
                     }
                     $recRequest['file' . $flid] = $files;
-                    $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id;
+                    $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
                 } else if($type == 'Associator') {
                     $recRequest[$flid] = $field['value'];
                 }

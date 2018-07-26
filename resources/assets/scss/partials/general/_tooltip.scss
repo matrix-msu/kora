@@ -66,4 +66,20 @@
   &.form-group {
     display: block;
   }
+
+  &.half-sub-btn.disabled {
+	border: 2px solid rgba(4, 182, 175, 0.2) !important;
+	color: rgba(4, 182, 175, 0.2) !important;
+	opacity: 1 !important;
+    pointer-events: unset !important;
+
+    &:hover {
+
+      &::after {
+        left: 45px;
+        line-height: 1;
+        top: -15px;
+      }
+    }
+  }
 }

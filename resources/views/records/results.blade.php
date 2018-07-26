@@ -68,7 +68,11 @@
 
         <section class="display-records">
             <div class="form-group records-title mt-xxxl">
-                Showing {{sizeof($records)}} of {{$total}} Records
+                @if(count($records) > 0)
+                    Showing {{sizeof($records)}} of {{$total}} Records
+                @else
+                    No Results
+                @endif
             </div>
 
             <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
@@ -76,32 +80,33 @@
             @if(sizeof($records)>0)
             @include('partials.records.pagination')
 
-            <section class="filters">
-                <div class="pagination-options pagination-options-js">
-                    <select class="page-count results-option-dropdown-js" id="page-count-dropdown">
-                        <option value="10">10 per page</option>
-                        <option value="20" {{app('request')->input('page-count') === '20' ? 'selected' : ''}}>20 per page</option>
-                        <option value="30" {{app('request')->input('page-count') === '30' ? 'selected' : ''}}>30 per page</option>
-                    </select>
-                    <select class="order results-option-dropdown-js" id="order-dropdown">
-                        <option value="lmd">Last Modified Descending</option>
-                        <option value="lma" {{app('request')->input('order') === 'lma' ? 'selected' : ''}}>Last Modified Ascending</option>
-                        <option value="idd" {{app('request')->input('order') === 'idd' ? 'selected' : ''}}>ID Descending</option>
-                        <option value="ida" {{app('request')->input('order') === 'ida' ? 'selected' : ''}}>ID Ascending</option>
-                    </select>
-                </div>
-                <div class="show-options show-options-js">
-                    <span><a href="#" class="expand-fields-js tooltip" title="Expand all fields" tooltip="Expand all Fields"><i class="icon icon-expand icon-expand-js"></i></a></span>
-                    <span><a href="#" class="collapse-fields-js tooltip" title="Collapse all fields" tooltip="Collapse all Fields"><i class="icon icon-condense icon-condense-js"></i></a></span>
-                </div>
-            </section>
-
-            @foreach($records as $index => $record)
-                @include('partials.records.card')
-            @endforeach
-
-            @include('partials.records.pagination')
-            @endif
+			@if (count($records) > 0)
+				<section class="filters">
+				    <div class="pagination-options pagination-options-js">
+				        <select class="page-count results-option-dropdown-js" id="page-count-dropdown">
+				            <option value="10">10 per page</option>
+				            <option value="20" {{app('request')->input('page-count') === '20' ? 'selected' : ''}}>20 per page</option>
+				            <option value="30" {{app('request')->input('page-count') === '30' ? 'selected' : ''}}>30 per page</option>
+				        </select>
+				        <select class="order results-option-dropdown-js" id="order-dropdown">
+				            <option value="lmd">Last Modified Descending</option>
+				            <option value="lma" {{app('request')->input('order') === 'lma' ? 'selected' : ''}}>Last Modified Ascending</option>
+				            <option value="idd" {{app('request')->input('order') === 'idd' ? 'selected' : ''}}>ID Descending</option>
+				            <option value="ida" {{app('request')->input('order') === 'ida' ? 'selected' : ''}}>ID Ascending</option>
+				        </select>
+				    </div>
+				    <div class="show-options show-options-js">
+				        <span><a href="#" class="expand-fields-js tooltip" title="Expand all fields" tooltip="Expand all Fields"><i class="icon icon-expand icon-expand-js"></i></a></span>
+				        <span><a href="#" class="collapse-fields-js tooltip" title="Collapse all fields" tooltip="Collapse all Fields"><i class="icon icon-condense icon-condense-js"></i></a></span>
+				    </div>
+				</section>
+			
+				@foreach($records as $index => $record)
+				    @include('partials.records.card')
+				@endforeach
+				
+				@include('partials.records.pagination')
+			@endif
         </section>
     </section>
 @stop
