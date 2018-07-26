@@ -64,8 +64,8 @@
             <div class="form-group records-title mt-xxxl">
                 Showing {{sizeof($records)}} of {{$total}} Records
             </div>
-			
-			<div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
+
+            <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
 
             @if(sizeof($records)>0)
                 @include('partials.records.pagination')
