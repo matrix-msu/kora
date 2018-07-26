@@ -26,8 +26,7 @@
                 <i class="icon icon-form-record-search mr-sm"></i>
                 <span>Search Form Records</span>
             </h1>
-            <p class="description">Enter keywords to search below. A keyword is required in order to search form
-                records. You can also filter by “Or”, “And”, or “Exact” keyword results. </p>
+            <p class="description">Enter keywords to search below. You can also filter by “Or”, “And”, or “Exact” keyword results. The Search Form Records page also allows you to individually select a number of records in order to batch delete, assign field values, or to export. To create a selection of records, select the radio buttons next to each record name use wish to select.</p>
         </div>
     </section>
 @stop

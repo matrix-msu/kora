@@ -12,10 +12,7 @@
         <i class="icon icon-users"></i>
         <span>User Management</span>
       </h1>
-      <p class="description">Brief info on user management,
-        followed by instructions on how to use the user management page will go here.
-        If you would to manage users on a project or form level,
-        go to the according permissions page within the project or form.</p>
+      <p class="description">Here you can invite, edit and view all the users within this Kora installation. If you need to manage users on a project or form level, go to the according permissions page within the project or form.</p>
     </div>
   </section>
 @stop
