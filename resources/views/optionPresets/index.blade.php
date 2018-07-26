@@ -10,6 +10,7 @@
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $project->pid])
+    @include('partials.menu.fieldValPresets')
 @stop
 
 @section('header')
