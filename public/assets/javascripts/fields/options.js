@@ -58,6 +58,7 @@ Kora.Fields.Options = function(fieldType) {
         var listDef = $('.genlist-default-js');
 
         var inputDef = listDef.siblings('.chosen-container');
+        var childCheck = inputDef.children('.chosen-drop').children('.chosen-results');
 
         listOpt.find('option').prop('selected', true);
         listOpt.trigger("chosen:updated");
@@ -73,10 +74,10 @@ Kora.Fields.Options = function(fieldType) {
         });
 
         inputDef.on('click', function () {
-          if (inputDef.children('.chosen-drop').children('.chosen-results').children().length === 0) {
+          if (childCheck.children().length === 0) {
             inputDef.children('.chosen-drop').children('.chosen-results').append('<li class="no-results">No options to select!</li>');
-          } else if (inputDef.children('.chosen-drop').children('.chosen-results').children('.active-result').length === 0) {
-            inputDef.children('.chosen-drop').children('.chosen-results').append('<li class="no-results">No more options to select!</li>');
+          } else if (childCheck.children('.active-result').length === 0 && childCheck.children('.no-results').length === 0) {
+            childCheck.append('<li class="no-results">No more options to select!</li>');
           }
         });
     }
@@ -86,6 +87,7 @@ Kora.Fields.Options = function(fieldType) {
         var listDef = $('.list-default-js');
 
         var inputDef = listDef.siblings('.chosen-container');
+        var childCheck = inputDef.children('.chosen-drop').children('.chosen-results');
 
         listOpt.find('option').prop('selected', true);
         listOpt.trigger("chosen:updated");
@@ -101,8 +103,8 @@ Kora.Fields.Options = function(fieldType) {
         });
 
         inputDef.on('click', function () {
-          if (inputDef.children('.chosen-drop').children('.chosen-results').children().length === 0) {
-            inputDef.children('.chosen-drop').children('.chosen-results').append('<li class="no-results">No options to select!</li>');
+          if (childCheck.children().length === 0) {
+            childCheck.children('.chosen-results').append('<li class="no-results">No options to select!</li>');
           }
         });
     }
@@ -112,6 +114,9 @@ Kora.Fields.Options = function(fieldType) {
         var listDef = $('.mslist-default-js');
 
         var inputDef = listDef.siblings('.chosen-container').children('.chosen-choices');
+        var childCheckDef = inputDef.siblings('.chosen-drop').children('.chosen-results');
+        var inputList = listOpt.siblings('.chosen-container').children('.chosen-choices');
+        var childCheckList = inputList.siblings('.chosen-drop').children('.chosen-results');
 
         listOpt.find('option').prop('selected', true);
         listOpt.trigger("chosen:updated");
@@ -126,11 +131,19 @@ Kora.Fields.Options = function(fieldType) {
             listDef.trigger("chosen:updated");
         });
 
+        inputList.on('click', function() {
+          if (childCheckList.children().length === 0) {
+            childCheckList.append('<li class="no-results">No options to select!</li>');
+          } else if (childCheckList.children('.active-result').length === 0 && childCheckList.children('.no-results').length === 0) {
+            childCheckList.append('<li class="no-results">No more options to select!</li>');
+          }
+        });
+
         inputDef.on('click', function() {
-          if (inputDef.siblings('.chosen-drop').children('.chosen-results').children().length === 0) {
-            inputDef.siblings('.chosen-drop').children('.chosen-results').append('<li class="no-results">No options to select!</li>');
-          } else if (inputDef.siblings('.chosen-drop').children('.chosen-results').children('.active-result').length === 0) {
-            inputDef.siblings('.chosen-drop').children('.chosen-results').append('<li class="no-results">No more options to select!</li>');
+          if (childCheckDef.children().length === 0) {
+            childCheckDef.append('<li class="no-results">No options to select!</li>');
+          } else if (childCheckDef.children('.active-result').length === 0 && childCheckDef.children('.no-results') === 0) {
+            childCheckDef.append('<li class="no-results">No more options to select!</li>');
           }
         });
     }
