@@ -31,6 +31,7 @@ class ComboListField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.combolist";
     const FIELD_ADV_OPTIONS_VIEW = null;
+    const FIELD_ADV_INPUT_VIEW = null;
     const FIELD_INPUT_VIEW = "partials.records.input.combolist";
     const FIELD_DISPLAY_VIEW = "partials.records.display.combolist";
 
