@@ -349,6 +349,17 @@ Kora.ProjectGroups.Index = function() {
       $newPermissionsModal.find('.multi-select').chosen({
         width: '100%',
       });
+      
+      var selectUsers = $newPermissionsModal.find('.chosen-container-multi .chosen-choices');
+      var childCheck = selectUsers.siblings('.chosen-drop').children('.chosen-results');
+
+      selectUsers.click(function () {
+        if (childCheck.children().length === 0) {
+          childCheck.append('<li class="no-results">No options to select!</li>');
+        } else if (childCheck.children('.active-result').length === 0 && childCheck.children('.no-results').length === 0) {
+          childCheck.append('<li class="no-results">No more options to select!</li>');
+        }
+      });
 
       Kora.Modal.open($newPermissionsModal);
     });
@@ -395,6 +406,18 @@ Kora.ProjectGroups.Index = function() {
 
       $addUserModalBody.find('.multi-select').chosen({
         width: '100%',
+      });
+
+      var selectUsers = $addUserModalBody.find('.chosen-container-multi .chosen-choices');
+      var childCheck = selectUsers.siblings('.chosen-drop').children('.chosen-results');
+
+      selectUsers.click(function () {
+        console.log('clicked');
+        if (childCheck.children().length === 0) {
+          childCheck.append('<li class="no-results">No options to select!</li>');
+        } else if (childCheck.children('.active-result').length === 0 && childCheck.children('.no-results').length === 0) {
+          childCheck.append('<li class="no-results">No more options to select!</li>');
+        }
       });
 
       // Submission of Adding a User

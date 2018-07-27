@@ -278,14 +278,23 @@ Kora.Tokens.Index = function() {
 
   function multiSelectPlaceholders () {
 	  var inputDef = $('.chosen-container').children('.chosen-choices');
+    var childCheck
 
 	  inputDef.on('click', function() {
-		  if (inputDef.siblings('.chosen-drop').children('.chosen-results').children().length === 0) {
-			  inputDef.siblings('.chosen-drop').children('.chosen-results').append('<li class="no-results">No options to select!</li>');
-		  } else if (inputDef.siblings('.chosen-drop').children('.chosen-results').children('.active-result').length === 0) {
-			  inputDef.siblings('.chosen-drop').children('.chosen-results').append('<li class="no-results">No more options to select!</li>');
+      childCheck = inputDef.siblings('.chosen-drop').children('.chosen-results');
+		  if (childCheck.children().length === 0) {
+			  childCheck.append('<li class="no-results">No options to select!</li>');
+		  } else if (childCheck.children('.active-result').length === 0 && childCheck.children('.no-results').length === 0) {
+			  childCheck.append('<li class="no-results">No more options to select!</li>');
 		  }
 	  });
+
+    inputDef.children('.search-field').children('input').blur(function() {
+      var childCheck = inputDef.siblings('.chosen-drop').children('.chosen-results');
+      if (childCheck.children('.no-results').length > 0) {
+        childCheck.children('.no-results').remove();
+      }
+    });
   }
 
     initializeFilters();
