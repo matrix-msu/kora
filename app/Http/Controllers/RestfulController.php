@@ -991,14 +991,14 @@ class RestfulController extends Controller {
      * @return int - The comparison result
      */
     private function compareASCII($a, $b) {
-        $at = iconv('UTF-8', 'ASCII//TRANSLIT', $a);
-        $bt = iconv('UTF-8', 'ASCII//TRANSLIT', $b);
-        return strcmp($at, $bt);
+        $a = Search::convertCloseChars($a);
+        $b = Search::convertCloseChars($b);
+        return strcasecmp($a, $b);
     }
     private function rCompareASCII($a, $b) {
-        $at = iconv('UTF-8', 'ASCII//TRANSLIT', $a);
-        $bt = iconv('UTF-8', 'ASCII//TRANSLIT', $b);
-        return strcmp($at, $bt)*(-1);
+        $a = Search::convertCloseChars($a);
+        $b = Search::convertCloseChars($b);
+        return strcasecmp($a, $b)*(-1);
     }
 
     /**
