@@ -32,7 +32,7 @@
       'id' => 'admins'
     ]) !!}
     <p class="sub-text  mt-xxs">
-      Project admins are automatically assigned as admins to this new form, but you may select addition form admins above.
+      Project admins are automatically assigned as admins to this new form, but you may select additional form admins above.  As the creator of this form, you are automatically added as a form admin as well.
     </p>
   </div>
 

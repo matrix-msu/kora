@@ -29,6 +29,9 @@
       'data-placeholder' => "Search and select the project admins",
       'id' => 'admins'
     ]) !!}
+    <p class="sub-text mt-sm">
+      As the creator of this project, you are automatically added as a project admin.
+    </p>
 </div>
 @endif
 
