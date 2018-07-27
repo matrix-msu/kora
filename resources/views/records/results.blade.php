@@ -27,7 +27,7 @@
                 <span>Search Form Records</span>
             </h1>
             <p class="description">Enter keywords to search below. A keyword is required in order to search form
-                records. You can also filter by “Or”, “And”, or “Exact” keyword results. </p>
+                records. You can also filter by “Or”, “And”, or “Exact” keyword results.</p>
         </div>
     </section>
 @stop
