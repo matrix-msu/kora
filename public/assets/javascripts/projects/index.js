@@ -225,35 +225,6 @@ Kora.Projects.Index = function() {
     });
   }
 
-  function initializePermissionsModal() {
-    Kora.Modal.initialize();
-    var $modal = $('.request-permissions-modal-js');
-
-    $('.request-permissions-js').click(function(e) {
-      e.preventDefault();
-
-      $('.modal-js').hide();
-      $modal.show();
-
-      Kora.Modal.open();
-    });
-
-    $('.multi-select').chosen({
-      width: '100%',
-    });
-
-    $('.submit-project-request-js').click(function(e) {
-        e.preventDefault();
-
-        $('.request-error-js').text('');
-
-        if($('#request_project').val() != null)
-            $('.request-project-form-js').submit();
-        else
-            $('.request-error-js').text('Please select a project');
-    });
-  }
-
   function initializeUserProfileModal() {
     Kora.Modal.initialize();
     var $modal = $('.user-profile-modal-js');
@@ -397,7 +368,6 @@ Kora.Projects.Index = function() {
   initializeCustomSort();
   initializeFilters();
   initializeSearch();
-  initializePermissionsModal();
   initializeUserProfileModal();
   initializeUnarchive();
   initializeProjectCardEllipsifying();

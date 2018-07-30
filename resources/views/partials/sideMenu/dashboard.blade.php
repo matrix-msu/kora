@@ -75,7 +75,7 @@
 	  
 	  @if(\Auth::user()->admin==0)
 	  <li class="content-link request-permissions-js">
-        <a href="#">Request Project Permissions</a>
+        <a class="project-request-perms-js" href="#">Request Project Permissions</a>
       </li>
 	  @endif
   </ul>
