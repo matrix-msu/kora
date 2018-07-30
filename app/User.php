@@ -46,8 +46,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
 	protected $hidden = ['password', 'remember_token'];
 	
-	protected $sql_load_statuses = ['project_custom' => false];
-	
 
     public function getFullNameAttribute() {
         return $this->first_name . " " . $this->last_name;
@@ -591,19 +589,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
         return is_null($check) ? null : $check->sequence;
     }
-	
-	//private function requireDatabaseTable($table_name)
-	//{
-	//	
-	//	
-	//	if (!($this->$sql_load_statuses[$table_name]))
-	//	{
-	//		Log::info("loaded project custom table from DB");
-	//		
-	//		
-	//		$this->$sql_load_statuses['project_custom'] = true;
-	//	}
-	//}
 
     /**
      * Adds a project to a user's custom list
@@ -611,14 +596,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @param  int $pid - Project ID
      */
     public function addCustomProject($pid) {
-		//$this->requireDatabaseTable("project_custom");
-		
         //Make sure it doesn't exist first
         $check = DB::table("project_custom")->where("uid", "=", $this->id)
             ->where("pid", "=", $pid)->first();
 
         if(is_null($check)) {
-			// uid is user id and sequence is nth project for that user, pid is proj id
             $currSeqMax = DB::table("project_custom")->where("uid", "=", $this->id)->max("sequence");
             if(!is_null($currSeqMax))
                 $newSeq = $currSeqMax + 1;
@@ -631,10 +613,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
                     "updated_at" =>  Carbon::now()]
             );
         }
-		else
-		{
-			//Log::info("addCustomProject - check is NOT null");
-		}
     }
 	
 	public function addNewAdminToAllCustomProjects()

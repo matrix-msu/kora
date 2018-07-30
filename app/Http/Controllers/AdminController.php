@@ -3,7 +3,6 @@
 use App\Form;
 use App\FormGroup;
 use App\Http\Controllers\Auth\RegisterController;
-use Illuminate\Support\Facades\Cache;
 use App\Project;
 use App\ProjectGroup;
 use App\User;
@@ -199,14 +198,8 @@ class AdminController extends Controller {
       * @param  int $id - The ID of user to be updated
       * @return JsonResponse - User admin toggled
       */
-	  public function rutime($ru, $rus, $index) {
-			 return ($ru["ru_$index.tv_sec"]*1000 + intval($ru["ru_$index.tv_usec"]/1000))
-			 -  ($rus["ru_$index.tv_sec"]*1000 + intval($rus["ru_$index.tv_usec"]/1000));
-		}
 	  
       public function updateStatus(Request $request) {
-		$function_start = microtime(true);
-		  
         if ($request->id == 1) {
           return response()->json(["status" => false, "message" => "root_admin_error"], 200);
         }
@@ -292,17 +285,7 @@ class AdminController extends Controller {
             // User granted admin status
             $user->admin = 1;
 
-            // Give permissions to all projects
-            //$projects = Project::all();
-            //foreach($projects as $project) {
-            //    $user->addCustomProject($project->pid);
-            //}
 			$user->addNewAdminToAllCustomProjects();
-			
-            //$forms = Form::all();
-            //foreach($forms as $form) {
-            //    $user->addCustomForm($form->fid);
-            //}
 			$user->addNewAdminToAllCustomForms();
 			
             array_push($message, "admin");
