@@ -20,6 +20,6 @@
             if($taHeight < 100)
                 $taHeight = 100;
         ?>
-        {!! Form::textarea($field->flid, $textValue, ['class' => 'text-area preset-clear-text-js', 'style' => 'height:'.$taHeight.'px', 'id' => $field->flid]) !!}
+        {!! Form::textarea($field->flid, $textValue, ['class' => 'text-area preset-clear-text-js', 'style' => 'height:'.$taHeight.'px', 'id' => $field->flid, 'placeholder' => 'Enter text here']) !!}
     @endif
 </div>
