@@ -2,6 +2,13 @@ var Kora = Kora || {};
 Kora.Records = Kora.Records || {};
 
 Kora.Records.Index = function() {
+    var searchMade = false;
+    searchMade = window.localStorage.getItem('searchMade');
+    console.log(searchMade);
+    if (searchMade) {
+      $('.try-another-js').parent().removeClass('hidden');
+      window.localStorage.clear();
+    }
 
     $('.single-select').chosen({
         width: '100%',
@@ -112,6 +119,7 @@ Kora.Records.Index = function() {
             if(formVal.length && formVal.val()==null) {
                 formVal.siblings('.error-message').text('Select something to search through');
             } else {
+                window.localStorage.setItem('searchMade', true);
                 $('.keyword-search-js').submit();
             }
         });
@@ -124,6 +132,7 @@ Kora.Records.Index = function() {
                 if(formVal.length && formVal.val()==null) {
                     formVal.siblings('.error-message').text('Select something to search through');
                 } else {
+                    window.localStorage.setItem('searchMade', true);
                     $('.keyword-search-js').submit();
                 }
             }
@@ -417,23 +426,24 @@ Kora.Records.Index = function() {
         });
         $('ul.keywords').append('<li class="back-to-search"><span>Back to Search</span><i class="icon icon-arrow-up"></i></li>');
 
-        $('.back-to-search, .to-top').click(function () {
+        $('.back-to-search, .to-top, .try-another-js').click(function () {
           $('html, body').animate({
             scrollTop: 0
-          });
+          }, 1500);
         });
 
         $('.keyword-close').click(function(){
           $(this).parent().remove();
-		  var find = $(this).siblings('span').text();
-		  if (keywords.indexOf(find) >= 0) {
-			var index = keywords.indexOf(find);
-			keywords.splice(index, 1);
-			newKeys = keywords.toString();
-			newKeys = newKeys.replace(',',' ');
-			$('.keywords-get-js').val(newKeys);
-			$('.submit-search-js').trigger('click');
-		  }
+          var find = $(this).siblings('span').text();
+          if (keywords.indexOf(find) >= 0) {
+            var index = keywords.indexOf(find);
+            keywords.splice(index, 1);
+            newKeys = keywords.toString();
+            newKeys = newKeys.replace(',',' ');
+            $('.keywords-get-js').val(newKeys);
+            window.localStorage.setItem('searchMade', true);
+            $('.submit-search-js').trigger('click');
+          }
         });
       }
     }

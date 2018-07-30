@@ -102,6 +102,9 @@
 
             @include('partials.records.pagination')
             @endif
+            <div class="form-group search-button-container mt-xxl hidden">
+              <a href="#" class="btn half-sub-btn try-another-search try-another-js">Try Another Search</a>
+            </div>
         </section>
     </section>
 @stop
