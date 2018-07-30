@@ -508,7 +508,6 @@ i {
   }
 }
 
-
 .icon-record-little {
   &::before {
     content: $icon-record-little;
@@ -638,5 +637,47 @@ i {
 .icon-form-new-little {
   &::before {
     content: $icon-form-new-little;
+  }
+}
+
+.icon-field-EmptyState {
+  &:before {
+    content: $icon-field-EmptyState; 
+  }
+}
+.icon-searchProjRecords-EmptyState {
+  &:before {
+    content: $icon-searchProjRecords-EmptyState; 
+  }
+}
+.icon-token-EmptyState {
+  &:before {
+    content: $icon-token-EmptyState-path2;
+    color: rgb(21, 39, 48);
+  }
+}
+.icon-recordPreset---Empty-State {
+  &:before {
+    content: $icon-recordPreset---Empty-State; 
+  }
+}
+.icon-recordRevisions-clock-EmptyState {
+  &:before {
+    content: $icon-recordRevisions-clock-EmptyState; 
+  }
+}
+.icon-formAssociations---EmptyState {
+  &:before {
+    content: $icon-formAssociations---EmptyState; 
+  }
+}
+.icon-form-EmptyState {
+  &:before {
+    content: $icon-form-EmptyState; 
+  }
+}
+.icon-record-EmptyState {
+  &:before {
+    content: $icon-record-EmptyState; 
   }
 }

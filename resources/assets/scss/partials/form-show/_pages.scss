@@ -6,6 +6,10 @@
   max-width: calc(#{ $max-site-width } - 600px);
   width: $max-site-width;
 
+  &.mt-xxxl {
+	margin-top: 60px !important;
+  }
+
   .page {
     background-color: palette('gray', page, 1);
     border: 1px solid palette('box-shadow', base, 0.05);

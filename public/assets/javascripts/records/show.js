@@ -81,6 +81,12 @@ Kora.Records.Show = function() {
             mapRecord.scrollWheelZoom.disable();
             L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(mapRecord);
 
+            // Make second map for full screen modal
+            console.log($('#modalmap'+mapID));
+            var mapRecordModal = L.map('modalmap'+mapID).setView([firstLoc.attr('loc-x'), firstLoc.attr('loc-y')], 13);
+            mapRecordModal.scrollWheelZoom.disable();
+            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(mapRecordModal);
+
             $(this).children('.geolocator-location-js').each(function() {
                 var marker = L.marker([$(this).attr('loc-x'), $(this).attr('loc-y')]).addTo(mapRecord);
                 marker.bindPopup($(this).attr('loc-desc'));

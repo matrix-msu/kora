@@ -27,10 +27,10 @@
     .icon {
       margin: auto;
     }
-  }
 
-  .full-screen-button {
-
+    &:hover {
+      background: #F4F4F4;
+    }
   }
 
   .lower-right-corner {
@@ -42,7 +42,7 @@
   .modal {
     .content {
       display: block;
-      overflow-x: unset;
+      overflow-y: unset;
     }
   }
 
@@ -50,6 +50,18 @@
     position: absolute;
     right: 0;
     top: 0;
+  }
+}
+
+.geolocator-map-modal {
+  .content {
+    .body {
+      padding: 100px 0 20px;
+    }
+  }
+
+  .geolocator-modal-map {
+    height: 60vh;
   }
 }
 

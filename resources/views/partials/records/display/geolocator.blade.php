@@ -36,7 +36,9 @@
                     </a>
                 </div>
                 <div class="body">
-                    <h1>SUP</h1>
+                    <div id="modalmap{{$field->flid}}_{{$record->rid}}" class="geolocator-modal-map geolocator-modal-map-js">
+
+                    </div>
                 </div>
             </div>
         </div>

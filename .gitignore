@@ -3,6 +3,7 @@
 /public/.htaccess
 .idea/
 phpunit.xml
+/backup-tmp
 
 .DS_Store
 .sass-cache

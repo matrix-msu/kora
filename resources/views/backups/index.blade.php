@@ -52,6 +52,7 @@
             <input type="button" value="Create New Backup File" class="create-backup-js">
         </section>
 
+        @if (count($savedBackups) > 0)
         <section class="backupcards-selection center">
             <?php $index=0; ?>
             @foreach($savedBackups as $backup)
@@ -118,6 +119,9 @@
                 <?php $index++; ?>
             @endforeach
         </section>
+        @else
+          @include('partials.backups.no-backups')
+        @endif
     </section>
 
     <section class="filerestore-section hidden">

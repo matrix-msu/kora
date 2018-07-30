@@ -1,0 +1,104 @@
+.searched-terms {
+  font-size: 14px;
+  position: relative;
+  text-align: left;
+  vertical-align: middle;
+
+  .chosen-choices {
+    @include transition();
+
+    height: auto;
+    margin: 0;
+    overflow: hidden;
+    padding: 0 10px 10px;
+    position: relative;
+    width: 100%;
+
+    .search-choice {
+      background-color: palette('white', base);
+      border: 1px solid rgba(21, 39, 48, 0.1); /* this needs to be changed to palette */
+      border-radius: 3px;
+      box-shadow: 0 3px 5px 0 rgba(21,39,48,0.05);
+      color: #283c46;
+      display: inline-block;
+      font-family: $ubuntu;
+      line-height: 14px;
+      margin: 10px 10px 0 0;
+      max-width: 100%;
+      padding: 6px 10px;
+      position: relative;
+
+      span {
+        cursor: default;
+        word-wrap: break-word;
+      }
+
+      .search-choice-close {
+        @include transition();
+
+        display: inline-block;
+        -moz-osx-font-smoothing: grayscale;
+        -webkit-font-smoothing: antialiased;
+        font-style: normal;
+        font-variant: normal;
+        font-weight: normal;
+        line-height: 1;
+        margin: 0 0 1px 7px;
+        speak: none;
+        text-transform: none;
+        vertical-align: middle;
+        will-change: transform;
+
+        &::before {
+          color: palette('gray', slate);
+          content: $icon-cancel;
+          font-family: 'Kora-Icons';
+          font-size: 10px;
+          speak: none;
+        }
+
+        &:hover {
+          cursor: pointer;
+          transform: scale($transform-scale-multiplier);
+        }
+      }
+      
+      &:first-child {
+        border-color: #04b6af;
+        color: palette('green', accent);
+        float: right;
+        
+        &:hover,
+        span:hover {
+          cursor: pointer;
+        }
+        
+        .back-to-search {
+          @include transition();
+          
+          display: inline-block;
+          -moz-osx-font-smoothing: grayscale;
+          -webkit-font-smoothing: antialiased;
+          font-style: normal;
+          font-variant: normal;
+          font-weight: normal;
+          line-height: 1;
+          margin: 0 0 1px 7px;
+          speak: none;
+          text-transform: none;
+          transform: rotate(-90deg);
+          vertical-align: middle;
+          will-change: transform;
+          
+          &::before {
+            color: palette('green', accent);
+            content: $icon-arrow;
+            font-family: 'Kora-Icons';
+            font-size: 10px;
+            speak: none;
+          }
+        }
+      }
+    }
+  }
+}
