@@ -10,6 +10,59 @@
 
 .geolocator-map {
   height: 270px;
+
+  .geo-btn {
+    background: palette('white', base);
+    border: 1px solid palette('gray', slate, .1);
+    border-radius: 5px;
+    box-shadow: 0 3px 5px 0 palette('gray', slate, .05);
+    cursor: pointer;
+    display: flex;
+    height: 32px;
+    margin: map-get($spacing, xs);
+    position: relative;
+    width: 32px;
+    z-index: 1;
+
+    .icon {
+      margin: auto;
+    }
+
+    &:hover {
+      background: #F4F4F4;
+    }
+  }
+
+  .lower-right-corner {
+    bottom: 0;
+    position: absolute;
+    right: 0;
+  }
+
+  .modal {
+    .content {
+      display: block;
+      overflow-y: unset;
+    }
+  }
+
+  .upper-right-corner {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+}
+
+.geolocator-map-modal {
+  .content {
+    .body {
+      padding: 100px 0 20px;
+    }
+  }
+
+  .geolocator-modal-map {
+    height: 60vh;
+  }
 }
 
 .model-player-div {
