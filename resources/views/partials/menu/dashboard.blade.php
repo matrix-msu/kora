@@ -33,8 +33,8 @@
           </a>
         </li>
 
+		<li class="spacer full"></li>
         @if(\Auth::user()->admin==1)
-          <li class="spacer full"></li>
           <li class="link first">
             <a href="{{ url('/projects/create') }}">Create New Project</a>
           </li>
@@ -74,9 +74,9 @@
         @endif
 		
 		@if(\Auth::user()->admin==0)
-		<li class="link request-permissions-js">
-          <a href="#">Request Project Permissions</a>
-        </li>
+		  <li class="link">
+            <a class="nav-textwrap-override project-request-perms-js" href="#">Request Project Permissions</a>
+          </li>
 		@endif
     </ul>
 </li>
