@@ -32,6 +32,7 @@
     @include("partials.backups.deleteBackupModal")
 
     <section class="backups-section">
+      @if (count($savedBackups) > 0)
         <section class="filters center">
             <div class="underline-middle search search-js">
                 <i class="icon icon-search"></i>
@@ -47,6 +48,7 @@
                 </select>
             </div>
         </section>
+      @endif
 
         <section class="new-object-button center">
             <input type="button" value="Create New Backup File" class="create-backup-js">

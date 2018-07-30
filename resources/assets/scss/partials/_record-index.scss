@@ -84,6 +84,113 @@
       line-height: 35px;
       color: palette('gray', text);
     }
+    
+    .keywords {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+
+      .keyword {
+        background-color: palette('white', base);
+		border: 1px solid rgba(57,67,89,0.1);
+        border-radius: 5px;
+		box-shadow: 0 3px 5px 0 rgba(57,67,89,0.05);
+        color: palette('gray', text);
+        cursor: default;
+        display: inline-block;
+        font-family: $ubuntu;
+        line-height: 14px;
+        margin: 10px 10px 0 0;
+        max-width: 100%;
+        padding: 6px 10px;
+        position: relative;
+
+        span {
+          word-wrap: break-word;
+        }
+
+        .keyword-close {
+          @include transition();
+
+          display: inline-block;
+          font-family: 'Kora-Icons';
+          font-size: 9px;
+          -moz-osx-font-smoothing: grayscale;
+          -webkit-font-smoothing: antialiased;
+          font-style: normal;
+          font-variant: normal;
+          font-weight: normal;
+          line-height: 1;
+          margin: 0 0 1px 7px;
+          speak: none;
+          text-transform: none;
+          vertical-align: middle;
+          will-change: transform;
+
+          &::before {
+            content: $icon-cancel;
+          }
+
+          &:hover {
+            cursor: pointer;
+            transform: scale($transform-scale-multiplier);
+          }
+        }
+      }
+
+      .back-to-search {
+        @include transition();
+
+		background: palette('white', base);
+        border: 1px solid rgba(4,182,175,0.6);
+        border-radius: 5px;
+		box-shadow: 0 3px 5px 0 rgba(57,67,89,0.05);
+        color: palette('green', accent);
+        display: inline-block;
+		float: right;
+        font-family: $ubuntu;
+        line-height: 14px;
+        padding: 6px 10px;
+		white-space: nowrap;
+		width: min-content;
+
+        span {
+          padding-right: 5px;
+        }
+
+        i {
+          @include transition();
+
+          display: inline-block;
+          font-size: 9px;
+          -moz-osx-font-smoothing: grayscale;
+          margin: 0 0 3px 7px;
+          vertical-align: middle;
+          will-change: transform;
+        }
+		
+		&:hover {
+		  border-color: palette('green', accent);
+		  box-shadow: 0 5px 10px 0 rgba(4,182,175,0.1);
+		  cursor: pointer;
+
+		  i {
+            transform: scale($transform-scale-multiplier) rotate(-90deg);
+          }
+		}
+
+		@media screen and (max-width: $max-mobile-width) {
+		  display: block;
+		  float: none;
+		  margin: 20px 0 0;
+		}
+      }
+    }
+
+	.to-top {
+		display: block !important;
+		margin: 0 auto;
+	}
 
     .results-here-text {
       font-size: 14px;

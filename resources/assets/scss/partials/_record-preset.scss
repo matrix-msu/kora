@@ -8,6 +8,12 @@
   margin: $navigation-height auto 0;
   width: 100%;
 
+  .head .description a {
+    color: palette('green', accent);
+    font-family: $ubuntu-medium;
+    text-decoration: none;
+  }
+
   .manage-presets {
     margin: #{map-get($spacing, xxxl)} auto;
     max-width: calc(#{ $max-site-width } - 600px);
