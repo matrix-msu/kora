@@ -4,7 +4,6 @@ Kora.Records = Kora.Records || {};
 Kora.Records.Index = function() {
     var searchMade = false;
     searchMade = window.localStorage.getItem('searchMade');
-    console.log(searchMade);
     if (searchMade) {
       $('.try-another-js').parent().removeClass('hidden');
       window.localStorage.clear();
