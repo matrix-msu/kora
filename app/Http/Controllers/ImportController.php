@@ -588,6 +588,10 @@ class ImportController extends Controller {
                 if(is_null($type))
                     $type = Field::where('slug', '=', $fieldSlug)->get()->first()->type;
 
+                if(!isset($field['value']))
+                    return response()->json(["status"=>false,"message"=>"json_validation_error",
+                        "record_validation_error"=>[$request->kid => "$fieldSlug is missing value index"]],500);
+
                 if($type == 'Text') {
                     $recRequest[$flid] = $field['value'];
                 } else if($type == 'Rich Text') {
@@ -605,6 +609,13 @@ class ImportController extends Controller {
                     $nameone = ComboListField::getComboFieldName(FieldController::getField($flid), 'one');
                     $nametwo = ComboListField::getComboFieldName(FieldController::getField($flid), 'two');
                     foreach($field['value'] as $val) {
+                        if(!isset($val[$nameone]))
+                            return response()->json(["status"=>false,"message"=>"json_validation_error",
+                                "record_validation_error"=>[$request->kid => "$fieldSlug is missing $nameone index for a value"]],500);
+                        if(!isset($val[$nametwo]))
+                            return response()->json(["status"=>false,"message"=>"json_validation_error",
+                                "record_validation_error"=>[$request->kid => "$fieldSlug is missing $nametwo index for a value"]],500);
+
                         if(!is_array($val[$nameone]))
                             $fone = '[!f1!]' . $val[$nameone] . '[!f1!]';
                         else
@@ -621,6 +632,9 @@ class ImportController extends Controller {
                     $recRequest[$flid] = '';
                     $recRequest[$flid . '_val'] = $values;
                 } else if($type == 'Date') {
+                    if(!isset($field['value']['month']) && !isset($field['value']['day']) && !isset($field['value']['year']))
+                        return response()->json(["status"=>false,"message"=>"json_validation_error",
+                            "record_validation_error"=>[$request->kid => "$fieldSlug is missing month, day, and year indices"]],500);
                     $recRequest['circa_' . $flid] = $field['value']['circa'];
                     $recRequest['month_' . $flid] = $field['value']['month'];
                     $recRequest['day_' . $flid] = $field['value']['day'];
@@ -630,6 +644,10 @@ class ImportController extends Controller {
                 } else if($type == 'Schedule') {
                     $events = array();
                     foreach($field['value'] as $event) {
+                        if(!isset($event['desc']) | !isset($event['begin']) | !isset($event['end']))
+                            return response()->json(["status"=>false,"message"=>"json_validation_error",
+                                "record_validation_error"=>[$request->kid => "$fieldSlug is missing desc, begin, or end indices for an event"]],500);
+
                         $string = $event['desc'] . ': ' . $event['begin'] . ' - ' . $event['end'];
                         array_push($events, $string);
                     }
@@ -653,6 +671,9 @@ class ImportController extends Controller {
                             $geoReq->addr = $loc['address'];
                         }
 
+                        if(!isset($loc['desc']))
+                            return response()->json(["status"=>false,"message"=>"json_validation_error",
+                                "record_validation_error"=>[$request->kid => "$fieldSlug is missing desc for a location"]],500);
                         $string = '[Desc]' . $loc['desc'] . '[Desc]';
                         $string .= GeolocatorField::geoConvert($geoReq);
                         array_push($geo, $string);
@@ -675,6 +696,9 @@ class ImportController extends Controller {
                         mkdir($newDir, 0775, true);
                     }
                     foreach($field['value'] as $file) {
+                        if(!isset($file['name']))
+                            return response()->json(["status"=>false,"message"=>"json_validation_error",
+                                "record_validation_error"=>[$request->kid => "$fieldSlug is missing name for a file"]],500);
                         $name = $file['name'];
                         //move file from imp temp to tmp files
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
@@ -713,6 +737,9 @@ class ImportController extends Controller {
                         mkdir($newDir . '/medium', 0775, true);
                     }
                     foreach($field['value'] as $file) {
+                        if(!isset($file['name']))
+                            return response()->json(["status"=>false,"message"=>"json_validation_error",
+                                "record_validation_error"=>[$request->kid => "$fieldSlug is missing name for a file"]],500);
                         $name = $file['name'];
                         //move file from imp temp to tmp files
                         copy($currDir . '/' . $name, $newDir . '/' . $name);

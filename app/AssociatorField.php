@@ -30,7 +30,7 @@ class AssociatorField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.associator";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.associator";
-    const e = "partials.records.advanced.associator";
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.associator";
     const FIELD_INPUT_VIEW = "partials.records.input.associator";
     const FIELD_DISPLAY_VIEW = "partials.records.display.associator";
 
@@ -400,7 +400,7 @@ class AssociatorField extends BaseField {
             foreach($inputs as $input) {
                 $rid = explode('-',$input)[2];
                 if(strlen($rid)<4)
-                    $dbQuery->orWhereRaw("`record`='?'", [$rid]);
+                    $dbQuery->orWhereRaw("`record`=?", [$rid]);
                 else
                     $dbQuery->orWhereRaw("MATCH (`record`) AGAINST (? IN BOOLEAN MODE)",
                         ["\"" . $rid . "\""]);

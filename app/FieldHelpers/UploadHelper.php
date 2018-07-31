@@ -171,7 +171,10 @@ class UploadHandler
     }
 
     protected function initialize() {
-        switch ($this->get_server_var('REQUEST_METHOD')) {
+        //We need to manually force delete
+        $method = isset($this->options['deleteThat']) ? 'DELETE' : $this->get_server_var('REQUEST_METHOD');
+
+        switch ($method) {
             case 'OPTIONS':
             case 'HEAD':
                 $this->head();
