@@ -993,12 +993,18 @@ class RestfulController extends Controller {
     private function compareASCII($a, $b) {
         $a = Search::convertCloseChars($a);
         $b = Search::convertCloseChars($b);
-        return strcasecmp($a, $b);
+        if(is_numeric($a) && is_numeric($b))
+            return $a>$b;
+        else
+            return strcasecmp($a, $b);
     }
     private function rCompareASCII($a, $b) {
         $a = Search::convertCloseChars($a);
         $b = Search::convertCloseChars($b);
-        return strcasecmp($a, $b)*(-1);
+        if(is_numeric($a) && is_numeric($b))
+            return $a<$b;
+        else
+            return strcasecmp($a, $b)*(-1);
     }
 
     /**
