@@ -445,17 +445,72 @@ Kora.Records.Index = function() {
 
         $('.keyword-close').click(function(){
           $(this).parent().remove();
-		  var find = $(this).siblings('span').text();
-		  if (keywords.indexOf(find) >= 0) {
-			var index = keywords.indexOf(find);
-			keywords.splice(index, 1);
-			newKeys = keywords.toString();
-			newKeys = newKeys.replace(',',' ');
-			$('.keywords-get-js').val(newKeys);
-			$('.submit-search-js').trigger('click');
-		  }
+          var find = $(this).siblings('span').text();
+          if (keywords.indexOf(find) >= 0) {
+          var index = keywords.indexOf(find);
+          keywords.splice(index, 1);
+          newKeys = keywords.toString();
+          newKeys = newKeys.replace(',',' ');
+          $('.keywords-get-js').val(newKeys);
+          $('.submit-search-js').trigger('click');
+          }
         });
       }
+    }
+
+    function batchSelect () {
+      var $check = $('.check');
+      var $selectAll = $('.select-all');
+      var $deselectAll = $('.deselect-all');
+      var selected = [];
+
+      $('span.count-all').text('('+$check.length+')');
+
+      $selectAll.click(function(e){
+        e.preventDefault();
+
+        $('.check:not(.checked)').trigger('click');
+      });
+
+      $deselectAll.click(function(e){
+        e.preventDefault();
+
+        $('.checked').trigger('click');
+      });
+
+      $check.click(function (e) {
+        e.preventDefault();
+
+        var $card = $(this).parent().parent('.card');
+
+        if ($(this).hasClass('checked')) {
+          $(this).removeClass('checked');
+          $card.removeClass('selected');
+
+          var removeThisRec = $(this).siblings('.left').find('.name').text();
+          var index = selected.indexOf(removeThisRec);
+
+          selected.splice(index, 1);
+          $('span.count').text('('+selected.length+')');
+        } else {
+          $(this).addClass('checked');
+          $card.addClass('selected');
+
+          var recordName = $(this).siblings('.left').find('.name').text();
+          selected.push(recordName);
+          $('span.count').text('('+selected.length+')');
+        }
+
+        if (selected.length > 0) {
+          $('.toolbar').removeClass('hidden');
+        } else {
+          $('.toolbar').css('bottom', '-50px');
+          setTimeout(function () {
+            $('.toolbar').css('bottom', '');
+            $('.toolbar').addClass('hidden');
+          }, 500);
+        }
+      });
     }
 
     initializeSelectAddition();
@@ -468,5 +523,6 @@ Kora.Records.Index = function() {
     initializeScrollTo();
     initializeSearchValidation();
     displayKeywords();
+    batchSelect();
     Kora.Records.Modal();
 }

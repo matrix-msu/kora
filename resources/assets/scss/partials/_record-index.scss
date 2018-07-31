@@ -12,6 +12,56 @@
   margin: $navigation-height auto 0;
   width: 100%;
 
+  .toolbar {
+    @include transition(bottom);
+
+    animation-name: toolbar-slide;
+    animation-duration: 0.5s;
+    animation-timing-function: ease;
+    animation-iteration-count: 1;
+    animation-direction: normal;
+    animation-delay: 0s;
+
+    align-items: center;
+    background: palette('white', base);
+    bottom: 0;
+    box-shadow: 0 -3px 25px 0 rgba(21,39,48,0.15);
+    display: flex;
+    height: 50px;
+    position: fixed;
+    width: 100%;
+    z-index: 3;
+
+    &.hidden {
+      display: none;
+    }
+
+    .left {
+      color: palette('red', base);
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
+    .middle {
+      margin: 0 auto;
+    }
+
+    .middle,
+    .right {
+      color: palette('green', accent);
+
+      span:hover {
+        cursor: pointer;
+      }
+
+      i {
+        font-size: 13px;
+      }
+    }
+  }
+
   .view-records {
     margin: #{map-get($spacing, xxxl)} auto;
     max-width: calc(#{ $max-site-width } - 600px);
@@ -92,9 +142,9 @@
 
       .keyword {
         background-color: palette('white', base);
-		border: 1px solid rgba(57,67,89,0.1);
+        border: 1px solid rgba(57,67,89,0.1);
         border-radius: 5px;
-		box-shadow: 0 3px 5px 0 rgba(57,67,89,0.05);
+        box-shadow: 0 3px 5px 0 rgba(57,67,89,0.05);
         color: palette('gray', text);
         cursor: default;
         display: inline-block;
@@ -141,18 +191,18 @@
       .back-to-search {
         @include transition();
 
-		background: palette('white', base);
+        background: palette('white', base);
         border: 1px solid rgba(4,182,175,0.6);
         border-radius: 5px;
-		box-shadow: 0 3px 5px 0 rgba(57,67,89,0.05);
+        box-shadow: 0 3px 5px 0 rgba(57,67,89,0.05);
         color: palette('green', accent);
         display: inline-block;
-		float: right;
+        float: right;
         font-family: $ubuntu;
         line-height: 14px;
         padding: 6px 10px;
-		white-space: nowrap;
-		width: min-content;
+        white-space: nowrap;
+        width: min-content;
 
         span {
           padding-right: 5px;
@@ -205,4 +255,9 @@
     @import 'record-index/searched-terms';
     @import 'record-index/no-records';
   }
+}
+
+@keyframes toolbar-slide {
+  0% { bottom: -50px; }
+  100% { bottom: 0; }
 }

@@ -110,6 +110,9 @@
             @endif
         </section>
     </section>
+    @if (count($records) > 0)
+      @include('partials.records.toolbar')
+    @endif
 @stop
 
 @section('footer')

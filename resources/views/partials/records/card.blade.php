@@ -1,6 +1,7 @@
-<div class="record card all active" id="{{$record->id}}">
-    <div class="header active">
-        <div class="left pl-m">
+<div class="record card all active form-group" id="{{$record->id}}">
+    <div class="header active check-box">
+        <span class="check ml-xxs mt-xxs"></span>
+        <div class="left pl-xxxl">
             <a class="title underline-middle-hover" href="{{ action("RecordController@show",
                 ["pid" => $record->pid, "fid" => $record->fid, "rid" => $record->rid]) }}">
                 <span class="name">{{$record->kid}}</span>

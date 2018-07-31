@@ -9,6 +9,10 @@
     box-shadow: 0 6px 13px -4px palette('white', base);
   }
 
+  .checked {
+    background: palette('green', accent);
+  }
+
   .icon {
     @include transition();
 
