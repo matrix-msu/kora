@@ -30,7 +30,7 @@ class AssociatorField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.associator";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.associator";
-    const e = "partials.records.advanced.associator";
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.associator";
     const FIELD_INPUT_VIEW = "partials.records.input.associator";
     const FIELD_DISPLAY_VIEW = "partials.records.display.associator";
 
