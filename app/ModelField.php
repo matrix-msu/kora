@@ -129,7 +129,8 @@ class ModelField extends FileTypeField  {
             $infoString = '';
             $infoArray = array();
             $newPath = config('app.base_path') . 'storage/app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid;
-            mkdir($newPath, 0775, true);
+            if(!file_exists($newPath))
+                mkdir($newPath, 0775, true);
             if(file_exists(config('app.base_path') . 'storage/app/tmpFiles/' . $value)) {
                 $types = self::getMimeTypes();
                 foreach(new \DirectoryIterator(config('app.base_path') . 'storage/app/tmpFiles/' . $value) as $file) {
