@@ -96,7 +96,7 @@ Kora.Records.Show = function() {
         $('.geolocator-map-js .full-screen-button-js').click(function(e) {
             e.preventDefault();
 
-            var $geoModal = $(this).parent().parent().find('.geolocator-map-modal-js');
+            var $geoModal = $(this).parent().parent().parent().find('.geolocator-map-modal-js');
             console.log($geoModal);
             Kora.Modal.close();
             Kora.Modal.open($geoModal);
