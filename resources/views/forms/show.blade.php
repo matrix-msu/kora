@@ -137,14 +137,14 @@
 
           @if ($pages_count > 1)
 		  <div>
-		    <a href="#" data-page="{{$page["id"]}}" class="cancel-container delete-page-js tooltip" tooltip="Delete Page">
+		    <a href="#" data-page='{{$page["id"]}}' class="cancel-container delete-page-js tooltip" tooltip="Delete Page">
 		  	  <i class="icon icon-cancel"></i>
 		    </a>
 		  </div>
 		  @elseif ($pages_count == 1)
 		  <div>
-		    <a href="#" data-page="{{$page["id"]}}" class="cancel-container delete-page-js tooltip delete-disabled" tooltip="Delete Page">
-		  	  <i style="cursor: not-allowed;" class="icon icon-cancel"></i>
+		    <a href="#" data-page='{{$page["id"]}}' class="cancel-container delete-page-js delete-disabled" style="cursor: not-allowed;">
+		  	  <i class="icon-cancel" style="cursor: not-allowed;"></i>
 		   </a>
 		  </div>
 		  @endif
