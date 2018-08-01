@@ -38,6 +38,7 @@
     @include('partials.revisions.modals.restoreFieldsModal')
     @include('partials.revisions.modals.reactivateRecordModal')
     @if (!isset($rid) || Request::get('revisions'))
+      @if (count($revisions) > 0)
         <section class="record-select-section center">
             <div class="form-group">
                 <label for="record-select">Select Record to Show Revisions For</label>
@@ -53,7 +54,9 @@
                 </select>
             </div>
         </section>
+      @endif
     @endif
+    @if (count($revisions) > 0 )
     <section class="filters center">
         <div class="pagination-options pagination-options-js">
             <select class="page-count option-dropdown-js" id="page-count-dropdown">
@@ -73,12 +76,15 @@
             <a href="#" class="collapse-fields-js" title="Collapse all fields"><i class="icon icon-condense icon-condense-js"></i></a>
         </div>
     </section>
-    <section class="revisions revisions-js center">
-        @foreach ($revisions as $index=>$revision)
-            @include('partials.revisions.card')
-        @endforeach
-    </section>
-    @include('partials.revisions.pagination')
+      <section class="revisions revisions-js center">
+          @foreach ($revisions as $index=>$revision)
+              @include('partials.revisions.card')
+          @endforeach
+      </section>
+      @include('partials.revisions.pagination')
+    @else
+      @include('partials.revisions.no-revisions')
+    @endif
 @stop
 
 @section('javascripts')

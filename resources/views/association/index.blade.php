@@ -42,6 +42,7 @@
             @endif
         </section>
 
+      @if (count($assocs) > 0)
         <section class="permission-association-selection center permission-association-js create">
             <p class="description create-description-js {{count($assocs) === 0 ? 'hidden' : ''}}">The following forms are allowed to associate with and can search within this form:</p>
             @foreach ($assocs as $index=>$a)
@@ -63,10 +64,10 @@
                     </div>
                     <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
                         <div class="description">
-                            <p>{{ $f->description }}</p>
+                            {{ $f->description }}
                         </div>
                         <div class="footer">
-                            <a class="quick-action trash-container delete-permission-association-js left" href="#" data-form="{{$a->assocForm}}" data-reverse="false">
+                            <a class="quick-action trash-container delete-permission-association-js left tooltip" href="#" data-form="{{$a->assocForm}}" data-reverse="false" tooltip="Remove Form Association">
                                 <i class="icon icon-trash"></i>
                             </a>
                         </div>
@@ -74,8 +75,11 @@
                 </div>
             @endforeach
         </section>
-
+      @else
+        @include('partials.formAssociations.no-assocs')
+      @endif
     </section>
+
     <section class="request-section hidden">
         <p class="description center">You may also request association permissions for this form to associate with other forms. Select "Request Form Association" to begin. Once requested, a notification will be sent to the admins of the selected form to allow association from your form.</p>
         <section class="new-object-button center">
@@ -85,6 +89,7 @@
                 </form>
             @endif
         </section>
+        @if (count($available_associations) > 0)
         <section class="permission-association-selection center permission-association-js request">
             <p class="description request-description-js {{count($available_associations) === 0 ? 'hidden' : ''}}">{{$form->name}} is allowed to associate with and can search within the following forms:</p>
             @foreach ($available_associations as $index=>$a)
@@ -106,10 +111,10 @@
                     </div>
                     <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
                         <div class="description">
-                            <p>{{ $f->description }}</p>
+                          {{ $f->description }}
                         </div>
                         <div class="footer">
-                            <a class="quick-action trash-container delete-permission-association-js left" href="#" data-form="{{$a->dataForm}}" data-reverse='true'>
+                            <a class="quick-action trash-container delete-permission-association-js left tooltip" href="#" data-form="{{$a->dataForm}}" data-reverse='true' tooltip="Remove Form Association">
                                 <i class="icon icon-trash"></i>
                             </a>
                         </div>
@@ -117,6 +122,9 @@
                 </div>
             @endforeach
         </section>
+        @else
+          @include('partials.formAssociations.no-reqAssocs')
+        @endif
     </section>
 @stop
 

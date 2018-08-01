@@ -35,7 +35,7 @@ Kora.Records.Modal = function() {
                       presetLink.unbind('click');
                       presetLink.addClass('already-preset-js');
 
-                      Kora.Modal.close($modal);
+                      location.reload();
                   }
               });
           } else {

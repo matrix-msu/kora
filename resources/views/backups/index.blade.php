@@ -32,6 +32,7 @@
     @include("partials.backups.deleteBackupModal")
 
     <section class="backups-section">
+      @if (count($savedBackups) > 0)
         <section class="filters center">
             <div class="underline-middle search search-js">
                 <i class="icon icon-search"></i>
@@ -47,11 +48,13 @@
                 </select>
             </div>
         </section>
+      @endif
 
         <section class="new-object-button center">
             <input type="button" value="Create New Backup File" class="create-backup-js">
         </section>
 
+        @if (count($savedBackups) > 0)
         <section class="backupcards-selection center">
             <?php $index=0; ?>
             @foreach($savedBackups as $backup)
@@ -118,6 +121,9 @@
                 <?php $index++; ?>
             @endforeach
         </section>
+        @else
+          @include('partials.backups.no-backups')
+        @endif
     </section>
 
     <section class="filerestore-section hidden">

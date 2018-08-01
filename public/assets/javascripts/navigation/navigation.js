@@ -58,7 +58,8 @@ $navBar.on('click', '.navigation-sub-menu-toggle-js', function(e) {
   }
 });
 
-$navBar.on('click', '.side-menu-toggle-js', function() {
+$navBar.on('click', '.side-menu-toggle-js', function(e) {
+  e.preventDefault();
 
   setTimeout(function() {
     var $headerHeight = $('.aside-content .header-elements').height();

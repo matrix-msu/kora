@@ -129,7 +129,8 @@ class ModelField extends FileTypeField  {
             $infoString = '';
             $infoArray = array();
             $newPath = config('app.base_path') . 'storage/app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid;
-            mkdir($newPath, 0775, true);
+            if(!file_exists($newPath))
+                mkdir($newPath, 0775, true);
             if(file_exists(config('app.base_path') . 'storage/app/tmpFiles/' . $value)) {
                 $types = self::getMimeTypes();
                 foreach(new \DirectoryIterator(config('app.base_path') . 'storage/app/tmpFiles/' . $value) as $file) {
@@ -140,7 +141,7 @@ class ModelField extends FileTypeField  {
                             $type = $types[$file->getExtension()];
                         $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
                         $infoArray[$file->getFilename()] = $info;
-                        copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                        rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                             $newPath . '/' . $file->getFilename());
                     }
                 }
@@ -197,7 +198,7 @@ class ModelField extends FileTypeField  {
                             $type =  $types[$file->getExtension()];
                         $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
                         $infoArray[$file->getFilename()] = $info;
-                        copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                        rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                             config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid . '/' . $file->getFilename());
                         $mod_files_exist = true;
                     }

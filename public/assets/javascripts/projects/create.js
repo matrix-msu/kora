@@ -76,5 +76,19 @@ Kora.Projects.Create = function() {
     });
   }
 
+  function multiSelectPlaceholders () {
+	  var inputDef = $('.chosen-container').children('.chosen-choices');
+    var childCheck = inputDef.siblings('.chosen-drop').children('.chosen-results');
+	  
+	  inputDef.on('click', function() {
+		  if (childCheck.children().length === 0) {
+			  childCheck.append('<li class="no-results">No options to select!</li>');
+		  } else if (childCheck.children('.active-result').length === 0 && childCheck.children('.no-results').length === 0) {
+			  childCheck.append('<li class="no-results">No more options to select!</li>');
+		  }
+	  });
+  }
+
   initializeValidation();
+  multiSelectPlaceholders();
 }

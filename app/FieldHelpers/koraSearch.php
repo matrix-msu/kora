@@ -572,6 +572,139 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
         return $result;
 }
 
+
+/**
+ * Converts an old KORA_Search from Kora 2 into a Kora3 search, provided steps at top of page were completed properly.
+ *
+ * @param  string $token - Kora3 token to authenticate the search
+ * @param  array $pidList - Array of Kora3 project IDs
+ * @param  array $sidList - Array of Kora3 form IDs relative to old scheme IDs
+ * @param  KORA_Clause $koraClause - The new represented Kora Clause
+ * @param  array $fields - Array of new flids relative to their old control names
+ * @param  array $order - Old Kora 2 sort array that will be converted by this function
+ * @param  int $start - In final result set, what record should we start at
+ * @param  int $number - Determines, starting from $index, how many records to return
+ * @param  array $userInfo - Server authentication for connecting to private servers
+ * @param  bool $underScores - Determines if a search should return the field names with underscores or spaces
+ * @return array - The records to return from the search
+ */
+function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),$start=0,$number=0,$userInfo = array(),$underScores=false) {
+    if(!$koraClause instanceof KORA_Clause) {
+        die("The query clause you provided must be an object of class KORA_Clause");
+    }
+    //Format sort array and map controls to fields
+    $newOrder = array();
+    $orderFields = array();
+    foreach($order as $o) {
+        foreach ($pidList as $i => $pid) {
+            $sid = $sidList[$i];
+            if($o["field"]=="systimestamp")
+                array_push($orderFields,"kora_meta_updated");
+            else
+                array_push($orderFields,fieldMapper($o["field"],$pid,$sid));
+        }
+        array_push($newOrder,$orderFields);
+        $dir = $o["direction"];
+        if($dir==SORT_DESC)
+            $newDir = "DESC";
+        else
+            $newDir = "ASC";
+        array_push($newOrder,$newDir);
+    }
+    // Build forms information for each project to be searched
+    $output = array();
+    foreach ($pidList as $i => $pid) {
+        $sid = $sidList[$i];
+        //Map return controls to fields if not ALL or KID
+        //KID is a k3 custom for the legacy koraSearch that gets you a list of records
+        // $fields = $fieldsList[$i];
+        if(is_array($fields)) {
+            if(empty($fields) | $fields[0]=="ALL") {
+                $fields = "ALL";
+            } else {
+                $fieldsMapped = array();
+                foreach ($fields as $field) {
+                    $f = fieldMapper($field, $pid, $sid);
+                    array_push($fieldsMapped, $f);
+                }
+                // $fields = $fieldsMapped;
+            }
+        }
+        //Map controls to fields in keyword searches
+        $queries = array();
+        foreach($koraClause->getQueries() as $q) {
+            if($q['search']=='keyword') {
+                $mapped = array();
+                foreach($q["fields"] as $f) {
+                    array_push($mapped, fieldMapper($f, $pid, $sid));
+                }
+                $q["fields"] = $mapped;
+            }
+            array_push($queries, $q);
+        }
+        $tool = new kora3ApiExternalTool();
+        //Format the start/number for legacy.
+        if($start==0)
+            $start=null;
+        if($number==0)
+            $number=null;
+        $fsArray = $tool->formSearchBuilder(
+            $sid,
+            $token,
+            ["data", "meta"],
+            $fieldsMapped,
+            null,
+            $queries,
+            $koraClause->getLogic(),
+            $start,
+            $number
+        );
+        array_push($output,$fsArray);
+    }
+
+    //We need the url out of the env file
+    $env = array();
+    $handle = fopen(__DIR__.'/../../.env', "r");
+    if($handle) {
+        while(($line = fgets($handle)) !== false) {
+            if(!ctype_space($line)) {
+                $parts = explode("=", $line);
+                $env[trim($parts[0])] = trim($parts[1]);
+            }
+        }
+
+        fclose($handle);
+    } else {
+        return "Error processing environment file.";
+    }
+
+    $data = array();
+    $data["forms"] = json_encode($output);
+    $data["globalSort"] = json_encode($newOrder);
+    $data["globalFilters"] = json_encode(["data" => true, "meta" => true]);
+    //Filters
+    if($underScores)
+        $data["globalFilters"]["under"] = true;
+    $data["format"] = "KORA_OLD";
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $env["BASE_URL"]."api/search");
+    if(!empty($userInfo)) {
+        curl_setopt($curl, CURLOPT_USERPWD, $userInfo["user"].":".$userInfo["pass"]);
+        curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+    }
+    curl_setopt($curl, CURLOPT_POST, 1);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+    if(!$result = curl_exec($curl))
+        return curl_error($curl);
+    curl_close($curl);
+    $result = json_decode($result,true);
+    if(isset($result['records']))
+        return $result['records'];
+    else
+        return $result;
+}
+
 function fieldMapper($name, $pid, $fid) {
     return str_replace(' ','_',$name).'_'.$pid.'_'.$fid.'_';
 }

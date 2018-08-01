@@ -69,13 +69,12 @@
                     Search results will appear here after a search has been inputted.
                 </div>
             @else
-                <div class="form-group records-title mt-xxxl">
-                    Showing {{sizeof($records)}} of {{$total}} Records
-                </div>
-
-                <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
-
-                @if(sizeof($records)>0)
+            	<div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
+            	
+                @if ( sizeof($records) > 0 )
+                    <div class="form-group records-title mt-xxxl">
+                        Showing {{sizeof($records)}} of {{$total}} Records
+                    </div>
                     @include('partials.records.pagination')
 
                     <section class="filters">
@@ -103,6 +102,8 @@
                     @endforeach
 
                     @include('partials.records.pagination')
+                @else
+                    @include('partials.records.no-records')
                 @endif
             @endif
         </section>
