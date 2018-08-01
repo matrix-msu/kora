@@ -5,6 +5,10 @@
   margin-bottom: 15px;
   position: relative;
   z-index: 2;
+  
+  .not-allowed {
+	cursor: not-allowed;
+  }
 
   &.active {
     box-shadow: 0 6px 13px -4px palette('white', base);
@@ -37,6 +41,15 @@
       color: palette('gray', slate, .6);
       transform: rotate(90deg) scale($transform-scale-multiplier);
     }
+  }
+  
+  .cancel-container-disabled {
+    align-items: flex-end;
+    display: flex;
+    height: 69px;
+    justify-content: center;
+    text-decoration: none;
+    width: 92px;
   }
 
   .icon-cancel {
