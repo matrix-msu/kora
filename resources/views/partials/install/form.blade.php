@@ -11,9 +11,9 @@
             <label for="db_driver">Driver</label>
             <select class="single-select" id="db_driver" name="db_driver">
                 <option value="mysql">MySQL</option>
-                <option value="pgsql">PostgreSQL</option>
-                <option value="sqlite">SQLite</option>
-                <option value="sqlsrv">SQL Server</option>
+                {{--<option value="pgsql">PostgreSQL</option>--}}
+                {{--<option value="sqlite">SQLite</option>--}}
+                {{--<option value="sqlsrv">SQL Server</option>--}}
             </select>
         </div>
     </div>

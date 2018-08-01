@@ -18,6 +18,8 @@
        then the .htaccess rule is: RewriteBase /digitalRepo/Kora3/public
 
 5) Navigate to your Kora3 url and click install. **REMEMBER** to return here once you complete the installation.
+    
+    ***NOTE:*** Alternatively you can run the `php artisan install:finish` command, with the appropriate variables, via CLI if you do not wish to use the Kora3 interface.
 
 6) Give **READ** access to the web user for Kora3 and **ALL** sub-folders.
     
