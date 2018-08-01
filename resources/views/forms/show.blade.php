@@ -144,7 +144,7 @@
 		  @elseif ($pages_count == 1)
 		  <div>
 		    <a href="#" data-page='{{$page["id"]}}' class="cancel-container delete-page-js delete-disabled" style="cursor: not-allowed;">
-		  	  <i class="icon-cancel" style="cursor: not-allowed;"></i>
+		  	  <i class="icon-cancel" style="cursor: not-allowed; transition: color .2s ease-in-out;"></i>
 		   </a>
 		  </div>
 		  @endif
