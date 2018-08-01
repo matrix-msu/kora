@@ -511,13 +511,21 @@ class RestfulController extends Controller {
                         $selectFinal[] = $select;
                         break;
                     case Field::_COMBO_LIST:
-                        $bottom = $k - NumberField::EPSILON;
-                        $top = $k + NumberField::EPSILON;
-                        if($method==Search::SEARCH_EXACT)
-                    		$key = '"'.$k.'"*';
-                    	else
-                        	$key = $k.'*';
-                        $where = "(MATCH (`data`) AGAINST ('$key' IN BOOLEAN MODE) OR `number` BETWEEN $bottom AND $top)";
+                        if(is_numeric($k)) {
+                            $bottom = $k - NumberField::EPSILON;
+                            $top = $k + NumberField::EPSILON;
+                            if ($method == Search::SEARCH_EXACT)
+                                $key = '"' . $k . '"*';
+                            else
+                                $key = $k . '*';
+                            $where = "(MATCH (`data`) AGAINST ('$key' IN BOOLEAN MODE) OR `number` BETWEEN $bottom AND $top)";
+                        } else {
+                            if ($method == Search::SEARCH_EXACT)
+                                $key = '"' . $k . '"*';
+                            else
+                                $key = $k . '*';
+                            $where = "MATCH (`data`) AGAINST ('$key' IN BOOLEAN MODE)";
+                        }
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."combo_support where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
