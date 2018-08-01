@@ -70,7 +70,6 @@ use App\Http\Requests\ProjectRequest;
     var globalSearchUrl = '{{action('ProjectSearchController@globalSearch')}}';
     var cacheGlobalSearchUrl = '{{ action('ProjectSearchController@cacheGlobalSearch') }}';
     var clearGlobalCacheUrl = '{{ action('ProjectSearchController@clearGlobalCache') }}';
-	var retrieveSortedRequestProjects = '{{ action('ProjectSearchController@clearGlobalCache') }}';
 	var getProjectPermissionsModal = '{{ action('ProjectController@getProjectPermissionsModal') }}';
 	var requestProjectPermissionsURL = '{{ action('ProjectController@request') }}';
     var CSRFToken = '{{ csrf_token() }}';
