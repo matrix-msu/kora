@@ -1084,7 +1084,7 @@ class ImportController extends Controller {
                             case 'TextControl':
                                 $def = $optXML->defaultValue->__toString();
                                 $textType = $optXML->textEditor->__toString();
-                                if($textType=='plain') {
+                                if($textType=='plain' | $textType=='') {
                                     $regex = $optXML->regex->__toString();
                                     $rows = (int)$optXML->rows;
                                     $multiline = 0;
