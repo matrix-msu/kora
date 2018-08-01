@@ -405,92 +405,90 @@ $sideMenu.on('click', '.drawer-sub-menu-toggle-js', function(e) {
 
 function initializeRequestProjectPermissionsModal()
 {
-  var received_data = false;
-  var modal_loaded = false;
-  var open_immediately = false;
+	var received_data = false;
+	var modal_loaded = false;
+	var open_immediately = false;
   
-  $(".project-request-perms-js").mouseenter(function() {
-	if (!received_data)
-	{	
-		$.ajax({
-          url: getProjectPermissionsModal,
-          type: 'POST',
-          data: {
-            "_token": CSRFToken,
-          },
-          success: function(result) {
-			  $(result).appendTo(document.body); // add the modal to body
-			  load_modal(); // initialize the modal
-			  modal_loaded = true;
-		  },
-		  error: function(result) {}
-        });
-		
-		received_data = true;
-	}
-  });
-  
-  $(".project-request-perms-js").click(function() {
-    if (modal_loaded)
-    {
-      Kora.Modal.open($(".nav-request-permissions-modal-js"));
-      $(".nav-request-permissions-modal-js").attr('style', '');
-    }
-    else
-    {
-      open_immediately = true;
-    }
-  });
-   
-   function load_modal()
-   {
-     Kora.Modal.initialize($(".nav-request-permissions-modal-js"));
+	$(".project-request-perms-js").mouseenter(function() {
+		if (!received_data)
+		{	
+			$.ajax({
+			  url: getProjectPermissionsModal,
+              type: 'POST',
+			  data: {
+		        "_token": CSRFToken,
+              },
+              success: function(result) {
+				$(result).appendTo(document.body); // add the modal to body
+			    load_modal(); // initialize the modal
+				modal_loaded = true;
+			  },
+			  error: function(result) {}
+			});
 	
-	 $('.submit-project-request-js').click(function(e) {
-       e.preventDefault();
-    
-       $('.nav-request-error-js').text('');
-    
-       if($('#request_project').val() != null)
-	   { 
-		 $.ajax({
-          url: requestProjectPermissionsURL,
-          type: 'POST',
-          data: {
-            "_token": CSRFToken,
-			"pids": $('#request_project').val()
-          },
-          success: function(result) {},
-		  error: function(result) {}
-        });
+			received_data = true;
+		}
+    });
+  
+	$(".project-request-perms-js").click(function() {
+		if (modal_loaded)
+		{
+			Kora.Modal.open($(".nav-request-permissions-modal-js"));
+		}
+		else
+		{
+			open_immediately = true;
+		}
+    });
+   
+	function load_modal()
+	{
+		Kora.Modal.initialize($(".nav-request-permissions-modal-js"));
+	
+		$('.submit-project-request-js').click(function(e) {
+			e.preventDefault();
+   
+			$('.nav-request-error-js').text('');
+   
+			if($('#request_project').val() != null)
+			{ 
+				$.ajax({
+				  url: requestProjectPermissionsURL,
+				  type: 'POST',
+				  data: {
+				    "_token": CSRFToken,
+				    "pids": $('#request_project').val()
+				  },
+				  success: function(result) {},
+				  error: function(result) {}
+			    });
 		
-		// close modal after sending request
-		$('.nav-request-permissions-modal-js').hide();
-	   }
-       else
-         $('.request-error-js').text('Please select a project');
-      });
+				// close modal after sending request
+				Kora.Modal.close($(".nav-request-permissions-modal-js"));
+			}
+			else
+				$('.request-error-js').text('Please select a project');
+			}
+		);
 	  
-	 $('.multi-select').chosen({
-       width: '100%'
-     });
+		$('.multi-select').chosen({
+			width: '100%'
+		});
 	 
-	 $(".modal-toggle-js").click(function(){ // close on clicking X
-		$('.nav-request-permissions-modal-js').hide(); 
-	 });
+	    $(".modal-toggle-js").click(function(){ // close on clicking X
+			Kora.Modal.close($(".nav-request-permissions-modal-js")); 
+		});
 	 
-	 $(document).on('click', function(event) { // close modal when clicking outside of modal
-	   if (event.target.classList.contains("nav-request-permissions-modal-js"))
-	   {
-	     $('.nav-request-permissions-modal-js').hide(); 
-	   }
-	 });
+	    $(document).on('click', function(event) { // close modal when clicking outside of modal
+			if (event.target.classList.contains("nav-request-permissions-modal-js")) {
+				Kora.Modal.close($(".nav-request-permissions-modal-js")); 
+			}
+		});
 	 
 	 if (open_immediately)
 	 {
 	   Kora.Modal.open($(".nav-request-permissions-modal-js"));
-	   $(".nav-request-permissions-modal-js").attr('style', '');
 	 }
-   }
+  }
 }
 initializeRequestProjectPermissionsModal();
