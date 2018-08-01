@@ -159,13 +159,13 @@ class TextField extends BaseField {
                 $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $textfield->text = $formFieldValue;
                 $textfield->save();
-                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->data = RevisionController::buildDataArray($record);
                 $revision->save();
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
             $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
-            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->data = RevisionController::buildDataArray($record);
             $revision->save();
         }
     }
@@ -214,10 +214,10 @@ class TextField extends BaseField {
      * @param  bool $exists - Field for record exists
      */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if(!is_array($revision->data))
-            $revision->data = json_decode($revision->data, true);
+        if(!is_array($revision->oldData))
+            $revision->oldData = json_decode($revision->oldData, true);
 
-        if(is_null($revision->data[Field::_TEXT][$field->flid]['data']))
+        if(is_null($revision->oldData[Field::_TEXT][$field->flid]['data']))
             return null;
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
@@ -227,7 +227,7 @@ class TextField extends BaseField {
             $this->fid = $revision->fid;
         }
 
-        $this->text = $revision->data[Field::_TEXT][$field->flid]['data'];
+        $this->text = $revision->oldData[Field::_TEXT][$field->flid]['data'];
         $this->save();
     }
 

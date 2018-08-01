@@ -159,13 +159,13 @@ class GeolocatorField extends BaseField {
             if($overwrite == true || ! $geolocatorfield->hasLocations()) {
                 $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $geolocatorfield->updateLocations($formFieldValue);
-                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->data = RevisionController::buildDataArray($record);
                 $revision->save();
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
             $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
-            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->data = RevisionController::buildDataArray($record);
             $revision->save();
         }
     }
@@ -211,10 +211,10 @@ class GeolocatorField extends BaseField {
      * @param  bool $exists - Field for record exists
      */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if(!is_array($revision->data))
-            $revision->data = json_decode($revision->data, true);
+        if(!is_array($revision->oldData))
+            $revision->oldData = json_decode($revision->oldData, true);
 
-        if(is_null($revision->data[Field::_GEOLOCATOR][$field->flid]['data']))
+        if(is_null($revision->oldData[Field::_GEOLOCATOR][$field->flid]['data']))
             return null;
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
@@ -225,7 +225,7 @@ class GeolocatorField extends BaseField {
         }
 
         $this->save();
-        $this->updateLocations($revision->data[Field::_GEOLOCATOR][$field->flid]['data']);
+        $this->updateLocations($revision->oldData[Field::_GEOLOCATOR][$field->flid]['data']);
     }
 
     /**
