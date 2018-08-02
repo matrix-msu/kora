@@ -25,5 +25,6 @@
   '/assets/javascripts/records/import.js',
   '/assets/javascripts/records/duplicate.js',
   '/assets/javascripts/records/scrollTop.js',
-  '/assets/javascripts/records/validate.js'
+  '/assets/javascripts/records/validate.js',
+  '/assets/javascripts/records/toolbar.js'
 ])->withFullUrl() !!}

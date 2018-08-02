@@ -440,7 +440,8 @@ class RecordController extends Controller {
      * @param  bool $mass - Is deleting mass records
      * @return Redirect
      */
-    public function destroy($pid, $fid, $rid, $mass = false) {
+    public function destroy($pid, $fid, $rid, $mass = false) {;
+
         if(!self::validProjFormRecord($pid, $fid, $rid))
             return redirect('projects')->with('k3_global_error', 'record_invalid');
 
@@ -455,7 +456,30 @@ class RecordController extends Controller {
         $record->delete();
 
         return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_success', 'record_deleted');
-	}
+    }
+    
+    /**
+     * Delete multiple records from a form.
+     */
+    //public function deleteMultipleRecords($pid, $fid, $rid) {
+    public function deleteMultipleRecords($pid, $fid, Request $request) {
+      $form = FormController::getForm($fid);
+      $rid = $request->rid;
+      $rid = explode(',', $rid);
+
+      if(!\Auth::user()->isFormAdmin($form)) {
+        return redirect('projects')->with('k3_global_error', 'not_form_admin');
+      } else {
+        foreach($rid as $rid) {
+          $record = self::getRecord($rid);
+
+          if (!empty($record))
+            $record->delete();
+        }
+
+        return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_success', 'multiple_records_deleted');
+      }
+    }
 
     /**
      * Delete all records from a form.
