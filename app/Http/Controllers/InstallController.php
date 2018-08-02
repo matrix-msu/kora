@@ -44,7 +44,6 @@ class InstallController extends Controller {
         "storage/app/presetFiles",
         "storage/app/profiles",
 		"storage/app/tmpFiles",
-		"storage/app/tmpImport",
 	];
 
     /**
