@@ -10,6 +10,7 @@ class Translator {
     |--------------------------------------------------------------------------
     |
     | This service handles dynamically generated text that needs to be translated at runtime
+    | TODO:: Will need to reimplement this when we actually build multi language support
     |
     */
 

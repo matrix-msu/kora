@@ -144,13 +144,13 @@ class RichTextField extends BaseField {
                 $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $richtextfield->rawtext = $formFieldValue;
                 $richtextfield->save();
-                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->data = RevisionController::buildDataArray($record);
                 $revision->save();
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
             $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
-            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->data = RevisionController::buildDataArray($record);
             $revision->save();
         }
     }
@@ -195,22 +195,20 @@ class RichTextField extends BaseField {
      * @param  bool $exists - Field for record exists
      */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if (!is_array($revision->data)) {
-            $revision->data = json_decode($revision->data, true);
-        }
+        if(!is_array($revision->oldData))
+            $revision->oldData = json_decode($revision->oldData, true);
 
-        if (is_null($revision->data[Field::_RICH_TEXT][$field->flid]['data'])) {
+        if(is_null($revision->oldData[Field::_RICH_TEXT][$field->flid]['data']))
             return null;
-        }
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
-        if ($revision->type == Revision::DELETE || !$exists) {
+        if($revision->type == Revision::DELETE || !$exists) {
             $this->flid = $field->flid;
             $this->rid = $revision->rid;
             $this->fid = $revision->fid;
         }
 
-        $this->rawtext = $revision->data[Field::_RICH_TEXT][$field->flid]['data'];
+        $this->rawtext = $revision->oldData[Field::_RICH_TEXT][$field->flid]['data'];
         $this->save();
     }
 

@@ -27,7 +27,7 @@
 
     <div class="form-group mt-xl">
         {!! Form::label('regex','Regex') !!}
-        {!! Form::text('regex', \App\Http\Controllers\FieldController::getFieldOption($field,'Regex'), ['class' => 'text-input']) !!}
+        {!! Form::text('regex', \App\Http\Controllers\FieldController::getFieldOption($field,'Regex'), ['class' => 'text-input', 'placeholder' => 'Enter regular expression pattern here']) !!}
     </div>
 @stop
 

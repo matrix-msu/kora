@@ -12,13 +12,13 @@
 <div class="form-group mt-xl">
     {!! Form::label('start','Start Year') !!}
     <span class="error-message"></span>
-    {!! Form::input('number', 'start', 1900, ['class' => 'text-input start-year-js', 'min' => 0, 'max' => 9999]) !!}
+    {!! Form::input('number', 'start', null, ['class' => 'text-input start-year-js', 'placeholder' => 'Enter start year here', 'min' => 0, 'max' => 9999]) !!}
 </div>
 
 <div class="form-group mt-xl">
     {!! Form::label('end','End Year') !!}
     <span class="error-message"></span>
-    {!! Form::input('number', 'end', 2020, ['class' => 'text-input end-year-js', 'min' => 0, 'max' => 9999]) !!}
+    {!! Form::input('number', 'end', null, ['class' => 'text-input end-year-js', 'placeholder' => 'Enter end year here', 'min' => 0, 'max' => 9999]) !!}
 </div>
 
 <div class="form-group mt-xl">

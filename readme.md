@@ -1,6 +1,10 @@
 # Kora 3 
 ***
 
+### Software Requirements
+1) `PHP` >= 7.1.3
+2) `MySQL` >= 5.5.43 `recommended`
+
 ### Installation
 1) Clone the repository:
     

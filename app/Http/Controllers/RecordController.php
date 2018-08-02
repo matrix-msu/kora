@@ -302,6 +302,8 @@ class RecordController extends Controller {
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @return array - The records that were removed
+     *
+     * TODO::Revisions don't record mass deletes, so it might be helpful to have this not rely on revisions
      */
     public function cleanUp($pid, $fid) {
         $form = FormController::getForm($fid);
@@ -409,7 +411,7 @@ class RecordController extends Controller {
                 $field->getTypedField()->createNewRecordField($field,$record,$value,$request);
         }
 
-        $revision->oldData = RevisionController::buildDataArray($record);
+        $revision->data = RevisionController::buildDataArray($record);
         $revision->save();
 
         //Make new preset

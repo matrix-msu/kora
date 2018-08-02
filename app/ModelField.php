@@ -301,10 +301,10 @@ class ModelField extends FileTypeField  {
      * @param  bool $exists - Field for record exists
      */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if(!is_array($revision->data))
-            $revision->data = json_decode($revision->data, true);
+        if(!is_array($revision->oldData))
+            $revision->oldData = json_decode($revision->oldData, true);
 
-        if(is_null($revision->data[Field::_3D_MODEL][$field->flid]['data']))
+        if(is_null($revision->oldData[Field::_3D_MODEL][$field->flid]['data']))
             return null;
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
@@ -314,7 +314,7 @@ class ModelField extends FileTypeField  {
             $this->rid = $revision->rid;
         }
 
-        $this->model = $revision->data[Field::_3D_MODEL][$field->flid]['data'];
+        $this->model = $revision->oldData[Field::_3D_MODEL][$field->flid]['data'];
         $this->save();
     }
 
