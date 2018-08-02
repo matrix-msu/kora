@@ -788,6 +788,13 @@ class RecordController extends Controller {
         return redirect()->action('RecordController@index',compact('pid','fid'));
     }
 
+    public function downloadFiles(Request $request) {
+        dd($request->files);
+        $files = $request->files;
+        Zipper::make('downloads/k3download.zip')->add($files);
+        return response()->download(public_path('downloads/k3download.zip'))->deleteFileAfterSend(true);
+    }
+
     /**
      * Creates several test records in a form for testing purposes.
      *

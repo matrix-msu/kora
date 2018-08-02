@@ -62,16 +62,14 @@ Kora.Records.Show = function() {
 
     function initializeTypedFieldDisplays() {
         //GALLERY
-
         $('.gallery-field-display-js').each(function() {
             var $this = $(this);
             var $slides = $this.find('.slide-js');
-            var $dotsContainer = $this.next().next().find('.dots-js');
+            var $dotsContainer = $this.next().find('.dots-js');
             var slideCount = $slides.length;
             var loadCount = 0;
             var currentSlide = 0;
             var galHeight = 300, galWidth = 500, galAspectRatio = galWidth / galHeight;
-
 
             // Set dots
             for (var i = 0; i < slideCount; i++) {
@@ -132,7 +130,7 @@ Kora.Records.Show = function() {
                 });
 
                 // Next button
-                $('.next-button-js').click(function () {
+                $this.parent().find('.next-button-js').click(function () {
                     currentSlide += 1;
                     if (currentSlide >= slideCount) {
                         currentSlide = 0;
@@ -142,7 +140,7 @@ Kora.Records.Show = function() {
                 });
 
                 // Previous button
-                $('.prev-button-js').click(function () {
+                $this.parent().find('.prev-button-js').click(function () {
                     currentSlide -= 1;
                     if (currentSlide < 0) {
                         currentSlide = slideCount - 1;
@@ -168,6 +166,13 @@ Kora.Records.Show = function() {
                         $slideImg.css('width', 'auto');
                     }
                 }
+            });
+
+            $('.gallery-sidebar-js .full-screen-button-js').click(function(e) {
+                e.preventDefault();
+                var $galleryModal = $(this).parent().parent().parent().next();
+                Kora.Modal.close();
+                Kora.Modal.open($galleryModal);
             });
 
             // Set horizontal positioning for single slide

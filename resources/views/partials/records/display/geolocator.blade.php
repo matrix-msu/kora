@@ -30,7 +30,7 @@
                   loc-y="{{explode(',', explode('[LatLon]',$location)[1])[1]}}"></span>
         @endforeach
 
-        <div class="modal modal-js modal-mask geolocator-map-modal geolocator-map-modal-js">
+        <div class="full-screen-modal modal modal-js modal-mask geolocator-map-modal geolocator-map-modal-js">
             <div class="content">
                 <div class="header">
                     <a href="#" class="modal-toggle modal-toggle-js">

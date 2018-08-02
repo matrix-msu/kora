@@ -171,6 +171,33 @@
   }
 }
 
+.gallery-modal {
+  .content {
+    display: block;
+    height: 80vh;
+    overflow-y: unset;
+
+    .body {
+      height: 100%;
+      padding: 100px 40px 40px;
+      width: 100%;
+    }
+
+    .gallery-field-display {
+      height: calc(100% - 58px);
+      width: 100%;
+    }
+  }
+
+  @media screen and (max-width: $max-mobile-med-width) {
+    .content {
+      .body {
+        padding: 100px 0 40px;
+      }
+    }
+  }
+}
+
 .gallery-sidebar {
   height: calc(100% - 58px);
 }
@@ -227,4 +254,11 @@
   border: 1px solid;
   height: 400px;
   width: 800px;
+}
+
+/***** Fullscreen Modal *****/
+.full-screen-modal {
+  .content {
+    box-sizing: border-box;
+  }
 }
