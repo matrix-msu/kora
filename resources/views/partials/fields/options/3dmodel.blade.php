@@ -4,7 +4,8 @@
     <div class="form-group">
         {!! Form::label('filesize','Max File Size (kb)') !!}
         <input type="number" name="filesize" class="text-input" step="1"
-               value="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "FieldSize") }}" min="0">
+               value="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "FieldSize") }}" min="0"
+			   placeholder="Enter max file size (kb) here">
     </div>
 
     <div class="form-group mt-xl">
