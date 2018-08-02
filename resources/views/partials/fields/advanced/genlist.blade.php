@@ -13,7 +13,7 @@
 
 <div class="form-group mt-xl">
     {!! Form::label('regex','Regex') !!}
-    {!! Form::text('regex', null, ['class' => 'text-input']) !!}
+    {!! Form::text('regex', null, ['class' => 'text-input', 'placeholder' => 'Enter regular expression pattern here']) !!}
 </div>
 
 <script>

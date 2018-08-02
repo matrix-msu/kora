@@ -52,13 +52,13 @@
 <div class="form-group mt-xl half pr-m">
     {!! Form::label('start','Start Year') !!}
     <span class="error-message"></span>
-    {!! Form::input('number', 'start', 1900, ['class' => 'text-input start-year-js']) !!}
+    {!! Form::input('number', 'start', null, ['class' => 'text-input start-year-js', 'placeholder' => 'Enter start year here']) !!}
 </div>
 
 <div class="form-group mt-xl half pl-m">
     {!! Form::label('end','End Year') !!}
     <span class="error-message"></span>
-    {!! Form::input('number', 'end', 2020, ['class' => 'text-input end-year-js']) !!}
+    {!! Form::input('number', 'end', null, ['class' => 'text-input end-year-js', 'placeholder' => 'Enter end year here']) !!}
 </div>
 
 <div class="form-group mt-xl">
