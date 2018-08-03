@@ -28,11 +28,12 @@ class RestfulController extends Controller {
      */
     const JSON = "JSON";
     const KORA = "KORA_OLD";
+    const XML = "XML";
 
     /**
      * @var array - Valid output formats
      */
-    const VALID_FORMATS = [ self::JSON, self::KORA];
+    const VALID_FORMATS = [ self::JSON, self::KORA, self::XML];
 
     /**
      * Gets the current version of Kora3.
@@ -209,6 +210,7 @@ class RestfulController extends Controller {
             $filters['meta'] = isset($f->meta) ? $f->meta : false; //get meta data about record***
             $filters['size'] = isset($f->size) ? $f->size : false; //do we want the number of records in the search result returned instead of data
             $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records***
+            $filters['revAssoc'] = isset($f->revAssoc) ? $f->revAssoc : true; //do we want information back about reverse associations for XML OUPTUT
             $filters['filters'] = isset($f->filters) ? $f->filters : false; //do we want information back about result filters [i.e. Field 'First Name', has value 'Tom', '12' times]
             $filters['filterCount'] = isset($f->filterCount) ? $f->filterCount : 5; //What is the minimum threshold for a filter to return?
             $filters['filterFlids'] = isset($f->filterFlids) ? $f->filterFlids : 'ALL'; //What fields should filters return for? Should be array
@@ -243,8 +245,12 @@ class RestfulController extends Controller {
 
                 if($globalSort)
                     $this->imitateMerge($globalRecords,$returnRIDS);
-                else
-                    $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
+                else {
+                    if($apiFormat==self::XML)
+                        $resultsGlobal[] = $this->populateRecords($returnRIDS, $filters, $apiFormat);
+                    else
+                        $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
+                }
             } else {
                 $queries = $f->query;
                 $resultSets = array();
@@ -407,8 +413,12 @@ class RestfulController extends Controller {
 
                 if($globalSort)
                     $this->imitateMerge($globalRecords,$returnRIDS);
-                else
-                    $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
+                else {
+                    if($apiFormat==self::XML)
+                        $resultsGlobal[] = $this->populateRecords($returnRIDS, $filters, $apiFormat);
+                    else
+                        $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
+                }
             }
         }
 
@@ -1390,12 +1400,18 @@ class RestfulController extends Controller {
                 'assoc' => $filters['assoc'],
                 'realnames' => $filters['realnames']
             ];
-        } else {
+        } else if($format == self::KORA) {
             //Old Kora 2 searches only need field filters
             $options = [
                 'fields' => $filters['fields'],
                 'under' => $filters['under']
             ];
+        } else if($format == self::XML) {
+            $options = [
+                "revAssoc" => $filters['revAssoc']
+            ];
+        } else {
+            return "{}";
         }
 
         //Slice up array of RIDs to get the correct subset
