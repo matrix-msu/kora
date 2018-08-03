@@ -127,13 +127,16 @@ class RevisionController extends Controller {
      * @param  int $rid - Record ID
      */
     public function cleanUpEdits($fid, $rid = null) {
-        $rev = Revision::where("fid", "=", $fid)->where("type","=","edit");
+        $revOne = Revision::where("fid", "=", $fid)->where("type","=","edit");
+        $revTwo = Revision::where("fid", "=", $fid)->where("type","=","edit");
 
-        if(!is_null($rid))
-            $rev = $rev->where("rid","=",$rid);
+        if(!is_null($rid)) {
+            $revOne = $revOne->where("rid", "=", $rid);
+            $revTwo = $revTwo->where("rid", "=", $rid);
+        }
 
-        $data = $rev->where("data","=","")->delete();
-        $oldData = $rev->where("oldData","=","")->delete();
+        $data = $revOne->where("data","=","")->delete();
+        $oldData = $revTwo->where("oldData","=","")->delete();
     }
 
     /**
