@@ -35,7 +35,7 @@
                 <i class="icon icon-download"></i>
             </div>
 
-            {!! Form::open([ 'url' => action('RecordController@downloadFiles') ]) !!}
+            {!! Form::open() !!}
                 <input type="hidden" value="{{ $typedField->images }}">
             {!! Form::close() !!}
         </div>
