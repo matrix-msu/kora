@@ -719,6 +719,30 @@ class RecordController extends Controller {
         return view('records.batchAssignment',compact('form','fields','pid','fid'));
     }
 
+    /* Get view for mass assigning selected records. */
+    public function showSelectedAssignmentView($pid,$fid) {
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
+
+        if(!self::checkPermissions($fid, 'modify'))
+            return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'cant_edit_record');
+
+        $form = FormController::getForm($fid);
+
+
+        // from here down probably needs to be edited
+        $all_fields = $form->fields()->get();
+        $fields = new Collection();
+        // foreach($all_fields as $field) {
+            // $type = $field->type;
+            // if($type == "Documents" || $type == "Gallery" || $type == "Playlist" || $type == "3D-Model" || $type == 'Video')
+                // continue;
+            // else
+                // $fields->push($field);
+        // }
+        return view('records.batchAssignSelected',compact('form','fields','pid','fid'));
+    }
+
     /**
      * Mass assigns a value to a field in all records.
      *
