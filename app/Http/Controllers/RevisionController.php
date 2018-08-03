@@ -45,6 +45,8 @@ class RevisionController extends Controller {
         if(!(\Auth::user()->isFormAdmin($form)))
             return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
+        $this->cleanUpEdits($fid);
+
         $pagination = app('request')->input('page-count') === null ? 10 : app('request')->input('page-count');
         $order = app('request')->input('order') === null ? 'lmd' : app('request')->input('order');
         $order_type = substr($order, 0, 2) === "lm" ? "created_at" : "id";
@@ -97,6 +99,8 @@ class RevisionController extends Controller {
         if(!(\Auth::user()->isFormAdmin($form)) && \Auth::user()->id != $owner)
             return redirect('projects/'.$pid)->with('k3_global_error', 'revision_permission_issue');
 
+        $this->cleanUpEdits($fid, $rid);
+
         $pagination = app('request')->input('page-count') === null ? 10 : app('request')->input('page-count');
         $order = app('request')->input('order') === null ? 'lmd' : app('request')->input('order');
         $order_type = substr($order, 0, 2) === "lm" ? "created_at" : "id";
@@ -113,6 +117,26 @@ class RevisionController extends Controller {
         $record = RecordController::getRecord($rid);
 
         return view('revisions.index', compact('revisions', 'records', 'form', 'message', 'record', 'rid'))->render();
+    }
+
+    /**
+     * When record edits decide to fail mid stream, the edit revision gets left behind, unfinished. This breaks the
+     * display of the record revision. So when the revisions page is visited, we are going to clean things up!
+     *
+     * @param  int $fid - Form ID
+     * @param  int $rid - Record ID
+     */
+    public function cleanUpEdits($fid, $rid = null) {
+        $revOne = Revision::where("fid", "=", $fid)->where("type","=","edit");
+        $revTwo = Revision::where("fid", "=", $fid)->where("type","=","edit");
+
+        if(!is_null($rid)) {
+            $revOne = $revOne->where("rid", "=", $rid);
+            $revTwo = $revTwo->where("rid", "=", $rid);
+        }
+
+        $data = $revOne->where("data","=","")->delete();
+        $oldData = $revTwo->where("oldData","=","")->delete();
     }
 
     /**
