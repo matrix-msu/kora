@@ -101,6 +101,7 @@ Route::group(['middleware' => 'web'], function () {
 
 //export routes
     Route::get('/projects/{pid}/forms/{fid}/exportRecords/{type}', 'ExportController@exportRecords');
+    Route::get('/projects/{pid}/forms/{fid}/exportSelectedRecords/{type}', 'ExportController@exportSelectedRecords');
     Route::get('/projects/{pid}/forms/{fid}/exportFiles', 'ExportController@exportRecordFiles');
     Route::get('/projects/{pid}/forms/{fid}/exportForm', 'ExportController@exportForm');
     Route::get('/projects/{pid}/exportProj', 'ExportController@exportProject');
@@ -153,6 +154,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/projects/{pid}/forms/{fid}/records', 'RecordController@index');
     Route::post('/projects/{pid}/forms/{fid}/records/createTest', 'RecordController@createTest');
     Route::get('projects/{pid}/forms/{fid}/records/massAssignRecords', 'RecordController@showMassAssignmentView');
+    Route::get('projects/{pid}/forms/{fid}/records/showSelectedAssignmentView', 'RecordController@showSelectedAssignmentView');//this
     Route::post('projects/{pid}/forms/{fid}/records/massAssignRecords', 'RecordController@massAssignRecords');
     Route::post('projects/{pid}/forms/{fid}/records/massAssignRecordSet', 'RecordController@massAssignRecordSet');
     Route::patch('/projects/{pid}/forms/{fid}/records/{rid}', 'RecordController@update');
