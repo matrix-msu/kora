@@ -84,6 +84,12 @@ class ProjectController extends Controller {
         return view('projects.index', compact('projects', 'inactive', 'custom', 'pSearch', 'hasProjects', 'requestableProjects'));
 	}
 	
+	/**
+     * Gets modal to request project permissions
+     *
+     * @param  Request $request
+     * @return String contents of view
+     */
 	public function getProjectPermissionsModal(Request $request)
 	{	
 		$projectCollections = Project::all()->sortBy("name", SORT_NATURAL|SORT_FLAG_CASE);
@@ -94,23 +100,8 @@ class ProjectController extends Controller {
 				$requestableProjects[$project->pid] = $project->name. " (" . $project->slug.")";
 			}
 		}
-
-		$modal_pre_markup =
-		'
-		<div class="modal modal-js modal-mask nav-request-permissions-modal-js">
-		  <div class="content">
-		    <div class="header">
-			  <span class="title">Request Project Permissions</span>
-			  <a href="#" class="modal-toggle modal-toggle-js">
-			    <i class="icon icon-cancel"></i>
-			  </a>
-			</div>
-			<div class="body">';
-		$modal_post_markup = '</div></div></div>';
 		
-		$modal_markup = view('partials.projects.projectRequestModalForm', ['requestableProjects' => $requestableProjects])->render();
-		
-		return $modal_pre_markup.$modal_markup.$modal_post_markup;
+		return view('partials.projects.projectRequestModalForm', ['requestableProjects' => $requestableProjects])->render();
 	}
 
     /**
