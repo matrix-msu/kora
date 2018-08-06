@@ -273,7 +273,6 @@ function resizeend() {
 function multiselect_placeholder_injection()
 {
 	var inputs = $(".chosen-search-input");
-	//console.log(inputs.length);
 	
 	for (i = 0; i < inputs.length; i++)
 	{
@@ -283,8 +282,9 @@ function multiselect_placeholder_injection()
 		{
 			jq_input.attr("placeholder-injected", 1);
 			jq_input.attr("placeholder", jq_input.attr("value"));
+			
 		}
 	}
 }
 multiselect_placeholder_injection();
-setInterval(function(){ multiselect_placeholder_injection(); }, 451);
+setInterval(multiselect_placeholder_injection, 451);
