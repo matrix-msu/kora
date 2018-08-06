@@ -24,6 +24,10 @@
       opacity: 1;
     }
   }
+  
+  &.add-users-modal .content {
+    overflow: visible;
+  }
 
   .content {
     @include transition();
@@ -47,17 +51,13 @@
       max-width: 340px;
     }
 
+    &.preset,
+    &.already-preset {
+      overflow-y: auto;
+    }
+
     @import 'modal/header';
     @import 'modal/body';
-  }
-
-  .view-user {
-    box-sizing: border-box;
-    overflow: visible;
-    padding: 20px 20px 35px;
-    width: 320px;
-
-    @import 'modal/footer';
   }
 }
 
