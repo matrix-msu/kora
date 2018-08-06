@@ -52,6 +52,8 @@
     @include("partials.projects.index.custom", ['isCustom' => true, 'active' => false, 'archived' => false])
   </section>
 
+  @include('partials.user.profileModal')
+
   @if(!Auth::user()->admin && sizeof($requestableProjects)>0)
   <section class="foot center">
     <p class="permission-information">
