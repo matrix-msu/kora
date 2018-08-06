@@ -22,19 +22,6 @@
   }
 }
 
-&.view-user .body {
-  padding: 50px 0 0;
-
-  span {
-    font-family: $ubuntu;
-    font-size: 18px;
-  }
-
-  .attribute {
-    font-family: $ubuntu-medium;
-  }
-}
-
 @media screen and (max-width: $max-mobile-xs-width) {
   .body {
     padding: 0 20px 20px;
