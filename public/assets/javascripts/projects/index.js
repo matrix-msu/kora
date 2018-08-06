@@ -394,6 +394,7 @@ Kora.Projects.Index = function() {
   initializeFilters();
   initializeSearch();
   initializePermissionsModal();
+  initializeUserProfileModal();
   initializeUnarchive();
   initializeProjectCardEllipsifying();
 }
