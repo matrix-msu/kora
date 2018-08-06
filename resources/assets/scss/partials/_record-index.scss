@@ -67,6 +67,14 @@
       }
     }
 
+    span {
+      @include transition();
+    }
+
+    span:hover {
+      opacity: 0.8;
+    }
+
     @media screen and (max-width: $max-mobile-width) {
       .middle {
         span:first-child {
