@@ -73,6 +73,8 @@
 
             @if(count($records) > 0)
               @include('partials.records.pagination')
+            @else
+              @include('partials.records.no-records')
             @endif
 
             @if (count($records) > 0)
