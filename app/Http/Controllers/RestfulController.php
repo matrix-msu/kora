@@ -3,13 +3,10 @@
 use App\DateField;
 use App\Field;
 use App\Form;
-use App\ListField;
 use App\NumberField;
 use App\Record;
 use App\Search;
-use App\TextField;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class RestfulController extends Controller {
@@ -1082,6 +1079,10 @@ class RestfulController extends Controller {
 
             $flidString = implode(',',$convertedFlids);
             $flidSQL = " and `flid` in ($flidString)";
+        } else {
+            $flids = Form::find($fid)->fields()->pluck('flid')->toArray();
+            $flidString = implode(',',$flids);
+            $flidSQL = " and `flid` in ($flidString)";
         }
 
         //Doing this for pretty much the same reason as keyword search above
@@ -1098,6 +1099,7 @@ class RestfulController extends Controller {
         $msListOccurrences = DB::raw("select `options`, `flid` from ".env('DB_PREFIX')."multi_select_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
         $genListOccurrences = DB::raw("select `options`, `flid` from ".env('DB_PREFIX')."generated_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
         $numberOccurrences = DB::raw("select `number`, `flid` from ".env('DB_PREFIX')."number_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
+        $dateOccurrences = DB::raw("select `month`, `day`, `year`, `flid` from ".env('DB_PREFIX')."date_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
         $assocOccurrences = DB::raw("select s.`flid`, r.`kid` from ".env('DB_PREFIX')."associator_support as s left join kora3_records as r on s.`record`=r.`rid` where s.`fid`=$fid and s.`rid` in ($ridString) and s.`flid` in ($flidString)");
         $rAssocOccurrences = DB::raw("select s.`flid`, r.`kid` from ".env('DB_PREFIX')."associator_support as s left join kora3_records as r on s.`rid`=r.`rid` where s.`fid`=$fid and s.`rid` in ($ridString) and s.`flid` in ($flidString)");
 
@@ -1131,6 +1133,27 @@ class RestfulController extends Controller {
                 else
                     $filters[$gsFlid][$opt] += 1;
             }
+        }
+
+        $dateUnclean = $con->query($dateOccurrences);
+        while($occur = $dateUnclean->fetch_assoc()) {
+            $flid = $occur['flid'];
+
+            if($occur['month']==0 && $occur['day']==0)
+                $value = $occur['year'];
+            else if($occur['day']==0 && $occur['year']==0)
+                $value = DateTime::createFromFormat('m', $occur['month'])->format('F');
+            else if($occur['day']==0)
+                $value = DateTime::createFromFormat('m', $occur['month'])->format('F').', '.$occur['year'];
+            else if($occur['year']==0)
+                $value = DateTime::createFromFormat('m', $occur['month'])->format('F').' '.$occur['day'];
+            else
+                $value = $occur['month'].'-'.$occur['day'].'-'.$occur['year'];
+
+            if(!isset($filters[$flid][$value]))
+                $filters[$flid][$value] = 1;
+            else
+                $filters[$flid][$value] += 1;
         }
 
         $textUnclean = $con->query($textOccurrences);

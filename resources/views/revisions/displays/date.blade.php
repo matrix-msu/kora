@@ -4,8 +4,12 @@
 @endif
 @if($data['data']['month'] == 0 && $data['data']['day'] == 0)
     {{$data['data']['year']}}
+@elseif ($data['data']['day'] == 0 && $data['data']['year'] == 0)
+    {{DateTime::createFromFormat('m', $data['data']['month'])->format('F')}}
 @elseif ($data['data']['day'] == 0)
-    {{$data['data']['month'].'-'. $data['data']['year']}}
+    {{DateTime::createFromFormat('m', $data['data']['month'])->format('F').', '. $data['data']['year']}}
+@elseif ($data['data']['year'] == 0)
+    {{DateTime::createFromFormat('m', $data['data']['month'])->format('F').' '. $data['data']['day']}}
 @elseif ($data['data']['format'] == 'MMDDYYYY')
     {{$data['data']['month'].'-'.$data['data']['day'].'-'.$data['data']['year']}}
 @elseif ($data['data']['format'] == 'DDMMYYYY')
