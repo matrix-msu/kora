@@ -681,3 +681,9 @@ i {
     content: $icon-record-EmptyState; 
   }
 }
+.icon-zap-toolbar {
+  &:before {
+    content: $icon-zap-toolbar;     
+    color: #04b6af;
+  }
+}

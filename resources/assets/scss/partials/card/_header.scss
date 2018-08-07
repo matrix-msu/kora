@@ -9,6 +9,11 @@
     box-shadow: 0 6px 13px -4px palette('white', base);
   }
 
+  .check:hover {
+    border: 1px solid palette('green', accent, .5);
+    box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
+  }
+
   .checked {
     background: palette('green', accent);
   }

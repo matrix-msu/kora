@@ -20,6 +20,8 @@
     bottom: 0;
     box-shadow: 0 -3px 25px 0 rgba(21,39,48,0.15);
     display: flex;
+    font-family: $ubuntu-medium;
+    font-size: 12px;
     height: 50px;
     margin: 0;
     overflow-x: auto;
@@ -37,6 +39,14 @@
       width: calc(100% - 250px) !important;
     }
 
+    .line {
+      background: palette('gray', text);
+      height: 2px;
+      margin: 0 30px;
+      opacity: 0.05;
+      width: fill;
+    }
+
     .left {
       color: palette('red', base);
 
@@ -46,6 +56,7 @@
     }
 
     .middle {
+      color: palette('green', accent);
       margin: 0 auto;
 
       a {
@@ -54,10 +65,12 @@
       }
     }
 
+    .right {
+      color: palette('gray', slate);
+    }
+
     .middle,
     .right {
-      color: palette('green', accent);
-
       span:hover {
         cursor: pointer;
       }
@@ -76,6 +89,10 @@
     }
 
     @media screen and (max-width: $max-mobile-width) {
+      .line {
+        margin: 0 10px;
+      }
+
       .middle {
         span:first-child {
           margin-left: 15px;

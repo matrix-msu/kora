@@ -1,5 +1,5 @@
 .card {
-  @include transition();
+  @include transition(box-shadow);
 
   background: palette('white', base);
   border: 2px solid palette('white', base);
@@ -25,10 +25,6 @@
 
   &:hover {
     box-shadow: 0 6px 12px 0 palette('box-shadow', base, .06);
-
-    .display-records & {
-      border: 2px solid palette('green', accent, .5);
-    }
   }
 
   @import 'card/header';
