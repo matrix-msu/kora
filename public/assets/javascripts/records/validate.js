@@ -2,17 +2,20 @@ var Kora = Kora || {};
 Kora.Records = Kora.Records || {};
 
 Kora.Records.Validate = function() {
-  var errorPage = {};
+  var errorList = [];
   
     function initializeValidationModal() {
         Kora.Modal.initialize();
 
-        $('ul.error-pages li').remove();
-        $('.error-count-js').text(Object.keys(errorPage).length);
+        var uniquePages = Array.from(new Set(errorList));
 
-        for (var page in errorPage) {
-          $('ul.error-pages').append('<li>' + errorPage[page] + '</li>');
-        }
+        $('ul.error-pages li').remove();
+        $('.error-count-js').text(errorList.length);
+
+        uniquePages.forEach(function(page){
+          page = page.substring(1);
+          $('ul.error-pages').append('<li>' + page + '</li>');
+        });
 
         Kora.Modal.open($('.record-validation-modal-js'));
     }
@@ -52,13 +55,19 @@ Kora.Records.Validate = function() {
                     } else {
                         $.each(err.errors, function(fieldName, error) {
                             var $field = $('#'+fieldName);
+                            var $page = $field.parents('section').attr('id');
 
                             $field.addClass('error');
                             $field.siblings('.error-message').text(error);
 
-                            errorPage["error"] = $field.parents('section').attr('id');
+                            if ($page === undefined) {
+                              $page = $('[name="' + fieldName + '"]').parents('section').attr('id');
+                              errorList.push($page);
+                            } else {
+                              errorList.push($page); 
+                            }
                         });
-                        initializeValidationModal();
+                    initializeValidationModal();
                     }
                 }
             });
