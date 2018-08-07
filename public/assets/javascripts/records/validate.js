@@ -7,10 +7,8 @@ Kora.Records.Validate = function() {
     function initializeValidationModal() {
         Kora.Modal.initialize();
 
-        var count = Object.keys(errorPage).length;
-
         $('ul.error-pages li').remove();
-        $('.error-count-js').text('(' + count + ')');
+        $('.error-count-js').text(Object.keys(errorPage).length);
 
         for (var page in errorPage) {
           $('ul.error-pages').append('<li>' + errorPage[page] + '</li>');
