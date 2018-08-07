@@ -2,6 +2,22 @@ var Kora = Kora || {};
 Kora.Records = Kora.Records || {};
 
 Kora.Records.Validate = function() {
+  var errorPage = {};
+  
+    function initializeValidationModal() {
+        Kora.Modal.initialize();
+
+        var count = Object.keys(errorPage).length;
+
+        $('ul.error-pages li').remove();
+        $('.error-count-js').text('(' + count + ')');
+
+        for (var page in errorPage) {
+          $('ul.error-pages').append('<li>' + errorPage[page] + '</li>');
+        }
+
+        Kora.Modal.open($('.record-validation-modal-js'));
+    }
 
     function initializeRecordValidation() {
         $('.record-validate-js').click(function(e) {
@@ -38,9 +54,13 @@ Kora.Records.Validate = function() {
                     } else {
                         $.each(err.errors, function(fieldName, error) {
                             var $field = $('#'+fieldName);
+
                             $field.addClass('error');
                             $field.siblings('.error-message').text(error);
+
+                            errorPage["error"] = $field.parents('section').attr('id');
                         });
+                        initializeValidationModal();
                     }
                 }
             });
@@ -48,4 +68,5 @@ Kora.Records.Validate = function() {
     }
 
     initializeRecordValidation();
+    Kora.Records.Modal();
 }
