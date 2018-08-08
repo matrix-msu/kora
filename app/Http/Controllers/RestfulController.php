@@ -3,13 +3,10 @@
 use App\DateField;
 use App\Field;
 use App\Form;
-use App\ListField;
 use App\NumberField;
 use App\Record;
 use App\Search;
-use App\TextField;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class RestfulController extends Controller {
@@ -28,11 +25,12 @@ class RestfulController extends Controller {
      */
     const JSON = "JSON";
     const KORA = "KORA_OLD";
+    const XML = "XML";
 
     /**
      * @var array - Valid output formats
      */
-    const VALID_FORMATS = [ self::JSON, self::KORA];
+    const VALID_FORMATS = [ self::JSON, self::KORA, self::XML];
 
     /**
      * Gets the current version of Kora3.
@@ -209,6 +207,7 @@ class RestfulController extends Controller {
             $filters['meta'] = isset($f->meta) ? $f->meta : false; //get meta data about record***
             $filters['size'] = isset($f->size) ? $f->size : false; //do we want the number of records in the search result returned instead of data
             $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records***
+            $filters['revAssoc'] = isset($f->revAssoc) ? $f->revAssoc : true; //do we want information back about reverse associations for XML OUPTUT
             $filters['filters'] = isset($f->filters) ? $f->filters : false; //do we want information back about result filters [i.e. Field 'First Name', has value 'Tom', '12' times]
             $filters['filterCount'] = isset($f->filterCount) ? $f->filterCount : 5; //What is the minimum threshold for a filter to return?
             $filters['filterFlids'] = isset($f->filterFlids) ? $f->filterFlids : 'ALL'; //What fields should filters return for? Should be array
@@ -243,8 +242,12 @@ class RestfulController extends Controller {
 
                 if($globalSort)
                     $this->imitateMerge($globalRecords,$returnRIDS);
-                else
-                    $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
+                else {
+                    if($apiFormat==self::XML)
+                        $resultsGlobal[] = $this->populateRecords($returnRIDS, $filters, $apiFormat);
+                    else
+                        $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
+                }
             } else {
                 $queries = $f->query;
                 $resultSets = array();
@@ -327,8 +330,7 @@ class RestfulController extends Controller {
                             }
                             $advSearch = new AdvancedSearchController();
                             $rids = $advSearch->apisearch($form->pid, $form->fid, $request);
-                            if(is_null($rids))
-                                $rids=[];
+
                             $negative = isset($query->not) ? $query->not : false;
                             if($negative)
                                 $rids = $this->negative_results($form,$rids);
@@ -407,8 +409,12 @@ class RestfulController extends Controller {
 
                 if($globalSort)
                     $this->imitateMerge($globalRecords,$returnRIDS);
-                else
-                    $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
+                else {
+                    if($apiFormat==self::XML)
+                        $resultsGlobal[] = $this->populateRecords($returnRIDS, $filters, $apiFormat);
+                    else
+                        $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
+                }
             }
         }
 
@@ -1072,6 +1078,10 @@ class RestfulController extends Controller {
 
             $flidString = implode(',',$convertedFlids);
             $flidSQL = " and `flid` in ($flidString)";
+        } else {
+            $flids = Form::find($fid)->fields()->pluck('flid')->toArray();
+            $flidString = implode(',',$flids);
+            $flidSQL = " and `flid` in ($flidString)";
         }
 
         //Doing this for pretty much the same reason as keyword search above
@@ -1088,6 +1098,7 @@ class RestfulController extends Controller {
         $msListOccurrences = DB::raw("select `options`, `flid` from ".env('DB_PREFIX')."multi_select_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
         $genListOccurrences = DB::raw("select `options`, `flid` from ".env('DB_PREFIX')."generated_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
         $numberOccurrences = DB::raw("select `number`, `flid` from ".env('DB_PREFIX')."number_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
+        $dateOccurrences = DB::raw("select `month`, `day`, `year`, `flid` from ".env('DB_PREFIX')."date_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
         $assocOccurrences = DB::raw("select s.`flid`, r.`kid` from ".env('DB_PREFIX')."associator_support as s left join kora3_records as r on s.`record`=r.`rid` where s.`fid`=$fid and s.`rid` in ($ridString) and s.`flid` in ($flidString)");
         $rAssocOccurrences = DB::raw("select s.`flid`, r.`kid` from ".env('DB_PREFIX')."associator_support as s left join kora3_records as r on s.`rid`=r.`rid` where s.`fid`=$fid and s.`rid` in ($ridString) and s.`flid` in ($flidString)");
 
@@ -1121,6 +1132,27 @@ class RestfulController extends Controller {
                 else
                     $filters[$gsFlid][$opt] += 1;
             }
+        }
+
+        $dateUnclean = $con->query($dateOccurrences);
+        while($occur = $dateUnclean->fetch_assoc()) {
+            $flid = $occur['flid'];
+
+            if($occur['month']==0 && $occur['day']==0)
+                $value = $occur['year'];
+            else if($occur['day']==0 && $occur['year']==0)
+                $value = DateTime::createFromFormat('m', $occur['month'])->format('F');
+            else if($occur['day']==0)
+                $value = DateTime::createFromFormat('m', $occur['month'])->format('F').', '.$occur['year'];
+            else if($occur['year']==0)
+                $value = DateTime::createFromFormat('m', $occur['month'])->format('F').' '.$occur['day'];
+            else
+                $value = $occur['month'].'-'.$occur['day'].'-'.$occur['year'];
+
+            if(!isset($filters[$flid][$value]))
+                $filters[$flid][$value] = 1;
+            else
+                $filters[$flid][$value] += 1;
         }
 
         $textUnclean = $con->query($textOccurrences);
@@ -1390,12 +1422,18 @@ class RestfulController extends Controller {
                 'assoc' => $filters['assoc'],
                 'realnames' => $filters['realnames']
             ];
-        } else {
+        } else if($format == self::KORA) {
             //Old Kora 2 searches only need field filters
             $options = [
                 'fields' => $filters['fields'],
                 'under' => $filters['under']
             ];
+        } else if($format == self::XML) {
+            $options = [
+                "revAssoc" => $filters['revAssoc']
+            ];
+        } else {
+            return "{}";
         }
 
         //Slice up array of RIDs to get the correct subset

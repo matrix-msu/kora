@@ -4,7 +4,6 @@ use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
@@ -318,7 +317,7 @@ class ListField extends BaseField {
         return DB::table("list_fields")
             ->select("rid")
             ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`option`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+            ->where('option','LIKE',"%$arg%")
             ->distinct()
             ->pluck('rid')
             ->toArray();
@@ -329,28 +328,18 @@ class ListField extends BaseField {
      *
      * @param  int $flid - Field ID
      * @param  array $query - The advance search user query
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    public function getAdvancedSearchQuery($flid, $query) {
-        $db_query = DB::table("list_fields")
+    public function advancedSearchTyped($flid, $query) {
+        $arg = $query[$flid . "_input"];
+
+        return DB::table("list_fields")
             ->select("rid")
-            ->where("flid", "=", $flid);
-        $input = $query[$flid . "_input"];
-
-        self::buildAdvancedListQuery($db_query, $input);
-
-        return $db_query->distinct();
-    }
-
-    /**
-     * Build and advanced query for list field.
-     *
-     * @param  Builder $db_query - Reference to query to build
-     * @param  string - Input value from form.
-     */
-    private static function buildAdvancedListQuery(Builder &$db_query, $input) {
-        $db_query->whereRaw("MATCH (`option`) AGAINST (? IN BOOLEAN MODE)",
-            ["\"" . $input . "\""]);
+            ->where("flid", "=", $flid)
+            ->where('option','=',"$arg")
+            ->distinct()
+            ->pluck('rid')
+            ->toArray();
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
