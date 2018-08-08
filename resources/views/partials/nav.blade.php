@@ -1,3 +1,9 @@
+<?php
+use App\User;
+use App\Project;
+use App\ProjectGroup;
+use App\Http\Requests\ProjectRequest;
+?>
 
 <nav class="navigation navigation-js {{ (Auth::guest() || !Auth::user()->active ? 'auth' : '') }}">
   <div class="status status-js">
@@ -64,6 +70,9 @@
     var globalSearchUrl = '{{action('ProjectSearchController@globalSearch')}}';
     var cacheGlobalSearchUrl = '{{ action('ProjectSearchController@cacheGlobalSearch') }}';
     var clearGlobalCacheUrl = '{{ action('ProjectSearchController@clearGlobalCache') }}';
+	var getProjectPermissionsModal = '{{ action('ProjectController@getProjectPermissionsModal') }}';
+	var requestProjectPermissionsURL = '{{ action('ProjectController@request') }}';
     var CSRFToken = '{{ csrf_token() }}';
   </script>
 </nav>
+
