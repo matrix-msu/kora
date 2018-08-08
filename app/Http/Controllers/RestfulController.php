@@ -330,8 +330,7 @@ class RestfulController extends Controller {
                             }
                             $advSearch = new AdvancedSearchController();
                             $rids = $advSearch->apisearch($form->pid, $form->fid, $request);
-                            if(is_null($rids))
-                                $rids=[];
+
                             $negative = isset($query->not) ? $query->not : false;
                             if($negative)
                                 $rids = $this->negative_results($form,$rids);

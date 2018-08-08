@@ -328,7 +328,7 @@ class MultiSelectListField extends BaseField {
         return DB::table("multi_select_list_fields")
             ->select("rid")
             ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+            ->where('options','LIKE',"%$arg%")
             ->distinct()
             ->pluck('rid')
             ->toArray();
@@ -339,9 +339,9 @@ class MultiSelectListField extends BaseField {
      *
      * @param  int $flid - Field ID
      * @param  array $query - The advance search user query
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    public function getAdvancedSearchQuery($flid, $query) {
+    public function advancedSearchTyped($flid, $query) {
         $inputs = $query[$flid."_input"];
 
         $query = DB::table("multi_select_list_fields")
@@ -350,7 +350,9 @@ class MultiSelectListField extends BaseField {
 
         self::buildAdvancedMultiSelectListQuery($query, $inputs);
 
-        return $query->distinct();
+        return $query->distinct()
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**
@@ -362,8 +364,10 @@ class MultiSelectListField extends BaseField {
     private static function buildAdvancedMultiSelectListQuery(Builder &$db_query, $inputs) {
         $db_query->where(function($db_query) use ($inputs) {
             foreach($inputs as $input) {
-                $db_query->orWhereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)",
-                    ["\"" . $input . "\""]);
+                //since we want to look for the exact term when data is concatenated string
+                $db_query->where('options','LIKE',$input."[!]%"); //is it the first term
+                $db_query->orWhere('options','LIKE',"%[!]".$input); //is it the last term
+                $db_query->orWhere('options','LIKE',"%[!]".$input."[!]%"); //is it in the middle
             }
         });
     }

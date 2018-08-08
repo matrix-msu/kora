@@ -3,7 +3,6 @@
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -321,7 +320,7 @@ class TextField extends BaseField {
         return DB::table("text_fields")
             ->select("rid")
             ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`text`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+            ->where('text','LIKE',"%$arg%")
             ->distinct()
             ->pluck('rid')
             ->toArray();
@@ -332,15 +331,18 @@ class TextField extends BaseField {
      *
      * @param $flid, field id
      * @param $query, contents of query.
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    public function getAdvancedSearchQuery($flid, $query) {
+    public function advancedSearchTyped($flid, $query) {
+        $arg = $query[$flid . "_input"];
+
         return DB::table("text_fields")
             ->select("rid")
             ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`text`) AGAINST (? IN BOOLEAN MODE)",
-                ["\"" . $query[$flid . "_input"] . "\""])
-            ->distinct();
+            ->where('text','LIKE',"%$arg%")
+            ->distinct()
+            ->pluck('rid')
+            ->toArray();
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////

@@ -4,7 +4,6 @@ use App\FieldHelpers\gPoint;
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -378,8 +377,8 @@ class GeolocatorField extends BaseField {
             ->select("rid")
             ->where("flid", "=", $flid)
             ->where(function($query) use ($arg) {
-                $query->whereRaw("MATCH (`desc`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->orWhereRaw("MATCH (`address`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
+                $query->where('desc','LIKE',"%$arg%")
+                    ->orWhere('address','LIKE',"%$arg%");
             })
             ->distinct()
             ->pluck('rid')
@@ -391,9 +390,9 @@ class GeolocatorField extends BaseField {
      *
      * @param  int $flid - Field ID
      * @param  array $query - The advance search user query
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    public function getAdvancedSearchQuery($flid, $query) {
+    public function advancedSearchTyped($flid, $query) {
         $range = $query[$flid.'_range'];
 
         // Depending on the search type, we must convert the input to latitude and longitude.
@@ -432,7 +431,9 @@ SQL;
             ->whereRaw("`flid` = ?")
             ->havingRaw("`distance` < ?")
             ->distinct()
-            ->setBindings([$lat, $lon, $lat, $flid, $range]);
+            ->setBindings([$lat, $lon, $lat, $flid, $range])
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**

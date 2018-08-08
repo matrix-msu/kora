@@ -1,11 +1,8 @@
 <?php namespace App\Http\Controllers;
 
 use App\Field;
-use App\Form;
 use App\Record;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
 
@@ -43,17 +40,12 @@ class AdvancedSearchController extends Controller {
         $results = [];
 
         //Need these for negative searches
-        $notRids = array_map(function($notRid) {
-            return $notRid["rid"];
-        }, Record::select("rid")->where('fid', '=', $fid)->get()->toArray());
+        $notRids = Record::where('fid', '=', $fid)->pluck('rid')->toArray();
 
         $processed = $this->processRequest($request->all());
         foreach($processed as $flid => $query) {
-            // Result will be returned as an array of stdObjects so we have to extract the rid.
             $field = FieldController::getField($flid);
-            $result = array_map(function($returned) {
-                return $returned->rid;
-            }, $field->getTypedField()->getAdvancedSearchQuery($flid, $query)->get()->toArray());
+            $result = $field->getTypedField()->advancedSearchTyped($flid, $query);
 
             //This is a negative search so we want the opposite results of what the search would produce
             if(isset($request[$flid."_negative"]))
@@ -66,14 +58,12 @@ class AdvancedSearchController extends Controller {
 
         // This functions to make sure that a record satisfies all search parameters.
         foreach($results as $result) {
-            $rids = array_intersect($rids, $result);
+            $rids = $this->imitateIntersect($rids, $result);
         }
 
         if(empty($rids))
             $rids = [];
 
-        //store these for later, primarily subset operations like delete, mass assign, etc
-        Session::put('form_rid_search_subset', $rids);
         Session::put('advanced_search_recents', $rids);
 
         sort($rids);
@@ -89,6 +79,28 @@ class AdvancedSearchController extends Controller {
         $form = FormController::getForm($fid);
 
         return view('advancedSearch.results', compact("form", "records", "total"));
+    }
+
+    private function imitateIntersect($s1,$s2) {
+        sort($s1);
+        sort($s2);
+        $i=0;
+        $j=0;
+        $N = count($s1);
+        $M = count($s2);
+        $intersection = array();
+
+        while($i<$N && $j<$M) {
+            if($s1[$i]<$s2[$j]) $i++;
+            else if($s1[$i]>$s2[$j]) $j++;
+            else {
+                $intersection[] = $s1[$i];
+                $i++;
+                $j++;
+            }
+        }
+
+        return $intersection;
     }
 
     /**
@@ -138,11 +150,11 @@ class AdvancedSearchController extends Controller {
 
         $processed = $this->processRequest($request->all());
         foreach($processed as $flid => $query) {
-            // Result will be returned as an array of stdObjects so we have to extract the rid.
             $field = FieldController::getField($flid);
-            $result = array_map(function($returned) {
-                return $returned->rid;
-            }, $field->getTypedField()->getAdvancedSearchQuery($flid, $query)->get()->toArray());
+            $result = $field->getTypedField()->advancedSearchTyped($flid, $query);
+
+            //NOTE: API handles negative searches
+
             $results[] = $result;
         }
 
@@ -150,8 +162,13 @@ class AdvancedSearchController extends Controller {
 
         // This functions to make sure that a record satisfies all search parameters.
         foreach($results as $result) {
-            $rids = array_intersect($rids, $result);
+            $rids = $this->imitateIntersect($rids, $result);
         }
+
+        if(empty($rids))
+            $rids = [];
+
+        sort($rids);
 
         return $rids;
     }

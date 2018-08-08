@@ -26,7 +26,7 @@ class FormSearchController extends Controller {
     }
 
     /**
-     * Performs a keyword search within a form and returns the results view. //TODO::ADD PAGINATION
+     * Performs a keyword search within a form and returns the results view.
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
@@ -37,36 +37,14 @@ class FormSearchController extends Controller {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
-        $args = $request->keywords;
-        $argArray = explode(' ',$args);
+        $argString = trim($request->keywords);
         $method = intval($request->method);
 
         //if no keyword is entered then we want to get all the records back
-        if($args!='') {
-            // Inform the user about arguments that will be ignored.
-            if($method == Search::SEARCH_EXACT) {
-                //Here we treat the argument as one single value
-                $ignored = Search::showIgnoredArguments($argArray, true);
-                $arg = $args;
-            } else {
-                $ignored = Search::showIgnoredArguments($argArray);
-                $args = array_diff($argArray, $ignored);
-                $arg = implode(" ", $args);
-            }
-
-            $ignored = implode(" ", $ignored);
-
-            //TODO:: flash("The following arguments were ignored by the search: " . $ignored . '. ');
-
-            $search = new Search($pid, $fid, $arg, $method);
+        if($argString!='') {
+            $search = new Search($pid, $fid, $argString, $method);
 
             $rids = $search->formKeywordSearch();
-
-            if(empty($rids))
-                $rids = [];
-
-            //store these for later, primarily subset operations like delete, mass assign, etc
-            Session::put('form_rid_search_subset', $rids);
         } else {
             $rids = Record::where('fid','=',$fid)->pluck('rid')->toArray();
         }
