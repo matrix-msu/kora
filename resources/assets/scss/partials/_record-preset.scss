@@ -1,5 +1,5 @@
 .record-preset-body {
-  background: gradient($palette: 'background', $degree: 180deg);
+  background: palette('gray', background);
   font-family: $ubuntu;
   min-height: 100vh;
 }
@@ -7,6 +7,12 @@
 .record-preset {
   margin: $navigation-height auto 0;
   width: 100%;
+
+  .head .description a {
+    color: palette('green', accent);
+    font-family: $ubuntu-medium;
+    text-decoration: none;
+  }
 
   .manage-presets {
     margin: #{map-get($spacing, xxxl)} auto;

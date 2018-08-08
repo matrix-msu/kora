@@ -15,12 +15,12 @@
 
 @section('header')
   <section class="head">
-    <a class="rotate" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
+    <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
     <div class="inner-wrap center">
       <h1 class="title">
         <i class="icon icon-form"></i>
         <span>{{ $form->name }}</span>
-        <a href="{{ action('FormController@edit',['pid' => $form->pid, 'fid' => $form->fid]) }}" class="head-button">
+        <a href="{{ action('FormController@edit',['pid' => $form->pid, 'fid' => $form->fid]) }}" class="head-button tooltip" tooltip="Edit Form">
           <i class="icon icon-edit right"></i>
         </a>
       </h1>
@@ -33,7 +33,8 @@
       <div class="form-group">
         <div class="form-quick-options">
           <div class="button-container">
-            <a href="{{ url('/projects/'.$form->pid).'/forms/'.$form->fid.'/records'}}" class="btn half-sub-btn">View & Search Form Records</a>
+			<?php $count = count($form->records) ?>
+            <a href="{{ url('/projects/'.$form->pid).'/forms/'.$form->fid.'/records'}}" class="btn half-sub-btn">View & Search Form Records ({{ $count }})</a>
             <a href="@if ($hasFields) {{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }} @endif" class="btn half-sub-btn
                 @if(!$hasFields) disabled tooltip @endif" tooltip="Whoops, you can’t create a new record when the form has no fields.">Create New Record</a>
           </div>
@@ -45,6 +46,20 @@
 
 
 @section('body')
+  <?php
+  $page_has_fields = false;
+
+  foreach($pageLayout as $page)
+  {
+    if (count($page["fields"]) > 0)
+  	{
+	  $page_has_fields = true;
+	  break;	
+  	}
+  }
+  ?>
+  
+  @if ($page_has_fields)
   <section class="filters center">
     <div class="underline-middle search search-js">
       <i class="icon icon-search"></i>
@@ -52,10 +67,11 @@
       <i class="icon icon-cancel icon-cancel-js"></i>
     </div>
     <div class="show-options show-options-js">
-      <a href="#" class="expand-fields-js" title="Expand all fields"><i class="icon icon-expand icon-expand-js"></i></a>
-      <a href="#" class="collapse-fields-js" title="Collapse all fields"><i class="icon icon-condense icon-condense-js"></i></a>
+      <a href="#" class="expand-fields-js tooltip" title="Expand all fields" tooltip="Expand All Fields"><i class="icon icon-expand icon-expand-js"></i></a>
+      <a href="#" class="collapse-fields-js tooltip" title="Collapse all fields" tooltip="Condense All Fields"><i class="icon icon-condense icon-condense-js"></i></a>
     </div>
   </section>
+  @endif
 
   <div class="modal modal-js modal-mask page-delete-modal-js">
     <div class="content small">
@@ -100,7 +116,8 @@
     </div>
   </div>
 
-  <section class="pages pages-js center">
+  <section class="pages pages-js center {{ $page_has_fields ? '' : 'mt-xxxl' }}">
+    <?php $pages_count = count($pageLayout); ?>
     @foreach($pageLayout as $idx=>$page)
       <div class="page" page-id="{{$page["id"]}}">
         <div class="page-header">
@@ -118,11 +135,19 @@
             {!! Form::text('name', null, ['class' => 'title page-title-js', 'placeholder' => $page["title"], 'pageid' => $page["id"]]) !!}
           </div>
 
-          <div>
-            <a href="#" data-page="{{$page["id"]}}" class="cancel-container delete-page-js">
-              <i class="icon icon-cancel"></i>
-            </a>
-          </div>
+          @if ($pages_count > 1)
+		  <div>
+		    <a href="#" data-page='{{$page["id"]}}' class="cancel-container delete-page-js tooltip" tooltip="Delete Page">
+		  	  <i class="icon icon-cancel"></i>
+		    </a>
+		  </div>
+		  @elseif ($pages_count == 1)
+		  <div>
+		    <a href="#" data-page='{{$page["id"]}}' class="cancel-container-disabled delete-page-js delete-disabled not-allowed">
+		  	  <i class="icon-cancel not-allowed"></i>
+		   </a>
+		  </div>
+		  @endif
         </div>
 
         <div class="field-sort-js" style="min-height: 10px;">

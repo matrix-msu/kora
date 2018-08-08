@@ -6,6 +6,7 @@
 .tooltip {
   display: inline-block;
   position: relative;
+  pointer-events: auto !important;
 
   &::after {
     opacity: 0;
@@ -19,11 +20,56 @@
     content: attr(tooltip);
     font-size: 12px;
     left: 0;
+    line-height: 13px;
     margin: 0 auto;
     padding: 5px 10px;
     position: absolute;
     top: -30px;
     white-space: nowrap;
+
+    .title & {
+      left: -25px;
+    }
+
+    .page-header & {
+      top: 15px;
+      left: 4px;
+    }
+
+    .footer & {
+      top: -30px;
+      left: -30px;
+    }
+    
+    .content .footer & {
+      top: -15px;
+      left: -65px;
+    }
+
+    .project-cleanup & {
+      left: -25px;
+    }
+
+    .field-cleanup & {
+      left: -18px;
+    }
+
+    .form-cleanup & {
+      top: -35px;
+      left: -18px;
+    }
+
+    .show-options & {
+      left: -50px;
+    }
+
+    .open-create-regex & {
+      left: -140px;
+    }
+  }
+
+  &.form-group {
+    display: block;
   }
 
   &.half-sub-btn.disabled {

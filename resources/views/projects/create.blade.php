@@ -14,7 +14,7 @@
 
 @section('header')
   <section class="head">
-      <a class="rotate" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
+      <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
       <div class="inner-wrap center">
         <h1 class="title">
           <i class="icon icon-new-project"></i>
@@ -26,8 +26,8 @@
 @stop
 
 @section('body')
-  <section class="create-form center">
-    {!! Form::model($project = new \App\Project, ['url' => 'projects', 'class' => 'create-form']) !!}
+  <section class="create-form">
+    {!! Form::model($project = new \App\Project, ['url' => 'projects', 'class' => 'create-form center']) !!}
     @include('partials.projects.form',['projectMode' => $projectMode, 'type' => 'create'])
     {!! Form::close() !!}
   </section>

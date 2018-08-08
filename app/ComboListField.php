@@ -31,6 +31,7 @@ class ComboListField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.combolist";
     const FIELD_ADV_OPTIONS_VIEW = null;
+    const FIELD_ADV_INPUT_VIEW = null;
     const FIELD_INPUT_VIEW = "partials.records.input.combolist";
     const FIELD_DISPLAY_VIEW = "partials.records.display.combolist";
 
@@ -49,6 +50,7 @@ class ComboListField extends BaseField {
      */
     static public $validComboListFieldTypes = [
         'Text Fields' => array('Text' => 'Text', 'Number' => 'Number'),
+        'Date Fields' => array('Date' => 'Date'),
         'List Fields' => array('List' => 'List', 'Multi-Select List' => 'Multi-Select List', 'Generated List' => 'Generated List'),
         'Other' => array('Associator' => 'Associator')
     ];
@@ -133,10 +135,10 @@ class ComboListField extends BaseField {
      * @return Redirect
      */
     public function updateOptions($field, Request $request) {
-        $flopt_one ='[Type]'.$request->typeone.'[Type][Name]'.$request->nameone.'[Name]';
+        $flopt_one ='[Type]'.$request->typeone.'[Type][Name]'.$request->cfname1.'[Name]';
         $flopt_one .= $this->formatUpdatedSubOptions($request,"one",$field->fid);
 
-        $flopt_two ='[Type]'.$request->typetwo.'[Type][Name]'.$request->nametwo.'[Name]';
+        $flopt_two ='[Type]'.$request->typetwo.'[Type][Name]'.$request->cfname2.'[Name]';
         $flopt_two .= $this->formatUpdatedSubOptions($request,"two",$field->fid);
 
         $default='';
@@ -182,6 +184,10 @@ class ComboListField extends BaseField {
                 $options .= '[!Min!]'.$request->{"min_".$seq}.'[!Min!]';
                 $options .= '[!Increment!]'.$request->{"inc_".$seq}.'[!Increment!]';
                 $options .= '[!Unit!]'.$request->{"unit_".$seq}.'[!Unit!]';
+                break;
+            case Field::_DATE:
+                $options .= '[!Start!]'.$request->{"start_".$seq}.'[!Start!]';
+                $options .= '[!End!]'.$request->{"end_".$seq}.'[!End!]';
                 break;
             case Field::_LIST:
             case Field::_MULTI_SELECT_LIST:
@@ -298,17 +304,17 @@ class ComboListField extends BaseField {
         if($matching_record_fields->count() > 0) {
             $combolistfield = $matching_record_fields->first();
             if($overwrite == true || $combolistfield->options == "" || is_null($combolistfield->options)) {
-                $revision = RevisionController::storeRevision($record->rid,'edit');
+                $revision = RevisionController::storeRevision($record->rid,Revision::EDIT);
 
                 $combolistfield->updateData($request->input($field->flid.'_val'));
 
-                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->data = RevisionController::buildDataArray($record);
                 $revision->save();
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid,'edit');
-            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision = RevisionController::storeRevision($record->rid,Revision::EDIT);
+            $revision->data = RevisionController::buildDataArray($record);
             $revision->save();
         }
     }
@@ -331,6 +337,9 @@ class ComboListField extends BaseField {
             case Field::_TEXT:
                 $val1 = 'K3TR: This is a test record';
                 break;
+            case Field::_DATE:
+                $val1 = '01/01/0001';
+                break;
             case Field::_LIST:
                 $val1 = 'K3TR';
                 break;
@@ -348,6 +357,9 @@ class ComboListField extends BaseField {
         switch($type2) {
             case Field::_TEXT:
                 $val2 = 'K3TR: This is a test record';
+                break;
+            case Field::_DATE:
+                $val2 = '01/01/0001';
                 break;
             case Field::_LIST:
                 $val2 = 'K3TR';
@@ -371,19 +383,19 @@ class ComboListField extends BaseField {
     /**
      * Validates the record data for a field against the field's options.
      *
-     * @param  Field $field - The
-     * @param  mixed $value - Record data
+     * @param  Field $field - The field to validate
      * @param  Request $request
-     * @return string - Potential error message
+     * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
+     * @return array - Array of errors
      */
-    public function validateField($field, $value, $request) {
+    public function validateField($field, $request, $forceReq = false) {
         $req = $field->required;
         $flid = $field->flid;
 
-        if($req==1 && !isset($request[$flid.'_val']))
-            return $field->name."_required";
+        if(($req==1 | $forceReq) && !isset($request[$flid.'_combo_one']))
+            return [$field->flid => $field->name.' is required'];
 
-        return 'field_validated';
+        return array();
     }
 
     /**
@@ -394,10 +406,10 @@ class ComboListField extends BaseField {
      * @param  bool $exists - Field for record exists
      */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if(!is_array($revision->data))
-            $revision->data = json_decode($revision->data, true);
+        if(!is_array($revision->oldData))
+            $revision->oldData = json_decode($revision->oldData, true);
 
-        if(is_null($revision->data[Field::_COMBO_LIST][$field->flid]['data']))
+        if(is_null($revision->oldData[Field::_COMBO_LIST][$field->flid]['data']))
             return null;
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
@@ -410,9 +422,9 @@ class ComboListField extends BaseField {
         $this->save();
 
         $type_1 = self::getComboFieldType($field, "one");
-        $type_2 = self::getComboFieldName($field, "two");
+        $type_2 = self::getComboFieldType($field, "two");
 
-        $this->updateData($revision->data[Field::_COMBO_LIST][$field->flid]['data']['options'], $type_1, $type_2);
+        $this->updateData($revision->oldData[Field::_COMBO_LIST][$field->flid]['data']['options'], $type_1, $type_2);
     }
 
     /**
@@ -473,6 +485,8 @@ class ComboListField extends BaseField {
                 $xml .= '<' . Field::xmlTagClear($nameone) . '>';
                 if($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List') {
                     $xml .= utf8_encode('VALUE');
+                } else if($typeone == 'Date') {
+                    $xml .= utf8_encode('MM/DD/YYYY');
                 } else if($typeone == 'Multi-Select List' | $typeone == 'Generated List' | $typeone == 'Associator') {
                     $xml .= '<value>'.utf8_encode('VALUE 1').'</value>';
                     $xml .= '<value>'.utf8_encode('VALUE 2').'</value>';
@@ -482,6 +496,8 @@ class ComboListField extends BaseField {
                 $xml .= '<' . Field::xmlTagClear($nametwo) . '>';
                 if($typetwo == 'Text' | $typetwo == 'Number' | $typetwo == 'List') {
                     $xml .= utf8_encode('VALUE');
+                } else if($typetwo == 'Date') {
+                    $xml .= utf8_encode('MM/DD/YYYY');
                 } else if($typetwo == 'Multi-Select List' | $typetwo == 'Generated List' | $typetwo == 'Associator') {
                     $xml .= '<value>'.utf8_encode('VALUE 1').'</value>';
                     $xml .= '<value>'.utf8_encode('VALUE 2').'</value>';
@@ -499,12 +515,16 @@ class ComboListField extends BaseField {
                 $valArray = array();
                 if($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List') {
                     $valArray[$nameone] = 'VALUE';
+                } else if($typeone == 'Date') {
+                    $valArray[$nameone] = 'MM/DD/YYYY';
                 } else if($typeone == 'Multi-Select List' | $typeone == 'Generated List' | $typeone == 'Associator') {
                     $valArray[$nameone] = array('VALUE 1','VALUE 2','so on...');
                 }
 
                 if($typetwo == 'Text' | $typetwo == 'Number' | $typetwo == 'List') {
                     $valArray[$nametwo] = 'VALUE';
+                } else if($typetwo == 'Date') {
+                    $valArray[$nametwo] = 'MM/DD/YYYY';
                 } else if($typetwo == 'Multi-Select List' | $typetwo == 'Generated List' | $typetwo == 'Associator') {
                     $valArray[$nametwo] = array('VALUE 1','VALUE 2','so on...');
                 }
@@ -591,7 +611,7 @@ class ComboListField extends BaseField {
         $field = FieldController::getField($flid);
         $nameone = self::getComboFieldName($field, 'one');
         $nametwo = self::getComboFieldName($field, 'two');
-        foreach($jsonField->values as $val) {
+        foreach($jsonField->value as $val) {
             if(!is_array($val[$nameone]))
                 $fone = '[!f1!]' . $val[$nameone] . '[!f1!]';
             else
@@ -727,6 +747,7 @@ class ComboListField extends BaseField {
                 isset($query[$flid . "_" . $field_num . "_invert"]),
                 $prefix);
         } else {
+            //TODO::how does date fit into this?
             if($type == Field::_LIST || $type == Field::_TEXT)
                 $inputs = [$query[$flid . "_" . $field_num . "_input"]];
             else // Generated, Associator, or Multi-Select List

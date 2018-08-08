@@ -2,6 +2,9 @@ var Kora = Kora || {};
 Kora.User = Kora.User || {};
 
 Kora.User.Edit = function() {
+  var drop = false;
+  var ajaxData
+
   function initializeChosen() {
     $(".chosen-select").chosen({
       disable_search_threshold: 10,
@@ -32,31 +35,83 @@ Kora.User.Edit = function() {
   /**
     * Modal for deleting a user
     */
-  function initializeCleanUpModals() {
+  function initializeDeleteModals() {
     Kora.Modal.initialize();
+
+    var $deleteModal = $(".user-delete-modal-js");
+    var $selfDeleteModal = $(".user-self-delete-modal-js");
+
 
     $('.user-trash-js').click(function(e) {
       e.preventDefault();
 
-      Kora.Modal.open();
+      Kora.Modal.open($deleteModal);
 
-      $('.user-cleanup-submit').click(function(e) {
+      $('.user-self-delete-1-submit-js').click(function(e) {
         e.preventDefault();
 
-        var deleteForm = $(".modal form");
-        var actionURL = deleteForm.attr("action");
+        Kora.Modal.close();
+        Kora.Modal.open($selfDeleteModal);
 
-        $.ajax({
-          url: actionURL + "/" + id,
-          type: 'DELETE',
-          data: deleteForm.serialize(),
-          success: function(data) {
-            // TODO: Handle messages sent back from controller
-            location.reload();
+        var $deleteValInput = $modal.find('.delete-validation-js');
+        var $deleteValErrorMsg = $deleteValInput.parent().find('.error-message');
+
+        // Validate when unfocusing from delete text input
+        $deleteValInput.on('blur', function() {
+          SelfDeleteModalValidation($deleteValInput, $deleteValErrorMsg);
+        });
+
+        // Validate when attempting to delete self
+        $selfDeleteModal.find('.user-self-delete-2-submit-js').click(function(e) {
+          e.preventDefault();
+
+          if (SelfDeleteModalValidation($deleteValInput, $deleteValErrorMsg)) {
+            $selfDeleteModal.find('form').submit();
           }
         });
       });
+
+
+      //$('.user-cleanup-submit').click(function(e) {
+      //  e.preventDefault();
+      //
+      //  var deleteForm = $(this).parent();
+      //  var actionURL = deleteForm.attr("action");
+      //  var method = deleteForm.attr("method");
+      //
+      //    // Insert user id into delete URL
+      //  var pos = actionURL.indexOf('/delete')
+      //  actionURL = [actionURL.slice(0, pos), userid, actionURL.slice(pos)].join('');
+      //
+      //  $.ajax({
+      //    url: actionURL,
+      //    type: method,
+      //    data: deleteForm.serialize(),
+      //    datatype: 'json',
+      //    success: function(data) {
+      //      window.location = redirectUrl;
+      //    },
+      //    error: function(data) {
+      //      //location.reload();
+      //    }
+      //  });
+      //});
     });
+  }
+
+  /**
+   * Self delete validation
+   */
+  function SelfDeleteModalValidation($input, $errorMsg) {
+    if ($input.val() != "DELETE") {
+      $input.addClass('error');
+      $errorMsg.html('Close, try again');
+      return false;
+    } else {
+      $input.removeClass('error');
+      $errorMsg.html('');
+      return true;
+    }
   }
 
   function initializeForm() { //TODO::drag and drop (check validation function)
@@ -121,7 +176,6 @@ Kora.User.Edit = function() {
         var name = this.value.substring(this.value.lastIndexOf('\\') + 1);
         var reader = new FileReader();
         reader.onload = function (e) {
-          picCont.html("<img src='"+e.target.result+"' alt='Profile Picture'>");
           newProfilePic(e.target.result, name);
         };
         reader.readAsDataURL(this.files[0]);
@@ -129,7 +183,8 @@ Kora.User.Edit = function() {
     });
 
     // Drag and Drop
-    if (isAdvancedUpload) {
+    // check if Drag n Drop is supported, also check that we are not on Safari
+    if (isAdvancedUpload && window.safari == undefined && navigator.vendor != 'Apple Computer, Inc.') {
       button.addClass('has-advanced-upload');
 
       button.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
@@ -146,68 +201,85 @@ Kora.User.Edit = function() {
         e.stopPropagation();
         e.preventDefault();
 
+        drop = true;
         droppedFile = e.originalEvent.dataTransfer.files[0];
+
         var reader = new FileReader();
         reader.onload = function (e) {
-          picCont.html("<img src='"+e.target.result+"' alt='Profile Picture'>");
           newProfilePic(e.target.result, droppedFile.name);
           droppedFile = e.target.result;
-          console.log(e.target.result);
         };
         reader.readAsDataURL(droppedFile);
+
+        ajaxData = new FormData(form.get(0)); // safari does not support form.get()
+        ajaxData.delete('profile'); // safari does not support this
+        ajaxData.append("profile", droppedFile);
+
+        drop = true;
       });
 
-      form.submit(function(e) {
-        e.preventDefault();
+      // for ( var pair of ajaxData.entries() ) {
+        // console.log(pair[0] + ', ' + pair[1]);
+        // //console.log(typeof pair[1]);
+        // if (typeof pair[1] === 'object') {
+          // console.log(pair[1]);
+        // }
+      // }
 
-        var ajaxData = new FormData(form.get(0));
+      // form.submit(function(e) { // this has the same run condition as the initializeValidation() function below, which is probably why uncommenting this function prevents us from even uploading a picture normally - though the console.log loop of 'values' below does not log anything about an uploaded photo
+        // e.preventDefault();
 
-        if (droppedFile) {
-          // This solution does not work with drag and drop, possibly need to change the file type
-          ajaxData.append("profile", droppedFile);
-          console.log(droppedFile);
-        }
+        // var ajaxData = new FormData(form.get(0));
 
-        $.ajax({
-          url: form.attr('action'),
-          type: form.attr('method'),
-          data: ajaxData,
-          dataType: 'json',
-          cache: false,
-          contentType: false,
-          processData: false,
-          success: function(response) {
-            if (response.status) {
-              // Updated successfully
-              location.reload();
-            } else {
-              console.log(response.message);
-            }
-          },
-          error: function(error) {
-            // TODO: Handle errors. Currently can get all errors, just need to display them
+        // if (droppedFile) {
+          // // This solution does not work with drag and drop, possibly need to change the file type
+          // ajaxData.append("profile", droppedFile);
+          // //console.log('droppedFile: ' + droppedFile);
+        // }
 
-            if (error.status == 200) {
-              location.reload();
-            } else {
-              console.log(error);
-              var responseJson = error.responseJSON;
-              $.each(responseJson, function() {
-                console.log(this[0]);
-              });
-            }
-          }
-        });
-      });
+        // $.ajax({
+          // url: form.attr('action'),
+          // type: form.attr('method'),
+          // data: ajaxData,
+          // dataType: 'json',
+          // cache: false,
+          // contentType: false,
+          // processData: false,
+          // success: function(response) {
+            // if (response.status) {
+              // // Updated successfully
+              // location.reload();
+            // } else {
+              // console.log('success: ' + response.message);
+            // }
+          // },
+          // error: function(error) {
+            // // TODO: Handle errors. Currently can get all errors, just need to display them
+
+            // if (error.status == 200) {
+              // //location.reload();
+              // console.log(error);
+              // console.log(error.status);
+            // } else {
+              // console.log(error);
+              // var responseJson = error.responseJSON;
+              // $.each(responseJson, function() {
+                // console.log('error: ' + this[0]);
+              // });
+            // }
+          // }
+        // });
+      // });
     }
   }
 
   function initializeValidation() {
-        $('.validate-user-js').on('click', function(e) {
-            var $this = $(this);
+      $('.validate-user-js').on('click', function(e) {
+          var $this = $(this);
 
-            e.preventDefault();
+          e.preventDefault();
 
+          if (drop = 0) {
             values = {};
             $.each($('.user-form').serializeArray(), function(i, field) {
                 values[field.name] = field.value;
@@ -225,63 +297,117 @@ Kora.User.Edit = function() {
                     $('.error-message').text('');
                     $('.text-input').removeClass('error');
 
-                    $.each(err.responseJSON, function(fieldName, errors) {
+                    $.each(err.responseJSON.errors, function(fieldName, errors) {
                         var $field = $('#'+fieldName);
                         $field.addClass('error');
                         $field.siblings('.error-message').text(errors[0]);
                     });
                 }
             });
-        });
-
-        $('.text-input').on('blur', function(e) {
-            var field = this.id;
-            var second = false;
-            var field2 = '';
-            if(field == 'password') {
-                second = true;
-                field2 = 'password_confirmation';
-            } else if(field == 'password_confirmation') {
-                second = true;
-                field2 = 'password';
-            }
-            var values = {};
-            values[field] = this.value;
-            if(second)
-                values[field2] = $('#'+field2).val();
-            values['_token'] = CSRFToken;
-            values['_method'] = 'PATCH';
+          } else {
+            var form = $(".form-file-input");
 
             $.ajax({
-                url: validationUrl,
-                method: 'POST',
-                data: values,
-                error: function(err) {
-                    if (err.responseJSON[field] !== undefined) {
-                        $('#'+field).addClass('error');
-                        $('#'+field).siblings('.error-message').text(err.responseJSON[field][0]);
-                    } else {
-                        $('#'+field).removeClass('error');
-                        $('#'+field).siblings('.error-message').text('');
-                    }
-
-                    if(second) {
-                        if (err.responseJSON[field2] !== undefined) {
-                            $('#'+field2).addClass('error');
-                            $('#'+field2).siblings('.error-message').text(err.responseJSON[field2][0]);
-                        } else {
-                            $('#'+field2).removeClass('error');
-                            $('#'+field2).siblings('.error-message').text('');
-                        }
-                    }
+              url: form.attr('action'),
+              method: 'POST',
+              data: ajaxData,
+              processData: false,
+              contentType: false,
+              success: function(response) {
+                if (response.status) {
+                  // Updated successfully
+                  //location.reload();
+                  //console.log(response.status);
+                  $('.user-form').submit();
+                } else {
+                  //console.log('success: ' + response.message);
+                  $('.user-form').submit();
                 }
+              },
+              error: function(error) {
+                // TODO: Handle errors. Currently can get all errors, just need to display them
+
+                if (error.status == 200) {
+                  //location.reload();
+                  console.log(error);
+                  console.log(error.status);
+                } else {
+                  console.log(error);
+                  var responseJson = error.responseJSON;
+                  $.each(responseJson, function() {
+                    console.log('error: ' + this[0]);
+                  });
+                }
+              }
             });
-        });
+          }
+      });
+
+      $('.user-form-js .text-input').on('blur', function(e) {
+          var field = this.id;
+          var second = false;
+          var field2 = '';
+          if(field == 'password') {
+              second = true;
+              field2 = 'password_confirmation';
+          } else if(field == 'password_confirmation') {
+              second = true;
+              field2 = 'password';
+          }
+          var values = {};
+          values[field] = this.value;
+          if(second)
+              values[field2] = $('#'+field2).val();
+          values['_token'] = CSRFToken;
+          values['_method'] = 'PATCH';
+
+          $.ajax({
+              url: validationUrl,
+              method: 'POST',
+              data: values,
+              error: function(err) {
+                  if (err.responseJSON.errors[field] !== undefined) {
+                      $('#'+field).addClass('error');
+                      $('#'+field).siblings('.error-message').text(err.responseJSON.errors[field][0]);
+                  } else {
+                      $('#'+field).removeClass('error');
+                      $('#'+field).siblings('.error-message').text('');
+                  }
+
+                  if(second) {
+                      if (err.responseJSON.errors[field2] !== undefined) {
+                          $('#'+field2).addClass('error');
+                          $('#'+field2).siblings('.error-message').text(err.responseJSON.errors[field2][0]);
+                      } else {
+                          $('#'+field2).removeClass('error');
+                          $('#'+field2).siblings('.error-message').text('');
+                      }
+                  }
+              }
+          });
+      });
+  }
+
+    // Ensure provided pic url matches an existing picture
+    function initializeProfilePicValidation() {
+        var $imgCont = $('.profile-pic-cont-js');
+        var $img = $imgCont.find($('.profile-pic-js'));
+        if ($img.length > 0) {
+            // Profile pic url provided, check it exists in app
+            $.get($img.attr('src'))
+                .done(function() {
+                    // Image exists
+                })
+                .fail(function() {
+                    $imgCont.html('<i class="icon icon-user">');
+                });
+        }
     }
 
   initializeChosen();
   initializePasswordChange();
-  initializeCleanUpModals();
-  // initializeForm();
+  initializeDeleteModals();
+  initializeForm();
   initializeValidation();
+  initializeProfilePicValidation();
 }

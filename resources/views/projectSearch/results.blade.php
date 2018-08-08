@@ -20,7 +20,7 @@
 
 @section('header')
     <section class="head">
-        <a class="rotate" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
+        <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-record-search mr-sm"></i>
@@ -37,7 +37,7 @@
         <section class="search-records">
             <form method="GET" action="{{action('ProjectSearchController@keywordSearch',['pid' => $project->pid])}}" class="keyword-search-js">
                 <div class="form-group search-input mt-xl">
-                    {!! Form::label('keywords','Search Via Keyword(s) or KID : ') !!}
+                    {!! Form::label('keywords','Search Via Keyword(s) or KID') !!}
                     <span class="error-message"></span>
                     {!! Form::text('keywords', app('request')->input('keywords'), ['class' => 'text-input keywords-get-js', 'placeholder' => 'Type space separated keywords']) !!}
                 </div>
@@ -69,11 +69,12 @@
                     Search results will appear here after a search has been inputted.
                 </div>
             @else
+            	<div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
+            	
                 @if ( sizeof($records) > 0 )
                     <div class="form-group records-title mt-xxxl">
                         Showing {{sizeof($records)}} of {{$total}} Records
                     </div>
-
                     @include('partials.records.pagination')
 
                     <section class="filters">
@@ -91,8 +92,8 @@
                             </select>
                         </div>
                         <div class="show-options show-options-js">
-                            <span><a href="#" class="expand-fields-js" title="Expand all fields"><i class="icon icon-expand icon-expand-js"></i></a></span>
-                            <span><a href="#" class="collapse-fields-js" title="Collapse all fields"><i class="icon icon-condense icon-condense-js"></i></a></span>
+                            <span><a href="#" class="expand-fields-js tooltip" title="Expand all Records" tooltip="Expand All Records"><i class="icon icon-expand icon-expand-js"></i></a></span>
+                            <span><a href="#" class="collapse-fields-js tooltip" title="Collapse all Records" tooltip="Collapse All Records"><i class="icon icon-condense icon-condense-js"></i></a></span>
                         </div>
                     </section>
 

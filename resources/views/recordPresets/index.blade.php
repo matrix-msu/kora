@@ -16,15 +16,13 @@
 
 @section('header')
     <section class="head">
-        <a class="rotate" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
+        <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-preset"></i>
                 <span>Record Presets</span>
             </h1>
-            <p class="description">Use this page to view and manage record presets within this form. Record presets
-                allow you to … To create a new record preset, visit the single record you wish to turn into a preset.
-                On the records main page, you’ll find the option to turn the record into a preset. </p>
+            <p class="description">Use this page to view and manage record presets within this form. Record presets allow you to create an instance of a record to be reused again. To create a new record preset, visit the single record you wish to turn into a preset. There you’ll find the option to turn the record into a preset. For more information on Record Presets, refer to the <a href="#">Record Presets - Kora Documentation.</a></p>
         </div>
     </section>
 @stop

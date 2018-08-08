@@ -1,5 +1,5 @@
 .option-presets-body {
-  background: gradient($palette: 'background', $degree: 180deg);
+  background: palette('gray', background);
   font-family: $ubuntu-medium;
   min-height: 100vh;
 }
@@ -7,6 +7,12 @@
 .option-presets {
   margin: $navigation-height auto 0;
   width: 100%;
+
+  .head .description a {
+    color: palette('green', accent);
+    font-family: $ubuntu-medium;
+    text-decoration: none;
+  }
 
   @import 'field-presets/filters';
 

@@ -6,7 +6,7 @@
 </div>
 
 <div class="form-group mt-xl">
-    {!! Form::label('default','Default: ') !!}
+    {!! Form::label('default','Default') !!}
     {!! Form::select('default',[''=>''], null, ['class' => 'single-select list-default-js']) !!}
 </div>
 

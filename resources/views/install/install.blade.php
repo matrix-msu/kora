@@ -8,11 +8,13 @@
             </h1>
             <p class="description">Fill out the following forms to fully initialize Kora 3</p>
             <div class="content-sections">
+              <div class="content-sections-scroll">
                 <a href="#database" class="database-link section underline-middle underline-middle-hover toggle-by-name active">Database</a>
                 <a href="#admin" class="admin-link section underline-middle underline-middle-hover toggle-by-name">Admin</a>
                 <a href="#mail" class="mail-link section underline-middle underline-middle-hover toggle-by-name">Mail</a>
                 <a href="#recaptcha" class="recaptcha-link section underline-middle underline-middle-hover toggle-by-name">Recaptcha</a>
                 <a href="#base" class="base-link section underline-middle underline-middle-hover toggle-by-name">Base</a>
+              </div>
             </div>
         </div>
     </section>

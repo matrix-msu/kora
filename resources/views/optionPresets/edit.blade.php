@@ -14,7 +14,7 @@
 
 @section('header')
     <section class="head">
-        <a class="rotate" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
+        <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-preset"></i>
@@ -114,7 +114,7 @@
             </div>
         </form>
 
-        <div class="form-group preset-delete-spacer mb-max">
+        <div class="form-group mt-100-xl mb-max">
             <div class="form-cleanup">
                 <a class="btn dot-btn trash warning delete-preset-open-js" data-title="Delete Form?" href="#" preset-id="{{$preset->id}}">
                     <i class="icon icon-trash"></i>

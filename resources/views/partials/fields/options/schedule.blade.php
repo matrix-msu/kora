@@ -11,7 +11,7 @@
 
 @section('fieldOptions')
     <div class="form-group">
-        {!! Form::label('default','Default Value: ') !!}
+        {!! Form::label('default','Default Value') !!}
         <select multiple class="multi-select default-event-js" name="default[]" data-placeholder="Add Events Below">
             @foreach(\App\ScheduleField::getDateList($field) as $opt)
                 <option value="{{$opt}}" selected>{{$opt}}</option>
@@ -22,27 +22,27 @@
     <section class="new-object-button low-margin form-group">
         <input type="button" class="add-new-default-event-js" value="Create New Default Event">
         <div><a href="#" class="field-preset-link open-event-modal-js">Use a Value Preset for these Events</a></div>
-        <div><a href="#" class="field-preset-link open-create-event-modal-js right
-            @if(empty(\App\ScheduleField::getDateList($field))) disabled @endif">
+        <div class="open-create-regex"><a href="#" class="field-preset-link open-create-event-modal-js right
+            @if(empty(\App\ScheduleField::getDateList($field))) disabled tooltip @endif" tooltip="You must submit or update the field before creating a New Value Preset">
                 Create a New Value Preset from these Events</a></div>
     </section>
 
     <div class="form-group mt-xxxl">
-        {!! Form::label('start','Start Year: ') !!}
+        {!! Form::label('start','Start Year') !!}
         <span class="error-message"></span>
         {!! Form::input('number', 'start', \App\Http\Controllers\FieldController::getFieldOption($field,'Start'),
-            ['class' => 'text-input start-year-js', 'min' => 0, 'max' => 9999]) !!}
+            ['class' => 'text-input start-year-js', 'min' => 0, 'max' => 9999, 'placeholder' => 'Enter start year here']) !!}
     </div>
 
     <div class="form-group mt-xl">
-        {!! Form::label('end','End Year: ') !!}
+        {!! Form::label('end','End Year') !!}
         <span class="error-message"></span>
         {!! Form::input('number', 'end', \App\Http\Controllers\FieldController::getFieldOption($field,'End'),
-            ['class' => 'text-input end-year-js', 'min' => 0, 'max' => 9999]) !!}
+            ['class' => 'text-input end-year-js', 'min' => 0, 'max' => 9999, 'placeholder' => 'Enter end year here']) !!}
     </div>
 
     <div class="form-group mt-xl">
-        {!! Form::label('cal','Calendar Display: ') !!}
+        {!! Form::label('cal','Calendar Display') !!}
         {!! Form::select('cal', ['No' => 'No','Yes' => 'Yes'],
             \App\Http\Controllers\FieldController::getFieldOption($field,'Calendar'), ['class' => 'single-select']) !!}
     </div>

@@ -15,7 +15,7 @@
 
 @section('header')
   <section class="head">
-      <a class="rotate" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
+      <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
       <div class="inner-wrap center">
         <h1 class="title">
           <i class="icon icon-project-edit"></i>
@@ -27,8 +27,8 @@
 @stop
 
 @section('body')
-  <section class="edit-form center">
-    {!! Form::model($project,  ['method' => 'PATCH', 'action' => ['ProjectController@update', $project->pid], 'class' => 'edit-form']) !!}
+  <section class="edit-form">
+    {!! Form::model($project,  ['method' => 'PATCH', 'action' => ['ProjectController@update', $project->pid], 'class' => 'edit-form center']) !!}
     @include('partials.projects.form',['projectMode' => $projectMode, 'pid' => $project->pid, 'type' => 'edit'])
     {!! Form::close() !!}
 

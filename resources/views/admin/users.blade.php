@@ -12,10 +12,7 @@
         <i class="icon icon-users"></i>
         <span>User Management</span>
       </h1>
-      <p class="description">Brief info on user management,
-        followed by instructions on how to use the user management page will go here.
-        If you would to manage users on a project or form level,
-        go to the according permissions page within the project or form.</p>
+      <p class="description">Here you can invite, edit and view all the users within this Kora installation. If you need to manage users on a project or form level, go to the according permissions page within the project or form.</p>
     </div>
   </section>
 @stop
@@ -57,8 +54,21 @@
           </a>
         </div>
         <div class="body">
-          @include("partials.admin.userManagement.userDeleteForm")
-          @include("partials.admin.userManagement.inviteForm")
+          <div class="modal-content-js delete-self-1-content-js">
+            @include("partials.user.userSelfDeleteForm")
+          </div>
+
+          {!! Form::open(['method' => 'DELETE', 'action' => ['AdminController@deleteUser', 'id' => ''], 'class' => "modal-content-js delete-self-2-content-js"]) !!}
+            @include("partials.user.userSelfDeleteActualForm")
+          {!! Form::close() !!}
+
+          {!! Form::open(['method' => 'DELETE', 'action' => ['AdminController@deleteUser', 'id' => ''], 'class' => "modal-content-js delete-content-js"]) !!}
+            @include("partials.user.userDeleteForm")
+          {!! Form::close() !!}
+
+          {!! Form::open(['method' => 'PATCH', 'action' => 'AdminController@batch', 'class' => 'modal-content-js invite-content-js']) !!}
+            @include("partials.admin.userManagement.inviteForm")
+          {!! Form::close() !!}
         </div>
       </div>
     </div>
@@ -71,6 +81,9 @@
 
   <script type="text/javascript">
     var CSRFToken = '{{ csrf_token() }}';
+    var adminId = '{{ \Auth::user()->id }}';
+    var loginUrl = '{{ url('/') }}';
+
     Kora.Admin.Users();
 
     /**

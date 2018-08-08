@@ -45,6 +45,8 @@ class RevisionController extends Controller {
         if(!(\Auth::user()->isFormAdmin($form)))
             return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
+        $this->cleanUpEdits($fid);
+
         $pagination = app('request')->input('page-count') === null ? 10 : app('request')->input('page-count');
         $order = app('request')->input('order') === null ? 'lmd' : app('request')->input('order');
         $order_type = substr($order, 0, 2) === "lm" ? "created_at" : "id";
@@ -71,7 +73,7 @@ class RevisionController extends Controller {
 
         return view('revisions.index', compact('revisions', 'records', 'form', [
             'revisions' => $revisions->appends(Input::except('page'))
-            ]));
+        ]));
     }
 
     /**
@@ -97,6 +99,8 @@ class RevisionController extends Controller {
         if(!(\Auth::user()->isFormAdmin($form)) && \Auth::user()->id != $owner)
             return redirect('projects/'.$pid)->with('k3_global_error', 'revision_permission_issue');
 
+        $this->cleanUpEdits($fid, $rid);
+
         $pagination = app('request')->input('page-count') === null ? 10 : app('request')->input('page-count');
         $order = app('request')->input('order') === null ? 'lmd' : app('request')->input('order');
         $order_type = substr($order, 0, 2) === "lm" ? "created_at" : "id";
@@ -113,6 +117,26 @@ class RevisionController extends Controller {
         $record = RecordController::getRecord($rid);
 
         return view('revisions.index', compact('revisions', 'records', 'form', 'message', 'record', 'rid'))->render();
+    }
+
+    /**
+     * When record edits decide to fail mid stream, the edit revision gets left behind, unfinished. This breaks the
+     * display of the record revision. So when the revisions page is visited, we are going to clean things up!
+     *
+     * @param  int $fid - Form ID
+     * @param  int $rid - Record ID
+     */
+    public function cleanUpEdits($fid, $rid = null) {
+        $revOne = Revision::where("fid", "=", $fid)->where("type","=","edit");
+        $revTwo = Revision::where("fid", "=", $fid)->where("type","=","edit");
+
+        if(!is_null($rid)) {
+            $revOne = $revOne->where("rid", "=", $rid);
+            $revTwo = $revTwo->where("rid", "=", $rid);
+        }
+
+        $data = $revOne->where("data","=","")->delete();
+        $oldData = $revTwo->where("oldData","=","")->delete();
     }
 
     /**
@@ -166,18 +190,18 @@ class RevisionController extends Controller {
      * @param  Record $record - Record to rollback
      * @param  Form $form - Form that owns record
      * @param  Revision $revision - Revision to pull data from
-     * @param  bool $is_rollback - Will new revision allow for rollback
+     * @param  bool $is_rollback - Basically is this revision type Edit or Rollback
      */
     public static function rollback_routine(Record $record, Form $form, Revision $revision, $is_rollback) {
         if($is_rollback) {
             $new_revision = self::storeRevision($record->rid, Revision::ROLLBACK);
-            $new_revision->oldData = $revision->data;
+            $new_revision->data = $revision->oldData;
             $new_revision->save();
         }
 
         // Since we'll be passing around the revision object, we decode its data now.
         // This won't be saved and is done for efficiency.
-        $revision->data = json_decode($revision->data, true);
+        $revision->oldData = json_decode($revision->oldData, true);
 
         foreach($form->fields()->get() as $field) {
             $typedField = $field->getTypedFieldFromRID($record->rid);
@@ -213,7 +237,16 @@ class RevisionController extends Controller {
             $revision->username = \Auth::user()->username;
         $revision->type = $type;
 
-        $revision->data = self::buildDataArray($record);
+        switch($type) {
+            case Revision::CREATE:
+                $revision->data = self::buildDataArray($record);
+                break;
+            case Revision::EDIT: //For this, we set the old data first, return the revision, and let whatever's calling this update the data field themselves
+            case Revision::DELETE: //For this, deletes only store Old Data
+            case Revision::ROLLBACK: //For this, we take what the record is and put it in the new Revisions oldData
+                $revision->oldData = self::buildDataArray($record);
+                break;
+        }
 
         $revision->rollback = 1;
         $revision->save();
@@ -265,18 +298,34 @@ class RevisionController extends Controller {
         $oldData = json_decode($revision->oldData, true);
 
         $formatted = array();
-        foreach ($data as $type => $fields) {
-            foreach ($fields as $id => $field) {
-                if ($revision->type == "edit") {
-                    if ($oldData[$type][$id]['data'] !== $field['data']) {
-                        $formatted["old"][$id] = RevisionController::formatData($type, $oldData[$type][$id]);
-                        $formatted["current"][$id] = RevisionController::formatData($type, $field);
+        switch($revision->type) {
+            case Revision::CREATE:
+                foreach ($data as $type => $fields) {
+                    foreach ($fields as $id => $field) {
+                        $formatted[$id] = RevisionController::formatData($type, $field);
                     }
-                } elseif ($revision->type == "create" || $revision->type == "delete" || $revision->type == "rollback") {
-                    $formatted[$id] = RevisionController::formatData($type, $field);
                 }
-            }
+                break;
+            case Revision::EDIT:
+            case Revision::ROLLBACK:
+                foreach ($data as $type => $fields) {
+                    foreach ($fields as $id => $field) {
+                        if ($oldData[$type][$id]['data'] !== $field['data']) {
+                            $formatted["old"][$id] = RevisionController::formatData($type, $oldData[$type][$id]);
+                            $formatted["current"][$id] = RevisionController::formatData($type, $field);
+                        }
+                    }
+                }
+                break;
+            case Revision::DELETE:
+                foreach ($oldData as $type => $fields) {
+                    foreach ($fields as $id => $field) {
+                        $formatted[$id] = RevisionController::formatData($type, $field);
+                    }
+                }
+                break;
         }
+
         return $formatted;
     }
 
@@ -287,7 +336,7 @@ class RevisionController extends Controller {
      * @param array $field - The field data
      * @return array - The formatted field data
      */
-    public static function formatData($type, $field) {
+    private static function formatData($type, $field) {
         $data = $field["data"];
         if (is_null($data)) {
             $data = 'No Field Data';

@@ -65,7 +65,7 @@ abstract class FileTypeField extends BaseField {
      * @param  int $flid - File field that record file will be loaded to
      * @param  Request $request
      */
-    public static function saveTmpFile($flid) {
+    public static function saveTmpFile($flid) { //TODO:: Need to error out when file error is not 0
         $field = FieldController::getField($flid);
         $uid = \Auth::user()->id;
         $dir = config('app.base_path').'storage/app/tmpFiles/f'.$flid.'u'.$uid;
@@ -143,6 +143,7 @@ abstract class FileTypeField extends BaseField {
         $options = array();
         $options['flid'] = $flid;
         $options['filename'] = $filename;
+        $options['deleteThat'] = true;
         $upload_handler = new UploadHandler($options);
     }
 

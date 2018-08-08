@@ -23,9 +23,11 @@
                 <a href="{{ action('ImportController@exportSample',['pid' => $form->pid, 'fid' => $form->fid, 'type' => 'JSON']) }}">our sample JSON file here</a>
                 to get an idea on how to organize your record data. </p>
             <div class="content-sections sections-remove-js">
+              <div class="content-sections-scroll">
                 <a href="#recordfile" class="recordfile-link underline-middle active">Upload Record Files</a>
                 <span class="progression-tab"></span>
                 <a href="#recordmatch" class="recordmatch-link">Field Matching</a>
+              </div>
             </div>
         </div>
     </section>
@@ -96,6 +98,8 @@
         var fidForFormData = '{{$form->fid}}';
         var matchUpFieldsUrl = '{{ action('ImportController@matchupFields',['pid'=>$form->pid,'fid'=>$form->fid])}}';
         var importRecordUrl = '{{ action('ImportController@importRecord',['pid'=>$form->pid,'fid'=>$form->fid]) }}';
+        var downloadFailedUrl = '{{ action('ImportController@downloadFailedRecords',['pid'=>$form->pid,'fid'=>$form->fid]) }}';
+        var downloadReasonsUrl = '{{ action('ImportController@downloadFailedReasons',['pid'=>$form->pid,'fid'=>$form->fid]) }}';
         var showRecordUrl = '{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}';
         var CSRFToken = '{{ csrf_token() }}';
 

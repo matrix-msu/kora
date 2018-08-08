@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
@@ -197,14 +198,16 @@ class AdminController extends Controller {
       * @param  int $id - The ID of user to be updated
       * @return JsonResponse - User admin toggled
       */
+	  
       public function updateStatus(Request $request) {
         if ($request->id == 1) {
           return response()->json(["status" => false, "message" => "root_admin_error"], 200);
         }
-
+		
         $user = User::where('id', '=', $request->id)->first();
+		
         $message = array();
-
+		
         if ($request->status == "admin") {
           // Updating admin status
           $action = "admin";
@@ -214,53 +217,77 @@ class AdminController extends Controller {
             $user->admin = 0;
 
             //Build the list of project groups they are a part of
-            $safePids = array();
             $guPairs = DB::table("project_group_user")->where('user_id', '=', $user->id)->get();
-            foreach($guPairs as $gu) {
-                $group = ProjectGroup::where("id","=",$gu->project_group_id)->first();
-                array_push($safePids,$group->pid);
-            }
-            $safePids = array_unique($safePids);
+			
+			$user_project_group_ids = array();
+			foreach($guPairs as $gu)
+			{
+				array_push($user_project_group_ids, $gu->project_group_id);
+			}
+			
+			$safe_pids = array();
+			$safe_pids_assoc = array();
+			$pids_data = ProjectGroup::whereIn('id', $user_project_group_ids)->get();
+			foreach($pids_data as $project) // json -> array
+			{
+				array_push($safe_pids, $project->pid);
+				$safe_pids_assoc[$project->pid] = true;
+			}
+			
+			$safe_pids = array_unique($safe_pids);
 
             //Build the list of form groups they are a part of
-            $safeFids = array();
             $guPairs = DB::table("form_group_user")->where("user_id", "=", $user->id)->get();
-            foreach($guPairs as $gu) {
-                $group = FormGroup::where("id","=",$gu->form_group_id)->first();
-                array_push($safeFids,$group->fid);
-            }
-            $safeFids = array_unique($safeFids);
+			
+			$user_form_group_ids = array();
+			foreach($guPairs as $gu)
+			{
+				array_push($user_form_group_ids, $gu->form_group_id);
+			}
+			
+			$safe_fids = array();
+			$safe_fids_assoc = array();
+			$fids_data = FormGroup::whereIn('id', $user_form_group_ids)->get();
+			foreach($fids_data as $group) // json -> array
+			{
+				array_push($safe_fids, $group->fid);
+				$safe_fids_assoc[$group->fid] = true;
+			}
+			
+            $safe_fids = array_unique($safe_fids);
 
             //If the user isn't a part of the project group, we want to remove their custom access to it
             $projects = Project::all();
+			$pids_to_remove = array();
             foreach($projects as $project) {
-                if(!in_array($project->pid,$safePids))
-                    $user->removeCustomProject($project->pid);
+                if(!array_key_exists($project->pid, $safe_pids_assoc))
+				{
+                    //$user->removeCustomProject($project->pid);
+					array_push($pids_to_remove, $project->pid);
+				}
             }
-
+			$user->bulkRemoveCustomProjects($pids_to_remove);
+			
             //If the user isn't a part of the form group, we want to remove their custom access to it
             $forms = Form::all();
+			$fids_to_remove = array();
             foreach($forms as $form) {
-                if(!in_array($form->fid,$safeFids))
-                    $user->removeCustomForm($form->fid);
+                if(!array_key_exists($form->fid, $safe_fids_assoc))
+				{
+                    //$user->removeCustomForm($form->fid);
+					array_push($fids_to_remove, $form->fid);
+				}
             }
+			$user->bulkRemoveCustomForms($fids_to_remove);
 
             array_push($message, "not_admin");
           } else {
             // User granted admin status
             $user->admin = 1;
 
-            // Give permissions to all projects
-            $projects = Project::all();
-            foreach($projects as $project) {
-                $user->addCustomProject($project->pid);
-            }
-
-            $forms = Form::all();
-            foreach($forms as $form) {
-                $user->addCustomForm($form->fid);
-            }
-
+			$user->addNewAdminToAllCustomProjects();
+			$user->addNewAdminToAllCustomForms();
+			
             array_push($message, "admin");
           }
         } else {
@@ -278,8 +305,9 @@ class AdminController extends Controller {
             $user->active = 1;
           }
         }
-
-        $user->save();
+		
+        $user->save(); // insignificant
+		
         return response()->json(["status" => true, "message" => $message, "action" => $action], 200);
       }
 
@@ -341,6 +369,8 @@ class AdminController extends Controller {
                             });
                         } catch(\Swift_TransportException $e) {
                             //TODO::email error response
+                            //Log for now
+                            Log::info('Batch invite email failed');
                         }
                         $created++;
                     } else {

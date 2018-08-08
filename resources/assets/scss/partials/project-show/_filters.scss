@@ -1,7 +1,7 @@
 .filters {
   font-family: $ubuntu;
   height: 20px;
-  margin: 40px auto 0;
+  margin: 40px auto 35px;
   max-width: calc(#{ $max-site-width } - 600px);
   width: $max-site-width;
 
@@ -98,11 +98,12 @@
 @media screen and (max-width: $max-mobile-width) {
   .filters {
     height: 66px;
+    margin-bottom: 0;
 
     .search {
       display: inline-block;
       float: none;
-      padding-bottom: 20px;
+      padding-bottom: 10px;
     }
 
     .sort-options {
@@ -111,7 +112,7 @@
 
       .option {
         display: inline-block;
-        padding-top: 12px;
+        padding: 15px 5px 5px;
         width: auto;
       }
     }
@@ -122,7 +123,6 @@
   .filters {
     margin-left: $mobile-xs-margin-total / 2;
     max-width: $max-mobile-xs-width - $mobile-xs-margin-total;
-    overflow-x: hidden;
     width: calc(100% - #{$mobile-xs-margin-total / 2 });
 
     .sort-options {

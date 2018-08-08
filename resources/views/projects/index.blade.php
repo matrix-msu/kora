@@ -10,7 +10,7 @@
 
 @section('header')
   <section class="head">
-      <a class="rotate" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
+      <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
       <div class="inner-wrap center">
         <h1 class="title">
           <i class="icon icon-projects"></i>
@@ -22,6 +22,7 @@
 @stop
 
 @section('body')
+  @if (count($projects) > 0 or count($inactive) > 0)
   <section class="filters center">
       <div class="underline-middle search search-js">
         <i class="icon icon-search"></i>
@@ -35,6 +36,7 @@
           <a href="#inactive" class="option underline-middle underline-middle-hover">Archived</a>
       </div>
   </section>
+  @endif
 
   <section class="new-object-button center">
     <form action="{{ action('ProjectController@create') }}">
@@ -56,30 +58,18 @@
     @endif
   </section>
 
-  @if(!Auth::user()->admin && sizeof($requestableProjects)>0)
-  <section class="foot center">
-    <p class="permission-information">
-        Don't see the project you are looking for? You might not have the permissions...
-    </p>
-    <p>
-    <a href="#" class="request-permissions request-permissions-js underline-middle-hover">
-        Request Permissions to a Project
-    </a></p>
+  @include('partials.user.profileModal')
 
-    <div class="modal modal-js modal-mask request-permissions-modal-js">
-      <div class="content">
-        <div class="header">
-          <span class="title">Request Project Permissions</span>
-          <a href="#" class="modal-toggle modal-toggle-js">
-            <i class="icon icon-cancel"></i>
-          </a>
-        </div>
-        <div class="body">
-          @include("partials.projects.projectRequestModalForm")
-        </div>
-      </div>
-    </div>
-  </section>
+  @if(!Auth::user()->admin && sizeof($requestableProjects)>0)
+    <section class="foot center">
+      <p class="permission-information">
+          Don't see the project you are looking for? You might not have the permissions...
+      </p>
+      <p>
+      <a href="#" class="request-permissions project-request-perms-js underline-middle-hover">
+          Request Permissions to a Project
+      </a></p>
+    </section>
   @endif
 @stop
 

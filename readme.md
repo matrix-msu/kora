@@ -1,6 +1,10 @@
 # Kora 3 
 ***
 
+### Software Requirements
+1) `PHP` >= 7.1.3
+2) `MySQL` >= 5.5.43 `recommended`
+
 ### Installation
 1) Clone the repository:
     
@@ -16,12 +20,18 @@
 
        i.e. if the URL is: http://www.example.com/digitalRepo/Kora3/public
        then the .htaccess rule is: RewriteBase /digitalRepo/Kora3/public
+       
+5) Configure the `php_value` rules in the newly created `.htaccess` if the installation supports variable overwriting in htaccess:
 
-5) Navigate to your Kora3 url and click install. **REMEMBER** to return here once you complete the installation.
+       i.e. if you plan on uploading larger files
 
-6) Give **READ** access to the web user for Kora3 and **ALL** sub-folders.
+6) Navigate to your Kora3 url and click install. **REMEMBER** to return here once you complete the installation.
     
-7) Give **WRITE** access to the web user for the following directories and **ALL** their sub-folders:
+    ***NOTE:*** Alternatively you can run the `php artisan install:finish` command, with the appropriate variables, via CLI if you do not wish to use the Kora3 interface.
+
+7) Give **READ** access to the web user for Kora3 and **ALL** sub-folders.
+    
+8) Give **WRITE** access to the web user for the following directories and **ALL** their sub-folders:
 
        Kora3/bootstrap/cache/
        Kora3/storage/

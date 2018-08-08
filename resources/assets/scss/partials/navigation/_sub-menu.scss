@@ -11,6 +11,7 @@
   transform: translateY(-200%);
   visibility: hidden;
   width: 175px;
+  word-wrap: break-word;
   will-change: transform;
   z-index: -1;
 
@@ -107,7 +108,7 @@
       margin-right: 10px;
     }
 
-    &.pre-spacer a {
+    &.pre-spacer > a {
       padding-bottom: 20px;
     }
 
@@ -136,4 +137,9 @@
   }
 
   
+}
+
+.nav-textwrap-override {
+  white-space: normal !important;
+  word-wrap:break-word !important;
 }

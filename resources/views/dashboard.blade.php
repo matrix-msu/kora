@@ -12,6 +12,7 @@
                 <span>My Dashboard</span>
             </h1>
             <div class="content-sections">
+              <div class="content-sections-scroll">
                 <a href="#" class="content">
                   <i class="icon icon-block-add"></i>
                   <span>Add a New Block</span>
@@ -20,6 +21,7 @@
                   <i class="icon icon-edit"></i>
                   <span>Edit your Dashboard</span>
                 </a>
+              </div>
             </div>
         </div>
     </section>

@@ -3,6 +3,7 @@
 use App\Http\Controllers\FieldController;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
@@ -163,11 +164,11 @@ class GalleryField extends FileTypeField  {
                             $type = $types[$file->getExtension()];
                         $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
                         $infoArray[$file->getFilename()] = $info;
-                        copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                        rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                             $newPath . '/' . $file->getFilename());
-                        copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename(),
+                        rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename(),
                             $newPath . '/thumbnail/' . $file->getFilename());
-                        copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/medium/' . $file->getFilename(),
+                        rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/medium/' . $file->getFilename(),
                             $newPath . '/medium/' . $file->getFilename());
                     }
                 }
@@ -230,11 +231,11 @@ class GalleryField extends FileTypeField  {
                             $type =  $types[$file->getExtension()];
                         $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
                         $infoArray[$file->getFilename()] = $info;
-                        copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                        rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                             $fileBase . '/' . $file->getFilename());
-                        copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename(),
+                        rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename(),
                             $fileBase . '/thumbnail/' . $file->getFilename());
-                        copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/medium/' . $file->getFilename(),
+                        rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/medium/' . $file->getFilename(),
                             $fileBase . '/medium/' . $file->getFilename());
 
                         $gal_files_exist = true;
@@ -326,20 +327,24 @@ class GalleryField extends FileTypeField  {
     /**
      * Validates the record data for a field against the field's options.
      *
-     * @param  Field $field - The
-     * @param  mixed $value - Record data
+     * @param  Field $field - The field to validate
      * @param  Request $request
-     * @return string - Potential error message
+     * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
+     * @return array - Array of errors
      */
-    public function validateField($field, $value, $request) {
+    public function validateField($field, $request, $forceReq = false) {
         $req = $field->required;
+        if(Auth::guest())
+            $value = 'f'.$field->flid.'u'.$request['userId'];
+        else
+            $value = 'f'.$field->flid.'u'.Auth::user()->id;
 
-        if($req==1) {
+        if($req==1 | $forceReq) {
             if(glob(config('app.base_path').'storage/app/tmpFiles/'.$value.'/*.*') == false)
-                return $field->name."_required";
+                return [$field->flid => $field->name.' is required'];
         }
 
-        return "field_validated";
+        return array();
     }
 
     /**
@@ -350,10 +355,10 @@ class GalleryField extends FileTypeField  {
      * @param  bool $exists - Field for record exists
      */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if(!is_array($revision->data))
-            $revision->data = json_decode($revision->data, true);
+        if(!is_array($revision->oldData))
+            $revision->oldData = json_decode($revision->oldData, true);
 
-        if(is_null($revision->data[Field::_GALLERY][$field->flid]['data']))
+        if(is_null($revision->oldData[Field::_GALLERY][$field->flid]['data']))
             return null;
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
@@ -363,7 +368,7 @@ class GalleryField extends FileTypeField  {
             $this->rid = $revision->rid;
         }
 
-        $this->images = $revision->data[Field::_GALLERY][$field->flid]['data'];
+        $this->images = $revision->oldData[Field::_GALLERY][$field->flid]['data'];
         $this->save();
     }
 
@@ -413,6 +418,10 @@ class GalleryField extends FileTypeField  {
                 $xml .= '<File>';
                 $xml .= '<Name>' . utf8_encode('so on...') . '</Name>';
                 $xml .= '</File>';
+                $xml .= '</' . Field::xmlTagClear($slug) . '>';
+
+                $xml .= '<' . Field::xmlTagClear($slug) . ' type="Gallery" simple="simple">';
+                $xml .= utf8_encode('FILENAME');
                 $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
                 return $xml;
@@ -487,7 +496,7 @@ class GalleryField extends FileTypeField  {
             mkdir($newDir . '/medium', 0775, true);
         }
         $field = FieldController::getField($flid);
-        foreach($jsonField->files as $file) {
+        foreach($jsonField->value as $file) {
             $name = $file->name;
             //move file from imp temp to tmp files
             copy($currDir . '/' . $name, $newDir . '/' . $name);

@@ -241,6 +241,9 @@ class Field extends Model {
 
         DB::table("metadatas")->where("flid", "=", $this->flid)->delete();
 
+        //A field has been deleted, so current record rollbacks become invalid.
+        RevisionController::wipeRollbacks($this->fid);
+
         parent::delete();
     }
 

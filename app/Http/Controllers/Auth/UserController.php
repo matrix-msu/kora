@@ -2,16 +2,19 @@
 
 use App\Form;
 use App\Http\Requests\UserRequest;
+use App\Preference;
 use App\Project;
 use App\ProjectGroup;
 use App\Record;
 use App\Revision;
 use App\Http\Controllers\Controller;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
@@ -50,63 +53,51 @@ class UserController extends Controller {
      * @return View
      */
     public function index(Request $request, $uid, $section = '') {
+        if (!\Auth::user()->admin && \Auth::user()->id != $request->uid)
+            return redirect('user')->with('k3_global_error', 'cannot_edit_profile');
+
         $section = (($section && in_array($section, ['permissions', 'history'])) ? $section : 'profile');
 
         $user = User::where('id',$uid)->get()->first();
 
-        $profile = $user->profile;
+        $admin = $user->admin;
 
         if ($section == 'permissions') {
-            if($user->admin) {
-                $admin = 1;
+            if($admin) {
                 return view('user/profile-permissions',compact('user', 'admin',  'section'));
             } else {
-                $admin = 0;
                 $projects = self::buildProjectsArray($user);
                 $forms = self::buildFormsArray($user);
                 return view('user/profile-permissions',compact('user', 'admin', 'projects', 'forms', 'section'));
             }
         } elseif ($section == 'history') {
             // Record History revisions
+            $sec = $request->input('sec') === null ? 'rm' : $request->input('sec');
             $pagination = $request->input('page-count') === null ? 10 : app('request')->input('page-count');
-            $order = $request->input('order') === null ? 'lmd' : app('request')->input('order');
-            $order_type = substr($order, 0, 2) === "lm" ? "revisions.created_at" : "revisions.id";
-            $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
+            // Recently Modified Order
+            $rm_order = $request->input('rm-order') === null ? 'lmd' : app('request')->input('rm-order');
+            $rm_order_type = substr($rm_order, 0, 2) === "lm" ? "revisions.created_at" : "revisions.id";
+            $rm_order_direction = substr($rm_order, 2, 3) === "a" ? "asc" : "desc";
+            // My Created Records Order
+            $mcr_order = $request->input('mcr-order') === null ? 'lmd' : app('request')->input('mcr-order');
+            $mcr_order_type = substr($mcr_order, 0, 2) === "lm" ? "records.created_at" : "records.rid";
+            $mcr_order_direction = substr($mcr_order, 2, 3) === "a" ? "asc" : "desc";
             $userRevisions = Revision::leftJoin('records', 'revisions.rid', '=', 'records.rid')
                 ->leftJoin('users', 'revisions.owner', '=', 'users.id')
                 ->select('revisions.*', 'records.kid', 'records.pid', 'users.username as ownerUsername')
                 ->where('revisions.username', '=', $user->username)
                 ->whereNotNull('kid')
-                ->orderBy($order_type, $order_direction)
+                ->orderBy($rm_order_type, $rm_order_direction)
                 ->paginate($pagination);
-            $userOwnedRevisions = Revision::leftJoin('records', 'revisions.rid', '=', 'records.rid')
-                ->select('revisions.*', 'records.kid', 'records.pid')
-                ->where('revisions.owner', '=', $user->id)
+            $userCreatedRecords = Record::where('owner', '=', $user->id)
                 ->whereNotNull('kid')
-                ->orderBy($order_type, $order_direction)
+                ->orderBy($mcr_order_type, $mcr_order_direction)
                 ->paginate($pagination);
 
-            if($user->admin) {
-                $admin = 1;
-                return view('user/profile-record-history',compact('user', 'admin', 'userRevisions', 'userOwnedRevisions', 'section'));
-            } else {
-                $admin = 0;
-                return view('user/profile-record-history',compact('user', 'admin', 'userRevisions', 'userOwnedRevisions', 'section'));
-            }
+            return view('user/profile-record-history',compact('user', 'admin', 'userRevisions', 'userOwnedRevisions', 'userCreatedRecords', 'section', 'sec'));
         } else {
-            if($user->admin) {
-                $admin = 1;
-                return view('user/profile',compact('user', 'admin', 'section'));
-            } else {
-                $admin = 0;
-                return view('user/profile',compact('user', 'admin', 'section'));
-            }
+            return view('user/profile',compact('user', 'admin', 'section'));
         }
-
-
-
-
-
     }
 
     public function editProfile(Request $request) {
@@ -207,17 +198,78 @@ class UserController extends Controller {
         }
 
         if ($request->uid == 1) {
-          return redirect('/user'.\Auth::user()->id)->with('k3_global_error', 'cannot_delete_root_admin');
+          return redirect('user/'.\Auth::user()->id)->with('k3_global_error', 'cannot_delete_root_admin');
         }
 
-        $user = User::where('id', '=', $request->id)->first();
+        $user = User::where('id', '=', $request->uid)->first();
+        $selfDelete = (\Auth::user()->id == $request->uid);
         $user->delete();
 
-        if (\Auth::user()->admin) {
-          redirect('admin/users')->with('k3_global_success', 'user_deleted');
+        if ($selfDelete) {
+            return redirect('/')->with('k3_global_success', 'account_deleted');
+        } elseif (\Auth::user()->admin) {
+            return redirect('admin/users')->with('k3_global_success', 'user_deleted');
         } else {
-          redirect('/')->with('k3_global_success', 'account_deleted');
+            return redirect('/')->with('k3_global_success', 'account_deleted');
         }
+    }
+
+    /**
+     * Editing a user's preferences
+     *
+     * @param $uid User's Id
+     * @return View User prefernce view
+     */
+    public function preferences($uid) {
+        if (\Auth::user()->id != $uid)
+            return redirect('user')->with('k3_global_error', 'cannot_edit_preferences');
+
+        $user = \Auth::user();
+        $preference = Preference::where('user_id', '=' ,$user->id)->first();
+        $logoTargetOptions = Preference::logoTargetOptions();
+        $projPageTabSelOptions = Preference::projPageTabSelOptions();
+
+        if (is_null($preference)) {
+            // Must create user preference
+            $preference = new Preference;
+            $preference->user_id = $user->id;
+            $preference->created_at = Carbon::now();
+            $preference->save();
+        }
+
+        return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions'));
+    }
+
+    /**
+     * @param $uid User's Id
+     * @param Request $request Form inputs
+     * @return Redirect to user's preferences
+     */
+    public function updatePreferences($uid, Request $request) {
+        if (\Auth::user()->id != $uid)
+            return redirect('user/'.\Auth::user()->id.'/preferences')->with('k3_global_error', 'cannot_edit_preferences');
+
+        $user = \Auth::user();
+
+        $preference = Preference::where('user_id', '=', $user->id)->first();
+
+        if (is_null($preference)) {
+            // Must create user preference
+            $preference = new Preference;
+            $preference->user_id = $user->id;
+            $preference->created_at = Carbon::now();
+        }
+
+        $preference->use_dashboard = ($request->useDashboard == "true" ? 1 : 0);
+        $preference->logo_target = $request->logoTarget;
+        $preference->proj_page_tab_selection = $request->projPageTabSel;
+
+        $preference->save();
+
+        $logoTargetOptions = Preference::logoTargetOptions();
+        $projPageTabSelOptions = Preference::projPageTabSelOptions();
+
+        return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions'));
     }
 
     public function validateUserFields(UserRequest $request) {
@@ -346,13 +398,12 @@ class UserController extends Controller {
      * @return View
      */
     public function activateshow() {
-        if (is_null(\Auth::user())) {
-          return redirect('register');
-        } elseif (!\Auth::user()->active) {
-          return view('auth.activate');
-        } else {
-          return redirect('projects');
-        }
+        if(is_null(\Auth::user()))
+            return redirect('register');
+        elseif (!\Auth::user()->active)
+            return view('auth.activate');
+        else
+            return redirect('projects');
     }
 
     /**
@@ -363,12 +414,19 @@ class UserController extends Controller {
     public function resendActivation() {
         $token = \Auth::user()->token;
 
-        Mail::send('emails.activation', compact('token'), function($message)
-        {
-            $message->from(env('MAIL_FROM_ADDRESS'));
-            $message->to(\Auth::user()->email);
-            $message->subject('Kora Account Activation');
-        });
+        //Send email
+        try {
+            Mail::send('emails.activation', compact('token'), function($message)
+            {
+                $message->from(env('MAIL_FROM_ADDRESS'));
+                $message->to(\Auth::user()->email);
+                $message->subject('Kora Account Activation');
+            });
+        } catch(\Swift_TransportException $e) {
+            //TODO::email error response
+            //Log for now
+            Log::info('Resend activation email failed');
+        }
 
         return redirect('auth/activate')->with('k3_global_success', 'user_activate_resent');
     }
@@ -583,13 +641,22 @@ class UserController extends Controller {
     public static function buildPermissionsString($permissions) {
         $permissionsArray = explode(" | ", $permissions);
         if (count($permissionsArray) == 1) {
-            return strtolower($permissionsArray[0]);
+            return $permissionsArray[0];
         } elseif (count($permissionsArray) == 2) {
-            return strtolower(implode(' and ', $permissionsArray));
+            return implode(' and ', $permissionsArray);
         } elseif (count($permissionsArray) > 2) {
             $lastIndex = count($permissionsArray) - 1;
             $permissionsArray[$lastIndex] = 'and ' . $permissionsArray[$lastIndex];
-            return strtolower(implode(', ', $permissionsArray));
+            return implode(', ', $permissionsArray);
         }
+    }
+
+    public static function savePreferences(Request $request, $uid) {
+        if (!\Auth::user()->id != $uid)
+            return redirect('user')->with('k3_global_error', 'cannot_edit_preferences');
+
+        $preference = Preference::firstOrNew(array('uid' => $uid));
+
+        dd($preference);
     }
 }

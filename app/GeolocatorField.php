@@ -4,13 +4,10 @@ use App\FieldHelpers\gPoint;
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
-use Geocoder\Laravel\Facades\Geocoder;
-use Geocoder\Provider\Nominatim;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
-use Ivory\HttpAdapter\CurlHttpAdapter;
 
 class GeolocatorField extends BaseField {
 
@@ -32,6 +29,7 @@ class GeolocatorField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.geolocator";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.geolocator";
+    const FIELD_ADV_INPUT_VIEW = null;
     const FIELD_INPUT_VIEW = "partials.records.input.geolocator";
     const FIELD_DISPLAY_VIEW = "partials.records.display.geolocator";
 
@@ -159,15 +157,15 @@ class GeolocatorField extends BaseField {
         if($matching_record_fields->count() > 0) {
             $geolocatorfield = $matching_record_fields->first();
             if($overwrite == true || ! $geolocatorfield->hasLocations()) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $geolocatorfield->updateLocations($formFieldValue);
-                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->data = RevisionController::buildDataArray($record);
                 $revision->save();
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
-            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
+            $revision->data = RevisionController::buildDataArray($record);
             $revision->save();
         }
     }
@@ -190,18 +188,19 @@ class GeolocatorField extends BaseField {
     /**
      * Validates the record data for a field against the field's options.
      *
-     * @param  Field $field - The
-     * @param  mixed $value - Record data
+     * @param  Field $field - The field to validate
      * @param  Request $request
-     * @return string - Potential error message
+     * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
+     * @return array - Array of errors
      */
-    public function validateField($field, $value, $request) {
+    public function validateField($field, $request, $forceReq = false) {
         $req = $field->required;
+        $value = $request->{$field->flid};
 
-        if($req==1 && ($value==null | $value==""))
-            return $field->name."_required";
+        if(($req==1 | $forceReq) && ($value==null | $value==""))
+            return ['list'.$field->flid.'_chosen' => $field->name.' is required'];
 
-        return "field_validated";
+        return array();
     }
 
     /**
@@ -212,10 +211,10 @@ class GeolocatorField extends BaseField {
      * @param  bool $exists - Field for record exists
      */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if(!is_array($revision->data))
-            $revision->data = json_decode($revision->data, true);
+        if(!is_array($revision->oldData))
+            $revision->oldData = json_decode($revision->oldData, true);
 
-        if(is_null($revision->data[Field::_GEOLOCATOR][$field->flid]['data']))
+        if(is_null($revision->oldData[Field::_GEOLOCATOR][$field->flid]['data']))
             return null;
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
@@ -226,7 +225,7 @@ class GeolocatorField extends BaseField {
         }
 
         $this->save();
-        $this->updateLocations($revision->data[Field::_GEOLOCATOR][$field->flid]['data']);
+        $this->updateLocations($revision->oldData[Field::_GEOLOCATOR][$field->flid]['data']);
     }
 
     /**
@@ -355,7 +354,7 @@ class GeolocatorField extends BaseField {
      */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
         $geo = array();
-        foreach($jsonField->locations as $loc) {
+        foreach($jsonField->value as $loc) {
             $string = '[Desc]' . $loc['desc'] . '[Desc]';
             $string .= '[LatLon]' . $loc['lat'] . ',' . $loc['lon'] . '[LatLon]';
             $string .= '[UTM]' . $loc['zone'] . ':' . $loc['east'] . ',' . $loc['north'] . '[UTM]';
@@ -495,7 +494,7 @@ SQL;
     /**
      * Returns the locations for a record's generated list value.
      *
-     * @return Builder - Query of values
+     * @return \Illuminate\Database\Query\Builder - Query of values
      */
     public function locations() {
         return DB::table(self::SUPPORT_NAME)->select("*")
@@ -603,7 +602,7 @@ SQL;
     public static function validateAddress(Request $request) {
         $address = $request->address;
 
-        $con = new Nominatim(new CurlHttpAdapter(),'http://nominatim.openstreetmap.org/','en');
+        $con = app('geocoder');
 
         try {
             $con->geocode($address);
@@ -633,9 +632,9 @@ SQL;
             $utm = $con->utmZone.':'.$con->utmEasting.','.$con->utmNorthing;
 
             //to address
-            $con = new Nominatim(new CurlHttpAdapter(),'http://nominatim.openstreetmap.org/','en');
+            $con = app('geocoder');
             try {
-                $res = $con->reverse($lat, $lon)->first();
+                $res = $con->reverse($lat, $lon)->get();
                 $addrArray = array($res->getStreetNumber(),$res->getStreetName(),$res->getLocality());
                 $addr = implode(' ',$addrArray);
             } catch(\Exception $e) {
@@ -659,9 +658,9 @@ SQL;
             $lon = $con->long;
 
             //to address
-            $con = new Nominatim(new CurlHttpAdapter(),'http://nominatim.openstreetmap.org/','en');
+            $con = app('geocoder');
             try {
-                $res = $con->reverse($lat, $lon)->first();
+                $res = $con->reverse($lat, $lon)->get();
                 $addrArray = array($res->getStreetNumber(),$res->getStreetName(),$res->getLocality());
                 $addr = implode(' ',$addrArray);
             } catch(\Exception $e) {
@@ -675,9 +674,9 @@ SQL;
             $addr = $request->addr;
 
             //to latlon
-            $con = new Nominatim(new CurlHttpAdapter(),'http://nominatim.openstreetmap.org/','en');
+            $con = app('geocoder');
             try {
-                $res = $con->geocode($addr)->first();
+                $res = $con->geocode($addr)->get();
                 $lat = $res->getLatitude();
                 $lon = $res->getLongitude();
             } catch(\Exception $e) {

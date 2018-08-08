@@ -1,5 +1,5 @@
 .form-create-body {
-  background: gradient($palette: 'background', $degree: 180deg);
+  background: palette('gray', background);
   font-family: $ubuntu;
   min-height: 100vh;
 }
@@ -12,6 +12,13 @@
     margin: #{map-get($spacing, xxxl)} auto;
     max-width: calc(#{ $max-site-width } - 600px);
     width: $max-site-width;
+  }
+
+  @media screen and (max-width: $max-tablet-width) {
+    .create-form {
+      max-width: unset;
+      width: unset;
+    }
   }
 
   .preset-select-container {

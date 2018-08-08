@@ -38,6 +38,7 @@
     @include('partials.revisions.modals.restoreFieldsModal')
     @include('partials.revisions.modals.reactivateRecordModal')
     @if (!isset($rid) || Request::get('revisions'))
+      @if (count($revisions) > 0)
         <section class="record-select-section center">
             <div class="form-group">
                 <label for="record-select">Select Record to Show Revisions For</label>
@@ -53,6 +54,7 @@
                 </select>
             </div>
         </section>
+      @endif
     @endif
     @if (count($revisions) > 0 )
     <section class="filters center">

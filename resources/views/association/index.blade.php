@@ -21,7 +21,8 @@
             <div class="content-sections">
               <div class="content-sections-scroll">
                 <a href="#create" class="section underline-middle underline-middle-hover toggle-by-name active">Create Form Association</a>
-                <a href="#request" class="section underline-middle underline-middle-hover toggle-by-name">Request Form Association</a></div>
+                <a href="#request" class="section underline-middle underline-middle-hover toggle-by-name">Request Form Association</a>
+              </div>
             </div>
         </div>
     </section>
@@ -63,10 +64,10 @@
                     </div>
                     <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
                         <div class="description">
-                            <p>{{ $f->description }}</p>
+                            {{ $f->description }}
                         </div>
                         <div class="footer">
-                            <a class="quick-action trash-container delete-permission-association-js left" href="#" data-form="{{$a->assocForm}}" data-reverse="false">
+                            <a class="quick-action trash-container delete-permission-association-js left tooltip" href="#" data-form="{{$a->assocForm}}" data-reverse="false" tooltip="Remove Form Association">
                                 <i class="icon icon-trash"></i>
                             </a>
                         </div>
@@ -110,10 +111,10 @@
                     </div>
                     <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
                         <div class="description">
-                            <p>{{ $f->description }}</p>
+                          {{ $f->description }}
                         </div>
                         <div class="footer">
-                            <a class="quick-action trash-container delete-permission-association-js left" href="#" data-form="{{$a->dataForm}}" data-reverse='true'>
+                            <a class="quick-action trash-container delete-permission-association-js left tooltip" href="#" data-form="{{$a->dataForm}}" data-reverse='true' tooltip="Remove Form Association">
                                 <i class="icon icon-trash"></i>
                             </a>
                         </div>

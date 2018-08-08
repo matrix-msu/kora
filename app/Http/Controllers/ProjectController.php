@@ -7,6 +7,7 @@ use App\Http\Requests\ProjectRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
@@ -68,7 +69,7 @@ class ProjectController extends Controller {
                 $requestableProjects[$project->pid] = $project->name. " (" . $project->slug.")";
             }
         }
-
+		
         //We need to sort the custom array
         ksort($custom);
 
@@ -81,6 +82,26 @@ class ProjectController extends Controller {
         }*/
 
         return view('projects.index', compact('projects', 'inactive', 'custom', 'pSearch', 'hasProjects', 'requestableProjects'));
+	}
+	
+	/**
+     * Gets modal to request project permissions
+     *
+     * @param  Request $request
+     * @return String contents of view
+     */
+	public function getProjectPermissionsModal(Request $request)
+	{	
+		$projectCollections = Project::all()->sortBy("name", SORT_NATURAL|SORT_FLAG_CASE);
+		$requestableProjects = array();
+		foreach($projectCollections as $project) {
+			if($project->active and !(\Auth::user()->inAProjectGroup($project)))
+			{
+				$requestableProjects[$project->pid] = $project->name. " (" . $project->slug.")";
+			}
+		}
+		
+		return view('partials.projects.projectRequestModalForm', ['requestableProjects' => $requestableProjects])->render();
 	}
 
     /**
@@ -114,11 +135,14 @@ class ProjectController extends Controller {
                         });
                     } catch(\Swift_TransportException $e) {
                         //TODO::email error response
+                        //Log for now
+                        Log::info('Project request email failed');
                     }
                 }
             }
-
-            return redirect('projects')->with('k3_global_success', 'project_access_requested');
+			
+			// only occurs on form submit, not on AJAX call
+			return redirect('projects')->with('k3_global_success', 'project_access_requested');
         }
     }
 
@@ -131,7 +155,9 @@ class ProjectController extends Controller {
         if(!\Auth::user()->admin)
             return redirect('projects')->with('k3_global_error', 'not_admin');
 
-        $users = User::pluck('username', 'id')->all();
+        $currentUser = auth()->user();
+        //$users = User::pluck('username', 'id')->all();
+        $users = User::where('id', '!=', $currentUser->id)->pluck('username', 'id')->all();
         $projectMode = "project_create";
 
         return view('projects.create', compact('users','projectMode'));

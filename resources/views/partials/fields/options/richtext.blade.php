@@ -2,8 +2,8 @@
 
 @section('fieldOptions')
     <div class="form-group">
-        {!! Form::label('default','Default: ') !!}
-        {!! Form::text('default', $field->default, ['class' => 'text-input']) !!}
+        {!! Form::label('default','Default') !!}
+        {!! Form::text('default', $field->default, ['class' => 'text-input', 'placeholder' => 'Enter default value here']) !!}
     </div>
 @stop
 

@@ -20,14 +20,13 @@
 
 @section('header')
     <section class="head">
-        <a class="rotate" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
+        <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-form-record-search mr-sm"></i>
                 <span>Search Form Records</span>
             </h1>
-            <p class="description">Enter keywords to search below. A keyword is required in order to search form
-                records. You can also filter by “Or”, “And”, or “Exact” keyword results. </p>
+            <p class="description">Enter keywords to search below. You can also filter by “Or”, “And”, or “Exact” keyword results. The Search Form Records page also allows you to individually select a number of records in order to batch delete, assign field values, or to export. To create a selection of records, select the radio buttons next to each record name use wish to select.</p>
         </div>
     </section>
 @stop
@@ -38,7 +37,7 @@
         <section class="search-records">
             <form method="GET" action="{{action('FormSearchController@keywordSearch',['pid' => $form->pid, 'fid' => $form->fid])}}" class="keyword-search-js">
                 <div class="form-group search-input mt-xl">
-                    {!! Form::label('keywords','Search Via Keyword(s) or KID : ') !!}
+                    {!! Form::label('keywords','Search Via Keyword(s) or KID') !!}
                     {!! Form::text('keywords', null, ['class' => 'text-input keywords-get-js', 'placeholder' => 'Type space separated keywords']) !!}
                 </div>
                 <div class="form-group search-input mt-xl">
@@ -47,9 +46,13 @@
                 </div>
 
                 <div class="form-group mt-xxxl search-button-container">
-                    <a href="#" class="btn half-sub-btn open-advanced-js" data-unsp-sanitized="clean">View Advanced Search Options</a>
+                    @if($form->fields()->where('advsearch','=',1)->count() > 0)
+                        <a href="#" class="btn half-sub-btn open-advanced-js" data-unsp-sanitized="clean">View Advanced Search Options</a>
+                    @else
+                        <a href="#" class="btn half-sub-btn disabled" data-unsp-sanitized="clean">No Advanced Search Available</a>
+                    @endif
                     <a href="#" class="btn half-sub-btn close-advanced-js" data-unsp-sanitized="clean">Hide Advanced Search Options</a>
-                    <a href="#" class="btn half-btn submit-search-js" data-unsp-sanitized="clean">Search</a>
+                    <a href="#" class="btn half-btn submit-search-js right" data-unsp-sanitized="clean">Search</a>
                 </div>
             </form>
 
@@ -93,8 +96,8 @@
                       </select>
                   </div>
                   <div class="show-options show-options-js">
-                      <span><a href="#" class="expand-fields-js" title="Expand all fields"><i class="icon icon-expand icon-expand-js"></i></a></span>
-                      <span><a href="#" class="collapse-fields-js" title="Collapse all fields"><i class="icon icon-condense icon-condense-js"></i></a></span>
+                      <span><a href="#" class="expand-fields-js tooltip" title="Expand all Records" tooltip="Expand all Records"><i class="icon icon-expand icon-expand-js"></i></a></span>
+                      <span><a href="#" class="collapse-fields-js tooltip" title="Collapse all Records" tooltip="Collapse all Records"><i class="icon icon-condense icon-condense-js"></i></a></span>
                   </div>
               </section>
 

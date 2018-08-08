@@ -3,6 +3,7 @@
 use App\DownloadTracker;
 use App\Field;
 use App\Form;
+use App\Record;
 use App\TextField;
 use Illuminate\Support\Facades\DB;
 use App\Metadata;
@@ -72,7 +73,10 @@ class ExportController extends Controller {
         $tracker->fid = $form->fid;
         $tracker->save(); //TODO:: is this doing anything?
 
-        $output = $this->exportWithRids($rids, $type);
+        //most of these are included to not break JSON, revAssoc is the only one that matters to us for this so we can get
+        // the reverse associations. The others are only relevant to the API
+        $options = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "data" => true, "realnames" => false, "assoc" => false];
+        $output = $this->exportWithRids($rids, $type, false, $options);
 
         if(file_exists($output)) { // File exists, so we download it.
             header("Content-Disposition: attachment; filename=\"" . basename($output) . "\"");
@@ -82,6 +86,7 @@ class ExportController extends Controller {
             readfile($output);
 
             $tracker->delete();
+            exit;
         } else { // File does not exist, so some kind of error occurred, and we redirect.
             $tracker->delete();
 
@@ -154,6 +159,7 @@ class ExportController extends Controller {
         header('Content-Type: application/zip; ');
 
         readfile($zipPath.$form->name.'_fileData_'.$time.'.zip');
+        exit;
     }
 
     /**
@@ -242,6 +248,7 @@ class ExportController extends Controller {
             header('Content-Type: application/octet-stream; ');
 
             echo json_encode($formArray);
+            exit;
         } else {
             return $formArray;
         }
@@ -291,6 +298,7 @@ class ExportController extends Controller {
         header('Content-Type: application/octet-stream; ');
 
         echo json_encode($projArray);
+        exit;
     }
 
     /**
@@ -330,6 +338,12 @@ class ExportController extends Controller {
                     //Next we see if metadata is requested
                     if($useOpts && $options['meta']) {
                         $meta = self::getRecordMetadata($chunk);
+                        $records = array_merge($meta,$records);
+                    }
+
+                    //specifically for file exports
+                    if($useOpts && isset($options['revAssoc']) && $options['revAssoc']) {
+                        $meta = self::getReverseAssociations($chunk);
                         $records = array_merge($meta,$records);
                     }
 
@@ -572,9 +586,11 @@ class ExportController extends Controller {
                                     $akids = array();
                                     $vals = explode(',',$data->value);
                                     foreach($vals as $akid) {
-                                        $arid = explode('-',$akid)[2];
-                                        array_push($assocRIDColl,$arid);
-                                        array_push($akids, $akid);
+                                        if(Record::isKIDPattern($akid)) {
+                                            $arid = explode('-',$akid)[2];
+                                            array_push($assocRIDColl,$arid);
+                                            array_push($akids, $akid);
+                                        }
                                     }
 
                                     $ainfo = [
@@ -663,6 +679,9 @@ class ExportController extends Controller {
                             case Field::_TEXT:
                                 $records[$kid][$slug] = $data->value;
                                 break;
+                            case Field::_NUMBER:
+                                $records[$kid][$slug] = $data->value;
+                                break;
                             case Field::_RICH_TEXT:
                                 $records[$kid][$slug] = $data->value;
                                 break;
@@ -743,6 +762,9 @@ class ExportController extends Controller {
             case self::XML:
                 $records = '<?xml version="1.0" encoding="utf-8"?><Records>';
                 $recordData = [];
+
+                //Check to see if we should bother with options
+                $useOpts = !is_null($options);
 
                 foreach($chunks as $chunk) {
                     $datafields = self::getDataRows($chunk);
@@ -953,6 +975,27 @@ class ExportController extends Controller {
                         else
                             $recordData[$kid] = $fieldxml;
                     }
+
+                    //Next we see if metadata is requested
+                    if($useOpts && $options['revAssoc']) {
+                        $meta = self::getReverseAssociations($chunk);
+                        foreach($meta as $mkid => $mt) {
+                            if(isset($mt['reverseAssociations'])) {
+                                $raXML = '<reverseAssociations>';
+                                foreach ($mt['reverseAssociations'] as $flid => $rAssocs) {
+                                    foreach($rAssocs as $rA) {
+                                        $raXML .= "<Record flid='$flid'>$rA</Record>";
+                                    }
+                                }
+                                $raXML .= '</reverseAssociations>';
+
+                                if (isset($recordData[$kid]))
+                                    $recordData[$mkid] .= $raXML;
+                                else
+                                    $recordData[$mkid] = $raXML;
+                            }
+                        }
+                    }
                 }
 
                 //Now we have an array of kids to their field data
@@ -1140,6 +1183,8 @@ class ExportController extends Controller {
             $slugQL = ' and fl.slug in ('.substr($slugQL, 0, -1).')';
         }
 
+        DB::statement("SET SESSION group_concat_max_len = 12345;");
+
         return DB::select("SELECT tf.rid as `rid`, tf.text as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
 FROM ".$prefix."text_fields as tf left join ".$prefix."fields as fl on tf.flid=fl.flid where tf.rid in ($ridArray)$slugQL 
 union all
@@ -1208,7 +1253,6 @@ FROM ".$prefix."associator_support as af left join ".$prefix."fields as fl on af
      * Get the metadeta back for a set of records.
      *
      * @param  int $rid - Record IDs
-     * @param  string $slugOpts - Optional flag to limit the fields you are getting back
      * @return array - Metadata for the records
      */
     public static function getRecordMetadata($rids) {
@@ -1229,6 +1273,31 @@ FROM ".$prefix."associator_support as af left join ".$prefix."fields as fl on af
 
         foreach($part2 as $row) {
             $meta[$kidPairs[$row->main]]["reverseAssociations"][] = $row->linker;
+        }
+
+        return $meta;
+    }
+
+    /**
+     * Get the reverse associations back for a set of records.
+     *
+     * @param  int $rid - Record IDs
+     * @return array - Reverse associations for the records
+     */
+    public static function getReverseAssociations($rids) {
+        $prefix = env('DB_PREFIX');
+        $meta = [];
+        $rid = implode(', ',$rids);
+
+        $part1 = DB::select("SELECT r.rid, r.kid FROM ".$prefix."records as r LEFT JOIN ".$prefix."users as u on r.owner=u.id WHERE r.rid in ($rid) ORDER BY field(r.rid, $rid)");
+        foreach($part1 as $row) {
+            $kidPairs[$row->rid] = $row->kid;
+        }
+
+        $results = DB::select("SELECT aSupp.record as main, aSupp.flid as flid, recs.kid as linker FROM ".$prefix."associator_support as aSupp LEFT JOIN ".$prefix."records as recs on aSupp.rid=recs.rid WHERE aSupp.record in ($rid)");
+
+        foreach($results as $row) {
+            $meta[$kidPairs[$row->main]]["reverseAssociations"][$row->flid][] = $row->linker;
         }
 
         return $meta;

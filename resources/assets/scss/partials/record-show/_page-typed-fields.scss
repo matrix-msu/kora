@@ -1,0 +1,264 @@
+.combo-list-display {
+  border: 1px solid rgba(21,39,48,0.1);
+  border-radius: 5px;
+  box-shadow: 0 3px 5px 0 rgba(21,39,48,0.05);
+  margin-top: 10px;
+  overflow: auto;
+  padding-bottom: 6px;
+  padding-left: 20px;
+  padding-right: 20px;
+
+  .combo-column {
+    float: left;
+    margin-bottom: 10px;
+    margin-top: 13px;
+    width: 50%;
+  }
+
+  .combo-title {
+    font-family: $ubuntu-medium;
+    font-size: 14px;
+    line-height: 19px;
+  }
+
+  .combo-border-large {
+    border: 1px solid rgba(21,39,48,0.05);
+    float: left;
+    margin-top: 6px;
+    margin-left:-20px;
+    padding-right: 40px;
+    width: 100%;
+  }
+
+  .combo-border-small {
+    border: 1px solid rgba(21,39,48,0.05);
+    float: left;
+    margin-top: 6px;
+    width: 100%;
+  }
+}
+
+.documents-link {
+  color: palette('green', accent);
+  font-family: $ubuntu-medium;
+  padding-bottom: #{ $underline-padding };
+}
+
+.field-btn {
+  background: palette('white', base);
+  border: 1px solid palette('gray', slate, .1);
+  border-radius: 5px;
+  box-shadow: 0 3px 5px 0 palette('gray', slate, .05);
+  cursor: pointer;
+  display: flex;
+  height: 32px;
+  position: relative;
+  @include transition();
+  width: 32px;
+  z-index: 1;
+
+  .icon {
+    margin: auto;
+  }
+
+  &:hover {
+    background: palette('gray', slate, .05);
+  }
+
+  &-circle {
+    border-radius: 18px;
+    height: 36px;
+    width: 36px;
+  }
+}
+
+.field-sidebar {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
+  padding: 10px;
+  position: absolute;
+  right: 0;
+  top: 0;
+
+  .bottom {
+    .field-btn:not(:first-child) {
+      margin: map-get($spacing, xs) 0 0 0;
+    }
+  }
+
+  .top {
+    .field-btn:not(:last-child) {
+      margin: 0 0 map-get($spacing, xs);
+    }
+  }
+}
+
+/***** GALLERY *****/
+.gallery-controls {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: map-get($spacing, sm) 0 map-get($spacing, xxs);
+  width: calc(100% - 44px);
+
+  .dot {
+    background: palette('gray', slate, .1);
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-block;
+    height: 11px;
+    margin: 0 3px;
+    @include transition();
+    width: 11px;
+
+    &:hover {
+      background: palette('gray', slate, .8);
+    }
+
+    &.active {
+      background: palette('gray', slate);
+    }
+  }
+
+  .field-btn {
+    .icon {
+      font-size: 7px;
+    }
+  }
+
+  .next-button {
+    .icon {
+      transform: rotate(270deg);
+    }
+  }
+
+  .prev-button {
+    .icon {
+      transform: rotate(90deg);
+    }
+  }
+}
+
+.gallery-field-display {
+  background: palette('gray', slate);
+  border-radius: 5px;
+  box-shadow: 0 3px 5px 0 palette('gray', slate, .05);
+  height: 300px;
+  overflow: hidden;
+  position: relative;
+  width: calc(100% - 44px);
+
+  .slide {
+    bottom: 0;
+    display: flex;
+    left: 2000px;
+    position: absolute;
+    right: 0;
+    text-align: center;
+    top: 0;
+    width: 100%;
+
+    &:first-child {
+      left: 0;
+    }
+  }
+
+  .slide-img {
+    margin: auto;
+  }
+}
+
+.gallery-modal {
+  .content {
+    display: block;
+    height: 80vh;
+    overflow-y: unset;
+
+    .body {
+      height: 100%;
+      padding: 100px 40px 40px;
+      width: 100%;
+    }
+
+    .gallery-field-display {
+      height: calc(100% - 58px);
+      width: 100%;
+    }
+  }
+
+  @media screen and (max-width: $max-mobile-med-width) {
+    .content {
+      .body {
+        padding: 100px 0 40px;
+      }
+    }
+  }
+}
+
+.gallery-sidebar {
+  height: calc(100% - 58px);
+}
+
+/***** GEOLOCATOR *****/
+.geolocator-map {
+  border-radius: 5px;
+  height: 270px;
+
+  .lower-right-corner {
+    bottom: 0;
+    position: absolute;
+    right: 0;
+  }
+
+  .modal {
+    .content {
+      display: block;
+      overflow-y: unset;
+    }
+  }
+
+  .upper-right-corner {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+}
+
+.geolocator-map-modal {
+  .content {
+    .body {
+      padding: 100px 0 20px;
+    }
+  }
+
+  .geolocator-modal-map {
+    height: 60vh;
+  }
+}
+
+.jp-center {
+  margin: auto;
+}
+
+.model-player-div {
+  margin: auto;
+  position: relative;
+  width: 800px;
+}
+
+//IF YOU CHANGE THIS HEIGHT, CHANGE IT IN THE RECORD DISPLAY FULLSCREEN JAVASCRIPT FUNCTIONS
+.model-player-canvas {
+  border: 1px solid;
+  height: 400px;
+  width: 800px;
+}
+
+/***** Fullscreen Modal *****/
+.full-screen-modal {
+  .content {
+    box-sizing: border-box;
+  }
+}

@@ -114,21 +114,6 @@ return [
 
 	/*
 	|--------------------------------------------------------------------------
-	| Logging Configuration
-	|--------------------------------------------------------------------------
-	|
-	| Here you may configure the log settings for your application. Out of
-	| the box, Laravel uses the Monolog PHP logging library. This gives
-	| you a variety of powerful log handlers / formatters to utilize.
-	|
-	| Available Settings: "single", "daily", "syslog", "errorlog"
-	|
-	*/
-
-	'log' => 'daily',
-
-	/*
-	|--------------------------------------------------------------------------
 	| Autoloaded Service Providers
 	|--------------------------------------------------------------------------
 	|
@@ -163,8 +148,9 @@ return [
 		'Illuminate\Translation\TranslationServiceProvider',
 		'Illuminate\Validation\ValidationServiceProvider',
 		'Illuminate\View\ViewServiceProvider',
-		'Illuminate\Html\HtmlServiceProvider',
+		'Collective\Html\HtmlServiceProvider',
 		'Illuminate\Broadcasting\BroadcastServiceProvider',
+		//'Chumper\Zipper\ZipperServiceProvider',
 
 		/*
 		 * Application Service Providers...
@@ -176,7 +162,6 @@ return [
 		'App\Providers\ViewComposerServiceProvider',
 
 		'Laracasts\Flash\FlashServiceProvider',
-		Geocoder\Laravel\Providers\GeocoderService::class,
         'Devfactory\Minify\MinifyServiceProvider',
 	],
 
@@ -226,11 +211,12 @@ return [
 		'URL'       => 'Illuminate\Support\Facades\URL',
 		'Validator' => 'Illuminate\Support\Facades\Validator',
 		'View'      => 'Illuminate\Support\Facades\View',
-		'Form'      => 'Illuminate\Html\FormFacade',
-		'Html'      => 'Illuminate\Html\HtmlFacade',
+		'Form'      => 'Collective\Html\FormFacade',
+		'Html'      => 'Collective\Html\HtmlFacade',
 		'Flash'     => 'Laracasts\Flash\Flash',
 		'Geocoder'  => 'Toin0u\Geocoder\Facade\Geocoder',
         'Minify'    => 'Devfactory\Minify\Facades\MinifyFacade',
+		// 'Zipper'	=> 'Chumper\Zipper\Zipper'
 	],
 
 ];

@@ -8,8 +8,6 @@
             @endif
         </li>
 
-
-
         @if( $object->currentPage()-3 > 1)
 
             <li>
@@ -50,13 +48,12 @@
                     </li>
                 @endfor
             @endif
-
+          
             <li>
                 <a href="{{ $object->url($object->lastPage()) }}">{{$object->lastPage()}}</a>
             </li>
 
         @endif
-
 
         <li class="{{ ($object->currentPage() == $object->lastPage()) ? ' disabled' : '' }}">
             @if ($object->currentPage() == $object->lastPage())

@@ -78,6 +78,10 @@
   }
 }
 
+.clone-btn {
+  margin: 0 auto 15px;
+}
+
 // scss-lint:disable QualifyingElement
 a.btn {
   display: block;
@@ -210,5 +214,9 @@ a.btn {
 
 .pre-fixed-js {
   z-index: 3;
+  
+  &.with-aside {
+    z-index: 0;
+  }
 }
 

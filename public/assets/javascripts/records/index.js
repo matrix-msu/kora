@@ -2,8 +2,16 @@ var Kora = Kora || {};
 Kora.Records = Kora.Records || {};
 
 Kora.Records.Index = function() {
+    var searchMade = false;
+    searchMade = window.localStorage.getItem('searchMade');
+    if (searchMade) {
+      $('.try-another-js').parent().removeClass('hidden');
+      window.localStorage.clear();
+    }
 
     $('.single-select').chosen({
+        allow_single_deselect: true,
+        disable_search_threshold: 10,
         width: '100%',
     });
 
@@ -15,8 +23,8 @@ Kora.Records.Index = function() {
         $('.chosen-search-input').on('keyup', function(e) {
             var container = $(this).parents('.chosen-container').first();
 
-            if (e.which === 13 && container.find('li.no-results').length > 0) {
-                var option = $("<option>").val(this.value).text(this.value);
+            if (e.which === 13 && (container.find('li.no-results').length > 0 || container.find('li.active-result').length == 0)) {
+                var option = $("<option>").val(this.value.trim()).text(this.value.trim());
 
                 var select = container.siblings('.modify-select').first();
 
@@ -79,14 +87,28 @@ Kora.Records.Index = function() {
     function initializePaginationShortcut() {
         $('.page-link.active').click(function(e) {
             e.preventDefault();
+            
+            var placeholder = parseInt($('.page-link.active').next('.page-link').html()) - 1
+            if (isNaN(placeholder)) {
+              placeholder = parseInt($('.page-link.active').prev('.page-link').html()) + 1
+              if (isNaN(placeholder)) {
+                placeholder = 1
+              }
+            }
 
             var $this = $(this);
             var maxInput = $this.siblings().last().text()
-            $this.html('<input class="page-input" type="number" min="1" max="'+ maxInput +'">');
+            $this.html('<input class="page-input" type="number" min="1" max="'+ maxInput +'" placeholder="' + placeholder + '">');
             var $input = $('.page-input');
             $input.focus();
-            $input.on('blur keydown', function(e) {
-                if (e.key !== "Enter" && e.key !== "Tab") return;
+            //$input.on('blur keydown', function(e) {
+            $input.on('keydown', function(e) {
+                if (e.key !== "Enter" && e.key !== "Tab") {
+                  // var get = $('.page-input').attr('placeholder');
+                  // $('.page-input').remove();
+                  // $('.page-link.active').text(''+get+'');
+                  return;
+                }
                 if ($input[0].checkValidity()) {
                     var url = window.location.toString();
                     if (url.includes('page=')) {
@@ -96,6 +118,11 @@ Kora.Records.Index = function() {
                         window.location = url + queryVar + "page=" + $input.val();
                     }
                 }
+            });
+            $input.blur(function () {
+              var get = $('.page-input').attr('placeholder');
+              $('.page-input').remove();
+              $('.page-link.active').text(''+get+'');
             });
         })
     }
@@ -109,12 +136,10 @@ Kora.Records.Index = function() {
             keyVal = $('.keywords-get-js');
             formVal = $('.forms-get-js');
 
-            if(keyVal.val()=='') {
-                keyVal.addClass('error');
-                keyVal.siblings('.error-message').text('Provide a keyword');
-            } else if(formVal.length && formVal.val()==null) {
+            if(formVal.length && formVal.val()==null) {
                 formVal.siblings('.error-message').text('Select something to search through');
             } else {
+                window.localStorage.setItem('searchMade', true);
                 $('.keyword-search-js').submit();
             }
         });
@@ -124,12 +149,10 @@ Kora.Records.Index = function() {
                 keyVal = $('.keywords-get-js');
                 formVal = $('.forms-get-js');
 
-                if(keyVal.val()=='') {
-                    keyVal.addClass('error');
-                    keyVal.siblings('.error-message').text('Provide a keyword');
-                } else if(formVal.length && formVal.val()==null) {
+                if(formVal.length && formVal.val()==null) {
                     formVal.siblings('.error-message').text('Select something to search through');
                 } else {
+                    window.localStorage.setItem('searchMade', true);
                     $('.keyword-search-js').submit();
                 }
             }
@@ -403,18 +426,6 @@ Kora.Records.Index = function() {
     }
 
     function initializeSearchValidation() {
-        $('.keywords-get-js').on('blur', function(e) {
-            value = $(this).val();
-
-            if(value=='') {
-                $(this).addClass('error');
-                $(this).siblings('.error-message').text('Provide a keyword');
-            } else {
-                $(this).removeClass('error');
-                $(this).siblings('.error-message').text('');
-            }
-        });
-
         $('.forms-get-js').on('chosen:hiding_dropdown', function(e) {
             value = $(this).val();
 
@@ -426,6 +437,37 @@ Kora.Records.Index = function() {
         });
     }
 
+    function displayKeywords () {
+      var keywords = $('.keywords-get-js').val();
+      if (keywords != '') {
+        keywords = keywords.split(/\s+/);
+        keywords.forEach(function(keyword){
+          $('ul.keywords').append('<li class="keyword"><span>' + keyword + '</span><a class="keyword-close"></a></li>');
+        });
+        $('ul.keywords').append('<li class="back-to-search"><span>Back to Search</span><i class="icon icon-arrow-up"></i></li>');
+
+        $('.back-to-search, .to-top, .try-another-js').click(function () {
+          $('html, body').animate({
+            scrollTop: 0
+          }, 1500);
+        });
+
+        $('.keyword-close').click(function(){
+          $(this).parent().remove();
+          var find = $(this).siblings('span').text();
+          if (keywords.indexOf(find) >= 0) {
+            var index = keywords.indexOf(find);
+            keywords.splice(index, 1);
+            newKeys = keywords.toString();
+            newKeys = newKeys.replace(',',' ');
+            $('.keywords-get-js').val(newKeys);
+            window.localStorage.setItem('searchMade', true);
+            $('.submit-search-js').trigger('click');
+          }
+        });
+      }
+    }
+
     initializeSelectAddition();
     initializeOptionDropdowns();
     initializePaginationShortcut();
@@ -435,5 +477,6 @@ Kora.Records.Index = function() {
     initializeTypedFieldDisplays();
     initializeScrollTo();
     initializeSearchValidation();
+    displayKeywords();
     Kora.Records.Modal();
 }

@@ -109,6 +109,19 @@ class MailMessage extends SimpleMessage
     }
 
     /**
+     * Set the default markdown template.
+     *
+     * @param  string  $template
+     * @return $this
+     */
+    public function template($template)
+    {
+        $this->markdown = $template;
+
+        return $this;
+    }
+
+    /**
      * Set the from address for the mail message.
      *
      * @param  string  $address
@@ -131,7 +144,7 @@ class MailMessage extends SimpleMessage
      */
     public function replyTo($address, $name = null)
     {
-        $this->replyTo = [$address, $name];
+        $this->replyTo[] = [$address, $name];
 
         return $this;
     }
@@ -145,7 +158,7 @@ class MailMessage extends SimpleMessage
      */
     public function cc($address, $name = null)
     {
-        $this->cc = [$address, $name];
+        $this->cc[] = [$address, $name];
 
         return $this;
     }
@@ -159,7 +172,7 @@ class MailMessage extends SimpleMessage
      */
     public function bcc($address, $name = null)
     {
-        $this->bcc = [$address, $name];
+        $this->bcc[] = [$address, $name];
 
         return $this;
     }

@@ -24,6 +24,10 @@
       opacity: 1;
     }
   }
+  
+  &.add-users-modal .content {
+    overflow: visible;
+  }
 
   .content {
     @include transition();
@@ -36,6 +40,8 @@
     margin: auto;
     max-width: 840px;
     opacity: 0;
+    overflow-y: scroll;
+    overflow-x: hidden;
     position: absolute;
     right: 0;
     width: 90%;
@@ -43,10 +49,20 @@
 
     &.small {
       max-width: 340px;
+    }
 
+    &.preset,
+    &.already-preset {
+      overflow-y: auto;
     }
 
     @import 'modal/header';
     @import 'modal/body';
+  }
+}
+
+@media screen and (max-width: $max-mobile-xs-width) {
+  .modal .content {
+    height: 90%;
   }
 }

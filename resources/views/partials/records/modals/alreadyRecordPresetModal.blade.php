@@ -1,5 +1,5 @@
 <div class="modal modal-js modal-mask already-record-preset-modal-js">
-    <div class="content small">
+    <div class="content small already-preset">
         <div class="header">
             <span class="title">Designated as Preset</span>
             <a href="#" class="modal-toggle modal-toggle-js">
@@ -7,7 +7,7 @@
             </a>
         </div>
         <div class="body">
-            <div class="form-group">
+            <div class="form-group designated">
                 This current version of this record is already designated as a preset. You may visit the
                 <a class="record-preset-link" href="{{action('RecordPresetController@index', ['pid' => $form->pid, 'fid' => $form->fid])}}">
                     Record Preset Management

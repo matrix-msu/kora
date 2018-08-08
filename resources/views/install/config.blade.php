@@ -20,16 +20,17 @@
 
 @section('body')
     <section class="edit-config-form center">
-        <form method="post" action={{action("InstallController@updateEnvConfigs")}}>
+        <form method="post" action="{{action("InstallController@updateEnvConfigs")}}" class="config-form">
             <input type="hidden" name="_token" value="{{csrf_token()}}">
             @foreach($configs as $config)
                 <div class="form-group mt-xl">
                     <label for="{{$config['slug']}}">{{$config['title']}}</label>
+                    <span class="error-message"></span>
                     <input id="{{$config['slug']}}" name="{{$config['slug']}}" class="text-input" @if($config['slug']=='mail_password') type="password" @else type="text"@endif value="{{$config['value']}}">
                 </div>
             @endforeach
             <div class="form-group mt-xxl">
-                <button class="btn btn-primary" type="submit">Update Configuration File</button>
+                <button class="btn btn-primary validate-config-js" type="submit">Update Configuration File</button>
             </div>
         </form>
     </section>
@@ -41,7 +42,12 @@
       '/assets/javascripts/vendor/jquery/jquery-ui.js',
       '/assets/javascripts/vendor/chosen.js',
       '/assets/javascripts/general/modal.js',
+      '/assets/javascripts/install/config.js',
       '/assets/javascripts/navigation/navigation.js',
       '/assets/javascripts/general/global.js'
     ])->withFullUrl() !!}
+
+    <script type="text/javascript">
+        Kora.Install.Config();
+    </script>
 @stop

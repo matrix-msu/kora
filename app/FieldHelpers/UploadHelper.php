@@ -20,14 +20,14 @@ class UploadHandler
     // PHP File Upload error message codes:
     // http://php.net/manual/en/features.file-upload.errors.php
     protected $error_messages = array(
-        1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini',
-        2 => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form',
-        3 => 'The uploaded file was only partially uploaded',
-        4 => 'No file was uploaded',
-        6 => 'Missing a temporary folder',
-        7 => 'Failed to write file to disk',
-        8 => 'A PHP extension stopped the file upload',
-        'post_max_size' => 'The uploaded file exceeds the post_max_size directive in php.ini',
+        1 => 'CONTACT SYSTEM ADMINISTRATOR: The uploaded file exceeds the upload_max_filesize directive in php.ini',
+        2 => 'CONTACT SYSTEM ADMINISTRATOR: The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form',
+        3 => 'CONTACT SYSTEM ADMINISTRATOR: The uploaded file was only partially uploaded',
+        4 => 'CONTACT SYSTEM ADMINISTRATOR: No file was uploaded',
+        6 => 'CONTACT SYSTEM ADMINISTRATOR: Missing a temporary folder',
+        7 => 'CONTACT SYSTEM ADMINISTRATOR: Failed to write file to disk',
+        8 => 'CONTACT SYSTEM ADMINISTRATOR: A PHP extension stopped the file upload',
+        'post_max_size' => 'CONTACT SYSTEM ADMINISTRATOR: The uploaded file exceeds the post_max_size directive in php.ini',
         'max_file_size' => 'File is too big',
         'min_file_size' => 'File is too small',
         'accept_file_types' => 'Filetype not allowed',
@@ -171,7 +171,10 @@ class UploadHandler
     }
 
     protected function initialize() {
-        switch ($this->get_server_var('REQUEST_METHOD')) {
+        //We need to manually force delete
+        $method = isset($this->options['deleteThat']) ? 'DELETE' : $this->get_server_var('REQUEST_METHOD');
+
+        switch ($method) {
             case 'OPTIONS':
             case 'HEAD':
                 $this->head();
@@ -346,6 +349,7 @@ class UploadHandler
     function get_config_bytes($val) {
         $val = trim($val);
         $last = strtolower($val[strlen($val)-1]);
+        $val = str_replace($val[strlen($val)-1],"",$val);
         switch($last) {
             case 'g':
                 $val *= 1024;

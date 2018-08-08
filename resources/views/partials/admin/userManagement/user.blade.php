@@ -34,6 +34,7 @@
     <div class="status">
       {!! Form::model($user,  ['method' => 'PATCH', 'action' => ['AdminController@updateStatus', $user->id]]) !!}
         <input name="_token" type="hidden" value="{{ csrf_token() }}"/>
+		@if ($user->id != Auth::user()->id)
         <div class="form-group">
           <span>
             <div class="check-box-half check-box-rectangle">
@@ -60,14 +61,14 @@
             </div>
           </span>
         </div>
+		@endif
       {!! Form::close() !!}
     </div>
 
     <div class="footer">
       @if ($user->id != 1)
-        <a class="quick-action left user-trash user-trash-js" href="#">
+        <a class="quick-action left user-trash user-trash-js tooltip" href="#" tooltip="Delete User">
           <i class="icon icon-trash"></i>
-          <span>Delete</span>
         </a>
       @endif
 

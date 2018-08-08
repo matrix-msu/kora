@@ -30,11 +30,23 @@
             <span>Jump to Form</span>
             <i class="icon icon-plus"></i>
           </a>
+		  
+		  <?php
+		  // Sort forms by name
+		  $name_fid_forms = [];
+		  
+		  foreach ($allowed_forms as $form)
+		  {
+		    $name_fid_forms[$form->fid] = $form->name;
+		  }
+		  
+		  asort($name_fid_forms, SORT_NATURAL | SORT_FLAG_CASE);
+		  ?>
 
           <ul class="drawer-deep-menu drawer-deep-menu-js">
-            @foreach($allowed_forms as $form)
+            @foreach($name_fid_forms as $form_fid => $form_name)
               <li class="drawer-deep-menu-link">
-                <a href="{{ action('FormController@show', ['pid'=>$pid, 'fid' => $form->fid]) }}">{{ $form->name }}</a>
+                <a href="{{ action('FormController@show', ['pid'=>$pid, 'fid' => $form_fid]) }}">{{ $form_name }}</a>
               </li>
             @endforeach
           </ul>

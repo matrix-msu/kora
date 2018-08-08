@@ -170,16 +170,16 @@ class ScheduleField extends BaseField {
         if($matching_record_fields->count() > 0) {
             $schedulefield = $matching_record_fields->first();
             if($overwrite == true || $schedulefield->hasEvents()) {
-                $revision = RevisionController::storeRevision($record->rid, 'edit');
+                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $schedulefield->updateEvents($formFieldValue);
                 $schedulefield->save();
-                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->data = RevisionController::buildDataArray($record);
                 $revision->save();
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, 'edit');
-            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
+            $revision->data = RevisionController::buildDataArray($record);
             $revision->save();
         }
     }
@@ -202,18 +202,19 @@ class ScheduleField extends BaseField {
     /**
      * Validates the record data for a field against the field's options.
      *
-     * @param  Field $field - The
-     * @param  mixed $value - Record data
+     * @param  Field $field - The field to validate
      * @param  Request $request
-     * @return string - Potential error message
+     * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
+     * @return array - Array of errors
      */
-    public function validateField($field, $value, $request) {
+    public function validateField($field, $request, $forceReq = false) {
         $req = $field->required;
+        $value = $request->{$field->flid};
 
-        if($req==1 && ($value==null | $value==""))
-            return $field->name."_required";
+        if(($req==1 | $forceReq) && ($value==null | $value==""))
+            return ['list'.$field->flid.'_chosen' => $field->name.' is required'];
 
-        return "field_validated";
+        return array();
     }
 
     /**
@@ -224,10 +225,10 @@ class ScheduleField extends BaseField {
      * @param  bool $exists - Field for record exists
      */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if(!is_array($revision->data))
-            $revision->data = json_decode($revision->data, true);
+        if(!is_array($revision->oldData))
+            $revision->oldData = json_decode($revision->oldData, true);
 
-        if(is_null($revision->data[Field::_SCHEDULE][$field->flid]['data']))
+        if(is_null($revision->oldData[Field::_SCHEDULE][$field->flid]['data']))
             return null;
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
@@ -238,7 +239,7 @@ class ScheduleField extends BaseField {
         }
 
         $this->save();
-        $this->updateEvents($revision->data[Field::_SCHEDULE][$field->flid]['data']);
+        $this->updateEvents($revision->oldData[Field::_SCHEDULE][$field->flid]['data']);
     }
 
     /**
@@ -372,7 +373,7 @@ class ScheduleField extends BaseField {
      */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
         $events = array();
-        foreach($jsonField->events as $event) {
+        foreach($jsonField->value as $event) {
             $string = $event['title'] . ': ' . $event['start'] . ' - ' . $event['end'];
             array_push($events, $string);
         }

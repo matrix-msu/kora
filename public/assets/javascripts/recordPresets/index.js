@@ -63,9 +63,10 @@ Kora.RecordPresets.Index = function() {
 
             $.ajax({
                 url: changePresetNameUrl,
-                type: 'PATCH',
+                type: 'POST',
                 data: {
                     '_token': csrfToken,
+                    "_method": 'patch',
                     'id': presetid,
                     'name': name
                 },
@@ -97,9 +98,10 @@ Kora.RecordPresets.Index = function() {
 
             $.ajax({
                 url: deletePresetUrl,
-                type: 'DELETE',
+                type: 'POST',
                 data: {
                     '_token': csrfToken,
+                    "_method": 'delete',
                     'id': presetid
                 },
                 success: function () {

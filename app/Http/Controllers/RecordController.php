@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\AssociatorField;
 use App\Field;
 use App\RecordPreset;
 use App\Revision;
@@ -106,8 +107,8 @@ class RecordController extends Controller {
             if(!is_numeric($key))
                 continue;
             $field = FieldController::getField($key);
-            $message = $field->getTypedField()->validateField($field, $value, $request);
-            if($message != 'field_validated') {
+            $message = $field->getTypedField()->validateField($field, $request);
+            if(!empty($message)) {
                 $arrayed_keys = array();
 
                 foreach($request->all() as $akey => $avalue) {
@@ -146,7 +147,10 @@ class RecordController extends Controller {
             $record = new Record();
             $record->pid = $pid;
             $record->fid = $fid;
-            $record->owner = $request->userId;
+            if($request->assignRoot)
+                $record->owner = 1;
+            else
+                $record->owner = $request->userId;
             $record->save(); //need to save to create rid needed to make kid
             $record->kid = $pid . '-' . $fid . '-' . $record->rid;
             $record->save();
@@ -158,13 +162,43 @@ class RecordController extends Controller {
                 $field->getTypedField()->createNewRecordField($field, $record, $value, $request);
             }
 
+            //Now let's handle reverseAssociations assuming we are coming from the importer or the API
+            if(isset($request->newRecRevAssoc)) {
+                foreach($request->newRecRevAssoc as $flid => $akids) {
+                    foreach($akids as $akid) {
+                        //NOTE: We do these next two checks so that if we take exported records to a new installation, we don't
+                        // accidentally connect to a record that has nothing to do with us
+                        //Let's make sure the request record exists
+                        if(Record::isKIDPattern($akid) && Record::where('kid','=',$akid)->count()==1) {
+                            $recParts = explode('-', $akid);
+
+                            //Make sure this associator exists first
+                            if(Field::where('flid','=',$flid)->where('fid','=',$recParts[1])->where('type','=','Associator')->count()==0)
+                                continue;
+
+                            //See if the associator field for the reverse record already exists or if we need a new one
+                            $assocField = AssociatorField::where('flid','=',$flid)->where('rid','=',$recParts[2])->first();
+                            if(is_null($assocField)) {
+                                $assocField = new AssociatorField();
+                                $assocField->fid = $recParts[1];
+                                $assocField->flid = $flid;
+                                $assocField->rid = $recParts[2];
+                                $assocField->save();
+                            }
+
+                            $assocField->addRecords(array($record->kid));
+                        }
+                    }
+                }
+            }
+
             //
             // Only create a revision if the record was not mass created.
             // This prevents clutter from an operation that the user
             // will likely not want to undo using revisions.
             //
-            if($numRecs > 1)
-                RevisionController::storeRevision($record->rid, 'create');
+            if($numRecs == 1)
+                RevisionController::storeRevision($record->rid, Revision::CREATE);
 
             //If we are making a preset, let's make sure it's done, and done once
             if($makePreset) {
@@ -248,6 +282,19 @@ class RecordController extends Controller {
         return view('records.clone', compact('record', 'form'));
     }
 
+    public function validateRecord($pid, $fid, Request $request) {
+        $errors = [];
+        $form = FormController::getForm($fid);
+
+        foreach($form->fields()->get() as $field) {
+            $message = $field->getTypedField()->validateField($field, $request);
+            if(!empty($message))
+                $errors += $message; //We add these arrays because it maintains the keys, where array_merge re-indexes
+        }
+
+        return response()->json(["status"=>true,"errors"=>$errors],200);
+    }
+
     /**
      * Removes record files from the system for records that no longer exist. This will prevent the possiblity of
      *  rolling back these records.
@@ -255,6 +302,8 @@ class RecordController extends Controller {
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @return array - The records that were removed
+     *
+     * TODO::Revisions don't record mass deletes, so it might be helpful to have this not rely on revisions
      */
     public function cleanUp($pid, $fid) {
         $form = FormController::getForm($fid);
@@ -305,7 +354,7 @@ class RecordController extends Controller {
             }
         }
 
-        return $revisions;
+        return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_success', 'old_records_deleted');
     }
 
     /**
@@ -323,8 +372,8 @@ class RecordController extends Controller {
             if(!is_numeric($key))
                 continue;
             $field = FieldController::getField($key);
-            $message = $field->getTypedField()->validateField($field, $value, $request);
-            if($message != 'field_validated')
+            $message = $field->getTypedField()->validateField($field, $request);
+            if(!empty($message))
                 return redirect()->back()->withInput()->with('k3_global_error', 'record_validation_error')->with('record_validation_error', $message);
         }
 
@@ -342,7 +391,7 @@ class RecordController extends Controller {
         $record->updated_at = Carbon::now();
         $record->save();
 
-        $revision = RevisionController::storeRevision($record->rid, 'edit');
+        $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
 
         $form_fields_expected = Form::find($fid)->fields()->get();
 
@@ -362,7 +411,7 @@ class RecordController extends Controller {
                 $field->getTypedField()->createNewRecordField($field,$record,$value,$request);
         }
 
-        $revision->oldData = RevisionController::buildDataArray($record);
+        $revision->data = RevisionController::buildDataArray($record);
         $revision->save();
 
         //Make new preset
@@ -403,7 +452,7 @@ class RecordController extends Controller {
         $record = self::getRecord($rid);
 
         if(!$mass)
-            RevisionController::storeRevision($record->rid, 'delete');
+            RevisionController::storeRevision($record->rid, Revision::DELETE);
 
         $record->delete();
 
@@ -421,11 +470,14 @@ class RecordController extends Controller {
         $form = FormController::getForm($fid);
 
         if(!\Auth::user()->isFormAdmin($form)) {
-            return response()->json(["status"=>false,"message"=>"not_form_admin"],500);
+            return redirect('projects')->with('k3_global_error', 'not_form_admin');
         } else {
-            Record::where("fid", "=", $fid)->delete();
+            $records = Record::where("fid", "=", $fid)->get();
+            foreach($records as $rec) {
+                $rec->delete();
+            }
 
-            return response()->json(["status"=>true,"message"=>"all_record_deleted"],200);
+            return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_success', 'all_record_deleted');
         }
     }
 
@@ -661,11 +713,6 @@ class RecordController extends Controller {
         if(!is_numeric($flid))
             return redirect()->back()->with('k3_global_error', 'field_invalid');
 
-        if($request->has($flid))
-            $formFieldValue = $request->input($flid); //Note this only works when there is one form element being submitted, so if you have more, check Date
-        else
-            return redirect()->back()->with('k3_global_error', 'no_mass_value');
-
         if($request->has("overwrite"))
             $overwrite = $request->input("overwrite"); //Overwrite field in all records, even if it has data
         else
@@ -673,12 +720,32 @@ class RecordController extends Controller {
 
         $field = FieldController::getField($flid);
         $typedField = $field->getTypedField();
-        
-        foreach(Form::find($fid)->records()->get() as $record) {
-            $typedField->massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite);
-        }
+        $formFieldValue = $request->input($flid);
 
-        return redirect()->action('RecordController@index',compact('pid','fid'))->with('k3_global_success', 'mass_records_updated');
+        //A field may not be required for a record but we want to force validation here so we use forceReq
+        $message = $typedField->validateField($field, $request, true);
+        if(empty($message)) {
+            foreach (Form::find($fid)->records()->get() as $record) {
+                $typedField->massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite);
+            }
+
+            return redirect()->action('RecordController@index', compact('pid', 'fid'))->with('k3_global_success', 'mass_records_updated');
+        } else {
+            return redirect()->back()->with('k3_global_error', 'mass_value_invalid');
+        }
+    }
+
+    public function validateMassRecord($pid, $fid, Request $request) {
+        $errors = [];
+
+        $flid = $request->input("field_selection");
+        $field = FieldController::getField($flid);
+
+        $message = $field->getTypedField()->validateField($field, $request);
+        if(!empty($message))
+            $errors += $message; //We add these arrays because it maintains the keys, where array_merge re-indexes
+
+        return response()->json(["status"=>true,"errors"=>$errors],200);
     }
 
     /**
@@ -721,6 +788,13 @@ class RecordController extends Controller {
 
         flash()->overlay(trans('controller_record.recupdate'),trans('controller_record.goodjob'));
         return redirect()->action('RecordController@index',compact('pid','fid'));
+    }
+
+    public function downloadFiles(Request $request) {
+        dd($request->files);
+        $files = $request->files;
+        Zipper::make('downloads/k3download.zip')->add($files);
+        return response()->download(public_path('downloads/k3download.zip'))->deleteFileAfterSend(true);
     }
 
     /**
@@ -766,11 +840,11 @@ class RecordController extends Controller {
         $form = FormController::getForm($fid);
 
         if(!\Auth::user()->isFormAdmin($form)) {
-            return response()->json(["status"=>false,"message"=>"not_form_admin"],500);
+            return redirect('projects')->with('k3_global_error', 'not_form_admin');
         } else {
             Record::where("fid", "=", $fid)->where("isTest", "=", 1)->delete();
 
-            return response()->json(["status"=>true,"message"=>"test_records_deleted"],200);
+            return redirect()->action('RecordController@index',compact('pid','fid'))->with('k3_global_success', 'test_records_deleted');
         }
     }
 }

@@ -22,9 +22,11 @@
                 record files. Associated controls and record values are not compatible with the scheme importer. They
                 can only be maintained by a full K2 System Transfer (Kora Exodus).</p>
             <div class="content-sections">
+              <div class="content-sections-scroll">
                 <a href="#formfile" class="formfile-link underline-middle active">Upload Form File</a>
                 <span class="progression-tab"></span>
                 <a href="#forminfo" class="forminfo-link">Form Information</a>
+              </div>
             </div>
         </div>
     </section>
@@ -91,24 +93,24 @@
     <section class="forminfo-section hidden" id="top-dog">
         <div class="form-group">
             {!! Form::label('name', 'Form Name') !!}
-            {!! Form::text('name', null, ['class' => 'text-input', 'placeholder' => 'Enter the form name here', 'autofocus']) !!}
+            {!! Form::text('name', null, ['class' => 'text-input name', 'placeholder' => 'Enter the form name here', 'autofocus']) !!}
             <p class="sub-text mt-xs">Leave blank to use name from file</p>
         </div>
 
         <div class="form-group mt-xl">
             {!! Form::label('slug', 'Unique Form Identifier') !!}
-            {!! Form::text('slug', null, ['class' => 'text-input', 'placeholder' => "Enter the form's unique ID here (no spaces, alpha-numeric values only)"]) !!}
+            {!! Form::text('slug', null, ['class' => 'text-input slug', 'placeholder' => "Enter the form's unique ID here (no spaces, alpha-numeric values only)"]) !!}
             <p class="sub-text mt-xs">Leave blank to use identifier from file</p>
         </div>
 
         <div class="form-group mt-xl">
             {!! Form::label('description', 'Description') !!}
-            {!! Form::textarea('description', null, ['class' => 'text-area', 'placeholder' => "Enter the form's description here (max. 255 characters)"]) !!}
+            {!! Form::textarea('description', null, ['class' => 'text-area desc', 'placeholder' => "Enter the form's description here (max. 255 characters)"]) !!}
             <p class="sub-text mt-xs">Leave blank to use description from file</p>
         </div>
 
         <div class="form-group mt-xxxl mb-max">
-            {!! Form::submit('Import Form & Information', ['class' => 'btn']) !!}
+            {!! Form::submit('Import Form & Information', ['class' => 'btn submit']) !!}
         </div>
     </section>
 
@@ -119,6 +121,9 @@
     @include('partials.forms.javascripts')
 
     <script type="text/javascript">
+        {{-- var validationUrl = '{{action('Auth\UserController@validateUserFields',['uid'=>$user->id])}}'; --}}
+        var successUrl = '{{ url('projects/'.$pid) }}';
+
         Kora.Forms.ImportK2();
     </script>
 @stop

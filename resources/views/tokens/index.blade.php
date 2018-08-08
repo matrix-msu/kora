@@ -21,20 +21,22 @@
 @section('body')
     @include("partials.tokens.modals")
 
-    <section class="filters center">
-        <div class="underline-middle search search-js">
-            <i class="icon icon-search"></i>
-            <input type="text" placeholder="Find a Token">
-            <i class="icon icon-cancel icon-cancel-js"></i>
-        </div>
-        <div class="sort-options sort-options-js">
-            <a href="#all" class="option underline-middle underline-middle-hover active">All</a>
-            <a href="#search" class="option underline-middle underline-middle-hover">Search</a>
-            <a href="#create" class="option underline-middle underline-middle-hover">Create</a>
-            <a href="#edit" class="option underline-middle underline-middle-hover">Edit</a>
-            <a href="#delete" class="option underline-middle underline-middle-hover">Delete</a>
-        </div>
-    </section>
+    @if ($tokens->count() > 0)
+      <section class="filters center">
+          <div class="underline-middle search search-js">
+              <i class="icon icon-search"></i>
+              <input type="text" placeholder="Find a Token">
+              <i class="icon icon-cancel icon-cancel-js"></i>
+          </div>
+          <div class="sort-options sort-options-js">
+              <a href="#all" class="option underline-middle underline-middle-hover active">All</a>
+              <a href="#search" class="option underline-middle underline-middle-hover">Search</a>
+              <a href="#create" class="option underline-middle underline-middle-hover">Create</a>
+              <a href="#edit" class="option underline-middle underline-middle-hover">Edit</a>
+              <a href="#delete" class="option underline-middle underline-middle-hover">Delete</a>
+          </div>
+      </section>
+    @endif
 
     <section class="new-object-button center">
         <input type="button" value="Create New Token" class="create-token-js">
@@ -59,6 +61,7 @@
     <script type="text/javascript">
         var CSRFToken = '{{ csrf_token() }}';
         var unProjectUrl = '{{ action('TokenController@getUnassignedProjects') }}';
+		var create_url = '{{action('TokenController@create')}}';
         Kora.Tokens.Index();
     </script>
 @stop

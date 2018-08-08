@@ -18,7 +18,7 @@
             @if($page["fields"]->count() > 0)
                 @foreach($page["fields"] as $field)
                     @if($field->viewable)
-                        <div class="field-title mt-m">{{$field->name}}: </div>
+                        <div class="field-title mt-m">{{$field->name}}</div>
 
                         <section class="field-data">
                             <?php $typedField = $field->getTypedFieldFromRID($record->rid); ?>
@@ -33,6 +33,7 @@
             @else
                 <div class="field-title no-field">No fields added to this page</div>
             @endif
+            {{--THIS IS A SPACER--}}
             <div class="field-title"> </div>
         </div>
     </div>
