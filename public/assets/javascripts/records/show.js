@@ -67,7 +67,6 @@ Kora.Records.Show = function() {
             var $slides = $this.find('.slide-js');
             var $dotsContainer = $this.next().find('.dots-js');
             var slideCount = $slides.length;
-            var loadCount = 0;
             var currentSlide = 0;
             var galHeight = 300, galWidth = 500, galAspectRatio = galWidth / galHeight;
 
@@ -90,12 +89,7 @@ Kora.Records.Show = function() {
             });
 
             // Need to wait for images to load before getting heights and widths
-            $this.find('img').load(function() {
-                loadCount += 1;
-                if (loadCount < slideCount) {
-                    return;
-                }
-
+            $(window).load(function() {
                 // Size and Position slides based on gallery aspect ratio
                 setGalAspectRatio();
 

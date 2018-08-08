@@ -31,13 +31,9 @@
                 <i class="icon icon-external-link"></i>
             </div>
 
-            <div class="field-btn external-button-js">
+            <a href="{{ action('FieldAjaxController@getZipDownload', ['flid' => $field->flid, 'rid' => $record->rid, 'filename' => 'gallery']) }}" class="field-btn external-button-js">
                 <i class="icon icon-download"></i>
-            </div>
-
-            {!! Form::open() !!}
-                <input type="hidden" value="{{ $typedField->images }}">
-            {!! Form::close() !!}
+            </a>
         </div>
 
         <div class="bottom">

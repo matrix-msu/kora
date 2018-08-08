@@ -128,6 +128,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::patch('/saveTmpFile/{flid}', 'FieldAjaxController@saveTmpFile');
     Route::delete('/deleteTmpFile/{flid}/{filename}', 'FieldAjaxController@delTmpFile');
     Route::get('/download/{rid}/{flid}/{filename}', 'FieldAjaxController@getFileDownload');
+    Route::get('/download/{rid}/{flid}/{filename}/zip', 'FieldAjaxController@getZipDownload');
     Route::get('/download/{rid}/{flid}/{filename}/{type}', 'FieldAjaxController@getImgDisplay');
     Route::get("/validateAddress", "FieldAjaxController@validateAddress");
 
