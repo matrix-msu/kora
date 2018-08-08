@@ -101,18 +101,17 @@
 	                    <span><a href="#" class="collapse-fields-js tooltip" title="Collapse all fields" tooltip="Collapse all Fields"><i class="icon icon-condense icon-condense-js"></i></a></span>
 	                </div>
 	            </section>
-	            
-	            @include('partials.records.pagination')
 
+                @foreach($records as $index => $record)
+                    @include('partials.records.card')
+                @endforeach
+
+                @include('partials.records.pagination')
+
+                <div class="form-group search-button-container mt-xxl">
+                    <a href="#" class="btn half-sub-btn try-another-search try-another-js">Try Another Search</a>
+                </div>
             @endif
-
-            @foreach($records as $index => $record)
-                @include('partials.records.card')
-            @endforeach
-
-            <div class="form-group search-button-container mt-xxl hidden">
-              <a href="#" class="btn half-sub-btn try-another-search try-another-js">Try Another Search</a>
-            </div>
         </section>
     </section>
 @stop

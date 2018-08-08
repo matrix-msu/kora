@@ -380,7 +380,7 @@ class GeneratedListField extends BaseField {
         $db_query->where(function($db_query) use ($inputs) {
             foreach($inputs as $input) {
                 //since we want to look for the exact term when data is concatenated string
-                $db_query->where('options','LIKE',$input."[!]%"); //is it the first term
+                $db_query->orWhere('options','LIKE',$input."[!]%"); //is it the first term
                 $db_query->orWhere('options','LIKE',"%[!]".$input); //is it the last term
                 $db_query->orWhere('options','LIKE',"%[!]".$input."[!]%"); //is it in the middle
             }

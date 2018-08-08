@@ -58,15 +58,16 @@ class Search {
     /**
      * Runs the keyword search routine on all field types.
      *
-     * @param  array $flids - Field IDs to search through
+     * @param  array $fields - Field models we are searching through
      * @param  boolean $external - Is this search coming from an external source
      * @return array - Array of rids satisfying search parameters
      */
-    public function formKeywordSearch() {
+    public function formKeywordSearch($fields = null, $external = false) {
         if($this->arg == "")
             return [];
 
-        $fields = Field::where("fid", "=", $this->fid)->get();
+        if(is_null($fields))
+            $fields = Field::where("fid", "=", $this->fid)->get();
         $rids = [];
 
         switch($this->method) {
@@ -79,7 +80,7 @@ class Search {
                     //search the fields
                     foreach($fields as $field) {
                         // These checks make sure the field is searchable
-                        if($field->isSearchable()) {
+                        if( (!$external && $field->isSearchable()) || ($external && $field->isExternalSearchable()) ) {
                             $results = $field->getTypedField()->keywordSearchTyped($field->flid, $arg);
                             $this->imitateMerge($rids, $results);
                         }
@@ -103,7 +104,7 @@ class Search {
                     //search the fields
                     foreach($fields as $field) {
                         // These checks make sure the field is searchable
-                        if($field->isSearchable()) {
+                        if( (!$external && $field->isSearchable()) || ($external && $field->isExternalSearchable()) ) {
                             $results = $field->getTypedField()->keywordSearchTyped($field->flid, $arg);
                             $this->imitateMerge($set, $results);
                         }
@@ -124,7 +125,7 @@ class Search {
                 //search the fields
                 foreach($fields as $field) {
                     // These checks make sure the field is searchable
-                    if($field->isSearchable()) {
+                    if( (!$external && $field->isSearchable()) || ($external && $field->isExternalSearchable()) ) {
                         $results = $field->getTypedField()->keywordSearchTyped($field->flid, $this->arg);
                         $this->imitateMerge($rids, $results);
                     }
@@ -168,7 +169,6 @@ class Search {
         return $intersection;
     }
 
-    //TODO::We need to somehow make this still work so yeah...
     /**
      * Converts characters in a string to their close english only non-accented, non-diacritical matches.
      * The actual conversion is not super important, however consistency is, this is used to ensure a word like
