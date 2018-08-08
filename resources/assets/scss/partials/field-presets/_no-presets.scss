@@ -1,0 +1,72 @@
+.no-presets {
+  
+  .top {
+  font-size: 60px;
+  height: 60px;
+  position: relative;
+  text-align: center; 
+
+    .line {
+      background: palette('gray', base);
+      height: 2px;
+      margin-top: 35px;
+      opacity: 0.05;
+      position: absolute;
+      top: 0;
+      width: 37%;
+      
+      &:last-child {
+        right: 0;
+      }
+    }
+    
+    .icon {
+      opacity: 0.2;
+    }
+  }
+  
+  .bottom {
+    text-align: center;
+    
+    p {
+      font-family: $ubuntu;
+      font-size: 14px;
+      opacity: 0.8;
+      
+      &:first-child {
+        font-size: 18px;
+        margin-top: 0;
+      }
+      
+      &:last-child {
+        display: inline;
+      }
+    }
+
+    form {
+      display: inline;
+    }
+
+    span {
+      padding: 0 0 5px;
+    }
+
+    input {
+      border: none;
+      background: transparent;
+      color: palette('green', accent);
+      font-family: $ubuntu-medium;
+      font-size: 14px;
+      font-size: 14px;
+      padding: 0;
+
+      &:hover {
+        cursor: pointer;
+      }
+
+      &:focus {
+        outline: none;
+      }
+    }
+  }
+}

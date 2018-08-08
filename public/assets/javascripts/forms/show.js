@@ -113,7 +113,7 @@ Kora.Forms.Show = function() {
           type: 'POST',
           data: {
             "_token": CSRFToken,
-            "layout": layout,
+            "layout": JSON.stringify(layout),
           }
         });
       }
@@ -329,6 +329,8 @@ Kora.Forms.Show = function() {
 
     $('.delete-page-js').on('click', function(e) {
       e.preventDefault();
+	  if ($(".delete-page-js").length == 1) return;
+	  
       var page = $(this).data('page');
 
       var $deleteModal = $('.page-delete-modal-js');

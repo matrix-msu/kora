@@ -5,11 +5,12 @@
 }
 
 .field {
+  @include transition();
+
   margin: 0 auto;
   width: calc(100% - 80px);
 
   .quick-action.delete-field {
-    padding-right: 15px;
     padding-top: 35px;
 
     .icon {
@@ -27,6 +28,20 @@
       &::after {
         top: 5px;
       }
+    }
+    
+    @media screen and (max-width: $max-mobile-l-width) {
+      padding: 0;
+    }
+  }
+  
+  @media screen and (max-width: $max-mobile-l-width) {
+	  width: calc(100% - 20px);
+  }
+  
+  &.with-aside {
+    @media screen and (min-width: $max-mobile-xs-width) and (max-width: $max-tablet-width) {
+      width: calc(100% - 20px);
     }
   }
 
@@ -63,7 +78,7 @@
     }
 
     @media screen and (max-width: $max-mobile-width) { //768
-      padding-bottom: 25px;
+      padding-bottom: 10px;
 
       .action {
         display: block;
@@ -87,9 +102,88 @@
 }
 
 .new-field-button {
+  @include transition();
+
   margin: 0 auto;
   padding: 10px 0 40px;
   width: calc(100% - 80px);
-
   
+  @media screen and (max-width: $max-mobile-l-width) {
+	  width: calc(100% - 20px);
+  }
+}
+
+.no-fields {
+  
+	.top {
+		font-size: 40px;
+		height: 40px;
+		margin: 0 auto;
+		position: relative;
+		text-align: center; 
+		width: calc(100% - 80px);
+	  
+		.line {
+		  background: palette('gray', base);
+		  /*background: black;*/
+		  height: 2px;
+		  margin-top: 20px;
+		  opacity: 0.05;
+		  position: absolute;
+		  top: 0;
+		  width: 37%;
+		  
+		  &:last-child {
+		    right: 0;
+		  }
+		}
+    
+		.icon {
+		  opacity: 0.2;
+		}
+	}
+  
+	.bottom {
+		text-align: center;
+	
+		p {
+		  font-family: $ubuntu;
+		  font-size: 14px;
+		  opacity: 0.8;
+		  
+		  &:first-child {
+		    font-size: 18px;
+		    margin-top: 0;
+		  }
+		
+		  &:last-child {
+		    display: inline;
+		  }
+		}
+		
+		form {
+		  display: inline;
+		}
+		
+		span {
+		  padding: 0 0 5px;
+		}
+	
+		input {
+		  border: none;
+		  background: transparent;
+		  color: palette('green', accent);
+		  font-family: $ubuntu-medium;
+		  font-size: 14px;
+		  padding: 0;
+		
+		  &:hover {
+		    cursor: pointer;
+		  }
+		
+		  &:focus {
+		    outline: none;
+		  }
+		} 
+	}
 }

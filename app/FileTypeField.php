@@ -143,6 +143,7 @@ abstract class FileTypeField extends BaseField {
         $options = array();
         $options['flid'] = $flid;
         $options['filename'] = $filename;
+        $options['deleteThat'] = true;
         $upload_handler = new UploadHandler($options);
     }
 

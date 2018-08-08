@@ -1,0 +1,37 @@
+.edit-preferences {
+  a.text {
+    color: palette('green', accent);
+  }
+
+  .check-box-half {
+    display: inline-block;
+    margin: map-get($spacing, xs) map-get($spacing, xl) 0 0;
+  }
+
+  .description {
+    font-size: 14px;
+    line-height: 24px;
+    margin: map-get($spacing, sm) 0 map-get($spacing, m);
+  }
+
+  .edit-preferences-form {
+    margin-bottom: 75px;
+  }
+
+  .preferences-update-button {
+    .update-preferences-submit {
+      margin: 0 auto 15px;
+    }
+  }
+
+  .sub-title {
+    font-family: $ubuntu;
+    font-size: 20px;
+  }
+
+  @media screen and (max-width: $max-mobile-med-width) {
+    .check-box-half {
+      display: block;
+    }
+  }
+}

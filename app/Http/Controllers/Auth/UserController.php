@@ -2,12 +2,14 @@
 
 use App\Form;
 use App\Http\Requests\UserRequest;
+use App\Preference;
 use App\Project;
 use App\ProjectGroup;
 use App\Record;
 use App\Revision;
 use App\Http\Controllers\Controller;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -51,6 +53,9 @@ class UserController extends Controller {
      * @return View
      */
     public function index(Request $request, $uid, $section = '') {
+        if (!\Auth::user()->admin && \Auth::user()->id != $request->uid)
+            return redirect('user')->with('k3_global_error', 'cannot_edit_profile');
+
         $section = (($section && in_array($section, ['permissions', 'history'])) ? $section : 'profile');
 
         $user = User::where('id',$uid)->get()->first();
@@ -193,17 +198,78 @@ class UserController extends Controller {
         }
 
         if ($request->uid == 1) {
-          return redirect('/user'.\Auth::user()->id)->with('k3_global_error', 'cannot_delete_root_admin');
+          return redirect('user/'.\Auth::user()->id)->with('k3_global_error', 'cannot_delete_root_admin');
         }
 
-        $user = User::where('id', '=', $request->id)->first();
+        $user = User::where('id', '=', $request->uid)->first();
+        $selfDelete = (\Auth::user()->id == $request->uid);
         $user->delete();
 
-        if (\Auth::user()->admin) {
-          redirect('admin/users')->with('k3_global_success', 'user_deleted');
+        if ($selfDelete) {
+            return redirect('/')->with('k3_global_success', 'account_deleted');
+        } elseif (\Auth::user()->admin) {
+            return redirect('admin/users')->with('k3_global_success', 'user_deleted');
         } else {
-          redirect('/')->with('k3_global_success', 'account_deleted');
+            return redirect('/')->with('k3_global_success', 'account_deleted');
         }
+    }
+
+    /**
+     * Editing a user's preferences
+     *
+     * @param $uid User's Id
+     * @return View User prefernce view
+     */
+    public function preferences($uid) {
+        if (\Auth::user()->id != $uid)
+            return redirect('user')->with('k3_global_error', 'cannot_edit_preferences');
+
+        $user = \Auth::user();
+        $preference = Preference::where('user_id', '=' ,$user->id)->first();
+        $logoTargetOptions = Preference::logoTargetOptions();
+        $projPageTabSelOptions = Preference::projPageTabSelOptions();
+
+        if (is_null($preference)) {
+            // Must create user preference
+            $preference = new Preference;
+            $preference->user_id = $user->id;
+            $preference->created_at = Carbon::now();
+            $preference->save();
+        }
+
+        return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions'));
+    }
+
+    /**
+     * @param $uid User's Id
+     * @param Request $request Form inputs
+     * @return Redirect to user's preferences
+     */
+    public function updatePreferences($uid, Request $request) {
+        if (\Auth::user()->id != $uid)
+            return redirect('user/'.\Auth::user()->id.'/preferences')->with('k3_global_error', 'cannot_edit_preferences');
+
+        $user = \Auth::user();
+
+        $preference = Preference::where('user_id', '=', $user->id)->first();
+
+        if (is_null($preference)) {
+            // Must create user preference
+            $preference = new Preference;
+            $preference->user_id = $user->id;
+            $preference->created_at = Carbon::now();
+        }
+
+        $preference->use_dashboard = ($request->useDashboard == "true" ? 1 : 0);
+        $preference->logo_target = $request->logoTarget;
+        $preference->proj_page_tab_selection = $request->projPageTabSel;
+
+        $preference->save();
+
+        $logoTargetOptions = Preference::logoTargetOptions();
+        $projPageTabSelOptions = Preference::projPageTabSelOptions();
+
+        return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions'));
     }
 
     public function validateUserFields(UserRequest $request) {
@@ -583,5 +649,14 @@ class UserController extends Controller {
             $permissionsArray[$lastIndex] = 'and ' . $permissionsArray[$lastIndex];
             return implode(', ', $permissionsArray);
         }
+    }
+
+    public static function savePreferences(Request $request, $uid) {
+        if (!\Auth::user()->id != $uid)
+            return redirect('user')->with('k3_global_error', 'cannot_edit_preferences');
+
+        $preference = Preference::firstOrNew(array('uid' => $uid));
+
+        dd($preference);
     }
 }

@@ -3,7 +3,6 @@
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -159,13 +158,13 @@ class TextField extends BaseField {
                 $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $textfield->text = $formFieldValue;
                 $textfield->save();
-                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->data = RevisionController::buildDataArray($record);
                 $revision->save();
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
             $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
-            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->data = RevisionController::buildDataArray($record);
             $revision->save();
         }
     }
@@ -214,10 +213,10 @@ class TextField extends BaseField {
      * @param  bool $exists - Field for record exists
      */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if(!is_array($revision->data))
-            $revision->data = json_decode($revision->data, true);
+        if(!is_array($revision->oldData))
+            $revision->oldData = json_decode($revision->oldData, true);
 
-        if(is_null($revision->data[Field::_TEXT][$field->flid]['data']))
+        if(is_null($revision->oldData[Field::_TEXT][$field->flid]['data']))
             return null;
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
@@ -227,7 +226,7 @@ class TextField extends BaseField {
             $this->fid = $revision->fid;
         }
 
-        $this->text = $revision->data[Field::_TEXT][$field->flid]['data'];
+        $this->text = $revision->oldData[Field::_TEXT][$field->flid]['data'];
         $this->save();
     }
 
@@ -305,7 +304,7 @@ class TextField extends BaseField {
      * @return Request - The update request
      */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
-        $recRequest[$flid] = $jsonField->text;
+        $recRequest[$flid] = $jsonField->value;
 
         return $recRequest;
     }
@@ -321,7 +320,7 @@ class TextField extends BaseField {
         return DB::table("text_fields")
             ->select("rid")
             ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`text`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+            ->where('text','LIKE',"%$arg%")
             ->distinct()
             ->pluck('rid')
             ->toArray();
@@ -332,15 +331,18 @@ class TextField extends BaseField {
      *
      * @param $flid, field id
      * @param $query, contents of query.
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    public function getAdvancedSearchQuery($flid, $query) {
+    public function advancedSearchTyped($flid, $query) {
+        $arg = $query[$flid . "_input"];
+
         return DB::table("text_fields")
             ->select("rid")
             ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`text`) AGAINST (? IN BOOLEAN MODE)",
-                ["\"" . $query[$flid . "_input"] . "\""])
-            ->distinct();
+            ->where('text','LIKE',"%$arg%")
+            ->distinct()
+            ->pluck('rid')
+            ->toArray();
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
@@ -356,5 +358,19 @@ class TextField extends BaseField {
         $prefix = env('DB_PREFIX');
         $ridArray = implode(',',$rids);
         return DB::select("SELECT `rid`, `text` AS `value` FROM ".$prefix."text_fields WHERE `flid`=$flid AND `rid` IN ($ridArray)");
+    }
+
+    /**
+     * Gets list of RIDs and values for sort.
+     *
+     * @param $rids - Record IDs
+     * @param $flids - Field IDs to sort by
+     * @return string - The value array
+     */
+    public function getRidValuesForGlobalSort($rids,$flids) {
+        $prefix = env('DB_PREFIX');
+        $ridArray = implode(',',$rids);
+        $flidArray = implode(',',$flids);
+        return DB::select("SELECT `rid`, `text` AS `value` FROM ".$prefix."text_fields WHERE `flid` IN ($flidArray) AND `rid` IN ($ridArray)");
     }
 }

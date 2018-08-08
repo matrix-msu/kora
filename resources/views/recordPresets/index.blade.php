@@ -22,9 +22,7 @@
                 <i class="icon icon-preset"></i>
                 <span>Record Presets</span>
             </h1>
-            <p class="description">Use this page to view and manage record presets within this form. Record presets
-                allow you to … To create a new record preset, visit the single record you wish to turn into a preset.
-                On the records main page, you’ll find the option to turn the record into a preset. </p>
+            <p class="description">Use this page to view and manage record presets within this form. Record presets allow you to create an instance of a record to be reused again. To create a new record preset, visit the single record you wish to turn into a preset. There you’ll find the option to turn the record into a preset. For more information on Record Presets, refer to the <a href="#">Record Presets - Kora Documentation.</a></p>
         </div>
     </section>
 @stop
@@ -34,9 +32,13 @@
     @include('partials.recordPresets.modals.deleteRecordPresetModal')
 
     <section class="manage-presets center">
-        @foreach($presets as $index => $preset)
-            @include('partials.recordPresets.card')
-        @endforeach
+        @if (count($presets) > 0)
+          @foreach($presets as $index => $preset)
+              @include('partials.recordPresets.card')
+          @endforeach
+        @else
+            @include('partials.recordPresets.no-presets')
+        @endif
     </section>
 @stop
 

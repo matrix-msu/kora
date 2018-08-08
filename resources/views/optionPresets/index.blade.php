@@ -10,6 +10,7 @@
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $project->pid])
+    @include('partials.menu.fieldValPresets')
 @stop
 
 @section('header')
@@ -20,7 +21,7 @@
                 <i class="icon icon-preset"></i>
                 <span>Field Value Presets</span>
             </h1>
-            <p class="description">Select a preset below or create a preset to get started.</p>
+            <p class="description">Field Value Presets allow you to create predefined field options to be used repeatedly across all projects and forms. For more information on Field Value Presets, refer to the <a href="#">Field Value Presets - Kora Documentation.</a> You may Create a New Preset, or edit an existing preset here.</p>
         </div>
     </section>
 @stop
@@ -28,100 +29,107 @@
 @section('body')
     @include('partials.optionPresets.deletePresetModal')
 
-    <section class="filters center">
-        <div class="underline-middle search search-js">
-            <i class="icon icon-search"></i>
-            <input type="text" placeholder="Find a Preset">
-            <i class="icon icon-cancel icon-cancel-js"></i>
-        </div>
-        <div class="sort-options sort-options-js">
-            <a href="#all" class="option underline-middle underline-middle-hover active">All</a>
-            <a href="#project" class="option underline-middle underline-middle-hover">Project</a>
-            <a href="#shared" class="option underline-middle underline-middle-hover">Shared</a>
-            <a href="#stock" class="option underline-middle underline-middle-hover">Stock</a>
-        </div>
-    </section>
+    @if (count($all_presets["Project"]) > 0)
+      <section class="filters center">
+          <div class="underline-middle search search-js">
+              <i class="icon icon-search"></i>
+              <input type="text" placeholder="Find a Preset">
+              <i class="icon icon-cancel icon-cancel-js"></i>
+          </div>
+          <div class="sort-options sort-options-js">
+              <a href="#all" class="option underline-middle underline-middle-hover active">All</a>
+              <a href="#project" class="option underline-middle underline-middle-hover">Project</a>
+              <a href="#shared" class="option underline-middle underline-middle-hover">Shared</a>
+              <a href="#stock" class="option underline-middle underline-middle-hover">Stock</a>
+          </div>
+      </section>
+    @endif
 
     <section class="new-object-button center">
-        <form action="{{ action('OptionPresetController@newPreset', ['pid' => $project->pid]) }}">
-            @if(\Auth::user()->admin)
-                <input type="submit" value="Create a New Preset">
-            @endif
-        </form>
+        @if(\Auth::user()->admin)
+          <form action="{{ action('OptionPresetController@newPreset', ['pid' => $project->pid]) }}">
+            <input type="submit" value="Create a New Preset">
+          </form>
+        @endif
     </section>
 
     <section class="option-presets-selection center">
-        @foreach($all_presets as $key => $presets)
-            @foreach($presets as $index => $preset)
-                <div class="preset card all {{ $index == 0 ? 'active' : '' }} {{ $key=='Stock' ? 'stock' : '' }} {{ $key=='Project' ? 'project' : '' }} {{ $key=='Shared' ? 'shared' : '' }}" id="{{$preset->id}}">
-                    <div class="header {{ $index == 0 ? 'active' : '' }}">
-                        <div class="left pl-m">
-                            <a class="title">
-                                <span class="name">{{$preset->name}}</span>
-                            </a>
+        @if (count($all_presets["Project"]) > 0)
+            @foreach($all_presets as $key => $presets)
+                @foreach($presets as $index => $preset)
+                    <div class="preset card all {{ $index == 0 ? 'active' : '' }} {{ $key=='Stock' ? 'stock' : '' }} {{ $key=='Project' ? 'project' : '' }} {{ $key=='Shared' ? 'shared' : '' }}" id="{{$preset->id}}">
+                        <div class="header {{ $index == 0 ? 'active' : '' }}">
+                            <div class="left pl-m">
+                                <a class="title">
+                                    <span class="name">{{$preset->name}}</span>
+                                </a>
+                            </div>
+
+                            <div class="card-toggle-wrap">
+                                <a href="#" class="card-toggle preset-toggle-js">
+                                    <span class="chevron-text">{{$preset->type}}</span>
+                                    <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
+                                </a>
+                            </div>
                         </div>
 
-                        <div class="card-toggle-wrap">
-                            <a href="#" class="card-toggle preset-toggle-js">
-                                <span class="chevron-text">{{$preset->type}}</span>
-                                <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
-                            </a>
+                        <div class="content {{ $index == 0 ? 'active' : '' }}">
+                            <div class="id">
+                                @if($preset->type == "Text")
+                                    <span class="attribute">Regex: </span>
+                                    <span>{{$preset->preset}}</span>
+                                @elseif($preset->type == "List")
+                                    <span class="attribute">Options: </span>
+                                    <span>{{implode(', ',explode("[!]",$preset->preset))}}</span>
+                                @elseif($preset->type == "Schedule")
+                                    <span class="attribute">Events: </span>
+                                    @foreach(explode("[!]",$preset->preset) as $event)
+                                        <span class="field-preset-list">{{$event}}</span>
+                                    @endforeach
+                                @elseif($preset->type == "Geolocator")
+                                    <span class="attribute">Locations: </span>
+                                    @foreach(explode("[!]",$preset->preset) as $event)
+                                        <span class="field-preset-list">{{explode("[Desc]",$event)[1]}}: {{explode("[LatLon]",$event)[1]}}</span>
+                                    @endforeach
+                                @endif
+                            </div>
+
+<<<<<<< HEAD
+                            <div class="footer">
+                                @if($key == "Stock" && Auth::user()->admin == 1 )
+                                    <a class="quick-action trash-container left danger delete-preset-open-js tooltip" href="#" preset-id="{{$preset->id}}" tooltip="Delete Preset">
+                                        <i class="icon icon-trash"></i>
+                                    </a>
+
+                                    <a class="quick-action preset-stock">
+                                        <span>Stock Preset</span>
+                                    </a>
+                                @elseif($key=="Stock")
+                                    <a class="quick-action preset-stock">
+                                        <span>Stock Preset</span>
+                                    </a>
+                                @elseif($key=="Project")
+                                    <a class="quick-action trash-container left danger delete-preset-open-js tooltip" href="#" preset-id="{{$preset->id}}" tooltip="Delete Preset">
+                                        <i class="icon icon-trash"></i>
+                                    </a>
+
+                                    <a class="quick-action underline-middle-hover" href="{{action('OptionPresetController@edit',['pid'=>$project->pid,'id'=>$preset->id])}}">
+                                        <i class="icon icon-edit-little"></i>
+                                        <span>Edit Preset</span>
+                                    </a>
+                                @else
+                                    <a class="quick-action preset-stock">
+                                        <span>Shared Preset [PID: {{$preset->pid}}]</span>
+                                    </a>
+                                @endif
+                            </div>
                         </div>
                     </div>
-
-                    <div class="content {{ $index == 0 ? 'active' : '' }}">
-                        <div class="id">
-                            @if($preset->type == "Text")
-                                <span class="attribute">Regex: </span>
-                                <span>{{$preset->preset}}</span>
-                            @elseif($preset->type == "List")
-                                <span class="attribute">Options: </span>
-                                <span>{{implode(', ',explode("[!]",$preset->preset))}}</span>
-                            @elseif($preset->type == "Schedule")
-                                <span class="attribute">Events: </span>
-                                @foreach(explode("[!]",$preset->preset) as $event)
-                                    <span class="field-preset-list">{{$event}}</span>
-                                @endforeach
-                            @elseif($preset->type == "Geolocator")
-                                <span class="attribute">Locations: </span>
-                                @foreach(explode("[!]",$preset->preset) as $event)
-                                    <span class="field-preset-list">{{explode("[Desc]",$event)[1]}}: {{explode("[LatLon]",$event)[1]}}</span>
-                                @endforeach
-                            @endif
-                        </div>
-
-                        <div class="footer">
-                            @if($key == "Stock" && Auth::user()->admin == 1 )
-                                <a class="quick-action trash-container left danger delete-preset-open-js tooltip" href="#" preset-id="{{$preset->id}}" tooltip="Delete Preset">
-                                    <i class="icon icon-trash"></i>
-                                </a>
-
-                                <a class="quick-action preset-stock">
-                                    <span>Stock Preset</span>
-                                </a>
-                            @elseif($key=="Stock")
-                                <a class="quick-action preset-stock">
-                                    <span>Stock Preset</span>
-                                </a>
-                            @elseif($key=="Project")
-                                <a class="quick-action trash-container left danger delete-preset-open-js tooltip" href="#" preset-id="{{$preset->id}}" tooltip="Delete Preset">
-                                    <i class="icon icon-trash"></i>
-                                </a>
-
-                                <a class="quick-action underline-middle-hover" href="{{action('OptionPresetController@edit',['pid'=>$project->pid,'id'=>$preset->id])}}">
-                                    <i class="icon icon-edit-little"></i>
-                                    <span>Edit Preset</span>
-                                </a>
-                            @else
-                                <a class="quick-action preset-stock">
-                                    <span>Shared Preset [PID: {{$preset->pid}}]</span>
-                                </a>
-                            @endif
-                        </div>
-                    </div>
-                </div>
+                @endforeach
             @endforeach
-        @endforeach
+        @else
+            @include('partials.optionPresets.no-presets')
+        @endif
     </section>
 @stop
 

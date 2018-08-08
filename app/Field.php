@@ -57,13 +57,13 @@ class Field extends Model {
     const _DATE = "Date";
     const _SCHEDULE = "Schedule";
     const _GEOLOCATOR = "Geolocator";
-    const _DOCUMENTS = "Documents";
-    const _GALLERY = "Gallery";
-    const _3D_MODEL = "3D-Model";
-    const _PLAYLIST = "Playlist";
-    const _VIDEO = "Video";
-    const _COMBO_LIST = "Combo List";
-    const _ASSOCIATOR = "Associator";
+    const _DOCUMENTS = "Documents"; //
+    const _GALLERY = "Gallery"; //
+    const _3D_MODEL = "3D-Model"; //
+    const _PLAYLIST = "Playlist"; //
+    const _VIDEO = "Video"; //
+    const _COMBO_LIST = "Combo List"; //
+    const _ASSOCIATOR = "Associator"; //
 
     /**
     * @var array - This is an array of all possible typed fields
@@ -240,6 +240,9 @@ class Field extends Model {
         BaseField::deleteBaseFieldsByFLID($this->flid);
 
         DB::table("metadatas")->where("flid", "=", $this->flid)->delete();
+
+        //A field has been deleted, so current record rollbacks become invalid.
+        RevisionController::wipeRollbacks($this->fid);
 
         parent::delete();
     }

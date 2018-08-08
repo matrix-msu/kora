@@ -14,8 +14,8 @@
             @endforeach
         </select>
         <div><a href="#" class="field-preset-link open-list-modal-js">Use a Value Preset for these List Options</a></div>
-        <div><a href="#" class="field-preset-link open-create-list-modal-js right
-            @if(empty(\App\ListField::getList($field,false))) disabled @endif">
+        <div class="open-create-regex"><a href="#" class="field-preset-link open-create-list-modal-js right
+            @if(empty(\App\ListField::getList($field,false))) disabled tooltip @endif" tooltip="You must submit or update the field before creating a New Value Preset">
                 Create a New Value Preset from these List Options</a></div>
     </div>
 
@@ -27,7 +27,7 @@
 
     <div class="form-group mt-xl">
         {!! Form::label('regex','Regex') !!}
-        {!! Form::text('regex', \App\Http\Controllers\FieldController::getFieldOption($field,'Regex'), ['class' => 'text-input']) !!}
+        {!! Form::text('regex', \App\Http\Controllers\FieldController::getFieldOption($field,'Regex'), ['class' => 'text-input', 'placeholder' => 'Enter regular expression pattern here']) !!}
     </div>
 @stop
 

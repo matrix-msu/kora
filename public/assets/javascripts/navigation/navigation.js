@@ -1,3 +1,4 @@
+var Kora = Kora || {};
 //The first section handles closing/opening of menus
 var $navBar = $('.navigation-js');
 var $subMenu = $('.navigation-sub-menu-js');
@@ -58,7 +59,21 @@ $navBar.on('click', '.navigation-sub-menu-toggle-js', function(e) {
   }
 });
 
-$navBar.on('click', '.side-menu-toggle-js', function() {
+$navBar.on('click', '.side-menu-toggle-js', function(e) {
+  e.preventDefault();
+
+  setTimeout(function() {
+    var $headerHeight = $('.aside-content .header-elements').height();
+    var $footerHeight = $('.aside-content .footer-elements').height();
+    var combinedHeight = $headerHeight + $footerHeight
+
+    if (combinedHeight > (window.innerHeight - 50)) {
+      $('.aside-content .footer-elements').css('position', 'static');
+    } else {
+      $('.aside-content .footer-elements').css('position', 'absolute');
+    }
+  }, 400);
+
   var $icon = $(this).children();
 
   $sideMenu.toggleClass('active');
@@ -69,12 +84,14 @@ $navBar.on('click', '.side-menu-toggle-js', function() {
 
     setCookie('sidebar', 1);
     $('.center, .floating-buttons').addClass('with-aside');
-	$('.allowed-actions').addClass('with-aside');
+    $('.field.card').addClass('with-aside');
+    $('.allowed-actions').addClass('with-aside');
     if (getBrowserWidth() > 870)
       $('.pre-fixed-js').addClass('pre-fixed-with-aside');
   } else {
     $('.center, .floating-buttons').removeClass('with-aside');
-	$('.allowed-actions').removeClass('with-aside');
+    $('.field.card').removeClass('with-aside');
+	  $('.allowed-actions').removeClass('with-aside');
     if (getBrowserWidth() > 870)
       $('.pre-fixed-js').removeClass('pre-fixed-with-aside');
 
@@ -87,6 +104,7 @@ $navBar.on('click', '.side-menu-toggle-js', function() {
     var $sideMenuBlanket = $('.side-menu-js .blanket-js');
 
     if ($sideMenu.hasClass('active')) {
+      $('.pre-fixed-js').addClass('with-aside');
       $sideMenuBlanket.width('100vw');
       $sideMenuBlanket.animate({
         opacity: '.09'
@@ -95,6 +113,7 @@ $navBar.on('click', '.side-menu-toggle-js', function() {
       });
 
     } else {
+      $('.pre-fixed-js').removeClass('with-aside');
       $sideMenuBlanket.animate({
         opacity: '0'
       }, 200, function() {
@@ -190,8 +209,8 @@ $searchInput.keydown(function(e) {
                         });
                     });
                 });
-			} else if (searchText == '') {
-+                $searchResults.parent().slideUp(100);
+            } else if (searchText == '') {
+                $searchResults.parent().slideUp(100);
             } else {
                 $clearResentSearchResults.parent().slideDown(400, function () {
                     $recentSearch.parent().slideDown(400, function () {
@@ -340,7 +359,28 @@ $sideMenu.on('click', '.drawer-toggle-js', function(e) {
   var $drawerContent = $(this).next();
   var $icon = $(this).children().last();
 
+  if ($(this).children('span').text() == 'Management') {
+    $('.aside-content .footer-elements').css('position', 'absolute');
+  }
+
+  setTimeout(function() {
+    var $headerHeight = $('.aside-content .header-elements').height();
+    var $footerHeight = $('.aside-content .footer-elements').height();
+    var combinedHeight = $headerHeight + $footerHeight
+
+    if (combinedHeight > (window.innerHeight - 50)) {
+      $('.aside-content .footer-elements').css('position', 'static');
+    } else {
+      $('.aside-content .footer-elements').css('position', 'absolute');
+    }
+  }, 400);
+  
+  if ($drawerElement.parent().hasClass('footer-elements')) {
+    $drawerElement.parent().toggleClass('active');
+  }
+
   if ($drawerElement.hasClass('active')) {
+    //$('.aside-content .footer-elements').css('position', 'absolute');
     closeSidemenuDrawers();
     return;
   }
@@ -362,3 +402,93 @@ $sideMenu.on('click', '.drawer-sub-menu-toggle-js', function(e) {
     $menu.addClass('active');
   }
 });
+
+function initializeRequestProjectPermissionsModal()
+{
+	var received_data = false;
+	var modal_loaded = false;
+	var open_immediately = false;
+  
+	$(".project-request-perms-js").mouseenter(function() {
+		if (!received_data)
+		{	
+			$.ajax({
+			  url: getProjectPermissionsModal,
+              type: 'POST',
+			  data: {
+		        "_token": CSRFToken,
+              },
+              success: function(result) {
+				$(result).appendTo(document.body); // add the modal to body
+			    load_modal(); // initialize the modal
+				modal_loaded = true;
+			  },
+			  error: function(result) {}
+			});
+	
+			received_data = true;
+		}
+    });
+  
+	$(".project-request-perms-js").click(function() {
+		if (modal_loaded)
+		{
+			Kora.Modal.open($(".nav-request-permissions-modal-js"));
+		}
+		else
+		{
+			open_immediately = true;
+		}
+    });
+   
+	function load_modal()
+	{
+		Kora.Modal.initialize($(".nav-request-permissions-modal-js"));
+	
+		$('.submit-project-request-js').click(function(e) {
+			e.preventDefault();
+   
+			$('.nav-request-error-js').text('');
+   
+			if($('#request_project').val() != null)
+			{ 
+				$.ajax({
+				  url: requestProjectPermissionsURL,
+				  type: 'POST',
+				  data: {
+				    "_token": CSRFToken,
+				    "pids": $('#request_project').val()
+				  },
+				  success: function(result) {},
+				  error: function(result) {}
+			    });
+		
+				// close modal after sending request
+				Kora.Modal.close($(".nav-request-permissions-modal-js"));
+			}
+			else
+				$('.request-error-js').text('Please select a project');
+			}
+		);
+	  
+		$('.multi-select').chosen({
+			width: '100%'
+		});
+	 
+	    $(".modal-toggle-js").click(function(){ // close on clicking X
+			Kora.Modal.close($(".nav-request-permissions-modal-js")); 
+		});
+	 
+	    $(document).on('click', function(event) { // close modal when clicking outside of modal
+			if (event.target.classList.contains("nav-request-permissions-modal-js")) {
+				Kora.Modal.close($(".nav-request-permissions-modal-js")); 
+			}
+		});
+	 
+	 if (open_immediately)
+	 {
+	   Kora.Modal.open($(".nav-request-permissions-modal-js"));
+	 }
+  }
+}
+initializeRequestProjectPermissionsModal();

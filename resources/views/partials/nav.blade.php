@@ -1,9 +1,11 @@
+<?php
+use App\User;
+use App\Project;
+use App\ProjectGroup;
+use App\Http\Requests\ProjectRequest;
+?>
 
-@if(Auth::guest() || !Auth::user()->active)
-<nav class="navigation navigation-js auth">
-@else
-<nav class="navigation navigation-js">
-@endif
+<nav class="navigation navigation-js {{ (Auth::guest() || !Auth::user()->active ? 'auth' : '') }}">
   <div class="status status-js">
     <span class="information">This is a successful status example.</span>
     <a href="#" class="dismiss status-dismiss-js">Dismiss</a>
@@ -68,6 +70,9 @@
     var globalSearchUrl = '{{action('ProjectSearchController@globalSearch')}}';
     var cacheGlobalSearchUrl = '{{ action('ProjectSearchController@cacheGlobalSearch') }}';
     var clearGlobalCacheUrl = '{{ action('ProjectSearchController@clearGlobalCache') }}';
+	var getProjectPermissionsModal = '{{ action('ProjectController@getProjectPermissionsModal') }}';
+	var requestProjectPermissionsURL = '{{ action('ProjectController@request') }}';
     var CSRFToken = '{{ csrf_token() }}';
   </script>
 </nav>
+

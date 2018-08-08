@@ -1,8 +1,14 @@
 .pages {
+  @include transition();
+
   font-family: $ubuntu;
-  margin: 40px auto 0;
+  margin: 0 auto;
   max-width: calc(#{ $max-site-width } - 600px);
   width: $max-site-width;
+
+  &.mt-xxxl {
+	margin-top: 60px !important;
+  }
 
   .page {
     background-color: palette('gray', page, 1);
@@ -16,8 +22,18 @@
   }
 
   .new-page-button {
+    @include transition();
+
     margin: 0 auto;
     padding: 60px 0;
     width: calc(100% - 80px);
+  
+    @media screen and (max-width: $max-mobile-l-width) {
+      width: calc(100% - 20px);
+    }
+  }
+
+  @media screen and (max-width: $max-mobile-width) {
+    margin: 0 auto !important;
   }
 }

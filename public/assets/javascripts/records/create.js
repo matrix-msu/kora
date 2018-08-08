@@ -16,8 +16,8 @@ Kora.Records.Create = function() {
         $('.chosen-search-input').on('keyup', function(e) {
             var container = $(this).parents('.chosen-container').first();
 
-            if (e.which === 13 && container.find('li.no-results').length > 0) {
-                var option = $("<option>").val(this.value).text(this.value);
+            if (e.which === 13 && (container.find('li.no-results').length > 0 || container.find('li.active-result').length == 0)) {
+                var option = $("<option>").val(this.value.trim()).text(this.value.trim());
 
                 var select = container.siblings('.modify-select').first();
 
@@ -899,6 +899,26 @@ Kora.Records.Create = function() {
         });
     }
 
+    function multiSelectPlaceholders () {
+      var inputDef = $('.chosen-container-multi').children('.chosen-choices');
+
+      inputDef.on('click', function() {
+        var childCheck = $(this).siblings('.chosen-drop').children('.chosen-results');
+        if (childCheck.children().length === 0) {
+          childCheck.append('<li class="no-results">No options to select!</li>');
+        } else if (childCheck.children('.active-result').length === 0 && childCheck.children('.no-results').length === 0) {
+          childCheck.append('<li class="no-results">No more options to select!</li>');
+        }
+      });
+
+      inputDef.children('.search-field').children('input').blur(function() {
+        var childCheck = inputDef.siblings('.chosen-drop').children('.chosen-results');
+        if (childCheck.children('.no-results').length > 0) {
+          childCheck.children('.no-results').remove();
+        }
+      });
+    }
+
     initializeSelectAddition();
     initializeSpecialInputs();
     intializeAssociatorOptions();
@@ -911,4 +931,5 @@ Kora.Records.Create = function() {
     initializeDuplicateRecord();
     initializeNewRecordPreset();
     Kora.Records.Modal();
+    multiSelectPlaceholders();
 }

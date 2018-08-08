@@ -125,7 +125,8 @@ class DocumentsField extends FileTypeField {
             $infoString = '';
             $infoArray = array();
             $newPath = config('app.base_path') . 'storage/app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid;
-            mkdir($newPath, 0775, true);
+            if(!file_exists($newPath))
+                mkdir($newPath, 0775, true);
             if(file_exists(config('app.base_path') . 'storage/app/tmpFiles/' . $value)) {
                 $types = self::getMimeTypes();
                 foreach(new \DirectoryIterator(config('app.base_path') . 'storage/app/tmpFiles/' . $value) as $file) {
@@ -136,7 +137,7 @@ class DocumentsField extends FileTypeField {
                             $type = $types[$file->getExtension()];
                         $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
                         $infoArray[$file->getFilename()] = $info;
-                        copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                        rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                             $newPath . '/' . $file->getFilename());
                     }
                 }
@@ -193,7 +194,7 @@ class DocumentsField extends FileTypeField {
                             $type =  $types[$file->getExtension()];
                         $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
                         $infoArray[$file->getFilename()] = $info;
-                        copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                        rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                             config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid . '/' . $file->getFilename());
 
                         $doc_files_exist = true;
@@ -217,9 +218,8 @@ class DocumentsField extends FileTypeField {
             //DELETE THE FILES SINCE WE REMOVED THEM
             $field = FieldController::getField($this->flid);
             foreach(new \DirectoryIterator(config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid) as $file) {
-                if($file->isFile()) {
+                if($file->isFile())
                     unlink(config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid.'/'.$file->getFilename());
-                }
             }
 
             $this->delete();
@@ -280,7 +280,10 @@ class DocumentsField extends FileTypeField {
      */
     public function validateField($field, $request, $forceReq = false) {
         $req = $field->required;
-        $value = 'f'.$field->flid.'u'.Auth::user()->id;
+        if(Auth::guest())
+            $value = 'f'.$field->flid.'u'.$request['userId'];
+        else
+            $value = 'f'.$field->flid.'u'.Auth::user()->id;
 
         if($req==1 | $forceReq) {
             if(glob(config('app.base_path').'storage/app/tmpFiles/'.$value.'/*.*') == false)
@@ -298,10 +301,10 @@ class DocumentsField extends FileTypeField {
      * @param  bool $exists - Field for record exists
      */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if(!is_array($revision->data))
-            $revision->data = json_decode($revision->data, true);
+        if(!is_array($revision->oldData))
+            $revision->oldData = json_decode($revision->oldData, true);
 
-        if(is_null($revision->data[Field::_DOCUMENTS][$field->flid]['data']))
+        if(is_null($revision->oldData[Field::_DOCUMENTS][$field->flid]['data']))
             return null;
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
@@ -311,7 +314,7 @@ class DocumentsField extends FileTypeField {
             $this->rid = $revision->rid;
         }
 
-        $this->documents = $revision->data[Field::_DOCUMENTS][$field->flid]['data'];
+        $this->documents = $revision->oldData[Field::_DOCUMENTS][$field->flid]['data'];
         $this->save();
     }
 
@@ -424,7 +427,7 @@ class DocumentsField extends FileTypeField {
         } else {
             mkdir($newDir, 0775, true);
         }
-        foreach($jsonField->files as $file) {
+        foreach($jsonField->value as $file) {
             $name = $file->name;
             //move file from imp temp to tmp files
             copy($currDir . '/' . $name, $newDir . '/' . $name);

@@ -19,8 +19,8 @@ Kora.Fields.Options = function(fieldType) {
         $('.chosen-search-input').on('keyup', function(e) {
             var container = $(this).parents('.chosen-container').first();
 
-            if (e.which === 13 && container.find('li.no-results').length > 0) {
-                var option = $("<option>").val(this.value).text(this.value);
+            if (e.which === 13 && (container.find('li.no-results').length > 0 || container.find('li.active-result').length == 0)) {
+                var option = $("<option>").val(this.value.trim()).text(this.value.trim());
 
                 var select = container.siblings('.modify-select').first();
 
@@ -57,6 +57,11 @@ Kora.Fields.Options = function(fieldType) {
         var listOpt = $('.genlist-options-js');
         var listDef = $('.genlist-default-js');
 
+        var inputOpt = listOpt.siblings('.chosen-container');
+        var childCheckOpt = inputOpt.children('.chosen-drop').children('.chosen-results');
+        var inputDef = listDef.siblings('.chosen-container');
+        var childCheck = inputDef.children('.chosen-drop').children('.chosen-results');
+
         listOpt.find('option').prop('selected', true);
         listOpt.trigger("chosen:updated");
 
@@ -68,6 +73,22 @@ Kora.Fields.Options = function(fieldType) {
             var options = listOpt.html();
             listDef.html(options);
             listDef.trigger("chosen:updated");
+        });
+
+        inputOpt.on('click', function () {
+          if (childCheckOpt.children().length === 0) {
+            childCheckOpt.append('<li class="no-results">No options to select!</li>');
+          } else if (childCheckOpt.children('.active-result').length === 0 && childCheckOpt.children('.no-results').length === 0) {
+            childCheckOpt.append('<li class="no-results">No more options to select!</li>');
+          }
+        });
+
+        inputDef.on('click', function () {
+          if (childCheck.children().length === 0) {
+            childCheck.append('<li class="no-results">No options to select!</li>');
+          } else if (childCheck.children('.active-result').length === 0 && childCheck.children('.no-results').length === 0) {
+            childCheck.append('<li class="no-results">No more options to select!</li>');
+          }
         });
     }
 
@@ -75,6 +96,9 @@ Kora.Fields.Options = function(fieldType) {
         var listOpt = $('.list-options-js');
         var listDef = $('.list-default-js');
 
+        var inputOpt = listOpt.siblings('.chosen-container');
+        var childCheck = inputOpt.children('.chosen-drop').children('.chosen-results');
+
         listOpt.find('option').prop('selected', true);
         listOpt.trigger("chosen:updated");
 
@@ -87,11 +111,24 @@ Kora.Fields.Options = function(fieldType) {
             listDef.html(options);
             listDef.trigger("chosen:updated");
         });
+
+        inputOpt.on('click', function () {
+          if (childCheck.children().length === 0) {
+            childCheck.append('<li class="no-results">No options to select!</li>');
+          } else if (childCheck.children('.active-result').length === 0 && childCheck.children('.no-results').length === 0) {
+            childCheck.append('<li class="no-results">No more options to select!</li>');
+          }
+        });
     }
 
     function initializeMultiSelectListOptions() {
         var listOpt = $('.mslist-options-js');
         var listDef = $('.mslist-default-js');
+
+        var inputDef = listDef.siblings('.chosen-container').children('.chosen-choices');
+        var childCheckDef
+        var inputList = listOpt.siblings('.chosen-container').children('.chosen-choices');
+        var childCheckList = inputList.siblings('.chosen-drop').children('.chosen-results');
 
         listOpt.find('option').prop('selected', true);
         listOpt.trigger("chosen:updated");
@@ -104,6 +141,23 @@ Kora.Fields.Options = function(fieldType) {
             var options = listOpt.html();
             listDef.html(options);
             listDef.trigger("chosen:updated");
+        });
+
+        inputList.on('click', function() {
+          if (childCheckList.children().length === 0) {
+            childCheckList.append('<li class="no-results">No options to select!</li>');
+          } else if (childCheckList.children('.active-result').length === 0 && childCheckList.children('.no-results').length === 0) {
+            childCheckList.append('<li class="no-results">No more options to select!</li>');
+          }
+        });
+
+        inputDef.on('click', function() {
+          childCheckDef = $(this).siblings('.chosen-drop').children('.chosen-results');
+          if (childCheckDef.children().length === 0) {
+            childCheckDef.append('<li class="no-results">No options to select!</li>');
+          } else if (childCheckDef.children('.active-result').length === 0 && childCheckDef.children('.no-results').length === 0) {
+            childCheckDef.append('<li class="no-results">No more options to select!</li>');
+          }
         });
     }
 
@@ -553,6 +607,60 @@ Kora.Fields.Options = function(fieldType) {
         listOpt.trigger("chosen:updated");
     }
 
+    function initializeTextFields() {
+      var $multiLineCheck = $('.check-box-input[name="multi"]');
+      var $singleLine = $('.advance-options-section-js .single-line-js');
+      var $multiLine = $('.advance-options-section-js .multi-line-js');
+      var $singleLineShow = $('.edit-form .single-line-js');
+      var $multiLineShow = $('.edit-form .multi-line-js');
+
+      if ($multiLineCheck.is(':checked')) {
+        $singleLine.addClass('hidden');
+        $multiLine.removeClass('hidden');
+        $singleLineShow.addClass('hidden');
+        $multiLineShow.removeClass('hidden');
+        var input = $singleLineShow.children('input').val();
+        $multiLineShow.children('textarea').val(''+input+'');
+      } else {
+        $singleLineShow.removeClass('hidden');
+        $multiLineShow.addClass('hidden');
+        $singleLine.removeClass('hidden');
+        $multiLine.addClass('hidden');
+      }
+
+      if ($('.error-message.single-line').text().length > 0) {
+        var erMsg = $('.error-message.single-line').text();
+        $('.error-message.multi-line').text(''+erMsg+'');
+        $multiLine.children('textarea').addClass('error');      
+      }
+
+      $multiLineCheck.click(function () {
+        //if ($multiLineCheck.is(':checked') === true || $multiLineCheck.prop('checked') === true) {
+        if ($multiLineCheck.is(':checked')) {
+          $singleLine.addClass('hidden');
+          $multiLine.removeClass('hidden');
+          $singleLineShow.addClass('hidden');
+          $multiLineShow.removeClass('hidden');
+        } else {
+          $singleLine.removeClass('hidden');
+          $multiLine.addClass('hidden');      
+          $singleLineShow.removeClass('hidden');
+          $multiLineShow.addClass('hidden');    
+        }
+      });
+
+      $multiLine.children('textarea').blur(function () {
+        var input = $multiLine.children('textarea').val();
+        $singleLine.children('input').val(''+input+'');
+      });
+
+      $('.error-message.single-line').bind('DOMSubtreeModified', function () {
+        erMsg = $('.error-message.single-line').text();
+        $('.error-message.multi-line').text(''+erMsg+'');
+        $multiLine.children('textarea').addClass('error');
+      });
+    }
+
     initializeSelects();
 
     switch(fieldType) {
@@ -584,6 +692,8 @@ Kora.Fields.Options = function(fieldType) {
             initializeSelectAddition();
             initializeComboListOptions();
             break;
+        case 'Text':
+            initializeTextFields();
         default:
             break;
     }

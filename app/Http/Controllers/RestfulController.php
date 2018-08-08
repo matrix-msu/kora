@@ -3,13 +3,10 @@
 use App\DateField;
 use App\Field;
 use App\Form;
-use App\ListField;
 use App\NumberField;
 use App\Record;
 use App\Search;
-use App\TextField;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class RestfulController extends Controller {
@@ -28,11 +25,12 @@ class RestfulController extends Controller {
      */
     const JSON = "JSON";
     const KORA = "KORA_OLD";
+    const XML = "XML";
 
     /**
      * @var array - Valid output formats
      */
-    const VALID_FORMATS = [ self::JSON, self::KORA];
+    const VALID_FORMATS = [ self::JSON, self::KORA, self::XML];
 
     /**
      * Gets the current version of Kora3.
@@ -167,7 +165,16 @@ class RestfulController extends Controller {
             $apiFormat = self::JSON;
         $apiFormat = strtoupper($apiFormat);
         if(!self::isValidFormat($apiFormat))
-            return response()->json(["status"=>false,"error"=>"Invalid format provided: $apiFormat"],500);;
+            return response()->json(["status"=>false,"error"=>"Invalid format provided: $apiFormat"],500);
+
+        //check for global
+        $globalRecords = array();
+        if(isset($request->globalSort)) {
+            $globalSortArray = json_decode($request->globalSort);
+            $globalSort = true;
+        } else {
+            $globalSort = false;
+        }
 
         //next, we authenticate each form
         foreach($forms as $f) {
@@ -194,28 +201,31 @@ class RestfulController extends Controller {
             $form = FormController::getForm($f->form);
 
             //things we will be returning
+            //NOTE: Items marked ***, will be overwritten when using globalSort
             $filters = array();
-            $filters['data'] = isset($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves
-            $filters['meta'] = isset($f->meta) ? $f->meta : false; //get meta data about record
+            $filters['data'] = isset($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves***
+            $filters['meta'] = isset($f->meta) ? $f->meta : false; //get meta data about record***
             $filters['size'] = isset($f->size) ? $f->size : false; //do we want the number of records in the search result returned instead of data
-            $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records
+            $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records***
+            $filters['revAssoc'] = isset($f->revAssoc) ? $f->revAssoc : true; //do we want information back about reverse associations for XML OUPTUT
             $filters['filters'] = isset($f->filters) ? $f->filters : false; //do we want information back about result filters [i.e. Field 'First Name', has value 'Tom', '12' times]
             $filters['filterCount'] = isset($f->filterCount) ? $f->filterCount : 5; //What is the minimum threshold for a filter to return?
             $filters['filterFlids'] = isset($f->filterFlids) ? $f->filterFlids : 'ALL'; //What fields should filters return for? Should be array
                 //Note: Filters only captures values from certain fields (mainly single value ones), see ExportController->exportWithRids() to see which ones use it
-            $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for
+            $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for***
             $filters['sort'] = isset($f->sort) ? $f->sort : null; //how should the data be sorted
-            $filters['index'] = isset($f->index) ? $f->index : null; //where the array of results should start
-            $filters['count'] = isset($f->count) ? $f->count : null; //how many records we should grab from that index
+            $filters['index'] = isset($f->index) ? $f->index : null; //where the array of results should start***
+            $filters['count'] = isset($f->count) ? $f->count : null; //how many records we should grab from that index***
             //WARNING::IF FIELD NAMES SHARE A TITLE WITHIN THE SAME FIELD, THIS WOULD IN THEORY BREAK
-            $filters['realnames'] = isset($f->realnames) ? $f->realnames : false; //do we want records indexed by titles rather than slugs
+            $filters['realnames'] = isset($f->realnames) ? $f->realnames : false; //do we want records indexed by titles rather than slugs***
             //THIS SOLELY SERVES LEGACY. YOU PROBABLY WILL NEVER USE THIS. DON'T THINK ABOUT IT
-            $filters['under'] = isset($f->under) ? $f->under : false; //Replace field spaces with underscores
+            $filters['under'] = isset($f->under) ? $f->under : false; //Replace field spaces with underscores***
 
             //parse the query
             if(!isset($f->query)) {
                 //return all records
                 $returnRIDS = Record::where("fid","=",$form->fid)->pluck('rid')->all();
+
                 if(!is_null($filters['sort'])) {
                     $returnRIDS = $this->sort_rids($returnRIDS,$filters['sort']);
                     if(!$returnRIDS)
@@ -230,7 +240,14 @@ class RestfulController extends Controller {
                 if($filters['filters'])
                     $filtersGlobal[$form->slug] = $this->getDataFilters($form->fid, $returnRIDS, $filters['filterCount'], $filters['filterFlids']);
 
-                $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
+                if($globalSort)
+                    $this->imitateMerge($globalRecords,$returnRIDS);
+                else {
+                    if($apiFormat==self::XML)
+                        $resultsGlobal[] = $this->populateRecords($returnRIDS, $filters, $apiFormat);
+                    else
+                        $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
+                }
             } else {
                 $queries = $f->query;
                 $resultSets = array();
@@ -313,8 +330,7 @@ class RestfulController extends Controller {
                             }
                             $advSearch = new AdvancedSearchController();
                             $rids = $advSearch->apisearch($form->pid, $form->fid, $request);
-                            if(is_null($rids))
-                                $rids=[];
+
                             $negative = isset($query->not) ? $query->not : false;
                             if($negative)
                                 $rids = $this->negative_results($form,$rids);
@@ -391,8 +407,38 @@ class RestfulController extends Controller {
                 if($filters['filters'])
                     $filtersGlobal[$form->slug] = $this->getDataFilters($form->fid, $returnRIDS, $filters['filterCount'], $filters['filterFlids']);
 
-                $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
+                if($globalSort)
+                    $this->imitateMerge($globalRecords,$returnRIDS);
+                else {
+                    if($apiFormat==self::XML)
+                        $resultsGlobal[] = $this->populateRecords($returnRIDS, $filters, $apiFormat);
+                    else
+                        $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
+                }
             }
+        }
+
+        if($globalSort) {
+            $filters = array();
+
+            if(isset($request->globalFilters))
+                $f = json_decode($request->globalFilters);
+            else
+                $f = array();
+
+            $filters['data'] = isset($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves***
+            $filters['meta'] = isset($f->meta) ? $f->meta : false; //get meta data about record***
+            $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records***
+            $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for***
+            $filters['index'] = isset($f->index) ? $f->index : null; //where the array of results should start***
+            $filters['count'] = isset($f->count) ? $f->count : null; //how many records we should grab from that index***
+            //WARNING::IF FIELD NAMES SHARE A TITLE WITHIN THE SAME FIELD, THIS WOULD IN THEORY BREAK
+            $filters['realnames'] = isset($f->realnames) ? $f->realnames : false; //do we want records indexed by titles rather than slugs***
+            //THIS SOLELY SERVES LEGACY. YOU PROBABLY WILL NEVER USE THIS. DON'T THINK ABOUT IT
+            $filters['under'] = isset($f->under) ? $f->under : false; //Replace field spaces with underscores***
+
+            $globalSorted = $this->sortGlobalRids($globalRecords, $globalSortArray);
+            $resultsGlobal = json_decode($this->populateRecords($globalSorted, $filters, $apiFormat));
         }
 
         $countArray["global"] = $countGlobal;
@@ -435,6 +481,8 @@ class RestfulController extends Controller {
                         $selectFinal[] = $select;
                         break;
                     case Field::_NUMBER:
+                        if(!is_numeric($k))
+                            break;
                         $bottom = $k - NumberField::EPSILON;
                         $top = $k + NumberField::EPSILON;
                         $where = "`number` BETWEEN $bottom AND $top";
@@ -469,13 +517,21 @@ class RestfulController extends Controller {
                         $selectFinal[] = $select;
                         break;
                     case Field::_COMBO_LIST:
-                        $bottom = $k - NumberField::EPSILON;
-                        $top = $k + NumberField::EPSILON;
-                        if($method==Search::SEARCH_EXACT)
-                    		$key = '"'.$k.'"*';
-                    	else
-                        	$key = $k.'*';
-                        $where = "(MATCH (`data`) AGAINST ('$key' IN BOOLEAN MODE) OR `number` BETWEEN $bottom AND $top)";
+                        if(is_numeric($k)) {
+                            $bottom = $k - NumberField::EPSILON;
+                            $top = $k + NumberField::EPSILON;
+                            if ($method == Search::SEARCH_EXACT)
+                                $key = '"' . $k . '"*';
+                            else
+                                $key = $k . '*';
+                            $where = "(MATCH (`data`) AGAINST ('$key' IN BOOLEAN MODE) OR `number` BETWEEN $bottom AND $top)";
+                        } else {
+                            if ($method == Search::SEARCH_EXACT)
+                                $key = '"' . $k . '"*';
+                            else
+                                $key = $k . '*';
+                            $where = "MATCH (`data`) AGAINST ('$key' IN BOOLEAN MODE)";
+                        }
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."combo_support where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
@@ -561,14 +617,17 @@ class RestfulController extends Controller {
                     		$key = '"'.$k.'"*';
                     	else
                         	$key = $k.'*';
-                        $where = "MATCH (`desc`) AGAINST ('$key' IN BOOLEAN MODE) OR MATCH (`address`) AGAINST ($key IN BOOLEAN MODE)";
+                        $where = "MATCH (`desc`) AGAINST ('$key' IN BOOLEAN MODE) OR MATCH (`address`) AGAINST ('$key' IN BOOLEAN MODE)";
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."geolocator_support where `flid`=".$field->flid." AND ($where)";
                         $selectFinal[] = $select;
                         break;
                     case Field::_ASSOCIATOR:
                         $key = explode('-',$k);
                         $rid = end($key);
-                        $where = "MATCH (`record`) AGAINST (\"$rid\" IN BOOLEAN MODE)";
+                        if(strlen($rid)<4)
+                            $where = "`record`='$rid'";
+                        else
+                            $where = "MATCH (`record`) AGAINST (\"$rid\" IN BOOLEAN MODE)";
                         $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."associator_support where `flid`=".$field->flid." AND $where";
                         $selectFinal[] = $select;
                         break;
@@ -799,6 +858,146 @@ class RestfulController extends Controller {
     }
 
     /**
+     * Sorts RIDs by fields.
+     *
+     * @param  array $rids - The RIDs to sort
+     * @param  array $sortFields - The field arrays to sort by
+     * @return array - The new array with sorted RIDs
+     */
+    private function sortGlobalRids($rids, $sortFields) {
+        //get field
+        $fieldSlug = $sortFields[0];
+        $direction = $sortFields[1];
+        $newOrderArray = array();
+
+        if(!is_array($fieldSlug) && $fieldSlug=='kora_meta_owner') {
+            $userRecords = DB::table('records')->join('users','users.id','=','records.owner')
+                ->select('records.rid','users.username')
+                ->whereIn('records.rid',$rids)
+                ->orderBy('users.username', $direction)
+                ->get()->toArray();
+
+            foreach($userRecords as $rec) {
+                $newOrderArray[$rec->rid] = $rec->username;
+            }
+        } else if(!is_array($fieldSlug) && $fieldSlug=='kora_meta_created') {
+            $createdRecords = DB::table('records')
+                ->select('rid','created_at')
+                ->whereIn('rid',$rids)
+                ->orderBy('created_at', $direction)
+                ->get()->toArray();
+
+            foreach($createdRecords as $rec) {
+                $newOrderArray[$rec->rid] = $rec->created_at;
+            }
+        } else if(!is_array($fieldSlug) && $fieldSlug=='kora_meta_updated') {
+            $updatedRecords = DB::table('records')
+                ->select('rid','updated_at')
+                ->whereIn('rid',$rids)
+                ->orderBy('updated_at', $direction)
+                ->get()->toArray();
+
+            foreach($updatedRecords as $rec) {
+                $newOrderArray[$rec->rid] = $rec->updated_at;
+            }
+        } else if(!is_array($fieldSlug) && $fieldSlug=='kora_meta_kid') {
+            $kidRecords = DB::table('records')
+                ->select('rid')
+                ->whereIn('rid',$rids)
+                ->orderBy('rid', $direction)
+                ->get()->toArray();
+
+            foreach($kidRecords as $rec) {
+                $newOrderArray[$rec->rid] = $rec->rid;
+            }
+        } else {
+            $flids = array();
+            $type = '';
+            if(!is_array($fieldSlug))
+                return false;
+
+            foreach($fieldSlug as $slug) {
+                $field = FieldController::getField($slug);
+                if (!$field->isSortable())
+                    return false;
+                array_push($flids,$field->flid);
+                if($type=='')
+                    $type = $field->type;
+                else if($type != $field->type)
+                    return false;
+            }
+
+            $typedField = Field::getTypedFieldStatic($type);
+            $chunks = array_chunk($rids, 500);
+
+            //Get the values
+            foreach($chunks as $chunk) {
+                $dataResults = $typedField->getRidValuesForGlobalSort($chunk, $flids);
+                //Filter results
+                foreach($dataResults as $rec) {
+                    $newOrderArray[$rec->rid] = $rec->value;
+                }
+            }
+
+            //Sort that stuff
+            if($direction=="ASC")
+                uasort($newOrderArray, 'self::compareASCII');
+            else if($direction=="DESC")
+                uasort($newOrderArray, 'self::rCompareASCII');
+        }
+
+        //Deal with ties
+        //Is there a tiebreaker rule?
+        array_shift($sortFields); //remove field slug
+        array_shift($sortFields); //remove direction
+        if(!empty($sortFields)) {
+            //Since we have a tiebreaker, foreach set of ties, call this function recursively
+            $keysOnly = array_keys($newOrderArray);
+            $finalResult = array();
+
+            //Cycle through result keys (rids)
+            for($i=0;$i<sizeof($keysOnly);$i++) {
+                //This handles the case where we are on the last key, so nothing to compare
+                //Add to results and bounce
+                if(!isset($keysOnly[$i+1])) {
+                    array_push($finalResult,$keysOnly[$i]);
+                    continue;
+                }
+
+                //If the next key's value is the same, do stuff
+                $thisKey = $keysOnly[$i];
+                $nextKey = $keysOnly[$i+1];
+                if($newOrderArray[$thisKey] == $newOrderArray[$nextKey]) {
+                    //First step is to get all keys that match it
+                    $tieKeys = array_keys($newOrderArray,$newOrderArray[$thisKey]);
+                    //Run the tie breaker
+                    $tieResult = $this->sort_rids($tieKeys,$sortFields);
+                    //Add results to the final
+                    $this->imitateMerge($finalResult,$tieResult);
+
+                    //We need to take the size of the tied values, and then increment $i by that size - 1
+                    //The minus one makes up for the fact that the for loop will also add to the index ($i++)
+                    //This will land us on the next proper index to continue
+                    $inc = sizeof($tieKeys)-1;
+                    $i += $inc;
+                } else {
+                    //No tie to settle, so add this key to the finalResult
+                    array_push($finalResult,$thisKey);
+                }
+            }
+        } else {
+            //convert to plain array of rids
+            $finalResult = array_keys($newOrderArray);
+        }
+
+        //Add missing records
+        $missing = array_diff($rids, $finalResult);
+        $this->imitateMerge($finalResult,$missing);
+
+        return $finalResult;
+    }
+
+    /**
      * Compares strings for sort, taking into account special characters to treat them as english. Second is reverse.
      *
      * @param  mixed $a
@@ -806,14 +1005,20 @@ class RestfulController extends Controller {
      * @return int - The comparison result
      */
     private function compareASCII($a, $b) {
-        $at = iconv('UTF-8', 'ASCII//TRANSLIT', $a);
-        $bt = iconv('UTF-8', 'ASCII//TRANSLIT', $b);
-        return strcmp($at, $bt);
+        $a = Search::convertCloseChars($a);
+        $b = Search::convertCloseChars($b);
+        if(is_numeric($a) && is_numeric($b))
+            return $a>$b;
+        else
+            return strcasecmp($a, $b);
     }
     private function rCompareASCII($a, $b) {
-        $at = iconv('UTF-8', 'ASCII//TRANSLIT', $a);
-        $bt = iconv('UTF-8', 'ASCII//TRANSLIT', $b);
-        return strcmp($at, $bt)*(-1);
+        $a = Search::convertCloseChars($a);
+        $b = Search::convertCloseChars($b);
+        if(is_numeric($a) && is_numeric($b))
+            return $a<$b;
+        else
+            return strcasecmp($a, $b)*(-1);
     }
 
     /**
@@ -857,164 +1062,163 @@ class RestfulController extends Controller {
      * @return array - The array of filters
      */
     private function getDataFilters($fid, $rids, $count, $flids) {
-	    if(empty($rids))
-	    	return ['total' => 0];
-	    
+        if(empty($rids))
+            return ['total' => 0];
+
         $filters = [];
-        $cnt = 0;
         $ridString = implode(',',$rids);
         $flidSQL = '';
-        
+
         if($flids != 'ALL') {
-	        //In case slugs are provided, we need flids
-	        $convertedFlids = array();
-	        foreach($flids as $fl) {
-		        array_push($convertedFlids, FieldController::getField($fl)->flid); //TODO::error bad fields, not 100% sure how we'll get it up a level
-	        }
-	        
-	        $flidString = implode(',',$convertedFlids);
-	        $flidSQL = " and `flid` in ($flidString)";
+            //In case slugs are provided, we need flids
+            $convertedFlids = array();
+            foreach($flids as $fl) {
+                array_push($convertedFlids, FieldController::getField($fl)->flid); //TODO::error bad fields, not 100% sure how we'll get it up a level
+            }
+
+            $flidString = implode(',',$convertedFlids);
+            $flidSQL = " and `flid` in ($flidString)";
+        } else {
+            $flids = Form::find($fid)->fields()->pluck('flid')->toArray();
+            $flidString = implode(',',$flids);
+            $flidSQL = " and `flid` in ($flidString)";
         }
-        
+
         //Doing this for pretty much the same reason as keyword search above
-	    $con = mysqli_connect(env('DB_HOST'), env('DB_USERNAME'), env('DB_PASSWORD'), env('DB_DATABASE'));
-	    
-	    //We want to make sure we are doing things in utf8 for special characters
-		if(!mysqli_set_charset($con, "utf8")) {
-		    printf("Error loading character set utf8: %s\n", mysqli_error($con));
-		    exit();
-		}
+        $con = mysqli_connect(env('DB_HOST'), env('DB_USERNAME'), env('DB_PASSWORD'), env('DB_DATABASE'));
 
-        $textOccurrences = DB::raw("select `text`, flid, COUNT(*) as count from ".env('DB_PREFIX')."text_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `flid`,`text` order by count ASC");
-        $listOccurrences = DB::raw("select `option`, flid, COUNT(*) as count from ".env('DB_PREFIX')."list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `flid`,`option` order by count ASC");
-        $msListOccurrences = DB::raw("select `options`, flid, COUNT(*) as count from ".env('DB_PREFIX')."multi_select_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `flid`,`options` order by count ASC");
-        $genListOccurrences = DB::raw("select `options`, flid, COUNT(*) as count from ".env('DB_PREFIX')."generated_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `flid`,`options` order by count ASC");
-        $numberOccurrences = DB::raw("select `number`, flid, COUNT(*) as count from ".env('DB_PREFIX')."number_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `flid`,`number` order by count ASC");
-        $assocOccurrences = DB::raw("select `record`, flid, COUNT(*) as count from ".env('DB_PREFIX')."associator_support where `fid`=$fid and `rid` in ($ridString)$flidSQL group by `flid`,`record` order by count ASC");
-        $rAssocOccurrences = DB::raw("select `rid`, flid, COUNT(*) as count from ".env('DB_PREFIX')."associator_support where `fid`=$fid and `record` in ($ridString)$flidSQL group by `flid`,`rid` order by count ASC");
+        //We want to make sure we are doing things in utf8 for special characters
+        if(!mysqli_set_charset($con, "utf8")) {
+            printf("Error loading character set utf8: %s\n", mysqli_error($con));
+            exit();
+        }
 
-		//Because of the complex data in MS List, we break stuff up and then format
-		$msListUnclean = $con->query($msListOccurrences);
-		$msArray = [];
+        $textOccurrences = DB::raw("select `text`, `flid` from ".env('DB_PREFIX')."text_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
+        $listOccurrences = DB::raw("select `option`, `flid` from ".env('DB_PREFIX')."list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
+        $msListOccurrences = DB::raw("select `options`, `flid` from ".env('DB_PREFIX')."multi_select_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
+        $genListOccurrences = DB::raw("select `options`, `flid` from ".env('DB_PREFIX')."generated_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
+        $numberOccurrences = DB::raw("select `number`, `flid` from ".env('DB_PREFIX')."number_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
+        $dateOccurrences = DB::raw("select `month`, `day`, `year`, `flid` from ".env('DB_PREFIX')."date_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
+        $assocOccurrences = DB::raw("select s.`flid`, r.`kid` from ".env('DB_PREFIX')."associator_support as s left join kora3_records as r on s.`record`=r.`rid` where s.`fid`=$fid and s.`rid` in ($ridString) and s.`flid` in ($flidString)");
+        $rAssocOccurrences = DB::raw("select s.`flid`, r.`kid` from ".env('DB_PREFIX')."associator_support as s left join kora3_records as r on s.`rid`=r.`rid` where s.`fid`=$fid and s.`rid` in ($ridString) and s.`flid` in ($flidString)");
+
+        //Because of the complex data in MS List, we break stuff up and then format
+        $msListUnclean = $con->query($msListOccurrences);
         while($occur = $msListUnclean->fetch_assoc()) {
-	        $msFlid = $occur['flid'];
-	        $msOpt = $occur['options'];
-	        $msCnt = $occur['count'];
-	        
-            if(!isset($msArray[$msFlid]))
-	            $msArray[$msFlid] = [];
-            
-	        if(strpos($msOpt, '[!]') !== false) {
-		        $opts = explode('[!]', $msOpt);
-		        
-		        foreach($opts as $opt) {
-			        if(isset($msArray[$msFlid][$opt]))
-			        	$msArray[$msFlid][$opt] += $msCnt;
-			        else
-			        	$msArray[$msFlid][$opt] = $msCnt;
-		        }
-	        } else {
-		        if(isset($msArray[$msFlid][$msOpt]))
-		        	$msArray[$msFlid][$msOpt] += $msCnt;
-		        else
-		        	$msArray[$msFlid][$msOpt] = $msCnt;
-	        }
+            $msFlid = $occur['flid'];
+            $msOpt = $occur['options'];
+
+            $opts = explode('[!]', $msOpt);
+
+            foreach($opts as $opt) {
+                if(!isset($filters[$msFlid][$opt]))
+                    $filters[$msFlid][$opt] = 1;
+                else
+                    $filters[$msFlid][$opt] += 1;
+            }
         }
-        foreach($msArray as $flid => $msCounts) {
-	        foreach($msCounts as $msFilter => $msCount) {
-		        if($msCount >= $count) {
-	        		$filters[$flid][] = ['value'=>$msFilter,'type'=>'Multi-Select List','count'=>$msCount];
-	        		$cnt++;
-	        	}
-	    	}
-    	}
-		//repeat
-		$genListUnclean = $con->query($genListOccurrences);
-		$genArray = [];
+
+        //repeat for gen list
+        $genListUnclean = $con->query($genListOccurrences);
         while($occur = $genListUnclean->fetch_assoc()) {
-	        $genFlid = $occur['flid'];
-	        $genOpt = $occur['options'];
-	        $genCnt = $occur['count'];
-	        
-            if(!isset($genArray[$genFlid]))
-	            $genArray[$genFlid] = [];
-            
-	        if(strpos($genOpt, '[!]') !== false) {
-		        $opts = explode('[!]', $genOpt);
-		        
-		        foreach($opts as $opt) {
-			        if(isset($genArray[$genFlid][$opt]))
-			        	$genArray[$genFlid][$opt] += $genCnt;
-			        else
-			        	$genArray[$genFlid][$opt] = $genCnt;
-		        }
-	        } else {
-		        if(isset($genArray[$genFlid][$genOpt]))
-		        	$genArray[$genFlid][$genOpt] += $genCnt;
-		        else
-		        	$genArray[$genFlid][$genOpt] = $genCnt;
-	        }
+            $gsFlid = $occur['flid'];
+            $gsOpt = $occur['options'];
+
+            $opts = explode('[!]', $gsOpt);
+
+            foreach($opts as $opt) {
+                if(!isset($filters[$gsFlid][$opt]))
+                    $filters[$gsFlid][$opt] = 1;
+                else
+                    $filters[$gsFlid][$opt] += 1;
+            }
         }
-        foreach($genArray as $flid => $genCounts) {
-	        foreach($genCounts as $genFilter => $genCount) {
-		        if($genCount >= $count) {
-	        		$filters[$flid][] = ['value'=>$genFilter,'type'=>'Generated List','count'=>$genCount];
-	        		$cnt++;
-	        	}
-	    	}
-    	}
-        //End GenList/MS-List Madness
-        
+
+        $dateUnclean = $con->query($dateOccurrences);
+        while($occur = $dateUnclean->fetch_assoc()) {
+            $flid = $occur['flid'];
+
+            if($occur['month']==0 && $occur['day']==0)
+                $value = $occur['year'];
+            else if($occur['day']==0 && $occur['year']==0)
+                $value = DateTime::createFromFormat('m', $occur['month'])->format('F');
+            else if($occur['day']==0)
+                $value = DateTime::createFromFormat('m', $occur['month'])->format('F').', '.$occur['year'];
+            else if($occur['year']==0)
+                $value = DateTime::createFromFormat('m', $occur['month'])->format('F').' '.$occur['day'];
+            else
+                $value = $occur['month'].'-'.$occur['day'].'-'.$occur['year'];
+
+            if(!isset($filters[$flid][$value]))
+                $filters[$flid][$value] = 1;
+            else
+                $filters[$flid][$value] += 1;
+        }
+
         $textUnclean = $con->query($textOccurrences);
         while($occur = $textUnclean->fetch_assoc()) {
-            if($occur['count'] >= $count) {
-                $filters[$occur['flid']][] = ['value'=>$occur['text'],'type'=>'Text','count'=>$occur['count']];
-                $cnt++;
-            }
+            $flid = $occur['flid'];
+            $value = $occur['text'];
+
+            if(!isset($filters[$flid][$value]))
+                $filters[$flid][$value] = 1;
+            else
+                $filters[$flid][$value] += 1;
         }
+
         $listUnclean = $con->query($listOccurrences);
         while($occur = $listUnclean->fetch_assoc()) {
-            if($occur['count'] >= $count) {
-                $filters[$occur['flid']][] = ['value'=>$occur['option'],'type'=>'List','count'=>$occur['count']];
-                $cnt++;
-            }
+            $flid = $occur['flid'];
+            $value = $occur['option'];
+
+            if(!isset($filters[$flid][$value]))
+                $filters[$flid][$value] = 1;
+            else
+                $filters[$flid][$value] += 1;
         }
+
         $numberUnclean = $con->query($numberOccurrences);
         while($occur = $numberUnclean->fetch_assoc()) {
-            if($occur['count'] >= $count) {
-                $value = (float)$occur['number'];
-                $filters[$occur['flid']][] = ['value'=>$value,'type'=>'Number','count'=>$occur['count']];
-                $cnt++;
-            }
+            $flid = $occur['flid'];
+            $value = (float)$occur['number'];
+
+            if(!isset($filters[$flid][$value]))
+                $filters[$flid][$value] = 1;
+            else
+                $filters[$flid][$value] += 1;
         }
+
         $assocUnclean = $con->query($assocOccurrences);
         while($occur = $assocUnclean->fetch_assoc()) {
-            if($occur['count'] >= $count) {
-                $value = Record::where('rid','=',$occur['record'])->first()->kid;
-                $filters[$occur['flid']][] = ['value'=>$value,'type'=>'Associator','count'=>$occur['count']];
-                $cnt++;
-            }
+            $flid = $occur['flid'];
+            $value = $occur['kid'];
+
+            if(!isset($filters[$flid][$value]))
+                $filters[$flid][$value] = 1;
+            else
+                $filters[$flid][$value] += 1;
         }
+
         $rAssocUnclean = $con->query($rAssocOccurrences);
         while($occur = $rAssocUnclean->fetch_assoc()) {
-            if($occur['count'] >= $count) {
-                $value = Record::where('rid', '=', $occur['rid'])->first()->kid;
-                $filters[$occur['flid']][] = ['value'=>$value,'type'=>'Reverse Associator','count'=>$occur['count']];
-                $cnt++;
-            }
+            $flid = $occur['flid'];
+            $value = $occur['kid'];
+
+            if(!isset($filters[$flid][$value]))
+                $filters[$flid][$value] = 1;
+            else
+                $filters[$flid][$value] += 1;
         }
-        
+
         //We want to swap out the flids to slugs so it's more predictable/ readable
         foreach($filters as $flid => $results) {
-	        $slug = FieldController::getField($flid)->slug;
-	        $filters[$slug] = $results;
-	        unset($filters[$flid]);
+            $slug = FieldController::getField($flid)->slug;
+            $filters[$slug] = $results;
+            unset($filters[$flid]);
         }
-        
-        $filters['total'] = $cnt;
 
         mysqli_close($con);
-        
+
         return $filters;
     }
 
@@ -1057,17 +1261,20 @@ class RestfulController extends Controller {
                 return response()->json(["status"=>false,"error"=>"There was an error extracting the provided zip"],500);
             }
         }
-        foreach($fields as $jsonField) {
-            $fieldSlug = $jsonField->name;
+        foreach($fields as $fieldName => $jsonField) {
+            $fieldSlug = $fieldName;
             $field = Field::where('slug', '=', $fieldSlug)->get()->first();
+            if(is_null($field))
+                return response()->json(["status"=>false,"error"=>"The field, $fieldSlug, does not exist"],500);
 
             $recRequest = $field->getTypedField()->setRestfulRecordData($jsonField, $field->flid, $recRequest, $uToken);
         }
         $recRequest['api'] = true;
+        $recRequest['assignRoot'] = true;
         $recCon = new RecordController();
-        //TODO::do something with this
+
         $response = $recCon->store($form->pid,$form->fid,$recRequest);
-        return "Created Record: ";
+        return $response;
     }
 
     /**
@@ -1138,9 +1345,11 @@ class RestfulController extends Controller {
                 return response()->json(["status"=>false,"error"=>"There was an issue extracting the provided file zip"],500);
             }
         }
-        foreach($fields as $jsonField) {
-            $fieldSlug = $jsonField->name;
+        foreach($fields as $fieldName => $jsonField) {
+            $fieldSlug = $fieldName;
             $field = Field::where('slug', '=', $fieldSlug)->get()->first();
+            if(is_null($field))
+                return response()->json(["status"=>false,"error"=>"The field, $fieldSlug, does not exist"],500);
             //if keepfields scenario, keep track of this field that will be edited
             if($keepFields=="true")
                 array_push($fieldsToEditArray,$field->flid);
@@ -1213,12 +1422,18 @@ class RestfulController extends Controller {
                 'assoc' => $filters['assoc'],
                 'realnames' => $filters['realnames']
             ];
-        } else {
+        } else if($format == self::KORA) {
             //Old Kora 2 searches only need field filters
             $options = [
                 'fields' => $filters['fields'],
                 'under' => $filters['under']
             ];
+        } else if($format == self::XML) {
+            $options = [
+                "revAssoc" => $filters['revAssoc']
+            ];
+        } else {
+            return "{}";
         }
 
         //Slice up array of RIDs to get the correct subset

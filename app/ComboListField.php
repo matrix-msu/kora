@@ -31,6 +31,7 @@ class ComboListField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.combolist";
     const FIELD_ADV_OPTIONS_VIEW = null;
+    const FIELD_ADV_INPUT_VIEW = null;
     const FIELD_INPUT_VIEW = "partials.records.input.combolist";
     const FIELD_DISPLAY_VIEW = "partials.records.display.combolist";
 
@@ -307,13 +308,13 @@ class ComboListField extends BaseField {
 
                 $combolistfield->updateData($request->input($field->flid.'_val'));
 
-                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->data = RevisionController::buildDataArray($record);
                 $revision->save();
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
             $revision = RevisionController::storeRevision($record->rid,Revision::EDIT);
-            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->data = RevisionController::buildDataArray($record);
             $revision->save();
         }
     }
@@ -405,10 +406,10 @@ class ComboListField extends BaseField {
      * @param  bool $exists - Field for record exists
      */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if(!is_array($revision->data))
-            $revision->data = json_decode($revision->data, true);
+        if(!is_array($revision->oldData))
+            $revision->oldData = json_decode($revision->oldData, true);
 
-        if(is_null($revision->data[Field::_COMBO_LIST][$field->flid]['data']))
+        if(is_null($revision->oldData[Field::_COMBO_LIST][$field->flid]['data']))
             return null;
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
@@ -421,9 +422,9 @@ class ComboListField extends BaseField {
         $this->save();
 
         $type_1 = self::getComboFieldType($field, "one");
-        $type_2 = self::getComboFieldName($field, "two");
+        $type_2 = self::getComboFieldType($field, "two");
 
-        $this->updateData($revision->data[Field::_COMBO_LIST][$field->flid]['data']['options'], $type_1, $type_2);
+        $this->updateData($revision->oldData[Field::_COMBO_LIST][$field->flid]['data']['options'], $type_1, $type_2);
     }
 
     /**
@@ -610,7 +611,7 @@ class ComboListField extends BaseField {
         $field = FieldController::getField($flid);
         $nameone = self::getComboFieldName($field, 'one');
         $nametwo = self::getComboFieldName($field, 'two');
-        foreach($jsonField->values as $val) {
+        foreach($jsonField->value as $val) {
             if(!is_array($val[$nameone]))
                 $fone = '[!f1!]' . $val[$nameone] . '[!f1!]';
             else

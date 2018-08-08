@@ -44,7 +44,7 @@
                     to its previous state that is listed below.
                 </p>
             @endif
-            @if ($type === 'Edited')
+            @if ($type === 'Edited' | $type === 'Rollback')
                 <span>Edits Made</span>
                 <div class="edit-section">
                     @foreach ($data["current"] as $id => $field)

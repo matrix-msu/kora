@@ -8,6 +8,12 @@
   margin: $navigation-height auto 0;
   width: 100%;
 
+  .head .description a {
+    color: palette('green', accent);
+    font-family: $ubuntu-medium;
+    text-decoration: none;
+  }
+
   @import 'field-presets/filters';
 
   .option-presets-selection {
@@ -17,5 +23,6 @@
     width: $max-site-width;
 
     @import 'field-presets/preset-card';
+    @import 'field-presets/no-presets';
   }
 }

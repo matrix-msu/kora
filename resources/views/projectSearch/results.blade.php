@@ -69,11 +69,12 @@
                     Search results will appear here after a search has been inputted.
                 </div>
             @else
-                <div class="form-group records-title mt-xxxl">
-                    Showing {{sizeof($records)}} of {{$total}} Records
-                </div>
-
-                @if(sizeof($records)>0)
+            	<div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
+            	
+                @if ( sizeof($records) > 0 )
+                    <div class="form-group records-title mt-xxxl">
+                        Showing {{sizeof($records)}} of {{$total}} Records
+                    </div>
                     @include('partials.records.pagination')
 
                     <section class="filters">
@@ -91,8 +92,8 @@
                             </select>
                         </div>
                         <div class="show-options show-options-js">
-                            <span><a href="#" class="expand-fields-js tooltip" title="Expand all fields" tooltip="Expand All Fields"><i class="icon icon-expand icon-expand-js"></i></a></span>
-                            <span><a href="#" class="collapse-fields-js tooltip" title="Collapse all fields" tooltip="Collapse All Fields"><i class="icon icon-condense icon-condense-js"></i></a></span>
+                            <span><a href="#" class="expand-fields-js tooltip" title="Expand all Records" tooltip="Expand All Records"><i class="icon icon-expand icon-expand-js"></i></a></span>
+                            <span><a href="#" class="collapse-fields-js tooltip" title="Collapse all Records" tooltip="Collapse All Records"><i class="icon icon-condense icon-condense-js"></i></a></span>
                         </div>
                     </section>
 
@@ -101,6 +102,8 @@
                     @endforeach
 
                     @include('partials.records.pagination')
+                @else
+                    @include('partials.records.no-records')
                 @endif
             @endif
         </section>

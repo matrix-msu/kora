@@ -173,13 +173,13 @@ class ScheduleField extends BaseField {
                 $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $schedulefield->updateEvents($formFieldValue);
                 $schedulefield->save();
-                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->data = RevisionController::buildDataArray($record);
                 $revision->save();
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
             $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
-            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->data = RevisionController::buildDataArray($record);
             $revision->save();
         }
     }
@@ -225,10 +225,10 @@ class ScheduleField extends BaseField {
      * @param  bool $exists - Field for record exists
      */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if(!is_array($revision->data))
-            $revision->data = json_decode($revision->data, true);
+        if(!is_array($revision->oldData))
+            $revision->oldData = json_decode($revision->oldData, true);
 
-        if(is_null($revision->data[Field::_SCHEDULE][$field->flid]['data']))
+        if(is_null($revision->oldData[Field::_SCHEDULE][$field->flid]['data']))
             return null;
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
@@ -239,7 +239,7 @@ class ScheduleField extends BaseField {
         }
 
         $this->save();
-        $this->updateEvents($revision->data[Field::_SCHEDULE][$field->flid]['data']);
+        $this->updateEvents($revision->oldData[Field::_SCHEDULE][$field->flid]['data']);
     }
 
     /**
@@ -373,7 +373,7 @@ class ScheduleField extends BaseField {
      */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
         $events = array();
-        foreach($jsonField->events as $event) {
+        foreach($jsonField->value as $event) {
             $string = $event['title'] . ': ' . $event['start'] . ' - ' . $event['end'];
             array_push($events, $string);
         }
@@ -393,7 +393,7 @@ class ScheduleField extends BaseField {
         return DB::table(self::SUPPORT_NAME)
             ->select("rid")
             ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`desc`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+            ->where('desc','LIKE',"%$arg%")
             ->distinct()
             ->pluck('rid')
             ->toArray();
@@ -404,9 +404,9 @@ class ScheduleField extends BaseField {
      *
      * @param  int $flid - Field ID
      * @param  array $query - The advance search user query
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    public function getAdvancedSearchQuery($flid, $query) {
+    public function advancedSearchTyped($flid, $query) {
         $begin_month = ($query[$flid."_begin_month"] == "") ? 1 : intval($query[$flid."_begin_month"]);
         $begin_day = ($query[$flid."_begin_day"] == "") ? 1 : intval($query[$flid."_begin_day"]);
         $begin_year = ($query[$flid."_begin_year"] == "") ? 1 : intval($query[$flid."_begin_year"]);
@@ -438,7 +438,9 @@ class ScheduleField extends BaseField {
             });
         });
 
-        return $query->distinct();
+        return $query->distinct()
+            ->pluck('rid')
+            ->toArray();
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////

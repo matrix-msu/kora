@@ -164,11 +164,11 @@ class GalleryField extends FileTypeField  {
                             $type = $types[$file->getExtension()];
                         $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
                         $infoArray[$file->getFilename()] = $info;
-                        copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                        rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                             $newPath . '/' . $file->getFilename());
-                        copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename(),
+                        rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename(),
                             $newPath . '/thumbnail/' . $file->getFilename());
-                        copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/medium/' . $file->getFilename(),
+                        rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/medium/' . $file->getFilename(),
                             $newPath . '/medium/' . $file->getFilename());
                     }
                 }
@@ -231,11 +231,11 @@ class GalleryField extends FileTypeField  {
                             $type =  $types[$file->getExtension()];
                         $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
                         $infoArray[$file->getFilename()] = $info;
-                        copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                        rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                             $fileBase . '/' . $file->getFilename());
-                        copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename(),
+                        rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename(),
                             $fileBase . '/thumbnail/' . $file->getFilename());
-                        copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/medium/' . $file->getFilename(),
+                        rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/medium/' . $file->getFilename(),
                             $fileBase . '/medium/' . $file->getFilename());
 
                         $gal_files_exist = true;
@@ -334,7 +334,10 @@ class GalleryField extends FileTypeField  {
      */
     public function validateField($field, $request, $forceReq = false) {
         $req = $field->required;
-        $value = 'f'.$field->flid.'u'.Auth::user()->id;
+        if(Auth::guest())
+            $value = 'f'.$field->flid.'u'.$request['userId'];
+        else
+            $value = 'f'.$field->flid.'u'.Auth::user()->id;
 
         if($req==1 | $forceReq) {
             if(glob(config('app.base_path').'storage/app/tmpFiles/'.$value.'/*.*') == false)
@@ -352,10 +355,10 @@ class GalleryField extends FileTypeField  {
      * @param  bool $exists - Field for record exists
      */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if(!is_array($revision->data))
-            $revision->data = json_decode($revision->data, true);
+        if(!is_array($revision->oldData))
+            $revision->oldData = json_decode($revision->oldData, true);
 
-        if(is_null($revision->data[Field::_GALLERY][$field->flid]['data']))
+        if(is_null($revision->oldData[Field::_GALLERY][$field->flid]['data']))
             return null;
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
@@ -365,7 +368,7 @@ class GalleryField extends FileTypeField  {
             $this->rid = $revision->rid;
         }
 
-        $this->images = $revision->data[Field::_GALLERY][$field->flid]['data'];
+        $this->images = $revision->oldData[Field::_GALLERY][$field->flid]['data'];
         $this->save();
     }
 
@@ -493,7 +496,7 @@ class GalleryField extends FileTypeField  {
             mkdir($newDir . '/medium', 0775, true);
         }
         $field = FieldController::getField($flid);
-        foreach($jsonField->files as $file) {
+        foreach($jsonField->value as $file) {
             $name = $file->name;
             //move file from imp temp to tmp files
             copy($currDir . '/' . $name, $newDir . '/' . $name);

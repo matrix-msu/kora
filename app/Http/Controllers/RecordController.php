@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\AssociatorField;
 use App\Field;
 use App\RecordPreset;
 use App\Revision;
@@ -146,7 +147,10 @@ class RecordController extends Controller {
             $record = new Record();
             $record->pid = $pid;
             $record->fid = $fid;
-            $record->owner = $request->userId;
+            if($request->assignRoot)
+                $record->owner = 1;
+            else
+                $record->owner = $request->userId;
             $record->save(); //need to save to create rid needed to make kid
             $record->kid = $pid . '-' . $fid . '-' . $record->rid;
             $record->save();
@@ -156,6 +160,36 @@ class RecordController extends Controller {
                     continue;
                 $field = FieldController::getField($key);
                 $field->getTypedField()->createNewRecordField($field, $record, $value, $request);
+            }
+
+            //Now let's handle reverseAssociations assuming we are coming from the importer or the API
+            if(isset($request->newRecRevAssoc)) {
+                foreach($request->newRecRevAssoc as $flid => $akids) {
+                    foreach($akids as $akid) {
+                        //NOTE: We do these next two checks so that if we take exported records to a new installation, we don't
+                        // accidentally connect to a record that has nothing to do with us
+                        //Let's make sure the request record exists
+                        if(Record::isKIDPattern($akid) && Record::where('kid','=',$akid)->count()==1) {
+                            $recParts = explode('-', $akid);
+
+                            //Make sure this associator exists first
+                            if(Field::where('flid','=',$flid)->where('fid','=',$recParts[1])->where('type','=','Associator')->count()==0)
+                                continue;
+
+                            //See if the associator field for the reverse record already exists or if we need a new one
+                            $assocField = AssociatorField::where('flid','=',$flid)->where('rid','=',$recParts[2])->first();
+                            if(is_null($assocField)) {
+                                $assocField = new AssociatorField();
+                                $assocField->fid = $recParts[1];
+                                $assocField->flid = $flid;
+                                $assocField->rid = $recParts[2];
+                                $assocField->save();
+                            }
+
+                            $assocField->addRecords(array($record->kid));
+                        }
+                    }
+                }
             }
 
             //
@@ -268,6 +302,8 @@ class RecordController extends Controller {
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @return array - The records that were removed
+     *
+     * TODO::Revisions don't record mass deletes, so it might be helpful to have this not rely on revisions
      */
     public function cleanUp($pid, $fid) {
         $form = FormController::getForm($fid);
@@ -318,7 +354,7 @@ class RecordController extends Controller {
             }
         }
 
-        return $revisions;
+        return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_success', 'old_records_deleted');
     }
 
     /**
@@ -375,7 +411,7 @@ class RecordController extends Controller {
                 $field->getTypedField()->createNewRecordField($field,$record,$value,$request);
         }
 
-        $revision->oldData = RevisionController::buildDataArray($record);
+        $revision->data = RevisionController::buildDataArray($record);
         $revision->save();
 
         //Make new preset
@@ -434,11 +470,14 @@ class RecordController extends Controller {
         $form = FormController::getForm($fid);
 
         if(!\Auth::user()->isFormAdmin($form)) {
-            return response()->json(["status"=>false,"message"=>"not_form_admin"],500);
+            return redirect('projects')->with('k3_global_error', 'not_form_admin');
         } else {
-            Record::where("fid", "=", $fid)->delete();
+            $records = Record::where("fid", "=", $fid)->get();
+            foreach($records as $rec) {
+                $rec->delete();
+            }
 
-            return response()->json(["status"=>true,"message"=>"all_record_deleted"],200);
+            return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_success', 'all_record_deleted');
         }
     }
 
@@ -751,6 +790,13 @@ class RecordController extends Controller {
         return redirect()->action('RecordController@index',compact('pid','fid'));
     }
 
+    public function downloadFiles(Request $request) {
+        dd($request->files);
+        $files = $request->files;
+        Zipper::make('downloads/k3download.zip')->add($files);
+        return response()->download(public_path('downloads/k3download.zip'))->deleteFileAfterSend(true);
+    }
+
     /**
      * Creates several test records in a form for testing purposes.
      *
@@ -794,11 +840,11 @@ class RecordController extends Controller {
         $form = FormController::getForm($fid);
 
         if(!\Auth::user()->isFormAdmin($form)) {
-            return response()->json(["status"=>false,"message"=>"not_form_admin"],500);
+            return redirect('projects')->with('k3_global_error', 'not_form_admin');
         } else {
             Record::where("fid", "=", $fid)->where("isTest", "=", 1)->delete();
 
-            return response()->json(["status"=>true,"message"=>"test_records_deleted"],200);
+            return redirect()->action('RecordController@index',compact('pid','fid'))->with('k3_global_success', 'test_records_deleted');
         }
     }
 }

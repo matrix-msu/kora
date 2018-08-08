@@ -44,7 +44,6 @@ class InstallController extends Controller {
         "storage/app/presetFiles",
         "storage/app/profiles",
 		"storage/app/tmpFiles",
-		"storage/app/tmpImport",
 	];
 
     /**
@@ -256,7 +255,7 @@ class InstallController extends Controller {
             "MAIL_PASSWORD=" . $request->mail_password . "\n\n" .
 
             "CACHE_DRIVER=file\n".
-            "SESSION_DRIVER=cookie\n\n".
+            "SESSION_DRIVER=file\n\n".
 
             "BASE_URL=" . $baseurl . "\n" .
             "BASE_PATH=" . $request->basepath . "\n\n" .

@@ -22,8 +22,7 @@
                 <i class="icon icon-zap"></i>
                 <span>Batch Assign Field Values</span>
             </h1>
-            <p class="description">Brief info on what Batch Assign Field Values can do for the user, followed by
-                instructions on how to mass assign records will go here.</p>
+            <p class="description">The Batch Assign Field Values page allows you to modify field values for the selected field across all records. To begin the Batch Assign process, select a field below. You can also Batch Assign Field Values to only a selection of records. To begin this process, head to the View Form Records page. For more information on Batch Assigning Field Values, refer to the <a href="#">Batch Assign Field Values - Kora Documentation.</a></p>
         </div>
     </section>
 @stop

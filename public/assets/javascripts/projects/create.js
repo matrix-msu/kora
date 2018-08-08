@@ -7,6 +7,16 @@ Kora.Projects.Create = function() {
     width: '100%',
   });
 
+  function scrollTop (allScrolls) {
+    var scrollTo = Math.min(...allScrolls);
+    var scrollTo = scrollTo - 100;
+    setTimeout( function () {
+      $('html, body').animate({
+        scrollTop: 0
+      }, 500);
+    });
+  }
+
   function initializeValidation() {
     $('.validate-project-js').on('click', function(e) {
       var $this = $(this);
@@ -26,14 +36,19 @@ Kora.Projects.Create = function() {
           $('.create-form').submit();
         },
         error: function(err) {
+//console.log('error - submitted'); apply verification fix here
           $('.error-message').text('');
           $('.text-input, .text-area').removeClass('error');
+          var allScrolls = [];
 
           $.each(err.responseJSON.errors, function(fieldName, errors) {
             var $field = $('#'+fieldName);
             $field.addClass('error');
             $field.siblings('.error-message').text(errors[0]);
+            allScrolls.push($field.offset().top);
           });
+
+          scrollTop(allScrolls);
         }
       });
     });
@@ -61,5 +76,19 @@ Kora.Projects.Create = function() {
     });
   }
 
+  function multiSelectPlaceholders () {
+	  var inputDef = $('.chosen-container').children('.chosen-choices');
+    var childCheck = inputDef.siblings('.chosen-drop').children('.chosen-results');
+	  
+	  inputDef.on('click', function() {
+		  if (childCheck.children().length === 0) {
+			  childCheck.append('<li class="no-results">No options to select!</li>');
+		  } else if (childCheck.children('.active-result').length === 0 && childCheck.children('.no-results').length === 0) {
+			  childCheck.append('<li class="no-results">No more options to select!</li>');
+		  }
+	  });
+  }
+
   initializeValidation();
+  multiSelectPlaceholders();
 }

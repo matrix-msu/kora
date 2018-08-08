@@ -3,6 +3,8 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\ProjectController;
+use App\Project;
+use App\Form;
 use Carbon\Carbon;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
@@ -43,9 +45,19 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @var array - Attributes that ignored in the model representation
      */
 	protected $hidden = ['password', 'remember_token'];
+	
 
     public function getFullNameAttribute() {
         return $this->first_name . " " . $this->last_name;
+    }
+
+    /**
+     * A User's Permissions
+     *
+     * @return HasOne
+     */
+    public function permissions() {
+        return $this->hasOne('App\Preferences', 'preferences_id');
     }
 
     /**
@@ -602,6 +614,46 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             );
         }
     }
+	
+	public function addNewAdminToAllCustomProjects()
+	{	
+		DB::transaction(function() {
+			$projects = Project::all();
+			$sequence = DB::table("project_custom")->where("uid", "=", $this->id)->max("sequence");
+			$now = Carbon::now();
+			$inserts = array();
+			
+			if(is_null($sequence)) {$sequence = -1;}
+			
+			$user_data = DB::table("project_custom")->where("uid", "=", $this->id)->get();
+			
+			foreach ($projects as $project)
+			{
+				$pid = $project->pid;
+				
+				$already_exists = false;
+				foreach ($user_data as $user_record)
+				{
+					if ($user_record->pid == $pid)
+					{
+						$already_exists = true;
+						break;
+					}
+				}
+				
+				if (!$already_exists)
+				{
+					$sequence = $sequence + 1;
+					
+					array_push($inserts, ['uid' => $this->id, 'pid' => $pid, 'sequence' => $sequence,
+						"created_at" =>  $now,
+						"updated_at" =>  $now]);
+				}
+			}
+			
+			DB::table('project_custom')->insert($inserts);
+		});
+	}
 
     /**
      * Adds a form to a user's custom list
@@ -632,6 +684,49 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             );
         }
     }
+	
+	public function addNewAdminToAllCustomForms()
+	{	
+		DB::transaction(function() {
+			$now = Carbon::now();
+			$forms = Form::all();
+			$user_forms = DB::table("form_custom")->where("uid", "=", $this->id)->get();
+			$inserts = array();
+			
+			foreach ($forms as $form)
+			{
+				$fid = $form->fid;
+				$pid = $form->pid;
+				
+				// Check if it already exists
+				$already_exists = false;
+				foreach ($user_forms as $user_form)
+				{
+					if ($user_form->pid == $pid && $user_form->fid == $fid)
+					{
+						$already_exists = true;
+						break;
+					}
+				}
+				
+				if (!($already_exists))
+				{
+					$sequence = DB::table("form_custom")->where("uid", "=", $this->id)
+					->where("pid", "=", $pid)->max("sequence");
+					
+					if(!is_null($sequence))
+						$sequence = $sequence + 1;
+					else
+						$sequence = 0;
+					
+					array_push($inserts, ['uid' => $this->id, 'pid' => $pid, 'fid' => $fid, 'sequence' => $sequence,
+						"created_at" =>  $now, "updated_at" =>  $now]);
+				}
+			}
+			
+			DB::table('form_custom')->insert($inserts);
+		});
+	}
 
     /**
      * Removes a project from a user's custom list
@@ -644,6 +739,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
         $found = false;
         $delCustom = null;
+		
+		
         foreach($customs as $custom) {
             if($found) {
                 //Once we've found the page we are deleting, we need to change the sequence of any
@@ -665,7 +762,174 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
         if(!is_null($delCustom))
             DB::table('project_custom')->where('id', '=', $delCustom->id)->delete();
+		
     }
+	
+	public function bulkRemoveCustomProjects($pids)
+	{
+		$customs = DB::table("project_custom")->where("uid", "=", $this->id)->orderBy('sequence', 'asc')
+            ->get()->toArray(); // contains all entries in this table for user, but we don't want actually to remove all of them
+			
+		// bulk delete - delete all of them and only recreate ones we don't actually want to delete
+		// we keep track of ones we dont want deleted with our above query
+		
+		DB::table('project_custom')->whereIn('uid', array($this->id))->delete(); // bulk delete ALL entries
+		
+		// remove ones we don't want
+		foreach($customs as $index=>$project_record)
+		{
+			if (in_array($project_record->pid, $pids))
+			{
+				unset($customs[$index]);
+			}
+		}
+		$customs = array_values($customs); // fix indexes after unsetting
+		
+		// fix sequences
+		$next_sequence = 0;
+		foreach($customs as $index=>$project_record)
+		{
+			$found = false;
+			
+			while($found == false)
+			{
+				foreach($customs as $index2=>$project_record2)
+				{
+					if ($project_record2->sequence == $next_sequence)
+					{
+						$found = true;
+						break;
+					}
+				}
+				
+				if ($found == false)
+				{ // shift all remaining indexes down by one
+					foreach($customs as $index3=>$project_record3)
+					{
+						if ($project_record3->sequence > $next_sequence)
+						{
+							$project_record3->sequence = $project_record3->sequence - 1;
+						}
+					}			
+				}
+			}
+			
+			$next_sequence = $next_sequence + 1;
+		}
+		
+		// bulk insert with fixed sequences
+		$inserts = array();
+		foreach($customs as $project_record) // convert from stdClass to array
+		{
+			array_push($inserts, ['id' => $project_record->id,
+				'uid' => $project_record->uid,
+				'pid' => $project_record->pid,
+				'sequence' => $project_record->sequence,
+				'created_at' => $project_record->created_at,
+				'updated_at' => $project_record->updated_at
+			]);
+		}
+		
+		DB::table('project_custom')->insert($inserts); // bulk insert
+	}
+	
+	
+	public function bulkRemoveCustomForms($fids)
+	{
+		// get the pids for the query
+		$pids = array();
+		foreach ($fids as $fid)
+		{
+			$pid = FormController::getForm($fid)->pid;
+			array_push($pids, $pid);
+		}
+		
+		// contains all entries in this table for user, but we don't want actually to remove all of them
+		$customs = DB::table("form_custom")->where('uid', '=', $this->id)->whereIn('pid', $pids)->orderBy('sequence', 'asc')->get()->toArray();
+		
+		
+		// bulk delete - delete all of them and only recreate ones we don't actually want to delete
+		// we keep track of ones we dont want deleted with our above query
+		// bulk delete ALL entries for user, only deletes records for affected projects
+		DB::table('form_custom')->whereIn('uid', array($this->id))->whereIn('pid', $pids)->delete();
+		
+		// remove ones we don't want and group the forms by their pid
+		$pids_data = array();
+		foreach($customs as $index=>$form_record)
+		{
+			if (in_array($form_record->fid, $fids))
+			{
+				unset($customs[$index]);
+			}
+			else // all the data that isn't being deleted
+			{
+				if (!array_key_exists($form_record->pid, $pids_data))
+				{
+					$pids_data[$form_record->pid] = array($form_record);
+				}
+				else
+				{
+					array_push($pids_data[$form_record->pid], $form_record);
+				}
+			}
+		}
+		
+		$customs = array_values($customs); // fix indexes after unsetting, doesn't re-order
+		
+		// fix sequences
+		foreach($pids_data as $index=>$form_record_array)
+		{
+			$next_sequence = 0;
+			foreach($form_record_array as $index=>$form_record)
+			{
+				$found = false;
+				
+				while($found == false)
+				{
+					foreach($form_record_array as $index2=>$form_record2)
+					{
+						if ($form_record2->sequence == $next_sequence)
+						{
+							$found = true;
+							break;
+						}
+					}
+					
+					if ($found == false)
+					{ // shift all remaining indexes down by one
+						foreach($form_record_array as $index3=>$form_record3)
+						{
+							if ($form_record3->sequence > $next_sequence)
+							{
+								$form_record3->sequence = $form_record3->sequence - 1;
+							}
+						}			
+					}
+				}
+				
+				$next_sequence = $next_sequence + 1;
+			}
+		}
+		
+		// bulk insert with fixed sequences
+		$inserts = array();
+		foreach($pids_data as $index=>$form_record_array)
+		{
+			foreach($form_record_array as $form_record)
+			{
+				array_push($inserts, ['id' => $form_record->id,
+					'uid' => $form_record->uid,
+					'pid' => $form_record->pid,
+					'fid' => $form_record->fid,
+					'sequence' => $form_record->sequence,
+					'created_at' => $form_record->created_at,
+					'updated_at' => $form_record->updated_at
+				]);
+			}
+		}
+		
+		DB::table('form_custom')->insert($inserts); // bulk insert
+	}
 
     /**
      * Removes a form from a user's custom list
