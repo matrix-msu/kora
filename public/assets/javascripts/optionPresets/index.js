@@ -146,14 +146,44 @@ Kora.OptionPresets.Index = function() {
                     "presetId": currentPreset
                 },
                 success: function (result) {
-                    location.reload();
+                  window.localStorage.setItem('message', 'Field Value Preset Deleted');
+                  location.reload();
                 }
             });
         });
+    }
+
+    function initializeNotification() {
+      var $noteBody = $('.notification');
+      var $note = $('.note').children();
+
+      var message = window.localStorage.getItem('message');
+
+      if (message) {
+        $note.children().text(message);
+        window.localStorage.clear();
+      }
+
+      setTimeout(function(){
+        if ($note.text() != '') {
+          $noteBody.removeClass('dismiss');
+
+          setTimeout(function(){
+            $noteBody.addClass('dismiss');
+          }, 6000);
+        }
+      }, 200);
+
+      $('.toggle-notification-js').click(function(e) {
+        e.preventDefault();
+
+        $noteBody.addClass('dismiss');
+      });
     }
 
     initializeSearch();
     initializeFilters();
     initializeToggle();
     initializeDeletePresetModal();
+    initializeNotification();
 }

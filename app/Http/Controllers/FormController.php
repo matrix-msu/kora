@@ -87,7 +87,7 @@ class FormController extends Controller {
         if($request->preset[0]!="")
             self::addPresets($form, $request->preset[0]);
 
-        return redirect('projects/'.$form->pid)->with('k3_global_success', 'form_created');
+        return redirect('projects/'.$form->pid.'/forms/'.$form->fid)->with('k3_global_success', 'form_created');
 	}
 
     /**
@@ -97,7 +97,7 @@ class FormController extends Controller {
      * @param  int $fid - Form ID
      * @return View
      */
-	public function show($pid, $fid) {
+	public function show($pid, $fid, Request $request) {
         if(!self::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
@@ -111,7 +111,16 @@ class FormController extends Controller {
 
         $pageLayout = PageController::getFormLayout($fid);
 
-        return view('forms.show', compact('form','projName','pageLayout','hasFields'));
+        $notification = '';
+        $prevUrlArray = $request->session()->get('_previous');
+        $prevUrl = reset($prevUrlArray);
+        if ($prevUrl !== url()->current()) {
+          $session = $request->session()->get('k3_global_success');
+
+          if ($session == 'form_created') $notification = 'Form Sucessfully Created!';
+        }
+
+        return view('forms.show', compact('form','projName','pageLayout','hasFields','notification'));
 	}
 
     /**

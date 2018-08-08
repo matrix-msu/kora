@@ -71,6 +71,48 @@ h2 {
   visibility: hidden;
 }
 
+.notification {
+  @include transition(right);
+
+  align-items: center;
+  background: gradient(accent, to right);
+  border-radius: 5px;
+  box-shadow: 0 2px 42px 0 rgba(4,182,164,0.3);
+  color: palette('white', base);
+  display: flex;
+  font-family: $ubuntu;
+  font-size: 14px;
+  height: 50px;
+  position: fixed;
+  right: 30px;
+  top: 70px;
+  z-index: 10;
+
+  &.dismiss {
+    right: -350px;
+  }
+
+  .note {
+    min-width: 260px;
+  }
+
+  .toggle-notification {
+    @include transition(opacity);
+
+    align-items: center;
+    background: rgba(61, 77, 96, 0.1);
+    border-radius: 0 5px 5px 0;
+    display: flex;
+    height: 100%;
+    padding: 0 20px;
+
+    &:hover {
+      cursor: pointer;
+      opacity: 0.7;
+    }
+  }
+}
+
 .fixed-bottom {
   bottom: 0;
   left: 0;

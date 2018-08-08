@@ -394,6 +394,27 @@ Kora.Projects.Index = function() {
 	$("[href='#custom'], [href='#active'], [href='#inactive']").click(function() { adjustProjectCardTitle(); });
   }
 
+  function initializeNotification() {
+    var $noteBody = $('.notification');
+    var $note = $('.note').children();
+
+    setTimeout(function(){
+      if ($note.text() != '') {
+        $noteBody.removeClass('dismiss');
+
+        setTimeout(function(){
+          $noteBody.addClass('dismiss');
+        }, 6000);
+      }
+    }, 200);
+
+    $('.toggle-notification-js').click(function(e) {
+      e.preventDefault();
+
+      $noteBody.addClass('dismiss');
+    });
+  }
+
   initializeCustomSort();
   initializeFilters();
   initializeSearch();
@@ -401,4 +422,5 @@ Kora.Projects.Index = function() {
   initializeUserProfileModal();
   initializeUnarchive();
   initializeProjectCardEllipsifying();
+  initializeNotification();
 }

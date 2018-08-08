@@ -37,7 +37,7 @@ class ProjectController extends Controller {
      *
      * @return View
      */
-	public function index() {
+	public function index(Request $request) {
         $projectCollections = Project::all()->sortBy("name", SORT_NATURAL|SORT_FLAG_CASE);
 
         $projects = array();
@@ -81,7 +81,19 @@ class ProjectController extends Controller {
             $updateNotification = true;
         }*/
 
-        return view('projects.index', compact('projects', 'inactive', 'custom', 'pSearch', 'hasProjects', 'requestableProjects'));
+        $notification = '';
+        $prevUrlArray = $request->session()->get('_previous');
+        $prevUrl = reset($prevUrlArray);
+        // we do not need to see notification every time we reload the page
+        if ($prevUrl !== url()->current()) {
+          $session = $request->session()->get('k3_global_success');
+
+          if ($session == 'project_deleted') $notification = 'Project Successfully Deleted';
+          else if ($session == 'project_archived') $notification = 'Project Successfully Archived!';
+          //else if ($session == 'project_restored') $notification = 'Project Successfully Restored!';
+        }
+
+        return view('projects.index', compact('projects', 'inactive', 'custom', 'pSearch', 'hasProjects', 'requestableProjects', 'notification'));
 	}
 
     /**
@@ -160,7 +172,7 @@ class ProjectController extends Controller {
         $project->active = 1;
         $project->save();
 
-        return redirect('projects')->with('k3_global_success', 'project_created');
+        return redirect('projects/'.$project->pid)->with('k3_global_success', 'project_created');
 	}
 
     /**
@@ -169,7 +181,7 @@ class ProjectController extends Controller {
      * @param  int $id - Project ID
      * @return View
      */
-	public function show($id) {
+	public function show($id, Request $request) {
         if(!self::validProj($id))
             return redirect('projects')->with('k3_global_error', 'project_invalid');
 
@@ -196,7 +208,19 @@ class ProjectController extends Controller {
         //We need to sort the custom array
         ksort($custom);
 
-        return view('projects.show', compact('project','forms', 'custom'));
+        $notification = '';
+        $prevUrlArray = $request->session()->get('_previous');
+        $prevUrl = reset($prevUrlArray);
+        // we do not need to see notification every time we reload the page
+        if ($prevUrl !== url()->current()) {
+          $session = $request->session()->get('k3_global_success');
+
+          if ($session == 'project_updated') $notification = 'Project Sucessfully Updated!';
+          else if ($session == 'project_created') $notification = 'Project Successfully Created!';
+          else if ($session == 'form_deleted') $notification = 'Form Successfully Deleted!';
+        }
+
+        return view('projects.show', compact('project','forms', 'custom', 'notification'));
 	}
 
     /**
@@ -237,7 +261,7 @@ class ProjectController extends Controller {
 
         ProjectGroupController::updateMainGroupNames($project);
 
-        return redirect('projects')->with('k3_global_success', 'project_updated');
+        return redirect('projects/'.$id)->with('k3_global_success', 'project_updated');
 	}
 
     /**
