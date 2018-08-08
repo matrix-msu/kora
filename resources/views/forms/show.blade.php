@@ -117,6 +117,7 @@
   </div>
 
   <section class="pages pages-js center {{ $page_has_fields ? '' : 'mt-xxxl' }}">
+    <?php $pages_count = count($pageLayout); ?>
     @foreach($pageLayout as $idx=>$page)
       <div class="page" page-id="{{$page["id"]}}">
         <div class="page-header">
@@ -134,11 +135,19 @@
             {!! Form::text('name', null, ['class' => 'title page-title-js', 'placeholder' => $page["title"], 'pageid' => $page["id"]]) !!}
           </div>
 
-          <div>
-            <a href="#" data-page="{{$page["id"]}}" class="cancel-container delete-page-js tooltip" tooltip="Delete Page">
-              <i class="icon icon-cancel"></i>
-            </a>
-          </div>
+          @if ($pages_count > 1)
+		  <div>
+		    <a href="#" data-page='{{$page["id"]}}' class="cancel-container delete-page-js tooltip" tooltip="Delete Page">
+		  	  <i class="icon icon-cancel"></i>
+		    </a>
+		  </div>
+		  @elseif ($pages_count == 1)
+		  <div>
+		    <a href="#" data-page='{{$page["id"]}}' class="cancel-container-disabled delete-page-js delete-disabled not-allowed">
+		  	  <i class="icon-cancel not-allowed"></i>
+		   </a>
+		  </div>
+		  @endif
         </div>
 
         <div class="field-sort-js" style="min-height: 10px;">
