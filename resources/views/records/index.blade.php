@@ -33,6 +33,7 @@
 
 @section('body')
     @include("partials.records.modals.deleteRecordModal", ['record' => null])
+    @include('partials.projects.notification')
     <section class="view-records center">
         <section class="search-records">
             <form method="GET" action="{{action('FormSearchController@keywordSearch',['pid' => $form->pid, 'fid' => $form->fid])}}" class="keyword-search-js">

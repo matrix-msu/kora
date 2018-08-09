@@ -121,6 +121,8 @@ class FormController extends Controller {
           else if ($session == 'field_created') $notification = 'Field Successfully Created!';
           else if ($session == 'field_options_updated') $notification = 'Field Successfully Created!';
           else if ($session == 'field_updated') $notification = 'Field Successfully Updated!';
+          else if ($session == 'record_deleted') $notification = 'Record Successfully Deleted';
+          else if ($session == 'all_record_deleted') $notification = 'All Form Records Deleted';
         }
 
         return view('forms.show', compact('form','projName','pageLayout','hasFields','notification'));

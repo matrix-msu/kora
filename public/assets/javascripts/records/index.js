@@ -468,6 +468,34 @@ Kora.Records.Index = function() {
       }
     }
 
+    function initializeNotification() {
+      var $noteBody = $('.notification');
+      var $note = $('.note').children();
+
+      var message = window.localStorage.getItem('message');
+
+      if (message) {
+        $note.text(message);
+        window.localStorage.clear();
+      }
+
+      setTimeout(function(){
+        if ($note.text() != '') {
+          $noteBody.removeClass('dismiss');
+
+          setTimeout(function(){
+            $noteBody.addClass('dismiss');
+          }, 6000);
+        }
+      }, 200);
+
+      $('.toggle-notification-js').click(function(e) {
+        e.preventDefault();
+
+        $noteBody.addClass('dismiss');
+      });
+    }
+
     initializeSelectAddition();
     initializeOptionDropdowns();
     initializePaginationShortcut();
@@ -478,5 +506,6 @@ Kora.Records.Index = function() {
     initializeScrollTo();
     initializeSearchValidation();
     displayKeywords();
+    initializeNotification();
     Kora.Records.Modal();
 }
