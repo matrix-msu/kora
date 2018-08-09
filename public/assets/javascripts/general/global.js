@@ -288,3 +288,31 @@ function multiselect_placeholder_injection()
 }
 multiselect_placeholder_injection();
 setInterval(multiselect_placeholder_injection, 451);
+
+function display_loader() { $("#preloader").css("display", ""); }
+function hide_loader() { $("#preloader").css("display", "none"); }
+
+$( document ).ajaxSend(function(event, xhr, options) {
+  
+  var url = options.url;
+  // AJAX loader exclusion cases
+  var display = true;
+  
+  //if (url.substring(url.length - 8) == "validate") { // public/projects/validate (New Project)
+	//display = false;
+  //}
+  //else if (url.substring(options.url.length - 10, url.length - 2) == "validate") { // public/projects/validate/5 (Edit Project/Form/Field)
+	//display = false; // also Create Test Record validation
+  //}
+  
+  if (url.search("validate") != -1)
+  {
+	display = false;
+  }
+
+  if (display) { display_loader(); }
+});
+
+$( document ).ajaxComplete(function() {
+  hide_loader();
+});

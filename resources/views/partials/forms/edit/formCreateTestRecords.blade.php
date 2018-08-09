@@ -23,7 +23,7 @@
             </div>
 
             <div class="form-group mt-xxl">
-                {!! Form::submit('Create Test Records',['class' => 'btn']) !!}
+                {!! Form::submit('Create Test Records',['class' => 'btn create-test-records-btn-js']) !!}
             </div>
             {!! Form::close() !!}
         </div>

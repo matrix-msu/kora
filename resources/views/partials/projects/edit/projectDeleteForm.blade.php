@@ -9,6 +9,6 @@
   </span>
 
   <div class="form-group project-cleanup-submit">
-    {!! Form::submit('Delete Project',['class' => 'btn warning']) !!}
+    {!! Form::submit('Delete Project',['class' => 'btn warning delete-project-js']) !!}
   </div>
 {!! Form::close() !!}
