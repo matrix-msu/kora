@@ -160,7 +160,7 @@ Kora.OptionPresets.Index = function() {
       var message = window.localStorage.getItem('message');
 
       if (message) {
-        $note.children().text(message);
+        $note.text(message);
         window.localStorage.clear();
       }
 

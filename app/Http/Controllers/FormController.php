@@ -118,6 +118,9 @@ class FormController extends Controller {
           $session = $request->session()->get('k3_global_success');
 
           if ($session == 'form_created') $notification = 'Form Sucessfully Created!';
+          else if ($session == 'field_created') $notification = 'Field Successfully Created!';
+          else if ($session == 'field_options_updated') $notification = 'Field Successfully Created!';
+          else if ($session == 'field_updated') $notification = 'Field Successfully Updated!';
         }
 
         return view('forms.show', compact('form','projName','pageLayout','hasFields','notification'));

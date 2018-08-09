@@ -58,7 +58,9 @@
   	}
   }
   ?>
-  
+
+  @include('partials.projects.notification')
+
   @if ($page_has_fields)
   <section class="filters center">
     <div class="underline-middle search search-js">

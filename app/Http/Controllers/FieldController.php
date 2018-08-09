@@ -43,8 +43,8 @@ class FieldController extends Controller {
         if(!self::checkPermissions($fid, 'create'))
             return redirect('projects/'.$pid.'/forms/'.$fid.'/fields')->with('k3_global_error', 'cant_create_field');
 
-		$form = FormController::getForm($fid);
-		$validFieldTypes = Field::$validFieldTypes;
+        $form = FormController::getForm($fid);
+        $validFieldTypes = Field::$validFieldTypes;
         $validComboListFieldTypes = ComboListField::$validComboListFieldTypes;
 
         return view('fields.create', compact('form','rootPage', 'validFieldTypes', 'validComboListFieldTypes'));
@@ -207,7 +207,9 @@ class FieldController extends Controller {
         //A field has been changed, so current record rollbacks become invalid.
         RevisionController::wipeRollbacks($fid);
 
-        return $field->getTypedField()->updateOptions($field, $request);
+        $field->getTypedField()->updateOptions($field, $request);
+
+        return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_success', 'field_updated');
     }
 
     /**
