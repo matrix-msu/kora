@@ -215,11 +215,18 @@ class ProjectController extends Controller {
         // we do not need to see notification every time we reload the page
         if ($prevUrl !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
-
-          if ($session == 'project_updated') $notification = 'Project Sucessfully Updated!';
-          else if ($session == 'project_created') $notification = 'Project Successfully Created!';
-          else if ($session == 'form_deleted') $notification = 'Form Successfully Deleted!';
-          else if ($session == 'form_imported') $notification = 'Form Successfully Imported!';
+          if ($session) {
+            if ($session == 'project_updated') $notification = 'Project Sucessfully Updated!';
+            else if ($session == 'project_created') $notification = 'Project Successfully Created!';
+            else if ($session == 'form_deleted') $notification = 'Form Successfully Deleted!';
+            else if ($session == 'form_imported') $notification = 'Form Successfully Imported!';
+          } else {
+            $session = $request->session()->get('k3_global_error');
+            if (strpos($session, 'cant') !== false) {
+              $notification = 'Insufficient Permissions';
+              //dd($session, $notification);
+            }
+          }
         }
 
         return view('projects.show', compact('project','forms', 'custom', 'notification'));

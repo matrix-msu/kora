@@ -314,7 +314,8 @@ class FormController extends Controller {
     public static function checkPermissions($pid, $permission='') {
         switch($permission) {
             case 'create':
-                if(!(\Auth::user()->canCreateForms(ProjectController::getProject($pid))))
+                //if(!(\Auth::user()->canCreateForms(ProjectController::getProject($pid))))
+                if((\Auth::user()->canCreateForms(ProjectController::getProject($pid))))  
                     return false;
                 break;
             case 'edit':
