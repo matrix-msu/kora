@@ -90,6 +90,7 @@ class ProjectController extends Controller {
 
           if ($session == 'project_deleted') $notification = 'Project Successfully Deleted';
           else if ($session == 'project_archived') $notification = 'Project Successfully Archived!';
+          else if ($session == 'project_imported') $notification = 'Project Successfully Imported!';
           //else if ($session == 'project_restored') $notification = 'Project Successfully Restored!';
         }
 
@@ -218,6 +219,7 @@ class ProjectController extends Controller {
           if ($session == 'project_updated') $notification = 'Project Sucessfully Updated!';
           else if ($session == 'project_created') $notification = 'Project Successfully Created!';
           else if ($session == 'form_deleted') $notification = 'Form Successfully Deleted!';
+          else if ($session == 'form_imported') $notification = 'Form Successfully Imported!';
         }
 
         return view('projects.show', compact('project','forms', 'custom', 'notification'));

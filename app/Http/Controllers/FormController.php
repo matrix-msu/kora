@@ -123,6 +123,9 @@ class FormController extends Controller {
           else if ($session == 'field_updated') $notification = 'Field Successfully Updated!';
           else if ($session == 'record_deleted') $notification = 'Record Successfully Deleted';
           else if ($session == 'all_record_deleted') $notification = 'All Form Records Deleted';
+          else if ($session == 'form_name_updated') $notification = 'Form Page Name Updated!';
+          else if ($session == 'old_records_deleted') $notification = 'Old Record Files Deleted';
+          else if ($session == 'form_imported') $notification = 'Form Successfully Imported!';
         }
 
         return view('forms.show', compact('form','projName','pageLayout','hasFields','notification'));
@@ -167,8 +170,10 @@ class FormController extends Controller {
             return redirect('projects/'.$pid.'/forms/')->with('k3_global_error', 'cant_edit_form');
 
         $form = self::getForm($fid);
+        $originalName = $form->name;
 
         $form->update($request->all());
+        $name = $form->name;
 
         if(isset($request->preset)) {
             $form->preset = $request->preset;
@@ -182,7 +187,10 @@ class FormController extends Controller {
 
         flash()->overlay("Your form has been successfully updated!","Good Job!");
 
-        return redirect('projects/'.$form->pid.'/forms/'.$form->fid);
+        if ($originalName !== $name)
+          return redirect('projects/'.$form->pid.'/forms/'.$form->fid)->with('k3_global_success', 'form_name_updated');
+        else
+          return redirect('projects/'.$form->pid.'/forms/'.$form->fid);
 	}
 
     /**

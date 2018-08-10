@@ -279,6 +279,34 @@ Kora.User.Profile = function() {
     }
   }
 
+  function initializeNotification() {
+    var $noteBody = $('.notification');
+    var $note = $('.note').children();
+
+    var message = window.localStorage.getItem('message');
+
+    if (message) {
+      $note.text(message);
+      window.localStorage.clear();
+    }
+
+    setTimeout(function(){
+      if ($note.text() != '') {
+        $noteBody.removeClass('dismiss');
+
+        setTimeout(function(){
+          $noteBody.addClass('dismiss');
+        }, 6000);
+      }
+    }, 200);
+
+    $('.toggle-notification-js').click(function(e) {
+      e.preventDefault();
+
+      $noteBody.addClass('dismiss');
+    });
+  }
+
   initializeOptionDropdowns();
   initializeFilters();
   initializeProjectCards();
@@ -286,4 +314,5 @@ Kora.User.Profile = function() {
   initializePaginationRouting();
   initializeCardEllipsifying();
   initializeProfilePicValidation();
+  initializeNotification();
 }

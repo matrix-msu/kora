@@ -66,11 +66,13 @@ class RecordController extends Controller {
         if ($prevUrl !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
 
-          //dd($session);
-
           if ($session == 'record_created') $notification = 'Record Successfully Created!';
           else if ($session == 'record_duplicated') $notification = 'Record Successfully Duplicated!';
           else if ($session == 'mass_records_updated') $notification = 'Batch Assign Successful!';
+          else if ($session == 'test_records_created') { 
+            $numRecs = $request->session()->get('num_test_recs');
+            $notification = $numRecs.' Test Records Created'; 
+          }
         }
 
         return view('records.index', compact('form', 'records', 'total', 'notification'));
@@ -844,7 +846,7 @@ class RecordController extends Controller {
             }
         }
 
-        return redirect()->action('RecordController@index',compact('pid','fid'))->with('k3_global_success', 'test_records_created');
+        return redirect()->action('RecordController@index',compact('pid','fid'))->with('k3_global_success', 'test_records_created')->with('num_test_recs', $numRecs);
     }
 
     /**
