@@ -112,6 +112,7 @@ class FormController extends Controller {
         $pageLayout = PageController::getFormLayout($fid);
 
         $notification = '';
+        $warning = false;
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
         if ($prevUrl !== url()->current()) {
@@ -128,7 +129,7 @@ class FormController extends Controller {
           else if ($session == 'form_imported') $notification = 'Form Successfully Imported!';
         }
 
-        return view('forms.show', compact('form','projName','pageLayout','hasFields','notification'));
+        return view('forms.show', compact('form','projName','pageLayout','hasFields','notification', 'warning'));
 	}
 
     /**
@@ -314,8 +315,8 @@ class FormController extends Controller {
     public static function checkPermissions($pid, $permission='') {
         switch($permission) {
             case 'create':
-                //if(!(\Auth::user()->canCreateForms(ProjectController::getProject($pid))))
-                if((\Auth::user()->canCreateForms(ProjectController::getProject($pid))))  
+                if(!(\Auth::user()->canCreateForms(ProjectController::getProject($pid))))
+                //if((\Auth::user()->canCreateForms(ProjectController::getProject($pid))))  
                     return false;
                 break;
             case 'edit':

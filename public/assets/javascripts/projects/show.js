@@ -290,9 +290,11 @@ Kora.Projects.Show = function() {
       if ($note.text() != '') {
         $noteBody.removeClass('dismiss');
 
-        setTimeout(function(){
-          $noteBody.addClass('dismiss');
-        }, 6000);
+        if (!$noteBody.hasClass('warning')) {
+          setTimeout(function(){
+            $noteBody.addClass('dismiss');
+          }, 6000);
+        }
       }
     }, 200);
 

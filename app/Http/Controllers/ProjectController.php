@@ -82,19 +82,26 @@ class ProjectController extends Controller {
         }*/
 
         $notification = '';
+        $warning = false;
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
         // we do not need to see notification every time we reload the page
         if ($prevUrl !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
-
-          if ($session == 'project_deleted') $notification = 'Project Successfully Deleted';
-          else if ($session == 'project_archived') $notification = 'Project Successfully Archived!';
-          else if ($session == 'project_imported') $notification = 'Project Successfully Imported!';
-          //else if ($session == 'project_restored') $notification = 'Project Successfully Restored!';
+          if ($session) {
+            if ($session == 'project_deleted') $notification = 'Project Successfully Deleted';
+            else if ($session == 'project_archived') $notification = 'Project Successfully Archived!';
+            else if ($session == 'project_imported') $notification = 'Project Successfully Imported!';
+          } else {
+            $session = $request->session()->get('k3_global_error');
+            $warning = true;
+            if (strpos($session, 'cant') !== false || strpos($session, 'admin') !== false) {
+              $notification = 'Insufficient Permissions';
+            }
+          }
         }
 
-        return view('projects.index', compact('projects', 'inactive', 'custom', 'pSearch', 'hasProjects', 'requestableProjects', 'notification'));
+        return view('projects.index', compact('projects', 'inactive', 'custom', 'pSearch', 'hasProjects', 'requestableProjects', 'notification', 'warning'));
 	}
 
     /**
@@ -210,6 +217,7 @@ class ProjectController extends Controller {
         ksort($custom);
 
         $notification = '';
+        $warning = false;
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
         // we do not need to see notification every time we reload the page
@@ -222,14 +230,14 @@ class ProjectController extends Controller {
             else if ($session == 'form_imported') $notification = 'Form Successfully Imported!';
           } else {
             $session = $request->session()->get('k3_global_error');
-            if (strpos($session, 'cant') !== false) {
+            $warning = true;
+            if (strpos($session, 'cant') !== false || strpos($session, 'admin') !== false) {
               $notification = 'Insufficient Permissions';
-              //dd($session, $notification);
             }
           }
         }
 
-        return view('projects.show', compact('project','forms', 'custom', 'notification'));
+        return view('projects.show', compact('project','forms', 'custom', 'notification', 'warning'));
 	}
 
     /**
