@@ -1,6 +1,7 @@
 @extends('app', ['page_title' => 'Welcome to Kora', 'page_class' => 'welcome'])
 
 @section('body')
+@include('partials.projects.notification')
 <div class="content">
   <div class="form-container center">
     <img class="logo" src="{{ config('app.url') }}assets/logos/koraiii-logo-blue.svg">

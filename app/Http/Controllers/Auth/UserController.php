@@ -62,13 +62,17 @@ class UserController extends Controller {
 
         $admin = $user->admin;
 
-        $notification = '';
+        $notification = array(
+          'message' => '',
+          'warning' => false
+        );
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
         if ($prevUrl !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
 
-          if ($session == 'user_updated') $notification = 'Profile Successfully Updated!';
+          if ($session == 'user_updated')
+            $notification['message'] = 'Profile Successfully Updated!';
         }
 
         if ($section == 'permissions') {

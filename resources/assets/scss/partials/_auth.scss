@@ -1,7 +1,14 @@
 .auth-body {
+  @include transition(margin-top);
+
   font-family: Ubuntu;
   min-height: 100vh;
+  position: relative;
   text-align: center;
+
+  &.with-notification {
+    margin-top: 30px;
+  }
 
   .side-menu {
     display: none;

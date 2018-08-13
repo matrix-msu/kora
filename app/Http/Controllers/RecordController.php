@@ -60,18 +60,24 @@ class RecordController extends Controller {
 
         $total = Record::where('fid', '=', $fid)->count();
 
-        $notification = '';
+        $notification = array(
+          'message' => '',
+          'warning' => false
+        );
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
         if ($prevUrl !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
 
-          if ($session == 'record_created') $notification = 'Record Successfully Created!';
-          else if ($session == 'record_duplicated') $notification = 'Record Successfully Duplicated!';
-          else if ($session == 'mass_records_updated') $notification = 'Batch Assign Successful!';
+          if ($session == 'record_created')
+            $notification['message'] = 'Record Successfully Created!';
+          else if ($session == 'record_duplicated')
+            $notification['message'] = 'Record Successfully Duplicated!';
+          else if ($session == 'mass_records_updated')
+            $notification['message'] = 'Batch Assign Successful!';
           else if ($session == 'test_records_created') { 
             $numRecs = $request->session()->get('num_test_recs');
-            $notification = $numRecs.' Test Records Created'; 
+            $notification['message'] = $numRecs.' Test Records Created'; 
           }
         }
 

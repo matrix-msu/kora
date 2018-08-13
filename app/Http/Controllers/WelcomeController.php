@@ -25,8 +25,16 @@ class WelcomeController extends Controller {
 	public function index() {
 	    if(!isInstalled())
         	return redirect('/helloworld');
-        else if(\Auth::guest())
-            return view('/welcome');
+        else if(\Auth::guest()) {
+          $notification = array(
+            'message' => '',
+            'warning' => false
+          );
+          //dd(session()->get('status'));
+          $session = session()->get('status');
+          $notification['message'] = $session;
+          return view('/welcome', compact('notification'));
+        }
         else if (!\Auth::user()->active)
         	return view('/auth/activate');
         else if(\Auth::user()->dash)
@@ -43,8 +51,9 @@ class WelcomeController extends Controller {
 	public function installSuccess() {
         if(!isInstalled())
             return redirect('/helloworld');
-        else
-            return view('install.success');
+        else {
+          return view('install.success');
+        }
     }
 
     /**

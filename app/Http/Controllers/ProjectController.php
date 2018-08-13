@@ -81,27 +81,32 @@ class ProjectController extends Controller {
             $updateNotification = true;
         }*/
 
-        $notification = '';
-        $warning = false;
+        $notification = array(
+          'message' => '',
+          'warning' => false
+        );
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
         // we do not need to see notification every time we reload the page
         if ($prevUrl !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
           if ($session) {
-            if ($session == 'project_deleted') $notification = 'Project Successfully Deleted';
-            else if ($session == 'project_archived') $notification = 'Project Successfully Archived!';
-            else if ($session == 'project_imported') $notification = 'Project Successfully Imported!';
+            if ($session == 'project_deleted')
+              $notification['message'] = 'Project Successfully Deleted';
+            else if ($session == 'project_archived')
+              $notification['message'] = 'Project Successfully Archived!';
+            else if ($session == 'project_imported')
+              $notification['message'] = 'Project Successfully Imported!';
           } else {
             $session = $request->session()->get('k3_global_error');
-            $warning = true;
+            $notification['warning'] = true;
             if (strpos($session, 'cant') !== false || strpos($session, 'admin') !== false) {
-              $notification = 'Insufficient Permissions';
+              $notification['message'] = 'Insufficient Permissions';
             }
           }
         }
 
-        return view('projects.index', compact('projects', 'inactive', 'custom', 'pSearch', 'hasProjects', 'requestableProjects', 'notification', 'warning'));
+        return view('projects.index', compact('projects', 'inactive', 'custom', 'pSearch', 'hasProjects', 'requestableProjects', 'notification'));
 	}
 
     /**
@@ -216,28 +221,34 @@ class ProjectController extends Controller {
         //We need to sort the custom array
         ksort($custom);
 
-        $notification = '';
-        $warning = false;
+        $notification = array(
+          'message' => '',
+          'warning' => false
+        );
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
         // we do not need to see notification every time we reload the page
         if ($prevUrl !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
           if ($session) {
-            if ($session == 'project_updated') $notification = 'Project Sucessfully Updated!';
-            else if ($session == 'project_created') $notification = 'Project Successfully Created!';
-            else if ($session == 'form_deleted') $notification = 'Form Successfully Deleted!';
-            else if ($session == 'form_imported') $notification = 'Form Successfully Imported!';
+            if ($session == 'project_updated')
+              $notification['message'] = 'Project Sucessfully Updated!';
+            else if ($session == 'project_created')
+              $notification['message'] = 'Project Successfully Created!';
+            else if ($session == 'form_deleted')
+              $notification['message'] = 'Form Successfully Deleted!';
+            else if ($session == 'form_imported')
+              $notification['message'] = 'Form Successfully Imported!';
           } else {
             $session = $request->session()->get('k3_global_error');
-            $warning = true;
+            $notification['warning'] = true;
             if (strpos($session, 'cant') !== false || strpos($session, 'admin') !== false) {
-              $notification = 'Insufficient Permissions';
+              $notification['message'] = 'Insufficient Permissions';
             }
           }
         }
 
-        return view('projects.show', compact('project','forms', 'custom', 'notification', 'warning'));
+        return view('projects.show', compact('project','forms', 'custom', 'notification'));
 	}
 
     /**

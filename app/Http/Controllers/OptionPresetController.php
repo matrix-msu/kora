@@ -43,14 +43,19 @@ class OptionPresetController extends Controller {
 
         $all_presets = $this->getPresetsIndex($pid);
 
-        $notification = '';
+        $notification = array(
+          'message' => '',
+          'warning' => false
+        );
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
         if ($prevUrl !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
 
-          if ($session == 'field_preset_created') $notification = 'Field Value Preset Created!';
-          else if ($session == 'field_preset_edited') $notification = 'Field Value Preset Updated!';
+          if ($session == 'field_preset_created')
+            $notification['message'] = 'Field Value Preset Created!';
+          else if ($session == 'field_preset_edited')
+            $notification['message'] = 'Field Value Preset Updated!';
         }
 
         return view('optionPresets/index', compact('project', 'all_presets', 'notification'));

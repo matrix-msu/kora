@@ -95,8 +95,11 @@ class AdminController extends Controller {
         $usersZa = User::orderBy('first_name', 'desc')->get();
         $usersNto = User::latest()->get();
         $usersOtn = User::orderBy('created_at')->get();
-//dd($request);
-        $notification = '';
+
+        $notification = array(
+          'message' => '',
+          'warning' => false
+        );
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
         $profChangesArray = $request->session()->get('user_changes');
@@ -104,8 +107,10 @@ class AdminController extends Controller {
         if ($prevUrl !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
 
-          if ($session == 'user_updated' && $profChanges == 'password') $notification = 'Password Successfully Updated!';
-          else if ($session == 'user_updated') $notification = 'User Successfully Updated!';
+          if ($session == 'user_updated' && $profChanges == 'password')
+            $notification['message'] = 'Password Successfully Updated!';
+          else if ($session == 'user_updated')
+            $notification['message'] = 'User Successfully Updated!';
         }
 
         return view('admin.users', compact('usersAz', 'usersZa', 'usersNto', 'usersOtn', 'notification'));

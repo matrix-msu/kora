@@ -111,25 +111,36 @@ class FormController extends Controller {
 
         $pageLayout = PageController::getFormLayout($fid);
 
-        $notification = '';
-        $warning = false;
+        $notification = array(
+          'message' => '',
+          'warning' => false
+        );
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
         if ($prevUrl !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
 
-          if ($session == 'form_created') $notification = 'Form Sucessfully Created!';
-          else if ($session == 'field_created') $notification = 'Field Successfully Created!';
-          else if ($session == 'field_options_updated') $notification = 'Field Successfully Created!';
-          else if ($session == 'field_updated') $notification = 'Field Successfully Updated!';
-          else if ($session == 'record_deleted') $notification = 'Record Successfully Deleted';
-          else if ($session == 'all_record_deleted') $notification = 'All Form Records Deleted';
-          else if ($session == 'form_name_updated') $notification = 'Form Page Name Updated!';
-          else if ($session == 'old_records_deleted') $notification = 'Old Record Files Deleted';
-          else if ($session == 'form_imported') $notification = 'Form Successfully Imported!';
+          if ($session == 'form_created')
+            $notification['message'] = 'Form Sucessfully Created!';
+          else if ($session == 'field_created')
+            $notification['message'] = 'Field Successfully Created!';
+          else if ($session == 'field_options_updated')
+            $notification['message'] = 'Field Successfully Created!';
+          else if ($session == 'field_updated')
+            $notification['message'] = 'Field Successfully Updated!';
+          else if ($session == 'record_deleted')
+            $notification['message'] = 'Record Successfully Deleted';
+          else if ($session == 'all_record_deleted')
+            $notification['message'] = 'All Form Records Deleted';
+          else if ($session == 'form_name_updated')
+            $notification['message'] = 'Form Page Name Updated!';
+          else if ($session == 'old_records_deleted')
+            $notification['message'] = 'Old Record Files Deleted';
+          else if ($session == 'form_imported')
+            $notification['message'] = 'Form Successfully Imported!';
         }
 
-        return view('forms.show', compact('form','projName','pageLayout','hasFields','notification', 'warning'));
+        return view('forms.show', compact('form','projName','pageLayout','hasFields','notification'));
 	}
 
     /**
@@ -316,7 +327,6 @@ class FormController extends Controller {
         switch($permission) {
             case 'create':
                 if(!(\Auth::user()->canCreateForms(ProjectController::getProject($pid))))
-                //if((\Auth::user()->canCreateForms(ProjectController::getProject($pid))))  
                     return false;
                 break;
             case 'edit':
