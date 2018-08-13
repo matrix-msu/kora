@@ -55,7 +55,8 @@ class ProjectSearchController extends Controller {
                 if(!Auth::user()->inAFormGroup($form))
                     continue;
                 $search = new Search($form->pid, $form->fid, $argString, $method);
-                $this->imitateMerge($rids, $search->formKeywordSearch());
+                $results = $search->formKeywordSearch();
+                $this->imitateMerge($rids, $results);
             }
 
             sort($rids);
