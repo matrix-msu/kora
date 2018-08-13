@@ -612,43 +612,12 @@ Kora.Forms.Show = function() {
     });
   }
 
-  function initializeNotification() {
-    var $noteBody = $('.notification');
-    var $note = $('.note').children();
-
-    var message = window.localStorage.getItem('message');
-
-    if (message) {
-      $note.text(message);
-      window.localStorage.clear();
-    }
-
-    setTimeout(function(){
-      if ($note.text() != '') {
-        $noteBody.removeClass('dismiss');
-
-        if (!$noteBody.hasClass('warning')) {
-          setTimeout(function(){
-            $noteBody.addClass('dismiss');
-          }, 6000);
-        }
-      }
-    }, 200);
-
-    $('.toggle-notification-js').click(function(e) {
-      e.preventDefault();
-
-      $noteBody.addClass('dismiss');
-    });
-  }
-
   initializeSearch();
   initializePages();
   initializeFieldSort();
   initializeFieldToggles();
   initializeCheckboxes();
   initializeFieldCardEllipsifying();
-  initializeNotification();
 }
 
 // scroll to new page if new page was created

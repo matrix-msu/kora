@@ -1,4 +1,4 @@
-<div class="notification dismiss @if($notification['warning']) warning @endif">
+<div class="notification dismiss @if($notification['warning']) warning @endif @if($notification['static']) static-js @endif">
   <div class="container">
     <div class="note">
       <p class="ml-m">{{$notification['message']}}</p>

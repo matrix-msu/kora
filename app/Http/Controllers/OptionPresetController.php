@@ -45,7 +45,8 @@ class OptionPresetController extends Controller {
 
         $notification = array(
           'message' => '',
-          'warning' => false
+          'warning' => false,
+          'static' => false
         );
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);

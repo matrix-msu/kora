@@ -83,7 +83,8 @@ class ProjectController extends Controller {
 
         $notification = array(
           'message' => '',
-          'warning' => false
+          'warning' => false,
+          'static' => false
         );
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
@@ -100,6 +101,7 @@ class ProjectController extends Controller {
           } else {
             $session = $request->session()->get('k3_global_error');
             $notification['warning'] = true;
+            $notification['static'] = true;
             if (strpos($session, 'cant') !== false || strpos($session, 'admin') !== false) {
               $notification['message'] = 'Insufficient Permissions';
             }
@@ -244,7 +246,8 @@ class ProjectController extends Controller {
 
         $notification = array(
           'message' => '',
-          'warning' => false
+          'warning' => false,
+          'static' => false
         );
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
@@ -263,6 +266,7 @@ class ProjectController extends Controller {
           } else {
             $session = $request->session()->get('k3_global_error');
             $notification['warning'] = true;
+            $notification['static'] = true;
             if (strpos($session, 'cant') !== false || strpos($session, 'admin') !== false) {
               $notification['message'] = 'Insufficient Permissions';
             }

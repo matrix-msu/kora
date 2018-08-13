@@ -28,11 +28,16 @@ class WelcomeController extends Controller {
         else if(\Auth::guest()) {
           $notification = array(
             'message' => '',
-            'warning' => false
+            'warning' => false,
+            'static' => false
           );
-          //dd(session()->get('status'));
+
           $session = session()->get('status');
-          $notification['message'] = $session;
+          if ($session = 'We have e-mailed your password reset link!') {
+            $notification['message'] = 'Check your email! The password reset link has succesfully been sent!';
+            $notification['static'] = true;
+          }
+
           return view('/welcome', compact('notification'));
         }
         else if (!\Auth::user()->active)
