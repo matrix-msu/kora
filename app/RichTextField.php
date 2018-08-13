@@ -306,7 +306,7 @@ class RichTextField extends BaseField {
         return DB::table("rich_text_fields")
             ->select("rid")
             ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`searchable_rawtext`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+            ->where('searchable_rawtext','LIKE',"%$arg%")
             ->distinct()
             ->pluck('rid')
             ->toArray();
@@ -317,15 +317,18 @@ class RichTextField extends BaseField {
      *
      * @param  int $flid - Field ID
      * @param  array $query - The advance search user query
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    public function getAdvancedSearchQuery($flid, $query) {
+    public function advancedSearchTyped($flid, $query) {
+        $arg = $query[$flid . "_input"];
+
         return DB::table("rich_text_fields")
             ->select("rid")
             ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`searchable_rawtext`) AGAINST (? IN BOOLEAN MODE)",
-                ["\"" . $query[$flid . "_input"] . "\""])
-            ->distinct();
+            ->where('searchable_rawtext','LIKE',"%$arg%")
+            ->distinct()
+            ->pluck('rid')
+            ->toArray();
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////

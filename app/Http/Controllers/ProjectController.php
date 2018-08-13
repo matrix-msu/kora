@@ -69,7 +69,7 @@ class ProjectController extends Controller {
                 $requestableProjects[$project->pid] = $project->name. " (" . $project->slug.")";
             }
         }
-
+		
         //We need to sort the custom array
         ksort($custom);
 
@@ -108,6 +108,26 @@ class ProjectController extends Controller {
 
         return view('projects.index', compact('projects', 'inactive', 'custom', 'pSearch', 'hasProjects', 'requestableProjects', 'notification'));
 	}
+	
+	/**
+     * Gets modal to request project permissions
+     *
+     * @param  Request $request
+     * @return String contents of view
+     */
+	public function getProjectPermissionsModal(Request $request)
+	{	
+		$projectCollections = Project::all()->sortBy("name", SORT_NATURAL|SORT_FLAG_CASE);
+		$requestableProjects = array();
+		foreach($projectCollections as $project) {
+			if($project->active and !(\Auth::user()->inAProjectGroup($project)))
+			{
+				$requestableProjects[$project->pid] = $project->name. " (" . $project->slug.")";
+			}
+		}
+		
+		return view('partials.projects.projectRequestModalForm', ['requestableProjects' => $requestableProjects])->render();
+	}
 
     /**
      * Sends an access request to admins of project(s).
@@ -145,8 +165,9 @@ class ProjectController extends Controller {
                     }
                 }
             }
-
-            return redirect('projects')->with('k3_global_success', 'project_access_requested');
+			
+			// only occurs on form submit, not on AJAX call
+			return redirect('projects')->with('k3_global_success', 'project_access_requested');
         }
     }
 

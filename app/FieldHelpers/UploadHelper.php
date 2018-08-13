@@ -49,7 +49,7 @@ class UploadHandler
             'upload_dir' => config('app.base_path').'storage/app/tmpFiles/'.$options['flid'].'/',
             'upload_url' => config('app.storage_url').'tmpFiles/'.$options['flid'].'/',
             'user_dirs' => false,
-            'mkdir_mode' => 0755,
+            'mkdir_mode' => 0775,
             'param_name' => 'file'.explode('f',explode('u',$options['flid'])[0])[1],
             // Set the following option to 'POST', if your server does not support
             // DELETE requests. This is a parameter sent to the client:

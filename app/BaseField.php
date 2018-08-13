@@ -276,7 +276,7 @@ abstract class BaseField extends Model {
      *
      * @param  int $flid - Field ID
      * @param  array $query - The advance search user query
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    abstract public function getAdvancedSearchQuery($flid, $query);
+    abstract public function advancedSearchTyped($flid, $query);
 }
