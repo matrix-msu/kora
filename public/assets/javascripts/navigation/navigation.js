@@ -163,7 +163,7 @@ var $clearResentSearchResults = $('.clear-search-results-js');
 
 $searchResults.parent().attr('style', 'display: none;'); //INITIALIZE HERE
 //Performs quick search on typing
-$searchInput.keydown(function(e) {
+$searchInput.keyup(function(e) {
     var charCode = e.which || e.keyCode;
 
     if(charCode == 9 ) {
