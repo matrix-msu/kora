@@ -160,8 +160,9 @@ $loading_icon_margin: -45px; // needs to be exactly half of $loading_icon_dimens
 	position:relative;
 	top:50%;
 	left:50%;
-	width:96px;
-	height:96px;
+	width: 112px;
+	height: 112px;
+	box-shadow: 0 15px 30px 0 rgba(0,0,0,0.1);
 }
 #preloader {
     position: fixed;
@@ -177,10 +178,9 @@ $loading_icon_margin: -45px; // needs to be exactly half of $loading_icon_dimens
     position: relative;
     width: $loading_icon_dimension;
     height: $loading_icon_dimension;
-	margin-top: $loading_icon_margin;
-	margin-bottom: $loading_icon_margin;
+	top: 8px;
+	left: 8px;
 	margin-right: 0px;
-	margin-left: 0px;
     border-radius: 50%;
     border: 3px solid transparent;
     border-top-color: #283C46;
@@ -210,6 +210,7 @@ $loading_icon_margin: -45px; // needs to be exactly half of $loading_icon_dimens
     left: 15px;
     right: 15px;
     bottom: 15px;
+	padding: 5px;
     border-radius: 50%;
     border: 3px solid transparent;
     border-top-color: #04B6AF;
